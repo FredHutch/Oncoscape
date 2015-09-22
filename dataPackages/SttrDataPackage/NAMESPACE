@@ -1,0 +1,29 @@
+exportClasses(SttrDataPackageClass)
+
+exportMethods (
+  show,
+  matrices,
+  data.frames,
+  history,
+  manifest,
+  entities, 
+  getEventList,
+  getEventTypeList,
+  getPatientList,
+  getPatientTable,
+  getGeneSetNames,
+  getGeneSetGenes,
+  networks,
+  getPatientIDs,
+  getSampleCategorizationNames,
+  getSampleCategorization
+  )
+
+export(
+   SttrDataPackage
+   )
+
+import(PatientHistory)
+importClassesFrom(methods, character, integer)
+importFrom(methods, new)
+
