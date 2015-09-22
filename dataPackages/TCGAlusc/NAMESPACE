@@ -1,0 +1,12 @@
+exportClasses(TCGAluscClass)
+
+export(
+   TCGAlusc
+   )
+
+exportMethods(
+   )
+
+importClassesFrom(methods, character, integer)
+importFrom(methods, new)
+
