@@ -1,0 +1,204 @@
+#
+a	b	edgeType	pubmedID	a.type	b.type
+ABCA1	Lipid metabolism	inhibits.process	24217114	gene	process
+AKT family	CELL SURVIVAL	activates.process	TCGA	family	process
+AKT family	TSC complex	inhibits	TCGA	family	complex
+AKT family	FOXO family	inhibits	TCGA	family	family
+AKT family	CDKN1B	inhibits	TCGA	family	gene
+AKT family	MDM2	activates	TCGA	family	gene
+AKT family	AKT2	family.includes	TCGA	family	gene
+AKT family	AKT3	family.includes	TCGA	family	gene
+AKT family	AKT1	family.includes	TCGA	family	gene
+AKT family	SREBP1a	activates	24217114	family	gene
+AKT1	HIF1A	activates	10691731	protein	protein
+AKT1	mTORC1	activates	23625692	protein	complex
+ATM	TP53	activates	TCGA	gene	gene
+ATM	BRCA1	activates	TCGA	gene	gene
+BASC complex	DNA Damage Repair	activates.process	TCGA	complex	process
+BASC complex	BRCA1	contains	TCGA	complex	gene
+BASC complex	MSH6	contains	TCGA	complex	gene
+BCL2L1	CELL SURVIVAL	activates.process	2279867	gene	process
+BCL2L1	CELL MIGRATION	activates.process	2279867	gene	process
+BRCA complex	DNA Damage Repair	activates.process	TCGA	complex	process
+BRCA complex	BRCA2	contains	TCGA	complex	gene
+BRCA complex	BRCA1	contains	TCGA	complex	gene
+CBL	RTK class	inhibits	TCGA	gene	class
+CCND2	CCND-CDK4 complex	contains	TCGA	gene	complex
+CCND2	CCND-CDK6 complex	contains	TCGA	gene	complex
+CCND-CDK4 complex	RB1	inhibits	TCGA	complex	gene
+CCND-CDK4 complex	CCND1	contains	TCGA	complex	gene
+CCND-CDK4 complex	CDK4	contains	TCGA	complex	gene
+CCND-CDK6 complex	RB1	inhibits	TCGA	complex	gene
+CCND-CDK6 complex	CCND1	contains	TCGA	complex	gene
+CCND-CDK6 complex	CDK6	contains	TCGA	complex	gene
+CCNE-CDK2 complex	RB1	inhibits	TCGA	complex	gene
+CCNE-CDK2 complex	CDK2	contains	TCGA	complex	gene
+CCNE-CDK2 complex	CCNE1	contains	TCGA	complex	gene
+CDKN1A	G1/S PROGRESSION	activates.process	TCGA	gene	process
+CDKN1A	CCND-CDK4 complex	inhibits	TCGA	gene	complex
+CDKN1A	CCND-CDK6 complex	inhibits	TCGA	gene	complex
+CDKN1B	CCNE-CDK2 complex	inhibits	TCGA	gene	complex
+CDKN2A:ARF	MDM2	inhibits	TCGA	gene	gene
+CENTG1	PI3K class1a	activates	TCGA	gene	class
+CIC	ETV1/4/5	inhibits.process	21087211	gene	gene
+CIC	CELL MIGRATION	inhibits	21087211	gene	process
+CMYB	MGMT	activates	23818228	protein	gene
+CTNNB1	MYC	activates	4217114	gene	gene
+CTNNB1	CCND1	activates	4217114	gene	gene
+E2F1	G1/S PROGRESSION	activates.process	TCGA	gene	process
+EGFR family	PRKCE	activates	24217114	family	gene
+EGFR family	EGFR	family.includes	TCGA	family	gene
+EGFR family	ERBB2	family.includes	TCGA	family	gene
+EGFR family	ERBB3	family.includes	TCGA	family	gene
+EGFR family	STAT3	activates	241352280	family	gene
+EGFR family	STAT5	activates	241352280	family	gene
+EP300	TP53	activates	TCGA	gene	gene
+ERK1/2	MYC	activates	17188374	gene	gene
+ERK1/2	MSK1/2	activates	17188374	gene	gene
+ERK1/2	CCND-CDK4 complex	activates	TCGA	gene	complex
+ERK1/2	CCND-CDK6 complex	activates	TCGA	gene	complex
+ERK1/2	CIC	inhibits	21817013	gene	gene
+ERRFI1	EGFR family	inhibits	TCGA	gene	family
+FGFR family	FGFR2	family.includes	TCGA	family	gene
+FGFR family	FGFR1	family.includes	TCGA	family	gene
+FOXO family	FOXO1	family.includes	TCGA	family	gene
+FOXO family	FOXO3	family.includes	TCGA	family	gene
+FOXO family	FOXO4	family.includes	TCGA	family	gene
+FOXO family	SPRY2	activates	TCGA	family	gene
+FOXO family	CDKN1A	activates	TCGA	family	gene
+FOXO family	CDKN1B	activates	TCGA	family	gene
+FUBP1	MYC	inhibits	21817013	gene	gene
+GAB1	PI3K class1a	activates	TCGA	gene	class
+GLUT1	Glycolysis	activates	4217114	gene	process
+GRB2	GAB1	activates	TCGA	gene	gene
+GRB2	RAS family	activates	TCGA	gene	family
+HIF1A	MGMT	activates	23076220	protein	gene
+HGF	MET	activates	23359207	protein	gene
+HGF	MET:EGFR	activates	23359207	protein	complex
+HOXA9	APOPTOSIS	inhibits.process	20068170	protein	process
+IDH1	HIF1A	inhibits	4217114	gene	gene
+IDH1	Lipid metabolism	activates.process	24077277	gene	process
+IDH1	SREBP1a	activates	24077277	gene	gene
+IDH1	TET2	inhibits	23863747	gene	gene
+IDH1	Histone methylation	activates.process	22343901	gene	process
+IDH2	HIF1A	inhibits	4217114	gene	gene
+IGF1R	IRS1	activates	TCGA	gene	gene
+INK4 family	CCND-CDK4 complex	inhibits	TCGA	family	complex
+INK4 family	CCND-CDK6 complex	inhibits	TCGA	family	complex
+INK4 family	CDKN2A:p16	family.includes	TCGA	family	gene
+INK4 family	CDKN2C	family.includes	TCGA	family	gene
+INK4 family	CDKN2B	family.includes	TCGA	family	gene
+IRS1	PI3K class1a	activates	TCGA	gene	class
+LDHA	Glycolysis	activates	4217114	gene	process
+LDLR	Lipid metabolism	activates.process	24217114	gene	process
+LPA	PIK3C2B	activates	TCGA	smallMolecule	gene
+LXR family	MYLIP	activates	24217114	family	gene
+LXR family	ABCA1	activates	24217114	family	gene
+LXR family	NR1H1	contains	24217114	family	gene
+LXR family	NR1H2	contains	24217114	family	gene
+LXR family	NR1H3	contains	24217114	family	gene
+MDM2	TP53	inhibits	TCGA	gene	gene
+MDM4	TP53	inhibits	TCGA	gene	gene
+MEK1/2	ERK1/2	activates	TCGA	gene	gene
+MET:EGFR	MET	contains	23359207	complex	gene
+MET:EGFR	EGFR family	contains	23359207	complex	family
+MET:EGFR	STAT3	activates	23359207	complex	gene
+MGMT	Therapy Resistance	activates.process	23818228	protein	process
+MGMT	DNA Damage Repair	activates.process	23076220	protein	process
+MIR200C	ZEB1	inhibits	23818228	miRNA	gene
+MIR200C	CMYB	inhibits	23818228	miRNA	gene
+MIR200C	OLIG2	inhibits	23818228	miRNA	gene
+MIR26A1	PTEN	inhibits	23807265	miRNA	gene
+MSK1/2	Chromatin remodeling	activates.process	17188374	gene	process
+mTORC1	mTOR	complex.includes	23641065	complex	protein
+mTORC1	DEPTOR	complex.includes	23641065	complex	protein
+mTORC1	PRAS40	complex.includes	23641065	complex	protein
+mTORC1	MLST8	complex.includes	23641065	complex	protein
+mTORC1	pS6K	activates	18701474;19724909	complex	protein
+MYC	GLUT1	activates	4217114	gene	gene
+MYC	LDHA	activates	4217114	gene	gene
+MYLIP	LDLR	inhibits	24217114	gene	gene
+NF1	RAS family	inhibits	TCGA	gene	family
+NF-kB:HIF1A	HIF1A	contains	24217114	complex	gene
+NF-kB:HIF1A	NFKB1	contains	24217114	complex	gene
+NF-kB:HIF1A	RELA	contains	24217114	complex	gene
+NF-kB:HIF1A	PKM2	activates	24217114	complex	gene
+PDGFR family	PDGFRB	family.includes	TCGA	family	gene
+PDGFR family	PDGFRA	family.includes	TCGA	family	gene
+PDPK1	AKT family	activates	TCGA	gene	family
+PI3K class1a	PIK3R1	contains	TCGA	class	gene
+PI3K class1a	PIK3R2	contains	TCGA	class	gene
+PI3K class1a	PIK3CA	contains	TCGA	class	gene
+PI3K class1a	PIK3CB	contains	TCGA	class	gene
+PI3K class1a	PIK3CD	contains	TCGA	class	gene
+PI3K class1a	PIP3	activates	TCGA	class	gene
+PI3K class1b	PIK3CG	contains	TCGA	class	gene
+PI3K class1b	PIP3	activates	TCGA	class	gene
+PI3K class2	PIK3C2A	class.includes	TCGA	class	gene
+PI3K class2	PIK3C2B	class.includes	TCGA	class	gene
+PI3K class2	PIK3C2G	class.includes	TCGA	class	gene
+PI-3-P	CELL MIGRATION	activates.process	TCGA	gene	process
+PIK3C2B	PI-3-P	activates	TCGA	gene	smallMolecule
+PIP3	polycomb repressive complex	inhibits	20068170	gene	complex
+PIP3	PDPK1	activates	TCGA	gene	gene
+PKC class	PRKCE	class.includes	24217114	class	gene
+PKC class	PRKCA	class.includes	TCGA	class	gene
+PKC class	PRKCB1	class.includes	TCGA	class	gene
+PKC class	PRKCD	class.includes	TCGA	class	gene
+PKC class	PRKCG	class.includes	TCGA	class	gene
+PKC class	PRKCH	class.includes	TCGA	class	gene
+PKC class	PRKCI	class.includes	TCGA	class	gene
+PKC class	PRKCQ	class.includes	TCGA	class	gene
+PKC class	PRKCZ	class.includes	TCGA	class	gene
+PKC class	RAF family	activates	TCGA	class	family
+PKC class	MEK1/2	activates	TCGA	class	gene
+PKM2	CTNNB1	activates	4217114	gene	gene
+PLCG	PKC class	activates	TCGA	gene	class
+polycomb repressive complex	HOXA9	inhibits	20068170	complex	gene
+polycomb repressive complex	Histone methylation	activates.process	17060944	complex	process
+PRKCE	NF-kB:HIF1A	activates	24217114	gene	complex
+pS6K	SREBP	activates	23641065	protein	family
+PTEN	PIP3	inhibits	TCGA	gene	smallMolecule
+RAF family	RAF1	family.includes	TCGA	family	gene
+RAF family	ARAF	family.includes	TCGA	family	gene
+RAF family	BRAF	family.includes	TCGA	family	gene
+RAF family	MEK1/2	activates	TCGA	family	gene
+RAS family	HRAS	family.includes	TCGA	family	gene
+RAS family	KRAS	family.includes	TCGA	family	gene
+RAS family	NRAS	family.includes	TCGA	family	gene
+RAS family	RAF family	activates	TCGA	family	family
+RAS family	PI3K class1b	activates	TCGA	family	class
+RB1	E2F1	inhibits	TCGA	gene	gene
+RTK class	PI3K class2	activates	TCGA	class	class
+RTK class	FGFR family	class.includes	TCGA	class	family
+RTK class	IGF1R	class.includes	TCGA	class	gene
+RTK class	PLCG	activates	TCGA	class	gene
+RTK class	SRC	activates	TCGA	class	gene
+RTK class	PDGFR family	class.includes	TCGA	class	family
+RTK class	MET	class.includes	TCGA	class	gene
+RTK class	EGFR family	class.includes	TCGA	class	family
+RTK class	GRB2	activates	TCGA	class	gene
+SPRY2	RAF family	inhibits	TCGA	gene	family
+SPRY2	CBL	inhibits	TCGA	gene	gene
+SRC	PTEN	inhibits	TCGA	gene	gene
+SRC	PI3K class1a	activates	TCGA	gene	class
+SREBP	SREBP1a	family.includes	21428927	family	protein
+SREBP	SREBP2	family.includes	21428927	family	protein
+SREBP1a	LDLR	activates	24217114	gene	gene
+SREBP1a	CDKN1A	activates	24077277	gene	gene
+SREBP1a	CDKN1A	activates	16199872	protein	protein
+SREBP2	CDKN1A	activates	16199872	protein	protein
+STAT3	CELL MIGRATION	activates.process	21969816	gene	process
+STAT3	HGF	activates	23359207	gene	gene
+STAT3	MET	activates	23359207	gene	gene
+STAT5	BCL2L1	activates	2279867 gene	gene	
+TET2	DNA methylation	inhibits.process	23863747	gene	process
+TP53	G2/M ARREST	activates.process	TCGA	gene	process
+TP53	APOPTOSIS	activates.process	TCGA	gene	process
+TP53	MDM2	activates	TCGA	gene	gene
+TP53	CDKN1A	activates	TCGA	gene	gene
+TP53	MGMT	inhibits	23224642	gene	gene
+TSC complex	TSC1	contains	TCGA	complex	gene
+TSC complex	TSC2	contains	TCGA	complex	gene
+TSC complex	mTORC1	inhibits	23641065	family	complex
+ZEB1	MIR200C	inhibits	23818228	protein	miRNA
