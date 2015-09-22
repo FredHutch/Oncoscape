@@ -1,0 +1,82 @@
+<style>
+
+div {
+   display: block;
+   }
+
+#gbmPathwaysDiv {
+  }
+
+#cyGbmPathwaysDiv {
+  background-color: #FFFFFF;
+
+  position: relative;
+
+  height: 400px;
+  width: 600px;
+
+  border: 1px solid #aaa;
+
+  margin-top: 0px;
+  margin-left: 0px;
+
+  padding: 0px;
+  }
+
+.gbmButton {
+   font-size: 8pt;
+   }
+
+#gbmPathwaysMouseOverReadoutDiv{
+  border: 1px solid #aaa;
+  width: 800px;
+  height: 20px;
+  margin: 0px;
+  }
+
+#gbmPathwaysButtonDiv{
+  margin-top: 0px;
+  margin-bottom: 0px;
+  }
+
+#gbmPathwaysMovieSpeedReadout{
+   border: 1px solid #aaa;
+   width: 50px;
+   height: 20px;
+   margin: 0px;
+   }
+#bottomMargin{
+   height:18px;
+}
+</style>
+<script>
+$("#gbmPathwaysMovieButton").click(function(){
+    $(this).text("Stop");
+});
+</script>
+
+<div id="gbmPathwaysDiv">
+   <div id="gbmPathwaysStatusDiv" style="display:none"></div>
+   <div id="gbmPathwaysButtonDiv" style="margin-bottom: 0px;bottom: 8px;">
+      <!--
+      <label id="gbmPathwaysSelectLabel" class="text-muted" for="select">Select a sample:</label>
+      <select class="navbar-form selectpicker" id="gbmPathwaysSampleSelector"></select>
+      -->
+      <input type="text" id="gbmPathwaysSearchBox" value="search"></input>
+      <!--
+      <button id="gbmPathwaysMovieButton" style="width:100px"  type="button" class="btn btn-info navbar-btn  btn-xs"></button>
+      <button id="gbmPathwaysSlowerMovieButton" type="button" class="btn btn-info navbar-btn btn-xs"> + </button>
+      <span id="gbmPathwaysMovieSpeedReadout" class="navbar-btn btn-lg badge"></span> &nbsp;
+      <button id="gbmPathwaysFasterMovieButton" type="button" class="btn btn-info navbar-btn btn-xs"> - </button>
+      -->
+      <button id="gbmViewAbstractsButton" type="button" class="btn btn-info navbar-btn btn-xs">Enable Abstracts</button>
+      <button id="gbmZoomSelectedButton" type="button" class="btn btn-info navbar-btn btn-xs">Zoom Selected</button>
+      <select type="button" id="gbmPathwaysSendSelectionMenu" style="float:right; margin-right:15px"></select>
+    </div>
+
+   <div id="cyGbmPathwaysDiv" class="content" style="margin:0 auto" ></div>
+
+</div>
+
+
+

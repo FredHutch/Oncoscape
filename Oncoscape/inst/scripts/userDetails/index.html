@@ -1,0 +1,326 @@
+<!DOCTYPE html> 
+<html>
+
+<head>
+   <meta charset="UTF-8">
+   <title> OncoDev 1.2.17</title>
+   <script src="http://oncoscape.sttrcancer.org/oncoscape/js/jquery-2.1.1.js"></script>
+   <script src="http://oncoscape.sttrcancer.org/oncoscape/js/jquery-ui-1.11.2.min.js"></script>
+   <link href="//maxcdn.bootstrapcdn.com/bootstrap/3.3.0/css/bootstrap.min.css" rel="stylesheet">
+   <script src="//maxcdn.bootstrapcdn.com/bootstrap/3.3.0/js/bootstrap.min.js"></script>
+   <script src="http://oncoscape.sttrcancer.org/oncoscape/js/cytoscape-2.3.3.js"></script>
+
+   <script src="http://oncoscape.sttrcancer.org/oncoscape/js/jquery.cytoscape.js-panzoom.js"></script>
+
+   <link   href="http://oncoscape.sttrcancer.org/oncoscape/css/jquery.cytoscape.js-panzoom.css" 
+           rel="stylesheet" 
+           type="text/css" />
+
+   <link   href="http://oncoscape.sttrcancer.org/oncoscape/fonts/font-awesome-4.0.3/css/font-awesome.css" 
+           rel="stylesheet" 
+           type="text/css" />
+
+   <script src="http://oncoscape.sttrcancer.org/oncoscape/js/d3.min.js"></script>
+
+   <script src="http://oncoscape.sttrcancer.org/oncoscape/js/jquery.dataTables-1.10.3.min.js"></script>
+   <link   rel="stylesheet" type="text/css"
+           href="http://oncoscape.sttrcancer.org/oncoscape/css/jquery.dataTables-1.10.3.min.css">
+
+   <link   rel="stylesheet" type="text/css"
+           href="http://oncoscape.sttrcancer.org/oncoscape/css/dataTables.colReorder.min.css">
+
+   <script src="http://oncoscape.sttrcancer.org/oncoscape/js/dataTables.colReorder.min.js"></script>
+   <script src="http://oncoscape.sttrcancer.org/oncoscape/js/dataTables.colVis.min.js"></script>
+
+   <link   rel="stylesheet" type="text/css"
+           href="http://oncoscape.sttrcancer.org/oncoscape/css/dataTables.colVis.css">
+
+   <script src="http://oncoscape.sttrcancer.org/oncoscape/js/jquery.multi-select.js" type="text/javascript"></script>
+   <link href="http://oncoscape.sttrcancer.org/oncoscape/css/multi-select.css" media="screen" rel="stylesheet" type="text/css">
+   <script src="http://oncoscape.sttrcancer.org/oncoscape/js/chosen.jquery.min.js" type="text/javascript"></script>
+   <link href="http://oncoscape.sttrcancer.org/oncoscape/css/chosen.min.css" media="screen" rel="stylesheet" type="text/css">
+   <script src="http://oncoscape.sttrcancer.org/oncoscape/js/jquery.qtip.js"></script>
+   <script src="http://oncoscape.sttrcancer.org/oncoscape/js/cytoscape.js-qtip.js"></script>
+   <link rel="stylesheet" type="text/css" 
+        href="http://oncoscape.sttrcancer.org/oncoscape/css/jquery.qtip.css">
+     <!--   <link rel="stylesheet" href="https://code.jquery.com/ui/1.10.4/themes/flick/jquery-ui.css">
+       -->
+       
+       <link rel="stylesheet" href="http://cdn.wijmo.com/themes/aristo/jquery-wijmo.css"> 
+
+<style>
+.ui-widget-content {
+   border: 1px solid #ffffff !important;
+   }
+.modal-content {
+  height:600px;
+  overflow:auto;
+  background-color:WhiteSmoke;
+  }
+.modal-header{
+  background-color:Gainsboro;
+  $(".slider").slider().slider("pips").slider("float");
+  }
+</style>
+
+<script> 
+//--------------------------------------------------------------------------------------------------
+// hooks for google analytics
+
+  (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
+  (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
+  m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
+  })(window,document,'script','//www.google-analytics.com/analytics.js','ga');
+ 
+  ga('create', 'UA-528883-29', 'auto');
+  ga('send', 'pageview');
+//--------------------------------------------------------------------------------------------------
+</script> 
+</head>
+
+
+<script>
+var socket;
+var dispatchOptions = {};
+var socketConnectedFunctions = [];
+var onReadyFunctions = [];
+//----------------------------------------------------------------------------------------------------
+addJavascriptMessageHandler = function(cmd, func)
+{
+   if(cmd in dispatchOptions){
+      alert("javascript message handler for '" +  cmd + " already set");
+      }
+   else{
+      dispatchOptions[cmd] = func
+      }
+}
+//----------------------------------------------------------------------------------------------------
+function getRandomFloat (min, max)
+{
+    return Math.random() * (max - min) + min;
+}
+//----------------------------------------------------------------------------------------------------
+function getRandomInt (min, max) 
+{
+    return Math.floor(Math.random() * (max - min + 1)) + min;
+}
+//----------------------------------------------------------------------------------------------------
+String.prototype.beginsWith = function (string) 
+{
+    return(this.toLowerCase().indexOf(string.toLowerCase()) === 0);
+};
+//----------------------------------------------------------------------------------------------------
+function intersectionOfArrays(a, b)
+{
+   result = a.filter(function(n) {console.log(n); return (b.indexOf(n) != -1)})
+   return(result);
+
+} // intersectionOfArrays
+//----------------------------------------------------------------------------------------------------
+// if jQuery-style tabs are in use with Oncoscape, this function raised the named tab to the
+// the front (visible) position in the tabset
+// the argument, "tabIDString" is the tab id used in the module's widget.html, reproduced exactly
+// in tabsApp/widget.html, with some current examples being
+//  pcaDiv, patientTimeLinesDiv, gbmPathwaysDiv
+function raiseTab(tabIDString)
+{
+  tabsWidget = $("#oncoscapeTabs");
+  if(tabsWidget.length > 0){
+     selectionString = '#oncoscapeTabs a[href="#' + tabIDString + '"]';
+     tabIndex = $(selectionString).parent().JAVASCRIPT_INDEX ();
+     tabsWidget.tabs( "option", "active", tabIndex);
+     } // if tabs exist
+
+} // raiseTab
+//----------------------------------------------------------------------------------------------------
+// from http://stackoverflow.com/questions/4068373/center-a-popup-window-on-screen
+function openCenteredBrowserWindow(url, title, w, h, replaceAnyExistingPopup) {
+
+      // Fixes dual-screen position                       Most browsers      Firefox
+    var dualScreenLeft = window.screenLeft != undefined ? window.screenLeft : screen.left;
+    var dualScreenTop = window.screenTop != undefined ? window.screenTop : screen.top;
+
+    width = window.innerWidth ? window.innerWidth : document.documentElement.clientWidth ? document.documentElement.clientWidth : screen.width;
+    height = window.innerHeight ? window.innerHeight : document.documentElement.clientHeight ? document.documentElement.clientHeight : screen.height;
+
+    var left = ((width / 2) - (w / 2)) + dualScreenLeft;
+    var top = ((height / 2) - (h / 2)) + dualScreenTop;
+    var options = 'scrollbars=yes, width=' + w + ', height=' + h + ', top=' + top + ', left=' + left;
+
+    var newWindow;
+
+      // warning, a bug: when multiple popup windows are created, they
+      // all have the same content -- not what we want.  fix this
+      // by severing their relationship, and/or switching to jQuery dialog
+
+    if(replaceAnyExistingPopup)
+      newWindow = window.open(url, title, options);
+    else // leave any existing popup windows untouched
+      newWindow = window.open(url, "_blank", options);
+
+    if (window.focus) {
+       newWindow.focus();
+       }
+
+} // openCenteredBrowserWindow
+//----------------------------------------------------------------------------------------------------
+dispatchMessage = function(msg)
+{
+   console.log("--- webapp, index.common, dispatchMessage: " + msg.cmd);
+
+   if (dispatchOptions[msg.cmd])
+       dispatchOptions[msg.cmd](msg)
+   else
+      console.log("unrecognized socket request: " + msg.cmd);
+} 
+//--------------------------------------------------------------------------------------------------
+setupSocket = function (socket)
+{
+  try {
+     socket.onopen = function() {
+        console.log("websocket connection now open");
+        for(var f=0; f < socketConnectedFunctions.length; f++){
+           console.log("calling the next sockectConnectedFunction");
+           socketConnectedFunctions[f]();
+           } // for f
+        } 
+     socket.onmessage = function got_packet(msg) {
+        console.log("=== common.js, socket.onmessage");
+        console.log(msg);
+        msg = JSON.parse(msg.data)
+        console.log("index.common onmessage sees " + msg.cmd);
+        dispatchMessage(msg)
+        } // socket.onmessage, got_packet
+     socket.onclose = function(){
+        //$("#status").text(msg.cmd)
+        console.log("socket closing");
+        } // socket.onclose
+    } // try
+  catch(exception) {
+    $("#status").text("Error: " + exception);
+    }
+
+} // setupSocket
+//----------------------------------------------------------------------------------------------------
+// the nginx proxy server, used by fhcrc IT for the publicly-visible version of Oncoscape
+// times out web sockets at 90 seconds.
+// this function, when called more often that that, will keep the websocket open.
+keepAlive = function()
+{   
+    console.log("keep alive"); 
+    msg = {cmd: "keepAlive", callback: "", status:"request", payload:""}
+    socket.send(JSON.stringify(msg));
+
+} // keepAlive
+//--------------------------------------------------------------------------------------------------
+$(document).ready(function() {
+    console.log("==== index.common document.ready #1");
+
+    for (var f = 0; f < onReadyFunctions.length; f++) {
+       console.log("calling on ready function");
+       onReadyFunctions[f]();
+       }
+
+   console.log("back from onReadyFunctions, about to create socket");
+   uri = "ws://" + window.location.host;
+   console.log("socket uri: " + uri);
+
+   socket = new WebSocket(uri)
+   console.log("after creating socket, about to call setupSocket");
+
+   setupSocket(socket);
+   //setInterval(keepAlive, 30000);
+
+   }) // document ready
+
+//--------------------------------------------------------------------------------------------------
+</script>
+
+<script>
+//----------------------------------------------------------------------------------------------------
+var UserDetailsModule = (function () {
+
+   var userDetailsButton;
+   var userNameDisplay;
+   var datasetNamesDisplay;
+
+//--------------------------------------------------------------------------------------------
+function initializeUI(){
+
+   userDetailsButton = $("#userDetailsButton");
+   userDetailsButton.button()
+   userDetailsButton.click(requestUserDetails);
+
+   userNameDisplay = $("#userNameDiv");
+   datasetNamesDisplay = $("#datasetNamesDiv");
+
+}; // initializeUI
+//----------------------------------------------------------------------------------------------------
+function requestUserDetails()
+{
+   console.log("=== requestUserDetails");
+   var msg = {cmd: "getUserInfo",  callback: "handleUserInfo", status: "request", payload: {}};
+   socket.send(JSON.stringify(msg));
+
+} // requestUserDetails
+//----------------------------------------------------------------------------------------------------
+function handleUserInfo(msg)
+{
+   console.log("=== handleUserInfo 532pm")
+   var userName = msg.payload.userID;
+   var datasetNames = msg.payload.datasets;
+
+   console.log("===== fields: " + userName + ": " + datasetNames);
+
+   userNameDisplay.text(userName);
+   datasetNamesDisplay.text(datasetNames);
+
+} // handleUserInfo
+//----------------------------------------------------------------------------------------------------
+return{
+   init: function(){
+      onReadyFunctions.push(initializeUI);
+      addJavascriptMessageHandler("handleUserInfo", handleUserInfo);
+      }
+
+   } // UserDetailsModule return value
+
+//----------------------------------------------------------------------------------------------------
+}) // UserDetailsModule
+
+userDetailsModule = UserDetailsModule();
+userDetailsModule.init();
+
+</script>
+
+
+<body>
+<style>
+
+.outputDiv{
+  border: 1px solid #444;
+  border-radius:5px;
+  margin-left: 50px;
+  width: 200px;
+}
+
+.center {
+    margin-left: auto;
+    margin-right: auto;
+    width: 70%;
+    background-color: #b0e0e6;
+}
+
+</style>
+
+<div id="userDetailsRequstDiv">
+   <button id="userDetailsButton" style="margin: 100px;">Get User Details</button>
+</div>
+
+<div id="userDetailInfoDiv">
+  <div id="userNameDiv" class="outputDiv"></div>
+  <div id="datasetNamesDiv" class="outputDiv"></div>
+</div>
+
+</body>
+</html>

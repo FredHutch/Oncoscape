@@ -1,0 +1,119 @@
+<style>
+
+div {
+   display: block;
+   }
+
+body.wait, body.wait *{
+   cursor: wait !important;   
+}
+
+
+button {font-size:10pt !important;}
+
+#cyPathwayDiv {
+  background-color: #F5F5F5;  // light gray
+
+  height: 400px;
+  width: 600px;
+
+  border: 1px solid #aaa;
+
+  margin-top: 2px;
+  margin-left: 0px;
+
+  padding: 0px;
+
+  }
+
+#pi3kAktSearchBox{
+  border: 1px solid #aaa;
+  width: 80px;
+  height: 20px;
+  }
+
+pi3kAktMouseOverReadout{
+  border: 1px solid #aaa;
+  width: 300px !important;
+  height: 20px;
+  font-size: 8pt !important;
+  }
+
+
+#cyPathwayClearSelectionButton #cyPathwayHideEdgesButton #cyPathwayShowEdgesButton #cyPathwayShowAllEdgesButton {
+   font-size:8pt  !important;
+   }
+
+#pi3kAktbuttonDiv{
+  margin-top: 1px;
+  margin-bottom: 1px;
+  }
+
+
+.chosen-container, .chosen-drop, .chosen-drop .chosen-search, .chosen-drop .chosen-search input {
+  width: 100% !important;
+  -webkit-box-sizing: border-box;
+     -moz-box-sizing: border-box;
+          box-sizing: border-box;
+}
+
+.chosen-container { width:350px !important; 
+                    height:25px;
+                    font-size:8pt;}
+iframe {
+display: initial !important;
+}
+
+
+#MTNavForm{
+  padding:4px !important;
+  margin-top:4px !important;
+  margin-bottom:0px !important;
+  margin-left:0px !important;
+}
+#bottomMargin{
+  height:18px;
+}
+</style>
+
+
+<div id="pi3kAktPathwayDiv" class="container-fluid">
+   <div id="pathwayStatusDiv" style="display:none"></div>
+   <div id="pi3kAktButtonDiv" class="navbar navbar-default" role="navigation" style="
+            margin-bottom: 0px; margin-top: 8px;">
+      <input type="text" id="pi3kAktMouseOverReadout" 
+             style="width:200px;font-size:8pt" disabled value="(names displayed here)"></input>
+
+     <select id="cyPathwayOperationsMenu" class="navbar-form selectpicker" style="font-size:8pt"></select>
+      
+     <select id="pi3kAktPathwayEdgeTypeSelector" class="chosen-select form-control dropdown navbar-form selectpicker" 
+                    style="width:240px;font-size:12pt"
+                    data-placeholder="Select edge types to display" multiple>
+           <option value="activation" class="btn-info" selected>activation</option>
+           <option value="inhibition" class="btn-info" selected>inhibition</option>
+           <option value="expression" class="btn-info" selected>expression</option>
+       </select>
+     
+ 
+   <input class="form-control navbar-form"
+          type="text" 
+          value="search"
+          placeholder="search"
+          id="pi3kAktSearchBox"
+          style="width:100px;font-size:8pt">
+    </input>
+    <select type="button" id="cyPathwaySendSelectionsMenu" style="float:right; margin-right:15px"></select>
+ 
+    <select class="btn btn-primary selectpicker" type="button" id="pi3kAktPathwayLayouts"
+             name="pi3kAktPathwayLayoutMenu"></select>
+ 
+   </div>
+   
+   
+ <div id="cyPathwayDiv" data-toggle="tooltip" class="content" style="margin:0 auto" ></div>
+ <div id="bottomMargin" style="width:100%;height:30px margin:0 auto"></div>
+
+</div>
+
+
+

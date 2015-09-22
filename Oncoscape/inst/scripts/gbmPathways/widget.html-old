@@ -1,0 +1,57 @@
+<script>
+include(../gbmPathways/curatedGBMpathways.js)
+include(../gbmPathways/curatedGBMVizmap.js)
+
+</script>
+<style>
+
+div {
+   display: block;
+   }
+
+#cyGbmPathways {
+  background-color: #DDD;
+  height: 400px;
+  width: 600px;
+  position: relative;
+  margin-top: 0px;
+  margin-left: 0px;
+  border: 1px solid #aaa;
+  padding: 0px;
+  display:block;
+  margin-bottom: 0px;
+  }
+
+#gbmPathwaysMouseOverReadoutDiv{
+  border: 1px solid #aaa;
+  width: 800px;
+  height: 20px;
+  }
+
+#gbmPathwaysButtonDiv{
+  margin-top: 1px;
+  margin-bottom: 1px;
+  }
+
+.fubar{
+   font-size:8pt !important;
+}
+</style>
+
+<div id="gbmPathwaysDiv">
+   <div id="gbmPathwaysMouseOverReadoutDiv"></div>
+   <div id="gbmPathwaysButtonDiv">
+      <label for="select">Select a sample:</label>
+      <select id="sampleSelector"></select>
+      <button id="cwGBMMovieButton" class="fubar">Movie</button>
+      <!-- button id="clearSamplesButton">Clear Sample Selector</button -->
+      <button id="cwGBMZoomSelectedButton" class="fubar">Zoom Selected</button>
+      <button id="cwGBMViewAbstractsButton" class="fubar">Enable Abstracts</button>
+      <input type="text" id="gbmPathwaysSearchBox"></input>
+   </div>
+   <div id="cyGbmPathways"></div>
+   
+</div>
+
+
+

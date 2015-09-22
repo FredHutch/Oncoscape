@@ -1,0 +1,24 @@
+<style>
+.ui-tabs .ui-tabs-nav li a {font-size:10pt !important;}
+.ui-button .ui-button-text {font-size:10pt !important;}
+</style>
+
+<script>
+include(../datasets/Module.js)
+include(../patientHistory/Module.js)
+</script>
+
+<body>
+
+<div id="oncoscapeTabs">
+   <ul>
+     <li><a href="#datasetsDiv">Datasets</a></li>
+     <li><a href="#patientHistoryDiv">Patient History</a></li>
+   </ul>
+
+
+include(../datasets/widget.html)
+include(../patientHistory/widget.html)
+
+</div>
+

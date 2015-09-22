@@ -1,0 +1,4 @@
+library(OncoDev13)
+htmlFile <- "/Users/pshannon//oncodev/hbolouri/oncoDev13/OncoDev13/inst/scripts/minimalTest/test.html"
+onco <- OncoDev13(port=__PORT__, htmlFile=htmlFile)
+run(onco)

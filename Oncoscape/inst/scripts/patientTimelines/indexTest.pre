@@ -1,0 +1,15 @@
+include(../m4-workarounds.txt)
+include(../index.common)
+include(../common.css)
+
+<script>
+include(../hub/Module.js)
+var hub = HubModule();
+include(Module2.js)
+hub.start();
+</script>
+
+<body>
+include(widget.html)
+</body>
+</html>

@@ -1,0 +1,119 @@
+<style>
+
+
+#patientHistoryDiv{
+   width: 600px;
+   height: 400px;
+   background-color: #ffffff;
+   margin: auto;
+   padding: 5px;
+   }
+
+
+#patientHistoryControlsDiv {
+  background-color: #FFFFFF;
+  position: relative;
+  height: 400px;
+  width: 600px;
+  border: 1px solid #aaa;
+  border-radius: 5px;
+  margin-right: auto;
+  margin-left: auto;
+  margin-top: 10px;
+  margin-bottom: 5px;
+  padding: 0px;
+  }
+
+#patientHistoryTableDiv {
+  background-color: #FFFFFF;
+  position: relative;
+  height: 400px;
+  width: 600px;
+  overflow-x:auto;
+  margin-right: auto;
+  margin-left: auto;
+  margin-top: 5px;
+  margin-bottom: 5px;
+  padding: 0px;
+  }
+
+.patientDataFilterSliderReadout {
+  font-family:"Courier";
+  color: #0000FF;
+  background-color: #FFF;
+  font-size: 12px;
+  border: 2px solid #DDD;
+  width: 50px;
+  height: 25px;
+  resize: none;
+  margin-top: 5px;
+  margin-left: 1px;
+  }
+
+.patientDataFilterSliderTitleDiv {
+  font-family:"Arial";
+  color: #000000;
+  font-size: 12px;
+  padding-top: 0px;
+  padding-right:0px;
+  }
+
+
+</style>
+
+
+<div id="patientHistoryDiv">
+  <div id="patientHistoryStatusDiv" style="display:none"></div>
+  <div id="patientHistoryControlsDiv">  
+
+
+        <div id="ageSliderDiv" class="nav navbar-nav navbar-form navbar-left"  style="display: inline-block">
+           <div id="ageAtDxSliderTitleDiv" class="patientDataFilterSliderTitleDiv" style="text-align: center; width=100%">Age at Dx</div>
+           <div style="width: 280px; overflow: hidden;">
+               <div id="ageAtDxMsgBox1" style="float: left; margin-left: 5px; margin-right: 15<px; width: 40px" >
+  
+                  <textarea id="ageAtDxMinSliderReadout" style="font-size: 12px; height:16px"
+                            readonly class="patientDataFilterSliderReadout"></textarea> 
+                  </div>
+               <div style="width: 120px; height: 6px; float: left; margin-top: 10px; 
+                           margin-left: 30px; margin-right: 15px;" 
+                   id="ageAtDxSlider" class="slider patientDataFilterSlider">
+                   </div>
+               <div id="ageAtDxMsgBox2" style="float: left">  
+                  <textarea id="ageAtDxMaxSliderReadout" style="font-size: 12px; height:16px"
+                            readonly class="patientDataFilterSliderReadout"></textarea> 
+                  </div>
+              </div>
+           </div>
+
+
+        <div id="survivalSliderDiv" class="nav navbar-nav navbar-form navbar-left" style="display: inline-block">
+           <div id="survivalSliderTitleDiv" class="patientDataFilterSliderTitleDiv" style="text-align: center; width=100%">Survival</div>
+           <div style="width: 280px; overflow: hidden;">
+               <div id="survivalMsgBox1" style="float: left" >  
+                  <textarea id="survivalMinSliderReadout" style="font-size: 12px; height:16px"
+                             readonly class="patientDataFilterSliderReadout"></textarea> 
+                  </div>
+               <div style="width: 120px; height: 6px; float: left; margin-top: 10px; margin-left: 15px;
+                            margin-right: 15px;" 
+                   id="survivalSlider" class="slider patientDataFilterSlider">
+                   </div>
+               <div id="survivalMsgBox2" style="float: left">  
+                  <textarea id="survivalMaxSliderReadout"  style="font-size: 12px; height:16px"
+                            readonly class="patientDataFilterSliderReadout"></textarea> 
+                  </div>
+              </div>
+           </div>
+
+     <button id="patientHistoryShowAllRowsButton" type="button">Reset</button>
+     <select type="button" id="patientHistorySendSelectionsMenu" style="float:right; margin:15px"></select>
+
+
+  </div>
+
+  <div id="patientHistoryTableDiv">  
+    <table id="patientHistoryTable" cellpadding="0" cellspacing="0" border="0" class="display">
+    </table>
+ </div>
+
+</div>

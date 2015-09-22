@@ -1,0 +1,778 @@
+<script>
+//----------------------------------------------------------------------------------------------------
+var cwMarkers;  // move this back inside module when debugging is done
+
+
+var markersAndTissuesModule = (function () {
+
+  var cyDiv;
+  var searchBox;
+  var hideEdgesButton, showEdgesButton, showAllEdgesButton, clearSelectionButton, sfnButton;
+  var helpButton;
+  var infoMenu;
+  var edgeTypeSelector;
+  var mouseOverReadout;
+  var graphOperationsMenu;
+  var sendSelectionMenu;
+  var layoutMenu;
+  var myModuleName = "MarkersAndPatients";
+  var myDivName = "markersAndTissuesDiv";
+
+  //--------------------------------------------------------------------------------------------
+  function initializeUI () {
+
+      cyDiv = $("#cyMarkersDiv");
+
+      helpButton = $("#markersHelpButton")
+      helpButton.click(showHelp);
+      graphOperationsMenu = $("#cyMarkersOperationsMenu");
+      graphOperationsMenu.change(doGraphOperation)
+      graphOperationsMenu.empty()
+      graphOperationsMenu.append("<option>Network Operations...</option>")
+
+      var operations = ["Show All Edges",
+                        "Show Edges from Selected Nodes",
+                        "Hide All Edges",
+                        //"Connect to First Neighbors",
+                        "Invert Node Selection",
+                        "Clear Selections",
+                        "Select All Connected Nodes",
+                        "Select All Nodes with Selected Edges",
+                        "Hide Unselected Nodes",
+                        "Show All Nodes"]
+
+      for(var i=0;i< operations.length; i++){
+         var optionMarkup = "<option>" + operations[i] + "</option>";
+         graphOperationsMenu.append(optionMarkup);
+         } // for 
+
+
+      sendSelectionMenu = $("#cyMarkersSendSelectionMenu")
+      sendSelectionMenu.change(sendSelection);
+      sendSelectionMenu.empty();
+       
+      sendSelectionMenu.append("<option>Send Selection...</option>")
+      var moduleNames = getSelectionDestinations();
+      for(var i=0;i< moduleNames.length; i++){
+         if(moduleNames[i] != myModuleName){
+            var optionMarkup = "<option>" + moduleNames[i] + "</option>";
+            sendSelectionMenu.append(optionMarkup);
+            } // if
+         } // for 
+
+      sendSelectionMenu.attr("disabled", true);
+
+      layoutMenu = $("#markerLayouts");
+      layoutMenu.change(performLayout);
+
+      showEdgesButton = $("#cyMarkersShowEdgesButton");
+      showEdgesButton.click(showEdges);
+      infoMenu = $("#markersAndPatientsInfoMenu")
+      infoMenu.change(showInfo);
+      
+      /**********
+      showEdgesButton.qtip({
+          content: "Display edges of the currently<br> selected type/s, between all<br>selected nodes.",
+          show: {
+              event: 'mouseover',
+              delay: 1000
+              },
+          hide: "mouseout",
+          position: {
+              my: 'top center',
+              at: 'bottom center'
+              },
+          style: {
+            classes: 'qtip-bootstrap',
+               tip: {
+                 width: 12,
+                 height: 12
+                }
+              }
+          });
+        *********/
+
+
+      showAllEdgesButton = $("#cyMarkersShowAllEdgesButton");
+      showAllEdgesButton.click(showAllEdges);
+      /*************
+      showAllEdgesButton.qtip({
+          content: "Display edges of the currently<br>selected type/s, between all nodes.",
+          show: {
+              event: 'mouseover',
+              delay: 1000
+              },
+          hide: "mouseout",
+          position: {
+              my: 'top center',
+              at: 'bottom center'
+              },
+          style: {
+            classes: 'qtip-bootstrap',
+               tip: {
+                 width: 12,
+                 height: 12
+                }
+              }
+          });
+        *********/
+
+      sfnButton = $("#cyMarkersSFNButton");
+      sfnButton.click(selectFirstNeighbors);
+      /***************
+      sfnButton.qtip({
+          content: "Select nodes which are<br>first neighbors of currently selected nodes.",
+          show: { delay: 700, solo: true,effect: { length: 1000 }},
+          hide: { event: "mouseout"},
+          //show: {
+          //    event: 'mouseover',
+          //    delay: 1000
+          //    },
+          //hide: "mouseout",
+          position: {
+              my: 'top center',
+              at: 'bottom center'
+              },
+          style: {
+            classes: 'qtip-bootstrap',
+               tip: {
+                 width: 12,
+                 height: 12
+                }
+              }
+          });
+       ***********/
+      clearSelectionButton = $("#cyMarkersClearSelectionButton");
+      clearSelectionButton.click(clearSelection);
+
+      //edgesFromSelectedButton = $("#cyMarkersShowEdgesFromSelectedButton");
+      //edgesFromSelectedButton.click(showEdgesFromSelectedNodes);
+
+      hideEdgesButton = $("#cyMarkersHideEdgesButton");
+      hideEdgesButton.click(hideAllEdges)
+
+
+      //zoomSelectedButton  = $("#cyMarkersZoomSelectedButton");
+      searchBox = $("#markersAndTissuesSearchBox");
+
+      edgeTypeSelector = $("#markersEdgeTypeSelector");
+      //edgeTypeSelector.change(newEdgeTypeSelection);
+
+      mouseOverReadout = $("#markersAndTissuesMouseOverReadout");
+
+      loadNetwork();
+      $(".chosen-select").chosen();
+      //var config = {
+      //   '.chosen-select'           : {},
+      //   '.chosen-select-deselect'  : {allow_single_deselect:true},
+      //   '.chosen-select-no-single' : {disable_search_threshold:10},
+      //   '.chosen-select-no-results': {no_results_text:'Oops, nothing found!'},
+      //   '.chosen-select-width'     : {width:"95%"}
+      // }
+      //for (var selector in config) {
+      //   $(selector).chosen(config[selector]);
+      //   }
+      
+      infoMenu = $("#markersAndTissuesInfoMenu");
+	  showInfo();
+     $(window).resize(handleWindowResize);
+    };
+
+   //----------------------------------------------------------------------------------------------------
+   function configureLayoutsMenu(layoutMenu){
+
+      console.log("--- configureLayoutsMenu");
+      layoutMenu.append("<option>Layouts</option>");
+      layoutMenu.append("<option> Save Current</option>");
+
+      var defaultLayout = JSON.stringify(cwMarkers.nodes().map(function(n){return{id:n.id(), position:n.position()}}));
+
+      if(Object.keys(localStorage).indexOf("markersDefault") < 0){
+         localStorage.markersDefault = defaultLayout;
+         }
+
+      var existingLayouts = Object.keys(localStorage);
+      for(var i=0; i < existingLayouts.length; i++){
+         if(existingLayouts[i].match("markers") != null){
+           layoutMenu.append("<option>" + existingLayouts[i] + "</option>");
+           }
+         } // for i
+
+      } // configureLayoutsMenu
+
+   //----------------------------------------------------------------------------------------------------
+   function performLayout(event){
+
+     var chosenLayoutName = layoutMenu.val();
+
+     if(chosenLayoutName == "Save Current"){
+        var uniqueNumber = Math.floor(new Date().getTime()/1000);   // number of seconds since 1970
+        newName = "markers." + (uniqueNumber - 1420414900);    // since today, very roughly
+        currentLayout = JSON.stringify(cwMarkers.nodes().map(function(n){return{id:n.id(), position:n.position()}}));
+        localStorage[newName] = currentLayout;
+        layoutMenu.append("<option>" + newName + "</option>");
+        layoutMenu.val(newName);
+        return;
+        }
+
+     if(Object.keys(localStorage).indexOf(chosenLayoutName) >= 0){
+        var newLayout;
+        newLayout = JSON.parse(localStorage[chosenLayoutName]);
+        cwMarkers.nodes().positions(function(i, node){
+           return{x: newLayout[i].position.x, y:newLayout[i].position.y};
+            });
+        } // if requested layout name is recognized
+      } // performLayout
+
+   //----------------------------------------------------------------------------------------------------
+    function showAbout_markerpatients(){
+  
+        var   info ={Modulename: "Markers and Patients",
+                     CreatedBy: "Hamid Boulori,\nPaul Shannon",
+                     MaintainedBy: "Hamid Boulori,\nPaul Shannon",
+                     Folder: "markersAndTissues"}
+        console.log("showAbout_markerpatients");
+        //about.OpenAboutWindow(info) ;
+        }  
+
+
+  //-------------------------------------------------------------------------------------------
+	 
+	 
+      //-------------------------------------------------------
+  function showHelp(){
+     
+     console.log("entering showHelp");
+     helpText = $("#mthelp").html()
+     title = "Markers and Tissues Help";
+     $("<div>").html(helpText).dialog({title: title, width:600, height:600});
+
+    } // showHelp
+
+  //--------------------------------------------------------------------------------------------
+  function sendSelection() {
+     destinationModule = sendSelectionMenu.val();
+     var nodeNames = selectedNodeNames(cwMarkers);
+     if(nodeNames.length == 0){
+        console.log("no nodes selected!")
+        return;
+        }
+     metadata = {};
+     sendSelectionToModule(destinationModule, nodeNames, metadata);
+     sendSelectionMenu.val("Send Selection...");
+     }; // sendSelectionMenuChanged
+
+  //--------------------------------------------------------------------------------------------
+  function loadNetwork () {
+
+       // the pathways graph is included explicitly by widget.html, so the
+       // network and vizmap are already defined
+    console.log("loadnetwork, node count: " + markersAndTissuesNetwork.elements.nodes.length);
+    cwMarkers = $("#cyMarkersDiv");
+    cwMarkers.cytoscape({
+       elements: markersAndTissuesNetwork.elements,
+       style: markersAndTissuesVizmap[0].style,
+       showOverlay: false,
+       minZoom: 0.01,
+       maxZoom: 8.0,
+       layout: {
+         name: "preset",
+         fit: true
+         },
+     ready: function() {
+        console.log("cwMarkers ready");
+        cwMarkers = this;
+        cwMarkers.on('mouseover', 'node', function(evt){
+           var node = evt.cyTarget;
+           mouseOverReadout.val(node.data().canonicalName)
+           })
+        cwMarkers.on('mouseout', 'node', function(evt){
+           var node = evt.cyTarget;
+           mouseOverReadout.val("");
+           })
+        cwMarkers.on('mouseover', 'edge', function(evt){
+           var edge = evt.cyTarget;
+           mouseOverReadout.val(edge.data().canonicalName)
+           })
+        cwMarkers.on('select', 'node', function(evt){
+           var disable = selectedNodeIDs(cwMarkers).length == 0;
+           sendSelectionMenu.attr("disabled", disable);
+           })
+        cwMarkers.on('unselect', 'node', function(evt){
+           var disable = selectedNodeIDs(cwMarkers).length == 0;
+           sendSelectionMenu.attr("disabled", disable);
+           })
+
+        /***************
+        cwMarkers.elements().qtip({
+            content: function() {
+              return (this.data().canonicalName);
+              },
+            position: {
+              my: 'top center',
+              at: 'bottom center'
+              },
+            show: {
+              event: 'mouseover'
+              },
+            hide: {
+              event: 'mouseout'
+              },
+            style: {
+              classes: 'qtip-bootstrap',
+              tip: {
+                 width: 16,
+                 height: 8
+                }
+              } 
+           }); // qtip
+         **************/
+
+        searchBox.keydown(doSearch);
+
+        console.log("cwMarkers.reset");
+        cwMarkers.reset();
+        handleWindowResize();
+        cwMarkers.edges().selectify(); // this seems to hold through session, visibility notwithstanding
+        hideAllEdges();
+
+        cwMarkers.nodes().positions(function(i, node){return{x: ericsLayout[i].position.x, y:ericsLayout[i].position.y};});
+
+        configureLayoutsMenu(layoutMenu);
+        } // cy.ready
+       })
+    .cytoscapePanzoom({ });   // need to learn about options
+
+    } // loadNetwork
+
+   //----------------------------------------------------------------------------------------------------
+   function handleWindowResize () {
+      console.log("markers & tissues window resize: " + $(window).width() + ", " + $(window).height());
+      cyDiv.width(0.95 * $(window).width());
+      cyDiv.height(0.8 * $(window).height());
+      cwMarkers.resize();
+      cwMarkers.fit(50);
+      } // handleWindowResize
+
+
+   //----------------------------------------------------------------------------------------------------
+   function doGraphOperation(){
+
+      operation = graphOperationsMenu.val();
+
+      switch(operation){
+         case "Show All Edges":
+            showAllEdges();
+            break;
+         case "Show Edges from Selected Nodes":
+            showEdgesFromSelectedNodes();
+            break;
+         case "Hide All Edges":
+            hideAllEdges();
+            break;
+         case "Invert Node Selection":
+            invertSelection();
+            break;
+         case "Clear Selections":
+            cwMarkers.filter('node:selected').unselect();
+            break;
+         case "Select All Connected Nodes":
+            selectAllConnectedNodes();
+            break;
+         case "Select All Nodes with Selected Edges":
+           selectAllNodesConnectedBySelectedEdges();
+           break;
+         case "Hide Unselected Nodes":
+            cwMarkers.filter("node:unselected").hide();
+            break;
+         case "Show All Nodes":
+            cwMarkers.filter('node:hidden').show();
+            break;
+         default:
+            console.log("unrecoginized graph operation requested from menu: " + operation);
+         } // switch
+
+         // restore menu to initial condition, with only title showing
+      graphOperationsMenu.val("Network Operations...");
+      } // doGraphOperation
+
+   //----------------------------------------------------------------------------------------------------
+   function clearSelection (){
+     cwMarkers.elements().unselect();
+     }
+
+   //----------------------------------------------------------------------------------------------------
+   function selectFirstNeighbors (){
+     selectedNodes = cwMarkers.filter('node:selected');
+     showEdgesForNodes(cwMarkers, selectedNodes);
+     }
+
+   //----------------------------------------------------------------------------------------------------
+   function invertSelection (){
+      selected = cwMarkers.filter("node:selected");
+      unselected = cwMarkers.filter("node:unselected");
+      selected.unselect();
+      unselected.select();
+      }
+
+   //----------------------------------------------------------------------------------------------------
+   function hideAllEdges (){
+      cwMarkers.filter('edge').hide();
+      }
+
+   //----------------------------------------------------------------------------------------------------
+   function showAllEdges (){
+      //cwMarkers.filter('edge').show()
+
+      var edgeTypesToDisplay = edgeTypeSelector.val();
+
+      console.log("edgeTypeToDisplay: " + edgeTypesToDisplay);
+
+      if(edgeTypesToDisplay == null){
+         return;
+         }
+
+      for(var e=0; e < edgeTypesToDisplay.length; e++){
+         var type =  edgeTypesToDisplay[e];
+         selectionString = '[edgeType="' + type + '"]';
+         //console.log(" showAllEdges selection string: " + selectionString);
+         cwMarkers.edges(selectionString).show()
+         } // for e
+
+      } // showAllEdges
+
+   //----------------------------------------------------------------------------------------------------
+   function zoomSelected() {
+      cwMarkers.fit(cwMarkers.$(':selected'), 100)
+      }
+
+   //----------------------------------------------------------------------------------------------------
+   function handleIncomingIdentifiers(msg){
+      console.log("Module.markers, handleIncomingIdentifiers");
+      console.log(msg.payload.ids.length);
+      ids = msg.payload.ids;
+      if(typeof(ids) == "string")
+        ids = [ids];
+      intersectingIDs = intersectionOfArrays(ids, nodeNames())
+      if(intersectingIDs.length > 0)
+         selectNodes(intersectingIDs);
+      else{
+         errorMessage = "No overlap with genes or tissue sample IDs:  <br><br>" +
+                         ids.join(", ");
+         title = ids.length + " unrecognized identifiers";
+         $('<div />').html(errorMessage).dialog({title: title, width:600, height:300});
+        }
+      } // handleIncomingIdentifiers
+
+   //----------------------------------------------------------------------------------------------------
+     // run all that should happen when this module receives an incoming selection of patientIDs
+   demoMarkersIncomingSelectionOfIDs = function() {
+
+      names = ["TCGA.06.0210", "TCGA.02.0106", "TCGA.02.0111",
+               "TCGA.06.0194", "TCGA.06.0164", "TCGA.06.0409", "TCGA.02.0004",
+               "TCGA.02.0051", "TCGA.08.0390", "TCGA.02.0025", "TCGA.08.0392",
+               "TCGA.02.0079", "TCGA.12.0620", "TCGA.08.0373", "TCGA.06.0645",
+               "TCGA.06.0192", "TCGA.12.0776", "TCGA.12.0778", "TCGA.06.0750",
+               "TCGA.06.0878", "TCGA.14.0789", "TCGA.06.0881", "BCL11A",
+               "BRCA1", "MDM2", "PIK3R1", "ABCA1", "CDK6", "CNTRL", "FH",
+               "IFNA1", "LMO2", "PRKCA", "RELA", "STK11", "ZEB1", "CCNB1IP1",
+               "CREB3L1", "GDF2", "OR4K2", "PRKCH", "WAS"];
+
+      subset = []
+      for(var i=0; i < 10; i++)
+        subset.push(names[getRandomInt(0, names.length -1)]);
+
+      selectNodes(subset);
+      } // demoIncomingSelectionOfPatientIDs
+
+
+   //----------------------------------------------------------------------------------------------------
+   function allNodeIDs() {
+
+      ids = [];
+      allNodes = cwMarkers.nodes();
+
+      for(i=0; i < allNodes.length; i++)
+          ids.push(allNodes[i].data("id"))
+
+      return(ids);
+
+      } // allNodeIDs
+
+   //----------------------------------------------------------------------------------------------------
+   function showEdges(){
+
+      hideAllEdges();   // is this wise?
+
+      var edgeTypesToDisplay = edgeTypeSelector.val();
+      if(edgeTypesToDisplay == null){
+         hideAllEdges();
+         return;
+         }
+
+      var selectedNodes = selectedNodeIDs(cwMarkers);
+
+      //console.log(" newEdgeTypeSelection (" + edgeTypesToDisplay.length + 
+      //            "), selectedNodes: " + selectedNodes.length);
+
+      if(selectedNodes.length > 0) { // show edges to and from all selected nodes
+        showEdgesForNodes(cwMarkers, selectedNodes);
+        }
+      } // showEdges
+
+
+   //----------------------------------------------------------------------------------------------------
+   function showEdgesFromSelectedNodes(){
+
+      var selectedNodes = cwMarkers.filter('node:selected');
+      if(selectedNodes.length == 0) {
+         return;
+         }
+      showEdgesForNodes(cwMarkers, selectedNodes);
+      } // showEdgesFromSelectedNodes
+
+   //----------------------------------------------------------------------------------------------------
+   function zoomSelection() {
+      cwMarkers.fit(cwMarkers.$(':selected'), 50)
+      }
+
+   //----------------------------------------------------------------------------------------------------
+    function selectedNodeIDs(cw){
+      ids = [];
+      noi = cw.filter('node:selected');
+      for(var n=0; n < noi.length; n++){
+        ids.push(noi[n].data()['id']);
+        }
+     return(ids);
+     } // selectedNodeIDs
+
+   //----------------------------------------------------------------------------------------------------
+    function selectedNodeNames(cw){
+      var names = [];
+      var noi = cw.filter('node:selected');
+      for(var n=0; n < noi.length; n++){
+        names.push(noi[n].data('name'));
+        }
+     return(names);
+     } // selectedNodeNames
+
+   //----------------------------------------------------------------------------------------------------
+   function selectSourceAndTargetNodesOfEdges(cw, edges){
+
+      var edgesVisible = cwMarkers.filter('edge:visible').length
+
+     var filterStrings = [];
+
+     for(var i=0; i < edges.length; i++){
+        edge = edges[i];
+        targetID = edge.target().data("id")
+        sourceID = edge.source().data("id")
+        var sourceFilterString = '[id="' + sourceID + '"]';
+        var targetFilterString = '[id="' + targetID + '"]';
+        filterStrings.push(sourceFilterString);
+        filterStrings.push(targetFilterString);
+        } // for i
+
+      var nodesToSelect = cw.nodes(filterStrings.join());
+      nodesToSelect.select()
+
+      } // selecteSourceAndTargetNodesOfEdge
+
+   //----------------------------------------------------------------------------------------------------
+     // todo: massive inefficiencies here
+   function showEdgesForNodes(cw, nodes){
+
+     var edgeTypes = edgeTypeSelector.val();
+
+     if(edgeTypes.length == 0)
+         return;
+
+     var filterStrings = [];
+
+     $("body").toggleClass("wait");
+
+     setTimeout(function(){
+        for(var e=0; e < edgeTypes.length; e++){
+           var edgeType = edgeTypes[e];
+           for(var n=0; n < nodes.length; n++){
+             var nodeID = nodes[n].data("id");
+             var sourceFilterString = '[edgeType="' + edgeType + '"][source="' + nodeID + '"]';
+             var targetFilterString = '[edgeType="' + edgeType + '"][target="' + nodeID + '"]';
+             filterStrings.push(sourceFilterString)
+             filterStrings.push(targetFilterString)
+             } // for n
+           } // for e
+   
+         console.log("filterString count: " + filterStrings.length);
+         filter = filterStrings.join();
+         console.log("filter created, about to apply...");
+         var existingEdges = cw.edges(filter);
+         console.log("filtering complete");
+         if(existingEdges.length > 0) {
+            console.log("about to show edges");
+            existingEdges.show()
+            console.log("edges shown...");
+            }
+        }, 1000); // setTimeout
+
+     $("body").toggleClass("wait");
+ 
+     } // showEdgesForNodes
+
+   //----------------------------------------------------------------------------------------------------
+   function selectAllConnectedNodes(){
+
+       var selectedEdges = cwMarkers.filter("edge:visible");
+       selectSourceAndTargetNodesOfEdges(cwMarkers, selectedEdges);
+
+       } // selectAllConnectedNodes
+
+   //----------------------------------------------------------------------------------------------------
+   function selectAllNodesConnectedBySelectedEdges() {
+
+       edges = cwMarkers.filter("edge:selected")
+       console.log(" selected edge count: " + edges.length);
+       if(edges.length == 0)
+         return;
+       for(var e=0; e < edges.length; e++){
+          selectNodes(edges[e].target().data("name"))
+          selectNodes(edges[e].source().data("name"))
+          } // for e
+
+       } //selectAllNodesConnectedBySelectedEdges
+
+   //----------------------------------------------------------------------------------------------------
+   function showEdgesForSelectedNodes(cw, edgeTypes){
+      var nodeIDs = selectedNodeIDs(cw);
+      for(var n=0; n < nodeIDs.length; n++){
+         nodeID = nodeIDs[n];
+         for(var e=0; e < edgeTypes.length; e++){
+            edgeType = edgeTypes[e];
+            filterString = '[edgeType="' + edgeType + '"][source="' + nodeID + '"]';
+            //console.log("filter string: " + filterString);
+            cw.edges(filterString).show();
+            filterString = '[edgeType="' + edgeType + '"][target="' + nodeID + '"]';
+            //console.log("filter string: " + filterString);
+            cw.edges(filterString).show();
+            } // for e
+         } // for n
+      } // showEdgesForSelectedNodes
+
+
+   //----------------------------------------------------------------------------------------------------
+   function nodeNames (){
+     var nodes = cwMarkers.filter("node:visible");
+     var result = [];
+     for(var i=0; i < nodes.length; i++){
+       result.push(nodes[i].data().label)
+       } // for i
+     return(result)
+     } // nodeNames
+
+   //----------------------------------------------------------------------------------------------------
+      // todo: build up the filter string first, then send it all at once
+   function selectNodes(nodeNames) {
+
+     if(typeof(nodeNames) == "string")   // trap scalar, but expect and support arrays
+        nodeNames = [nodeNames];
+
+     for(var i=0; i < nodeNames.length; i++){
+       s = "cwMarkers.filter('node[name=\"" + nodeNames[i] + "\"]').select()";
+       //console.log("markers selectNodes: " + s);
+       JAVASCRIPT_EVAL (s);
+       } // for i
+
+    } // selectNodes
+
+   //----------------------------------------------------------------------------------------------------
+   function doSearch(e) {
+      var keyCode = e.keyCode || e.which;
+      if (keyCode == 13) {
+         searchString = searchBox.val();
+         //console.log("searchString: " + searchString);
+         names = nodeNames()
+         matches = []
+         for(var i=0; i < names.length; i++){
+            if(names[i].beginsWith(searchString)) {
+               selectNodes([names[i]]);
+               //s = "cwMarkers.filter('node[name=\"" + names[i] + "\"]').select()";
+               //JAVASCRIPT_EVAL (s);
+               } // if searchString matched beginning of node
+            } // for i
+         } // if 13 (return key)
+      } // doSearch
+
+   //----------------------------------------------------------------------------------------------------
+  
+  function showInfo() {
+
+       // var infoCategory = infoMenu.val();
+       var aa= infoMenu.children().children().children();
+       //console.log("--- showInfo of type " + infoCategory);
+       console.log("---showInfo of type");
+
+       // infoMenu.val("INFO...");
+       
+      aa.click(function(){
+	      switch($(this).text()) {
+             case "Help":
+              $("#markersAndPatientsHelp").on('show').modal('show');
+              break;
+              case "Legend":
+              console.log("legend");
+              $("#markersAndPatientsLegend").on('show').modal('show');
+              break;
+              case "Credits":
+              $("#markersAndPatientsCredits").on('show').modal('show');
+              console.log("credits");
+               break;
+     } });
+
+     }; // showInfo
+
+   //--------------------------------------------------------------------------------------------
+   function showHelp(){
+     
+     console.log("entering Markes And Patients showHelp");
+     var text = $("#markersAndPatientsHelp").html()
+     var title = "Markes And Patients Help";
+     $("<div>").html(text).dialog({title: title, width:600, height:600});
+
+     } // showHelp
+
+
+   //--------------------------------------------------------------------------------------------
+   function showLegend(){
+     
+     var text = $("#markersAndPatientsLegend").html()
+     var title = "Markes And Patients Node and Edge Legend";
+     //$("<div>").html(text).dialog({title: title, width:600, height:600});
+     $("#markersAndPatientsLegend").modal('show')
+     } // showHelp
+
+
+   //--------------------------------------------------------------------------------------------
+   function showCredits(){
+     
+     var text = $("#markersAndPatientsCredits").html()
+     var title = "Markes And Patients Credits";
+     //$("<div>").html(text).dialog({title: title, width:600, height:400});
+     $("#markersAndPatientsCredits").modal('show')
+
+     } // showHelp
+   return{
+     init: function(){
+       addSelectionDestination(myModuleName, myDivName);
+       onReadyFunctions.push(initializeUI);
+       addJavascriptMessageHandler("MarkersAndPatientsHandlePatientIDs",
+                                   handleIncomingIdentifiers);
+       //socketConnectedFunctions.push(runDemo);
+       }
+     };
+
+   }); // markersAndTissuesModule
+//----------------------------------------------------------------------------------------------------
+markersModule = markersAndTissuesModule()
+markersModule.init();
+
+</script>

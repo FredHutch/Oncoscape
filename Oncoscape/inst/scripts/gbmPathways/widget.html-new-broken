@@ -1,0 +1,61 @@
+<script>
+include(../gbmPathways/curatedGBMpathways.js)
+include(../gbmPathways/vizmap.js)
+
+</script>
+<style>
+
+div {
+   display: block;
+   }
+
+#cyGbmPathways {
+  background-color: #DDD;
+  height: 400px;
+  width: 600px;
+  position: relative;
+  margin-top: 0px;
+  margin-left: 0px;
+  border: 1px solid #aaa;
+  padding: 0px;
+  display:block;
+  margin-bottom: 0px;
+  }
+
+#gbmPathwaysMouseOverReadoutDiv{
+  border: 1px solid #aaa;
+  width: 800px;
+  height: 20px;
+  }
+
+#gbmPathwaysButtonDiv{
+  margin-top: 1px;
+  margin-bottom: 1px;
+  }
+
+.fubar{
+   font-size:8pt !important;
+}
+</style>
+
+<div id="gbmPathwaysDiv">
+   <div id="gbmPathwaysButtonDiv">
+      <label id="gbmPathwaysSelectLabel" for="select">Select a sample:</label>
+      <select id="gbmPathwaysSampleSelector" class="gbmButton"></select>
+      <button id="gbmPathwaysMovieButton" style="width:100px"  class="gbmButton">Movie</button>
+      <button id="slowerMovieButton" class="gbmButton"> + </button>
+      <button id="fasterMovieButton" class="gbmButton"> - </button>
+      <span id="gbmPathwaysMovieSpeedReadout" style="width: 50px"></span>
+      &nbsp;
+      <button id="gbmViewAbstractsButton" class="gbmButton">Enable Abstracts</button>
+      <button id="gbmZoomSelectedButton" class="gbmButton">Zoom Selected</button>
+      <input type="text" id="gbmPathwaysSearchBox" value="search"></input>
+
+
+   </div>
+   <div id="cyGbmPathways"></div>
+   
+</div>
+
+
+
