@@ -1,0 +1,20 @@
+  /Users/pshannon/oncodev/hbolouri/dataPackages/networks/TCGAgbmMarkersAndTissues/prep:
+  total used in directory 1608 available 7027400
+  drwxr-xr-x  19 pshannon  staff     646 Aug  3 16:38 .
+  drwxr-xr-x   3 pshannon  staff     102 Jul 27 12:51 ..
+  -rw-r--r--   1 pshannon  staff    5094 Aug  3 16:35 .Rhistory
+  -rw-r--r--   1 pshannon  staff   13606 Jul 16 17:45 ericsLayout-2015-jul-06.RData
+  -rw-r--r--   1 pshannon  staff  259353 Jul 16 17:52 ericsLayout-2015-jul-06.json
+  -rw-r--r--   1 pshannon  staff  344969 Aug  3 16:36 g.json
+  -rw-r--r--   1 pshannon  staff   16873 Aug  3 16:38 go.R
+  -rw-r--r--   1 pshannon  staff   16541 Jul 21 13:30 layout-from-oncodev1.2.28
+  -rw-r--r--   1 pshannon  staff    5380 Jul 16 17:14 layout.RData
+  -rw-r--r--   1 pshannon  staff      19 Aug  3 12:38 makefile
+  -rw-r--r--   1 pshannon  staff   61738 Aug  3 16:36 markers.json.RData
+  -rw-r--r--   1 pshannon  staff    9769 Jul 16 14:53 nodes.json
+  -rw-r--r--   1 pshannon  staff    6428 Jul 16 18:02 style-1.2.28.json
+  -rw-r--r--   1 pshannon  staff    6431 Jul 21 11:45 style-x.json
+  -rw-r--r--   1 pshannon  staff    3107 Jul 21 19:37 style.js
+  -rw-r--r--   1 pshannon  staff    2762 Jul 17 05:32 tbl.dzSubTypes.RData
+  -rw-r--r--   1 pshannon  staff    5855 Jul 23 12:30 tmp2
+  -rw-r--r--   1 pshannon  staff    3692 Jul 16 17:58 vizmap.json
