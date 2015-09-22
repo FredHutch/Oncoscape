@@ -1,0 +1,20 @@
+exportClasses(PatientHistoryClass)
+
+exportMethods (
+  eventCount,
+  geteventList,
+  geteventTypeList,
+  getpatientList,
+  getTable,
+  seteventList,
+  setpatientList,
+  seteventTypeList
+  )
+
+export(
+   PatientHistory
+   )
+
+importClassesFrom(methods, character, integer)
+importFrom(methods, new)
+
