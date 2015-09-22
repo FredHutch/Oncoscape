@@ -1,0 +1,12 @@
+exportClasses(TCGAcoadreadClass)
+
+export(
+   TCGAcoadread
+   )
+
+exportMethods(
+   )
+
+importClassesFrom(methods, character, integer)
+importFrom(methods, new)
+
