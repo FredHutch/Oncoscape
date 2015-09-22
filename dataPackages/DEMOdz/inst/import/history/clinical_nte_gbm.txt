@@ -1,0 +1,9 @@
+bcr_patient_barcode	new_tumor_event_dx_days_to	new_tumor_event_radiation_tx	additional_pharmaceutical_therapy	days_to_new_tumor_event_additional_surgery_procedure	new_neoplasm_event_type	new_tumor_event_additional_surgery_procedure
+bcr_patient_barcode	days_to_new_tumor_event_after_initial_treatment	additional_radiation_therapy	additional_pharmaceutical_therapy	days_to_new_tumor_event_additional_surgery_procedure	new_neoplasm_event_type	new_tumor_event_additional_surgery_procedure
+CDE_ID:2673794	CDE_ID:3392464	CDE_ID:3427615	CDE_ID:3427616	CDE_ID:3008335	CDE_ID:3119721	CDE_ID:3427611
+TCGA-15-1444	1550	[Not Available]	[Not Available]	[Not Available]	Progression of Disease	[Not Available]
+TCGA-15-1444	1550	[Not Available]	[Not Available]	[Not Available]	Recurrence	[Not Available]
+TCGA-06-1806	256	NO	YES	[Not Available]	Progression of Disease	[Not Available]
+TCGA-06-1806	256	NO	YES	[Not Available]	Recurrence	[Not Available]
+TCGA-06-1806	[Not Available]	NO	YES	270	Locoregional Disease	[Not Available]
+TCGA-06-A6S1	46	NO	NO	[Not Available]	Progression of Disease	[Not Available]
