@@ -1,0 +1,15 @@
+RCytoscape README
+-----------------
+Unit tests are a crucial tool in software development.  But due to the very large 
+number of methods provided by this package -- about 175 -- and that many of these
+invoke time-consuming actions in a separately executing Cytoscape application,
+the unit tests for this package are not run as part of the standard Bioconductor
+build process.
+
+In order to run them 'offline' however, take these steps from within a running R 
+session:
+
+  1) source(system.file("unitTests", "test_cytoscape.R", package="RCytoscape"))
+  2) run.tests ()
+
+They take about 20 minutes to run.

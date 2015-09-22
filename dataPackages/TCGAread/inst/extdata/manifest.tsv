@@ -1,0 +1,2 @@
+variable	class	category	subcategory	entity.count	feature.count	entity.type	feature.type	minValue	maxValue	provenance
+history.RData	history	list	history	clinical	1608	NA	NA	NA	NA	NA	tcga
