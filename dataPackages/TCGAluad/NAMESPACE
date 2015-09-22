@@ -1,0 +1,12 @@
+exportClasses(TCGAluadClass)
+
+export(
+   TCGAluad
+   )
+
+exportMethods(
+   )
+
+importClassesFrom(methods, character, integer)
+importFrom(methods, new)
+
