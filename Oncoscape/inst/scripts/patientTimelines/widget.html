@@ -1,24 +1,73 @@
+<style>
 
+.x.axis line {
+  stroke: #fff;
+}
+
+.x.axis .minor {
+  stroke-opacity: .5;
+}
+
+.x.axis path {
+  fill: none;
+  stroke: #000;
+}
+.y.axis line, .y.axis path {
+  fill: none;
+  stroke: #000;
+}
+
+.path {
+  opacity: 0.7 ;
+}
+
+.path:hover {
+  opacity: 1 ;
+}
+
+.eventNoHover {
+	visibility: hidden;
+}
+.eventHover {
+	visibility: visible !important;
+}
+.tooltipNoHover{
+	visibility: hidden;
+}
+.tooltipHover{
+	visibility: visible !important;
+}
+
+</style>
 
 <div id="patientTimeLinesDiv" >
 	<div id="ArrangeDataDiv" class="navbar navbar-default" role="navigation">
 	<div class="navbar-collapse collapse navbar-inner">
 	
-	<div class="nav navbar-nav navbar-form navbar-left">  
+	<div class="nav navbar-nav navbar-form navbar-left"  style="float:left">  
 	     <span id="SideBarMenu">Features: </span>
-	     <select type="button" id="SideBarOptions" style="margin: 5px;">
-	     	<option> -- </option>
+	     <select type="button" id="SideBarOptions" style="margin: 5px;color: rgb(0, 0, 0); background-color: rgb(255, 255, 255);">
+	     	<option selected="selected">--</option>
 	     	<option> Add+ </option>
+	     	<optGroup label='Category' class="plotCategoryOptions"></optGroup>
+	     	<optGroup label='Value' class="plotValueOptions"></optGroup>	     
 	     </select>
 	     <span id="AlignByMenu" >Align By: </span>
-	     <select type="button" id="AlignOptions" style="margin: 5px;">
-	     	<option> -- </option>
+	     <select type="button" id="AlignOptions"  name="AlignOptions" style="margin: 5px;color: rgb(0, 0, 0); background-color: rgb(255, 255, 255);">
+	     	<option value="--" selected="selected">--</option>
 	     </select>
 	     <span id="OrderByMenu" >Order By: </span>
-	     <select type="button" id="OrderOptions" style="margin: 5px;">
-	     	<option> -- </option>
+	     <select type="button" id="OrderOptions" name="OrderOptions" style="margin: 5px;color: rgb(0, 0, 0); background-color: rgb(255, 255, 255);">
+	     	<option value="--" selected="selected">--</option>
 	     	<option> Add+ </option>
+	     	<optGroup label='Date' class="OrderByDateOptions"></optGroup>
+	     	<optGroup label='Value' class="OrderByValueOptions"></optGroup>
 	     </select>
+	     <input type="checkbox" id="FitToPage" checked>Fit to Page </input>
+	     
+    </div>
+    <div class="infoDiv nav navbar-nav navbar-form navbar-right"  style="float:right">
+        <select class="btn btn-primary selectpicker" id="timeLineSendSelectionsMenu" name="SendSelectionToModule" style="color: rgb(0, 0, 0); background-color: rgb(255, 255, 255);">Send Selection to...</select>
     </div>
     <div class="infoDiv nav navbar-nav navbar-form navbar-right">
         <select class="btn btn-primary selectpicker" id="timeLineSendSelectionsMenu" name="SendSelectionToModule">Send Selection to...</select>
@@ -30,7 +79,7 @@
     </div>
     <br>
     <div id="TimeLineDisplay" class="content" style="margin:0 auto" >
-      </div>
+    </div>
      
      <div id="AddCalculatedEvent" class="Modal" style="display:none">
      <form>
@@ -48,5 +97,16 @@
           </select>
   	</form>
      </div>
+     
+    <svg>
+      <defs>
+        <pattern id="diagonalHatch" patternUnits="userSpaceOnUse" width="4" height="4">
+		  <path d="M-1,1 l2,-2
+ 		           M0,4 l4,-4
+      			   M3,5 l2,-2" style="stroke:black; stroke-width:1; fill:grey border-radius:20px" />
+		</pattern>      
+      </defs>
+	</svg>
+ 	
  
 </div>
