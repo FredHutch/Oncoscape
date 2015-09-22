@@ -1,0 +1,12 @@
+Package: AnalysisDemo
+Type: Package
+Title: Demonstrates how to create a molecular biology analysis easily incorporated into Oncoscape
+Version: 0.99.0
+Date: 2014-12-09
+Author: Paul Shannon
+Maintainer:  <pshannon@fredhutch.org>
+Depends: R (>= 3.1.0)
+Suggests: RUnit
+Description:  Provides a skeleton for a real analysis, currently returns nonsense
+License: GPL
+LazyLoad: yes
