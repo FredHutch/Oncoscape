@@ -1,0 +1,155 @@
+<script>
+include(../markersAndTissues/ericsLayout-2015jan02.json)
+include(../markersAndTissues/network.json)
+include(../markersAndTissues/vizmap.json)
+</script>
+<style>
+
+div {
+   display: block;
+   }
+
+body.wait, body.wait *{
+   cursor: wait !important;   
+}
+
+#markersAndTissuesDiv{
+  }
+
+button {font-size:10pt !important;}
+
+#cyMarkersDiv {
+  background-color: #DDD;
+  position: relative;
+
+  height: 400px;
+  width: 600px;
+
+  border: 1px solid #aaa;
+
+  margin-top: 0px;
+  margin-left: 0px;
+
+  padding: 0px;
+
+  }
+
+#markersAndTissuesSearchBox{
+  border: 1px solid #aaa;
+  width: 80px;
+  height: 20px;
+  }
+
+markersAndTissuesMouseOverReadout{
+  border: 1px solid #aaa;
+  width: 260px !important;
+  height: 20px;
+  font-size: 8pt !important;
+  }
+
+
+#cyMarkersClearSelectionButton #cyMarkersHideEdgesButton #cyMarkersShowEdgesButton #cyMarkersShowAllEdgesButton {
+   font-size:8pt  !important;
+   }
+
+#markersAndTissuesbuttonDiv{
+  margin-top: 1px;
+  margin-bottom: 1px;
+  }
+
+#hiddenmarkersEdgeTypeSelector {
+  width: 100% !important;
+  }
+
+.chosen-container, .chosen-drop, .chosen-drop .chosen-search, .chosen-drop .chosen-search input {
+  width: 100% !important;
+  -webkit-box-sizing: border-box;
+     -moz-box-sizing: border-box;
+          box-sizing: border-box;
+}
+
+.chosen-container { width:350px !important; 
+                    height:25px;
+                    font-size:8pt;}
+iframe {
+display: initial !important;
+}
+
+
+#MTNavForm{
+  padding:4px !important;
+  margin-top:4px !important;
+  margin-bottom:0px !important;
+  margin-left:0px !important;
+}
+#bottomMargin{
+  height:18px;
+}
+</style>
+
+
+<div id="markersAndTissuesDiv" class="container-fluid">
+<!--  <div id="markerpatientsInfoLinks" class="HeaderLinks" align="right"> -->
+<!--      <span id="markersHelpButton">Help</span> -->
+<!--      <span id="markerpatientsAboutLink">Credits</span> -->
+<!--   </div> -->
+   <div id="markersAndTissuesHelpDialogDiv"></div>
+   <div id="markersAndTissuesButtonDiv" class="navbar navbar-default" role="navigation" style="
+    margin-bottom: 0px;bottom: 8px;">
+   <div class="navbar-collapse collapse navbar-inverse-collapse" style="height:40px !important">
+      <form id="MTNavForm" class="nav navbar-nav navbar-form form-group navbar-left" role="search" style="height:35px !important">      
+      <input type="text" id="markersAndTissuesMouseOverReadout" 
+        style="width:150px;font-size:8pt" disabled value="(names displayed here)"></input>
+
+      <select id="cyMarkersOperationsMenu" class="navbar-form selectpicker" style="font-size:8pt"></select>
+      
+      <select class="chosen-select form-control dropdown navbar-form selectpicker" 
+                    style="width:150px;font-size:20pt"
+                    data-placeholder="Select edge types to display" 
+                    multiple id="markersEdgeTypeSelector">
+           <option value="mutantIn" class="btn-info" selected>Mutation</option>
+           <option value="copyNumberGain" class="btn-info" selected>CN Gain</option>
+           <option value="copyNumberLoss" class="btn-info" selected>CN Loss</option>
+           <option value="chromosome" class="btn-info" selected>Chrom</option>
+       </select>
+     
+     &nbsp; 
+
+     <input class="form-control navbar-form"
+            type="text" 
+            value="search"
+            placeholder="search"
+            id="markersAndTissuesSearchBox"
+            style="width:100px;font-size:8pt">
+            </input>
+      </form>
+   
+     <!-- span style="font-size:8pt">Search: </span --> 
+       <div class="infoDiv nav navbar-nav navbar-form navbar-right" style="margin-top: 0px;
+    margin-bottom: 0px;">
+        <select class="btn btn-primary selectpicker" type="button" id="cyMarkersSendSelectionMenu" 
+             name="SendSelectionToModule"></select>
+
+         <select class="btn btn-primary selectpicker" type="button" id="markerLayouts"
+                 name="markerLayoutMenu"></select>
+
+
+        <button id="markersAndTissuesInfoMenu" role="presentation" class="dropdown btn navbar-btn  btn-info  btn-xs" type="button"><a class="dropdown-toggle" data-toggle="dropdown" href="#" role="button" aria-expanded="false">INFO...<span class="caret"></span></a>
+        <ul class="dropdown-menu" role="menu">
+            <li><a value="angioGenesisHelp">Help</a></li>
+            <li><a value="angioGenesisLegend">Legend</a></li>
+            <li><a value="angioGenesisCredits">Credits</a></li>
+        </ul>
+       </button>
+       </div>
+   </div>
+   
+   
+ </div>  
+ <div id="cyMarkersDiv" data-toggle="tooltip" class="content" style="margin:0 auto" ></div>
+ <div id="bottomMargin" style="width:100%;height:30px margin:0 auto"></div>
+
+</div>
+
+
+

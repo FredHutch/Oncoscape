@@ -1,0 +1,52 @@
+
+
+<div id="patientTimeLinesDiv" >
+	<div id="ArrangeDataDiv" class="navbar navbar-default" role="navigation">
+	<div class="navbar-collapse collapse navbar-inner">
+	
+	<div class="nav navbar-nav navbar-form navbar-left">  
+	     <span id="SideBarMenu">Features: </span>
+	     <select type="button" id="SideBarOptions" style="margin: 5px;">
+	     	<option> -- </option>
+	     	<option> Add+ </option>
+	     </select>
+	     <span id="AlignByMenu" >Align By: </span>
+	     <select type="button" id="AlignOptions" style="margin: 5px;">
+	     	<option> -- </option>
+	     </select>
+	     <span id="OrderByMenu" >Order By: </span>
+	     <select type="button" id="OrderOptions" style="margin: 5px;">
+	     	<option> -- </option>
+	     	<option> Add+ </option>
+	     </select>
+    </div>
+    <div class="infoDiv nav navbar-nav navbar-form navbar-right">
+        <select class="btn btn-primary selectpicker" id="timeLineSendSelectionsMenu" name="SendSelectionToModule">Send Selection to...</select>
+       </div>
+       
+       
+       
+    </div>
+    </div>
+    <br>
+    <div id="TimeLineDisplay" class="content" style="margin:0 auto" >
+      </div>
+     
+     <div id="AddCalculatedEvent" class="Modal" style="display:none">
+     <form>
+          <label for="Name">Name: </label>
+          <input type="text" id="Name" value="e.g. Survival"><br>
+          <label for="Event1">Event 1: </label>
+          <select id="Event1"></select><br/>
+          <label for="Event2">Event 2: </label>
+          <select id="Event2"></select><br/>
+          <label for="TimeScale"> Time Scale: </label>
+          <select id="TimeScale" value="Days, Months, Years">
+        		<option value="Days">Days</option>
+        		<option value="Months">Months</option>
+        		<option value="Years">Years</option>
+          </select>
+  	</form>
+     </div>
+ 
+</div>

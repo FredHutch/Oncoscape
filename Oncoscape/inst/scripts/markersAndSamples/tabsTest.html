@@ -1,0 +1,30 @@
+<style>
+.ui-tabs .ui-tabs-nav li a {font-size:10pt !important;}
+.ui-button .ui-button-text {font-size:10pt !important;}
+</style>
+
+
+<script>
+include(../datasets/Module.js)
+include(../patientHistory/Module.js)
+include(../markersAndSamples/Module.js)
+</script>
+
+<body>
+
+  <div id="qunit" style="display:none"></div>
+  <div id="qunit-fixture"></div>
+
+<div id="oncoscapeTabs">
+   <ul>
+     <li><a href="#datasetsDiv">Datasets</a></li>
+     <li><a href="#patientHistoryDiv">Patient History</a></li>
+     <li><a href="#markersAndPatientsDiv">Markers &amp; Patients</a></li>
+   </ul>
+
+include(../datasets/widget.html)
+include(../patientHistory/widget.html)
+include(../markersAndSamples/widget.html)
+
+</div>
+

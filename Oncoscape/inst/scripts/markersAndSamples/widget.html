@@ -1,0 +1,117 @@
+<style>
+
+div {
+   display: block;
+   }
+
+body.wait, body.wait *{
+   cursor: wait !important;   
+}
+
+#markersAndPatientssDiv{
+  }
+
+button {font-size:10pt !important;}
+
+#cyMarkersDiv {
+  background-color: #FAFAFA;  // light gray
+  height: 400px;
+  width: 600px;
+  border: 1px solid #aaa;
+  margin-top: 2px;
+  margin-left: 0px;
+  padding: 0px;
+  }
+
+#markersAndTissuesSearchBox{
+  border: 1px solid #aaa;
+  width: 80px;
+  height: 20px;
+  }
+
+markersAndTissuesMouseOverReadout{
+  border: 1px solid #aaa;
+  width: 400px !important;
+  height: 24px;
+  font-size: 12pt !important;
+  font-weight: bold;
+  }
+
+
+#cyMarkersClearSelectionButton #cyMarkersHideEdgesButton #cyMarkersShowEdgesButton #cyMarkersShowAllEdgesButton {
+   font-size:8pt  !important;
+   }
+
+#markersAndTissuesbuttonDiv{
+  margin-top: 1px;
+  margin-bottom: 1px;
+  }
+
+#hiddenmarkersEdgeTypeSelector {
+  width: 100% !important;
+  }
+
+.chosen-container, .chosen-drop, .chosen-drop .chosen-search, .chosen-drop .chosen-search input {
+  width: 100% !important;
+  -webkit-box-sizing: border-box;
+     -moz-box-sizing: border-box;
+          box-sizing: border-box;
+}
+
+.chosen-container { width:350px !important; 
+                    height:25px;
+                    font-size:8pt;}
+iframe {
+display: initial !important;
+}
+
+
+#MTNavForm{
+  padding:4px !important;
+  margin-top:4px !important;
+  margin-bottom:0px !important;
+  margin-left:0px !important;
+}
+#bottomMargin{
+  height:18px;
+}
+</style>
+
+
+<div id="markersAndPatientsDiv" class="container-fluid">
+  <div id="markersAndPatientsStatusDiv" style="display:none"></div>
+   <div id="markersAndTissuesButtonDiv" style="margin-bottom: 0px; margin-top: 8px;">
+      <input type="text" id="markersAndTissuesMouseOverReadout" disabled value="(names displayed here)"></input>
+
+     <select id="cyMarkersOperationsMenu" class="navbar-form selectpicker" style="font-size:8pt"></select>
+     <select id="cyMarkersTumorCategorizationsMenu" style="font-size:8pt"></select>
+      
+     <select class="chosen-select form-control dropdown navbar-form selectpicker" 
+                    style="width:280px;font-size:12pt"
+                    data-placeholder="Select edge types to display" 
+                    multiple id="markersEdgeTypeSelector">
+           <option value="mutation" class="btn-info" selected>Mut</option>
+           <option value="cnGain.2" class="btn-info" selected>Copy+2</option>
+           <option value="cnLoss.2" class="btn-info" selected>Copy-2</option>
+           <option value="cnGain.1" class="btn-info" selected>C+1</option>
+           <option value="cnLoss.1" class="btn-info" selected>C-1</option>
+           <option value="chromosome" class="btn-info" selected>Chrom</option>
+       </select>
+     
+ 
+   <input  type="text" id="markersAndTissuesSearchBox" placeholder="search" style="width:100px;font-size:8pt"></input>
+   <select type="button" id="cyMarkersSendSelectionsMenu" style="float:right; margin-right:15px"></select>
+ 
+   <select class="btn btn-primary selectpicker" type="button" id="markerLayouts"
+            name="markerLayoutMenu"></select>
+ 
+   </div>
+   
+   
+ <div id="cyMarkersDiv" data-toggle="tooltip" class="content" style="margin:0 auto" ></div>
+ <div id="bottomMargin" style="width:100%;height:30px margin:0 auto"></div>
+
+</div>
+
+
+

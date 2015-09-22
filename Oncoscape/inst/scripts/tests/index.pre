@@ -1,0 +1,12 @@
+include(../index.common)
+<script>
+include(../hub/Module.js)
+var hub = HubModule();
+hub.registerModule("tests", "testsDiv");
+include(Module.js)
+hub.start();
+</script>
+<body>
+include(widget.html)
+</body>
+</html>

@@ -1,0 +1,27 @@
+<style>
+.ui-tabs .ui-tabs-nav li a {font-size:10pt !important;}
+.ui-button .ui-button-text {font-size:10pt !important;}
+</style>
+
+
+<script>
+include(../../datasets/Module.js)
+include(../../patientHistory/Module.js)
+include(../../pathways/pi3k-akt/Module.js)
+</script>
+
+<body>
+
+<div id="oncoscapeTabs">
+   <ul>
+     <li><a href="#datasetsDiv">Datasets</a></li>
+     <li><a href="#patientHistoryDiv">Patient History</a></li>
+     <li><a href="#pi3kAktPathwayDiv">PI3K-AKT pathway</a></li>
+   </ul>
+
+include(../../datasets/widget.html)
+include(../../patientHistory/widget.html)
+include(../../pathways/pi3k-akt/widget.html)
+
+</div>
+

@@ -1,0 +1,3038 @@
+
+
+
+
+
+<!DOCTYPE html> 
+<html>
+
+<head>
+   <meta charset="UTF-8">
+   <title> OncoDev 1.4</title>
+
+   <script src="http://code.jquery.com/qunit/qunit-1.18.0.js"></script>
+   <link rel="stylesheet" href="http://code.jquery.com/qunit/qunit-1.18.0.css">
+
+   <script src="http://oncoscape.sttrcancer.org/oncoscape/js/jquery-2.1.3.min.js"></script>
+   <!-- script src="http://oncoscape.sttrcancer.org/oncoscape/js/jquery-1.11.2.min.js"></script-->
+   <script src="http://oncoscape.sttrcancer.org/oncoscape/js/jquery-ui-1.11.4.min.js"></script>
+   <link   rel="stylesheet" type="text/css"
+           href="http://ajax.googleapis.com/ajax/libs/jqueryui/1.8.7/themes/smoothness/jquery-ui.css">
+
+   <!-- script src="http://oncoscape.sttrcancer.org/oncoscape/js/cytoscape-2.3.10.min.js"></script -->
+   <script src="http://oncoscape.sttrcancer.org/oncoscape/js/cytoscape-2.4.4.min.js"></script>
+
+   <script src="http://oncoscape.sttrcancer.org/oncoscape/js/jquery.cytoscape.js-panzoom.js"></script>
+   <link   href="http://oncoscape.sttrcancer.org/oncoscape/css/jquery.cytoscape.js-panzoom.css" 
+           rel="stylesheet" 
+           type="text/css">
+
+
+   <script src="http://oncoscape.sttrcancer.org/oncoscape/js/d3.min.js"></script>
+
+   <script src="http://oncoscape.sttrcancer.org/oncoscape/js/jquery.dataTables-1.10.5.min.js"></script>
+   <link   rel="stylesheet" type="text/css"
+           href="http://oncoscape.sttrcancer.org/oncoscape/css/jquery.dataTables-1.10.5.min.css">
+
+   <script src="http://cdn.datatables.net/colvis/1.1.0/js/dataTable.colVis.js"></script>
+
+   <link   rel="stylesheet" type="text/css"
+           href="http://cdn.datatables.net/colvis/1.1.0/css/dataTables.colVis.css">
+
+   <script src="http://oncoscape.sttrcancer.org/oncoscape/js/jquery.multi-select.js" type="text/javascript"></script>
+   <link href="http://oncoscape.sttrcancer.org/oncoscape/css/multi-select.css" media="screen" rel="stylesheet" type="text/css">
+   <script src="http://oncoscape.sttrcancer.org/oncoscape/js/chosen.jquery.min.js" type="text/javascript"></script>
+   <link href="http://oncoscape.sttrcancer.org/oncoscape/css/chosen.min.css" media="screen" rel="stylesheet" type="text/css">
+
+
+<script> 
+//--------------------------------------------------------------------------------------------------
+// hooks for google analytics
+
+  (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
+  (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
+  m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
+  })(window,document,'script','//www.google-analytics.com/analytics.js','ga');
+ 
+  ga('create', 'UA-528883-29', 'auto');
+  ga('send', 'pageview');
+//--------------------------------------------------------------------------------------------------
+</script> 
+
+</head>
+
+<style>
+
+.flex-container {
+  display: -webkit-flex;
+  display: flex;
+  }
+
+.ui-slider-range {
+   background-image: none;
+   background: lightgrey;
+   }
+
+th,td {
+   font-size:12px;
+   }
+
+.patientDataFilterSliderReadout{
+   font-size: 10px;
+   height:16px;
+   }
+
+.ui-tabs .ui-tabs-nav li a{
+   font-size:10pt !important;
+   }
+
+.ui-button .ui-button-text{
+   font-size:10pt !important;
+   }
+
+
+</style>
+
+
+<script>
+//----------------------------------------------------------------------------------------------------
+// These javascript functions and variables are arranged into a simple module so that
+// implementation details are kept private from the public API other oncoscape 
+// browser modules will use.  common services and utility functions are provided here
+//----------------------------------------------------------------------------------------------------
+var HubModule = (function () {
+
+  var name = "HubModule";
+     // keys are module names, their outermost divs are the values.
+     // providing these outermost divs allows was inspired by 
+     // the need to allow raising of tabs by the sending tab.
+     // TODO: not sure that's still needed
+
+  var selectionDestinations = {};
+  var dispatchOptions = {};
+  var socketIsConnected = false;
+  var socketConnectedFunctions = [];
+  var onDocumentReadyFunctions = [];
+  var socketURI = window.location.href.replace("http://", "ws://");
+  var socket;
+
+  var  messagingRestrictedToLogin = false;
+
+  var modules = {};
+//----------------------------------------------------------------------------------------------------
+function registerModule(name, moduleObject)
+{
+   modules[name] = moduleObject;
+
+} // registerModule
+//----------------------------------------------------------------------------------------------------
+function getModules()
+{
+   return modules;
+
+} // getModules
+//----------------------------------------------------------------------------------------------------
+// TODO: add 3rd argument: acceptsIncomingMessages
+//       datasets, for instance, seems to have no need for incoming json/websocket messages
+function registerSelectionDestination(names, outermostDivID)
+{
+  if(typeof(names) == "string")
+    names = [names];
+
+  for(var i=0; i < names.length; i++)
+     selectionDestinations[names[i]] = outermostDivID;
+
+} // registerSelectionDestination
+//----------------------------------------------------------------------------------------------------
+function getRegisteredSelectionDestinations()
+{
+  return(selectionDestinations);
+
+} // getRegisteredSelectionDestinations
+//----------------------------------------------------------------------------------------------------
+function setupSocket(socket)
+{
+  console.log("=== Module.hub setupSocket");
+
+  try {
+     socket.onopen = function() {
+        console.log("websocket connection now open");
+        socketIsConnected = true;
+        for(var f=0; f < socketConnectedFunctions.length; f++){
+           console.log("calling the next sockectConnectedFunction");
+           socketConnectedFunctions[f]();
+           } // for f
+        } // socked.onopen
+
+     socket.onmessage = function got_packet(msg) {
+        //console.log("=== Hub, socket.onmessage");
+        var msg = JSON.parse(msg.data)
+        dispatchMessage(msg)
+        } // socket.onmessage, got_packet
+
+     socket.onclose = function(){
+        console.log("socket closing");
+        } // socket.onclose
+     } // try
+  catch(exception) {
+    console.log("Error: " + exception);
+    }
+ 
+  return(socket);
+
+} // setupSocket
+//----------------------------------------------------------------------------------------------------
+function socketConnected()
+{
+   return(socketIsConnected);
+
+} // socketConnected
+//----------------------------------------------------------------------------------------------------
+function addSocketConnectedFunction(func)
+{
+   socketConnectedFunctions.push(func)
+
+} // addSocketConnectedFunction
+//----------------------------------------------------------------------------------------------------
+function getSocketConnectedFunctions()
+{
+   return(socketConnectedFunctions)
+
+} // getSocketConnectedFunction
+//----------------------------------------------------------------------------------------------------
+function addOnDocumentReadyFunction(func)
+{
+   onDocumentReadyFunctions.push(func)
+
+} // addOnDocumentReadyFunction
+//----------------------------------------------------------------------------------------------------
+function getOnDocumentReadyFunctions()
+{
+   return(onDocumentReadyFunctions)
+
+} // getOnDocumentReadyFunctions
+//----------------------------------------------------------------------------------------------------
+// the nginx proxy server, used by fhcrc IT for the publicly-visible version of Oncoscape
+// times out web sockets at 90 seconds.
+// this function, when called more often that that, will keep the websocket open.
+keepAlive = function()
+{   
+    //console.log("keep alive"); 
+    msg = {cmd: "keepAlive", callback: "", status:"request", payload:""}
+    socket.send(JSON.stringify(msg));
+
+} // keepAlive
+//--------------------------------------------------------------------------------------------------
+function runOnDocumentReadyFunctions()
+{
+  setInterval(keepAlive, 30000);
+  var funcs = getOnDocumentReadyFunctions()
+  console.log("==== Module.hub: " + funcs.length + " onDocumentReadyFunctions");
+
+  for (var f = 0; f < funcs.length; f++) {
+     console.log("calling on ready function");
+     funcs[f]();
+     }
+
+} // runOnDocumentReadyFunctions
+//----------------------------------------------------------------------------------------------------
+function runningInNode()
+{
+    // a not very sophisticated test, but adequate for our purposes thus far
+  return(typeof(window) == "undefined")
+
+} // functionRunningInNode
+//----------------------------------------------------------------------------------------------------
+function initializeWebSocket()
+{
+   if(runningInNode()){
+     console.log("--- web socket not currently available when runing in Node");
+     process.exit(code=1)
+     }
+
+   socket = new WebSocket(socketURI);
+   socket = setupSocket(socket);
+
+} // initializeWebSocket
+//----------------------------------------------------------------------------------------------------
+function getSocket()
+{
+  return(socket);
+
+} // getSocket
+//----------------------------------------------------------------------------------------------------
+function addMessageHandler(cmd, func)
+{
+  if(cmd in dispatchOptions){
+     dispatchOptions[cmd].push(func)
+     }
+  else{
+     dispatchOptions[cmd] = [func]
+     }
+  
+} // addMessageHandler
+//----------------------------------------------------------------------------------------------------
+function getRegisteredMessageNames()
+{
+   return(Object.keys(dispatchOptions));
+  
+} // getRegisteredMessageNames
+//----------------------------------------------------------------------------------------------------
+function getDispatchOptions()
+{
+   return(dispatchOptions);
+  
+} // getDispatchOptions
+//----------------------------------------------------------------------------------------------------
+function dispatchMessage(msg)
+{
+   var cmd = msg.cmd;
+   var status = msg.status;
+   //console.log("=============== dispatching '" + cmd + "'");
+
+   var dispatchKeys = Object.keys(dispatchOptions);
+   var cmdIndex = dispatchKeys.indexOf(cmd);
+   console.log("hub.dispatchMessage(" + cmd + "): " + cmdIndex);
+
+   if(cmdIndex === -1){
+      console.log("unrecognized socket request: " + msg.cmd);
+      console.log(" --- msg:");
+      console.log(msg);
+      console.log(" --- dispatchOptions");
+      console.log(dispatchOptions);
+      }
+   else{
+     var funcs = dispatchOptions[cmd];
+     //console.log(" func count for msg cmd " + cmd + ": " + funcs.length);
+      for(var i=0; i < funcs.length; i++){
+         //console.log("--- Module.hub executing func # " + i + " for cmd " + msg.cmd);
+         funcs[i](msg); // dispatchOptions[msg.cmd](msg)
+         } // for i
+      }
+
+}  // dispatchMessage
+//----------------------------------------------------------------------------------------------------
+function restrictMessagingToLogin(newState)
+{
+   messagingRestrictedToLogin = newState;
+
+} // restrictMessagingToLogin
+//----------------------------------------------------------------------------------------------------
+function send(msg)
+{
+   var cmd = JSON.parse(msg).cmd;
+   if(messagingRestrictedToLogin && cmd === "checkPassword"){
+      console.log("hub.send drops non-login msg");
+      return;
+      }
+
+   var browserLocalCommand = Object.keys(dispatchOptions).indexOf(cmd) >= 0;
+   var mode = "server";
+   if(browserLocalCommand)
+      mode = "browser local";
+
+   console.log("--- hub.send: '" + cmd + "' (" + mode + ")");
+
+   if(browserLocalCommand)
+      dispatchMessage(JSON.parse(msg));
+   else{
+      socket.send(msg);
+      }
+
+}  // send
+//----------------------------------------------------------------------------------------------------
+function setTitle (newTitle)
+{
+  window.document.title = newTitle;
+
+}  // setTitle
+//----------------------------------------------------------------------------------------------------
+// add a pulldown menu to the specified menuSelector, which has been provided by the caller, which
+// is assumed to be an Oncoscape module.  append the names of all previously-registered divs, 
+// except for those explicitly excluded in the incoming argument "excludedModules".
+// This supports the usual (but not universal) case: a module does not want to send selections
+// to itself.
+// this argument will often be an array of one element, the name of the calling module.
+// some modules may have multiple send destinations (eg, "PCA" & "PCA (highlight)".
+function configureSendSelectionMenu(menuSelector, excludedModules, changeFunction, menuTitle)
+{
+  var menu = $(menuSelector);
+  menu.append("<option>" + menuTitle + "</option>");
+  menu.change(changeFunction);
+  var otherModules = Object.keys(hub.getRegisteredSelectionDestinations());
+
+  for(var i=0; i < otherModules.length; i++){
+     var moduleName = otherModules[i];
+     var excluded = excludedModules.indexOf(moduleName) >= 0;
+     if(!excluded){
+        menu.append("<option>" + moduleName + "</option>");
+        }
+     } // for i
+
+  return(menu);
+
+} // createSendSelectionMenu
+//--------------------------------------------------------------------------------------------
+function disableButton(button)
+{
+   button.prop("disabled", true);
+   button.css({"background-color": "lightgray", "color": "gray"});
+
+} // disableButton
+//--------------------------------------------------------------------------------------------
+function enableButton(button)
+{
+   button.prop("disabled", false);
+   //button.css({ 'color': 'black'})
+   button.css({"background-color": "white", "color": "black"});
+
+} // enableButton
+//--------------------------------------------------------------------------------------------
+// from http://stackoverflow.com/questions/4068373/center-a-popup-window-on-screen
+function openCenteredBrowserWindow(url, title, w, h, replaceAnyExistingPopup) {
+
+      // Fixes dual-screen position                       Most browsers      Firefox
+    var dualScreenLeft = window.screenLeft != undefined ? window.screenLeft : screen.left;
+    var dualScreenTop = window.screenTop != undefined ? window.screenTop : screen.top;
+
+    width = window.innerWidth ? window.innerWidth : document.documentElement.clientWidth ? document.documentElement.clientWidth : screen.width;
+    height = window.innerHeight ? window.innerHeight : document.documentElement.clientHeight ? document.documentElement.clientHeight : screen.height;
+
+    var left = ((width / 2) - (w / 2)) + dualScreenLeft;
+    var top = ((height / 2) - (h / 2)) + dualScreenTop;
+    var options = 'scrollbars=yes, width=' + w + ', height=' + h + ', top=' + top + ', left=' + left;
+
+    var newWindow;
+
+      // warning, a bug: when multiple popup windows are created, they
+      // all have the same content -- not what we want.  fix this
+      // by severing their relationship, and/or switching to jQuery dialog
+
+    if(replaceAnyExistingPopup)
+      newWindow = window.open(url, title, options);
+    else // leave any existing popup windows untouched
+      newWindow = window.open(url, "_blank", options);
+
+    if (window.focus) {
+       newWindow.focus();
+       }
+
+} // openCenteredBrowserWindow
+//--------------------------------------------------------------------------------------------
+// if jQuery-style tabs are in use with Oncoscape, this function raised the named tab to the
+// the front (visible) position in the tabset
+// the argument, "tabIDString" is the tab id used in the module's widget.html, reproduced exactly
+// in tabsApp/widget.html, with some current examples being
+//  pcaDiv, patientTimeLinesDiv, gbmPathwaysDiv
+//
+function raiseTab(tabIDString)
+{
+  var tabsWidget = $("#oncoscapeTabs");
+
+  if(tabsWidget.length > 0){
+     var selectionString = '#oncoscapeTabs a[href="#' + tabIDString + '"]';
+     var tabIndex = $(selectionString).parent().index ();
+     if(tabIndex < 0) throw "Module.hub does not recognize tabIDString '" + tabIDString + "'";
+     tabsWidget.tabs( "option", "active", tabIndex);
+     } // if tabs exist
+
+} // raiseTab
+//----------------------------------------------------------------------------------------------------
+// each of our tabs is a div, nested directly within $("oncoscapeTabs").  
+// this function returns an array of each of the div ids
+function getTabDivIDs()
+{
+   return ($("#oncoscapeTabs").children("div").map(function(index,dom){return dom.id}));
+
+} // getTabDivIDs
+//----------------------------------------------------------------------------------------------------
+// e.g., hub.hideTab("Login", "#loginDiv");
+function hideTab(tabTitle, tabDivIDstring)
+{
+  $(".ui-tabs-nav li:contains('" + tabTitle + "')").hide()
+  $(tabDivIDstring).hide();
+
+} // hideTab
+//----------------------------------------------------------------------------------------------------
+function hideAllTabsButOne(tabTitle, tabDivIDstring)
+{
+  var divIDs = getTabDivIDs();
+  
+  $(".ui-tabs-nav li:contains('" + tabTitle + "')").hide()
+  $(tabDivIDstring).hide();
+
+} // hideAllTabsButOne
+//----------------------------------------------------------------------------------------------------
+function showTab(tabTitle, tabDivIDstring)
+{
+  $(".ui-tabs-nav li:contains('" + tabTitle + "')").show()
+  $(tabDivIDstring).show();
+
+} // showTab
+//----------------------------------------------------------------------------------------------------
+function addTab(tabTitle, tabDivIDstring,  content)
+{
+  var tabs = $("#oncoscapeTabs").tabs()
+  var listItem = "<li><a href='#" + tabDivIDstring + "}'>" + tabTitle + "</a>";
+
+  tabs.find(".ui-tabs-nav").append(listItem);
+  tabs.append("<div id='" + tabDivIDstring + "'><p>" + content + "</p></div>");
+  tabs.tabs("refresh");
+
+} // addTab
+//----------------------------------------------------------------------------------------------------
+function getRandomFloat (min, max)
+{
+    return Math.random() * (max - min) + min;
+}
+//----------------------------------------------------------------------------------------------------
+function getRandomInt (min, max) 
+{
+    return Math.floor(Math.random() * (max - min + 1)) + min;
+}
+//----------------------------------------------------------------------------------------------------
+String.prototype.beginsWith = function (string) 
+{
+    return(this.toLowerCase().indexOf(string.toLowerCase()) === 0);
+};
+//----------------------------------------------------------------------------------------------------
+uniqueElementsOfArray = function(vector)
+{
+  var u = {}, a = [];
+
+  for(var i = 0, l = vector.length; i < l; ++i){
+     if(u.hasOwnProperty(vector[i])){
+       continue;
+       }
+     a.push(vector[i]);
+     u[vector[i]] = 1;
+     } // for i
+
+   return a;
+
+} // uniqueElementsOfArray
+//----------------------------------------------------------------------------------------------------
+// return the targets matched by the candidates, where match is tolerant of differences by suffix
+// thus incoming id "TCGA.06.0649.01" matches existing id "TCGA.06.0649" and
+//      incoming id "TCGA.06.0649"    matches existing id "TCGA.06.0649.01" 
+// this may cause problems with gene names, eg, MYC would mach MYCL and MYCA
+// todo: make this suffix-tolerant match suffix-specific 
+function intersectionOfArrays(candidates, targets) {
+
+  hits=[]; 
+
+  for(var i=0; i < candidates.length; i++){
+    for (var j=0; j < targets.length; j++){
+       candidate = candidates[i];
+       target = targets[j];
+       index1 = candidate.indexOf(target);   // "abc".indexOf("ab") -> 0
+       index2 = target.indexOf(candidate); 
+       //console.log("c(t): " + candidate + " contains " + target + ": " + index1);
+       //console.log("t(c): " + target + " contains " + candidate + ": " + index2);
+       if (index1 == 0)
+          hits.push(target)
+       else if (index2 == 0)
+          hits.push(target)
+         } // for j
+     } // for i
+
+  return(hits)
+
+} // intersectionOfArays
+//----------------------------------------------------------------------------------------------------
+function setupGlobalExceptionHandler()
+{
+   window.onerror = function (errorMsg, url, lineNumber, column, errorObj) {
+
+      var title = "Oncoscape Error";
+      var options = {buttons: { "Ok": function () { $(this).dialog("close"); } },
+                     title: title};
+      var text = "<i>" + errorMsg + "</i><br>" +
+                 "<br><b>Script</b>: " + url + 
+                 "<br><b>Line:</b> " + lineNumber + 
+                 "<br><b>Column:</b> " + column + 
+                 "<br><b>StackTrace:</b> " +  errorObj;
+      $("<div></div>").dialog(options).html(text);
+      };
+ 
+} // setupGlobalExceptionHandler
+//----------------------------------------------------------------------------------------------------
+function start()
+{
+  setupGlobalExceptionHandler();
+  initializeWebSocket();
+  $(document).ready(runOnDocumentReadyFunctions);
+
+}  // start
+//----------------------------------------------------------------------------------------------------
+function test_intersectionOfArrays()
+{
+   console.log("---  test_intersectionOfArrays");
+   var targets = ["TCGA.02.0006"];
+   var candidates = ["TCGA.02.0006"];
+
+   QUnit.test("test_intersectionOfArrays 1", function(assert) {
+      assert.equal(hub.intersectionOfArrays(candidates, targets), candidates);
+      });
+
+   targets = ["TCGA.02.0006"];
+   candidates = ["bogus"];
+   QUnit.test("test_intersectionOfArrays 2", function(assert) {
+      assert.equal(hub.intersectionOfArrays(candidates, targets), []);
+      });
+
+   targets = ["bogus"];
+   candidates = ["TCGA.02.0006"];
+   QUnit.test("test_intersectionOfArrays 3", function(assert) {
+      assert.equal(hub.intersectionOfArrays(candidates, targets), []);
+      });
+
+
+   targets = ["TCGA.02.0006.01"];
+   candidates = ["TCGA.02.0006"];
+   QUnit.test("test_intersectionOfArrays 4", function(assert) {
+      assert.equal(hub.intersectionOfArrays(candidates, targets), candidates);
+      });
+
+   //targets = ["MAP2"];   this test will fail because sometimes we want incomplete matches:
+   //  see test4 just above
+   //candidates = ["MAP2K4", "abc"];
+   //QUnit.test("test_intersectionOfArrays 5", function(assert) {
+   //   assert.equal(hub.intersectionOfArrays(candidates, targets), []);
+   //   });
+
+
+} //  test_intersectionOfArrays
+//----------------------------------------------------------------------------------------------------
+function standAloneTest()
+{
+   test_intersectionOfArrays();
+
+}  // standaloneTest
+//----------------------------------------------------------------------------------------------------
+
+  return({
+     getName: function() {return(name)},
+     restrictMessagingToLogin: restrictMessagingToLogin,
+     registerModule: registerModule,
+     getModules: getModules,
+     registerSelectionDestination: registerSelectionDestination,
+     getRegisteredSelectionDestinations: getRegisteredSelectionDestinations,
+     socketConnected: socketConnected,
+     addSocketConnectedFunction: addSocketConnectedFunction,
+     getSocketConnectedFunctions: getSocketConnectedFunctions,
+     addOnDocumentReadyFunction: addOnDocumentReadyFunction,
+     getOnDocumentReadyFunctions: getOnDocumentReadyFunctions,
+     runningInNode: runningInNode,
+     initializeWebSocket: initializeWebSocket,
+     getSocket: getSocket,
+     addMessageHandler: addMessageHandler,
+     getRegisteredMessageNames: getRegisteredMessageNames,
+     getDispatchOptions: getDispatchOptions,
+     dispatchMessage: dispatchMessage,
+     configureSendSelectionMenu: configureSendSelectionMenu,
+     enableButton: enableButton,
+     disableButton: disableButton,
+     getRandomInt: getRandomInt,
+     getRandomFloat: getRandomFloat,
+     intersectionOfArrays: intersectionOfArrays,
+     uniqueElementsOfArray: uniqueElementsOfArray,
+     send: send,
+     setTitle: setTitle,
+     getTabDivIDs: getTabDivIDs,
+     raiseTab: raiseTab,
+     hideTab: hideTab,
+     showTab: showTab,
+     addTab: addTab,
+     openCenteredBrowserWindow: openCenteredBrowserWindow,
+     sat: standAloneTest,
+     start: start
+     });
+
+}); // HubModule
+//----------------------------------------------------------------------------------------------------
+
+
+var hub = HubModule();
+hub.start();
+
+hub.addOnDocumentReadyFunction(function() {
+    console.log("====== tabapps document ready");
+    window.tabsAppRunning = true
+    $("#oncoscapeTabs").tabs({
+         // todo: distinguish between tabs, only do needed resets
+       activate: function(event, ui) {
+            console.log(" tabsApp/code.js:activate");
+            var tableRef = $("#historyTable").dataTable();
+            var tableRef2 = $("#userDataStoreTable").dataTable();
+            if (tableRef.length > 0) {
+               console.log("   adjusting patient history table");
+               tableRef.fnAdjustColumnSizing();
+               } // if
+            if (tableRef2.length > 0) {
+               console.log("   skipping! - adjusting user data store table");
+               tableRef2.fnAdjustColumnSizing();
+               } // if
+            //console.log(" ==== tab.activate, possible cyjs resize and fit");
+            if(typeof(cwMarkers) != "undefined") {
+               //console.log("adjusting cwMarkers");
+               cwMarkers.resize(); 
+               cwMarkers.fit(50);
+               //console.log("done adjusting cwMarkers");
+               }
+            if(typeof(cyGbm) != "undefined") {
+               //console.log("adjusting cwGbm");
+               cyGbm.resize();
+               cyGbm.fit(50);
+               //console.log("done adjusting cwGbm");
+               }
+            if(typeof(cwAngio) != "undefined") {
+               //console.log("adjusting cwAngio");
+               cwAngio.resize();
+               cwAngio.fit(50);
+               //console.log("done adjusting cwGbm");
+               }
+            if(typeof(cyPathway) != "undefined") {
+               cyPathway.resize();
+               cyPathway.fit(50);
+               }
+            } // activate
+        }); // tabs
+    });  // ready
+
+
+
+hub.setTitle("gbmPathways")
+</script>
+<style>
+.ui-tabs .ui-tabs-nav li a {font-size:10pt !important;}
+.ui-button .ui-button-text {font-size:10pt !important;}
+</style>
+
+
+<script>
+//----------------------------------------------------------------------------------------------------
+var DataSummaryModule = (function () {
+
+  var dataSummaryDiv;
+
+  var outputDiv;
+  var dataSetNamesOutputDiv;
+  var thisModulesName = "datasets";
+  var thisModulesOutermostDiv = "datasetsDiv";
+
+  var tableElement;
+  var tableRef;
+  var datasetMenu;
+  var selectedDataSet;
+  var useThisDatasetButton;
+
+  var sendSelectionsMenu;
+  var sendSelectionsMenuTitle = "Send selection...";
+  var passwordProtected = false;
+
+//----------------------------------------------------------------------------------------------------
+function initializeUI()
+{
+  sendSelectionsMenu = hub.configureSendSelectionMenu("#datasetsSendSelectionsMenu", 
+                                                      [thisModulesName], sendSelections,
+                                                       sendSelectionsMenuTitle);
+
+  hub.disableButton(sendSelectionsMenu);
+
+  $(window).resize(handleWindowResize);
+  datasetMenu = $("#datasetMenu");
+  datasetMenu.change(selectManifest);
+
+  dataSetNamesOutputDiv = $("#dataSetNamesOutputDiv");
+  dataSummaryDiv = $("#dataSummaryOutputDiv");
+
+  useThisDatasetButton = $("#selectDatasetButton");
+  useThisDatasetButton.button();
+  hub.disableButton(useThisDatasetButton);
+  useThisDatasetButton.click(specifyCurrentDataset);
+
+  outputDiv = $("#dataSummaryOutputDiv");
+  tableElement = $("#datasetsManifestTable");
+      
+    // if no login tab is present, then allow unrestricted choice of datasets.
+    // if it IS present, then that tab will control this.
+
+  var loginRequired = $("#loginDiv").length === 1;
+  console.log("loginRequired? " + loginRequired);
+
+  if(!loginRequired){
+    console.log(" enabling datasetMenu");
+    hub.enableButton($("#datasetMenu"));
+    }
+  else{
+    console.log(" disabling datasetMenu");
+    hub.disableButton($("#datasetMenu"));
+    }
+
+} // initializeUI
+//----------------------------------------------------------------------------------------------------
+function postStatus(msg)
+{
+   $("#datasetsStatusDiv").text(msg);
+
+} // postStatus
+//----------------------------------------------------------------------------------------------------
+function handleWindowResize()
+{
+  $("#"+thisModulesOutermostDiv).width($(window).width() * 0.95);
+  $("#"+thisModulesOutermostDiv).height($(window).height() * 0.95);
+
+//  console.log("  div: " + outputDiv.width());
+//  console.log("  tbl before: " + tableElement.width());
+//  tableElement.width($(window).width() * 0.50);
+//  console.log("  tbl after: " + tableElement.width());
+
+} // handleWindowResize
+//----------------------------------------------------------------------------------------------------
+function sendSelections(event)
+{
+   var destination = sendSelectionsMenu.val();
+   console.log("send selections to " + destination);
+   sendSelectionsMenu.val(sendSelectionsMenuTitle);
+
+   var cmd = "sendSelectionTo_" + destination;
+   payload = "dummy payload";
+   var newMsg = {cmd: cmd,  callback: "", status: "request", payload: payload};
+
+   sendSelectionsMenu.val(sendSelectionsMenuTitle);
+
+   hub.send(JSON.stringify(newMsg));
+
+} // sendSelections
+//----------------------------------------------------------------------------------------------------
+function selectManifest(event)
+{
+   selectedDataSet = datasetMenu.val();
+   console.log("dataset '" + selectedDataSet + "'");
+
+   if(selectedDataSet === ""){
+     // outputDiv.empty();
+      $("#datasetInstructions").css("display", "block")
+      $("#datasetsManifestTable").css("display", "none")
+      hub.disableButton(useThisDatasetButton);
+      }
+    else{
+      $("#datasetInstructions").css("display", "none")
+      $("#datasetsManifestTable").css("display", "block")      
+      requestDataSetSummary(selectedDataSet);
+    }
+
+} // selectManifest
+//----------------------------------------------------------------------------------------------------
+function populateDataSetMenu()
+{
+   $(datasetMenu).ready(function() {
+      console.log("=== datasetMenu ready, now issuing populateDataSetMenu request to server");
+      var msg = {cmd: "getDataSetNames",  callback: "handleDataSetNames", status: "request", 
+                 payload: ""};
+      hub.send(JSON.stringify(msg));
+      });
+
+} // populateDataSetMenu
+//----------------------------------------------------------------------------------------------------
+function handleDataSetNames(msg)
+{
+   console.log("=== handleDataSetNames");
+   
+   var dataSetNames = msg.payload.datasets;
+   var passwordProtected = msg.payload.passwordProtected;
+
+   if(!Array.isArray(dataSetNames))
+      dataSetNames = [dataSetNames];
+
+   for(var i=0; i < dataSetNames.length; i++){
+      var s = dataSetNames[i];
+      datasetMenu.append("<option value='" + s + "'>" + s + "</option>");
+      }
+
+  //if(passwordProtected)
+  //   hub.disableButton($("#datasetMenu"));
+
+
+} // handleDataSetNames
+//----------------------------------------------------------------------------------------------------
+function requestDataSetSummary(dataSetName)
+{
+   console.log("=== requestDataSetSummary");
+
+   var msg = {cmd: "getDataManifest",  callback: "displayDataManifest", status: "request", 
+              payload: dataSetName};
+
+   hub.send(JSON.stringify(msg));
+
+} // requestDataSetSummary
+//----------------------------------------------------------------------------------------------------
+function displayDataManifest(msg)
+{
+   var payload = msg.payload;
+   var tblColumnNames = payload.colnames;
+
+   var columnTitles = [];
+     // convert simple strings to array of objects, each an sTitle
+   for(var i=0; i < tblColumnNames.length; i++){
+      columnTitles.push({sTitle: tblColumnNames[i]});
+      }
+     
+   if(typeof(tableRef) != "undefined"){
+      tableRef.destroy();
+      tableElement.empty();
+      }
+
+
+   $(tableElement).ready(function() {
+      tableRef = tableElement.DataTable({
+        //sDom: 't',
+        aoColumns: columnTitles,
+        //scrollX: true,
+        bPaginate: false,
+        bFilter: false, 
+        bAutoWidth: true,
+        bSort: false,
+        bInfo: false
+        }); // dataTable
+
+     tableRef = $("#datasetsManifestTable").DataTable();
+
+     tableRef.rows.add(payload.mtx).draw();
+     // tableRef.fnAddData(payload.mtx);
+
+     $('#datasetsManifestTable tbody').on( 'click', 'tr', function (){ 
+         console.log("=== click");
+         var category = $('td', this).eq(0).text();
+         var subcategory = $('td', this).eq(1).text();
+         if($(this).hasClass("selected")){
+            $(this).removeClass('selected');
+            hub.disableButton(sendSelectionsMenu);
+            }
+         else{
+            tableRef.$('tr.selected').removeClass('selected');
+            $(this).addClass('selected');
+            hub.enableButton(sendSelectionsMenu);
+            console.log("selected " + category + ", " + subcategory);
+            }
+         });
+
+     handleWindowResize();
+     hub.enableButton(useThisDatasetButton);
+     postStatus("manifest table displayed");
+     }); // tableElement.ready
+
+} // displayDataManifest
+//----------------------------------------------------------------------------------------------------
+function specifyCurrentDataset()
+{
+   console.log("Module.datasets 'Use Dataset' button clicked, specifyCurrentDataset: " + selectedDataSet);
+
+   var msg = {cmd: "specifyCurrentDataset",  callback: "datasetSpecified", 
+              status: "request", payload: selectedDataSet};
+
+   hub.send(JSON.stringify(msg));
+
+} // specifyCurrentDataset
+//----------------------------------------------------------------------------------------------------
+function datasetSpecified(msg)
+{
+   console.log("--- Module.datasets:  datasetSpecified");
+
+} // datasetSpecified
+//----------------------------------------------------------------------------------------------------
+function test(dataSetName)
+{
+   console.log("Module.datasets test, on datasetName: '" + dataSetName + "'");
+
+   QUnit.test("choose dataset '" + dataSetName + "'", function(assert) {
+      hub.raiseTab("datasetsDiv");
+      var desiredDataset = dataSetName;
+      var dzNames = $("#datasetMenu option").map(function(opt){return this.value})
+
+      if($.inArray(desiredDataset, dzNames) < 0){
+         alert("cannot run tests:  " + desiredDataset + " dataset not loaded");
+         return;
+         }
+
+      $("#datasetMenu").val(desiredDataset)
+      $("#datasetMenu").trigger("change");
+
+      var done1 = assert.async();
+      var done2 = assert.async();
+      var done3 = assert.async();
+      assert.expect(3);
+
+      setTimeout(function(){
+         assert.equal($("#datasetMenu").val(), desiredDataset);  done1();
+         assert.ok($("#datasetsManifestTable tr").length >= 10); done2();
+         assert.equal($("#datasetsManifestTable tbody tr").eq(0).find("td").eq(0).text(), 
+                      "mRNA expression"); done3();
+         //testLoadPatientHistoryTable();
+         }, 5000);
+      });
+
+
+} // test
+//----------------------------------------------------------------------------------------------------
+function moduleInit()
+{
+
+  hub.addOnDocumentReadyFunction(initializeUI);
+  // hub.addOnDocumentReadyFunction(function() {$("#datasetsDiv").hide();});
+  // hub.registerSelectionDestination(thisModulesName, thisModulesOutermostDiv);
+  hub.addSocketConnectedFunction(populateDataSetMenu);
+  hub.addMessageHandler("handleDataSetNames", handleDataSetNames);
+  hub.addMessageHandler("displayDataManifest", displayDataManifest);
+  hub.addMessageHandler("datasetSpecified", datasetSpecified);
+  //hub.setTitle("Datasets");
+
+} // moduleInit
+//----------------------------------------------------------------------------------------------------
+return{
+   init: moduleInit,
+   test: test
+   }; // DataSummaryModule return value
+
+//----------------------------------------------------------------------------------------------------
+}); // DataSummaryModule
+
+var dataSummaryModule = DataSummaryModule();
+dataSummaryModule.init();
+hub.registerModule("Datasets", dataSummaryModule);
+
+//----------------------------------------------------------------------------------------------------
+var patientHistoryTableRef;
+
+var ageAtDxMinReadout;
+var ageAtDxMaxReadout;
+var survivalMinReadout, survivalMaxReadout;
+
+var ageAtDxMin, ageAtDxMax;
+var ageAtDxSlider, survivalSlider;
+var survivalMin, survivalMax;
+
+
+var PatientHistoryModule = (function () {
+
+  var statusDiv;
+  var patientHistoryDiv;
+  var controlsDiv;
+  var tableDiv;
+  var tableElement;
+  var sendSelectionsMenu;
+
+  var thisModulesName = "patientHistory";
+  var thisModulesOutermostDiv = "patientHistoryDiv";
+  var selectionDestinations = [thisModulesName];
+
+  var sendSelectionsMenuTitle = "Send selection...";
+  var showAllRowsButton;
+  
+//--------------------------------------------------------------------------------------------
+function initializeUI()
+{
+  console.log("=== Module.patientHistory, initializeUID");
+
+  $(window).resize(handleWindowResize);
+
+  statusDiv = $("#patientHistoryStatusDiv");
+
+  patientHistoryDiv = $("#patientHistoryDiv");
+  controlsDiv = $("#patientHistoryControlsDiv");
+  tableDiv = $("#patientHistoryTableDiv");
+  tableElement = $("#patientHistoryTable");
+
+  showAllRowsButton = $("#patientHistoryShowAllRowsButton");
+  showAllRowsButton.click(showAllRows);
+
+  sendSelectionsMenu = hub.configureSendSelectionMenu("#patientHistorySendSelectionsMenu", 
+                                                      selectionDestinations, sendSelections,
+                                                      sendSelectionsMenuTitle);
+
+  handleWindowResize();
+
+} // initializeUI
+//----------------------------------------------------------------------------------------------------
+function createDataTable(colnames, data)
+{
+      // DataTable likes some structure for column titles
+
+   var columnTitles = [];
+   for(var i=0; i < colnames.length; i++){
+     columnTitles.push({sTitle: colnames[i]});
+     }
+
+   if(typeof(patientHistoryTableRef) != "undefined"){
+      patientHistoryTableRef.destroy();
+      tableElement.empty();
+      }
+
+   patientHistoryTableRef = tableElement.DataTable({
+                             data: data,
+                             columns: columnTitles,
+                             //dom: "C<fi<t>>",
+                             dom: 'C<"clear">lfrtip',
+                             paging: false,
+                             jQueryUI: false
+                             });
+
+   if(colnames.indexOf("AgeDx") >= 0){
+      var minMax = learnSliderMinAndMax(data, colnames.indexOf("AgeDx"));
+      console.log("minMax for AgeDx: ");
+      console.log(minMax);
+      ageAtDxMin = minMax[0];
+      ageAtDxMax = minMax[1];
+         // slider, title & readouts for specifying age range for table display
+      createAgeAtDiagnosisWidget(ageAtDxMin, ageAtDxMax);  
+      } // ageAtDx slider
+
+   if(colnames.indexOf("Survival") >= 0){
+      minMax = learnSliderMinAndMax(data, colnames.indexOf("Survival"));
+      console.log("minMax for Survival: ");
+      console.log(minMax);
+      survivalMin = minMax[0];
+      survivalMax = minMax[1];
+         // slider, title & readouts for specifying age range for table display
+      createSurvivalWidget(survivalMin, survivalMax);  
+      } // survival slider
+
+   showAllRows();
+   setupSliderDrivenFilterBehavior(colnames);
+ 
+
+} // createDataTable
+//----------------------------------------------------------------------------------------------------
+function setupSliderDrivenFilterBehavior(colnames)
+{
+  var ageDxColumn = colnames.indexOf("AgeDx");
+  var survivalColumn = colnames.indexOf("Survival");
+
+  if(ageDxColumn >= 0) {
+    jQuery.fn.dataTable.ext.search.push(
+       function(settings, data, dataIndex) {
+         var ageAtDxMin      = parseFloat(ageAtDxMinReadout.val());
+         var ageAtDxMax      = parseFloat(ageAtDxMaxReadout.val());
+
+         var patientAgeAtDx  = parseFloat(data[ageDxColumn]) || 0;
+ 
+         var ageAtDxInRange  = (patientAgeAtDx >= ageAtDxMin) && (patientAgeAtDx <= ageAtDxMax);
+         if(ageAtDxInRange)
+            return true;
+         return false;
+        }); // anonymous function
+      } // push
+
+  if(survivalColumn >= 0) {
+    jQuery.fn.dataTable.ext.search.push(
+       function(settings, data, dataIndex) {
+         var survivalMin      = parseFloat(survivalMinReadout.val());
+         var survivalMax      = parseFloat(survivalMaxReadout.val());
+
+         var patientSurvival  = parseFloat(data[survivalColumn]) || 0;
+         var survivalInRange  = (patientSurvival >= survivalMin) && (patientSurvival <= survivalMax);
+         if(survivalInRange)
+            return true;
+         return false;
+        }); // anonymous function
+      } // push
+
+
+} // setupSliderDrivenFilterBehavior
+//----------------------------------------------------------------------------------------------------
+function createAgeAtDiagnosisWidget(minValue, maxValue)
+{
+  ageAtDxSlider = $("#ageAtDxSlider");
+  ageAtDxMinReadout = $("#ageAtDxMinSliderReadout");
+  ageAtDxMaxReadout = $("#ageAtDxMaxSliderReadout");
+
+  ageAtDxSlider.slider({
+     range: true,
+     slide: function(event, ui) {
+        //console.log("AgeDx: " + ui.values[0] + ", " + ui.values[1]);
+        if(ui.values[0] > ui.values[1]){
+           return false;
+           }          
+       ageAtDxMinReadout.text (ui.values[0]);
+       ageAtDxMaxReadout.text (ui.values[1]);
+       patientHistoryTableRef.draw();
+       handleWindowResize();
+       //updateRowCountReadout();
+       },
+    min: minValue,
+    max: maxValue,
+    values: [minValue, maxValue]
+    });
+
+  ageAtDxMinReadout.text(minValue);
+  ageAtDxMaxReadout.text(maxValue);
+
+} // createAgeAtDiagnosisWidget
+//----------------------------------------------------------------------------------------------------
+function createSurvivalWidget(minValue, maxValue)
+{
+  survivalSlider = $("#survivalSlider");
+  survivalMinReadout = $("#survivalMinSliderReadout");
+  survivalMaxReadout = $("#survivalMaxSliderReadout");
+  console.log("createSurvivalWidget");
+
+  survivalSlider.slider({
+     range: true,
+     slide: function(event, ui) {
+        //console.log("survival: " + ui.values[0] + ", " + ui.values[1]);
+        if(ui.values[0] > ui.values[1]){
+           return false;
+           }          
+       survivalMinReadout.text (ui.values[0]);
+       survivalMaxReadout.text (ui.values[1]);
+       patientHistoryTableRef.draw();
+       handleWindowResize();
+       },
+    min: minValue,
+    max: maxValue,
+    values: [minValue, maxValue]
+    });
+
+  survivalMinReadout.text(minValue);
+  survivalMaxReadout.text(maxValue);
+
+} // createSurvivalWidget
+//----------------------------------------------------------------------------------------------------
+// when the patient history table arrives, the filtering sliders can be setup, using the 
+// min and max values of selected columns.  our sliders are currently ageAtDx and survival.
+// the column numbers for these are specified by the caller.  missing values are not
+// troublesome to Javascript's min and max functions.  note the use of floor and ceil,
+// to nudge min and max values out a bit.
+function learnSliderMinAndMax(tbl, columnNumber)
+{
+  var rowCount = tbl.length;
+  var min = Number.MAX_VALUE;
+  var max = -Number.MAX_VALUE;
+
+  for(var r=0; r < rowCount; r++){
+    var value = Number.parseFloat(tbl[r][columnNumber]);
+    //console.log(value)
+    if(value < min)
+      min = value;
+    if(value > max)
+      max = value;
+    } // for r
+
+  return[Math.floor(min), Math.ceil(max)];
+
+} // learnSliderMinAndMax
+//----------------------------------------------------------------------------------------------------
+function showAllRows()
+{
+   if(typeof(ageAtDxMin)  != "undefined" &&
+      typeof(ageAtDxMax)  != "undefined" &&
+      typeof(survivalMin) != "undefined" &&
+      typeof(survivalMax) != "undefined") {
+
+        ageAtDxSlider.slider("values", [ageAtDxMin, ageAtDxMax]);
+        survivalSlider.slider("values", [survivalMin, survivalMax]);
+        ageAtDxMinReadout.text(ageAtDxMin);
+        ageAtDxMaxReadout.text(ageAtDxMax);
+        survivalMinReadout.text(survivalMin);
+        survivalMaxReadout.text(survivalMax);
+        } // all 4 min/max slider values defined
+
+    // chained calls: clear the DataTable search box, then iterate through the columns, then render
+
+   if(typeof(patientHistoryTableRef) != "undefined")
+       patientHistoryTableRef.search('').columns().search('').draw();
+
+   handleWindowResize();
+
+} // showAllRows
+//----------------------------------------------------------------------------------------------------
+function handleWindowResize()
+{
+
+  patientHistoryDiv.width($(window).width() * 0.95);
+  patientHistoryDiv.height($(window).height() * 0.90);  // leave room for tabs above
+
+  //controlsDiv.width($(window).width() * 0.90);
+  controlsDiv.width(patientHistoryDiv.width()); //  * 0.95);
+  controlsDiv.height("100px");
+
+  tableDiv.width(patientHistoryDiv.width()); //  * 0.95);
+  tableDiv.height(patientHistoryDiv.height() - 130);
+
+} // handleWindowResize
+//--------------------------------------------------------------------------------------------
+function sendSelections(event)
+{
+   var destination = sendSelectionsMenu.val();
+
+   var visibleRows = patientHistoryTableRef.rows({'filter': 'applied'})[0];
+   if(visibleRows.length === 0)
+      return;
+
+   var selectedIDs = [];
+
+   var data = patientHistoryTableRef.data();
+
+   for(var i=0; i < visibleRows.length; i++){
+      var id = data[visibleRows[i]][0];
+      selectedIDs.push(id);
+      } // for i
+
+   var cmd = "sendSelectionTo_" + destination;
+
+   payload = {value: selectedIDs, count: selectedIDs.length, source: "patient history module"};
+   var newMsg = {cmd: cmd,  callback: "", status: "request", payload: payload};
+
+   sendSelectionsMenu.val(sendSelectionsMenuTitle);
+
+   hub.send(JSON.stringify(newMsg));
+
+} // sendSelections
+//--------------------------------------------------------------------------------------------
+function handleSelections(msg)
+{
+   showAllRows();
+   var ids = msg.payload.value;
+   if(typeof(ids) == "string")
+      ids = [ids];
+
+      // incoming ids may have trailing version number, e.g., "TCGA.02.0114.01"
+      // strip all such 2-digit suffixes:
+
+   ids = ids.map(function(id) {return(id.replace(/\.0[0-9]$/, ""))})
+   filterByString(ids);
+   hub.raiseTab(thisModulesOutermostDiv);
+
+} // handleSelections
+//----------------------------------------------------------------------------------------------------
+filterByString = function(strings)
+{
+   var filterString = strings[0];
+   for(var i=1; i < strings.length; i++){
+     filterString += "|" + strings[i];
+     }
+
+   showAllRows();
+   console.log(filterString);
+
+   if(typeof(patientHistoryTableRef) != "undefined")
+      patientHistoryTableRef.search(filterString, true, false).draw();   // string, regex, smart
+
+}; // filterByString
+//----------------------------------------------------------------------------------------------------
+function displayPatientHistoryTable(msg)
+{
+   var payload = msg.payload;
+   var colnames = payload.colnames;
+   var data = payload.tbl; // an array of arrays
+
+   console.log("incoming table, rows: " + data.length);
+   console.log("incoming table, cols: " + data[0].length);
+   createDataTable(colnames, data);
+   postStatus("patientHistory data table loaded");
+   // hub.raiseTab(thisModulesOutermostDiv);
+
+}  // displayPatientHistoryTable
+//----------------------------------------------------------------------------------------------------
+function postStatus(msg)
+{
+  statusDiv.text(msg);
+
+} // postStatus
+//----------------------------------------------------------------------------------------------------
+// called when the a dataset has been specified, typically via the Datasets tab, which presents
+// the user with a list of the datasets they are able to use, from which they choose one at a time
+// as their current working dataset.
+// this module uses the dataset name to request the patient history table from the server
+function datasetSpecified (msg)
+{
+   var datasetName = msg.payload;
+
+     // request patient data table
+   var payload = {datasetName: datasetName, durationFormat: "byYear"};
+   var newMsg = {cmd: "getPatientHistoryTable",  callback: "displayPatientHistoryTable", 
+                 status: "request", payload: payload};
+
+   hub.send(JSON.stringify(newMsg));
+
+} // datasetSpecified
+//----------------------------------------------------------------------------------------------------
+// for standalone exploration, development, and testing.   assumes a hub has been
+// created and initialized.  set the dataset, and in the callback load the table
+// thus 
+//   specifyCurrentDataSet -> getPatientHistoryTable -> displayPatientHistoryTable
+//
+function testLoad()
+{
+   var msg = {cmd: "specifyCurrentDataset",  callback: "datasetSpecified", 
+              status: "request", payload: "TCGAgbm"};
+
+   hub.send(JSON.stringify(msg));
+
+} // test
+//----------------------------------------------------------------------------------------------------
+function testSelect()
+{
+   var msg={cmd: "sendSelectionTo_patientHistory", status: "request", callback: "", 
+            payload:["TCGA.02.0011", "TCGA.06.0238"]};
+
+   hub.send(JSON.stringify(msg));
+
+} // testSelect
+//----------------------------------------------------------------------------------------------------
+return{
+   init: function(){
+      hub.registerSelectionDestination(selectionDestinations, thisModulesOutermostDiv);
+      hub.addOnDocumentReadyFunction(initializeUI);
+      hub.addMessageHandler("sendSelectionTo_patientHistory", handleSelections);
+      hub.addMessageHandler("datasetSpecified", datasetSpecified);
+      hub.addMessageHandler("displayPatientHistoryTable", displayPatientHistoryTable);
+      //hub.addSocketConnectedFunction(testLoad);
+      //hub.setTitle("patientHistory");
+      },
+   testSelect: testSelect,
+   testLoad:   testLoad
+   }; // PatientHistoryModule return value
+
+//----------------------------------------------------------------------------------------------------
+}); // PatientHistoryModule
+pts = PatientHistoryModule();
+pts.init();
+
+
+//----------------------------------------------------------------------------------------------------
+var BlankTabModule = (function () {
+
+  var blankTabDiv;
+  var controlsDiv;
+  var outputDiv;
+
+  var testButton;
+
+  var sendSelectionsMenu;
+
+  var thisModulesName = "blankTab";
+  var thisModulesOutermostDiv = "blankTabDiv";
+
+  var sendSelectionsMenuTitle = "Send selection...";
+
+      // sometimes a module offers multiple selection destinations
+      // but usually just the one entry point
+  var selectionDestinations = [thisModulesName];
+      // make sure to register, eg,
+      // hub.addMessageHandler("sendSelectionTo_blankTab", handleSelections);
+
+//--------------------------------------------------------------------------------------------
+function initializeUI()
+{
+  $(window).resize(handleWindowResize);
+
+  blankTabDiv = $("#blankTabDiv");
+  controlsDiv = $("#blankTabControlsDiv");
+  outputDiv = $("#blankTabOutputDiv");
+
+  testButton = $("#testBlankTabButton");
+  testButton.click(runTests);
+
+  sendSelectionsMenu = hub.configureSendSelectionMenu("#blankTabSendSelectionsMenu", 
+                                                      selectionDestinations, 
+                                                      sendSelections,
+                                                      sendSelectionsMenuTitle);
+
+  handleWindowResize();
+
+} // initializeUI
+//----------------------------------------------------------------------------------------------------
+function handleWindowResize()
+{
+  blankTabDiv.width($(window).width() * 0.95);
+  blankTabDiv.height($(window).height() * 0.90);  // leave room for tabs above
+
+  controlsDiv.width(blankTabDiv.width()); //  * 0.95);
+  controlsDiv.height("100px");
+
+  outputDiv.width(blankTabDiv.width()); //  * 0.95);
+  outputDiv.height(blankTabDiv.height() - 130);
+
+} // handleWindowResize
+//--------------------------------------------------------------------------------------------
+function sendSelections(event)
+{
+   var destination = sendSelectionsMenu.val();
+
+  var cmd = "sendSelectionTo_" + destination;
+  var dummySelections = ["dummy selection 1", "dummy selection 2"];
+
+  payload = {value: dummySelections, count: dummySelections.length, 
+             source: thisModulesName};
+
+  var newMsg = {cmd: cmd,  callback: "", status: "request", payload: payload};
+
+      // restore default (informational) title of the menu
+   sendSelectionsMenu.val(sendSelectionsMenuTitle);
+
+  hub.send(JSON.stringify(newMsg));
+
+} // sendSelections
+//--------------------------------------------------------------------------------------------
+function handleSelections(msg)
+{
+   hub.raiseTab(thisModulesOutermostDiv);
+   var msgAsString = JSON.stringify(msg.payload);
+   
+   outputDiv.html("<pre>" + msgAsString + "</pre");
+
+
+} // handleSelections
+//----------------------------------------------------------------------------------------------------
+runTests = function()
+{
+    // tests depend upon the presence of 2 tabs in addition to the present one.
+  var datasetsTabPresent = $("#datasetsDiv").length > 0
+  var patientHistoryTabPresent = $("#patientHistoryDiv").length > 0
+
+  if(!(datasetsTabPresent && patientHistoryTabPresent)){
+     alert("Need both datasets & patientHistory tabs for QUnit testing");
+     return;
+     } // check for other needed tabs
+
+   outputDiv.css({display: "block"});
+
+   QUnit.test('choose DEMOdz dataset', function(assert) {
+      hub.raiseTab("datasetsDiv");
+      var desiredDataset = "DEMOdz";
+      var dzNames = $("#datasetMenu option").map(function(opt){return this.value})
+
+      if($.inArray(desiredDataset, dzNames) < 0){
+         alert("cannot run tests:  " + desiredDataset + " dataset not loaded");
+         return;
+         }
+
+      $("#datasetMenu").val(desiredDataset)
+      $("#datasetMenu").trigger("change");
+
+      var done1 = assert.async();
+      var done2 = assert.async();
+      var done3 = assert.async();
+      assert.expect(3);
+
+      setTimeout(function(){
+         assert.equal($("#datasetMenu").val(), desiredDataset);  done1();
+         assert.ok($("#datasetsManifestTable tr").length >= 10); done2();
+         assert.equal($("#datasetsManifestTable tbody tr").eq(0).find("td").eq(0).text(), 
+                      "mRNA expression"); done3();
+         testLoadPatientHistoryTable();
+         }, 5000);
+      });
+
+} // runTests
+//----------------------------------------------------------------------------------------------------
+function testLoadPatientHistoryTable()
+{
+   QUnit.test('load patient history table', function(assert) {
+       console.log("=============  starting load pt tbl test");
+       hub.enableButton($("#selectDatasetButton"));
+       $("#selectDatasetButton").trigger("click");
+       var done1 = assert.async();
+       assert.expect(1);
+
+       setTimeout(function(){
+          console.log("-- starting async check");
+          assert.equal($("#patientHistoryTable tr").length, 21);
+          done1();
+          testSelectLongSurvivors();
+          }, 5000);
+       });
+
+} // testLoadPatientHistoryTable
+//----------------------------------------------------------------------------------------------------
+function testSelectLongSurvivors()
+{
+   QUnit.test('testSelectLongSurvivors', function(assert) {
+      tbl = $("#patientHistoryTable").DataTable();
+      $("#survivalMinSliderReadout").text("8");  // just two DEMOdz patients lived > 8 years
+      tbl.draw()
+      hub.raiseTab("patientHistoryDiv");
+      assert.expect(1);
+      var done1 = assert.async()
+      setTimeout(function(){
+         assert.equal($("#patientHistoryTable tbody tr").length, 2);
+         done1();
+         testSendToBlankTab();
+         }, 5000);
+      });
+
+} // testSelectLongSurvivors
+//----------------------------------------------------------------------------------------------------
+function testSendToBlankTab()
+{
+   QUnit.test('testSendToBlankTab', function(assert) {
+      $("#patientHistorySendSelectionsMenu").val("blankTab");
+      $("#patientHistorySendSelectionsMenu").trigger("change");
+      assert.expect(0);   // tests (assertions) in next function, testContentsOfBlankTab
+      setTimeout(function(){
+         hub.raiseTab("blankTabDiv");
+         testContentsOfBlankTab();
+         }, 5000);
+      });
+
+} // testSendToBlankTab
+//----------------------------------------------------------------------------------------------------
+function testContentsOfBlankTab()
+{
+   QUnit.test('testContensOfBlankTab', function(assert) {
+      assert.equal($("#blankTabOutputDiv").text(), 
+                   '{"value":["TCGA.02.0114","TCGA.08.0344"],"count":2,"source":"patient history module"}');
+      $("#testingOutputDiv").css({display: "block"});
+      });
+
+} // testContentsOfBlankTab
+//----------------------------------------------------------------------------------------------------
+// query the oncoscape server for user id.  the callback then makes a local (that is,
+// Module-specific) decision to run this module's automated tests based upon that id
+//
+function runAutomatedTestsIfAppropriate()
+{
+   var msg = {cmd: "getUserId",  callback: "blankTabAssessUserIdForTesting",
+              status: "request", payload: ""};
+
+   hub.send(JSON.stringify(msg));
+
+} // runAutomatedTestsIfAppropriate
+//----------------------------------------------------------------------------------------------------
+function assessUserIdForTesting(msg)
+{
+   var userID = msg.payload;
+   console.log("blankTab/Module.js assesUserIdForTesting: " + userID)
+
+   if(userID.indexOf("autoTest") === 0){
+      console.log("blankTab/Module.js running tests for user " + userID)
+      runTests();
+      }
+
+} // assessUserIdForTesting
+//----------------------------------------------------------------------------------------------------
+function initializeModule()
+{
+   hub.registerSelectionDestination(selectionDestinations, thisModulesOutermostDiv);
+   hub.addOnDocumentReadyFunction(initializeUI);
+   hub.addMessageHandler("sendSelectionTo_blankTab", handleSelections);
+   hub.addMessageHandler("blankTabAssessUserIdForTesting", assessUserIdForTesting)
+   hub.addSocketConnectedFunction(runAutomatedTestsIfAppropriate);
+
+} // initializeModule
+//----------------------------------------------------------------------------------------------------
+return{
+   init: initializeModule
+   }; // BlankTabModule return value
+
+//----------------------------------------------------------------------------------------------------
+}); // BlankTabModule
+
+blankTabModule = BlankTabModule();
+blankTabModule.init();
+
+
+//----------------------------------------------------------------------------------------------------
+var cyGbm;   // keep this public so that the tabsApp can see it, reset on tab activate
+var expressionData = [];   // consists of a gene list, a tissue list, and the data (a list of 
+                           // gene/value pairs, each list named by a tissue (patient) id
+var cnvData = [];
+var mutationData = [];
+
+var gbmPathwaysModule = (function () {
+
+  var cyGbmDiv;
+  var statusDiv; 
+  var viewAbstractsButton, zoomSelectedButton;
+  var tissueMenu, movieButton;
+  var movieButtonOriginalColor, movieButtonDisabledColor = "lightGray";
+  var selectLabel;
+
+  var slowerMovieButton, fasterMovieButton;
+  var currentMovieSpeed = 750;
+  var movieSpeedReadout;
+  var movieIntervalID;
+
+  var searchBox;
+  var edgeAbstractsOn = false;
+
+  var moviePlaying = false;
+
+  var infoMenu;
+
+  var sendSelectionsMenu;
+  var sendSelectionsMenuTitle = "Send selection...";
+
+  var thisModulesName = "gbmPathways";
+  var thisModulesOutermostDiv = "gbmPathwaysDiv";
+  var selectionDestinations = [thisModulesName];
+  var outermostDiv;
+  var controlsDiv;
+
+  var errorDialogBox;
+
+  //--------------------------------------------------------------------------------------------
+function initializeUI(network, vizmap)
+{
+   outermostDiv = $("#gbmPathwaysDiv");
+
+   cyGbmDiv = $("#cyGbmPathwaysDiv");
+   statusDiv = $("#gbmPathwaysStatusDiv");
+   controlsDiv = $("#gbmPathwaysButtonDiv");
+
+   selectLabel = $("#gbmPathwaysSelectLabel");
+   selectLabel.css("color", "lightgray");   // not functional until some tissueIDs have been been added
+   viewAbstractsButton = $("#gbmViewAbstractsButton");
+   viewAbstractsButton.button();
+   viewAbstractsButton.click(toggleEdgeSelection);
+
+   zoomSelectedButton  = $("#gbmZoomSelectedButton");
+   zoomSelectedButton.button()
+   zoomSelectedButton.click(zoomSelection);
+
+   tissueMenu = $("#gbmPathwaysSampleSelector");
+   tissueMenu.change(tissueSelectorChanged);
+
+   movieButton = $("#gbmPathwaysMovieButton");
+   movieButton.button();
+   movieButtonOriginalColor = movieButton.css("color");
+   movieButton.prop("disabled", true);
+   movieButton.css("color", movieButtonDisabledColor);
+
+   slowerMovieButton = $("#gbmPathwaysSlowerMovieButton");
+   slowerMovieButton.button();
+   fasterMovieButton = $("#gbmPathwaysFasterMovieButton");
+   fasterMovieButton.button();
+
+   movieSpeedReadout = $("#gbmPathwaysMovieSpeedReadout");
+   movieSpeedReadout.text(Number(currentMovieSpeed/1000).toFixed(2));
+
+   fasterMovieButton.click(function() {changeMovieSpeed(-250);})
+   slowerMovieButton.click(function() {changeMovieSpeed(250);})
+   
+   movieButton.text("Play Movie");
+   movieButton.click(togglePlayMovie);
+   searchBox = $("#gbmPathwaysSearchBox");
+
+
+   sendSelectionsMenu = hub.configureSendSelectionMenu("#gbmPathwaysSendSelectionMenu",
+                                                       [thisModulesName], sendSelections,
+                                                       sendSelectionsMenuTitle);
+
+   sendSelectionsMenu.attr("disabled", true);
+
+   loadNetwork();
+   $(window).resize(handleWindowResize);
+
+ }; // initializeUI
+//----------------------------------------------------------------------------------------------------
+function selectedNodeNames(cw)
+{
+   var names = [];
+   var noi = cw.filter('node:selected');
+   for(var n=0; n < noi.length; n++){
+     names.push(noi[n].data('name'));
+     }
+  return(names);
+
+} // selectedNodeNames
+//----------------------------------------------------------------------------------------------------
+function sendSelections(event)
+{
+   var destination = sendSelectionsMenu.val();
+   console.log("CyMarkers send selections to " + destination);
+   sendSelectionsMenu.val(sendSelectionsMenuTitle);
+   var nodeNames = selectedNodeNames(cyGbm);
+   if(nodeNames.length == 0){
+      console.log("no nodes selected!")
+      return;
+      }
+
+  var cmd = "sendSelectionTo_" + destination;
+  payload = {value: nodeNames, count: nodeNames.length, source: "markers and patients module"};
+  var newMsg = {cmd: cmd,  callback: "", status: "request", payload: payload};
+
+  sendSelectionsMenu.val(sendSelectionsMenuTitle);
+
+  hub.send(JSON.stringify(newMsg));
+
+} // sendSelections
+//--------------------------------------------------------------------------------------------
+function identifyEntitiesInCurrentSelection()  // defunct, not quite yet ready to del
+{  
+   var names = [];
+   var noi = cyGbm.filter('node:selected'); 
+   for(var n=0; n < noi.length; n++){
+     names.push(noi[n].data('name'));
+     }
+  return(names);
+
+} // identifyEntitiesInCurrentSelection
+//--------------------------------------------------------------------------------------------
+function loadNetwork()
+{
+
+    cyGbm = $("#cyGbmPathwaysDiv");
+    cyGbm.cytoscape({
+       boxSelectionEnabled: true,
+       showOverlay: false,
+       minZoom: 0.01,
+       maxZoom: 8.0,
+       layout: {
+         name: "preset",
+         fit: true
+         },
+     ready: function() {
+        console.log("cyGbm ready");
+        cyGbm = this;
+
+        cyGbm.on('select', 'edge', function(evt){
+           var edge = evt.cyTarget;
+           console.log("selected edge");
+           if(edgeAbstractsOn){
+              var pmid = edge.data().pmid;
+              var url = "http://www.ncbi.nlm.nih.gov/pubmed/?term=" + pmid;
+              var replaceAnyExistingPopup = true;
+              hub.openCenteredBrowserWindow(url, "pubmed abstract", 800, 600, replaceAnyExistingPopup)
+              }
+           });
+
+        cyGbm.on('select', 'node', function(evt){
+           var disable = identifyEntitiesInCurrentSelection().length == 0;
+           sendSelectionsMenu.attr("disabled", disable);
+           });
+        cyGbm.on('unselect', 'node', function(evt){
+           var disable = identifyEntitiesInCurrentSelection().length == 0;
+           sendSelectionsMenu.attr("disabled", disable);
+           });
+
+        searchBox.keydown(doSearch);
+
+        cyGbm.edges().unselectify();
+        console.log("cyGbm.reset");
+        cyGbm.reset();
+        handleWindowResize();
+        } // cy.ready
+       })
+    .cytoscapePanzoom({ });   // need to learn about options
+
+} // loadNetwork
+//----------------------------------------------------------------------------------------------------
+function displayPathway(msg)
+{
+   console.log("--- Module.gbmPathways: displayPathway");
+   if(msg.status == "success"){
+      console.log("nchar(network): " + msg.payload.length);
+      s = msg.payload;
+      XXX = msg.payload;
+      console.log("      1:40: " + s.substring(1, 40));
+      var json = JSON.parse(msg.payload);
+      cyGbm.remove(cyGbm.edges());
+      cyGbm.remove(cyGbm.nodes());
+      console.log(" after JSON.parse, json.length: " + json.length);
+      console.log("  about to add json.elements");
+      cyGbm.add(json.elements);
+      console.log("  about to add  json.style");
+      cyGbm.style(json.style);
+      cyGbm.nodes().unselect();
+        // map current node degree into a node attribute of that name
+      cyGbm.nodes().map(function(node){node.data({degree: node.degree()})});
+
+      var edgeTypes = hub.uniqueElementsOfArray(cyGbm.edges().map(function(edge){
+                               return(edge.data("edgeType"))}
+                               ));
+      //updateEdgeSelectionWidget(edgeTypes);  // preserve only known edgeTypes
+      cyGbm.resize();
+      cyGbm.fit(50);
+      console.log("concluding displayPathway in Module.gbmPathways");
+      cyGbm.edges().show();
+        // on load there are no selections.  make sure the menu is disabled.
+      sendSelectionsMenu.prop({"disabled": true}); 
+      postStatus("gbm pathway loaded");
+      }
+   else{
+     console.log("displayPathway error: " + msg.payload);
+     }
+
+} // displayPathway
+//----------------------------------------------------------------------------------------------------
+function handleWindowResize()
+{
+   outermostDiv.width(0.95 * $(window).width());
+   outermostDiv.height(0.95 * $(window).width());
+
+   controlsDiv.width(0.95 * $(window).width());
+   controlsDiv.height(80);
+  
+   cyGbmDiv.width(0.95 * $(window).width());
+   cyGbmDiv.height(0.8 * $(window).height());
+
+   cyGbm.resize();
+   cyGbm.fit(50);
+
+} // handleWindowResize
+//----------------------------------------------------------------------------------------------------
+function zoomSelection()
+{
+   cyGbm.fit(cyGbm.$(':selected'), 50)
+
+}
+//----------------------------------------------------------------------------------------------------
+function toggleEdgeSelection ()
+{
+  if(edgeAbstractsOn){
+     edgeAbstractsOn = false;
+     viewAbstractsButton.button("option", "label", "Enable Abstracts");
+     }
+   else{
+     edgeAbstractsOn = true;
+     viewAbstractsButton.button("option", "label", "Disable Abstracts");
+     }
+
+} // toggleEdgeSelection
+//----------------------------------------------------------------------------------------------------
+function transformMatrixToPatientOrientedNamedList(mtx) {
+
+     // geneNames are repeated in each element; grab them from the first one
+   var geneNames = Object.keys(mtx[0]);
+     // the last element was originally (in R) the row name -- the tissue
+     // gene1: expression, gene2: expession, ... rowname: 0445.T.1
+   geneCount = geneNames.length - 1;
+   geneNames = geneNames.slice(0,geneCount);
+   var tissueNames = [];
+   max = mtx.length;
+   namedList={};
+
+   for(var r=0; r < max; r++){
+      row = mtx[r]
+      tissueName = row["rowname"][0];
+      tissueNames.push(tissueName);
+      namedList[tissueName] = row;
+      } // for r
+
+   result = {genes: geneNames, tissues: tissueNames, values: namedList};
+   return(result);
+
+} // transformMatrixToPatientOrientedNamedList
+//----------------------------------------------------------------------------------------------------
+// policy: incoming ids will not always be only patientIDs, but may be geneIDs also
+// a) if none of the incoming ids are recognized, their full list is displayed
+//    in the body of an error dialog explaining the problem
+// b) if there are any geneIDs present, we ignore all patientIDs, and select the geneIDs
+// c) if there are only patientIDs, then they are used to load molecular data for
+//    those patients, and to setup for running a gene/data movie across those patients
+function handleIncomingIdentifiers(msg){
+
+   console.log("=== entering handleIncomingIdentifiers for gbm");
+   console.log("status: " + msg.status);
+
+   var incomingIds = msg.payload.value;
+   if(typeof(incomingIds) == "string")
+      incomingIds = [incomingIds];
+
+   var status = "gbm pathway received " + incomingIds.length + " identifiers";
+   postStatus(status);
+   console.log(status);
+   console.log(JSON.stringify(incomingIds));
+
+   var idsUpperCase = incomingIds.map(function(id){return(id.toUpperCase())});
+   //var ourGenes = cyGbm.filter("node[nodeType='gene']").map(function(node){return(node.id())});
+   var ourGenes = cyGbm.nodes().map(function(node){return(node.id())});
+   var recognizedGenes = ourGenes.filter(function(gene){return(idsUpperCase.indexOf(gene) >= 0)});
+
+   if(recognizedGenes.length > 0){
+      hub.raiseTab("gbmPathwaysDiv");
+      console.log(" incoming ids matched " + recognizedGenes.length + " gene names");
+      console.log(JSON.stringify(recognizedGenes));
+      selectNodes(recognizedGenes);
+      }
+   else{
+     alert("None of the selected ids are recognized by the GBM Pathways tab.");
+     }
+
+     // todo: make this conditional, and post alert error message when there are no overlaps
+     // todo: such that it appears on the sending page
+
+    /**************
+   for(var i=0; i < incomingIds.length; i++){
+     if(ourGeneNames.indexOf(incomingIds[i]) >= 0)
+        recognizedGeneNames.push(incomingIds[i]);
+     } // for i
+
+   if(recognizedGeneNames.length > 0){
+      }
+   else{
+     alert("None of the selected nodes recogized by destination tab.");
+     }
+     // with no recognized genes, we may have recognized tissueIDs.
+     // ask the server to check, providing a callback that will 
+     // request loading the molecular data for those tissue ids
+     // which are recognized
+   //else{ 
+   //   msg = {cmd:"getOverlappingIdentifiers",
+   //          callback: "gbmPathwaysHandleOverlappingTissueIdentifiers",
+   //          status:"request",
+   //          payload: {idType:"entities", signature:"mRNA", ids:incomingIds}
+   //          };
+   //  msg.json = JSON.stringify(msg);
+   // hub.send(msg.json);
+   //  } // else: possibly some tissue (patient) ids 
+
+   ********/
+
+   } // handleIncomingIdentifiers
+//----------------------------------------------------------------------------------------------------
+function handleIdentifyOverlappingTissueIdentifiers(msg)
+{ 
+    console.log("=== Module.gbmPathways handleOverlappingTissueIdentifiers");
+    payload = JSON.parse(msg.payload)
+    recognizedIDs = payload.recognized;
+    if(typeof(recognizedIDs) == "string")  // promote scalar to 1-element array
+      recognizedIDs = [recognizedIDs];
+    unrecognizedIDs = payload.unrecognized;
+    if(typeof(unrecognizedIDs) == "string")  // promote scalar to 1-element array
+      unrecognizedIDs = [unrecognizedIDs];
+
+      // if any are recognized, ignore the others, request load of molecular data
+      // allowing data movie to be run across these samples
+    if(recognizedIDs.length > 0){
+       request_mRNA_data(recognizedIDs, geneSymbols());   // entities: patient, tissue or sample ids
+       request_cnv_data(recognizedIDs, geneSymbols());
+       request_mutation_data(recognizedIDs, geneSymbols());
+       }
+    else if(unrecognizedIDs.length > 0) {
+       errorMessage = "No overlap with pathway genes or tissue sample IDs:  <br><br>" +
+                       unrecognizedIDs.join(", ");
+       title = unrecognizedIDs.length + " unrecognized identifiers";
+       $('<div />').html(errorMessage).dialog({title: title, width:600, height:300});
+       } // else: only unrecognized identifiers
+
+} // handleIdentifyOverlappingTissueIdentifiers
+//----------------------------------------------------------------------------------------------------
+function nodeIDs()
+{
+  nodes = cyGbm.filter("node:visible");
+  result = [];
+  for(var i=0; i < nodes.length; i++){
+    id = nodes[i].data()['id'];
+    result.push(id);
+    } // for i
+  return(result)
+
+} // nodeIDs
+//----------------------------------------------------------------------------------------------------
+   function nodeNames() {
+
+     nodes = cyGbm.nodes();
+     //nodes = cyGbm.filter("node:visible");
+     result = [];
+     for(var i=0; i < nodes.length; i++){
+       result.push(nodes[i].data().label)
+       } // for i
+     return(result)
+     } // nodeNames
+
+//----------------------------------------------------------------------------------------------------
+function geneSymbols() {
+
+  nodes = cyGbm.filter("node");
+  result = [];
+  for(var i=0; i < nodes.length; i++){
+    sym = nodes[i].data().geneSymbol
+    if(typeof(sym) != "undefined")
+       result.push(sym)
+    } // for i
+  return(result)
+  } // geneSymbols
+
+//----------------------------------------------------------------------------------------------------
+function selectNodes(nodeNames)
+{
+  if(typeof(nodeNames) == "string")   // trap scalar, but expect and support arrays
+     nodeNames = [nodeNames];
+
+  for(var i=0; i < nodeNames.length; i++){
+     s = "cyGbm.filter('node[name=\"" + nodeNames[i] + "\"]').select()";
+     //console.log("markers selectNodes: " + s);
+     eval (s);
+     } // for i
+
+} // selectNodes
+//----------------------------------------------------------------------------------------------------
+   function changeMovieSpeed(delta) {
+
+      if((currentMovieSpeed + delta) < 0)
+         return;
+
+      console.log("currentMovieSpeed: " + currentMovieSpeed);
+      currentMovieSpeed += delta;
+      console.log("currentMovieSpeed: " + currentMovieSpeed);
+      movieSpeedReadout.text(Number(currentMovieSpeed/1000).toFixed(2));
+      if(moviePlaying){
+         clearInterval(movieIntervalID);
+         movieIntervalID = setInterval(oneFrame, currentMovieSpeed);
+         }
+      } // changeMovieSpeed
+
+   //----------------------------------------------------------------------------------------------------
+   function togglePlayMovie() {
+
+
+    allCurrentTissues = tissueMenu.children().map(function() {return $(this).val();}).get();
+    currentTissueIndex = 0;
+
+     oneFrame = function(){
+        tissueIndex = currentTissueIndex  % allCurrentTissues.length;
+        tissueName =  allCurrentTissues[tissueIndex]
+        //console.log(" movie about to display frame " + tissueIndex + ", " + tissueName);
+        currentTissueIndex = currentTissueIndex + 1;
+        tissueMenu.val(tissueName);
+        tissueSelectorChanged()
+        } // oneFrame
+
+     if(moviePlaying){
+        moviePlaying = false;
+        clearInterval(movieIntervalID);
+        movieButton.text("Play Movie");
+        }
+     else{
+        moviePlaying = true;
+        movieButton.text("Stop Movie");
+        movieIntervalID = setInterval(oneFrame, currentMovieSpeed);
+        }
+   
+
+    } // togglePlayMovie
+//----------------------------------------------------------------------------------------------------
+function doSearch(e)
+{
+  var keyCode = e.keyCode || e.which;
+
+  //console.log("Module.gbmPathway doSearch, keyCode: " + keyCode);
+
+  if (keyCode == 13) {
+     searchString = searchBox.val();
+     //console.log("searchString: " + searchString);
+     names = nodeNames()
+     matches = []
+     for(var i=0; i < names.length; i++){
+        if(names[i].beginsWith(searchString)) {
+           //console.log(searchString + " matched " + names[i]);
+           selectNodes([names[i]]);
+           } // if searchString matched beginning of node
+        } // for i
+     } // if 13 (return key)
+
+} // doSearch
+//----------------------------------------------------------------------------------------------------
+function request_mRNA_data(entities, features) {
+
+  msg = {cmd:"get_mRNA_data",
+          callback: "handle_gbmPathways_mRNA_data",
+          status:"request",
+          payload:{entities: entities, features: features}
+          };
+   msg.json = JSON.stringify(msg);
+   hub.send(msg.json);
+   }
+
+//----------------------------------------------------------------------------------------------------
+function request_cnv_data(entities, features) {
+
+  msg = {cmd:"get_cnv_data",
+          callback: "handle_gbmPathways_cnv_data",
+          status:"request",
+          payload:{entities: entities, features: features}
+          };
+   msg.json = JSON.stringify(msg);
+   hub.send(msg.json);
+   }
+
+//----------------------------------------------------------------------------------------------------
+function request_mutation_data(entities, features) {
+
+  msg = {cmd:"get_mutation_data",
+          callback: "handle_gbmPathways_mutation_data",
+          status:"request",
+          payload:{entities: entities, features: features}
+          };
+   msg.json = JSON.stringify(msg);
+   hub.send(msg.json);
+   }
+
+//----------------------------------------------------------------------------------------------------
+function addTissueIDsToSelector (tissueIDs) {
+  tissueMenu.empty();
+  if(tissueIDs.length == 0) {
+     alert("gbmPathways received empty tissueIDs list")
+     return;
+     }
+  
+  // every set of tissueIDs needs a neutral (no data) pseudo-tissue
+
+  tissueIDs.unshift("neutral");
+
+  for(var i=0; i < tissueIDs.length; i++){
+     tissueName = tissueIDs[i]
+     optionMarkup = "<option>" + tissueName + "</option>";
+     tissueMenu.append(optionMarkup);
+     } // for i
+
+ } // addTissueIDsToSelector
+//----------------------------------------------------------------------------------------------------
+function handle_mRNA_data(msg) {
+
+   console.log("handling mRNA data");
+   hub.raiseTab("gbmPathwaysDiv");
+   if(msg.status == "success"){
+      var mtx = JSON.parse(msg.payload.mtx);
+      expressionData = transformMatrixToPatientOrientedNamedList(mtx);
+      console.log("handle_mRNA_data, success, rows: " + expressionData.length);
+      addTissueIDsToSelector(expressionData.tissues);
+      movieButton.prop("disabled", false);
+      movieButton.css("color", movieButtonOriginalColor)
+      selectLabel.css("color", "black");
+      } // success
+   else{
+      expressionData = [];
+      console.log("handle_mRNA_data, failure, rows: " + expressionData.length);
+      } // failure
+   } // handle_mRNA_data
+
+//----------------------------------------------------------------------------------------------------
+function handle_cnv_data(msg) {
+
+   console.log("handling cnv data");
+   if(msg.status == "success"){
+     var mtx = JSON.parse(msg.payload.mtx);
+     cnvData = transformMatrixToPatientOrientedNamedList(mtx);
+     }
+   else{
+     cnvData = []
+     }
+   } // handle_mRNA_data
+
+//----------------------------------------------------------------------------------------------------
+function handle_mutation_data(msg) {
+
+   console.log("handling mutation data");
+   if(msg.status == "success"){
+     var mtx = JSON.parse(msg.payload.mtx);
+     mutationData = transformMatrixToPatientOrientedNamedList(mtx);
+     }
+   else{
+     mutationData = [];
+     }
+   } // handle_mRNA_data
+
+//----------------------------------------------------------------------------------------------------
+function tissueSelectorChanged() {
+
+   tissueID = tissueMenu.val()
+   displayTissue(tissueID);
+
+   } // tissueSelectorChanged
+
+//----------------------------------------------------------------------------------------------------
+function setInfoNodeLabel (newLabel)
+{
+   infoNodeID = cyGbm.filter('node[canonicalName="info.node"]').data("id")
+   noa = {};
+   noa[infoNodeID] = {label: newLabel};
+   cyGbm.batchData(noa);
+}
+//----------------------------------------------------------------------------------------------------
+function displayTissue(tissueID)
+{
+   setInfoNodeLabel(tissueID);
+
+   var noa = {};
+
+   if(tissueID == "neutral") {
+      console.log(" will display neutral values of expression, copynumber, mutation");
+      ids = [];
+      allNodes = cyGbm.nodes();
+      for(i=0; i < allNodes.length; i++){
+         node = allNodes[i];
+         id = node.data("id");
+         if(Object.keys(node.data()).indexOf("geneSymbol") >= 0){
+            geneSymbol = node.data("geneSymbol");
+            ids.push(id);
+            noa[id] = {score:0, label: geneSymbol, copyNumber:0}
+            } // if node has geneSymbol attribute
+         } // for i
+      cyGbm.batchData(noa);
+      return;
+      } // neutral pseudo-tissue
+
+   if(expressionData.tissues.indexOf(tissueID) < 0){
+      alert(tissueId + " not found in current expressionData");
+      return;
+      }
+
+   mRNA = expressionData.values
+   genes = expressionData.genes;
+   tissues = expressionData.tissues;
+
+   noa = {};  // new node attributes to assign in the network
+
+   for(var g=0; g < genes.length; g++){
+      gene = genes[g];
+
+      newScore = mRNA[tissueID][gene][0];
+      filterString = '[geneSymbol="' + gene + '"]'
+      nodeID = cyGbm.nodes(filterString)[0].data("id");
+      noa[nodeID] = {score: newScore};
+      } // for g
+
+   cyGbm.batchData(noa);
+
+   cnv = cnvData.values
+   genes = cnvData.genes;
+   tissues = cnvData.tissues;
+
+   noa = {};  // new node attributes to assign in the network
+
+   for(var g=0; g < genes.length; g++){
+     gene = genes[g];
+     newCopyNumber = cnv[tissueID][gene][0];
+     filterString = '[geneSymbol="' + gene + '"]'
+     nodeID = cyGbm.nodes(filterString)[0].data("id");
+     noa[nodeID] = {copyNumber: newCopyNumber};
+     } // for g
+
+   cyGbm.batchData(noa);
+
+   mut = mutationData.values
+
+   noa = {};  // new node attributes to assign in the network
+
+
+   for(var g=0; g < genes.length; g++){
+     gene = genes[g];
+     newMutation = mut [tissueID][gene][0];
+        // identify the node (by id) whose geneSymbol attribute is gene
+        // the label attribute changes, but geneSymbol remains
+     filterString = 'node[geneSymbol="' + gene  + '"]';
+     nodeID = cyGbm.filter(filterString).id();
+        // set label and nodeType for every gene
+     if(newMutation == null){
+        newGeneLabel = gene;
+        newNodeType = "gene";
+        }
+     else{
+        newGeneLabel = gene + " (" + newMutation + ")";
+        newNodeType = "mutation";
+        }
+     noa[nodeID] = {label: newGeneLabel, nodeType: newNodeType};
+     } // for g, mutations
+   cyGbm.batchData(noa);
+
+} // displayTissue
+//----------------------------------------------------------------------------------------------------
+// called when the a dataset has been specified, typically via the Datasets tab, which presents
+// the user with a list of the datasets they are able to use, from which they choose only one
+// as their current working dataset.
+// this module uses the dataset name to request the g.gbmPathways.json network from the server
+function datasetSpecified (msg)
+{
+   console.log("Module.gbm datasetSpecified");
+   console.log(msg.payload);
+
+   var manifestInfo = msg.payload;
+   var variableNames = manifestInfo.rownames;
+
+   var pathway = "gbmPathways.json.RData";
+   if($.inArray(pathway, variableNames) >= 0){
+      var newMsg = {cmd: "getPathway",  callback: "displayGbmPathway",
+                    status: "request", payload: "g.gbmPathways.json"};
+      hub.send(JSON.stringify(newMsg));
+      } // if pathway available
+
+} // datasetSpecified
+//----------------------------------------------------------------------------------------------------
+function postStatus(msg)
+{
+  console.log("posting new status to gbmPathway status div: " + msg);
+  statusDiv.text(msg);
+
+} // postStatus
+//----------------------------------------------------------------------------------------------------
+function SetModifiedDate()
+{
+   msg = {cmd:"getModuleModificationDate",
+          callback: "DisplayGbmPathwaysModifiedDate",
+          status:"request",
+          payload:"gbmPathways"
+          };
+   msg.json = JSON.stringify(msg);
+   hub.send(msg.json);
+
+} // setModifiedData
+//----------------------------------------------------------------------------------------------------
+function DisplayGbmPathwaysModifiedDate(msg)
+{
+   document.getElementById("gbmPathwaysDateModified").innerHTML = msg.payload;
+}
+//----------------------------------------------------------------------------------------------------
+return{
+  init: function(){
+     hub.addMessageHandler("DisplayGbmPathwaysModifiedDate", DisplayGbmPathwaysModifiedDate);
+     hub.addMessageHandler("handle_gbmPathways_mRNA_data", handle_mRNA_data);
+     hub.addMessageHandler("handle_gbmPathways_cnv_data",  handle_cnv_data);
+     hub.addMessageHandler("handle_gbmPathways_mutation_data",  handle_mutation_data);
+     //hub.addMessageHandler("gbmPathwaysHandlePatientIDs", handlePatientIDs);
+     hub.addMessageHandler("gbmPathwaysHandleOverlappingTissueIdentifiers",
+                            handleIdentifyOverlappingTissueIdentifiers)
+
+     hub.addMessageHandler("sendSelectionTo_gbmPathways", handleIncomingIdentifiers);
+     hub.registerSelectionDestination(selectionDestinations, thisModulesOutermostDiv);
+     hub.addMessageHandler("datasetSpecified", datasetSpecified);
+     hub.addMessageHandler("displayGbmPathway", displayPathway);
+     hub.addOnDocumentReadyFunction(initializeUI);
+     } // init
+  }; 
+
+//----------------------------------------------------------------------------------------------------
+}); // gbmPathwaysModule
+//----------------------------------------------------------------------------------------------------
+gbmPathway = gbmPathwaysModule()
+gbmPathway.init();
+
+//----------------------------------------------------------------------------------------------------
+var LinkoutModule = (function () {
+
+  var thisModulesName = "linkout";
+  var selectionDestinations = ["DGIdb", "Wikipedia", "Google", "GeneCards"];
+  var thisModulesOutermostDiv = null;
+
+//--------------------------------------------------------------------------------------------
+function handleSelections_google(msg)
+{
+   console.log(JSON.stringify(msg));
+   var ids = msg.payload.value;
+   var searchString = ids[0];   // just one term for google
+
+   var url = 'http://www.google.com/search?q="' + searchString + '"';
+   window.open(url);
+
+} // handleSelections_google
+//----------------------------------------------------------------------------------------------------
+function handleSelections_DGIdb(msg)
+{
+   console.log(JSON.stringify(msg));
+   var ids = msg.payload.value;
+   var searchString = ids[0];
+   for(var i=1; i < msg.payload.value.length; i++)
+     searchString = searchString + "," + ids[i];
+
+   var url = "http://dgidb.genome.wustl.edu/interaction_search_results?genes=" + searchString; //=EGFR,MET
+   url = url + "&limit_drugs=true";
+   window.open(url);
+
+} // handleSelections_DGIdb
+//----------------------------------------------------------------------------------------------------
+function handleSelections_wikipedia(msg)
+{
+   console.log(JSON.stringify(msg));
+   var baseUrl = "https://en.wikipedia.org/wiki/";
+   var ids = msg.payload.value;
+   var searchString = ids[0];
+   var url = baseUrl + searchString;
+   window.open(url);
+
+} // handleSelections_wikipedia
+//----------------------------------------------------------------------------------------------------
+function handleSelections_genecards(msg)
+{
+   console.log(JSON.stringify(msg));
+   var baseUrl = "http://www.genecards.org/cgi-bin/carddisp.pl?gene=";
+   var ids = msg.payload.value;
+   var searchString = ids[0];
+   var url = baseUrl + searchString;
+   window.open(url);
+
+} // handleSelections_genecards
+//----------------------------------------------------------------------------------------------------
+function initializeModule()
+{
+   hub.registerSelectionDestination(selectionDestinations, thisModulesOutermostDiv);
+   //hub.addOnDocumentReadyFunction(initializeUI);
+   hub.addMessageHandler("sendSelectionTo_DGIdb", handleSelections_DGIdb);
+   hub.addMessageHandler("sendSelectionTo_Wikipedia", handleSelections_wikipedia);
+   hub.addMessageHandler("sendSelectionTo_Google", handleSelections_google);
+   hub.addMessageHandler("sendSelectionTo_GeneCards", handleSelections_genecards);
+
+} // initializeModule
+//----------------------------------------------------------------------------------------------------
+return{
+   init: initializeModule
+   }; // LinkoutModule return value
+
+//----------------------------------------------------------------------------------------------------
+}); // LinkoutModule
+
+linkoutModule = LinkoutModule();
+linkoutModule.init();
+
+
+//------------------------------------------------------------------------------------------------------------------------
+    // observers used in QUnit testing
+  var datasetsStatusObserver = null;
+  var gbmPathwaysStatusObserver = null;
+
+
+var GbmPathwayTestModule = (function () {
+
+//------------------------------------------------------------------------------------------------------------------------
+function initializeUI()
+{
+   console.log("Test.gbmPathway intializeUI")
+
+} // initializeUI
+//------------------------------------------------------------------------------------------------------------------------
+runTests = function(show)
+{
+   if(show) showTests();
+
+   testLoadDataSetThenLoadPathways();
+
+} // runTests
+//------------------------------------------------------------------------------------------------------------------------
+showTests = function()
+{
+   $("#qunit").css({"display": "block"});
+
+} // show
+//------------------------------------------------------------------------------------------------------------------------
+hideTests = function()
+{
+   $("#qunit").css({"display": "none"});
+
+} // hide
+//------------------------------------------------------------------------------------------------------------------------
+function testLoadDataSetThenLoadPathways()
+{
+   var testTitle = "testLoadDataSet";
+   console.log(testTitle);
+   hub.raiseTab("gbmPathwaysDiv")
+     
+     // we could use the datasets tab menu to select the dataset, then click the button.
+     // easier and quite adequate for our purposes is to simply send out the message which
+     // these ui actions create
+
+   var msg = {cmd: "specifyCurrentDataset", callback: "datasetSpecified", status: "request", payload: "DEMOdz"};
+      // when our module receives the 'datasetSpecified' msg, which is accompanied by the dataset's manifest
+      // it looks for the gbmPathways data object in the manifest, requests it be sent if it is there
+      // when that data is loaded and ready, the module updates the status div; we watch for that, then
+      // check that a reasonable number of nodes are contained in the loaded graph.
+
+   var target = document.querySelector("#gbmPathwaysStatusDiv");
+
+   if(gbmPathwaysStatusObserver == null){
+      gbmPathwaysStatusObserver = new MutationObserver(function(mutations) {
+      mutation = mutations[0];
+      gbmPathwaysStatusObserver.disconnect();
+      gbmPathwaysStatusObserver = null;
+      var id = mutation.target.id;
+      var msg = $("#gbmPathwaysStatusDiv").text();
+      QUnit.test("gbmPathways loaded", function(assert) {
+         var nodeCount = cyGbm.nodes().length;
+         var edgeCount = cyGbm.edges().length;
+         console.log("gbmPathway loaded, with " + nodeCount + " nodes and " + edgeCount + " edges.");
+         assert.ok(nodeCount > 150);
+         assert.ok(edgeCount > 200);
+         testMakeSelections();
+         })
+      }); // new MutationObserver
+      }
+
+   var config = {attributes: true, childList: true, characterData: true};
+   gbmPathwaysStatusObserver.observe(target, config);
+
+   hub.send(JSON.stringify(msg));
+
+}; // testLoadDataSetThenLoadPathways
+//------------------------------------------------------------------------------------------------------------------------
+function testMakeSelections()
+{
+   var selectedNodes = cyGbm.filter("node:selected").map(function(node){ return node.id();});
+   console.log("--- testMakeSelections, selected node count: " + selectedNodes.length);
+   console.log(JSON.stringify(selectedNodes));
+   console.log("   menu disabled? " + $("#gbmPathwaysSendSelectionMenu").prop("disabled"));
+
+   QUnit.test("gbmPathways selections", function(assert){
+     assert.equal(cyGbm.filter("node:selected").length, 0);
+     assert.equal($("#gbmPathwaysSendSelectionMenu").prop("disabled"), true);
+     cyGbm.$("#GAB1").select()  // effectively instantaneous results?
+     assert.equal(cyGbm.filter("node:selected").length, 1);
+     assert.equal($("#gbmPathwaysSendSelectionMenu").prop("disabled"), false);
+     });
+
+   QUnit.test("gbmPathways direct cyjs search", function(assert){
+       // use setTimeout to ensure a brief delay between 
+       // calls to cyjs and results appearing on the cyjs canvas
+     var done1 = assert.async();
+     var done2 = assert.async();
+     var done3 = assert.async();
+     var done4 = assert.async();
+     var done5 = assert.async();
+     assert.expect(5);
+     cyGbm.filter("node:selected").unselect();
+     setTimeout(function(){
+        var selectedNodeCount = cyGbm.filter("node:selected").length;
+        console.log(" testing  unselect: " + selectedNodeCount);
+        assert.equal(selectedNodeCount, 0); done1();
+        var menuDisabled = $("#gbmPathwaysSendSelectionMenu").prop("disabled")
+        console.log(" testing  unselect, menu disabled?: " + menuDisabled);
+        assert.equal(menuDisabled, true); done2();
+          // with this test complete, setup the next one
+        cyGbm.$("#GAB1").select();  // effectively instantaneous results?
+        }, 1000);
+     setTimeout(function(){
+        var selectedNodes = cyGbm.filter("node:selected").map(function(node){ return node.id();});
+        assert.equal(selectedNodes.length, 1); done3();
+        console.log("selected node: " + selectedNodes[0]);
+        assert.equal(selectedNodes[0], "GAB1"); done4();
+        assert.equal($("#gbmPathwaysSendSelectionMenu").prop("disabled"), false); done5();
+        testSearchBox();
+        }, 1000);
+      }); // gbmPathways direct cyjs search
+
+} // testMakeSelections
+//------------------------------------------------------------------------------------------------------------------------
+function testSearchBox()
+{
+   cyGbm.filter("node:selected").unselect();
+
+   QUnit.test("gbmPathways searchBox", function(assert){
+     assert.equal(cyGbm.filter("node:selected").length, 0);
+     assert.equal($("#gbmPathwaysSendSelectionMenu").prop("disabled"), true);
+     var box = $("#gbmPathwaysSearchBox");
+     box.val("pik");  // user lower case to test case insensitivity
+     box.trigger(jQuery.Event("keydown", {which: 13}))
+     assert.equal(cyGbm.filter("node:selected").length, 9);
+     assert.equal($("#gbmPathwaysSendSelectionMenu").prop("disabled"), false);
+     testZoomSelected();
+     });
+
+
+} // testSearchBox
+//------------------------------------------------------------------------------------------------------------------------
+function testZoomSelected()
+{
+   console.log("--- testZoomSelected");
+
+   QUnit.test("gbmPathways zoom selected", function(assert){
+     assert.ok(cyGbm.filter("node:selected").length > 0);
+     var zoomBefore = cyGbm.viewport().zoom();
+     $("#gbmZoomSelectedButton").click();
+     var zoomAfter = cyGbm.viewport().zoom();
+     console.log("zoomBefore: " + zoomBefore);
+     console.log("zoomAfter: " + zoomAfter);
+     assert.ok(zoomAfter > zoomBefore);
+     console.log("pause zoomed in before calling testHandleIncomingSelections");
+     setTimeout(function(){testHandleIncomingSelections()}, 1000);
+     });
+
+} // testZoomSelected
+//------------------------------------------------------------------------------------------------------------------------
+function testHandleIncomingSelections()
+{
+     // start out with network zoomed out, and no selected nodes
+   console.log("--- testHandleIncomingSelections")
+
+   cyGbm.filter("node:selected").unselect();
+   cyGbm.fit(50);
+ 
+   var cmd = "sendSelectionTo_gbmPathways";
+   var payload = {value: ["GRB2", "PDGFRB"]};  // two nodes at top center of network
+   var msg = {cmd: cmd, callback: "", status: "request", payload: payload};
+
+   var target = document.querySelector("#gbmPathwaysStatusDiv");
+
+   if(gbmPathwaysStatusObserver == null){
+      gbmPathwaysStatusObserver = new MutationObserver(function(mutations) {
+        mutation = mutations[0];
+        gbmPathwaysStatusObserver.disconnect();
+        gbmPathwaysStatusObserver = null;
+        var id = mutation.target.id;
+        var msg = $("#gbmPathwaysStatusDiv").text();
+        QUnit.test("gbmPathways incoming identifiers received", function(assert) {
+           assert.equal(cyGbm.filter("node:selected").length, 2)        
+           })
+        setTimeout(testSendSelectionsViaGUI, 2000);
+        }); // new MutationObserver
+      } // if null observer
+
+   var config = {attributes: true, childList: true, characterData: true};
+   gbmPathwaysStatusObserver.observe(target, config);
+   hub.send(JSON.stringify(msg));
+   
+} // testHandleIncomingSelections
+//------------------------------------------------------------------------------------------------------------------------
+function testSendSelectionsViaGUI()
+{
+   console.log("--- testSendSelectionsViaGUI");
+
+     // start out with network zoomed out, and no selected nodes
+   cyGbm.filter("node:selected").unselect();
+   cyGbm.fit(50);
+ 
+   cyGbm.$("#IRS1").select();
+   cyGbm.$("#GAB1").select();
+
+   setTimeout(function(){
+      $("#gbmPathwaysSendSelectionMenu").val("blankTab");
+      $("#gbmPathwaysSendSelectionMenu").trigger("change");
+      }, 200);
+
+   setTimeout(function(){
+      QUnit.test("gbmPathways send selection via GUI", function(assert) {
+        assert.ok($("#blankTabOutputDiv").text().indexOf("IRS1") >= 0);
+        assert.ok($("#blankTabOutputDiv").text().indexOf("GAB1") >= 0);
+        //testEdgeSelectionAndAbstractDisplay();
+        })}, 1000)
+    
+   setTimeout(function(){hub.raiseTab("gbmPathwaysDiv")}, 2000);
+
+   console.log("--- testSendAndReceiveSelectionsViaGUI, sent selections?");
+
+} // testSendSelectionsViaGUI
+//------------------------------------------------------------------------------------------------------------------------
+function testEdgeSelectionAndAbstractDisplay()
+{
+  console.log("--- testSendSelectionsViaGUI");
+  $("#gbmViewAbstractsButton").trigger("click");
+  cyGbm.edges()[0].select();
+    // edge is not visually selected
+    // don't know how to detect for an actually opened window...
+
+
+} // testEdgeSelectionAndAbstractDisplay
+//------------------------------------------------------------------------------------------------------------------------
+
+return{
+   init: initializeUI,
+   run: runTests,
+   show: showTests,
+   hide: hideTests
+   }; // module return value
+
+//------------------------------------------------------------------------------------------------------------------------
+}); // GbmPathwayTestModule
+
+gbt = GbmPathwayTestModule();
+//gbt.run(true);
+
+</script>
+
+<body>
+
+  <div id="qunit" style="display:none"></div>
+  <div id="qunit-fixture"></div>
+
+<div id="oncoscapeTabs">
+   <ul>
+     <li><a href="#datasetsDiv">Datasets</a></li>
+     <li><a href="#patientHistoryDiv">Patient History</a></li>
+     <li><a href="#gbmPathwaysDiv"">GBM Pathways</a></li>
+     <li><a href="#blankTabDiv">blank tab</a></li>
+   </ul>
+
+<style>
+ 
+</style>
+
+<div id="datasetsDiv">
+  <div id="datasetsStatusDiv" style="display:none"></div>
+  <div id="dataSummaryControlsDiv">
+     <span id="selectDataSetMenuLabel" style="margin-left: 20px;">Available Datasets</span>
+     <select type="button" id="datasetMenu" style="margin: 5px;"><option> </option></select>
+     <button id="selectDatasetButton">Use Dataset</button>
+     <select type="button" id="datasetsSendSelectionsMenu" style="float:right; margin:15px; display: none"></select>
+  </div>
+
+   <div id="dataSetNamesOutputDiv" style="margin: 20px;"></div>
+
+   <div id="dataSummaryOutputDiv" style="margin: 20px;overflow-x:auto">
+      <div id="datasetInstructions">Please select a dataset from the above menu.</div>
+      <table id="datasetsManifestTable" class="display" cellpadding="0" cellspacing="0" border="1" style="margin:0px; width:auto; display:none"></table>
+   </div>
+</div>
+
+<style>
+
+
+#patientHistoryDiv{
+   width: 600px;
+   height: 400px;
+   background-color: #ffffff;
+   margin: auto;
+   padding: 5px;
+   }
+
+
+#patientHistoryControlsDiv {
+  background-color: #FFFFFF;
+  position: relative;
+  height: 400px;
+  width: 600px;
+  border: 1px solid #aaa;
+  border-radius: 5px;
+  margin-right: auto;
+  margin-left: auto;
+  margin-top: 10px;
+  margin-bottom: 5px;
+  padding: 0px;
+  }
+
+#patientHistoryTableDiv {
+  background-color: #FFFFFF;
+  position: relative;
+  height: 400px;
+  width: 600px;
+  overflow-x:auto;
+  margin-right: auto;
+  margin-left: auto;
+  margin-top: 5px;
+  margin-bottom: 5px;
+  padding: 0px;
+  }
+
+.patientDataFilterSliderReadout {
+  font-family:"Courier";
+  color: #0000FF;
+  background-color: #FFF;
+  font-size: 12px;
+  border: 2px solid #DDD;
+  width: 50px;
+  height: 25px;
+  resize: none;
+  margin-top: 5px;
+  margin-left: 1px;
+  }
+
+.patientDataFilterSliderTitleDiv {
+  font-family:"Arial";
+  color: #000000;
+  font-size: 12px;
+  padding-top: 0px;
+  padding-right:0px;
+  }
+
+
+</style>
+
+
+<div id="patientHistoryDiv">
+  <div id="patientHistoryStatusDiv" style="display:none"></div>
+  <div id="patientHistoryControlsDiv">  
+
+
+        <div id="ageSliderDiv" class="nav navbar-nav navbar-form navbar-left"  style="display: inline-block">
+           <div id="ageAtDxSliderTitleDiv" class="patientDataFilterSliderTitleDiv" style="text-align: center; width=100%">Age at Dx</div>
+           <div style="width: 280px; overflow: hidden;">
+               <div id="ageAtDxMsgBox1" style="float: left; margin-left: 5px; margin-right: 15<px; width: 40px" >
+  
+                  <textarea id="ageAtDxMinSliderReadout" style="font-size: 12px; height:16px"
+                            readonly class="patientDataFilterSliderReadout"></textarea> 
+                  </div>
+               <div style="width: 120px; height: 6px; float: left; margin-top: 10px; 
+                           margin-left: 30px; margin-right: 15px;" 
+                   id="ageAtDxSlider" class="slider patientDataFilterSlider">
+                   </div>
+               <div id="ageAtDxMsgBox2" style="float: left">  
+                  <textarea id="ageAtDxMaxSliderReadout" style="font-size: 12px; height:16px"
+                            readonly class="patientDataFilterSliderReadout"></textarea> 
+                  </div>
+              </div>
+           </div>
+
+
+        <div id="survivalSliderDiv" class="nav navbar-nav navbar-form navbar-left" style="display: inline-block">
+           <div id="survivalSliderTitleDiv" class="patientDataFilterSliderTitleDiv" style="text-align: center; width=100%">Survival</div>
+           <div style="width: 280px; overflow: hidden;">
+               <div id="survivalMsgBox1" style="float: left" >  
+                  <textarea id="survivalMinSliderReadout" style="font-size: 12px; height:16px"
+                             readonly class="patientDataFilterSliderReadout"></textarea> 
+                  </div>
+               <div style="width: 120px; height: 6px; float: left; margin-top: 10px; margin-left: 15px;
+                            margin-right: 15px;" 
+                   id="survivalSlider" class="slider patientDataFilterSlider">
+                   </div>
+               <div id="survivalMsgBox2" style="float: left">  
+                  <textarea id="survivalMaxSliderReadout"  style="font-size: 12px; height:16px"
+                            readonly class="patientDataFilterSliderReadout"></textarea> 
+                  </div>
+              </div>
+           </div>
+
+     <button id="patientHistoryShowAllRowsButton" type="button">Reset</button>
+     <select type="button" id="patientHistorySendSelectionsMenu" style="float:right; margin:15px"></select>
+
+
+  </div>
+
+  <div id="patientHistoryTableDiv">  
+    <table id="patientHistoryTable" cellpadding="0" cellspacing="0" border="0" class="display">
+    </table>
+ </div>
+
+</div>
+
+<style>
+
+div {
+   display: block;
+   }
+
+#gbmPathwaysDiv {
+  }
+
+#cyGbmPathwaysDiv {
+  background-color: #FFFFFF;
+
+  position: relative;
+
+  height: 400px;
+  width: 600px;
+
+  border: 1px solid #aaa;
+
+  margin-top: 0px;
+  margin-left: 0px;
+
+  padding: 0px;
+  }
+
+.gbmButton {
+   font-size: 8pt;
+   }
+
+#gbmPathwaysMouseOverReadoutDiv{
+  border: 1px solid #aaa;
+  width: 800px;
+  height: 20px;
+  margin: 0px;
+  }
+
+#gbmPathwaysButtonDiv{
+  margin-top: 0px;
+  margin-bottom: 0px;
+  }
+
+#gbmPathwaysMovieSpeedReadout{
+   border: 1px solid #aaa;
+   width: 50px;
+   height: 20px;
+   margin: 0px;
+   }
+#bottomMargin{
+   height:18px;
+}
+</style>
+<script>
+$("#gbmPathwaysMovieButton").click(function(){
+    $(this).text("Stop");
+});
+</script>
+
+<div id="gbmPathwaysDiv">
+   <div id="gbmPathwaysStatusDiv" style="display:none"></div>
+   <div id="gbmPathwaysButtonDiv" style="margin-bottom: 0px;bottom: 8px;">
+      <!--
+      <label id="gbmPathwaysSelectLabel" class="text-muted" for="select">Select a sample:</label>
+      <select class="navbar-form selectpicker" id="gbmPathwaysSampleSelector"></select>
+      -->
+      <input type="text" id="gbmPathwaysSearchBox" value="search"></input>
+      <!--
+      <button id="gbmPathwaysMovieButton" style="width:100px"  type="button" class="btn btn-info navbar-btn  btn-xs"></button>
+      <button id="gbmPathwaysSlowerMovieButton" type="button" class="btn btn-info navbar-btn btn-xs"> + </button>
+      <span id="gbmPathwaysMovieSpeedReadout" class="navbar-btn btn-lg badge"></span> &nbsp;
+      <button id="gbmPathwaysFasterMovieButton" type="button" class="btn btn-info navbar-btn btn-xs"> - </button>
+      -->
+      <button id="gbmViewAbstractsButton" type="button" class="btn btn-info navbar-btn btn-xs">Enable Abstracts</button>
+      <button id="gbmZoomSelectedButton" type="button" class="btn btn-info navbar-btn btn-xs">Zoom Selected</button>
+      <select type="button" id="gbmPathwaysSendSelectionMenu" style="float:right; margin-right:15px"></select>
+    </div>
+
+   <div id="cyGbmPathwaysDiv" class="content" style="margin:0 auto" ></div>
+
+</div>
+
+
+
+
+<style>
+
+
+#blankTabDiv{
+   width: 600px;
+   height: 400px;
+   background-color: #f0f0f0;
+   margin: auto;
+   padding: 5px;
+   }
+
+
+#blankTabControlsDiv {
+  background-color: #FFFFFF;
+  position: relative;
+  height: 400px;
+  width: 600px;
+  border: 1px solid #aaa;
+  border-radius: 5px;
+  margin-right: auto;
+  margin-left: auto;
+  margin-top: 10px;
+  margin-bottom: 5px;
+  padding: 0px;
+  }
+
+#blankTabOutputDiv {
+  background-color: #FFFFFF;
+  position: relative;
+  height: 400px;
+  width: 600px;
+  border: 1px solid #aaa;
+  border-radius: 5px;
+  margin-right: auto;
+  margin-left: auto;
+  margin-top: 5px;
+  margin-bottom: 5px;
+  padding: 0px;
+  }
+
+</style>
+
+
+<div id="blankTabDiv">
+
+
+  <div id="blankTabControlsDiv">  
+     <button id="testBlankTabButton" style="margin: 20px">QUnit test</button>
+     <select type="button" id="blankTabSendSelectionsMenu" style="float:right; margin:15px"></select>
+  </div>
+
+  <div id="testingOutputDiv" style="display: none">
+     <div id="qunit"></div>
+     <div id="qunit-fixture"></div>
+  </div>
+
+  <div id="blankTabOutputDiv">  
+  </div>
+
+
+
+</div>
+
+
+</div>
+
+
+
+</body>
+</html>

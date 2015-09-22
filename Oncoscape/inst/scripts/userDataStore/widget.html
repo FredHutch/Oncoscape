@@ -1,0 +1,117 @@
+<style>
+th,td{
+   white-space: nowrap;
+   } 
+
+#formDiv  { display: table;      }
+p         { display: table-row; margin-top: 5px; }
+label     { display: table-cell; }
+input     { display: table-cell; }
+
+.userDataStoreButton{
+  font-size: 12pt
+  }
+
+#userDataStoreDiv{
+  padding: 0px;
+  margin-top: 5px;
+  }
+
+#userDataStoreTable_wrapper{
+  border: 1px solid #000;
+  border-radius: 5px;
+  }
+
+#userDataStoreTable_filter{
+  margin: 10px;
+  }
+
+
+
+#userDataStoreEditDiv{
+  background-color: #F0F0F0;
+  position: relative;
+  height: 300px;
+  width: 800px;
+  border: 2px solid #aaa;
+  border-radius: 5px;
+  border-color: "#DD0000;
+  margin-right: auto;
+  margin-left: auto;
+  margin-top: 10px;
+  margin-bottom: 10px;
+  padding: 0px;
+  }
+
+#userDataStoreControlsDiv {
+  background-color: #FFFFFF;
+  position: relative;
+  height: 30px;
+  width: 600px;
+  //border: 1px solid #aaa;
+  //border-radius: 5px;
+  margin-right: 0px;
+  margin-left: 0px;
+  margin-top: 0px;
+  margin-bottom: 0px;
+  padding: 0px;
+  }
+
+#userDataStoreTableDiv {
+  background-color: #FFFFFF;
+  position: relative;
+  height: 400px;
+  width: 600px;
+  //border: 1px solid #aaa;
+  //border-radius: 5px;
+  margin-right: auto;
+  margin-left: auto;
+  margin-top: 5px;
+  margin-bottom: 5px;
+  padding: 0px;
+  }
+
+</style>
+
+
+<div id="userDataStoreDiv">
+
+  <div id="userDataStoreControlsDiv">  
+     <button id="userDataStoreViewButton" class="userDataStoreButton">View</button>
+     <button id="userDataStoreEditButton" class="userDataStoreButton">Edit</button>
+     <button id="userDataStoreDeleteButton" class="userDataStoreButton">Delete</button>
+     <select type="button" id="userDataStoreSendSelectionsMenu" style="float:right; margin-right: 15px; font-size: 12pt" 
+              class="userDataStoreButton"></select>
+  </div>
+
+  <div id="userDataStoreEditDiv">
+    <h4 align="center">Annotate and Save New Selection</h4>
+
+    <div id="userDataNewSelectionRawDisplayDiv">
+       <textarea id="userDataNewSelectionRawDisplayTextArea" rows="4" cols="80" 
+                 style="background-color: #FFFFFF; margin: 10px;"></textarea>
+    </div>
+
+    <div id="formDiv">
+      <p>
+        <label for="userDataNewItemNameInput" style="width: 60px;margin-right: 5px;" align="right"> Name &nbsp;</label> 
+        <input  id="userDataNewItemNameInput" size="60" type="text"/>
+      </p>
+      <p>
+       <label for="userDataNewItemTagsInput" style="width: 60px" align="right"> Tags &nbsp; </label> 
+       <input  id="userDataNewItemTagsInput" size="60" type="text"/></br>
+      </p>
+      </div>
+      <div id="userDataStoreEditButtonsDiv" align="center" style="margin: 5px">
+         <button type="button" id="userDataStoreEditSaveButton">Save</button>
+         <button type="button" id="userDataStoreEditCancelButton">Cancel</button>
+      </div>
+
+  </div>
+
+  <div id="userDataStoreTableDiv" style="margin: 20px;">
+    <table id="userDataStoreTable" cellpadding="0" cellspacing="0" 
+           margin-left="0" border="1" class="display"></table>
+  </div>
+
+</div>

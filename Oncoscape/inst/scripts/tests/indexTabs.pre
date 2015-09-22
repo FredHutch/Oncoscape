@@ -1,0 +1,14 @@
+include(../m4-workarounds.txt)
+include(../index.common)
+include(../common.css)
+<script>
+include(../hub/Module.js)
+var hub = HubModule();
+hub.start();
+
+include(../tabsApp/code.js)
+</script>
+include(tabsTest.html)
+
+</body>
+</html>

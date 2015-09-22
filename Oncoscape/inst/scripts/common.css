@@ -1,0 +1,32 @@
+<style>
+
+.flex-container {
+  display: -webkit-flex;
+  display: flex;
+  }
+
+.ui-slider-range {
+   background-image: none;
+   background: lightgrey;
+   }
+
+th,td {
+   font-size:12px;
+   }
+
+.patientDataFilterSliderReadout{
+   font-size: 10px;
+   height:16px;
+   }
+
+.ui-tabs .ui-tabs-nav li a{
+   font-size:10pt !important;
+   }
+
+.ui-button .ui-button-text{
+   font-size:10pt !important;
+   }
+
+
+</style>
+

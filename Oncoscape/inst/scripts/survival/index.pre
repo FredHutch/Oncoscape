@@ -1,0 +1,14 @@
+include(../m4-workarounds.txt)
+include(../index.common)
+
+<script>
+include(../hub/Module.js)
+var hub = HubModule();
+hub.registerModule("datasets", "dataSummaryDiv");
+hub.start();
+include(Module.js)
+</script>
+<body>
+include(widget.html)
+</body>
+</html>

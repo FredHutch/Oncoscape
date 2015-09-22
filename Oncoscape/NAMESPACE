@@ -1,0 +1,34 @@
+exportClasses(OncoDev14, UserDataStore)
+
+export(
+  OncoDev14,
+  UserDataStore,
+  addRMessageHandler
+  )
+
+exportMethods(
+  show,
+  run,
+  serverVersion,
+  close,
+  port,
+  getDataSetNames,
+  setActiveDataSet,
+  getActiveDataSet,
+  getUserID,
+  getUserGroups,
+  getURI,
+  getUserDirectory,
+  addData,
+  getDataItem,
+  deleteDataItem,
+  getSummary
+  )
+
+importClassesFrom(methods, character, integer)
+importFrom(methods, new)
+
+
+import(BiocGenerics)
+import(httpuv)
+import(jsonlite)
