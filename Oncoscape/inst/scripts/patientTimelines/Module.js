@@ -12,7 +12,7 @@ var TimeLineModule = (function () {
     var thisModulesOutermostDiv = "patientTimeLinesDiv";
     
     var then, now;
-
+var test;
 	// Data Elements
 	//--------------------------------------------------------------------------------------------------
 		var EventTypes;
