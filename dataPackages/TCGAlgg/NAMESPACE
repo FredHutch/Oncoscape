@@ -1,0 +1,9 @@
+exportClasses(TCGAlggClass)
+
+export(
+   TCGAlgg
+   )
+
+importClassesFrom(methods, character, integer)
+importFrom(methods, new)
+
