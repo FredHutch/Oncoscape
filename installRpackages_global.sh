@@ -15,6 +15,6 @@ R  --vanilla CMD INSTALL --no-test-load --no-lock TCGAlgg
 R  --vanilla CMD INSTALL --no-test-load --no-lock TCGAbrain
 R  --vanilla CMD INSTALL --no-test-load --no-lock DGI
 
-cd ../oncoDev14/Oncoscape
+cd ../Oncoscape
 R  --vanilla CMD INSTALL --no-test-load --no-lock .
 
