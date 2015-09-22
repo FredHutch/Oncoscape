@@ -24,7 +24,7 @@ install:
 	. ./installRpackages_global.sh
 	(cd dataPackages/; make test)
 	(cd analysisPackages/; make test)
-	(cd oncoDev14/Oncoscape/inst/unitTests; make)
+	(cd Oncoscape/inst/unitTests; make)
 
 cleanupTests:
 	- kill `ps aux | grep runPLSRTestWebSocketServer.R | grep -v grep | awk '{print $$2}'` 
@@ -34,7 +34,7 @@ cleanupTests:
 # installOncoscape
 ####
 installOncoscape:
-	(cd oncoDev14/Oncoscape; R  --vanilla CMD INSTALL --no-test-load --no-lock .)
+	(cd Oncoscape; R  --vanilla CMD INSTALL --no-test-load --no-lock .)
 
 # oncoApp7777: kills then launches R server: public Brain datasets on port 7777
 ####
@@ -43,5 +43,5 @@ installOncoscape:
 #   using all (9) current tabs
 oncoApp7777:
 	- kill -9 `ps aux | grep runOncoscapeApp | egrep -v grep | awk  '{print $$2}'`
-	(cd oncoDev14/Oncoscape/inst/scripts/apps/oncoscape/; make local;)
+	(cd Oncoscape/inst/scripts/apps/oncoscape/; make local;)
 
