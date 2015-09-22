@@ -1,0 +1,12 @@
+Package: GeneSetTTests
+Type: Package
+Title:  Gene-Wise TTests Comparisons for Two Sample Sets
+Version: 0.99.4
+Date: 2015-02-18
+Author: Paul Shannon
+Maintainer:  <pshannon@fredhutch.org>
+Depends: R (>= 3.1.0), BiocGenerics, RUnit, GMD
+Suggests: RUnit
+Description:  Given mRNA expression of two non-overlapping sample sets, and one or more genesets, determine by-gene similarity
+License: GPL
+LazyLoad: yes

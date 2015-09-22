@@ -1,0 +1,15 @@
+exportClasses(GeneSetBinomialMethods)
+
+export(GeneSetBinomialMethods)
+
+exportMethods(
+  getExpressionData,
+  getClinicalData,
+  getGeneSets,
+  randomSample, 
+  analysisDataSetup,
+  geneSetScoreTest
+  )
+
+import(SKAT, methods)
+

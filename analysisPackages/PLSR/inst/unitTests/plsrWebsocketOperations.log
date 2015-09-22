@@ -1,0 +1,6 @@
+--- testEcho
+--- testCreateWithDataSet
+--- testSummarizePLSRPatientAttributes
+--- testCalculateSmallOneFactor
+--- testCalculateSmallTwoFactors
+all testPLSRWebSocketOperations.py tests passed

@@ -1,0 +1,17 @@
+exportClasses(GeneSetTTests)
+
+exportMethods(
+  getExpressionData,
+  getGeneSets,
+  getGeneSetNames,
+  getGeneSetLengths,
+  cancerRelatedGeneSets,
+  score,
+  drawHeatmap
+  )
+
+# export functions here
+export(
+  GeneSetTTests,
+  printf
+  )
