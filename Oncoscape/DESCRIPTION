@@ -19,6 +19,7 @@ Collate: OncoDev14.R
          wsGeneral.R
          wsDatasets.R
          wsSurvival.R
+	 wsOncoprint.R
          survival.R
          wsPLSR.R
          wsPCA.R
