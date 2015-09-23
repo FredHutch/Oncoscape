@@ -972,6 +972,36 @@ function gbmLggDzSpecificTests()
 
 } // gbmLggDzSpecificTests
 //----------------------------------------------------------------------------------------------------
+// query the oncoscape server for user id.  the callback then makes a local (that is,
+// Module-specific) decision to run this module's automated tests based upon that id
+function runAutomatedTestsIfAppropriate()
+{
+   console.log("Module.markers, runAutomatedTestsIfAppropriate");
+
+   var msg = {cmd: "getUserId",  callback: "markersAssessUserIdForTesting",
+              status: "request", payload: ""};
+
+   hub.send(JSON.stringify(msg));
+
+} // runAutomatedTestsIfAppropriate
+//----------------------------------------------------------------------------------------------------
+function assessUserIdForTesting(msg)
+{
+   var userID = msg.payload;
+   userId = userID.toLowerCase();
+
+   console.log("markersAndSamples/Module.js assesUserIdForTesting: " + userID)
+   
+   if(userID.indexOf("autotest") === 0){
+      console.log("markersAndSamples/Module.js running tests for user " + userID)
+      debugger;
+      mast = MarkersAndSamplesTestModule();
+      mast.show()
+      mast.run();
+      }
+
+} // assessUserIdForTesting
+//----------------------------------------------------------------------------------------------------
  return{
      init: function(){
         hub.addMessageHandler("sendSelectionTo_MarkersAndPatients", handleIncomingIdentifiers);
@@ -980,6 +1010,8 @@ function gbmLggDzSpecificTests()
         hub.addMessageHandler("displayMarkersNetwork", displayMarkersNetwork);
         hub.addMessageHandler("configureSampleCategorizationMenu", configureSampleCategorizationMenu);
         hub.addMessageHandler("markersApplyTumorCategorization", applyTumorCategorization);
+        hub.addMessageHandler("markersAssessUserIdForTesting", assessUserIdForTesting);
+        hub.addSocketConnectedFunction(runAutomatedTestsIfAppropriate);
         hub.addOnDocumentReadyFunction(initializeUI);
        },
      sat: standAloneTest
