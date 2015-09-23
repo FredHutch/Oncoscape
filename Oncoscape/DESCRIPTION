@@ -1,8 +1,8 @@
 Package: OncoDev14
 Type: Package
 Title: Oncoscape:  Coordinated Exploration of Clinical and Molecular Cancer Data
-Version: 1.4.87
-Date: 2015-09-16
+Version: 1.4.88
+Date: 2015-09-22
 Author: Paul Shannon
 Maintainer:  <pshannon@fhcrc.org>
 Depends: R (>= 3.2.0), jsonlite, httpuv, SttrDataPackage, survival, base64enc, PCA, PLSR

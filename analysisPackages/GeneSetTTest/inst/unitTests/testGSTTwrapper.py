@@ -1,7 +1,9 @@
 import sys
 from websocket import create_connection
 from json import *
-ws = create_connection("ws://localhost:9003")
+ws = create_connection("ws://chinookdemo3.sttrcancer.org")
+#ws = create_connection("ws://lopez:11003")  # works from paul's laptop with vpn
+#ws = create_connection("ws://localhost:9003")
 
 
 
@@ -235,10 +237,8 @@ def testScore_implicit_genesets():
   return(result)
 
 #------------------------------------------------------------------------------------------------------------------------
-
-
-
-interactive = (sys.argv[0] != "testWrapper.py")
+interactive = (sys.argv[0] != "testGSTTwrapper.py")
+print "interactive? %s" % interactive
 if(not(interactive)):
   runTests()
 

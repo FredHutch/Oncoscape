@@ -445,9 +445,9 @@ prolonged_score_all_genesets <- function()
    gsoi <- names(genesets)
    score <- score(gstt, short.survivors, long.survivors, gsoi, quiet=TRUE, byGene=FALSE,  mean.threshold=0.15)
 } # prolonged_score_all_genesets
-ptm <- proc.time()
-score <- score(gstt, short.survivors, long.survivors, gsoi, quiet=TRUE, byGene=FALSE,  mean.threshold=0.15)
-interval <- proc.time() - ptm
+ #ptm <- proc.time()
+ #score <- score(gstt, short.survivors, long.survivors, gsoi, quiet=TRUE, byGene=FALSE,  mean.threshold=0.15)
+ #interval <- proc.time() - ptm
 
 #------------------------------------------------------------------------------------------------------------------------
 # figure out how to write scoring function
@@ -546,5 +546,6 @@ explore_pt <- function()
 
 } # explore_pt
 #------------------------------------------------------------------------------------------------------------------------
-   
+ if(!interactive())
+    runTests()
 
