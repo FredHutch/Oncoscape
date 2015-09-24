@@ -107,7 +107,7 @@ function handleSelections(msg)
    $("#onc").empty();
    
    analyzeSelectedTissues(ids);
-
+   hub.raiseTab(thisModulesOutermostDiv);
 
 } // handleSelections
 //----------------------------------------------------------------------------------------------------
@@ -133,10 +133,13 @@ function displayOncoprint(msg)
    //console.log("about to add survival curve image to survivalCurve div");
    $("#onc").empty();
    console.log("entering displayOncoprint");
+   
    console.log("displayOncoprint print recieved msg.payload: %s", msg.payload);
    xx = JSON.parse(msg.payload);
-   if(xx.length != 2) alert(msg.payload);
-   else{
+   if(xx.length != 2) {
+   		alert(msg.payload);
+   		$("#onc").empty();
+   }else{
 	   var cnv_data_promise = JSON.parse(xx[0]);
 	   console.log("displayOncoprint print recieved genes: %s",xx[1]);
 	   genes = xx[1];
@@ -151,12 +154,13 @@ function displayOncoprint(msg)
 	   console.log(tracks_to_load);
 	   function map_data(data){
 				cnv_data = _.map(data, function(x) { 
-							if(x.value > 2) x.mrna='UPREGULATED';
-							if(x.value < -2) x.mrna='DOWNREGULATED';
-							if(x.value == 2) x.cna='AMPLIFIED';
-							if(x.value == 1) x.cna='GAINED';
-							if(x.value == -1) x.cna='HEMIZYGOUSLYDELETED'; 
-							if(x.value == -2) x.cna='HOMODELETED';  
+							if(x.datatype == "mrna" & Number(x.value) > 2) x.mrna='UPREGULATED';
+							if(x.datatype == "mrna" & Number(x.value) < -2) x.mrna='DOWNREGULATED';
+							if(x.datatype == "cnv" & Number(x.value) == 2) x.cna='AMPLIFIED';
+							if(x.datatype == "cnv" & Number(x.value) == 1) x.cna='GAINED';
+							if(x.datatype == "cnv" & Number(x.value) == -1) x.cna='HEMIZYGOUSLYDELETED'; 
+							if(x.datatype == "cnv" & Number(x.value) == -2) x.cna='HOMODELETED'; 
+							if(x.datatype == "mutation" & x.value != "") x.mut_type='MISSENSE';
 							x.patient = x.sample; return x; })
 	   }
 	   map_data(cnv_data_promise,gene);
@@ -178,8 +182,10 @@ function displayOncoprint(msg)
 					onc.releaseRendering();
 				};
 			})
-	   }	
-   } 
+	   }
+	   hub.enableTab(thisModulesOutermostDiv);	
+   }
+    
 } // displaySurvivalCurves
 //----------------------------------------------------------------------------------------------------
 function initializeModule()
