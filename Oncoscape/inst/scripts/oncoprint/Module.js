@@ -17,9 +17,8 @@ var OncoprintModule = (function () {
   var cell_padding = 3;
   var cell_width = 4;
   var whitespace_on = true;
-  var tracks_to_load = 1;
-  var gene = "EGFR";
-  var cnv_track_id = [];
+  var track_id = [];
+  var cnv_data,mnra_data,mut_data, cnv_data_promise,mrna_data_promise,mut_data_promise;
 //--------------------------------------------------------------------------------------------
 function initializeUI()
 {
@@ -31,36 +30,16 @@ function initializeUI()
                                                       sendSelections,
                                                       sendSelectionsMenuTitle);
   
-
-  $('#shuffle_btn').click(function() {
-	onc.sort(gender_track_id, function(d1, d2) {
-		var map = {'MALE':0, 'FEMALE':1};
-		return map[d1.attr_val] - map[d2.attr_val];
-	});
-});
-
   $('#toggle_whitespace').click(function() {
 	onc.toggleCellPadding();
-});
+	});
   var z = 1;
   $('#reduce_cell_width').click(function() {
 	z *= 0.5;
 	onc.setZoom(z);
-});
-  $('#change_color_scheme').click(function() {
-	onc.setRuleSet(gender_track_id, Oncoprint.CATEGORICAL_COLOR, {
-		color: {MALE: '#CBCBCB', FEMALE: 'green'},
-		getCategory: function(d) {
-			return d.attr_val;
-		},
-		legend_label: 'Gender (modified color)'
 	});
-});                                                 
- 
-  
-	
-  
   handleWindowResize();
+  
 
 } // initializeUI
 //----------------------------------------------------------------------------------------------------
@@ -107,20 +86,18 @@ function handleSelections(msg)
    $("#onc").empty();
    
    analyzeSelectedTissues(ids);
-   hub.raiseTab(thisModulesOutermostDiv);
-
 } // handleSelections
 //----------------------------------------------------------------------------------------------------
 function analyzeSelectedTissues(IDs)
 {
    $("#onc").append("Computing...");
-   console.log("Oncoprint module, hub.send 'cnv_data_selection' for %d IDs",
+   console.log("Oncoprint module, hub.send 'oncoprint_data_selection' for %d IDs",
                IDs.length);
    if(IDs.length > 108){
    		alert("Please choose less than 108 Nodes");
    }else{
 	   var payload = {sampleIDs: IDs};
-	   var msg = {cmd:"cnv_data_selection", callback: "displayOncoprint", status: "request", 
+	   var msg = {cmd:"oncoprint_data_selection", callback: "displayOncoprint", status: "request", 
 				  payload: payload};
 	   console.log("msg cmd, call back, status, payload: %s,%s,%s,%s", msg.cmd, msg.callback, msg.status, msg.payload.sampleIDs );
 	   hub.send(JSON.stringify(msg));
@@ -136,58 +113,110 @@ function displayOncoprint(msg)
    
    console.log("displayOncoprint print recieved msg.payload: %s", msg.payload);
    xx = JSON.parse(msg.payload);
-   if(xx.length != 2) {
+   if(xx.length <= 2) {
    		alert(msg.payload);
    		$("#onc").empty();
    }else{
-	   var cnv_data_promise = JSON.parse(xx[0]);
-	   console.log("displayOncoprint print recieved genes: %s",xx[1]);
-	   genes = xx[1];
+	    cnv_data_promise = xx[0];
+	    mrna_data_promise = xx[1];
+	    mut_data_promise = xx[2];
+	   
+	   console.log("displayOncoprint print recieved genes: %s",xx[3]);
+	   genes = xx[3];
    
 	   onc = Oncoprint.create('#onc', {cell_padding: cell_padding, cell_width: cell_width});
-	   var cnv_data;
+	   
 	  
 	   onc.suppressRendering();
-  
-   
-	   tracks_to_load = genes.length;
-	   console.log(tracks_to_load);
-	   function map_data(data){
-				cnv_data = _.map(data, function(x) { 
-							if(x.datatype == "mrna" & Number(x.value) > 2) x.mrna='UPREGULATED';
-							if(x.datatype == "mrna" & Number(x.value) < -2) x.mrna='DOWNREGULATED';
-							if(x.datatype == "cnv" & Number(x.value) == 2) x.cna='AMPLIFIED';
-							if(x.datatype == "cnv" & Number(x.value) == 1) x.cna='GAINED';
-							if(x.datatype == "cnv" & Number(x.value) == -1) x.cna='HEMIZYGOUSLYDELETED'; 
-							if(x.datatype == "cnv" & Number(x.value) == -2) x.cna='HOMODELETED'; 
-							if(x.datatype == "mutation" & x.value != "") x.mut_type='MISSENSE';
-							x.patient = x.sample; return x; })
-	   }
-	   map_data(cnv_data_promise,gene);
-   
-	   for(i = 0; i < genes.length; i++){
-			gene = genes[i];
-			
-			var cnv_data_gene = cnv_data.filter(function(obj){return obj.gene === gene});     
-			$.when(cnv_data_promise).then(function() {
-				cnv_track_id[i] = onc.addTrack({label: gene}, 0);
+
+	   map_cnv_data(cnv_data_promise);
+   	   map_mrna_data(mrna_data_promise, cnv_data);
+   	   map_mut_data(mut_data_promise, mrna_data);	
+   		
+   	   if(typeof(genes) === "string"){
+   	   		i = 0;
+   	   		gene = genes;
+   	   		tracks_to_load = 1;
+   	   		console.log(tracks_to_load);			
+			var data_gene = mut_data.filter(function(obj){return obj.gene === gene});     
+			$.when(mut_data).then(function() {
+				track_id[i] = onc.addTrack({label: gene, removable:true}, 0);
 				tracks_to_load -= 1;
 				if(i == 0){
-					onc.setRuleSet(cnv_track_id[i], Oncoprint.GENETIC_ALTERATION);
+					onc.setRuleSet(track_id[i], Oncoprint.GENETIC_ALTERATION);
 				}else{
-					onc.useSameRuleSet(cnv_track_id[i], cnv_track_id[0]);
+					onc.useSameRuleSet(track_id[i], track_id[0]);
 				}
-				onc.setTrackData(cnv_track_id[i], cnv_data_gene, true);
+				onc.setTrackData(track_id[i], data_gene, true);
 				if (tracks_to_load === 0) {
 					onc.releaseRendering();
 				};
 			})
-	   }
-	   hub.enableTab(thisModulesOutermostDiv);	
+	   		
+   	   }else{	
+			tracks_to_load = genes.length;
+			console.log(tracks_to_load);
+			for(i = 0; i < genes.length; i++){
+				gene = genes[i];
+			
+				var data_gene = mut_data.filter(function(obj){return obj.gene === gene});     
+				$.when(mut_data).then(function() {
+					track_id[i] = onc.addTrack({label: gene, removable:true}, 0);
+					tracks_to_load -= 1;
+					if(i == 0){
+						onc.setRuleSet(track_id[i], Oncoprint.GENETIC_ALTERATION);
+					}else{
+						onc.useSameRuleSet(track_id[i], track_id[0]);
+					}
+					onc.setTrackData(track_id[i], data_gene, true);
+					if (tracks_to_load === 0) {
+						onc.releaseRendering();
+					};
+				})
+				}
+	   
+	   }	
    }
+   hub.enableTab(thisModulesOutermostDiv);
     
 } // displaySurvivalCurves
 //----------------------------------------------------------------------------------------------------
+ function map_cnv_data(data){
+				cnv_data = _.map(data, function(x) {
+							if(x.value == 2) x.cna='AMPLIFIED';
+							if(x.value == 1) x.cna='GAINED';
+							if(x.value == -1) x.cna='HEMIZYGOUSLYDELETED'; 
+							if(x.value == -2) x.cna='HOMODELETED'; 
+							//if(x.value != "") x.mut_type='MISSENSE';
+							x.patient = x.sample; return x; })
+	   }
+function map_mrna_data(mrna_promise, data){
+				mrna_data = _.map(data, function(x) {
+								single_sample = x.sample;
+								single_gene = x.gene;
+								y = mrna_data_promise.filter(function (obj) {
+										return (obj.sample == single_sample && obj.gene == single_gene);});
+								if(y.length != 0){
+									if(y[0].value > 2) x.mrna='UPREGULATED';
+									if(y[0].value < -2) x.mrna='DOWNREGULATED';
+									x.patient = x.sample; return x;
+								}else{ return x;} 
+							})
+	   }
+//---------------------------------------------------------------------------------------	   
+function map_mut_data(mut_promise, data){
+				mut_data = _.map(data, function(x) {
+								single_sample = x.sample;
+								single_gene = x.gene;
+								y = mut_data_promise.filter(function (obj) {
+										return (obj.sample == single_sample && obj.gene == single_gene);});
+								if(y.length != 0){
+									if(y[0].value != "") x.mut_type='MISSENSE';
+									x.patient = x.sample; return x;
+								}else{ return x;} 
+							})
+	   }
+//----------------------------------------------------------------------------------------------------	   	   
 function initializeModule()
 {
    hub.registerSelectionDestination(selectionDestinations, thisModulesOutermostDiv);
