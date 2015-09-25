@@ -14,6 +14,7 @@ def runTests():
   test_getUserID();
   test_getDataSetNames();
   test_getGeneSets();
+  test_getCopyNumberMatrix();
   test_getSampleCategorizations();
   test_getManifest();
   test_specifyCurrentDataset()
@@ -144,36 +145,36 @@ def test_getManifest():
 
   "get the full data.frame for DEMOdz"
 
-print "--- test_getManifest"
-
-payload = "DEMOdz";
-msg = dumps({"cmd": "getDataManifest", "status": "request", "callback": "", "payload": payload})
-ws.send(msg)
-result = loads(ws.recv())
-payload = result["payload"]
-fieldNames = payload.keys()
-fieldNames.sort()
-assert fieldNames == ["colnames", "datasetName", "mtx", "rownames"]
-
-# in test mode, which is enforced by runDevel.R assignments in the parent directory
-#   userID <- "test@nowhere.net"
-#   current.datasets <- c("DEMOdz")
-# we expect only DEMOdz
-
-colnames = payload["colnames"]
-assert(len(colnames) == 9)
-assert(colnames[0:3] == ["category", "subcategory", "rows"])
-
-  # the matrix (it's all strings right now) comes across the wire as
-  # as a list of lists, which in javascript will appears as an array of arrays
-
-mtx = payload["mtx"]
-assert type(mtx) is list
-assert type(mtx[0]) is list
-assert len(mtx) >= 9
-assert len(mtx[0]) == 9
-    # each row is actually a row
-#assert mtx[0][0:4] == [u'mRNA expression', u'Z scores', u' 20', u' 64']
+  print "--- test_getManifest"
+  
+  payload = "DEMOdz";
+  msg = dumps({"cmd": "getDataManifest", "status": "request", "callback": "", "payload": payload})
+  ws.send(msg)
+  result = loads(ws.recv())
+  payload = result["payload"]
+  fieldNames = payload.keys()
+  fieldNames.sort()
+  assert fieldNames == ["colnames", "datasetName", "mtx", "rownames"]
+  
+  # in test mode, which is enforced by runDevel.R assignments in the parent directory
+  #   userID <- "test@nowhere.net"
+  #   current.datasets <- c("DEMOdz")
+  # we expect only DEMOdz
+  
+  colnames = payload["colnames"]
+  assert(len(colnames) == 9)
+  assert(colnames[0:3] == ["category", "subcategory", "rows"])
+  
+    # the matrix (it's all strings right now) comes across the wire as
+    # as a list of lists, which in javascript will appears as an array of arrays
+  
+  mtx = payload["mtx"]
+  assert type(mtx) is list
+  assert type(mtx[0]) is list
+  assert len(mtx) >= 9
+  assert len(mtx[0]) == 9
+      # each row is actually a row
+  #assert mtx[0][0:4] == [u'mRNA expression', u'Z scores', u' 20', u' 64']
 
 #------------------------------------------------------------------------------------------------------------------------
 def test_histogramCoordinatesIntentionalError():
@@ -588,6 +589,38 @@ def test_getGeneSets():
   genes.sort()
   assert len(genes) == 24
   assert genes[0:5] == ['EFEMP2', 'ELAVL1', 'ELAVL2', 'ELL', 'ELN']
+
+
+#----------------------------------------------------------------------------------------------------
+def test_getCopyNumberMatrix():
+  "set current dataset, ask for geneset names, then the genes in one set"
+
+  print "--- test_getCopyNumberMatrix"
+
+   #------------------------------------------------------------
+   # first specify currentDataSet
+   #------------------------------------------------------------
+  cmd = "specifyCurrentDataset"
+  callback = "datasetSpecified"
+  dataset = "DEMOdz";
+  payload = dataset
+  
+     # set a legitimate dataset
+  msg = dumps({"cmd": cmd, "status": "request", "callback": callback, "payload": payload})
+  ws.send(msg)
+  result = loads(ws.recv())
+  
+  assert result["payload"]["datasetName"] == dataset;
+  assert result["cmd"] == callback
+  assert result["status"] == "success"
+
+   #------------------------------------------------------------
+   # now ask for the g
+   #------------------------------------------------------------
+
+  cmd = "getGeneSetNames"
+  callback = "handleGeneSetNames"
+  
 
 
 #----------------------------------------------------------------------------------------------------
