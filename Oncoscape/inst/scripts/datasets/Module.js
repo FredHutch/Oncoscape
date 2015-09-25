@@ -5,7 +5,7 @@ var DataSummaryModule = (function () {
 
   var outputDiv;
   var dataSetNamesOutputDiv;
-  var thisModulesName = "Datasets";
+  var thisModulesName = "datasets";
   var thisModulesOutermostDiv = "datasetsDiv";
 
   var tableElement;
@@ -57,7 +57,10 @@ function initializeUI()
     hub.disableButton($("#datasetMenu"));
     }
 
-   populateDataSetMenu();
+   if(hub.socketConnected())
+      populateDataSetMenu();
+   else
+     hub.addSocketConnectedFunction(populateDataSetMenu);
 
 } // initializeUI
 //----------------------------------------------------------------------------------------------------
@@ -101,7 +104,6 @@ function selectManifest(event)
    console.log("dataset '" + selectedDataSet + "'");
 
    if(selectedDataSet === ""){
-     // outputDiv.empty();
       $("#datasetInstructions").css("display", "block")
       $("#datasetsManifestTable").css("display", "none")
       hub.disableButton(useThisDatasetButton);
@@ -118,12 +120,10 @@ function populateDataSetMenu()
 {
    console.log("Module.datasets, entering populateDataSetMenu");
 
-   //$(datasetMenu).ready(function() {
-      console.log("=== datasetMenu ready, now issuing populateDataSetMenu request to server");
-      var msg = {cmd: "getDataSetNames",  callback: "handleDataSetNames", status: "request", 
-                 payload: ""};
-      hub.send(JSON.stringify(msg));
-   //   });
+   console.log("      socket connected? " + hub.socketConnected());
+   console.log("=== datasetMenu ready, now issuing populateDataSetMenu request to server");
+   var msg = {cmd: "getDataSetNames",  callback: "handleDataSetNames", status: "request", payload: ""};
+   hub.send(JSON.stringify(msg));
 
 } // populateDataSetMenu
 //----------------------------------------------------------------------------------------------------
@@ -222,10 +222,7 @@ function displayDataManifest(msg)
 function specifyCurrentDataset()
 {
    console.log("Module.datasets 'Use Dataset' button clicked, specifyCurrentDataset: " + selectedDataSet);
- 
-   hub.disableAllTabsExcept([thisModulesOutermostDiv, "userDataStoreDiv", "ericTestDiv"])
-	$("#loadingDatasetMessage").css("display", "inline")
-	
+
    var msg = {cmd: "specifyCurrentDataset",  callback: "datasetSpecified", 
               status: "request", payload: selectedDataSet};
 
@@ -235,7 +232,6 @@ function specifyCurrentDataset()
 //----------------------------------------------------------------------------------------------------
 function datasetSpecified(msg)
 {
-	$("#loadingDatasetMessage").css("display", "none")
    console.log("--- Module.datasets:  datasetSpecified");
 
 } // datasetSpecified

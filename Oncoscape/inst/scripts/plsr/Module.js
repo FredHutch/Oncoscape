@@ -4,6 +4,7 @@ var PLSRModule = (function () {
 
   var plsrDisplay;
   var d3plsrDisplay;
+  var statusDiv; 
 
   var geneLoadings = [];
   var geneNames = [];
@@ -48,6 +49,8 @@ function initializeUI ()
    plsrDisplay = $("#plsrDisplay");
    d3plsrDisplay = d3.select("#plsrDisplay");
 
+   statusDiv = $("#plsrStatusDiv");
+
    ageAtDxSlider = $("#plsrAgeAtDxSlider");
    ageAtDxMinSliderReadout = $("#plsrAgeAtDxMinSliderReadout");
    ageAtDxMaxSliderReadout = $("#plsrAgeAtDxMaxSliderReadout");
@@ -66,21 +69,20 @@ function initializeUI ()
    clearSelectionButton = $("#plsrClearSelectionButton");
    clearSelectionButton.button();
    clearSelectionButton.click(clearSelection);
-
+   hub.disableButton(clearSelectionButton);
 
    sendSelectionMenu = hub.configureSendSelectionMenu("#plsrSendSelectionsMenu", 
                                                         selectionDestinationsOfferedHere,
                                                         sendSelections,
                                                         sendSelectionsMenuTitle);
    //hub.disableButton(sendSelectionMenu);
-   setupSliders();
+   
+   //setupSliders();
 
    testResultsOutputDiv = $("#plsrTestingOutputDiv");
 
    $(window).resize(handleWindowResize);
    handleWindowResize();
-   hub.disableTab(thisModulesOutermostDiv)
-
 
 } // initializeUI
 //--------------------------------------------------------------------------------------------
@@ -238,9 +240,16 @@ function handlePlsrResults (msg)
    currentAbsoluteMaxValue = absMaxValue; // most recent max value, used for scaling
 
    svg = d3PlsrScatterPlot(geneLoadings, geneNames, vectors, vectorNames, absMaxValue);
+   postStatus("scatterplot complete");
 
 } // handlePlsrResults
 //--------------------------------------------------------------------------------------------
+function postStatus(msg)
+{
+  statusDiv.text(msg);
+
+} // postStatus
+//----------------------------------------------------------------------------------------------------
 function d3PlotBrushReader () {
 
   currentlySelectedRegion = d3brush.extent();
@@ -365,7 +374,7 @@ function d3PlsrScatterPlot(genes, geneNames, vectors, vectorNames, absMaxValue)
                          .text( function(v, i) {return vectorNames[i];})
                          .attr("text-anchor", "middle")
                          .style("fill", "black") ;
-     return(svg);
+   return(svg);
 
 } // d3PlsrScatterPlot
 //--------------------------------------------------------------------------------------------
@@ -413,6 +422,8 @@ function selectPoints(ids, clearIDs)
      .attr("r", 20)
      .style("fill", "red")
      .duration(500);
+
+  hub.enableButton(clearSelectionButton);
 
 } // selectPoints
 //----------------------------------------------------------------------------------------------------
@@ -474,30 +485,10 @@ function handleGeneSetNames(msg)
    newNames = msg.payload;
    addGeneSetNamesToMenu(newNames);
    hub.enableButton(calculateButton);
-   hub.enableTab(thisModulesOutermostDiv);
+   postStatus("plsr ui now configured");
 
 } // handleGeneSetNames
 //--------------------------------------------------------------------------------------------
-function demoSetDataSet()
-{
-  msg = {cmd: "specifyCurrentDataset", callback: "specifyCurrentDatasetHandler", 
-         status: "request", payload: "TCGAgbm"};
-
-  hub.send(JSON.stringify(msg));
-
-    // if the callback gets a success message, the patient data will be queried on the 
-    // server to get mins and maxes for the slider
-
-} // demoSetDataSet
-//--------------------------------------------------------------------------------------------
-//function specifyCurrentDataSetHandler(msg)
-//{
-//   msg = {cmd: "summarizePLSRPatientAttributes",
-//          callback: "handleAgeAtDxAndSurvivalRanges",
-//          status: "request", payload: ["AgeDx", "Survival"]};
-//
-// } // specifyCurrentDataSetHandler
-//-------------------------------------------------------------------------------------------
 // when a dataset is specified, this module 
 //  1) extracts the name of the dataset from the payload of the incoming msg
 //  2) (for now) extracts the name of the matrices, from the manifest (also in the payload
@@ -538,8 +529,6 @@ function datasetSpecified(msg)
       }
    
    createPlsrObjectOnServer(dataPackageName, matrixName);
-   d3plsrDisplay.select("#plsrSVG").remove();  // so that old layouts aren't mistaken for new dataset
-
 
 } // datasetSpecified
 //--------------------------------------------------------------------------------------------
@@ -567,124 +556,8 @@ function requestSliderRanges(msg)
 
 } // requestSliderRanges
 //--------------------------------------------------------------------------------------------
-// in normal use, the user will choose a dataset to analyze.
-// in standalone testing and demo mode, we have to do this first.
-//
-function demo()
-{
-   hub.raiseTab(thisModulesOutermostDiv);
-   hub.send(JSON.stringify({cmd: "specifyCurrentDataset",  callback: "datasetSpecified",
-                            status: "request", payload: "DEMOdz"}));
-
-} // demo
-//--------------------------------------------------------------------------------------------
-function runTests()
-{
-  // the test does not currently depend upon any other tabs, but we want to add some
-  // real world complexity to the situation, so we use tabs, including plsr (of course)
-  // and the usual introcutory "Datasets" tab.  make sure it is there
-  // tests depend upon the presence of 2 tabs in addition to the present one.
-
-  var datasetsTabPresent = $("#datasetsDiv").length > 0;
-
-  if(!datasetsTabPresent){
-     alert("Datasets tab needed for QUnit testing");
-     return;
-     } // check for other needed tabs
-
-   testResultsOutputDiv.css({display: "block"});
-   testLoadDataset();
-
-} // runTests
-//--------------------------------------------------------------------------------------------
-function testLoadDataset()
-{
-   QUnit.test('choose DEMOdz dataset', function(assert) {
-      hub.raiseTab("datasetsDiv");
-      var desiredDataset = "DEMOdz";
-      var dzNames = $("#datasetMenu option").map(function(opt){return this.value;});
-
-      if($.inArray(desiredDataset, dzNames) < 0){
-         alert("cannot run tests:  " + desiredDataset + " dataset not loaded");
-         return;
-         }
-
-      $("#datasetMenu").val(desiredDataset);
-      $("#datasetMenu").trigger("change");
-
-      var done1 = assert.async();
-      var done2 = assert.async();
-      var done3 = assert.async();
-      assert.expect(3);
-
-      setTimeout(function(){
-         assert.equal($("#datasetMenu").val(), desiredDataset);  done1();
-         assert.ok($("#datasetsManifestTable tr").length >= 10); done2();
-         assert.equal($("#datasetsManifestTable tbody tr").eq(0).find("td").eq(0).text(), 
-                      "mRNA expression"); done3();
-         $("#selectDatasetButton").click();
-         hub.raiseTab(thisModulesOutermostDiv);
-         testCalculate();
-         }, 5000);
-      });
-
-} // testLoadDataset
-//----------------------------------------------------------------------------------------------------
-function testCalculate()
-{
-   hub.raiseTab(thisModulesOutermostDiv);
-   console.log("starting testCalculate");
-
-     // enable the calculate button
-     // change its color
-     // wait 6 seconds to be sure slider mins and maxes and geneset are all in place
-     // then click the calculate button
-   QUnit.test('testPlsrCalculate', function(assert) {
-      $("#plsrCalculateButton").prop("disabled", false);
-      $("#plsrCalculateButton").css({"background-color": "red", "color": "green"});
-      assert.expect(0);   // tests (assertions) in next function, testContentsOfPlsrPlot
-      setTimeout(function(){
-         $("#plsrCalculateButton").click();
-         testContentsOfPlsrPlot();
-         }, 6000);
-      });
-
-} // testCalculate
-//----------------------------------------------------------------------------------------------------
-function testContentsOfPlsrPlot()
-{
-   console.log("--- testContentsOfPlsrPlot");
-
-      // wait 5 seconds
-      // make sure there are the right number of circles
-      // check the coordinates of two, selected arbitrarily
-   QUnit.test('testPlsrContents', function(assert) {
-      assert.expect(5);
-      var done1 = assert.async();
-      var done2 = assert.async();
-      var done3 = assert.async();
-      var done4 = assert.async();
-      var done5 = assert.async();
-      setTimeout(function(){
-         assert.equal($("circle").length, 40); done1();
-         var c0 = $("circle")[0];
-         var xPos = Number(c0.getAttribute("cx"));
-         var yPos =  Number(c0.getAttribute("cy"));
-         var radius = Number(c0.getAttribute("r"));
-         console.log(xPos + "  " + yPos + "  " + radius);
-         assert.equal(c0.innerHTML, "PRRX1"); done2();
-         assert.ok(xPos > 0); done3();
-         assert.ok(yPos > 0); done4();
-         assert.equal(radius, 3); done5();
-         }, 5000);
-      });
-
-
-} // testContentsOfPlsrPlot
-//----------------------------------------------------------------------------------------------------
 // query the oncoscape server for user id.  the callback then makes a local (that is,
 // Module-specific) decision to run this module's automated tests based upon that id
-//
 function runAutomatedTestsIfAppropriate()
 {
    var msg = {cmd: "getUserId",  callback: "plsrAssessUserIdForTesting",
@@ -700,8 +573,8 @@ function assessUserIdForTesting(msg)
 
    if(userID.indexOf("autoTest") === 0){
       console.log("plsr/Module.js running tests for user " + userID);
-      for(var i=0; i < 3; i++)
-          runTests();
+      var plsrTester = PlsrTestModule();
+      plsrTester.run();
       } // if autoTest
 
 } // assessUserIdForTesting
@@ -723,7 +596,6 @@ function initializeModule()
 //--------------------------------------------------------------------------------------------
 return{
    init: initializeModule,
-   demo: demo
    };
 
 }); // PLSRModule
