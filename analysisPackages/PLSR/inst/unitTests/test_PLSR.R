@@ -12,25 +12,6 @@ if(!exists("marker.genes.545")){
 #----------------------------------------------------------------------------------------------------
 runTests <- function()
 {
-
-#  test_constructor()
-#  test_summarizePatientNumericFactors()
-#  test_summarizePatientNumericFactors_TCGAgbm_poorPatientOverlap()
-#  
-#  test_createClassificationMatrix()
-#  test_createClassificationMatrix.1factor()
-#  test_createClassificationMatrix.2factors()
-#  test_createBigClassificationMatrix()
-#  test_calculateTiny.ageDxDemo()
-#   # test_calculateTiny.ageDxAndSurvival.demo()
-#  test_calculateSmall()
-#  test_calculateSmall.ageDxOnly()
-#  test_calculateSmall.survivalOnly()
-#  test_calculateBig()
-#
-#  test_changeDataSetsAndCalculateSmall()
-#  
-
   test_constructor()
   test_summarizePatientNumericFactors()
   test_summarizePatientNumericFactors_TCGAgbm_poorPatientOverlap()
@@ -46,7 +27,6 @@ runTests <- function()
   test_calculateSmall()
   test_calculateBig()
   test_changeDataSetsAndCalculateSmall()
-
 
 } # runTests
 #----------------------------------------------------------------------------------------------------
@@ -816,6 +796,33 @@ yarn.demo <- function()
 
     
 } # yarn.demo
+#----------------------------------------------------------------------------------------------------
+bug <- function()
+{
+   demoDz <- DEMOdz()
+   plsr <- PLSR(demoDz, "mtx.mrna.ueArray")
+   mtx.mrna <- matrices(demoDz)$mtx.mrna
+   tbl.pt <- getPatientTable(demoDz)
+
+   goi <- c("PRRX1", "UPF1", "PIPOX", "PIM1", "UCP2", "USH2A", "TTN", "ELF4", "U2AF1",
+            "ELOVL2", "PIK3C2B", "PTPRA", "USP6", "EDIL3", "PTPN14", "EHD2", "EGFR",
+            "PIK3CG", "ELK4", "TTC3", "EIF4A2", "PIK3R2", "EMP3", "PIK3CA", "TTC28", "EED",
+            "UGT8", "PLAUR", "PTEN", "EEF2", "PTPN6", "PTK2", "TTPA", "PIK3CD", "PTPN22",
+            "PRR4", "EML4", "PTBP1", "UBR5", "TYK2")
+
+   loAge <- 16435.80
+   hiAge <- 24105.84
+   loSurvival <- 1096.72
+   hiSurvival <- 2556.68
+
+   factor.age <- list(name="AgeDx", low=loAge,  high=hiAge)
+   factor.survival <- list(name="Survival", low=loSurvival,  high=hiSurvival)
+   factor.survival.empty <- list(name="Survival", low=0,  high=64000)
+
+   x <- calculatePLSR(plsr, list(factor.age, factor.survival), goi)
+
+
+} # bug
 #----------------------------------------------------------------------------------------------------
 if(!interactive())
     runTests()
