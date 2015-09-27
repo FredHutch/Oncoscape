@@ -40,8 +40,13 @@ oncoprint_data_selection <- function(ws, msg)
    patients_processed_mut <- intersect(patients, substring(rownames(mut),1,12))
    pos_mut <- match(patients_processed_mut,substring(rownames(mut),1,12))
    genes_processed_mut <- intersect(genes, colnames(mut))
-
+   
+   all_samples <- unique(union(union(rownames(cnv)[pos_cnv],rownames(mrna)[pos_mrna]),rownames(mut)[pos_mut]))
    res_m <- list()
+   merge(all_samples,genes) -> col2
+   cbind(col2,cna=rep(NA,nrow(col2)),mrna=rep(NA,nrow(col2)),mut=rep(NA,nrow(col2)))->col5
+   colnames(col5) <- c("patient","gene","cna","mrna","mut_type")
+   
    
    if(length(patients_processed_cnv)> 0 && length(genes_processed_cnv)>0){
        
@@ -64,9 +69,11 @@ oncoprint_data_selection <- function(ws, msg)
                    printf("test313-cnv")
                }
                res_m <- cnv_res_m
+               cnv_res_m <- cnv_res_m[which(cnv_res_m$value != 0),]
+               
    }
    
-    if(length(patients_processed_mrna)> 0 && length(genes_processed_mrna)>0){
+   if(length(patients_processed_mrna)> 0 && length(genes_processed_mrna)>0){
                mrna_res <- mrna[pos_mrna, genes_processed_mrna]
                if(length(genes_processed_mrna)==1){
                    mrna_res <- as.data.frame(mrna_res)
@@ -78,7 +85,7 @@ oncoprint_data_selection <- function(ws, msg)
                }else if(length(pos_mrna)==1){
                    mrna_res <- as.data.frame(mrna_res)
                    printf("test312-mrna")
-                   mrna_res_m <- cbind(rep(rownames(mrna)[pos_mrna],nrow(mrna_res)),rownames(mrna_res),mut_res,rep("mrna",nrow(mrna_res)))
+                   mrna_res_m <- cbind(rep(rownames(mrna)[pos_mrna],nrow(mrna_res)),rownames(mrna_res),mrna_res,rep("mrna",nrow(mrna_res)))
                    colnames(mrna_res_m) <- c("sample","gene","value","datatype")
                }else{
                    mrna_res_m <- melt(mrna_res, varnames=c("sample","gene"))
@@ -86,10 +93,10 @@ oncoprint_data_selection <- function(ws, msg)
                    printf("test313-mrna")
                }
                res_m <- rbind(res_m,mrna_res_m)
+               mrna_res_m <- mrna_res_m[which(mrna_res_m$value>2 | mrna_res_m$value <2),]
     }
-               
-              
-    if(length(patients_processed_mrna)> 0 && length(genes_processed_mrna)>0){
+   
+   if(length(patients_processed_mrna)> 0 && length(genes_processed_mrna)>0){
           
                mut_res <- mut[pos_mut, genes_processed_mut]
                
@@ -111,13 +118,52 @@ oncoprint_data_selection <- function(ws, msg)
                    printf("test313-mut")
                }
                res_m <- rbind(res_m,mut_res_m)
+               mut_res_m <- mut_res_m[mut_res_m$value != "",]
     }
+   
+   
+    
+    
+    
+    
+    
+    col5[] <- lapply(col5, as.character)
+   
+        if(exists("cnv_res_m")){
+            cnv_res_m[] <- lapply(cnv_res_m, as.character)
+            for(i in 1:nrow(cnv_res_m)){
+                single_sample = cnv_res_m$sample[i]
+                single_gene = cnv_res_m$gene[i]
+                if(cnv_res_m[i,3] == 2) col5[col5$patient== single_sample&col5$gene==single_gene,3] = "AMPLIFIED"
+                if(cnv_res_m[i,3] == 1) col5[col5$patient== single_sample&col5$gene==single_gene,3] = "GAINED"
+                if(cnv_res_m[i,3] == -1) col5[col5$patient== single_sample&col5$gene==single_gene,3] = "HEMIZYGOUSLYDELETED"
+                if(cnv_res_m[i,3] == -2) col5[col5$patient== single_sample&col5$gene==single_gene,3] = "HOMODELETED"
+            }
+        }
+        if(exists("mrna_res_m")){
+            mrna_res_m[] <- lapply(mrna_res_m, as.character)
+            for(i in 1:nrow(mrna_res_m)){
+                single_sample = mrna_res_m[i,1]
+                single_gene = mrna_res_m[i,2]
+                if((!is.na(mrna_res_m[i,3])) & mrna_res_m[i,3] > 2) col5[col5$patient== single_sample&col5$gene==single_gene,4] = "UPREGULATED"
+                if((!is.na(mrna_res_m[i,3])) & mrna_res_m[i,3] < -2) col5[col5$patient== single_sample&col5$gene==single_gene,4] = "DOWNREGULATED"
+             }
+          }
+        if(exists("mut_res_m")){
+            mut_res_m[] <- lapply(mut_res_m, as.character)
+            for(i in 1:nrow(mut_res_m)){
+                single_sample = mut_res_m[i,1]
+                single_gene = mut_res_m[i,2]
+                if(mut_res_m[i,3] != "") col5[col5$patient== single_sample&col5$gene==single_gene,5] = "MISSENSE"
+             }
+        }
+            
     
     
     if(nrow(res_m)>0){
-           r <- jsonlite:::toJSON(res_m, pretty = TRUE)
+           r <- jsonlite:::toJSON(col5, pretty = TRUE)
            #res = list(r,genes)
-           res = list(cnv_res_m,mrna_res_m, mut_res_m,genes)
+           res = list(r,genes)
            printf("=== printing result json file")
            return.cmd <- msg$callback
            return.msg <- toJSON(list(cmd=return.cmd, status="success", payload=toJSON(res)))
