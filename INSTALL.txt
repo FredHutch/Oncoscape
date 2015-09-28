@@ -47,11 +47,11 @@ as the R library.  Note that the full path should be used instead of referencing
 
 -- To install within the local $R_LIBS directory, call "localInstall" from the makefile.
 
-	>make localInstall
+	>make installLocal
 	
 -- To install within the default R library, call "globalInstall" from the makefile.
 
-	>make globalInstall
+	>make install
 
 
 3. Runtime Configuration
@@ -81,13 +81,12 @@ This first defines the app to run (scriptDir), user email for login (userID), da
    local module directory.  Examples linking to these calls also exist within the master
    makefile at the oncoDev14 level.  
    
-   >make publicBrain11005
+   >make oncoApp7777
    
-   This calls publicBrain11005, kills the currently running server, changes directory to the 
+   This calls oncoApp7777, kills the currently running server, changes directory to the 
    local modules, and runs the local make command to launch the process:
    
-	- kill `ps aux | grep publicBrain11005_runAsServer.R | grep -v grep | awk '{print $$2}'` 
-	(cd Oncoscape/inst/scripts/eric/; make publicBrain11005;)
+	(cd Oncoscape/inst/scripts/apps/oncoscape/; make local;)
 
 
 
