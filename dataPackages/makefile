@@ -1,10 +1,14 @@
-default:  testPatientHistory testSttrDataPackage testDEMOdz testTCGAgbm testTCGAlgg testTCGAbrain
-
-test: testPatientHistory testSttrDataPackage testDEMOdz testTCGAlgg testTCGAgbm testTCGAbrain
+default:  test
 
 installAndTest: updatePackages testPackages
 
-# testiDEMOdz: this target not automatic until we have a permanent installation
+test:
+	R --vanilla -f PatientHistory/inst/unitTests/test_PatientHistory.R
+	R --vanilla -f SttrDataPackage/inst/unitTests/test_SttrDataPackage.R
+	R --vanilla -f TCGAlgg/inst/unitTests/test_DEMOdz.R
+	R --vanilla -f TCGAlgg/inst/unitTests/test_TCGAlgg.R
+	R --vanilla -f TCGAgbm/inst/unitTests/test_TCGAgbm.R
+	R --vanilla -f TCGAbrain/inst/unitTests/test_TCGAbrain.R
 
 testPatientHistory:
 	svn up PatientHistory
@@ -50,12 +54,6 @@ updatePackages:
 	svn up TCGAbrain
 	R --vanilla CMD INSTALL --no-test-load --no-lock TCGAbrain
 	
-testPackages:
-	R --vanilla -f PatientHistory/inst/unitTests/test_PatientHistory.R
-	R --vanilla -f SttrDataPackage/inst/unitTests/test_SttrDataPackage.R
-	R --vanilla -f TCGAlgg/inst/unitTests/test_TCGAlgg.R
-	R --vanilla -f TCGAgbm/inst/unitTests/test_TCGAgbm.R
-	R --vanilla -f TCGAbrain/inst/unitTests/test_TCGAbrain.R
 	
 noSVNall:
 	R --vanilla CMD INSTALL --no-test-load --no-lock PatientHistory
