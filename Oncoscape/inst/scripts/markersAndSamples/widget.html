@@ -59,7 +59,7 @@ markersAndTissuesMouseOverReadout{
 }
 
 .chosen-container { width:350px !important; 
-                    height:25px;
+                    height:auto;
                     font-size:8pt;}
 iframe {
 display: initial !important;
@@ -83,10 +83,10 @@ display: initial !important;
    <div id="markersAndTissuesButtonDiv" style="margin-bottom: 0px; margin-top: 8px;">
       <input type="text" id="markersAndTissuesMouseOverReadout" disabled value="(names displayed here)"></input>
 
-     <select id="cyMarkersOperationsMenu" class="navbar-form selectpicker" style="font-size:8pt"></select>
-     <select id="cyMarkersTumorCategorizationsMenu" style="font-size:8pt"></select>
+     <select id="cyMarkersOperationsMenu" type="button" class="btn btn-primary navbar-form selectpicker SelectionMenu" style="font-size:11pt"></select>
+     <select id="cyMarkersTumorCategorizationsMenu SelectionMenu" style="font-size:8pt; display:none"></select>
       
-     <select class="chosen-select form-control dropdown navbar-form selectpicker" 
+     <select class="chosen-select form-control dropdown navbar-form selectpicker SelectionMenu" 
                     style="width:280px;font-size:12pt"
                     data-placeholder="Select edge types to display" 
                     multiple id="markersEdgeTypeSelector">
@@ -99,10 +99,10 @@ display: initial !important;
        </select>
      
  
-   <input  type="text" id="markersAndTissuesSearchBox" placeholder="search" style="width:100px;font-size:8pt"></input>
-   <select type="button" id="cyMarkersSendSelectionsMenu" style="float:right; margin-right:15px"></select>
+   <input  type="text" id="markersAndTissuesSearchBox" placeholder="search" style="width:100px;font-size:11pt"></input>
+   <select class="SelectionMenu" type="button" id="cyMarkersSendSelectionsMenu" style="float:right; margin-right:15px"></select>
  
-   <select class="btn btn-primary selectpicker" type="button" id="markerLayouts"
+   <select class="btn btn-primary selectpicker SelectionMenu" type="button" id="markerLayouts"
             name="markerLayoutMenu"></select>
  
    </div>

@@ -50,6 +50,11 @@ var TimeLineModule = (function () {
                                                         selectionDestinationsOfferedHere,
                                                         sendSelections,
                                                         sendSelectionsMenuTitle);  
+/// BUG FIX NECESSARY:		
+/// send resets display alignment
+/// possibly sends ids in non-standard form
+		$("#timeLineSendSelectionsMenu").css("display", "none")
+///		
         $(window).resize(HandleWindowResize);
 
         $("#AlignOptions").change(updateDisplayAlignment);
@@ -360,8 +365,9 @@ var TimeLineModule = (function () {
 		  	if(EventTypes[name].dateIndicator) { dateEvents.push(name);} 
 		  }
 		  
-		  $(".OrderByDateOptions").empty();  $(".OrderByValueOptions").empty();
 		  $(".plotCategoryOptions").empty(); $(".plotValueOptions").empty();
+		  $("#AlignOptions").empty(); 		 $("#AlignOptions").append("<option value='--' selected='selected'>--</option>");
+		  $(".OrderByDateOptions").empty();  $(".OrderByValueOptions").empty();
 		  
 		  for(var elem in dateEvents){
 			   $("#AlignOptions").append(" <option>"+dateEvents[elem]+"</option>");
