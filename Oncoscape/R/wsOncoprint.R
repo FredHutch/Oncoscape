@@ -129,7 +129,7 @@ oncoprint_data_selection <- function(ws, msg)
     
     col5[] <- lapply(col5, as.character)
    
-        if(exists("cnv_res_m")){
+        if(exists("cnv_res_m") & dim(cnv_res_m)[1] > 0){
             cnv_res_m[] <- lapply(cnv_res_m, as.character)
             for(i in 1:nrow(cnv_res_m)){
                 single_sample = cnv_res_m$sample[i]
@@ -140,7 +140,7 @@ oncoprint_data_selection <- function(ws, msg)
                 if(cnv_res_m[i,3] == -2) col5[col5$patient== single_sample&col5$gene==single_gene,3] = "HOMODELETED"
             }
         }
-        if(exists("mrna_res_m")){
+        if(exists("mrna_res_m") & dim(mrna_res_m)[1] > 0){
             mrna_res_m[] <- lapply(mrna_res_m, as.character)
             for(i in 1:nrow(mrna_res_m)){
                 single_sample = mrna_res_m[i,1]
@@ -149,7 +149,7 @@ oncoprint_data_selection <- function(ws, msg)
                 if((!is.na(mrna_res_m[i,3])) & mrna_res_m[i,3] < -2) col5[col5$patient== single_sample&col5$gene==single_gene,4] = "DOWNREGULATED"
              }
           }
-        if(exists("mut_res_m")){
+        if(exists("mut_res_m") & dim(mut_res_m)[1] > 0){
             mut_res_m[] <- lapply(mut_res_m, as.character)
             for(i in 1:nrow(mut_res_m)){
                 single_sample = mut_res_m[i,1]
