@@ -59,6 +59,25 @@
 //--------------------------------------------------------------------------------------------------
 </script> 
 
+<script>
+navigator.sayswho= (function(){
+    var ua= navigator.userAgent, tem,
+    M= ua.match(/(opera|chrome|safari|firefox|msie|trident(?=\/))\/?\s*(\d+)/i) || [];
+    if(/trident/i.test(M[1])){
+        tem=  /\brv[ :]+(\d+)/g.exec(ua) || [];
+        return 'IE '+(tem[1] || '');
+    }
+    if(M[1]!== 'Chrome'){
+       alert("Oncoscape is currently developed and tested under Chrome.  For best results, please use Chrome version 45.0 and later.")
+        tem= ua.match(/\b(OPR|Edge)\/(\d+)/);
+        if(tem!= null) return tem.slice(1).join(' ').replace('OPR', 'Opera');
+    }
+    M= M[2]? [M[1], M[2]]: [navigator.appName, navigator.appVersion, '-?'];
+    if((tem= ua.match(/version\/(\d+)/i))!= null) M.splice(1, 1, tem[1]);
+    return M.join(' ');
+})();
+</script>
+
 </head>
 
 <style>
@@ -90,6 +109,10 @@ th,td {
    font-size:10pt !important;
    }
 
+.SelectionMenu{
+color: rgb(0, 0, 0); 
+background-color: rgb(255, 255, 255);
+}
 
 </style>
 
@@ -232,7 +255,7 @@ keepAlive = function()
 //--------------------------------------------------------------------------------------------------
 function runOnDocumentReadyFunctions()
 {
-  setInterval(keepAlive, 30000);
+  setInterval(keepAlive, 3000);
   var funcs = getOnDocumentReadyFunctions()
   console.log("==== Module.hub: " + funcs.length + " onDocumentReadyFunctions");
 
@@ -295,7 +318,7 @@ function dispatchMessage(msg)
 {
    var cmd = msg.cmd;
    var status = msg.status;
-   //console.log("=============== dispatching '" + cmd + "'");
+   console.log("====== Mondule.hub dispatchMessage '" + cmd + "' [" + Date() + "]" );
 
    var dispatchKeys = Object.keys(dispatchOptions);
    var cmdIndex = dispatchKeys.indexOf(cmd);
@@ -793,6 +816,11 @@ function initializeUI()
     hub.disableButton($("#datasetMenu"));
     }
 
+   if(hub.socketConnected())
+      populateDataSetMenu();
+   else
+     hub.addSocketConnectedFunction(populateDataSetMenu);
+
 } // initializeUI
 //----------------------------------------------------------------------------------------------------
 function postStatus(msg)
@@ -804,7 +832,7 @@ function postStatus(msg)
 function handleWindowResize()
 {
   $("#"+thisModulesOutermostDiv).width($(window).width() * 0.95);
-  $("#"+thisModulesOutermostDiv).height($(window).height() * 0.95);
+//  $("#"+thisModulesOutermostDiv).height($(window).height() * 0.95);
 
 //  console.log("  div: " + outputDiv.width());
 //  console.log("  tbl before: " + tableElement.width());
@@ -850,12 +878,12 @@ function selectManifest(event)
 //----------------------------------------------------------------------------------------------------
 function populateDataSetMenu()
 {
-   $(datasetMenu).ready(function() {
-      console.log("=== datasetMenu ready, now issuing populateDataSetMenu request to server");
-      var msg = {cmd: "getDataSetNames",  callback: "handleDataSetNames", status: "request", 
-                 payload: ""};
-      hub.send(JSON.stringify(msg));
-      });
+   console.log("Module.datasets, entering populateDataSetMenu");
+
+   console.log("      socket connected? " + hub.socketConnected());
+   console.log("=== datasetMenu ready, now issuing populateDataSetMenu request to server");
+   var msg = {cmd: "getDataSetNames",  callback: "handleDataSetNames", status: "request", payload: ""};
+   hub.send(JSON.stringify(msg));
 
 } // populateDataSetMenu
 //----------------------------------------------------------------------------------------------------
@@ -1243,7 +1271,7 @@ function learnSliderMinAndMax(tbl, columnNumber)
   var max = -Number.MAX_VALUE;
 
   for(var r=0; r < rowCount; r++){
-    var value = Number.parseFloat(tbl[r][columnNumber]);
+    var value = parseFloat(tbl[r][columnNumber]);
     //console.log(value)
     if(value < min)
       min = value;
@@ -6735,7 +6763,6 @@ oat.init();
      <li><a href="#pcaDiv">PCA</a></li>
      <li><a href="#plsrDiv">PLSR</a></li>
      <li><a href="#userDataStoreDiv">User Data</a></li>
-     <li><a href="#blankTabDiv">blank tab</a></li>
 
    </ul>
 
@@ -6743,7 +6770,7 @@ oat.init();
  
 </style>
 
-<div id="datasetsDiv">
+<div id="datasetsDiv" style="height:auto">
   <div id="datasetsStatusDiv" style="display:none"></div>
   <div id="dataSummaryControlsDiv">
      <span id="selectDataSetMenuLabel" style="margin-left: 20px;">Available Datasets</span>
@@ -6757,7 +6784,7 @@ oat.init();
 
    <div id="dataSummaryOutputDiv" style="margin: 20px;overflow-x:auto">
       <div id="datasetInstructions">Please select a dataset from the above menu.</div>
-      <table id="datasetsManifestTable" class="display" cellpadding="0" cellspacing="0" border="1" style="margin:0px; width:auto; display:none"></table>
+      <table id="datasetsManifestTable" class="display" cellpadding="0" cellspacing="0" style="margin:0px; width:auto; display:none; border:none"></table>
    </div>
 </div>
 
@@ -6821,6 +6848,9 @@ oat.init();
   padding-right:0px;
   }
 
+.ColVis_collection{
+width:auto;
+}
 
 </style>
 
@@ -6869,7 +6899,7 @@ oat.init();
            </div>
 
      <button id="patientHistoryShowAllRowsButton" type="button">Reset</button>
-     <select type="button" id="patientHistorySendSelectionsMenu" style="float:right; margin:15px"></select>
+     <select class="SelectionMenu" type="button" id="patientHistorySendSelectionsMenu" style="float:right; margin:15px"></select>
 
 
   </div>
@@ -6881,31 +6911,77 @@ oat.init();
 
 </div>
 
+<style>
 
+.x.axis line {
+  stroke: #fff;
+}
+
+.x.axis .minor {
+  stroke-opacity: .5;
+}
+
+.x.axis path {
+  fill: none;
+  stroke: #000;
+}
+.y.axis line, .y.axis path {
+  fill: none;
+  stroke: #000;
+}
+
+.path {
+  opacity: 0.7 ;
+}
+
+.path:hover {
+  opacity: 1 ;
+}
+
+.eventNoHover {
+	visibility: hidden;
+}
+.eventHover {
+	visibility: visible !important;
+}
+.tooltipNoHover{
+	visibility: hidden;
+}
+.tooltipHover{
+	visibility: visible !important;
+}
+
+</style>
 
 <div id="patientTimeLinesDiv" >
 	<div id="ArrangeDataDiv" class="navbar navbar-default" role="navigation">
 	<div class="navbar-collapse collapse navbar-inner">
 	
-	<div class="nav navbar-nav navbar-form navbar-left">  
+	<div class="nav navbar-nav navbar-form navbar-left"  style="float:left">  
 	     <span id="SideBarMenu">Features: </span>
-	     <select type="button" id="SideBarOptions" style="margin: 5px;">
-	     	<option> -- </option>
+	     <select type="button" id="SideBarOptions" style="margin: 5px;color: rgb(0, 0, 0); background-color: rgb(255, 255, 255);">
+	     	<option selected="selected">--</option>
 	     	<option> Add+ </option>
+	     	<optGroup label='Category' class="plotCategoryOptions"></optGroup>
+	     	<optGroup label='Value' class="plotValueOptions"></optGroup>	     
 	     </select>
 	     <span id="AlignByMenu" >Align By: </span>
-	     <select type="button" id="AlignOptions" style="margin: 5px;">
-	     	<option> -- </option>
+	     <select type="button" id="AlignOptions"  name="AlignOptions" style="margin: 5px;color: rgb(0, 0, 0); background-color: rgb(255, 255, 255);">
+	     	<option value="--" selected="selected">--</option>
 	     </select>
 	     <span id="OrderByMenu" >Order By: </span>
-	     <select type="button" id="OrderOptions" style="margin: 5px;">
-	     	<option> -- </option>
+	     <select type="button" id="OrderOptions" name="OrderOptions" style="margin: 5px;color: rgb(0, 0, 0); background-color: rgb(255, 255, 255);">
+	     	<option value="--" selected="selected">--</option>
 	     	<option> Add+ </option>
+	     	<optGroup label='Date' class="OrderByDateOptions"></optGroup>
+	     	<optGroup label='Value' class="OrderByValueOptions"></optGroup>
 	     </select>
+	     <input type="checkbox" id="FitToPage" checked>Fit to Page </input>
+	     
     </div>
-    <div class="infoDiv nav navbar-nav navbar-form navbar-right">
-        <select class="btn btn-primary selectpicker" id="timeLineSendSelectionsMenu" name="SendSelectionToModule">Send Selection to...</select>
-       </div>
+    <div class="infoDiv nav navbar-nav navbar-form navbar-right"  style="float:right">
+        <select class="btn btn-primary selectpicker SelectionMenu" id="timeLineSendSelectionsMenu" name="SendSelectionToModule" >Send Selection to...</select>
+    </div>
        
        
        
@@ -6913,7 +6989,7 @@ oat.init();
     </div>
     <br>
     <div id="TimeLineDisplay" class="content" style="margin:0 auto" >
-      </div>
+    </div>
      
      <div id="AddCalculatedEvent" class="Modal" style="display:none">
      <form>
@@ -6931,6 +7007,17 @@ oat.init();
           </select>
   	</form>
      </div>
+     
+    <svg>
+      <defs>
+        <pattern id="diagonalHatch" patternUnits="userSpaceOnUse" width="4" height="4">
+		  <path d="M-1,1 l2,-2
+ 		           M0,4 l4,-4
+      			   M3,5 l2,-2" style="stroke:black; stroke-width:1; fill:grey border-radius:20px" />
+		</pattern>      
+      </defs>
+	</svg>
+ 	
  
 </div>
 
@@ -7007,7 +7094,7 @@ $("#gbmPathwaysMovieButton").click(function(){
       -->
       <button id="gbmViewAbstractsButton" type="button" class="btn btn-info navbar-btn btn-xs">Enable Abstracts</button>
       <button id="gbmZoomSelectedButton" type="button" class="btn btn-info navbar-btn btn-xs">Zoom Selected</button>
-      <select type="button" id="gbmPathwaysSendSelectionMenu" style="float:right; margin-right:15px"></select>
+      <select class="SelectionMenu" type="button" id="gbmPathwaysSendSelectionMenu" style="float:right; margin-right:15px"></select>
     </div>
 
    <div id="cyGbmPathwaysDiv" class="content" style="margin:0 auto" ></div>
@@ -7078,7 +7165,7 @@ markersAndTissuesMouseOverReadout{
 }
 
 .chosen-container { width:350px !important; 
-                    height:25px;
+                    height:auto;
                     font-size:8pt;}
 iframe {
 display: initial !important;
@@ -7102,10 +7189,10 @@ display: initial !important;
    <div id="markersAndTissuesButtonDiv" style="margin-bottom: 0px; margin-top: 8px;">
       <input type="text" id="markersAndTissuesMouseOverReadout" disabled value="(names displayed here)"></input>
 
-     <select id="cyMarkersOperationsMenu" class="navbar-form selectpicker" style="font-size:8pt"></select>
-     <select id="cyMarkersTumorCategorizationsMenu" style="font-size:8pt"></select>
+     <select id="cyMarkersOperationsMenu" type="button" class="btn btn-primary navbar-form selectpicker SelectionMenu" style="font-size:11pt"></select>
+     <select id="cyMarkersTumorCategorizationsMenu SelectionMenu" style="font-size:8pt; display:none"></select>
       
-     <select class="chosen-select form-control dropdown navbar-form selectpicker" 
+     <select class="chosen-select form-control dropdown navbar-form selectpicker SelectionMenu" 
                     style="width:280px;font-size:12pt"
                     data-placeholder="Select edge types to display" 
                     multiple id="markersEdgeTypeSelector">
@@ -7118,10 +7205,10 @@ display: initial !important;
        </select>
      
  
-   <input  type="text" id="markersAndTissuesSearchBox" placeholder="search" style="width:100px;font-size:8pt"></input>
-   <select type="button" id="cyMarkersSendSelectionsMenu" style="float:right; margin-right:15px"></select>
+   <input  type="text" id="markersAndTissuesSearchBox" placeholder="search" style="width:100px;font-size:11pt"></input>
+   <select class="SelectionMenu" type="button" id="cyMarkersSendSelectionsMenu" style="float:right; margin-right:15px"></select>
  
-   <select class="btn btn-primary selectpicker" type="button" id="markerLayouts"
+   <select class="btn btn-primary selectpicker SelectionMenu" type="button" id="markerLayouts"
             name="markerLayoutMenu"></select>
  
    </div>
@@ -7225,10 +7312,10 @@ color: #808080;
    <div id="pcaStatusDiv" style="display:none"></div>
    <div id="pcaControlsDiv">
        <button id="pcaClearSelectionButton" style="margin-bottom: 5px;">Clear Selection</button>
-       <select id="pcaGeneSetSelector" style="margin-bottom: 5px;"></select>
+       <select class="SelectionMenu" id="pcaGeneSetSelector" style="margin-bottom: 5px;"></select>
        <button id="pcaCalculateButton" style="margin-bottom: 5px;">Calculate</button>
        <button id="pcaUseAllSamplesButton" style="margin-bottom: 5px;">Use All Samples in Current Dataset</button>
-       <select type="button" id="pcaSendSelectionsMenu" style="float:right; margin-right:15px"></select>
+       <select class= "SelectionMenu" type="button" id="pcaSendSelectionsMenu" style="float:right; margin-right:15px"></select>
    </div>
 
 
@@ -7362,10 +7449,10 @@ background:#ABD3E8;
        <div id="plsrCalculateButtonDiv" class="flex-container" style="margin-right: auto; margin-top:15px;">
           <button id="plsrClearSelectionButton" style="height:50px;">Clear<br>Selection</button>
           <button id="plsrCalculateButton" style="height:50px;">Calculate</button>
-          <select id="plsrGeneSetSelector" style="height:20px; margin-top:15px; margin-left:3px;" class="navbar-form selectpicker" ></select>
+          <select class="SelectionMenu" id="plsrGeneSetSelector" style="height:20px; margin-top:15px; margin-left:3px;" class="navbar-form selectpicker" ></select>
        </div>
       <div id="plsrSendSelectionsMenuDiv" style="margin-right:10px; margin-top: 25px;">
-         <select id="plsrSendSelectionsMenu" type="button" style="margin-top: 7px;"></select>
+         <select class="SelectionMenu" id="plsrSendSelectionsMenu" type="button" style="margin-top: 7px;"></select>
       </div>
   </div>
  

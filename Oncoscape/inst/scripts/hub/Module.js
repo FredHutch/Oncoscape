@@ -134,7 +134,7 @@ keepAlive = function()
 //--------------------------------------------------------------------------------------------------
 function runOnDocumentReadyFunctions()
 {
-  setInterval(keepAlive, 30000);
+  setInterval(keepAlive, 3000);
   var funcs = getOnDocumentReadyFunctions()
   console.log("==== Module.hub: " + funcs.length + " onDocumentReadyFunctions");
 
@@ -197,7 +197,7 @@ function dispatchMessage(msg)
 {
    var cmd = msg.cmd;
    var status = msg.status;
-   //console.log("=============== dispatching '" + cmd + "'");
+   console.log("====== Mondule.hub dispatchMessage '" + cmd + "' [" + Date() + "]" );
 
    var dispatchKeys = Object.keys(dispatchOptions);
    var cmdIndex = dispatchKeys.indexOf(cmd);

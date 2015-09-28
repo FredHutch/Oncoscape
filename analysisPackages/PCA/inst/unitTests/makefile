@@ -1,5 +1,10 @@
 default: build Rtests server py
 
+test: Rtests server py
+
+autoTest:
+	python testPCAWebSocketOperations_server.py oncoscape.sttrcancer.org | tee pcaWebsocketOperations_server.log
+
 build:
 	(cd ../..; R CMD INSTALL . --no-test-load)
 
@@ -11,5 +16,5 @@ Rtests:
 	R -f test_PCA.R
 
 py:
-	(sleep 60; python testPCAWebSocketOperations.py | tee pcaWebsocketOperations.log)
+	(sleep 60; python testPCAWebSocketOperations.py localhost 9014 | tee pcaWebsocketOperations.log)
 
