@@ -1,0 +1,27 @@
+# Logs and databases #
+######################
+*.log
+*.out
+
+# Packages #
+############
+# it's better ot unpack these files and commit the raw source
+# git has its own built in compression methods
+*.zip
+*.tar
+*.dmg
+*.jar
+
+# OS generated files #
+######################
+.DS_Store
+.DS_Store?
+._*
+.Trashes
+ehthumbs.db
+Thumbs.db
+
+# Installation files #
+######################
+.setupR
+Rlibs
