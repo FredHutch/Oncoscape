@@ -417,7 +417,9 @@ function invertSelection ()
 //----------------------------------------------------------------------------------------------------
 function hideAllEdges ()
 {
-   cwMarkers.filter('edge').hide();
+     // hide all edges besides chromsome edges
+  cwMarkers.edges().fnFilter(function(edge) {
+     return edge.data("edgeType") != "chromosome"}).hide()
 }
 //----------------------------------------------------------------------------------------------------
 function showAllEdges ()
