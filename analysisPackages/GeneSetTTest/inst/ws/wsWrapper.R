@@ -168,8 +168,8 @@ scoreHandler <- function(ws, msg)
    
    
    #gstt@genesets<-gstt@genesets[c("BUDHU_LIVER_CANCER_METASTASIS_UP","MODULE_143","MODULE_293")];
-   if ("geneset.name" %in% names(payload))
-      geneset.name <- payload$geneset.name;
+   #if ("genesets" %in% names(payload))
+    #  genesets <- payload$genesets;
    
    quiet <- TRUE
    if("quiet" %in% names(payload))
@@ -196,13 +196,9 @@ scoreHandler <- function(ws, msg)
    printf("mean.threshold (%5.3f)", mean.threshold)
    printf("participation.threshold (%5.3f)", participation.threshold)
 
-   # score <- score(gstt, group1, group2, genesets)
-   # group1, group2, geneset.names=NA, byGene=TRUE, mean.threshold=1.0, quiet=TRUE)
    score <- score(gstt, group1, group2, geneset.names=genesets, quiet=quiet, byGene=byGene,
                   mean.threshold=mean.threshold,participation.threshold)
 
-   #print(score)
-   
    ws$send(toJSON(list(cmd=msg$callback, callback="", status="response", payload=toJSON(score))))
 
 } # scoreHandler

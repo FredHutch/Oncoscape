@@ -586,9 +586,9 @@ var test;
 //	                     .attr("stroke-width", function(d){return d.strokeWidth;})
                          .on("mouseover", function(d,i){
                              Hoverbar.append("rect")
-                                .attr("x", (0 - 2*SideBarSize.width ))
+                                .attr("x", (0 - SideBarSize.width - TimeLineMargin.left))
                                 .attr("y", function(){return y(ptOrderArray.indexOf(d.id))+ PixelScale/(ptList[d.id].PatientHeight+1);})
-                                .attr("width", TimeLineSize.width + 2*SideBarSize.width +TimeLineMargin.left)
+                                .attr("width", TimeLineSize.width + SideBarSize.width +TimeLineMargin.left)
                                 .attr("height", function(){return PixelScale;})
                                 .style("fill", "grey").style("opacity", 0.3);    
 							 

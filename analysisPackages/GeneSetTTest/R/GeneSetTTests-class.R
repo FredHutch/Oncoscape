@@ -178,27 +178,6 @@ function (obj, group1, group2, geneset.names=NA, byGene=TRUE,mean.threshold=1.0,
     result <- vector(mode="list", length=length(geneset.names))
     count <- 0
     mtx.full <- getExpressionData(obj)
-    #geneset.names_o <- cancerRelatedGeneSets(obj)
-    #geneset.names <- geneset.names_o[1:1000]
-    #1-10: 0.088   0.032   1.825
-    #1-100: 0.343   0.042   2.082
-    #900-1000: 0.371   0.047   2.169
-    #1-1000: 3.206   0.402   5.538
-    # june 17th: case I
-    # group1 <- rownames(mtx.full)[1:150]; group2 <- rownames(mtx.full)[151:315]
-    # geneset.name <- geneset.names[1107]
-    # 0.007   0.010   0.121
-    # case II
-    # total patients: 25; running through 10295 genesets)
-    # #Get 10295 geneset names
-    # geneset.names <- getGeneSetNames(obj)
-    # five warnings: chr4p11, chr21p11, CAFFAREL_RESPONSE_TO_THC_8HR_3_UP, FIGUEROA_AML_METHYLATION_CLUTER_7_DN and CHENG_TAF7L_TARGETS
-    # user  system elapsed     39.686   2.103  43.711
-    # user  system elapsed(1101 cancer genesets)     4.334   0.285   6.575
-    # genesets: 10295, group1 1:150, group2 151:315: 76.061  11.346  89.970
-    
-    # Experiment with apply to entire mtx.full
-    # geneset.names <- c(cancerRelatedGeneSets(obj), getGeneSetNames(obj))
     mtx <- mtx.full[rownames(mtx.full) %in% c(group1, group2),]
     mtx_pval <- rowFtests(t(mtx),factor(rownames(mtx) %in% group1),var.equal=FALSE)$p.value
     for(geneset.name in geneset.names){
