@@ -2,44 +2,20 @@ import sys
 from websocket import create_connection
 from json import *
 
-if(len(sys.argv)< 3):
-	print "test requires server and port value: python testPCAWebSocketOperations.py <server> <port>"
+if(len(sys.argv)< 2):
+	print "test requires sitename: python testPCAWebSocketOperations.py <url>"
 	sys.exit(2)
 
-server = sys.argv[1]
-port = sys.argv[2]
-ws = create_connection("ws://"+server+":"+port)
+site = sys.argv[1]
+ws = create_connection("ws://"+site)
 #------------------------------------------------------------------------------------------------------------------------
 def runTests():
 
-  testEcho()
   testCreateWithDataSet()
   testCalculate()
   testCalculateOnGeneSubset()
   testCalculateOnSampleSubset()
   testCalculateOnGeneAndSampleSubsets()
-
-#------------------------------------------------------------------------------------------------------------------------
-def runServerTests():
-
-  testCreateWithDataSet()
-#  testCalculate()
-#  testCalculateOnGeneSubset()
-#  testCalculateOnSampleSubset()
-#  testCalculateOnGeneAndSampleSubsets()
-
-#------------------------------------------------------------------------------------------------------------------------
-def testEcho():
-
-  "sends the echo command with payload, expects 'payload-payload' in return"
-
-  print "--- testEcho"
-
-  payload = "from testPCAWebSocketOperations.py"
-  msg = dumps({"cmd": "echo", "status":"request", "callback":"", "payload": payload})
-  ws.send(msg)
-  result = loads(ws.recv())
-  assert(result["payload"][0] == 'echo from PCA/inst/unitTests/runPCATestWebSocketServer.R: ' + payload)
 
 #------------------------------------------------------------------------------------------------------------------------
 def testCreateWithDataSet():
@@ -57,7 +33,7 @@ def testCreateWithDataSet():
                "callback":"PCAcreatedHandler", "payload": payload})
   ws.send(msg)
   result = loads(ws.recv())
-  payload = result["payload"][0];
+  payload = result["payload"];  #server returns string values instead of arrays
   assert(payload.find("PCA package, matrices:") >= 0)
 
 #------------------------------------------------------------------------------------------------------------------------
@@ -70,22 +46,22 @@ def testCalculate():
               "callback":"handlePcaResult", "payload": ""})
   ws.send(msg)
   result = loads(ws.recv())
-  assert(result["cmd"][0] == "handlePcaResult")
-  assert(result["status"][0] == "success")
+  assert(result["cmd"] == "handlePcaResult")
+  assert(result["status"] == "success")
 
   payload = result["payload"]
   keys = payload.keys()
   keys.sort()
-  assert(keys == ['ids', 'importance.PC1', 'importance.PC2', 'loadings', 'maxValue'])
+  assert(keys == ['ids', 'importance.PC1', 'importance.PC2', 'maxValue', 'scores'])
 
   ids = payload["ids"]
-  assert(len(ids) == 64)
-  assert(ids[1:5] == ['EED', 'EEF2', 'EFEMP2', 'EGFR'])
+  assert(len(ids) == 20)
+  assert(ids[0:5] == ['TCGA.02.0014', 'TCGA.02.0021','TCGA.02.0028', 'TCGA.02.0033','TCGA.02.0037'])
 
-  assert(payload["maxValue"][0] == 0.2665)
+  assert(payload["maxValue"] == 8.447)
 
-  assert(payload["importance.PC1"][0] == 0.3218)
-  assert(payload["importance.PC2"][0] == 0.1625)
+  assert(payload["importance.PC1"] == 0.3218)
+  assert(payload["importance.PC2"] == 0.1625)
 
 #----------------------------------------------------------------------------------------------------
 def testCalculateOnGeneSubset():
@@ -101,20 +77,20 @@ def testCalculateOnGeneSubset():
   ws.send(msg)
   
   result = loads(ws.recv())
-  assert(result["cmd"][0] == "handlePcaResult")
-  assert(result["status"][0] == "success")
+  assert(result["cmd"] == "handlePcaResult")
+  assert(result["status"] == "success")
   payload = result["payload"]
   keys = payload.keys()
   keys.sort()
-  assert(keys == ['ids', 'importance.PC1', 'importance.PC2', 'loadings', 'maxValue'])
+  assert(keys == ['ids', 'importance.PC1', 'importance.PC2', 'maxValue', 'scores'])
   
-  ids = payload["ids"]
-  assert(len(ids) == len(goi))
-  assert(ids == goi)
+#  ids = payload["ids"]
+#  assert(len(ids) == len(goi))
+#  assert(ids == goi)
 
-  assert(payload["maxValue"][0] == 0.5088)
-  assert(payload["importance.PC1"][0] == 0.3296)
-  assert(payload["importance.PC2"][0] == 0.2460)
+  assert(payload["maxValue"] == 3.577)
+  assert(payload["importance.PC1"] == 0.3296)
+  assert(payload["importance.PC2"] == 0.2460)
 
 #----------------------------------------------------------------------------------------------------
 def testCalculateOnSampleSubset():
@@ -130,19 +106,19 @@ def testCalculateOnSampleSubset():
   ws.send(msg)
   
   result = loads(ws.recv())
-  assert(result["cmd"][0] == "handlePcaResult")
-  assert(result["status"][0] == "success")
+  assert(result["cmd"] == "handlePcaResult")
+  assert(result["status"] == "success")
   payload = result["payload"]
   keys = payload.keys()
   keys.sort()
-  assert(keys == ['ids', 'importance.PC1', 'importance.PC2', 'loadings', 'maxValue'])
+  assert(keys == ['ids', 'importance.PC1', 'importance.PC2', 'maxValue', 'scores'])
   
   ids = payload["ids"]
-  assert(len(ids) == 64)
+  assert(len(ids) == 5)
   
-  assert(payload["maxValue"][0] == 0.2530)
-  assert(payload["importance.PC1"][0] == 0.5064)
-  assert(payload["importance.PC2"][0] == 0.2279)
+  assert(payload["maxValue"] == 7.3397)
+  assert(payload["importance.PC1"] == 0.5064)
+  assert(payload["importance.PC2"] == 0.2279)
 
 #----------------------------------------------------------------------------------------------------
 def testCalculateOnGeneAndSampleSubsets():
@@ -160,26 +136,22 @@ def testCalculateOnGeneAndSampleSubsets():
   ws.send(msg)
   
   result = loads(ws.recv())
-  assert(result["cmd"][0] == "handlePcaResult")
-  assert(result["status"][0] == "success")
+  assert(result["cmd"] == "handlePcaResult")
+  assert(result["status"] == "success")
   payload = result["payload"]
   keys = payload.keys()
   keys.sort()
-  assert(keys == ['ids', 'importance.PC1', 'importance.PC2', 'loadings', 'maxValue'])
+  assert(keys == ['ids', 'importance.PC1', 'importance.PC2', 'maxValue', 'scores'])
   
   ids = payload["ids"]
-  assert(ids == goi)
+  assert(ids == soi)
   
-  assert(payload["maxValue"][0] == 0.5445)
-  assert(payload["importance.PC1"][0] == 0.5075)
-  assert(payload["importance.PC2"][0] == 0.2802)
+  assert(payload["maxValue"] == 2.9733)
+  assert(payload["importance.PC1"] == 0.5075)
+  assert(payload["importance.PC2"] == 0.2802)
 
 #----------------------------------------------------------------------------------------------------
-interactive = (sys.argv[0] != "testPCAWebSocketOperations.py")
-liveTesting = (sys.argv[1] == "lopez.fhcrc.org")
+interactive = (sys.argv[0] != "testPCAWebSocketOperations_server.py")
 if(not(interactive)):
-  if(liveTesting):
-    runServerTests()	
-  else:
 	runTests()
 
