@@ -33,9 +33,7 @@ test:
 	
 # launches Oncoscape on the provided port then tests modules using websocket requests	
 testWS:
-	make oncoApp7777
-	sleep 60
-	python testAllWebsocketOperations.sh localhost:7777 | tee testAllWebsocketOperations_7777.log
+	python testAllWebsocketOperations.py localhost:7777 | tee testAllWebsocketOperations_7777.log &
 
 autoTest:
 	(cd analysisPackages/; make autoTest)
@@ -50,6 +48,9 @@ cleanupTests:
 ####
 installOncoscape:
 	(cd Oncoscape; R  --vanilla CMD INSTALL --no-test-load --no-lock .)
+
+installOncoscapeLocal:
+	(cd Oncoscape; R -; $R_LIBS  --vanilla CMD INSTALL --no-test-load --no-lock .)
 
 # oncoApp7777: kills then launches R server: public Brain datasets on port 7777
 ####

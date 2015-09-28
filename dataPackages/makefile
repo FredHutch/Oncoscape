@@ -5,7 +5,7 @@ installAndTest: updatePackages testPackages
 test:
 	R --vanilla -f PatientHistory/inst/unitTests/test_PatientHistory.R
 	R --vanilla -f SttrDataPackage/inst/unitTests/test_SttrDataPackage.R
-	R --vanilla -f TCGAlgg/inst/unitTests/test_DEMOdz.R
+	R --vanilla -f DEMOdz/inst/unitTests/test_DEMOdz.R
 	R --vanilla -f TCGAlgg/inst/unitTests/test_TCGAlgg.R
 	R --vanilla -f TCGAgbm/inst/unitTests/test_TCGAgbm.R
 	R --vanilla -f TCGAbrain/inst/unitTests/test_TCGAbrain.R
