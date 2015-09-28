@@ -98,7 +98,7 @@ function analyzeSelectedTissues(IDs)
    console.log("Oncoprint module, hub.send 'oncoprint_data_selection' for %d IDs",
                IDs.length);
    if(IDs.length > 350){
-   		alert("Please choose less than 108 Nodes");
+   		alert("Please choose less than 350 Nodes");
    }else{
 	   var payload = {sampleIDs: IDs};
 	   var msg = {cmd:"oncoprint_data_selection", callback: "displayOncoprint", status: "request", 
