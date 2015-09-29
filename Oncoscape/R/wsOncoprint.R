@@ -19,10 +19,23 @@ oncoprint_data_selection <- function(ws, msg)
    non_gene_strings <- c("chr1","chr2","chr3","chr4","chr5","chr6","chr7","chr8",
                          "chr9","chr10","chr11","chr12","chr13","chr14","chr15",
                          "chr16","chr17","chr18","chr19","chr20","chr21","chr22","chrX","chrY",
+						 "chr1q","chr2q","chr3q","chr4q","chr5q","chr6q","chr7q","chr8q",
+                         "chr9q","chr10q","chr11q","chr12q","chr13q","chr14q","chr15q",
+                         "chr16q","chr17q","chr18q","chr19q","chr20q","chr21q","chr22q","chrXq","chrYq",
+						 "chr1p","chr2p","chr3p","chr4p","chr5p","chr6p","chr7p","chr8p",
+                         "chr9p","chr10p","chr11p","chr12p","chr13p","chr14p","chr15p",
+                         "chr16p","chr17p","chr18p","chr19p","chr20p","chr21p","chr22p","chrXp","chrYp",
                          "1","2","3","4","5","6","7","8",
                          "9","10","11","12","13","14","15",
                          "16","17","18","19","20","21","22","X","Y",
-                         "Mesenchymal","Neural","Classical","Proneural")
+                         "Mesenchymal","Neural","Classical","Proneural",
+                         "start.1","start.2","start.3","start.4","start.5","start.6","start.7","start.8",
+                         "start.9","start.10","start.11","start.12","start.13","start.14","start.15",
+                         "start.16","start.17","start.18","start.19","start.20","start.21","start.22","start.X","start.Y",
+                         "end.1","end.2","end.3","end.4","end.5","end.6","end.7","end.8",
+                         "end.9","end.10","end.11","end.12","end.13","end.14","end.15",
+                         "end.16","end.17","end.18","end.19","end.20","end.21","end.22","end.X","end.Y")
+
    genes <- non_patients[which(!(non_patients %in% non_gene_strings))]
    
    printf("test2")
