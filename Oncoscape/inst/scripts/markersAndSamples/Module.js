@@ -3,6 +3,8 @@
 var cwMarkers;
 var XXX;
 var nodeRestriction = [];
+var subSelectButton;
+
 //----------------------------------------------------------------------------------------------------
 var markersAndTissuesModule = (function () {
 
@@ -106,6 +108,16 @@ function initializeUI ()
    
    hub.disableTab(thisModulesOutermostDiv)
 
+   subSelectButton = $("#markersSubSelectButton");
+   subSelectButton.click(subSelectNodes);
+
+   setInterval(function(){
+      var count = cwMarkers.nodes("node:selected").length;
+      var disable = (count == 0);
+      sendSelectionsMenu.attr("disabled", disable);
+      subSelectButton.attr("disabled", disable);
+      }, 500);
+ 
 
  } // initializeUI
 //----------------------------------------------------------------------------------------------------
@@ -257,6 +269,51 @@ function handleWindowResize ()
    cwMarkers.fit(50);
 
 } // handleWindowResize
+//----------------------------------------------------------------------------------------------------
+// there are often subgroups among a selected node.
+// here we opreate only on those distinguished by different node border color
+// the dialog posted here provided interactive select/deselect of those originally
+// selected nodes, by color.
+// this function could be made smarter by being made avaialble (via the subselect button) only
+// if multiple border colors are found within the currently selected nodes
+//
+function subSelectNodes()
+{
+  var selectedNodes = cwMarkers.nodes("node:selected");
+  var borderColors =  jQuery.unique(selectedNodes.map(function(node){return node.style("border-color")}));
+  console.log(JSON.stringify(borderColors));
+
+  var content = "<form action=''>";
+  for(i=0; i < borderColors.length; i++){
+     var color = borderColors[i];
+     var e = "<input type='checkbox' class='markersSubSelectRadioButton' name='" + color + "' checked> " + color + "<br>";
+     content = content + e
+     }
+  content = content + "</form>";
+  button = "<br><br><button id='markersSubSelectCloseButton'>Close</button>";
+
+  content = content + button;
+
+  var dialog =  $('<div id="markersSubSelectDialog" />').html(content).dialog();
+
+  $("#markersSubSelectCloseButton").click(function(){
+     console.log("close dialog")
+     $("#markersSubSelectDialog").remove();
+     });
+
+  $(".markersSubSelectRadioButton").click(function(e) {
+      console.log("radio!"); 
+      console.log(this.name + " " + this.checked);
+      var color = this.name;
+      var selectSubset = this.checked;
+      var subsetNodes = selectedNodes.filterFn(function(node) {return node.style("border-color") == color});
+      if(selectSubset)
+         subsetNodes.select();
+      else
+         subsetNodes.unselect();
+      }); // radio button click
+
+} // subSelectNodes
 //----------------------------------------------------------------------------------------------------
 function requestTumorCategorization()
 {
