@@ -117,6 +117,7 @@ setMethod("createClassificationMatrix", "PLSR",
 
      tbl.pt <- getPatientTable(getDataPackage(obj))
      factor.names <- unlist(lapply(factors, function(factor) factor$name))
+     printf("createClassificationMatrix, factor.names: |%s|", paste(factor.names, collapse=","));
      for(name in factor.names)
        stopifnot(name %in% colnames(tbl.pt))
     
@@ -132,6 +133,8 @@ setMethod("createClassificationMatrix", "PLSR",
         # identify the rows, for each factor, which are less than low, greater than high
      for(i in 1:length(factors)){
         factor <- factors[[i]]
+        printf("looping over factors, i=%d, factor$low: %s", i, factor$low)
+        printf("looping over factors, i=%d, factor$high: %s", i, factor$high)
         factor.lo.rows <- which(tbl.sub[, factor$name] <= factor$low)
         factor.hi.rows <- which(tbl.sub[, factor$name] >= factor$high)
         colname <- colNames[(2 *(i-1)) + 1]
@@ -139,6 +142,8 @@ setMethod("createClassificationMatrix", "PLSR",
         colname <- colNames[(2 *(i-1)) + 2]
         mtx[factor.hi.rows, colname] <- mtx[factor.hi.rows, colname] + 1
         } # for i
+     printf("leaving createClssificationMatrix, mtx:");
+     print(mtx);
      mtx
      }) # createClassificationMatrix
 
@@ -147,6 +152,11 @@ setMethod("calculatePLSR", "PLSR",
 
    function(obj, factors, genes, patients=NA){
 
+     printf("--- PLSR.calculatePLSR");
+     printf("--- factors: %d", length(factors))
+     print(factors);
+     printf("--- factors")
+     
      mtx.classify <- createClassificationMatrix(obj, factors)
 
      mtx.mrna <- matrices(getDataPackage(obj))[[getDataMatrixName(obj)]]

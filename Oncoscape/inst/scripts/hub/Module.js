@@ -133,7 +133,8 @@ keepAlive = function()
 //--------------------------------------------------------------------------------------------------
 function runOnDocumentReadyFunctions()
 {
-  setInterval(keepAlive, 30000);
+  setInterval(keepAlive, 10000);  // 10 seconds
+
   var funcs = getOnDocumentReadyFunctions()
   console.log("==== Module.hub: " + funcs.length + " onDocumentReadyFunctions");
 
