@@ -22,4 +22,8 @@ nohup.out
 ehthumbs.db
 Thumbs.db
 index.html
+
+# Installation files #
+######################
+.setupR
 Rlibs

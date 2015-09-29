@@ -78,7 +78,9 @@ function initializeUI ()
   pcaSendSelectionMenu = hub.configureSendSelectionMenu("#pcaSendSelectionsMenu", 
                                                         selectionDestinationsOfferedHere, sendSelections,
                                                         sendSelectionsMenuTitle);
-                                                        
+/// BUG FIX NECESSARY:		
+//  $("#pcaSendSelectionsMenu").css("display", "none")                                                     
+///
   hub.disableTab(thisModulesOutermostDiv)
  
 }; // initializeUI
