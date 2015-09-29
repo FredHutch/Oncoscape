@@ -57,7 +57,10 @@ function initializeUI()
     hub.disableButton($("#datasetMenu"));
     }
 
-   populateDataSetMenu();
+   if(hub.socketConnected())
+      populateDataSetMenu();
+   else
+     hub.addSocketConnectedFunction(populateDataSetMenu);
 
 } // initializeUI
 //----------------------------------------------------------------------------------------------------
@@ -70,7 +73,7 @@ function postStatus(msg)
 function handleWindowResize()
 {
   $("#"+thisModulesOutermostDiv).width($(window).width() * 0.95);
-  $("#"+thisModulesOutermostDiv).height($(window).height() * 0.95);
+//  $("#"+thisModulesOutermostDiv).height($(window).height() * 0.95);
 
 //  console.log("  div: " + outputDiv.width());
 //  console.log("  tbl before: " + tableElement.width());
@@ -118,12 +121,10 @@ function populateDataSetMenu()
 {
    console.log("Module.datasets, entering populateDataSetMenu");
 
-   //$(datasetMenu).ready(function() {
-      console.log("=== datasetMenu ready, now issuing populateDataSetMenu request to server");
-      var msg = {cmd: "getDataSetNames",  callback: "handleDataSetNames", status: "request", 
-                 payload: ""};
-      hub.send(JSON.stringify(msg));
-   //   });
+   console.log("      socket connected? " + hub.socketConnected());
+   console.log("=== datasetMenu ready, now issuing populateDataSetMenu request to server");
+   var msg = {cmd: "getDataSetNames",  callback: "handleDataSetNames", status: "request", payload: ""};
+   hub.send(JSON.stringify(msg));
 
 } // populateDataSetMenu
 //----------------------------------------------------------------------------------------------------
