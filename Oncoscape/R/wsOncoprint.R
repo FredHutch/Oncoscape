@@ -110,9 +110,10 @@ oncoprint_data_selection <- function(ws, msg)
                mrna_res_m <- mrna_res_m[which(mrna_res_m$value>2 | mrna_res_m$value <2),]
     }
    
-   if(length(patients_processed_mrna)> 0 && length(genes_processed_mrna)>0){
+   if(length(patients_processed_mut)> 0 && length(genes_processed_mut)>0){
           
                mut_res <- mut[pos_mut, genes_processed_mut]
+               mut_res[is.na(mut_res)] <- ""
                
                if(length(genes_processed_mut)==1){
                    mut_res <- as.data.frame(mut_res)
