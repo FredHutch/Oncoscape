@@ -364,7 +364,7 @@ var test;
 		  for(var name in EventTypes){
 		  	if(EventTypes[name].dateIndicator) { dateEvents.push(name);} 
 		  }
-		  
+
 		  $(".plotCategoryOptions").empty(); $(".plotValueOptions").empty();
 		  $("#AlignOptions").empty(); 		 $("#AlignOptions").append("<option value='--' selected='selected'>--</option>");
 		  $(".OrderByDateOptions").empty();  $(".OrderByValueOptions").empty();
@@ -830,6 +830,7 @@ var test;
                 hub.addMessageHandler("TimelinesHandlePatientIDs", handlePatientIDs);
 //                hub.addMessageHandler("FilterTimelinePatients", FilterTimelinePatients);
                 hub.addMessageHandler("datasetSpecified", datasetSpecified);
+//                hub.setTitle("Timelines");
  //               hub.addSocketConnectedFunction(loadPatientDemoData);
           },
      };

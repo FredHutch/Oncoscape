@@ -24,10 +24,7 @@ install:
 	. ./installRpackages_global.sh
 
 installLocal: 
-<<<<<<< HEAD
 	mkdir -p $(R_LIBS)
-=======
->>>>>>> ff8af0a99122d8b3786eb6d256c05119f9cf4163
 	. ./installRpackages_local.sh
 
 test:
@@ -54,11 +51,8 @@ installOncoscape:
 	(cd Oncoscape; R  --vanilla CMD INSTALL --no-test-load --no-lock .)
 
 installOncoscapeLocal:
-<<<<<<< HEAD
 	(cd Oncoscape; R --vanilla CMD INSTALL -l $(R_LIBS) --no-test-load --no-lock .)
-=======
-	(cd Oncoscape; R -; $R_LIBS  --vanilla CMD INSTALL --no-test-load --no-lock .)
->>>>>>> ff8af0a99122d8b3786eb6d256c05119f9cf4163
+	(cd Oncoscape; R --vanilla CMD INSTALL -l $(R_LIBS) --no-test-load --no-lock .)
 
 # oncoApp7777: kills then launches R server: public Brain datasets on port 7777
 ####
