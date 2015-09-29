@@ -1,5 +1,10 @@
 default: build Rtests server py
 
+test: Rtests server py
+
+autoTest:
+	python testPLSRWebSocketOperations_server.py oncoscape.sttrcancer.org | tee plsrWebsocketOperations_server.log
+
 build:
 	(cd ../..; R CMD INSTALL . --no-test-load)
 
@@ -11,5 +16,5 @@ Rtests:
 	R -f test_PLSR.R
 
 py:
-	(sleep 15; python testPLSRWebSocketOperations.py | tee  plsrWebsocketOperations.log)
+	(sleep 15; python testPLSRWebSocketOperations.py localhost:9013 | tee  plsrWebsocketOperations.log)
 
