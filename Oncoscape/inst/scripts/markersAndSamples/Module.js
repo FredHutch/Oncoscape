@@ -930,6 +930,8 @@ function configureSampleCategorizationMenu(msg)
    tumorCategorizationsMenu.empty()
    var categorizations = msg.payload;
 
+   if(typeof categorizations == "string") 
+   	 categorizations = [categorizations]
    var titleOption = "Tumor Groups...";
 
    tumorCategorizationsMenu.append("<option>" + titleOption + "</option>");
