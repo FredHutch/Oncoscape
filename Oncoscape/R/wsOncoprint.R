@@ -8,9 +8,12 @@ oncoprint_data_selection <- function(ws, msg)
 
    currentDataSetName <- state[["currentDatasetName"]]
    ds <- state[[currentDataSetName]];
-   cnv <- SttrDataPackage:::matrices(ds)$mtx.cn
-   mut <- SttrDataPackage:::matrices(ds)$mtx.mut
-   mrna <- SttrDataPackage:::matrices(ds)$mtx.mrna
+   ds.matrices = SttrDataPackage:::matrices(ds)
+   cnv <- ds.matrices$mtx.cn
+   mut <- ds.matrices$mtx.mut
+   if("mtx.mrna" %in% names(ds.matrices)
+   	mrna <- ds.matrices$mtx.mrna
+   else    	mrna <- ds.matrices$mtx.mrna.bc
     
    printf("test1")
    payload_str <- msg$payload$sampleIDs
@@ -38,7 +41,7 @@ oncoprint_data_selection <- function(ws, msg)
 
    genes <- non_patients[which(!(non_patients %in% non_gene_strings))]
    
-   printf("test2")
+   printf("removed start end values")
    
    patients_processed_cnv <- intersect(patients, substring(rownames(cnv),1,12))
    pos_cnv <- match(patients_processed_cnv,substring(rownames(cnv),1,12))
