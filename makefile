@@ -22,9 +22,22 @@ default: install
 
 install: 
 	. ./installRpackages_global.sh
+
+installLocal: 
+	. ./installRpackages_local.sh
+
+test:
 	(cd dataPackages/; make test)
 	(cd analysisPackages/; make test)
-	(cd Oncoscape/inst/unitTests; make)
+	(cd Oncoscape/inst/unitTests; make test)
+	
+# launches Oncoscape on the provided port then tests modules using websocket requests	
+testWS:
+	python testAllWebsocketOperations.py localhost:7777 | tee testAllWebsocketOperations_7777.log &
+
+autoTest:
+	(cd analysisPackages/; make autoTest)
+	(cd Oncoscape/inst/unitTests; make autoTest)
 
 cleanupTests:
 	- kill `ps aux | grep runPLSRTestWebSocketServer.R | grep -v grep | awk '{print $$2}'` 
@@ -36,12 +49,22 @@ cleanupTests:
 installOncoscape:
 	(cd Oncoscape; R  --vanilla CMD INSTALL --no-test-load --no-lock .)
 
+installOncoscapeLocal:
+	(cd Oncoscape; R --vanilla CMD INSTALL -l $(R_LIBS) --no-test-load --no-lock .)
+
 # oncoApp7777: kills then launches R server: public Brain datasets on port 7777
 ####
 #   kills current process and starts new one
 #   runs Oncoscape on port 7777 with DEMOdz & TCGAgbm
 #   using all (9) current tabs
 oncoApp7777:
-	- kill -9 `ps aux | grep runOncoscapeApp | egrep -v grep | awk  '{print $$2}'`
 	(cd Oncoscape/inst/scripts/apps/oncoscape/; make local;)
+
+# oncoApp7788: kills then launches R server: public Brain datasets on port 7777
+####
+#   kills current process and starts new one
+#   runs Oncoscape on port 7788 with DEMOdz & TCGAgbm
+#   using all (9) current tabs
+oncoApp7788:
+	(cd Oncoscape/inst/scripts/apps/oncotest/; make local;)
 

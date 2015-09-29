@@ -1,0 +1,13 @@
+RVER=/app/R/3.2.1/bin/R
+
+default:
+	m4 -E index.pre > index.html
+	$(RVER) CMD INSTALL ../../.. -l ~/lopez/oncoscape/v1.4.60/Rlibs/x86_64-unknown-linux-gnu-library/3.2/
+	nohup $(RVER) --vanilla -f runAsServer.R &
+
+test:
+	m4 -E index.pre > index.html
+	$(RVER) CMD INSTALL ../../.. -l ~/lopez/oncoscape/v1.4.60/Rlibs/x86_64-unknown-linux-gnu-library/3.2/
+	$(RVER) --vanilla -f runTestOnLopez.R
+	echo $$!
+

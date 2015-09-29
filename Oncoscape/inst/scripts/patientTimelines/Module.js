@@ -824,7 +824,6 @@ var test;
                 hub.addMessageHandler("TimelinesHandlePatientIDs", handlePatientIDs);
 //                hub.addMessageHandler("FilterTimelinePatients", FilterTimelinePatients);
                 hub.addMessageHandler("datasetSpecified", datasetSpecified);
-                hub.setTitle("Timelines");
  //               hub.addSocketConnectedFunction(loadPatientDemoData);
           },
      };
