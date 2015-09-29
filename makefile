@@ -1,4 +1,4 @@
-default: install
+default: install test
 ####
 #  INSTALL
 #>make
@@ -24,6 +24,7 @@ install:
 	. ./installRpackages_global.sh
 
 installLocal: 
+	mkdir -p $(R_LIBS)
 	. ./installRpackages_local.sh
 
 test:

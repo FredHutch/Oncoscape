@@ -1,4 +1,4 @@
 <script>
-hub.hideTab("blank tab", "#blankTabDiv");
+//hub.hideTab("blank tab", "#blankTabDiv"); 
 </script>
 
