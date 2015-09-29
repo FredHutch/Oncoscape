@@ -2,26 +2,24 @@
 #                   -------------------       ----------------                -------------
 addRMessageHandler("oncoprint_data_selection",     "oncoprint_data_selection")            # displayOncoprint
 #----------------------------------------------------------------------------------------------------
-library(SttrDataPackage)
-library(TCGAgbm)
 oncoprint_data_selection <- function(ws, msg)
 {
    printf("=== entering oncoprint_data_selection")
 
-   currentDataSet <- state[["currentDatasetName"]]
-   gbm <- TCGAgbm()
-   cnv <- SttrDataPackage:::matrices(gbm)$mtx.cn
-   mut <- SttrDataPackage:::matrices(gbm)$mtx.mut
-   mrna <- SttrDataPackage:::matrices(gbm)$mtx.mrna
-  
-   
+   currentDataSetName <- state[["currentDatasetName"]]
+   ds <- state[[currentDataSetName]];
+   cnv <- SttrDataPackage:::matrices(ds)$mtx.cn
+   mut <- SttrDataPackage:::matrices(ds)$mtx.mut
+   mrna <- SttrDataPackage:::matrices(ds)$mtx.mrna
+    
    printf("test1")
-   #patients <- msg$payload$sampleIDs
-   #gene <- msg$payload$gene
    payload_str <- msg$payload$sampleIDs
    patients <- payload_str[grepl("TCGA",payload_str)]
    non_patients <- payload_str[!grepl("TCGA",payload_str)]
-   non_gene_strings <- c("1","2","3","4","5","6","7","8",
+   non_gene_strings <- c("chr1","chr2","chr3","chr4","chr5","chr6","chr7","chr8",
+                         "chr9","chr10","chr11","chr12","chr13","chr14","chr15",
+                         "chr16","chr17","chr18","chr19","chr20","chr21","chr22","chrX","chrY",
+                         "1","2","3","4","5","6","7","8",
                          "9","10","11","12","13","14","15",
                          "16","17","18","19","20","21","22","X","Y",
                          "Mesenchymal","Neural","Classical","Proneural")
@@ -120,12 +118,6 @@ oncoprint_data_selection <- function(ws, msg)
                res_m <- rbind(res_m,mut_res_m)
                mut_res_m <- mut_res_m[mut_res_m$value != "",]
     }
-   
-   
-    
-    
-    
-    
     
     col5[] <- lapply(col5, as.character)
    
