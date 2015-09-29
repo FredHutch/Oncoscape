@@ -9,11 +9,13 @@ ws = create_connection("ws://localhost:6001")
 def runTests():
 
   test_ping()
+  bug()
   test_serverVersion();
   test_getDataFrame();
   test_getUserID();
   test_getDataSetNames();
   test_getGeneSets();
+  test_getCopyNumberMatrix();
   test_getSampleCategorizations();
   test_getManifest();
   test_specifyCurrentDataset()
@@ -32,7 +34,7 @@ def runTests():
   test_getPathway();
 
   #test_pca()   # contains 3 more granular tests
-  #test_plsr()  # contains 3 more granular tests
+  test_plsr()  # contains 3 more granular tests
 
   print "OK:  all python websocket json tests passed"
 
@@ -144,36 +146,36 @@ def test_getManifest():
 
   "get the full data.frame for DEMOdz"
 
-print "--- test_getManifest"
-
-payload = "DEMOdz";
-msg = dumps({"cmd": "getDataManifest", "status": "request", "callback": "", "payload": payload})
-ws.send(msg)
-result = loads(ws.recv())
-payload = result["payload"]
-fieldNames = payload.keys()
-fieldNames.sort()
-assert fieldNames == ["colnames", "datasetName", "mtx", "rownames"]
-
-# in test mode, which is enforced by runDevel.R assignments in the parent directory
-#   userID <- "test@nowhere.net"
-#   current.datasets <- c("DEMOdz")
-# we expect only DEMOdz
-
-colnames = payload["colnames"]
-assert(len(colnames) == 9)
-assert(colnames[0:3] == ["category", "subcategory", "rows"])
-
-  # the matrix (it's all strings right now) comes across the wire as
-  # as a list of lists, which in javascript will appears as an array of arrays
-
-mtx = payload["mtx"]
-assert type(mtx) is list
-assert type(mtx[0]) is list
-assert len(mtx) >= 9
-assert len(mtx[0]) == 9
-    # each row is actually a row
-#assert mtx[0][0:4] == [u'mRNA expression', u'Z scores', u' 20', u' 64']
+  print "--- test_getManifest"
+  
+  payload = "DEMOdz";
+  msg = dumps({"cmd": "getDataManifest", "status": "request", "callback": "", "payload": payload})
+  ws.send(msg)
+  result = loads(ws.recv())
+  payload = result["payload"]
+  fieldNames = payload.keys()
+  fieldNames.sort()
+  assert fieldNames == ["colnames", "datasetName", "mtx", "rownames"]
+  
+  # in test mode, which is enforced by runDevel.R assignments in the parent directory
+  #   userID <- "test@nowhere.net"
+  #   current.datasets <- c("DEMOdz")
+  # we expect only DEMOdz
+  
+  colnames = payload["colnames"]
+  assert(len(colnames) == 9)
+  assert(colnames[0:3] == ["category", "subcategory", "rows"])
+  
+    # the matrix (it's all strings right now) comes across the wire as
+    # as a list of lists, which in javascript will appears as an array of arrays
+  
+  mtx = payload["mtx"]
+  assert type(mtx) is list
+  assert type(mtx[0]) is list
+  assert len(mtx) >= 9
+  assert len(mtx[0]) == 9
+      # each row is actually a row
+  #assert mtx[0][0:4] == [u'mRNA expression', u'Z scores', u' 20', u' 64']
 
 #------------------------------------------------------------------------------------------------------------------------
 def test_histogramCoordinatesIntentionalError():
@@ -588,6 +590,38 @@ def test_getGeneSets():
   genes.sort()
   assert len(genes) == 24
   assert genes[0:5] == ['EFEMP2', 'ELAVL1', 'ELAVL2', 'ELL', 'ELN']
+
+
+#----------------------------------------------------------------------------------------------------
+def test_getCopyNumberMatrix():
+  "set current dataset, ask for geneset names, then the genes in one set"
+
+  print "--- test_getCopyNumberMatrix"
+
+   #------------------------------------------------------------
+   # first specify currentDataSet
+   #------------------------------------------------------------
+  cmd = "specifyCurrentDataset"
+  callback = "datasetSpecified"
+  dataset = "DEMOdz";
+  payload = dataset
+  
+     # set a legitimate dataset
+  msg = dumps({"cmd": cmd, "status": "request", "callback": callback, "payload": payload})
+  ws.send(msg)
+  result = loads(ws.recv())
+  
+  assert result["payload"]["datasetName"] == dataset;
+  assert result["cmd"] == callback
+  assert result["status"] == "success"
+
+   #------------------------------------------------------------
+   # now ask for the g
+   #------------------------------------------------------------
+
+  cmd = "getGeneSetNames"
+  callback = "handleGeneSetNames"
+  
 
 
 #----------------------------------------------------------------------------------------------------
@@ -1153,7 +1187,8 @@ def test_plsr():
   test_plsrSummarizePLSRPatientAttributes()
   test_plsrCalculateSmallOneFactor()
   test_plsrCalculateSmallTwoFactors()
-  
+  testManyGenesTwoFactors()
+
 #------------------------------------------------------------------------------------------------------------------------
 def test_plsrCreateWithDataSet():
 
@@ -1229,7 +1264,7 @@ def test_plsrCalculateSmallOneFactor():
   assert(loadingNames == genesOfInterest)
   assert(len(loadings) == 10)
   maxValue = payload["maxValue"]
-  assert(maxValue == 0.8195)
+  assert(maxValue == 0.8187)
 
 #----------------------------------------------------------------------------------------------------
 def test_plsrCalculateSmallTwoFactors():
@@ -1262,10 +1297,69 @@ def test_plsrCalculateSmallTwoFactors():
   loadingNames = payload["loadingNames"]
   assert(loadingNames == genesOfInterest)
   assert(len(vectors) == 4)
+  print vectors
   assert(len(loadings) == 10)
   maxValue = payload["maxValue"]
-  assert(maxValue == 0.8822)
+  print maxValue
+  assert(maxValue == 0.7946)
 
+#------------------------------------------------------------------------------------------------------------------------
+# i developed this test (pshannon, 25 sep 2015) to probe a very confusing bug, which turned out to
+# be caused a problem in wsPLSR.calculate_plsr:
+#    factors.df <- msg$payload$factors
+#    factors <- apply(factors.df, 1, as.list)
+# which converted the numeric values in the two factors into strings; the shorter strings had leading
+# white sace.
+# after hours (!) of snooping, this change fixed the problem:
+#   factors <- vector("list", nrow(factors.df))
+#   for(r in 1:nrow(factors.df)){
+#      factors[[r]] <- as.list(factors.df[r,])
+#     } # for r
+#
+#
+def testManyGenesTwoFactors():
+
+  "calculates plsr on DEMOdz, with two patient groups, low and high AgeDx (age at diagnosis), many genes"
+
+  print "--- test_ManyGenesTwoFactors"
+
+    # in R: sample(colnames(matrices(getDataPackage(myplsr))$mtx.mrna), size=10)
+  genesOfInterest = ["PRRX1", "UPF1", "PIPOX", "PIM1", "UCP2", "USH2A", "TTN", "ELF4", "U2AF1",
+                     "ELOVL2", "PIK3C2B", "PTPRA", "USP6", "EDIL3", "PTPN14", "EHD2", "EGFR",
+                     "PIK3CG", "ELK4", "TTC3", "EIF4A2", "PIK3R2", "EMP3", "PIK3CA", "TTC28", "EED",
+                     "UGT8", "PLAUR", "PTEN", "EEF2", "PTPN6", "PTK2", "TTPA", "PIK3CD", "PTPN22",
+                     "PRR4", "EML4", "PTBP1", "UBR5", "TYK2"];
+
+  factor1 = {"name": "AgeDx", "low": 16435.80, "high": 24105.84}
+  factor2 = {"name": "Survival", "low": 1096.72, "high": 2556.68}
+  
+  payload = {"genes": genesOfInterest, "factorCount": 2, "factors": [factor1, factor2]};
+  
+  msg = dumps({"cmd": "calculatePLSR", "status":"request", 
+               "callback":"handlePlsrResult", "payload": payload})
+  ws.send(msg)
+  result = loads(ws.recv())
+  assert(result["cmd"] == "handlePlsrResult")
+  assert(result["status"] == "success")
+  payload = result["payload"]
+  fieldNames = payload.keys()
+  fieldNames.sort()
+  assert(fieldNames == ['loadingNames', 'loadings', 'maxValue', 'vectorNames', 'vectors'])
+  vectors = payload["vectors"]
+  vectorNames = payload["vectorNames"]
+  assert(vectorNames == ['AgeDx.lo', 'AgeDx.hi', 'Survival.lo', 'Survival.hi'])
+  loadings = payload["loadings"]
+  loadingNames = payload["loadingNames"]
+  assert(loadingNames == genesOfInterest)
+  assert(len(vectors) == 4)
+  for i in range(0,4):
+     assert(abs(vectors[i][0]) > 0)
+     assert(abs(vectors[i][1]) > 0)
+
+  assert(len(loadings) == len(genesOfInterest))
+  maxValue = payload["maxValue"]
+  assert(maxValue > 0.50)
+  assert(maxValue < 0.60)
 
 #------------------------------------------------------------------------------------------------------------------------
 interactive = (sys.argv[0] != "testWebSocketOperations.py")
