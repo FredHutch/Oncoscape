@@ -52,7 +52,7 @@ function initializeUI ()
 
   tumorCategorizationsMenu = $("#cyMarkersTumorCategorizationsMenu");
   tumorCategorizationsMenu.empty()
-  tumorCategorizationsMenu.append("<option>" + tumorCategorizationsMenuTitle + "</otpion>");
+  tumorCategorizationsMenu.append("<option>" + tumorCategorizationsMenuTitle + "</option>");
   tumorCategorizationsMenu.change(requestTumorCategorization);
 
   graphOperationsMenu = $("#cyMarkersOperationsMenu");

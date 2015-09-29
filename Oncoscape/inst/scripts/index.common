@@ -3,6 +3,8 @@
 
 <head>
    <meta charset="UTF-8">
+   <meta property="og:title" content="Oncoscape" />
+
    <title> OncoDev 1.4</title>
 
    <script src="http://code.jquery.com/qunit/qunit-1.18.0.js"></script>
@@ -38,6 +40,9 @@
    <link href="http://oncoscape.sttrcancer.org/oncoscape/css/multi-select.css" media="screen" rel="stylesheet" type="text/css">
    <script src="http://oncoscape.sttrcancer.org/oncoscape/js/chosen.jquery.min.js" type="text/javascript"></script>
    <link href="http://oncoscape.sttrcancer.org/oncoscape/css/chosen.min.css" media="screen" rel="stylesheet" type="text/css">
+
+    <link rel="SHORTCUT ICON" type="image/x-icon" href="http://oncoscape.sttrcancer.org/oncoscape/images/oncoscape.ico"/>
+    <link rel="ICON" type="image/x-icon" href="http://oncoscape.sttrcancer.org/oncoscape/images/oncoscape.ico"/>
 
 
 <script> 
