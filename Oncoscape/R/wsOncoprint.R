@@ -11,9 +11,9 @@ oncoprint_data_selection <- function(ws, msg)
    ds.matrices = SttrDataPackage:::matrices(ds)
    cnv <- ds.matrices$mtx.cn
    mut <- ds.matrices$mtx.mut
-   if("mtx.mrna" %in% names(ds.matrices)
+   if("mtx.mrna" %in% names(ds.matrices)){
    	mrna <- ds.matrices$mtx.mrna
-   else    	mrna <- ds.matrices$mtx.mrna.bc
+   }else{    	mrna <- ds.matrices$mtx.mrna.bc }
     
    printf("test1")
    payload_str <- msg$payload$sampleIDs
