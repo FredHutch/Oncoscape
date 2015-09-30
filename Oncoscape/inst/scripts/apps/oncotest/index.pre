@@ -1,0 +1,17 @@
+include(../../m4-workarounds.txt)
+include(../../index.common)
+include(../../common.css)
+
+<script>
+include(../../hub/Module.js)
+var hub = HubModule();
+hub.start();
+include(../../tabsApp/code.js)
+hub.raiseTab("datasetsDiv");
+hub.setTitle("Oncoscape");
+</script>
+<body>
+include(widget.html)
+include(setup.js)
+</body>
+</html>

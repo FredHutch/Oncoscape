@@ -209,7 +209,7 @@ function learnSliderMinAndMax(tbl, columnNumber)
   var max = -Number.MAX_VALUE;
 
   for(var r=0; r < rowCount; r++){
-    var value = Number.parseFloat(tbl[r][columnNumber]);
+    var value = parseFloat(tbl[r][columnNumber]);
     //console.log(value)
     if(value < min)
       min = value;

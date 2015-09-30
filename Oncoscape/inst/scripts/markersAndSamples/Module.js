@@ -54,7 +54,7 @@ function initializeUI ()
 
   tumorCategorizationsMenu = $("#cyMarkersTumorCategorizationsMenu");
   tumorCategorizationsMenu.empty()
-  tumorCategorizationsMenu.append("<option>" + tumorCategorizationsMenuTitle + "</otpion>");
+  tumorCategorizationsMenu.append("<option>" + tumorCategorizationsMenuTitle + "</option>");
   tumorCategorizationsMenu.change(requestTumorCategorization);
 
   graphOperationsMenu = $("#cyMarkersOperationsMenu");
@@ -116,7 +116,6 @@ function initializeUI ()
       subSelectButton.attr("disabled", disable);
       }, 500);
  
-
 } // initializeUI
 //----------------------------------------------------------------------------------------------------
 function sendSelections(event)
@@ -928,6 +927,8 @@ function configureSampleCategorizationMenu(msg)
    tumorCategorizationsMenu.empty()
    var categorizations = msg.payload;
 
+   if(typeof categorizations == "string") 
+   	 categorizations = [categorizations]
    var titleOption = "Tumor Groups...";
 
    tumorCategorizationsMenu.append("<option>" + titleOption + "</option>");

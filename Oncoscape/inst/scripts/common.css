@@ -27,6 +27,10 @@ th,td {
    font-size:10pt !important;
    }
 
+.SelectionMenu{
+color: rgb(0, 0, 0); 
+background-color: rgb(255, 255, 255);
+}
 
 </style>
 

@@ -50,6 +50,11 @@ var test;
                                                         selectionDestinationsOfferedHere,
                                                         sendSelections,
                                                         sendSelectionsMenuTitle);  
+/// BUG FIX NECESSARY:		
+/// send resets display alignment
+/// possibly sends ids in non-standard form
+		$("#timeLineSendSelectionsMenu").css("display", "none")
+///		
         $(window).resize(HandleWindowResize);
 
         $("#AlignOptions").change(updateDisplayAlignment);
@@ -359,9 +364,10 @@ var test;
 		  for(var name in EventTypes){
 		  	if(EventTypes[name].dateIndicator) { dateEvents.push(name);} 
 		  }
-		  
-		  $(".OrderByDateOptions").empty();  $(".OrderByValueOptions").empty();
+
 		  $(".plotCategoryOptions").empty(); $(".plotValueOptions").empty();
+		  $("#AlignOptions").empty(); 		 $("#AlignOptions").append("<option value='--' selected='selected'>--</option>");
+		  $(".OrderByDateOptions").empty();  $(".OrderByValueOptions").empty();
 		  
 		  for(var elem in dateEvents){
 			   $("#AlignOptions").append(" <option>"+dateEvents[elem]+"</option>");
@@ -586,9 +592,9 @@ var test;
 //	                     .attr("stroke-width", function(d){return d.strokeWidth;})
                          .on("mouseover", function(d,i){
                              Hoverbar.append("rect")
-                                .attr("x", (0 - 2*SideBarSize.width ))
+                                .attr("x", (0 - SideBarSize.width - TimeLineMargin.left))
                                 .attr("y", function(){return y(ptOrderArray.indexOf(d.id))+ PixelScale/(ptList[d.id].PatientHeight+1);})
-                                .attr("width", TimeLineSize.width + 2*SideBarSize.width +TimeLineMargin.left)
+                                .attr("width", TimeLineSize.width + SideBarSize.width +TimeLineMargin.left)
                                 .attr("height", function(){return PixelScale;})
                                 .style("fill", "grey").style("opacity", 0.3);    
 							 
@@ -824,7 +830,7 @@ var test;
                 hub.addMessageHandler("TimelinesHandlePatientIDs", handlePatientIDs);
 //                hub.addMessageHandler("FilterTimelinePatients", FilterTimelinePatients);
                 hub.addMessageHandler("datasetSpecified", datasetSpecified);
-                hub.setTitle("Timelines");
+//                hub.setTitle("Timelines");
  //               hub.addSocketConnectedFunction(loadPatientDemoData);
           },
      };

@@ -1,0 +1,280 @@
+<!DOCTYPE html> 
+<html>
+
+<head>
+   <meta charset="UTF-8">
+   <title> OncoDev 1.2.27</title>
+   <link href="//maxcdn.bootstrapcdn.com/bootstrap/3.3.0/css/bootstrap.min.css" rel="stylesheet">
+   <script src="//maxcdn.bootstrapcdn.com/bootstrap/3.3.0/js/bootstrap.min.js"></script>
+   <script src="http://oncoscape.sttrcancer.org/oncoscape/js/jquery.multi-select.js" type="text/javascript"></script>
+   <link href="http://oncoscape.sttrcancer.org/oncoscape/css/multi-select.css" media="screen" rel="stylesheet" type="text/css">      
+   <link rel="stylesheet" href="https://code.jquery.com/ui/1.11.2/themes/smoothness/jquery-ui.css">
+   <link rel="stylesheet" href="http://cdn.wijmo.com/themes/aristo/jquery-wijmo.css" >
+   <script scr="content/gstt.js"></script>  
+<style>
+.ui-widget-content {
+border: 1px solid #ffffff !important;
+
+}
+.selectpicker{
+border:2px solid #42B2DA;
+}
+body { padding-top: 35px; }
+
+
+.ui-tabs .ui-tabs-nav li a {font-size:9pt !important;}
+.ui-widget-header {
+  border: 0px !important;
+}
+
+.glyphicon{
+left:-3px;
+top:-4px;
+}
+
+.modal-content
+{
+  height:600px;
+  overflow:auto;
+  background-color:WhiteSmoke;
+}
+.modal-header{
+  background-color:Gainsboro;
+  $(".slider").slider().slider("pips").slider("float");
+}
+</style>
+</head>
+
+
+<body>
+
+<style>
+ol {
+    list-style-position: inside !important;
+}
+#geneSetTTests_Div{
+   width: 100% !important;
+}
+#geneSetTTestsSampleListsDiv {
+  margin: 10px;
+  }
+
+#geneSetTTestsLaunchButtonDiv{
+   margin-left: 40px;
+}
+
+.clinicalDataFilterSlider { 
+   margin-left:0px; 
+   margin-right:0px; 
+   margin-top:0px;
+   border: 0px solid #FFF;
+   height: 10px;
+   orientation: 'horizontal';
+   background-color: #FFF;
+   color: #00F;
+   }
+
+.clinicalDataFilterSliderReadout {
+  font-family:"Courier";
+  color: #0000FF;
+  background-color: #FFF;
+  font-size: 8px;
+  border: 1px solid #DDD;
+  resize: none;
+  margin-top: 5px;
+  margin-left: 1px;
+  
+  width:35px !important;
+  font-size:10pt;
+  float:left;margin-top: 0px;
+  margin-left: 0px;
+  border-bottom-width: 1px;
+  margin-bottom: 0px;
+  padding-bottom: 2px;
+  padding-top: 3px;
+  padding-left: 0px;
+  border-right-width: 1px;
+  padding-right: 0px;
+  }
+
+.clinicalDataFilterSliderTitleDiv {
+  font-family:"Arial";
+  color: #000000;
+  font-size: 14px;
+  padding-top: 0px;
+  padding-right:0px;
+  }
+  #THSliderDiv .ui-widget-header {
+background: #ABD3E8;
+}
+
+#tabDiv .ui-tabs-panel {
+    height: 700px;
+    width: 100%;
+    overflow: auto;
+}
+
+.rem-btn{
+    font-size:8pt;
+	border-top-width: 0px;
+	padding-bottom: 0px;
+	padding-top: 0px;
+	padding-right: 0px;
+	border-right-width: 0px;
+	border-left-width: 0px;
+	border-bottom-width: 0px;
+	padding-left: 0px;
+    width: 0px;
+    height: 0px;
+    margin-top: 0px;
+    margin-bottom: 10px;
+}
+.heatMapBtn{
+    border-left-width: 0px;
+    padding-bottom: 0px;
+    padding-top: 0px;
+    border-top-width: 0px;
+    border-right-width: 0px;
+    border-bottom-width: 0px;
+    padding-left: 2px;
+    padding-right: 2px;
+}
+
+</style>
+
+
+<!-- Tab Specific Display -->
+
+
+<div id="geneSetTTestsModuleDiv" class="container-fluid">
+
+<div id="geneSetTTests_Div">
+<div id="geneSetTTestsControlsDiv" class="nav navbar-nav navbar navbar-default" role="navigation" style="width:100%;margin-bottom:20px">
+
+<div class="navbar-collapse collapse navbar-inverse-collapse" style="height:50px !important;">
+  
+     <div id="geneSetTTestsInputsDiv" >
+  
+        <div id="geneSetTTestsLaunchButtonDiv" class="nav navbar-nav navbar-form navbar-left" style="margin-left: 0px;">
+           <form>
+             <div class="form-group">
+			  <button id="geneSetTTestsLaunchButton" type="button" class="btn btn-default btn-sm" 
+			  style="padding-bottom: 4px;border-top-width: 1px;padding-top: 4px;padding-left: 4px;
+			  padding-right: 5px;">Calculate T-Tests</button>
+         </div>
+             <div id="THSliderDiv" class="form-group">
+             
+               <div class="form-group row">
+               <div class="col-sm-12">
+                  <text id="pValThreshold" class="col-sx-7">p-Value Threshold</text>
+                  <div class="row">
+                  <div class="col-sm-12">
+                  <div style="width: 140px; height: 6px; float: left; margin-top: 10px; margin-left: 10px; margin-right: 10px;" id="pValTHSlider" class="slider col-sx-6"></div>
+                  <span id="pValTHSliderReadout" style="width:65px;font-size:8pt;float:left" class="clinicalDataFilterSliderReadout"></span>
+                  </div>
+                  </div>
+               </div>
+               </div>
+           
+               <div class="form-group row">
+               <div class="col-sm-12">
+                  <text  id="participationThreshold" class="col-sx-7">Participation Threshold</text>
+                  <div class="row">
+                  <div class="col-sm-12">
+                  <div style="width: 140px; height: 6px; float: left; margin-top: 10px; margin-left: 10px; margin-right: 10px;" id="participationTHSlider" class="slider col-sx-6"></div>
+                  <span id="participationTHSliderReadout" style="width:65px;font-size:8pt;float:left" class="clinicalDataFilterSliderReadout"></span>
+                  </div>
+                  </div>
+               </div>
+               </div>
+           
+            </div>
+           </form>
+        </div>
+                
+     </div>
+     
+     
+</div>
+</div> 
+</div> 
+<div class="row-fluid">
+<div id="geneSetTestsSampleListsDivWrapper" class="col-md-3">
+  <h4 style="margin-top:20px;">Candidate Patient Sets</h4>
+     <div id="geneSetTTestsSampleListsDiv">
+  </div>
+  <hr>
+  <div  id="geneSetTTestsOutputsDiv">
+    </div>
+</div>
+
+<div id="tabDiv" style="display:none" class="col-md-9">
+     <ul><li><a href='#heatMapImageArea'>Heat Map</a></li>
+         <li><a href='#geneSetInfo'>Gene Set Information (Broad Institute)</a></li>
+    </ul>
+    <div id="heatMapImageArea">
+    <p> This is within Heat Map Area</p>
+    </div>
+    <iframe id='geneSetInfo' width="90%" height="800px"></iframe>
+   </div>   
+</div>
+</div>
+
+
+<div id="geneSetTTestsHelp" style="display:none" class="modal">
+<div class="modal-dialog">
+<div class="modal-content">
+<div class="modal-header">
+<button type="button" class="close" data-dismiss="modal"><span aria-hidden="true">&times;</span><span class="sr-only">Close</span></button>
+
+<h3 class="modal-title">The Gene Set t-test Help</h3>
+</div>
+<div class="modal-body"> 
+<p> The Gene Set T-Tests Help <br> </br>
+</p>
+</div><!-- /.modal-body -->
+</div><!-- /.Modal-content -->
+</div><!-- /.Modal-dialog -->
+</div><!-- /.Modal-->
+
+
+
+<div id="geneSetTTestsCredits"  style="display:none" class="modal">
+<div class="modal-dialog">
+<div class="modal-content">
+<div class="modal-header">
+ <button type="button" class="close" data-dismiss="modal"><span aria-hidden="true">&times;</span><span class="sr-only">Close</span></button>
+
+<h3>  The Gene Set t-test Credits</h3>
+</div>
+<div class="modal-body">
+<ul>
+	<li>Hamid Bolouri</li>
+	<li>Paul Shannon</li>
+	<li>Lisa McFerrin</li>
+	<li>Jenny Zhang</li>
+</ul>
+</div>
+</div>
+</div>
+</div>
+<div id="geneSetTTestsLegend" style="display:none" class="modal">
+<div class="modal-dialog">
+<div class="modal-content">
+<div class="modal-header">
+ <button type="button" class="close" data-dismiss="modal"><span aria-hidden="true">&times;</span><span class="sr-only">Close</span></button>
+
+<h1>  The Gene Set t-test Legend</h1>
+</div>
+<div class="modal-body">
+
+</div>
+</div>
+</div>
+</div>
+	  
+
+<script src="gstt.js"></script>
+</body>
+
+</html>

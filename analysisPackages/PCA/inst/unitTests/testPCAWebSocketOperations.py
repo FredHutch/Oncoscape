@@ -1,7 +1,14 @@
 import sys
 from websocket import create_connection
 from json import *
-ws = create_connection("ws://localhost:9014")
+
+if(len(sys.argv)< 3):
+	print "test requires server and port value: python testPCAWebSocketOperations.py <server> <port>"
+	sys.exit(2)
+
+server = sys.argv[1]
+port = sys.argv[2]
+ws = create_connection("ws://"+server+":"+port)
 #------------------------------------------------------------------------------------------------------------------------
 def runTests():
 
@@ -11,6 +18,15 @@ def runTests():
   testCalculateOnGeneSubset()
   testCalculateOnSampleSubset()
   testCalculateOnGeneAndSampleSubsets()
+
+#------------------------------------------------------------------------------------------------------------------------
+def runServerTests():
+
+  testCreateWithDataSet()
+#  testCalculate()
+#  testCalculateOnGeneSubset()
+#  testCalculateOnSampleSubset()
+#  testCalculateOnGeneAndSampleSubsets()
 
 #------------------------------------------------------------------------------------------------------------------------
 def testEcho():
@@ -38,7 +54,7 @@ def testCreateWithDataSet():
   payload = {"dataPackage": "DEMOdz", "matrixName": "mtx.mrna.ueArray"}
   
   msg = dumps({"cmd": "createPCA", "status":"request", 
-               "callback":"PLSRcreatedHandler", "payload": payload})
+               "callback":"PCAcreatedHandler", "payload": payload})
   ws.send(msg)
   result = loads(ws.recv())
   payload = result["payload"][0];
@@ -160,6 +176,10 @@ def testCalculateOnGeneAndSampleSubsets():
 
 #----------------------------------------------------------------------------------------------------
 interactive = (sys.argv[0] != "testPCAWebSocketOperations.py")
+liveTesting = (sys.argv[1] == "lopez.fhcrc.org")
 if(not(interactive)):
-  runTests()
+  if(liveTesting):
+    runServerTests()	
+  else:
+	runTests()
 

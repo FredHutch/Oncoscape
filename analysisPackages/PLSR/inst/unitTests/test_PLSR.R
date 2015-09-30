@@ -475,7 +475,7 @@ test_calculateTiny.ageDxAndSurvival.demo <- function()
    mtx.mrna <- matrices(demoDz)$mtx.mrna
    tbl.pt <- getPatientTable(demoDz)
 
-   goi <- c("ELF4", "PIK3C2B", "EMP3", "PLAG1")  # some good correlations to both factors
+   goi.surv <- c("ELF4", "PIK3C2B", "EMP3", "PLAG1")  # some good correlations to both factors
 
    loAge <- 12000
    hiAge <- 28000
