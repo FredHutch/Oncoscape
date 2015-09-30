@@ -2,11 +2,14 @@
 
 
 
+
 <!DOCTYPE html> 
 <html>
 
 <head>
    <meta charset="UTF-8">
+   <meta property="og:title" content="Oncoscape" />
+
    <title> OncoDev 1.4</title>
 
    <script src="http://code.jquery.com/qunit/qunit-1.18.0.js"></script>
@@ -43,6 +46,9 @@
    <script src="http://oncoscape.sttrcancer.org/oncoscape/js/chosen.jquery.min.js" type="text/javascript"></script>
    <link href="http://oncoscape.sttrcancer.org/oncoscape/css/chosen.min.css" media="screen" rel="stylesheet" type="text/css">
 
+    <link rel="SHORTCUT ICON" type="image/x-icon" href="http://oncoscape.sttrcancer.org/oncoscape/images/favicon.ico"/>
+    <link rel="ICON" type="image/x-icon" href="http://oncoscape.sttrcancer.org/oncoscape/images/favicon.ico"/>
+
 
 <script> 
 //--------------------------------------------------------------------------------------------------
@@ -57,6 +63,25 @@
   ga('send', 'pageview');
 //--------------------------------------------------------------------------------------------------
 </script> 
+
+<script>
+navigator.sayswho= (function(){
+    var ua= navigator.userAgent, tem,
+    M= ua.match(/(opera|chrome|safari|firefox|msie|trident(?=\/))\/?\s*(\d+)/i) || [];
+    if(/trident/i.test(M[1])){
+        tem=  /\brv[ :]+(\d+)/g.exec(ua) || [];
+        return 'IE '+(tem[1] || '');
+    }
+    if(M[1]!== 'Chrome'){
+       alert("Oncoscape is currently developed and tested under Chrome.  For best results, please use Chrome version 45.0 and later.")
+        tem= ua.match(/\b(OPR|Edge)\/(\d+)/);
+        if(tem!= null) return tem.slice(1).join(' ').replace('OPR', 'Opera');
+    }
+    M= M[2]? [M[1], M[2]]: [navigator.appName, navigator.appVersion, '-?'];
+    if((tem= ua.match(/version\/(\d+)/i))!= null) M.splice(1, 1, tem[1]);
+    return M.join(' ');
+})();
+</script>
 
 </head>
 
@@ -89,12 +114,17 @@ th,td {
    font-size:10pt !important;
    }
 
+.SelectionMenu{
+color: rgb(0, 0, 0); 
+background-color: rgb(255, 255, 255);
+}
 
 </style>
 
 
 
 <script>
+
 //----------------------------------------------------------------------------------------------------
 // These javascript functions and variables are arranged into a simple module so that
 // implementation details are kept private from the public API other oncoscape 
@@ -113,11 +143,30 @@ var HubModule = (function () {
   var socketIsConnected = false;
   var socketConnectedFunctions = [];
   var onDocumentReadyFunctions = [];
-
   var socketURI = window.location.href.replace("http://", "ws://");
-
   var socket;
 
+  var  messagingRestrictedToLogin = false;
+
+  var modules = {};
+//----------------------------------------------------------------------------------------------------
+function registerModule(name, moduleObject)
+{
+   modules[name] = moduleObject;
+
+} // registerModule
+//----------------------------------------------------------------------------------------------------
+function getModuleNames()
+{
+   return(Object.getOwnPropertyNames(modules));
+
+} // getModuleNames
+//----------------------------------------------------------------------------------------------------
+function getModules()
+{
+   return modules;
+
+} // getModules
 //----------------------------------------------------------------------------------------------------
 // TODO: add 3rd argument: acceptsIncomingMessages
 //       datasets, for instance, seems to have no need for incoming json/websocket messages
@@ -152,7 +201,6 @@ function setupSocket(socket)
         } // socked.onopen
 
      socket.onmessage = function got_packet(msg) {
-        //console.log("=== Hub, socket.onmessage");
         var msg = JSON.parse(msg.data)
         dispatchMessage(msg)
         } // socket.onmessage, got_packet
@@ -199,8 +247,20 @@ function getOnDocumentReadyFunctions()
 
 } // getOnDocumentReadyFunctions
 //----------------------------------------------------------------------------------------------------
+// the nginx proxy server, used by fhcrc IT for the publicly-visible version of Oncoscape
+// times out web sockets at 90 seconds.
+// this function, when called more often that that, will keep the websocket open.
+keepAlive = function()
+{   
+    //console.log("keep alive"); 
+    msg = {cmd: "keepAlive", callback: "", status:"request", payload:""}
+    socket.send(JSON.stringify(msg));
+
+} // keepAlive
+//--------------------------------------------------------------------------------------------------
 function runOnDocumentReadyFunctions()
 {
+  setInterval(keepAlive, 10000);  // 10 seconds
   var funcs = getOnDocumentReadyFunctions()
   console.log("==== Module.hub: " + funcs.length + " onDocumentReadyFunctions");
 
@@ -263,7 +323,7 @@ function dispatchMessage(msg)
 {
    var cmd = msg.cmd;
    var status = msg.status;
-   //console.log("=============== dispatching '" + cmd + "'");
+   console.log("====== Mondule.hub dispatchMessage '" + cmd + "' [" + Date() + "]" );
 
    var dispatchKeys = Object.keys(dispatchOptions);
    var cmdIndex = dispatchKeys.indexOf(cmd);
@@ -287,9 +347,20 @@ function dispatchMessage(msg)
 
 }  // dispatchMessage
 //----------------------------------------------------------------------------------------------------
+function restrictMessagingToLogin(newState)
+{
+   messagingRestrictedToLogin = newState;
+
+} // restrictMessagingToLogin
+//----------------------------------------------------------------------------------------------------
 function send(msg)
 {
    var cmd = JSON.parse(msg).cmd;
+   if(messagingRestrictedToLogin && cmd === "checkPassword"){
+      console.log("hub.send drops non-login msg");
+      return;
+      }
+
    var browserLocalCommand = Object.keys(dispatchOptions).indexOf(cmd) >= 0;
    var mode = "server";
    if(browserLocalCommand)
@@ -352,6 +423,29 @@ function enableButton(button)
 
 } // enableButton
 //--------------------------------------------------------------------------------------------
+function disableAllTabsExcept(tabIDstring)
+{
+  if(typeof tabIDstring == "string") tabIDstring = [tabIDstring]
+  var allDivIDs = getTabDivIDs()
+  allDivIDs = allDivIDs.filter(function(i, id){ return(tabIDstring.indexOf(id) == -1) })
+  for(var i=0;i<allDivIDs.length; i++){  	disableTab(allDivIDs[i]) }
+  
+  return allDivIDs;  //returns divIDs that have been disabled
+  
+} // disableTab
+
+//--------------------------------------------------------------------------------------------
+function disableTab(tabIDstring)
+{
+  $( "#oncoscapeTabs" ).tabs( "disable", "#" + tabIDstring  )
+} // disableTab
+//--------------------------------------------------------------------------------------------
+function enableTab(tabIDstring)
+{
+  $( "#oncoscapeTabs" ).tabs( "enable", "#" + tabIDstring   )
+} // enableTab
+
+//--------------------------------------------------------------------------------------------
 // if jQuery-style tabs are in use with Oncoscape, this function raised the named tab to the
 // the front (visible) position in the tabset
 // the argument, "tabIDString" is the tab id used in the module's widget.html, reproduced exactly
@@ -370,6 +464,68 @@ function raiseTab(tabIDString)
      } // if tabs exist
 
 } // raiseTab
+//----------------------------------------------------------------------------------------------------
+// each of our tabs is a div, nested directly within $("oncoscapeTabs").  
+// this function returns an array of each of the div ids
+function getTabNames()
+{
+  var tabNames = $("#oncoscapeTabs").children()[0].textContent.trim().split("\n")
+  for (i=0;i< tabNames.length; i++){ tabNames[i] = tabNames[i].trim()}
+  tabNames =tabNames.filter(function(name){return name != ""})
+
+	return tabNames;
+
+} // getTabDivIDs
+//----------------------------------------------------------------------------------------------------
+// each of our tabs has a title within the $("oncoscapeTabs") nav bar
+// this function returns an array of each tab Title
+function getTabDivIDs()
+{
+   return ($("#oncoscapeTabs").children("div").map(function(index,dom){return dom.id}));
+
+} // getTabDivIDs
+//----------------------------------------------------------------------------------------------------
+// e.g., hub.hideTab("Login", "#loginDiv");
+function hideTab(tabTitle, tabDivIDstring)
+{
+  $(".ui-tabs-nav li:contains('" + tabTitle + "')").hide()
+  $(tabDivIDstring).hide();
+
+} // hideTab
+//----------------------------------------------------------------------------------------------------
+// e.g., hub.hideTabNav("Login");
+function hideTabNav(tabTitle)
+{
+  $(".ui-tabs-nav li:contains('" + tabTitle + "')").hide()
+
+} // hideTab
+//----------------------------------------------------------------------------------------------------
+function hideAllTabsButOne(tabTitle, tabDivIDstring)
+{
+  var divIDs = getTabDivIDs();
+  
+  $(".ui-tabs-nav li:contains('" + tabTitle + "')").hide()
+  $(tabDivIDstring).hide();
+
+} // hideAllTabsButOne
+//----------------------------------------------------------------------------------------------------
+function showTab(tabTitle, tabDivIDstring)
+{
+  $(".ui-tabs-nav li:contains('" + tabTitle + "')").show()
+  $(tabDivIDstring).show();
+
+} // showTab
+//----------------------------------------------------------------------------------------------------
+function addTab(tabTitle, tabDivIDstring,  content)
+{
+  var tabs = $("#oncoscapeTabs").tabs()
+  var listItem = "<li><a href='#" + tabDivIDstring + "}'>" + tabTitle + "</a>";
+
+  tabs.find(".ui-tabs-nav").append(listItem);
+  tabs.append("<div id='" + tabDivIDstring + "'><p>" + content + "</p></div>");
+  tabs.tabs("refresh");
+
+} // addTab
 //----------------------------------------------------------------------------------------------------
 function getRandomFloat (min, max)
 {
@@ -452,6 +608,7 @@ function start()
   setupGlobalExceptionHandler();
   initializeWebSocket();
   $(document).ready(runOnDocumentReadyFunctions);
+  QUnit.config.altertitle = false;
 
 }  // start
 //----------------------------------------------------------------------------------------------------
@@ -503,6 +660,9 @@ function standAloneTest()
 
   return({
      getName: function() {return(name)},
+     restrictMessagingToLogin: restrictMessagingToLogin,
+     registerModule: registerModule,
+     getModules: getModules,
      registerSelectionDestination: registerSelectionDestination,
      getRegisteredSelectionDestinations: getRegisteredSelectionDestinations,
      socketConnected: socketConnected,
@@ -520,13 +680,22 @@ function standAloneTest()
      configureSendSelectionMenu: configureSendSelectionMenu,
      enableButton: enableButton,
      disableButton: disableButton,
+     enableTab: enableTab,
+     disableTab: disableTab,
+     disableAllTabsExcept: disableAllTabsExcept,
      getRandomInt: getRandomInt,
      getRandomFloat: getRandomFloat,
      intersectionOfArrays: intersectionOfArrays,
      uniqueElementsOfArray: uniqueElementsOfArray,
      send: send,
      setTitle: setTitle,
+     getTabDivIDs: getTabDivIDs,
+     getTabNames: getTabNames,
      raiseTab: raiseTab,
+     hideTab: hideTab,
+     hideTabNav: hideTabNav,
+     showTab: showTab,
+     addTab: addTab,
      sat: standAloneTest,
      start: start
      });
@@ -537,34 +706,34 @@ function standAloneTest()
 
 var hub = HubModule();
 hub.start();
-
 hub.addOnDocumentReadyFunction(function() {
     console.log("====== tabapps document ready");
     window.tabsAppRunning = true
     $("#oncoscapeTabs").tabs({
          // todo: distinguish between tabs, only do needed resets
        activate: function(event, ui) {
+            console.log(" tabsApp/code.js:activate");
             var tableRef = $("#historyTable").dataTable();
             var tableRef2 = $("#userDataStoreTable").dataTable();
             if (tableRef.length > 0) {
                console.log("   adjusting patient history table");
                tableRef.fnAdjustColumnSizing();
-              } // if
+               } // if
             if (tableRef2.length > 0) {
-               console.log("   adjusting user data store table");
+               console.log("   skipping! - adjusting user data store table");
                tableRef2.fnAdjustColumnSizing();
-              } // if
+               } // if
             //console.log(" ==== tab.activate, possible cyjs resize and fit");
             if(typeof(cwMarkers) != "undefined") {
-               //console.log("adjusting cwMarkers");
+               console.log("adjusting cwMarkers");
                cwMarkers.resize(); 
                cwMarkers.fit(50);
                //console.log("done adjusting cwMarkers");
                }
-            if(typeof(cwGbm) != "undefined") {
+            if(typeof(cyGbm) != "undefined") {
                //console.log("adjusting cwGbm");
-               cwGbm.resize();
-               cwGbm.fit(50);
+               cyGbm.resize();
+               cyGbm.fit(50);
                //console.log("done adjusting cwGbm");
                }
             if(typeof(cwAngio) != "undefined") {
@@ -573,20 +742,17 @@ hub.addOnDocumentReadyFunction(function() {
                cwAngio.fit(50);
                //console.log("done adjusting cwGbm");
                }
+            if(typeof(cyPathway) != "undefined") {
+               cyPathway.resize();
+               cyPathway.fit(50);
+               }
             } // activate
         }); // tabs
     });  // ready
 
 
 
-</script>
 
-<style>
-.ui-tabs .ui-tabs-nav li a {font-size:10pt !important;}
-.ui-button .ui-button-text {font-size:10pt !important;}
-</style>
-
-<script>
 //----------------------------------------------------------------------------------------------------
 var DataSummaryModule = (function () {
 
@@ -605,6 +771,7 @@ var DataSummaryModule = (function () {
 
   var sendSelectionsMenu;
   var sendSelectionsMenuTitle = "Send selection...";
+  var passwordProtected = false;
 
 //----------------------------------------------------------------------------------------------------
 function initializeUI()
@@ -620,7 +787,7 @@ function initializeUI()
   datasetMenu.change(selectManifest);
 
   dataSetNamesOutputDiv = $("#dataSetNamesOutputDiv");
-  dataSummaryDiv = $("#dataSummaryDiv");
+  dataSummaryDiv = $("#dataSummaryOutputDiv");
 
   useThisDatasetButton = $("#selectDatasetButton");
   useThisDatasetButton.button();
@@ -629,13 +796,44 @@ function initializeUI()
 
   outputDiv = $("#dataSummaryOutputDiv");
   tableElement = $("#datasetsManifestTable");
+      
+    // if no login tab is present, then allow unrestricted choice of datasets.
+    // if it IS present, then that tab will control this.
+
+  var loginRequired = $("#loginDiv").length === 1;
+  console.log("loginRequired? " + loginRequired);
+
+  if(!loginRequired){
+    console.log(" enabling datasetMenu");
+    hub.enableButton($("#datasetMenu"));
+    }
+  else{
+    console.log(" disabling datasetMenu");
+    hub.disableButton($("#datasetMenu"));
+    }
+
+   if(hub.socketConnected())
+      populateDataSetMenu();
+   else
+     hub.addSocketConnectedFunction(populateDataSetMenu);
 
 } // initializeUI
 //----------------------------------------------------------------------------------------------------
+function postStatus(msg)
+{
+   $("#datasetsStatusDiv").text(msg);
+
+} // postStatus
+//----------------------------------------------------------------------------------------------------
 function handleWindowResize()
 {
-  dataSummaryDiv.width($(window).width() * 0.95);
-  dataSummaryDiv.height($(window).height() * 0.95);
+  $("#"+thisModulesOutermostDiv).width($(window).width() * 0.95);
+//  $("#"+thisModulesOutermostDiv).height($(window).height() * 0.95);
+
+//  console.log("  div: " + outputDiv.width());
+//  console.log("  tbl before: " + tableElement.width());
+//  tableElement.width($(window).width() * 0.50);
+//  console.log("  tbl after: " + tableElement.width());
 
 } // handleWindowResize
 //----------------------------------------------------------------------------------------------------
@@ -661,39 +859,38 @@ function selectManifest(event)
    console.log("dataset '" + selectedDataSet + "'");
 
    if(selectedDataSet === ""){
-      outputDiv.empty();
+      $("#datasetInstructions").css("display", "block")
+      $("#datasetsManifestTable").css("display", "none")
       hub.disableButton(useThisDatasetButton);
       }
-    else
+    else{
+      $("#datasetInstructions").css("display", "none")
+      $("#datasetsManifestTable").css("display", "block")      
       requestDataSetSummary(selectedDataSet);
+    }
 
 } // selectManifest
 //----------------------------------------------------------------------------------------------------
 function populateDataSetMenu()
 {
-   $(datasetMenu).ready(function() {
-      console.log("=== datasetMenu ready, now issuing populateDataSetMenu request to server");
-      var msg = {cmd: "getDataSetNames",  callback: "handleDataSetNames", status: "request", 
-                 payload: ""};
-      hub.send(JSON.stringify(msg));
-      });
+   console.log("Module.datasets, entering populateDataSetMenu");
 
-} // populateDataSetMenu
-//----------------------------------------------------------------------------------------------------
-function requestDataSetNames()
-{
-   console.log("=== requestDataSetNames");
-   var msg = {cmd: "getDataSetNames",  callback: "handleDataSetNames", status: "request", 
-              payload: ""};
+   console.log("      socket connected? " + hub.socketConnected());
+   console.log("=== datasetMenu ready, now issuing populateDataSetMenu request to server");
+   var msg = {cmd: "getDataSetNames",  callback: "handleDataSetNames", status: "request", payload: ""};
    hub.send(JSON.stringify(msg));
 
-} // requestDataSetNames
+} // populateDataSetMenu
 //----------------------------------------------------------------------------------------------------
 function handleDataSetNames(msg)
 {
    console.log("=== handleDataSetNames");
    
-   var dataSetNames = msg.payload;
+   var dataSetNames = msg.payload.datasets;
+   console.log("dataSetNames length: " + dataSetNames.length);
+   console.log("dataSetNames: " + JSON.stringify(dataSetNames));
+
+   var passwordProtected = msg.payload.passwordProtected;
 
    if(!Array.isArray(dataSetNames))
       dataSetNames = [dataSetNames];
@@ -702,6 +899,10 @@ function handleDataSetNames(msg)
       var s = dataSetNames[i];
       datasetMenu.append("<option value='" + s + "'>" + s + "</option>");
       }
+
+  //if(passwordProtected)
+  //   hub.disableButton($("#datasetMenu"));
+
 
 } // handleDataSetNames
 //----------------------------------------------------------------------------------------------------
@@ -735,11 +936,12 @@ function displayDataManifest(msg)
 
    $(tableElement).ready(function() {
       tableRef = tableElement.DataTable({
-        sDom: 't',
+        //sDom: 't',
         aoColumns: columnTitles,
-        scrollCollapse: true,
+        //scrollX: true,
         bPaginate: false,
         bFilter: false, 
+        bAutoWidth: true,
         bSort: false,
         bInfo: false
         }); // dataTable
@@ -767,13 +969,14 @@ function displayDataManifest(msg)
 
      handleWindowResize();
      hub.enableButton(useThisDatasetButton);
+     postStatus("manifest table displayed");
      }); // tableElement.ready
 
 } // displayDataManifest
 //----------------------------------------------------------------------------------------------------
 function specifyCurrentDataset()
 {
-   console.log("specifyCurrentDataset: " + selectedDataSet);
+   console.log("Module.datasets 'Use Dataset' button clicked, specifyCurrentDataset: " + selectedDataSet);
 
    var msg = {cmd: "specifyCurrentDataset",  callback: "datasetSpecified", 
               status: "request", payload: selectedDataSet};
@@ -788,21 +991,53 @@ function datasetSpecified(msg)
 
 } // datasetSpecified
 //----------------------------------------------------------------------------------------------------
+function test(dataSetName)
+{
+   console.log("Module.datasets test, on datasetName: '" + dataSetName + "'");
+
+   QUnit.test("choose dataset '" + dataSetName + "'", function(assert) {
+      hub.raiseTab("datasetsDiv");
+      var desiredDataset = dataSetName;
+      var dzNames = $("#datasetMenu option").map(function(opt){return this.value})
+
+      if($.inArray(desiredDataset, dzNames) < 0){
+         alert("cannot run tests:  " + desiredDataset + " dataset not loaded");
+         return;
+         }
+
+      $("#datasetMenu").val(desiredDataset)
+      $("#datasetMenu").trigger("change");
+
+      var done1 = assert.async();
+      var done2 = assert.async();
+      var done3 = assert.async();
+      assert.expect(3);
+
+      setTimeout(function(){
+         assert.equal($("#datasetMenu").val(), desiredDataset);  done1();
+         assert.ok($("#datasetsManifestTable tr").length >= 10); done2();
+         assert.equal($("#datasetsManifestTable tbody tr").eq(0).find("td").eq(0).text(), 
+                      "mRNA expression"); done3();
+         //testLoadPatientHistoryTable();
+         }, 5000);
+      });
+
+
+} // test
+//----------------------------------------------------------------------------------------------------
 function moduleInit()
 {
-
   hub.addOnDocumentReadyFunction(initializeUI);
-  // hub.registerSelectionDestination(thisModulesName, thisModulesOutermostDiv);
-  hub.addSocketConnectedFunction(populateDataSetMenu);
+  //hub.addSocketConnectedFunction(populateDataSetMenu);
   hub.addMessageHandler("handleDataSetNames", handleDataSetNames);
   hub.addMessageHandler("displayDataManifest", displayDataManifest);
   hub.addMessageHandler("datasetSpecified", datasetSpecified);
-  hub.setTitle("Datasets");
 
 } // moduleInit
 //----------------------------------------------------------------------------------------------------
 return{
-   init: moduleInit
+   init: moduleInit,
+   test: test
    }; // DataSummaryModule return value
 
 //----------------------------------------------------------------------------------------------------
@@ -810,7 +1045,7 @@ return{
 
 var dataSummaryModule = DataSummaryModule();
 dataSummaryModule.init();
-
+hub.registerModule("Datasets", dataSummaryModule);
 
 var plsrXXX;
 //----------------------------------------------------------------------------------------------------
@@ -818,6 +1053,7 @@ var PLSRModule = (function () {
 
   var plsrDisplay;
   var d3plsrDisplay;
+  var statusDiv; 
 
   var geneLoadings = [];
   var geneNames = [];
@@ -862,6 +1098,8 @@ function initializeUI ()
    plsrDisplay = $("#plsrDisplay");
    d3plsrDisplay = d3.select("#plsrDisplay");
 
+   statusDiv = $("#plsrStatusDiv");
+
    ageAtDxSlider = $("#plsrAgeAtDxSlider");
    ageAtDxMinSliderReadout = $("#plsrAgeAtDxMinSliderReadout");
    ageAtDxMaxSliderReadout = $("#plsrAgeAtDxMaxSliderReadout");
@@ -880,14 +1118,15 @@ function initializeUI ()
    clearSelectionButton = $("#plsrClearSelectionButton");
    clearSelectionButton.button();
    clearSelectionButton.click(clearSelection);
-
+   hub.disableButton(clearSelectionButton);
 
    sendSelectionMenu = hub.configureSendSelectionMenu("#plsrSendSelectionsMenu", 
                                                         selectionDestinationsOfferedHere,
                                                         sendSelections,
                                                         sendSelectionsMenuTitle);
    //hub.disableButton(sendSelectionMenu);
-   setupSliders();
+   
+   //setupSliders();
 
    testResultsOutputDiv = $("#plsrTestingOutputDiv");
 
@@ -921,10 +1160,17 @@ function getAgeAtDxAndSurvivalInputRanges()
 //----------------------------------------------------------------------------------------------
 function handleAgeAtDxAndSurvivalRanges(msg)
 {
-   ageAtDxMin = Math.floor(msg.payload.AgeDx[0])-1;
-   ageAtDxMax = Math.floor(msg.payload.AgeDx[4])+1;
-   survivalMin = Math.floor(msg.payload.Survival[0])-1;
-   survivalMax = Math.floor(msg.payload.Survival[4])+1;
+   console.log("=== Module.plsr, handleAgeAtDxAndSurvivalRanges");
+
+   ageAtDxMin = Math.floor(msg.payload.AgeDx[0]/365.24);
+   ageAtDxMax = Math.floor(msg.payload.AgeDx[4]/365.24);
+   survivalMin = Math.floor(msg.payload.Survival[0]/365.24);
+   survivalMax = Math.floor(msg.payload.Survival[4]/365.24);
+
+   //ageAtDxMin = Math.floor(msg.payload.AgeDx[0])-1;
+   //ageAtDxMax = Math.floor(msg.payload.AgeDx[4])+1;
+   //survivalMin = Math.floor(msg.payload.Survival[0])-1;
+   //survivalMax = Math.floor(msg.payload.Survival[4])+1;
    setupSliders();
 
      // now that sliders are set up, setup the geneSetName selector
@@ -949,14 +1195,12 @@ function sendSelections()
 //--------------------------------------------------------------------------------------------------
 function requestPLSRByOnsetAndSurvival()
 {
-  ageAtDxMinThreshold = Number(ageAtDxMinSliderReadout.val()); 
-  ageAtDxMaxThreshold = Number(ageAtDxMaxSliderReadout.val());
-  survivalMinThreshold = Number(survivalMinSliderReadout.val());
-  survivalMaxThreshold = Number(survivalMaxSliderReadout.val());
+  ageAtDxMinThreshold = Number(ageAtDxMinSliderReadout.val()) * 365.24;
+  ageAtDxMaxThreshold = Number(ageAtDxMaxSliderReadout.val()) * 365.24;
+  survivalMinThreshold = Number(survivalMinSliderReadout.val()) * 365.24; 
+  survivalMaxThreshold = Number(survivalMaxSliderReadout.val()) * 365.24;
 
   var currentGeneSetName = geneSetMenu.val();
-
-  //var genesOfInterest = ["ELL","EIF4A2","ELAVL2","UPF1","EGFR","PRPSAP2","TTPA","PIGP","TTN","UNC45A"];
 
   factor1 = {name: "AgeDx", 
              low: ageAtDxMinThreshold, 
@@ -1045,9 +1289,16 @@ function handlePlsrResults (msg)
    currentAbsoluteMaxValue = absMaxValue; // most recent max value, used for scaling
 
    svg = d3PlsrScatterPlot(geneLoadings, geneNames, vectors, vectorNames, absMaxValue);
+   postStatus("scatterplot complete");
 
 } // handlePlsrResults
 //--------------------------------------------------------------------------------------------
+function postStatus(msg)
+{
+  statusDiv.text(msg);
+
+} // postStatus
+//----------------------------------------------------------------------------------------------------
 function d3PlotBrushReader () {
 
   currentlySelectedRegion = d3brush.extent();
@@ -1172,7 +1423,7 @@ function d3PlsrScatterPlot(genes, geneNames, vectors, vectorNames, absMaxValue)
                          .text( function(v, i) {return vectorNames[i];})
                          .attr("text-anchor", "middle")
                          .style("fill", "black") ;
-     return(svg);
+   return(svg);
 
 } // d3PlsrScatterPlot
 //--------------------------------------------------------------------------------------------
@@ -1221,14 +1472,20 @@ function selectPoints(ids, clearIDs)
      .style("fill", "red")
      .duration(500);
 
+  hub.enableButton(clearSelectionButton);
+
 } // selectPoints
 //----------------------------------------------------------------------------------------------------
 function clearSelection()
 {
-   d3.selectAll("circle")
-     .classed("highlighted", false)
-     .attr("r", 3)
-     .style("fill", "gray");
+
+  d3.selectAll("circle")
+    .classed("highlighted", false)
+    .attr("r", 3);
+
+  d3brush.clear();
+  svg.selectAll('.brush').call(d3brush);
+  handleWindowResize();
 
 } // clearSelection
 //----------------------------------------------------------------------------------------------------
@@ -1277,29 +1534,10 @@ function handleGeneSetNames(msg)
    newNames = msg.payload;
    addGeneSetNamesToMenu(newNames);
    hub.enableButton(calculateButton);
+   postStatus("plsr ui now configured");
 
 } // handleGeneSetNames
 //--------------------------------------------------------------------------------------------
-function demoSetDataSet()
-{
-  msg = {cmd: "specifyCurrentDataset", callback: "specifyCurrentDatasetHandler", 
-         status: "request", payload: "TCGAgbm"};
-
-  hub.send(JSON.stringify(msg));
-
-    // if the callback gets a success message, the patient data will be queried on the 
-    // server to get mins and maxes for the slider
-
-} // demoSetDataSet
-//--------------------------------------------------------------------------------------------
-//function specifyCurrentDataSetHandler(msg)
-//{
-//   msg = {cmd: "summarizePLSRPatientAttributes",
-//          callback: "handleAgeAtDxAndSurvivalRanges",
-//          status: "request", payload: ["AgeDx", "Survival"]};
-//
-// } // specifyCurrentDataSetHandler
-//-------------------------------------------------------------------------------------------
 // when a dataset is specified, this module 
 //  1) extracts the name of the dataset from the payload of the incoming msg
 //  2) (for now) extracts the name of the matrices, from the manifest (also in the payload
@@ -1327,11 +1565,12 @@ function datasetSpecified(msg)
    var matrixName = null;
 
    if(hits.length > 0){
-        // for now always grab the first hit, remove the trailing .RData
+        // for now always grab the last hit, remove the trailing .RData
         // the PLSR constructor wants both dataPacakgeName & a matrix name
         // our convention is that the maniftest rowname is the same as
         // its name, with ".RData" appended
-      matrixName = hits[0].replace(".RData", "");
+      var lastHit = hits.length - 1;
+      matrixName = hits[lastHit].replace(".RData", "");
       }
    else{
       hub.disableButton(calculateButton);
@@ -1366,124 +1605,8 @@ function requestSliderRanges(msg)
 
 } // requestSliderRanges
 //--------------------------------------------------------------------------------------------
-// in normal use, the user will choose a dataset to analyze.
-// in standalone testing and demo mode, we have to do this first.
-//
-function demo()
-{
-   hub.raiseTab(thisModulesOutermostDiv);
-   hub.send(JSON.stringify({cmd: "specifyCurrentDataset",  callback: "datasetSpecified",
-                            status: "request", payload: "DEMOdz"}));
-
-} // demo
-//--------------------------------------------------------------------------------------------
-function runTests()
-{
-  // the test does not currently depend upon any other tabs, but we want to add some
-  // real world complexity to the situation, so we use tabs, including plsr (of course)
-  // and the usual introcutory "Datasets" tab.  make sure it is there
-  // tests depend upon the presence of 2 tabs in addition to the present one.
-
-  var datasetsTabPresent = $("#datasetsDiv").length > 0;
-
-  if(!datasetsTabPresent){
-     alert("Datasets tab needed for QUnit testing");
-     return;
-     } // check for other needed tabs
-
-   testResultsOutputDiv.css({display: "block"});
-   testLoadDataset();
-
-} // runTests
-//--------------------------------------------------------------------------------------------
-function testLoadDataset()
-{
-   QUnit.test('choose DEMOdz dataset', function(assert) {
-      hub.raiseTab("datasetsDiv");
-      var desiredDataset = "DEMOdz";
-      var dzNames = $("#datasetMenu option").map(function(opt){return this.value;});
-
-      if($.inArray(desiredDataset, dzNames) < 0){
-         alert("cannot run tests:  " + desiredDataset + " dataset not loaded");
-         return;
-         }
-
-      $("#datasetMenu").val(desiredDataset);
-      $("#datasetMenu").trigger("change");
-
-      var done1 = assert.async();
-      var done2 = assert.async();
-      var done3 = assert.async();
-      assert.expect(3);
-
-      setTimeout(function(){
-         assert.equal($("#datasetMenu").val(), desiredDataset);  done1();
-         assert.ok($("#datasetsManifestTable tr").length >= 10); done2();
-         assert.equal($("#datasetsManifestTable tbody tr").eq(0).find("td").eq(0).text(), 
-                      "mRNA expression"); done3();
-         $("#selectDatasetButton").click();
-         hub.raiseTab(thisModulesOutermostDiv);
-         testCalculate();
-         }, 5000);
-      });
-
-} // testLoadDataset
-//----------------------------------------------------------------------------------------------------
-function testCalculate()
-{
-   hub.raiseTab(thisModulesOutermostDiv);
-   console.log("starting testCalculate");
-
-     // enable the calculate button
-     // change its color
-     // wait 6 seconds to be sure slider mins and maxes and geneset are all in place
-     // then click the calculate button
-   QUnit.test('testPlsrCalculate', function(assert) {
-      $("#plsrCalculateButton").prop("disabled", false);
-      $("#plsrCalculateButton").css({"background-color": "red", "color": "green"});
-      assert.expect(0);   // tests (assertions) in next function, testContentsOfPlsrPlot
-      setTimeout(function(){
-         $("#plsrCalculateButton").click();
-         testContentsOfPlsrPlot();
-         }, 6000);
-      });
-
-} // testCalculate
-//----------------------------------------------------------------------------------------------------
-function testContentsOfPlsrPlot()
-{
-   console.log("--- testContentsOfPlsrPlot");
-
-      // wait 5 seconds
-      // make sure there are the right number of circles
-      // check the coordinates of two, selected arbitrarily
-   QUnit.test('testPlsrContents', function(assert) {
-      assert.expect(5);
-      var done1 = assert.async();
-      var done2 = assert.async();
-      var done3 = assert.async();
-      var done4 = assert.async();
-      var done5 = assert.async();
-      setTimeout(function(){
-         assert.equal($("circle").length, 40); done1();
-         var c0 = $("circle")[0];
-         var xPos = Number(c0.getAttribute("cx"));
-         var yPos =  Number(c0.getAttribute("cy"));
-         var radius = Number(c0.getAttribute("r"));
-         console.log(xPos + "  " + yPos + "  " + radius);
-         assert.equal(c0.innerHTML, "PRRX1"); done2();
-         assert.ok(xPos > 0); done3();
-         assert.ok(yPos > 0); done4();
-         assert.equal(radius, 3); done5();
-         }, 5000);
-      });
-
-
-} // testContentsOfPlsrPlot
-//----------------------------------------------------------------------------------------------------
 // query the oncoscape server for user id.  the callback then makes a local (that is,
 // Module-specific) decision to run this module's automated tests based upon that id
-//
 function runAutomatedTestsIfAppropriate()
 {
    var msg = {cmd: "getUserId",  callback: "plsrAssessUserIdForTesting",
@@ -1499,8 +1622,8 @@ function assessUserIdForTesting(msg)
 
    if(userID.indexOf("autoTest") === 0){
       console.log("plsr/Module.js running tests for user " + userID);
-      for(var i=0; i < 3; i++)
-          runTests();
+      var plsrTester = PlsrTestModule();
+      plsrTester.run();
       } // if autoTest
 
 } // assessUserIdForTesting
@@ -1516,14 +1639,12 @@ function initializeModule()
    hub.addMessageHandler("sendSelectionTo_PLSR (highlight)", highlightGenes);
    hub.addMessageHandler("plsrObjectCreated", requestSliderRanges);
    hub.addMessageHandler("plsrAssessUserIdForTesting", assessUserIdForTesting);
-   hub.setTitle("PLSR");
    hub.addSocketConnectedFunction(runAutomatedTestsIfAppropriate);
 
 } // initializeModule
 //--------------------------------------------------------------------------------------------
 return{
    init: initializeModule,
-   demo: demo
    };
 
 }); // PLSRModule
@@ -1531,30 +1652,171 @@ return{
 plsr = PLSRModule();
 plsr.init();
 
+//----------------------------------------------------------------------------------------------------
+// observers used in QUnit testing
+
+var PlsrTestModule = (function (){
+
+   var plsrStatusObserver = null;
+
+//--------------------------------------------------------------------------------------------
+runTests = function()
+{
+   console.log("starting PlsrTestModule runTests");
+   testLoadDataSetAndConfigure();
+
+}; // runTests
+//--------------------------------------------------------------------------------------------
+function testLoadDataSetAndConfigure()
+{
+   var testTitle = "testLoadDataSetConfigure";
+   console.log(testTitle);
+     
+      // when our module receives the resulting 'datasetSpecified' msg, which includes 
+      // the dataset's manifest in its payload, it requests patient ageAtDz and
+      // survival mins and maxes and sets up sliders in the ui.  the 
+      // geneset pulldown menu is also populated, and a default value selected
+      // no user selection (of points in the display) is possible, so the
+      // clear selection button should not yet be active.
+      // check all these things, then testCalculateAndDisplayPLSR.
+
+   if(plsrStatusObserver === null){
+      plsrStatusObserver = new MutationObserver(function(mutations) {
+        console.log("in testLoadDataSet observer");
+        hub.raiseTab("plsrDiv");
+        mutation = mutations[0];
+        plsrStatusObserver.disconnect();
+        plsrStatusObserver = null;
+        var id = mutation.target.id;
+        var msg = $("#plsrStatusDiv").text();
+        QUnit.test("plsr dataset loaded", function(assert) {
+          assert.equal($("#plsrAgeAtDxMinSliderReadout").text(), "45");
+          assert.equal($("#plsrAgeAtDxMaxSliderReadout").text(), "66");
+          assert.equal($("#plsrSurvivalMinSliderReadout").text(), "3");
+          assert.equal($("#plsrSurvivalMaxSliderReadout").text(), "7");
+          assert.equal($("#plsrGeneSetSelector").val(), "random.40");
+          assert.equal($("#plsrClearSelectionButton").prop("disabled"), true);
+          testCalculateAndDisplayPLSR();
+          });
+        }); // new MutationObserver
+      } // if null mutation observer
+
+   var config = {attributes: true, childList: true, characterData: true};
+   var target = document.querySelector("#plsrStatusDiv");
+   plsrStatusObserver.observe(target, config);
+
+     // we could use the datasets tab menu to select the dataset, then click the button.
+     // easier and quite adequate for our purposes here, however, is to simply send out the message which
+     // these ui actions create
+
+   var msg = {cmd: "specifyCurrentDataset", callback: "datasetSpecified", status: "request", payload: "DEMOdz"};
+   hub.send(JSON.stringify(msg));
+
+} // testLoadDataSetAndConfigure
+//------------------------------------------------------------------------------------------------------------------------
+testCalculateAndDisplayPLSR = function()
+{
+  var testTitle = "testCalculateAndDisplayPLSR";
+  console.log(testTitle);
+
+     // use default settings of the two sliders
+
+  $("#plsrCalculateButton").trigger("click");
+ 
+  if(plsrStatusObserver === null){
+     plsrStatusObserver = new MutationObserver(function(mutations) {
+        mutation = mutations[0];
+        plsrStatusObserver.disconnect();
+        plsrStatusObserver = null;
+        var id = mutation.target.id;
+        var msg = $("#plsrStatusDiv").text();
+        QUnit.test("plsr loaded", function(assert) {
+           var c0 = $("circle")[0];
+           var geneName = c0.innerHTML;
+           assert.ok(geneName == "PRRX1");
+           var xPos = Number(c0.getAttribute("cx"));
+           var yPos =  Number(c0.getAttribute("cy"));
+           var radius = Number(c0.getAttribute("r"));
+           assert.ok(xPos > 0);
+           assert.ok(yPos > 0);
+           assert.ok(radius > 0);
+           var axisLines = $(".line");
+          assert.equal(axisLines.length, 4);
+          for(var i=0; i < 4; i++){
+             var x1 = Number($(".line")[i].getAttribute("x1"));
+             var x2 = Number($(".line")[i].getAttribute("x2"));
+             var y1 = Number($(".line")[i].getAttribute("y1"));
+             var y2 = Number($(".line")[i].getAttribute("y2"));
+             var axisLength = Math.sqrt(Math.pow(x2-x1,2) + Math.pow(y2-y1,2));
+             console.log("extent for axis " + i + ": " + axisLength);
+             assert.ok(axisLength > 10);
+             } // for i
+           }); // QUnit.test
+         }); // new MutationObserver
+      } // if null mutation observer
+
+   var config = {attributes: true, childList: true, characterData: true};
+   var target = document.querySelector("#plsrStatusDiv");
+   plsrStatusObserver.observe(target, config);
+
+}; // testCalculateAndDisplayPLSR
+//-------------------------------------------------------------------------------------------
+showTests = function()
+{
+   $("#qunit").css({"display": "block"});
+
+}; // showTests
+//------------------------------------------------------------------------------------------------------------------------
+hideTests = function()
+{
+   $("#qunit").css({"display": "none"});
+
+}; // hide
+//------------------------------------------------------------------------------------------------------------------------
+return{
+   run: runTests,
+   show: showTests,
+   hide: hideTests
+   }; // PlsrTestModule return value
+
+//----------------------------------------------------------------------------------------------------
+}); // PlsrTestModule
+
+
+plsrTest = PlsrTestModule();
+
+
 </script>
 
 <body>
+
+  <div id="qunit" style="display:none"></div>
+  <div id="qunit-fixture"></div>
 
 <div id="oncoscapeTabs">
    <ul>
      <li><a href="#datasetsDiv">Datasets</a></li>
      <li><a href="#plsrDiv">PLSR</a></li>
    </ul>
+<style>
+</style>
 
-<div id="datasetsDiv">
-
+<div id="datasetsDiv" style="height:auto">
+  <div id="datasetsStatusDiv" style="display:none"></div>
   <div id="dataSummaryControlsDiv">
      <span id="selectDataSetMenuLabel" style="margin-left: 20px;">Available Datasets</span>
      <select type="button" id="datasetMenu" style="margin: 5px;"><option> </option></select>
      <button id="selectDatasetButton">Use Dataset</button>
+	 <span id="loadingDatasetMessage" style="display:none; margin-left:10px">Loading Dataset...</span>
      <select type="button" id="datasetsSendSelectionsMenu" style="float:right; margin:15px; display: none"></select>
+    <div id="oncoscapeLogo" style="float:right; margin-right:0.5em">	<img width="175" src="http://oncoscape.sttrcancer.org/oncoscape/images/oncoscape_logo_TM.png" alt="Oncoscape"/></div>
   </div>
 
    <div id="dataSetNamesOutputDiv" style="margin: 20px;"></div>
 
-   <div id="dataSummaryOutputDiv" style="margin: 20px;">
-      <table id="datasetsManifestTable" cellpadding="0" cellspacing="0" 
-             margin-left="0" border="1" class="display"></table>
+   <div id="dataSummaryOutputDiv" style="margin: 20px;overflow-x:auto">
+      <div id="datasetInstructions">Please select a dataset from the above menu.</div>
+      <table id="datasetsManifestTable" class="display" cellpadding="0" cellspacing="0" style="margin:0px; width:auto; display:none; border:none"></table>
    </div>
 </div>
 
@@ -1648,7 +1910,7 @@ background:#ABD3E8;
 
 
 <div id="plsrDiv" style="padding:0px; padding-top: 5px;">
-
+   <div id="plsrStatusDiv" style="display:none"></div>
    <div id="plsrControlsDiv" class="flex-container">
 
           <div id="plsrAgeSliderDiv" style="display: inline-block; margin-top: 3px; margin-right: 20px; width:250px;">
@@ -1680,26 +1942,18 @@ background:#ABD3E8;
        <div id="plsrCalculateButtonDiv" class="flex-container" style="margin-right: auto; margin-top:15px;">
           <button id="plsrClearSelectionButton" style="height:50px;">Clear<br>Selection</button>
           <button id="plsrCalculateButton" style="height:50px;">Calculate</button>
-          <select id="plsrGeneSetSelector" style="height:20px; margin-top:15px; margin-left:3px;" class="navbar-form selectpicker" ></select>
+          <select class="SelectionMenu" id="plsrGeneSetSelector" style="height:20px; margin-top:15px; margin-left:3px;" class="navbar-form selectpicker" ></select>
        </div>
       <div id="plsrSendSelectionsMenuDiv" style="margin-right:10px; margin-top: 25px;">
-         <select id="plsrSendSelectionsMenu" type="button" style="margin-top: 7px;"></select>
+         <select class="SelectionMenu" id="plsrSendSelectionsMenu" type="button" style="margin-top: 7px;"></select>
       </div>
   </div>
  
-  <div id="plsrTestingOutputDiv" style="display: none">
-     <div id="qunit"></div>
-     <div id="qunit-fixture"></div>
-  </div>
-
   <div id="plsrDisplay" style="margin:0 auto"></div>
 
 </div>
 
-
 </div>
-
-
 
 </body>
 </html>
