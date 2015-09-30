@@ -3,6 +3,8 @@
 
 <head>
    <meta charset="UTF-8">
+   <meta property="og:title" content="Oncoscape" />
+
    <title> OncoDev 1.4</title>
 
    <script src="http://code.jquery.com/qunit/qunit-1.18.0.js"></script>
@@ -39,6 +41,9 @@
    <script src="http://oncoscape.sttrcancer.org/oncoscape/js/chosen.jquery.min.js" type="text/javascript"></script>
    <link href="http://oncoscape.sttrcancer.org/oncoscape/css/chosen.min.css" media="screen" rel="stylesheet" type="text/css">
 
+    <link rel="SHORTCUT ICON" type="image/x-icon" href="http://oncoscape.sttrcancer.org/oncoscape/images/favicon.ico"/>
+    <link rel="ICON" type="image/x-icon" href="http://oncoscape.sttrcancer.org/oncoscape/images/favicon.ico"/>
+
 
 <script> 
 //--------------------------------------------------------------------------------------------------
@@ -53,5 +58,24 @@
   ga('send', 'pageview');
 //--------------------------------------------------------------------------------------------------
 </script> 
+
+<script>
+navigator.sayswho= (function(){
+    var ua= navigator.userAgent, tem,
+    M= ua.match(/(opera|chrome|safari|firefox|msie|trident(?=\/))\/?\s*(\d+)/i) || [];
+    if(/trident/i.test(M[1])){
+        tem=  /\brv[ :]+(\d+)/g.exec(ua) || [];
+        return 'IE '+(tem[1] || '');
+    }
+    if(M[1]!== 'Chrome'){
+       alert("Oncoscape is currently developed and tested under Chrome.  For best results, please use Chrome version 45.0 and later.")
+        tem= ua.match(/\b(OPR|Edge)\/(\d+)/);
+        if(tem!= null) return tem.slice(1).join(' ').replace('OPR', 'Opera');
+    }
+    M= M[2]? [M[1], M[2]]: [navigator.appName, navigator.appVersion, '-?'];
+    if((tem= ua.match(/version\/(\d+)/i))!= null) M.splice(1, 1, tem[1]);
+    return M.join(' ');
+})();
+</script>
 
 </head>

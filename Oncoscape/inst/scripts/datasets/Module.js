@@ -73,7 +73,7 @@ function postStatus(msg)
 function handleWindowResize()
 {
   $("#"+thisModulesOutermostDiv).width($(window).width() * 0.95);
-  $("#"+thisModulesOutermostDiv).height($(window).height() * 0.95);
+//  $("#"+thisModulesOutermostDiv).height($(window).height() * 0.95);
 
 //  console.log("  div: " + outputDiv.width());
 //  console.log("  tbl before: " + tableElement.width());

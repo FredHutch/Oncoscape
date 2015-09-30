@@ -134,7 +134,6 @@ keepAlive = function()
 function runOnDocumentReadyFunctions()
 {
   setInterval(keepAlive, 10000);  // 10 seconds
-
   var funcs = getOnDocumentReadyFunctions()
   console.log("==== Module.hub: " + funcs.length + " onDocumentReadyFunctions");
 
@@ -482,6 +481,7 @@ function start()
   setupGlobalExceptionHandler();
   initializeWebSocket();
   $(document).ready(runOnDocumentReadyFunctions);
+  QUnit.config.altertitle = false;
 
 }  // start
 //----------------------------------------------------------------------------------------------------
