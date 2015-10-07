@@ -206,7 +206,7 @@ function setupSocket(socket)
         } // socket.onmessage, got_packet
 
      socket.onclose = function(){
-        console.log("socket closing");
+        alert("Web socket connection to server has closed");
         } // socket.onclose
      } // try
   catch(exception) {
@@ -728,8 +728,9 @@ hub.addOnDocumentReadyFunction(function() {
             if(typeof(cwMarkers) != "undefined") {
                console.log("adjusting cwMarkers");
                cwMarkers.resize(); 
+               console.log("after resize");
                cwMarkers.fit(50);
-               //console.log("done adjusting cwMarkers");
+               console.log("done adjusting cwMarkers");
                }
             if(typeof(cyGbm) != "undefined") {
                //console.log("adjusting cwGbm");
@@ -1049,10 +1050,9 @@ hub.registerModule("Datasets", dataSummaryModule);
 
 //----------------------------------------------------------------------------------------------------
 // move these all back inside module scope when debugging is done
+
 var cwMarkers;
-var XXX;
-var nodeRestriction = [];
-var subSelectButton;
+var markersTester;
 
 //----------------------------------------------------------------------------------------------------
 var markersAndTissuesModule = (function () {
@@ -1061,6 +1061,8 @@ var markersAndTissuesModule = (function () {
   var cyDiv;
   var searchBox;
   var hideEdgesButton, showEdgesButton, showAllEdgesButton, clearSelectionButton, sfnButton;
+  var nodeRestriction = [];
+  var subSelectButton;
   var helpButton;
   var infoMenu;
   var edgeTypeSelector;
@@ -1288,16 +1290,6 @@ function configureCytoscape ()
          mouseOverReadout.val(msg);
          });
 
-      //cwMarkers.on('select', 'node', function(evt){
-      //   console.log("cwMarkers.on('select', 'node')");
-      //   var disable = selectedNodeIDs(cwMarkers).length == 0;
-      //   sendSelectionsMenu.attr("disabled", disable);
-      //   })
-      //cwMarkers.on('unselect', 'node', function(evt){
-      //   var disable = selectedNodeIDs(cwMarkers).length == 0;
-      //   sendSelectionsMenu.attr("disabled", disable);
-      //   })
-
       cwMarkers.filter("edge[edgeType='chromosome']").style({"curve-style": "bezier"});
       cwMarkers.filter("edge[edgeType='chromosome']").show();
       searchBox.keydown(doSearch);
@@ -1308,6 +1300,7 @@ function configureCytoscape ()
       cwMarkers.edges().selectify(); // this seems to hold through session, visibility notwithstanding
       //hideAllEdges();
       configureLayoutsMenu(layoutMenu);
+      cwMarkers.fit(50);
       }, // cy.ready
      }) // .cytoscape
     .cytoscapePanzoom({ });   // need to learn about options
@@ -1699,12 +1692,14 @@ function showEdgesFromSelectedNodes()
 //----------------------------------------------------------------------------------------------------
 function selectSourceAndTargetNodesOfEdges(cw, edges)
 {
-  var edgesVisible = cwMarkers.filter('edge:visible').length;
+  //var eoi = cwMarkers.filter('edge:visible');
+  var notChromosomal = function(edge){return(edge.data("edgeType") !== "chromosome");};
+  eoi = edges.filterFn(notChromosomal);
 
   var filterStrings = [];
 
-  for(var i=0; i < edges.length; i++){
-     edge = edges[i];
+  for(var i=0; i < eoi.length; i++){
+     edge = eoi[i];
      targetID = edge.target().data("id");
      sourceID = edge.source().data("id");
      var sourceFilterString = '[id="' + sourceID + '"]';
@@ -2092,11 +2087,7 @@ function gbmLggDzSpecificTests()
 // Module-specific) decision to run this module's automated tests based upon that id
 function runAutomatedTestsIfAppropriate()
 {
-   console.log("Module.markers, runAutomatedTestsIfAppropriate");
-
-   var msg = {cmd: "getUserId",  callback: "markersAssessUserIdForTesting",
-              status: "request", payload: ""};
-
+   var msg = {cmd: "getUserId",  callback: "markersAssessUserIdForTesting", status: "request", payload: ""};
    hub.send(JSON.stringify(msg));
 
 } // runAutomatedTestsIfAppropriate
@@ -2110,9 +2101,7 @@ function assessUserIdForTesting(msg)
    
    if(userID.indexOf("autotest") === 0){
       console.log("markersAndSamples/Module.js running tests for user " + userID);
-      mast = MarkersAndSamplesTestModule();
-      mast.show();
-      mast.run();
+      markersTester.run();
       }
 
 } // assessUserIdForTesting
@@ -2138,19 +2127,142 @@ markersModule = markersAndTissuesModule();
 markersModule.init();
 
 
+// markersAndSamples/Test.js
+//------------------------------------------------------------------------------------------------------------------------
+var MarkersAndSamplesTestModule = (function () {
+
+    var markersAndSamplesStatusObserver = null;
+
+//------------------------------------------------------------------------------------------------------------------------
+function runTests(show)
+{
+   if(show) showTests();
+
+   testLoadDataSetDisplayNetwork();
+
+} // runTests
+//------------------------------------------------------------------------------------------------------------------------
+function showTests()
+{
+   hub.raiseTab("markersTestDiv");
+
+  // $("#qunit").css({"display": "block"});
+
+} // showTests
+//------------------------------------------------------------------------------------------------------------------------
+function hideTests()
+{
+   $("#qunit").css({"display": "none"});
+
+} // hide
+//------------------------------------------------------------------------------------------------------------------------
+function testLoadDataSetDisplayNetwork()
+{
+   var testTitle = "testLoadDataSetDisplayNetwork";
+   console.log(testTitle);
+     
+
+      // when our module receives the resulting 'datasetSpecified' msg, which includes the dataset's manifest
+      // in its payload, it requests 
+      //   - the markers network: to be displayed by cyjs
+      //   - sampleCategorizationNames, to popbulate the dropdeon menu
+      // when the network is loaded, the statusDiv is updated, which is detected here, and we
+      // check to see that a reasonable number of nodes are contained in the loaded graph.
+      // when those tests are over, we then cascade through a number of gui operations: search, node selections
+      // network operations
+
+   if(markersAndSamplesStatusObserver === null){
+      markersAndSamplesStatusObserver = new MutationObserver(function(mutations) {
+        hub.raiseTab("markersAndPatientsDiv");
+        mutation = mutations[0];
+        markersAndSamplesStatusObserver.disconnect();
+        markersAndSamplesStatusObserver = null;
+        var id = mutation.target.id;
+        var msg = $("#markersAndSamplesStatusDiv").text();
+        QUnit.test("markersAndSamples loaded", function(assert) {
+           var nodeCount = cwMarkers.nodes().length;
+           var edgeCount = cwMarkers.edges().length;
+           console.log("markersAndSamples loaded, with " + nodeCount + " nodes and " + edgeCount + " edges.");
+           assert.ok(nodeCount > 10);
+           assert.ok(edgeCount > 10);
+           testSearch();
+           });
+        }); // new MutationObserver
+      } // if null mutation observer
+
+
+   var config = {attributes: true, childList: true, characterData: true};
+   var target = document.querySelector("#markersAndPatientsStatusDiv");
+   markersAndSamplesStatusObserver.observe(target, config);
+
+   var msg = {cmd: "specifyCurrentDataset", callback: "datasetSpecified", status: "request", payload: "DEMOdz"};
+   hub.send(JSON.stringify(msg));
+
+} // testLoadDataSetThenProceed
+//------------------------------------------------------------------------------------------------------------------------
+function testSearch()
+{
+   console.log("--- Test.markers testSearch");
+   var gene = "EGFR";
+   var searchBox = $("#markersAndTissuesSearchBox");
+   var netOpsMenu = $("#cyMarkersOperationsMenu");
+
+   QUnit.test("markers testSearch", function(assert){
+     netOpsMenu.val("Hide All Edges");
+     netOpsMenu.trigger("change");
+     assert.equal(cwMarkers.filter("node:selected").length, 0);
+     searchBox.val(gene);
+     searchBox.trigger(jQuery.Event("keydown", {which: 13}));
+     assert.equal(cwMarkers.filter("node:selected").length, 1);
+     netOpsMenu.val("Show Edges from Selected Nodes");
+     netOpsMenu.trigger("change");
+     netOpsMenu.val("Select All Connected Nodes");
+     netOpsMenu.trigger("change");
+     console.log("about to check for 10 selected nodes");
+     assert.equal(cwMarkers.filter("node:selected").length, 9);
+     //displayTestResults();
+     });
+
+}  // testSearch
+//------------------------------------------------------------------------------------------------------------------------
+//function displayTestResults()
+//{
+//   console.log("displayTestResults, about to raise");
+//   hub.raiseTab("markersTestDiv");
+//   console.log("displayTestResults, after raise");
+//
+//} // displayTestResults
+//------------------------------------------------------------------------------------------------------------------------
+function initialize()
+{
+   console.log("--- initializing markersAndSamples/Test.js");
+
+} // initialize
+//------------------------------------------------------------------------------------------------------------------------
+return{
+   init: initialize,
+   run: runTests,
+   show: showTests,
+   hide: hideTests
+   }; // module return value
+
+//------------------------------------------------------------------------------------------------------------------------
+}); // MarkersAndSamplesTestModule
+markersTester = MarkersAndSamplesTestModule();
+
+
 
 </script>
 
 <body>
 
-  <div id="qunit" style="display:none"></div>
-  <div id="qunit-fixture"></div>
-
 <div id="oncoscapeTabs">
    <ul>
      <li><a href="#datasetsDiv">Datasets</a></li>
      <li><a href="#markersAndPatientsDiv">Markers</a></li>
+     <li><a href="#markersTestDiv">Tests</a></li>
    </ul>
+
 <style>
 </style>
 
@@ -2288,6 +2400,13 @@ display: initial !important;
 
 </div>
 
+
+
+
+<div id="markersTestDiv">
+  <div id="qunit" style="display:block"></div>
+  <div id="qunit-fixture"></div>
+</div>
 
 
 

@@ -9,13 +9,15 @@ function runTests(show)
 {
    if(show) showTests();
 
-   testLoadDataSetThenProceed();
+   testLoadDataSetDisplayNetwork();
 
 } // runTests
 //------------------------------------------------------------------------------------------------------------------------
 function showTests()
 {
-   $("#qunit").css({"display": "block"});
+   hub.raiseTab("markersTestDiv");
+
+  // $("#qunit").css({"display": "block"});
 
 } // showTests
 //------------------------------------------------------------------------------------------------------------------------
@@ -25,16 +27,11 @@ function hideTests()
 
 } // hide
 //------------------------------------------------------------------------------------------------------------------------
-function testLoadDataSetThenProceed()
+function testLoadDataSetDisplayNetwork()
 {
-   var testTitle = "testLoadDataSet";
+   var testTitle = "testLoadDataSetDisplayNetwork";
    console.log(testTitle);
      
-     // we could use the datasets tab menu to select the dataset, then click the button.
-     // easier and quite adequate for our purposes here, however, is to simply send out the message which
-     // these ui actions create
-
-   var msg = {cmd: "specifyCurrentDataset", callback: "datasetSpecified", status: "request", payload: "DEMOdz"};
 
       // when our module receives the resulting 'datasetSpecified' msg, which includes the dataset's manifest
       // in its payload, it requests 
@@ -59,16 +56,17 @@ function testLoadDataSetThenProceed()
            console.log("markersAndSamples loaded, with " + nodeCount + " nodes and " + edgeCount + " edges.");
            assert.ok(nodeCount > 10);
            assert.ok(edgeCount > 10);
-
            testSearch();
            });
         }); // new MutationObserver
       } // if null mutation observer
 
+
    var config = {attributes: true, childList: true, characterData: true};
    var target = document.querySelector("#markersAndPatientsStatusDiv");
    markersAndSamplesStatusObserver.observe(target, config);
 
+   var msg = {cmd: "specifyCurrentDataset", callback: "datasetSpecified", status: "request", payload: "DEMOdz"};
    hub.send(JSON.stringify(msg));
 
 } // testLoadDataSetThenProceed
@@ -92,10 +90,19 @@ function testSearch()
      netOpsMenu.val("Select All Connected Nodes");
      netOpsMenu.trigger("change");
      console.log("about to check for 10 selected nodes");
-     assert.equal(cwMarkers.filter("node:selected").length, 10);
+     assert.equal(cwMarkers.filter("node:selected").length, 9);
+     //displayTestResults();
      });
 
 }  // testSearch
+//------------------------------------------------------------------------------------------------------------------------
+//function displayTestResults()
+//{
+//   console.log("displayTestResults, about to raise");
+//   hub.raiseTab("markersTestDiv");
+//   console.log("displayTestResults, after raise");
+//
+//} // displayTestResults
 //------------------------------------------------------------------------------------------------------------------------
 function initialize()
 {
@@ -112,5 +119,5 @@ return{
 
 //------------------------------------------------------------------------------------------------------------------------
 }); // MarkersAndSamplesTestModule
-//mast = MarkersAndSamplesTestModule();
+markersTester = MarkersAndSamplesTestModule();
 

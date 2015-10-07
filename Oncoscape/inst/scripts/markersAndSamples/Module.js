@@ -1,9 +1,8 @@
 //----------------------------------------------------------------------------------------------------
 // move these all back inside module scope when debugging is done
+
 var cwMarkers;
-var XXX;
-var nodeRestriction = [];
-var subSelectButton;
+var markersTester;
 
 //----------------------------------------------------------------------------------------------------
 var markersAndTissuesModule = (function () {
@@ -12,6 +11,8 @@ var markersAndTissuesModule = (function () {
   var cyDiv;
   var searchBox;
   var hideEdgesButton, showEdgesButton, showAllEdgesButton, clearSelectionButton, sfnButton;
+  var nodeRestriction = [];
+  var subSelectButton;
   var helpButton;
   var infoMenu;
   var edgeTypeSelector;
@@ -239,16 +240,6 @@ function configureCytoscape ()
          mouseOverReadout.val(msg);
          });
 
-      //cwMarkers.on('select', 'node', function(evt){
-      //   console.log("cwMarkers.on('select', 'node')");
-      //   var disable = selectedNodeIDs(cwMarkers).length == 0;
-      //   sendSelectionsMenu.attr("disabled", disable);
-      //   })
-      //cwMarkers.on('unselect', 'node', function(evt){
-      //   var disable = selectedNodeIDs(cwMarkers).length == 0;
-      //   sendSelectionsMenu.attr("disabled", disable);
-      //   })
-
       cwMarkers.filter("edge[edgeType='chromosome']").style({"curve-style": "bezier"});
       cwMarkers.filter("edge[edgeType='chromosome']").show();
       searchBox.keydown(doSearch);
@@ -259,6 +250,7 @@ function configureCytoscape ()
       cwMarkers.edges().selectify(); // this seems to hold through session, visibility notwithstanding
       //hideAllEdges();
       configureLayoutsMenu(layoutMenu);
+      cwMarkers.fit(50);
       }, // cy.ready
      }) // .cytoscape
     .cytoscapePanzoom({ });   // need to learn about options
@@ -650,12 +642,14 @@ function showEdgesFromSelectedNodes()
 //----------------------------------------------------------------------------------------------------
 function selectSourceAndTargetNodesOfEdges(cw, edges)
 {
-  var edgesVisible = cwMarkers.filter('edge:visible').length;
+  //var eoi = cwMarkers.filter('edge:visible');
+  var notChromosomal = function(edge){return(edge.data("edgeType") !== "chromosome");};
+  eoi = edges.filterFn(notChromosomal);
 
   var filterStrings = [];
 
-  for(var i=0; i < edges.length; i++){
-     edge = edges[i];
+  for(var i=0; i < eoi.length; i++){
+     edge = eoi[i];
      targetID = edge.target().data("id");
      sourceID = edge.source().data("id");
      var sourceFilterString = '[id="' + sourceID + '"]';
@@ -1043,11 +1037,7 @@ function gbmLggDzSpecificTests()
 // Module-specific) decision to run this module's automated tests based upon that id
 function runAutomatedTestsIfAppropriate()
 {
-   console.log("Module.markers, runAutomatedTestsIfAppropriate");
-
-   var msg = {cmd: "getUserId",  callback: "markersAssessUserIdForTesting",
-              status: "request", payload: ""};
-
+   var msg = {cmd: "getUserId",  callback: "markersAssessUserIdForTesting", status: "request", payload: ""};
    hub.send(JSON.stringify(msg));
 
 } // runAutomatedTestsIfAppropriate
@@ -1061,9 +1051,7 @@ function assessUserIdForTesting(msg)
    
    if(userID.indexOf("autotest") === 0){
       console.log("markersAndSamples/Module.js running tests for user " + userID);
-      mast = MarkersAndSamplesTestModule();
-      mast.show();
-      mast.run();
+      markersTester.run();
       }
 
 } // assessUserIdForTesting

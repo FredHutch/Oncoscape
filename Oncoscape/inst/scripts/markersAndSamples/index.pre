@@ -11,21 +11,22 @@ hub.start();
 include(../tabsApp/code.js)
 include(../datasets/Module.js)
 include(../markersAndSamples/Module.js)
+include(../markersAndSamples/Test.js)
 
 </script>
 
 <body>
 
-  <div id="qunit" style="display:none"></div>
-  <div id="qunit-fixture"></div>
-
 <div id="oncoscapeTabs">
    <ul>
      <li><a href="#datasetsDiv">Datasets</a></li>
      <li><a href="#markersAndPatientsDiv">Markers</a></li>
+     <li><a href="#markersTestDiv">Tests</a></li>
    </ul>
+
 include(../datasets/widget.html)
 include(../markersAndSamples/widget.html)
+include(../markersAndSamples/test.html)
 </div>
 
 </body>
