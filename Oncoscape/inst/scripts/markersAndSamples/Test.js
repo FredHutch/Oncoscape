@@ -1,14 +1,11 @@
 // markersAndSamples/Test.js
 //------------------------------------------------------------------------------------------------------------------------
-
-    // observers used in QUnit testing
-var markersAndSamplesStatusObserver = null;
-
-
 var MarkersAndSamplesTestModule = (function () {
 
+    var markersAndSamplesStatusObserver = null;
+
 //------------------------------------------------------------------------------------------------------------------------
-runTests = function(show)
+function runTests(show)
 {
    if(show) showTests();
 
@@ -16,13 +13,13 @@ runTests = function(show)
 
 } // runTests
 //------------------------------------------------------------------------------------------------------------------------
-showTests = function()
+function showTests()
 {
    $("#qunit").css({"display": "block"});
 
 } // showTests
 //------------------------------------------------------------------------------------------------------------------------
-hideTests = function()
+function hideTests()
 {
    $("#qunit").css({"display": "none"});
 
@@ -48,7 +45,7 @@ function testLoadDataSetThenProceed()
       // when those tests are over, we then cascade through a number of gui operations: search, node selections
       // network operations
 
-   if(markersAndSamplesStatusObserver == null){
+   if(markersAndSamplesStatusObserver === null){
       markersAndSamplesStatusObserver = new MutationObserver(function(mutations) {
         hub.raiseTab("markersAndPatientsDiv");
         mutation = mutations[0];
@@ -64,7 +61,7 @@ function testLoadDataSetThenProceed()
            assert.ok(edgeCount > 10);
 
            testSearch();
-           })
+           });
         }); // new MutationObserver
       } // if null mutation observer
 
@@ -74,7 +71,7 @@ function testLoadDataSetThenProceed()
 
    hub.send(JSON.stringify(msg));
 
-}; // testLoadDataSetThenProceed
+} // testLoadDataSetThenProceed
 //------------------------------------------------------------------------------------------------------------------------
 function testSearch()
 {
@@ -88,7 +85,7 @@ function testSearch()
      netOpsMenu.trigger("change");
      assert.equal(cwMarkers.filter("node:selected").length, 0);
      searchBox.val(gene);
-     searchBox.trigger(jQuery.Event("keydown", {which: 13}))
+     searchBox.trigger(jQuery.Event("keydown", {which: 13}));
      assert.equal(cwMarkers.filter("node:selected").length, 1);
      netOpsMenu.val("Show Edges from Selected Nodes");
      netOpsMenu.trigger("change");
@@ -98,7 +95,7 @@ function testSearch()
      assert.equal(cwMarkers.filter("node:selected").length, 10);
      });
 
-};  // testSearch
+}  // testSearch
 //------------------------------------------------------------------------------------------------------------------------
 function initialize()
 {
