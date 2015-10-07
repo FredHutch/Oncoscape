@@ -6,12 +6,12 @@ var PlsrTestModule = (function (){
    var plsrStatusObserver = null;
 
 //--------------------------------------------------------------------------------------------
-runTests = function()
+function runTests()
 {
    console.log("starting PlsrTestModule runTests");
    testLoadDataSetAndConfigure();
 
-}; // runTests
+} // runTests
 //--------------------------------------------------------------------------------------------
 function testLoadDataSetAndConfigure()
 {
