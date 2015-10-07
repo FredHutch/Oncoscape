@@ -147,6 +147,7 @@ function displayOncoprint(msg)
 				track_id[i] = onc.addTrack({label: gene, removable:true}, 0);
 				tracks_to_load -= 1;
 				if(i == 0){
+					data_gene = data_gene.sort(function(a, b){return Object.keys(b).length -  Object.keys(a).length});
 					onc.setRuleSet(track_id[i], Oncoprint.GENETIC_ALTERATION);
 				}else{
 					onc.useSameRuleSet(track_id[i], track_id[0]);
@@ -154,6 +155,7 @@ function displayOncoprint(msg)
 				onc.setTrackData(track_id[i], data_gene, true);
 				if (tracks_to_load === 0) {
 					onc.releaseRendering();
+					onc.sort();
 				};
 			})
 	   		
@@ -163,18 +165,22 @@ function displayOncoprint(msg)
 			for(i = 0; i < genes.length; i++){
 				gene = genes[i];
 			
-				var data_gene = processed_data.filter(function(obj){return obj.gene === gene});     
+				var data_gene = processed_data.filter(function(obj){return obj.gene === gene}); 
+				    
 				$.when(processed_data).then(function() {
 					track_id[i] = onc.addTrack({label: gene, removable:true}, 0);
 					tracks_to_load -= 1;
 					if(i == 0){
+						data_gene = data_gene.sort(function(a, b){return Object.keys(b).length -  Object.keys(a).length});
 						onc.setRuleSet(track_id[i], Oncoprint.GENETIC_ALTERATION);
+						
 					}else{
 						onc.useSameRuleSet(track_id[i], track_id[0]);
 					}
 					onc.setTrackData(track_id[i], data_gene, true);
 					if (tracks_to_load === 0) {
 						onc.releaseRendering();
+						onc.sort();
 					};
 				})
 				}
