@@ -6,176 +6,168 @@ library(SttrDataPackage)
 library(TCGAgbm)
 oncoprint_data_selection <- function(ws, msg)
 {
-   printf("=== entering oncoprint_data_selection")
-
-   currentDataSet <- state[["currentDatasetName"]]
-   gbm <- TCGAgbm()
-   cnv <- SttrDataPackage:::matrices(gbm)$mtx.cn
-   mut <- SttrDataPackage:::matrices(gbm)$mtx.mut
-   mrna <- SttrDataPackage:::matrices(gbm)$mtx.mrna
-  
-   
-   printf("test1")
-   #patients <- msg$payload$sampleIDs
-   #gene <- msg$payload$gene
-   payload_str <- msg$payload$sampleIDs
-   patients <- payload_str[grepl("TCGA",payload_str)]
-   non_patients <- payload_str[!grepl("TCGA",payload_str)]
-   non_gene_strings <- c("1","2","3","4","5","6","7","8",
-                         "9","10","11","12","13","14","15",
-                         "16","17","18","19","20","21","22","X","Y",
-                         "Mesenchymal","Neural","Classical","Proneural")
-   genes <- non_patients[which(!(non_patients %in% non_gene_strings))]
-   
-   printf("test2")
-   
-   patients_processed_cnv <- intersect(patients, substring(rownames(cnv),1,12))
-   pos_cnv <- match(patients_processed_cnv,substring(rownames(cnv),1,12))
-   genes_processed_cnv <- intersect(genes, colnames(cnv))
-   
-   patients_processed_mrna <- intersect(patients, substring(rownames(mrna),1,12))
-   pos_mrna <- match(patients_processed_mrna,substring(rownames(mrna),1,12))
-   genes_processed_mrna <- intersect(genes, colnames(mrna))
-
-   patients_processed_mut <- intersect(patients, substring(rownames(mut),1,12))
-   pos_mut <- match(patients_processed_mut,substring(rownames(mut),1,12))
-   genes_processed_mut <- intersect(genes, colnames(mut))
-   
-   all_samples <- unique(union(union(rownames(cnv)[pos_cnv],rownames(mrna)[pos_mrna]),rownames(mut)[pos_mut]))
-   res_m <- list()
-   merge(all_samples,genes) -> col2
-   cbind(col2,cna=rep(NA,nrow(col2)),mrna=rep(NA,nrow(col2)),mut=rep(NA,nrow(col2)))->col5
-   colnames(col5) <- c("patient","gene","cna","mrna","mut_type")
-   
-   
-   if(length(patients_processed_cnv)> 0 && length(genes_processed_cnv)>0){
-       
-               cnv_res <- cnv[pos_cnv, genes_processed_cnv]
-               if(length(genes_processed_cnv)==1){
-                   cnv_res <- as.data.frame(cnv_res)
-                   rownames(cnv_res) <- rownames(cnv)[pos_cnv]
-                   colnames(cnv_res) <- genes_processed_cnv
-                   printf("test311-cnv")
-                   cnv_res_m <- cbind(rownames(cnv_res),rep(genes_processed_cnv,nrow(cnv_res)),cnv_res,rep("cnv",nrow(cnv_res)))
-                   colnames(cnv_res_m) <- c("sample","gene","value","datatype")
-               }else if(length(pos_cnv)==1){
-                   cnv_res <- as.data.frame(cnv_res)
-                   printf("test312-cnv")
-                   cnv_res_m <- cbind(rownames(cnv_res),rep(genes_processed_cnv,nrow(cnv_res)),cnv_res,rep("cnv",nrow(cnv_res)))
-                   colnames(cnv_res_m) <- c("sample","gene","value","datatype")
-               }else{
-                   cnv_res_m <- melt(cnv_res, varnames=c("sample","gene"))
-                   cnv_res_m <- cbind(cnv_res_m,datatype = rep("cnv", nrow(cnv_res_m)))
-                   printf("test313-cnv")
-               }
-               res_m <- cnv_res_m
-               cnv_res_m <- cnv_res_m[which(cnv_res_m$value != 0),]
-               
-   }
-   
-   if(length(patients_processed_mrna)> 0 && length(genes_processed_mrna)>0){
-               mrna_res <- mrna[pos_mrna, genes_processed_mrna]
-               if(length(genes_processed_mrna)==1){
-                   mrna_res <- as.data.frame(mrna_res)
-                   rownames(mrna_res) <- rownames(mrna)[pos_mrna]
-                   colnames(mrna_res) <- genes_processed_mrna
-                   printf("test311-mrna")
-                   mrna_res_m <- cbind(rownames(mrna_res),rep(genes_processed_mrna,nrow(mrna_res)),mrna_res,rep("mrna",nrow(mrna_res)))
-                   colnames(mrna_res_m) <- c("sample","gene","value","datatype")
-               }else if(length(pos_mrna)==1){
-                   mrna_res <- as.data.frame(mrna_res)
-                   printf("test312-mrna")
-                   mrna_res_m <- cbind(rep(rownames(mrna)[pos_mrna],nrow(mrna_res)),rownames(mrna_res),mrna_res,rep("mrna",nrow(mrna_res)))
-                   colnames(mrna_res_m) <- c("sample","gene","value","datatype")
-               }else{
-                   mrna_res_m <- melt(mrna_res, varnames=c("sample","gene"))
-                   mrna_res_m <- cbind(mrna_res_m,datatype = rep("mrna", nrow(mrna_res_m)))
-                   printf("test313-mrna")
-               }
-               res_m <- rbind(res_m,mrna_res_m)
-               mrna_res_m <- mrna_res_m[which(mrna_res_m$value>2 | mrna_res_m$value <2),]
-    }
-   
-   if(length(patients_processed_mrna)> 0 && length(genes_processed_mrna)>0){
-          
-               mut_res <- mut[pos_mut, genes_processed_mut]
-               
-               if(length(genes_processed_mut)==1){
-                   mut_res <- as.data.frame(mut_res)
-                   rownames(mut_res) <- rownames(mut)[pos_mut]
-                   colnames(mut_res) <- genes_processed_mut
-                   printf("test311-mut")
-                   mut_res_m <- cbind(rownames(mut_res),rep(genes_processed_mut,nrow(mut_res)),mut_res,rep("mutation",nrow(mut_res)))
-                   colnames(mut_res_m) <- c("sample","gene","value","datatype")
-               }else if(length(pos_mut)==1){
-                   mut_res <- as.data.frame(mut_res)
-                   printf("test312-mut")
-                   mut_res_m <- cbind(rep(rownames(mut)[pos_mut],nrow(mut_res)),rownames(mut_res),mut_res,rep("mutation",nrow(mut_res)))
-                   colnames(mut_res_m) <- c("sample","gene","value","datatype")
-               }else{
-                   mut_res_m <- melt(mut_res, varnames=c("sample","gene"))
-                   mut_res_m <- cbind(mut_res_m,datatype = rep("mutation", nrow(mut_res_m)))
-                   printf("test313-mut")
-               }
-               res_m <- rbind(res_m,mut_res_m)
-               mut_res_m <- mut_res_m[mut_res_m$value != "",]
-    }
-   
-   
+    printf("=== entering oncoprint_data_selection")
+    
+    currentDataSet <- state[["currentDatasetName"]]
+    gbm <- TCGAgbm()
+    cnv <- SttrDataPackage:::matrices(gbm)$mtx.cn
+    mut <- SttrDataPackage:::matrices(gbm)$mtx.mut
+    mrna <- SttrDataPackage:::matrices(gbm)$mtx.mrna
     
     
-    
-    
-    
-    col5[] <- lapply(col5, as.character)
-   
-        if(exists("cnv_res_m") & dim(cnv_res_m)[1] > 0){
-            cnv_res_m[] <- lapply(cnv_res_m, as.character)
-            for(i in 1:nrow(cnv_res_m)){
-                single_sample = cnv_res_m$sample[i]
-                single_gene = cnv_res_m$gene[i]
-                if(cnv_res_m[i,3] == 2) col5[col5$patient== single_sample&col5$gene==single_gene,3] = "AMPLIFIED"
-                if(cnv_res_m[i,3] == 1) col5[col5$patient== single_sample&col5$gene==single_gene,3] = "GAINED"
-                if(cnv_res_m[i,3] == -1) col5[col5$patient== single_sample&col5$gene==single_gene,3] = "HEMIZYGOUSLYDELETED"
-                if(cnv_res_m[i,3] == -2) col5[col5$patient== single_sample&col5$gene==single_gene,3] = "HOMODELETED"
+    printf("=== after obtaining datasets from datapackage constructor, next is processing received ws msg")
+    payload_str <- msg$payload$sampleIDs
+    genes_all = unique(union(union(colnames(cnv),colnames(mut)),colnames(mrna)))
+    patients_all = unique(union(union(rownames(cnv),rownames(mut)),rownames(mrna)))
+    if(table(payload_str %in% genes_all)[2] > 0 && table(payload_str %in% substring(patients_all),1,12)[2] > 0){
+        #patients <- payload_str[grepl("TCGA",payload_str)]
+        #non_patients <- payload_str[!grepl("TCGA",payload_str)]
+        #non_gene_strings <- c("1","2","3","4","5","6","7","8",
+        #                      "9","10","11","12","13","14","15",
+        #                      "16","17","18","19","20","21","22","X","Y",
+        #                      "Mesenchymal","Neural","Classical","Proneural")
+        #genes <- non_patients[which(!(non_patients %in% non_gene_strings))]
+        patient_core_Ids <- payload_str[payload_str %in% substring(patients_all,1,12)]
+        patients <- patients_all[match(patient_core_Ids,substring(patients_all,1,12))]#locate back to the original patient IDs
+        genes <- payload_str[payload_str %in% genes_all]
+        
+        printf("=== entering into data processing")
+        
+        patients_cnv <- intersect(patients, rownames(cnv))
+        genes_cnv <- intersect(genes, colnames(cnv))
+        
+        patients_mrna <- intersect(patients, rownames(mrna))
+        genes_mrna <- intersect(genes, colnames(mrna))
+        
+        patients_mut <- intersect(patients, rownames(mut))
+        genes_mut <- intersect(genes, colnames(mut))
+        
+        if(patients_cnv > 0 && genes_cnv > 0){
+            
+            cnv_res <- cnv[patients_cnv, genes_cnv]
+            if(length(genes_cnv)==1){ #also take care of the situation with one gene and one patient
+                cnv_res <- as.data.frame(cnv_res)
+                printf("cnv only one gene selected")
+                cnv_res_flattened <- cbind(colnames(cnv_res),rep(genes_cnv,ncol(cnv_res)),cnv_res)
+                colnames(cnv_res_flattened) <- c("sample","gene","value")
+            }else if(length(patients_cnv)==1){
+                cnv_res <- as.data.frame(cnv_res)
+                printf("cnv only one patient selected")
+                cnv_res_flattened <- cbind(rep(patients_cnv,nrow(cnv_res)),rownames(cnv_res),cnv_res)
+                colnames(cnv_res_flattened) <- c("sample","gene","value")
+            }else{
+                cnv_res_flattened <- melt(cnv_res, varnames=c("sample","gene"))
+                printf("cnv multiple genes and multiple patients selected")
+            }
+            #res_flattened <- cnv_res_flattened
+            cnv_res_flattened <- cnv_res_flattened[which(cnv_res_flattened$value != 0),]
+            cnv_res_flattened[,3] <- gsub(-1,"HEMIZYGOUSLYDELETED",cnv_res_flattened[,3])
+            cnv_res_flattened[,3] <- gsub(-2,"HOMODELETED",cnv_res_flattened[,3])
+            cnv_res_flattened[,3] <- gsub(2,"AMPLIFIED",cnv_res_flattened[,3])
+            cnv_res_flattened[,3] <- gsub(1,"GAINED",cnv_res_flattened[,3])
+        }
+        
+        
+        if(patients_mrna > 0 && genes_mrna > 0){
+            
+            mrna_res <- mrna[patients_mrna, genes_mrna]
+            if(length(genes_mrna)==1){
+                mrna_res <- as.data.frame(mrna_res)
+                printf("mrna only one gene selected")
+                mrna_res_flattened <- cbind(colnames(mrna_res),rep(genes_mrna,ncol(mrna_res)), mrna_res)
+                colnames(mrna_res_flattened) <- c("sample","gene","value")
+            }else if(length(patients_mrna)==1){
+                mrna_res <- as.data.frame(mrna_res)
+                printf("mrna only one patient selected")
+                mrna_res_flattened <- cbind(rep(patients_mrna,nrow(mrna_res)),rownames(mrna_res), mrna_res)
+                colnames(mrna_res_flattened) <- c("sample","gene","value")
+            }else{
+                mrna_res_flattened <- melt(mrna_res, varnames=c("sample","gene"))
+                printf("mrna multiple genes and multiple patients selected")
+            }
+            #res_flattened <- cbind(res_flattened,mrna_res_flattened)
+            mrna_res_flattened <- mrna_res_flattened[c(which(mrna_res_flattened$value>2),which(mrna_res_flattened$value< -2)),]
+            if(length(which(mrna_res_flattened$value > 2)) > 0){
+                mrna_res_flattened$value[which(mrna_res_flattened$value > 2)] <- "UPREGULATED"
+            }else if(length(which(mrna_res_flattened$value < -2)) > 0){
+                mrna_res_flattened$value[which(mrna_res_flattened$value < -2)] <- "DOWNREGULATED"
             }
         }
-        if(exists("mrna_res_m") & dim(mrna_res_m)[1] > 0){
-            mrna_res_m[] <- lapply(mrna_res_m, as.character)
-            for(i in 1:nrow(mrna_res_m)){
-                single_sample = mrna_res_m[i,1]
-                single_gene = mrna_res_m[i,2]
-                if((!is.na(mrna_res_m[i,3])) & mrna_res_m[i,3] > 2) col5[col5$patient== single_sample&col5$gene==single_gene,4] = "UPREGULATED"
-                if((!is.na(mrna_res_m[i,3])) & mrna_res_m[i,3] < -2) col5[col5$patient== single_sample&col5$gene==single_gene,4] = "DOWNREGULATED"
-             }
-          }
-        if(exists("mut_res_m") & dim(mut_res_m)[1] > 0){
-            mut_res_m[] <- lapply(mut_res_m, as.character)
-            for(i in 1:nrow(mut_res_m)){
-                single_sample = mut_res_m[i,1]
-                single_gene = mut_res_m[i,2]
-                if(mut_res_m[i,3] != "") col5[col5$patient== single_sample&col5$gene==single_gene,5] = "MISSENSE"
-             }
-        }
+        
+        
+        if(patients_mut > 0 && genes_mut > 0){
             
-    
-    
-    if(nrow(res_m)>0){
-           r <- jsonlite:::toJSON(col5, pretty = TRUE)
-           #res = list(r,genes)
-           res = list(r,genes)
-           printf("=== printing result json file")
-           return.cmd <- msg$callback
-           return.msg <- toJSON(list(cmd=return.cmd, status="success", payload=toJSON(res)))
+            mut_res <- mut[patients_mut, genes_mut]
+            if(length(genes_mut)==1){
+                mut_res <- as.data.frame(mut_res)
+                printf("mut only one gene selected")
+                mut_res_flattened <- cbind(colnames(mut_res),rep(genes_mut,ncol(mut_res)), mut_res)
+                colnames(mut_res_flattened) <- c("sample","gene","value")
+            }else if(length(patients_mut)==1){
+                mut_res <- as.data.frame(mut_res)
+                printf("mut only one patient selected")
+                mut_res_flattened <- cbind(rep(patients_mut,nrow(mut_res)),rownames(mut_res), mut_res)
+                colnames(mut_res_flattened) <- c("sample","gene","value")
+            }else{
+                mut_res_flattened <- melt(mut_res, varnames=c("sample","gene"))
+                printf("mut multiple genes and multiple patients selected")
+            }
+            #res_flattened <- cbind(res_flattened,mrna_res_flattened)
+            mut_res_flattened$value <- gsub("",NA,mut_res_flattened$value)
+            mut_res_flattened <- mut_res_flattened[which(!(is.na(mut_res_flattened$value))),]
+            mut_res_flattened$value <- rep("MISSENSE",nrow(mut_res_flattened)) #need to update with more features, such as truncated etc.
+        }
+        
+        
+        if(exists("cnv_res_flattened") & dim(cnv_res_flattened)[1] > 0 & exists("mrna_res_flattened") & dim(mrna_res_flattened)[1] > 0){
+            cnv_mrna_res_flattened <- merge(cnv_res_flattened, mrna_res_flattened,c('sample','gene'),all.x=T,all.y=T)
+            if(exists("mut_res_flattened") & dim(mut_res_flattened)[1] > 0){
+                res_flattened <- merge(cnv_mrna_res_flattened,mut_res_flattened,c('sample','gene'),all.x=T,all.y=T)
+                colnames(res_flattened) <- c("patient","gene","cna","mrna","mut_type")
+            }else{
+                colnames(res_flattened) <- c("patient","gene","cna","mrna")
+            }
+        }else if(exists("cnv_res_flattened") & dim(cnv_res_flattened)[1] > 0 & exists("mut_res_flattened") & dim(mut_res_flattened)[1] > 0){
+            res_flattened <- merge(cnv_res_flattened, mut_res_flattened,c('sample','gene'),all.x=T,all.y=T)
+            colnames(res_flattened) <- c("patient","gene","cna","mut_type")
+        }else if(exists("mrna_res_flattened") & dim(mrna_res_flattened)[1] > 0 & exists("mut_res_flattened") & dim(mut_res_flattened)[1] > 0){
+            res_flattened <- merge(mrna_res_flattened, mut_res_flattened,c('sample','gene'),all.x=T,all.y=T)
+            colnames(res_flattened) <- c("patient","gene","mrna","mut_type")
+        }else if(exists("cnv_res_flattened") & dim(cnv_res_flattened)[1] > 0){
+            res_flattened <- cnv_res_flattened
+            colnames(res_flattened) <- c("patient","gene","cna")
+        }else if(exists("mrna_res_flattened") & dim(mrna_res_flattened)[1] > 0){
+            res_flattened <- mrna_res_flattened
+            colnames(res_flattened) <- c("patient","gene","mrna")
+        }else if(exists("mut_res_flattened") & dim(mut_res_flattened)[1] > 0){
+            res_flattened <- mut_res_flattened
+            colnames(res_flattened) <- c("patient","gene","mut_type")
+        }
+        
+        
+        
+        if(exists("res_flattened")){
+            r <- jsonlite:::toJSON(res_flattened, pretty = TRUE)
+            #res = list(r,genes)
+            res = list(r,genes)
+            printf("=== printing result json file")
+            return.cmd <- msg$callback
+            return.msg <- toJSON(list(cmd=return.cmd, status="success", payload=toJSON(res)))
+        }else{
+            res = "No overlapping patients or genes within dataset, please re-select"
+            printf("=== printing result json file, result is a string")
+            return.cmd <- msg$callback
+            return.msg <- toJSON(list(cmd=return.cmd, status="success", payload=res))
+        }
     }else{
-           res = "No overlapping patients or genes within dataset, please re-select"
-           printf("=== printing result json file, result is a string")
-           return.cmd <- msg$callback
-           return.msg <- toJSON(list(cmd=return.cmd, status="success", payload=res))
+        res = "It seems you only selected either patients or genes, please re-select to include both information"
+        printf("=== printing result json file, result is a string")
+        return.cmd <- msg$callback
+        return.msg <- toJSON(list(cmd=return.cmd, status="success", payload=res))
     }
-
-   printf("=== before sending out result")
-   ws$send(return.msg)
-
+    
+    printf("=== before sending out result")
+    ws$send(return.msg)
+    
 } # data_selection
 #-------------------------------------------------------------------------------
