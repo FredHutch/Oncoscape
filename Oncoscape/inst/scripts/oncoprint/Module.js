@@ -147,7 +147,6 @@ function displayOncoprint(msg)
 				track_id[i] = onc.addTrack({label: gene, removable:true}, 0);
 				tracks_to_load -= 1;
 				if(i == 0){
-					data_gene = data_gene.sort(function(a, b){return Object.keys(b).length -  Object.keys(a).length});
 					onc.setRuleSet(track_id[i], Oncoprint.GENETIC_ALTERATION);
 				}else{
 					onc.useSameRuleSet(track_id[i], track_id[0]);
@@ -171,7 +170,6 @@ function displayOncoprint(msg)
 					track_id[i] = onc.addTrack({label: gene, removable:true}, 0);
 					tracks_to_load -= 1;
 					if(i == 0){
-						data_gene = data_gene.sort(function(a, b){return Object.keys(b).length -  Object.keys(a).length});
 						onc.setRuleSet(track_id[i], Oncoprint.GENETIC_ALTERATION);
 						
 					}else{
