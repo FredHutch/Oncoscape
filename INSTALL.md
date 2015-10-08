@@ -19,11 +19,15 @@ analysis, and R dependency packages.
 	  
 	  >nano ~/.bash_profile
 	  
-add the following line:
+	add the following line:
   
-  >export ONCOSCAPE_USER_DATA_STORE=file:///\<path/to/directory\>
+  	>export ONCOSCAPE_USER_DATA_STORE=file:///\<path/to/directory\>
 
 ## 2. Build From Source
+
+- To install within the default R library, call "install" from the makefile.
+
+	>make install
 
 (optional) Local installation of R packages
 To install and run Oncoscape locally, explicitly define the R path and directory of the
@@ -47,10 +51,6 @@ as the R library.  Note that the full path should be used instead of referencing
 
 	>make installLocal
 	
-- To install within the default R library, call "install" from the makefile.
-
-	>make install
-
 
 ## 3. Runtime Configuration
 
