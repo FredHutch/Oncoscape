@@ -2,14 +2,19 @@
 //------------------------------------------------------------------------------------------------------------------------
 var MarkersAndSamplesTestModule = (function () {
 
+       // for observing relatively small scale status changes: i.e., network loaded and displayed
+       // the div watched here is in widget.html
+
     var markersAndSamplesStatusObserver = null;
 
-//------------------------------------------------------------------------------------------------------------------------
-function runTests(show)
-{
-   if(show) showTests();
+       // to detect when the full test of a dataset is complete, so that the next dataset can be tested
+       // the div watched here is in test.html
+    var markesAndSamplesTestStatusObserver = null;   // modified at the end of each dataset test
 
-   testLoadDataSetDisplayNetwork();
+//------------------------------------------------------------------------------------------------------------------------
+function runTests(dzName)
+{
+   testLoadDataSetDisplayNetwork(dzName);
 
 } // runTests
 //------------------------------------------------------------------------------------------------------------------------
@@ -27,11 +32,10 @@ function hideTests()
 
 } // hide
 //------------------------------------------------------------------------------------------------------------------------
-function testLoadDataSetDisplayNetwork()
+function testLoadDataSetDisplayNetwork(dzName)
 {
    var testTitle = "testLoadDataSetDisplayNetwork";
    console.log(testTitle);
-     
 
       // when our module receives the resulting 'datasetSpecified' msg, which includes the dataset's manifest
       // in its payload, it requests 
@@ -66,7 +70,9 @@ function testLoadDataSetDisplayNetwork()
    var target = document.querySelector("#markersAndPatientsStatusDiv");
    markersAndSamplesStatusObserver.observe(target, config);
 
-   var msg = {cmd: "specifyCurrentDataset", callback: "datasetSpecified", status: "request", payload: "DEMOdz"};
+   var dz = "TCGAbrain";
+   var msg = {cmd: "specifyCurrentDataset", callback: "datasetSpecified", status: "request", payload:  dzName};
+
    hub.send(JSON.stringify(msg));
 
 } // testLoadDataSetThenProceed
@@ -90,19 +96,49 @@ function testSearch()
      netOpsMenu.val("Select All Connected Nodes");
      netOpsMenu.trigger("change");
      console.log("about to check for 10 selected nodes");
-     assert.equal(cwMarkers.filter("node:selected").length, 9);
-     //displayTestResults();
+     assert.ok(cwMarkers.filter("node:selected").length >= 9);
+     testColorTumorsByClassification();
      });
 
 }  // testSearch
 //------------------------------------------------------------------------------------------------------------------------
-//function displayTestResults()
-//{
-//   console.log("displayTestResults, about to raise");
-//   hub.raiseTab("markersTestDiv");
-//   console.log("displayTestResults, after raise");
-//
-//} // displayTestResults
+function testColorTumorsByClassification()
+{
+   var testTitle = "testColorTumorsByClassifictaion";
+   console.log(testTitle);
+
+      // TCGA.02.0033 is in all three of our current gbm-related, public, TCGA datasets
+
+   if(markersAndSamplesStatusObserver === null){
+      markersAndSamplesStatusObserver = new MutationObserver(function(mutations) {
+        hub.raiseTab("markersAndPatientsDiv");
+        mutation = mutations[0];
+        markersAndSamplesStatusObserver.disconnect();
+        markersAndSamplesStatusObserver = null;
+        var id = mutation.target.id;
+        var msg = $("#markersAndSamplesStatusDiv").text();
+        QUnit.test("markersAndSamples loaded", function(assert) {
+           var nodeCount = cwMarkers.nodes().length;
+           var edgeCount = cwMarkers.edges().length;
+           console.log("markersAndSamples loaded, with " + nodeCount + " nodes and " + edgeCount + " edges.");
+           assert.ok(nodeCount > 10);
+           assert.ok(edgeCount > 10);
+           testSearch();
+           });
+        }); // new MutationObserver
+      } // if null mutation observer
+
+
+   var config = {attributes: true, childList: true, characterData: true};
+   var target = document.querySelector("#markersAndPatientsStatusDiv");
+   markersAndSamplesStatusObserver.observe(target, config);
+
+   var dz = "TCGAbrain";
+   var msg = {cmd: "specifyCurrentDataset", callback: "datasetSpecified", status: "request", payload:  dzName};
+
+   hub.send(JSON.stringify(msg));
+
+} // testColorTumors
 //------------------------------------------------------------------------------------------------------------------------
 function initialize()
 {
