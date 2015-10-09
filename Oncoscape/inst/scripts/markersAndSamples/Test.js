@@ -70,7 +70,6 @@ function testLoadDataSetDisplayNetwork(dzName)
    var target = document.querySelector("#markersAndPatientsStatusDiv");
    markersAndSamplesStatusObserver.observe(target, config);
 
-   var dz = "TCGAbrain";
    var msg = {cmd: "specifyCurrentDataset", callback: "datasetSpecified", status: "request", payload:  dzName};
 
    hub.send(JSON.stringify(msg));
@@ -97,7 +96,8 @@ function testSearch()
      netOpsMenu.trigger("change");
      console.log("about to check for 10 selected nodes");
      assert.ok(cwMarkers.filter("node:selected").length >= 9);
-     testColorTumorsByClassification();
+     //testColorTumorsByClassification();
+     recordEndOfTest();
      });
 
 }  // testSearch
@@ -117,13 +117,8 @@ function testColorTumorsByClassification()
         markersAndSamplesStatusObserver = null;
         var id = mutation.target.id;
         var msg = $("#markersAndSamplesStatusDiv").text();
-        QUnit.test("markersAndSamples loaded", function(assert) {
-           var nodeCount = cwMarkers.nodes().length;
-           var edgeCount = cwMarkers.edges().length;
-           console.log("markersAndSamples loaded, with " + nodeCount + " nodes and " + edgeCount + " edges.");
-           assert.ok(nodeCount > 10);
-           assert.ok(edgeCount > 10);
-           testSearch();
+        QUnit.test(title, function(assert) {
+           assert.ok(10 === 10);
            });
         }); // new MutationObserver
       } // if null mutation observer
@@ -139,6 +134,12 @@ function testColorTumorsByClassification()
    hub.send(JSON.stringify(msg));
 
 } // testColorTumors
+//------------------------------------------------------------------------------------------------------------------------
+function recordEndOfTest()
+{
+  console.log("end of test");
+
+} // recordEndOfTest
 //------------------------------------------------------------------------------------------------------------------------
 function initialize()
 {

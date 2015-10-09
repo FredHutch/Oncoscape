@@ -787,7 +787,7 @@ function upperCaseNodeIDs()
 function selectNodes(nodeNames)
 {
   console.log("Module.markers::selectNodes");
-  console.log(nodeNames);
+  //console.log(nodeNames);
 
   if(typeof(nodeNames) == "string")   // trap scalar, but expect and support arrays
      nodeNames = [nodeNames];
@@ -942,7 +942,7 @@ function datasetSpecified (msg)
 function configureSampleCategorizationMenu(msg)
 {
    console.log("=== configureSampleCategorizationMenu");
-   console.log(msg.payload);
+   //console.log(msg.payload);
    tumorCategorizationsMenu.empty();
    var categorizations = msg.payload;
 
