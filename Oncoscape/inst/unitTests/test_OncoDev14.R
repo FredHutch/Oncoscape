@@ -28,17 +28,23 @@ runTimedTests <- function()
    fileNameTemp <- c("test_OncoDev14_BenchMark",date())
    fileNamePaste <- paste(fileNameTemp, collapse = " ")
    fileName <- gsub("[ ]", "_", fileNamePaste)
+   benchCols <-  c('test', 'replications', 'elapsed', 'relative', 'user.self', 'sys.self', 'user.child', 'sys.child')
+   reps <- 1
    write(timestamp(),file=fileName, append=TRUE)
-   write(system.time(library(RUnit)), file=fileName, append=TRUE)
-   write(system.time(library(OncoDev14)), file=fileName, append=TRUE)
-   write(system.time(library(TCGAgbm)), file=fileName, append=TRUE)
-
+   write.table(t(benchCols), file=fileName, append=TRUE, col.names=FALSE, row.names=FALSE)
+   write.table(data.frame("library(RUnit)", reps, t(c(system.time(library(RUnit))))), file=fileName, append=TRUE,
+              col.names=FALSE, row.names=FALSE)
+   write.table(data.frame("library(OncoDev14)", reps, t(c(system.time(library(OncoDev14))))), file=fileName, append=TRUE,
+              col.names=FALSE, row.names=FALSE)
+   write.table(data.frame("library(TCGAgbm)",reps, t(c(system.time(library(TCGAgbm))))), file=fileName, append=TRUE,
+              col.names=FALSE, row.names=FALSE)
    write.table(benchmark(test_jsonOperations, test_serverVersion, test_loadDataPackages,
               test_loadDataPackageGeneSets,  test_manifest,
               test_loadExpressionMatrix, test_loadPatientHistoryTable,
                        replications=1000,
               columns = c('test', 'replications', 'elapsed', 'relative', 'user.self', 'sys.self', 'user.child', 'sys.child')),
-              file=fileName, append=TRUE)
+              file=fileName, append=TRUE, col.names=FALSE, row.names=FALSE)
+
    write(timestamp(),file=fileName, append=TRUE)
 }
 #----------------------------------------------------------------------------------------------------
@@ -202,4 +208,4 @@ test_loadDataPackageGeneSets <- function()
 } # test_loadDataPackageGeneSets
 #----------------------------------------------------------------------------------------------------
 if(!interactive())
-   runTests()
+   runTimedTests()
