@@ -2,6 +2,7 @@ addRMessageHandler("ping", "ping");
 addRMessageHandler("getServerVersion", "getServerVersion");
 addRMessageHandler("getSampleDataFrame", "getSampleDataFrame");
 addRMessageHandler("checkPassword", "checkPassword");
+addRMessageHandler("recordEvent", "recordEvent");
 #----------------------------------------------------------------------------------------------------
 # this file providees the standard oncoscape websocket json interface to SttrDataSet objects
 # each of which is typically matrices of experimental data, a clinical history, and variaout
@@ -20,6 +21,24 @@ ping <- function(ws, msg)
   ws$send(toJSON(return.msg))
   
 } # ping
+#----------------------------------------------------------------------------------------------------
+recordEvent <- function(ws, msg)
+{
+  payload <- msg$payload
+  field.names <- names(payload)
+  options(digits.secs=3)   # for millisecond accuracy
+
+  datasetName <- "NA"
+  key <- "currentDatasetName"
+  if(key %in% ls(state))
+    datasetName <- state[[key]]
+
+  msg <- sprintf("[event] OncoDev14 %s (%s): %15s %s", sessionInfo()$otherPkgs$OncoDev14$Version,
+                 Sys.time(), datasetName, payload)
+
+  print(noquote(msg))
+  
+} # recordEvent
 #----------------------------------------------------------------------------------------------------
 # consruct an object, call the verersionMethod on it, return the string (should be in x.y.z)
 # TODO: seems burdensome to create an Onco object here.  rethink at some point.
