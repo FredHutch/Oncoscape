@@ -24,6 +24,7 @@ var markersAndTissuesModule = (function () {
   var layoutMenu;
   var thisModulesName = "MarkersAndPatients";
   var thisModulesOutermostDiv = "markersAndPatientsDiv";
+  var userID = "NA";
 
       // sometimes a module offers multiple selection destinations.
       // usually there is just one:
@@ -315,6 +316,7 @@ function requestTumorCategorization()
 {
   var categorizationName = tumorCategorizationsMenu.val();
   console.log("apply " + categorizationName);
+  recordEvent(userID + " markersApplyTumorCategorization request");
 
   var msg = {cmd: "getSampleCategorization", callback: "markersApplyTumorCategorization",
              status: "request", payload: categorizationName};
@@ -331,6 +333,7 @@ function applyTumorCategorization(msg)
    var tumorsInGraph = cwMarkers.nodes("[nodeType='patient']");
    var tumorsInTable = msg.payload.rownames;
    var tbl = msg.payload.tbl;
+   recordEvent(userID + " markersApplyTumorCategorization data received");
 
    tumorsInGraph.forEach(function(node, index){
       var nodeID = node.id();  // our convention is that this is the tumor name, eg, "TCGA.02.0014"
@@ -345,6 +348,8 @@ function applyTumorCategorization(msg)
        }); // forEach
 
   cwMarkers.style().update();
+  recordEvent(userID + " markersApplyTumorCategorization complete");
+
 
 } // applyTumorCategorization
 //----------------------------------------------------------------------------------------------------
@@ -871,6 +876,7 @@ function displayMarkersNetwork(msg)
                                          return({id:n.id(), position:n.position()});}));
       localStorage.markersDefault = defaultLayout;
       postStatus("markers network displayed");
+      recordEvent(userID + " display markers network complete");
       }
    else{
      console.log("displayMarkersNetwork error: " + msg.payload);
@@ -903,6 +909,14 @@ function updateEdgeSelectionWidget(edgeTypes)
 
 } // updateEdgeSelectionWidget
 //----------------------------------------------------------------------------------------------------
+function recordEvent(payload)
+{
+   console.log("about to recordEvent: " + payload);
+
+   hub.send(JSON.stringify({cmd: "recordEvent", callback:"", status:"request", payload: payload}));
+
+} // recordEvent
+//----------------------------------------------------------------------------------------------------
 // called when the a dataset has been specified, typically via the Datasets tab, which presents
 // the user with a list of the datasets they are able to use, from which they choose one at a time
 // as their current working dataset.
@@ -911,11 +925,12 @@ function datasetSpecified (msg)
 {
    var datasetName = msg.payload;
 
-     // request patient data table
-   var newMsg = {cmd: "getMarkersNetwork",  callback: "displayMarkersNetwork", 
-                status: "request", payload: datasetName};
 
+   recordEvent(userID + " display markers network request ");
+   var newMsg = {cmd: "getMarkersNetwork",  callback: "displayMarkersNetwork", status: "request", payload: datasetName};
    hub.send(JSON.stringify(newMsg));
+
+   recordEvent(userID + " getSampleCategorizationNames ");
 
    var msg2 = {cmd: "getSampleCategorizationNames", callback: "configureSampleCategorizationMenu",
                status: "request", payload: ""};
@@ -943,20 +958,9 @@ function configureSampleCategorizationMenu(msg)
      } // for i
 
    tumorCategorizationsMenu.val(titleOption);
+   recordEvent(userID + " getSampleCategorizationNames complete");
 
 } // configureSampleCategorizationMenu
-//----------------------------------------------------------------------------------------------------
-// this module supports (or soon will support) markers & patients (or markers & samples) networks
-// for a variety of diseases and patient sets.  we will develop tests which know nothing beforehand
-// about the data, but our first priority now (28 apr 2015) is for the lgg/gbm combined tcga 
-// dataset
-function standAloneTest()
-{
-   $("#qunit").css({display: "block"});
-
-   gbmLggDzSpecificTests();
-
-} // standAloneTest
 //----------------------------------------------------------------------------------------------------
 function gbmLggDzSpecificTests()
 {
@@ -1044,14 +1048,16 @@ function runAutomatedTestsIfAppropriate()
 //----------------------------------------------------------------------------------------------------
 function assessUserIdForTesting(msg)
 {
-   var userID = msg.payload;
-   userId = userID.toLowerCase();
+   userID = msg.payload;
+   userID = userID.toLowerCase();
 
    console.log("markersAndSamples/Module.js assesUserIdForTesting: " + userID);
    
    if(userID.indexOf("autotest") === 0){
       console.log("markersAndSamples/Module.js running tests for user " + userID);
-      markersTester.run();
+      var dzName = "DEMOdz";
+      markersTester.run(dzName);
+      console.log("back from markersTester.run('" + dzName + "')");
       }
 
 } // assessUserIdForTesting
@@ -1067,12 +1073,10 @@ function assessUserIdForTesting(msg)
         hub.addMessageHandler("markersAssessUserIdForTesting", assessUserIdForTesting);
         hub.addSocketConnectedFunction(runAutomatedTestsIfAppropriate);
         hub.addOnDocumentReadyFunction(initializeUI);
-       },
-     sat: standAloneTest
+       }
      };
 
    }); // markersAndTissuesModule
 //----------------------------------------------------------------------------------------------------
 markersModule = markersAndTissuesModule();
 markersModule.init();
-
