@@ -172,13 +172,13 @@ oncoprint_data_selection <- function(ws, msg)
             res = "No overlapping patients or genes within dataset, please re-select"
             printf("=== printing result json file, result is a string")
             return.cmd <- msg$callback
-            return.msg <- toJSON(list(cmd=return.cmd, status="success", payload=res))
+            return.msg <- toJSON(list(cmd=return.cmd, status="fail", payload=res))
         }
     }else{
         res = "It seems you only selected either patients or genes, please re-select to include both information"
         printf("=== only genes or patients are selected, status failed")
         return.cmd <- msg$callback
-        return.msg <- toJSON(list(cmd=return.cmd, status="failed", payload=res))
+        return.msg <- toJSON(list(cmd=return.cmd, status="fail", payload=res))
     }
     
     printf("=== before sending out result")
