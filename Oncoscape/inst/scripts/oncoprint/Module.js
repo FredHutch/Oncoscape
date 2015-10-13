@@ -116,15 +116,15 @@ function displayOncoprint(msg)
    console.log("entering displayOncoprint");
    
    console.log("displayOncoprint print recieved msg.payload: %s", msg.payload);
-   xx = JSON.parse(msg.payload);
-   if(xx.length < 2) {
+   
+   if(msg.status == "fail") {
    		alert(msg.payload);
    		$("#onc").empty();
    }else{
 	    /*cnv_data_promise = xx[0];
 	    mrna_data_promise = xx[1];
 	    mut_data_promise = xx[2];*/
-	   
+	   xx = JSON.parse(msg.payload);
 	   console.log("displayOncoprint print recieved genes: %s",xx[1]);
 	   genes = xx[1];
        processed_data = JSON.parse(xx[0]);
@@ -188,7 +188,7 @@ function displayOncoprint(msg)
     
 } // displaySurvivalCurves
 //----------------------------------------------------------------------------------------------------
- function map_cnv_data(data){
+function map_cnv_data(data){
 				cnv_data = _.map(data, function(x) {
 							if(x.value == 2) x.cna='AMPLIFIED';
 							if(x.value == 1) x.cna='GAINED';
