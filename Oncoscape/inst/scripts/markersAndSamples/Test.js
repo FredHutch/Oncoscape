@@ -9,11 +9,31 @@ var MarkersAndSamplesTestModule = (function () {
 
        // to detect when the full test of a dataset is complete, so that the next dataset can be tested
        // the div watched here is in test.html
-    var markesAndSamplesTestStatusObserver = null;   // modified at the end of each dataset test
+    var testStatusObserver = null;   // modified at the end of each dataset test
 
 //------------------------------------------------------------------------------------------------------------------------
 function runTests(dzName)
 {
+      // run through some repetitions of the test
+      // condition the next test upon the completion of the preceeding one,
+      // which is detected by a change to the "status div"
+      
+   if(testStatusObserver === null){
+      testStatusObserver = new MutationObserver(function(mutations) {
+        mutation = mutations[0];
+        testStatusObserver.disconnect();
+        testStatusObserver = null;
+        var id = mutation.target.id;
+        var msg = $("#markersTestStatusDiv").text();
+        console.log("test status changed, text: " + msg);
+        testLoadDataSetDisplayNetwork("TCGAbrain");
+        }); // new MutationObserver
+      } // if null mutation observer
+
+   var config = {attributes: true, childList: true, characterData: true};
+   var target =  document.querySelector("#markersTestStatusDiv");
+   testStatusObserver.observe(target, config);
+
    testLoadDataSetDisplayNetwork(dzName);
 
 } // runTests
@@ -72,6 +92,7 @@ function testLoadDataSetDisplayNetwork(dzName)
 
    var msg = {cmd: "specifyCurrentDataset", callback: "datasetSpecified", status: "request", payload:  dzName};
 
+   console.log("about to send specifyCurrentDataset msg to server: " + dzName);
    hub.send(JSON.stringify(msg));
 
 } // testLoadDataSetThenProceed
@@ -138,6 +159,7 @@ function testColorTumorsByClassification()
 function recordEndOfTest()
 {
   console.log("end of test");
+  $("#markersTestStatusDiv").text("test complete");
 
 } // recordEndOfTest
 //------------------------------------------------------------------------------------------------------------------------

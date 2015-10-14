@@ -925,7 +925,6 @@ function datasetSpecified (msg)
 {
    var datasetName = msg.payload;
 
-
    recordEvent(userID + " display markers network request ");
    var newMsg = {cmd: "getMarkersNetwork",  callback: "displayMarkersNetwork", status: "request", payload: datasetName};
    hub.send(JSON.stringify(newMsg));
