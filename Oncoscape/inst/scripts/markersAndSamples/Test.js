@@ -18,23 +18,48 @@ function runTests(dzName)
       // condition the next test upon the completion of the preceeding one,
       // which is detected by a change to the "status div"
       
-   if(testStatusObserver === null){
-      testStatusObserver = new MutationObserver(function(mutations) {
-        mutation = mutations[0];
-        testStatusObserver.disconnect();
-        testStatusObserver = null;
-        var id = mutation.target.id;
-        var msg = $("#markersTestStatusDiv").text();
-        console.log("test status changed, text: " + msg);
-        testLoadDataSetDisplayNetwork("TCGAbrain");
-        }); // new MutationObserver
-      } // if null mutation observer
-
+   var datasetNames = ["DEMOdz", "TCGAgbm", "TCGAbrain"];
+   var datasetIndex = -1;
+   
    var config = {attributes: true, childList: true, characterData: true};
    var target =  document.querySelector("#markersTestStatusDiv");
+
+   var onMutation = function(mutations){
+      mutation = mutations[0];
+      testStatusObserver.disconnect();
+      testStatusObserver = null;
+      var id = mutation.target.id;
+      var msg = $("#markersTestStatusDiv").text();
+      console.log("test status changed, text: " + msg);
+      datasetIndex++;
+      if(datasetIndex < datasetNames.length){
+         console.log("about to test dataset " + datasetNames[datasetIndex]);      
+         if(datasetIndex < datasetNames.length)
+            testLoadDataSetDisplayNetwork(datasetNames[datasetIndex]);
+	 testStatusObserver = new MutationObserver(onMutation);
+         testStatusObserver.observe(target, config);
+	 }
+      else{
+         console.log("mutation observer function detected end of datasets");
+	 }
+      };
+
+   testStatusObserver = new MutationObserver(onMutation);
    testStatusObserver.observe(target, config);
 
-   testLoadDataSetDisplayNetwork(dzName);
+
+   $("#markersTestStatusDiv").text("start testing");
+   
+    /***********
+   while(datasetIndex < (datasetNames.length-1)){
+      datasetIndex++;
+      console.log("---| in datasetIndex loop, next up: " + datasetNames[datasetIndex]);
+      testStatusObserver.observe(target, config);
+      var statusMessage = "testing " + datasetNames[datasetIndex];
+      $("#markersTestStatusDiv").text(statusMessage);
+      }
+   **********/
+   //testLoadDataSetDisplayNetwork(datasetNames[0]);
 
 } // runTests
 //------------------------------------------------------------------------------------------------------------------------
