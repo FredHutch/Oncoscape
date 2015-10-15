@@ -1,38 +1,40 @@
-Install
--------
+# Install
 
 These instructions describe how to install and run Oncoscape with the necessary data, 
 analysis, and R dependency packages.  
 
-	1. System Requirements
-	2. Build From Source
-	3. Runtime Configuration
-	4. Deploy Web Application
-
-
 1. System Requirements
-----------------------
+2. Build From Source
+3. Runtime Configuration
+4. Deploy Web Application
 
-	- Install R from https://cran.r-project.org/
+
+## 1. System Requirements
+
+- Install R from https://cran.r-project.org/
 	
-	- Create directory to store persistent information:
+- Create directory to store persistent information:
 	  Replace <path/to/directory> with where you would like to store R metadata attached
 	  to your login account.
 	  
 	  >nano ~/.bash_profile
 	  
-	  add the following line:
-	  export ONCOSCAPE_USER_DATA_STORE=file:///<path/to/directory>
+	add the following line:
+  
+  	>export ONCOSCAPE_USER_DATA_STORE=file:///\<path/to/directory\>
 
-2. Build From Source
---------------------
+## 2. Build From Source
 
---(optional) Local installation of R packages
+- To install within the default R library, call "install" from the makefile.
+
+	>make install
+
+(optional) Local installation of R packages
 To install and run Oncoscape locally, explicitly define the R path and directory of the
 working library $R_LIBS.  One method is to create a bash configuration file defining the
 necessary environment variables.  In this case we create a file called .setupR and 
 prioritize /usr/bin/R as the R executable and Rlibs/x86_64-unknown-linux-gnu-library/3.2
-as the R library.  Note that the full path should be used instead of referencing a <cwd>.
+as the R library.  Note that the full path should be used instead of referencing a  \<cwd\>.
  	
  	>vi .setupR
 		PATH=/usr/bin/R:$PATH
@@ -45,19 +47,14 @@ as the R library.  Note that the full path should be used instead of referencing
  This file will need to be called from the terminal before any update, installation, or 
  execution to ensure the proper directory structure is accessed.
 
--- To install within the local $R_LIBS directory, call "localInstall" from the makefile.
+- To install within the local $R_LIBS directory, call "installLocal" from the makefile.
 
 	>make installLocal
 	
--- To install within the default R library, call "globalInstall" from the makefile.
 
-	>make install
+## 3. Runtime Configuration
 
-
-3. Runtime Configuration
-------------------------
-
--- Configuration files are saved within the Oncoscape module from which they run.
+Configuration files are saved within the Oncoscape module from which they run.
 For example, see Oncoscape/inst/scripts/apps/oncoscape/runOncoscapeApp-7777.R
 This first defines the app to run (scriptDir), user email for login (userID), datasets to load 
 (current.datasets), and port to host (port), then launches Oncoscape within the browser.
@@ -74,10 +71,9 @@ This first defines the app to run (scriptDir), user email for login (userID), da
 	run(onco)
 
 
-4. Deploy Web Application
--------------------------
+## 4. Deploy Web Application
 
--- To run a given configuration file and host the server, call the make command from that 
+- To run a given configuration file and host the server, call the make command from that 
    local module directory.  Examples linking to these calls also exist within the master
    makefile at the oncoDev14 level.  
    
