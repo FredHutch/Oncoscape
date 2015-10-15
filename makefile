@@ -47,10 +47,10 @@ cleanupTests:
 # installOncoscape
 ####
 installOncoscape:
-	(cd Oncoscape; R  --vanilla CMD INSTALL --no-test-load --no-lock .)
+	(cd Oncoscape; R  --vanilla CMD INSTALL --no-test-load --no-lock .; R CMD BUILD .)
 
 installOncoscapeLocal:
-	(cd Oncoscape; R -; $R_LIBS  --vanilla CMD INSTALL --no-test-load --no-lock .)
+	(cd Oncoscape; R -l $(R_LIBS)  --vanilla CMD INSTALL --no-test-load --no-lock .; sudo R CMD BUILD .)
 
 # oncoApp7777: kills then launches R server: public Brain datasets on port 7777
 ####
