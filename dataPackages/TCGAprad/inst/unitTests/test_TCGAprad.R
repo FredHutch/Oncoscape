@@ -35,14 +35,14 @@ testManifest <- function()
    checkTrue(file.exists(file))
    
    tbl <- read.table(file, sep="\t", as.is=TRUE)
-   checkEquals(dim(tbl), c(8, 11))
+   checkEquals(dim(tbl), c(6, 11))
    checkEquals(colnames(tbl), c("variable", "class", "category", "subcategory",
                                 "entity.count", "feature.count", "entity.type",
                                 "feature.type", "minValue", "maxValue", "provenance"))
  
-   checkEquals(tbl$category, c("copy number", "history", "mRNA expression", "mRNA expression", "mutations", "protein abundance","methylation","methylation"))
-   checkEquals(rownames(tbl), c("mtx.cn.RData", "history.RData", "mtx.mrna_Seq.RData", "mtx.mrna_Agi.RData", "mtx.mut.RData", "mtx.prot.RData", "mtx.methHM450.RData", "mtx.methHM27.RData"))
-   checkEquals(sort(tbl$class), c("list", "matrix", "matrix", "matrix", "matrix", "matrix", "matrix", "matrix"))
+   checkEquals(tbl$category, c("copy number", "history", "mRNA expression", "mutations", "protein abundance","methylation"))
+   checkEquals(rownames(tbl), c("mtx.cn.RData", "history.RData", "mtx.mrna_Agi.RData", "mtx.mut.RData", "mtx.prot.RData", "mtx.methHM450.RData"))
+   checkEquals(sort(tbl$class), c("list", "matrix", "matrix", "matrix", "matrix", "matrix"))
 
    for(i in 1:nrow(tbl)){
       file.name <- rownames(tbl)[i]
@@ -84,29 +84,7 @@ testManifest <- function()
 testExpression <- function()
 {
    print("--- testExpression")
-   #---------------mtx.mrna_Seq---------------------
-   dir <- system.file(package="TCGAprad", "extdata")
-   checkTrue(file.exists(dir))
-   file <- file.path(dir, "mtx.mrna_Seq.RData")
-   checkTrue(file.exists(file))
-
-   load(file)
-   checkTrue(exists("mtx.mrna"))
-   checkTrue(is(mtx.mrna, "matrix"))
-   checkEquals(class(mtx.mrna[1,1]), "numeric")
-
-   checkEquals(dim(mtx.mrna), c(490, 20444))
-
-     # a reasonable range of expression log2 ratios
-   checkEquals(fivenum(mtx.mrna), c(-4.8681,   -0.5498,   -0.2024,    0.2909, 38659.0448))
-   
-     # all colnames should be recognzied gene symbols.  no isoform suffixes yet
-#   checkTrue(all(colnames(mtx.mrna) %in% keys(org.Hs.egSYMBOL2EG)))
-
-     # all rownames should follow "TCGA.02.0014" format.  no multiply-sampled suffixes yet
-   regex <- "^TCGA\\.\\w\\w\\.\\w\\w\\w\\w\\.[0-9][0-9]$"
-   checkEquals(length(grep(regex, rownames(mtx.mrna))), nrow(mtx.mrna))
-   #---------------mtx.mrna_Seq---------------------
+   #---------------mtx.mrna_Agi---------------------
    dir <- system.file(package="TCGAprad", "extdata")
    checkTrue(file.exists(dir))
    file <- file.path(dir, "mtx.mrna_Agi.RData")
@@ -117,10 +95,10 @@ testExpression <- function()
    checkTrue(is(mtx.mrna, "matrix"))
    checkEquals(class(mtx.mrna[1,1]), "numeric")
    
-   checkEquals(dim(mtx.mrna), c(32, 17212))
+   checkEquals(dim(mtx.mrna), c(487, 20444))
    
    # a reasonable range of expression log2 ratios
-   checkEquals(fivenum(mtx.mrna), c(-28.7792 , -0.7019 , -0.0091  , 0.7126,  22.6737))
+   checkEquals(fivenum(mtx.mrna), c( -7.0216,-0.5486,-0.1815,0.3070,11946.7116))
    # all colnames should be recognzied gene symbols.  no isoform suffixes yet
    #   checkTrue(all(colnames(mtx.mrna) %in% keys(org.Hs.egSYMBOL2EG)))
    
@@ -142,7 +120,7 @@ testMutation <- function()
    load(file)
    checkTrue(exists("mtx.mut"))
    checkTrue(is(mtx.mut, "matrix"))
-   checkEquals(dim(mtx.mut), c(229, 14985))
+   checkEquals(dim(mtx.mut), c(261, 7047))
 
      # all colnames should be recognzied gene symbols.  no isoform suffixes yet
 #   checkTrue(all(colnames(mtx.mut) %in% keys(org.Hs.egSYMBOL2EG)))
@@ -169,7 +147,7 @@ testCopyNumber <- function()
    load(file)
    checkTrue(exists("mtx.cn"))
    checkTrue(is(mtx.cn, "matrix"))
-   checkEquals(dim(mtx.cn), c(515,22184))
+   checkEquals(dim(mtx.cn), c(492,22184))
 
      # all colnames should be recognzied gene symbols.  no isoform suffixes yet
 #   checkTrue(all(colnames(mtx.cn) %in% keys(org.Hs.egSYMBOL2EG)))
@@ -201,10 +179,10 @@ testProteinAbundance <- function()
    checkTrue(is(mtx.prot, "matrix"))
    checkEquals(class(mtx.prot[1,1]), "numeric")
 
-   checkEquals(dim(mtx.prot), c(181, 160))
+   checkEquals(dim(mtx.prot), c(164, 189))
 
      # a reasonable range of expression log2 ratios
-   checkEquals(fivenum(mtx.prot), c(-5.16140170, -0.64251724, -0.07039735, 0.56621271, 9.95972284))
+   checkEquals(fivenum(mtx.prot), c(-7.8361750, -0.6339603, -0.0540952, 0.5777883, 9.4782070))
    
      # all colnames should be recognzied gene symbols.  no isoform suffixes yet
 #   checkTrue(all(colnames(mtx.prot) %in% keys(org.Hs.egSYMBOL2EG)))
@@ -229,10 +207,10 @@ testMethylation <- function()
    checkTrue(is(mtx.meth, "matrix"))
    checkEquals(class(mtx.meth[1,1]), "numeric")
 
-   checkEquals(dim(mtx.meth), c(451, 16183))
+   checkEquals(dim(mtx.meth), c(425, 16145))
 
      # a reasonable range of expression log2 ratios
-   checkEquals(fivenum(mtx.meth), c(0.005455252, 0.056625729, 0.350787458, 0.727525677, 0.994087466))
+   checkEquals(fivenum(mtx.meth), c(0.005757664, 0.064872481, 0.395143834, 0.780270144, 0.994394023))
    
      # all colnames should be recognzied gene symbols.  no isoform suffixes yet
 #   checkTrue(all(colnames(mtx.methHM450) %in% keys(org.Hs.egSYMBOL2EG)))
@@ -240,28 +218,6 @@ testMethylation <- function()
      # all rownames should follow "TCGA.02.0014" format.  no multiply-sampled suffixes yet
    regex <- "^TCGA\\.\\w\\w\\.\\w\\w\\w\\w\\.[0-9][0-9]$"
    checkEquals(length(grep(regex, rownames(mtx.meth))), nrow(mtx.meth))
-   #----------mtx.methHM27------------------------
-   dir <- system.file(package="TCGAprad", "extdata")
-   checkTrue(file.exists(dir))
-   file <- file.path(dir, "mtx.methHM27.RData")
-   checkTrue(file.exists(file))
-   
-   load(file)
-   checkTrue(exists("mtx.meth"))
-   checkTrue(is(mtx.meth, "matrix"))
-   checkEquals(class(mtx.meth[1,1]), "numeric")
-   
-   checkEquals(dim(mtx.meth), c(126, 1637))
-   
-   # a reasonable range of expression log2 ratios
-   checkEquals(fivenum(mtx.meth), c(0.004523024, 0.048455925, 0.268191252, 0.672910534, 0.994422364))
-   
-   # all colnames should be recognzied gene symbols.  no isoform suffixes yet
-   #   checkTrue(all(colnames(mtx.methHM450) %in% keys(org.Hs.egSYMBOL2EG)))
-   
-   # all rownames should follow "TCGA.02.0014" format.  no multiply-sampled suffixes yet
-   regex <- "^TCGA\\.\\w\\w\\.\\w\\w\\w\\w\\.[0-9][0-9]$"
-
 } # testMethylation
 #--------------------------------------------------------------------------------
 testConstructor <- function()
@@ -269,10 +225,10 @@ testConstructor <- function()
    print("--- testConstructor")
 
    dp <- TCGAprad();
-   checkEquals(dim(manifest(dp)), c(8, 11))
-   checkEquals(length(matrices(dp)), 7)
-   checkEquals(names(matrices(dp)), c("mtx.cn","mtx.mrna","mtx.mrna", "mtx.mut", "mtx.prot", "mtx.meth", "mtx.meth"))
-   checkEquals(eventCount(history(dp)), 5506)
+   checkEquals(dim(manifest(dp)), c(6, 11))
+   checkEquals(length(matrices(dp)), 5)
+   checkEquals(names(matrices(dp)), c("mtx.cn","mtx.mrna", "mtx.mut", "mtx.prot","mtx.meth"))
+   checkEquals(eventCount(history(dp)), 4169)
    
 } # testConstructor
 #--------------------------------------------------------------------------------
@@ -282,7 +238,7 @@ testMatrixAndDataframeAccessors <- function()
    dp <- TCGAprad();
    checkTrue("mtx.cn" %in% names(matrices(dp)))
    samples <- head(entities(dp, "mtx.cn"), n=3)
-   checkEquals(samples, c("TCGA.05.4244.01", "TCGA.05.4249.01", "TCGA.05.4250.01"))
+   checkEquals(samples, c("TCGA.2A.A8VL.01","TCGA.2A.A8VO.01","TCGA.2A.A8VT.01"))
     
 
 } # testMatrixAndDataframeAccessors
@@ -296,23 +252,22 @@ testHistoryList <- function()
    checkTrue(is(ptHistory, "PatientHistoryClass"))
 
    events <- getList(ptHistory)
-   checkEquals(length(events), 5506)
+   checkEquals(length(events), 4169)
     
    event.counts <- as.list(table(unlist(lapply(events,
                            function(element) element$Name), use.names=FALSE)))
    checkEquals(event.counts,
-               list(Absent=50,
-                    Background=508,
-                    Birth=520,
-                    Diagnosis=520,
-                    Drug=354,
-                    Encounter=1530,
-                    Pathology=625,
-                    Procedure=99,
-                    Progression=30,
-                    Radiation=104,
-                    Status=520,
-                    Tests=646))
+               list(Absent=62,
+                    Background=497,
+                    Birth=497,
+                    Diagnosis=497,
+                    Drug=130,
+                    Pathology=529,
+                    Procedure=16,
+                    Progression=96,
+                    Radiation=78,
+                    Status=497,
+                    Tests=1270))
 
 } # testHistoryList
 #--------------------------------------------------------------------------------
@@ -326,13 +281,13 @@ testHistoryTable <- function()
 
    events <- getTable(ptHistory)
    checkEquals(class(events),"data.frame")
-   checkEquals(dim(events), c(520, 290))
+   checkEquals(dim(events), c(497, 188))
    checkEquals(colnames(events)[1:10], 
            c("ptID", "ptNum", "study", "Birth.date", "Birth.gender", "Birth.race", "Birth.ethnicity",
              "Drug.date1", "Drug.date2", "Drug.therapyType"))
    checkEquals(unique(events$study), "TCGAprad")
-   checkEquals(as.character(events[1,4]),"07/01/1938")
-   checkEquals(as.character(events[1,c("Survival", "AgeDx", "TimeFirstProgression")]), c("0", "25752", "NA"))
+   checkEquals(as.character(events[1,4]),"12/02/1958")
+   checkEquals(as.character(events[1,c("Survival", "AgeDx", "TimeFirstProgression")]), c("621","18658","NA"))
 
 } # testHistoryList
 #----------------------------------------------------------------------------------------------------
