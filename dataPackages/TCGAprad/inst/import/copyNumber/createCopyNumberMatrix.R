@@ -17,11 +17,12 @@ HugoGenes <- genes.tbl[match(EntrezGenes, genes.tbl[,1]), 2]
 
 table.cn <- table.cn[,-c(1,2)]
 list.cn <- strsplit(table.cn, ",")
-mtx.cn <- matrix(as.integer(unlist(list.cn)), nrow =length(BarcodeSample), byrow = F)
-mtx.cn <- matrix(as.integer(unlist(list.cn)), ncol=length(HugoGenes),byrow=F)
+#mtx.cn <- matrix(as.integer(unlist(list.cn)), nrow =length(BarcodeSample), byrow = F)
+mtx.cn <- matrix(as.integer(unlist(list.cn)), ncol=length(HugoGenes), byrow=F)
+mtx.cn <- mtx.cn[c(1:length(BarcodeSample)),]#the original file has ~600 samples data, with missing sample names
 dimnames(mtx.cn) <- list(BarcodeSample,HugoGenes)
 
-checkEquals(as.list(table(mtx.cn)), list(`-2`=41940,`-1`=2320655,  `0`=8607698, `1`=2598022, `2`=74845 ))
+checkEquals(as.list(table(mtx.cn)), list(`-2`=34604,`-1`=1876502,  `0`=6862199, `1`=2084823, `2`=56400 ))
 save(mtx.cn, file="../../extdata/mtx.cn.RData")
 
 
