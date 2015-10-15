@@ -12,17 +12,29 @@ var MarkersAndSamplesTestModule = (function () {
     var testStatusObserver = null;   // modified at the end of each dataset test
 
 //------------------------------------------------------------------------------------------------------------------------
-function runTests(dzName)
+function runTests(datasetNames)
 {
-      // run through some repetitions of the test
-      // condition the next test upon the completion of the preceeding one,
-      // which is detected by a change to the "status div"
+     // run through some repetitions of the test
+     // condition the next test upon the completion of the preceeding one,
+     // which is detected by a change to the "status div"
       
-   var datasetNames = ["DEMOdz", "TCGAgbm", "TCGAbrain"];
+   //var datasetNames = $("#datasetMenu").children().map(function() {return $(this).val();}).get();
+     // delete any empty strings
+   //datasetNames = datasetNames.filter(function(e) {return (e.length > 0);});
    var datasetIndex = -1;
    
    var config = {attributes: true, childList: true, characterData: true};
    var target =  document.querySelector("#markersTestStatusDiv");
+
+      // define the function called whenever the testStatusDiv changes,
+      // which is our signal that the next test is ready to run.
+      // the first test is kicked off when we -- after setting up and
+      // configuring the observer -- manually (see below: "start testing")
+      // change the target which the observer watches.
+      // there may be a better way, but for now we delete and recreate
+      // the observer at the end of each test.
+      // note also that the next dataset is determined inside this function
+      // and that the function refers to itself.
 
    var onMutation = function(mutations){
       mutation = mutations[0];
@@ -47,19 +59,7 @@ function runTests(dzName)
    testStatusObserver = new MutationObserver(onMutation);
    testStatusObserver.observe(target, config);
 
-
    $("#markersTestStatusDiv").text("start testing");
-   
-    /***********
-   while(datasetIndex < (datasetNames.length-1)){
-      datasetIndex++;
-      console.log("---| in datasetIndex loop, next up: " + datasetNames[datasetIndex]);
-      testStatusObserver.observe(target, config);
-      var statusMessage = "testing " + datasetNames[datasetIndex];
-      $("#markersTestStatusDiv").text(statusMessage);
-      }
-   **********/
-   //testLoadDataSetDisplayNetwork(datasetNames[0]);
 
 } // runTests
 //------------------------------------------------------------------------------------------------------------------------
@@ -122,26 +122,37 @@ function testLoadDataSetDisplayNetwork(dzName)
 
 } // testLoadDataSetThenProceed
 //------------------------------------------------------------------------------------------------------------------------
+// new approach
+//   1) clear selection
+//   2) find the node with highest degree
+//   3) select that node
+//   4) show edges, select all connected
+//   5) make sure selected node code -1 is equal to degree of the original node
 function testSearch()
 {
    console.log("--- Test.markers testSearch");
-   var gene = "EGFR";
    var searchBox = $("#markersAndTissuesSearchBox");
    var netOpsMenu = $("#cyMarkersOperationsMenu");
+   var nodes = cwMarkers.nodes().filterFn(function(node){return (node.data("nodeType") === "patient");});
+   var nodesByDegree = nodes.map(function(node){return {id:node.data("id"), degree:node.degree()};});
+   var mySort = function(a,b) {return(b.degree - a.degree);};
+   var mostConnectedNode = nodesByDegree.sort(mySort)[0];
+   console.log("mostConnectedNode: " + JSON.stringify(mostConnectedNode));
 
    QUnit.test("markers testSearch", function(assert){
      netOpsMenu.val("Hide All Edges");
      netOpsMenu.trigger("change");
      assert.equal(cwMarkers.filter("node:selected").length, 0);
-     searchBox.val(gene);
+     searchBox.val(mostConnectedNode.id);
      searchBox.trigger(jQuery.Event("keydown", {which: 13}));
      assert.equal(cwMarkers.filter("node:selected").length, 1);
      netOpsMenu.val("Show Edges from Selected Nodes");
      netOpsMenu.trigger("change");
      netOpsMenu.val("Select All Connected Nodes");
      netOpsMenu.trigger("change");
-     console.log("about to check for 10 selected nodes");
-     assert.ok(cwMarkers.filter("node:selected").length >= 9);
+     console.log("about to check for selected nodes");
+     var expectedSelectionCount = mostConnectedNode.degree + 1; // include self
+     assert.ok(cwMarkers.filter("node:selected").length == expectedSelectionCount);
      //testColorTumorsByClassification();
      recordEndOfTest();
      });
