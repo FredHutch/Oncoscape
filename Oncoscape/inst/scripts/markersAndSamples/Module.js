@@ -111,6 +111,11 @@ function initializeUI ()
    subSelectButton = $("#markersSubSelectButton");
    subSelectButton.click(subSelectNodes);
 
+  if(hub.socketConnected())
+     runAutomatedTestsIfAppropriate();
+  else
+     hub.addSocketConnectedFunction(runAutomatedTestsIfAppropriate);
+
    setInterval(function(){
       var count = cwMarkers.nodes("node:selected").length;
       var disable = (count === 0);
@@ -714,7 +719,9 @@ function showEdgesForNodes(cw, nodes)
 function selectAllConnectedNodes()
 {
     var selectedEdges = cwMarkers.filter("edge:visible");
-    selectSourceAndTargetNodesOfEdges(cwMarkers, selectedEdges);
+    selectedEdges = selectedEdges.filterFn(function(e){return (e.data("edgeType") !== "chromosome");});
+    if(selectedEdges.length > 0)
+       selectSourceAndTargetNodesOfEdges(cwMarkers, selectedEdges);
 
 } // selectAllConnectedNodes
 //----------------------------------------------------------------------------------------------------
@@ -1054,9 +1061,11 @@ function assessUserIdForTesting(msg)
    
    if(userID.indexOf("autotest") === 0){
       console.log("markersAndSamples/Module.js running tests for user " + userID);
-      var dzName = "DEMOdz";
-      markersTester.run(dzName);
-      console.log("back from markersTester.run('" + dzName + "')");
+      var datasetNames = $("#datasetMenu").children().map(function() {return $(this).val();}).get();
+         // delete any empty strings
+      datasetNames = datasetNames.filter(function(e) {return (e.length > 0);});
+      markersTester.run(datasetNames);
+      console.log("back from markersTester.run()");
       }
 
 } // assessUserIdForTesting
@@ -1070,7 +1079,8 @@ function assessUserIdForTesting(msg)
         hub.addMessageHandler("configureSampleCategorizationMenu", configureSampleCategorizationMenu);
         hub.addMessageHandler("markersApplyTumorCategorization", applyTumorCategorization);
         hub.addMessageHandler("markersAssessUserIdForTesting", assessUserIdForTesting);
-        hub.addSocketConnectedFunction(runAutomatedTestsIfAppropriate);
+        //hub.addSocketConnectedFunction(runAutomatedTestsIfAppropriate);
+        //hub.addDocumentReadyFunction(runAutomatedTestsIfAppropriate);
         hub.addOnDocumentReadyFunction(initializeUI);
        }
      };
