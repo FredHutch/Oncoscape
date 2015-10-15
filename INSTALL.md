@@ -27,6 +27,10 @@ analysis, and R dependency packages.
 
 - To install within the default R library, call "install" from the makefile.
 
+=======
+
+- To install within the default R library, call "install" from the makefile.
+
 	>make install
 
 (optional) Local installation of R packages
@@ -83,6 +87,5 @@ This first defines the app to run (scriptDir), user email for login (userID), da
    local modules, and runs the local make command to launch the process:
    
 	(cd Oncoscape/inst/scripts/apps/oncoscape/; make local;)
-
 
 
