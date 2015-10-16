@@ -12,7 +12,7 @@ var TimeLineModule = (function () {
     var thisModulesOutermostDiv = "patientTimeLinesDiv";
     
     var then, now;
-var test;
+
 	// Data Elements
 	//--------------------------------------------------------------------------------------------------
 		var EventTypes;
@@ -50,11 +50,7 @@ var test;
                                                         selectionDestinationsOfferedHere,
                                                         sendSelections,
                                                         sendSelectionsMenuTitle);  
-/// BUG FIX NECESSARY:		
-/// send resets display alignment
-/// possibly sends ids in non-standard form
-		$("#timeLineSendSelectionsMenu").css("display", "none")
-///		
+
         $(window).resize(HandleWindowResize);
 
         $("#AlignOptions").change(updateDisplayAlignment);
@@ -177,10 +173,10 @@ var test;
 	function sendSelections()
 	{
 	  var destination = sendSelectionMenu.val();
-	  selectedIDs = identifyEntitiesInCurrentSelection();
+	  var selectedIDs = identifyEntitiesInCurrentSelection();
 
 	  var cmd = "sendSelectionTo_" + destination;
-	  payload = {value: selectedIDs, count: selectedIDs.length, source: "timelines module"};
+	  var payload = {value: selectedIDs, count: selectedIDs.length, source: "timelines module"};
 	  var newMsg = {cmd: cmd,  callback: "", status: "request", payload: payload};
 
 	  sendSelectionMenu.val(sendSelectionsMenuTitle);
@@ -200,15 +196,24 @@ var test;
 	   	   ids = [];
 	   
 	   var selectedPts = ptOrderArray.slice(Math.max(Math.floor(y1)+1,0), Math.min(Math.ceil(y2), ptOrderArray.length-1));		//patient IDs within Y range
+    	var AlignOp = document.getElementById("AlignOptions");
+		var AlignBy = AlignOp.options[AlignOp.selectedIndex].text;
 	   
 	   for(var i=0; i < selectedPts.length; i++){		//return IDs with events in X range
 	   	  var ptObj = ptList[selectedPts[i]];
 		  var dateEvents = ptObj.dateEvents;
 		  for(var j=0;j<dateEvents.length;j++){
-			 if(LogTime(dateEvents[j].date-ptObj.offset) >=x1 & LogTime(dateEvents[j].date-ptObj.offset) <= x2) {
-				ids.push(selectedPts[i]);
-				break;
-		     } //if
+		     if(AlignBy == "--"){
+				 if(dateEvents[j].date-ptObj.offset >=x1 & dateEvents[j].date-ptObj.offset <= x2) {
+					ids.push(selectedPts[i]);
+					break;
+		    	 } //if
+		     }else{
+				 if(LogTime(dateEvents[j].date-ptObj.offset) >=x1 & LogTime(dateEvents[j].date-ptObj.offset) <= x2) {
+					ids.push(selectedPts[i]);
+					break;
+		    	 } //if
+		    }
 	   	  } // for dateEvents
 	   } // for patients
 
@@ -270,9 +275,21 @@ var test;
 	  hub.send(msg.json);
 
 	} // createTimelinesObjectOnServer
-
 //--------------------------------------------------------------------------------------------------     
      function handlePatientIDs(msg){
+  
+		if(msg.status == "request"){
+             var patientIDs = msg.payload.value;
+             ptOrderArray = patientIDs.filter(function(id){ return Object.keys(ptList).indexOf(id) !== -1 });
+			 OrderEvents();
+			 redrawSVG();
+        }
+        hub.raiseTab(thisModulesOutermostDiv);
+
+
+	} //handlePatientIDs
+//--------------------------------------------------------------------------------------------------     
+     function handlePatientIDs_server(msg){
   
           hub.raiseTab(thisModulesOutermostDiv);
 //          console.log(msg);
@@ -364,7 +381,7 @@ var test;
 		  for(var name in EventTypes){
 		  	if(EventTypes[name].dateIndicator) { dateEvents.push(name);} 
 		  }
-
+		  
 		  $(".plotCategoryOptions").empty(); $(".plotValueOptions").empty();
 		  $("#AlignOptions").empty(); 		 $("#AlignOptions").append("<option value='--' selected='selected'>--</option>");
 		  $(".OrderByDateOptions").empty();  $(".OrderByValueOptions").empty();
@@ -408,6 +425,11 @@ var test;
                 .attr("x", 12)
                 .style("font-size", "12px")
                 .text(function(d) { return d; });
+                
+          legend[0].forEach(function(d){
+        	if(EventTypes[d.textContent].disabled)
+        		d.children[0].style.opacity = 0.2
+          })
 	}
  //--------------------------------------------------------------------------------------------------     
      function ToggleVisibleEvent(d){
@@ -499,7 +521,7 @@ var test;
 
 				var EventMin= null, EventMax = null;
 				var allEvents = [];
-				ptOrderArray.forEach(function(d){  //return d.showPatient && !d.disabled;}), 
+				ptOrderArray.filter(function(id){ return ptList[id].showPatient }).forEach(function(d){  //return d.showPatient && !d.disabled;}), 
 					var activeEvents = ptList[d].dateEvents.filter(function(event){ return !EventTypes[event.name].disabled; });
 					if(activeEvents.length >0){
   					   allEvents = allEvents.concat(activeEvents);
@@ -592,9 +614,9 @@ var test;
 //	                     .attr("stroke-width", function(d){return d.strokeWidth;})
                          .on("mouseover", function(d,i){
                              Hoverbar.append("rect")
-                                .attr("x", (0 - SideBarSize.width - TimeLineMargin.left))
+                                .attr("x", (0 - 2*SideBarSize.width ))
                                 .attr("y", function(){return y(ptOrderArray.indexOf(d.id))+ PixelScale/(ptList[d.id].PatientHeight+1);})
-                                .attr("width", TimeLineSize.width + SideBarSize.width +TimeLineMargin.left)
+                                .attr("width", TimeLineSize.width + 2*SideBarSize.width +TimeLineMargin.left)
                                 .attr("height", function(){return PixelScale;})
                                 .style("fill", "grey").style("opacity", 0.3);    
 							 
@@ -603,7 +625,7 @@ var test;
 							 			tipOffset = (tipOffset < 0 ? tipOffset : 0);
 							 			var tipOffsetString = (d3.event.pageX + tipOffset) + "px";
 							 			return tipOffsetString; })		
-							 		.style("top", (d3.event.pageY+20) + "px")
+							 		.style("top", (d3.event.pageY+5) + "px")
 							 		.style("height", "250px").style("width", "350px");	
 							 tooltip.html(function(){
 								var EventsString = "<span ><b>" + Events[d.eventIDs[0].eventID].PatientID + ": </b>("+Events[d.eventIDs[0].eventID].study +")<br/>"; 
@@ -625,7 +647,7 @@ var test;
 								 $("#tooltipDiv").removeClass("eventHover").addClass("eventNoHover");}, 500);
                             })
                          .on("mousemove", function(){
-                            return tooltip.style("top",(d3.event.pageY+20)+"px")
+                            return tooltip.style("top",(d3.event.pageY+5)+"px")
                             		.style("left",function(){ 
 							 			var tipOffset = $(window).width() - (d3.event.pageX +400) ;
 							 			tipOffset = (tipOffset < 0 ? tipOffset : 0);
@@ -799,7 +821,7 @@ var test;
           		ptList[pt].offset = 0; 
 				ptList[pt].showPatient=true;
 				setOrderByVal(pt);
-				if(ptOrderArray.indexOf(pt) === -1) enterPts.push(pt);
+//				if(ptOrderArray.indexOf(pt) === -1) enterPts.push(pt);
           	}else{
 				ptList[pt].offset = null; 
 				ptList[pt].showPatient=false;
@@ -809,14 +831,14 @@ var test;
 					if(dateEvents[i].name == AlignBy){
 						ptList[pt].showPatient=true;
 						ptList[pt].offset = dateEvents[i].date;
-						if(ptOrderArray.indexOf(pt) === -1) enterPts.push(pt);
+//						if(ptOrderArray.indexOf(pt) === -1) enterPts.push(pt);
 						break; 
 					}
 				}
-				if(!ptList[pt].showPatient) {removePts.push(pt);}
+//				if(!ptList[pt].showPatient) {removePts.push(pt);}
 			}
  		}
-		updatePtOrderArray(enterPts, removePts);
+//		updatePtOrderArray(enterPts, removePts);
      }     
 
 //--------------------------------------------------------------------------------------------------
@@ -830,7 +852,7 @@ var test;
                 hub.addMessageHandler("TimelinesHandlePatientIDs", handlePatientIDs);
 //                hub.addMessageHandler("FilterTimelinePatients", FilterTimelinePatients);
                 hub.addMessageHandler("datasetSpecified", datasetSpecified);
-//                hub.setTitle("Timelines");
+                hub.setTitle("Timelines");
  //               hub.addSocketConnectedFunction(loadPatientDemoData);
           },
      };
@@ -840,5 +862,3 @@ var test;
 PatientTimeLine = TimeLineModule();
 PatientTimeLine.init();
 
-
-	  
