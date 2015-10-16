@@ -38,20 +38,34 @@ function handleWindowResize()
    survivalImageArea.height(newHeight);
   
 } // handleWindowResize
-//----------------------------------------------------------------------------------------------------
-function handlePatientIDs(msg)
-{
-   var ids = msg.payload.value;
-   var count = msg.payload.count;
-   var source = msg.payload.source;  
+//--------------------------------------------------------------------------------------------------     
+     function handlePatientIDs(msg){
+  
+		if(msg.status == "success"){
+             var patientIDs = msg.payload;            
+ 			  analyzeSelectedTissues(patientIDs, "");
+         } else{
+             console.log("survival handlePatientIDs about to call alert: " + msg);
+             alert(msg.payload);
+         }
 
-   if(typeof(ids) == "string")
-      ids = [ids];
+	} //handlePatientIDs
+//--------------------------------------------------------------------------------------------------     
+     function handleIncomingIDs(msg){
+          
+	   var ids = msg.payload.value;
+	   var count = msg.payload.count;
+	   var source = msg.payload.source;  
 
-   console.log("Survival module, " + msg.cmd + " count: " + count);
-   analyzeSelectedTissues(ids, "");
+	   if(typeof(ids) == "string")
+    	  ids = [ids];
 
-} // handleTissueIDsForSurivalStats
+	   console.log("Survival module, " + msg.cmd + " count: " + count);
+       msg = {cmd: "getPatientIDsFromDataset", callback: "survivalHandlePatientIDs", status: "request", 
+                    payload: ids};
+             hub.send(JSON.stringify(msg));
+     } // handlePatientIDs
+
 //----------------------------------------------------------------------------------------------------
 function analyzeSelectedTissues(patientIDs, title)
 {
@@ -171,7 +185,9 @@ return{
 	  hub.addMessageHandler("datasetSpecified", datasetSpecified);
       hub.addMessageHandler("survivalDatasetSpecified", datasetSpecified);
       hub.addMessageHandler("displaySurvivalCurves", displaySurvivalCurves);
-      hub.addMessageHandler("sendSelectionTo_survival", handlePatientIDs);
+      hub.addMessageHandler("sendSelectionTo_survival", handleIncomingIDs);
+      hub.addMessageHandler("survivalHandlePatientIDs", handlePatientIDs);
+      
       },
    sat: sat   // standalone test
    };
