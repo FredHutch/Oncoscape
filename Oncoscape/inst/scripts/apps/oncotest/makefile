@@ -11,5 +11,5 @@ kill:
 local: 
 	which R
 	m4 -E index.pre > index.html
-	R CMD INSTALL ../../../..
+	R CMD INSTALL -l $(R_LIBS) ../../../..
 	nohup R --vanilla -f runOncoscapeApp-7788.R &
