@@ -122,6 +122,9 @@ function initializeUI ()
       sendSelectionsMenu.attr("disabled", disable);
       subSelectButton.attr("disabled", disable);
       }, 500);
+      
+      hub.disableTab(thisModulesOutermostDiv)
+
  
 } // initializeUI
 //----------------------------------------------------------------------------------------------------
@@ -965,6 +968,9 @@ function configureSampleCategorizationMenu(msg)
 
    tumorCategorizationsMenu.val(titleOption);
    recordEvent(userID + " getSampleCategorizationNames complete");
+   
+   hub.enableTab(thisModulesOutermostDiv)
+
 
 } // configureSampleCategorizationMenu
 //----------------------------------------------------------------------------------------------------
