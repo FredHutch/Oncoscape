@@ -7,47 +7,35 @@ installAndTest: updatePackages testPackages
 # testiDEMOdz: this target not automatic until we have a permanent installation
 
 testPatientHistory:
-	svn up PatientHistory
 	R --vanilla CMD INSTALL --no-test-load --no-lock PatientHistory
 	R --vanilla -f PatientHistory/inst/unitTests/test_PatientHistory.R
 
 testSttrDataPackage:
-	svn up SttrDataPackage
 	R --vanilla CMD INSTALL --no-test-load --no-lock SttrDataPackage
 	R --vanilla -f SttrDataPackage/inst/unitTests/test_SttrDataPackage.R
 
 testDEMOdz:
-	svn up DEMOdz
 	R --vanilla CMD INSTALL --no-test-load --no-lock DEMOdz
 	R --vanilla -f DEMOdz/inst/unitTests/test_DEMOdz.R
 
 testTCGAgbm:
-	svn up TCGAgbm
 	R --vanilla CMD INSTALL --no-test-load --no-lock TCGAgbm
 	R --vanilla -f TCGAgbm/inst/unitTests/test_TCGAgbm.R
 
 testTCGAlgg:
-	svn up TCGAlgg
 	R --vanilla CMD INSTALL --no-test-load --no-lock TCGAlgg
 	R --vanilla -f TCGAlgg/inst/unitTests/test_TCGAlgg.R
 
 testTCGAbrain:
-	svn up TCGAbrain
 	R --vanilla CMD INSTALL --no-test-load --no-lock TCGAbrain
 	R --vanilla -f TCGAbrain/inst/unitTests/test_TCGAbrain.R
 
 updatePackages:
-	svn up PatientHistory
 	R --vanilla CMD INSTALL --no-test-load --no-lock PatientHistory
-	svn up SttrDataPackage
 	R --vanilla CMD INSTALL --no-test-load --no-lock SttrDataPackage
-	svn up DEMOdz
 	R --vanilla CMD INSTALL --no-test-load --no-lock DEMOdz
-	svn up TCGAlgg
 	R --vanilla CMD INSTALL --no-test-load --no-lock TCGAlgg
-	svn up TCGAgbm
 	R --vanilla CMD INSTALL --no-test-load --no-lock TCGAgbm
-	svn up TCGAbrain
 	R --vanilla CMD INSTALL --no-test-load --no-lock TCGAbrain
 	
 testPackages:
