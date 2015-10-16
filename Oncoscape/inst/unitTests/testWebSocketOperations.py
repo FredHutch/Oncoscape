@@ -9,7 +9,7 @@ ws = create_connection("ws://localhost:6001")
 def runTests():
 
   test_ping()
-  bug()
+#  bug()
   test_serverVersion();
   test_getDataFrame();
   test_getUserID();

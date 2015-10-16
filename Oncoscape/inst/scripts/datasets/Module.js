@@ -5,7 +5,7 @@ var DataSummaryModule = (function () {
 
   var outputDiv;
   var dataSetNamesOutputDiv;
-  var thisModulesName = "datasets";
+  var thisModulesName = "Datasets";
   var thisModulesOutermostDiv = "datasetsDiv";
 
   var tableElement;
@@ -222,7 +222,10 @@ function displayDataManifest(msg)
 function specifyCurrentDataset()
 {
    console.log("Module.datasets 'Use Dataset' button clicked, specifyCurrentDataset: " + selectedDataSet);
-
+ 
+   hub.disableAllTabsExcept([thisModulesOutermostDiv, "userDataStoreDiv", "ericTestDiv"])
+	$("#loadingDatasetMessage").css("display", "inline")
+	
    var msg = {cmd: "specifyCurrentDataset",  callback: "datasetSpecified", 
               status: "request", payload: selectedDataSet};
 
@@ -232,6 +235,7 @@ function specifyCurrentDataset()
 //----------------------------------------------------------------------------------------------------
 function datasetSpecified(msg)
 {
+	$("#loadingDatasetMessage").css("display", "none")
    console.log("--- Module.datasets:  datasetSpecified");
 
 } // datasetSpecified
