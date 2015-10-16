@@ -74,13 +74,12 @@ function setupSocket(socket)
         } // socked.onopen
 
      socket.onmessage = function got_packet(msg) {
-        //console.log("=== Hub, socket.onmessage");
         var msg = JSON.parse(msg.data)
         dispatchMessage(msg)
         } // socket.onmessage, got_packet
 
      socket.onclose = function(){
-        console.log("socket closing");
+        alert("Web socket connection to server has closed");
         } // socket.onclose
      } // try
   catch(exception) {
@@ -134,7 +133,7 @@ keepAlive = function()
 //--------------------------------------------------------------------------------------------------
 function runOnDocumentReadyFunctions()
 {
-  setInterval(keepAlive, 3000);
+  setInterval(keepAlive, 10000);  // 10 seconds
   var funcs = getOnDocumentReadyFunctions()
   console.log("==== Module.hub: " + funcs.length + " onDocumentReadyFunctions");
 
@@ -513,6 +512,7 @@ function start()
   setupGlobalExceptionHandler();
   initializeWebSocket();
   $(document).ready(runOnDocumentReadyFunctions);
+  QUnit.config.altertitle = false;
 
 }  // start
 //----------------------------------------------------------------------------------------------------
@@ -583,6 +583,7 @@ function standAloneTest()
      getDispatchOptions: getDispatchOptions,
      dispatchMessage: dispatchMessage,
      configureSendSelectionMenu: configureSendSelectionMenu,
+     openCenteredBrowserWindow: openCenteredBrowserWindow,
      enableButton: enableButton,
      disableButton: disableButton,
      enableTab: enableTab,

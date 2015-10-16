@@ -104,7 +104,6 @@ function selectManifest(event)
    console.log("dataset '" + selectedDataSet + "'");
 
    if(selectedDataSet === ""){
-     // outputDiv.empty();
       $("#datasetInstructions").css("display", "block")
       $("#datasetsManifestTable").css("display", "none")
       hub.disableButton(useThisDatasetButton);

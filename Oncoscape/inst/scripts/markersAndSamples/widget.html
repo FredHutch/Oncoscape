@@ -79,12 +79,11 @@ display: initial !important;
 
 
 <div id="markersAndPatientsDiv" class="container-fluid">
-  <div id="markersAndPatientsStatusDiv" style="display:none"></div>
    <div id="markersAndTissuesButtonDiv" style="margin-bottom: 0px; margin-top: 8px;">
       <input type="text" id="markersAndTissuesMouseOverReadout" disabled value="(names displayed here)"></input>
 
      <select id="cyMarkersOperationsMenu" type="button" class="btn btn-primary navbar-form selectpicker SelectionMenu" style="font-size:11pt"></select>
-     <select id="cyMarkersTumorCategorizationsMenu SelectionMenu" style="font-size:8pt; display:none"></select>
+     <select id="cyMarkersTumorCategorizationsMenu" class="SelectionMenu" style="font-size:8pt;"></select>
       
      <select class="chosen-select form-control dropdown navbar-form selectpicker SelectionMenu" 
                     style="width:280px;font-size:12pt"
@@ -95,7 +94,6 @@ display: initial !important;
            <option value="cnLoss.2" class="btn-info" selected>Copy-2</option>
            <option value="cnGain.1" class="btn-info" selected>C+1</option>
            <option value="cnLoss.1" class="btn-info" selected>C-1</option>
-           <option value="chromosome" class="btn-info" selected>Chrom</option>
        </select>
      
  
@@ -104,6 +102,7 @@ display: initial !important;
  
    <select class="btn btn-primary selectpicker SelectionMenu" type="button" id="markerLayouts"
             name="markerLayoutMenu"></select>
+   <button id="markersSubSelectButton">Subselect</button>
  
    </div>
    

@@ -1,13 +1,16 @@
 default:
-	m4 indexTabs.pre > index.html
-	R CMD INSTALL --no-test-load --no-lock ../../..
-	R -f runMarkersApp.R
+	jshint Module.js
+	jshint Test.js
+	m4 index.pre > index.html
+	R CMD INSTALL ../../..
+	R -f runMarkers.R
+#	nohup R -f runPLSR.R &
 
-pid:
-	ps aux | grep runMarkersApp | egrep -v grep
+onLopez: 
+	m4 index.pre > index.html
+	R CMD INSTALL ../../..
+	nohup R -f runMarkers.R &
 
+kill:
+	- kill `ps aux | grep runMarkers.R | grep -v grep | awk '{print $$2}'`
 
-test:
-	m4 indexTabs.pre > index.html
-	R --vanilla CMD INSTALL --no-test-load  ../../..
-	R --vanilla -f runMarkersTest.R

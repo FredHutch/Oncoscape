@@ -169,7 +169,7 @@ dispatchMessage <- function(WS, msg)
       return();
       }
     stopifnot(msg$cmd %in% ls(dispatchMap));
-    printf(">> ==== Oncoscape.dispatchMessage: %s", msg$cmd);
+    printf("====== Oncoscape.dispatchMessage: %s  [%s]", msg$cmd, format(Sys.time(), "%a %b %d %Y %X"));;
     function.name <- dispatchMap[[msg$cmd]]
     success <- TRUE   
     stopifnot(!is.null(function.name))

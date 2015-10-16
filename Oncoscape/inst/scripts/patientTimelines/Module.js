@@ -156,12 +156,12 @@ var TimeLineModule = (function () {
 //--------------------------------------------------------------------------------------------
 	function locationOf(val, array, start, end) {
 	  
-	  if (array.length >0 && ptList[array[0]].orderVal < val) return -1;
+	  if (array.length >0 && ptList[array[0]].orderVal < val || typeof val === "undefined") return -1;
 	  start = start || 0;
 	  end = end || array.length;
 	  var pivot = parseInt(start + (end - start) / 2, 10);
 	  if (end-start <= 1 || ptList[array[pivot]].orderVal === val) return pivot;
-	  if (ptList[array[pivot]].orderVal > val) {
+	  if (ptList[array[pivot]].orderVal > val || typeof ptList[array[pivot]].orderVal === "undefined") {
 		return locationOf(val, array, pivot, end);
 	  } else {
 		return locationOf(val, array, start, pivot);
@@ -278,27 +278,28 @@ var TimeLineModule = (function () {
 //--------------------------------------------------------------------------------------------------     
      function handlePatientIDs(msg){
   
-		if(msg.status == "request"){
-             var patientIDs = msg.payload.value;
+		if(msg.status == "success"){
+             var patientIDs = msg.payload;
+             
              ptOrderArray = patientIDs.filter(function(id){ return Object.keys(ptList).indexOf(id) !== -1 });
 			 OrderEvents();
 			 redrawSVG();
-        }
+        } else{
+             console.log("Timelines handlePatientIDs about to call alert: " + msg);
+             alert(msg.payload);
+         }
+
         hub.raiseTab(thisModulesOutermostDiv);
 
 
 	} //handlePatientIDs
 //--------------------------------------------------------------------------------------------------     
-     function handlePatientIDs_server(msg){
-  
-          hub.raiseTab(thisModulesOutermostDiv);
-//          console.log(msg);
+     function handleIncomingIDs(msg){
           
           if(msg.status == "request"){
-             patientIDs = msg.payload.value;
-             payload = patientIDs;
-             msg = {cmd: "calculateTimelines", callback: "DisplayPatientTimeLine", status: "request", 
-                    payload: payload};
+             var patientIDs = msg.payload.value;
+             msg = {cmd: "getPatientIDsFromDataset", callback: "TimelinesHandlePatientIDs", status: "request", 
+                    payload: patientIDs};
              hub.send(JSON.stringify(msg));
           }
           else{
@@ -633,11 +634,15 @@ var TimeLineModule = (function () {
 									var Fields = Events[d.eventIDs[i].eventID].Fields;
 									EventsString = EventsString + "<br/><b>"+ Events[d.eventIDs[i].eventID].Name + "</b><br/>";
 									for(var f in Fields) { 
-										//if(f == "date"){
-										//	EventsString = EventsString + f + ": " + getFormattedDate(Fields[f]) + "<br/>"; 
-										//}else{    		
+										if(f == "date"){
+											if(Fields[f].length >1){
+												EventsString = EventsString + f + ": " + getFormattedDate(Fields[f][0]) + ", "+ getFormattedDate(Fields[f][1]) + "<br/>"; 
+											}else{
+												EventsString = EventsString + f + ": " + getFormattedDate(Fields[f]) + "<br/>"; 
+											}
+										}else{    		
 											EventsString = EventsString + f + ": " + Fields[f] + "<br/>"; }
-										//}
+										}
 								}
 			                    return EventsString + "</span>"; });
 			                     $("#tooltipDiv").removeClass("eventNoHover").addClass("eventHover");})
@@ -748,6 +753,7 @@ var TimeLineModule = (function () {
 		for(var i=0; i<ptOrderArray.length; i++){
 			var calcEvent = ptList[ptOrderArray[i]].calcEvents[Valtype];
                var xBar = 0; var barWidth = calcEvent.value;
+               if(typeof calcEvent.value === "undefined") barWidth = 0;
                if(calcEvent.value < 0){ xBar = calcEvent.value; barWidth = Math.abs(calcEvent.value);  }
                BarSizes.push( {id: ptOrderArray[i], info: calcEvent.value, xBar: xBar, yBar: i,  width: barWidth, timeScale: calcEvent.units});
        }
@@ -847,13 +853,10 @@ var TimeLineModule = (function () {
           init: function(){
                 hub.addOnDocumentReadyFunction(initializeUI);
                 hub.registerSelectionDestination(selectionDestinationsOfferedHere, thisModulesOutermostDiv);
-                hub.addMessageHandler("sendSelectionTo_Timelines", handlePatientIDs);
+                hub.addMessageHandler("sendSelectionTo_Timelines", handleIncomingIDs);
                 hub.addMessageHandler("DisplayPatientTimeLine", loadPatientDataDisplay);
                 hub.addMessageHandler("TimelinesHandlePatientIDs", handlePatientIDs);
-//                hub.addMessageHandler("FilterTimelinePatients", FilterTimelinePatients);
                 hub.addMessageHandler("datasetSpecified", datasetSpecified);
-                hub.setTitle("Timelines");
- //               hub.addSocketConnectedFunction(loadPatientDemoData);
           },
      };
 
@@ -862,5 +865,3 @@ var TimeLineModule = (function () {
 PatientTimeLine = TimeLineModule();
 PatientTimeLine.init();
 
-
-	  

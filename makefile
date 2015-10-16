@@ -24,6 +24,7 @@ install:
 	. ./installRpackages_global.sh
 
 installLocal: 
+	mkdir -p $(R_LIBS)
 	. ./installRpackages_local.sh
 
 test:
@@ -59,4 +60,12 @@ installOncoscapeLocal:
 #   using all (9) current tabs
 oncoApp7777:
 	(cd Oncoscape/inst/scripts/apps/oncoscape/; make local;)
+
+# oncoApp7788: kills then launches R server: public Brain datasets on port 7777
+####
+#   kills current process and starts new one
+#   runs Oncoscape on port 7788 with DEMOdz & TCGAgbm
+#   using all (9) current tabs
+oncoApp7788:
+	(cd Oncoscape/inst/scripts/apps/oncotest/; make local;)
 

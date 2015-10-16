@@ -3,14 +3,30 @@ include(../index.common)
 include(../common.css)
 
 <script>
+
 include(../hub/Module.js)
 var hub = HubModule();
 hub.start();
-
 include(../tabsApp/code.js)
+
+include(../datasets/Module.js)
+include(../plsr/Module.js)
+include(../plsr/Test.js)
 </script>
 
-include(tabsTest.html)
+<body>
+
+  <div id="qunit" style="display:none"></div>
+  <div id="qunit-fixture"></div>
+
+<div id="oncoscapeTabs">
+   <ul>
+     <li><a href="#datasetsDiv">Datasets</a></li>
+     <li><a href="#plsrDiv">PLSR</a></li>
+   </ul>
+include(../datasets/widget.html)
+include(../plsr/widget.html)
+</div>
 
 </body>
 </html>

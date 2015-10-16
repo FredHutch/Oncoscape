@@ -33,6 +33,9 @@ createPLSR <- function(ws, msg)
    response <- plsrDataSummary(myplsr)
    return.msg <- list(cmd=msg$callback, callback="", status="response", payload=response)
    
+   if(!dir.exists("~/tmp"))
+	   dir.create("~/tmp")
+   
    printf("createPLSR about to send msg: %s", return.msg$cmd)
    
    ws$send(toJSON(return.msg));
@@ -57,20 +60,40 @@ calculate_plsr <- function(ws, msg)
       genes <- getGeneSetGenes(dataset, geneSetName)
       }
    printf("genes for calculatePLSR after possible lookup(%d)", length(genes))
-   #print(genes)
+   print(genes)
    factors.df <- msg$payload$factors
-   factors <- apply(factors.df, 1, as.list)
-   #print(factors)
+   print(factors.df)
+   factors <- vector("list", nrow(factors.df))
+   for(r in 1:nrow(factors.df)){
+      factors[[r]] <- as.list(factors.df[r,])
+      } # for r
+   
+   printf("--- factors.df assigned from msg$payload$factors");
+   
+   #factors <- apply(factors.df, 1, as.list)
+   #names(factors) <- NULL
+   save(factors.df, factors, file="~/tmp/factors.bug.RData")
+   printf("--- factors after apply on factors.df");
+   print(factors)
+
+   printf("--- factors: %d", length(factors))
+   for(factor in factors)
+       print(factors)
+   
+   printf("--- genes: %d", length(genes))
 
    print("------------ myplsr before calculate")
    myplsr <- state[["myplsr"]]
-   #printf("class(myplsr): %s", class(myplsr))
+   printf("class(myplsr): %s", class(myplsr))
           
    print(showMethods("calculatePLSR"))
-   printf("--- factors: %d", length(factors))
-   printf("--- genes: %d", length(genes))
+
+   save(factors, genes, file="~/tmp/calculatePLSR.inputs.RData")
 
    x <- calculatePLSR(myplsr, factors, genes)
+   printf("---- about to print result of calculatePLSR");
+   print(x)
+   
    payload <- list(loadings=x$loadings,
                    loadingNames=rownames(x$loadings),
                    vectors=x$loadVectors,

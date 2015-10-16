@@ -8,6 +8,8 @@
 
 <head>
    <meta charset="UTF-8">
+   <meta property="og:title" content="Oncoscape" />
+
    <title> OncoDev 1.4</title>
 
    <script src="http://code.jquery.com/qunit/qunit-1.18.0.js"></script>
@@ -19,8 +21,8 @@
    <link   rel="stylesheet" type="text/css"
            href="http://ajax.googleapis.com/ajax/libs/jqueryui/1.8.7/themes/smoothness/jquery-ui.css">
 
-   <!-- script src="http://oncoscape.sttrcancer.org/oncoscape/js/cytoscape-2.3.10.min.js"></script -->
-   <script src="http://oncoscape.sttrcancer.org/oncoscape/js/cytoscape-2.4.4.min.js"></script>
+   <!-- script src="http://oncoscape.sttrcancer.org/oncoscape/js/cytoscape-2.4.4.min.js"></script -->
+   <script src="http://oncoscape.sttrcancer.org/oncoscape/js/cytoscape-2.5.0.js"></script>
 
    <script src="http://oncoscape.sttrcancer.org/oncoscape/js/jquery.cytoscape.js-panzoom.js"></script>
    <link   href="http://oncoscape.sttrcancer.org/oncoscape/css/jquery.cytoscape.js-panzoom.css" 
@@ -44,6 +46,9 @@
    <script src="http://oncoscape.sttrcancer.org/oncoscape/js/chosen.jquery.min.js" type="text/javascript"></script>
    <link href="http://oncoscape.sttrcancer.org/oncoscape/css/chosen.min.css" media="screen" rel="stylesheet" type="text/css">
 
+    <link rel="SHORTCUT ICON" type="image/x-icon" href="http://oncoscape.sttrcancer.org/oncoscape/images/favicon.ico"/>
+    <link rel="ICON" type="image/x-icon" href="http://oncoscape.sttrcancer.org/oncoscape/images/favicon.ico"/>
+
 
 <script> 
 //--------------------------------------------------------------------------------------------------
@@ -58,6 +63,25 @@
   ga('send', 'pageview');
 //--------------------------------------------------------------------------------------------------
 </script> 
+
+<script>
+navigator.sayswho= (function(){
+    var ua= navigator.userAgent, tem,
+    M= ua.match(/(opera|chrome|safari|firefox|msie|trident(?=\/))\/?\s*(\d+)/i) || [];
+    if(/trident/i.test(M[1])){
+        tem=  /\brv[ :]+(\d+)/g.exec(ua) || [];
+        return 'IE '+(tem[1] || '');
+    }
+    if(M[1]!== 'Chrome'){
+       alert("Oncoscape is currently developed and tested under Chrome.  For best results, please use Chrome version 45.0 and later.")
+        tem= ua.match(/\b(OPR|Edge)\/(\d+)/);
+        if(tem!= null) return tem.slice(1).join(' ').replace('OPR', 'Opera');
+    }
+    M= M[2]? [M[1], M[2]]: [navigator.appName, navigator.appVersion, '-?'];
+    if((tem= ua.match(/version\/(\d+)/i))!= null) M.splice(1, 1, tem[1]);
+    return M.join(' ');
+})();
+</script>
 
 </head>
 
@@ -90,11 +114,17 @@ th,td {
    font-size:10pt !important;
    }
 
+.SelectionMenu{
+color: rgb(0, 0, 0); 
+background-color: rgb(255, 255, 255);
+}
 
 </style>
 
 
+
 <script>
+
 //----------------------------------------------------------------------------------------------------
 // These javascript functions and variables are arranged into a simple module so that
 // implementation details are kept private from the public API other oncoscape 
@@ -125,6 +155,12 @@ function registerModule(name, moduleObject)
    modules[name] = moduleObject;
 
 } // registerModule
+//----------------------------------------------------------------------------------------------------
+function getModuleNames()
+{
+   return(Object.getOwnPropertyNames(modules));
+
+} // getModuleNames
 //----------------------------------------------------------------------------------------------------
 function getModules()
 {
@@ -165,13 +201,12 @@ function setupSocket(socket)
         } // socked.onopen
 
      socket.onmessage = function got_packet(msg) {
-        //console.log("=== Hub, socket.onmessage");
         var msg = JSON.parse(msg.data)
         dispatchMessage(msg)
         } // socket.onmessage, got_packet
 
      socket.onclose = function(){
-        console.log("socket closing");
+        alert("Web socket connection to server has closed");
         } // socket.onclose
      } // try
   catch(exception) {
@@ -225,7 +260,7 @@ keepAlive = function()
 //--------------------------------------------------------------------------------------------------
 function runOnDocumentReadyFunctions()
 {
-  setInterval(keepAlive, 30000);
+  setInterval(keepAlive, 10000);  // 10 seconds
   var funcs = getOnDocumentReadyFunctions()
   console.log("==== Module.hub: " + funcs.length + " onDocumentReadyFunctions");
 
@@ -288,7 +323,7 @@ function dispatchMessage(msg)
 {
    var cmd = msg.cmd;
    var status = msg.status;
-   //console.log("=============== dispatching '" + cmd + "'");
+   console.log("====== Mondule.hub dispatchMessage '" + cmd + "' [" + Date() + "]" );
 
    var dispatchKeys = Object.keys(dispatchOptions);
    var cmdIndex = dispatchKeys.indexOf(cmd);
@@ -388,36 +423,28 @@ function enableButton(button)
 
 } // enableButton
 //--------------------------------------------------------------------------------------------
-// from http://stackoverflow.com/questions/4068373/center-a-popup-window-on-screen
-function openCenteredBrowserWindow(url, title, w, h, replaceAnyExistingPopup) {
+function disableAllTabsExcept(tabIDstring)
+{
+  if(typeof tabIDstring == "string") tabIDstring = [tabIDstring]
+  var allDivIDs = getTabDivIDs()
+  allDivIDs = allDivIDs.filter(function(i, id){ return(tabIDstring.indexOf(id) == -1) })
+  for(var i=0;i<allDivIDs.length; i++){  	disableTab(allDivIDs[i]) }
+  
+  return allDivIDs;  //returns divIDs that have been disabled
+  
+} // disableTab
 
-      // Fixes dual-screen position                       Most browsers      Firefox
-    var dualScreenLeft = window.screenLeft != undefined ? window.screenLeft : screen.left;
-    var dualScreenTop = window.screenTop != undefined ? window.screenTop : screen.top;
+//--------------------------------------------------------------------------------------------
+function disableTab(tabIDstring)
+{
+  $( "#oncoscapeTabs" ).tabs( "disable", "#" + tabIDstring  )
+} // disableTab
+//--------------------------------------------------------------------------------------------
+function enableTab(tabIDstring)
+{
+  $( "#oncoscapeTabs" ).tabs( "enable", "#" + tabIDstring   )
+} // enableTab
 
-    width = window.innerWidth ? window.innerWidth : document.documentElement.clientWidth ? document.documentElement.clientWidth : screen.width;
-    height = window.innerHeight ? window.innerHeight : document.documentElement.clientHeight ? document.documentElement.clientHeight : screen.height;
-
-    var left = ((width / 2) - (w / 2)) + dualScreenLeft;
-    var top = ((height / 2) - (h / 2)) + dualScreenTop;
-    var options = 'scrollbars=yes, width=' + w + ', height=' + h + ', top=' + top + ', left=' + left;
-
-    var newWindow;
-
-      // warning, a bug: when multiple popup windows are created, they
-      // all have the same content -- not what we want.  fix this
-      // by severing their relationship, and/or switching to jQuery dialog
-
-    if(replaceAnyExistingPopup)
-      newWindow = window.open(url, title, options);
-    else // leave any existing popup windows untouched
-      newWindow = window.open(url, "_blank", options);
-
-    if (window.focus) {
-       newWindow.focus();
-       }
-
-} // openCenteredBrowserWindow
 //--------------------------------------------------------------------------------------------
 // if jQuery-style tabs are in use with Oncoscape, this function raised the named tab to the
 // the front (visible) position in the tabset
@@ -440,6 +467,18 @@ function raiseTab(tabIDString)
 //----------------------------------------------------------------------------------------------------
 // each of our tabs is a div, nested directly within $("oncoscapeTabs").  
 // this function returns an array of each of the div ids
+function getTabNames()
+{
+  var tabNames = $("#oncoscapeTabs").children()[0].textContent.trim().split("\n")
+  for (i=0;i< tabNames.length; i++){ tabNames[i] = tabNames[i].trim()}
+  tabNames =tabNames.filter(function(name){return name != ""})
+
+	return tabNames;
+
+} // getTabDivIDs
+//----------------------------------------------------------------------------------------------------
+// each of our tabs has a title within the $("oncoscapeTabs") nav bar
+// this function returns an array of each tab Title
 function getTabDivIDs()
 {
    return ($("#oncoscapeTabs").children("div").map(function(index,dom){return dom.id}));
@@ -451,6 +490,13 @@ function hideTab(tabTitle, tabDivIDstring)
 {
   $(".ui-tabs-nav li:contains('" + tabTitle + "')").hide()
   $(tabDivIDstring).hide();
+
+} // hideTab
+//----------------------------------------------------------------------------------------------------
+// e.g., hub.hideTabNav("Login");
+function hideTabNav(tabTitle)
+{
+  $(".ui-tabs-nav li:contains('" + tabTitle + "')").hide()
 
 } // hideTab
 //----------------------------------------------------------------------------------------------------
@@ -562,6 +608,7 @@ function start()
   setupGlobalExceptionHandler();
   initializeWebSocket();
   $(document).ready(runOnDocumentReadyFunctions);
+  QUnit.config.altertitle = false;
 
 }  // start
 //----------------------------------------------------------------------------------------------------
@@ -633,6 +680,9 @@ function standAloneTest()
      configureSendSelectionMenu: configureSendSelectionMenu,
      enableButton: enableButton,
      disableButton: disableButton,
+     enableTab: enableTab,
+     disableTab: disableTab,
+     disableAllTabsExcept: disableAllTabsExcept,
      getRandomInt: getRandomInt,
      getRandomFloat: getRandomFloat,
      intersectionOfArrays: intersectionOfArrays,
@@ -640,11 +690,12 @@ function standAloneTest()
      send: send,
      setTitle: setTitle,
      getTabDivIDs: getTabDivIDs,
+     getTabNames: getTabNames,
      raiseTab: raiseTab,
      hideTab: hideTab,
+     hideTabNav: hideTabNav,
      showTab: showTab,
      addTab: addTab,
-     openCenteredBrowserWindow: openCenteredBrowserWindow,
      sat: standAloneTest,
      start: start
      });
@@ -655,6 +706,7 @@ function standAloneTest()
 
 var hub = HubModule();
 hub.start();
+
 hub.addOnDocumentReadyFunction(function() {
     console.log("====== tabapps document ready");
     window.tabsAppRunning = true
@@ -674,10 +726,11 @@ hub.addOnDocumentReadyFunction(function() {
                } // if
             //console.log(" ==== tab.activate, possible cyjs resize and fit");
             if(typeof(cwMarkers) != "undefined") {
-               //console.log("adjusting cwMarkers");
+               console.log("adjusting cwMarkers");
                cwMarkers.resize(); 
+               console.log("after resize");
                cwMarkers.fit(50);
-               //console.log("done adjusting cwMarkers");
+               console.log("done adjusting cwMarkers");
                }
             if(typeof(cyGbm) != "undefined") {
                //console.log("adjusting cwGbm");
@@ -701,115 +754,6 @@ hub.addOnDocumentReadyFunction(function() {
 
 
 
-// markersAndSamples/Test.js
-//------------------------------------------------------------------------------------------------------------------------
-
-    // observers used in QUnit testing
-var markersAndSamplesStatusObserver = null;
-
-
-var MarkersAndSamplesTestModule = (function () {
-
-//------------------------------------------------------------------------------------------------------------------------
-runTests = function(show)
-{
-   if(show) showTests();
-
-   testLoadDataSetThenProceed();
-
-} // runTests
-//------------------------------------------------------------------------------------------------------------------------
-showTests = function()
-{
-   $("#qunit").css({"display": "block"});
-
-} // showTests
-//------------------------------------------------------------------------------------------------------------------------
-hideTests = function()
-{
-   $("#qunit").css({"display": "none"});
-
-} // hide
-//------------------------------------------------------------------------------------------------------------------------
-function testLoadDataSetThenProceed()
-{
-   var testTitle = "testLoadDataSet";
-   console.log(testTitle);
-   hub.raiseTab("markersAndPatientsDiv")
-     
-     // we could use the datasets tab menu to select the dataset, then click the button.
-     // easier and quite adequate for our purposes is to simply send out the message which
-     // these ui actions create
-
-   var msg = {cmd: "specifyCurrentDataset", callback: "datasetSpecified", status: "request", payload: "DEMOdz"};
-      // when our module receives the 'datasetSpecified' msg, which is accompanied by the dataset's manifest
-      // it looks for the markersAndSamples data object in the manifest, requests it be sent if it is there
-      // when that data is loaded and ready, the module updates the status div; we watch for that, then
-      // check that a reasonable number of nodes are contained in the loaded graph.
-
-
-   if(markersAndSamplesStatusObserver == null){
-      console.log("createing observer");
-      markersAndSamplesStatusObserver = new MutationObserver(function(mutations) {
-        console.log(1);
-        mutation = mutations[0];
-        console.log(2);
-        markersAndSamplesStatusObserver.disconnect();
-        console.log(3);
-        markersAndSamplesStatusObserver = null;
-        console.log(4);
-        var id = mutation.target.id;
-        console.log(5);
-        var msg = $("#markersAndSamplesStatusDiv").text();
-        QUnit.test("markersAndSamples loaded", function(assert) {
-           console.log("in qunit.test");
-           var nodeCount = cwMarkers.nodes().length;
-           var edgeCount = cwMarkers.edges().length;
-           console.log("markersAndSamples loaded, with " + nodeCount + " nodes and " + edgeCount + " edges.");
-           assert.ok(nodeCount > 10);
-           assert.ok(edgeCount > 10);
-           })
-        }); // new MutationObserver
-      } // if null mutation observer
-
-   var config = {attributes: true, childList: true, characterData: true};
-   console.log("about to request observe");
-   var target = document.querySelector("#markersAndPatientsStatusDiv");
-   markersAndSamplesStatusObserver.observe(target, config);
-
-   console.log("about to send specifyCurrentDataset msg");
-   hub.send(JSON.stringify(msg));
-   console.log("leaving testLoadDataSetThenProceed");
-
-}; // testLoadDataSetThenProceed
-//------------------------------------------------------------------------------------------------------------------------
-function initialize()
-{
-   console.log("--- initializing markersAndSamples/Test.js");
-
-} // initialize
-//------------------------------------------------------------------------------------------------------------------------
-return{
-   init: initialize,
-   run: runTests,
-   show: showTests,
-   hide: hideTests
-   }; // module return value
-
-//------------------------------------------------------------------------------------------------------------------------
-}); // MarkersAndSamplesTestModule
-
-mast = MarkersAndSamplesTestModule();
-//mast.run(true);
-
-</script>
-<style>
-.ui-tabs .ui-tabs-nav li a {font-size:10pt !important;}
-.ui-button .ui-button-text {font-size:10pt !important;}
-</style>
-
-
-<script>
 //----------------------------------------------------------------------------------------------------
 var DataSummaryModule = (function () {
 
@@ -869,6 +813,11 @@ function initializeUI()
     hub.disableButton($("#datasetMenu"));
     }
 
+   if(hub.socketConnected())
+      populateDataSetMenu();
+   else
+     hub.addSocketConnectedFunction(populateDataSetMenu);
+
 } // initializeUI
 //----------------------------------------------------------------------------------------------------
 function postStatus(msg)
@@ -880,7 +829,7 @@ function postStatus(msg)
 function handleWindowResize()
 {
   $("#"+thisModulesOutermostDiv).width($(window).width() * 0.95);
-  $("#"+thisModulesOutermostDiv).height($(window).height() * 0.95);
+//  $("#"+thisModulesOutermostDiv).height($(window).height() * 0.95);
 
 //  console.log("  div: " + outputDiv.width());
 //  console.log("  tbl before: " + tableElement.width());
@@ -911,7 +860,6 @@ function selectManifest(event)
    console.log("dataset '" + selectedDataSet + "'");
 
    if(selectedDataSet === ""){
-     // outputDiv.empty();
       $("#datasetInstructions").css("display", "block")
       $("#datasetsManifestTable").css("display", "none")
       hub.disableButton(useThisDatasetButton);
@@ -926,12 +874,12 @@ function selectManifest(event)
 //----------------------------------------------------------------------------------------------------
 function populateDataSetMenu()
 {
-   $(datasetMenu).ready(function() {
-      console.log("=== datasetMenu ready, now issuing populateDataSetMenu request to server");
-      var msg = {cmd: "getDataSetNames",  callback: "handleDataSetNames", status: "request", 
-                 payload: ""};
-      hub.send(JSON.stringify(msg));
-      });
+   console.log("Module.datasets, entering populateDataSetMenu");
+
+   console.log("      socket connected? " + hub.socketConnected());
+   console.log("=== datasetMenu ready, now issuing populateDataSetMenu request to server");
+   var msg = {cmd: "getDataSetNames",  callback: "handleDataSetNames", status: "request", payload: ""};
+   hub.send(JSON.stringify(msg));
 
 } // populateDataSetMenu
 //----------------------------------------------------------------------------------------------------
@@ -1080,15 +1028,11 @@ function test(dataSetName)
 //----------------------------------------------------------------------------------------------------
 function moduleInit()
 {
-
   hub.addOnDocumentReadyFunction(initializeUI);
-  // hub.addOnDocumentReadyFunction(function() {$("#datasetsDiv").hide();});
-  // hub.registerSelectionDestination(thisModulesName, thisModulesOutermostDiv);
-  hub.addSocketConnectedFunction(populateDataSetMenu);
+  //hub.addSocketConnectedFunction(populateDataSetMenu);
   hub.addMessageHandler("handleDataSetNames", handleDataSetNames);
   hub.addMessageHandler("displayDataManifest", displayDataManifest);
   hub.addMessageHandler("datasetSpecified", datasetSpecified);
-  //hub.setTitle("Datasets");
 
 } // moduleInit
 //----------------------------------------------------------------------------------------------------
@@ -1105,409 +1049,11 @@ dataSummaryModule.init();
 hub.registerModule("Datasets", dataSummaryModule);
 
 //----------------------------------------------------------------------------------------------------
-var patientHistoryTableRef;
-
-var ageAtDxMinReadout;
-var ageAtDxMaxReadout;
-var survivalMinReadout, survivalMaxReadout;
-
-var ageAtDxMin, ageAtDxMax;
-var ageAtDxSlider, survivalSlider;
-var survivalMin, survivalMax;
-
-
-var PatientHistoryModule = (function () {
-
-  var statusDiv;
-  var patientHistoryDiv;
-  var controlsDiv;
-  var tableDiv;
-  var tableElement;
-  var sendSelectionsMenu;
-
-  var thisModulesName = "patientHistory";
-  var thisModulesOutermostDiv = "patientHistoryDiv";
-  var selectionDestinations = [thisModulesName];
-
-  var sendSelectionsMenuTitle = "Send selection...";
-  var showAllRowsButton;
-  
-//--------------------------------------------------------------------------------------------
-function initializeUI()
-{
-  console.log("=== Module.patientHistory, initializeUID");
-
-  $(window).resize(handleWindowResize);
-
-  statusDiv = $("#patientHistoryStatusDiv");
-
-  patientHistoryDiv = $("#patientHistoryDiv");
-  controlsDiv = $("#patientHistoryControlsDiv");
-  tableDiv = $("#patientHistoryTableDiv");
-  tableElement = $("#patientHistoryTable");
-
-  showAllRowsButton = $("#patientHistoryShowAllRowsButton");
-  showAllRowsButton.click(showAllRows);
-
-  sendSelectionsMenu = hub.configureSendSelectionMenu("#patientHistorySendSelectionsMenu", 
-                                                      selectionDestinations, sendSelections,
-                                                      sendSelectionsMenuTitle);
-
-  handleWindowResize();
-
-} // initializeUI
-//----------------------------------------------------------------------------------------------------
-function createDataTable(colnames, data)
-{
-      // DataTable likes some structure for column titles
-
-   var columnTitles = [];
-   for(var i=0; i < colnames.length; i++){
-     columnTitles.push({sTitle: colnames[i]});
-     }
-
-   if(typeof(patientHistoryTableRef) != "undefined"){
-      patientHistoryTableRef.destroy();
-      tableElement.empty();
-      }
-
-   patientHistoryTableRef = tableElement.DataTable({
-                             data: data,
-                             columns: columnTitles,
-                             //dom: "C<fi<t>>",
-                             dom: 'C<"clear">lfrtip',
-                             paging: false,
-                             jQueryUI: false
-                             });
-
-   if(colnames.indexOf("AgeDx") >= 0){
-      var minMax = learnSliderMinAndMax(data, colnames.indexOf("AgeDx"));
-      console.log("minMax for AgeDx: ");
-      console.log(minMax);
-      ageAtDxMin = minMax[0];
-      ageAtDxMax = minMax[1];
-         // slider, title & readouts for specifying age range for table display
-      createAgeAtDiagnosisWidget(ageAtDxMin, ageAtDxMax);  
-      } // ageAtDx slider
-
-   if(colnames.indexOf("Survival") >= 0){
-      minMax = learnSliderMinAndMax(data, colnames.indexOf("Survival"));
-      console.log("minMax for Survival: ");
-      console.log(minMax);
-      survivalMin = minMax[0];
-      survivalMax = minMax[1];
-         // slider, title & readouts for specifying age range for table display
-      createSurvivalWidget(survivalMin, survivalMax);  
-      } // survival slider
-
-   showAllRows();
-   setupSliderDrivenFilterBehavior(colnames);
- 
-
-} // createDataTable
-//----------------------------------------------------------------------------------------------------
-function setupSliderDrivenFilterBehavior(colnames)
-{
-  var ageDxColumn = colnames.indexOf("AgeDx");
-  var survivalColumn = colnames.indexOf("Survival");
-
-  if(ageDxColumn >= 0) {
-    jQuery.fn.dataTable.ext.search.push(
-       function(settings, data, dataIndex) {
-         var ageAtDxMin      = parseFloat(ageAtDxMinReadout.val());
-         var ageAtDxMax      = parseFloat(ageAtDxMaxReadout.val());
-
-         var patientAgeAtDx  = parseFloat(data[ageDxColumn]) || 0;
- 
-         var ageAtDxInRange  = (patientAgeAtDx >= ageAtDxMin) && (patientAgeAtDx <= ageAtDxMax);
-         if(ageAtDxInRange)
-            return true;
-         return false;
-        }); // anonymous function
-      } // push
-
-  if(survivalColumn >= 0) {
-    jQuery.fn.dataTable.ext.search.push(
-       function(settings, data, dataIndex) {
-         var survivalMin      = parseFloat(survivalMinReadout.val());
-         var survivalMax      = parseFloat(survivalMaxReadout.val());
-
-         var patientSurvival  = parseFloat(data[survivalColumn]) || 0;
-         var survivalInRange  = (patientSurvival >= survivalMin) && (patientSurvival <= survivalMax);
-         if(survivalInRange)
-            return true;
-         return false;
-        }); // anonymous function
-      } // push
-
-
-} // setupSliderDrivenFilterBehavior
-//----------------------------------------------------------------------------------------------------
-function createAgeAtDiagnosisWidget(minValue, maxValue)
-{
-  ageAtDxSlider = $("#ageAtDxSlider");
-  ageAtDxMinReadout = $("#ageAtDxMinSliderReadout");
-  ageAtDxMaxReadout = $("#ageAtDxMaxSliderReadout");
-
-  ageAtDxSlider.slider({
-     range: true,
-     slide: function(event, ui) {
-        //console.log("AgeDx: " + ui.values[0] + ", " + ui.values[1]);
-        if(ui.values[0] > ui.values[1]){
-           return false;
-           }          
-       ageAtDxMinReadout.text (ui.values[0]);
-       ageAtDxMaxReadout.text (ui.values[1]);
-       patientHistoryTableRef.draw();
-       handleWindowResize();
-       //updateRowCountReadout();
-       },
-    min: minValue,
-    max: maxValue,
-    values: [minValue, maxValue]
-    });
-
-  ageAtDxMinReadout.text(minValue);
-  ageAtDxMaxReadout.text(maxValue);
-
-} // createAgeAtDiagnosisWidget
-//----------------------------------------------------------------------------------------------------
-function createSurvivalWidget(minValue, maxValue)
-{
-  survivalSlider = $("#survivalSlider");
-  survivalMinReadout = $("#survivalMinSliderReadout");
-  survivalMaxReadout = $("#survivalMaxSliderReadout");
-  console.log("createSurvivalWidget");
-
-  survivalSlider.slider({
-     range: true,
-     slide: function(event, ui) {
-        //console.log("survival: " + ui.values[0] + ", " + ui.values[1]);
-        if(ui.values[0] > ui.values[1]){
-           return false;
-           }          
-       survivalMinReadout.text (ui.values[0]);
-       survivalMaxReadout.text (ui.values[1]);
-       patientHistoryTableRef.draw();
-       handleWindowResize();
-       },
-    min: minValue,
-    max: maxValue,
-    values: [minValue, maxValue]
-    });
-
-  survivalMinReadout.text(minValue);
-  survivalMaxReadout.text(maxValue);
-
-} // createSurvivalWidget
-//----------------------------------------------------------------------------------------------------
-// when the patient history table arrives, the filtering sliders can be setup, using the 
-// min and max values of selected columns.  our sliders are currently ageAtDx and survival.
-// the column numbers for these are specified by the caller.  missing values are not
-// troublesome to Javascript's min and max functions.  note the use of floor and ceil,
-// to nudge min and max values out a bit.
-function learnSliderMinAndMax(tbl, columnNumber)
-{
-  var rowCount = tbl.length;
-  var min = Number.MAX_VALUE;
-  var max = -Number.MAX_VALUE;
-
-  for(var r=0; r < rowCount; r++){
-    var value = Number.parseFloat(tbl[r][columnNumber]);
-    //console.log(value)
-    if(value < min)
-      min = value;
-    if(value > max)
-      max = value;
-    } // for r
-
-  return[Math.floor(min), Math.ceil(max)];
-
-} // learnSliderMinAndMax
-//----------------------------------------------------------------------------------------------------
-function showAllRows()
-{
-   if(typeof(ageAtDxMin)  != "undefined" &&
-      typeof(ageAtDxMax)  != "undefined" &&
-      typeof(survivalMin) != "undefined" &&
-      typeof(survivalMax) != "undefined") {
-
-        ageAtDxSlider.slider("values", [ageAtDxMin, ageAtDxMax]);
-        survivalSlider.slider("values", [survivalMin, survivalMax]);
-        ageAtDxMinReadout.text(ageAtDxMin);
-        ageAtDxMaxReadout.text(ageAtDxMax);
-        survivalMinReadout.text(survivalMin);
-        survivalMaxReadout.text(survivalMax);
-        } // all 4 min/max slider values defined
-
-    // chained calls: clear the DataTable search box, then iterate through the columns, then render
-
-   if(typeof(patientHistoryTableRef) != "undefined")
-       patientHistoryTableRef.search('').columns().search('').draw();
-
-   handleWindowResize();
-
-} // showAllRows
-//----------------------------------------------------------------------------------------------------
-function handleWindowResize()
-{
-
-  patientHistoryDiv.width($(window).width() * 0.95);
-  patientHistoryDiv.height($(window).height() * 0.90);  // leave room for tabs above
-
-  //controlsDiv.width($(window).width() * 0.90);
-  controlsDiv.width(patientHistoryDiv.width()); //  * 0.95);
-  controlsDiv.height("100px");
-
-  tableDiv.width(patientHistoryDiv.width()); //  * 0.95);
-  tableDiv.height(patientHistoryDiv.height() - 130);
-
-} // handleWindowResize
-//--------------------------------------------------------------------------------------------
-function sendSelections(event)
-{
-   var destination = sendSelectionsMenu.val();
-
-   var visibleRows = patientHistoryTableRef.rows({'filter': 'applied'})[0];
-   if(visibleRows.length === 0)
-      return;
-
-   var selectedIDs = [];
-
-   var data = patientHistoryTableRef.data();
-
-   for(var i=0; i < visibleRows.length; i++){
-      var id = data[visibleRows[i]][0];
-      selectedIDs.push(id);
-      } // for i
-
-   var cmd = "sendSelectionTo_" + destination;
-
-   payload = {value: selectedIDs, count: selectedIDs.length, source: "patient history module"};
-   var newMsg = {cmd: cmd,  callback: "", status: "request", payload: payload};
-
-   sendSelectionsMenu.val(sendSelectionsMenuTitle);
-
-   hub.send(JSON.stringify(newMsg));
-
-} // sendSelections
-//--------------------------------------------------------------------------------------------
-function handleSelections(msg)
-{
-   showAllRows();
-   var ids = msg.payload.value;
-   if(typeof(ids) == "string")
-      ids = [ids];
-
-      // incoming ids may have trailing version number, e.g., "TCGA.02.0114.01"
-      // strip all such 2-digit suffixes:
-
-   ids = ids.map(function(id) {return(id.replace(/\.0[0-9]$/, ""))})
-   filterByString(ids);
-   hub.raiseTab(thisModulesOutermostDiv);
-
-} // handleSelections
-//----------------------------------------------------------------------------------------------------
-filterByString = function(strings)
-{
-   var filterString = strings[0];
-   for(var i=1; i < strings.length; i++){
-     filterString += "|" + strings[i];
-     }
-
-   showAllRows();
-   console.log(filterString);
-
-   if(typeof(patientHistoryTableRef) != "undefined")
-      patientHistoryTableRef.search(filterString, true, false).draw();   // string, regex, smart
-
-}; // filterByString
-//----------------------------------------------------------------------------------------------------
-function displayPatientHistoryTable(msg)
-{
-   var payload = msg.payload;
-   var colnames = payload.colnames;
-   var data = payload.tbl; // an array of arrays
-
-   console.log("incoming table, rows: " + data.length);
-   console.log("incoming table, cols: " + data[0].length);
-   createDataTable(colnames, data);
-   postStatus("patientHistory data table loaded");
-   // hub.raiseTab(thisModulesOutermostDiv);
-
-}  // displayPatientHistoryTable
-//----------------------------------------------------------------------------------------------------
-function postStatus(msg)
-{
-  statusDiv.text(msg);
-
-} // postStatus
-//----------------------------------------------------------------------------------------------------
-// called when the a dataset has been specified, typically via the Datasets tab, which presents
-// the user with a list of the datasets they are able to use, from which they choose one at a time
-// as their current working dataset.
-// this module uses the dataset name to request the patient history table from the server
-function datasetSpecified (msg)
-{
-   var datasetName = msg.payload;
-
-     // request patient data table
-   var payload = {datasetName: datasetName, durationFormat: "byYear"};
-   var newMsg = {cmd: "getPatientHistoryTable",  callback: "displayPatientHistoryTable", 
-                 status: "request", payload: payload};
-
-   hub.send(JSON.stringify(newMsg));
-
-} // datasetSpecified
-//----------------------------------------------------------------------------------------------------
-// for standalone exploration, development, and testing.   assumes a hub has been
-// created and initialized.  set the dataset, and in the callback load the table
-// thus 
-//   specifyCurrentDataSet -> getPatientHistoryTable -> displayPatientHistoryTable
-//
-function testLoad()
-{
-   var msg = {cmd: "specifyCurrentDataset",  callback: "datasetSpecified", 
-              status: "request", payload: "TCGAgbm"};
-
-   hub.send(JSON.stringify(msg));
-
-} // test
-//----------------------------------------------------------------------------------------------------
-function testSelect()
-{
-   var msg={cmd: "sendSelectionTo_patientHistory", status: "request", callback: "", 
-            payload:["TCGA.02.0011", "TCGA.06.0238"]};
-
-   hub.send(JSON.stringify(msg));
-
-} // testSelect
-//----------------------------------------------------------------------------------------------------
-return{
-   init: function(){
-      hub.registerSelectionDestination(selectionDestinations, thisModulesOutermostDiv);
-      hub.addOnDocumentReadyFunction(initializeUI);
-      hub.addMessageHandler("sendSelectionTo_patientHistory", handleSelections);
-      hub.addMessageHandler("datasetSpecified", datasetSpecified);
-      hub.addMessageHandler("displayPatientHistoryTable", displayPatientHistoryTable);
-      //hub.addSocketConnectedFunction(testLoad);
-      //hub.setTitle("patientHistory");
-      },
-   testSelect: testSelect,
-   testLoad:   testLoad
-   }; // PatientHistoryModule return value
-
-//----------------------------------------------------------------------------------------------------
-}); // PatientHistoryModule
-pts = PatientHistoryModule();
-pts.init();
-
-
-//----------------------------------------------------------------------------------------------------
 // move these all back inside module scope when debugging is done
+
 var cwMarkers;
-var XXX;
-var nodeRestriction = [];
+var markersTester;
+
 //----------------------------------------------------------------------------------------------------
 var markersAndTissuesModule = (function () {
 
@@ -1515,6 +1061,8 @@ var markersAndTissuesModule = (function () {
   var cyDiv;
   var searchBox;
   var hideEdgesButton, showEdgesButton, showAllEdgesButton, clearSelectionButton, sfnButton;
+  var nodeRestriction = [];
+  var subSelectButton;
   var helpButton;
   var infoMenu;
   var edgeTypeSelector;
@@ -1526,6 +1074,7 @@ var markersAndTissuesModule = (function () {
   var layoutMenu;
   var thisModulesName = "MarkersAndPatients";
   var thisModulesOutermostDiv = "markersAndPatientsDiv";
+  var userID = "NA";
 
       // sometimes a module offers multiple selection destinations.
       // usually there is just one:
@@ -1556,8 +1105,8 @@ function initializeUI ()
                                                       sendSelectionsMenuTitle);
 
   tumorCategorizationsMenu = $("#cyMarkersTumorCategorizationsMenu");
-  tumorCategorizationsMenu.empty()
-  tumorCategorizationsMenu.append("<option>" + tumorCategorizationsMenuTitle + "</otpion>");
+  tumorCategorizationsMenu.empty();
+  tumorCategorizationsMenu.append("<option>" + tumorCategorizationsMenuTitle + "</option>");
   tumorCategorizationsMenu.change(requestTumorCategorization);
 
   graphOperationsMenu = $("#cyMarkersOperationsMenu");
@@ -1598,7 +1147,7 @@ function initializeUI ()
    clearSelectionButton.click(clearSelection);
 
    hideEdgesButton = $("#cyMarkersHideEdgesButton");
-   hideEdgesButton.click(hideAllEdges)
+   hideEdgesButton.click(hideAllEdges);
 
 
    searchBox = $("#markersAndTissuesSearchBox");
@@ -1609,13 +1158,22 @@ function initializeUI ()
    $(".chosen-select").chosen();
    $(window).resize(handleWindowResize);
 
+   subSelectButton = $("#markersSubSelectButton");
+   subSelectButton.click(subSelectNodes);
+
+  if(hub.socketConnected())
+     runAutomatedTestsIfAppropriate();
+  else
+     hub.addSocketConnectedFunction(runAutomatedTestsIfAppropriate);
+
    setInterval(function(){
       var count = cwMarkers.nodes("node:selected").length;
-      var disable = (count == 0);
+      var disable = (count === 0);
       sendSelectionsMenu.attr("disabled", disable);
+      subSelectButton.attr("disabled", disable);
       }, 500);
-
- } // initializeUI
+ 
+} // initializeUI
 //----------------------------------------------------------------------------------------------------
 function sendSelections(event)
 {
@@ -1623,8 +1181,8 @@ function sendSelections(event)
    console.log("CyMarkers send selections to " + destination);
    sendSelectionsMenu.val(sendSelectionsMenuTitle);
    var nodeNames = selectedNodeNames(cwMarkers);
-   if(nodeNames.length == 0){
-      console.log("no nodes selected!")
+   if(nodeNames.length === 0){
+      console.log("no nodes selected!");
       return;
       }
 
@@ -1645,13 +1203,16 @@ function configureLayoutsMenu(layoutMenu){
    layoutMenu.append("<option> Save Current</option>");
 
    var defaultLayout = JSON.stringify(cwMarkers.nodes().map(function(n){
-            return{id:n.id(), position:n.position()}}));
+          var result = {id:n.id(), position:n.position()};
+          return (result);  
+          }) // map
+       ); // stringify
 
    localStorage.markersDefault = defaultLayout;
 
    var existingLayouts = Object.keys(localStorage);
    for(var i=0; i < existingLayouts.length; i++){
-      if(existingLayouts[i].match("markers") != null){
+      if(existingLayouts[i].match("markers") !== null){
         layoutMenu.append("<option>" + existingLayouts[i] + "</option>");
         }
       } // for i
@@ -1665,12 +1226,16 @@ function performLayout(event){
   if(chosenLayoutName == "Save Current"){
      var uniqueNumber = Math.floor(new Date().getTime()/1000);   // number of seconds since 1970
      newName = "markers." + (uniqueNumber - 1420414900);    // since today, very roughly
-     currentLayout = JSON.stringify(cwMarkers.nodes().map(function(n){return{id:n.id(), position:n.position()}}));
+     var positions = cwMarkers.nodes().map(function(n){
+           var result = {id:n.id(), position:n.position()};
+           return(result);
+           }); // map
+     currentLayout = JSON.stringify(positions);
      localStorage[newName] = currentLayout;
      layoutMenu.append("<option>" + newName + "</option>");
      layoutMenu.val(newName);
      return;
-     }
+     } // if "Save Current"
 
   if(Object.keys(localStorage).indexOf(chosenLayoutName) >= 0){
      var newLayout;
@@ -1688,15 +1253,15 @@ function sendSelection()
 {
    destinationModule = sendSelectionsMenu.val();
    var nodeNames = selectedNodeNames(cwMarkers);
-   if(nodeNames.length == 0){
-      console.log("no nodes selected!")
+   if(nodeNames.length === 0){
+      console.log("no nodes selected!");
       return;
       }
    metadata = {};
    sendSelectionToModule(destinationModule, nodeNames, metadata);
    sendSelectionsMenu.val("Send Selection...");
 
-}; // sendSelectionsMenuChanged
+} // sendSelectionsMenuChanged
 //--------------------------------------------------------------------------------------------
 function configureCytoscape ()
 {
@@ -1716,30 +1281,20 @@ function configureCytoscape ()
       cwMarkers.on('mouseover', 'node', function(evt){
          var node = evt.cyTarget;
          mouseOverReadout.val(node.id());
-         })
+         });
       cwMarkers.on('mouseout', 'node', function(evt){
          var node = evt.cyTarget;
          mouseOverReadout.val("");
-         })
+         });
       cwMarkers.on('mouseover', 'edge', function(evt){
          var edge = evt.cyTarget;
          var d = edge.data();
          var msg = d.edgeType + ": " + d.source + " - " + d.target;
-         var mutation = d.mutation
+         var mutation = d.mutation;
          if(typeof(mutation) == "string")
             msg = mutation + " " + msg;
          mouseOverReadout.val(msg);
-         })
-
-      //cwMarkers.on('select', 'node', function(evt){
-      //   console.log("cwMarkers.on('select', 'node')");
-      //   var disable = selectedNodeIDs(cwMarkers).length == 0;
-      //   sendSelectionsMenu.attr("disabled", disable);
-      //   })
-      //cwMarkers.on('unselect', 'node', function(evt){
-      //   var disable = selectedNodeIDs(cwMarkers).length == 0;
-      //   sendSelectionsMenu.attr("disabled", disable);
-      //   })
+         });
 
       cwMarkers.filter("edge[edgeType='chromosome']").style({"curve-style": "bezier"});
       cwMarkers.filter("edge[edgeType='chromosome']").show();
@@ -1751,6 +1306,7 @@ function configureCytoscape ()
       cwMarkers.edges().selectify(); // this seems to hold through session, visibility notwithstanding
       //hideAllEdges();
       configureLayoutsMenu(layoutMenu);
+      cwMarkers.fit(50);
       }, // cy.ready
      }) // .cytoscape
     .cytoscapePanzoom({ });   // need to learn about options
@@ -1766,10 +1322,56 @@ function handleWindowResize ()
 
 } // handleWindowResize
 //----------------------------------------------------------------------------------------------------
+// there are often subgroups among a selected node.
+// here we opreate only on those distinguished by different node border color
+// the dialog posted here provided interactive select/deselect of those originally
+// selected nodes, by color.
+// this function could be made smarter by being made avaialble (via the subselect button) only
+// if multiple border colors are found within the currently selected nodes
+//
+function subSelectNodes()
+{
+  var selectedNodes = cwMarkers.nodes("node:selected");
+  var borderColors =  jQuery.unique(selectedNodes.map(function(node){return (node.style("border-color"));}));
+  console.log(JSON.stringify(borderColors));
+
+  var content = "<form action=''>";
+  for(i=0; i < borderColors.length; i++){
+     var color = borderColors[i];
+     var e = "<input type='checkbox' class='markersSubSelectRadioButton' name='" + color + "' checked> " + color + "<br>";
+     content = content + e;
+     }
+  content = content + "</form>";
+  button = "<br><br><button id='markersSubSelectCloseButton'>Close</button>";
+
+  content = content + button;
+
+  var dialog =  $('<div id="markersSubSelectDialog" />').html(content).dialog();
+
+  $("#markersSubSelectCloseButton").click(function(){
+     console.log("close dialog");
+     $("#markersSubSelectDialog").remove();
+     });
+
+  $(".markersSubSelectRadioButton").click(function(e) {
+      console.log("radio!"); 
+      console.log(this.name + " " + this.checked);
+      var color = this.name;
+      var selectSubset = this.checked;
+      var subsetNodes = selectedNodes.filterFn(function(node) {return(node.style("border-color") == color);});
+      if(selectSubset)
+         subsetNodes.select();
+      else
+         subsetNodes.unselect();
+      }); // radio button click
+
+} // subSelectNodes
+//----------------------------------------------------------------------------------------------------
 function requestTumorCategorization()
 {
   var categorizationName = tumorCategorizationsMenu.val();
   console.log("apply " + categorizationName);
+  recordEvent(userID + " markersApplyTumorCategorization request");
 
   var msg = {cmd: "getSampleCategorization", callback: "markersApplyTumorCategorization",
              status: "request", payload: categorizationName};
@@ -1783,9 +1385,10 @@ function requestTumorCategorization()
 function applyTumorCategorization(msg)
 {
    console.log("=== applyTumorCategorization");
-   var tumorsInGraph = cwMarkers.nodes("[nodeType='patient']")
-   var tumorsInTable = msg.payload.rownames
-   var tbl = msg.payload.tbl
+   var tumorsInGraph = cwMarkers.nodes("[nodeType='patient']");
+   var tumorsInTable = msg.payload.rownames;
+   var tbl = msg.payload.tbl;
+   recordEvent(userID + " markersApplyTumorCategorization data received");
 
    tumorsInGraph.forEach(function(node, index){
       var nodeID = node.id();  // our convention is that this is the tumor name, eg, "TCGA.02.0014"
@@ -1800,6 +1403,8 @@ function applyTumorCategorization(msg)
        }); // forEach
 
   cwMarkers.style().update();
+  recordEvent(userID + " markersApplyTumorCategorization complete");
+
 
 } // applyTumorCategorization
 //----------------------------------------------------------------------------------------------------
@@ -1870,8 +1475,12 @@ function invertSelection ()
 //----------------------------------------------------------------------------------------------------
 function hideAllEdges ()
 {
-   cwMarkers.filter('edge').hide();
-}
+     // hide all edges besides chromsome edges
+  cwMarkers.edges().fnFilter(function(edge) {
+     return(edge.data("edgeType") != "chromosome");
+     }).hide();
+
+} // hideAllEdges
 //----------------------------------------------------------------------------------------------------
 function showAllEdges ()
 {
@@ -1879,7 +1488,7 @@ function showAllEdges ()
 
    console.log("edgeTypeToDisplay: " + edgeTypesToDisplay);
 
-   if(edgeTypesToDisplay == null){
+   if(edgeTypesToDisplay === null){
       return;
       }
 
@@ -1887,14 +1496,14 @@ function showAllEdges ()
       var type =  edgeTypesToDisplay[e];
       selectionString = '[edgeType="' + type + '"]';
       //console.log(" showAllEdges selection string: " + selectionString);
-      cwMarkers.edges(selectionString).show()
+      cwMarkers.edges(selectionString).show();
       } // for e
 
 } // showAllEdges
 //----------------------------------------------------------------------------------------------------
 function zoomSelected()
 {
-   cwMarkers.fit(cwMarkers.$(':selected'), 100)
+   cwMarkers.fit(cwMarkers.$(':selected'), 100);
 }
 //----------------------------------------------------------------------------------------------------
 function handleIncomingIdentifiers(msg)
@@ -1905,7 +1514,7 @@ function handleIncomingIdentifiers(msg)
    if(typeof(ids) == "string")
       ids = [ids];
    //intersectingIDs = hub.intersectionOfArrays(ids, nodeNames())
-   intersectingIDs = hub.intersectionOfArrays(ids, nodeIDs())
+   intersectingIDs = hub.intersectionOfArrays(ids, nodeIDs());
    console.log("found ids: " + intersectingIDs.length);
 
    if(intersectingIDs.length > 0)
@@ -1922,7 +1531,7 @@ function handleIncomingIdentifiers(msg)
 } // handleIncomingIdentifiers
 //----------------------------------------------------------------------------------------------------
   // run all that should happen when this module receives an incoming selection of patientIDs
-demoMarkersIncomingSelectionOfIDs = function()
+function demoMarkersIncomingSelectionOfIDs()
 {
 
    names = ["TCGA.06.0210", "TCGA.02.0106", "TCGA.02.0111",
@@ -1935,7 +1544,7 @@ demoMarkersIncomingSelectionOfIDs = function()
             "IFNA1", "LMO2", "PRKCA", "RELA", "STK11", "ZEB1", "CCNB1IP1",
             "CREB3L1", "GDF2", "OR4K2", "PRKCH", "WAS"];
 
-   subset = []
+   subset = [];
    for(var i=0; i < 10; i++)
      subset.push(names[getRandomInt(0, names.length -1)]);
 
@@ -1949,7 +1558,7 @@ function allNodeIDs()
    allNodes = cwMarkers.nodes();
 
    for(i=0; i < allNodes.length; i++)
-       ids.push(allNodes[i].data("id"))
+       ids.push(allNodes[i].data("id"));
 
    return(ids);
 
@@ -1960,7 +1569,7 @@ function showEdges()
    hideAllEdges();   // is this wise?
 
    var edgeTypesToDisplay = edgeTypeSelector.val();
-   if(edgeTypesToDisplay == null){
+   if(edgeTypesToDisplay === null){
       hideAllEdges();
       return;
       }
@@ -2035,7 +1644,7 @@ function showEdges()
 //----------------------------------------------------------------------------------------------------
 function zoomSelection()
 {
-   cwMarkers.fit(cwMarkers.$(':selected'), 50)
+   cwMarkers.fit(cwMarkers.$(':selected'), 50);
 
 }
 //----------------------------------------------------------------------------------------------------
@@ -2044,7 +1653,7 @@ function selectedNodeIDs(cw)
    ids = [];
    noi = cw.filter('node:selected');
    for(var n=0; n < noi.length; n++){
-     ids.push(noi[n].data()['id']);
+     ids.push(noi[n].data('id'));
      }
   return(ids);
 
@@ -2061,44 +1670,48 @@ function selectedNodeNames(cw)
 
 } // selectedNodeNames
 //----------------------------------------------------------------------------------------------------
-showEdgesFromSelectedNodes = function()
+function showEdgesFromSelectedNodes()
 {
    var targets = nodeRestriction;
    var selectedNodes = cwMarkers.nodes("node:selected");
    var neighbors = selectedNodes.neighborhood();
-   var candidateEdges = neighbors.filterFn(function(e) {if(e.isEdge()) return e})
+   var candidateEdges = neighbors.filterFn(function(e){
+       if(e.isEdge()) return (e);
+       });
+
    candidateEdges = candidateEdges.fnFilter(function(edge){
-      return(edgeTypeSelector.val().indexOf(edge.data("edgeType")) >= 0)
+      return(edgeTypeSelector.val().indexOf(edge.data("edgeType")) >= 0);
       });
 
-   if(targets.length == 0){
+   if(targets.length === 0){
       candidateEdges.show();
       return;
       }
 
    function intersects(array1, array2){
-      var size = array1.filter(function(n) {return array2.indexOf(n) != -1}).length;
+      var size = array1.filter(function(n) {return (array2.indexOf(n) != -1);}).length;
       return(size > 0);
       }
 
    candidateEdges.filterFn(function(edge){
-      var actual=edge.connectedNodes().map(function(node){return node.id()});
+      var actual=edge.connectedNodes().map(function(node){return node.id();});
       return(intersects(actual, targets));
-       }).show()
+       }).show();
 
 } // showEdgesFromSelectedNodes
 //----------------------------------------------------------------------------------------------------
 function selectSourceAndTargetNodesOfEdges(cw, edges)
 {
-
-  var edgesVisible = cwMarkers.filter('edge:visible').length
+  //var eoi = cwMarkers.filter('edge:visible');
+  var notChromosomal = function(edge){return(edge.data("edgeType") !== "chromosome");};
+  eoi = edges.filterFn(notChromosomal);
 
   var filterStrings = [];
 
-  for(var i=0; i < edges.length; i++){
-     edge = edges[i];
-     targetID = edge.target().data("id")
-     sourceID = edge.source().data("id")
+  for(var i=0; i < eoi.length; i++){
+     edge = eoi[i];
+     targetID = edge.target().data("id");
+     sourceID = edge.source().data("id");
      var sourceFilterString = '[id="' + sourceID + '"]';
      var targetFilterString = '[id="' + targetID + '"]';
      filterStrings.push(sourceFilterString);
@@ -2106,7 +1719,7 @@ function selectSourceAndTargetNodesOfEdges(cw, edges)
      } // for i
 
    var nodesToSelect = cw.nodes(filterStrings.join());
-   nodesToSelect.select()
+   nodesToSelect.select();
 
 } // selecteSourceAndTargetNodesOfEdge
 //----------------------------------------------------------------------------------------------------
@@ -2118,7 +1731,7 @@ function showEdgesForNodes(cw, nodes)
   console.log("=== showEdgesForNodes, edgeType count: " + edgeTypes.length);
   console.log(edgeTypes);
 
-  if(edgeTypes.length == 0)
+  if(edgeTypes.length === 0)
       return;
 
   var filterStrings = [];
@@ -2132,8 +1745,8 @@ function showEdgesForNodes(cw, nodes)
           var nodeID = nodes[n].data("id");
           var sourceFilterString = '[edgeType="' + edgeType + '"][source="' + nodeID + '"]';
           var targetFilterString = '[edgeType="' + edgeType + '"][target="' + nodeID + '"]';
-          filterStrings.push(sourceFilterString)
-          filterStrings.push(targetFilterString)
+          filterStrings.push(sourceFilterString);
+          filterStrings.push(targetFilterString);
           } // for n
         } // for e
 
@@ -2144,7 +1757,7 @@ function showEdgesForNodes(cw, nodes)
       console.log("filtering complete");
       if(existingEdges.length > 0) {
          console.log("about to show edges");
-         existingEdges.show()
+         existingEdges.show();
          console.log("edges shown...");
          }
      }, 1000); // setTimeout
@@ -2156,19 +1769,21 @@ function showEdgesForNodes(cw, nodes)
 function selectAllConnectedNodes()
 {
     var selectedEdges = cwMarkers.filter("edge:visible");
-    selectSourceAndTargetNodesOfEdges(cwMarkers, selectedEdges);
+    selectedEdges = selectedEdges.filterFn(function(e){return (e.data("edgeType") !== "chromosome");});
+    if(selectedEdges.length > 0)
+       selectSourceAndTargetNodesOfEdges(cwMarkers, selectedEdges);
 
 } // selectAllConnectedNodes
 //----------------------------------------------------------------------------------------------------
 function selectAllNodesConnectedBySelectedEdges()
 {
-    edges = cwMarkers.filter("edge:selected")
+    edges = cwMarkers.filter("edge:selected");
     console.log(" selected edge count: " + edges.length);
-    if(edges.length == 0)
+    if(edges.length === 0)
       return;
     for(var e=0; e < edges.length; e++){
-       selectNodes(edges[e].target().data("name"))
-       selectNodes(edges[e].source().data("name"))
+       selectNodes(edges[e].target().data("name"));
+       selectNodes(edges[e].source().data("name"));
        } // for e
 
 } //selectAllNodesConnectedBySelectedEdges
@@ -2194,14 +1809,12 @@ function showEdgesForSelectedNodes(cw, edgeTypes)
 function restrictNextOpsToSelectedNodes()
 {
   var nodes = cwMarkers.nodes("node:selected"); // .filter("[nodeType='gene']");
-  if(nodes.length == 0){
+  if(nodes.length === 0){
      nodeRestriction = [];
      }
   else{
-     nodeRestriction = nodes.map(function(node){return node.id()})
+     nodeRestriction = nodes.map(function(node){return (node.id());});
      }
-
-  debugger;
 
 } // restrictNextOpsToSelectedNodes
 //----------------------------------------------------------------------------------------------------
@@ -2210,33 +1823,34 @@ function nodeNames()
   var nodes = cwMarkers.filter("node:visible");
   var result = [];
   for(var i=0; i < nodes.length; i++){
-    result.push(nodes[i].data().label)
+    result.push(nodes[i].data().label);
     } // for i
-  return(result)
+
+  return(result);
 
 } // nodeNames
 //----------------------------------------------------------------------------------------------------
 function nodeIDs()
 {
-   return(cwMarkers.nodes().map(function(node){return node.id()}));
+   return(cwMarkers.nodes().map(function(node){return (node.id());}));
 }
 //----------------------------------------------------------------------------------------------------
 function upperCaseNodeIDs()
 {
-   return(nodeIDs().map(function(node){return(node.toUpperCase())}));
+   return(nodeIDs().map(function(node){return(node.toUpperCase());}));
 }
 //----------------------------------------------------------------------------------------------------
 // todo: build up the filter string first, then send it all at once
 function selectNodes(nodeNames)
 {
   console.log("Module.markers::selectNodes");
-  console.log(nodeNames);
+  //console.log(nodeNames);
 
   if(typeof(nodeNames) == "string")   // trap scalar, but expect and support arrays
      nodeNames = [nodeNames];
 
-  var allNodes = cwMarkers.nodes().map(function(n){return n.id()});
-  var allNodesUpperCase = allNodes.map(function(name){return name.toUpperCase()});
+  var allNodes = cwMarkers.nodes().map(function(n){return (n.id());});
+  var allNodesUpperCase = allNodes.map(function(name){return (name.toUpperCase());});
 
   for(var i=0; i < nodeNames.length; i++){
     var nodeName = nodeNames[i].toUpperCase();  // depends upon this conv
@@ -2262,7 +1876,7 @@ function selectNodesByID(nodeIDs) {
 
   for(var i=0; i < nodeIDs.length; i++){
     s = "cwMarkers.filter('node[id=\"" + nodeIDs[i] + "\"]').select()";
-    console.log(s)
+    console.log(s);
     eval (s);
     } // for i
 
@@ -2277,9 +1891,9 @@ function doSearch(e)
       console.log("searchString: " + searchString);
       var idsActual = nodeIDs();
       var idsUpper = upperCaseNodeIDs();
-      var hits = idsUpper.filter(function(id) {return(id.startsWith(searchString))});
-      var hitIndices = hits.map(function(hit) {return idsUpper.indexOf(hit)});
-      var hitsActual = hitIndices.map(function(hit) {return idsActual[hit]})
+      var hits = idsUpper.filter(function(id) {return(id.startsWith(searchString));});
+      var hitIndices = hits.map(function(hit) {return(idsUpper.indexOf(hit));});
+      var hitsActual = hitIndices.map(function(hit) {return(idsActual[hit]);});
       selectNodes(hitsActual);
       } // if 13 (return key)
 
@@ -2303,22 +1917,23 @@ function displayMarkersNetwork(msg)
       console.log("  about to add  json.style");
       cwMarkers.style(json.style);
       console.log("   hiding edges");
-      cwMarkers.edges().hide()
+      cwMarkers.edges().hide();
       cwMarkers.filter("edge[edgeType='chromosome']").style({"curve-style": "bezier"});
       cwMarkers.filter("edge[edgeType='chromosome']").show();
       cwMarkers.nodes().unselect();
         // map current node degree into a node attribute of that name
-      cwMarkers.nodes().map(function(node){node.data({degree: node.degree()})});
+      cwMarkers.nodes().map(function(node){node.data({degree: node.degree()});});
 
       var edgeTypes = hub.uniqueElementsOfArray(cwMarkers.edges().map(function(edge){
-                               return(edge.data("edgeType"))}
+                               return(edge.data("edgeType"));}
                                ));
       updateEdgeSelectionWidget(edgeTypes);  // preserve only known edgeTypes
       cwMarkers.fit(20);
       var defaultLayout = JSON.stringify(cwMarkers.nodes().map(function(n){
-                                         return{id:n.id(), position:n.position()}}));
-      localStorage["markersDefault"] = defaultLayout;
+                                         return({id:n.id(), position:n.position()});}));
+      localStorage.markersDefault = defaultLayout;
       postStatus("markers network displayed");
+      recordEvent(userID + " display markers network complete");
       }
    else{
      console.log("displayMarkersNetwork error: " + msg.payload);
@@ -2340,7 +1955,7 @@ function updateEdgeSelectionWidget(edgeTypes)
    for(var i=0; i < options.length; i++){
       var optionElement = options[i];
       var optionValue = optionElement.value;
-      var found = jQuery.inArray(optionValue, edgeTypes) >= 0
+      var found = jQuery.inArray(optionValue, edgeTypes) >= 0;
       console.log("checking option '" + optionValue + "':  " + found);
       if(!found){
          console.log("  deleting selector option " + optionValue);
@@ -2351,6 +1966,14 @@ function updateEdgeSelectionWidget(edgeTypes)
 
 } // updateEdgeSelectionWidget
 //----------------------------------------------------------------------------------------------------
+function recordEvent(payload)
+{
+   console.log("about to recordEvent: " + payload);
+
+   hub.send(JSON.stringify({cmd: "recordEvent", callback:"", status:"request", payload: payload}));
+
+} // recordEvent
+//----------------------------------------------------------------------------------------------------
 // called when the a dataset has been specified, typically via the Datasets tab, which presents
 // the user with a list of the datasets they are able to use, from which they choose one at a time
 // as their current working dataset.
@@ -2359,11 +1982,11 @@ function datasetSpecified (msg)
 {
    var datasetName = msg.payload;
 
-     // request patient data table
-   var newMsg = {cmd: "getMarkersNetwork",  callback: "displayMarkersNetwork", 
-                status: "request", payload: datasetName};
-
+   recordEvent(userID + " display markers network request ");
+   var newMsg = {cmd: "getMarkersNetwork",  callback: "displayMarkersNetwork", status: "request", payload: datasetName};
    hub.send(JSON.stringify(newMsg));
+
+   recordEvent(userID + " getSampleCategorizationNames ");
 
    var msg2 = {cmd: "getSampleCategorizationNames", callback: "configureSampleCategorizationMenu",
                status: "request", payload: ""};
@@ -2374,10 +1997,13 @@ function datasetSpecified (msg)
 //----------------------------------------------------------------------------------------------------
 function configureSampleCategorizationMenu(msg)
 {
-   console.log("=== configureSampleCategorizationMenu")
-   console.log(msg.payload)
-   tumorCategorizationsMenu.empty()
+   console.log("=== configureSampleCategorizationMenu");
+   //console.log(msg.payload);
+   tumorCategorizationsMenu.empty();
    var categorizations = msg.payload;
+
+   if(typeof categorizations == "string") 
+   	 categorizations = [categorizations];
 
    var titleOption = "Tumor Groups...";
 
@@ -2388,20 +2014,9 @@ function configureSampleCategorizationMenu(msg)
      } // for i
 
    tumorCategorizationsMenu.val(titleOption);
+   recordEvent(userID + " getSampleCategorizationNames complete");
 
 } // configureSampleCategorizationMenu
-//----------------------------------------------------------------------------------------------------
-// this module supports (or soon will support) markers & patients (or markers & samples) networks
-// for a variety of diseases and patient sets.  we will develop tests which know nothing beforehand
-// about the data, but our first priority now (28 apr 2015) is for the lgg/gbm combined tcga 
-// dataset
-function standAloneTest()
-{
-   $("#qunit").css({display: "block"})
-
-   gbmLggDzSpecificTests();
-
-} // standAloneTest
 //----------------------------------------------------------------------------------------------------
 function gbmLggDzSpecificTests()
 {
@@ -2411,20 +2026,20 @@ function gbmLggDzSpecificTests()
       console.log("about to check node count");
       assert.ok(cwMarkers.nodes().length > 1500);
       console.log("about to check edge count");
-      assert.ok(cwMarkers.edges().length > 13000)
+      assert.ok(cwMarkers.edges().length > 13000);
       console.log("end of test");
       });
 
   QUnit.test("markersAndSamples: select EGFR", function(assert){
      cwMarkers.nodes().unselect();
-     assert.ok(cwMarkers.filter("node:selected").length == 0);
+     assert.ok(cwMarkers.filter("node:selected").length === 0);
      cwMarkers.$("#EGFR").select();
-     assert.ok(cwMarkers.filter("node:selected").length == 1);
+     assert.ok(cwMarkers.filter("node:selected").length === 1);
      });
 
 
   QUnit.test("markersAndSamples: choose edge types", function(assert){
-     edgeTypes = $("#markersEdgeTypeSelector option").map(function(opt){return this.value})
+     edgeTypes = $("#markersEdgeTypeSelector option").map(function(opt){return(this.value);});
      var desiredEdgeType = "chromosome";
 
      if($.inArray(desiredEdgeType, edgeTypes) < 0){
@@ -2432,26 +2047,26 @@ function gbmLggDzSpecificTests()
         return;
         }
 
-     $("#markersEdgeTypeSelector").val(desiredEdgeType)
-     $("#markersEdgeTypeSelector").trigger("change")
+     $("#markersEdgeTypeSelector").val(desiredEdgeType);
+     $("#markersEdgeTypeSelector").trigger("change");
      console.log("=== edge type selected: " + $("#markersEdgeTypeSelector").val());
      assert.equal($("#markersEdgeTypeSelector").val(), desiredEdgeType);
      assert.equal(cwMarkers.filter("node:selected").length, 1);
        // now restore the original settings. 
-     $("#markersEdgeTypeSelector").val(["chromosome", "mutation", "cnGain.2", "cnLoss.2", "cnGain.1", "cnLoss.1"])
+     $("#markersEdgeTypeSelector").val(["chromosome", "mutation", "cnGain.2", "cnLoss.2", "cnGain.1", "cnLoss.1"]);
      $("#markersEdgeTypeSelector").trigger("change");
      });
 
   QUnit.test("markersAndSamples: select chrom edges from EGFR", function(assert){
       var desiredAction = "Show Edges from Selected Nodes";
-      var actions = $("#cyMarkersOperationsMenu option").map(function(x) {return this.value});
+      var actions = $("#cyMarkersOperationsMenu option").map(function(x) {return(this.value);});
 
       if($.inArray(desiredAction, actions) < 0){
          alert("cannot run tests:  " + desiredAction + " not available");
          return;
          }
 
-     cwMarkers.edges().hide()
+     cwMarkers.edges().hide();
      assert.equal(cwMarkers.filter("edge:visible").length, 0);
      $("#cyMarkersOperationsMenu").val(desiredAction);
      $("#cyMarkersOperationsMenu").trigger("change");
@@ -2470,13 +2085,40 @@ function gbmLggDzSpecificTests()
      var e = jQuery.Event("keydown");
      e.which = 13;  
      $("#markersAndTissuesSearchBox").trigger(e);
-     var selectedNode = cwMarkers.filter("node:selected")
+     var selectedNode = cwMarkers.filter("node:selected");
      assert.equal(selectedNode.length, 1);
      assert.equal(selectedNode.data().id, targetNode);
      });
 
 
 } // gbmLggDzSpecificTests
+//----------------------------------------------------------------------------------------------------
+// query the oncoscape server for user id.  the callback then makes a local (that is,
+// Module-specific) decision to run this module's automated tests based upon that id
+function runAutomatedTestsIfAppropriate()
+{
+   var msg = {cmd: "getUserId",  callback: "markersAssessUserIdForTesting", status: "request", payload: ""};
+   hub.send(JSON.stringify(msg));
+
+} // runAutomatedTestsIfAppropriate
+//----------------------------------------------------------------------------------------------------
+function assessUserIdForTesting(msg)
+{
+   userID = msg.payload;
+   userID = userID.toLowerCase();
+
+   console.log("markersAndSamples/Module.js assesUserIdForTesting: " + userID);
+   
+   if(userID.indexOf("autotest") === 0){
+      console.log("markersAndSamples/Module.js running tests for user " + userID);
+      var datasetNames = $("#datasetMenu").children().map(function() {return $(this).val();}).get();
+         // delete any empty strings
+      datasetNames = datasetNames.filter(function(e) {return (e.length > 0);});
+      markersTester.run(datasetNames);
+      console.log("back from markersTester.run()");
+      }
+
+} // assessUserIdForTesting
 //----------------------------------------------------------------------------------------------------
  return{
      init: function(){
@@ -2486,170 +2128,269 @@ function gbmLggDzSpecificTests()
         hub.addMessageHandler("displayMarkersNetwork", displayMarkersNetwork);
         hub.addMessageHandler("configureSampleCategorizationMenu", configureSampleCategorizationMenu);
         hub.addMessageHandler("markersApplyTumorCategorization", applyTumorCategorization);
+        hub.addMessageHandler("markersAssessUserIdForTesting", assessUserIdForTesting);
+        //hub.addSocketConnectedFunction(runAutomatedTestsIfAppropriate);
+        //hub.addDocumentReadyFunction(runAutomatedTestsIfAppropriate);
         hub.addOnDocumentReadyFunction(initializeUI);
-       },
-     sat: standAloneTest
+       }
      };
 
    }); // markersAndTissuesModule
 //----------------------------------------------------------------------------------------------------
-markersModule = markersAndTissuesModule()
+markersModule = markersAndTissuesModule();
 markersModule.init();
+
+// markersAndSamples/Test.js
+//------------------------------------------------------------------------------------------------------------------------
+var MarkersAndSamplesTestModule = (function () {
+
+       // for observing relatively small scale status changes: i.e., network loaded and displayed
+       // the div watched here is in widget.html
+
+    var markersAndSamplesStatusObserver = null;
+
+       // to detect when the full test of a dataset is complete, so that the next dataset can be tested
+       // the div watched here is in test.html
+    var testStatusObserver = null;   // modified at the end of each dataset test
+
+//------------------------------------------------------------------------------------------------------------------------
+function runTests(datasetNames)
+{
+     // run through some repetitions of the test
+     // condition the next test upon the completion of the preceeding one,
+     // which is detected by a change to the "status div"
+      
+   //var datasetNames = $("#datasetMenu").children().map(function() {return $(this).val();}).get();
+     // delete any empty strings
+   //datasetNames = datasetNames.filter(function(e) {return (e.length > 0);});
+   var datasetIndex = -1;
+   
+   var config = {attributes: true, childList: true, characterData: true};
+   var target =  document.querySelector("#markersTestStatusDiv");
+
+      // define the function called whenever the testStatusDiv changes,
+      // which is our signal that the next test is ready to run.
+      // the first test is kicked off when we -- after setting up and
+      // configuring the observer -- manually (see below: "start testing")
+      // change the target which the observer watches.
+      // there may be a better way, but for now we delete and recreate
+      // the observer at the end of each test.
+      // note also that the next dataset is determined inside this function
+      // and that the function refers to itself.
+
+   var onMutation = function(mutations){
+      mutation = mutations[0];
+      testStatusObserver.disconnect();
+      testStatusObserver = null;
+      var id = mutation.target.id;
+      var msg = $("#markersTestStatusDiv").text();
+      console.log("test status changed, text: " + msg);
+      datasetIndex++;
+      if(datasetIndex < datasetNames.length){
+         console.log("about to test dataset " + datasetNames[datasetIndex]);      
+         if(datasetIndex < datasetNames.length)
+            testLoadDataSetDisplayNetwork(datasetNames[datasetIndex]);
+	 testStatusObserver = new MutationObserver(onMutation);
+         testStatusObserver.observe(target, config);
+	 }
+      else{
+         console.log("mutation observer function detected end of datasets");
+	 }
+      };
+
+   testStatusObserver = new MutationObserver(onMutation);
+   testStatusObserver.observe(target, config);
+
+   $("#markersTestStatusDiv").text("start testing");
+
+} // runTests
+//------------------------------------------------------------------------------------------------------------------------
+function showTests()
+{
+   hub.raiseTab("markersTestDiv");
+
+  // $("#qunit").css({"display": "block"});
+
+} // showTests
+//------------------------------------------------------------------------------------------------------------------------
+function hideTests()
+{
+   $("#qunit").css({"display": "none"});
+
+} // hide
+//------------------------------------------------------------------------------------------------------------------------
+function testLoadDataSetDisplayNetwork(dzName)
+{
+   var testTitle = "testLoadDataSetDisplayNetwork";
+   console.log(testTitle);
+
+      // when our module receives the resulting 'datasetSpecified' msg, which includes the dataset's manifest
+      // in its payload, it requests 
+      //   - the markers network: to be displayed by cyjs
+      //   - sampleCategorizationNames, to popbulate the dropdeon menu
+      // when the network is loaded, the statusDiv is updated, which is detected here, and we
+      // check to see that a reasonable number of nodes are contained in the loaded graph.
+      // when those tests are over, we then cascade through a number of gui operations: search, node selections
+      // network operations
+
+   if(markersAndSamplesStatusObserver === null){
+      markersAndSamplesStatusObserver = new MutationObserver(function(mutations) {
+        hub.raiseTab("markersAndPatientsDiv");
+        mutation = mutations[0];
+        markersAndSamplesStatusObserver.disconnect();
+        markersAndSamplesStatusObserver = null;
+        var id = mutation.target.id;
+        var msg = $("#markersAndSamplesStatusDiv").text();
+        QUnit.test("markersAndSamples loaded", function(assert) {
+           var nodeCount = cwMarkers.nodes().length;
+           var edgeCount = cwMarkers.edges().length;
+           console.log("markersAndSamples loaded, with " + nodeCount + " nodes and " + edgeCount + " edges.");
+           assert.ok(nodeCount > 10);
+           assert.ok(edgeCount > 10);
+           testSearch();
+           });
+        }); // new MutationObserver
+      } // if null mutation observer
+
+
+   var config = {attributes: true, childList: true, characterData: true};
+   var target = document.querySelector("#markersAndPatientsStatusDiv");
+   markersAndSamplesStatusObserver.observe(target, config);
+
+   var msg = {cmd: "specifyCurrentDataset", callback: "datasetSpecified", status: "request", payload:  dzName};
+
+   console.log("about to send specifyCurrentDataset msg to server: " + dzName);
+   hub.send(JSON.stringify(msg));
+
+} // testLoadDataSetThenProceed
+//------------------------------------------------------------------------------------------------------------------------
+// new approach
+//   1) clear selection
+//   2) find the node with highest degree
+//   3) select that node
+//   4) show edges, select all connected
+//   5) make sure selected node code -1 is equal to degree of the original node
+function testSearch()
+{
+   console.log("--- Test.markers testSearch");
+   var searchBox = $("#markersAndTissuesSearchBox");
+   var netOpsMenu = $("#cyMarkersOperationsMenu");
+   var nodes = cwMarkers.nodes().filterFn(function(node){return (node.data("nodeType") === "patient");});
+   var nodesByDegree = nodes.map(function(node){return {id:node.data("id"), degree:node.degree()};});
+   var mySort = function(a,b) {return(b.degree - a.degree);};
+   var mostConnectedNode = nodesByDegree.sort(mySort)[0];
+   console.log("mostConnectedNode: " + JSON.stringify(mostConnectedNode));
+
+   QUnit.test("markers testSearch", function(assert){
+     netOpsMenu.val("Hide All Edges");
+     netOpsMenu.trigger("change");
+     assert.equal(cwMarkers.filter("node:selected").length, 0);
+     searchBox.val(mostConnectedNode.id);
+     searchBox.trigger(jQuery.Event("keydown", {which: 13}));
+     assert.equal(cwMarkers.filter("node:selected").length, 1);
+     netOpsMenu.val("Show Edges from Selected Nodes");
+     netOpsMenu.trigger("change");
+     netOpsMenu.val("Select All Connected Nodes");
+     netOpsMenu.trigger("change");
+     console.log("about to check for selected nodes");
+     var expectedSelectionCount = mostConnectedNode.degree + 1; // include self
+     assert.ok(cwMarkers.filter("node:selected").length == expectedSelectionCount);
+     //testColorTumorsByClassification();
+     recordEndOfTest();
+     });
+
+}  // testSearch
+//------------------------------------------------------------------------------------------------------------------------
+function testColorTumorsByClassification()
+{
+   var testTitle = "testColorTumorsByClassifictaion";
+   console.log(testTitle);
+
+      // TCGA.02.0033 is in all three of our current gbm-related, public, TCGA datasets
+
+   if(markersAndSamplesStatusObserver === null){
+      markersAndSamplesStatusObserver = new MutationObserver(function(mutations) {
+        hub.raiseTab("markersAndPatientsDiv");
+        mutation = mutations[0];
+        markersAndSamplesStatusObserver.disconnect();
+        markersAndSamplesStatusObserver = null;
+        var id = mutation.target.id;
+        var msg = $("#markersAndSamplesStatusDiv").text();
+        QUnit.test(title, function(assert) {
+           assert.ok(10 === 10);
+           });
+        }); // new MutationObserver
+      } // if null mutation observer
+
+
+   var config = {attributes: true, childList: true, characterData: true};
+   var target = document.querySelector("#markersAndPatientsStatusDiv");
+   markersAndSamplesStatusObserver.observe(target, config);
+
+   var dz = "TCGAbrain";
+   var msg = {cmd: "specifyCurrentDataset", callback: "datasetSpecified", status: "request", payload:  dzName};
+
+   hub.send(JSON.stringify(msg));
+
+} // testColorTumors
+//------------------------------------------------------------------------------------------------------------------------
+function recordEndOfTest()
+{
+  console.log("end of test");
+  $("#markersTestStatusDiv").text("test complete");
+
+} // recordEndOfTest
+//------------------------------------------------------------------------------------------------------------------------
+function initialize()
+{
+   console.log("--- initializing markersAndSamples/Test.js");
+
+} // initialize
+//------------------------------------------------------------------------------------------------------------------------
+return{
+   init: initialize,
+   run: runTests,
+   show: showTests,
+   hide: hideTests
+   }; // module return value
+
+//------------------------------------------------------------------------------------------------------------------------
+}); // MarkersAndSamplesTestModule
+markersTester = MarkersAndSamplesTestModule();
+
 
 
 </script>
 
 <body>
 
-  <div id="qunit" style="display:none"></div>
-  <div id="qunit-fixture"></div>
-
 <div id="oncoscapeTabs">
    <ul>
      <li><a href="#datasetsDiv">Datasets</a></li>
-     <li><a href="#patientHistoryDiv">Patient History</a></li>
-     <li><a href="#markersAndPatientsDiv">Markers &amp; Patients</a></li>
+     <li><a href="#markersAndPatientsDiv">Markers</a></li>
+     <li><a href="#markersTestDiv">Tests</a></li>
    </ul>
 
 <style>
- 
 </style>
 
-<div id="datasetsDiv">
+<div id="datasetsDiv" style="height:auto">
   <div id="datasetsStatusDiv" style="display:none"></div>
   <div id="dataSummaryControlsDiv">
      <span id="selectDataSetMenuLabel" style="margin-left: 20px;">Available Datasets</span>
      <select type="button" id="datasetMenu" style="margin: 5px;"><option> </option></select>
      <button id="selectDatasetButton">Use Dataset</button>
+	 <span id="loadingDatasetMessage" style="display:none; margin-left:10px">Loading Dataset...</span>
      <select type="button" id="datasetsSendSelectionsMenu" style="float:right; margin:15px; display: none"></select>
+    <div id="oncoscapeLogo" style="float:right; margin-right:0.5em">	<img width="175" src="http://oncoscape.sttrcancer.org/oncoscape/images/oncoscape_logo_TM.png" alt="Oncoscape"/></div>
   </div>
 
    <div id="dataSetNamesOutputDiv" style="margin: 20px;"></div>
 
    <div id="dataSummaryOutputDiv" style="margin: 20px;overflow-x:auto">
       <div id="datasetInstructions">Please select a dataset from the above menu.</div>
-      <table id="datasetsManifestTable" class="display" cellpadding="0" cellspacing="0" border="1" style="margin:0px; width:auto; display:none"></table>
+      <table id="datasetsManifestTable" class="display" cellpadding="0" cellspacing="0" style="margin:0px; width:auto; display:none; border:none"></table>
    </div>
-</div>
-
-<style>
-
-
-#patientHistoryDiv{
-   width: 600px;
-   height: 400px;
-   background-color: #ffffff;
-   margin: auto;
-   padding: 5px;
-   }
-
-
-#patientHistoryControlsDiv {
-  background-color: #FFFFFF;
-  position: relative;
-  height: 400px;
-  width: 600px;
-  border: 1px solid #aaa;
-  border-radius: 5px;
-  margin-right: auto;
-  margin-left: auto;
-  margin-top: 10px;
-  margin-bottom: 5px;
-  padding: 0px;
-  }
-
-#patientHistoryTableDiv {
-  background-color: #FFFFFF;
-  position: relative;
-  height: 400px;
-  width: 600px;
-  overflow-x:auto;
-  margin-right: auto;
-  margin-left: auto;
-  margin-top: 5px;
-  margin-bottom: 5px;
-  padding: 0px;
-  }
-
-.patientDataFilterSliderReadout {
-  font-family:"Courier";
-  color: #0000FF;
-  background-color: #FFF;
-  font-size: 12px;
-  border: 2px solid #DDD;
-  width: 50px;
-  height: 25px;
-  resize: none;
-  margin-top: 5px;
-  margin-left: 1px;
-  }
-
-.patientDataFilterSliderTitleDiv {
-  font-family:"Arial";
-  color: #000000;
-  font-size: 12px;
-  padding-top: 0px;
-  padding-right:0px;
-  }
-
-
-</style>
-
-
-<div id="patientHistoryDiv">
-  <div id="patientHistoryStatusDiv" style="display:none"></div>
-  <div id="patientHistoryControlsDiv">  
-
-
-        <div id="ageSliderDiv" class="nav navbar-nav navbar-form navbar-left"  style="display: inline-block">
-           <div id="ageAtDxSliderTitleDiv" class="patientDataFilterSliderTitleDiv" style="text-align: center; width=100%">Age at Dx</div>
-           <div style="width: 280px; overflow: hidden;">
-               <div id="ageAtDxMsgBox1" style="float: left; margin-left: 5px; margin-right: 15<px; width: 40px" >
-  
-                  <textarea id="ageAtDxMinSliderReadout" style="font-size: 12px; height:16px"
-                            readonly class="patientDataFilterSliderReadout"></textarea> 
-                  </div>
-               <div style="width: 120px; height: 6px; float: left; margin-top: 10px; 
-                           margin-left: 30px; margin-right: 15px;" 
-                   id="ageAtDxSlider" class="slider patientDataFilterSlider">
-                   </div>
-               <div id="ageAtDxMsgBox2" style="float: left">  
-                  <textarea id="ageAtDxMaxSliderReadout" style="font-size: 12px; height:16px"
-                            readonly class="patientDataFilterSliderReadout"></textarea> 
-                  </div>
-              </div>
-           </div>
-
-
-        <div id="survivalSliderDiv" class="nav navbar-nav navbar-form navbar-left" style="display: inline-block">
-           <div id="survivalSliderTitleDiv" class="patientDataFilterSliderTitleDiv" style="text-align: center; width=100%">Survival</div>
-           <div style="width: 280px; overflow: hidden;">
-               <div id="survivalMsgBox1" style="float: left" >  
-                  <textarea id="survivalMinSliderReadout" style="font-size: 12px; height:16px"
-                             readonly class="patientDataFilterSliderReadout"></textarea> 
-                  </div>
-               <div style="width: 120px; height: 6px; float: left; margin-top: 10px; margin-left: 15px;
-                            margin-right: 15px;" 
-                   id="survivalSlider" class="slider patientDataFilterSlider">
-                   </div>
-               <div id="survivalMsgBox2" style="float: left">  
-                  <textarea id="survivalMaxSliderReadout"  style="font-size: 12px; height:16px"
-                            readonly class="patientDataFilterSliderReadout"></textarea> 
-                  </div>
-              </div>
-           </div>
-
-     <button id="patientHistoryShowAllRowsButton" type="button">Reset</button>
-     <select type="button" id="patientHistorySendSelectionsMenu" style="float:right; margin:15px"></select>
-
-
-  </div>
-
-  <div id="patientHistoryTableDiv">  
-    <table id="patientHistoryTable" cellpadding="0" cellspacing="0" border="0" class="display">
-    </table>
- </div>
-
 </div>
 
 <style>
@@ -2713,7 +2454,7 @@ markersAndTissuesMouseOverReadout{
 }
 
 .chosen-container { width:350px !important; 
-                    height:25px;
+                    height:auto;
                     font-size:8pt;}
 iframe {
 display: initial !important;
@@ -2733,14 +2474,13 @@ display: initial !important;
 
 
 <div id="markersAndPatientsDiv" class="container-fluid">
-  <div id="markersAndPatientsStatusDiv" style="display:none"></div>
    <div id="markersAndTissuesButtonDiv" style="margin-bottom: 0px; margin-top: 8px;">
       <input type="text" id="markersAndTissuesMouseOverReadout" disabled value="(names displayed here)"></input>
 
-     <select id="cyMarkersOperationsMenu" class="navbar-form selectpicker" style="font-size:8pt"></select>
-     <select id="cyMarkersTumorCategorizationsMenu" style="font-size:8pt"></select>
+     <select id="cyMarkersOperationsMenu" type="button" class="btn btn-primary navbar-form selectpicker SelectionMenu" style="font-size:11pt"></select>
+     <select id="cyMarkersTumorCategorizationsMenu" class="SelectionMenu" style="font-size:8pt;"></select>
       
-     <select class="chosen-select form-control dropdown navbar-form selectpicker" 
+     <select class="chosen-select form-control dropdown navbar-form selectpicker SelectionMenu" 
                     style="width:280px;font-size:12pt"
                     data-placeholder="Select edge types to display" 
                     multiple id="markersEdgeTypeSelector">
@@ -2749,15 +2489,15 @@ display: initial !important;
            <option value="cnLoss.2" class="btn-info" selected>Copy-2</option>
            <option value="cnGain.1" class="btn-info" selected>C+1</option>
            <option value="cnLoss.1" class="btn-info" selected>C-1</option>
-           <option value="chromosome" class="btn-info" selected>Chrom</option>
        </select>
      
  
-   <input  type="text" id="markersAndTissuesSearchBox" placeholder="search" style="width:100px;font-size:8pt"></input>
-   <select type="button" id="cyMarkersSendSelectionsMenu" style="float:right; margin-right:15px"></select>
+   <input  type="text" id="markersAndTissuesSearchBox" placeholder="search" style="width:100px;font-size:11pt"></input>
+   <select class="SelectionMenu" type="button" id="cyMarkersSendSelectionsMenu" style="float:right; margin-right:15px"></select>
  
-   <select class="btn btn-primary selectpicker" type="button" id="markerLayouts"
+   <select class="btn btn-primary selectpicker SelectionMenu" type="button" id="markerLayouts"
             name="markerLayoutMenu"></select>
+   <button id="markersSubSelectButton">Subselect</button>
  
    </div>
    
@@ -2770,9 +2510,16 @@ display: initial !important;
 
 
 
-
+<div id="markersTestDiv">
+  <div id="markersTestStatusDiv"        style="display:none"></div>
+  <div id="markersAndPatientsStatusDiv" style="display:none"></div>
+  <div id="qunit" style="display:block"></div>
+  <div id="qunit-fixture"></div>
 </div>
 
+
+
+</div>
 
 </body>
 </html>

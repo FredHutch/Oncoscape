@@ -1,8 +1,9 @@
 //----------------------------------------------------------------------------------------------------
 // move these all back inside module scope when debugging is done
+
 var cwMarkers;
-var XXX;
-var nodeRestriction = [];
+var markersTester;
+
 //----------------------------------------------------------------------------------------------------
 var markersAndTissuesModule = (function () {
 
@@ -10,6 +11,8 @@ var markersAndTissuesModule = (function () {
   var cyDiv;
   var searchBox;
   var hideEdgesButton, showEdgesButton, showAllEdgesButton, clearSelectionButton, sfnButton;
+  var nodeRestriction = [];
+  var subSelectButton;
   var helpButton;
   var infoMenu;
   var edgeTypeSelector;
@@ -21,6 +24,7 @@ var markersAndTissuesModule = (function () {
   var layoutMenu;
   var thisModulesName = "MarkersAndPatients";
   var thisModulesOutermostDiv = "markersAndPatientsDiv";
+  var userID = "NA";
 
       // sometimes a module offers multiple selection destinations.
       // usually there is just one:
@@ -51,8 +55,8 @@ function initializeUI ()
                                                       sendSelectionsMenuTitle);
 
   tumorCategorizationsMenu = $("#cyMarkersTumorCategorizationsMenu");
-  tumorCategorizationsMenu.empty()
-  tumorCategorizationsMenu.append("<option>" + tumorCategorizationsMenuTitle + "</otpion>");
+  tumorCategorizationsMenu.empty();
+  tumorCategorizationsMenu.append("<option>" + tumorCategorizationsMenuTitle + "</option>");
   tumorCategorizationsMenu.change(requestTumorCategorization);
 
   graphOperationsMenu = $("#cyMarkersOperationsMenu");
@@ -93,7 +97,7 @@ function initializeUI ()
    clearSelectionButton.click(clearSelection);
 
    hideEdgesButton = $("#cyMarkersHideEdgesButton");
-   hideEdgesButton.click(hideAllEdges)
+   hideEdgesButton.click(hideAllEdges);
 
 
    searchBox = $("#markersAndTissuesSearchBox");
@@ -103,11 +107,26 @@ function initializeUI ()
    configureCytoscape();
    $(".chosen-select").chosen();
    $(window).resize(handleWindowResize);
-   
-   hub.disableTab(thisModulesOutermostDiv)
 
+   subSelectButton = $("#markersSubSelectButton");
+   subSelectButton.click(subSelectNodes);
 
- } // initializeUI
+  if(hub.socketConnected())
+     runAutomatedTestsIfAppropriate();
+  else
+     hub.addSocketConnectedFunction(runAutomatedTestsIfAppropriate);
+
+   setInterval(function(){
+      var count = cwMarkers.nodes("node:selected").length;
+      var disable = (count === 0);
+      sendSelectionsMenu.attr("disabled", disable);
+      subSelectButton.attr("disabled", disable);
+      }, 500);
+      
+      hub.disableTab(thisModulesOutermostDiv)
+
+ 
+} // initializeUI
 //----------------------------------------------------------------------------------------------------
 function sendSelections(event)
 {
@@ -115,8 +134,8 @@ function sendSelections(event)
    console.log("CyMarkers send selections to " + destination);
    sendSelectionsMenu.val(sendSelectionsMenuTitle);
    var nodeNames = selectedNodeNames(cwMarkers);
-   if(nodeNames.length == 0){
-      console.log("no nodes selected!")
+   if(nodeNames.length === 0){
+      console.log("no nodes selected!");
       return;
       }
 
@@ -137,13 +156,16 @@ function configureLayoutsMenu(layoutMenu){
    layoutMenu.append("<option> Save Current</option>");
 
    var defaultLayout = JSON.stringify(cwMarkers.nodes().map(function(n){
-            return{id:n.id(), position:n.position()}}));
+          var result = {id:n.id(), position:n.position()};
+          return (result);  
+          }) // map
+       ); // stringify
 
    localStorage.markersDefault = defaultLayout;
 
    var existingLayouts = Object.keys(localStorage);
    for(var i=0; i < existingLayouts.length; i++){
-      if(existingLayouts[i].match("markers") != null){
+      if(existingLayouts[i].match("markers") !== null){
         layoutMenu.append("<option>" + existingLayouts[i] + "</option>");
         }
       } // for i
@@ -157,12 +179,16 @@ function performLayout(event){
   if(chosenLayoutName == "Save Current"){
      var uniqueNumber = Math.floor(new Date().getTime()/1000);   // number of seconds since 1970
      newName = "markers." + (uniqueNumber - 1420414900);    // since today, very roughly
-     currentLayout = JSON.stringify(cwMarkers.nodes().map(function(n){return{id:n.id(), position:n.position()}}));
+     var positions = cwMarkers.nodes().map(function(n){
+           var result = {id:n.id(), position:n.position()};
+           return(result);
+           }); // map
+     currentLayout = JSON.stringify(positions);
      localStorage[newName] = currentLayout;
      layoutMenu.append("<option>" + newName + "</option>");
      layoutMenu.val(newName);
      return;
-     }
+     } // if "Save Current"
 
   if(Object.keys(localStorage).indexOf(chosenLayoutName) >= 0){
      var newLayout;
@@ -180,15 +206,15 @@ function sendSelection()
 {
    destinationModule = sendSelectionsMenu.val();
    var nodeNames = selectedNodeNames(cwMarkers);
-   if(nodeNames.length == 0){
-      console.log("no nodes selected!")
+   if(nodeNames.length === 0){
+      console.log("no nodes selected!");
       return;
       }
    metadata = {};
    sendSelectionToModule(destinationModule, nodeNames, metadata);
    sendSelectionsMenu.val("Send Selection...");
 
-}; // sendSelectionsMenuChanged
+} // sendSelectionsMenuChanged
 //--------------------------------------------------------------------------------------------
 function configureCytoscape ()
 {
@@ -208,30 +234,20 @@ function configureCytoscape ()
       cwMarkers.on('mouseover', 'node', function(evt){
          var node = evt.cyTarget;
          mouseOverReadout.val(node.id());
-         })
+         });
       cwMarkers.on('mouseout', 'node', function(evt){
          var node = evt.cyTarget;
          mouseOverReadout.val("");
-         })
+         });
       cwMarkers.on('mouseover', 'edge', function(evt){
          var edge = evt.cyTarget;
          var d = edge.data();
          var msg = d.edgeType + ": " + d.source + " - " + d.target;
-         var mutation = d.mutation
+         var mutation = d.mutation;
          if(typeof(mutation) == "string")
             msg = mutation + " " + msg;
          mouseOverReadout.val(msg);
-         })
-
-      //cwMarkers.on('select', 'node', function(evt){
-      //   console.log("cwMarkers.on('select', 'node')");
-      //   var disable = selectedNodeIDs(cwMarkers).length == 0;
-      //   sendSelectionsMenu.attr("disabled", disable);
-      //   })
-      //cwMarkers.on('unselect', 'node', function(evt){
-      //   var disable = selectedNodeIDs(cwMarkers).length == 0;
-      //   sendSelectionsMenu.attr("disabled", disable);
-      //   })
+         });
 
       cwMarkers.filter("edge[edgeType='chromosome']").style({"curve-style": "bezier"});
       cwMarkers.filter("edge[edgeType='chromosome']").show();
@@ -243,6 +259,7 @@ function configureCytoscape ()
       cwMarkers.edges().selectify(); // this seems to hold through session, visibility notwithstanding
       //hideAllEdges();
       configureLayoutsMenu(layoutMenu);
+      cwMarkers.fit(50);
       }, // cy.ready
      }) // .cytoscape
     .cytoscapePanzoom({ });   // need to learn about options
@@ -258,10 +275,56 @@ function handleWindowResize ()
 
 } // handleWindowResize
 //----------------------------------------------------------------------------------------------------
+// there are often subgroups among a selected node.
+// here we opreate only on those distinguished by different node border color
+// the dialog posted here provided interactive select/deselect of those originally
+// selected nodes, by color.
+// this function could be made smarter by being made avaialble (via the subselect button) only
+// if multiple border colors are found within the currently selected nodes
+//
+function subSelectNodes()
+{
+  var selectedNodes = cwMarkers.nodes("node:selected");
+  var borderColors =  jQuery.unique(selectedNodes.map(function(node){return (node.style("border-color"));}));
+  console.log(JSON.stringify(borderColors));
+
+  var content = "<form action=''>";
+  for(i=0; i < borderColors.length; i++){
+     var color = borderColors[i];
+     var e = "<input type='checkbox' class='markersSubSelectRadioButton' name='" + color + "' checked> " + color + "<br>";
+     content = content + e;
+     }
+  content = content + "</form>";
+  button = "<br><br><button id='markersSubSelectCloseButton'>Close</button>";
+
+  content = content + button;
+
+  var dialog =  $('<div id="markersSubSelectDialog" />').html(content).dialog();
+
+  $("#markersSubSelectCloseButton").click(function(){
+     console.log("close dialog");
+     $("#markersSubSelectDialog").remove();
+     });
+
+  $(".markersSubSelectRadioButton").click(function(e) {
+      console.log("radio!"); 
+      console.log(this.name + " " + this.checked);
+      var color = this.name;
+      var selectSubset = this.checked;
+      var subsetNodes = selectedNodes.filterFn(function(node) {return(node.style("border-color") == color);});
+      if(selectSubset)
+         subsetNodes.select();
+      else
+         subsetNodes.unselect();
+      }); // radio button click
+
+} // subSelectNodes
+//----------------------------------------------------------------------------------------------------
 function requestTumorCategorization()
 {
   var categorizationName = tumorCategorizationsMenu.val();
   console.log("apply " + categorizationName);
+  recordEvent(userID + " markersApplyTumorCategorization request");
 
   var msg = {cmd: "getSampleCategorization", callback: "markersApplyTumorCategorization",
              status: "request", payload: categorizationName};
@@ -275,9 +338,10 @@ function requestTumorCategorization()
 function applyTumorCategorization(msg)
 {
    console.log("=== applyTumorCategorization");
-   var tumorsInGraph = cwMarkers.nodes("[nodeType='patient']")
-   var tumorsInTable = msg.payload.rownames
-   var tbl = msg.payload.tbl
+   var tumorsInGraph = cwMarkers.nodes("[nodeType='patient']");
+   var tumorsInTable = msg.payload.rownames;
+   var tbl = msg.payload.tbl;
+   recordEvent(userID + " markersApplyTumorCategorization data received");
 
    tumorsInGraph.forEach(function(node, index){
       var nodeID = node.id();  // our convention is that this is the tumor name, eg, "TCGA.02.0014"
@@ -292,6 +356,8 @@ function applyTumorCategorization(msg)
        }); // forEach
 
   cwMarkers.style().update();
+  recordEvent(userID + " markersApplyTumorCategorization complete");
+
 
 } // applyTumorCategorization
 //----------------------------------------------------------------------------------------------------
@@ -362,8 +428,12 @@ function invertSelection ()
 //----------------------------------------------------------------------------------------------------
 function hideAllEdges ()
 {
-   cwMarkers.filter('edge').hide();
-}
+     // hide all edges besides chromsome edges
+  cwMarkers.edges().fnFilter(function(edge) {
+     return(edge.data("edgeType") != "chromosome");
+     }).hide();
+
+} // hideAllEdges
 //----------------------------------------------------------------------------------------------------
 function showAllEdges ()
 {
@@ -371,7 +441,7 @@ function showAllEdges ()
 
    console.log("edgeTypeToDisplay: " + edgeTypesToDisplay);
 
-   if(edgeTypesToDisplay == null){
+   if(edgeTypesToDisplay === null){
       return;
       }
 
@@ -379,14 +449,14 @@ function showAllEdges ()
       var type =  edgeTypesToDisplay[e];
       selectionString = '[edgeType="' + type + '"]';
       //console.log(" showAllEdges selection string: " + selectionString);
-      cwMarkers.edges(selectionString).show()
+      cwMarkers.edges(selectionString).show();
       } // for e
 
 } // showAllEdges
 //----------------------------------------------------------------------------------------------------
 function zoomSelected()
 {
-   cwMarkers.fit(cwMarkers.$(':selected'), 100)
+   cwMarkers.fit(cwMarkers.$(':selected'), 100);
 }
 //----------------------------------------------------------------------------------------------------
 function handleIncomingIdentifiers(msg)
@@ -397,7 +467,7 @@ function handleIncomingIdentifiers(msg)
    if(typeof(ids) == "string")
       ids = [ids];
    //intersectingIDs = hub.intersectionOfArrays(ids, nodeNames())
-   intersectingIDs = hub.intersectionOfArrays(ids, nodeIDs())
+   intersectingIDs = hub.intersectionOfArrays(ids, nodeIDs());
    console.log("found ids: " + intersectingIDs.length);
 
    if(intersectingIDs.length > 0)
@@ -414,7 +484,7 @@ function handleIncomingIdentifiers(msg)
 } // handleIncomingIdentifiers
 //----------------------------------------------------------------------------------------------------
   // run all that should happen when this module receives an incoming selection of patientIDs
-demoMarkersIncomingSelectionOfIDs = function()
+function demoMarkersIncomingSelectionOfIDs()
 {
 
    names = ["TCGA.06.0210", "TCGA.02.0106", "TCGA.02.0111",
@@ -427,7 +497,7 @@ demoMarkersIncomingSelectionOfIDs = function()
             "IFNA1", "LMO2", "PRKCA", "RELA", "STK11", "ZEB1", "CCNB1IP1",
             "CREB3L1", "GDF2", "OR4K2", "PRKCH", "WAS"];
 
-   subset = []
+   subset = [];
    for(var i=0; i < 10; i++)
      subset.push(names[getRandomInt(0, names.length -1)]);
 
@@ -441,7 +511,7 @@ function allNodeIDs()
    allNodes = cwMarkers.nodes();
 
    for(i=0; i < allNodes.length; i++)
-       ids.push(allNodes[i].data("id"))
+       ids.push(allNodes[i].data("id"));
 
    return(ids);
 
@@ -452,7 +522,7 @@ function showEdges()
    hideAllEdges();   // is this wise?
 
    var edgeTypesToDisplay = edgeTypeSelector.val();
-   if(edgeTypesToDisplay == null){
+   if(edgeTypesToDisplay === null){
       hideAllEdges();
       return;
       }
@@ -527,7 +597,7 @@ function showEdges()
 //----------------------------------------------------------------------------------------------------
 function zoomSelection()
 {
-   cwMarkers.fit(cwMarkers.$(':selected'), 50)
+   cwMarkers.fit(cwMarkers.$(':selected'), 50);
 
 }
 //----------------------------------------------------------------------------------------------------
@@ -536,7 +606,7 @@ function selectedNodeIDs(cw)
    ids = [];
    noi = cw.filter('node:selected');
    for(var n=0; n < noi.length; n++){
-     ids.push(noi[n].data()['id']);
+     ids.push(noi[n].data('id'));
      }
   return(ids);
 
@@ -553,44 +623,48 @@ function selectedNodeNames(cw)
 
 } // selectedNodeNames
 //----------------------------------------------------------------------------------------------------
-showEdgesFromSelectedNodes = function()
+function showEdgesFromSelectedNodes()
 {
    var targets = nodeRestriction;
    var selectedNodes = cwMarkers.nodes("node:selected");
    var neighbors = selectedNodes.neighborhood();
-   var candidateEdges = neighbors.filterFn(function(e) {if(e.isEdge()) return e})
+   var candidateEdges = neighbors.filterFn(function(e){
+       if(e.isEdge()) return (e);
+       });
+
    candidateEdges = candidateEdges.fnFilter(function(edge){
-      return(edgeTypeSelector.val().indexOf(edge.data("edgeType")) >= 0)
+      return(edgeTypeSelector.val().indexOf(edge.data("edgeType")) >= 0);
       });
 
-   if(targets.length == 0){
+   if(targets.length === 0){
       candidateEdges.show();
       return;
       }
 
    function intersects(array1, array2){
-      var size = array1.filter(function(n) {return array2.indexOf(n) != -1}).length;
+      var size = array1.filter(function(n) {return (array2.indexOf(n) != -1);}).length;
       return(size > 0);
       }
 
    candidateEdges.filterFn(function(edge){
-      var actual=edge.connectedNodes().map(function(node){return node.id()});
+      var actual=edge.connectedNodes().map(function(node){return node.id();});
       return(intersects(actual, targets));
-       }).show()
+       }).show();
 
 } // showEdgesFromSelectedNodes
 //----------------------------------------------------------------------------------------------------
 function selectSourceAndTargetNodesOfEdges(cw, edges)
 {
-
-  var edgesVisible = cwMarkers.filter('edge:visible').length
+  //var eoi = cwMarkers.filter('edge:visible');
+  var notChromosomal = function(edge){return(edge.data("edgeType") !== "chromosome");};
+  eoi = edges.filterFn(notChromosomal);
 
   var filterStrings = [];
 
-  for(var i=0; i < edges.length; i++){
-     edge = edges[i];
-     targetID = edge.target().data("id")
-     sourceID = edge.source().data("id")
+  for(var i=0; i < eoi.length; i++){
+     edge = eoi[i];
+     targetID = edge.target().data("id");
+     sourceID = edge.source().data("id");
      var sourceFilterString = '[id="' + sourceID + '"]';
      var targetFilterString = '[id="' + targetID + '"]';
      filterStrings.push(sourceFilterString);
@@ -598,7 +672,7 @@ function selectSourceAndTargetNodesOfEdges(cw, edges)
      } // for i
 
    var nodesToSelect = cw.nodes(filterStrings.join());
-   nodesToSelect.select()
+   nodesToSelect.select();
 
 } // selecteSourceAndTargetNodesOfEdge
 //----------------------------------------------------------------------------------------------------
@@ -610,7 +684,7 @@ function showEdgesForNodes(cw, nodes)
   console.log("=== showEdgesForNodes, edgeType count: " + edgeTypes.length);
   console.log(edgeTypes);
 
-  if(edgeTypes.length == 0)
+  if(edgeTypes.length === 0)
       return;
 
   var filterStrings = [];
@@ -624,8 +698,8 @@ function showEdgesForNodes(cw, nodes)
           var nodeID = nodes[n].data("id");
           var sourceFilterString = '[edgeType="' + edgeType + '"][source="' + nodeID + '"]';
           var targetFilterString = '[edgeType="' + edgeType + '"][target="' + nodeID + '"]';
-          filterStrings.push(sourceFilterString)
-          filterStrings.push(targetFilterString)
+          filterStrings.push(sourceFilterString);
+          filterStrings.push(targetFilterString);
           } // for n
         } // for e
 
@@ -636,7 +710,7 @@ function showEdgesForNodes(cw, nodes)
       console.log("filtering complete");
       if(existingEdges.length > 0) {
          console.log("about to show edges");
-         existingEdges.show()
+         existingEdges.show();
          console.log("edges shown...");
          }
      }, 1000); // setTimeout
@@ -648,19 +722,21 @@ function showEdgesForNodes(cw, nodes)
 function selectAllConnectedNodes()
 {
     var selectedEdges = cwMarkers.filter("edge:visible");
-    selectSourceAndTargetNodesOfEdges(cwMarkers, selectedEdges);
+    selectedEdges = selectedEdges.filterFn(function(e){return (e.data("edgeType") !== "chromosome");});
+    if(selectedEdges.length > 0)
+       selectSourceAndTargetNodesOfEdges(cwMarkers, selectedEdges);
 
 } // selectAllConnectedNodes
 //----------------------------------------------------------------------------------------------------
 function selectAllNodesConnectedBySelectedEdges()
 {
-    edges = cwMarkers.filter("edge:selected")
+    edges = cwMarkers.filter("edge:selected");
     console.log(" selected edge count: " + edges.length);
-    if(edges.length == 0)
+    if(edges.length === 0)
       return;
     for(var e=0; e < edges.length; e++){
-       selectNodes(edges[e].target().data("name"))
-       selectNodes(edges[e].source().data("name"))
+       selectNodes(edges[e].target().data("name"));
+       selectNodes(edges[e].source().data("name"));
        } // for e
 
 } //selectAllNodesConnectedBySelectedEdges
@@ -686,14 +762,12 @@ function showEdgesForSelectedNodes(cw, edgeTypes)
 function restrictNextOpsToSelectedNodes()
 {
   var nodes = cwMarkers.nodes("node:selected"); // .filter("[nodeType='gene']");
-  if(nodes.length == 0){
+  if(nodes.length === 0){
      nodeRestriction = [];
      }
   else{
-     nodeRestriction = nodes.map(function(node){return node.id()})
+     nodeRestriction = nodes.map(function(node){return (node.id());});
      }
-
-  debugger;
 
 } // restrictNextOpsToSelectedNodes
 //----------------------------------------------------------------------------------------------------
@@ -702,33 +776,34 @@ function nodeNames()
   var nodes = cwMarkers.filter("node:visible");
   var result = [];
   for(var i=0; i < nodes.length; i++){
-    result.push(nodes[i].data().label)
+    result.push(nodes[i].data().label);
     } // for i
-  return(result)
+
+  return(result);
 
 } // nodeNames
 //----------------------------------------------------------------------------------------------------
 function nodeIDs()
 {
-   return(cwMarkers.nodes().map(function(node){return node.id()}));
+   return(cwMarkers.nodes().map(function(node){return (node.id());}));
 }
 //----------------------------------------------------------------------------------------------------
 function upperCaseNodeIDs()
 {
-   return(nodeIDs().map(function(node){return(node.toUpperCase())}));
+   return(nodeIDs().map(function(node){return(node.toUpperCase());}));
 }
 //----------------------------------------------------------------------------------------------------
 // todo: build up the filter string first, then send it all at once
 function selectNodes(nodeNames)
 {
   console.log("Module.markers::selectNodes");
-  console.log(nodeNames);
+  //console.log(nodeNames);
 
   if(typeof(nodeNames) == "string")   // trap scalar, but expect and support arrays
      nodeNames = [nodeNames];
 
-  var allNodes = cwMarkers.nodes().map(function(n){return n.id()});
-  var allNodesUpperCase = allNodes.map(function(name){return name.toUpperCase()});
+  var allNodes = cwMarkers.nodes().map(function(n){return (n.id());});
+  var allNodesUpperCase = allNodes.map(function(name){return (name.toUpperCase());});
 
   for(var i=0; i < nodeNames.length; i++){
     var nodeName = nodeNames[i].toUpperCase();  // depends upon this conv
@@ -754,7 +829,7 @@ function selectNodesByID(nodeIDs) {
 
   for(var i=0; i < nodeIDs.length; i++){
     s = "cwMarkers.filter('node[id=\"" + nodeIDs[i] + "\"]').select()";
-    console.log(s)
+    console.log(s);
     JAVASCRIPT_EVAL (s);
     } // for i
 
@@ -769,9 +844,9 @@ function doSearch(e)
       console.log("searchString: " + searchString);
       var idsActual = nodeIDs();
       var idsUpper = upperCaseNodeIDs();
-      var hits = idsUpper.filter(function(id) {return(id.startsWith(searchString))});
-      var hitIndices = hits.map(function(hit) {return idsUpper.indexOf(hit)});
-      var hitsActual = hitIndices.map(function(hit) {return idsActual[hit]})
+      var hits = idsUpper.filter(function(id) {return(id.startsWith(searchString));});
+      var hitIndices = hits.map(function(hit) {return(idsUpper.indexOf(hit));});
+      var hitsActual = hitIndices.map(function(hit) {return(idsActual[hit]);});
       selectNodes(hitsActual);
       } // if 13 (return key)
 
@@ -795,24 +870,23 @@ function displayMarkersNetwork(msg)
       console.log("  about to add  json.style");
       cwMarkers.style(json.style);
       console.log("   hiding edges");
-      cwMarkers.edges().hide()
+      cwMarkers.edges().hide();
       cwMarkers.filter("edge[edgeType='chromosome']").style({"curve-style": "bezier"});
       cwMarkers.filter("edge[edgeType='chromosome']").show();
       cwMarkers.nodes().unselect();
         // map current node degree into a node attribute of that name
-      cwMarkers.nodes().map(function(node){node.data({degree: node.degree()})});
+      cwMarkers.nodes().map(function(node){node.data({degree: node.degree()});});
 
       var edgeTypes = hub.uniqueElementsOfArray(cwMarkers.edges().map(function(edge){
-                               return(edge.data("edgeType"))}
+                               return(edge.data("edgeType"));}
                                ));
       updateEdgeSelectionWidget(edgeTypes);  // preserve only known edgeTypes
       cwMarkers.fit(20);
       var defaultLayout = JSON.stringify(cwMarkers.nodes().map(function(n){
-                                         return{id:n.id(), position:n.position()}}));
-      localStorage["markersDefault"] = defaultLayout;
+                                         return({id:n.id(), position:n.position()});}));
+      localStorage.markersDefault = defaultLayout;
       postStatus("markers network displayed");
-          hub.enableTab(thisModulesOutermostDiv);
-
+      recordEvent(userID + " display markers network complete");
       }
    else{
      console.log("displayMarkersNetwork error: " + msg.payload);
@@ -834,7 +908,7 @@ function updateEdgeSelectionWidget(edgeTypes)
    for(var i=0; i < options.length; i++){
       var optionElement = options[i];
       var optionValue = optionElement.value;
-      var found = jQuery.inArray(optionValue, edgeTypes) >= 0
+      var found = jQuery.inArray(optionValue, edgeTypes) >= 0;
       console.log("checking option '" + optionValue + "':  " + found);
       if(!found){
          console.log("  deleting selector option " + optionValue);
@@ -845,6 +919,14 @@ function updateEdgeSelectionWidget(edgeTypes)
 
 } // updateEdgeSelectionWidget
 //----------------------------------------------------------------------------------------------------
+function recordEvent(payload)
+{
+   console.log("about to recordEvent: " + payload);
+
+   hub.send(JSON.stringify({cmd: "recordEvent", callback:"", status:"request", payload: payload}));
+
+} // recordEvent
+//----------------------------------------------------------------------------------------------------
 // called when the a dataset has been specified, typically via the Datasets tab, which presents
 // the user with a list of the datasets they are able to use, from which they choose one at a time
 // as their current working dataset.
@@ -853,11 +935,11 @@ function datasetSpecified (msg)
 {
    var datasetName = msg.payload;
 
-     // request patient data table
-   var newMsg = {cmd: "getMarkersNetwork",  callback: "displayMarkersNetwork", 
-                status: "request", payload: datasetName};
-
+   recordEvent(userID + " display markers network request ");
+   var newMsg = {cmd: "getMarkersNetwork",  callback: "displayMarkersNetwork", status: "request", payload: datasetName};
    hub.send(JSON.stringify(newMsg));
+
+   recordEvent(userID + " getSampleCategorizationNames ");
 
    var msg2 = {cmd: "getSampleCategorizationNames", callback: "configureSampleCategorizationMenu",
                status: "request", payload: ""};
@@ -868,10 +950,13 @@ function datasetSpecified (msg)
 //----------------------------------------------------------------------------------------------------
 function configureSampleCategorizationMenu(msg)
 {
-   console.log("=== configureSampleCategorizationMenu")
-   console.log(msg.payload)
-   tumorCategorizationsMenu.empty()
+   console.log("=== configureSampleCategorizationMenu");
+   //console.log(msg.payload);
+   tumorCategorizationsMenu.empty();
    var categorizations = msg.payload;
+
+   if(typeof categorizations == "string") 
+   	 categorizations = [categorizations];
 
    var titleOption = "Tumor Groups...";
 
@@ -882,20 +967,12 @@ function configureSampleCategorizationMenu(msg)
      } // for i
 
    tumorCategorizationsMenu.val(titleOption);
+   recordEvent(userID + " getSampleCategorizationNames complete");
+   
+   hub.enableTab(thisModulesOutermostDiv)
+
 
 } // configureSampleCategorizationMenu
-//----------------------------------------------------------------------------------------------------
-// this module supports (or soon will support) markers & patients (or markers & samples) networks
-// for a variety of diseases and patient sets.  we will develop tests which know nothing beforehand
-// about the data, but our first priority now (28 apr 2015) is for the lgg/gbm combined tcga 
-// dataset
-function standAloneTest()
-{
-   $("#qunit").css({display: "block"})
-
-   gbmLggDzSpecificTests();
-
-} // standAloneTest
 //----------------------------------------------------------------------------------------------------
 function gbmLggDzSpecificTests()
 {
@@ -905,20 +982,20 @@ function gbmLggDzSpecificTests()
       console.log("about to check node count");
       assert.ok(cwMarkers.nodes().length > 1500);
       console.log("about to check edge count");
-      assert.ok(cwMarkers.edges().length > 13000)
+      assert.ok(cwMarkers.edges().length > 13000);
       console.log("end of test");
       });
 
   QUnit.test("markersAndSamples: select EGFR", function(assert){
      cwMarkers.nodes().unselect();
-     assert.ok(cwMarkers.filter("node:selected").length == 0);
+     assert.ok(cwMarkers.filter("node:selected").length === 0);
      cwMarkers.$("#EGFR").select();
-     assert.ok(cwMarkers.filter("node:selected").length == 1);
+     assert.ok(cwMarkers.filter("node:selected").length === 1);
      });
 
 
   QUnit.test("markersAndSamples: choose edge types", function(assert){
-     edgeTypes = $("#markersEdgeTypeSelector option").map(function(opt){return this.value})
+     edgeTypes = $("#markersEdgeTypeSelector option").map(function(opt){return(this.value);});
      var desiredEdgeType = "chromosome";
 
      if($.inArray(desiredEdgeType, edgeTypes) < 0){
@@ -926,26 +1003,26 @@ function gbmLggDzSpecificTests()
         return;
         }
 
-     $("#markersEdgeTypeSelector").val(desiredEdgeType)
-     $("#markersEdgeTypeSelector").trigger("change")
+     $("#markersEdgeTypeSelector").val(desiredEdgeType);
+     $("#markersEdgeTypeSelector").trigger("change");
      console.log("=== edge type selected: " + $("#markersEdgeTypeSelector").val());
      assert.equal($("#markersEdgeTypeSelector").val(), desiredEdgeType);
      assert.equal(cwMarkers.filter("node:selected").length, 1);
        // now restore the original settings. 
-     $("#markersEdgeTypeSelector").val(["chromosome", "mutation", "cnGain.2", "cnLoss.2", "cnGain.1", "cnLoss.1"])
+     $("#markersEdgeTypeSelector").val(["chromosome", "mutation", "cnGain.2", "cnLoss.2", "cnGain.1", "cnLoss.1"]);
      $("#markersEdgeTypeSelector").trigger("change");
      });
 
   QUnit.test("markersAndSamples: select chrom edges from EGFR", function(assert){
       var desiredAction = "Show Edges from Selected Nodes";
-      var actions = $("#cyMarkersOperationsMenu option").map(function(x) {return this.value});
+      var actions = $("#cyMarkersOperationsMenu option").map(function(x) {return(this.value);});
 
       if($.inArray(desiredAction, actions) < 0){
          alert("cannot run tests:  " + desiredAction + " not available");
          return;
          }
 
-     cwMarkers.edges().hide()
+     cwMarkers.edges().hide();
      assert.equal(cwMarkers.filter("edge:visible").length, 0);
      $("#cyMarkersOperationsMenu").val(desiredAction);
      $("#cyMarkersOperationsMenu").trigger("change");
@@ -964,13 +1041,40 @@ function gbmLggDzSpecificTests()
      var e = jQuery.Event("keydown");
      e.which = 13;  
      $("#markersAndTissuesSearchBox").trigger(e);
-     var selectedNode = cwMarkers.filter("node:selected")
+     var selectedNode = cwMarkers.filter("node:selected");
      assert.equal(selectedNode.length, 1);
      assert.equal(selectedNode.data().id, targetNode);
      });
 
 
 } // gbmLggDzSpecificTests
+//----------------------------------------------------------------------------------------------------
+// query the oncoscape server for user id.  the callback then makes a local (that is,
+// Module-specific) decision to run this module's automated tests based upon that id
+function runAutomatedTestsIfAppropriate()
+{
+   var msg = {cmd: "getUserId",  callback: "markersAssessUserIdForTesting", status: "request", payload: ""};
+   hub.send(JSON.stringify(msg));
+
+} // runAutomatedTestsIfAppropriate
+//----------------------------------------------------------------------------------------------------
+function assessUserIdForTesting(msg)
+{
+   userID = msg.payload;
+   userID = userID.toLowerCase();
+
+   console.log("markersAndSamples/Module.js assesUserIdForTesting: " + userID);
+   
+   if(userID.indexOf("autotest") === 0){
+      console.log("markersAndSamples/Module.js running tests for user " + userID);
+      var datasetNames = $("#datasetMenu").children().map(function() {return $(this).val();}).get();
+         // delete any empty strings
+      datasetNames = datasetNames.filter(function(e) {return (e.length > 0);});
+      markersTester.run(datasetNames);
+      console.log("back from markersTester.run()");
+      }
+
+} // assessUserIdForTesting
 //----------------------------------------------------------------------------------------------------
  return{
      init: function(){
@@ -980,12 +1084,14 @@ function gbmLggDzSpecificTests()
         hub.addMessageHandler("displayMarkersNetwork", displayMarkersNetwork);
         hub.addMessageHandler("configureSampleCategorizationMenu", configureSampleCategorizationMenu);
         hub.addMessageHandler("markersApplyTumorCategorization", applyTumorCategorization);
+        hub.addMessageHandler("markersAssessUserIdForTesting", assessUserIdForTesting);
+        //hub.addSocketConnectedFunction(runAutomatedTestsIfAppropriate);
+        //hub.addDocumentReadyFunction(runAutomatedTestsIfAppropriate);
         hub.addOnDocumentReadyFunction(initializeUI);
-       },
-     sat: standAloneTest
+       }
      };
 
    }); // markersAndTissuesModule
 //----------------------------------------------------------------------------------------------------
-markersModule = markersAndTissuesModule()
+markersModule = markersAndTissuesModule();
 markersModule.init();
