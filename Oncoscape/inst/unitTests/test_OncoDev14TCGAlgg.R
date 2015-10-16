@@ -1,4 +1,4 @@
-# test_OncoDev14.R
+# test_OncoDev14TCGAlgg.R
 # these tests create an OncoDev14 object but do not run it on a websocket port
 # live websocket tests are found in testWebSocketOperations.py 
 # these tests establish that all the methods of the -unconnected- OncoDev14 work properly
@@ -10,7 +10,7 @@ runTests <- function()
 {
 library(RUnit)
 library(OncoDev14)
-library(TCGAgbm)
+library(TCGAlgg)
   test_jsonOperations()
   test_serverVersion()
   test_loadDataPackages()
@@ -25,7 +25,7 @@ library(TCGAgbm)
 runTimedTests <- function()
 {
    library(rbenchmark)
-   fileNameTemp <- c("test_OncoDev14_BenchMark",date())
+   fileNameTemp <- c("test_OncoDev14_BenchMark_TCGAlgg",date())
    fileNamePaste <- paste(fileNameTemp, collapse = " ")
    fileName <- gsub("[ ]", "_", fileNamePaste)
    benchCols <-  c('test', 'replications', 'elapsed', 'relative', 'user.self', 'sys.self', 'user.child', 'sys.child')
@@ -36,7 +36,7 @@ runTimedTests <- function()
               col.names=FALSE, row.names=FALSE)
    write.table(data.frame("library(OncoDev14)", reps, t(c(system.time(library(OncoDev14))))), file=fileName, append=TRUE,
               col.names=FALSE, row.names=FALSE)
-   write.table(data.frame("library(TCGAgbm)",reps, t(c(system.time(library(TCGAgbm))))), file=fileName, append=TRUE,
+   write.table(data.frame("library(TCGAlgg)",reps, t(c(system.time(library(TCGAlgg))))), file=fileName, append=TRUE,
               col.names=FALSE, row.names=FALSE)
    write.table(benchmark(test_jsonOperations, test_serverVersion, test_loadDataPackages,
               test_loadDataPackageGeneSets,  test_manifest,
