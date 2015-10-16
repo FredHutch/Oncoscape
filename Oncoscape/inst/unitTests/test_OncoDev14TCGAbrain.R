@@ -11,6 +11,12 @@ runTests <- function()
 library(RUnit)
 library(OncoDev14)
 library(TCGAbrain)
+  test_Matrices()
+  test_getEventList()
+  test_getEventTypeList()
+  test_getPatientTable()
+
+  test_getHistory()
   test_jsonOperations()
   test_serverVersion("TCGAbrain")
   test_loadDataPackages("TCGAbrain")
@@ -28,6 +34,8 @@ runTimedTests <- function()
    fileNameTemp <- c("test_OncoDev14_BenchMark_TCGAbrain",date())
    fileNamePaste <- paste(fileNameTemp, collapse = " ")
    fileName <- gsub("[ ]", "_", fileNamePaste)
+   fileName <- gsub("[:]", "_", fileName)
+
    benchCols <-  c('test', 'replications', 'elapsed', 'relative', 'user.self', 'sys.self', 'user.child', 'sys.child')
    reps <- 1
    write(timestamp(),file=fileName, append=TRUE)
@@ -174,9 +182,10 @@ test_manifest <- function()
    expected.categories <- c("copy number", "history", "mutations", "protein abundance",
                             "mrna expression", "network", "geneset")
    checkTrue(all(expected.categories %in% tbl$category))
-   expected.rownames <- c("mtx.cn.RData", "history.RData", "mtx.mut.RData", "mtx.prot.RData", "mtx.meth.RData",
+   expected.rownames <- c("mtx.cn.RData", "ptHistory.RData", "mtx.mut.RData", "mtx.prot.RData",
                           "mtx.mrna.bc.RData", "markers.json.RData",
-                          "genesets.RData")
+                          "genesets.RData","verhaakGbmClustersAugmented.RData","ericsEightGliomaClusters.RData",
+                          "egfr.json.RData","gbmPathways.json.RData","events.RData","historyTypes.RData")
 
    #print(expected.rownames)
    #print(rownames(tbl))
@@ -232,6 +241,11 @@ test_loadDataPackageGeneSets <- function()
 {
   print("--- test_loadDataPackageGeneSets")
 
+  scriptDir <- NA_character_
+  userID <- "test@nowhere.net"
+
+  dataset <- "TCGAgbm"
+  onco <- OncoDev14(port=PORT, scriptDir=scriptDir, userID=userID, datasetNames=dataset)
   dz <- TCGAgbm()
   checkTrue(all(c("marker.genes.545", "tcga.GBM.classifiers") %in% getGeneSetNames(dz)))
   x <- getGeneSetGenes(dz, "tcga.GBM.classifiers")
@@ -243,5 +257,89 @@ test_loadDataPackageGeneSets <- function()
 
 } # test_loadDataPackageGeneSets
 #----------------------------------------------------------------------------------------------------
+test_getHistory <- function()
+{
+  print("--- test_getHistory, OncoDev14")
+  scriptDir <- NA_character_
+  userID <- "test@nowhere.net"
+
+  dataset <- "TCGAbrain"
+  onco <- OncoDev14(port=PORT, scriptDir=scriptDir, userID=userID, datasetNames=dataset)
+  ds <- TCGAbrain()
+  hist <- history(ds)
+
+  checkEquals(dim(hist), NULL)
+  checkEquals(typeof(hist), "S4")
+
+
+} # test_getHistory
+#----------------------------------------------------------------------------------------------------
+test_getEventList <- function()
+{
+  print("--- test_getEventList, OncoDev14")
+  scriptDir <- NA_character_
+  userID <- "test@nowhere.net"
+
+  dataset <- "TCGAbrain"
+  onco <- OncoDev14(port=PORT, scriptDir=scriptDir, userID=userID, datasetNames=dataset)
+  ds <- TCGAbrain()
+  evl <- getEventList(ds)
+
+  checkEquals(dim(evl), NULL)
+  checkEquals(typeof(evl), "list")
+
+} # test_getEventList
+#----------------------------------------------------------------------------------------------------
+test_getEventTypeList <- function()
+{
+  print("--- test_getEventTypeList, OncoDev14")
+  scriptDir <- NA_character_
+  userID <- "test@nowhere.net"
+
+  dataset <- "TCGAbrain"
+  onco <- OncoDev14(port=PORT, scriptDir=scriptDir, userID=userID, datasetNames=dataset)
+  ds <- TCGAbrain()
+  evtl <- getEventTypeList(ds)
+
+
+  checkEquals(dim(evtl), NULL)
+  checkEquals(typeof(evtl), "list")
+
+} # test_getEventTypeList
+#----------------------------------------------------------------------------------------------------
+test_getPatientTable <- function()
+{
+  print("--- test_getPatientTable, OncoDev14")
+  scriptDir <- NA_character_
+  userID <- "test@nowhere.net"
+
+  dataset <- "TCGAbrain"
+  onco <- OncoDev14(port=PORT, scriptDir=scriptDir, userID=userID, datasetNames=dataset)
+  ds <- TCGAbrain()
+  pt <- getPatientTable(ds)
+
+
+  checkEquals(dim(pt), c(1051,485))
+  checkEquals(typeof(pt), "list")
+
+} # test_getPatientTable
+#----------------------------------------------------------------------------------------------------
+test_Matrices <- function()
+{
+  print("--- test_matrices, OncoDev14")
+  scriptDir <- NA_character_
+  userID <- "test@nowhere.net"
+
+  dataset <- "TCGAbrain"
+  onco <- OncoDev14(port=PORT, scriptDir=scriptDir, userID=userID, datasetNames=dataset)
+  ds <- TCGAbrain()
+  mat <- matrices(ds)
+  checkEquals(dim(mat), NULL)
+  checkEquals(typeof(mat), "list")
+
+
+
+}
+#----------------------------------------------------------------------------------------------------
 if(!interactive())
-   runTimedTests()
+   runTests()
