@@ -83,6 +83,9 @@ function initializeUI ()
 
    $(window).resize(handleWindowResize);
    handleWindowResize();
+   
+   hub.disableTab(thisModulesOutermostDiv)
+
 
 } // initializeUI
 //--------------------------------------------------------------------------------------------
@@ -485,6 +488,8 @@ function handleGeneSetNames(msg)
    newNames = msg.payload;
    addGeneSetNamesToMenu(newNames);
    hub.enableButton(calculateButton);
+   hub.enableTab(thisModulesOutermostDiv)
+
    postStatus("plsr ui now configured");
 
 } // handleGeneSetNames

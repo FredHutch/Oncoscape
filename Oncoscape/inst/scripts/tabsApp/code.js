@@ -19,8 +19,9 @@ hub.addOnDocumentReadyFunction(function() {
             if(typeof(cwMarkers) != "undefined") {
                console.log("adjusting cwMarkers");
                cwMarkers.resize(); 
+               console.log("after resize");
                cwMarkers.fit(50);
-               //console.log("done adjusting cwMarkers");
+               console.log("done adjusting cwMarkers");
                }
             if(typeof(cyGbm) != "undefined") {
                //console.log("adjusting cwGbm");
