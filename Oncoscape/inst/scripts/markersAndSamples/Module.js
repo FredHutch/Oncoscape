@@ -123,8 +123,7 @@ function initializeUI ()
       subSelectButton.attr("disabled", disable);
       }, 500);
       
-      hub.disableTab(thisModulesOutermostDiv)
-
+   hub.disableTab(thisModulesOutermostDiv)
  
 } // initializeUI
 //----------------------------------------------------------------------------------------------------
@@ -470,14 +469,18 @@ function handleIncomingIdentifiers(msg)
    intersectingIDs = hub.intersectionOfArrays(ids, nodeIDs());
    console.log("found ids: " + intersectingIDs.length);
 
-   if(intersectingIDs.length > 0)
+   if(intersectingIDs.length > 0){
       selectNodesByID(intersectingIDs);
+      }
    else{
       errorMessage = "No overlap with genes or tissue sample IDs:  <br><br>" +
                       ids.join(", ");
       title = ids.length + " unrecognized identifiers";
       $('<div />').html(errorMessage).dialog({title: title, width:600, height:300});
       }
+
+   console.log("about to post status from incoming identifiers");
+   postStatus("incoming identifiers: " + ids.length);
 
    hub.raiseTab(thisModulesOutermostDiv);
 
@@ -858,9 +861,6 @@ function displayMarkersNetwork(msg)
    //console.log(msg)
    if(msg.status == "success"){
       console.log("nchar(network): " + msg.payload.length);
-      s = msg.payload;
-      XXX = msg.payload;
-      console.log("      1:40: " + s.substring(1, 40));
       var json = JSON.parse(msg.payload);
       cwMarkers.remove(cwMarkers.edges());
       cwMarkers.remove(cwMarkers.nodes());
@@ -970,7 +970,6 @@ function configureSampleCategorizationMenu(msg)
    recordEvent(userID + " getSampleCategorizationNames complete");
    
    hub.enableTab(thisModulesOutermostDiv)
-
 
 } // configureSampleCategorizationMenu
 //----------------------------------------------------------------------------------------------------
