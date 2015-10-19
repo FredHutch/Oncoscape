@@ -1074,6 +1074,7 @@ var markersAndTissuesModule = (function () {
   var layoutMenu;
   var thisModulesName = "MarkersAndPatients";
   var thisModulesOutermostDiv = "markersAndPatientsDiv";
+  var userID = "NA";
 
       // sometimes a module offers multiple selection destinations.
       // usually there is just one:
@@ -1159,6 +1160,11 @@ function initializeUI ()
 
    subSelectButton = $("#markersSubSelectButton");
    subSelectButton.click(subSelectNodes);
+
+  if(hub.socketConnected())
+     runAutomatedTestsIfAppropriate();
+  else
+     hub.addSocketConnectedFunction(runAutomatedTestsIfAppropriate);
 
    setInterval(function(){
       var count = cwMarkers.nodes("node:selected").length;
@@ -1365,6 +1371,7 @@ function requestTumorCategorization()
 {
   var categorizationName = tumorCategorizationsMenu.val();
   console.log("apply " + categorizationName);
+  recordEvent(userID + " markersApplyTumorCategorization request");
 
   var msg = {cmd: "getSampleCategorization", callback: "markersApplyTumorCategorization",
              status: "request", payload: categorizationName};
@@ -1381,6 +1388,7 @@ function applyTumorCategorization(msg)
    var tumorsInGraph = cwMarkers.nodes("[nodeType='patient']");
    var tumorsInTable = msg.payload.rownames;
    var tbl = msg.payload.tbl;
+   recordEvent(userID + " markersApplyTumorCategorization data received");
 
    tumorsInGraph.forEach(function(node, index){
       var nodeID = node.id();  // our convention is that this is the tumor name, eg, "TCGA.02.0014"
@@ -1395,6 +1403,8 @@ function applyTumorCategorization(msg)
        }); // forEach
 
   cwMarkers.style().update();
+  recordEvent(userID + " markersApplyTumorCategorization complete");
+
 
 } // applyTumorCategorization
 //----------------------------------------------------------------------------------------------------
@@ -1759,7 +1769,9 @@ function showEdgesForNodes(cw, nodes)
 function selectAllConnectedNodes()
 {
     var selectedEdges = cwMarkers.filter("edge:visible");
-    selectSourceAndTargetNodesOfEdges(cwMarkers, selectedEdges);
+    selectedEdges = selectedEdges.filterFn(function(e){return (e.data("edgeType") !== "chromosome");});
+    if(selectedEdges.length > 0)
+       selectSourceAndTargetNodesOfEdges(cwMarkers, selectedEdges);
 
 } // selectAllConnectedNodes
 //----------------------------------------------------------------------------------------------------
@@ -1832,7 +1844,7 @@ function upperCaseNodeIDs()
 function selectNodes(nodeNames)
 {
   console.log("Module.markers::selectNodes");
-  console.log(nodeNames);
+  //console.log(nodeNames);
 
   if(typeof(nodeNames) == "string")   // trap scalar, but expect and support arrays
      nodeNames = [nodeNames];
@@ -1921,6 +1933,7 @@ function displayMarkersNetwork(msg)
                                          return({id:n.id(), position:n.position()});}));
       localStorage.markersDefault = defaultLayout;
       postStatus("markers network displayed");
+      recordEvent(userID + " display markers network complete");
       }
    else{
      console.log("displayMarkersNetwork error: " + msg.payload);
@@ -1953,6 +1966,14 @@ function updateEdgeSelectionWidget(edgeTypes)
 
 } // updateEdgeSelectionWidget
 //----------------------------------------------------------------------------------------------------
+function recordEvent(payload)
+{
+   console.log("about to recordEvent: " + payload);
+
+   hub.send(JSON.stringify({cmd: "recordEvent", callback:"", status:"request", payload: payload}));
+
+} // recordEvent
+//----------------------------------------------------------------------------------------------------
 // called when the a dataset has been specified, typically via the Datasets tab, which presents
 // the user with a list of the datasets they are able to use, from which they choose one at a time
 // as their current working dataset.
@@ -1961,11 +1982,11 @@ function datasetSpecified (msg)
 {
    var datasetName = msg.payload;
 
-     // request patient data table
-   var newMsg = {cmd: "getMarkersNetwork",  callback: "displayMarkersNetwork", 
-                status: "request", payload: datasetName};
-
+   recordEvent(userID + " display markers network request ");
+   var newMsg = {cmd: "getMarkersNetwork",  callback: "displayMarkersNetwork", status: "request", payload: datasetName};
    hub.send(JSON.stringify(newMsg));
+
+   recordEvent(userID + " getSampleCategorizationNames ");
 
    var msg2 = {cmd: "getSampleCategorizationNames", callback: "configureSampleCategorizationMenu",
                status: "request", payload: ""};
@@ -1977,7 +1998,7 @@ function datasetSpecified (msg)
 function configureSampleCategorizationMenu(msg)
 {
    console.log("=== configureSampleCategorizationMenu");
-   console.log(msg.payload);
+   //console.log(msg.payload);
    tumorCategorizationsMenu.empty();
    var categorizations = msg.payload;
 
@@ -1993,20 +2014,9 @@ function configureSampleCategorizationMenu(msg)
      } // for i
 
    tumorCategorizationsMenu.val(titleOption);
+   recordEvent(userID + " getSampleCategorizationNames complete");
 
 } // configureSampleCategorizationMenu
-//----------------------------------------------------------------------------------------------------
-// this module supports (or soon will support) markers & patients (or markers & samples) networks
-// for a variety of diseases and patient sets.  we will develop tests which know nothing beforehand
-// about the data, but our first priority now (28 apr 2015) is for the lgg/gbm combined tcga 
-// dataset
-function standAloneTest()
-{
-   $("#qunit").css({display: "block"});
-
-   gbmLggDzSpecificTests();
-
-} // standAloneTest
 //----------------------------------------------------------------------------------------------------
 function gbmLggDzSpecificTests()
 {
@@ -2094,14 +2104,18 @@ function runAutomatedTestsIfAppropriate()
 //----------------------------------------------------------------------------------------------------
 function assessUserIdForTesting(msg)
 {
-   var userID = msg.payload;
-   userId = userID.toLowerCase();
+   userID = msg.payload;
+   userID = userID.toLowerCase();
 
    console.log("markersAndSamples/Module.js assesUserIdForTesting: " + userID);
    
    if(userID.indexOf("autotest") === 0){
       console.log("markersAndSamples/Module.js running tests for user " + userID);
-      markersTester.run();
+      var datasetNames = $("#datasetMenu").children().map(function() {return $(this).val();}).get();
+         // delete any empty strings
+      datasetNames = datasetNames.filter(function(e) {return (e.length > 0);});
+      markersTester.run(datasetNames);
+      console.log("back from markersTester.run()");
       }
 
 } // assessUserIdForTesting
@@ -2115,10 +2129,10 @@ function assessUserIdForTesting(msg)
         hub.addMessageHandler("configureSampleCategorizationMenu", configureSampleCategorizationMenu);
         hub.addMessageHandler("markersApplyTumorCategorization", applyTumorCategorization);
         hub.addMessageHandler("markersAssessUserIdForTesting", assessUserIdForTesting);
-        hub.addSocketConnectedFunction(runAutomatedTestsIfAppropriate);
+        //hub.addSocketConnectedFunction(runAutomatedTestsIfAppropriate);
+        //hub.addDocumentReadyFunction(runAutomatedTestsIfAppropriate);
         hub.addOnDocumentReadyFunction(initializeUI);
-       },
-     sat: standAloneTest
+       }
      };
 
    }); // markersAndTissuesModule
@@ -2126,19 +2140,68 @@ function assessUserIdForTesting(msg)
 markersModule = markersAndTissuesModule();
 markersModule.init();
 
-
 // markersAndSamples/Test.js
 //------------------------------------------------------------------------------------------------------------------------
 var MarkersAndSamplesTestModule = (function () {
 
+       // for observing relatively small scale status changes: i.e., network loaded and displayed
+       // the div watched here is in widget.html
+
     var markersAndSamplesStatusObserver = null;
 
-//------------------------------------------------------------------------------------------------------------------------
-function runTests(show)
-{
-   if(show) showTests();
+       // to detect when the full test of a dataset is complete, so that the next dataset can be tested
+       // the div watched here is in test.html
+    var testStatusObserver = null;   // modified at the end of each dataset test
 
-   testLoadDataSetDisplayNetwork();
+//------------------------------------------------------------------------------------------------------------------------
+function runTests(datasetNames)
+{
+     // run through some repetitions of the test
+     // condition the next test upon the completion of the preceeding one,
+     // which is detected by a change to the "status div"
+      
+   //var datasetNames = $("#datasetMenu").children().map(function() {return $(this).val();}).get();
+     // delete any empty strings
+   //datasetNames = datasetNames.filter(function(e) {return (e.length > 0);});
+   var datasetIndex = -1;
+   
+   var config = {attributes: true, childList: true, characterData: true};
+   var target =  document.querySelector("#markersTestStatusDiv");
+
+      // define the function called whenever the testStatusDiv changes,
+      // which is our signal that the next test is ready to run.
+      // the first test is kicked off when we -- after setting up and
+      // configuring the observer -- manually (see below: "start testing")
+      // change the target which the observer watches.
+      // there may be a better way, but for now we delete and recreate
+      // the observer at the end of each test.
+      // note also that the next dataset is determined inside this function
+      // and that the function refers to itself.
+
+   var onMutation = function(mutations){
+      mutation = mutations[0];
+      testStatusObserver.disconnect();
+      testStatusObserver = null;
+      var id = mutation.target.id;
+      var msg = $("#markersTestStatusDiv").text();
+      console.log("test status changed, text: " + msg);
+      datasetIndex++;
+      if(datasetIndex < datasetNames.length){
+         console.log("about to test dataset " + datasetNames[datasetIndex]);      
+         if(datasetIndex < datasetNames.length)
+            testLoadDataSetDisplayNetwork(datasetNames[datasetIndex]);
+	 testStatusObserver = new MutationObserver(onMutation);
+         testStatusObserver.observe(target, config);
+	 }
+      else{
+         console.log("mutation observer function detected end of datasets");
+	 }
+      };
+
+   testStatusObserver = new MutationObserver(onMutation);
+   testStatusObserver.observe(target, config);
+
+   $("#markersTestStatusDiv").text("start testing");
 
 } // runTests
 //------------------------------------------------------------------------------------------------------------------------
@@ -2156,11 +2219,10 @@ function hideTests()
 
 } // hide
 //------------------------------------------------------------------------------------------------------------------------
-function testLoadDataSetDisplayNetwork()
+function testLoadDataSetDisplayNetwork(dzName)
 {
    var testTitle = "testLoadDataSetDisplayNetwork";
    console.log(testTitle);
-     
 
       // when our module receives the resulting 'datasetSpecified' msg, which includes the dataset's manifest
       // in its payload, it requests 
@@ -2195,43 +2257,89 @@ function testLoadDataSetDisplayNetwork()
    var target = document.querySelector("#markersAndPatientsStatusDiv");
    markersAndSamplesStatusObserver.observe(target, config);
 
-   var msg = {cmd: "specifyCurrentDataset", callback: "datasetSpecified", status: "request", payload: "DEMOdz"};
+   var msg = {cmd: "specifyCurrentDataset", callback: "datasetSpecified", status: "request", payload:  dzName};
+
+   console.log("about to send specifyCurrentDataset msg to server: " + dzName);
    hub.send(JSON.stringify(msg));
 
 } // testLoadDataSetThenProceed
 //------------------------------------------------------------------------------------------------------------------------
+// new approach
+//   1) clear selection
+//   2) find the node with highest degree
+//   3) select that node
+//   4) show edges, select all connected
+//   5) make sure selected node code -1 is equal to degree of the original node
 function testSearch()
 {
    console.log("--- Test.markers testSearch");
-   var gene = "EGFR";
    var searchBox = $("#markersAndTissuesSearchBox");
    var netOpsMenu = $("#cyMarkersOperationsMenu");
+   var nodes = cwMarkers.nodes().filterFn(function(node){return (node.data("nodeType") === "patient");});
+   var nodesByDegree = nodes.map(function(node){return {id:node.data("id"), degree:node.degree()};});
+   var mySort = function(a,b) {return(b.degree - a.degree);};
+   var mostConnectedNode = nodesByDegree.sort(mySort)[0];
+   console.log("mostConnectedNode: " + JSON.stringify(mostConnectedNode));
 
    QUnit.test("markers testSearch", function(assert){
      netOpsMenu.val("Hide All Edges");
      netOpsMenu.trigger("change");
      assert.equal(cwMarkers.filter("node:selected").length, 0);
-     searchBox.val(gene);
+     searchBox.val(mostConnectedNode.id);
      searchBox.trigger(jQuery.Event("keydown", {which: 13}));
      assert.equal(cwMarkers.filter("node:selected").length, 1);
      netOpsMenu.val("Show Edges from Selected Nodes");
      netOpsMenu.trigger("change");
      netOpsMenu.val("Select All Connected Nodes");
      netOpsMenu.trigger("change");
-     console.log("about to check for 10 selected nodes");
-     assert.equal(cwMarkers.filter("node:selected").length, 9);
-     //displayTestResults();
+     console.log("about to check for selected nodes");
+     var expectedSelectionCount = mostConnectedNode.degree + 1; // include self
+     assert.ok(cwMarkers.filter("node:selected").length == expectedSelectionCount);
+     //testColorTumorsByClassification();
+     recordEndOfTest();
      });
 
 }  // testSearch
 //------------------------------------------------------------------------------------------------------------------------
-//function displayTestResults()
-//{
-//   console.log("displayTestResults, about to raise");
-//   hub.raiseTab("markersTestDiv");
-//   console.log("displayTestResults, after raise");
-//
-//} // displayTestResults
+function testColorTumorsByClassification()
+{
+   var testTitle = "testColorTumorsByClassifictaion";
+   console.log(testTitle);
+
+      // TCGA.02.0033 is in all three of our current gbm-related, public, TCGA datasets
+
+   if(markersAndSamplesStatusObserver === null){
+      markersAndSamplesStatusObserver = new MutationObserver(function(mutations) {
+        hub.raiseTab("markersAndPatientsDiv");
+        mutation = mutations[0];
+        markersAndSamplesStatusObserver.disconnect();
+        markersAndSamplesStatusObserver = null;
+        var id = mutation.target.id;
+        var msg = $("#markersAndSamplesStatusDiv").text();
+        QUnit.test(title, function(assert) {
+           assert.ok(10 === 10);
+           });
+        }); // new MutationObserver
+      } // if null mutation observer
+
+
+   var config = {attributes: true, childList: true, characterData: true};
+   var target = document.querySelector("#markersAndPatientsStatusDiv");
+   markersAndSamplesStatusObserver.observe(target, config);
+
+   var dz = "TCGAbrain";
+   var msg = {cmd: "specifyCurrentDataset", callback: "datasetSpecified", status: "request", payload:  dzName};
+
+   hub.send(JSON.stringify(msg));
+
+} // testColorTumors
+//------------------------------------------------------------------------------------------------------------------------
+function recordEndOfTest()
+{
+  console.log("end of test");
+  $("#markersTestStatusDiv").text("test complete");
+
+} // recordEndOfTest
 //------------------------------------------------------------------------------------------------------------------------
 function initialize()
 {
@@ -2366,7 +2474,6 @@ display: initial !important;
 
 
 <div id="markersAndPatientsDiv" class="container-fluid">
-  <div id="markersAndPatientsStatusDiv" style="display:none"></div>
    <div id="markersAndTissuesButtonDiv" style="margin-bottom: 0px; margin-top: 8px;">
       <input type="text" id="markersAndTissuesMouseOverReadout" disabled value="(names displayed here)"></input>
 
@@ -2404,6 +2511,8 @@ display: initial !important;
 
 
 <div id="markersTestDiv">
+  <div id="markersTestStatusDiv"        style="display:none"></div>
+  <div id="markersAndPatientsStatusDiv" style="display:none"></div>
   <div id="qunit" style="display:block"></div>
   <div id="qunit-fixture"></div>
 </div>

@@ -52,7 +52,7 @@ installOncoscape:
 
 installOncoscapeLocal:
 	(cd Oncoscape; R --vanilla CMD INSTALL -l $(R_LIBS) --no-test-load --no-lock .)
-	(cd Oncoscape; R --vanilla CMD INSTALL -l $(R_LIBS) --no-test-load --no-lock .)
+	(cd Oncoscape; sudo R --vanilla CMD BUILD .)
 
 # oncoApp7777: kills then launches R server: public Brain datasets on port 7777
 ####
