@@ -16,7 +16,12 @@ runAllDatasetTests <- function()
    fileName <- gsub("[:]", "_", fileName)
    write(timestamp(),file=fileName, append=TRUE)
 # May use the datasetList in the future
+   test <- "library(RUnit)"  
+   replications <- 1
    datasetList <- c("TCGAbrain","DEMOdz","TCGAgbm","TCGAlgg")
+   df1 <- data.frame(test, replications, t(c(system.time(library(RUnit)))))
+
+   write.table(df1, sep=",",  file=fileName, append=TRUE, col.names=TRUE, row.names=FALSE)
    df1 <- runDsTests("DEMOdz")
    print(df1)
    write.table(df1, sep=",",  file=fileName, append=TRUE, col.names=FALSE, row.names=FALSE)
@@ -39,8 +44,6 @@ runAllDatasetTests <- function()
 runDsTests <- function(datasetName)
 {
 
-
-   benchCols <-  c('test', 'replications', 'elapsed', 'relative', 'user.self', 'sys.self', 'user.child', 'sys.child')
    replications <- 1
    datasets[["currentDatasetName"]] <- datasetName
    test <- "library(RUnit)"  
