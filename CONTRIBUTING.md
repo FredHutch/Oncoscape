@@ -23,7 +23,7 @@ easiest way to do this. You can then clone down your fork instead:
 
 `git clone git@github.com:MY-USERNAME-HERE/Oncoscape.git Oncoscape`
 
-After doing that, follow the [Installation instructions](Install.md) to install, test, and run the software package.
+After doing that, follow the [Installation instructions](Oncoscape/Install.md) to install, test, and run the software package.
 
 ### How is the codebase organised?
 
