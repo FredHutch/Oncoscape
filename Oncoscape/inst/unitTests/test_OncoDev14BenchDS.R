@@ -15,6 +15,7 @@ runAllDatasetTests <- function()
    fileName <- gsub("[ ]", "_", fileNamePaste)
    fileName <- gsub("[:]", "_", fileName)
    write(timestamp(),file=fileName, append=TRUE)
+# May use the datasetList in the future
    datasetList <- c("TCGAbrain","DEMOdz","TCGAgbm","TCGAlgg")
    df1 <- runDsTests("DEMOdz")
    print(df1)
@@ -56,6 +57,7 @@ runDsTests <- function(datasetName)
         expression <- sprintf("ds <- %s()", datasetName)
         eval(parse(text=expression))
         datasets[[datasetName]] <- ds
+   
 
    dfLocal <- rbind(dfLocal, evalTestFunc("test_requireForDataSet", datasetName, replications)) 
    dfLocal <- rbind(dfLocal, evalTestFunc("test_ctorForDataSet", datasetName, replications))
@@ -68,11 +70,7 @@ runDsTests <- function(datasetName)
    dfLocal <- rbind(dfLocal, evalTestFunc("test_getEventTypeList", datasetName, replications))
    dfLocal <- rbind(dfLocal, evalTestFunc("test_getPatientTable", datasetName, replications))
    dfLocal <- rbind(dfLocal, evalTestFunc("test_Matrices", datasetName, replications))
-
-   replications = 1
-#   exp <- sprintf("t(c(system.time(detach(%s))))", datasetName)
-#   test <- sprintf("library(%s)", datasetName)
-#   dfLocal <- rbind(dfLocal, data.frame(test, replications, eval(parse(text=exp))))          
+         
    dfLocal
 }
 #---------------------------------------------------------------------------------------------------
@@ -80,7 +78,10 @@ evalTestFunc <- function(testName, dataSetName, replications, const)
 {
    exp <- sprintf("%s('%s')", testName, dataSetName)
    dfLocal <- benchmark(eval(parse(text=exp)), replications=replications,
-              columns = c('test','replications','user.self','sys.self','elapsed','user.child','sys.child'))
+              columns = c('replications','user.self','sys.self','elapsed','user.child','sys.child'))
+#Need to replace the test value, bind above takes care of the ordering
+   dfLocal$test <- testName
+   dfLocal
 
 }
 #---------------------------------------------------------------------------------------------------
@@ -126,9 +127,7 @@ test_loadPatientHistoryTable <- function(datasetName)
 test_loadDataPackageGeneSets <- function(datasetName)
 {
 
-
   x <- getGeneSetGenes(datasets[[datasetName]])
-
         
 } # test_loadDataPackageGeneSets
 #----------------------------------------------------------------------------------------------------
@@ -158,9 +157,6 @@ test_getPatientTable <- function(datasetName)
 {
 
   pt <- getPatientTable(datasets[[datasetName]])
-
-
-
 
 } # test_getPatientTable
 #----------------------------------------------------------------------------------------------------
