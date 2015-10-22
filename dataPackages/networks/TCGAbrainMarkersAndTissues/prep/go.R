@@ -1483,7 +1483,7 @@ hobo.tumor.layout <- function()
    x <- pos$x                  # range(x) -9.013847e-05  6.037940e-05
 
    zero.shift <- (max(x) + min(x)) / 2
-   browser()
+   #browser()
    x <- x - zero.shift
    x.scale <- expansion.factor/max(x)   
    x <- x * x.scale            # at this point the x values range -1600:1600
