@@ -13,3 +13,5 @@ egfr.json.RData	g.egfr.json	character	network	egfr signaling	32	14	nodes	edges	N
 ericsEightGliomaClusters.RData	tbl.glioma8	data.frame	categorized samples	tumors	704	2	patient	cluster & color	NA	NA	8 clusters; manual curation by Eric Holland
 verhaakGbmClustersAugmented.RData	tbl.verhaakPlus1	data.frame	categorized samples	tumors	548	2	patient	cluster & color	NA	NA	5 clusters; Verhaak 2010 + G-CIMP
 metabolicExpressionStemness.RData	tbl.expression	data.frame	categorized samples	tumors	144	2	patient	cluster & color	NA	NA	2 clusters; high and low expression (metabolism, stemness, immune genes)
+tumorGrade.RData	tbl.grade	data.frame	categorized samples	tumors	1007	2	patient	cluster & color	NA	NA	3 clusters: grade 2 and 3 for lgg; gbm is grade 4
+
