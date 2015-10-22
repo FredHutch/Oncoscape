@@ -77,15 +77,29 @@ This first defines the app to run (scriptDir), user email for login (userID), da
 
 ## 4. Deploy Web Application
 
-- To run a given configuration file and host the server, call the make command from that 
-   local module directory.  Examples linking to these calls also exist within the master
-   makefile at the oncoDev14 level.  
-   
-   >make oncoApp7777
-   
-   This calls oncoApp7777, kills the currently running server, changes directory to the 
-   local modules, and runs the local make command to launch the process:
-   
-	(cd Oncoscape/inst/scripts/apps/oncoscape/; make local;)
+### Running a Global Installation
 
+- To run a given configuration file and host the server, call the make command from that
+   local module directory.  Examples linking to these calls also exist within the master
+   makefile at the oncoDev14 level.
+
+   >make oncoApp7777
+
+   This calls oncoApp7777, kills the currently running server, changes directory to the
+   local modules, and runs the local make command to launch the process:
+
+        (cd Oncoscape/inst/scripts/apps/oncoscape/; make run;)
+
+### Running a Local Installation
+
+- To run a given configuration file and host the server, call the make command from that
+   local module directory.  Examples linking to these calls also exist within the master
+   makefile at the oncoDev14 level.
+
+   >make oncoAppLocal7777
+
+   This calls oncoApp7777, kills the currently running server, changes directory to the
+   local modules, and runs the local make command to launch the process:
+
+        (cd Oncoscape/inst/scripts/apps/oncoscape/; make runLocal;)
 
