@@ -192,7 +192,7 @@ createBaseGraph <- function(chromosome.nodes, telomeres, genes, patients, maxNod
    nodeData(g, genes, attr="nodeType") <- "gene"
    nodeData(g, chromosome.nodes, attr="nodeType") <- "chromosome"
    nodeData(g, telomeres, attr="nodeType") <- "telomere"
-   nodeData(g, patients, attr="subType") <- as.character(tbl.gbmDzSubTypes[patients, "gbmDzSubType"])
+   # nodeData(g, patients, attr="subType") <- as.character(tbl.gbmDzSubTypes[patients, "gbmDzSubType"])
 
    rcy <- RCyjs(portRange=6047:6100, quiet=TRUE, graph=g, hideEdges=TRUE)
    setBrowserWindowTitle(rcy, "hobo SNA.CNA")
