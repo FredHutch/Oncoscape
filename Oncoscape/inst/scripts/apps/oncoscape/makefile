@@ -1,4 +1,4 @@
-default: kill
+run: kill
 	which R
 	m4 -E index.pre > index.html
 	R CMD INSTALL ../../../..
@@ -8,7 +8,7 @@ default: kill
 kill:
 	- kill -9 `ps aux | grep runOncoscapeApp-7777 | egrep -v grep | awk  '{print $$2}'`
 
-local: kill
+runLocal: kill
 	which R
 	m4 -E index.pre > index.html
 	R CMD INSTALL -l $(R_LIBS) ../../../..
