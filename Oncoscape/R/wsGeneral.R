@@ -2,7 +2,12 @@ addRMessageHandler("ping", "ping");
 addRMessageHandler("getServerVersion", "getServerVersion");
 addRMessageHandler("getSampleDataFrame", "getSampleDataFrame");
 addRMessageHandler("checkPassword", "checkPassword");
-addRMessageHandler("recordEvent", "recordEvent");
+addRMessageHandler("logEvent", "logEvent");
+addRMessageHandler("getLoggedEvents", "getLoggedEvents");
+addRMessageHandler("exitAfterTesting", "exitAfterTesting");
+#----------------------------------------------------------------------------------------------------
+state[["log"]] <- data.frame(version=character(), time=character(), dataset=character(),
+                             msg=character(), stringsAsFactors=FALSE)
 #----------------------------------------------------------------------------------------------------
 # this file providees the standard oncoscape websocket json interface to SttrDataSet objects
 # each of which is typically matrices of experimental data, a clinical history, and variaout
@@ -22,7 +27,7 @@ ping <- function(ws, msg)
   
 } # ping
 #----------------------------------------------------------------------------------------------------
-recordEvent <- function(ws, msg)
+logEvent <- function(ws, msg)
 {
   payload <- msg$payload
   field.names <- names(payload)
@@ -33,12 +38,14 @@ recordEvent <- function(ws, msg)
   if(key %in% ls(state))
     datasetName <- state[[key]]
 
-  msg <- sprintf("[event] OncoDev14 %s (%s): %15s %s", sessionInfo()$otherPkgs$OncoDev14$Version,
-                 Sys.time(), datasetName, payload)
-
-  print(noquote(msg))
+  version <- sessionInfo()$otherPkgs$OncoDev14$Version
+  time <- as.character(Sys.time())
   
-} # recordEvent
+  new.event <- as.data.frame(list(version=version, time=time, dataset=datasetName, msg=payload))
+  state[["log"]] <- rbind(state[["log"]], as.data.frame(new.event))
+  print(new.event)
+  
+} # logEvent
 #----------------------------------------------------------------------------------------------------
 # consruct an object, call the verersionMethod on it, return the string (should be in x.y.z)
 # TODO: seems burdensome to create an Onco object here.  rethink at some point.
@@ -55,8 +62,14 @@ getSampleDataFrame <- function(ws, msg)
 {
   tbl <- data.frame(integers=1:2, strings=c("ABC", "def"), floats=c(3.14, 2.718),
                     stringsAsFactors=FALSE, row.names=c("rowOne", "rowTwo"))
-  payload <- toJSON(tbl)
+
+  column.names <- colnames(tbl)
+  mtx <- as.matrix(tbl)
+  payload <- list(colnames=column.names, tbl=mtx)
   return.msg <- list(cmd=msg$callback, status="success", callback="", payload=payload)
+  #payload <- toJSON(tbl)
+  #return.msg <- list(cmd=msg$callback, status="success", callback="", payload=payload)
+
   ws$send(toJSON(return.msg))
   
 } # getSampleDataFrame
@@ -79,4 +92,39 @@ checkPassword <- function(ws, msg)
    printf("--- leaving checkPassword");
 
 } # checkPassword
+#----------------------------------------------------------------------------------------------------
+getLoggedEvents <- function(ws, msg)
+{
+  tbl <- state[["log"]]
+  print(1)
+  print(tbl)
+  column.names <- colnames(tbl)
+  print(column.names);
+  print(2)
+  mtx <- as.matrix(tbl)
+  print(mtx)
+  print(3)
+  payload <- list(colnames=column.names, tbl=mtx)
+  print(4)
+
+  return.msg <- list(cmd=msg$callback, status="success", callback="", payload=payload)
+  print(5)
+  ws$send(toJSON(return.msg))
+  print(6)
+
+} # getLoggedEvents
+#----------------------------------------------------------------------------------------------------
+exitAfterTesting <- function(ws, msg)
+{
+    if("log" %in% ls(state)){
+       log <- state[["log"]]
+       filename <- sprintf("log.%s.RData", gsub(" ", ".", Sys.time()));
+       full.path <- file.path(getwd(), filename);
+       message(sprintf("saving log to %s", full.path))
+       save(log, file=full.path)
+       }
+    message("tests complete, oncoscape server now exiting")
+    quit(save="no", status=0, runLast=FALSE);
+
+} # exitAfterTesting
 #----------------------------------------------------------------------------------------------------

@@ -23,5 +23,5 @@ delay:
 	sleep 30
 
 py:
-	python testWebSocketOperations.py | tee  websocketOperations.log
+	python testWebSocketOperations.py
 
