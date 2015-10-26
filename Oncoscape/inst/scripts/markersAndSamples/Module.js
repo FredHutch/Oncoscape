@@ -321,7 +321,12 @@ function subSelectNodes()
 //----------------------------------------------------------------------------------------------------
 function requestTumorCategorization()
 {
+  var allCategoryNames = tumorCategorizationsMenu.children().map(function() {return $(this).val();}).get();
+  var menuTitle = allCategoryNames[0];
   var categorizationName = tumorCategorizationsMenu.val();
+  if(categorizationName === menuTitle)
+     return;
+     
   console.log("apply " + categorizationName);
   hub.logEventOnServer(thisModulesName + ", " + userID + ", markersApplyTumorCategorization request");
 
@@ -329,8 +334,6 @@ function requestTumorCategorization()
              status: "request", payload: categorizationName};
 
   hub.send(JSON.stringify(msg));
-
-  //tumorCategorizationsMenu.val(tumorCategorizationsMenuTitle);
 
 } // requestTumorCategorization
 //----------------------------------------------------------------------------------------------------
@@ -355,6 +358,7 @@ function applyTumorCategorization(msg)
        }); // forEach
 
   cwMarkers.style().update();
+  postStatus("applyTumorCategorization complete");
   hub.logEventOnServer(thisModulesName + ", " + userID + ", markersApplyTumorCategorization complete");
 
 } // applyTumorCategorization
@@ -884,8 +888,12 @@ function displayMarkersNetwork(msg)
       var defaultLayout = JSON.stringify(cwMarkers.nodes().map(function(n){
                                          return({id:n.id(), position:n.position()});}));
       localStorage.markersDefault = defaultLayout;
-      postStatus("markers network displayed");
       hub.logEventOnServer(thisModulesName + ", " + userID + ", display markers network complete");
+      //postStatus("markers network displayed");
+      hub.logEventOnServer(thisModulesName + ", " + userID + ", getSampleCategorizationNames request");
+      var msg2 = {cmd: "getSampleCategorizationNames", callback: "configureSampleCategorizationMenu",
+                  status: "request", payload: ""};
+      hub.send(JSON.stringify(msg2));
       }
    else{
      console.log("displayMarkersNetwork error: " + msg.payload);
@@ -931,12 +939,10 @@ function datasetSpecified (msg)
    var newMsg = {cmd: "getMarkersNetwork",  callback: "displayMarkersNetwork", status: "request", payload: datasetName};
    hub.send(JSON.stringify(newMsg));
 
-   hub.logEventOnServer(thisModulesName + ", " + userID + ", getSampleCategorizationNames request");
-
-   var msg2 = {cmd: "getSampleCategorizationNames", callback: "configureSampleCategorizationMenu",
-               status: "request", payload: ""};
-
-   hub.send(JSON.stringify(msg2));
+   //hub.logEventOnServer(thisModulesName + ", " + userID + ", getSampleCategorizationNames request");
+   //var msg2 = {cmd: "getSampleCategorizationNames", callback: "configureSampleCategorizationMenu",
+   //            status: "request", payload: ""};
+   //hub.send(JSON.stringify(msg2));
 
 } // datasetSpecified
 //----------------------------------------------------------------------------------------------------
@@ -962,6 +968,8 @@ function configureSampleCategorizationMenu(msg)
    hub.logEventOnServer(thisModulesName + ", " + userID + ", getSampleCategorizationNames complete");
    
    hub.enableTab(thisModulesOutermostDiv);
+   postStatus("markers network displayed");
+
 
 } // configureSampleCategorizationMenu
 //----------------------------------------------------------------------------------------------------
@@ -992,7 +1000,7 @@ function assessUserIdForTesting(msg)
       if(start > 0 && end > 0)
         reps = parseInt(userID.slice(start+1, end));
       var exitOnCompletion = false;
-      if(userID.indexOf("exitOnCompletion") > 0)
+      if(userID.indexOf("exitoncompletion") > 0)
           exitOnCompletion = true;
       markersTester.run(datasetNames, reps, exitOnCompletion);
       console.log("back from markersTester.run()");
