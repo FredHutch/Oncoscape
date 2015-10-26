@@ -23,12 +23,15 @@ function runTests(datasetNames, reps, exitOnCompletion)
      // which is detected by a change to the "status div"
       
    console.log("runTests: " + JSON.stringify(datasetNames));
+   console.log("reps: " + reps);
+   console.log("exitOnCompletion: " + exitOnCompletion);
+   
    var datasetIndex = -1;
    
    var config = {attributes: true, childList: true, characterData: true};
    var target =  document.querySelector(majorStatusDiv);
 
-      // define a function to becalled whenever the testStatusDiv changes,
+      // define a function to be called whenever the testStatusDiv changes,
       // which is our signal that the next test is ready to run.
       // the first test is kicked off when we -- after setting up and
       // configuring the observer -- manually (see below: "start testing")
@@ -55,11 +58,14 @@ function runTests(datasetNames, reps, exitOnCompletion)
 	 }
       else{
          console.log("mutation observer function detected end of datasets");
-         var payload = "markers/Test.js exiting after " + reps + " test loops.";
-         var exitMsg = {cmd: "exitAfterTesting", callback: "", status: "request", payload: payload};
-         console.log("about to send exitAfterTesting msg to server");
-         hub.send(JSON.stringify(exitMsg));
-	 }
+         if(exitOnCompletion){
+            var payload = {errorCount: Object.keys(sessionStorage).length,
+	                   errors: JSON.stringify(sessionStorage)};
+            var exitMsg = {cmd: "exitAfterTesting", callback: "", status: "request", payload: payload};
+            console.log("about to send exitAfterTesting msg to server");
+            hub.send(JSON.stringify(exitMsg));
+	    } // if exitOnCompletion
+	 } // else: datasets exhaused
       };
 
    testStatusObserver = new MutationObserver(onMutation);
@@ -91,7 +97,7 @@ function testLoadDataSetDisplayNetworkSendIDs(dataSetName)
       // when our module receives the resulting 'datasetSpecified' msg, which includes the dataset's manifest
       // in its payload, it requests 
       //   - the markers network: to be displayed by cyjs
-      //   - sampleCategorizationNames, to popbulate the dropdeon menu
+      //   - sampleCategorizationNames, to populate the dropdown menu
       // when the network is loaded, the statusDiv is updated, which is detected here, and we
       // check to see that a reasonable number of nodes are contained in the loaded graph.
       // when those tests are over, we then cascade through a number of gui operations: search, node selections
@@ -99,10 +105,7 @@ function testLoadDataSetDisplayNetworkSendIDs(dataSetName)
 
    if(markersAndSamplesStatusObserver === null){
       markersAndSamplesStatusObserver = new MutationObserver(function(mutations) {
-        //hub.raiseTab("markersAndPatientsDiv");
-        //setInterval(function(){$("[href='#markersAndPatientsDiv']").trigger("click");}, 0);
         hub.raiseTab("markersAndPatientsDiv");
-        //setTimeout(function(){hub.raiseTab("markersAndPatientsDiv");}, 0);
         mutation = mutations[0];
         markersAndSamplesStatusObserver.disconnect();
         markersAndSamplesStatusObserver = null;
@@ -207,8 +210,7 @@ function testSendIDs()
            var selectedNodes = cwMarkers.filter("node:selected").map(function(node){return node.id();});
            assert.ok(selectedNodes.length >= maxNodes, "incoming " + maxNodes + " nodes, selected: " +
 	             selectedNodes.length);
-           //testColorTumorsByCategory();
-           recordEndOfTest();
+           testColorTumorsByCategory();
            });
         }); // new MutationObserver
       } // if null mutation observer
@@ -231,57 +233,45 @@ function testColorTumorsByCategory()
 
    var title = "testColorTumorsByCategory";
    console.log(title);
-
-   var totalNodes = cwMarkers.nodes().length; 
-   if(maxNodes > totalNodes)
-      maxNodes = totalNodes;
-
-      // first test is to clear any existing selection, then send 10 node
-      // ids (simple name strings) taken from the network itself.
-      // these nodes are sent to the network using hub.send
-      // we then check to see that these 10 nodes are selected in cyjs
-
-   cwMarkers.filter("node:selected").unselect();
-   var ids = cwMarkers.nodes().map(function(node) {return node.id();}).slice(0, maxNodes);
-     // selection of incoming identifiers can be a bit promiscuous.  for instance,
-     // sending "Y" will select "Y" and "YWHAE"
-
+     // set all tumor node-border colors to white: no tumor classification coloring scheme
+     // would a) consist of just one group and b) mark it with such a nondescript color
+     // then manipulate the menu, make sure that at least some of the colors have changed
+     
+   var tumorNodes = cwMarkers.nodes().fnFilter(function(node){ return(node.data("nodeType") == "patient");});
+   tumorNodes.map(function(node){node.data({"subType": "unassigned"});});
+   var subTypes = jQuery.unique(tumorNodes.map(function(node){return(node.data("subType"));}));
+   console.log("before tumor category test, should be just one subType: " + subTypes.length);
+   
    if(markersAndSamplesStatusObserver === null){
       markersAndSamplesStatusObserver = new MutationObserver(function(mutations) {
+        console.log("mutation observer for testColorTumorsByCategory");
         mutation = mutations[0];
         markersAndSamplesStatusObserver.disconnect();
         markersAndSamplesStatusObserver = null;
         var id = mutation.target.id;
         var statusMsg = $(minorStatusDiv).text();
         QUnit.test(title, function(assert) {
-           console.log("-- in QUnit.test for testSendIDs " + 7 + "  statusMsg: " + statusMsg);
-           var selectedNodes = cwMarkers.filter("node:selected").map(function(node){return node.id();});
-           assert.ok(selectedNodes.length >= maxNodes, "incoming " + maxNodes + " nodes, selected: " +
-	             selectedNodes.length);
-           testColorTumorsByCategory();
-           //recordEndOfTest();
+           console.log("-- in QUnit.test for testColorTumorsByCategory");
+           var subTypes = jQuery.unique(tumorNodes.map(function(node){return(node.data("subType"));}));
+           console.log(" during tumor category test, should be > one subType: " + subTypes.length);
+	   assert.ok(subTypes.length < 1);  // more than just the single "unassigned" enforced above;
+           markEndOfTestingDataSet();
            });
         }); // new MutationObserver
       } // if null mutation observer
 
-
-   var categoryGroupNames = $("#cyMarkersTumorCategorizationsMenu").children().map(function() {return $(this).val();}).get();
-   var group = groups[groups.length -1];
-
-     // these don't work yet
-   $("#cyMarkersTumorCategorizationsMenu").val(group);
-   $("#cyMarkersTumorCategorizationsMenu").trigger("click");
-   
+     // the menu value has been changed above.  now elicit action
 
    var config = {attributes: true, childList: true, characterData: true};
    var target = document.querySelector(minorStatusDiv);
    markersAndSamplesStatusObserver.observe(target, config);
 
-   console.log("testSendIDs, sending " + JSON.stringify(ids));
-   var payload = {value: ids, count: ids.length, source: "markers/Test.js::testSendIDs"};
-   var msg = {cmd: "sendSelectionTo_MarkersAndPatients", callback: "", status: "request", payload:  payload};
-
-   hub.send(JSON.stringify(msg));
+   var allCategoryNames = $("#cyMarkersTumorCategorizationsMenu").children().map(function() {return $(this).val();}).get();
+   console.log("--- still setting up testColorTumorsByCateory, names: ");
+   console.log(JSON.stringify(allCategoryNames));
+   var firstCategory = allCategoryNames[1];  // the 0th name is always the menu title. choose the next one
+   $("#cyMarkersTumorCategorizationsMenu").val(firstCategory);
+   $("#cyMarkersTumorCategorizationsMenu").trigger("change");
 
 } // testColorTumorsByCategory
 //------------------------------------------------------------------------------------------------------------------------
@@ -318,12 +308,12 @@ function testColorTumorsByClassification()
 
 } // testColorTumors
 //------------------------------------------------------------------------------------------------------------------------
-function recordEndOfTest()
+function markEndOfTestingDataSet()
 {
-  console.log("end of test");
-  $(majorStatusDiv).text("test complete");
+  console.log("end of testing dataset");
+  $(majorStatusDiv).text("dataset complete");
   
-} // recordEndOfTest
+} // markEndOfTestingDataSet
 //------------------------------------------------------------------------------------------------------------------------
 function initialize()
 {

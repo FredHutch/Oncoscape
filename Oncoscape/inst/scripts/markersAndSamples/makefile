@@ -10,7 +10,8 @@ test:
 	jshint Test.js
 	m4 index.pre > index.html
 	R CMD INSTALL ../../..
-	R -f runMarkers.R  autotest.3@nowhere.org.exitOnCompletion "DEMOdz;TCGAgbm;TCGAbrain"
+	R -f runMarkers.R  autotest.3@nowhere.org.exitOnCompletion "DEMOdz"
+	#R -f runMarkers.R  autotest.3@nowhere.org.exitOnCompletion "DEMOdz;TCGAgbm;TCGAbrain"
 	#R -f runMarkers.R  autotest.2@nowhere.org.exitOnCompletion "DEMOdz;TCGAgbm;TCGAbrain"
 
 
