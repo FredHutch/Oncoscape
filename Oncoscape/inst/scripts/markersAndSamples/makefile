@@ -13,6 +13,6 @@ test:
 	#R -f runMarkers.R  autotest.1@nowhere.org.exitnOCompletion "DEMOdz"
 	#R -f runMarkers.R  autotest.1@nowhere.org.exitnOCompletion "DEMOdz;TCGAgbm"
 	#R -f runMarkers.R  autotest.3@nowhere.org.exitOnCompletion "DEMOdz;TCGAgbm;TCGAbrain"
-	R -f runMarkers.R  autotest.5@nowhere.org.exitOnCompletion "DEMOdz;TCGAgbm;TCGAbrain"
+	R -f runMarkers.R  autotest.2@nowhere.org.exitOnCompletion "DEMOdz;TCGAgbm;TCGAbrain"
 
 
