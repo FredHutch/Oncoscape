@@ -14,11 +14,21 @@ var DatasetsTestModule = (function () {
        // to detect when the full test of a dataset is complete, so that the next dataset can be tested
        // the div watched here is in test.html
 
-
 //------------------------------------------------------------------------------------------------------------------------
 function runTests(datasetNames, reps, exitOnCompletion)
 {
-   console.log("runTests, first make sure dataset menu is loaded");
+   console.log("===================================== Test.datasets: runTests");
+   console.log("--- first make sure dataset menu is loaded");
+
+      // the "Available Datasets" menu must be loaded before we start.
+      // this happens automatically, but may NOT have happened by the
+      // time this function executes.
+      // therefore define a mutation observer, and use it (see below) only if
+      // the menu is not loaded.
+
+      // once the menu is loaded, iterate over the datasets, making sure
+      // that any dataset menu change results in the display of
+      // data table with the manifest of that dataset
 
    if(datasetsMinorStatusObserver === null){
       datasetsMinorStatusObserver = new MutationObserver(function(mutations) {
@@ -40,15 +50,18 @@ function runTests(datasetNames, reps, exitOnCompletion)
    var target = document.querySelector(minorStatusDiv);
 
    var allNames = $("#datasetMenu").children().map(function() {return $(this).val();}).get();
-   allNames.filter(function(e) {return (e.length > 0);});
-   //console.log("found these names in the available datasets menu: " + JSON.stringify(allNames));
+     // filtering  deferred.  unlike R, js returns a scalar rather than a 1-element array.
+     // this could be accomodated by checking type, but not just yet... (pshannon, 27oct15)
+     // allNames.filter(function(e) {return (e.length > 0);});
+     //console.log("found these names in the available datasets menu: " + JSON.stringify(allNames));
    
-   if(allNames.length > 1){   // expect an empty (blank) first line
+   if(allNames.length > 1){   // expect an empty (blank) first menu line
       console.log("found menu already loaded, preceeding to iterate");
       iterateOverDatasets(datasetNames, reps, exitOnCompletion);
       }
    else{
       console.log("no names in menu, watching target");
+        // the target is mutated at the conclusion of Module.datasets:handleDatSetName
       datasetsMinorStatusObserver.observe(target, config);
       }
 
@@ -59,7 +72,11 @@ function iterateOverDatasets(datasetNames, reps, exitOnCompletion)
      // run through the specified number repetitions of the test, operating upon
      // each dataset in turn.
      // condition the next test upon the completion of the preceeding one,
-     // which is detected by a change to the "status div"
+     // which is detected by a change to the majorStatusDiv
+     // (recall that the minorStatusDiv is modified by Module.js whenever a crucial
+     // UI change has occurred, whereas majorStatusDiv is only user here, in
+     // the Test module, to iterate over the datasets, ensuring that tests on
+     // each one are complete before starting the next one.
       
    console.log("runTests: " + JSON.stringify(datasetNames));
    console.log("reps: " + reps);
@@ -155,6 +172,7 @@ function markEndOfTestingDataSet()
 {
   console.log("end of testing dataset");
   $(majorStatusDiv).text("dataset complete");
+  $("#testManagerLoopStatusDiv").text("Test.datasets,  dataset complete");
   
 } // markEndOfTestingDataSet
 //------------------------------------------------------------------------------------------------------------------------

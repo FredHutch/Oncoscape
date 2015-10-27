@@ -18,11 +18,15 @@ var MarkersAndSamplesTestModule = (function () {
 //------------------------------------------------------------------------------------------------------------------------
 function runTests(datasetNames, reps, exitOnCompletion)
 {
-     // run through some repetitions of the test
+     // run through <reps> repetitions of the test
      // condition the next test upon the completion of the preceeding one,
-     // which is detected by a change to the "status div"
+     // which is detected by a change to the majorStatusDiv
+     // minorStatusDiv is used to gate successive tests applied -within-
+     // a dataset
+     
       
-   console.log("runTests: " + JSON.stringify(datasetNames));
+   console.log("===================================== Test.markers: runTests");
+   console.log("Test.markers: runTests: " + JSON.stringify(datasetNames));
    console.log("reps: " + reps);
    console.log("exitOnCompletion: " + exitOnCompletion);
    
@@ -312,6 +316,7 @@ function markEndOfTestingDataSet()
 {
   console.log("end of testing dataset");
   $(majorStatusDiv).text("dataset complete");
+  $("#testManagerLoopStatusDiv").text("Test.markers, datasets complete");
   
 } // markEndOfTestingDataSet
 //------------------------------------------------------------------------------------------------------------------------
