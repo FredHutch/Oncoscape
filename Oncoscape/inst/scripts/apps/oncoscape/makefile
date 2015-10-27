@@ -13,3 +13,9 @@ runLocal: kill
 	m4 -E index.pre > index.html
 	R CMD INSTALL -l $(R_LIBS) ../../../..
 	nohup R --vanilla -f runOncoscapeApp-7777.R &
+
+runDocker: kill
+	which R
+	m4 -E index.pre > index.html
+	R CMD INSTALL -l $(R_LIBS) ../../../..
+	R --vanilla -f runOncoscapeApp-7777.R
