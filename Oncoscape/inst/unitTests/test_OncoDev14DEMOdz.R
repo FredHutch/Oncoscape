@@ -10,7 +10,12 @@ runTests <- function()
 {
 library(RUnit)
 library(OncoDev14)
-library(TCGAgbm)
+library(DEMOdz)
+  test_Matrices()
+  test_getEventList()
+  test_getEventTypeList()
+  test_getPatientTable()
+  test_getHistory()
   test_jsonOperations()
   test_serverVersion()
   test_loadDataPackages()
@@ -25,9 +30,11 @@ library(TCGAgbm)
 runTimedTests <- function()
 {
    library(rbenchmark)
-   fileNameTemp <- c("test_OncoDev14_BenchMark",date())
+   fileNameTemp <- c("test_OncoDev14_BenchMarkDEMOdz",date())
    fileNamePaste <- paste(fileNameTemp, collapse = " ")
    fileName <- gsub("[ ]", "_", fileNamePaste)
+   fileName <- gsub("[:]", "-", fileNamePaste)
+
    benchCols <-  c('test', 'replications', 'elapsed', 'relative', 'user.self', 'sys.self', 'user.child', 'sys.child')
    reps <- 1
    write(timestamp(),file=fileName, append=TRUE)
@@ -36,7 +43,7 @@ runTimedTests <- function()
               col.names=FALSE, row.names=FALSE)
    write.table(data.frame("library(OncoDev14)", reps, t(c(system.time(library(OncoDev14))))), file=fileName, append=TRUE,
               col.names=FALSE, row.names=FALSE)
-   write.table(data.frame("library(TCGAgbm)",reps, t(c(system.time(library(TCGAgbm))))), file=fileName, append=TRUE,
+   write.table(data.frame("library(DEMOdz)",reps, t(c(system.time(library(DEMOdz))))), file=fileName, append=TRUE,
               col.names=FALSE, row.names=FALSE)
    write.table(benchmark(test_jsonOperations, test_serverVersion, test_loadDataPackages,
               test_loadDataPackageGeneSets,  test_manifest,
@@ -46,6 +53,23 @@ runTimedTests <- function()
               file=fileName, append=TRUE, col.names=FALSE, row.names=FALSE)
 
    write(timestamp(),file=fileName, append=TRUE)
+}
+#---------------------------------------------------------------------------------------------------
+test_ctorForDataSet <- function(dataSetName)
+{
+  print("--- test_ctorForDataSet")
+        expression <- sprintf("datasets[['%s']] <- %s()", dataSetName, dataSetName)
+        tryCatch(eval(parse(text=expression)),
+                                error=function(e)
+                                message(sprintf("failure calling constructor for '%s'", dataSetName)))
+}
+#---------------------------------------------------------------------------------------------------
+test_requireForDataSet <- function(dataSetName)
+{
+     expression <- sprintf("require(%s, quietly=TRUE)", dataSetName)
+     tryCatch(eval(parse(text=expression)), error=function(e) {
+        message(sprintf("failed to load dataset '%s'", dataSetName))
+        })
 }
 #----------------------------------------------------------------------------------------------------
 # whether our source data is a matrix, or a data.frame, we use the following convention
@@ -195,7 +219,11 @@ test_loadPatientHistoryTable <- function()
 test_loadDataPackageGeneSets <- function()
 {
   print("--- test_loadDataPackageGeneSets")
+  scriptDir <- NA_character_
+  userID <- "test@nowhere.net"
 
+  dataset <- "TCGAgbm"
+  onco <- OncoDev14(port=PORT, scriptDir=scriptDir, userID=userID, datasetNames=dataset)
   dz <- TCGAgbm()
   checkTrue(all(c("marker.genes.545", "tcga.GBM.classifiers") %in% getGeneSetNames(dz)))
   x <- getGeneSetGenes(dz, "tcga.GBM.classifiers")
@@ -207,5 +235,87 @@ test_loadDataPackageGeneSets <- function()
 
 } # test_loadDataPackageGeneSets
 #----------------------------------------------------------------------------------------------------
+test_getHistory <- function()
+{
+  print("--- test_getHistory, OncoDev14")
+  scriptDir <- NA_character_
+  userID <- "test@nowhere.net"
+
+  dataset <- "DEMOdz"
+  onco <- OncoDev14(port=PORT, scriptDir=scriptDir, userID=userID, datasetNames=dataset)
+  ds <- DEMOdz()
+  hist <- history(ds)
+
+  checkEquals(dim(hist), NULL)
+  checkEquals(typeof(hist), "S4")
+
+
+} # test_getHistory
+#----------------------------------------------------------------------------------------------------
+test_getEventList <- function()
+{
+  print("--- test_getEventList, OncoDev14")
+  scriptDir <- NA_character_
+  userID <- "test@nowhere.net"
+
+  dataset <- "DEMOdz"
+  onco <- OncoDev14(port=PORT, scriptDir=scriptDir, userID=userID, datasetNames=dataset)
+  ds <- DEMOdz()
+  evl <- getEventList(ds)
+
+  checkEquals(dim(evl), NULL)
+  checkEquals(typeof(evl), "list")
+
+} # test_getEventList
+#----------------------------------------------------------------------------------------------------
+test_getEventTypeList <- function()
+{
+  print("--- test_getEventTypeList, OncoDev14")
+  scriptDir <- NA_character_
+  userID <- "test@nowhere.net"
+
+  dataset <- "DEMOdz"
+  onco <- OncoDev14(port=PORT, scriptDir=scriptDir, userID=userID, datasetNames=dataset)
+  ds <- DEMOdz()
+  evtl <- getEventTypeList(ds)
+
+
+  checkEquals(dim(evtl), NULL)
+  checkEquals(typeof(evtl), "list")
+
+} # test_getEventTypeList
+#----------------------------------------------------------------------------------------------------
+test_getPatientTable <- function()
+{
+  print("--- test_getPatientTable, OncoDev14")
+  scriptDir <- NA_character_
+  userID <- "test@nowhere.net"
+
+  dataset <- "DEMOdz"
+  onco <- OncoDev14(port=PORT, scriptDir=scriptDir, userID=userID, datasetNames=dataset)
+  ds <- DEMOdz()
+  pt <- getPatientTable(ds)
+
+ #  print(dim(pt))
+  checkEquals(dim(pt), c(20,162))
+  checkEquals(typeof(pt), "list")
+
+} # test_getPatientTable
+#----------------------------------------------------------------------------------------------------
+test_Matrices <- function()
+{
+  print("--- test_matrices, OncoDev14")
+  scriptDir <- NA_character_
+  userID <- "test@nowhere.net"
+
+  dataset <- "DEMOdz"
+  onco <- OncoDev14(port=PORT, scriptDir=scriptDir, userID=userID, datasetNames=dataset)
+  ds <- DEMOdz()
+  mat <- matrices(ds)
+  checkEquals(dim(mat), NULL)
+  checkEquals(typeof(mat), "list")
+
+}
+#----------------------------------------------------------------------------------------------------
 if(!interactive())
-   runTimedTests()
+   runTests()

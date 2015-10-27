@@ -10,10 +10,16 @@ runTests <- function()
 {
 library(RUnit)
 library(OncoDev14)
-library(TCGAgbm)
+library(TCGAbrain)
+  test_Matrices()
+  test_getEventList()
+  test_getEventTypeList()
+  test_getPatientTable()
+
+  test_getHistory()
   test_jsonOperations()
-  test_serverVersion()
-  test_loadDataPackages()
+  test_serverVersion("TCGAbrain")
+  test_loadDataPackages("TCGAbrain")
   test_loadDataPackageGeneSets()
   test_manifest()
   test_loadExpressionMatrix()
@@ -25,9 +31,11 @@ library(TCGAgbm)
 runTimedTests <- function()
 {
    library(rbenchmark)
-   fileNameTemp <- c("test_OncoDev14_BenchMark",date())
+   fileNameTemp <- c("test_OncoDev14_BenchMark_TCGAbrain",date())
    fileNamePaste <- paste(fileNameTemp, collapse = " ")
    fileName <- gsub("[ ]", "_", fileNamePaste)
+   fileName <- gsub("[:]", "_", fileName)
+
    benchCols <-  c('test', 'replications', 'elapsed', 'relative', 'user.self', 'sys.self', 'user.child', 'sys.child')
    reps <- 1
    write(timestamp(),file=fileName, append=TRUE)
@@ -36,16 +44,36 @@ runTimedTests <- function()
               col.names=FALSE, row.names=FALSE)
    write.table(data.frame("library(OncoDev14)", reps, t(c(system.time(library(OncoDev14))))), file=fileName, append=TRUE,
               col.names=FALSE, row.names=FALSE)
-   write.table(data.frame("library(TCGAgbm)",reps, t(c(system.time(library(TCGAgbm))))), file=fileName, append=TRUE,
+   write.table(data.frame("library(TCGAbrain)",reps, t(c(system.time(library(TCGAbrain))))), file=fileName, append=TRUE,
               col.names=FALSE, row.names=FALSE)
-   write.table(benchmark(test_jsonOperations, test_serverVersion, test_loadDataPackages,
-              test_loadDataPackageGeneSets,  test_manifest,
-              test_loadExpressionMatrix, test_loadPatientHistoryTable,
-                       replications=1000,
+   write.table(benchmark(test_jsonOperations, 
+                         test_manifest(),
+                         test_serverVersion("TCGAbrain"), test_loadDataPackages("TCGAbrain"),
+                         test_requireForDataSet("TCGAbrain"),
+                         test_ctorForDataSet("TCGAbrain"),
+                         test_loadPatientHistoryTable(),
+                       replications=5,
               columns = c('test', 'replications', 'elapsed', 'relative', 'user.self', 'sys.self', 'user.child', 'sys.child')),
               file=fileName, append=TRUE, col.names=FALSE, row.names=FALSE)
 
    write(timestamp(),file=fileName, append=TRUE)
+}
+#---------------------------------------------------------------------------------------------------
+test_ctorForDataSet <- function(dataSetName)
+{
+  print("--- test_ctorForDataSet")
+        expression <- sprintf("datasets[['%s']] <- %s()", dataSetName, dataSetName)
+        tryCatch(eval(parse(text=expression)),
+                                error=function(e)
+                                message(sprintf("failure calling constructor for '%s'", dataSetName)))
+}
+#---------------------------------------------------------------------------------------------------
+test_requireForDataSet <- function(dataSetName)
+{
+     expression <- sprintf("require(%s, quietly=TRUE)", dataSetName)
+     tryCatch(eval(parse(text=expression)), error=function(e) {
+        message(sprintf("failed to load dataset '%s'", dataSetName))
+        })
 }
 #----------------------------------------------------------------------------------------------------
 # whether our source data is a matrix, or a data.frame, we use the following convention
@@ -94,12 +122,12 @@ test_jsonOperations <- function()
 
 } # test_jsonOperations
 #----------------------------------------------------------------------------------------------------
-test_serverVersion <- function()
+test_serverVersion <- function(packageName)
 {
   print("--- test_serverVersion, OncoDev14")
   scriptDir <- NA_character_
   userID <- "test@nowhere.net"
-  datasetNames <- "DEMOdz"
+  datasetNames <- packageName
 
   onco <- OncoDev14(port=PORT, scriptDir=scriptDir, userID=userID, datasetNames=datasetNames)
   version <- serverVersion(onco)
@@ -108,13 +136,13 @@ test_serverVersion <- function()
 } # test_serverVersion
 #----------------------------------------------------------------------------------------------------
 # DEMOdz should be installed, but not yet loaded.  Oncoscape loads it on demand, which we test here
-test_loadDataPackages <- function()
+test_loadDataPackages <- function(packageName)
 {
   print("--- test_loadDataPackages, OncoDev14")
   scriptDir <- NA_character_
   userID <- "test@nowhere.net"
 
-  datasetNames <- "DEMOdz"
+  datasetNames <- packageName
 
      # this simgle dataset name should work without trouble
   onco <- OncoDev14(port=PORT, scriptDir=scriptDir, userID=userID, datasetNames=datasetNames)
@@ -123,32 +151,49 @@ test_loadDataPackages <- function()
     # semicolons are the token separator.  here we request a non-existent, second  package
     # only the first one should work
   
-  datasetNames <- "DEMOdz;bogus"
+  datasetNames <- paste(packageName, "bogus", sep=";")
   suppressWarnings(onco <- OncoDev14(port=PORT, scriptDir=scriptDir, userID=userID,
                                      datasetNames=datasetNames))
   checkEquals(getDataSetNames(onco), datasetNames)
 
 } # test_loadDataPackages
 #----------------------------------------------------------------------------------------------------
-# load the DEMOdz dataset, get the manifest, check for expected values
+# load the TCGAbrain dataset, get the manifest, check for expected values
 test_manifest <- function()
 {
   print("--- test_manifest, OncoDev14")
   scriptDir <- NA_character_
   userID <- "test@nowhere.net"
 
-  dataset <- "DEMOdz"
+  dataset <- "TCGAbrain"
   onco <- OncoDev14(port=PORT, scriptDir=scriptDir, userID=userID, datasetNames=dataset)
-  ds <- DEMOdz()
+  ds <- TCGAbrain()
   tbl <- manifest(ds)
-  checkEquals(colnames(tbl),  c("variable", "class", "category", "subcategory", "entity.count",
-                                "feature.count", "entity.type", "feature.type", "minValue",
-                                "maxValue",  "provenance"))
 
-    # spot check a few of the more permanent members of the datasets
 
-  checkEquals(3, length(intersect(rownames(tbl),
-                                  c("mtx.mut.RData", "mtx.cn.RData", "events.RData"))))
+   checkEquals(ncol(tbl),  11)
+   checkTrue(nrow(tbl) >= 8)
+   expected.colnames <- c("variable", "class", "category", "subcategory",
+                           "entity.count", "feature.count", "entity.type",
+                           "feature.type", "minValue", "maxValue", "provenance")
+
+   checkTrue(all(expected.colnames %in% colnames(tbl)))
+ 
+   expected.categories <- c("copy number", "history", "mutations", "protein abundance",
+                            "mrna expression", "network", "geneset")
+   checkTrue(all(expected.categories %in% tbl$category))
+   expected.rownames <- c("mtx.cn.RData", "ptHistory.RData", "mtx.mut.RData", "mtx.prot.RData",
+                          "mtx.mrna.bc.RData", "markers.json.RData",
+                          "genesets.RData","verhaakGbmClustersAugmented.RData","ericsEightGliomaClusters.RData",
+                          "egfr.json.RData","gbmPathways.json.RData","events.RData","historyTypes.RData")
+
+   #print(expected.rownames)
+   #print(rownames(tbl))
+   checkTrue(all(expected.rownames %in% rownames(tbl)))
+
+   expected.classes <- c("character", "list", "matrix")
+   checkTrue(all(expected.classes %in% tbl$class));
+
     
 } # test_manifest
 #----------------------------------------------------------------------------------------------------
@@ -160,7 +205,7 @@ test_loadExpressionMatrix <- function()
   scriptDir <- NA_character_
   userID <- "test@nowhere.net"
 
-  dataset <- "DEMOdz"
+  dataset <-  "DEMOdz"
   onco <- OncoDev14(port=PORT, scriptDir=scriptDir, userID=userID, datasetNames=dataset)
   ddz <- DEMOdz()
   tbl <- manifest(ddz)
@@ -196,6 +241,11 @@ test_loadDataPackageGeneSets <- function()
 {
   print("--- test_loadDataPackageGeneSets")
 
+  scriptDir <- NA_character_
+  userID <- "test@nowhere.net"
+
+  dataset <- "TCGAgbm"
+  onco <- OncoDev14(port=PORT, scriptDir=scriptDir, userID=userID, datasetNames=dataset)
   dz <- TCGAgbm()
   checkTrue(all(c("marker.genes.545", "tcga.GBM.classifiers") %in% getGeneSetNames(dz)))
   x <- getGeneSetGenes(dz, "tcga.GBM.classifiers")
@@ -207,5 +257,89 @@ test_loadDataPackageGeneSets <- function()
 
 } # test_loadDataPackageGeneSets
 #----------------------------------------------------------------------------------------------------
+test_getHistory <- function()
+{
+  print("--- test_getHistory, OncoDev14")
+  scriptDir <- NA_character_
+  userID <- "test@nowhere.net"
+
+  dataset <- "TCGAbrain"
+  onco <- OncoDev14(port=PORT, scriptDir=scriptDir, userID=userID, datasetNames=dataset)
+  ds <- TCGAbrain()
+  hist <- history(ds)
+
+  checkEquals(dim(hist), NULL)
+  checkEquals(typeof(hist), "S4")
+
+
+} # test_getHistory
+#----------------------------------------------------------------------------------------------------
+test_getEventList <- function()
+{
+  print("--- test_getEventList, OncoDev14")
+  scriptDir <- NA_character_
+  userID <- "test@nowhere.net"
+
+  dataset <- "TCGAbrain"
+  onco <- OncoDev14(port=PORT, scriptDir=scriptDir, userID=userID, datasetNames=dataset)
+  ds <- TCGAbrain()
+  evl <- getEventList(ds)
+
+  checkEquals(dim(evl), NULL)
+  checkEquals(typeof(evl), "list")
+
+} # test_getEventList
+#----------------------------------------------------------------------------------------------------
+test_getEventTypeList <- function()
+{
+  print("--- test_getEventTypeList, OncoDev14")
+  scriptDir <- NA_character_
+  userID <- "test@nowhere.net"
+
+  dataset <- "TCGAbrain"
+  onco <- OncoDev14(port=PORT, scriptDir=scriptDir, userID=userID, datasetNames=dataset)
+  ds <- TCGAbrain()
+  evtl <- getEventTypeList(ds)
+
+
+  checkEquals(dim(evtl), NULL)
+  checkEquals(typeof(evtl), "list")
+
+} # test_getEventTypeList
+#----------------------------------------------------------------------------------------------------
+test_getPatientTable <- function()
+{
+  print("--- test_getPatientTable, OncoDev14")
+  scriptDir <- NA_character_
+  userID <- "test@nowhere.net"
+
+  dataset <- "TCGAbrain"
+  onco <- OncoDev14(port=PORT, scriptDir=scriptDir, userID=userID, datasetNames=dataset)
+  ds <- TCGAbrain()
+  pt <- getPatientTable(ds)
+
+
+  checkEquals(dim(pt), c(1051,485))
+  checkEquals(typeof(pt), "list")
+
+} # test_getPatientTable
+#----------------------------------------------------------------------------------------------------
+test_Matrices <- function()
+{
+  print("--- test_matrices, OncoDev14")
+  scriptDir <- NA_character_
+  userID <- "test@nowhere.net"
+
+  dataset <- "TCGAbrain"
+  onco <- OncoDev14(port=PORT, scriptDir=scriptDir, userID=userID, datasetNames=dataset)
+  ds <- TCGAbrain()
+  mat <- matrices(ds)
+  checkEquals(dim(mat), NULL)
+  checkEquals(typeof(mat), "list")
+
+
+
+}
+#----------------------------------------------------------------------------------------------------
 if(!interactive())
-   runTimedTests()
+   runTests()
