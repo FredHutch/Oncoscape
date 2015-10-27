@@ -51,10 +51,10 @@ function runTests(datasetNames, reps, exitOnCompletion)
       datasetIndex++;
       if(datasetIndex < (datasetNames.length * reps)){
          console.log("about to test dataset " + datasetNames[datasetIndex]);      
-         if(datasetIndex < (datasetNames.length * reps))
-            testLoadDataSetDisplayNetworkSendIDs(datasetNames[datasetIndex % datasetNames.length]);
 	 testStatusObserver = new MutationObserver(onMutation);
          testStatusObserver.observe(target, config);
+         if(datasetIndex < (datasetNames.length * reps))
+            testLoadDataSetDisplayNetworkSendIDs(datasetNames[datasetIndex % datasetNames.length]);
 	 }
       else{
          console.log("mutation observer function detected end of datasets");
@@ -254,7 +254,7 @@ function testColorTumorsByCategory()
            console.log("-- in QUnit.test for testColorTumorsByCategory");
            var subTypes = jQuery.unique(tumorNodes.map(function(node){return(node.data("subType"));}));
            console.log(" during tumor category test, should be > one subType: " + subTypes.length);
-	   assert.ok(subTypes.length < 1);  // more than just the single "unassigned" enforced above;
+	   assert.ok(subTypes.length > 1);  // more than just the single "unassigned" enforced above;
            markEndOfTestingDataSet();
            });
         }); // new MutationObserver
@@ -331,4 +331,5 @@ return{
 //------------------------------------------------------------------------------------------------------------------------
 }); // MarkersAndSamplesTestModule
 markersTester = MarkersAndSamplesTestModule();
+moduleTests.push(markersTester);
 

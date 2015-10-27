@@ -111,10 +111,10 @@ function initializeUI ()
    subSelectButton = $("#markersSubSelectButton");
    subSelectButton.click(subSelectNodes);
 
-  if(hub.socketConnected())
-     runAutomatedTestsIfAppropriate();
-  else
-     hub.addSocketConnectedFunction(runAutomatedTestsIfAppropriate);
+  //if(hub.socketConnected())
+  //   runAutomatedTestsIfAppropriate();
+  //else
+  //   hub.addSocketConnectedFunction(runAutomatedTestsIfAppropriate);
 
    setInterval(function(){
       var count = cwMarkers.nodes("node:selected").length;
@@ -975,38 +975,38 @@ function configureSampleCategorizationMenu(msg)
 //----------------------------------------------------------------------------------------------------
 // query the oncoscape server for user id.  the callback then makes a local (that is,
 // Module-specific) decision to run this module's automated tests based upon that id
-function runAutomatedTestsIfAppropriate()
-{
-   var msg = {cmd: "getUserId",  callback: "markersAssessUserIdForTesting", status: "request", payload: ""};
-   hub.send(JSON.stringify(msg));
-
-} // runAutomatedTestsIfAppropriate
-//----------------------------------------------------------------------------------------------------
-function assessUserIdForTesting(msg)
-{
-   userID = msg.payload;
-   userID = userID.toLowerCase();
-
-   console.log("markersAndSamples/Module.js assesUserIdForTesting: " + userID);
-   
-   if(userID.indexOf("autotest") === 0){
-      console.log("markersAndSamples/Module.js running tests for user " + userID);
-      var datasetNames = $("#datasetMenu").children().map(function() {return $(this).val();}).get();
-         // delete any empty strings
-      datasetNames = datasetNames.filter(function(e) {return (e.length > 0);});
-      var start = userID.indexOf(".");
-      var end = userID.indexOf("@");
-      var reps = 1;
-      if(start > 0 && end > 0)
-        reps = parseInt(userID.slice(start+1, end));
-      var exitOnCompletion = false;
-      if(userID.indexOf("exitoncompletion") > 0)
-          exitOnCompletion = true;
-      markersTester.run(datasetNames, reps, exitOnCompletion);
-      console.log("back from markersTester.run()");
-      }
-
-} // assessUserIdForTesting
+//function runAutomatedTestsIfAppropriate()
+//{
+//   var msg = {cmd: "getUserId",  callback: "markersAssessUserIdForTesting", status: "request", payload: ""};
+//   hub.send(JSON.stringify(msg));
+//
+//} // runAutomatedTestsIfAppropriate
+////----------------------------------------------------------------------------------------------------
+//function assessUserIdForTesting(msg)
+//{
+//   userID = msg.payload;
+//   userID = userID.toLowerCase();
+//
+//   console.log("markersAndSamples/Module.js assesUserIdForTesting: " + userID);
+//   
+//   if(userID.indexOf("autotest") === 0){
+//      console.log("markersAndSamples/Module.js running tests for user " + userID);
+//      var datasetNames = $("#datasetMenu").children().map(function() {return $(this).val();}).get();
+//         // delete any empty strings
+//      datasetNames = datasetNames.filter(function(e) {return (e.length > 0);});
+//      var start = userID.indexOf(".");
+//      var end = userID.indexOf("@");
+//      var reps = 1;
+//      if(start > 0 && end > 0)
+//        reps = parseInt(userID.slice(start+1, end));
+//      var exitOnCompletion = false;
+//      if(userID.indexOf("exitoncompletion") > 0)
+//          exitOnCompletion = true;
+//      markersTester.run(datasetNames, reps, exitOnCompletion);
+//      console.log("back from markersTester.run()");
+//      }
+//
+//} // assessUserIdForTesting
 //----------------------------------------------------------------------------------------------------
  return{
      init: function(){
@@ -1016,7 +1016,7 @@ function assessUserIdForTesting(msg)
         hub.addMessageHandler("displayMarkersNetwork", displayMarkersNetwork);
         hub.addMessageHandler("configureSampleCategorizationMenu", configureSampleCategorizationMenu);
         hub.addMessageHandler("markersApplyTumorCategorization", applyTumorCategorization);
-        hub.addMessageHandler("markersAssessUserIdForTesting", assessUserIdForTesting);
+        //hub.addMessageHandler("markersAssessUserIdForTesting", assessUserIdForTesting);
         //hub.addSocketConnectedFunction(runAutomatedTestsIfAppropriate);
         //hub.addDocumentReadyFunction(runAutomatedTestsIfAppropriate);
         hub.addOnDocumentReadyFunction(initializeUI);
