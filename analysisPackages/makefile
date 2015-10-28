@@ -12,12 +12,10 @@ autoTest:
 
 
 PLSR.pkg:
-	svn up PLSR
 	R --vanilla CMD INSTALL --no-test-load --no-lock PLSR
 	(cd PLSR/inst/unitTests; make)
 
 PCA.pkg:
-	svn up PCA
 	R --vanilla CMD INSTALL --no-test-load --no-lock PCA
 	(cd PCA/inst/unitTests; make)
 
