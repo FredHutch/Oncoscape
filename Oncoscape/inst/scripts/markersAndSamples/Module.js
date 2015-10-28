@@ -479,7 +479,8 @@ function handleIncomingIdentifiers(msg)
       errorMessage = "No overlap with genes or tissue sample IDs:  <br><br>" +
                       ids.join(", ");
       title = ids.length + " unrecognized identifiers";
-      $('<div />').html(errorMessage).dialog({title: title, width:600, height:300});
+      console.log("+++++++++++ creating error div");
+      $('<div id="markersIncomingIdentifiersErrorDialog" />').html(errorMessage).dialog({title: title, width:600, height:300});
       }
 
    console.log("about to post status from incoming identifiers");
@@ -861,7 +862,7 @@ function doSearch(e)
 function displayMarkersNetwork(msg)
 {
    console.log("--- Module.markers: displayMarkersNetwork");
-   //console.log(msg)
+
    if(msg.status == "success"){
       console.log("nchar(network): " + msg.payload.length);
       var json = JSON.parse(msg.payload);
@@ -889,7 +890,7 @@ function displayMarkersNetwork(msg)
                                          return({id:n.id(), position:n.position()});}));
       localStorage.markersDefault = defaultLayout;
       hub.logEventOnServer(thisModulesName + ", " + userID + ", display markers network complete");
-      //postStatus("markers network displayed");
+        //postStatus("markers network displayed");  // deferred; set when the category menu is configured
       hub.logEventOnServer(thisModulesName + ", " + userID + ", getSampleCategorizationNames request");
       var msg2 = {cmd: "getSampleCategorizationNames", callback: "configureSampleCategorizationMenu",
                   status: "request", payload: ""};
@@ -939,11 +940,6 @@ function datasetSpecified (msg)
    var newMsg = {cmd: "getMarkersNetwork",  callback: "displayMarkersNetwork", status: "request", payload: datasetName};
    hub.send(JSON.stringify(newMsg));
 
-   //hub.logEventOnServer(thisModulesName + ", " + userID + ", getSampleCategorizationNames request");
-   //var msg2 = {cmd: "getSampleCategorizationNames", callback: "configureSampleCategorizationMenu",
-   //            status: "request", payload: ""};
-   //hub.send(JSON.stringify(msg2));
-
 } // datasetSpecified
 //----------------------------------------------------------------------------------------------------
 function configureSampleCategorizationMenu(msg)
@@ -970,44 +966,9 @@ function configureSampleCategorizationMenu(msg)
    hub.enableTab(thisModulesOutermostDiv);
    postStatus("markers network displayed");
 
-
 } // configureSampleCategorizationMenu
 //----------------------------------------------------------------------------------------------------
-// query the oncoscape server for user id.  the callback then makes a local (that is,
-// Module-specific) decision to run this module's automated tests based upon that id
-//function runAutomatedTestsIfAppropriate()
-//{
-//   var msg = {cmd: "getUserId",  callback: "markersAssessUserIdForTesting", status: "request", payload: ""};
-//   hub.send(JSON.stringify(msg));
-//
-//} // runAutomatedTestsIfAppropriate
-////----------------------------------------------------------------------------------------------------
-//function assessUserIdForTesting(msg)
-//{
-//   userID = msg.payload;
-//   userID = userID.toLowerCase();
-//
-//   console.log("markersAndSamples/Module.js assesUserIdForTesting: " + userID);
-//   
-//   if(userID.indexOf("autotest") === 0){
-//      console.log("markersAndSamples/Module.js running tests for user " + userID);
-//      var datasetNames = $("#datasetMenu").children().map(function() {return $(this).val();}).get();
-//         // delete any empty strings
-//      datasetNames = datasetNames.filter(function(e) {return (e.length > 0);});
-//      var start = userID.indexOf(".");
-//      var end = userID.indexOf("@");
-//      var reps = 1;
-//      if(start > 0 && end > 0)
-//        reps = parseInt(userID.slice(start+1, end));
-//      var exitOnCompletion = false;
-//      if(userID.indexOf("exitoncompletion") > 0)
-//          exitOnCompletion = true;
-//      markersTester.run(datasetNames, reps, exitOnCompletion);
-//      console.log("back from markersTester.run()");
-//      }
-//
-//} // assessUserIdForTesting
-//----------------------------------------------------------------------------------------------------
+
  return{
      init: function(){
         hub.addMessageHandler("sendSelectionTo_MarkersAndPatients", handleIncomingIdentifiers);
@@ -1016,9 +977,6 @@ function configureSampleCategorizationMenu(msg)
         hub.addMessageHandler("displayMarkersNetwork", displayMarkersNetwork);
         hub.addMessageHandler("configureSampleCategorizationMenu", configureSampleCategorizationMenu);
         hub.addMessageHandler("markersApplyTumorCategorization", applyTumorCategorization);
-        //hub.addMessageHandler("markersAssessUserIdForTesting", assessUserIdForTesting);
-        //hub.addSocketConnectedFunction(runAutomatedTestsIfAppropriate);
-        //hub.addDocumentReadyFunction(runAutomatedTestsIfAppropriate);
         hub.addOnDocumentReadyFunction(initializeUI);
        }
      };

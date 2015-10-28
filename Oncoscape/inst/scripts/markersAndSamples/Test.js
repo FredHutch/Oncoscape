@@ -55,21 +55,21 @@ function runTests(datasetNames, reps, exitOnCompletion)
       datasetIndex++;
       if(datasetIndex < (datasetNames.length * reps)){
          console.log("about to test dataset " + datasetNames[datasetIndex]);      
-	 testStatusObserver = new MutationObserver(onMutation);
+         testStatusObserver = new MutationObserver(onMutation);
          testStatusObserver.observe(target, config);
          if(datasetIndex < (datasetNames.length * reps))
             testLoadDataSetDisplayNetworkSendIDs(datasetNames[datasetIndex % datasetNames.length]);
-	 }
+         }
       else{
          console.log("mutation observer function detected end of datasets");
          if(exitOnCompletion){
             var payload = {errorCount: Object.keys(sessionStorage).length,
-	                   errors: JSON.stringify(sessionStorage)};
+                           errors: JSON.stringify(sessionStorage)};
             var exitMsg = {cmd: "exitAfterTesting", callback: "", status: "request", payload: payload};
             console.log("about to send exitAfterTesting msg to server");
             hub.send(JSON.stringify(exitMsg));
-	    } // if exitOnCompletion
-	 } // else: datasets exhaused
+            } // if exitOnCompletion
+         } // else: datasets exhaused
       };
 
    testStatusObserver = new MutationObserver(onMutation);
@@ -78,20 +78,6 @@ function runTests(datasetNames, reps, exitOnCompletion)
    $(majorStatusDiv).text("start testing");
 
 } // runTests
-//------------------------------------------------------------------------------------------------------------------------
-function showTests()
-{
-   hub.raiseTab("markersTestDiv");
-
-  // $("#qunit").css({"display": "block"});
-
-} // showTests
-//------------------------------------------------------------------------------------------------------------------------
-function hideTests()
-{
-   $("#qunit").css({"display": "none"});
-
-} // hide
 //------------------------------------------------------------------------------------------------------------------------
 function testLoadDataSetDisplayNetworkSendIDs(dataSetName)
 {
@@ -176,14 +162,14 @@ function testSearch()
      console.log("selected nodes after filter: " + selectedNodeNames);
      assert.ok(cwMarkers.filter("node:selected").length == expectedSelectionCount,
                "found expected number of selected nodes: " + selectedNodes.length);
-     testSendIDs();
+     testSendGoodIDs();
      });
 
 }  // testSearch
 //------------------------------------------------------------------------------------------------------------------------
-function testSendIDs()
+function testSendGoodIDs()
 {
-   console.log("entering Test.markers:testSendIDs");
+   console.log("entering Test.markers:testSendGoodIDs");
 
    var title = "testSendIDs";
    console.log(title);
@@ -213,7 +199,126 @@ function testSendIDs()
            console.log("-- in QUnit.test for testSendIDs " + 7 + "  statusMsg: " + statusMsg);
            var selectedNodes = cwMarkers.filter("node:selected").map(function(node){return node.id();});
            assert.ok(selectedNodes.length >= maxNodes, "incoming " + maxNodes + " nodes, selected: " +
-	             selectedNodes.length);
+                     selectedNodes.length);
+           testSendBadIDs();
+           });
+        }); // new MutationObserver
+      } // if null mutation observer
+
+   var config = {attributes: true, childList: true, characterData: true};
+   var target = document.querySelector(minorStatusDiv);
+   markersAndSamplesStatusObserver.observe(target, config);
+
+   console.log("testSendIDs, sending " + JSON.stringify(ids));
+   var payload = {value: ids, count: ids.length, source: "markers/Test.js::testSendIDs"};
+   var msg = {cmd: "sendSelectionTo_MarkersAndPatients", callback: "", status: "request", payload:  payload};
+
+   hub.send(JSON.stringify(msg));
+
+} // testSendGoodIDs
+//------------------------------------------------------------------------------------------------------------------------
+function testSendBadIDs()
+{
+   console.log("entering Test.markers:testSendBadIDs");
+
+   var title = "testSendBadIDs";
+   console.log(title);
+   var maxNodes = 10;
+   var totalNodes = cwMarkers.nodes().length; 
+   if(maxNodes > totalNodes)
+      maxNodes = totalNodes;
+
+      // first test is to clear any existing selection, then send 10 node
+      // ids (simple name strings) taken from the network itself.
+      // these nodes are sent to the network using hub.send
+      // we then check to see that these 10 nodes are selected in cyjs
+
+   cwMarkers.filter("node:selected").unselect();
+   var badIDs = ["bogus1", "bogus2", "bogus3"];
+
+   if(markersAndSamplesStatusObserver === null){
+      markersAndSamplesStatusObserver = new MutationObserver(function(mutations) {
+        mutation = mutations[0];
+        markersAndSamplesStatusObserver.disconnect();
+        markersAndSamplesStatusObserver = null;
+        var id = mutation.target.id;
+        var statusMsg = $(minorStatusDiv).text();
+        QUnit.test(title, function(assert) {
+           console.log("-- in QUnit.test for testSendIDs " + 7 + "  statusMsg: " + statusMsg);
+           var selectedNodes = cwMarkers.filter("node:selected").map(function(node){return node.id();});
+           assert.equal(selectedNodes.length, 0);
+           var errorDialog = $("#markersIncomingIdentifiersErrorDialog");
+           console.log("error dialog count: " + errorDialog.length);
+           var errorText = errorDialog.text();
+           console.log("======== badIDs errorText");
+           console.log(errorText);
+           for(var i=0; i < badIDs.length; i++){
+              assert.ok(errorText.indexOf(badIDs[i]) > 0);
+              } // for i
+           errorDialog.remove();
+           testSendMixedIDs();
+           });
+        }); // new MutationObserver
+      } // if null mutation observer
+
+   var config = {attributes: true, childList: true, characterData: true};
+   var target = document.querySelector(minorStatusDiv);
+   markersAndSamplesStatusObserver.observe(target, config);
+
+   console.log("testSendBadIDs, sending " + JSON.stringify(badIDs));
+   var payload = {value: badIDs, count: badIDs.length, source: "markers/Test.js::testSendIDs"};
+   var msg = {cmd: "sendSelectionTo_MarkersAndPatients", callback: "", status: "request", payload:  payload};
+
+   hub.send(JSON.stringify(msg));
+
+} // testSendBadIDs
+//------------------------------------------------------------------------------------------------------------------------
+function testSendMixedIDs()
+{
+   console.log("entering Test.markers:testSendMixedIDs");
+
+   var title = "testSendMixedDs";
+   console.log(title);
+   var maxNodes = 3;
+   var totalNodes = cwMarkers.nodes().length; 
+   if(maxNodes > totalNodes)
+      maxNodes = totalNodes;
+
+   var goodIDs = cwMarkers.nodes().map(function(node) {return node.id();}).slice(0, maxNodes);
+
+      // first test is to clear any existing selection, then send 10 node
+      // ids (simple name strings) taken from the network itself.
+      // these nodes are sent to the network using hub.send
+      // we then check to see that these 10 nodes are selected in cyjs
+
+   cwMarkers.filter("node:selected").unselect();
+   var badIDs = ["bagus1", "begus2", "bigus3"];
+   var ids = goodIDs.concat(badIDs);
+
+   if(markersAndSamplesStatusObserver === null){
+      markersAndSamplesStatusObserver = new MutationObserver(function(mutations) {
+        mutation = mutations[0];
+        markersAndSamplesStatusObserver.disconnect();
+        markersAndSamplesStatusObserver = null;
+        var id = mutation.target.id;
+        var statusMsg = $(minorStatusDiv).text();
+        QUnit.test(title, function(assert) {
+           console.log("-- in QUnit.test for testSendIDs " + 7 + "  statusMsg: " + statusMsg);
+           var selectedNodes = cwMarkers.filter("node:selected").map(function(node){return node.id();});
+           assert.ok(selectedNodes.length >= goodIDs.length);
+              // at present (we may wish to change) when some ids work, no error dialog is posted
+              /************
+              var errorDialog = $("#markersIncomingIdentifiersErrorDialog");
+              console.log("error dialog count: " + errorDialog.length);
+              var errorText = errorDialog.text();
+              console.log("======== mixedIDs errorText");
+              console.log(errorText);
+              for(var i=0; i < badIDs.length; i++)
+                 assert.ok(errorText.indexOf(badIDs[i]) >= 0);
+              for(i=0; i < goodIDs.length; i++)
+                 assert.equal(errorText.indexOf(goodIDs[i]), -1);
+              errorDialog.remove();
+              **************/
            testColorTumorsByCategory();
            });
         }); // new MutationObserver
@@ -229,7 +334,7 @@ function testSendIDs()
 
    hub.send(JSON.stringify(msg));
 
-} // testSendIDs
+} // testSendMixedIDs
 //------------------------------------------------------------------------------------------------------------------------
 function testColorTumorsByCategory()
 {
@@ -258,7 +363,7 @@ function testColorTumorsByCategory()
            console.log("-- in QUnit.test for testColorTumorsByCategory");
            var subTypes = jQuery.unique(tumorNodes.map(function(node){return(node.data("subType"));}));
            console.log(" during tumor category test, should be > one subType: " + subTypes.length);
-	   assert.ok(subTypes.length > 1);  // more than just the single "unassigned" enforced above;
+           assert.ok(subTypes.length > 1);  // more than just the single "unassigned" enforced above;
            markEndOfTestingDataSet();
            });
         }); // new MutationObserver
@@ -328,9 +433,7 @@ function initialize()
 //------------------------------------------------------------------------------------------------------------------------
 return{
    init: initialize,
-   run: runTests,
-   show: showTests,
-   hide: hideTests
+   run: runTests
    }; // module return value
 
 //------------------------------------------------------------------------------------------------------------------------

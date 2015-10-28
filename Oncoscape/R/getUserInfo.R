@@ -10,7 +10,6 @@ getUserInfo <- function(ws, msg)
   
   payload <- list(userID=state$userID,
                   datasets=datasetNames)
-                  #datasets=state$rawDatasetNames)
   
   return.msg <- list(cmd=msg$callback, status="response", callback="", payload=payload)
   ws$send(toJSON(return.msg))
