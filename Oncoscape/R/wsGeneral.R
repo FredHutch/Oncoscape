@@ -6,8 +6,17 @@ addRMessageHandler("logEvent", "logEvent");
 addRMessageHandler("getLoggedEvents", "getLoggedEvents");
 addRMessageHandler("exitAfterTesting", "exitAfterTesting");
 #----------------------------------------------------------------------------------------------------
-state[["log"]] <- data.frame(version=character(), time=character(), dataset=character(),
-                             msg=character(), stringsAsFactors=FALSE)
+state[["log"]] <- data.frame(eventName=character(),
+                             eventStatus=character(),
+                             secs=numeric(),
+                             userID=character(),
+                             moduleOfOrigin=character(),
+			     dataset=character(),
+                             time=character(),
+                             version=character(),
+                             comment=character(),
+			     stringsAsFactors=FALSE);
+
 #----------------------------------------------------------------------------------------------------
 # this file providees the standard oncoscape websocket json interface to SttrDataSet objects
 # each of which is typically matrices of experimental data, a clinical history, and variaout
@@ -31,18 +40,35 @@ logEvent <- function(ws, msg)
 {
   payload <- msg$payload
   field.names <- names(payload)
-  options(digits.secs=3)   # for millisecond accuracy
+  stopifnot(field.names == c("eventName", "eventStatus", "moduleOfOrigin", "comment"))
+
+   # secs, dataset, time, version are all obtained locally
 
   datasetName <- "NA"
   key <- "currentDatasetName"
   if(key %in% ls(state))
     datasetName <- state[[key]]
 
+  userID <- "NA"
+  key <- "userID"
+  if(key %in% ls(state))
+    userID <- state[[key]]
+
   version <- sessionInfo()$otherPkgs$OncoDev14$Version
-  time <- as.character(Sys.time())
-  
-  new.event <- as.data.frame(list(version=version, time=time, dataset=datasetName, msg=payload))
-  state[["log"]] <- rbind(state[["log"]], as.data.frame(new.event))
+  time <- Sys.time()
+  secs <- as.numeric(time)
+ 
+  new.event <- list(eventName=payload$eventName,
+                    eventStatus=payload$eventStatus,
+                    secs=secs,
+                    userID=userID,
+                    moduleOfOrigin=payload$moduleOfOrigin,
+		    dataset=datasetName,
+                    time=as.character(time),
+                    version=version,
+                    comment=payload$comment);
+
+  state[["log"]] <- rbind(state[["log"]], as.data.frame(new.event, stringsAsFactors=FALSE))
   print(new.event)
   
 } # logEvent
