@@ -18,7 +18,7 @@ var HubModule = (function () {
   var onDocumentReadyFunctions = [];
   var socketURI = window.location.href.replace("http://", "ws://");
   var socket;
-
+  
   var  messagingRestrictedToLogin = false;
 
   var modules = {};
@@ -517,9 +517,11 @@ function start()
 
 }  // start
 //----------------------------------------------------------------------------------------------------
-function logEventOnServer(payload)
+function logEventOnServer(moduleOfOrigin, eventName, eventStatus, comment)
 {
-   console.log("about to logEvent: " + payload);
+   console.log("about to logEvent: " + eventName);
+   payload= {eventName: eventName, eventStatus: eventStatus, 
+             moduleOfOrigin: moduleOfOrigin, comment: comment};
 
    hub.send(JSON.stringify({cmd: "logEvent", callback: "", status: "request", payload: payload}));
 
