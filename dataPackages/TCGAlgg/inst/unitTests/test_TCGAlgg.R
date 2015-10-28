@@ -29,10 +29,11 @@ testConstructor <- function()
    print("--- testConstructor")
 
    dp <- TCGAlgg();
-   checkEquals(dim(manifest(dp)), c(9, 11))
-   checkEquals(length(matrices(dp)), 5)
+   checkEquals(ncol(manifest(dp)), 11)
+   checkTrue(nrow(manifest(dp)) >= 9)
+   checkTrue(length(matrices(dp)) >= 5)
+   checkTrue(eventCount(history(dp)) > 4500)
    checkEquals(names(matrices(dp)), c("mtx.cn","mtx.mrna","mtx.mrna.bc", "mtx.mut", "mtx.prot"))
-   checkEquals(length(geteventList(history(dp))), 4899)
    
 } # testConstructor
 #--------------------------------------------------------------------------------
@@ -46,10 +47,15 @@ testManifest <- function()
    checkTrue(file.exists(file))
    
    tbl <- read.table(file, sep="\t", as.is=TRUE)
-   checkEquals(dim(tbl), c(9, 11))
-   checkEquals(rownames(tbl), c("mtx.cn.RData", "events.RData", "ptHistory.RData", "historyTypes.RData", "mtx.mrna.RData", "mtx.mrna.bc.RData", "mtx.mut.RData","mtx.prot.RData", "genesets.RData"))
-   checkEquals(sort(tbl$class), c("list","list","list","list", "matrix", "matrix", "matrix", "matrix", "matrix"))
-   checkEquals(sort(tbl$category), c("copy number","geneset", "history","history", "history", "mRNA expression","mRNA expression", "mutations",  "protein abundance"))
+   checkEquals(ncol(tbl), 11)
+   checkTrue(nrow(tbl) >= 9)
+   expected.categories <- c("copy number", "history", "mRNA expression","mRNA expression", "mutations",
+                               "protein abundance", "geneset")
+   
+   checkTrue(all(expected.categories %in% tbl$category))
+   expected.rownames <- c("mtx.cn.RData", "events.RData","ptHistory.RData","historyTypes.RData", "mtx.mrna.RData",  "mtx.mut.RData",
+                                "mtx.prot.RData", "genesets.RData")
+   checkTrue(all(expected.rownames %in% rownames(tbl)))
    checkProvenance <- function(var){
        return(tbl[tbl$variable==var,11])
    }
