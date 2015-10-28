@@ -47,8 +47,6 @@ logEvent <- function(ws, msg)
   
 } # logEvent
 #----------------------------------------------------------------------------------------------------
-# consruct an object, call the verersionMethod on it, return the string (should be in x.y.z)
-# TODO: seems burdensome to create an Onco object here.  rethink at some point.
 getServerVersion <- function(ws, msg)
 {
   serverVersion <- sessionInfo()$otherPkgs$OncoDev14$Version;
