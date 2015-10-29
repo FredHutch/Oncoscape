@@ -54,6 +54,12 @@ as the R library.  Note that the full path should be used instead of referencing
 	>make install
 
 
+2a. If using OSX, the following homebrew command will install the latest R in /usr/local/Cellar. 
+
+brew install r
+
+All of the required dependencies for R will be installed automatically. The .setupR file included in this repository can be modified to the exact path on your system. Once the .setupR file is modified and sourced, the next step is to run "make installLocal".
+
 3. Runtime Configuration
 ------------------------
 
