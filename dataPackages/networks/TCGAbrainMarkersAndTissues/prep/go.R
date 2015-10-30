@@ -60,7 +60,8 @@ make <- function()
   viz(rcy)
   setEdgeStyle(rcy, "bezier")
   showEdges(rcy, "chromosome")
-  
+  load("tbl.pos.orphanGenes.RData");
+  setPosition(rcy, tbl.pos.orphanGenes)
 
 } # make
 #------------------------------------------------------------------------------------------------------------------------
@@ -112,7 +113,7 @@ run <- function(maxNodes=NA)
       orphan.patients <- x$orphan.patients
       g.mut <- createMutationGraph(tbl, orphan.patients)
       printf("--- g.mut lgg");
-      #httpAddGraph(rcy, g.mut)
+      httpAddGraph(rcy, g.mut)
       }
    
 
@@ -126,7 +127,7 @@ run <- function(maxNodes=NA)
       g.mut <- createMutationGraph(tbl, orphan.patients)
       printf("--- g.mut gbm");
       print(g.mut)
-      #httpAddGraph(rcy, g.mut)
+      httpAddGraph(rcy, g.mut)
       }
    
 
@@ -136,7 +137,7 @@ run <- function(maxNodes=NA)
    g.cn <- createCopyNumberGraph(x$tbl)
    printf("--- g.cn lgg");
    print(g.cn)
-   #httpAddGraph(rcy, g.cn)
+   httpAddGraph(rcy, g.cn)
 
    fmtx.cn <- mtx.cn.gbm[intersect(rownames(mtx.cn.gbm), patients), intersect(colnames(mtx.cn.gbm), genes)]
    #filter <- function(x) abs(x) > 1;
@@ -146,7 +147,7 @@ run <- function(maxNodes=NA)
   # browser()
    printf("--- g.cn gbm");
    print(g.cn)
-   #httpAddGraph(rcy, g.cn)
+   httpAddGraph(rcy, g.cn)
 
     rcy
 
@@ -160,14 +161,13 @@ viz <- function(rcy)
    #for(i in 1:nrow(tbl.layout))
    #   setPosition(rcy, tbl.layout[i,])
 
-   fitContent(rcy)
-   setZoom(rcy, 0.90 * getZoom(rcy))
+   fit(rcy)
 
 } # viz
 #----------------------------------------------------------------------------------------------------
 export <- function(rcy)
 {
-   hideAllEdges(rcy)
+   #hideAllEdges(rcy)
 
    g.markers.json <- getJSON(rcy);
    print(nchar(g.markers.json));
@@ -192,7 +192,7 @@ createBaseGraph <- function(chromosome.nodes, telomeres, genes, patients, maxNod
    nodeData(g, genes, attr="nodeType") <- "gene"
    nodeData(g, chromosome.nodes, attr="nodeType") <- "chromosome"
    nodeData(g, telomeres, attr="nodeType") <- "telomere"
-   nodeData(g, patients, attr="subType") <- as.character(tbl.gbmDzSubTypes[patients, "gbmDzSubType"])
+   # nodeData(g, patients, attr="subType") <- as.character(tbl.gbmDzSubTypes[patients, "gbmDzSubType"])
 
    rcy <- RCyjs(portRange=6047:6100, quiet=TRUE, graph=g, hideEdges=TRUE)
    setBrowserWindowTitle(rcy, "hobo SNA.CNA")
@@ -1470,7 +1470,7 @@ runCy <- function()
 hobo.tumor.layout <- function()
 {
    expansion.factor <- 1600    # x and y values are spread between +/- 1600
-   left.shift <- 1000          # then shifted left by this amount to occupy left-ish
+   left.shift <- 2000          # then shifted left by this amount to occupy left-ish
                                # half of screen
    up.shift <- 0               # keep y coordinates centered on zero for now
 
@@ -1483,7 +1483,7 @@ hobo.tumor.layout <- function()
    x <- pos$x                  # range(x) -9.013847e-05  6.037940e-05
 
    zero.shift <- (max(x) + min(x)) / 2
-   browser()
+   #browser()
    x <- x - zero.shift
    x.scale <- expansion.factor/max(x)   
    x <- x * x.scale            # at this point the x values range -1600:1600
@@ -1819,7 +1819,7 @@ chromosomeLocToCanvas <- function(tbl)
 
    loc.half.span <- 249250621/2    # a bit more than the length of chrom 1, the longest
    center.y <- 0
-   top.y <- 6000                   # drawing is done from zero at center of screen to this pixel height
+   top.y <- 3000                   # drawing is done from zero at center of screen to this pixel height
    scale <- loc.half.span / top.y
    
    loc.midpoints <- subset(tbl, type=="arm")$loc
