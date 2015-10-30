@@ -24,3 +24,10 @@ TCGAprad <- function()
 } # TCGAprad constructor
 
 #----------------------------------------------------------------------------------------------------
+setMethod('getPatientIDs', 'TCGAbrcaClass',
+  function (obj, patient.ids) {
+  	 
+     ptIDs =  gsub("(^TCGA\\.\\w\\w\\.\\w\\w\\w\\w).*","\\1", patient.ids)
+     ptIDs
+     })
+#----------------------------------------------------------------------------------------------------

@@ -88,9 +88,8 @@ testManifest <- function()
          checkEqualsNumeric(min(x, na.rm=T), minValue, tolerance=10e-5)
          checkEqualsNumeric(max(x, na.rm=T), maxValue, tolerance=10e-5)
          }
-      provenance <- tbl$provenance[i];
        } # for i
-
+   
    TRUE
    
 } # testManifest
