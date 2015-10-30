@@ -7,17 +7,11 @@ vizmap = [{"selector":"node","style":
        "border-width":"1px",
        "width":"mapData(degree,  0.0, 100.0, 20.0, 100.0)",
        "height":"mapData(degree, 0.0, 100.0, 20.0, 100.0)",
-       //width: 3,
-       //height: 3,
        "font-size":"12px"}},
 
     {selector:"node:selected", css: {
-        //"text-valign":"center",
-        //"text-halign":"center",
         "border-color": "gold",
         "border-width": "3px",
-        //"overlay-opacity": 0.5,
-        //"overlay-color": "gold"
         }},
         
 
@@ -68,7 +62,6 @@ vizmap = [{"selector":"node","style":
  {"selector":"node[subType='lgg']",
        "style":{"border-color":"orange"}},
 
-   // eric's curated TCGAbrain clusters, 1-8
 
  {"selector":"node[subType='1']",
        "style":{"border-color":"darkred"}},
@@ -95,14 +88,24 @@ vizmap = [{"selector":"node","style":
        "style":{"border-color":"yellow"}},
 
 
-   // eric & hamid's expression categorization, for genes involved
-   // in metabolism, stemness, and immune response
 
  {"selector":"node[subType='high']",
        "style":{"border-color":"blue"}},
 
  {"selector":"node[subType='low']",
        "style":{"border-color":"red"}},
+
+ {"selector":"node[subType='G2']",
+       "style":{"border-color":"green"}},
+
+ {"selector":"node[subType='G3']",
+       "style":{"border-color":"blue"}},
+
+ {"selector":"node[subType='G4']",
+       "style":{"border-color":"red"}},
+
+ {"selector":"node[subType='NA']",
+       "style":{"border-color":"gray"}},
 
 
  {"selector":"node[nodeType='chromosome']", style:
@@ -117,14 +120,12 @@ vizmap = [{"selector":"node","style":
  {"selector":"node[nodeType='telomere']",
      "style":{"shape":"octagon"}},
 
-    // for tbl.verhaakPlus1
  {selector: "node[cluster='G-CIMP']",      style: {"border-color": "purple"}},
  {selector: "node[cluster='Classical']",   style: {"border-color": "red"}},
  {selector: "node[cluster='Proneural']",   style: {"border-color": "green"}},
  {selector: "node[cluster='Neural']",      style: {"border-color": "turquoise"}},
  {selector: "node[cluster='Mesenchymal']", style: {"border-color": "blue"}},
 
-   // for tbl.glioma8
  {selector: "node[cluster='1']",   style: {"border-color": "darkred"}},
  {selector: "node[cluster='2']",   style: {"border-color": "red"}},
  {selector: "node[cluster='3']",   style: {"border-color": "orange"}},
@@ -165,3 +166,4 @@ vizmap = [{"selector":"node","style":
  {"selector":"edge:selected",
        "style":{"line-color":"rgb(255,0,0)",
        "width":"8px"}}];
+
