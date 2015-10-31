@@ -3,6 +3,7 @@ mtx.cn.RData	mtx.cn	matrix	copy number	gistic scores	563	23575	patient	gene	-2	2
 events.RData	history	list	history	clinical	7644	NA	NA	NA	NA	NA	tcga
 ptHistory.RData	ptList	list	history	clinical patients	592	NA	NA	NA	NA	NA	tcga
 historyTypes.RData	catList	list	history	clinical categories	12	NA	NA	NA	NA	NA	tcga
+tbl.ptHistory.RData	tbl.ptHistory	data.frame	history	clinical table	592	425	patients	events	NA	NA	tcga
 mtx.mrna.RData	mtx.mrna	matrix	mRNA expression	Z scores	154	20457	patient	gene	-5.6790	3359.2622	tcga cBio
 mtx.mrna.ueArray.RData	mtx.mrna.ueArray	matrix	mRNA expression	Z scores	323	11864	patient	gene	-8.90925	15.54740	tcga cBio
 mtx.mut.RData	mtx.mut	matrix	mutations	aa substitutions	291	6698	patient	gene	NA	NA	tcga cBio

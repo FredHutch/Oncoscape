@@ -6,6 +6,7 @@ exportMethods (
   geteventTypeList,
   getpatientList,
   getTable,
+  setTable,
   seteventList,
   setpatientList,
   seteventTypeList

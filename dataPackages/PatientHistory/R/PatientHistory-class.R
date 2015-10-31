@@ -21,6 +21,7 @@ setGeneric('getpatientList',    signature='obj', function (obj) standardGeneric 
 setGeneric('seteventList',      signature='obj', function (obj, eventList = list()) standardGeneric ('seteventList'))
 setGeneric('setpatientList',    signature='obj', function (obj, ptList = list()) standardGeneric ('setpatientList'))
 setGeneric('seteventTypeList',  signature='obj', function (obj, eventTypeList = list()) standardGeneric ('seteventTypeList'))
+setGeneric('setTable', 		    signature='obj', function (obj, tbl = data.frame()) standardGeneric ('setTable'))
 setGeneric('getTable',          signature='obj', function (obj, patient.ids=NA, selectCols=NA) standardGeneric ('getTable'))
 
 #----------------------------------------------------------------------------------------------------
@@ -29,11 +30,11 @@ PatientHistory <- function(events=list())
 {
 	  stopifnot(class(events)=="list")
 
-	  tbl <- .createTable(events)
-	  stopifnot(class(tbl)=="data.frame")
-	  tbl <- .addCalculatedEvents(tbl)
+#	  tbl <- .createTable(events)
+#	  stopifnot(class(tbl)=="data.frame")
+#	  tbl <- .addCalculatedEvents(tbl)
 
-	  obj <- .PatientHistory(eventlist=events, eventtable=tbl)
+	  obj <- .PatientHistory(eventlist=events)
 
 	  obj
 
@@ -62,6 +63,13 @@ setMethod('setpatientList', 'PatientHistoryClass',
 setMethod('seteventTypeList', 'PatientHistoryClass',
   function (obj, eventTypeList=list()) {
      obj@eventTypelist = eventTypeList
+     
+     obj
+     })
+#----------------------------------------------------------------------------------------------------
+setMethod('setTable', 'PatientHistoryClass',
+  function (obj, tbl=data.frame()) {
+     obj@eventtable = tbl
      
      obj
      })
