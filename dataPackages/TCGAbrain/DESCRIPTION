@@ -1,8 +1,8 @@
 Package: TCGAbrain
 Type: Package
 Title: TCGAbrain: TCGA Glioblastoma & Low grade glioma data combined data for SttrDataPackage
-Version: 0.99.24
-Date: 2015-09-28
+Version: 0.99.28
+Date: 2015-10-23
 Author: Paul Shannon, Lisa McFerrin
 Maintainer: Paul Shannon <pshannon@fredhutch.org>
 Depends: R (>= 3.2.1), SttrDataPackage, org.Hs.eg.db, RUnit
