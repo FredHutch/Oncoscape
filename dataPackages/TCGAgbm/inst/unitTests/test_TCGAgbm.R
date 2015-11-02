@@ -60,16 +60,18 @@ testManifest <- function()
  
    expected.categories <- c("copy number", "history", "mRNA expression","mRNA expression", "mutations",
                                "protein abundance", "network", "geneset")
-   
    checkTrue(all(expected.categories %in% tbl$category))
+   
    expected.rownames <- c("mtx.cn.RData", "events.RData","ptHistory.RData","historyTypes.RData", "mtx.mrna.RData", "mtx.mrna.ueArray.RData", "mtx.mut.RData",
                                 "mtx.prot.RData", "markers.json.RData", "genesets.RData")
    checkTrue(all(expected.rownames %in% rownames(tbl)))
    expected.classes <- c("character", "list", "matrix")
    checkTrue(all(expected.classes %in% tbl$class))
-   checkProvenance <- function(var){
-      return(tbl[tbl$variable==var,11])
-      }
+   provenance <- tbl$provenance;
+   expected.provenance <- c("tcga cBio","tcga","tcga","tcga","tcga","tcga cBio","tcga cBio","tcga cBio","tcga cBio",
+                            "TCGA","marker.genes.545, tcga.GBM.classifiers",
+                            "manual curation by Hamid Bolouri","5 clusters; Verhaak 2010 + G-CIMP")
+   checkTrue(all(expected.provenance %in% provenance))
 
    for(i in 1:nrow(tbl)){
       file.name <- rownames(tbl)[i]
@@ -100,8 +102,6 @@ testManifest <- function()
          checkEqualsNumeric(min(x, na.rm=T), minValue, tolerance=10e-4)
          checkEqualsNumeric(max(x, na.rm=T), maxValue, tolerance=10e-4)
          }
-      provenance <- tbl$provenance[i];
-      checkEquals(checkProvenance(tbl[i,1]),provenance)
     
       } # for i
 
