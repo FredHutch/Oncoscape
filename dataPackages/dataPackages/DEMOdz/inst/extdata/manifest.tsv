@@ -1,0 +1,18 @@
+variable	class	category	subcategory	entity.count	feature.count	entity.type	feature.type	minValue	maxValue	provenance
+mtx.mrna.ueArray.RData	mtx.mrna.ueArray	matrix	mRNA expression	Z scores	20	64	patient	gene	-4.098870	5.870990	tcga ue publication
+mtx.mrna.bc.RData	mtx.mrna.bc	matrix	mRNA expression	Z scores	141	64	patient	gene	-0.234010	2.409100	tcga cBio RNAseq batch corrected
+mtx.mut.RData	mtx.mut	matrix	mutations	aa substitutions	20	64	patient	gene	NA	NA	tcga cBio
+mtx.cn.RData	mtx.cn	matrix	copy number	gistic scores	20	64	patient	gene	-2	2	tcga cBio
+events.RData	history	list	history	clinical events	201	NA	NA	NA	NA	NA	tcga
+ptHistory.RData	ptList	list	history	clinical patients	20	NA	NA	NA	NA	NA	tcga
+historyTypes.RData	catList	list	history	clinical categories	10	NA	NA	NA	NA	NA	tcga
+tbl.ptHistory.RData	tbl.ptHistory	data.frame	history	clinical table	20	162	patients	events	NA	NA	tcga
+mtx.prot.RData	mtx.prot	matrix	protein abundance	Z scores	3	171	patient	protein	-3.078013	6.46918	tcga cBio
+mtx.meth.RData	mtx.meth	matrix	methylation	beta values	9	58	patient	gene	0.01123	0.97347	tcga cBio; one probe per gene- most anti-correlated with expression
+genesets.RData	genesets	list	geneset	NA	3	NA	gene	NA	NA	NA	random selection
+markers.json.RData	g.markers.json	character	network	markers & samples	84	7	nodes	edges	NA	NA	TCGA
+pi3kAkt.json.RData	g.pi3kAkt.json	character	network	pi3k/akt pathway	690	5568	nodes	edges	NA	NA	KEGG
+egfr.json.RData	g.egfr.json	character	network	egfr signaling	32	14	nodes	edges	NA	NA	manual curation
+gbmPathways.json.RData	g.gbmPathways.json	character	network	GBM-related Pathways	156	203	nodes	edges	NA	NA	manual curation by Hamid Bolouri
+ericsEightGliomaClusters.RData	tbl.glioma8	data.frame	categorized samples	tumors	704	2	patient	cluster & color	NA	NA	8 clusters; manual curation by Eric Holland
+verhaakGbmClustersAugmented.RData	tbl.verhaakPlus1	data.frame	categorized samples	tumors	548	2	patient	cluster & color	NA	NA	5 clusters; Verhaak 2010 + G-CIMP

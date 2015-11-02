@@ -2,7 +2,7 @@ Package: TCGAlung
 Type: Package
 Title: TCGAlung: TCGA Lung adenocarcinoma and Lung squamous cell carcinomadata combined data for SttrDataPackage
 Version: 0.99.0
-Date: 2015-03-15
+Date: 2015-11-2
 Author: Paul Shannon, Lisa McFerrin, Jenny Zhang
 Maintainer: Paul Shannon <pshannon@fredhutch.org>
 Depends: R (>= 3.1.1), SttrDataPackage, org.Hs.eg.db, RUnit
