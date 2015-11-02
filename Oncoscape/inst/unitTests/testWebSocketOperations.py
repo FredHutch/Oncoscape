@@ -1379,32 +1379,11 @@ def test_eventLogging():
   assert(payload["rownames"][0:2] == ['mtx.mrna.ueArray.RData', 'mtx.mrna.bc.RData'])
   assert(result["cmd"] == callback)
   
-  msg = dumps({"cmd": "recordEvent", "status": "request", "callback": "", "payload": "op.1 starting"})
+     # for now, an absolutely minimal test:  just log one event
+  payload = {"eventName": "test", "eventStatus": "request", "moduleOfOrigin": "python ws tester", "comment": "no comment"};
+  msg = dumps({"cmd": "logEvent", "status": "request", "callback": "", "payload": payload})
   ws.send(msg)
-  
-  msg = dumps({"cmd": "recordEvent", "status": "request", "callback": "", "payload": "op.2 starting"})
-  ws.send(msg)
-  
-  msg = dumps({"cmd": "recordEvent", "status": "request", "callback": "", "payload": "op.2 complete"})
-  ws.send(msg)
-  
-  msg = dumps({"cmd": "recordEvent", "status": "request", "callback": "", "payload": "op.1 complete"})
-  ws.send(msg)
-  
-  msg = dumps({"cmd": "getLoggedEvents", "status": "request", "callback": "handleLoggedEvents", "payload": ""})
-  
-  ws.send(msg)
-  
-  result = loads(ws.recv())
-  payload = result["payload"]
-  assert(payload.keys() == ["colnames", "tbl"])
-  colnames = payload["colnames"]
-  tbl = payload["tbl"]
-  assert(colnames == ['version', 'time', 'dataset', 'msg'])
 
-  assert(tbl[0][3] == "op.1 starting")
-  assert(tbl[3][3] == "op.1 complete")
-  
 #------------------------------------------------------------------------------------------------------------------------
 interactive = (sys.argv[0] != "testWebSocketOperations.py")
 if(not(interactive)):
