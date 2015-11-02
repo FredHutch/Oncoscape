@@ -13,3 +13,8 @@ local:
 	m4 -E index.pre > index.html
 	R CMD INSTALL -l $(R_LIBS) ../../../..
 	nohup R --vanilla -f runOncoscapeApp-7788.R &
+
+pshannon:
+	m4 -E index.pre > index.html
+	R CMD INSTALL ../../../..
+	R --vanilla -f runOncoscapeApp-7788.R

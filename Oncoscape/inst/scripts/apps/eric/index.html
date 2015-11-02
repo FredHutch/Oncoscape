@@ -8,6 +8,8 @@
 
 <head>
    <meta charset="UTF-8">
+   <meta property="og:title" content="Oncoscape" />
+
    <title> OncoDev 1.4</title>
 
    <script src="http://code.jquery.com/qunit/qunit-1.18.0.js"></script>
@@ -44,6 +46,9 @@
    <script src="http://oncoscape.sttrcancer.org/oncoscape/js/chosen.jquery.min.js" type="text/javascript"></script>
    <link href="http://oncoscape.sttrcancer.org/oncoscape/css/chosen.min.css" media="screen" rel="stylesheet" type="text/css">
 
+    <link rel="SHORTCUT ICON" type="image/x-icon" href="http://oncoscape.sttrcancer.org/oncoscape/images/favicon.ico"/>
+    <link rel="ICON" type="image/x-icon" href="http://oncoscape.sttrcancer.org/oncoscape/images/favicon.ico"/>
+
 
 <script> 
 //--------------------------------------------------------------------------------------------------
@@ -58,6 +63,25 @@
   ga('send', 'pageview');
 //--------------------------------------------------------------------------------------------------
 </script> 
+
+<script>
+navigator.sayswho= (function(){
+    var ua= navigator.userAgent, tem,
+    M= ua.match(/(opera|chrome|safari|firefox|msie|trident(?=\/))\/?\s*(\d+)/i) || [];
+    if(/trident/i.test(M[1])){
+        tem=  /\brv[ :]+(\d+)/g.exec(ua) || [];
+        return 'IE '+(tem[1] || '');
+    }
+    if(M[1]!== 'Chrome'){
+       alert("Oncoscape is currently developed and tested under Chrome.  For best results, please use Chrome version 45.0 and later.")
+        tem= ua.match(/\b(OPR|Edge)\/(\d+)/);
+        if(tem!= null) return tem.slice(1).join(' ').replace('OPR', 'Opera');
+    }
+    M= M[2]? [M[1], M[2]]: [navigator.appName, navigator.appVersion, '-?'];
+    if((tem= ua.match(/version\/(\d+)/i))!= null) M.splice(1, 1, tem[1]);
+    return M.join(' ');
+})();
+</script>
 
 </head>
 
@@ -90,6 +114,10 @@ th,td {
    font-size:10pt !important;
    }
 
+.SelectionMenu{
+color: rgb(0, 0, 0); 
+background-color: rgb(255, 255, 255);
+}
 
 </style>
 
@@ -232,7 +260,6 @@ keepAlive = function()
 function runOnDocumentReadyFunctions()
 {
   setInterval(keepAlive, 10000);  // 10 seconds
-
   var funcs = getOnDocumentReadyFunctions()
   console.log("==== Module.hub: " + funcs.length + " onDocumentReadyFunctions");
 
@@ -580,6 +607,7 @@ function start()
   setupGlobalExceptionHandler();
   initializeWebSocket();
   $(document).ready(runOnDocumentReadyFunctions);
+  QUnit.config.altertitle = false;
 
 }  // start
 //----------------------------------------------------------------------------------------------------
@@ -809,7 +837,7 @@ function postStatus(msg)
 function handleWindowResize()
 {
   $("#"+thisModulesOutermostDiv).width($(window).width() * 0.95);
-  $("#"+thisModulesOutermostDiv).height($(window).height() * 0.95);
+//  $("#"+thisModulesOutermostDiv).height($(window).height() * 0.95);
 
 //  console.log("  div: " + outputDiv.width());
 //  console.log("  tbl before: " + tableElement.width());
@@ -1239,7 +1267,7 @@ function learnSliderMinAndMax(tbl, columnNumber)
   var max = -Number.MAX_VALUE;
 
   for(var r=0; r < rowCount; r++){
-    var value = Number.parseFloat(tbl[r][columnNumber]);
+    var value = parseFloat(tbl[r][columnNumber]);
     //console.log(value)
     if(value < min)
       min = value;
@@ -1668,7 +1696,7 @@ function initializeUI ()
 
   tumorCategorizationsMenu = $("#cyMarkersTumorCategorizationsMenu");
   tumorCategorizationsMenu.empty()
-  tumorCategorizationsMenu.append("<option>" + tumorCategorizationsMenuTitle + "</otpion>");
+  tumorCategorizationsMenu.append("<option>" + tumorCategorizationsMenuTitle + "</option>");
   tumorCategorizationsMenu.change(requestTumorCategorization);
 
   graphOperationsMenu = $("#cyMarkersOperationsMenu");
@@ -1730,7 +1758,6 @@ function initializeUI ()
       subSelectButton.attr("disabled", disable);
       }, 500);
  
-
 } // initializeUI
 //----------------------------------------------------------------------------------------------------
 function sendSelections(event)
@@ -2542,6 +2569,8 @@ function configureSampleCategorizationMenu(msg)
    tumorCategorizationsMenu.empty()
    var categorizations = msg.payload;
 
+   if(typeof categorizations == "string") 
+   	 categorizations = [categorizations]
    var titleOption = "Tumor Groups...";
 
    tumorCategorizationsMenu.append("<option>" + titleOption + "</option>");
@@ -4386,7 +4415,9 @@ function initializeUI ()
   pcaSendSelectionMenu = hub.configureSendSelectionMenu("#pcaSendSelectionsMenu", 
                                                         selectionDestinationsOfferedHere, sendSelections,
                                                         sendSelectionsMenuTitle);
-                                                        
+/// BUG FIX NECESSARY:		
+//  $("#pcaSendSelectionsMenu").css("display", "none")                                                     
+///
   hub.disableTab(thisModulesOutermostDiv)
  
 }; // initializeUI
@@ -5757,6 +5788,255 @@ plsr = PLSRModule();
 plsr.init();
 
 //----------------------------------------------------------------------------------------------------
+// observers used in QUnit testing
+
+var plsrStatusObserver = null;
+
+
+var PlsrTestModule = (function () {
+
+
+//--------------------------------------------------------------------------------------------
+runTests = function()
+{
+   console.log("starting PlsrTestModule runTests");
+   showTests();
+
+   testLoadDataSetAndConfigure();
+
+}; // runTests
+//--------------------------------------------------------------------------------------------
+function testLoadDataSetAndConfigure()
+{
+   var testTitle = "testLoadDataSetConfigure";
+   console.log(testTitle);
+     
+      // when our module receives the resulting 'datasetSpecified' msg, which includes the dataset's manifest
+      // in its payload, it requests
+      // ... 
+
+   if(plsrStatusObserver === null){
+      plsrStatusObserver = new MutationObserver(function(mutations) {
+        console.log("in testLoadDataSet observer");
+        hub.raiseTab("plsrDiv");
+        mutation = mutations[0];
+        plsrStatusObserver.disconnect();
+        plsrStatusObserver = null;
+        var id = mutation.target.id;
+        var msg = $("#plsrStatusDiv").text();
+        QUnit.test("plsr dataset loaded", function(assert) {
+          assert.equal($("#plsrAgeAtDxMinSliderReadout").text(), "45");
+          assert.equal($("#plsrAgeAtDxMaxSliderReadout").text(), "66");
+          assert.equal($("#plsrSurvivalMinSliderReadout").text(), "3");
+          assert.equal($("#plsrSurvivalMaxSliderReadout").text(), "7");
+          assert.equal($("#plsrGeneSetSelector").val(), "random.40");
+          assert.equal($("#plsrClearSelectionButton").prop("disabled"), true);
+          testCalculateAndDisplayPLSR();
+          });
+        }); // new MutationObserver
+      } // if null mutation observer
+
+   var config = {attributes: true, childList: true, characterData: true};
+   var target = document.querySelector("#plsrStatusDiv");
+   plsrStatusObserver.observe(target, config);
+
+     // we could use the datasets tab menu to select the dataset, then click the button.
+     // easier and quite adequate for our purposes here, however, is to simply send out the message which
+     // these ui actions create
+
+   var msg = {cmd: "specifyCurrentDataset", callback: "datasetSpecified", status: "request", payload: "DEMOdz"};
+   hub.send(JSON.stringify(msg));
+
+} // testLoadDataSetAndConfigure
+//------------------------------------------------------------------------------------------------------------------------
+testCalculateAndDisplayPLSR = function()
+{
+  var testTitle = "testCalculateAndDisplayPLSR";
+  console.log(testTitle);
+
+     // use default settings of the two sliders
+
+  $("#plsrCalculateButton").trigger("click");
+ 
+  if(plsrStatusObserver === null){
+     plsrStatusObserver = new MutationObserver(function(mutations) {
+        mutation = mutations[0];
+        plsrStatusObserver.disconnect();
+        plsrStatusObserver = null;
+        var id = mutation.target.id;
+        var msg = $("#plsrStatusDiv").text();
+        QUnit.test("plsr loaded", function(assert) {
+           var c0 = $("circle")[0];
+           var geneName = c0.innerHTML;
+           assert.ok(geneName == "PRRX1");
+           var xPos = Number(c0.getAttribute("cx"));
+           var yPos =  Number(c0.getAttribute("cy"));
+           var radius = Number(c0.getAttribute("r"));
+           assert.ok(xPos > 0);
+           assert.ok(yPos > 0);
+           assert.ok(radius > 0);
+           var axisLines = $(".line");
+          assert.equal(axisLines.length, 4);
+          for(var i=0; i < 4; i++){
+             var x1 = Number($(".line")[i].getAttribute("x1"));
+             var x2 = Number($(".line")[i].getAttribute("x2"));
+             var y1 = Number($(".line")[i].getAttribute("y1"));
+             var y2 = Number($(".line")[i].getAttribute("y2"));
+             var axisLength = Math.sqrt(Math.pow(x2-x1,2) + Math.pow(y2-y1,2));
+             console.log("extent for axis " + i + ": " + axisLength);
+             assert.ok(axisLength > 10);
+             } // for i
+           }); // QUnit.test
+         }); // new MutationObserver
+      } // if null mutation observer
+
+   var config = {attributes: true, childList: true, characterData: true};
+   var target = document.querySelector("#plsrStatusDiv");
+   plsrStatusObserver.observe(target, config);
+
+}; // testCalculateAndDisplayPLSR
+//-------------------------------------------------------------------------------------------
+oldRrunOneTest = function()
+{
+     // check for presence of all the expected tabs
+     console.log("plsr runTests");
+   
+     QUnit.test("all expected tabs present?", function(assert){
+       console.log("starting 'all expected tabs present?' test");
+       assert.equal($("#datasetsDiv").length, 1);
+       assert.equal($("#plsrDiv").length, 1);
+       });
+   
+     QUnit.test('choose DEMOdz dataset', function(assert) {
+         hub.raiseTab("datasetsDiv");
+         var desiredDataset = "DEMOdz";
+         var dzNames = $("#datasetMenu option").map(function(opt){return this.value;});
+   
+         if($.inArray(desiredDataset, dzNames) < 0){
+            alert("cannot run tests:  " + desiredDataset + " dataset not loaded");
+            return;
+            }
+   
+         $("#datasetMenu").val(desiredDataset);
+         $("#datasetMenu").trigger("change");
+   
+         var done1 = assert.async();
+         var done2 = assert.async();
+         var done3 = assert.async();
+         assert.expect(3);
+   
+         setTimeout(function(){
+            assert.equal($("#datasetMenu").val(), desiredDataset);  done1();
+            assert.ok($("#datasetsManifestTable tr").length >= 10); done2();
+            assert.equal($("#datasetsManifestTable tbody tr").eq(0).find("td").eq(0).text(), 
+                         "mRNA expression"); done3();
+            testLoadDEMOdz();
+            }, 5000);
+         });
+
+}; // runOneTest
+//----------------------------------------------------------------------------------------------------
+function testLoadDEMOdz()
+{
+   QUnit.test('load DEMOdz', function(assert) {
+      console.log("=============  starting load DEMOdz test");
+      hub.enableButton($("#selectDatasetButton"));
+      $("#selectDatasetButton").trigger("click");
+      hub.raiseTab("plsrDiv");
+      assert.expect(0);   // no tests here
+       setTimeout(function(){
+          testDEMOdzPLSRConfiguration();
+          }, 5000);
+       });
+
+} // testLoadDEMOdz
+//----------------------------------------------------------------------------------------------------
+function testDEMOdzPLSRConfiguration()
+{
+   QUnit.test('testDEMOdzPLSRConfiguration', function(assert) {
+      var minAge = $("#plsrAgeAtDxMinSliderReadout").val();
+      assert.ok(minAge == "45");
+      var maxAge = $("#plsrAgeAtDxMaxSliderReadout").val();
+      assert.ok(maxAge == "66");
+      var minSurvival = $("#plsrSurvivalMinSliderReadout").val();
+      console.log("  minSurvival: " + minSurvival);
+      assert.ok(minSurvival == "3");
+      var maxSurvival = $("#plsrSurvivalMaxSliderReadout").val();
+      console.log("  maxSurvival: " + maxSurvival);
+      assert.ok(maxSurvival == "7"); 
+      assert.ok($("#plsrGeneSetSelector").val() == "random.40");
+      testRunPLSR();
+      });
+
+} // testDEMOdzPLSRConfiguration
+//----------------------------------------------------------------------------------------------------
+function testRunPLSR()
+{
+   QUnit.test('testRunPLSR', function(assert) {
+      $("#plsrCalculateButton").trigger("click");
+       assert.expect(6); 
+       var done1 = assert.async();
+       var done2 = assert.async();
+       var done3 = assert.async();
+       var done4 = assert.async();
+       var done5 = assert.async();
+       var done6 = assert.async();
+       var done7 = assert.async();
+
+       setTimeout(function(){
+          assert.ok($("circle").length > 10); done1();
+          assert.ok($("circle").length > 10); done2();
+          var c0 = $("circle")[0];
+          var geneName = c0.innerHTML;
+          assert.ok(geneName == "PRRX1"); done3();
+          var xPos = Number(c0.getAttribute("cx"));
+          var yPos =  Number(c0.getAttribute("cy"));
+          var radius = Number(c0.getAttribute("r"));
+          assert.ok(xPos > 0); done4();
+          assert.ok(yPos > 0); done5();
+          assert.ok(radius > 0); done6();
+          var axisLines = $(".line");
+          assert.equal(axisLines.length, 4); done7();
+          for(var i=0; i < 4; i++){
+             var x1 = Number($(".line")[i].getAttribute("x1"));
+             var x2 = Number($(".line")[i].getAttribute("x2"));
+             var y1 = Number($(".line")[i].getAttribute("y1"));
+             var y2 = Number($(".line")[i].getAttribute("y2"));
+             var extent = Math.sqrt(Math.pow(x2-x1,2) + Math.pow(y2-y1,2));
+             console.log("extent: " + extent);
+             assert.ok(extent > 10);
+             } // for i
+          }, 5000);
+      });
+
+} // testRunPLSR
+//----------------------------------------------------------------------------------------------------
+showTests = function()
+{
+   $("#qunit").css({"display": "block"});
+
+}; // showTests
+//------------------------------------------------------------------------------------------------------------------------
+hideTests = function()
+{
+   $("#qunit").css({"display": "none"});
+
+}; // hide
+//------------------------------------------------------------------------------------------------------------------------
+return{
+   run: runTests,
+   show: showTests,
+   hide: hideTests
+   }; // PlsrTestModule return value
+
+//----------------------------------------------------------------------------------------------------
+}); // PlsrTestModule
+
+
+  plsrTest = PlsrTestModule();
+
+
+//----------------------------------------------------------------------------------------------------
 var UserDataStoreModule = (function () {
 
   var userID;
@@ -6504,10 +6784,9 @@ etm = ericTestModule
    </ul>
 
 <style>
- 
 </style>
 
-<div id="datasetsDiv">
+<div id="datasetsDiv" style="height:auto">
   <div id="datasetsStatusDiv" style="display:none"></div>
   <div id="dataSummaryControlsDiv">
      <span id="selectDataSetMenuLabel" style="margin-left: 20px;">Available Datasets</span>
@@ -6515,13 +6794,14 @@ etm = ericTestModule
      <button id="selectDatasetButton">Use Dataset</button>
 	 <span id="loadingDatasetMessage" style="display:none; margin-left:10px">Loading Dataset...</span>
      <select type="button" id="datasetsSendSelectionsMenu" style="float:right; margin:15px; display: none"></select>
+    <div id="oncoscapeLogo" style="float:right; margin-right:0.5em">	<img width="175" src="http://oncoscape.sttrcancer.org/oncoscape/images/oncoscape_logo_TM.png" alt="Oncoscape"/></div>
   </div>
 
    <div id="dataSetNamesOutputDiv" style="margin: 20px;"></div>
 
    <div id="dataSummaryOutputDiv" style="margin: 20px;overflow-x:auto">
       <div id="datasetInstructions">Please select a dataset from the above menu.</div>
-      <table id="datasetsManifestTable" class="display" cellpadding="0" cellspacing="0" border="1" style="margin:0px; width:auto; display:none"></table>
+      <table id="datasetsManifestTable" class="display" cellpadding="0" cellspacing="0" style="margin:0px; width:auto; display:none; border:none"></table>
    </div>
 </div>
 
@@ -6585,6 +6865,9 @@ etm = ericTestModule
   padding-right:0px;
   }
 
+.ColVis_collection{
+width:auto;
+}
 
 </style>
 
@@ -6633,7 +6916,7 @@ etm = ericTestModule
            </div>
 
      <button id="patientHistoryShowAllRowsButton" type="button">Reset</button>
-     <select type="button" id="patientHistorySendSelectionsMenu" style="float:right; margin:15px"></select>
+     <select class="SelectionMenu" type="button" id="patientHistorySendSelectionsMenu" style="float:right; margin:15px"></select>
 
 
   </div>
@@ -6706,7 +6989,7 @@ markersAndTissuesMouseOverReadout{
 }
 
 .chosen-container { width:350px !important; 
-                    height:25px;
+                    height:auto;
                     font-size:8pt;}
 iframe {
 display: initial !important;
@@ -6730,10 +7013,10 @@ display: initial !important;
    <div id="markersAndTissuesButtonDiv" style="margin-bottom: 0px; margin-top: 8px;">
       <input type="text" id="markersAndTissuesMouseOverReadout" disabled value="(names displayed here)"></input>
 
-     <select id="cyMarkersOperationsMenu" class="navbar-form selectpicker" style="font-size:8pt"></select>
-     <select id="cyMarkersTumorCategorizationsMenu" style="font-size:8pt"></select>
+     <select id="cyMarkersOperationsMenu" type="button" class="btn btn-primary navbar-form selectpicker SelectionMenu" style="font-size:11pt"></select>
+     <select id="cyMarkersTumorCategorizationsMenu" class="SelectionMenu" style="font-size:8pt;"></select>
       
-     <select class="chosen-select form-control dropdown navbar-form selectpicker" 
+     <select class="chosen-select form-control dropdown navbar-form selectpicker SelectionMenu" 
                     style="width:280px;font-size:12pt"
                     data-placeholder="Select edge types to display" 
                     multiple id="markersEdgeTypeSelector">
@@ -6745,10 +7028,10 @@ display: initial !important;
        </select>
      
  
-   <input  type="text" id="markersAndTissuesSearchBox" placeholder="search" style="width:100px;font-size:8pt"></input>
-   <select type="button" id="cyMarkersSendSelectionsMenu" style="float:right; margin-right:15px"></select>
+   <input  type="text" id="markersAndTissuesSearchBox" placeholder="search" style="width:100px;font-size:11pt"></input>
+   <select class="SelectionMenu" type="button" id="cyMarkersSendSelectionsMenu" style="float:right; margin-right:15px"></select>
  
-   <select class="btn btn-primary selectpicker" type="button" id="markerLayouts"
+   <select class="btn btn-primary selectpicker SelectionMenu" type="button" id="markerLayouts"
             name="markerLayoutMenu"></select>
    <button id="markersSubSelectButton">Subselect</button>
  
@@ -6836,7 +7119,7 @@ $("#gbmPathwaysMovieButton").click(function(){
       -->
       <button id="gbmViewAbstractsButton" type="button" class="btn btn-info navbar-btn btn-xs">Enable Abstracts</button>
       <button id="gbmZoomSelectedButton" type="button" class="btn btn-info navbar-btn btn-xs">Zoom Selected</button>
-      <select type="button" id="gbmPathwaysSendSelectionMenu" style="float:right; margin-right:15px"></select>
+      <select class="SelectionMenu" type="button" id="gbmPathwaysSendSelectionMenu" style="float:right; margin-right:15px"></select>
     </div>
 
    <div id="cyGbmPathwaysDiv" class="content" style="margin:0 auto" ></div>
@@ -7056,10 +7339,10 @@ color: #808080;
    <div id="pcaStatusDiv" style="display:none"></div>
    <div id="pcaControlsDiv">
        <button id="pcaClearSelectionButton" style="margin-bottom: 5px;">Clear Selection</button>
-       <select id="pcaGeneSetSelector" style="margin-bottom: 5px;"></select>
+       <select class="SelectionMenu" id="pcaGeneSetSelector" style="margin-bottom: 5px;"></select>
        <button id="pcaCalculateButton" style="margin-bottom: 5px;">Calculate</button>
        <button id="pcaUseAllSamplesButton" style="margin-bottom: 5px;">Use All Samples in Current Dataset</button>
-       <select type="button" id="pcaSendSelectionsMenu" style="float:right; margin-right:15px"></select>
+       <select class= "SelectionMenu" type="button" id="pcaSendSelectionsMenu" style="float:right; margin-right:15px"></select>
    </div>
 
 
@@ -7193,10 +7476,10 @@ background:#ABD3E8;
        <div id="plsrCalculateButtonDiv" class="flex-container" style="margin-right: auto; margin-top:15px;">
           <button id="plsrClearSelectionButton" style="height:50px;">Clear<br>Selection</button>
           <button id="plsrCalculateButton" style="height:50px;">Calculate</button>
-          <select id="plsrGeneSetSelector" style="height:20px; margin-top:15px; margin-left:3px;" class="navbar-form selectpicker" ></select>
+          <select class="SelectionMenu" id="plsrGeneSetSelector" style="height:20px; margin-top:15px; margin-left:3px;" class="navbar-form selectpicker" ></select>
        </div>
       <div id="plsrSendSelectionsMenuDiv" style="margin-right:10px; margin-top: 25px;">
-         <select id="plsrSendSelectionsMenu" type="button" style="margin-top: 7px;"></select>
+         <select class="SelectionMenu" id="plsrSendSelectionsMenu" type="button" style="margin-top: 7px;"></select>
       </div>
   </div>
  
@@ -7322,6 +7605,9 @@ input     { display: table-cell; }
 
 </div>
 
+
+<div id="qunit" style="display:none"></div>
+<div id="qunit-fixture"></div>
 
 </div>
 
