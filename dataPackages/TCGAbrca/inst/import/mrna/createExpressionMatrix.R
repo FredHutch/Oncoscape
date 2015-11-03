@@ -10,6 +10,7 @@
 #
 #----------------------------------------------------------------------------------------------------
 library(RUnit)
+library(R.utils)
 
 #--------------------mrna_Agilent------------------------
 table.mrna <- read.table(file="../../../../RawData/TCGAbrca/mysql_cbio_mrna2013_Agi.csv", header=F, skip=3, as.is=T)
