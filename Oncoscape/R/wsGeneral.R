@@ -40,7 +40,9 @@ logEvent <- function(ws, msg)
 {
   payload <- msg$payload
   field.names <- names(payload)
-  stopifnot(field.names == c("eventName", "eventStatus", "moduleOfOrigin", "comment"))
+  printf("--- field.names: %d", length(field.names))
+  print(field.names)
+  stopifnot(sort(field.names) == c("comment", "eventName", "eventStatus", "moduleOfOrigin"))
 
    # secs, dataset, time, version are all obtained locally
 
