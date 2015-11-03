@@ -155,7 +155,7 @@ testCopyNumber <- function()
    load(file)
    checkTrue(exists("mtx.cn"))
    checkTrue(is(mtx.cn, "matrix"))
-   checkEquals(dim(mtx.cn), c(515,22184))
+   checkEquals(dim(mtx.cn), c(1079,22184))
 
      # all colnames should be recognzied gene symbols.  no isoform suffixes yet
 #   checkTrue(all(colnames(mtx.cn) %in% keys(org.Hs.egSYMBOL2EG)))
@@ -268,7 +268,7 @@ testMatrixAndDataframeAccessors <- function()
    dp <- TCGAbrca();
    checkTrue("mtx.cn" %in% names(matrices(dp)))
    samples <- head(entities(dp, "mtx.cn"), n=3)
-   checkEquals(samples, c("TCGA.05.4244.01", "TCGA.05.4249.01", "TCGA.05.4250.01"))
+   checkEquals(samples, c("TCGA.3C.AAAU.01", "TCGA.3C.AALI.01","TCGA.3C.AALJ.01"))
     
 
 } # testMatrixAndDataframeAccessors

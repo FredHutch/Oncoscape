@@ -99,7 +99,7 @@ function analyzeSelectedTissues(IDs)
    console.log("Oncoprint module, hub.send 'oncoprint_data_selection' for %d IDs",
                IDs.length);
    if(IDs.length > 350){
-   		alert("Please choose less than 108 Nodes");
+   		alert("Please choose less than 350 Nodes");
    }else{
 	   var payload = {sampleIDs: IDs};
 	   var msg = {cmd:"oncoprint_data_selection", callback: "displayOncoprint", status: "request", 
@@ -160,6 +160,7 @@ function displayOncoprint(msg)
 				onc.setTrackData(track_id[i], data_gene, true);
 				if (tracks_to_load === 0) {
 					onc.releaseRendering();
+					onc.sort();
 				};
 			})
 	   		
@@ -169,18 +170,21 @@ function displayOncoprint(msg)
 			for(i = 0; i < genes.length; i++){
 				gene = genes[i];
 			
-				var data_gene = processed_data.filter(function(obj){return obj.gene === gene});     
+				var data_gene = processed_data.filter(function(obj){return obj.gene === gene}); 
+				    
 				$.when(processed_data).then(function() {
 					track_id[i] = onc.addTrack({label: gene, removable:true}, 0);
 					tracks_to_load -= 1;
 					if(i == 0){
 						onc.setRuleSet(track_id[i], Oncoprint.GENETIC_ALTERATION);
+						
 					}else{
 						onc.useSameRuleSet(track_id[i], track_id[0]);
 					}
 					onc.setTrackData(track_id[i], data_gene, true);
 					if (tracks_to_load === 0) {
 						onc.releaseRendering();
+						onc.sort();
 					};
 				})
 				}

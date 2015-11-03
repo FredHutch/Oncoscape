@@ -9,7 +9,6 @@ ws = create_connection("ws://localhost:6001")
 def runTests():
 
   test_ping()
-#  bug()
   test_serverVersion();
   test_getDataFrame();
   test_getUserID();
@@ -25,7 +24,6 @@ def runTests():
   #userDataStoreTests()   # need environment variable, lost within emacs/ess
 
   test_getPatientHistoryDxAndSurvivalMinMax()
-  test_getDrugGeneInteractions()
 
      # TODO: recent changes to DEMOdz include expression matrices far too large, breaking these
      # TODO: data-specific tests.  fix this!  (pshannon 14aug2015)
@@ -33,8 +31,10 @@ def runTests():
   test_getMarkersNetwork()
   test_getPathway();
 
-  #test_pca()   # contains 3 more granular tests
+  #test_pca()  # contains 3 more granular tests
   test_plsr()  # contains 3 more granular tests
+
+  test_eventLogging()
 
   print "OK:  all python websocket json tests passed"
 
@@ -1297,7 +1297,6 @@ def test_plsrCalculateSmallTwoFactors():
   loadingNames = payload["loadingNames"]
   assert(loadingNames == genesOfInterest)
   assert(len(vectors) == 4)
-  print vectors
   assert(len(loadings) == 10)
   maxValue = payload["maxValue"]
   print maxValue
@@ -1360,6 +1359,30 @@ def testManyGenesTwoFactors():
   maxValue = payload["maxValue"]
   assert(maxValue > 0.50)
   assert(maxValue < 0.60)
+
+#------------------------------------------------------------------------------------------------------------------------
+def test_eventLogging():
+
+  print "--- test_eventLogging"
+
+  cmd = "specifyCurrentDataset"
+  callback = "datasetSpecified"
+  dataset = "DEMOdz";
+  payload = dataset
+  
+     # set a legitimate dataset
+  msg = dumps({"cmd": cmd, "status": "request", "callback": callback, "payload": payload})
+  ws.send(msg)
+  result = loads(ws.recv())
+  payload = result["payload"]
+  assert(payload.keys() == ['datasetName', 'mtx', 'rownames', 'colnames'])
+  assert(payload["rownames"][0:2] == ['mtx.mrna.ueArray.RData', 'mtx.mrna.bc.RData'])
+  assert(result["cmd"] == callback)
+  
+     # for now, an absolutely minimal test:  just log one event
+  payload = {"eventName": "test", "eventStatus": "request", "moduleOfOrigin": "python ws tester", "comment": "no comment"};
+  msg = dumps({"cmd": "logEvent", "status": "request", "callback": "", "payload": payload})
+  ws.send(msg)
 
 #------------------------------------------------------------------------------------------------------------------------
 interactive = (sys.argv[0] != "testWebSocketOperations.py")

@@ -103,18 +103,20 @@ function initializeUI ()
    searchBox = $("#markersAndTissuesSearchBox");
 
    edgeTypeSelector = $("#markersEdgeTypeSelector");
+   edgeTypeSelector.chosen();
+
    mouseOverReadout = $("#markersAndTissuesMouseOverReadout");
    configureCytoscape();
-   $(".chosen-select").chosen();
+   //$(".chosen-select").chosen();
    $(window).resize(handleWindowResize);
 
    subSelectButton = $("#markersSubSelectButton");
    subSelectButton.click(subSelectNodes);
 
-  if(hub.socketConnected())
-     runAutomatedTestsIfAppropriate();
-  else
-     hub.addSocketConnectedFunction(runAutomatedTestsIfAppropriate);
+  //if(hub.socketConnected())
+  //   runAutomatedTestsIfAppropriate();
+  //else
+  //   hub.addSocketConnectedFunction(runAutomatedTestsIfAppropriate);
 
    setInterval(function(){
       var count = cwMarkers.nodes("node:selected").length;
@@ -123,7 +125,7 @@ function initializeUI ()
       subSelectButton.attr("disabled", disable);
       }, 500);
       
-   hub.disableTab(thisModulesOutermostDiv)
+   hub.disableTab(thisModulesOutermostDiv);
  
 } // initializeUI
 //----------------------------------------------------------------------------------------------------
@@ -321,16 +323,19 @@ function subSelectNodes()
 //----------------------------------------------------------------------------------------------------
 function requestTumorCategorization()
 {
+  var allCategoryNames = tumorCategorizationsMenu.children().map(function() {return $(this).val();}).get();
+  var menuTitle = allCategoryNames[0];
   var categorizationName = tumorCategorizationsMenu.val();
+  if(categorizationName === menuTitle)
+     return;
+     
   console.log("apply " + categorizationName);
-  recordEvent(userID + " markersApplyTumorCategorization request");
+  hub.logEventOnServer(thisModulesName, "markersApplyTumorCategorization", "request", "");
 
   var msg = {cmd: "getSampleCategorization", callback: "markersApplyTumorCategorization",
              status: "request", payload: categorizationName};
 
   hub.send(JSON.stringify(msg));
-
-  tumorCategorizationsMenu.val(tumorCategorizationsMenuTitle);
 
 } // requestTumorCategorization
 //----------------------------------------------------------------------------------------------------
@@ -340,7 +345,8 @@ function applyTumorCategorization(msg)
    var tumorsInGraph = cwMarkers.nodes("[nodeType='patient']");
    var tumorsInTable = msg.payload.rownames;
    var tbl = msg.payload.tbl;
-   recordEvent(userID + " markersApplyTumorCategorization data received");
+   hub.logEventOnServer(thisModulesName, "markersApplyTumorCategorization", "data received", "");
+
 
    tumorsInGraph.forEach(function(node, index){
       var nodeID = node.id();  // our convention is that this is the tumor name, eg, "TCGA.02.0014"
@@ -355,8 +361,8 @@ function applyTumorCategorization(msg)
        }); // forEach
 
   cwMarkers.style().update();
-  recordEvent(userID + " markersApplyTumorCategorization complete");
-
+  postStatus("applyTumorCategorization complete");
+  hub.logEventOnServer(thisModulesName, "markersApplyTumorCategorization", "node subType assigned", "");
 
 } // applyTumorCategorization
 //----------------------------------------------------------------------------------------------------
@@ -476,7 +482,8 @@ function handleIncomingIdentifiers(msg)
       errorMessage = "No overlap with genes or tissue sample IDs:  <br><br>" +
                       ids.join(", ");
       title = ids.length + " unrecognized identifiers";
-      $('<div />').html(errorMessage).dialog({title: title, width:600, height:300});
+      console.log("+++++++++++ creating error div");
+      $('<div id="markersIncomingIdentifiersErrorDialog" />').html(errorMessage).dialog({title: title, width:600, height:300});
       }
 
    console.log("about to post status from incoming identifiers");
@@ -858,7 +865,9 @@ function doSearch(e)
 function displayMarkersNetwork(msg)
 {
    console.log("--- Module.markers: displayMarkersNetwork");
-   //console.log(msg)
+
+   hub.logEventOnServer(thisModulesName, "display markers network", "data received", "");
+
    if(msg.status == "success"){
       console.log("nchar(network): " + msg.payload.length);
       var json = JSON.parse(msg.payload);
@@ -885,8 +894,15 @@ function displayMarkersNetwork(msg)
       var defaultLayout = JSON.stringify(cwMarkers.nodes().map(function(n){
                                          return({id:n.id(), position:n.position()});}));
       localStorage.markersDefault = defaultLayout;
-      postStatus("markers network displayed");
-      recordEvent(userID + " display markers network complete");
+      hub.logEventOnServer(thisModulesName, "display markers network", "complete", "");
+
+        //postStatus("markers network displayed");  // deferred; set when the category menu is configured
+
+      hub.logEventOnServer(thisModulesName, "getSampleCategorizationNames", "request", "");
+
+      var msg2 = {cmd: "getSampleCategorizationNames", callback: "configureSampleCategorizationMenu",
+                  status: "request", payload: ""};
+      hub.send(JSON.stringify(msg2));
       }
    else{
      console.log("displayMarkersNetwork error: " + msg.payload);
@@ -919,14 +935,6 @@ function updateEdgeSelectionWidget(edgeTypes)
 
 } // updateEdgeSelectionWidget
 //----------------------------------------------------------------------------------------------------
-function recordEvent(payload)
-{
-   console.log("about to recordEvent: " + payload);
-
-   hub.send(JSON.stringify({cmd: "recordEvent", callback:"", status:"request", payload: payload}));
-
-} // recordEvent
-//----------------------------------------------------------------------------------------------------
 // called when the a dataset has been specified, typically via the Datasets tab, which presents
 // the user with a list of the datasets they are able to use, from which they choose one at a time
 // as their current working dataset.
@@ -935,16 +943,10 @@ function datasetSpecified (msg)
 {
    var datasetName = msg.payload;
 
-   recordEvent(userID + " display markers network request ");
+   hub.logEventOnServer(thisModulesName, "display markers network", "request", "");
+
    var newMsg = {cmd: "getMarkersNetwork",  callback: "displayMarkersNetwork", status: "request", payload: datasetName};
    hub.send(JSON.stringify(newMsg));
-
-   recordEvent(userID + " getSampleCategorizationNames ");
-
-   var msg2 = {cmd: "getSampleCategorizationNames", callback: "configureSampleCategorizationMenu",
-               status: "request", payload: ""};
-
-   hub.send(JSON.stringify(msg2));
 
 } // datasetSpecified
 //----------------------------------------------------------------------------------------------------
@@ -967,114 +969,14 @@ function configureSampleCategorizationMenu(msg)
      } // for i
 
    tumorCategorizationsMenu.val(titleOption);
-   recordEvent(userID + " getSampleCategorizationNames complete");
+   hub.logEventOnServer(thisModulesName, "getSampleCategorizationNames",  "complete", "");
    
-   hub.enableTab(thisModulesOutermostDiv)
+   hub.enableTab(thisModulesOutermostDiv);
+   postStatus("markers network displayed");
 
 } // configureSampleCategorizationMenu
 //----------------------------------------------------------------------------------------------------
-function gbmLggDzSpecificTests()
-{
-   QUnit.test("markersAndSamples: basic network test", function(assert){
-      console.log("============= starting basic network test");
-      assert.expect(2);
-      console.log("about to check node count");
-      assert.ok(cwMarkers.nodes().length > 1500);
-      console.log("about to check edge count");
-      assert.ok(cwMarkers.edges().length > 13000);
-      console.log("end of test");
-      });
 
-  QUnit.test("markersAndSamples: select EGFR", function(assert){
-     cwMarkers.nodes().unselect();
-     assert.ok(cwMarkers.filter("node:selected").length === 0);
-     cwMarkers.$("#EGFR").select();
-     assert.ok(cwMarkers.filter("node:selected").length === 1);
-     });
-
-
-  QUnit.test("markersAndSamples: choose edge types", function(assert){
-     edgeTypes = $("#markersEdgeTypeSelector option").map(function(opt){return(this.value);});
-     var desiredEdgeType = "chromosome";
-
-     if($.inArray(desiredEdgeType, edgeTypes) < 0){
-        alert("cannot run tests:  " + desiredEdgeType + " edgeType not available");
-        return;
-        }
-
-     $("#markersEdgeTypeSelector").val(desiredEdgeType);
-     $("#markersEdgeTypeSelector").trigger("change");
-     console.log("=== edge type selected: " + $("#markersEdgeTypeSelector").val());
-     assert.equal($("#markersEdgeTypeSelector").val(), desiredEdgeType);
-     assert.equal(cwMarkers.filter("node:selected").length, 1);
-       // now restore the original settings. 
-     $("#markersEdgeTypeSelector").val(["chromosome", "mutation", "cnGain.2", "cnLoss.2", "cnGain.1", "cnLoss.1"]);
-     $("#markersEdgeTypeSelector").trigger("change");
-     });
-
-  QUnit.test("markersAndSamples: select chrom edges from EGFR", function(assert){
-      var desiredAction = "Show Edges from Selected Nodes";
-      var actions = $("#cyMarkersOperationsMenu option").map(function(x) {return(this.value);});
-
-      if($.inArray(desiredAction, actions) < 0){
-         alert("cannot run tests:  " + desiredAction + " not available");
-         return;
-         }
-
-     cwMarkers.edges().hide();
-     assert.equal(cwMarkers.filter("edge:visible").length, 0);
-     $("#cyMarkersOperationsMenu").val(desiredAction);
-     $("#cyMarkersOperationsMenu").trigger("change");
-     assert.expect(1); // specify number of assertions which should run
-     setTimeout(function() {  // takes a little while for the edge to be rendered
-        assert.equal(cwMarkers.filter("edge:visible").length, 1);
-        }, 2000);
-     });
-
-
-  QUnit.test("markersAndSamples: search and select EGFR", function(assert){
-     cwMarkers.nodes().unselect();
-     assert.equal(cwMarkers.filter("node:selected").length, 0);
-     var targetNode = "EGFR";
-     $("#markersAndTissuesSearchBox").val(targetNode);
-     var e = jQuery.Event("keydown");
-     e.which = 13;  
-     $("#markersAndTissuesSearchBox").trigger(e);
-     var selectedNode = cwMarkers.filter("node:selected");
-     assert.equal(selectedNode.length, 1);
-     assert.equal(selectedNode.data().id, targetNode);
-     });
-
-
-} // gbmLggDzSpecificTests
-//----------------------------------------------------------------------------------------------------
-// query the oncoscape server for user id.  the callback then makes a local (that is,
-// Module-specific) decision to run this module's automated tests based upon that id
-function runAutomatedTestsIfAppropriate()
-{
-   var msg = {cmd: "getUserId",  callback: "markersAssessUserIdForTesting", status: "request", payload: ""};
-   hub.send(JSON.stringify(msg));
-
-} // runAutomatedTestsIfAppropriate
-//----------------------------------------------------------------------------------------------------
-function assessUserIdForTesting(msg)
-{
-   userID = msg.payload;
-   userID = userID.toLowerCase();
-
-   console.log("markersAndSamples/Module.js assesUserIdForTesting: " + userID);
-   
-   if(userID.indexOf("autotest") === 0){
-      console.log("markersAndSamples/Module.js running tests for user " + userID);
-      var datasetNames = $("#datasetMenu").children().map(function() {return $(this).val();}).get();
-         // delete any empty strings
-      datasetNames = datasetNames.filter(function(e) {return (e.length > 0);});
-      markersTester.run(datasetNames);
-      console.log("back from markersTester.run()");
-      }
-
-} // assessUserIdForTesting
-//----------------------------------------------------------------------------------------------------
  return{
      init: function(){
         hub.addMessageHandler("sendSelectionTo_MarkersAndPatients", handleIncomingIdentifiers);
@@ -1083,9 +985,6 @@ function assessUserIdForTesting(msg)
         hub.addMessageHandler("displayMarkersNetwork", displayMarkersNetwork);
         hub.addMessageHandler("configureSampleCategorizationMenu", configureSampleCategorizationMenu);
         hub.addMessageHandler("markersApplyTumorCategorization", applyTumorCategorization);
-        hub.addMessageHandler("markersAssessUserIdForTesting", assessUserIdForTesting);
-        //hub.addSocketConnectedFunction(runAutomatedTestsIfAppropriate);
-        //hub.addDocumentReadyFunction(runAutomatedTestsIfAppropriate);
         hub.addOnDocumentReadyFunction(initializeUI);
        }
      };

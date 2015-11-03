@@ -13,6 +13,6 @@ pid:
 
 test:
 	m4 -E index.pre > index.html
-	R CMD INSTALL ../../..
+	R CMD INSTALL ../../../..
 	R --vanilla -f runOncoplexAsServer.R
 
