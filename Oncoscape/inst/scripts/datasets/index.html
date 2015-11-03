@@ -22,7 +22,7 @@
            href="http://ajax.googleapis.com/ajax/libs/jqueryui/1.8.7/themes/smoothness/jquery-ui.css">
 
    <script src="http://oncoscape.sttrcancer.org/oncoscape/js/cytoscape-2.4.4.min.js"></script>
-   <!-- script src="http://oncoscape.sttrcancer.org/oncoscape/js/cytoscape-2.5.0.js"></script -->
+   <!-- script src="http://oncoscape.sttrcancer.org/oncoscape/js/cytoscape-2.5.0-u6.js"></script -->
 
    <script src="http://oncoscape.sttrcancer.org/oncoscape/js/jquery.cytoscape.js-panzoom.js"></script>
    <link   href="http://oncoscape.sttrcancer.org/oncoscape/css/jquery.cytoscape.js-panzoom.css" 
@@ -147,7 +147,7 @@ var HubModule = (function () {
   var onDocumentReadyFunctions = [];
   var socketURI = window.location.href.replace("http://", "ws://");
   var socket;
-
+  
   var  messagingRestrictedToLogin = false;
 
   var modules = {};
@@ -646,9 +646,11 @@ function start()
 
 }  // start
 //----------------------------------------------------------------------------------------------------
-function logEventOnServer(payload)
+function logEventOnServer(moduleOfOrigin, eventName, eventStatus, comment)
 {
-   console.log("about to logEvent: " + payload);
+   console.log("about to logEvent: " + eventName);
+   payload= {eventName: eventName, eventStatus: eventStatus, 
+             moduleOfOrigin: moduleOfOrigin, comment: comment};
 
    hub.send(JSON.stringify({cmd: "logEvent", callback: "", status: "request", payload: payload}));
 
@@ -757,7 +759,9 @@ var moduleTests = [];
 //----------------------------------------------------------------------------------------------------
 var TestManagerModule = (function () {
 
-   var mdoules = {};
+   var loopStatusObserver = null;
+
+   var loopStatusDiv = "#testManagerLoopStatusDiv";
 
 //----------------------------------------------------------------------------------------------------
 function initializeModule()
@@ -793,14 +797,13 @@ function assessUserIdForTesting(msg)
    var datasetNames = msg.payload.datasets;
    if(typeof(datasetNames) === "string")
       datasetNames = [datasetNames];
-   
+
+     // currently restricted to just one module:
+     // mutation observer pacing not yet worked out with multiple modules tested successively
+     
    console.log("testManager/Module.js assessUserIdForTesting: " + userID);
-   
    if(userID.indexOf("autotest") === 0){
       console.log("testManager/Module.js running tests for user " + userID);
-      //var datasetNames = $("#datasetMenu").children().map(function() {return $(this).val();}).get();
-         // delete any empty strings
-      //datasetNames = datasetNames.filter(function(e) {return (e.length > 0);});
       var start = userID.indexOf(".");
       var end = userID.indexOf("@");
       var reps = 1;
@@ -813,18 +816,65 @@ function assessUserIdForTesting(msg)
       console.log("runTests: " + JSON.stringify(datasetNames));
       console.log("reps: " + reps);
       console.log("exitOnCompletion: " + exitOnCompletion);
+      //runTests(datasetNames, reps, exitOnCompletion);
 
-      moduleTests[0].run(datasetNames, reps, exitOnCompletion);
-      console.log("back from <module>Tester.run()");
-      }
+        // the individual modules should not exitOnCompletion
+      var modulesExitOnCompletion = false;
+      for(var i=0; i < moduleTests.length; i++){
+         console.log("about to run <module>Tester.run(), loop " + i);
+         moduleTests[0].run(datasetNames, reps, exitOnCompletion);
+         } // var i
+       
+      //if(exitOnCompletion){
+      //   var payload = {errorCount: Object.keys(sessionStorage).length,
+      //                  errors: JSON.stringify(sessionStorage)};
+      //   var exitMsg = {cmd: "exitAfterTesting", callback: "", status: "request", payload: payload};
+      //   console.log("about to send exitAfterTesting msg to server");
+      //   hub.send(JSON.stringify(exitMsg));
+      //   } // if exitOnCompletion
+      } // if userID == autotest
 
 } // assessUserIdForTesting
 //----------------------------------------------------------------------------------------------------
 function runTests(datasetNames, reps, exitOnCompletion)
 {
-   console.log("runTests: " + JSON.stringify(datasetNames));
-   console.log("reps: " + reps);
-   console.log("exitOnCompletion: " + exitOnCompletion);
+
+   var config = {attributes: true, childList: true, characterData: true};
+   var target =  document.querySelector(loopStatusDiv);
+
+   var testIndex = -1;
+
+   var onMutation = function(mutations){
+      mutation = mutations[0];
+      loopStatusObserver.disconnect();
+      loopStatusObserver = null;
+      var id = mutation.target.id;
+      var msg = $(loopStatusDiv).text();
+      console.log("test status changed, text: " + msg);
+      testIndex++;
+      if(testIndex < moduleTests.length){
+         console.log("about to test module " + testIndex);
+	 loopStatusObserver = new MutationObserver(onMutation);
+         loopStatusObserver.observe(target, config);
+         var moduleExitOnCompletion = false;
+         moduleTests[testIndex].run(datasetNames, reps, moduleExitOnCompletion);
+	 }
+      else{
+         console.log("mutation observer function detected end of moduleTests array");
+         if(exitOnCompletion){
+            var payload = {errorCount: Object.keys(sessionStorage).length,
+	                   errors: JSON.stringify(sessionStorage)};
+            var exitMsg = {cmd: "exitAfterTesting", callback: "", status: "request", payload: payload};
+            console.log("about to send exitAfterTesting msg to server");
+            hub.send(JSON.stringify(exitMsg));
+	    } // if exitOnCompletion
+	 } // else: datasets exhaused
+      }; // onMutation function
+
+   loopStatusObserver = new MutationObserver(onMutation);
+   loopStatusObserver.observe(target, config);
+
+   $(loopStatusDiv).text("start testing");   // mutate the target
 
 } // runTests
 //----------------------------------------------------------------------------------------------------
@@ -837,7 +887,7 @@ function runTests(datasetNames, reps, exitOnCompletion)
 });  // TestManagerMdoule
 //----------------------------------------------------------------------------------------------------
 testManager = TestManagerModule();
-testManager.init();
+hub.addOnDocumentReadyFunction(testManager.init);
 hub.addOnDocumentReadyFunction(function() {
     console.log("====== tabapps document ready");
     window.tabsAppRunning = true
@@ -1200,11 +1250,21 @@ var DatasetsTestModule = (function () {
        // to detect when the full test of a dataset is complete, so that the next dataset can be tested
        // the div watched here is in test.html
 
-
 //------------------------------------------------------------------------------------------------------------------------
 function runTests(datasetNames, reps, exitOnCompletion)
 {
-   console.log("runTests, first make sure dataset menu is loaded");
+   console.log("===================================== Test.datasets: runTests");
+   console.log("--- first make sure dataset menu is loaded");
+
+      // the "Available Datasets" menu must be loaded before we start.
+      // this happens automatically, but may NOT have happened by the
+      // time this function executes.
+      // therefore define a mutation observer, and use it (see below) only if
+      // the menu is not loaded.
+
+      // once the menu is loaded, iterate over the datasets, making sure
+      // that any dataset menu change results in the display of
+      // data table with the manifest of that dataset
 
    if(datasetsMinorStatusObserver === null){
       datasetsMinorStatusObserver = new MutationObserver(function(mutations) {
@@ -1226,15 +1286,18 @@ function runTests(datasetNames, reps, exitOnCompletion)
    var target = document.querySelector(minorStatusDiv);
 
    var allNames = $("#datasetMenu").children().map(function() {return $(this).val();}).get();
-   allNames.filter(function(e) {return (e.length > 0);});
-   //console.log("found these names in the available datasets menu: " + JSON.stringify(allNames));
+     // filtering  deferred.  unlike R, js returns a scalar rather than a 1-element array.
+     // this could be accomodated by checking type, but not just yet... (pshannon, 27oct15)
+     // allNames.filter(function(e) {return (e.length > 0);});
+     //console.log("found these names in the available datasets menu: " + JSON.stringify(allNames));
    
-   if(allNames.length > 1){
+   if(allNames.length > 1){   // expect an empty (blank) first menu line
       console.log("found menu already loaded, preceeding to iterate");
       iterateOverDatasets(datasetNames, reps, exitOnCompletion);
       }
    else{
       console.log("no names in menu, watching target");
+        // the target is mutated at the conclusion of Module.datasets:handleDatSetName
       datasetsMinorStatusObserver.observe(target, config);
       }
 
@@ -1245,7 +1308,11 @@ function iterateOverDatasets(datasetNames, reps, exitOnCompletion)
      // run through the specified number repetitions of the test, operating upon
      // each dataset in turn.
      // condition the next test upon the completion of the preceeding one,
-     // which is detected by a change to the "status div"
+     // which is detected by a change to the majorStatusDiv
+     // (recall that the minorStatusDiv is modified by Module.js whenever a crucial
+     // UI change has occurred, whereas majorStatusDiv is only user here, in
+     // the Test module, to iterate over the datasets, ensuring that tests on
+     // each one are complete before starting the next one.
       
    console.log("runTests: " + JSON.stringify(datasetNames));
    console.log("reps: " + reps);
@@ -1341,6 +1408,7 @@ function markEndOfTestingDataSet()
 {
   console.log("end of testing dataset");
   $(majorStatusDiv).text("dataset complete");
+  $("#testManagerLoopStatusDiv").text("Test.datasets,  dataset complete");
   
 } // markEndOfTestingDataSet
 //------------------------------------------------------------------------------------------------------------------------
