@@ -18,7 +18,7 @@ var HubModule = (function () {
   var onDocumentReadyFunctions = [];
   var socketURI = window.location.href.replace("http://", "ws://");
   var socket;
-
+  
   var  messagingRestrictedToLogin = false;
 
   var modules = {};
@@ -196,7 +196,7 @@ function dispatchMessage(msg)
 {
    var cmd = msg.cmd;
    var status = msg.status;
-   console.log("====== Mondule.hub dispatchMessage '" + cmd + "' [" + Date() + "]" );
+   console.log("====== Module.hub dispatchMessage '" + cmd + "' [" + Date() + "]" );
 
    var dispatchKeys = Object.keys(dispatchOptions);
    var cmdIndex = dispatchKeys.indexOf(cmd);
@@ -337,11 +337,11 @@ function disableAllTabsExcept(tabIDstring)
   return allDivIDs;  //returns divIDs that have been disabled
   
 } // disableTab
-
 //--------------------------------------------------------------------------------------------
 function disableTab(tabIDstring)
 {
   $( "#oncoscapeTabs" ).tabs( "disable", "#" + tabIDstring  )
+
 } // disableTab
 //--------------------------------------------------------------------------------------------
 function enableTab(tabIDstring)
@@ -364,7 +364,8 @@ function raiseTab(tabIDString)
      var selectionString = '#oncoscapeTabs a[href="#' + tabIDString + '"]';
      var tabIndex = $(selectionString).parent().JAVASCRIPT_INDEX ();
      if(tabIndex < 0) throw "Module.hub does not recognize tabIDString '" + tabIDString + "'";
-     tabsWidget.tabs( "option", "active", tabIndex);
+     console.log("Module.hub:raiseTab for '" + tabIDString + "' (" + tabIndex + ") set to active'");
+     setTimeout(function(){tabsWidget.tabs( "option", "active", tabIndex);}, 0);
      } // if tabs exist
 
 } // raiseTab
@@ -516,6 +517,16 @@ function start()
 
 }  // start
 //----------------------------------------------------------------------------------------------------
+function logEventOnServer(moduleOfOrigin, eventName, eventStatus, comment)
+{
+   console.log("about to logEvent: " + eventName);
+   payload= {eventName: eventName, eventStatus: eventStatus, 
+             moduleOfOrigin: moduleOfOrigin, comment: comment};
+
+   hub.send(JSON.stringify({cmd: "logEvent", callback: "", status: "request", payload: payload}));
+
+} // logEventOnServer
+//----------------------------------------------------------------------------------------------------
 function test_intersectionOfArrays()
 {
    console.log("---  test_intersectionOfArrays");
@@ -602,7 +613,8 @@ function standAloneTest()
      showTab: showTab,
      addTab: addTab,
      sat: standAloneTest,
-     start: start
+     start: start,
+     logEventOnServer: logEventOnServer
      });
 
 }); // HubModule

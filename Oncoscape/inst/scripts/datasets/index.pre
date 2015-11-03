@@ -1,14 +1,31 @@
 include(../m4-workarounds.txt)
 include(../index.common)
 include(../common.css)
+
 <script>
+
 include(../hub/Module.js)
 var hub = HubModule();
 hub.start();
+
+include(../testManager/Module.js)
+include(../tabsApp/code.js)
 include(Module.js)
-hub.registerModule("Datasets", dataSummaryModule);
+include(Test.js)
+
 </script>
+
 <body>
-include(widget.html)
+
+<div id="oncoscapeTabs">
+   <ul>
+     <li><a href="#datasetsDiv">Datasets</a></li>
+     <li><a href="#datasetsTestDiv">Tests</a></li>
+   </ul>
+
+include(../datasets/widget.html)
+include(test.html)
+</div>
+
 </body>
 </html>

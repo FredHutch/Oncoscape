@@ -35,15 +35,21 @@ testManifest <- function()
    checkTrue(file.exists(file))
    
    tbl <- read.table(file, sep="\t", as.is=TRUE)
-   checkEquals(dim(tbl), c(8, 11))
+   checkEquals(ncol(tbl), 11)
+   checkTrue(nrow(tbl) >= 7)
+
    checkEquals(colnames(tbl), c("variable", "class", "category", "subcategory",
                                 "entity.count", "feature.count", "entity.type",
                                 "feature.type", "minValue", "maxValue", "provenance"))
  
-   checkEquals(tbl$category, c("copy number", "history", "mRNA expression", "mRNA expression", "mutations", "protein abundance","methylation","methylation"))
-   checkEquals(rownames(tbl), c("mtx.cn.RData", "history.RData", "mtx.mrna_Seq.RData", "mtx.mrna_Agi.RData", "mtx.mut.RData", "mtx.prot.RData", "mtx.methHM450.RData", "mtx.methHM27.RData"))
-   checkEquals(sort(tbl$class), c("list", "matrix", "matrix", "matrix", "matrix", "matrix", "matrix", "matrix"))
-
+   expected.categories <- c("copy number", "history", "mRNA expression", "mutations",
+                               "protein abundance")
+   
+   checkTrue(all(expected.categories %in% tbl$category))
+   expected.rownames <- c("mtx.cn.RData", "events.RData","ptHistory.RData","historyTypes.RData", 
+                          "tbl.ptHistory.RData", "mtx.mrna_Seq.RData","mtx.mrna_Agi.RData",
+                          "mtx.mut.RData","mtx.prot.RData","mtx.methHM450.RData","mtx.methHM27.RData") 
+   checkTrue(all(expected.rownames %in% rownames(tbl)))
    for(i in 1:nrow(tbl)){
       file.name <- rownames(tbl)[i]
       full.name <- file.path(dir, file.name)
@@ -269,10 +275,10 @@ testConstructor <- function()
    print("--- testConstructor")
 
    dp <- TCGAluad();
-   checkEquals(dim(manifest(dp)), c(8, 11))
-   checkEquals(length(matrices(dp)), 7)
-   checkEquals(names(matrices(dp)), c("mtx.cn","mtx.mrna","mtx.mrna", "mtx.mut", "mtx.prot", "mtx.meth", "mtx.meth"))
-   checkEquals(eventCount(history(dp)), 5502)
+   checkEquals(ncol(manifest(dp)), 11)
+   checkTrue(nrow(manifest(dp)) >= 7)
+   checkTrue(length(matrices(dp)) >= 5)
+   checkTrue(eventCount(history(dp)) > 5000)
    
 } # testConstructor
 #--------------------------------------------------------------------------------
@@ -295,7 +301,7 @@ testHistoryList <- function()
    ptHistory <- history(dp)
    checkTrue(is(ptHistory, "PatientHistoryClass"))
 
-   events <- getList(ptHistory)
+   events <- geteventList(ptHistory)
    checkEquals(length(events), 5502)
     
    event.counts <- as.list(table(unlist(lapply(events,

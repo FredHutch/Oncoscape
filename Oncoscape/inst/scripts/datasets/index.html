@@ -3,6 +3,88 @@
 
 
 
+<!DOCTYPE html> 
+<html>
+
+<head>
+   <meta charset="UTF-8">
+   <meta property="og:title" content="Oncoscape" />
+
+   <title> OncoDev 1.4</title>
+
+   <script src="http://code.jquery.com/qunit/qunit-1.18.0.js"></script>
+   <link rel="stylesheet" href="http://code.jquery.com/qunit/qunit-1.18.0.css">
+
+   <script src="http://oncoscape.sttrcancer.org/oncoscape/js/jquery-2.1.3.min.js"></script>
+   <!-- script src="http://oncoscape.sttrcancer.org/oncoscape/js/jquery-1.11.2.min.js"></script-->
+   <script src="http://oncoscape.sttrcancer.org/oncoscape/js/jquery-ui-1.11.4.min.js"></script>
+   <link   rel="stylesheet" type="text/css"
+           href="http://ajax.googleapis.com/ajax/libs/jqueryui/1.8.7/themes/smoothness/jquery-ui.css">
+
+   <script src="http://oncoscape.sttrcancer.org/oncoscape/js/cytoscape-2.4.4.min.js"></script>
+   <!-- script src="http://oncoscape.sttrcancer.org/oncoscape/js/cytoscape-2.5.0-u6.js"></script -->
+
+   <script src="http://oncoscape.sttrcancer.org/oncoscape/js/jquery.cytoscape.js-panzoom.js"></script>
+   <link   href="http://oncoscape.sttrcancer.org/oncoscape/css/jquery.cytoscape.js-panzoom.css" 
+           rel="stylesheet" 
+           type="text/css">
+
+
+   <script src="http://oncoscape.sttrcancer.org/oncoscape/js/d3.min.js"></script>
+
+   <script src="http://oncoscape.sttrcancer.org/oncoscape/js/jquery.dataTables-1.10.5.min.js"></script>
+   <link   rel="stylesheet" type="text/css"
+           href="http://oncoscape.sttrcancer.org/oncoscape/css/jquery.dataTables-1.10.5.min.css">
+
+   <script src="http://cdn.datatables.net/colvis/1.1.0/js/dataTable.colVis.js"></script>
+
+   <link   rel="stylesheet" type="text/css"
+           href="http://cdn.datatables.net/colvis/1.1.0/css/dataTables.colVis.css">
+
+   <script src="http://oncoscape.sttrcancer.org/oncoscape/js/jquery.multi-select.js" type="text/javascript"></script>
+   <link href="http://oncoscape.sttrcancer.org/oncoscape/css/multi-select.css" media="screen" rel="stylesheet" type="text/css">
+   <script src="http://oncoscape.sttrcancer.org/oncoscape/js/chosen.jquery.min.js" type="text/javascript"></script>
+   <link href="http://oncoscape.sttrcancer.org/oncoscape/css/chosen.min.css" media="screen" rel="stylesheet" type="text/css">
+
+    <link rel="SHORTCUT ICON" type="image/x-icon" href="http://oncoscape.sttrcancer.org/oncoscape/images/favicon.ico"/>
+    <link rel="ICON" type="image/x-icon" href="http://oncoscape.sttrcancer.org/oncoscape/images/favicon.ico"/>
+
+
+<script> 
+//--------------------------------------------------------------------------------------------------
+// hooks for google analytics
+
+  (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
+  (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
+  m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
+  })(window,document,'script','//www.google-analytics.com/analytics.js','ga');
+ 
+  ga('create', 'UA-528883-29', 'auto');
+  ga('send', 'pageview');
+//--------------------------------------------------------------------------------------------------
+</script> 
+
+<script>
+navigator.sayswho= (function(){
+    var ua= navigator.userAgent, tem,
+    M= ua.match(/(opera|chrome|safari|firefox|msie|trident(?=\/))\/?\s*(\d+)/i) || [];
+    if(/trident/i.test(M[1])){
+        tem=  /\brv[ :]+(\d+)/g.exec(ua) || [];
+        return 'IE '+(tem[1] || '');
+    }
+    if(M[1]!== 'Chrome'){
+       alert("Oncoscape is currently developed and tested under Chrome.  For best results, please use Chrome version 45.0 and later.")
+        tem= ua.match(/\b(OPR|Edge)\/(\d+)/);
+        if(tem!= null) return tem.slice(1).join(' ').replace('OPR', 'Opera');
+    }
+    M= M[2]? [M[1], M[2]]: [navigator.appName, navigator.appVersion, '-?'];
+    if((tem= ua.match(/version\/(\d+)/i))!= null) M.splice(1, 1, tem[1]);
+    return M.join(' ');
+})();
+</script>
+
+</head>
+
 <style>
 
 .flex-container {
@@ -32,70 +114,19 @@ th,td {
    font-size:10pt !important;
    }
 
+.ui-dialog .ui-dialog-titlebar-close span{ margin:0 }
+
+.SelectionMenu{
+color: rgb(0, 0, 0); 
+background-color: rgb(255, 255, 255);
+}
 
 </style>
 
 
-<!DOCTYPE html> 
-<html>
-
-<head>
-   <meta charset="UTF-8">
-   <title> OncoDev 1.4</title>
-
-   <script src="http://code.jquery.com/qunit/qunit-1.18.0.js"></script>
-   <link rel="stylesheet" href="http://code.jquery.com/qunit/qunit-1.18.0.css">
-
-   <script src="http://oncoscape.sttrcancer.org/oncoscape/js/jquery-2.1.3.min.js"></script>
-   <!-- script src="http://oncoscape.sttrcancer.org/oncoscape/js/jquery-1.11.2.min.js"></script-->
-   <script src="http://oncoscape.sttrcancer.org/oncoscape/js/jquery-ui-1.11.4.min.js"></script>
-   <link   rel="stylesheet" type="text/css"
-           href="http://ajax.googleapis.com/ajax/libs/jqueryui/1.8.7/themes/smoothness/jquery-ui.css">
-
-   <!-- script src="http://oncoscape.sttrcancer.org/oncoscape/js/cytoscape-2.3.10.min.js"></script -->
-   <script src="http://oncoscape.sttrcancer.org/oncoscape/js/cytoscape-2.4.4.min.js"></script>
-
-   <script src="http://oncoscape.sttrcancer.org/oncoscape/js/jquery.cytoscape.js-panzoom.js"></script>
-   <link   href="http://oncoscape.sttrcancer.org/oncoscape/css/jquery.cytoscape.js-panzoom.css" 
-           rel="stylesheet" 
-           type="text/css">
-
-
-   <script src="http://oncoscape.sttrcancer.org/oncoscape/js/d3.min.js"></script>
-
-   <script src="http://oncoscape.sttrcancer.org/oncoscape/js/jquery.dataTables-1.10.5.min.js"></script>
-   <link   rel="stylesheet" type="text/css"
-           href="http://oncoscape.sttrcancer.org/oncoscape/css/jquery.dataTables-1.10.5.min.css">
-
-   <script src="http://cdn.datatables.net/colvis/1.1.0/js/dataTable.colVis.js"></script>
-
-   <link   rel="stylesheet" type="text/css"
-           href="http://cdn.datatables.net/colvis/1.1.0/css/dataTables.colVis.css">
-
-   <script src="http://oncoscape.sttrcancer.org/oncoscape/js/jquery.multi-select.js" type="text/javascript"></script>
-   <link href="http://oncoscape.sttrcancer.org/oncoscape/css/multi-select.css" media="screen" rel="stylesheet" type="text/css">
-   <script src="http://oncoscape.sttrcancer.org/oncoscape/js/chosen.jquery.min.js" type="text/javascript"></script>
-   <link href="http://oncoscape.sttrcancer.org/oncoscape/css/chosen.min.css" media="screen" rel="stylesheet" type="text/css">
-
-
-<script> 
-//--------------------------------------------------------------------------------------------------
-// hooks for google analytics
-
-  (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
-  (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
-  m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
-  })(window,document,'script','//www.google-analytics.com/analytics.js','ga');
- 
-  ga('create', 'UA-528883-29', 'auto');
-  ga('send', 'pageview');
-//--------------------------------------------------------------------------------------------------
-</script> 
-
-</head>
-
 
 <script>
+
 //----------------------------------------------------------------------------------------------------
 // These javascript functions and variables are arranged into a simple module so that
 // implementation details are kept private from the public API other oncoscape 
@@ -116,7 +147,7 @@ var HubModule = (function () {
   var onDocumentReadyFunctions = [];
   var socketURI = window.location.href.replace("http://", "ws://");
   var socket;
-
+  
   var  messagingRestrictedToLogin = false;
 
   var modules = {};
@@ -126,6 +157,12 @@ function registerModule(name, moduleObject)
    modules[name] = moduleObject;
 
 } // registerModule
+//----------------------------------------------------------------------------------------------------
+function getModuleNames()
+{
+   return(Object.getOwnPropertyNames(modules));
+
+} // getModuleNames
 //----------------------------------------------------------------------------------------------------
 function getModules()
 {
@@ -166,13 +203,12 @@ function setupSocket(socket)
         } // socked.onopen
 
      socket.onmessage = function got_packet(msg) {
-        //console.log("=== Hub, socket.onmessage");
         var msg = JSON.parse(msg.data)
         dispatchMessage(msg)
         } // socket.onmessage, got_packet
 
      socket.onclose = function(){
-        console.log("socket closing");
+        alert("Web socket connection to server has closed");
         } // socket.onclose
      } // try
   catch(exception) {
@@ -226,7 +262,7 @@ keepAlive = function()
 //--------------------------------------------------------------------------------------------------
 function runOnDocumentReadyFunctions()
 {
-  setInterval(keepAlive, 30000);
+  setInterval(keepAlive, 10000);  // 10 seconds
   var funcs = getOnDocumentReadyFunctions()
   console.log("==== Module.hub: " + funcs.length + " onDocumentReadyFunctions");
 
@@ -289,7 +325,7 @@ function dispatchMessage(msg)
 {
    var cmd = msg.cmd;
    var status = msg.status;
-   //console.log("=============== dispatching '" + cmd + "'");
+   console.log("====== Module.hub dispatchMessage '" + cmd + "' [" + Date() + "]" );
 
    var dispatchKeys = Object.keys(dispatchOptions);
    var cmdIndex = dispatchKeys.indexOf(cmd);
@@ -374,6 +410,37 @@ function configureSendSelectionMenu(menuSelector, excludedModules, changeFunctio
 
 } // createSendSelectionMenu
 //--------------------------------------------------------------------------------------------
+// from http://stackoverflow.com/questions/4068373/center-a-popup-window-on-screen
+function openCenteredBrowserWindow(url, title, w, h, replaceAnyExistingPopup) {
+      // Fixes dual-screen position                       Most browsers      Firefox
+    var dualScreenLeft = window.screenLeft != undefined ? window.screenLeft : screen.left;
+    var dualScreenTop = window.screenTop != undefined ? window.screenTop : screen.top;
+    width = window.innerWidth ? window.innerWidth : document.documentElement.clientWidth ? document.documentElement.clientWidth : screen.width;
+    height = window.innerHeight ? window.innerHeight : document.documentElement.clientHeight ? document.documentElement.clientHeight : screen.height;
+
+    var left = ((width / 2) - (w / 2)) + dualScreenLeft;
+    var top = ((height / 2) - (h / 2)) + dualScreenTop;
+    var options = 'scrollbars=yes, width=' + w + ', height=' + h + ', top=' + top + ', left=' + left;
+
+    var newWindow;
+
+      // warning, a bug: when multiple popup windows are created, they
+      // all have the same content -- not what we want.  fix this
+      // by severing their relationship, and/or switching to jQuery dialog
+
+    if(replaceAnyExistingPopup)
+      newWindow = window.open(url, title, options);
+    else // leave any existing popup windows untouched
+      newWindow = window.open(url, "_blank", options);
+
+    if (window.focus) {
+       newWindow.focus();
+       }
+       
+    return newWindow;
+
+} // openCenteredBrowserWindow
+//--------------------------------------------------------------------------------------------
 function disableButton(button)
 {
    button.prop("disabled", true);
@@ -389,6 +456,29 @@ function enableButton(button)
 
 } // enableButton
 //--------------------------------------------------------------------------------------------
+function disableAllTabsExcept(tabIDstring)
+{
+  if(typeof tabIDstring == "string") tabIDstring = [tabIDstring]
+  var allDivIDs = getTabDivIDs()
+  allDivIDs = allDivIDs.filter(function(i, id){ return(tabIDstring.indexOf(id) == -1) })
+  for(var i=0;i<allDivIDs.length; i++){  	disableTab(allDivIDs[i]) }
+  
+  return allDivIDs;  //returns divIDs that have been disabled
+  
+} // disableTab
+//--------------------------------------------------------------------------------------------
+function disableTab(tabIDstring)
+{
+  $( "#oncoscapeTabs" ).tabs( "disable", "#" + tabIDstring  )
+
+} // disableTab
+//--------------------------------------------------------------------------------------------
+function enableTab(tabIDstring)
+{
+  $( "#oncoscapeTabs" ).tabs( "enable", "#" + tabIDstring   )
+} // enableTab
+
+//--------------------------------------------------------------------------------------------
 // if jQuery-style tabs are in use with Oncoscape, this function raised the named tab to the
 // the front (visible) position in the tabset
 // the argument, "tabIDString" is the tab id used in the module's widget.html, reproduced exactly
@@ -403,13 +493,26 @@ function raiseTab(tabIDString)
      var selectionString = '#oncoscapeTabs a[href="#' + tabIDString + '"]';
      var tabIndex = $(selectionString).parent().index ();
      if(tabIndex < 0) throw "Module.hub does not recognize tabIDString '" + tabIDString + "'";
-     tabsWidget.tabs( "option", "active", tabIndex);
+     console.log("Module.hub:raiseTab for '" + tabIDString + "' (" + tabIndex + ") set to active'");
+     setTimeout(function(){tabsWidget.tabs( "option", "active", tabIndex);}, 0);
      } // if tabs exist
 
 } // raiseTab
 //----------------------------------------------------------------------------------------------------
 // each of our tabs is a div, nested directly within $("oncoscapeTabs").  
 // this function returns an array of each of the div ids
+function getTabNames()
+{
+  var tabNames = $("#oncoscapeTabs").children()[0].textContent.trim().split("\n")
+  for (i=0;i< tabNames.length; i++){ tabNames[i] = tabNames[i].trim()}
+  tabNames =tabNames.filter(function(name){return name != ""})
+
+	return tabNames;
+
+} // getTabDivIDs
+//----------------------------------------------------------------------------------------------------
+// each of our tabs has a title within the $("oncoscapeTabs") nav bar
+// this function returns an array of each tab Title
 function getTabDivIDs()
 {
    return ($("#oncoscapeTabs").children("div").map(function(index,dom){return dom.id}));
@@ -421,6 +524,13 @@ function hideTab(tabTitle, tabDivIDstring)
 {
   $(".ui-tabs-nav li:contains('" + tabTitle + "')").hide()
   $(tabDivIDstring).hide();
+
+} // hideTab
+//----------------------------------------------------------------------------------------------------
+// e.g., hub.hideTabNav("Login");
+function hideTabNav(tabTitle)
+{
+  $(".ui-tabs-nav li:contains('" + tabTitle + "')").hide()
 
 } // hideTab
 //----------------------------------------------------------------------------------------------------
@@ -439,6 +549,17 @@ function showTab(tabTitle, tabDivIDstring)
   $(tabDivIDstring).show();
 
 } // showTab
+//----------------------------------------------------------------------------------------------------
+function addTab(tabTitle, tabDivIDstring,  content)
+{
+  var tabs = $("#oncoscapeTabs").tabs()
+  var listItem = "<li><a href='#" + tabDivIDstring + "}'>" + tabTitle + "</a>";
+
+  tabs.find(".ui-tabs-nav").append(listItem);
+  tabs.append("<div id='" + tabDivIDstring + "'><p>" + content + "</p></div>");
+  tabs.tabs("refresh");
+
+} // addTab
 //----------------------------------------------------------------------------------------------------
 function getRandomFloat (min, max)
 {
@@ -521,8 +642,19 @@ function start()
   setupGlobalExceptionHandler();
   initializeWebSocket();
   $(document).ready(runOnDocumentReadyFunctions);
+  QUnit.config.altertitle = false;
 
 }  // start
+//----------------------------------------------------------------------------------------------------
+function logEventOnServer(moduleOfOrigin, eventName, eventStatus, comment)
+{
+   console.log("about to logEvent: " + eventName);
+   payload= {eventName: eventName, eventStatus: eventStatus, 
+             moduleOfOrigin: moduleOfOrigin, comment: comment};
+
+   hub.send(JSON.stringify({cmd: "logEvent", callback: "", status: "request", payload: payload}));
+
+} // logEventOnServer
 //----------------------------------------------------------------------------------------------------
 function test_intersectionOfArrays()
 {
@@ -590,8 +722,12 @@ function standAloneTest()
      getDispatchOptions: getDispatchOptions,
      dispatchMessage: dispatchMessage,
      configureSendSelectionMenu: configureSendSelectionMenu,
+     openCenteredBrowserWindow: openCenteredBrowserWindow,
      enableButton: enableButton,
      disableButton: disableButton,
+     enableTab: enableTab,
+     disableTab: disableTab,
+     disableAllTabsExcept: disableAllTabsExcept,
      getRandomInt: getRandomInt,
      getRandomFloat: getRandomFloat,
      intersectionOfArrays: intersectionOfArrays,
@@ -599,11 +735,15 @@ function standAloneTest()
      send: send,
      setTitle: setTitle,
      getTabDivIDs: getTabDivIDs,
+     getTabNames: getTabNames,
      raiseTab: raiseTab,
      hideTab: hideTab,
+     hideTabNav: hideTabNav,
      showTab: showTab,
+     addTab: addTab,
      sat: standAloneTest,
-     start: start
+     start: start,
+     logEventOnServer: logEventOnServer
      });
 
 }); // HubModule
@@ -613,6 +753,141 @@ function standAloneTest()
 var hub = HubModule();
 hub.start();
 
+// testManager/Module.js
+//----------------------------------------------------------------------------------------------------
+var moduleTests = [];
+//----------------------------------------------------------------------------------------------------
+var TestManagerModule = (function () {
+
+   var loopStatusObserver = null;
+
+   var loopStatusDiv = "#testManagerLoopStatusDiv";
+
+//----------------------------------------------------------------------------------------------------
+function initializeModule()
+{
+  console.log("--- entering Module.testManager.initializeModule");
+  
+  hub.addMessageHandler("testManagerAssessUserIdForTesting", assessUserIdForTesting);
+
+  if(hub.socketConnected())
+     runAutomatedTestsIfAppropriate();
+  else
+     hub.addSocketConnectedFunction(runAutomatedTestsIfAppropriate);
+    
+} // initializeModule
+//----------------------------------------------------------------------------------------------------
+// query the oncoscape server for user id.  the callback then makes a local (that is,
+// Module-specific) decision to run this module's automated tests based upon that id
+function runAutomatedTestsIfAppropriate()
+{
+   var msg = {cmd: "getUserInfo",  callback: "testManagerAssessUserIdForTesting", status: "request", payload: ""};
+   hub.send(JSON.stringify(msg));
+
+} // runAutomatedTestsIfAppropriate
+//----------------------------------------------------------------------------------------------------
+function assessUserIdForTesting(msg)
+{
+   console.log("---- Module.testManager, payload: ");
+   console.log(JSON.stringify(msg.payload));
+   
+   var userID = msg.payload.userID;
+   userID = userID.toLowerCase();
+
+   var datasetNames = msg.payload.datasets;
+   if(typeof(datasetNames) === "string")
+      datasetNames = [datasetNames];
+
+     // currently restricted to just one module:
+     // mutation observer pacing not yet worked out with multiple modules tested successively
+     
+   console.log("testManager/Module.js assessUserIdForTesting: " + userID);
+   if(userID.indexOf("autotest") === 0){
+      console.log("testManager/Module.js running tests for user " + userID);
+      var start = userID.indexOf(".");
+      var end = userID.indexOf("@");
+      var reps = 1;
+      if(start > 0 && end > 0)
+        reps = parseInt(userID.slice(start+1, end));
+      var exitOnCompletion = false;
+      if(userID.indexOf("exitoncompletion") > 0)
+          exitOnCompletion = true;
+
+      console.log("runTests: " + JSON.stringify(datasetNames));
+      console.log("reps: " + reps);
+      console.log("exitOnCompletion: " + exitOnCompletion);
+      //runTests(datasetNames, reps, exitOnCompletion);
+
+        // the individual modules should not exitOnCompletion
+      var modulesExitOnCompletion = false;
+      for(var i=0; i < moduleTests.length; i++){
+         console.log("about to run <module>Tester.run(), loop " + i);
+         moduleTests[0].run(datasetNames, reps, exitOnCompletion);
+         } // var i
+       
+      //if(exitOnCompletion){
+      //   var payload = {errorCount: Object.keys(sessionStorage).length,
+      //                  errors: JSON.stringify(sessionStorage)};
+      //   var exitMsg = {cmd: "exitAfterTesting", callback: "", status: "request", payload: payload};
+      //   console.log("about to send exitAfterTesting msg to server");
+      //   hub.send(JSON.stringify(exitMsg));
+      //   } // if exitOnCompletion
+      } // if userID == autotest
+
+} // assessUserIdForTesting
+//----------------------------------------------------------------------------------------------------
+function runTests(datasetNames, reps, exitOnCompletion)
+{
+
+   var config = {attributes: true, childList: true, characterData: true};
+   var target =  document.querySelector(loopStatusDiv);
+
+   var testIndex = -1;
+
+   var onMutation = function(mutations){
+      mutation = mutations[0];
+      loopStatusObserver.disconnect();
+      loopStatusObserver = null;
+      var id = mutation.target.id;
+      var msg = $(loopStatusDiv).text();
+      console.log("test status changed, text: " + msg);
+      testIndex++;
+      if(testIndex < moduleTests.length){
+         console.log("about to test module " + testIndex);
+	 loopStatusObserver = new MutationObserver(onMutation);
+         loopStatusObserver.observe(target, config);
+         var moduleExitOnCompletion = false;
+         moduleTests[testIndex].run(datasetNames, reps, moduleExitOnCompletion);
+	 }
+      else{
+         console.log("mutation observer function detected end of moduleTests array");
+         if(exitOnCompletion){
+            var payload = {errorCount: Object.keys(sessionStorage).length,
+	                   errors: JSON.stringify(sessionStorage)};
+            var exitMsg = {cmd: "exitAfterTesting", callback: "", status: "request", payload: payload};
+            console.log("about to send exitAfterTesting msg to server");
+            hub.send(JSON.stringify(exitMsg));
+	    } // if exitOnCompletion
+	 } // else: datasets exhaused
+      }; // onMutation function
+
+   loopStatusObserver = new MutationObserver(onMutation);
+   loopStatusObserver.observe(target, config);
+
+   $(loopStatusDiv).text("start testing");   // mutate the target
+
+} // runTests
+//----------------------------------------------------------------------------------------------------
+
+  return({
+     init: initializeModule,
+     run: runTests
+     });
+
+});  // TestManagerMdoule
+//----------------------------------------------------------------------------------------------------
+testManager = TestManagerModule();
+hub.addOnDocumentReadyFunction(testManager.init);
 hub.addOnDocumentReadyFunction(function() {
     console.log("====== tabapps document ready");
     window.tabsAppRunning = true
@@ -632,15 +907,18 @@ hub.addOnDocumentReadyFunction(function() {
                } // if
             //console.log(" ==== tab.activate, possible cyjs resize and fit");
             if(typeof(cwMarkers) != "undefined") {
-               //console.log("adjusting cwMarkers");
-               cwMarkers.resize(); 
-               cwMarkers.fit(50);
-               //console.log("done adjusting cwMarkers");
+              console.log("adjusting cwMarkers? " + cwMarkers.width() + " * " + cwMarkers.height());
+               if(cwMarkers.width() > 0){
+                  cwMarkers.resize(); 
+                  console.log("after resize");
+                  cwMarkers.fit(50);
+                  console.log("done adjusting cwMarkers");
+		  }
                }
-            if(typeof(cwGbm) != "undefined") {
+            if(typeof(cyGbm) != "undefined") {
                //console.log("adjusting cwGbm");
-               cwGbm.resize();
-               cwGbm.fit(50);
+               cyGbm.resize();
+               cyGbm.fit(50);
                //console.log("done adjusting cwGbm");
                }
             if(typeof(cwAngio) != "undefined") {
@@ -649,19 +927,16 @@ hub.addOnDocumentReadyFunction(function() {
                cwAngio.fit(50);
                //console.log("done adjusting cwGbm");
                }
+            if(typeof(cyPathway) != "undefined") {
+               cyPathway.resize();
+               cyPathway.fit(50);
+               }
             } // activate
         }); // tabs
     });  // ready
 
 
 
-</script>
-<style>
-.ui-tabs .ui-tabs-nav li a {font-size:10pt !important;}
-.ui-button .ui-button-text {font-size:10pt !important;}
-</style>
-
-<script>
 //----------------------------------------------------------------------------------------------------
 var DataSummaryModule = (function () {
 
@@ -669,7 +944,7 @@ var DataSummaryModule = (function () {
 
   var outputDiv;
   var dataSetNamesOutputDiv;
-  var thisModulesName = "datasets";
+  var thisModulesName = "Datasets";
   var thisModulesOutermostDiv = "datasetsDiv";
 
   var tableElement;
@@ -694,7 +969,6 @@ function initializeUI()
   $(window).resize(handleWindowResize);
   datasetMenu = $("#datasetMenu");
   datasetMenu.change(selectManifest);
-  //hub.disableButton($("#datasetMenu"))
 
   dataSetNamesOutputDiv = $("#dataSetNamesOutputDiv");
   dataSummaryDiv = $("#dataSummaryOutputDiv");
@@ -707,22 +981,41 @@ function initializeUI()
   outputDiv = $("#dataSummaryOutputDiv");
   tableElement = $("#datasetsManifestTable");
       
-  //console.log("===== Module.datasets, about to hide my div");
+    // if no login tab is present, then allow unrestricted choice of datasets.
+    // if it IS present, then that tab will control this.
 
-  //$("#datasetsDiv").hide();
+  var loginRequired = $("#loginDiv").length === 1;
+  console.log("loginRequired? " + loginRequired);
+
+  if(!loginRequired){
+    console.log(" enabling datasetMenu");
+    hub.enableButton($("#datasetMenu"));
+    }
+  else{
+    console.log(" disabling datasetMenu");
+    hub.disableButton($("#datasetMenu"));
+    }
+
+   if(hub.socketConnected())
+      populateDataSetMenu();
+   else
+     hub.addSocketConnectedFunction(populateDataSetMenu);
 
 } // initializeUI
 //----------------------------------------------------------------------------------------------------
+function postStatus(msg)
+{
+   $("#datasetsStatusDiv").text(msg);   // todo: this is obsolete
+   $("#datasetsMinorStatusDiv").text(msg);
+   
+} // postStatus
+//----------------------------------------------------------------------------------------------------
 function handleWindowResize()
 {
-  console.log("==== Module.datasets handleWindowResize");
-
-  console.log("  window: " + $(window).width());
-
   $("#"+thisModulesOutermostDiv).width($(window).width() * 0.95);
-  $("#"+thisModulesOutermostDiv).height($(window).height() * 0.95);
-//  console.log("  div: " + outputDiv.width());
+//  $("#"+thisModulesOutermostDiv).height($(window).height() * 0.95);
 
+//  console.log("  div: " + outputDiv.width());
 //  console.log("  tbl before: " + tableElement.width());
 //  tableElement.width($(window).width() * 0.50);
 //  console.log("  tbl after: " + tableElement.width());
@@ -751,14 +1044,13 @@ function selectManifest(event)
    console.log("dataset '" + selectedDataSet + "'");
 
    if(selectedDataSet === ""){
-     // outputDiv.empty();
-      $("#datasetInstructions").css("display", "block")
-      $("#datasetsManifestTable").css("display", "none")
+      $("#datasetInstructions").css("display", "block");
+      $("#datasetsManifestTable").css("display", "none");
       hub.disableButton(useThisDatasetButton);
       }
     else{
-      $("#datasetInstructions").css("display", "none")
-      $("#datasetsManifestTable").css("display", "block")      
+      $("#datasetInstructions").css("display", "none");
+      $("#datasetsManifestTable").css("display", "block");
       requestDataSetSummary(selectedDataSet);
     }
 
@@ -766,12 +1058,12 @@ function selectManifest(event)
 //----------------------------------------------------------------------------------------------------
 function populateDataSetMenu()
 {
-   $(datasetMenu).ready(function() {
-      console.log("=== datasetMenu ready, now issuing populateDataSetMenu request to server");
-      var msg = {cmd: "getDataSetNames",  callback: "handleDataSetNames", status: "request", 
-                 payload: ""};
-      hub.send(JSON.stringify(msg));
-      });
+   console.log("Module.datasets, entering populateDataSetMenu");
+
+   console.log("      socket connected? " + hub.socketConnected());
+   console.log("=== datasetMenu ready, now issuing populateDataSetMenu request to server");
+   var msg = {cmd: "getDataSetNames",  callback: "handleDataSetNames", status: "request", payload: ""};
+   hub.send(JSON.stringify(msg));
 
 } // populateDataSetMenu
 //----------------------------------------------------------------------------------------------------
@@ -780,6 +1072,9 @@ function handleDataSetNames(msg)
    console.log("=== handleDataSetNames");
    
    var dataSetNames = msg.payload.datasets;
+   console.log("dataSetNames length: " + dataSetNames.length);
+   console.log("dataSetNames: " + JSON.stringify(dataSetNames));
+
    var passwordProtected = msg.payload.passwordProtected;
 
    if(!Array.isArray(dataSetNames))
@@ -790,9 +1085,7 @@ function handleDataSetNames(msg)
       datasetMenu.append("<option value='" + s + "'>" + s + "</option>");
       }
 
-  if(passwordProtected)
-     hub.disableButton($("#datasetMenu"));
-
+  $("#datasetsMinorStatusDiv").text("datasetMenu loaded");
 
 } // handleDataSetNames
 //----------------------------------------------------------------------------------------------------
@@ -859,14 +1152,18 @@ function displayDataManifest(msg)
 
      handleWindowResize();
      hub.enableButton(useThisDatasetButton);
+     postStatus("manifest table displayed");
      }); // tableElement.ready
 
 } // displayDataManifest
 //----------------------------------------------------------------------------------------------------
 function specifyCurrentDataset()
 {
-   console.log("specifyCurrentDataset: " + selectedDataSet);
-
+   console.log("Module.datasets 'Use Dataset' button clicked, specifyCurrentDataset: " + selectedDataSet);
+ 
+   hub.disableAllTabsExcept([thisModulesOutermostDiv, "userDataStoreDiv", "ericTestDiv"]);
+   $("#loadingDatasetMessage").css("display", "inline");
+	
    var msg = {cmd: "specifyCurrentDataset",  callback: "datasetSpecified", 
               status: "request", payload: selectedDataSet};
 
@@ -876,6 +1173,7 @@ function specifyCurrentDataset()
 //----------------------------------------------------------------------------------------------------
 function datasetSpecified(msg)
 {
+   $("#loadingDatasetMessage").css("display", "none");
    console.log("--- Module.datasets:  datasetSpecified");
 
 } // datasetSpecified
@@ -887,14 +1185,14 @@ function test(dataSetName)
    QUnit.test("choose dataset '" + dataSetName + "'", function(assert) {
       hub.raiseTab("datasetsDiv");
       var desiredDataset = dataSetName;
-      var dzNames = $("#datasetMenu option").map(function(opt){return this.value})
+      var dzNames = $("#datasetMenu option").map(function(opt){return this.value;});
 
       if($.inArray(desiredDataset, dzNames) < 0){
          alert("cannot run tests:  " + desiredDataset + " dataset not loaded");
          return;
          }
 
-      $("#datasetMenu").val(desiredDataset)
+      $("#datasetMenu").val(desiredDataset);
       $("#datasetMenu").trigger("change");
 
       var done1 = assert.async();
@@ -916,15 +1214,11 @@ function test(dataSetName)
 //----------------------------------------------------------------------------------------------------
 function moduleInit()
 {
-
   hub.addOnDocumentReadyFunction(initializeUI);
-  // hub.addOnDocumentReadyFunction(function() {$("#datasetsDiv").hide();});
-  // hub.registerSelectionDestination(thisModulesName, thisModulesOutermostDiv);
-  hub.addSocketConnectedFunction(populateDataSetMenu);
+  //hub.addSocketConnectedFunction(populateDataSetMenu);
   hub.addMessageHandler("handleDataSetNames", handleDataSetNames);
   hub.addMessageHandler("displayDataManifest", displayDataManifest);
   hub.addMessageHandler("datasetSpecified", datasetSpecified);
-  hub.setTitle("Datasets");
 
 } // moduleInit
 //----------------------------------------------------------------------------------------------------
@@ -940,393 +1234,203 @@ var dataSummaryModule = DataSummaryModule();
 dataSummaryModule.init();
 hub.registerModule("Datasets", dataSummaryModule);
 
-//----------------------------------------------------------------------------------------------------
-var patientHistoryTableRef;
+// datasets/Test.js
+//------------------------------------------------------------------------------------------------------------------------
+var DatasetsTestModule = (function () {
 
-var ageAtDxMinReadout;
-var ageAtDxMaxReadout;
-var survivalMinReadout, survivalMaxReadout;
+       // for observing relatively small scale status changes: i.e., network loaded and displayed
+       // the div watched here is in widget.html
 
-var ageAtDxMin, ageAtDxMax;
-var ageAtDxSlider, survivalSlider;
-var survivalMin, survivalMax;
+    var datasetsMinorStatusObserver = null;
+    var datasetsMajorStatusObserver = null;   // modified at the end of each dataset test
 
+    var minorStatusDiv = "#datasetsMinorStatusDiv";
+    var majorStatusDiv = "#datasetsMajorStatusDiv";
 
-var PatientHistoryModule = (function () {
+       // to detect when the full test of a dataset is complete, so that the next dataset can be tested
+       // the div watched here is in test.html
 
-  var patientHistoryDiv;
-  var controlsDiv;
-  var tableDiv;
-  var tableElement;
-  var sendSelectionsMenu;
-
-  var thisModulesName = "patientHistory";
-  var thisModulesOutermostDiv = "patientHistoryDiv";
-  var selectionDestinations = [thisModulesName];
-
-  var sendSelectionsMenuTitle = "Send selection...";
-  var showAllRowsButton;
-  
-//--------------------------------------------------------------------------------------------
-function initializeUI()
+//------------------------------------------------------------------------------------------------------------------------
+function runTests(datasetNames, reps, exitOnCompletion)
 {
-  console.log("=== Module.patientHistory, initializeUID");
+   console.log("===================================== Test.datasets: runTests");
+   console.log("--- first make sure dataset menu is loaded");
 
-  $(window).resize(handleWindowResize);
+      // the "Available Datasets" menu must be loaded before we start.
+      // this happens automatically, but may NOT have happened by the
+      // time this function executes.
+      // therefore define a mutation observer, and use it (see below) only if
+      // the menu is not loaded.
 
-  patientHistoryDiv = $("#patientHistoryDiv");
-  controlsDiv = $("#patientHistoryControlsDiv");
-  tableDiv = $("#patientHistoryTableDiv");
-  tableElement = $("#patientHistoryTable");
+      // once the menu is loaded, iterate over the datasets, making sure
+      // that any dataset menu change results in the display of
+      // data table with the manifest of that dataset
 
-  showAllRowsButton = $("#patientHistoryShowAllRowsButton");
-  showAllRowsButton.click(showAllRows);
+   if(datasetsMinorStatusObserver === null){
+      datasetsMinorStatusObserver = new MutationObserver(function(mutations) {
+        mutation = mutations[0];
+        datasetsMinorStatusObserver.disconnect();
+        datasetsMinorStatusObserver = null;
+        var id = mutation.target.id;
+        var statusMsg = $(minorStatusDiv).text();
+        QUnit.test("testDataSetMenuLoaded", function(assert) {
+           var allNames = $("#datasetMenu").children().map(function() {return $(this).val();}).get();
+           allNames.filter(function(e) {return (e.length > 0);});
+           assert.ok(allNames.length >= 1);
+           iterateOverDatasets(datasetNames, reps, exitOnCompletion);
+           });
+        }); // new MutationObserver
+      } // if null mutation observer
 
-  sendSelectionsMenu = hub.configureSendSelectionMenu("#patientHistorySendSelectionsMenu", 
-                                                      selectionDestinations, sendSelections,
-                                                      sendSelectionsMenuTitle);
+   var config = {attributes: true, childList: true, characterData: true};
+   var target = document.querySelector(minorStatusDiv);
 
-  handleWindowResize();
-
-} // initializeUI
-//----------------------------------------------------------------------------------------------------
-function createDataTable(colnames, data)
-{
-      // DataTable likes some structure for column titles
-
-   var columnTitles = [];
-   for(var i=0; i < colnames.length; i++){
-     columnTitles.push({sTitle: colnames[i]});
-     }
-
-   if(typeof(patientHistoryTableRef) != "undefined"){
-      patientHistoryTableRef.destroy();
-      tableElement.empty();
+   var allNames = $("#datasetMenu").children().map(function() {return $(this).val();}).get();
+     // filtering  deferred.  unlike R, js returns a scalar rather than a 1-element array.
+     // this could be accomodated by checking type, but not just yet... (pshannon, 27oct15)
+     // allNames.filter(function(e) {return (e.length > 0);});
+     //console.log("found these names in the available datasets menu: " + JSON.stringify(allNames));
+   
+   if(allNames.length > 1){   // expect an empty (blank) first menu line
+      console.log("found menu already loaded, preceeding to iterate");
+      iterateOverDatasets(datasetNames, reps, exitOnCompletion);
+      }
+   else{
+      console.log("no names in menu, watching target");
+        // the target is mutated at the conclusion of Module.datasets:handleDatSetName
+      datasetsMinorStatusObserver.observe(target, config);
       }
 
-   patientHistoryTableRef = tableElement.DataTable({
-                             data: data,
-                             columns: columnTitles,
-                             //dom: "C<fi<t>>",
-                             dom: 'C<"clear">lfrtip',
-                             paging: false,
-                             jQueryUI: false
-                             });
-
-   if(colnames.indexOf("AgeDx") >= 0){
-      var minMax = learnSliderMinAndMax(data, colnames.indexOf("AgeDx"));
-      console.log("minMax for AgeDx: ");
-      console.log(minMax);
-      ageAtDxMin = minMax[0];
-      ageAtDxMax = minMax[1];
-         // slider, title & readouts for specifying age range for table display
-      createAgeAtDiagnosisWidget(ageAtDxMin, ageAtDxMax);  
-      } // ageAtDx slider
-
-   if(colnames.indexOf("Survival") >= 0){
-      minMax = learnSliderMinAndMax(data, colnames.indexOf("Survival"));
-      console.log("minMax for Survival: ");
-      console.log(minMax);
-      survivalMin = minMax[0];
-      survivalMax = minMax[1];
-         // slider, title & readouts for specifying age range for table display
-      createSurvivalWidget(survivalMin, survivalMax);  
-      } // survival slider
-
-   showAllRows();
-   setupSliderDrivenFilterBehavior(colnames);
- 
-
-} // createDataTable
-//----------------------------------------------------------------------------------------------------
-function setupSliderDrivenFilterBehavior(colnames)
+} // runTests
+//------------------------------------------------------------------------------------------------------------------------
+function iterateOverDatasets(datasetNames, reps, exitOnCompletion)
 {
-  var ageDxColumn = colnames.indexOf("AgeDx");
-  var survivalColumn = colnames.indexOf("Survival");
+     // run through the specified number repetitions of the test, operating upon
+     // each dataset in turn.
+     // condition the next test upon the completion of the preceeding one,
+     // which is detected by a change to the majorStatusDiv
+     // (recall that the minorStatusDiv is modified by Module.js whenever a crucial
+     // UI change has occurred, whereas majorStatusDiv is only user here, in
+     // the Test module, to iterate over the datasets, ensuring that tests on
+     // each one are complete before starting the next one.
+      
+   console.log("runTests: " + JSON.stringify(datasetNames));
+   console.log("reps: " + reps);
+   console.log("exitOnCompletion: " + exitOnCompletion);
 
-  if(ageDxColumn >= 0) {
-    jQuery.fn.dataTable.ext.search.push(
-       function(settings, data, dataIndex) {
-         var ageAtDxMin      = parseFloat(ageAtDxMinReadout.val());
-         var ageAtDxMax      = parseFloat(ageAtDxMaxReadout.val());
+   var datasetIndex = -1;
+   
+   var config = {attributes: true, childList: true, characterData: true};
+   var target =  document.querySelector(majorStatusDiv);
 
-         var patientAgeAtDx  = parseFloat(data[ageDxColumn]) || 0;
- 
-         var ageAtDxInRange  = (patientAgeAtDx >= ageAtDxMin) && (patientAgeAtDx <= ageAtDxMax);
-         if(ageAtDxInRange)
-            return true;
-         return false;
-        }); // anonymous function
-      } // push
+      // define a function to be called whenever the testStatusDiv changes,
+      // which is our signal that the next test is ready to run.
+      // the first test is kicked off when we -- after setting up and
+      // configuring the observer -- manually (see below: "start testing")
+      // change the target which the observer watches.
+      // there may be a better way, but for now we delete and recreate
+      // the observer at the end of each test.
+      // note also that the next dataset is determined inside this function
+      // and that the function refers to itself.
 
-  if(survivalColumn >= 0) {
-    jQuery.fn.dataTable.ext.search.push(
-       function(settings, data, dataIndex) {
-         var survivalMin      = parseFloat(survivalMinReadout.val());
-         var survivalMax      = parseFloat(survivalMaxReadout.val());
+   var onMutation = function(mutations){
+      mutation = mutations[0];
+      testStatusObserver.disconnect();
+      testStatusObserver = null;
+      var id = mutation.target.id;
+      var msg = $(majorStatusDiv).text();
+      console.log("test status changed, text: " + msg);
+      datasetIndex++;
+      console.log("---- testing datasetIndex " + datasetIndex);
+      if(datasetIndex < (datasetNames.length * reps)){
+         console.log("about to test dataset " + datasetNames[datasetIndex]);      
+	 testStatusObserver = new MutationObserver(onMutation);
+         testStatusObserver.observe(target, config);
+         if(datasetIndex < (datasetNames.length * reps)){
+	    var datasetName = datasetNames[datasetIndex % datasetNames.length];
+            testDisplayManifest(datasetName);
+	    } // if not done yet
+	 }
+      else{
+         console.log("mutation observer function detected end of datasets");
+         if(exitOnCompletion){
+            var payload = {errorCount: Object.keys(sessionStorage).length,
+	                   errors: JSON.stringify(sessionStorage)};
+            var exitMsg = {cmd: "exitAfterTesting", callback: "", status: "request", payload: payload};
+            console.log("about to send exitAfterTesting msg to server");
+            hub.send(JSON.stringify(exitMsg));
+	    } // if exitOnCompletion
+	 } // else: datasets exhaused
+      };
 
-         var patientSurvival  = parseFloat(data[survivalColumn]) || 0;
-         var survivalInRange  = (patientSurvival >= survivalMin) && (patientSurvival <= survivalMax);
-         if(survivalInRange)
-            return true;
-         return false;
-        }); // anonymous function
-      } // push
+   testStatusObserver = new MutationObserver(onMutation);
+   testStatusObserver.observe(target, config);
 
+   $(majorStatusDiv).text("start testing");
 
-} // setupSliderDrivenFilterBehavior
-//----------------------------------------------------------------------------------------------------
-function createAgeAtDiagnosisWidget(minValue, maxValue)
+} // iterateOverDatasets
+//------------------------------------------------------------------------------------------------------------------------
+function testDisplayManifest(datasetName)
 {
-  ageAtDxSlider = $("#ageAtDxSlider");
-  ageAtDxMinReadout = $("#ageAtDxMinSliderReadout");
-  ageAtDxMaxReadout = $("#ageAtDxMaxSliderReadout");
+   console.log("testDisplayManifest: " + datasetName);
 
-  ageAtDxSlider.slider({
-     range: true,
-     slide: function(event, ui) {
-        //console.log("AgeDx: " + ui.values[0] + ", " + ui.values[1]);
-        if(ui.values[0] > ui.values[1]){
-           return false;
-           }          
-       ageAtDxMinReadout.text (ui.values[0]);
-       ageAtDxMaxReadout.text (ui.values[1]);
-       patientHistoryTableRef.draw();
-       handleWindowResize();
-       //updateRowCountReadout();
-       },
-    min: minValue,
-    max: maxValue,
-    values: [minValue, maxValue]
-    });
+   if(datasetsMinorStatusObserver === null){
+      datasetsMinorStatusObserver = new MutationObserver(function(mutations) {
+        mutation = mutations[0];
+        datasetsMinorStatusObserver.disconnect();
+        datasetsMinorStatusObserver = null;
+        var id = mutation.target.id;
+        var statusMsg = $(minorStatusDiv).text();
+        QUnit.test("testDisplayManifest: " + datasetName, function(assert) {
+           var rowCount = $("#datasetsManifestTable tbody tr").length;
+           assert.ok(rowCount > 5);
+           markEndOfTestingDataSet();
+           });
+        }); // new MutationObserver
+      } // if null mutation observer
 
-  ageAtDxMinReadout.text(minValue);
-  ageAtDxMaxReadout.text(maxValue);
 
-} // createAgeAtDiagnosisWidget
-//----------------------------------------------------------------------------------------------------
-function createSurvivalWidget(minValue, maxValue)
+   var config = {attributes: true, childList: true, characterData: true};
+   var target = document.querySelector(minorStatusDiv);
+   datasetsMinorStatusObserver.observe(target, config);
+
+   var allNames = $("#datasetMenu").children().map(function() {return $(this).val();}).get();
+   allNames.filter(function(e) {return (e.length > 0);});
+   console.log("loaded datasetnames: " + JSON.stringify(allNames));
+   console.log(" testDisplayManifest about to set datasetname in menu: " + datasetName);
+   $("#datasetMenu").val(datasetName);
+   console.log(" testDisplayManifest about to trigger change");
+   $("#datasetMenu").trigger("change");
+
+} // testDisplayManifest
+//------------------------------------------------------------------------------------------------------------------------
+function markEndOfTestingDataSet()
 {
-  survivalSlider = $("#survivalSlider");
-  survivalMinReadout = $("#survivalMinSliderReadout");
-  survivalMaxReadout = $("#survivalMaxSliderReadout");
-  console.log("createSurvivalWidget");
-
-  survivalSlider.slider({
-     range: true,
-     slide: function(event, ui) {
-        //console.log("survival: " + ui.values[0] + ", " + ui.values[1]);
-        if(ui.values[0] > ui.values[1]){
-           return false;
-           }          
-       survivalMinReadout.text (ui.values[0]);
-       survivalMaxReadout.text (ui.values[1]);
-       patientHistoryTableRef.draw();
-       handleWindowResize();
-       },
-    min: minValue,
-    max: maxValue,
-    values: [minValue, maxValue]
-    });
-
-  survivalMinReadout.text(minValue);
-  survivalMaxReadout.text(maxValue);
-
-} // createSurvivalWidget
-//----------------------------------------------------------------------------------------------------
-// when the patient history table arrives, the filtering sliders can be setup, using the 
-// min and max values of selected columns.  our sliders are currently ageAtDx and survival.
-// the column numbers for these are specified by the caller.  missing values are not
-// troublesome to Javascript's min and max functions.  note the use of floor and ceil,
-// to nudge min and max values out a bit.
-function learnSliderMinAndMax(tbl, columnNumber)
+  console.log("end of testing dataset");
+  $(majorStatusDiv).text("dataset complete");
+  $("#testManagerLoopStatusDiv").text("Test.datasets,  dataset complete");
+  
+} // markEndOfTestingDataSet
+//------------------------------------------------------------------------------------------------------------------------
+function initialize()
 {
-  var rowCount = tbl.length;
-  var min = Number.MAX_VALUE;
-  var max = -Number.MAX_VALUE;
+   console.log("--- initializing datasets/Test.js");
 
-  for(var r=0; r < rowCount; r++){
-    var value = Number.parseFloat(tbl[r][columnNumber]);
-    //console.log(value)
-    if(value < min)
-      min = value;
-    if(value > max)
-      max = value;
-    } // for r
-
-  return[Math.floor(min), Math.ceil(max)];
-
-} // learnSliderMinAndMax
-//----------------------------------------------------------------------------------------------------
-function showAllRows()
-{
-   if(typeof(ageAtDxMin)  != "undefined" &&
-      typeof(ageAtDxMax)  != "undefined" &&
-      typeof(survivalMin) != "undefined" &&
-      typeof(survivalMax) != "undefined") {
-
-        ageAtDxSlider.slider("values", [ageAtDxMin, ageAtDxMax]);
-        survivalSlider.slider("values", [survivalMin, survivalMax]);
-        ageAtDxMinReadout.text(ageAtDxMin);
-        ageAtDxMaxReadout.text(ageAtDxMax);
-        survivalMinReadout.text(survivalMin);
-        survivalMaxReadout.text(survivalMax);
-        } // all 4 min/max slider values defined
-
-    // chained calls: clear the DataTable search box, then iterate through the columns, then render
-
-   if(typeof(patientHistoryTableRef) != "undefined")
-       patientHistoryTableRef.search('').columns().search('').draw();
-
-   handleWindowResize();
-
-} // showAllRows
-//----------------------------------------------------------------------------------------------------
-function handleWindowResize()
-{
-
-  patientHistoryDiv.width($(window).width() * 0.95);
-  patientHistoryDiv.height($(window).height() * 0.90);  // leave room for tabs above
-
-  //controlsDiv.width($(window).width() * 0.90);
-  controlsDiv.width(patientHistoryDiv.width()); //  * 0.95);
-  controlsDiv.height("100px");
-
-  tableDiv.width(patientHistoryDiv.width()); //  * 0.95);
-  tableDiv.height(patientHistoryDiv.height() - 130);
-
-} // handleWindowResize
-//--------------------------------------------------------------------------------------------
-function sendSelections(event)
-{
-   var destination = sendSelectionsMenu.val();
-
-   var visibleRows = patientHistoryTableRef.rows({'filter': 'applied'})[0];
-   if(visibleRows.length === 0)
-      return;
-
-   var selectedIDs = [];
-
-   var data = patientHistoryTableRef.data();
-
-   for(var i=0; i < visibleRows.length; i++){
-      var id = data[visibleRows[i]][0];
-      selectedIDs.push(id);
-      } // for i
-
-   var cmd = "sendSelectionTo_" + destination;
-
-   payload = {value: selectedIDs, count: selectedIDs.length, source: "patient history module"};
-   var newMsg = {cmd: cmd,  callback: "", status: "request", payload: payload};
-
-   sendSelectionsMenu.val(sendSelectionsMenuTitle);
-
-   hub.send(JSON.stringify(newMsg));
-
-} // sendSelections
-//--------------------------------------------------------------------------------------------
-function handleSelections(msg)
-{
-   showAllRows();
-   var ids = msg.payload.value;
-   if(typeof(ids) == "string")
-      ids = [ids];
-
-      // incoming ids may have trailing version number, e.g., "TCGA.02.0114.01"
-      // strip all such 2-digit suffixes:
-
-   ids = ids.map(function(id) {return(id.replace(/\.0[0-9]$/, ""))})
-   filterByString(ids);
-   hub.raiseTab(thisModulesOutermostDiv);
-
-} // handleSelections
-//----------------------------------------------------------------------------------------------------
-filterByString = function(strings)
-{
-   var filterString = strings[0];
-   for(var i=1; i < strings.length; i++){
-     filterString += "|" + strings[i];
-     }
-
-   showAllRows();
-   console.log(filterString);
-
-   if(typeof(patientHistoryTableRef) != "undefined")
-      patientHistoryTableRef.search(filterString, true, false).draw();   // string, regex, smart
-
-}; // filterByString
-//----------------------------------------------------------------------------------------------------
-function displayPatientHistoryTable(msg)
-{
-   var payload = msg.payload;
-   var colnames = payload.colnames;
-   var data = payload.tbl; // an array of arrays
-
-   console.log("incoming table, rows: " + data.length);
-   console.log("incoming table, cols: " + data[0].length);
-   createDataTable(colnames, data);
-   // hub.raiseTab(thisModulesOutermostDiv);
-
-}  // displayPatientHistoryTable
-//----------------------------------------------------------------------------------------------------
-// called when the a dataset has been specified, typically via the Datasets tab, which presents
-// the user with a list of the datasets they are able to use, from which they choose one at a time
-// as their current working dataset.
-// this module uses the dataset name to request the patient history table from the server
-function datasetSpecified (msg)
-{
-   var datasetName = msg.payload;
-
-     // request patient data table
-   var payload = {datasetName: datasetName, durationFormat: "byYear"};
-   var newMsg = {cmd: "getPatientHistoryTable",  callback: "displayPatientHistoryTable", 
-                 status: "request", payload: payload};
-
-   hub.send(JSON.stringify(newMsg));
-
-} // datasetSpecified
-//----------------------------------------------------------------------------------------------------
-// for standalone exploration, development, and testing.   assumes a hub has been
-// created and initialized.  set the dataset, and in the callback load the table
-// thus 
-//   specifyCurrentDataSet -> getPatientHistoryTable -> displayPatientHistoryTable
-//
-function testLoad()
-{
-   var msg = {cmd: "specifyCurrentDataset",  callback: "datasetSpecified", 
-              status: "request", payload: "TCGAgbm"};
-
-   hub.send(JSON.stringify(msg));
-
-} // test
-//----------------------------------------------------------------------------------------------------
-function testSelect()
-{
-   var msg={cmd: "sendSelectionTo_patientHistory", status: "request", callback: "", 
-            payload:["TCGA.02.0011", "TCGA.06.0238"]};
-
-   hub.send(JSON.stringify(msg));
-
-} // testSelect
-//----------------------------------------------------------------------------------------------------
+} // initialize
+//------------------------------------------------------------------------------------------------------------------------
 return{
-   init: function(){
-      hub.registerSelectionDestination(selectionDestinations, thisModulesOutermostDiv);
-      hub.addOnDocumentReadyFunction(initializeUI);
-      hub.addMessageHandler("sendSelectionTo_patientHistory", handleSelections);
-      hub.addMessageHandler("datasetSpecified", datasetSpecified);
-      hub.addMessageHandler("displayPatientHistoryTable", displayPatientHistoryTable);
-      //hub.addSocketConnectedFunction(testLoad);
-      hub.setTitle("patientHistory");
-      },
-   testSelect: testSelect,
-   testLoad:   testLoad
-   }; // PatientHistoryModule return value
+   init: initialize,
+   run: runTests,
+   }; // module return value
 
-//----------------------------------------------------------------------------------------------------
-}); // PatientHistoryModule
-pts = PatientHistoryModule();
-pts.init();
+//------------------------------------------------------------------------------------------------------------------------
+}); // DatasetsTestModule
+
+console.log("creaing datasetsTester");
+datasetsTester = DatasetsTestModule();
+console.log("pushing datasetsTester");
+moduleTests.push(datasetsTester);
+
 
 
 </script>
@@ -1336,156 +1440,39 @@ pts.init();
 <div id="oncoscapeTabs">
    <ul>
      <li><a href="#datasetsDiv">Datasets</a></li>
-     <li><a href="#patientHistoryDiv">Patient History</a></li>
+     <li><a href="#datasetsTestDiv">Tests</a></li>
    </ul>
 
-
 <style>
- 
 </style>
 
-<div id="datasetsDiv">
-
+<div id="datasetsDiv" style="height:auto">
+  <div id="datasetsStatusDiv" style="display:none"></div>
   <div id="dataSummaryControlsDiv">
      <span id="selectDataSetMenuLabel" style="margin-left: 20px;">Available Datasets</span>
      <select type="button" id="datasetMenu" style="margin: 5px;"><option> </option></select>
      <button id="selectDatasetButton">Use Dataset</button>
+	 <span id="loadingDatasetMessage" style="display:none; margin-left:10px">Loading Dataset...</span>
      <select type="button" id="datasetsSendSelectionsMenu" style="float:right; margin:15px; display: none"></select>
+    <div id="oncoscapeLogo" style="float:right; margin-right:0.5em">	<img width="175" src="http://oncoscape.sttrcancer.org/oncoscape/images/oncoscape_logo_TM.png" alt="Oncoscape"/></div>
   </div>
 
    <div id="dataSetNamesOutputDiv" style="margin: 20px;"></div>
 
    <div id="dataSummaryOutputDiv" style="margin: 20px;overflow-x:auto">
       <div id="datasetInstructions">Please select a dataset from the above menu.</div>
-      <table id="datasetsManifestTable" class="display" cellpadding="0" cellspacing="0" border="1" style="margin:0px; width:auto; display:none"></table>
+      <table id="datasetsManifestTable" class="display" cellpadding="0" cellspacing="0" style="margin:0px; width:auto; display:none; border:none"></table>
    </div>
 </div>
 
-<style>
-
-
-#patientHistoryDiv{
-   width: 600px;
-   height: 400px;
-   background-color: #ffffff;
-   margin: auto;
-   padding: 5px;
-   }
-
-
-#patientHistoryControlsDiv {
-  background-color: #FFFFFF;
-  position: relative;
-  height: 400px;
-  width: 600px;
-  border: 1px solid #aaa;
-  border-radius: 5px;
-  margin-right: auto;
-  margin-left: auto;
-  margin-top: 10px;
-  margin-bottom: 5px;
-  padding: 0px;
-  }
-
-#patientHistoryTableDiv {
-  background-color: #FFFFFF;
-  position: relative;
-  height: 400px;
-  width: 600px;
-  overflow-x:auto;
-  margin-right: auto;
-  margin-left: auto;
-  margin-top: 5px;
-  margin-bottom: 5px;
-  padding: 0px;
-  }
-
-.patientDataFilterSliderReadout {
-  font-family:"Courier";
-  color: #0000FF;
-  background-color: #FFF;
-  font-size: 12px;
-  border: 2px solid #DDD;
-  width: 50px;
-  height: 25px;
-  resize: none;
-  margin-top: 5px;
-  margin-left: 1px;
-  }
-
-.patientDataFilterSliderTitleDiv {
-  font-family:"Arial";
-  color: #000000;
-  font-size: 12px;
-  padding-top: 0px;
-  padding-right:0px;
-  }
-
-
-</style>
-
-
-<div id="patientHistoryDiv">
-
-  <div id="patientHistoryControlsDiv">  
-
-
-        <div id="ageSliderDiv" class="nav navbar-nav navbar-form navbar-left"  style="display: inline-block">
-           <div id="ageAtDxSliderTitleDiv" class="patientDataFilterSliderTitleDiv" style="text-align: center; width=100%">Age at Dx</div>
-           <div style="width: 280px; overflow: hidden;">
-               <div id="ageAtDxMsgBox1" style="float: left; margin-left: 5px; margin-right: 15<px; width: 40px" >
-  
-                  <textarea id="ageAtDxMinSliderReadout" style="font-size: 12px; height:16px"
-                            readonly class="patientDataFilterSliderReadout"></textarea> 
-                  </div>
-               <div style="width: 120px; height: 6px; float: left; margin-top: 10px; 
-                           margin-left: 30px; margin-right: 15px;" 
-                   id="ageAtDxSlider" class="slider patientDataFilterSlider">
-                   </div>
-               <div id="ageAtDxMsgBox2" style="float: left">  
-                  <textarea id="ageAtDxMaxSliderReadout" style="font-size: 12px; height:16px"
-                            readonly class="patientDataFilterSliderReadout"></textarea> 
-                  </div>
-              </div>
-           </div>
-
-
-        <div id="survivalSliderDiv" class="nav navbar-nav navbar-form navbar-left" style="display: inline-block">
-           <div id="survivalSliderTitleDiv" class="patientDataFilterSliderTitleDiv" style="text-align: center; width=100%">Survival</div>
-           <div style="width: 280px; overflow: hidden;">
-               <div id="survivalMsgBox1" style="float: left" >  
-                  <textarea id="survivalMinSliderReadout" style="font-size: 12px; height:16px"
-                             readonly class="patientDataFilterSliderReadout"></textarea> 
-                  </div>
-               <div style="width: 120px; height: 6px; float: left; margin-top: 10px; margin-left: 15px;
-                            margin-right: 15px;" 
-                   id="survivalSlider" class="slider patientDataFilterSlider">
-                   </div>
-               <div id="survivalMsgBox2" style="float: left">  
-                  <textarea id="survivalMaxSliderReadout"  style="font-size: 12px; height:16px"
-                            readonly class="patientDataFilterSliderReadout"></textarea> 
-                  </div>
-              </div>
-           </div>
-
-     <button id="patientHistoryShowAllRowsButton" type="button">Reset</button>
-     <select type="button" id="patientHistorySendSelectionsMenu" style="float:right; margin:15px"></select>
-
-
-  </div>
-
-  <div id="patientHistoryTableDiv">  
-    <table id="patientHistoryTable" cellpadding="0" cellspacing="0" border="0" class="display">
-    </table>
- </div>
-
+<div id="datasetsTestDiv">
+  <div id="datasetsMinorStatusDiv"        style="display:none"></div>
+  <div id="datasetsMajorStatusDiv"        style="display:none"></div>
+  <div id="qunit" style="display:block"></div>
+  <div id="qunit-fixture"></div>
 </div>
 
-
 </div>
-
-
 
 </body>
 </html>
-

@@ -2,7 +2,7 @@ Package: TCGAread
 Type: Package
 Title: TCGAread: TCGA Rectum adenocarcinomaread data for SttrDataPackage
 Version: 0.99.12
-Date: 2015-05-10
+Date: 2015-11-2
 Author: Paul Shannon, Lisa McFerrin, Jenny Zhang
 Maintainer: Paul Shannon <pshannon@fredhutch.org>
 Depends: R (>= 3.1.1), SttrDataPackage, org.Hs.eg.db, RUnit
