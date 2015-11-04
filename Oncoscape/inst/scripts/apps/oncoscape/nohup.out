@@ -13156,3 +13156,814 @@ $Survival
 [1]    3.0   82.0  772.0 2620.5 3524.0
 
 [1] >> ==== Oncoscape.dispatchMessage: getGeneSetNames
+
+R version 3.2.2 (2015-08-14) -- "Fire Safety"
+Copyright (C) 2015 The R Foundation for Statistical Computing
+Platform: x86_64-apple-darwin15.0.0 (64-bit)
+
+R is free software and comes with ABSOLUTELY NO WARRANTY.
+You are welcome to redistribute it under certain conditions.
+Type 'license()' or 'licence()' for distribution details.
+
+  Natural language support but running in an English locale
+
+R is a collaborative project with many contributors.
+Type 'contributors()' for more information and
+'citation()' on how to cite R or R packages in publications.
+
+Type 'demo()' for some demos, 'help()' for on-line help, or
+'help.start()' for an HTML browser interface to help.
+Type 'q()' to quit R.
+
+> library(OncoDev14)
+Loading required package: jsonlite
+
+Attaching package: ‘jsonlite’
+
+The following object is masked from ‘package:utils’:
+
+    View
+
+Loading required package: httpuv
+Loading required package: SttrDataPackage
+Loading required package: PatientHistory
+
+Attaching package: ‘SttrDataPackage’
+
+The following object is masked from ‘package:utils’:
+
+    history
+
+Loading required package: survival
+Loading required package: base64enc
+Loading required package: PCA
+Loading required package: BiocGenerics
+Loading required package: parallel
+
+Attaching package: ‘BiocGenerics’
+
+The following objects are masked from ‘package:parallel’:
+
+    clusterApply, clusterApplyLB, clusterCall, clusterEvalQ,
+    clusterExport, clusterMap, parApply, parCapply, parLapply,
+    parLapplyLB, parRapply, parSapply, parSapplyLB
+
+The following objects are masked from ‘package:stats’:
+
+    IQR, mad, xtabs
+
+The following objects are masked from ‘package:base’:
+
+    anyDuplicated, append, as.data.frame, as.vector, cbind, colnames,
+    do.call, duplicated, eval, evalq, Filter, Find, get, grep, grepl,
+    intersect, is.unsorted, lapply, lengths, Map, mapply, match, mget,
+    order, paste, pmax, pmax.int, pmin, pmin.int, Position, rank,
+    rbind, Reduce, rownames, sapply, setdiff, sort, table, tapply,
+    union, unique, unlist, unsplit
+
+Loading required package: RUnit
+Loading required package: PLSR
+Loading required package: pls
+
+Attaching package: ‘pls’
+
+The following object is masked from ‘package:stats’:
+
+    loadings
+
+
+Attaching package: ‘PLSR’
+
+The following objects are masked from ‘package:PCA’:
+
+    getDataMatrixName, getDataPackage, printf, setDataMatrixName
+
+
+Attaching package: ‘OncoDev14’
+
+The following object is masked from ‘package:PLSR’:
+
+    show
+
+The following object is masked from ‘package:PCA’:
+
+    show
+
+The following object is masked from ‘package:SttrDataPackage’:
+
+    show
+
+The following object is masked from ‘package:methods’:
+
+    show
+
+The following object is masked from ‘package:base’:
+
+    close
+
+> sessionInfo()
+R version 3.2.2 (2015-08-14)
+Platform: x86_64-apple-darwin15.0.0 (64-bit)
+Running under: OS X 10.11 (El Capitan)
+
+locale:
+[1] en_US.UTF-8/en_US.UTF-8/en_US.UTF-8/C/en_US.UTF-8/en_US.UTF-8
+
+attached base packages:
+[1] parallel  stats     graphics  grDevices utils     datasets  methods  
+[8] base     
+
+other attached packages:
+ [1] OncoDev14_1.4.87        PLSR_1.0.16             pls_2.5-0              
+ [4] PCA_1.0.13              RUnit_0.4.30            BiocGenerics_0.16.0    
+ [7] base64enc_0.1-3         survival_2.38-3         SttrDataPackage_0.99.19
+[10] PatientHistory_0.99.6   httpuv_1.3.3            jsonlite_0.9.17        
+
+loaded via a namespace (and not attached):
+[1] Rcpp_0.12.1   splines_3.2.2
+> scriptDir <- "apps/oncoscape"
+> stopifnot(nchar(Sys.getenv("ONCOSCAPE_USER_DATA_STORE")) > 0)
+> userID <- "test@nowhere.org"
+> #current.datasets <- c("DEMOdz")
+> #current.datasets <- c("DEMOdz;TCGAgbm;TCGAbrain")
+> current.datasets <- c("DEMOdz;TCGAgbm")
+> port <- 7777
+> onco <- OncoDev14(port=port, scriptDir=scriptDir, userID=userID, datasetNames=current.datasets)
+[1] OncoDev14 ctor, datasetNames: DEMOdz;TCGAgbm
+[1] OncoDev14.loadDataPackages
+[1] OncoDev14:.loadDataPackages: DEMOdz
+Welcome to Bioconductor
+
+    Vignettes contain introductory material; view with
+    'browseVignettes()'. To cite Bioconductor, see
+    'citation("Biobase")', and for packages 'citation("pkgname")'.
+
+Loading required package: DBI
+
+[1] SttrDataPackage ctor, networks.found: 4
+OncoDev14 loading:         datasets[['DEMOdz']] <- DEMOdz()    1.12 seconds
+  new list of loaded datasets: DEMOdz
+[1] OncoDev14:.loadDataPackages: TCGAgbm
+[1] SttrDataPackage ctor, networks.found: 2
+OncoDev14 loading:       datasets[['TCGAgbm']] <- TCGAgbm()   17.14 seconds
+  new list of loaded datasets: DEMOdz,TCGAgbm
+[1] === datsets now available in datasets environment: DEMOdz,TCGAgbm
+> if(Sys.info()[["nodename"]] != "lopez") 
++    browseURL(sprintf("http://localhost:%d", port))
+> run(onco)
+[1] OncoDev14::run, starting service loop on port 7777
+[1] >> ==== Oncoscape.dispatchMessage: getUserId
+[1] >> ==== Oncoscape.dispatchMessage: getUserId
+[1] >> ==== Oncoscape.dispatchMessage: getUserId
+[1] >> ==== Oncoscape.dispatchMessage: getUserId
+[1] >> ==== Oncoscape.dispatchMessage: getUserId
+[1] >> ==== Oncoscape.dispatchMessage: getUserId
+[1] >> ==== Oncoscape.dispatchMessage: getDataSetNames
+[1] wsDatasets:getAllDataSetNames: DEMOdz, TCGAgbm
+[1] >> ==== Oncoscape.dispatchMessage: getDataSetNames
+[1] wsDatasets:getAllDataSetNames: DEMOdz, TCGAgbm
+[1] >> ==== Oncoscape.dispatchMessage: initUserDataStore
+[1] OncoDev14.R 1.4.87 dispatchMessage detected error
+[1] --- msg.full: OncoDev14 (version 1.4.87) exception!  Error: length(tokens) == 2 is not TRUE\n. incoming msg: initUserDataStore;  request;  userDataStoreInitialized;  list(userID = "test@nowhere.org", userGroups = c("public", "test"))
+[1] >> ==== Oncoscape.dispatchMessage: getUserDataStoreSummary
+[1] OncoDev14.R 1.4.87 dispatchMessage detected error
+[1] --- msg.full: OncoDev14 (version 1.4.87) exception!  Error: length(tokens) == 2 is not TRUE\n. incoming msg: getUserDataStoreSummary;  request;  displayUserDataStoreSummary;  list(userID = "test@nowhere.org", userGroups = c("public", "test"))
+[1] >> ==== Oncoscape.dispatchMessage: initUserDataStore
+[1] OncoDev14.R 1.4.87 dispatchMessage detected error
+[1] --- msg.full: OncoDev14 (version 1.4.87) exception!  Error: length(tokens) == 2 is not TRUE\n. incoming msg: initUserDataStore;  request;  userDataStoreInitialized;  list(userID = "test@nowhere.org", userGroups = c("public", "test"))
+[1] >> ==== Oncoscape.dispatchMessage: getUserDataStoreSummary
+[1] OncoDev14.R 1.4.87 dispatchMessage detected error
+[1] --- msg.full: OncoDev14 (version 1.4.87) exception!  Error: length(tokens) == 2 is not TRUE\n. incoming msg: getUserDataStoreSummary;  request;  displayUserDataStoreSummary;  list(userID = "test@nowhere.org", userGroups = c("public", "test"))
+[1] >> ==== Oncoscape.dispatchMessage: getDataManifest
+[1] >> ==== Oncoscape.dispatchMessage: specifyCurrentDataset
+[1] wsDatasets.R, specifyCurrentDataset, available: DEMOdz;TCGAgbm
+[1] TCGAgbm construction needed? TRUE
+[1] wsDatasets.specifyCurrentDataset creating and storing a new TCGAgbm object
+[1] SttrDataPackage ctor, networks.found: 2
+[1] >> ==== Oncoscape.dispatchMessage: getPatientHistoryTable
+[1] wsDatasets.getPatientHistory, TCGAgbm, found 7 coi
+[1] wsDatasets.getPatientHistoryTable, dim (592, 7)
+[1] >> ==== Oncoscape.dispatchMessage: createTimelines
+[1] === createTimelines
+[1]     callback: DisplayPatientTimeLine
+$dataPackage
+[1] "TCGAgbm"
+
+$dataName
+[1] "historyTypes"
+
+[1] createTimelines about to send msg: DisplayPatientTimeLine
+[1] >> ==== Oncoscape.dispatchMessage: getMarkersNetwork
+[1] wsDatasets.getMarkersAndSamplesNetwork, size: 1254650
+[1] >> ==== Oncoscape.dispatchMessage: getSampleCategorizationNames
+[1] >> ==== Oncoscape.dispatchMessage: getPathway
+[1] available: g.markers.json, g.gbmPathways.json
+[1] wsDatasets.getPathway ASKED for pathway 'g.gbmPathways.json'
+[1] wsDatasets.getPathway, size: 92107
+[1] >> ==== Oncoscape.dispatchMessage: createPCA
+[1] === ws.createPCA, full msg:
+$cmd
+[1] "createPCA"
+
+$callback
+[1] "pcaObjectCreated"
+
+$status
+[1] "request"
+
+$payload
+$payload$dataPackage
+[1] "TCGAgbm"
+
+$payload$matrixName
+[1] "mtx.mrna.ueArray"
+
+
+[1] ws.createPCA just executed 'mypca <- PCA(ds, 'mtx.mrna.ueArray')'
+[1] resulting mypca object:
+[1] "PCA package, matrices: mtx.cn,mtx.mrna,mtx.mrna.ueArray,mtx.mut,mtx.prot"
+[1] >> ==== Oncoscape.dispatchMessage: createPLSR
+[1] === createPLSR
+[1]     callback: plsrObjectCreated
+$dataPackage
+[1] "TCGAgbm"
+
+$matrixName
+[1] "mtx.mrna.ueArray"
+
+[1]     dataPackageName: TCGAgbm
+[1]          matrixName: mtx.mrna.ueArray
+[1] createPLSR about to eval cmd: myplsr <- PLSR(ds, 'mtx.mrna.ueArray')
+[1] createPLSR about to send msg: plsrObjectCreated
+[1] >> ==== Oncoscape.dispatchMessage: getGeneSetNames
+[1] >> ==== Oncoscape.dispatchMessage: summarizePLSRPatientAttributes
+[1] === summarizePLSRPatientAttributes
+$cmd
+[1] "summarizePLSRPatientAttributes"
+
+$callback
+[1] "handleAgeAtDxAndSurvivalRanges"
+
+$status
+[1] "request"
+
+$payload
+[1] "AgeDx"    "Survival"
+
+[1] "------------ myplsr"
+[1] "------------ summary returned"
+$AgeDx
+[1]  3982.0 17852.5 21154.0 24616.0 31627.0
+
+$Survival
+[1]    3.0  219.5  397.0  691.0 3881.0
+
+[1] >> ==== Oncoscape.dispatchMessage: getGeneSetNames
+
+R version 3.2.2 (2015-08-14) -- "Fire Safety"
+Copyright (C) 2015 The R Foundation for Statistical Computing
+Platform: x86_64-apple-darwin15.0.0 (64-bit)
+
+R is free software and comes with ABSOLUTELY NO WARRANTY.
+You are welcome to redistribute it under certain conditions.
+Type 'license()' or 'licence()' for distribution details.
+
+  Natural language support but running in an English locale
+
+R is a collaborative project with many contributors.
+Type 'contributors()' for more information and
+'citation()' on how to cite R or R packages in publications.
+
+Type 'demo()' for some demos, 'help()' for on-line help, or
+'help.start()' for an HTML browser interface to help.
+Type 'q()' to quit R.
+
+> library(OncoDev14)
+Loading required package: jsonlite
+
+Attaching package: ‘jsonlite’
+
+The following object is masked from ‘package:utils’:
+
+    View
+
+Loading required package: httpuv
+Loading required package: SttrDataPackage
+Loading required package: PatientHistory
+
+Attaching package: ‘SttrDataPackage’
+
+The following object is masked from ‘package:utils’:
+
+    history
+
+Loading required package: survival
+Loading required package: base64enc
+Loading required package: PCA
+Loading required package: BiocGenerics
+Loading required package: parallel
+
+Attaching package: ‘BiocGenerics’
+
+The following objects are masked from ‘package:parallel’:
+
+    clusterApply, clusterApplyLB, clusterCall, clusterEvalQ,
+    clusterExport, clusterMap, parApply, parCapply, parLapply,
+    parLapplyLB, parRapply, parSapply, parSapplyLB
+
+The following objects are masked from ‘package:stats’:
+
+    IQR, mad, xtabs
+
+The following objects are masked from ‘package:base’:
+
+    anyDuplicated, append, as.data.frame, as.vector, cbind, colnames,
+    do.call, duplicated, eval, evalq, Filter, Find, get, grep, grepl,
+    intersect, is.unsorted, lapply, lengths, Map, mapply, match, mget,
+    order, paste, pmax, pmax.int, pmin, pmin.int, Position, rank,
+    rbind, Reduce, rownames, sapply, setdiff, sort, table, tapply,
+    union, unique, unlist, unsplit
+
+Loading required package: RUnit
+Loading required package: PLSR
+Loading required package: pls
+
+Attaching package: ‘pls’
+
+The following object is masked from ‘package:stats’:
+
+    loadings
+
+
+Attaching package: ‘PLSR’
+
+The following objects are masked from ‘package:PCA’:
+
+    getDataMatrixName, getDataPackage, printf, setDataMatrixName
+
+
+Attaching package: ‘OncoDev14’
+
+The following object is masked from ‘package:PLSR’:
+
+    show
+
+The following object is masked from ‘package:PCA’:
+
+    show
+
+The following object is masked from ‘package:SttrDataPackage’:
+
+    show
+
+The following object is masked from ‘package:methods’:
+
+    show
+
+The following object is masked from ‘package:base’:
+
+    close
+
+> sessionInfo()
+R version 3.2.2 (2015-08-14)
+Platform: x86_64-apple-darwin15.0.0 (64-bit)
+Running under: OS X 10.11 (El Capitan)
+
+locale:
+[1] en_US.UTF-8/en_US.UTF-8/en_US.UTF-8/C/en_US.UTF-8/en_US.UTF-8
+
+attached base packages:
+[1] parallel  stats     graphics  grDevices utils     datasets  methods  
+[8] base     
+
+other attached packages:
+ [1] OncoDev14_1.4.87        PLSR_1.0.16             pls_2.5-0              
+ [4] PCA_1.0.13              RUnit_0.4.30            BiocGenerics_0.16.0    
+ [7] base64enc_0.1-3         survival_2.38-3         SttrDataPackage_0.99.19
+[10] PatientHistory_0.99.6   httpuv_1.3.3            jsonlite_0.9.17        
+
+loaded via a namespace (and not attached):
+[1] Rcpp_0.12.1   splines_3.2.2
+> scriptDir <- "apps/oncoscape"
+> stopifnot(nchar(Sys.getenv("ONCOSCAPE_USER_DATA_STORE")) > 0)
+> userID <- "test@nowhere.org"
+> #current.datasets <- c("DEMOdz")
+> #current.datasets <- c("DEMOdz;TCGAgbm;TCGAbrain")
+> current.datasets <- c("DEMOdz;TCGAgbm")
+> port <- 7777
+> onco <- OncoDev14(port=port, scriptDir=scriptDir, userID=userID, datasetNames=current.datasets)
+[1] OncoDev14 ctor, datasetNames: DEMOdz;TCGAgbm
+[1] OncoDev14.loadDataPackages
+[1] OncoDev14:.loadDataPackages: DEMOdz
+Welcome to Bioconductor
+
+    Vignettes contain introductory material; view with
+    'browseVignettes()'. To cite Bioconductor, see
+    'citation("Biobase")', and for packages 'citation("pkgname")'.
+
+Loading required package: DBI
+
+[1] SttrDataPackage ctor, networks.found: 4
+OncoDev14 loading:         datasets[['DEMOdz']] <- DEMOdz()    0.46 seconds
+  new list of loaded datasets: DEMOdz
+[1] OncoDev14:.loadDataPackages: TCGAgbm
+[1] SttrDataPackage ctor, networks.found: 2
+OncoDev14 loading:       datasets[['TCGAgbm']] <- TCGAgbm()   14.32 seconds
+  new list of loaded datasets: DEMOdz,TCGAgbm
+[1] === datsets now available in datasets environment: DEMOdz,TCGAgbm
+> if(Sys.info()[["nodename"]] != "lopez") 
++    browseURL(sprintf("http://localhost:%d", port))
+> run(onco)
+[1] OncoDev14::run, starting service loop on port 7777
+[1] >> ==== Oncoscape.dispatchMessage: getUserId
+[1] >> ==== Oncoscape.dispatchMessage: getUserId
+[1] >> ==== Oncoscape.dispatchMessage: getUserId
+[1] >> ==== Oncoscape.dispatchMessage: initUserDataStore
+[1] OncoDev14.R 1.4.87 dispatchMessage detected error
+[1] --- msg.full: OncoDev14 (version 1.4.87) exception!  Error: length(tokens) == 2 is not TRUE\n. incoming msg: initUserDataStore;  request;  userDataStoreInitialized;  list(userID = "test@nowhere.org", userGroups = c("public", "test"))
+[1] >> ==== Oncoscape.dispatchMessage: getDataSetNames
+[1] wsDatasets:getAllDataSetNames: DEMOdz, TCGAgbm
+[1] >> ==== Oncoscape.dispatchMessage: getUserDataStoreSummary
+[1] OncoDev14.R 1.4.87 dispatchMessage detected error
+[1] --- msg.full: OncoDev14 (version 1.4.87) exception!  Error: length(tokens) == 2 is not TRUE\n. incoming msg: getUserDataStoreSummary;  request;  displayUserDataStoreSummary;  list(userID = "test@nowhere.org", userGroups = c("public", "test"))
+[1] >> ==== Oncoscape.dispatchMessage: getDataManifest
+[1] >> ==== Oncoscape.dispatchMessage: specifyCurrentDataset
+[1] wsDatasets.R, specifyCurrentDataset, available: DEMOdz;TCGAgbm
+[1] DEMOdz construction needed? TRUE
+[1] wsDatasets.specifyCurrentDataset creating and storing a new DEMOdz object
+[1] SttrDataPackage ctor, networks.found: 4
+[1] >> ==== Oncoscape.dispatchMessage: getPatientHistoryTable
+[1] wsDatasets.getPatientHistory, DEMOdz, found 7 coi
+[1] wsDatasets.getPatientHistoryTable, dim (20, 7)
+[1] >> ==== Oncoscape.dispatchMessage: createTimelines
+[1] === createTimelines
+[1]     callback: DisplayPatientTimeLine
+$dataPackage
+[1] "DEMOdz"
+
+$dataName
+[1] "historyTypes"
+
+[1] createTimelines about to send msg: DisplayPatientTimeLine
+[1] >> ==== Oncoscape.dispatchMessage: getMarkersNetwork
+[1] wsDatasets.getMarkersAndSamplesNetwork, size: 60262
+[1] >> ==== Oncoscape.dispatchMessage: getSampleCategorizationNames
+[1] >> ==== Oncoscape.dispatchMessage: getPathway
+[1] available: g.markers.json, g.pi3kAkt.json, g.egfr.json, g.gbmPathways.json
+[1] wsDatasets.getPathway ASKED for pathway 'g.gbmPathways.json'
+[1] wsDatasets.getPathway, size: 93840
+[1] >> ==== Oncoscape.dispatchMessage: createPCA
+[1] === ws.createPCA, full msg:
+$cmd
+[1] "createPCA"
+
+$callback
+[1] "pcaObjectCreated"
+
+$status
+[1] "request"
+
+$payload
+$payload$dataPackage
+[1] "DEMOdz"
+
+$payload$matrixName
+[1] "mtx.mrna.bc"
+
+
+[1] ws.createPCA just executed 'mypca <- PCA(ds, 'mtx.mrna.bc')'
+[1] resulting mypca object:
+[1] "PCA package, matrices: mtx.mrna.ueArray,mtx.mrna.bc,mtx.mut,mtx.cn,mtx.prot,mtx.meth"
+[1] >> ==== Oncoscape.dispatchMessage: createPLSR
+[1] === createPLSR
+[1]     callback: plsrObjectCreated
+$dataPackage
+[1] "DEMOdz"
+
+$matrixName
+[1] "mtx.mrna.bc"
+
+[1]     dataPackageName: DEMOdz
+[1]          matrixName: mtx.mrna.bc
+[1] createPLSR about to eval cmd: myplsr <- PLSR(ds, 'mtx.mrna.bc')
+[1] createPLSR about to send msg: plsrObjectCreated
+[1] >> ==== Oncoscape.dispatchMessage: getGeneSetNames
+[1] >> ==== Oncoscape.dispatchMessage: summarizePLSRPatientAttributes
+[1] === summarizePLSRPatientAttributes
+$cmd
+[1] "summarizePLSRPatientAttributes"
+
+$callback
+[1] "handleAgeAtDxAndSurvivalRanges"
+
+$status
+[1] "request"
+
+$payload
+[1] "AgeDx"    "Survival"
+
+[1] "------------ myplsr"
+[1] "------------ summary returned"
+$AgeDx
+[1]  9369.0 15163.5 19153.0 25736.0 31566.0
+
+$Survival
+[1]    3.0   82.0  772.0 2620.5 3524.0
+
+[1] >> ==== Oncoscape.dispatchMessage: getGeneSetNames
+[1] >> ==== Oncoscape.dispatchMessage: calculatePCA
+[1] === ws.calculatePCA
+$cmd
+[1] "calculatePCA"
+
+$callback
+[1] "pcaPlot"
+
+$status
+[1] "request"
+
+$payload
+$payload$genes
+[1] "random.40"
+
+
+[1] gene count for calculatePLSR (1)
+[1] genes for calculatePCA after possible lookup(40)
+[1] === entering PCA::calculate
+[1] dim(mtx): 141 x 64
+[1] looking at column.sums
+[1] before prcomp, 141, 40
+
+R version 3.2.2 (2015-08-14) -- "Fire Safety"
+Copyright (C) 2015 The R Foundation for Statistical Computing
+Platform: x86_64-apple-darwin15.0.0 (64-bit)
+
+R is free software and comes with ABSOLUTELY NO WARRANTY.
+You are welcome to redistribute it under certain conditions.
+Type 'license()' or 'licence()' for distribution details.
+
+  Natural language support but running in an English locale
+
+R is a collaborative project with many contributors.
+Type 'contributors()' for more information and
+'citation()' on how to cite R or R packages in publications.
+
+Type 'demo()' for some demos, 'help()' for on-line help, or
+'help.start()' for an HTML browser interface to help.
+Type 'q()' to quit R.
+
+> library(OncoDev14)
+Loading required package: jsonlite
+
+Attaching package: ‘jsonlite’
+
+The following object is masked from ‘package:utils’:
+
+    View
+
+Loading required package: httpuv
+Loading required package: SttrDataPackage
+Loading required package: PatientHistory
+
+Attaching package: ‘SttrDataPackage’
+
+The following object is masked from ‘package:utils’:
+
+    history
+
+Loading required package: survival
+Loading required package: base64enc
+Loading required package: PCA
+Loading required package: BiocGenerics
+Loading required package: parallel
+
+Attaching package: ‘BiocGenerics’
+
+The following objects are masked from ‘package:parallel’:
+
+    clusterApply, clusterApplyLB, clusterCall, clusterEvalQ,
+    clusterExport, clusterMap, parApply, parCapply, parLapply,
+    parLapplyLB, parRapply, parSapply, parSapplyLB
+
+The following objects are masked from ‘package:stats’:
+
+    IQR, mad, xtabs
+
+The following objects are masked from ‘package:base’:
+
+    anyDuplicated, append, as.data.frame, as.vector, cbind, colnames,
+    do.call, duplicated, eval, evalq, Filter, Find, get, grep, grepl,
+    intersect, is.unsorted, lapply, lengths, Map, mapply, match, mget,
+    order, paste, pmax, pmax.int, pmin, pmin.int, Position, rank,
+    rbind, Reduce, rownames, sapply, setdiff, sort, table, tapply,
+    union, unique, unlist, unsplit
+
+Loading required package: RUnit
+Loading required package: PLSR
+Loading required package: pls
+
+Attaching package: ‘pls’
+
+The following object is masked from ‘package:stats’:
+
+    loadings
+
+
+Attaching package: ‘PLSR’
+
+The following objects are masked from ‘package:PCA’:
+
+    getDataMatrixName, getDataPackage, printf, setDataMatrixName
+
+
+Attaching package: ‘OncoDev14’
+
+The following object is masked from ‘package:PLSR’:
+
+    show
+
+The following object is masked from ‘package:PCA’:
+
+    show
+
+The following object is masked from ‘package:SttrDataPackage’:
+
+    show
+
+The following object is masked from ‘package:methods’:
+
+    show
+
+The following object is masked from ‘package:base’:
+
+    close
+
+> sessionInfo()
+R version 3.2.2 (2015-08-14)
+Platform: x86_64-apple-darwin15.0.0 (64-bit)
+Running under: OS X 10.11 (El Capitan)
+
+locale:
+[1] en_US.UTF-8/en_US.UTF-8/en_US.UTF-8/C/en_US.UTF-8/en_US.UTF-8
+
+attached base packages:
+[1] parallel  stats     graphics  grDevices utils     datasets  methods  
+[8] base     
+
+other attached packages:
+ [1] OncoDev14_1.4.87        PLSR_1.0.16             pls_2.5-0              
+ [4] PCA_1.0.13              RUnit_0.4.30            BiocGenerics_0.16.0    
+ [7] base64enc_0.1-3         survival_2.38-3         SttrDataPackage_0.99.19
+[10] PatientHistory_0.99.6   httpuv_1.3.3            jsonlite_0.9.17        
+
+loaded via a namespace (and not attached):
+[1] Rcpp_0.12.1   splines_3.2.2
+> scriptDir <- "apps/oncoscape"
+> stopifnot(nchar(Sys.getenv("ONCOSCAPE_USER_DATA_STORE")) > 0)
+> userID <- "test@nowhere.org"
+> #current.datasets <- c("DEMOdz")
+> #current.datasets <- c("DEMOdz;TCGAgbm;TCGAbrain")
+> current.datasets <- c("DEMOdz;TCGAgbm")
+> port <- 7777
+> onco <- OncoDev14(port=port, scriptDir=scriptDir, userID=userID, datasetNames=current.datasets)
+[1] OncoDev14 ctor, datasetNames: DEMOdz;TCGAgbm
+[1] OncoDev14.loadDataPackages
+[1] OncoDev14:.loadDataPackages: DEMOdz
+Welcome to Bioconductor
+
+    Vignettes contain introductory material; view with
+    'browseVignettes()'. To cite Bioconductor, see
+    'citation("Biobase")', and for packages 'citation("pkgname")'.
+
+Loading required package: DBI
+
+[1] SttrDataPackage ctor, networks.found: 4
+OncoDev14 loading:         datasets[['DEMOdz']] <- DEMOdz()    0.46 seconds
+  new list of loaded datasets: DEMOdz
+[1] OncoDev14:.loadDataPackages: TCGAgbm
+[1] SttrDataPackage ctor, networks.found: 2
+OncoDev14 loading:       datasets[['TCGAgbm']] <- TCGAgbm()   17.28 seconds
+  new list of loaded datasets: DEMOdz,TCGAgbm
+[1] === datsets now available in datasets environment: DEMOdz,TCGAgbm
+> if(Sys.info()[["nodename"]] != "lopez") 
++    browseURL(sprintf("http://localhost:%d", port))
+> run(onco)
+[1] OncoDev14::run, starting service loop on port 7777
+[1] >> ==== Oncoscape.dispatchMessage: getUserId
+[1] >> ==== Oncoscape.dispatchMessage: getUserId
+[1] >> ==== Oncoscape.dispatchMessage: getUserId
+[1] >> ==== Oncoscape.dispatchMessage: getDataSetNames
+[1] wsDatasets:getAllDataSetNames: DEMOdz, TCGAgbm
+[1] >> ==== Oncoscape.dispatchMessage: initUserDataStore
+[1] OncoDev14.R 1.4.87 dispatchMessage detected error
+[1] --- msg.full: OncoDev14 (version 1.4.87) exception!  Error: length(tokens) == 2 is not TRUE\n. incoming msg: initUserDataStore;  request;  userDataStoreInitialized;  list(userID = "test@nowhere.org", userGroups = c("public", "test"))
+[1] >> ==== Oncoscape.dispatchMessage: getUserDataStoreSummary
+[1] OncoDev14.R 1.4.87 dispatchMessage detected error
+[1] --- msg.full: OncoDev14 (version 1.4.87) exception!  Error: length(tokens) == 2 is not TRUE\n. incoming msg: getUserDataStoreSummary;  request;  displayUserDataStoreSummary;  list(userID = "test@nowhere.org", userGroups = c("public", "test"))
+[1] >> ==== Oncoscape.dispatchMessage: getDataManifest
+[1] >> ==== Oncoscape.dispatchMessage: specifyCurrentDataset
+[1] wsDatasets.R, specifyCurrentDataset, available: DEMOdz;TCGAgbm
+[1] TCGAgbm construction needed? TRUE
+[1] wsDatasets.specifyCurrentDataset creating and storing a new TCGAgbm object
+[1] SttrDataPackage ctor, networks.found: 2
+[1] >> ==== Oncoscape.dispatchMessage: getPatientHistoryTable
+[1] wsDatasets.getPatientHistory, TCGAgbm, found 7 coi
+[1] wsDatasets.getPatientHistoryTable, dim (592, 7)
+[1] >> ==== Oncoscape.dispatchMessage: createTimelines
+[1] === createTimelines
+[1]     callback: DisplayPatientTimeLine
+$dataPackage
+[1] "TCGAgbm"
+
+$dataName
+[1] "historyTypes"
+
+[1] createTimelines about to send msg: DisplayPatientTimeLine
+[1] >> ==== Oncoscape.dispatchMessage: getMarkersNetwork
+[1] wsDatasets.getMarkersAndSamplesNetwork, size: 1254650
+[1] >> ==== Oncoscape.dispatchMessage: getSampleCategorizationNames
+[1] >> ==== Oncoscape.dispatchMessage: getPathway
+[1] available: g.markers.json, g.gbmPathways.json
+[1] wsDatasets.getPathway ASKED for pathway 'g.gbmPathways.json'
+[1] wsDatasets.getPathway, size: 92107
+[1] >> ==== Oncoscape.dispatchMessage: createPCA
+[1] === ws.createPCA, full msg:
+$cmd
+[1] "createPCA"
+
+$callback
+[1] "pcaObjectCreated"
+
+$status
+[1] "request"
+
+$payload
+$payload$dataPackage
+[1] "TCGAgbm"
+
+$payload$matrixName
+[1] "mtx.mrna.ueArray"
+
+
+[1] ws.createPCA just executed 'mypca <- PCA(ds, 'mtx.mrna.ueArray')'
+[1] resulting mypca object:
+[1] "PCA package, matrices: mtx.cn,mtx.mrna,mtx.mrna.ueArray,mtx.mut,mtx.prot"
+[1] >> ==== Oncoscape.dispatchMessage: createPLSR
+[1] === createPLSR
+[1]     callback: plsrObjectCreated
+$dataPackage
+[1] "TCGAgbm"
+
+$matrixName
+[1] "mtx.mrna.ueArray"
+
+[1]     dataPackageName: TCGAgbm
+[1]          matrixName: mtx.mrna.ueArray
+[1] createPLSR about to eval cmd: myplsr <- PLSR(ds, 'mtx.mrna.ueArray')
+[1] createPLSR about to send msg: plsrObjectCreated
+[1] >> ==== Oncoscape.dispatchMessage: getGeneSetNames
+[1] >> ==== Oncoscape.dispatchMessage: summarizePLSRPatientAttributes
+[1] === summarizePLSRPatientAttributes
+$cmd
+[1] "summarizePLSRPatientAttributes"
+
+$callback
+[1] "handleAgeAtDxAndSurvivalRanges"
+
+$status
+[1] "request"
+
+$payload
+[1] "AgeDx"    "Survival"
+
+[1] "------------ myplsr"
+[1] "------------ summary returned"
+$AgeDx
+[1]  3982.0 17852.5 21154.0 24616.0 31627.0
+
+$Survival
+[1]    3.0  219.5  397.0  691.0 3881.0
+
+[1] >> ==== Oncoscape.dispatchMessage: getGeneSetNames
+[1] >> ==== Oncoscape.dispatchMessage: calculatePCA
+[1] === ws.calculatePCA
+$cmd
+[1] "calculatePCA"
+
+$callback
+[1] "pcaPlot"
+
+$status
+[1] "request"
+
+$payload
+$payload$genes
+[1] "marker.genes.545"
+
+
+[1] gene count for calculatePLSR (1)
+[1] genes for calculatePCA after possible lookup(545)
+[1] === entering PCA::calculate
+[1] dim(mtx): 323 x 11864
+[1] looking at column.sums
+[1] before prcomp, 323, 435
