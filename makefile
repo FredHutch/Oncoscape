@@ -1,4 +1,9 @@
 default: install test
+
+clean:
+	R --vanilla -f removeInstalledOncoscapePackages.R
+
+
 ####
 #  INSTALL
 #>make
