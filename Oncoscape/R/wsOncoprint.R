@@ -4,7 +4,6 @@ addRMessageHandler("oncoprint_data_selection",     "oncoprint_data_selection")  
 #----------------------------------------------------------------------------------------------------
 oncoprint_data_selection <- function(ws, msg)
 {
-<<<<<<< HEAD
    printf("=== entering oncoprint_data_selection")
 
    currentDataSetName <- state[["currentDatasetName"]]
@@ -187,7 +186,6 @@ oncoprint_data_selection <- function(ws, msg)
    printf("=== before sending out result")
    ws$send(return.msg)
 
-=======
     printf("=== entering oncoprint_data_selection")
     
     currentDataSetName <- state[["currentDatasetName"]]
@@ -201,6 +199,5 @@ oncoprint_data_selection <- function(ws, msg)
     printf("=== before sending out result")
     ws$send(return.msg)
     
->>>>>>> e68366e92af08d5d6e63d1aae4a30f581bae2ce3
 } # data_selection
 #-------------------------------------------------------------------------------
