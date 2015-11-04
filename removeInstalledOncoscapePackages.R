@@ -1,4 +1,8 @@
+library(RUnit)
+
 printf = function (...) print (noquote (sprintf (...)))
+if(!exists("biocLite"))
+    source("http://bioconductor.org/biocLite.R")
 
 #------------------------------------------------------------------------------------------
 # add newly-developed Oncoscape packages to this list as they become available
@@ -11,30 +15,51 @@ printf = function (...) print (noquote (sprintf (...)))
 #  sapply(pkgs.to.remove, remove.packages)
 #  sapply(pkgs.to.remove, install.packages)
 #------------------------------------------------------------------------------------------
-
-pkgs <- c("DEMOdz", "OncoDev", "OncoDev14",
+removePackage <- function(pkgs)
+{
+  for(path in .libPaths()){
+    pkgs.path <- file.path(path, pkgs)
+    deleters <- which(file.exists(pkgs.path))
+    printf("removing from libPath %s: %d", path, length(deleters))
+    if(length(deleters) > 0){
+       pkgs.to.remove <- pkgs[deleters];
+       print(paste("removing package ", paste(pkgs.to.remove, collapse=",")))
+       remove.packages(pkgs.to.remove, .libPaths())
+       } # if length
+    } # for path
+  
+} # removePackage
+#----------------------------------------------------------------------------------------------------
+# install a small standard package "pls" which we use in the PLSR analysis package
+test_removePackage <- function()
+{
+   print("--- testing removePackage")
+   pkgs <- "pls"
+   tempLib <- tempdir()
+   .libPaths(tempLib)
+   biocLite(pkgs, lib=tempLib, suppressUpdates=TRUE)
+   Sys.sleep(15)  # a crude wait for the package intallation to finish
+   checkTrue(file.exists(file.path(tempLib, "pls")))
+   removePackage(pkgs)
+   checkTrue(!file.exists(file.path(tempLib, "pls")))
+   printf("--- successful test of removePackage")
+    
+} # test_removePackage
+#----------------------------------------------------------------------------------------------------
+# this list needs ongoing curation.  add new Oncoscape-related package names here
+pkgs <- c("DEMOdz", "OncoDev", "OncoDev14", "Oncoscape",
           "PLSR", "PCA", "PatientHistory", "SttrDataPackage", "SttrDataSet",
-          "TCGAbrain", "TCGAgbm", "TCGAlgg", "TCGAluad", "iDEMOdz")
+          "TCGAbrain", "TCGAgbm", "TCGAlgg", "TCGAluad", "iDEMOdz", "pls")
 
+if(!interactive()){
+  test_removePackage()
+  removePackage(pkgs)
+  }
+
+#----------------------------------------------------------------------------------------------------
 # in some of our oncoscape installations we maintain a version-specific R library
 # such extra directories are returned by the R builtin ".libPaths()".
 # we add such a libPath, supplementing the often controlled-by-root default library
 # directory, by e.g., this shell command
 # export R_LIBS=/home/sttrweb/lopez/oncoscape/v1.4.60/Rlibs/x86_64-unknown-linux-gnu-library/3.2
-# 
-# testing shows that these additional directories -- which is where our Oncoscape data,
-# analysis and supporting packages will be installed -- are prepended to the libPath list.  thus
-# a general (?) solution to this problem, subject to more experience, is that this
-# will be the first path returned
-
-libPath <- .libPaths()[1]
-pkgs.paths <- file.path(libPath, pkgs)
-
-deleters <- which(file.exists(pkgs.paths))
-printf("oncoscape-related packages to remove before testing: %d", length(deleters))
-
-if(length(deleters) > 0){
-   pkgs.to.remove <- pkgs[deleters];
-   print(paste("removing package ", paste(pkgs.to.remove, collapse=",")))
-   remove.packages(pkgs.to.remove, .libPaths())
-   }
+# all the above-named pkgs are deleted from any libPath in which they are found
