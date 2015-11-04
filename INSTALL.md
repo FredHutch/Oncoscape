@@ -56,11 +56,11 @@ as the R library.  Note that the full path should be used instead of referencing
 	>make installLocal
 	
 ### Installing on OSX
--These instructions assume homebrew is installed:
+These instructions assume homebrew is installed:
 
-	>brew install r
+	brew install r
  
-All of the required dependencies for R will be installed automatically. The contents of the .setupR file should look something like this (the contents below may need to be modified):
+Required dependencies will be installed automatically by homebrew. The contents of the .setupR file should look something like example below. Please note: the contents below may need to be modified depending on where the homebrew "cellar" is on your system:
 
  	>vi .setupR
 		PATH=/usr/local/Cellar/r/3.2.2_1/R.framework/Resources:$PATH
@@ -70,7 +70,7 @@ All of the required dependencies for R will be installed automatically. The cont
  	>which R
  	>echo $R_LIBS
 
-- Call "installLocal" from the makefile. This will install the libraries into the version of R in `/usr/local/Cellar/`.
+- Call "installLocal" from the makefile.
 
 	>make installLocal
 
