@@ -20,6 +20,7 @@ runTests <- function()
 
   testConstructor();
   testMatrixAndDataframeAccessors()
+  testCanonicalizePatientIDs()
   
 } # runTests
 #--------------------------------------------------------------------------------
@@ -32,7 +33,7 @@ testConstructor <- function()
    checkTrue(nrow(manifest(dp)) >= 9)
    checkTrue(length(matrices(dp)) >= 5)
    checkTrue(eventCount(history(dp)) > 4500)
-   checkEquals(names(matrices(dp)), c("mtx.cn","mtx.mrna","mtx.mrna.bc", "mtx.mut", "mtx.prot"))
+   checkEquals(names(matrices(dp)), c("mtx.cn","mtx.mrna","mtx.mrna.bc", "mtx.mut", "mtx.prot", "mtx.meth"))
    
 } # testConstructor
 #--------------------------------------------------------------------------------
@@ -306,4 +307,17 @@ testMatrixAndDataframeAccessors <- function()
     
 
 } # testMatrixAndDataframeAccessors
+#----------------------------------------------------------------------------------------------------
+testCanonicalizePatientIDs <- function()
+{
+   print("--- testCanonicalizePatientIDs")
+   dp <- TCGAlgg()
+   IDs <- names(getPatientList(dp))
+   ptIDs <- canonicalizePatientIDs(dp, IDs)
+   
+   checkTrue(all(grepl("^TCGA\\.\\w\\w\\.\\w\\w\\w\\w$", ptIDs)))
+
+}
 #--------------------------------------------------------------------------------
+if(!interactive())
+   runTests()

@@ -1,4 +1,6 @@
-default:
+default: run
+
+run: kill
 	which R
 	m4 -E index.pre > index.html
 	R CMD INSTALL ../../../..
@@ -15,13 +17,21 @@ test:
 	#R -f runOncotestApp.R  autotest.1@nowhere.org.exitOnCompletion "DEMOdz;TCGAgbm"
 	#R -f runOncotestApp.R  autotest.5@nowhere.org.exitOnCompletion "DEMOdz;TCGAgbm;TCGAbrain"
 
-local: 
+runLocal: kill
 	which R
 	m4 -E index.pre > index.html
 	R CMD INSTALL -l $(R_LIBS) ../../../..
 	nohup R --vanilla -f runOncoscapeApp-7788.R &
 
+runDocker: kill
+	which R
+	m4 -E index.pre > index.html
+	R CMD INSTALL -l $(R_LIBS) ../../../..
+	R --vanilla -f runOncoscapeApp-7788.R
+
 pshannon:
 	m4 -E index.pre > index.html
 	R CMD INSTALL ../../../..
 	R --vanilla -f runOncoscapeApp-7788.R
+
+
