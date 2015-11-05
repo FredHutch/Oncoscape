@@ -26,6 +26,7 @@ runTests <- function()
     # the following tests address the -use- of this class by client code
 
   testMatrixAndDataframeAccessors()
+  testCanonicalizePatientIDs()
   
 } # runTests
 #--------------------------------------------------------------------------------
@@ -359,6 +360,17 @@ testHistoryTable <- function()
    checkEquals(as.character(events[1,c("Survival", "AgeDx", "TimeFirstProgression")]), c("349", "22379", "NA"))
 
 } # testHistoryList
+#----------------------------------------------------------------------------------------------------
+testCanonicalizePatientIDs <- function()
+{
+   printf("--- testCanonicalizePatientIDs")
+   dp <- TCGAcoadread()
+   IDs <- names(getPatientList(dp))
+   ptIDs <- canonicalizePatientIDs(dp, IDs)
+   
+   checkTrue(all(grepl("^TCGA\\.\\w\\w\\.\\w\\w\\w\\w$", ptIDs)))
+
+}
 #----------------------------------------------------------------------------------------------------
 if(!interactive())
    runTests()
