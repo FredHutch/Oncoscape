@@ -43,17 +43,33 @@ test_removePackage <- function()
    removePackage(pkgs)
    checkTrue(!file.exists(file.path(tempLib, "pls")))
    printf("--- successful test of removePackage")
-    
+       
 } # test_removePackage
+
+#----------------------------------------------------------------------------------------------------
+# test that there are no existing files matching the pkgs
+test_allPackagesRemoved <- function(pkgs){
+
+	for(path in .libPaths()){
+    	pkgs.path <- file.path(path, pkgs)
+	    deleters <- which(file.exists(pkgs.path))
+    	checkEquals(length(deleters), 0)
+		printf("%d Packages remaining: %s", length(deleters), path)
+	}
+    
+
+} #test_allPackageRemoved
 #----------------------------------------------------------------------------------------------------
 # this list needs ongoing curation.  add new Oncoscape-related package names here
 pkgs <- c("DEMOdz", "OncoDev", "OncoDev14", "Oncoscape",
           "PLSR", "PCA", "PatientHistory", "SttrDataPackage", "SttrDataSet",
-          "TCGAbrain", "TCGAgbm", "TCGAlgg", "TCGAluad", "iDEMOdz", "pls")
+          "TCGAbrain", "TCGAgbm", "TCGAlgg", "TCGAluad", "TCGAbrca","TCGAprad", "TCGAlusc", "TCGAlung","TCGAhnsc",
+          "TCGAcoad","TCGAread","TCGAcoadread", "iDEMOdz", "pls")
 
 if(!interactive()){
   test_removePackage()
   removePackage(pkgs)
+  test_allPackagesRemoved(pkgs)
   }
 
 #----------------------------------------------------------------------------------------------------
