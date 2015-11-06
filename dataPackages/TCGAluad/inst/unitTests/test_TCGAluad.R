@@ -18,7 +18,8 @@ runTests <- function()
   testMutation()#
   testMethylation()#
   testProteinAbundance() 
-
+  testCanonicalizePatientIDs()
+  
     # the following tests address the -use- of this class by client code
 
   testMatrixAndDataframeAccessors()
@@ -50,7 +51,9 @@ testManifest <- function()
                           "tbl.ptHistory.RData", "mtx.mrna_Seq.RData","mtx.mrna_Agi.RData",
                           "mtx.mut.RData","mtx.prot.RData","mtx.methHM450.RData","mtx.methHM27.RData") 
    checkTrue(all(expected.rownames %in% rownames(tbl)))
+
    for(i in 1:nrow(tbl)){
+
       file.name <- rownames(tbl)[i]
       full.name <- file.path(dir, file.name)
       variable.name <- tbl$variable[i]
@@ -332,7 +335,7 @@ testHistoryTable <- function()
 
    events <- getTable(ptHistory)
    checkEquals(class(events),"data.frame")
-   checkEquals(dim(events), c(520, 288))
+   checkEquals(dim(events), c(520, 337))
    checkEquals(colnames(events)[1:10], 
            c("ptID", "ptNum", "study", "Birth.date", "Birth.gender", "Birth.race", "Birth.ethnicity",
              "Drug.date1", "Drug.date2", "Drug.therapyType"))
@@ -342,3 +345,16 @@ testHistoryTable <- function()
 
 } # testHistoryList
 #----------------------------------------------------------------------------------------------------
+testCanonicalizePatientIDs <- function()
+{
+   print("--- testCanonicalizePatientIDs")
+   dp <- TCGAluad()
+   IDs <- names(getPatientList(dp))
+   ptIDs <- canonicalizePatientIDs(dp, IDs)
+   
+   checkTrue(all(grepl("^TCGA\\.\\w\\w\\.\\w\\w\\w\\w$", ptIDs)))
+
+}
+#----------------------------------------------------------------------------------------------------
+if(!interactive())
+   runTests()

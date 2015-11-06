@@ -17,6 +17,8 @@ runTests <- function()
   testManifest()
   testHistoryList()
   testHistoryTable()
+  testCanonicalizePatientIDs()
+  
   } # runTests
 #--------------------------------------------------------------------------------
 testConstructor <- function()#
@@ -144,6 +146,17 @@ testHistoryTable <- function()
    checkEquals(as.character(events[1,c("Survival", "AgeDx", "TimeFirstProgression")]), c("734", "21098", "NA"))
 
 } # testHistoryList
+#----------------------------------------------------------------------------------------------------
+testCanonicalizePatientIDs <- function()
+{
+   printf("--- testCanonicalizePatientIDs")
+   dp <- TCGAread()
+   IDs <- names(getPatientList(dp))
+   ptIDs <- canonicalizePatientIDs(dp, IDs)
+   
+   checkTrue(all(grepl("^TCGA\\.\\w\\w\\.\\w\\w\\w\\w$", ptIDs)))
+
+}
 #----------------------------------------------------------------------------------------------------
 if(!interactive())
    runTests()

@@ -116,6 +116,10 @@ function handleAgeAtDxAndSurvivalRanges(msg)
 {
    console.log("=== Module.plsr, handleAgeAtDxAndSurvivalRanges");
 
+   if(msg.status != "success"){
+		//error message should be issued 
+		return;
+	}
    ageAtDxMin = Math.floor(msg.payload.AgeDx[0]/365.24);
    ageAtDxMax = Math.floor(msg.payload.AgeDx[4]/365.24);
    survivalMin = Math.floor(msg.payload.Survival[0]/365.24);

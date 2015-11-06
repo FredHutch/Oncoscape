@@ -29,6 +29,7 @@ runTests <- function()
   testHistoryTable()
   testNetworks()
   testSampleCategories()
+  testCanonicalizePatientIDs()
 
 } # runTests
 #----------------------------------------------------------------------------------------------------
@@ -385,6 +386,17 @@ testSampleCategories <- function()
    checkTrue(nrow(tbl.2) > 400)
 
 } # testSampleCategories
+#----------------------------------------------------------------------------------------------------
+testCanonicalizePatientIDs <- function()
+{
+   printf("--- testCanonicalizePatientIDs")
+   dp <- DEMOdz()
+   IDs <- names(getPatientList(dp))
+   ptIDs <- canonicalizePatientIDs(dp, IDs)
+   
+   checkTrue(all(grepl("^TCGA\\.\\w\\w\\.\\w\\w\\w\\w$", ptIDs)))
+
+}
 #----------------------------------------------------------------------------------------------------
 if(!interactive())
    runTests()
