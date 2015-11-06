@@ -22,7 +22,7 @@ TCGAlung <- function()
 
 } # TCGAlung constructor
 #----------------------------------------------------------------------------------------------------
-setMethod('getPatientIDs', 'TCGAbrainClass',
+setMethod('canonicalizePatientIDs', 'TCGAlungClass',
   function (obj, patient.ids) {
   	 
      ptIDs =  gsub("(^TCGA\\.\\w\\w\\.\\w\\w\\w\\w).*","\\1", patient.ids)
