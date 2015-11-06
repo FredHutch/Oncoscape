@@ -298,7 +298,7 @@ var TimeLineModule = (function () {
           
           if(msg.status == "request"){
              var patientIDs = msg.payload.value;
-             msg = {cmd: "getPatientIDsFromDataset", callback: "TimelinesHandlePatientIDs", status: "request", 
+             msg = {cmd: "canonicalizePatientIDsInDataset", callback: "TimelinesHandlePatientIDs", status: "request", 
                     payload: patientIDs};
              hub.send(JSON.stringify(msg));
           }

@@ -32,7 +32,7 @@ setMethod("show", "DEMOdzClass",
      cat (msg, "\n", sep="")
      })
 #----------------------------------------------------------------------------------------------------
-setMethod('getPatientIDs', "DEMOdzClass",
+setMethod('canonicalizePatientIDs', "DEMOdzClass",
   function (obj, patient.ids) {
   	 
      patient.ids

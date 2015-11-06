@@ -24,7 +24,7 @@ TCGAprad <- function()
 } # TCGAprad constructor
 
 #----------------------------------------------------------------------------------------------------
-setMethod('getPatientIDs', 'TCGAbrcaClass',
+setMethod('canonicalizePatientIDs', 'TCGApradClass',
   function (obj, patient.ids) {
   	 
      ptIDs =  gsub("(^TCGA\\.\\w\\w\\.\\w\\w\\w\\w).*","\\1", patient.ids)

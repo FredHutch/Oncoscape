@@ -4,7 +4,6 @@ printf = function (...) print (noquote (sprintf (...)))
 .TCGAluad <- setClass ("TCGAluadClass", contains = "SttrDataPackageClass")
 #----------------------------------------------------------------------------------------------------
 #setGeneric('historyTable',   signature='obj', function (obj) standardGeneric ('historyTable'))
-setGeneric('getPatientIDs',   signature='obj', function (obj, patient.ids) standardGeneric ('getPatientIDs'))
 #----------------------------------------------------------------------------------------------------
 # constructor
 #TCGAluad <- function(name="", matrices=list(), history=PatientHistory(), manifest=data.frame())
@@ -25,7 +24,7 @@ TCGAluad <- function()
 } # TCGAluad constructor
 
 #----------------------------------------------------------------------------------------------------
-setMethod('getPatientIDs', 'TCGAluadClass',
+setMethod('canonicalizePatientIDs', 'TCGAluadClass',
   function (obj, patient.ids) {
   	 
      ptIDs =  gsub("(^TCGA\\.\\w\\w\\.\\w\\w\\w\\w).*","\\1", patient.ids)
