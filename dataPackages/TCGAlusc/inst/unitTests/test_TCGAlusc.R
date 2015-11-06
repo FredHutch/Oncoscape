@@ -18,7 +18,7 @@ runTests <- function()
   testMutation()
   testMethylation()#
   testProteinAbundance() 
-
+  testCanonicalizePatientIDs()
     # the following tests address the -use- of this class by client code
 
   testMatrixAndDataframeAccessors()
@@ -352,3 +352,16 @@ testHistoryTable <- function()
 
 } # testHistoryList
 #----------------------------------------------------------------------------------------------------
+testCanonicalizePatientIDs <- function()
+{
+   print("--- testCanonicalizePatientIDs")
+   dp <- TCGAlusc()
+   IDs <- names(getPatientList(dp))
+   ptIDs <- canonicalizePatientIDs(dp, IDs)
+   
+   checkTrue(all(grepl("^TCGA\\.\\w\\w\\.\\w\\w\\w\\w$", ptIDs)))
+
+}
+#----------------------------------------------------------------------------------------------------
+if(!interactive())
+   runTests()

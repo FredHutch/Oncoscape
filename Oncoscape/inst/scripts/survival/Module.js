@@ -61,7 +61,7 @@ function handleWindowResize()
     	  ids = [ids];
 
 	   console.log("Survival module, " + msg.cmd + " count: " + count);
-       msg = {cmd: "getPatientIDsFromDataset", callback: "survivalHandlePatientIDs", status: "request", 
+       msg = {cmd: "canonicalizePatientIDsInDataset", callback: "survivalHandlePatientIDs", status: "request", 
                     payload: ids};
              hub.send(JSON.stringify(msg));
      } // handlePatientIDs

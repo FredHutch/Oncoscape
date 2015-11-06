@@ -22,7 +22,7 @@ runTests <- function()
 #  testMethylation() 
   testProteinAbundance() 
   testSampleCategories()
-  testGetptIDs()
+  testCanonicalizePatientIDs()
 
     # the following tests address the -use- of this class by client code
 
@@ -323,19 +323,23 @@ testSampleCategories <- function()
    checkTrue(nrow(tbl.1) > 400)
 
 } # testSampleCategories
-#--------------------------------------------------------------------------------
-testGetptIDs <- function()
+#----------------------------------------------------------------------------------------------------
+testCanonicalizePatientIDs <- function()
 {
-   print("--- testGetptIDs")
-   dp <- TCGAgbm();
+   printf("--- testCanonicalizePatientIDs")
+   dp <- TCGAgbm()
+   IDs <- names(getPatientList(dp))
+   ptIDs <- canonicalizePatientIDs(dp, IDs)
+   
+   checkTrue(all(grepl("^TCGA\\.\\w\\w\\.\\w\\w\\w\\w$", ptIDs)))
+
    ptIDs <-  c("TCGA.HT.A4DV", "TCGA.E1.5311", "TCGA.F6.A8O4", "TCGA.HT.8113", "TCGA.HT.8109", "TCGA.DU.A6S6")
    specimenIDs <- c("TCGA.HT.A4DV.01", "TCGA.E1.5311.01", "TCGA.F6.A8O4.01", "TCGA.HT.8113.01", "TCGA.HT.8109.01", "TCGA.DU.A6S6.01")
-	coreIDs =  gsub("(^TCGA\\.\\w\\w\\.\\w\\w\\w\\w).*","\\1", specimenIDs)
 
-   checkEquals(ptIDs, getPatientIDs(dp, ptIDs))
-   checkEquals(ptIDs, getPatientIDs(dp, specimenIDs))
-    
-} # testGetptIDs
+   checkEquals(ptIDs, canonicalizePatientIDs(dp, ptIDs))
+   checkEquals(ptIDs, canonicalizePatientIDs(dp, specimenIDs))
+
+}
 #----------------------------------------------------------------------------------------------------
 if(!interactive())
    runTests()

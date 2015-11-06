@@ -24,7 +24,7 @@ TCGAhnsc <- function()
 } # TCGAhnsc constructor
 
 #----------------------------------------------------------------------------------------------------
-setMethod('getPatientIDs', 'TCGAbrcaClass',
+setMethod('canonicalizePatientIDs', 'TCGAhnscClass',
   function (obj, patient.ids) {
   	 
      ptIDs =  gsub("(^TCGA\\.\\w\\w\\.\\w\\w\\w\\w).*","\\1", patient.ids)

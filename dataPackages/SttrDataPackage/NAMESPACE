@@ -14,7 +14,7 @@ exportMethods (
   getGeneSetNames,
   getGeneSetGenes,
   networks,
-  getPatientIDs,
+  canonicalizePatientIDs,
   getSampleCategorizationNames,
   getSampleCategorization
   )
