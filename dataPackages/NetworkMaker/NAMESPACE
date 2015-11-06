@@ -1,0 +1,16 @@
+exportClasses(NetworkMaker)
+
+exportMethods(
+  getPackage,
+  calculateSimilarityMatrix
+  )
+
+export(
+   NetworkMaker
+   )
+
+import(PatientHistory)
+import(SttrDataPackage)
+importClassesFrom(methods, character, integer)
+importFrom(methods, new)
+
