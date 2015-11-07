@@ -60,6 +60,7 @@ We love your support.  This is how we show you.
 ```
 >git fetch origin 
 >git checkout –b branchName origin/branchName
+>git diff --name-status develop..branchName  #check to see which files have changed
 >git merge develop
 >git checkout develop
 >git merge –no-ff branchName #no fast forward groups all individual commits together
