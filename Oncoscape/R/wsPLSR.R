@@ -119,10 +119,11 @@ summarizePLSRPatientAttributes <- function(ws, msg)
    print("------------ summary returned");
    print(summary)
 	status <- "success"
-#   status <- "to be examined element by element"
    payload <- summary
 
    return.msg <- list(cmd=msg$callback, callback="", status=status, payload=payload)
+   print(return.msg)
+
    ws$send(toJSON(return.msg))
 
 } # summarizePLSRPatientAttributes
