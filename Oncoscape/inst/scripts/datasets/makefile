@@ -11,3 +11,9 @@ test:
 	#R -f runDatasets.R  autotest.1@nowhere.org.exitOnCompletion "DEMOdz;TCGAgbm"
 	#R -f runDatasets.R  autotest.3@nowhere.org.exitOnCompletion "DEMOdz;TCGAgbm;TCGAbrain"
 	R -f runDatasets.R  autotest.5@nowhere.org.exitOnCompletion "DEMOdz;TCGAgbm;TCGAbrain"
+
+check:
+	jshint Module.js
+	jshint Test.js
+	m4 index.pre > index.html
+	R -f runDatasets.R  autotest.5@nowhere.org.exitOnCompletion "DEMOdz;TCGAgbm;TCGAbrain"
