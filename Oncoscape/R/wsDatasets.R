@@ -12,7 +12,7 @@ addRMessageHandler("getSampleCategorization",      "wsGetSampleCategorization")
 addRMessageHandler("getMarkersNetwork", "getMarkersAndSamplesNetwork")
 addRMessageHandler("getPathway",        "getPathway")
 addRMessageHandler("getDrugGeneInteractions", "getDrugGeneInteractions")
-addRMessageHandler("getPatientIDsFromDataset",    "getPatientIDsFromDataset")
+addRMessageHandler("canonicalizePatientIDsInDataset",    "canonicalizePatientIDsInDataset")
 
 #----------------------------------------------------------------------------------------------------
 # this file provides the standard oncoscape websocket json interface to SttrDataSet objects
@@ -346,7 +346,7 @@ getDrugGeneInteractions <- function(ws, msg)
 
 } # getDrugGeneInteractions
 #----------------------------------------------------------------------------------------------------
-getPatientIDsFromDataset <- function(ws, msg)
+canonicalizePatientIDsInDataset <- function(ws, msg)
 {
 
   datasetName <- state[["currentDatasetName"]]
@@ -357,7 +357,7 @@ getPatientIDsFromDataset <- function(ws, msg)
   sampleIDs <- msg$payload
   printf("-- looking up %d IDs", length(sampleIDs))
 
-  ptIDs <- getPatientIDs(dataset, sampleIDs)
+  ptIDs <- canonicalizePatientIDs(dataset, sampleIDs)
 
   printf("-- found %d IDs", length(ptIDs))
  

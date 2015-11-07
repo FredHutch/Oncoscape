@@ -1,4 +1,9 @@
 default: install test
+
+clean:
+	R --vanilla -f removeInstalledOncoscapePackages.R
+
+
 ####
 #  INSTALL
 #>make
@@ -64,6 +69,12 @@ oncoAppLocal7777:
 
 oncoApp7777:
 	(cd Oncoscape/inst/scripts/apps/oncoscape/; make run;)
+
+oncoAppLocal7788:
+	(cd Oncoscape/inst/scripts/apps/oncotest/; make runLocal;)
+
+oncoApp7788:
+	(cd Oncoscape/inst/scripts/apps/oncotest/; make run;)
 
 oncoDocker:
 	(cd Oncoscape/inst/scripts/apps/oncoscape/; make runDocker;)

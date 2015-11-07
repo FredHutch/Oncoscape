@@ -52,8 +52,8 @@ run <- function()
 
     checkEquals(class(history), "list")
        
-   checkEquals(length(history), length(list.TCGAgbm) + length(list.TCGAlgg))
-   checkEquals(as.list(table(unlist(lapply(history, function(e) e["Name"])))), list(`Absent`=448, `Background`=1051,`Birth`=1051, `Diagnosis`=1051,`Drug`=1965,`Encounter`=2124, `Pathology`=1067, `Procedure`=323, `Progression`=542,  `Radiation`=819, `Status`=1051,`Tests`=1051))
+    checkEquals(length(history), length(list.TCGAgbm) + length(list.TCGAlgg))
+    checkEquals(as.list(table(unlist(lapply(history, function(e) e["Name"])))), list(`Absent`=448, `Background`=1051,`Birth`=1051, `Diagnosis`=1051,`Drug`=1965,`Encounter`=2124, `Pathology`=1067, `Procedure`=323, `Progression`=542,  `Radiation`=819, `Status`=1051,`Tests`=1051))
       #omf: other malignancy form for 2 patients gives extra pathologies
       # many additional surgeries marked (new_tumor_event_additional_surgery_procedure = YES) but no date given
       

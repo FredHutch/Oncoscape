@@ -103,9 +103,11 @@ function initializeUI ()
    searchBox = $("#markersAndTissuesSearchBox");
 
    edgeTypeSelector = $("#markersEdgeTypeSelector");
+   edgeTypeSelector.chosen();
+
    mouseOverReadout = $("#markersAndTissuesMouseOverReadout");
    configureCytoscape();
-   $(".chosen-select").chosen();
+   //$(".chosen-select").chosen();
    $(window).resize(handleWindowResize);
 
    subSelectButton = $("#markersSubSelectButton");
