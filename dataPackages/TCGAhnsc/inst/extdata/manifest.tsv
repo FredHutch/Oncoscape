@@ -1,9 +1,0 @@
-variable	class	category	subcategory	entity.count	feature.count	entity.type	feature.type	minValue	maxValue	provenance
-mtx.cn.RData	mtx.cn	matrix	copy number	gistic scores	522	22184	patient	gene	-2	2	tcga hnsc
-history.RData	history	list	history	clinical	3902	NA	NA	NA	NA	NA	tcga hnsc
-mtx.mut.RData	mtx.mut	matrix	mutations	aa substitutions	306	13503	patient	gene	NA	NA	tcga hnsc
-mtx.prot.RData	mtx.prot	matrix	protein abundance	Z scores	212	160	patient	protein	-6.11242466	10.09583254	tcga hnsc
-mtx.methHM450.RData	mtx.meth	matrix	methylation	beta values	530	16132	patient	gene	 0.00571503	0.99570131	tcga hnsc
-mtx.mrna.RData	mtx.mrna	matrix	mRNA expression	ratios	498	20444	patient	gene	-4.8275	19168.5583	tcga hnsc
-
-
