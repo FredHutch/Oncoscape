@@ -3,6 +3,7 @@
 *.log
 *.out
 nohup.out
+dataPackages/RawData
 
 # Packages #
 ############
@@ -25,5 +26,5 @@ index.html
 
 # Installation files #
 ######################
-.setupR
+.setupR*
 Rlibs
