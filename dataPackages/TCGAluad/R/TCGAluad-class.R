@@ -24,3 +24,10 @@ TCGAluad <- function()
 } # TCGAluad constructor
 
 #----------------------------------------------------------------------------------------------------
+setMethod('canonicalizePatientIDs', 'TCGAluadClass',
+  function (obj, patient.ids) {
+  	 
+     ptIDs =  gsub("(^TCGA\\.\\w\\w\\.\\w\\w\\w\\w).*","\\1", patient.ids)
+     ptIDs
+     })
+#----------------------------------------------------------------------------------------------------

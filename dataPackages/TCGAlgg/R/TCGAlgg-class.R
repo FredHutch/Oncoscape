@@ -3,6 +3,7 @@ printf = function (...) print (noquote (sprintf (...)))
 #----------------------------------------------------------------------------------------------------
 .TCGAlgg <- setClass ("TCGAlggClass", contains = "SttrDataPackageClass")
 #----------------------------------------------------------------------------------------------------
+#----------------------------------------------------------------------------------------------------
 # constructor
 #TCGAlgg <- function(name="", matrices=list(), history=PatientHistory(), manifest=data.frame())
 TCGAlgg <- function()
@@ -23,11 +24,10 @@ TCGAlgg <- function()
 
 } # TCGAlgg constructor
 #----------------------------------------------------------------------------------------------------
-setMethod('getPatientIDs', 'TCGAlggClass',
+setMethod('canonicalizePatientIDs', 'TCGAlggClass',
   function (obj, patient.ids) {
-  	 
+     
      ptIDs =  gsub("(^TCGA\\.\\w\\w\\.\\w\\w\\w\\w).*","\\1", patient.ids)
      ptIDs
      })
-
 #----------------------------------------------------------------------------------------------------

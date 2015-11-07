@@ -25,6 +25,7 @@ runTests <- function()
     # the following tests address the -use- of this class by client code
 
   testMatrixAndDataframeAccessors()
+  testCanonicalizePatientIDs()
   
 } # runTests
 #--------------------------------------------------------------------------------
@@ -88,9 +89,8 @@ testManifest <- function()
          checkEqualsNumeric(min(x, na.rm=T), minValue, tolerance=10e-5)
          checkEqualsNumeric(max(x, na.rm=T), maxValue, tolerance=10e-5)
          }
-      provenance <- tbl$provenance[i];
        } # for i
-
+   
    TRUE
    
 } # testManifest
@@ -332,6 +332,17 @@ testSampleCategories <- function()
    checkTrue(nrow(tbl.2) > 400)
 
 } # testSampleCategories
+#----------------------------------------------------------------------------------------------------
+testCanonicalizePatientIDs <- function()
+{
+   printf("--- testCanonicalizePatientIDs")
+   dp <- TCGAbrain()
+   IDs <- names(getPatientList(dp))
+   ptIDs <- canonicalizePatientIDs(dp, IDs)
+   
+   checkTrue(all(grepl("^TCGA\\.\\w\\w\\.\\w\\w\\w\\w$", ptIDs)))
+
+}
 #----------------------------------------------------------------------------------------------------
 if(!interactive())
    runTests()

@@ -14,13 +14,13 @@ runTests <- function()
   testHistoryTable()
   testExpression()
   testMutation() 
-#  testMethylation() 
+  testMethylation() 
   testProteinAbundance() 
     # the following tests address the -use- of this class by client code
 
   testConstructor();
   testMatrixAndDataframeAccessors()
-  testGetptIDs() 
+  testCanonicalizePatientIDs()
   
 } # runTests
 #--------------------------------------------------------------------------------
@@ -33,7 +33,7 @@ testConstructor <- function()
    checkTrue(nrow(manifest(dp)) >= 9)
    checkTrue(length(matrices(dp)) >= 5)
    checkTrue(eventCount(history(dp)) > 4500)
-   checkEquals(names(matrices(dp)), c("mtx.cn","mtx.mrna","mtx.mrna.bc", "mtx.mut", "mtx.prot"))
+   checkEquals(names(matrices(dp)), c("mtx.cn","mtx.mrna","mtx.mrna.bc", "mtx.mut", "mtx.prot", "mtx.meth"))
    
 } # testConstructor
 #--------------------------------------------------------------------------------
@@ -48,6 +48,7 @@ testManifest <- function()
    
    tbl <- read.table(file, sep="\t", as.is=TRUE)
    checkEquals(ncol(tbl), 11)
+
    checkTrue(nrow(tbl) >= 9)
    expected.categories <- c("copy number", "history", "mRNA expression","mRNA expression", "mutations",
                                "protein abundance", "geneset")
@@ -56,9 +57,15 @@ testManifest <- function()
    expected.rownames <- c("mtx.cn.RData", "events.RData","ptHistory.RData","historyTypes.RData", "mtx.mrna.RData",  "mtx.mut.RData",
                                 "mtx.prot.RData", "genesets.RData")
    checkTrue(all(expected.rownames %in% rownames(tbl)))
-   checkProvenance <- function(var){
-       return(tbl[tbl$variable==var,11])
-   }
+   provenance <- tbl$provenance;
+   expected.provenance <- c("tcga cBio","tcga","tcga","tcga","tcga","tcga cBio",
+                            "ucsc 2/24/15; RNAseq; combat adjusted normalization for batch effects",
+                            "tcga cBio","tcga cBio",
+                            "tcga cBio; one probe per gene- most anti-correlated with expression",
+                            "marker.genes.545, tcga.GBM.classifiers")
+   checkTrue(all(expected.provenance %in% provenance))
+
+
    for(i in 1:nrow(tbl)){
       file.name <- rownames(tbl)[i]
       full.name <- file.path(dir, file.name)
@@ -88,10 +95,9 @@ testManifest <- function()
          checkEqualsNumeric(min(x, na.rm=T), minValue, tolerance=10e-4)
          checkEqualsNumeric(max(x, na.rm=T), maxValue, tolerance=10e-4)
          }
-      provenance <- tbl$provenance[i];
-      checkEquals(checkProvenance(tbl[i,1]),provenance)
       } # for i
 
+   
    TRUE
    
 } # testManifest
@@ -301,20 +307,17 @@ testMatrixAndDataframeAccessors <- function()
     
 
 } # testMatrixAndDataframeAccessors
-#--------------------------------------------------------------------------------
-testGetptIDs <- function()
+#----------------------------------------------------------------------------------------------------
+testCanonicalizePatientIDs <- function()
 {
-   print("--- testGetptIDs")
-   dp <- TCGAlgg();
-   ptIDs <-  c("TCGA.HT.A4DV", "TCGA.E1.5311", "TCGA.F6.A8O4", "TCGA.HT.8113", "TCGA.HT.8109", "TCGA.DU.A6S6")
-   specimenIDs <- c("TCGA.HT.A4DV.01", "TCGA.E1.5311.01", "TCGA.F6.A8O4.01", "TCGA.HT.8113.01", "TCGA.HT.8109.01", "TCGA.DU.A6S6.01")
-	coreIDs =  gsub("(^TCGA\\.\\w\\w\\.\\w\\w\\w\\w).*","\\1", specimenIDs)
+   print("--- testCanonicalizePatientIDs")
+   dp <- TCGAlgg()
+   IDs <- names(getPatientList(dp))
+   ptIDs <- canonicalizePatientIDs(dp, IDs)
+   
+   checkTrue(all(grepl("^TCGA\\.\\w\\w\\.\\w\\w\\w\\w$", ptIDs)))
 
-   checkEquals(ptIDs, getPatientIDs(dp, ptIDs))
-   checkEquals(ptIDs, getPatientIDs(dp, specimenIDs))
-    
-} # testGetptIDs
-
+}
 #--------------------------------------------------------------------------------
-
-runTests()
+if(!interactive())
+   runTests()

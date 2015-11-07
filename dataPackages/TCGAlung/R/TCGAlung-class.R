@@ -12,15 +12,20 @@ TCGAlung <- function()
   dir <- system.file(package="TCGAlung", "extdata")
   stopifnot(file.exists(dir))
   data <- SttrDataPackage:::.loadFiles(dir)
-
+  
   obj <- .TCGAlung(SttrDataPackage(name="TCGAlung",
                                  matrices=data$matrices,
                                  data.frames=data$data.frames,
                                  history=data$history,
                                  manifest=data$manifest))
-
-  obj
+   obj
 
 } # TCGAlung constructor
-
+#----------------------------------------------------------------------------------------------------
+setMethod('canonicalizePatientIDs', 'TCGAlungClass',
+  function (obj, patient.ids) {
+  	 
+     ptIDs =  gsub("(^TCGA\\.\\w\\w\\.\\w\\w\\w\\w).*","\\1", patient.ids)
+     ptIDs
+     })
 #----------------------------------------------------------------------------------------------------

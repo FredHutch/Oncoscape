@@ -24,7 +24,7 @@ TCGAgbm <- function()
 
 } # TCGAgbm constructor
 #----------------------------------------------------------------------------------------------------
-setMethod('getPatientIDs', 'TCGAgbmClass',
+setMethod('canonicalizePatientIDs', 'TCGAgbmClass',
   function (obj, patient.ids) {
   	 
      ptIDs =  gsub("(^TCGA\\.\\w\\w\\.\\w\\w\\w\\w).*","\\1", patient.ids)

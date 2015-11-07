@@ -22,5 +22,11 @@ TCGAbrca <- function()
   obj
 
 } # TCGAbrca constructor
-
+#----------------------------------------------------------------------------------------------------
+setMethod('canonicalizePatientIDs', 'TCGAbrcaClass',
+  function (obj, patient.ids) {
+  	 
+     ptIDs =  gsub("(^TCGA\\.\\w\\w\\.\\w\\w\\w\\w).*","\\1", patient.ids)
+     ptIDs
+     })
 #----------------------------------------------------------------------------------------------------
