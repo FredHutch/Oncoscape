@@ -6,7 +6,7 @@ run: kill
 
 
 kill:
-	- kill -9 `ps aux | grep runOncoscapeApp-7777 | egrep -v grep | awk  '{print $$2}'`
+	- kill -9 `ps aux | grep runOncoscapeApp-7777 | egrep -v grep | awk  '{print $$1}'`
 
 runLocal: kill
 	which R

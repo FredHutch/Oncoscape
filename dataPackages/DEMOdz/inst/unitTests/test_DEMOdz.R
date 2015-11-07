@@ -389,7 +389,7 @@ testSampleCategories <- function()
 #----------------------------------------------------------------------------------------------------
 testCanonicalizePatientIDs <- function()
 {
-   printf("--- testCanonicalizePatientIDs")
+   print("--- testCanonicalizePatientIDs")
    dp <- DEMOdz()
    IDs <- names(getPatientList(dp))
    ptIDs <- canonicalizePatientIDs(dp, IDs)

@@ -3,14 +3,15 @@ default: build Rtests server delay py
 build:
 	(cd ../..; R CMD INSTALL . --no-test-load)
 
-test: Rtests server delay py
+test: Rtests server delay py kill
 
 autoTest:
 	python testWebSocketOperations_server.py oncoscape.sttrcancer.org | tee  websocketOperations_server.log
 
-
-server:
+kill: 
 	- kill `ps aux | grep runWsTestOnco.R | grep -v grep | awk '{print $$2}'`
+
+server: kill
 	bash R --no-save --silent -f ./runWsTestOnco.R &
 
 Rtests:
