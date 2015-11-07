@@ -8,7 +8,7 @@ run: kill
 
 
 kill:
-	- kill -9 `ps x | grep runOncoscapeApp-7788 | egrep -v grep | awk  '{print $$2}'`
+	- kill -9 `ps x | grep runOncoscapeApp-7788 | egrep -v grep | awk  '{print $$1}'`
 
 test:
 	m4 -E index.pre > index.html

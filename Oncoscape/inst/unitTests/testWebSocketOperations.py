@@ -1220,7 +1220,7 @@ def test_plsrSummarizePLSRPatientAttributes():
                  "callback":"handlePlsrClincialAttributeSummary", "payload": payload})
   ws.send(msg)
   result = loads(ws.recv())
-  assert(result["status"] == "to be examined element by element")
+  assert(result["status"] == "success")
   assert(result["cmd"] == "handlePlsrClincialAttributeSummary")
   assert(result["payload"]["AgeDx"] ==  [9369, 15163.5, 19153, 25736, 31566])
     
