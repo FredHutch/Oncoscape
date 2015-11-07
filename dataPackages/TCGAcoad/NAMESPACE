@@ -1,0 +1,12 @@
+exportClasses(TCGAcoadClass)
+
+export(
+   TCGAcoad
+   )
+
+exportMethods(
+   )
+
+importClassesFrom(methods, character, integer)
+importFrom(methods, new)
+
