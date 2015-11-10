@@ -19,6 +19,8 @@ runTests <- function()
   testMethylation()#
   testProteinAbundance() 
   testCanonicalizePatientIDs()
+  testGeneSets()
+  testNetworks()
   
     # the following tests address the -use- of this class by client code
 
@@ -344,6 +346,30 @@ testHistoryTable <- function()
    checkEquals(as.character(events[1,c("Survival", "AgeDx", "TimeFirstProgression")]), c("0", "25752", "NA"))
 
 } # testHistoryList
+#----------------------------------------------------------------------------------------------------
+testGeneSets <- function()
+{
+   printf("--- testGeneSets")
+   dz <- TCGAluad()
+   expected <- c("tcga.pancan.mutated") 
+   checkTrue(all(expected %in% getGeneSetNames(dz)))
+   
+   geneSymbols <- getGeneSetGenes(dz, expected[1])
+   checkEquals(length(geneSymbols), 64)
+
+
+} # testGeneSets
+#----------------------------------------------------------------------------------------------------
+testNetworks <- function()
+{
+   printf("--- testNetworks")
+   dz <- TCGAluad()
+#   expected <- c("g.gbmPathways.json") 
+#   checkTrue(all(expected %in% names(networks(dz))))
+
+#	checkTrue(nchar(networks(dz)[["g.markers.json"]]) > 0 )
+	
+} # testNetworks
 #----------------------------------------------------------------------------------------------------
 testCanonicalizePatientIDs <- function()
 {

@@ -299,11 +299,20 @@ getMarkersAndSamplesNetwork <- function(ws, msg)
 {
   datasetName <- state[["currentDatasetName"]]
   dataset <- datasets[[datasetName]]
+  markerName = "g.markers.json"
 
-  payload <- networks(dataset)$g.markers.json
-  printf("wsDatasets.getMarkersAndSamplesNetwork, size: %d", nchar(payload));
-  return.msg <- list(cmd=msg$callback, status="success", callback="", payload=payload)
+  if(markerName %in% names(networks(dataset))){
+	  payload <- networks(dataset)[[markerName]]
+	  printf("wsDatasets.getMarkersAndSamplesNetwork, size: %d", nchar(payload));
+	  return.msg <- list(cmd=msg$callback, status="success", callback="", payload=payload)
+	  ws$send(toJSON(return.msg))
+	  return;
+  }
+  printf("wsDatasets.getMarkersAndSamplesNetwork, %s not in %s", markerName, datasetName);
+  payload <- paste("error: wsDatasets.getMarkersAndSamplesNetwork, ",markerName, " not in ", datasetName, sep="")
+  return.msg <- list(cmd=msg$callback, status="error", callback="", payload=payload)
   ws$send(toJSON(return.msg))
+  
 
 } # getMarkersAndSamplesNetwork
 #----------------------------------------------------------------------------------------------------
@@ -314,12 +323,18 @@ getPathway <- function(ws, msg)
   pathwayName <- msg$payload
   printf("available: %s", paste(names(networks(dataset)), collapse=", "));
   printf("wsDatasets.getPathway ASKED for pathway '%s'", pathwayName);
-  # stopifnot(pathwayName %in% names(networks(dataset)))
+  if(pathwayName %in% names(networks(dataset))){
+	  payload <- networks(dataset)[[pathwayName]];
+	  printf("wsDatasets.getPathway, size: %d", nchar(payload));
+	  return.msg <- list(cmd=msg$callback, status="success", callback="", payload=payload)
+	  ws$send(toJSON(return.msg))
+	  return;
+  }
+	  printf("wsDatasets.getPathway, %s not in %s", pathwayName, datasetName);
+	  payload <- paste("error: wsDatasets.getPathway, ",pathwayName, " not in ", datasetName, sep="")
+	  return.msg <- list(cmd=msg$callback, status="error", callback="", payload=payload)
+  	  ws$send(toJSON(return.msg))
   
-  payload <- networks(dataset)[[pathwayName]];
-  printf("wsDatasets.getPathway, size: %d", nchar(payload));
-  return.msg <- list(cmd=msg$callback, status="success", callback="", payload=payload)
-  ws$send(toJSON(return.msg))
 
 } # getPathway
 #----------------------------------------------------------------------------------------------------

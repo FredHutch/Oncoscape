@@ -23,7 +23,9 @@ runTests <- function()
   testProteinAbundance() 
   testSampleCategories()
   testCanonicalizePatientIDs()
-
+  testGeneSets()
+  testNetworks()
+  
     # the following tests address the -use- of this class by client code
 
   testMatrixAndDataframeAccessors()
@@ -323,6 +325,35 @@ testSampleCategories <- function()
    checkTrue(nrow(tbl.1) > 400)
 
 } # testSampleCategories
+#----------------------------------------------------------------------------------------------------
+testGeneSets <- function()
+{
+   printf("--- testGeneSets")
+   dz <- TCGAgbm()
+   expected <- c("tcga.GBM.classifiers","marker.genes.545") 
+   checkTrue(all(expected %in% getGeneSetNames(dz)))
+   
+   geneSymbols <- getGeneSetGenes(dz, expected[1])
+   checkEquals(length(geneSymbols), 840)
+
+   geneSymbols <- getGeneSetGenes(dz, expected[2])
+   checkEquals(length(geneSymbols), 545)
+
+
+} # testGeneSets
+#----------------------------------------------------------------------------------------------------
+testNetworks <- function()
+{
+   printf("--- testNetworks")
+   dz <- TCGAgbm()
+   expected <- c("g.markers.json", "g.gbmPathways.json") 
+   checkTrue(all(expected %in% names(networks(dz))))
+
+	checkTrue(nchar(networks(dz)[["g.markers.json"]]) > 0 )
+	checkTrue(nchar(networks(dz)[["g.gbmPathways.json"]]) > 0 )
+	
+} # testNetworks
+
 #----------------------------------------------------------------------------------------------------
 testCanonicalizePatientIDs <- function()
 {
