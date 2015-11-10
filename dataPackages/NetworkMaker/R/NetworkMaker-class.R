@@ -14,7 +14,7 @@ options(stringsAsFactors = FALSE)
 #----------------------------------------------------------------------------------------------------
 setGeneric('getPackage',                 signature='obj', function (obj) standardGeneric ('getPackage'))
 setGeneric('calculateSimilarityMatrix',  signature='obj', function (obj, samples=NA, genes=NA)
-           standardGeneric ('calculateSimilarityMatrix'))
+                                                          standardGeneric ('calculateSimilarityMatrix'))
 #----------------------------------------------------------------------------------------------------
 # constructor
 NetworkMaker <- function(packageName="", verbose=FALSE)
@@ -59,7 +59,7 @@ setMethod("getPackage", "NetworkMaker",
 .extractSamplesAndGenes <- function(obj)
 {
    sample.names <- sort(unique(c(rownames(obj@mtx.mut), rownames(obj@mtx.cn))))
-   sample.names <- getPatientIDs(obj@pkg, sample.names)
+   sample.names <- canonicalizePatientIDs(obj@pkg, sample.names)
    gene.names <- c()
    geneSetNames <- getGeneSetNames(obj@pkg)
    stopifnot(length(geneSetNames) >= 1)
@@ -78,10 +78,64 @@ setMethod("getPackage", "NetworkMaker",
 setMethod("calculateSimilarityMatrix", "NetworkMaker",
 
   function (obj, samples=NA, genes=NA) {
-     ids <- .extractSamplesAndGenes(obj)
-     m0.mut <- 
-     browser()
-     x <- 99
+
+     mut <- obj@mtx.mut
+
+     if(!all(is.na(samples))){
+        samples <- intersect(rownames(mut), samples)
+        mut <- mut[samples,]
+        }
+
+     if(!all(is.na(genes))){
+        genes <- intersect(colnames(mut), genes)
+        mut <- mut[, genes]
+        }
+
+        # coerce mut into a matrix of 0/1
+        # mutation matrices indicate wildtype by what token?  "" or NA or "NA"?
+        # until this is standardized and enforced check for each
+
+     
+     if(length(which(mut == "NA")) > 0){
+         mut.01 <- (mut != "NA") + 0   # coerce to integers by adding zero
+     } else if (length(which(is.na(mut))) > 0){
+         mut.01 <- (!is.na(mut)) + 0
+     } else if (length(which(mut == "")) > 0){
+         mut.01 <- (mut != "") + 0
+     } else {
+         stop("unexpected mut values")
+     }
+
+     stopifnot(all(sort(unique(as.integer(mut.01))) == c(0,1)))
+
+     cn <- obj@mtx.cn
+
+     if(!all(is.na(samples))){
+        samples <- intersect(rownames(cn), samples)
+        cn <- cn[samples,]
+        }
+     if(!all(is.na(genes))){
+        genes <- intersect(colnames(cn), genes)
+        cn <- cn[, genes]
+        }
+
+        # we distinguish between copy number genes, and mutated genes:
+     colnames(cn) <-     paste(colnames(cn),     ".cn", sep="");
+     colnames(mut.01) <- paste(colnames(mut.01), ".mut", sep="");
+
+     all.genes   <- sort(unique(c(colnames(cn), colnames(mut.01))))
+     all.samples <- sort(unique(c(rownames(cn), rownames(mut.01))))
+     
+     mtx <- matrix(0, nrow=length(all.samples), ncol=length(all.genes), byrow=FALSE,
+                   dimnames<-list(all.samples, all.genes))
+     mtx[rownames(cn), colnames(cn)] <- cn
+     mtx[rownames(mut.01), colnames(mut.01)] <- mut.01
+
+     dmtx <- as.matrix(dist(mtx))
+     tbl.pos <- as.data.frame(cmdscale(dmtx, k=3))
+     colnames(tbl.pos) <- c("x", "y", "z")
+     rownames(tbl.pos) <- canonicalizePatientIDs(obj@pkg, rownames(tbl.pos))
+     tbl.pos
      })
 
 #----------------------------------------------------------------------------------------------------
