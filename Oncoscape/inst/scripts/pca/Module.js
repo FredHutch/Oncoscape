@@ -150,6 +150,10 @@ function addGeneSetNamesToMenu (geneSetNames)
      postStatus("addGeneSetNamesToMenu: geneSetNames.length == 0");
      return;
      }
+    
+   if(typeof geneSetNames == "string") 
+   	 geneSetNames = [geneSetNames] 
+ 
       
    for(var i=0; i < geneSetNames.length; i++){
      optionMarkup = "<option>" + geneSetNames[i] + "</option>";
