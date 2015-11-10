@@ -2,14 +2,16 @@ library(RUnit)
 library(NetworkMaker)
 library(SttrDataPackage)
 library(DEMOdz)
-library(TCGAbrca)
+library(TCGAgbm)
 options(stringsAsFactors=FALSE)
 #----------------------------------------------------------------------------------------------------
 runTests <- function()
 {
   testConstructor();
   test.extractSamplesAndGenes()
-  test.calculateSimilarity()
+  test.calculateSimilarity.DEMOdz()
+  test.calculateSimilarity.TCGAgbm()
+  test.calculateSimilarity.TCGAgbm.completeSubset()
   
 } # runTests
 #----------------------------------------------------------------------------------------------------
@@ -25,28 +27,276 @@ testConstructor <- function()
 test.extractSamplesAndGenes <- function()
 {
     print("--- test.extractSamplesAndGenes")
-    dzName <- "TCGAbrca"
-    #dzName <- "TCGAgbm"
+    dzName <- "DEMOdz"
     netMaker <- NetworkMaker(dzName)
     x <- NetworkMaker:::.extractSamplesAndGenes(netMaker)
     checkEquals(names(x), c("samples", "genes"))
-    checkTrue(length(x$samples) > 500 & length(x$samples) < 600)
-    checkTrue(length(x$genes) >  1000 & length(x$genes) < 2000)
+    checkEquals(length(x$samples), 20)
+    checkEquals(length(x$genes), 64)
     
 } # test.extractSamplesAndGenes
 #----------------------------------------------------------------------------------------------------
-test.calculateSimilarity <- function()
+test.calculateSimilarity.DEMOdz <- function()
 {
-    print("--- test.calculateSimilarity")
-    dzName <- "TCGAgbm"
+    print("--- test.calculateSimilarity.DEMOdz")
 
-    netMaker <- NetworkMaker(dzName)
-    goi <- c("IFNA1", "DMRTA1", "VSTM2A", "VOPP1", "LANCL2", "MTAP", "SEC61G", "EGFR", "CDKN2B", "CDKN2A")
-    poi <- c("TCGA.76.4934.01", "TCGA.14.1823.01", "TCGA.19.1388.01", "TCGA.06.0216.01", "TCGA.14.3477.01")
-    mtx <- calculateSimilarityMatrix(netMaker, poi, goi)
-  
+       # needed for testing. note that NetworkMaker does not need
+       # an already-constructed object.
     
-} # test.calculateSimilarity
+    dz <- DEMOdz() 
+    checkTrue(all(c("mtx.mut", "mtx.cn") %in% names(matrices(dz))))
+
+    dzName <- "DEMOdz"
+    netMaker <- NetworkMaker(dzName)
+    tbl.pos <- calculateSimilarityMatrix(netMaker)
+       # should be one x,y,z position vector for every patient
+
+    sampleCount <- nrow(getPatientTable(dz))
+    checkEquals(dim(tbl.pos), c(sampleCount, 3))
+
+       # from direct inspection, these two tumors appear most similar:
+       #  TCGA.06.0402  2.0799743 -1.4521335  1.43385494
+       #  TCGA.02.0021  2.1477070 -0.5468653  0.95903141
+
+       # a not-entirely-circular sanity check:
+       #   1) identify the closest pair points in tbl.pos, and the most distant pair
+       #   2) informally assess that the first pair is "similar", the second "less similar"
+    
+    mdist.check <- as.matrix(dist(tbl.pos))
+    checkTrue(min(mdist.check) == 0.0)
+    checkTrue(max(mdist.check) > 0.5)
+    
+    min.dist <- min(mdist.check[mdist.check != 0])
+    max.dist <- max(mdist.check)
+       # mdist.check is symmetrical, just get the first occurrence each of min.dist and max.dist
+    index.from.vector <- which(mdist.check == min.dist)[1]
+    row <- index.from.vector %/% ncol(mdist.check) + 1
+    col <- index.from.vector %% ncol(mdist.check)
+    checkEquals(mdist.check[row, col], min.dist)   # just to be sure...
+    min.pair <- c(rownames(mdist.check)[row], colnames(mdist.check)[col])
+
+    index.from.vector <- which(mdist.check == max.dist)[1]
+    row <- index.from.vector %/% ncol(mdist.check) + 1
+    col <- index.from.vector %% ncol(mdist.check)
+    checkEquals(mdist.check[row, col], max.dist)   # just to be sure...
+    max.pair <- c(rownames(mdist.check)[row], colnames(mdist.check)[col])
+
+       # with the pair now identified, count the mutation differences
+    mtx.mut <- matrices(dz)[["mtx.mut"]]
+    vec.1 <- mtx.mut[min.pair[1],]
+    vec.1[is.na(vec.1)] <- ""
+    vec.2 <- mtx.mut[min.pair[2],]
+    vec.2[is.na(vec.2)] <- ""
+    mins.mutation.differences <- length(which(vec.1 != vec.2))
+
+       # and the copy number differences
+    mtx.cn <- matrices(dz)[["mtx.cn"]]
+    vec.1 <- mtx.cn[min.pair[1],]
+    vec.1[is.na(vec.1)] <- ""
+    vec.2 <- mtx.cn[min.pair[2],]
+    vec.2[is.na(vec.2)] <- ""
+    mins.cn.differences <- length(which(vec.1 != vec.2))
+       # combine them
+    mins.differences <- mins.mutation.differences + mins.cn.differences
+
+       # now repeat for the most different samples
+    mtx.mut <- matrices(dz)[["mtx.mut"]]
+    vec.1 <- mtx.mut[max.pair[1],]
+    vec.1[is.na(vec.1)] <- ""
+    vec.2 <- mtx.mut[max.pair[2],]
+    vec.2[is.na(vec.2)] <- ""
+    maxes.mutation.differences <- length(which(vec.1 != vec.2))
+
+      # and the copy number differences
+    mtx.cn <- matrices(dz)[["mtx.cn"]]
+    vec.1 <- mtx.cn[max.pair[1],]
+    vec.1[is.na(vec.1)] <- ""
+    vec.2 <- mtx.cn[max.pair[2],]
+    vec.2[is.na(vec.2)] <- ""
+    maxes.cn.differences <- length(which(vec.1 != vec.2))
+       # combine them
+    maxes.differences <- maxes.mutation.differences + maxes.cn.differences
+
+    checkTrue(maxes.differences > mins.differences)
+
+       # do a graphical sanity check:
+       #   plot(tbl.pos$x, tbl.pos$y)
+       #   text(tbl.pos$x, tbl.pos$y, rownames(tbl.pos))
+
+} # test.calculateSimilarity.DEMOdz
+#----------------------------------------------------------------------------------------------------
+test.calculateSimilarity.TCGAgbm <- function()
+{
+    print("--- test.calculateSimilarity.TCGAgbm")
+
+       # needed for testing. note that NetworkMaker does not need
+       # an already-constructed object.
+
+    dz <- TCGAgbm()  # instantiate here only for testing
+
+      # restrict to interesting genes
+    load(system.file(package="NetworkMaker", "extdata", "genesets.RData"))
+    goi <- sort(unique(unlist(genesets, use.names=FALSE)))
+
+    dzName <- "TCGAgbm"
+    netMaker <- NetworkMaker(dzName)
+    tbl.pos <- calculateSimilarityMatrix(netMaker, genes=goi)
+       # should be one x,y,z position vector for every patient
+
+    sampleCount <- nrow(getPatientTable(dz))
+       # (9 nov 2015: TCGA_0.99.23 has 592 tumors, but cn &/or mut data
+       # on only 573 of them
+
+    checkTrue(nrow(tbl.pos) <= sampleCount);
+    checkEquals(ncol(tbl.pos), 3)
+    checkEquals(colnames(tbl.pos), c("x", "y", "z"))
+      # ensure that tissue or replicate suffix numbers have been stripped off
+    checkTrue(all(nchar(rownames(tbl.pos)) == 12))
+    
+       # from direct inspection, these two tumors appear most similar:
+       #  TCGA.06.0402  2.0799743 -1.4521335  1.43385494
+       #  TCGA.02.0021  2.1477070 -0.5468653  0.95903141
+
+       # a not-entirely-circular sanity check:
+       #   1) identify the closest pair points in tbl.pos, and the most distant pair
+       #   2) informally assess that the first pair is "similar", the second "less similar"
+    
+    mdist.check <- as.matrix(dist(tbl.pos))
+    checkTrue(min(mdist.check) == 0.0)
+    checkTrue(max(mdist.check) > 20)   # 30.3037 with TCGA_0.99.23
+    
+    min.dist <- min(mdist.check[mdist.check != 0])
+    max.dist <- max(mdist.check)
+       # mdist.check is symmetrical, just get the first occurrence each of min.dist and max.dist
+    index.from.vector <- which(mdist.check == min.dist)[1]
+    row <- index.from.vector %/% ncol(mdist.check) + 1
+    col <- index.from.vector %% ncol(mdist.check)
+    checkEquals(mdist.check[row, col], min.dist)   # just to be sure...
+    min.pair <- c(rownames(mdist.check)[row], colnames(mdist.check)[col])
+
+    index.from.vector <- which(mdist.check == max.dist)[1]
+    row <- index.from.vector %/% ncol(mdist.check) + 1
+    col <- index.from.vector %% ncol(mdist.check)
+    checkEquals(mdist.check[row, col], max.dist)   # just to be sure...
+    max.pair <- c(rownames(mdist.check)[row], colnames(mdist.check)[col])
+
+       # with the pair now identified, count the mutation differences
+    mtx.mut <- matrices(dz)[["mtx.mut"]]
+
+       # NetworkMaker accomodates missing mutation values, for
+       # tumors in which no mutations have been seen
+       # tumors with many missing values (no mutation data, for instance)
+       # are likely candidates for the "least different" two tumors.  this gets messy to track,
+       # messy to test, and is deferred for now in hopes that fully explicit and consistent data
+       # will soon become an oncoscape priority
+    
+
+} # test.calculateSimilarity.TCGAgbm
+#----------------------------------------------------------------------------------------------------
+test.calculateSimilarity.TCGAgbm.completeSubset <- function()
+{
+    print("--- test.calculateSimilarity.TCGAgbm.completeSubset")
+
+       # needed for testing. note that NetworkMaker does not need
+       # an already-constructed object.
+
+    dz <- TCGAgbm()  # instantiate here only for testing
+
+      # restrict to interesting genes
+    load(system.file(package="NetworkMaker", "extdata", "genesets.RData"))
+    goi <- sort(unique(unlist(genesets, use.names=FALSE)))
+    mut <- matrices(dz)$mtx.mut
+    cn <- matrices(dz)$mtx.cn
+    goi <- intersect(goi, intersect(colnames(mut), colnames(cn))) # 928
+    poi <- sort(intersect(rownames(mut), rownames(cn)))           # 281
+    
+    dzName <- "TCGAgbm"
+    netMaker <- NetworkMaker(dzName)
+    tbl.pos <- calculateSimilarityMatrix(netMaker, samples=poi, genes=goi)
+       # should be one x,y,z position vector for every patient
+
+    sampleCount <- nrow(getPatientTable(dz))
+       # (9 nov 2015: TCGA_0.99.23 has 592 tumors, but cn &/or mut data
+       # on only 573 of them
+
+    checkTrue(nrow(tbl.pos) <= sampleCount);
+    checkEquals(ncol(tbl.pos), 3)
+    checkEquals(colnames(tbl.pos), c("x", "y", "z"))
+      # ensure that tissue or replicate suffix numbers have been stripped off
+    checkTrue(all(nchar(rownames(tbl.pos)) == 12))
+    
+       # from direct inspection, these two tumors appear most similar:
+       #  TCGA.06.0402  2.0799743 -1.4521335  1.43385494
+       #  TCGA.02.0021  2.1477070 -0.5468653  0.95903141
+
+       # a not-entirely-circular sanity check:
+       #   1) identify the closest pair points in tbl.pos, and the most distant pair
+       #   2) informally assess that the first pair is "similar", the second "less similar"
+    
+    mdist.check <- as.matrix(dist(tbl.pos))
+    checkTrue(min(mdist.check) == 0.0)
+    checkTrue(max(mdist.check) > 20)   # 154.9 with TCGA_0.99.23
+    
+    min.dist <- min(mdist.check[mdist.check != 0])
+    max.dist <- max(mdist.check)
+       # mdist.check is symmetrical, just get the first occurrence each of min.dist and max.dist
+    index.from.vector <- which(mdist.check == min.dist)[1]
+    row <- index.from.vector %/% ncol(mdist.check) + 1
+    col <- index.from.vector %% ncol(mdist.check)
+    checkEquals(mdist.check[row, col], min.dist)   # just to be sure...
+    min.pair <- c(rownames(mdist.check)[row], colnames(mdist.check)[col])
+
+    index.from.vector <- which(mdist.check == max.dist)[1]
+    row <- index.from.vector %/% ncol(mdist.check) + 1
+    col <- index.from.vector %% ncol(mdist.check)
+    checkEquals(mdist.check[row, col], max.dist)   # just to be sure...
+    max.pair <- c(rownames(mdist.check)[row], colnames(mdist.check)[col])
+
+       # with the pair now identified, count the mutation differences
+    mtx.mut <- matrices(dz)[["mtx.mut"]]
+    rownames(mtx.mut) <- canonicalizePatientIDs(dz, rownames(mtx.mut))
+    vec.1 <- mtx.mut[min.pair[1],]
+    vec.1[is.na(vec.1)] <- ""
+    vec.2 <- mtx.mut[min.pair[2],]
+    vec.2[is.na(vec.2)] <- ""
+    mins.mutation.differences <- length(which(vec.1 != vec.2))
+
+       # and the copy number differences
+    mtx.cn <- matrices(dz)[["mtx.cn"]]
+    rownames(mtx.cn) <- canonicalizePatientIDs(dz, rownames(mtx.cn))
+
+    vec.1 <- mtx.cn[min.pair[1],]
+    vec.1[is.na(vec.1)] <- ""
+    vec.2 <- mtx.cn[min.pair[2],]
+    vec.2[is.na(vec.2)] <- ""
+    mins.cn.differences <- length(which(vec.1 != vec.2))
+       # combine them
+    mins.differences <- mins.mutation.differences + mins.cn.differences
+
+       # now repeat for the most different samples
+    mtx.mut <- matrices(dz)[["mtx.mut"]]
+    rownames(mtx.mut) <- canonicalizePatientIDs(dz, rownames(mtx.mut))
+    vec.1 <- mtx.mut[max.pair[1],]
+    vec.1[is.na(vec.1)] <- ""
+    vec.2 <- mtx.mut[max.pair[2],]
+    vec.2[is.na(vec.2)] <- ""
+    maxes.mutation.differences <- length(which(vec.1 != vec.2))
+
+      # and the copy number differences
+    mtx.cn <- matrices(dz)[["mtx.cn"]]
+    rownames(mtx.cn) <- canonicalizePatientIDs(dz, rownames(mtx.cn))
+    vec.1 <- mtx.cn[max.pair[1],]
+    vec.1[is.na(vec.1)] <- ""
+    vec.2 <- mtx.cn[max.pair[2],]
+    vec.2[is.na(vec.2)] <- ""
+    maxes.cn.differences <- length(which(vec.1 != vec.2))
+       # combine them
+    maxes.differences <- maxes.mutation.differences + maxes.cn.differences
+
+    checkTrue(maxes.differences > mins.differences)
+
+} # test.calculateSimilarity.TCGAgbm.completeSubset
 #----------------------------------------------------------------------------------------------------
 if(!interactive())
-   runTests()
+    runTests()
+    
