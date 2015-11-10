@@ -9,5 +9,6 @@ mtx.prot.RData	mtx.prot	matrix	protein abundance	Z scores	376	228	patient	protei
 mtx.methHM450.RData	mtx.meth	matrix	methylation	beta values	810	16749	patient	gene	 0.004365384	0.995690633	tcga luad and lusc; one probe per gene- most anti-correlated with expression
 mtx.methHM27.RData	mtx.meth	matrix	methylation	beta values	259	2552	patient	gene	 0.004523024	0.994422364	tcga luad and lusc; one probe per gene- most anti-correlated with expression
 mtx.mrna_Agi.RData	mtx.mrna	matrix	mRNA expression	ratios	186	17212	patient	gene	-28.7792	47.0682	tcga luad and lusc
-mtx.mrna_Seq.RData	mtx.mrna	matrix	mRNA expression	ratios	991	20444	patient	gene	-4.8681	38659.0448	tcga luad and lusc
-mtx.mrna_U133.RData	mtx.mrna	matrix	mRNA expression	ratios	133	11878	patient	gene	-9.9347	61.9539	tcga lusc
+mtx.mrna_U133.RData	mtx.mrna_U133	matrix	mRNA expression	ratios	133	11878	patient	gene	-9.9347	61.9539	tcga lusc
+mtx.mrna_Seq.RData	mtx.mrna_Seq	matrix	mRNA expression	ratios	991	20444	patient	gene	-4.8681	38659.0448	tcga luad and lusc
+genesets.RData	genesets	list	geneset	NA	1	NA	gene	NA	NA	NA	tcga.pancan.mutated

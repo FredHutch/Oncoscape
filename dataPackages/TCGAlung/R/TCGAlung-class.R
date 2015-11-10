@@ -17,7 +17,11 @@ TCGAlung <- function()
                                  matrices=data$matrices,
                                  data.frames=data$data.frames,
                                  history=data$history,
-                                 manifest=data$manifest))
+                                 manifest=data$manifest,
+                                 genesets=data$genesets,
+                                 networks = data$networks,
+                                 sampleCategorizations=data$sampleCategorizations
+))
    obj
 
 } # TCGAlung constructor
