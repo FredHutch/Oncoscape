@@ -1,12 +1,13 @@
 The following instructions describe how to install and run Oncoscape with the necessary data, analysis, and R dependency packages.  
 
-1. System Requirements
-2. Building and Installing Oncoscape
-3. Configuration
-4. Running Oncoscape
+1. [System Requirements](#1-system-requirements)
+2. [Building and Installing Oncoscape](#2-building-and-installing-oncoscape)
+3. [Oncoscape Configuration](#3-oncoscape-configuration)
+4. [Running Oncoscape](#4-running-oncoscape)
+5. [Running and Developing Oncoscape with Docker](#5-running-and-developing-oncoscape-with-docker)
 
 
-# 1. System Requirements
+## 1. System Requirements
 
 ### Linux System Requirements and Dependencies
 
@@ -94,7 +95,7 @@ After installing the above dependencies on your Mac OS X system, you are ready t
 
 ***NOTE***: Oncoscape uses a Unix tool-chain to build, test, install and run. Many of these tools are not native to the Windows platform so Oncoscape will currently not work out of the box on Windows. We are planning to offer instructions for the Windows platform soon.
 
-# 2. Building and Installing Oncoscape
+## 2. Building and Installing Oncoscape
 
 ### Mac OS X and Linux Build and Install Instructions
 
@@ -147,7 +148,7 @@ If all tests passed (you should see "OK:  all python websocket json tests passed
 
 ***NOTE***: Oncoscape uses a Unix tool-chain to build, test, install and run. Many of these tools are not native to the Windows platform so Oncoscape will currently not work out of the box on Windows. We are planning to offer instructions for the Windows platform soon.
 
-# 3. Oncoscape Configuration (all platforms)
+## 3. Oncoscape Configuration
 
 The default Oncoscape configuration file is located at 'Oncoscape/inst/scripts/apps/oncoscape/runOncoscapeApp-7777.R' 
 
@@ -169,7 +170,7 @@ if(Sys.info()[["nodename"]] != "yourservername")
 run(onco)
 ```
 
-# 4. Running Oncoscape
+## 4. Running Oncoscape
 
 ### Running a Global Installation
 
@@ -192,3 +193,13 @@ After the Oncoscape application has started, a web browser should open and autom
 > http://yourservername.com:7777
 
 After launching Oncoscape, it takes about 15 seconds before it starts listening for connections, so be patient.
+
+## 5. Running and Developing Oncoscape with Docker
+
+Oncoscape is currently available as a Docker container on the Docker Hub at:
+	
+>https://hub.docker.com/r/fredhutch/oncoscape/
+
+Both the latest stable release (tagged "latest") and development version (tagged "develop") are available in container format at the above link.
+
+Detailed documentation covering the use of Docker with Oncoscape can be found in the [DOCKER.md](https://github.com/FredHutch/Oncoscape/blob/master/DOCKER.md) file in this repository.
