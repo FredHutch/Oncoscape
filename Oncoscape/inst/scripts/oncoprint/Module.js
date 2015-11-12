@@ -21,6 +21,7 @@ var OncoprintModule = (function () {
   var cnv_data,mnra_data,mut_data, cnv_data_promise,mrna_data_promise,mut_data_promise;
   var OncoprintDiv = $("#oncoprintDiv");
   var ControlsDiv = $("#oncoprintControlsDiv");
+  var compute_start;
 //--------------------------------------------------------------------------------------------
 function initializeUI()
 {
@@ -88,7 +89,7 @@ function handleSelections(msg)
 
    console.log("Oncoprint module, " + msg.cmd + " patients and markers: " + ids);
    $("#onc").empty();
-   
+   compute_start = Date.now();
    analyzeSelectedTissues(ids);
 } // handleSelections
 //----------------------------------------------------------------------------------------------------
@@ -97,8 +98,8 @@ function analyzeSelectedTissues(IDs)
    $("#onc").append("Computing...");
    console.log("Oncoprint module, hub.send 'oncoprint_data_selection' for %d IDs",
                IDs.length);
-   if(IDs.length > 350){
-   		alert("Please choose less than 350 Nodes");
+   if(IDs.length > 450){
+   		alert("Please choose less than 450 Nodes");
    }else{
 	   var payload = {sampleIDs: IDs};
 	   var msg = {cmd:"oncoprint_data_selection", callback: "displayOncoprint", status: "request", 
@@ -117,7 +118,7 @@ function displayOncoprint(msg)
    
    console.log("displayOncoprint print recieved msg.payload: %s", msg.payload);
    
-   if(msg.status == "fail") {
+   if(msg.status == "failed") {
    		alert(msg.payload);
    		$("#onc").empty();
    }else{
@@ -185,7 +186,7 @@ function displayOncoprint(msg)
 	   
 	   }	
    }
-    
+   console.log("#######Computing since msg sent took: " + (Date.now() - compute_start) + " milliseconds"); 
 } // displaySurvivalCurves
 //----------------------------------------------------------------------------------------------------
 function map_cnv_data(data){
