@@ -23,5 +23,25 @@
 5. Update Oncoscape/dataPackages/TCGA_newPackage/inst/extdata/manifest.tsv:pushpin: 
 
 ## Data Package
-1. Update 
-2. 
+1. Update files linked to test/install targets:
+	* _installRpackages_global.sh_
+	* -installRpackages_local.sh_
+	* _removeInstalledOncoscapePackages.R_
+	* _dataPackages/makefile_
+	* _Oncoscape/inst/scripts/apps/oncotest/runOncoscapeApp-7788.R_
+2.  Build and Install new data package:
+	* `R CMD Build <TCGA_newPackage>`
+	* `R CMD Install <TCGA_newPackage>`
+3. Update and RUN unit tests at _inst/unitTests/test_TCGAnewPackage.R_
+4. Check new data package:
+	* `R CMD Check <TCGA_newPackage>`
+
+## Testing before submission
+1.	Update the content from current develop branch
+	* `git pull`
+2.  switch to the current feature branch
+	* `git checkout <current feature>`
+	* cd Oncoscape
+	> make clean
+	> make install
+	> make test
