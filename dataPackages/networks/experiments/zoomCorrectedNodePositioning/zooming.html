@@ -104,9 +104,9 @@ function initializeUI()
    $(window).resize(handleWindowResize);
    $("#resetButton").click(function(){
       cy.zoom(1);
-      cy.fit(50);
       cy.zoom({level: 1.0, renderedPosition:{x:$(window).width()/2, y:$(window).height()/2}});
       cy.nodes().map(function(node){node.style({width: node.data("trueWidth"), height: node.data("trueHeight")})})
+      cy.fit(50);
       });
       
    createNetwork()
@@ -151,11 +151,51 @@ function createNetwork()
      container: document.getElementById('cyDiv'), // container to render in
      elements: {
        nodes: [
-        {data: {id: 'a', trueWidth: 100, trueHeight: 100}, position: {x:100, y:100}}, 
-        {data: {id: 'b', trueWidth: 100, trueHeight: 100}, position: {x:200, y:200}},
-        {data: {id: 'c', trueWidth: 100, trueHeight: 100}, position: {x:50,  y:50}}
+        {data: {id: 'a',        trueWidth: 100,  trueHeight: 100},  position: {x: 3579, y: -234}}, 
+        {data: {id: 'b',        trueWidth: 100,  trueHeight: 100},  position: {x: 3629, y: -184}},
+        {data: {id: 'c',        trueWidth: 100,  trueHeight: 100},  position: {x: 3729, y: -84}},
+        {data: {id: "AGAP2",    trueWidth: 74.4, trueHeight: 74.4}, position: {x: 4319, y: -329.7674560776734}},
+        {data: {id: "ALDH2",    trueWidth: 28,   trueHeight: 28},   position: {x: 4319, y: -697.7213140971809}},
+        {data: {id: "ARID2",    trueWidth: 32,   trueHeight: 32},   position: {x: 4319, y: -136.7674560776734}},
+        {data: {id: "ATF1",     trueWidth: 26.4, trueHeight: 26.4}, position: {x: 4319, y: -217.7674560776734}},
+        {data: {id: "BCL7A",    trueWidth: 28.8, trueHeight: 28.8}, position: {x: 4319, y: -807.8701911146661}},
+        {data: {id: "BTG1",     trueWidth: 23.2, trueHeight: 23.2}, position: {x: 4319, y: -608.6653323806352}},
+        {data: {id: "CCND2",    trueWidth: 48.8, trueHeight: 48.8}, position: {x: 4319, y:  532.2325439223266}},
+        {data: {id: "CDK2",     trueWidth: 27.2, trueHeight: 27.2}, position: {x: 4319, y: -301.7674560776734}},
+        {data: {id: "CDK4",     trueWidth: 74.4, trueHeight: 74.4}, position: {x: 4319, y: -329.7674560776734}},
+        {data: {id: "CDKN1B",   trueWidth: 30.4, trueHeight: 30.4}, position: {x: 4319, y:  395.2325439223266}},
+        {data: {id: "DDIT3",    trueWidth: 52.8, trueHeight: 52.8}, position: {x: 4319, y: -325.7674560776734}},
+        {data: {id: "ERBB3",    trueWidth: 28,   trueHeight: 28},   position: {x: 4319, y: -302.7674560776734}},
+        {data: {id: "ERC1",     trueWidth: 44,   trueHeight: 44},   position: {x: 4319, y:  584.2325439223266}},
+        {data: {id: "ETV6",     trueWidth: 35.2, trueHeight: 35.2}, position: {x: 4319, y:  413.2325439223266}},
+        {data: {id: "GLI1",     trueWidth: 50.4, trueHeight: 50.4}, position: {x: 4319, y: -324.7674560776734}},
+        {data: {id: "HMGA2",    trueWidth: 26.4, trueHeight: 26.4}, position: {x: 4319, y: -459.7674560776734}},
+        {data: {id: "HNF1A",    trueWidth: 28.8, trueHeight: 28.8}, position: {x: 4319, y: -791.8701911146662}},
+        {data: {id: "HOXC11",   trueWidth: 28,   trueHeight: 28},   position: {x: 4319, y: -269.7674560776734}},
+        {data: {id: "HOXC13",   trueWidth: 27.2, trueHeight: 27.2}, position: {x: 4319, y: -268.7674560776734}},
+        {data: {id: "KDM5A",    trueWidth: 44,   trueHeight: 44},   position: {x: 4319, y:  596.2325439223266}},
+        {data: {id: "KMT2D",    trueWidth: 33.6, trueHeight: 33.6}, position: {x: 4319, y: -189.7674560776734}},
+        {data: {id: "KRAS",     trueWidth: 34.4, trueHeight: 34.4}, position: {x: 4319, y:  195.2325439223266}},
+        {data: {id: "LRIG3",    trueWidth: 33.6, trueHeight: 33.6}, position: {x: 4319, y: -347.7674560776734}},
+        {data: {id: "MDM2",     trueWidth: 48,   trueHeight: 48},   position: {x: 4319, y: -507.7674560776734}},
+        {data: {id: "MIR200C",  trueWidth: 42.4, trueHeight: 42.4}, position: {x: 4319, y:  488.2325439223266}},
+        {data: {id: "NACA",     trueWidth: 29.6, trueHeight: 29.6}, position: {x: 4319, y: -312.7674560776734}},
+        {data: {id: "PIK3C2G",  trueWidth: 36.8, trueHeight: 36.8}, position: {x: 4319, y:  306.2325439223266}},
+        {data: {id: "PMEL",     trueWidth: 28,   trueHeight: 28},   position: {x: 4319, y: -300.7674560776734}},
+        {data: {id: "PRH1",     trueWidth: 35.2, trueHeight: 35.2}, position: {x: 4319, y:  425.2325439223266}},
+        {data: {id: "PRR4",     trueWidth: 36,   trueHeight: 36},   position: {x: 4319, y:  425.2325439223266}},
+        {data: {id: "PTPN11",   trueWidth: 34.4, trueHeight: 34.4}, position: {x: 4319, y: -707.7213140971809}},
+        {data: {id: "SH2B3",    trueWidth: 29.6, trueHeight: 29.6}, position: {x: 4319, y: -691.7213140971809}},
+        {data: {id: "WIF1",     trueWidth: 29.6, trueHeight: 29.6}, position: {x: 4319, y: -446.7674560776734}},
+        {data: {id: "ZNF384",   trueWidth: 44,   trueHeight: 44},   position: {x: 4319, y:  493.2325439223266}},
+        {data: {id: "chr12p",   trueWidth: 60,   trueHeight: 30},   position: {x: 4319, y:   43.2325439223266}},
+        {data: {id: "chr12q",   trueWidth: 60,   trueHeight: 30},   position: {x: 4319, y:   -4.7674560776733}},
+        {data: {id: "start.12", trueWidth: 20.8, trueHeight: 20.8}, position: {x: 4319, y:  602.2325439223266}},
+        {data: {id: "end.12",   trueWidth: 20.8, trueHeight: 20.8}, position: {x: 4319, y: -944.7120857010824}}
         ],
       edges: [
+        {data: {id: "chrom12q", source: "chr12q",   target: "end.12"}},
+        {data: {id: "chrom12p", source: "start.12", target: "chr12p"}}
         ]},
 
      style: [
@@ -168,12 +208,19 @@ function createNetwork()
            width: 100,
            height: 100,
            'background-color': '#E8E8E8',
-           'label': 'data(id)'
+           'label': '' // data(id)'
         }},
       {selector: 'node:selected',
          style: {
             'borderWidth': 5
             }},
+
+      {selector: 'node[id="chr12q"], node[id="chr12p"]',
+         style: {
+           'border-color': 'green',
+           'border-width': 2,
+           'shape': 'roundrectangle',
+           }},
             
       {selector: 'edge',
         style: {
@@ -191,8 +238,9 @@ function createNetwork()
      ready: function(){
        console.log('cy ready');
        handleWindowResize();
+       cy.nodes().map(function(node){node.style({width: node.data("trueWidth"), height: node.data("trueHeight")})})
        cy.fit(50);
-       cy.zoom({level: 1.0, renderedPosition:{x:$(window).width()/2, y:$(window).height()/2}});
+       //cy.zoom({level: 1.0, renderedPosition:{x:$(window).width()/2, y:$(window).height()/2}});
        initialZoom = cy.zoom();
        oldZoom = cy.zoom();
        cy.on('zoom', function(event){
