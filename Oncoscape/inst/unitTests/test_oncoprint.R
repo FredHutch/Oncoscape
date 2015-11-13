@@ -227,17 +227,18 @@ timing.oncoprint <- function()
         dim(fromJSON(fromJSON(result_8$payload)[[1]]))[1],
         dim(fromJSON(fromJSON(result_9$payload)[[1]]))[1])
     timing_table <- data.frame(gene_selectedNum,patient_selectedNum, time_consumed, result_length);
+    print(timing_table);
     #gene_selectedNum patient_selectedNum time_consumed result_length
     #1                1                   1         0.015             1
-    #2                1                  10         0.017            11
-    #3               10                   1         0.013            10
-    #4               10                 100         0.028          1000
-    #5              100                  10         0.024          1000
-    #6              449                   1         0.016           450
-    #7                1                 449         0.024           449
-    #8             2000                 100         2.541        200000
-    #9             20000                100        30.144       2000000
-    print(timing_table);
+    #2                1                  10         0.027            11
+    #3               10                   1         0.016            10
+    #4               10                 100         0.031          1000
+    #5              100                  10         0.033          1000
+    #6              449                   1         1.592           450
+    #7                1                 449         0.022           449
+    #8             2000                 100         1.848        200000
+    #9            20000                 100        28.267       2000000
+   
 } # timing.oncoprint
 #----------------------------------------------------------------------------------------------------
 runTests()
