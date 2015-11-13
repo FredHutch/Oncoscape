@@ -1,7 +1,8 @@
 library(OncoDev14)
 scriptDir <- "plsr"
-userID <- "test@nowhere.org"
-current.datasets <- c("DEMOdz;TCGAgbm")
+userID <- "autoTest@nowhere.org"
+#current.datasets <- "DEMOdz;TCGAgbm"
+current.datasets <- "DEMOdz"
 port <- 7501
 onco <- OncoDev14(port=port, scriptDir=scriptDir, userID=userID, datasetNames=current.datasets)
 if(Sys.info()[["nodename"]] != "lopez") 

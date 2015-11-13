@@ -2,6 +2,8 @@
 ######################
 *.log
 *.out
+nohup.out
+dataPackages/RawData
 
 # Packages #
 ############
@@ -20,3 +22,10 @@
 .Trashes
 ehthumbs.db
 Thumbs.db
+index.html
+
+# Installation files #
+######################
+.setupR*
+Rlibs
+.Rhistory

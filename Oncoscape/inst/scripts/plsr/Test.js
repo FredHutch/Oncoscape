@@ -1,179 +1,134 @@
 //----------------------------------------------------------------------------------------------------
-var PlsrTestModule = (function () {
+// observers used in QUnit testing
 
-  var plsrTestDiv;
-  var controlsDiv;
-  var outputDiv;
+var PlsrTestModule = (function (){
 
-  var testButton;
-
-  var thisModulesName = "plsrTest";
-  var thisModulesOutermostDiv = "plsrTestDiv";
-
+   var plsrStatusObserver = null;
 
 //--------------------------------------------------------------------------------------------
-function initializeUI()
+function runTests()
 {
-  $(window).resize(handleWindowResize);
+   console.log("starting PlsrTestModule runTests");
+   testLoadDataSetAndConfigure();
 
-  plsrTestDiv = $("#plsrTestDiv");
-  outputDiv = $("#plsrTestOutputDiv");
-
-  testButton = $("#plsrTestButton");
-  testButton.button();
-  testButton.click(runTests);
-
-  handleWindowResize();
-
-} // initializeUI
-//----------------------------------------------------------------------------------------------------
-function handleWindowResize()
-{
-  plsrTestDiv.width($(window).width() * 0.95);
-  plsrTestDiv.height($(window).height() * 0.90);  // leave room for tabs above
-
-  outputDiv.width(plsrTestDiv.width()); //  * 0.95);
-  outputDiv.height(plsrTestDiv.height() - 130);
-
-} // handleWindowResize
+} // runTests
 //--------------------------------------------------------------------------------------------
-runTests = function()
+function testLoadDataSetAndConfigure()
 {
-   for(var i=0; i < 1; i++){
-     runOneTest();
-     }
+   var testTitle = "testLoadDataSetConfigure";
+   console.log(testTitle);
+     
+      // when our module receives the resulting 'datasetSpecified' msg, which includes 
+      // the dataset's manifest in its payload, it requests patient ageAtDz and
+      // survival mins and maxes and sets up sliders in the ui, setting 
+      // current thresholds to 33% and 67% of the full range.
+      // the geneset pulldown menu is also populated, and a default value selected
+      // no user selection (of points in the display) is possible, so the
+      // clear selection button should not yet be active.
+      // check all these things, then testCalculateAndDisplayPLSR.
 
-}; // runTests
-//--------------------------------------------------------------------------------------------
-runOneTest = function()
-{
-     // check for presence of all the expected tabs
-     hub.raiseTab(thisModulesOutermostDiv);
-     console.log("plsr runTests");
-   
-     QUnit.test("all expected tabs present?", function(assert){
-       console.log("starting 'all expected tabs present?' test");
-       assert.equal($("#datasetsDiv").length, 1);
-       assert.equal($("#plsrDiv").length, 1);
-       });
-   
-     QUnit.test('choose DEMOdz dataset', function(assert) {
-         hub.raiseTab("datasetsDiv");
-         var desiredDataset = "DEMOdz";
-         var dzNames = $("#datasetMenu option").map(function(opt){return this.value;});
-   
-         if($.inArray(desiredDataset, dzNames) < 0){
-            alert("cannot run tests:  " + desiredDataset + " dataset not loaded");
-            return;
-            }
-   
-         $("#datasetMenu").val(desiredDataset);
-         $("#datasetMenu").trigger("change");
-   
-         var done1 = assert.async();
-         var done2 = assert.async();
-         var done3 = assert.async();
-         assert.expect(3);
-   
-         setTimeout(function(){
-            assert.equal($("#datasetMenu").val(), desiredDataset);  done1();
-            assert.ok($("#datasetsManifestTable tr").length >= 10); done2();
-            assert.equal($("#datasetsManifestTable tbody tr").eq(0).find("td").eq(0).text(), 
-                         "mRNA expression"); done3();
-            testLoadDEMOdz();
-            }, 5000);
-         });
+   if(plsrStatusObserver === null){
+      plsrStatusObserver = new MutationObserver(function(mutations) {
+        console.log("in testLoadDataSet observer");
+        hub.raiseTab("plsrDiv");
+        mutation = mutations[0];
+        plsrStatusObserver.disconnect();
+        plsrStatusObserver = null;
+        var id = mutation.target.id;
+        var msg = $("#plsrStatusDiv").text();
+        QUnit.test("plsr dataset loaded", function(assert) {
+          assert.equal($("#plsrAgeAtDxMinSliderReadout").text(), "45");
+          assert.equal($("#plsrAgeAtDxMaxSliderReadout").text(), "66");
+          assert.equal($("#plsrSurvivalMinSliderReadout").text(), "3");
+          assert.equal($("#plsrSurvivalMaxSliderReadout").text(), "7");
+          assert.equal($("#plsrGeneSetSelector").val(), "random.40");
+          assert.equal($("#plsrClearSelectionButton").prop("disabled"), true);
+          testCalculateAndDisplayPLSR();
+          });
+        }); // new MutationObserver
+      } // if null mutation observer
 
-}; // runOneTest
-//----------------------------------------------------------------------------------------------------
-function testLoadDEMOdz()
-{
-   QUnit.test('load DEMOdz', function(assert) {
-      console.log("=============  starting load DEMOdz test");
-      hub.enableButton($("#selectDatasetButton"));
-      $("#selectDatasetButton").trigger("click");
-      hub.raiseTab("plsrDiv");
-      assert.expect(0);   // no tests here
-       setTimeout(function(){
-          testDEMOdzPLSRConfiguration();
-          }, 5000);
-       });
+   var config = {attributes: true, childList: true, characterData: true};
+   var target = document.querySelector("#plsrStatusDiv");
+   plsrStatusObserver.observe(target, config);
 
-} // testLoadDEMOdz
-//----------------------------------------------------------------------------------------------------
-function testDEMOdzPLSRConfiguration()
-{
-   QUnit.test('testDEMOdzPLSRConfiguration', function(assert) {
-      var minAge = $("#plsrAgeAtDxMinSliderReadout").val();
-      assert.ok(minAge == "45");
-      var maxAge = $("#plsrAgeAtDxMaxSliderReadout").val();
-      assert.ok(maxAge == "66");
-      var minSurvival = $("#plsrSurvivalMinSliderReadout").val();
-      console.log("  minSurvival: " + minSurvival);
-      assert.ok(minSurvival == "3");
-      var maxSurvival = $("#plsrSurvivalMaxSliderReadout").val();
-      console.log("  maxSurvival: " + maxSurvival);
-      assert.ok(maxSurvival == "7"); 
-      assert.ok($("#plsrGeneSetSelector").val() == "random.40");
-      testRunPLSR();
-      });
+     // we could use the datasets tab menu to select the dataset, then click the button.
+     // easier and quite adequate for our purposes here, however, is to simply send out the message which
+     // these ui actions create
 
-} // testDEMOdzPLSRConfiguration
-//----------------------------------------------------------------------------------------------------
-function testRunPLSR()
-{
-   QUnit.test('testRunPLSR', function(assert) {
-      $("#plsrCalculateButton").trigger("click");
-       assert.expect(6); 
-       var done1 = assert.async();
-       var done2 = assert.async();
-       var done3 = assert.async();
-       var done4 = assert.async();
-       var done5 = assert.async();
-       var done6 = assert.async();
-       setTimeout(function(){
-          assert.ok($("circle").length > 10); done1();
-          assert.ok($("circle").length > 10); done2();
-          var c0 = $("circle")[0];
-          var geneName = c0.innerHTML;
-          assert.ok(geneName == "PRRX1"); done3();
-          var xPos = Number(c0.getAttribute("cx"));
-          var yPos =  Number(c0.getAttribute("cy"));
-          var radius = Number(c0.getAttribute("r"));
-          assert.ok(xPos > 0); done4();
-          assert.ok(yPos > 0); done5();
-          assert.ok(radius > 0); done6();
-          hub.raiseTab("plsrTestDiv");
-          }, 5000);
-      });
-
-} // testRunPLSR
-//----------------------------------------------------------------------------------------------------
-// query the oncoscape server for user id.  the callback then makes a local (that is,
-// Module-specific) decision to run this module's automated tests based upon that id
-//
-function runAutomatedTestsIfAppropriate()
-{
-   var msg = {cmd: "getUserId",  callback: "plsrTestAssessUserIdForTesting",
-              status: "request", payload: ""};
-
+   var msg = {cmd: "specifyCurrentDataset", callback: "datasetSpecified", status: "request", payload: "DEMOdz"};
    hub.send(JSON.stringify(msg));
 
-} // runAutomatedTestsIfAppropriate
-//----------------------------------------------------------------------------------------------------
-function initializeModule()
+} // testLoadDataSetAndConfigure
+//------------------------------------------------------------------------------------------------------------------------
+testCalculateAndDisplayPLSR = function()
 {
-   hub.addOnDocumentReadyFunction(initializeUI);
-   hub.addOnDocumentReadyFunction(runTests);
+  var testTitle = "testCalculateAndDisplayPLSR";
+  console.log(testTitle);
 
-} // initializeModule
-//----------------------------------------------------------------------------------------------------
+     // use default settings of the two sliders
+
+  $("#plsrCalculateButton").trigger("click");
+ 
+  if(plsrStatusObserver === null){
+     plsrStatusObserver = new MutationObserver(function(mutations) {
+        mutation = mutations[0];
+        plsrStatusObserver.disconnect();
+        plsrStatusObserver = null;
+        var id = mutation.target.id;
+        var msg = $("#plsrStatusDiv").text();
+        QUnit.test("plsr loaded", function(assert) {
+           var c0 = $("circle")[0];
+           var geneName = c0.innerHTML;
+           assert.ok(geneName == "PRRX1");
+           var xPos = Number(c0.getAttribute("cx"));
+           var yPos =  Number(c0.getAttribute("cy"));
+           var radius = Number(c0.getAttribute("r"));
+           assert.ok(xPos > 0);
+           assert.ok(yPos > 0);
+           assert.ok(radius > 0);
+           var axisLines = $(".line");
+          assert.equal(axisLines.length, 4);
+          for(var i=0; i < 4; i++){
+             var x1 = Number($(".line")[i].getAttribute("x1"));
+             var x2 = Number($(".line")[i].getAttribute("x2"));
+             var y1 = Number($(".line")[i].getAttribute("y1"));
+             var y2 = Number($(".line")[i].getAttribute("y2"));
+             var axisLength = Math.sqrt(Math.pow(x2-x1,2) + Math.pow(y2-y1,2));
+             console.log("extent for axis " + i + ": " + axisLength);
+             assert.ok(axisLength > 10);
+             } // for i
+           }); // QUnit.test
+         }); // new MutationObserver
+      } // if null mutation observer
+
+   var config = {attributes: true, childList: true, characterData: true};
+   var target = document.querySelector("#plsrStatusDiv");
+   plsrStatusObserver.observe(target, config);
+
+}; // testCalculateAndDisplayPLSR
+//-------------------------------------------------------------------------------------------
+showTests = function()
+{
+   $("#qunit").css({"display": "block"});
+
+}; // showTests
+//------------------------------------------------------------------------------------------------------------------------
+hideTests = function()
+{
+   $("#qunit").css({"display": "none"});
+
+}; // hide
+//------------------------------------------------------------------------------------------------------------------------
 return{
-   init: initializeModule
+   run: runTests,
+   show: showTests,
+   hide: hideTests
    }; // PlsrTestModule return value
 
 //----------------------------------------------------------------------------------------------------
 }); // PlsrTestModule
 
-plsrTestModule = PlsrTestModule();
-plsrTestModule.init();
+
+plsrTest = PlsrTestModule();
+

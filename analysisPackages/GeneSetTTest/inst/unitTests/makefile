@@ -18,3 +18,9 @@ delay:
 py:
 	python testGSTTwrapper.py
 
+autoTest:
+	nohup python autoTest-lopez.py &
+	
+
+
+	

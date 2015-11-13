@@ -24,3 +24,10 @@ TCGAlusc <- function()
 } # TCGAlusc constructor
 
 #----------------------------------------------------------------------------------------------------
+setMethod('canonicalizePatientIDs', 'TCGAluscClass',
+  function (obj, patient.ids) {
+  	 
+     ptIDs =  gsub("(^TCGA\\.\\w\\w\\.\\w\\w\\w\\w).*","\\1", patient.ids)
+     ptIDs
+     })
+#----------------------------------------------------------------------------------------------------

@@ -32,7 +32,7 @@ setGeneric('getSampleCategorizationNames',
 setGeneric('getSampleCategorization',
                               signature='obj', function(obj, categorizationName) standardGeneric('getSampleCategorization'))
 setGeneric('networks',        signature='obj', function (obj) standardGeneric ('networks'))
-setGeneric('getPatientIDs',   signature='obj', function (obj, patient.ids=NA, ...) standardGeneric ('getPatientIDs'))
+setGeneric('canonicalizePatientIDs',   signature='obj', function (obj, patient.ids=NA, ...) standardGeneric ('canonicalizePatientIDs'))
 
 #setGeneric("features",    signature="obj", function (obj, signature) standardGeneric ("features"))
 #setGeneric("getData",     signature="obj", function (obj, signature, entities=NA, features=NA) standardGeneric ("getData"))
@@ -204,6 +204,10 @@ setMethod("getPatientTable", "SttrDataPackageClass",
          eval(parse(text=sprintf("sampleCategorizations[[%d]] <- %s", sampleCategorizations.found, variable.name)))
          names(sampleCategorizations)[sampleCategorizations.found] <- variable.name
          }
+      else if(class == "data.frame" & category=="history") {
+		 eval(parse(text=sprintf("tbl.ptHistory <- %s", variable.name)))
+		 clinical <- PatientHistory::setTable(clinical, tbl.ptHistory)
+		 }
       else if(class == "data.frame") {
          data.frames.found <- data.frames.found + 1
          eval(parse(text=sprintf("data.frames[[%d]] <- %s", data.frames.found, variable.name)))

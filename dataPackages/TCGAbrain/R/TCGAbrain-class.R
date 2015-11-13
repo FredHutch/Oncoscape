@@ -27,7 +27,7 @@ TCGAbrain <- function()
 
 } # TCGAbrain constructor
 #----------------------------------------------------------------------------------------------------
-setMethod('getPatientIDs', 'TCGAbrainClass',
+setMethod('canonicalizePatientIDs', 'TCGAbrainClass',
   function (obj, patient.ids) {
   	 
      ptIDs =  gsub("(^TCGA\\.\\w\\w\\.\\w\\w\\w\\w).*","\\1", patient.ids)

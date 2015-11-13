@@ -27,6 +27,12 @@ th,td {
    font-size:10pt !important;
    }
 
+.ui-dialog .ui-dialog-titlebar-close span{ margin:0 }
+
+.SelectionMenu{
+color: rgb(0, 0, 0); 
+background-color: rgb(255, 255, 255);
+}
 
 </style>
 
