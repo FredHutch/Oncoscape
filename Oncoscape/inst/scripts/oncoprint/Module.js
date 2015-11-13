@@ -21,6 +21,7 @@ var OncoprintModule = (function () {
   var cnv_data,mnra_data,mut_data, cnv_data_promise,mrna_data_promise,mut_data_promise;
   var OncoprintDiv = $("#oncoprintDiv");
   var ControlsDiv = $("#oncoprintControlsDiv");
+  var compute_start;
 //--------------------------------------------------------------------------------------------
 function initializeUI()
 {
@@ -40,8 +41,7 @@ function initializeUI()
 	onc.setZoom(z);
 	});
   handleWindowResize();
-  hub.disableTab(thisModulesOutermostDiv);
- 
+  
 
 } // initializeUI
 //----------------------------------------------------------------------------------------------------
@@ -89,7 +89,7 @@ function handleSelections(msg)
 
    console.log("Oncoprint module, " + msg.cmd + " patients and markers: " + ids);
    $("#onc").empty();
-   
+   compute_start = Date.now();
    analyzeSelectedTissues(ids);
 } // handleSelections
 //----------------------------------------------------------------------------------------------------
@@ -98,8 +98,8 @@ function analyzeSelectedTissues(IDs)
    $("#onc").append("Computing...");
    console.log("Oncoprint module, hub.send 'oncoprint_data_selection' for %d IDs",
                IDs.length);
-   if(IDs.length > 350){
-   		alert("Please choose less than 350 Nodes");
+   if(IDs.length > 450){
+   		alert("Please choose less than 450 Nodes");
    }else{
 	   var payload = {sampleIDs: IDs};
 	   var msg = {cmd:"oncoprint_data_selection", callback: "displayOncoprint", status: "request", 
@@ -117,20 +117,15 @@ function displayOncoprint(msg)
    console.log("entering displayOncoprint");
    
    console.log("displayOncoprint print recieved msg.payload: %s", msg.payload);
-   if(msg.status != "success"){
-   		alert(msg.payload);
-   		$("#onc").empty();
-		return;   
-   }
-   xx = JSON.parse(msg.payload);
-   if(xx.length < 2) {
+   
+   if(msg.status == "failed") {
    		alert(msg.payload);
    		$("#onc").empty();
    }else{
 	    /*cnv_data_promise = xx[0];
 	    mrna_data_promise = xx[1];
 	    mut_data_promise = xx[2];*/
-	   
+	   xx = JSON.parse(msg.payload);
 	   console.log("displayOncoprint print recieved genes: %s",xx[1]);
 	   genes = xx[1];
        processed_data = JSON.parse(xx[0]);
@@ -191,10 +186,10 @@ function displayOncoprint(msg)
 	   
 	   }	
    }
-    
+   console.log("#######Computing since msg sent took: " + (Date.now() - compute_start) + " milliseconds"); 
 } // displaySurvivalCurves
 //----------------------------------------------------------------------------------------------------
- function map_cnv_data(data){
+function map_cnv_data(data){
 				cnv_data = _.map(data, function(x) {
 							if(x.value == 2) x.cna='AMPLIFIED';
 							if(x.value == 1) x.cna='GAINED';
@@ -203,7 +198,6 @@ function displayOncoprint(msg)
 							//if(x.value != "") x.mut_type='MISSENSE';
 							x.patient = x.sample; return x; })
 	   }
-//----------------------------------------------------------------------------------------------------
 function map_mrna_data(mrna_promise, data){
 				mrna_data = _.map(data, function(x) {
 								single_sample = x.sample;
@@ -230,6 +224,15 @@ function map_mut_data(mut_promise, data){
 								}else{ return x;} 
 							})
 	   }
+//----------------------------------------------------------------------------------------------------	   	   
+function initializeModule()
+{
+   hub.registerSelectionDestination(selectionDestinations, thisModulesOutermostDiv);
+   hub.addOnDocumentReadyFunction(initializeUI);
+   hub.addMessageHandler("sendSelectionTo_Oncoprint", handleSelections);
+   hub.addMessageHandler("displayOncoprint", displayOncoprint);
+
+} // initializeModule
 //----------------------------------------------------------------------------------------------------
 function demoPatientSet()
 {
@@ -250,65 +253,6 @@ function demoPatientSet()
    return (firstFortyGbmPatients);
 
 } // demoPatientSet
-
-//-------------------------------------------------------------------------------------------
-// when a dataset is specified, this module 
-//  1) extracts the name of the dataset from the payload of the incoming msg
-//  2) (for now) extracts the name of the matrices, from the manifest (also in the payload
-//     of the incoming msg, chooses the first mtx.mrna entry it finds
-//  3) sends a "createPLSR" message to the server, with dataset & matrix name specified
-//  4) asks that the server, upon successful completion of that createPLSR request, callback
-//     here so that the sliders can be set
-	function datasetSpecified(msg)
-	{
-	    hub.enableTab(thisModulesOutermostDiv);
-	   var dataPackageName = msg.payload.datasetName;
-        
-	   var dataElementNames = msg.payload.rownames;
-
-		  // for now, and very temporarily, use the first match (if any are found)
-	   var hits_rna = dataElementNames.map(function(name) {if(name.indexOf("mtx.rna") >= 0) return(name);});
-	   hits_rna = hits_rna.filter(function(n){ return (n !== undefined); });
-
-	   var dataName = null;
-
-	   if(hits_rna.length > 0){
-			// for now always grab the first hit, remove the trailing .RData
-			// the oncoprint constructor wants both dataPacakgeName & a matrix name
-			// our convention is that the manifest rowname is the same as
-			// its name, with ".RData" appended
-		  dataName = hits_rna[0].replace(".RData", "");
-		  }
-	   else{
-		  return;
-		  }
- 
-
-   
-//	   createOncoprintObjectOnServer(dataPackageName, dataName);
-
-	} // datasetSpecified
-//--------------------------------------------------------------------------------------------
-	function createOncoprintObjectOnServer(dataPackageName, dataName)
-	{
-	  console.log("create Oncoprint on server " + dataPackageName + ": " + dataName);
-	  payload = {dataPackage: dataPackageName, dataName: dataName};
-	  msg = {cmd: "createOncoprint", callback: "DisplayOncoprint", status: "request", payload: payload};
-	  msg.json = JSON.stringify(msg);
-	  hub.send(msg.json);
-
-	} // createTimelinesObjectOnServer
-
-//----------------------------------------------------------------------------------------------------	   	   
-function initializeModule()
-{
-   hub.registerSelectionDestination(selectionDestinations, thisModulesOutermostDiv);
-   hub.addOnDocumentReadyFunction(initializeUI);
-   hub.addMessageHandler("sendSelectionTo_Oncoprint", handleSelections);
-   hub.addMessageHandler("displayOncoprint", displayOncoprint);
-   hub.addMessageHandler("datasetSpecified", datasetSpecified);
-
-} // initializeModule
 //----------------------------------------------------------------------------------------------------
 function sat(maxReps)
 {
@@ -316,14 +260,9 @@ function sat(maxReps)
 } // sat
 //----------------------------------------------------------------------------------------------------
 return{
-   init: function(){
-	   hub.registerSelectionDestination(selectionDestinations, thisModulesOutermostDiv);
-	   hub.addOnDocumentReadyFunction(initializeUI);
-	   hub.addMessageHandler("sendSelectionTo_Oncoprint", handleSelections);
-	   hub.addMessageHandler("displayOncoprint", displayOncoprint);
-	   hub.addMessageHandler("datasetSpecified", datasetSpecified);   
-   },
-}; // OncoprintTabModule return value
+   init: initializeModule,
+   sat: sat
+   }; // OncoprintTabModule return value
 
 //----------------------------------------------------------------------------------------------------
 }); // OncoprintTabModule
