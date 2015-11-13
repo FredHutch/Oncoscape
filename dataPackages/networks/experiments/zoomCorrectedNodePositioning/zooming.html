@@ -188,8 +188,8 @@ function createNetwork()
         {data: {id: "SH2B3",    trueWidth: 29.6, trueHeight: 29.6}, position: {x: 4319, y: -691.7213140971809}},
         {data: {id: "WIF1",     trueWidth: 29.6, trueHeight: 29.6}, position: {x: 4319, y: -446.7674560776734}},
         {data: {id: "ZNF384",   trueWidth: 44,   trueHeight: 44},   position: {x: 4319, y:  493.2325439223266}},
-        {data: {id: "chr12p",   trueWidth: 60,   trueHeight: 30},   position: {x: 4319, y:   43.2325439223266}},
-        {data: {id: "chr12q",   trueWidth: 60,   trueHeight: 30},   position: {x: 4319, y:   -4.7674560776733}},
+        {data: {id: "chr12p",   trueWidth: 120,  trueHeight: 60},   position: {x: 4319, y:   53.2325439223266}},
+        {data: {id: "chr12q",   trueWidth: 120,  trueHeight: 60},   position: {x: 4319, y:  -14.7674560776733}},
         {data: {id: "start.12", trueWidth: 20.8, trueHeight: 20.8}, position: {x: 4319, y:  602.2325439223266}},
         {data: {id: "end.12",   trueWidth: 20.8, trueHeight: 20.8}, position: {x: 4319, y: -944.7120857010824}}
         ],
@@ -220,16 +220,14 @@ function createNetwork()
            'border-color': 'green',
            'border-width': 2,
            'shape': 'roundrectangle',
+           'label': 'data(id)',
+           'font-size': '36px'
            }},
             
       {selector: 'edge',
         style: {
-          'width': 3,
-          'line-color': 'red',
-          'target-arrow-color': 'red',
-          'target-arrow-shape': 'triangle',
-          'source-arrow-color': 'red',
-          'source-arrow-shape': 'triangle'
+          'width': 2,
+          'line-color': 'blue'
          }}],
 
      layout: {
