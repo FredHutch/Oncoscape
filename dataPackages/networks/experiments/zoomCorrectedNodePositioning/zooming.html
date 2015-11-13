@@ -10,6 +10,7 @@
 <script src="http://oncoscape.sttrcancer.org/oncoscape/js/cytoscape-2.5.0.min.js"></script>
 
 <style>
+
 html, body{
    height: 98%;
    }
@@ -18,12 +19,14 @@ body {
   margin: 5px;
   }
 
+
 #outerDiv {
   display: flex;
   flex-flow: column nowrap;
   //border: 1px solid red;
   }
   
+
 #controlsDiv {
   flex: 1;
   align-self: stretch;
@@ -79,14 +82,16 @@ var controlsDiv;
 var initialZoom;
 var oldZoom;
 var zoomModeMenu;
-var zoomMode = "Spread";
-var nodeLabelMenu;
-var nodeLabelVisibility = "On spread zoom";
+var zoomMode = "Fixed";
+var nodeLabelVisibilityMenu;
+var nodeLabelVisibility = "Never";
 var resetButton;
 //----------------------------------------------------------------------------------------------------
 function initializeUI()
 {
    cyDiv = $('#cyDiv');
+   $(document).tooltip();
+   
    controlsDiv = $('#controlsDiv');
 
    zoomModeMenu = $("#zoomModeMenu");
@@ -227,21 +232,23 @@ $(document).ready(initializeUI);
 
 </head>
 <body>
-  <div id='outerDiv'>
+  <div  id='outerDiv'>
+
     <div id='controlsDiv'>
-      <select id="zoomModeMenu" class="appControlButtons">
-           <option value="fixed" selected>Zoom Mode...</option>
-           <option value="fixed">Fixed</option>
-           <option value="spread">Spread</option>
-      </select>
-        <select id="nodeLabelVisibilityMenu" class="appControlButtons">
-           <option value="title" selected>Node label visibility...</option>
+
+         <select title="Node zooming mode"  id="zoomModeMenu" class="appControlButtons" >
+              <option value="fixed">Fixed</option>
+              <option value="spread">Spread</option>
+         </select>
+
+        <select title="Node label visibility" id="nodeLabelVisibilityMenu" class="appControlButtons">
            <option value="always">Always</option>
            <option value="never">Never</option>
            <option value="onSpread">On spread zoom</option>
         </select>
-      <button id='resetButton' class="appControlButtons">Reset</button>
+      <button title="Restore initial layout" id='resetButton' class="appControlButtons">Reset</button>
     </div>
+
     <div id='cyDiv'></div>
   </div>
 </body>
