@@ -1,15 +1,15 @@
 # **Generating and Testing Data Packages for Oncoscape** 
 ## Clinical Data
 1. Download [TCGA data](https://tcga-data.nci.nih.gov/tcga/)
-	* Save the files at Oncoscape/dataPackages/RawData/TCGA_newPackage/:pushpin:
+	* Save the files at [Oncoscape/dataPackages](https://github.com/FredHutch/Oncoscape/tree/develop/dataPackages)/RawData/TCGA_newPackage/:pushpin:
 2. Use TCGAgbm as an example to create a new directory 
-	* Create Oncoscape/dataPackages/TCGA_newPackage
+	* Create [Oncoscape/dataPackages](https://github.com/FredHutch/Oncoscape/tree/develop/dataPackages)/TCGA_newPackage
 	* Change string "TCGAgbm" to the new package name within all the files under the directory
-3. cd Oncoscape/dataPackages/TCGA_newPackage/inst/import/history
+3. cd TCGA_newPackage/inst/import/history
 	* Update _createEventList.R_
 	* Run the R file to generate clinical Data Type R Object  and store it at inst/extdata/
-4. Update _PatientHistory_ReferenceTable.xlsx_ at RawData/
-5. Update _manifest.tsv_:pushpin: at Oncoscape/dataPackages/TCGA_newPackage/inst/extdata/ 
+4. Update [_PatientHistory_ReferenceTable.xlsx_](https://github.com/FredHutch/Oncoscape/blob/develop/dataPackages/PatientHistory_ReferenceTable.xlsx)
+5. Update _manifest.tsv_:pushpin: at TCGA_newPackage/inst/extdata/ 
  	 
 ## Molecular Data
 1. Install cBio MySQL database cgds_public
@@ -17,18 +17,18 @@
 	* `select stable_id, cancer_Study_id from genetic_profile`
 3. Run mysql calls at command line to populate the raw data for various datatypes including: Copy Number Aberration, Mutation, Expression, Methylation and Protein
 	* Store the molecular data at RawData/TCGA_newPackage/ along with the updated _mysql_cBio_TCGA_calls.txt_:pushpin: 
-4. cd Oncoscape/dataPackages/TCGA_newPackages/inst/import/molecularDataType/
+4. cd [TCGA_newPackages/inst/import/molecularDataType/](https://github.com/FredHutch/Oncoscape/tree/develop/dataPackages/TCGAgbm/inst/import/copyNumber)
 	* Update create R Object document 
 	* Run the R file to generate molecular Data Type R Object and store it at inst/extdata/
-5. Update Oncoscape/dataPackages/TCGA_newPackage/inst/extdata/manifest.tsv:pushpin: 
+5. Update [Oncoscape/dataPackages](https://github.com/FredHutch/Oncoscape/tree/develop/dataPackages)/TCGA_newPackage/inst/extdata/manifest.tsv:pushpin: 
 
 ## Data Package
 1. Update files linked to test/install targets:
-	* _installRpackages_global.sh_
-	* -installRpackages_local.sh_
-	* _removeInstalledOncoscapePackages.R_
-	* _dataPackages/makefile_
-	* _Oncoscape/inst/scripts/apps/oncotest/runOncoscapeApp-7788.R_
+	* _[Oncoscape](https://github.com/FredHutch/Oncoscape/tree/develop)/installRpackages_global.sh_
+	* _[Oncoscape](https://github.com/FredHutch/Oncoscape/tree/develop)/installRpackages_local.sh_
+	* _[Oncoscape](https://github.com/FredHutch/Oncoscape/tree/develop)/removeInstalledOncoscapePackages.R_
+	* _[Oncoscape/dataPackages/makefile_](https://github.com/FredHutch/Oncoscape/blob/develop/dataPackages/makefile)
+	* _[Oncoscape/inst/scripts/apps/oncotest/runOncoscapeApp-7788.R_](https://github.com/FredHutch/Oncoscape/blob/develop/Oncoscape/inst/scripts/apps/oncoscape/runOncoscapeApp-7777.R)
 2.  Build and Install new data package:
 	* `R CMD Build <TCGA_newPackage>`
 	* `R CMD Install <TCGA_newPackage>`
@@ -42,6 +42,6 @@
 2.  switch to the current feature branch
 	* `git checkout <current feature>`
 	* cd Oncoscape
-	> make clean
-	> make install
-	> make test
+	* `make clean`
+	* `make install`
+	* `make test`
