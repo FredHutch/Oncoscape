@@ -192,7 +192,7 @@ ws.calculatePCA <- function(ws, msg)
    genes <- NA
    if("genes" %in% names(msg$payload)){
       genes <- msg$payload$genes;
-      printf("gene count for calculatePLSR (%d)", length(genes))
+      printf("gene count for calculatePCA (%d)", length(genes))
       #print(genes)
       # an artful(?) dodge:  if this is a list of genes, then they are literal genes
       # if just one, then it must be a geneSetName, and we must retrieve the genes

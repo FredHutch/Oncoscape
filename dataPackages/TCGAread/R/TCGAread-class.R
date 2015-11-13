@@ -25,3 +25,10 @@ TCGAread <- function()
 } # TCGAread constructor
 
 #----------------------------------------------------------------------------------------------------
+setMethod('canonicalizePatientIDs', 'TCGAreadClass',
+  function (obj, patient.ids) {
+     
+     ptIDs =  gsub("(^TCGA\\.\\w\\w\\.\\w\\w\\w\\w).*","\\1", patient.ids)
+     ptIDs
+     })
+#----------------------------------------------------------------------------------------------------

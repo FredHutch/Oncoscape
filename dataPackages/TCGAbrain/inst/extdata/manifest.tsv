@@ -3,6 +3,7 @@ mtx.cn.RData	mtx.cn	matrix	copy number	gistic scores	1076	25319	patient	gene	-2	
 events.RData	history	list	history	clinical	12543	NA	NA	NA	NA	NA	tcga gbm and lgg
 ptHistory.RData	ptList	list	history	clinical patients	1051	NA	NA	NA	NA	NA	tcga
 historyTypes.RData	catList	list	history	clinical categories	12	NA	NA	NA	NA	NA	tcga
+tbl.ptHistory.RData	tbl.ptHistory	data.frame	history	clinical table	1051	485	patients	events	NA	NA	tcga
 mtx.mut.RData	mtx.mut	matrix	mutations	aa substitutions	580	9789	patient	gene	NA	NA	tcga gbm and lgg
 mtx.prot.RData	mtx.prot	matrix	protein abundance	Z scores	474	264	patient	protein	-5.62437	10.30523	tcga gbm and lgg
 mtx.mrna.bc.RData	mtx.mrna.bc	matrix	mrna expression	normalized Z scores	654	18641	patient	gene	-0.7501015	2.8348106	tcga combatAdjusted
@@ -12,3 +13,6 @@ gbmPathways.json.RData	g.gbmPathways.json	character	network	GBM-related Pathways
 egfr.json.RData	g.egfr.json	character	network	egfr signaling	32	14	nodes	edges	NA	NA	manual curation
 ericsEightGliomaClusters.RData	tbl.glioma8	data.frame	categorized samples	tumors	704	2	patient	cluster & color	NA	NA	8 clusters; manual curation by Eric Holland
 verhaakGbmClustersAugmented.RData	tbl.verhaakPlus1	data.frame	categorized samples	tumors	548	2	patient	cluster & color	NA	NA	5 clusters; Verhaak 2010 + G-CIMP
+metabolicExpressionStemness.RData	tbl.expression	data.frame	categorized samples	tumors	144	2	patient	cluster & color	NA	NA	2 clusters; high and low expression (metabolism, stemness, immune genes)
+tumorGrade.RData	tbl.grade	data.frame	categorized samples	tumors	1079	2	patient	cluster & color	NA	NA	3 clusters: grade 2 and 3 for lgg; gbm is grade 4
+

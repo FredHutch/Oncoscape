@@ -80,7 +80,7 @@ setMethod("calculate", "PCA",
        } # if removers
 
    if(!all(is.na(samples))){
-      keepers <- as.integer(lapply(samples, function(id) grep(id, rownames(mtx))))
+      keepers <- as.integer(unlist(lapply(samples, function(id) grep(id, rownames(mtx)))))
       if(any(is.na(keepers)))
           keepers <- keepers[-is.na(keepers)]
       if(length(keepers) == 0){

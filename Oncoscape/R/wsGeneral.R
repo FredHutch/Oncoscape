@@ -2,6 +2,21 @@ addRMessageHandler("ping", "ping");
 addRMessageHandler("getServerVersion", "getServerVersion");
 addRMessageHandler("getSampleDataFrame", "getSampleDataFrame");
 addRMessageHandler("checkPassword", "checkPassword");
+addRMessageHandler("logEvent", "logEvent");
+addRMessageHandler("getLoggedEvents", "getLoggedEvents");
+addRMessageHandler("exitAfterTesting", "exitAfterTesting");
+#----------------------------------------------------------------------------------------------------
+state[["log"]] <- data.frame(eventName=character(),
+                             eventStatus=character(),
+                             secs=numeric(),
+                             userID=character(),
+                             moduleOfOrigin=character(),
+			     dataset=character(),
+                             time=character(),
+                             version=character(),
+                             comment=character(),
+			     stringsAsFactors=FALSE);
+
 #----------------------------------------------------------------------------------------------------
 # this file providees the standard oncoscape websocket json interface to SttrDataSet objects
 # each of which is typically matrices of experimental data, a clinical history, and variaout
@@ -21,8 +36,45 @@ ping <- function(ws, msg)
   
 } # ping
 #----------------------------------------------------------------------------------------------------
-# consruct an object, call the verersionMethod on it, return the string (should be in x.y.z)
-# TODO: seems burdensome to create an Onco object here.  rethink at some point.
+logEvent <- function(ws, msg)
+{
+  payload <- msg$payload
+  field.names <- names(payload)
+  printf("--- field.names: %d", length(field.names))
+  print(field.names)
+  stopifnot(sort(field.names) == c("comment", "eventName", "eventStatus", "moduleOfOrigin"))
+
+   # secs, dataset, time, version are all obtained locally
+
+  datasetName <- "NA"
+  key <- "currentDatasetName"
+  if(key %in% ls(state))
+    datasetName <- state[[key]]
+
+  userID <- "NA"
+  key <- "userID"
+  if(key %in% ls(state))
+    userID <- state[[key]]
+
+  version <- sessionInfo()$otherPkgs$OncoDev14$Version
+  time <- Sys.time()
+  secs <- as.numeric(time)
+ 
+  new.event <- list(eventName=payload$eventName,
+                    eventStatus=payload$eventStatus,
+                    secs=secs,
+                    userID=userID,
+                    moduleOfOrigin=payload$moduleOfOrigin,
+		    dataset=datasetName,
+                    time=as.character(time),
+                    version=version,
+                    comment=payload$comment);
+
+  state[["log"]] <- rbind(state[["log"]], as.data.frame(new.event, stringsAsFactors=FALSE))
+  print(new.event)
+  
+} # logEvent
+#----------------------------------------------------------------------------------------------------
 getServerVersion <- function(ws, msg)
 {
   serverVersion <- sessionInfo()$otherPkgs$OncoDev14$Version;
@@ -36,8 +88,14 @@ getSampleDataFrame <- function(ws, msg)
 {
   tbl <- data.frame(integers=1:2, strings=c("ABC", "def"), floats=c(3.14, 2.718),
                     stringsAsFactors=FALSE, row.names=c("rowOne", "rowTwo"))
-  payload <- toJSON(tbl)
+
+  column.names <- colnames(tbl)
+  mtx <- as.matrix(tbl)
+  payload <- list(colnames=column.names, tbl=mtx)
   return.msg <- list(cmd=msg$callback, status="success", callback="", payload=payload)
+  #payload <- toJSON(tbl)
+  #return.msg <- list(cmd=msg$callback, status="success", callback="", payload=payload)
+
   ws$send(toJSON(return.msg))
   
 } # getSampleDataFrame
@@ -60,4 +118,44 @@ checkPassword <- function(ws, msg)
    printf("--- leaving checkPassword");
 
 } # checkPassword
+#----------------------------------------------------------------------------------------------------
+getLoggedEvents <- function(ws, msg)
+{
+  tbl <- state[["log"]]
+  print(1)
+  print(tbl)
+  column.names <- colnames(tbl)
+  print(column.names);
+  print(2)
+  mtx <- as.matrix(tbl)
+  print(mtx)
+  print(3)
+  payload <- list(colnames=column.names, tbl=mtx)
+  print(4)
+
+  return.msg <- list(cmd=msg$callback, status="success", callback="", payload=payload)
+  print(5)
+  ws$send(toJSON(return.msg))
+  print(6)
+
+} # getLoggedEvents
+#----------------------------------------------------------------------------------------------------
+exitAfterTesting <- function(ws, msg)
+{
+   
+   payload <- msg$payload
+   error.count <- payload$errorCount
+   errors <- payload$errrs;
+    
+   if("log" %in% ls(state)){
+      log <- state[["log"]]
+      filename <- sprintf("log.%s.RData", gsub(" ", ".", Sys.time()));
+      full.path <- file.path(getwd(), filename);
+      message(sprintf("saving log to %s", full.path))
+      save(log, file=full.path)
+      }
+   message("tests complete, oncoscape server now exiting")
+   quit(save="no", status=error.count, runLast=FALSE);
+
+} # exitAfterTesting
 #----------------------------------------------------------------------------------------------------

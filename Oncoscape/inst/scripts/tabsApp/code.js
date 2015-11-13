@@ -17,10 +17,13 @@ hub.addOnDocumentReadyFunction(function() {
                } // if
             //console.log(" ==== tab.activate, possible cyjs resize and fit");
             if(typeof(cwMarkers) != "undefined") {
-               console.log("adjusting cwMarkers");
-               cwMarkers.resize(); 
-               cwMarkers.fit(50);
-               //console.log("done adjusting cwMarkers");
+              console.log("adjusting cwMarkers? " + cwMarkers.width() + " * " + cwMarkers.height());
+               if(cwMarkers.width() > 0){
+                  cwMarkers.resize(); 
+                  console.log("after resize");
+                  cwMarkers.fit(50);
+                  console.log("done adjusting cwMarkers");
+		  }
                }
             if(typeof(cyGbm) != "undefined") {
                //console.log("adjusting cwGbm");

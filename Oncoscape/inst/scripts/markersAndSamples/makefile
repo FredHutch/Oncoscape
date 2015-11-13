@@ -1,18 +1,25 @@
 default:
-	m4 indexTabs.pre > index.html
-	R CMD INSTALL --no-test-load --no-lock ../../..
-	R -f runMarkersApp.R
-
-pid:
-	ps aux | grep runMarkersApp | egrep -v grep
-
+	jshint Module.js
+	jshint Test.js
+	m4 index.pre > index.html
+	R CMD INSTALL ../../..
+	R -f runMarkers.R  demo@fhcrc.org "DEMOdz"
 
 test:
-	- kill `ps aux | grep runMarkersTest.R | grep -v grep | awk '{print $$2}'`
-	m4 indexTabs.pre > index.html
-	R --vanilla CMD INSTALL --no-test-load  ../../..
-	R --vanilla -f runMarkersTest.R &
+	jshint Module.js
+	jshint Test.js
+	m4 index.pre > index.html
+	R CMD INSTALL ../../..
+	#R -f runMarkers.R  autotest.2@nowhere.org.exitOnCompletion "DEMOdz"
+	#R -f runMarkers.R  autotest.1@nowhere.org.exitnOCompletion "DEMOdz;TCGAgbm"
+	#R -f runMarkers.R  autotest.3@nowhere.org.exitOnCompletion "DEMOdz;TCGAgbm;TCGAbrain"
+	#R -f runMarkers.R  autotest.2@nowhere.org.exitOnCompletion "DEMOdz;TCGAgbm;TCGAbrain"
+	R -f runMarkers.R  autotest.10@nowhere.org.exitOnCompletion "DEMOdz;TCGAgbm;TCGAbrain"
+
+check:
+	jshint Module.js
+	jshint Test.js
+	m4 index.pre > index.html
+	R -f runMarkers.R  autotest.10@nowhere.org.exitOnCompletion "DEMOdz;TCGAgbm;TCGAbrain"
 
 
-testLoop:
-	while [ -d . ];  do make test; sleep 30;  done

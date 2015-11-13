@@ -18,7 +18,8 @@ runTests <- function()
   testMutation()#
   testMethylation()#
   testProteinAbundance() 
-
+  testCanonicalizePatientIDs()
+  
     # the following tests address the -use- of this class by client code
 
   testMatrixAndDataframeAccessors()
@@ -35,14 +36,19 @@ testManifest <- function()
    checkTrue(file.exists(file))
    
    tbl <- read.table(file, sep="\t", as.is=TRUE)
-   checkEquals(dim(tbl), c(6, 11))
+   checkEquals(ncol(tbl), 11)
+   checkTrue(nrow(tbl) >= 7)
+
    checkEquals(colnames(tbl), c("variable", "class", "category", "subcategory",
                                 "entity.count", "feature.count", "entity.type",
                                 "feature.type", "minValue", "maxValue", "provenance"))
  
-   checkEquals(tbl$category, c("copy number", "history", "mutations","protein abundance","methylation","mRNA expression"))
-   checkEquals(rownames(tbl), c("mtx.cn.RData", "history.RData", "mtx.mut.RData", "mtx.prot.RData", "mtx.methHM450.RData","mtx.mrna.RData"))
-   checkEquals(sort(tbl$class), c("list", "matrix", "matrix", "matrix", "matrix", "matrix"))
+   expected.categories <- c("copy number", "history", "mRNA expression", "mutations",
+                               "protein abundance")
+   
+   checkTrue(all(expected.categories %in% tbl$category))
+   expected.rownames <- c("mtx.cn.RData", "events.RData","ptHistory.RData","historyTypes.RData", "tbl.ptHistory.RData", "mtx.mrna_Agi.RData", "mtx.mut.RData",
+                                "mtx.prot.RData")
 
    for(i in 1:nrow(tbl)){
       file.name <- rownames(tbl)[i]
@@ -74,7 +80,7 @@ testManifest <- function()
          checkEqualsNumeric(max(x, na.rm=T), maxValue, tolerance=10e-5)
          }
       provenance <- tbl$provenance[i];
-      checkEquals(provenance, "tcga hnsc")
+      checkEquals(provenance, "tcga")
       } # for i
 
    TRUE
@@ -225,10 +231,10 @@ testConstructor <- function()
    print("--- testConstructor")
 
    dp <- TCGAhnsc();
-   checkEquals(dim(manifest(dp)), c(6, 11))
-   checkEquals(length(matrices(dp)), 5)
-   checkEquals(names(matrices(dp)), c("mtx.cn","mtx.mut", "mtx.prot", "mtx.meth", "mtx.mrna"))
-   checkEquals(eventCount(history(dp)), 3902)
+   checkEquals(ncol(manifest(dp)), 11)
+   checkTrue(nrow(manifest(dp)) >= 7)
+   checkTrue(length(matrices(dp)) >= 5)
+   checkTrue(eventCount(history(dp)) > 3900)
    
 } # testConstructor
 #--------------------------------------------------------------------------------
@@ -251,7 +257,7 @@ testHistoryList <- function()
    ptHistory <- history(dp)
    checkTrue(is(ptHistory, "PatientHistoryClass"))
 
-   events <- getList(ptHistory)
+   events <- geteventList(ptHistory)
    checkEquals(length(events), 3902)
     
    event.counts <- as.list(table(unlist(lapply(events,
@@ -291,3 +297,16 @@ testHistoryTable <- function()
 
 } # testHistoryList
 #----------------------------------------------------------------------------------------------------
+testCanonicalizePatientIDs <- function()
+{
+   print("--- testCanonicalizePatientIDs")
+   dp <- TCGAhnsc()
+   IDs <- names(getPatientList(dp))
+   ptIDs <- canonicalizePatientIDs(dp, IDs)
+   
+   checkTrue(all(grepl("^TCGA\\.\\w\\w\\.\\w\\w\\w\\w$", ptIDs)))
+
+}
+#----------------------------------------------------------------------------------------------------
+if(!interactive())
+   runTests()
