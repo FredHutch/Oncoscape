@@ -80,9 +80,9 @@ When things don't go as planned, the master must be modified.
 ## Undo/Recommit to Branch
 When things really start get confusing...
 ```
->git reset —soft HEAD^ #each ^ steps back 1 commit
+>git reset --soft HEAD^ #each ^ steps back 1 commit
 >git reset [commit] #undo, preserves local changes
->git reset –hard [commit] #discard all history
+>git reset --hard [commit] #discard all history
 >git checkout branch
 >git commit  
 ```
