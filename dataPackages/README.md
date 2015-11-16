@@ -10,11 +10,16 @@ Oncoscape transforms and hosts TCGA level 3 data within the public site [oncosca
 	* Click on the "BioTab" header to select all samples in that format, and click "Build Archive."  For example, the [TCGAgbm data matrix](https://tcga-data.nci.nih.gov/tcga/dataAccessMatrix.htm?mode=ApplyFilter&showMatrix=true&diseaseType=GBM&tumorNormal=TN&tumorNormal=T&tumorNormal=NT&platformType=-999).
 	* Enter your email and download the files to the directory created in step 1.
 3. Create a new directory as the basis for the data package under  [Oncoscape/dataPackages/](https://github.com/FredHutch/Oncoscape/tree/datapackage_doc/dataPackages/)
-	* The easiest method is to copy [Oncoscape/dataPackages/TCGAgbm](https://github.com/FredHutch/Oncoscape/tree/datapackage_doc/dataPackages/TCGAgbm) as a template then replace all instances of "TCGAgbm" with the new package name within all the files under the directory
+	* The easiest method is to copy [Oncoscape/dataPackages/TCGAgbm](https://github.com/FredHutch/Oncoscape/tree/datapackage_doc/dataPackages/TCGAgbm) as a template then replace all instances of "TCGAgbm" with the new package name within all the files under the directory ```>grep -rl 'TCGAgbm' TCGAgbm/ | xargs sed -i "" 's/TCGAgbm/TCGA_newPackage/g'```[ see more details on string match and change here instruction](http://vasir.net/blog/ubuntu/replace_string_in_multiple_files)
 4. Transform and save the clinical data tables as R objects
 	* Update the TCGA_newPackage/inst/import/history/createEventList.R file.  For example [TCGAgbm createEventList.R](https://github.com/FredHutch/Oncoscape/blob/datapackage_doc/dataPackages/TCGAgbm/inst/import/history/createEventList.R)
 	* Reference and Update [PatientHistory_ReferenceTable.xlsx](https://github.com/FredHutch/Oncoscape/blob/datapackage_doc/dataPackages/PatientHistory_ReferenceTable.xlsx) with the file names and column headers indicating the source of each field
 	* Generate and save 3 R Objects in inst/extdata/ ```>Rscript createEventList.R```
+		* Different organ sites may have slightly different arrangment of raw data tables, and column names. The createEventList.R needs to be updated to grab the accurate content.
+		* Missing Value Update: convert values such as '[Unavailable]', '[Unapplicable]', '[Unkonwn]', '[Pending]', 'unknown' to NA
+		* Name standardize: ie. convert the chemo drugs to standard chemo drug names 
+		* Update all the values in the testing functions. Design the tests to reflect all the updates and value increments (in Progression)
+		
 6. Update manifest.tsv:pushpin: at TCGA_newPackage/inst/extdata 
  	 
 ## Molecular Data
