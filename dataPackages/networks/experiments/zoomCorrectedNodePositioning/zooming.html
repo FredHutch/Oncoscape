@@ -139,9 +139,34 @@ function setNodeLabelVisibility()
 
 } // setZoomMode
 //--------------------------------------------------------------------------------
+function defaultStyle()
+{
+    cy.nodes("node[nodeType != 'labeleledLandmark']").map(function(node){
+       var newWidth = node.data("trueWidth");
+       var newHeight = node.data("trueHeight");
+       node.style({width: newWidth, height: newHeight, label: ""});
+       }); // map
+
+    cy.nodes("node[nodeType = 'labeledLandmark']").map(function(node){
+       var newWidth = node.data("trueWidth");
+       var newHeight = node.data("trueHeight");
+       node.style({width: newWidth,
+                   height: newHeight, 
+                  'border-color': 'green',
+                  'border-width': 1,
+                  'shape': 'roundrectangle',
+                  //'label': 'data(id)',
+                  'font-size': '36px'});
+       }); // map
+
+} // defaultStyle
+//--------------------------------------------------------------------------------
 function setZoomMode()
 {
   zoomMode = $("#zoomModeMenu option:selected").text();
+  if(zoomMode === "Fixed"){
+     defaultStyle();
+     } // fixed
 
 } // setZoomMode
 //--------------------------------------------------------------------------------
@@ -189,10 +214,10 @@ function createNetwork()
         {data: {id: "SH2B3",    trueWidth: 29.6, trueHeight: 29.6, nodeType: "gene"}, position: {x: 4319, y: -691.7213140971809}},
         {data: {id: "WIF1",     trueWidth: 29.6, trueHeight: 29.6, nodeType: "gene"}, position: {x: 4319, y: -446.7674560776734}},
         {data: {id: "ZNF384",   trueWidth: 44,   trueHeight: 44,   nodeType: "gene"}, position: {x: 4319, y:  493.2325439223266}},
-        {data: {id: "chr12p",   trueWidth: 120,  trueHeight: 60,    nodeType: "landmark"},   position: {x: 4319, y:   53.2325439223266}},
-        {data: {id: "chr12q",   trueWidth: 120,  trueHeight: 60,    nodeType: "landmark"},   position: {x: 4319, y:  -14.7674560776733}},
-        {data: {id: "start.12", trueWidth: 20.8, trueHeight: 20.8,  nodeType: "landmark"}, position: {x: 4319, y:  602.2325439223266}},
-        {data: {id: "end.12",   trueWidth: 20.8, trueHeight: 20.8,  nodeType: "landmark"}, position: {x: 4319, y: -944.7120857010824}}
+        {data: {id: "chr12p",   trueWidth: 120,  trueHeight: 60,    nodeType: "labeledLandmark"},   position: {x: 4319, y:   53.2325439223266}},
+        {data: {id: "chr12q",   trueWidth: 120,  trueHeight: 60,    nodeType: "labeledLandmark"},   position: {x: 4319, y:  -14.7674560776733}},
+        {data: {id: "start.12", trueWidth: 20.8, trueHeight: 20.8,  nodeType: "unlabeledLandmark"}, position: {x: 4319, y:  602.2325439223266}},
+        {data: {id: "end.12",   trueWidth: 20.8, trueHeight: 20.8,  nodeType: "unlabeledLandmark"}, position: {x: 4319, y: -944.7120857010824}}
         ],
       edges: [
         {data: {id: "chrom12q", source: "chr12q",   target: "end.12"}},
@@ -216,7 +241,8 @@ function createNetwork()
             'borderWidth': 5
             }},
 
-      {selector: 'node[id="chr12q"], node[id="chr12p"]',
+      //{selector: 'node[id="chr12q"], node[id="chr12p"]',
+      {selector: 'node[nodeType="labeledLandmark"]',
          style: {
            'border-color': 'green',
            'border-width': 1,
@@ -261,7 +287,6 @@ function smartZoom(initialZoom, event)
    console.log(event);
    var newZoom = 1.0 + cy.zoom() - oldZoom;
    oldZoom = cy.zoom(); // keep this for next time
-   //console.log("newZoom: " + newZoom);
 
    var visibleCoords = cy.extent();
 
@@ -274,31 +299,30 @@ function smartZoom(initialZoom, event)
       
    var visibleNodes = cy.nodes().fnFilter(function(node){return(visibleOnScreen(node));})
 
-   //console.log("NEW zoom: " + cy.zoom());
-   var sizeFactor = initialZoom/cy.zoom()
+      // TODO: these two ratios might be reduced to just one
+      
+   var zoomRatio = cy.zoom()/initialZoom;
+   var windowRatio = cy.width()/cy.extent().h;
+   
    var fontSize = Math.round(cy.extent().h/40);
    if(fontSize < 1)
       fontSize = 1;
    var fontSizeString = fontSize + "px"
-   //console.log("new fontSizeString: " + fontSizeString);
-   infoDisplay.val("sf: " + sizeFactor.toFixed(3) + ", e.h: " + cy.extent().h.toFixed(3));
+   infoDisplay.val("zoomRatio: " + zoomRatio.toFixed(3) + ", screen: " + windowRatio.toFixed(3));
 
      // rule: if zoomed in 
    visibleNodes.map(function(node){
-      if(sizeFactor < 1.0){
-         var newWidth = node.data("trueWidth") * sizeFactor;
-         var newHeight = node.data("trueHeight") * sizeFactor;
-         //console.log("sizeFactor: " + sizeFactor);
-         //console.log("newWidth: " + newWidth);
+      //if(zoomRatio > 1.0 & cy.extent().h < 600){
+      if(zoomRatio > 1.0 & windowRatio > 2.0){
+         var newWidth = node.data("trueWidth") / zoomRatio;
+         var newHeight = node.data("trueHeight") / zoomRatio;
          var id = node.id();
-         if(cy.extent().h < 600){
-            node.style({width: newWidth, height: newHeight, label: id, "font-size": fontSizeString});
-            }
-         else{
-            node.style({width: newWidth, height: newHeight, label: ""});
-            }
-         } // zoomed in, so make node's mapped size smaller, so that apparent size is unchanged
-      }) // 
+         node.style({width: newWidth, height: newHeight, label: id, "font-size": fontSizeString});
+         }
+      else{
+         defaultStyle();
+         }
+      }) // map all visible nodes
 
 } // smartZoom
 //----------------------------------------------------------------------------------------------------
@@ -323,7 +347,7 @@ $(document).ready(initializeUI);
            <option value="onSpread">On spread zoom</option>
         </select>
       <button title="Restore initial layout" id='resetButton' class="appControlButtons">Reset</button>
-      <input type="text" title="run-time info" id="infoDisplay" style="width:300px; font-size: 18px; margin:20px; background-color: white"><text>
+      <input type="text" title="run-time info" id="infoDisplay" style="width:400px; font-size: 18px; margin:20px; background-color: white"><text>
     </div>
 
     <div id='cyDiv'></div>
