@@ -85,6 +85,7 @@ var zoomMode = "Fixed";
 var nodeLabelVisibilityMenu;
 var nodeLabelVisibility = "Never";
 var resetButton;
+var infoDisplay;
 //----------------------------------------------------------------------------------------------------
 function initializeUI()
 {
@@ -98,6 +99,8 @@ function initializeUI()
    nodeLabelVisibilityMenu = $("#nodeLabelVisibilityMenu");
    nodeLabelVisibilityMenu.change(setNodeLabelVisibility);
    resetButton = $("#resetButton");
+
+   infoDisplay = $("#infoDisplay");
 
    $(window).resize(handleWindowResize);
    $("#resetButton").click(function(){
@@ -149,47 +152,47 @@ function createNetwork()
      container: document.getElementById('cyDiv'), // container to render in
      elements: {
        nodes: [
-        {data: {id: 'a',        trueWidth: 100,  trueHeight: 100},  position: {x: 3579, y: -234}}, 
-        {data: {id: 'b',        trueWidth: 100,  trueHeight: 100},  position: {x: 3629, y: -184}},
-        {data: {id: 'c',        trueWidth: 100,  trueHeight: 100},  position: {x: 3729, y: -84}},
-        {data: {id: "AGAP2",    trueWidth: 74.4, trueHeight: 74.4}, position: {x: 4319, y: -329.7674560776734}},
-        {data: {id: "ALDH2",    trueWidth: 28,   trueHeight: 28},   position: {x: 4319, y: -697.7213140971809}},
-        {data: {id: "ARID2",    trueWidth: 32,   trueHeight: 32},   position: {x: 4319, y: -136.7674560776734}},
-        {data: {id: "ATF1",     trueWidth: 26.4, trueHeight: 26.4}, position: {x: 4319, y: -217.7674560776734}},
-        {data: {id: "BCL7A",    trueWidth: 28.8, trueHeight: 28.8}, position: {x: 4319, y: -807.8701911146661}},
-        {data: {id: "BTG1",     trueWidth: 23.2, trueHeight: 23.2}, position: {x: 4319, y: -608.6653323806352}},
-        {data: {id: "CCND2",    trueWidth: 48.8, trueHeight: 48.8}, position: {x: 4319, y:  532.2325439223266}},
-        {data: {id: "CDK2",     trueWidth: 27.2, trueHeight: 27.2}, position: {x: 4319, y: -301.7674560776734}},
-        {data: {id: "CDK4",     trueWidth: 74.4, trueHeight: 74.4}, position: {x: 4319, y: -329.7674560776734}},
-        {data: {id: "CDKN1B",   trueWidth: 30.4, trueHeight: 30.4}, position: {x: 4319, y:  395.2325439223266}},
-        {data: {id: "DDIT3",    trueWidth: 52.8, trueHeight: 52.8}, position: {x: 4319, y: -325.7674560776734}},
-        {data: {id: "ERBB3",    trueWidth: 28,   trueHeight: 28},   position: {x: 4319, y: -302.7674560776734}},
-        {data: {id: "ERC1",     trueWidth: 44,   trueHeight: 44},   position: {x: 4319, y:  584.2325439223266}},
-        {data: {id: "ETV6",     trueWidth: 35.2, trueHeight: 35.2}, position: {x: 4319, y:  413.2325439223266}},
-        {data: {id: "GLI1",     trueWidth: 50.4, trueHeight: 50.4}, position: {x: 4319, y: -324.7674560776734}},
-        {data: {id: "HMGA2",    trueWidth: 26.4, trueHeight: 26.4}, position: {x: 4319, y: -459.7674560776734}},
-        {data: {id: "HNF1A",    trueWidth: 28.8, trueHeight: 28.8}, position: {x: 4319, y: -791.8701911146662}},
-        {data: {id: "HOXC11",   trueWidth: 28,   trueHeight: 28},   position: {x: 4319, y: -269.7674560776734}},
-        {data: {id: "HOXC13",   trueWidth: 27.2, trueHeight: 27.2}, position: {x: 4319, y: -268.7674560776734}},
-        {data: {id: "KDM5A",    trueWidth: 44,   trueHeight: 44},   position: {x: 4319, y:  596.2325439223266}},
-        {data: {id: "KMT2D",    trueWidth: 33.6, trueHeight: 33.6}, position: {x: 4319, y: -189.7674560776734}},
-        {data: {id: "KRAS",     trueWidth: 34.4, trueHeight: 34.4}, position: {x: 4319, y:  195.2325439223266}},
-        {data: {id: "LRIG3",    trueWidth: 33.6, trueHeight: 33.6}, position: {x: 4319, y: -347.7674560776734}},
-        {data: {id: "MDM2",     trueWidth: 48,   trueHeight: 48},   position: {x: 4319, y: -507.7674560776734}},
-        {data: {id: "MIR200C",  trueWidth: 42.4, trueHeight: 42.4}, position: {x: 4319, y:  488.2325439223266}},
-        {data: {id: "NACA",     trueWidth: 29.6, trueHeight: 29.6}, position: {x: 4319, y: -312.7674560776734}},
-        {data: {id: "PIK3C2G",  trueWidth: 36.8, trueHeight: 36.8}, position: {x: 4319, y:  306.2325439223266}},
-        {data: {id: "PMEL",     trueWidth: 28,   trueHeight: 28},   position: {x: 4319, y: -300.7674560776734}},
-        {data: {id: "PRH1",     trueWidth: 35.2, trueHeight: 35.2}, position: {x: 4319, y:  425.2325439223266}},
-        {data: {id: "PRR4",     trueWidth: 36,   trueHeight: 36},   position: {x: 4319, y:  425.2325439223266}},
-        {data: {id: "PTPN11",   trueWidth: 34.4, trueHeight: 34.4}, position: {x: 4319, y: -707.7213140971809}},
-        {data: {id: "SH2B3",    trueWidth: 29.6, trueHeight: 29.6}, position: {x: 4319, y: -691.7213140971809}},
-        {data: {id: "WIF1",     trueWidth: 29.6, trueHeight: 29.6}, position: {x: 4319, y: -446.7674560776734}},
-        {data: {id: "ZNF384",   trueWidth: 44,   trueHeight: 44},   position: {x: 4319, y:  493.2325439223266}},
-        {data: {id: "chr12p",   trueWidth: 120,  trueHeight: 60},   position: {x: 4319, y:   53.2325439223266}},
-        {data: {id: "chr12q",   trueWidth: 120,  trueHeight: 60},   position: {x: 4319, y:  -14.7674560776733}},
-        {data: {id: "start.12", trueWidth: 20.8, trueHeight: 20.8}, position: {x: 4319, y:  602.2325439223266}},
-        {data: {id: "end.12",   trueWidth: 20.8, trueHeight: 20.8}, position: {x: 4319, y: -944.7120857010824}}
+        {data: {id: 'a',        trueWidth: 100,  trueHeight: 100,  nodeType: "tumor"}, position: {x: 3579, y: -234}}, 
+        {data: {id: 'b',        trueWidth: 100,  trueHeight: 100,  nodeType: "tumor"}, position: {x: 3629, y: -184}},
+        {data: {id: 'c',        trueWidth: 100,  trueHeight: 100,  nodeType: "tumor"}, position: {x: 3729, y: -84}},
+        {data: {id: "AGAP2",    trueWidth: 74.4, trueHeight: 74.4, nodeType: "gene"}, position: {x: 4319, y: -329.7674560776734}},
+        {data: {id: "ALDH2",    trueWidth: 28,   trueHeight: 28,   nodeType: "gene"}, position: {x: 4319, y: -697.7213140971809}},
+        {data: {id: "ARID2",    trueWidth: 32,   trueHeight: 32,   nodeType: "gene"}, position: {x: 4319, y: -136.7674560776734}},
+        {data: {id: "ATF1",     trueWidth: 26.4, trueHeight: 26.4, nodeType: "gene"}, position: {x: 4319, y: -217.7674560776734}},
+        {data: {id: "BCL7A",    trueWidth: 28.8, trueHeight: 28.8, nodeType: "gene"}, position: {x: 4319, y: -807.8701911146661}},
+        {data: {id: "BTG1",     trueWidth: 23.2, trueHeight: 23.2, nodeType: "gene"}, position: {x: 4319, y: -608.6653323806352}},
+        {data: {id: "CCND2",    trueWidth: 48.8, trueHeight: 48.8, nodeType: "gene"}, position: {x: 4319, y:  532.2325439223266}},
+        {data: {id: "CDK2",     trueWidth: 27.2, trueHeight: 27.2, nodeType: "gene"}, position: {x: 4319, y: -301.7674560776734}},
+        {data: {id: "CDK4",     trueWidth: 74.4, trueHeight: 74.4, nodeType: "gene"}, position: {x: 4319, y: -329.7674560776734}},
+        {data: {id: "CDKN1B",   trueWidth: 30.4, trueHeight: 30.4, nodeType: "gene"}, position: {x: 4319, y:  395.2325439223266}},
+        {data: {id: "DDIT3",    trueWidth: 52.8, trueHeight: 52.8, nodeType: "gene"}, position: {x: 4319, y: -325.7674560776734}},
+        {data: {id: "ERBB3",    trueWidth: 28,   trueHeight: 28,   nodeType: "gene"}, position: {x: 4319, y: -302.7674560776734}},
+        {data: {id: "ERC1",     trueWidth: 44,   trueHeight: 44,   nodeType: "gene"}, position: {x: 4319, y:  584.2325439223266}},
+        {data: {id: "ETV6",     trueWidth: 35.2, trueHeight: 35.2, nodeType: "gene"}, position: {x: 4319, y:  413.2325439223266}},
+        {data: {id: "GLI1",     trueWidth: 50.4, trueHeight: 50.4, nodeType: "gene"}, position: {x: 4319, y: -324.7674560776734}},
+        {data: {id: "HMGA2",    trueWidth: 26.4, trueHeight: 26.4, nodeType: "gene"}, position: {x: 4319, y: -459.7674560776734}},
+        {data: {id: "HNF1A",    trueWidth: 28.8, trueHeight: 28.8, nodeType: "gene"}, position: {x: 4319, y: -791.8701911146662}},
+        {data: {id: "HOXC11",   trueWidth: 28,   trueHeight: 28,   nodeType: "gene"}, position: {x: 4319, y: -269.7674560776734}},
+        {data: {id: "HOXC13",   trueWidth: 27.2, trueHeight: 27.2, nodeType: "gene"}, position: {x: 4319, y: -268.7674560776734}},
+        {data: {id: "KDM5A",    trueWidth: 44,   trueHeight: 44,   nodeType: "gene"}, position: {x: 4319, y:  596.2325439223266}},
+        {data: {id: "KMT2D",    trueWidth: 33.6, trueHeight: 33.6, nodeType: "gene"}, position: {x: 4319, y: -189.7674560776734}},
+        {data: {id: "KRAS",     trueWidth: 34.4, trueHeight: 34.4, nodeType: "gene"}, position: {x: 4319, y:  195.2325439223266}},
+        {data: {id: "LRIG3",    trueWidth: 33.6, trueHeight: 33.6, nodeType: "gene"}, position: {x: 4319, y: -347.7674560776734}},
+        {data: {id: "MDM2",     trueWidth: 48,   trueHeight: 48,   nodeType: "gene"}, position: {x: 4319, y: -507.7674560776734}},
+        {data: {id: "MIR200C",  trueWidth: 42.4, trueHeight: 42.4, nodeType: "gene"}, position: {x: 4319, y:  488.2325439223266}},
+        {data: {id: "NACA",     trueWidth: 29.6, trueHeight: 29.6, nodeType: "gene"}, position: {x: 4319, y: -312.7674560776734}},
+        {data: {id: "PIK3C2G",  trueWidth: 36.8, trueHeight: 36.8, nodeType: "gene"}, position: {x: 4319, y:  306.2325439223266}},
+        {data: {id: "PMEL",     trueWidth: 28,   trueHeight: 28,   nodeType: "gene"}, position: {x: 4319, y: -300.7674560776734}},
+        {data: {id: "PRH1",     trueWidth: 35.2, trueHeight: 35.2, nodeType: "gene"}, position: {x: 4319, y:  425.2325439223266}},
+        {data: {id: "PRR4",     trueWidth: 36,   trueHeight: 36,   nodeType: "gene"}, position: {x: 4319, y:  425.2325439223266}},
+        {data: {id: "PTPN11",   trueWidth: 34.4, trueHeight: 34.4, nodeType: "gene"}, position: {x: 4319, y: -707.7213140971809}},
+        {data: {id: "SH2B3",    trueWidth: 29.6, trueHeight: 29.6, nodeType: "gene"}, position: {x: 4319, y: -691.7213140971809}},
+        {data: {id: "WIF1",     trueWidth: 29.6, trueHeight: 29.6, nodeType: "gene"}, position: {x: 4319, y: -446.7674560776734}},
+        {data: {id: "ZNF384",   trueWidth: 44,   trueHeight: 44,   nodeType: "gene"}, position: {x: 4319, y:  493.2325439223266}},
+        {data: {id: "chr12p",   trueWidth: 120,  trueHeight: 60,    nodeType: "landmark"},   position: {x: 4319, y:   53.2325439223266}},
+        {data: {id: "chr12q",   trueWidth: 120,  trueHeight: 60,    nodeType: "landmark"},   position: {x: 4319, y:  -14.7674560776733}},
+        {data: {id: "start.12", trueWidth: 20.8, trueHeight: 20.8,  nodeType: "landmark"}, position: {x: 4319, y:  602.2325439223266}},
+        {data: {id: "end.12",   trueWidth: 20.8, trueHeight: 20.8,  nodeType: "landmark"}, position: {x: 4319, y: -944.7120857010824}}
         ],
       edges: [
         {data: {id: "chrom12q", source: "chr12q",   target: "end.12"}},
@@ -241,20 +244,25 @@ function createNetwork()
        oldZoom = cy.zoom();
        cy.on('zoom', function(event){
           if(zoomMode === "Spread")
-            smartZoom(event);
+            smartZoom(initialZoom, event);
           });
        } // ready
      });  // cytoscape
 
 } // createNetwork
 //----------------------------------------------------------------------------------------------------
-function smartZoom(event)
+// expand node size and display node labels when:
+//   1) the user's coordinate space, due to zooming, has shrunk to < 600 pixels
+//   2) the zoom factor is so large relative to the initial zoom (a global variable, set on startup)
+// 
+function smartZoom(initialZoom, event)
 {
    console.log("smartZoom");
    console.log(event);
    var newZoom = 1.0 + cy.zoom() - oldZoom;
    oldZoom = cy.zoom(); // keep this for next time
-   console.log("newZoom: " + newZoom);
+   //console.log("newZoom: " + newZoom);
+
    var visibleCoords = cy.extent();
 
    var visibleOnScreen = function(node){
@@ -266,14 +274,16 @@ function smartZoom(event)
       
    var visibleNodes = cy.nodes().fnFilter(function(node){return(visibleOnScreen(node));})
 
-   console.log("NEW zoom: " + cy.zoom());
+   //console.log("NEW zoom: " + cy.zoom());
    var sizeFactor = initialZoom/cy.zoom()
    var fontSize = Math.round(cy.extent().h/40);
    if(fontSize < 1)
       fontSize = 1;
    var fontSizeString = fontSize + "px"
-   console.log("new fontSizeString: " + fontSizeString);
+   //console.log("new fontSizeString: " + fontSizeString);
+   infoDisplay.val("sf: " + sizeFactor.toFixed(3) + ", e.h: " + cy.extent().h.toFixed(3));
 
+     // rule: if zoomed in 
    visibleNodes.map(function(node){
       if(sizeFactor < 1.0){
          var newWidth = node.data("trueWidth") * sizeFactor;
@@ -281,10 +291,12 @@ function smartZoom(event)
          //console.log("sizeFactor: " + sizeFactor);
          //console.log("newWidth: " + newWidth);
          var id = node.id();
-         if(cy.extent().h < 600) 
+         if(cy.extent().h < 600){
             node.style({width: newWidth, height: newHeight, label: id, "font-size": fontSizeString});
-         else
+            }
+         else{
             node.style({width: newWidth, height: newHeight, label: ""});
+            }
          } // zoomed in, so make node's mapped size smaller, so that apparent size is unchanged
       }) // 
 
@@ -311,6 +323,7 @@ $(document).ready(initializeUI);
            <option value="onSpread">On spread zoom</option>
         </select>
       <button title="Restore initial layout" id='resetButton' class="appControlButtons">Reset</button>
+      <input type="text" title="run-time info" id="infoDisplay" style="width:300px; font-size: 18px; margin:20px; background-color: white"><text>
     </div>
 
     <div id='cyDiv'></div>
