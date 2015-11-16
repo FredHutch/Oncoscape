@@ -8,6 +8,8 @@ For a full explanation, see the
 [Workflow](http://nvie.com/posts/a-successful-git-branching-model/) or 
 [Branching Model](www.atlassian.com/git/tutorials/comparing-workflows) external websites our approach is based on.
 
+This explanation of [merging branches](http://linux.die.net/man/1/git-merge) is also quite helpful.
+
 
 ## 1. Clone
 Create a local copy of Oncoscape on your machine
