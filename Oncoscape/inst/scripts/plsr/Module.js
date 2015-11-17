@@ -540,7 +540,8 @@ function datasetSpecified(msg)
       hub.disableButton(calculateButton);
       return;
       }
-   
+   d3plsrDisplay.select("#plsrSVG").remove();  // so that old layouts aren't mistaken for new dataset
+      
    createPlsrObjectOnServer(dataPackageName, matrixName);
 
 } // datasetSpecified

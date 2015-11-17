@@ -306,7 +306,7 @@ getMarkersAndSamplesNetwork <- function(ws, msg)
 	  printf("wsDatasets.getMarkersAndSamplesNetwork, size: %d", nchar(payload));
 	  return.msg <- list(cmd=msg$callback, status="success", callback="", payload=payload)
 	  ws$send(toJSON(return.msg))
-	  return;
+	  return()
   }
   printf("wsDatasets.getMarkersAndSamplesNetwork, %s not in %s", markerName, datasetName);
   payload <- paste("error: wsDatasets.getMarkersAndSamplesNetwork, ",markerName, " not in ", datasetName, sep="")
@@ -328,7 +328,7 @@ getPathway <- function(ws, msg)
 	  printf("wsDatasets.getPathway, size: %d", nchar(payload));
 	  return.msg <- list(cmd=msg$callback, status="success", callback="", payload=payload)
 	  ws$send(toJSON(return.msg))
-	  return;
+	  return()
   }
 	  printf("wsDatasets.getPathway, %s not in %s", pathwayName, datasetName);
 	  payload <- paste("error: wsDatasets.getPathway, ",pathwayName, " not in ", datasetName, sep="")
