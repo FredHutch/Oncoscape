@@ -25,7 +25,7 @@ easiest way to do this. You can then clone down your fork instead:
 
 After doing that, follow the [Installation instructions](INSTALL.md) to install, test, and run the software package.
 
-### How is the codebase organised?
+### How is the codebase organized?
 
 Oncoscape uses websockets to pass JSON messages between web browsers and computational servers using the [chinook protocol](https://github.com/oncoscape/chinook).
 
