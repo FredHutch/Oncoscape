@@ -106,7 +106,7 @@ Before you can successfully install Oncoscape on a Mac OS X system you will need
 
 To install the R head over to the CRAN site (https://cran.r-project.org/mirrors.html), pick a mirror site closest to you then download the latest version of R (currently 3.2.2) for Windows and install it. After it's installed make sure that you add the R binaries to your system path (control panel -> system -> advanced system settings -> environment variables -> system variables). If you accepted the defaults, the R binaries will be located at *"C:\Program Files\R\bin"*.
 
-Next you'll need to install Cygwin. Go to http://cygwin.com/install.html and download the Cygwin installer "setup-x86_64.exe". Next open a command-line window and change the directory to were the Cygwin installer was downloaded and enter the following command:
+Next you'll need to install Cygwin. Go to http://cygwin.com/install.html and download the Cygwin installer "setup-x86_64.exe". Next open a command-line window and change the directory to where the Cygwin installer was downloaded and enter the following command:
 
 ```
 setup-x86_64.exe -q -P make,m4,bash,git
@@ -130,7 +130,7 @@ After installing the above dependencies on your Windows system, you are ready to
 
 ### Mac OS X and Linux Install Instructions
 
-The first thing that you'll need to do is download the Oncoscape application source from GitHub and place it in the location you wish it to live. Open a terminal windows and run the commands below, replacing "\<path\>" with the location you wish to install Oncoscape:
+The first thing that you'll need to do is download the Oncoscape application source from GitHub and place it in the location you wish it to live. Open a terminal window and run the commands below, replacing "\<path\>" with the location you wish to install Oncoscape:
 
 ```bash
 cd /<path>
@@ -159,7 +159,7 @@ If you chose to build and install the R libraries in an alternate location (as a
 export R_LIBS=/home/myhome/rlibs
 ```
 
-After the application has been successfully built and installed, you should test it to ensure that everything is working as expected. This an be accomplished by running the provided 'test' make target. Before running the test suite (or running the Oncoscape app itself), you'll need to create a directory to store user data and export it as follows (replace "\<path\>" with the actual path): 
+After the application has been successfully built and installed, you should test it to ensure that everything is working as expected. This can be accomplished by running the provided 'test' make target. Before running the test suite (or running the Oncoscape app itself), you'll need to create a directory to store user data and export it as follows (replace "\<path\>" with the actual path): 
 
 ```bash
 sudo mkdir /<path>/userdata
@@ -197,7 +197,7 @@ cd C:\<path>\Oncoscape
 make installLocal
 ```
 
-After the Oncoscape has been successfully built and installed, you should test it to ensure that everything is working as expected. This an be accomplished by running the provided 'test' make target. Before running the test suite (or running the Oncoscape app itself), you'll need to create a directory to store user data and create a new Windows System evironment varible named "ONCOSCAPE_USER_DATA_STORE" with a value of file://c:\\\\path\\\\userdata" (replacing the "path" and "userdata" with the correct path and target directory on your system.
+After the Oncoscape has been successfully built and installed, you should test it to ensure that everything is working as expected. This can be accomplished by running the provided 'test' make target. Before running the test suite (or running the Oncoscape app itself), you'll need to create a directory to store user data and create a new Windows System environment variable named "ONCOSCAPE_USER_DATA_STORE" with a value of file://c:\\\\path\\\\userdata" (replacing the "path" and "userdata" with the correct path and target directory on your system.
 
 With the userdata directory in place and the environment variable set, the test suite can be executed with the following command:
 
@@ -213,7 +213,7 @@ If all tests passed (you should see "OK:  all python websocket json tests passed
 
 The default Oncoscape configuration file is located at 'Oncoscape/inst/scripts/apps/oncoscape/runOncoscapeApp-7777.R' 
 
-Edit this file to meet your specific needs, such the TCP port you want the server to listen on and what datasets you want to load on startup. By default when you run Oncoscape it will automatically open a web browser and navigate to the Oncoscape application. If you are running Oncoscape on a remote server rather than your local workstation, this won't work and you'll need to manually navigate to the server address and configured oncoscape port.
+Edit this file to meet your specific needs, such as the TCP port you want the server to listen on and what datasets you want to load on startup. By default when you run Oncoscape it will automatically open a web browser and navigate to the Oncoscape application. If you are running Oncoscape on a remote server rather than your local workstation, this won't work and you'll need to manually navigate to the server address and configured oncoscape port.
 
 To change the port while Onoscape listens, modify the "port" variable. To modify the datasets that are loaded on startup, modify the "current.datasets" variable. Below in an example configuration:
 
@@ -235,7 +235,7 @@ run(onco)
 
 ### Running a Global Installation on Linux and Mac OS X
 
-If you performed a system-wide install of the Oncoscape R libraries (make install) the following command will kill any current running Oncoscape instances and launch Oncoscape as defined in the configuration file:
+If you performed a system-wide install of the Oncoscape R libraries (make install), the following command will kill any current running Oncoscape instances and launch Oncoscape as defined in the configuration file:
 
 ```bash
 make oncoApp7777
@@ -243,7 +243,7 @@ make oncoApp7777
 
 ### Running a Local Installation on Linux and Mac OS X
 
-If you installed the Oncoscape R packages in a defined location (make installLocal) the following command will kill any current running Oncoscape instances and launch Oncoscape as defined in the configuration file:
+If you installed the Oncoscape R packages in a defined location (make installLocal), the following command will kill any current running Oncoscape instances and launch Oncoscape as defined in the configuration file:
 
 ```bash
 make oncoAppLocal7777
@@ -278,7 +278,7 @@ After the Oncoscape application has started, a web browser should open and autom
 
 After launching Oncoscape, it takes about 15 seconds before it starts listening for connections, so be patient.
 
-***Note:*** When Oncoscape is run under Windows (via either 'make oncoWin' or make 'oncoWinLocal'), Oncoscape will run in the foreground of the comand-line console. If you wish to stop Oncoscape, hit "CTRL-C" to kill it.
+***Note:*** When Oncoscape is run under Windows (via either 'make oncoWin' or make 'oncoWinLocal'), Oncoscape will run in the foreground of the command-line console. If you wish to stop Oncoscape, hit "CTRL-C" to kill it.
 
 ## 5. Running and Developing Oncoscape with Docker
 
