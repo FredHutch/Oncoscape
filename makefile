@@ -77,5 +77,11 @@ oncoAppLocal7788:
 oncoApp7788:
 	(cd Oncoscape/inst/scripts/apps/oncotest/; make run;)
 
+oncoWin:
+	(cd Oncoscape/inst/scripts/apps/oncoscape/; make runWin;)
+
+oncoWinLocal:
+	(cd Oncoscape/inst/scripts/apps/oncoscape/; make runWinLocal;)
+
 oncoDocker:
 	(cd Oncoscape/inst/scripts/apps/oncoscape/; make runDocker;)
