@@ -1,24 +1,27 @@
 # **Generating and Testing Data Packages for Oncoscape** 
 ###### :pushpin: To avoid the change of format, only open/edit with plain text editors
 
-Oncoscape transforms and hosts TCGA level 3 data within the public site [oncoscape.sttrcancer.org](oncoscape.sttrcancer.org).  The following description explains how to obtain and transform TCGA data into the necessary data structures and classes for Oncoscape.
+Oncoscape transforms and hosts TCGA level 3 data within the public site [oncoscape.sttrcancer.org](http://oncoscape.sttrcancer.org).  The following description explains how to obtain and transform TCGA data into the necessary data structures and classes for Oncoscape.
 
 ## Clinical Data
-1. Create a new folder within [Oncoscape/dataPackages](https://github.com/FredHutch/Oncoscape/tree/datapackage_doc/dataPackages)/RawData/ that describes the dataset.  For example, TCGAgbm includes the TCGA glioblastoma multiforme data, TCGAlgg includes the lower grade glioma, and TCGAbrain encompasses TCGAgbm and TCGAlgg.  Note that the RawData folder is not currently tracked within git in order to reduce the datapackage size.  This may change if/when data is separated into a subModule or there is sufficient need expressed by collaborators.
+1. Create a new folder within [Oncoscape/dataPackages](https://github.com/FredHutch/Oncoscape/tree/datapackage_doc/dataPackages)/RawData/ using a name that describes the dataset.  For example, TCGAgbm includes the TCGA glioblastoma multiforme data, TCGAlgg includes the lower grade glioma, and TCGAbrain encompasses TCGAgbm and TCGAlgg.  Note that the RawData folder is not currently tracked within git in order to reduce the datapackage size.  This may change if/when data is separated into a subModule or there is sufficient need expressed by collaborators.
 2. Download [TCGA data](https://tcga-data.nci.nih.gov/tcga/)
 	* Choose the desired dataset and select the link of clinical cases within the cancer details.  For example, [TCGAgbm](https://tcga-data.nci.nih.gov/tcga/tcgaCancerDetails.jsp?diseaseType=GBM&diseaseName=Glioblastoma%20multiforme) has 523 cases as of 11/16/15
 	* Click on the "BioTab" header to select all samples in that format, and click "Build Archive."  For example, the [TCGAgbm data matrix](https://tcga-data.nci.nih.gov/tcga/dataAccessMatrix.htm?mode=ApplyFilter&showMatrix=true&diseaseType=GBM&tumorNormal=TN&tumorNormal=T&tumorNormal=NT&platformType=-999).
 	* Enter your email and download the files to the directory created in step 1.
 3. Create a new directory as the basis for the data package under  [Oncoscape/dataPackages/](https://github.com/FredHutch/Oncoscape/tree/datapackage_doc/dataPackages/)
-	* The easiest method is to copy [Oncoscape/dataPackages/TCGAgbm](https://github.com/FredHutch/Oncoscape/tree/datapackage_doc/dataPackages/TCGAgbm) as a template then replace all instances of "TCGAgbm" with the new package name within all the files under the directory ```>grep -rl 'TCGAgbm' TCGAgbm/ | xargs sed -i "" 's/TCGAgbm/TCGA_newPackage/g'```[ see more details on string match and change here instruction](http://vasir.net/blog/ubuntu/replace_string_in_multiple_files)
+	* The easiest method is to copy [Oncoscape/dataPackages/TCGAgbm](https://github.com/FredHutch/Oncoscape/tree/datapackage_doc/dataPackages/TCGAgbm) as a template then replace all instances of "TCGAgbm" with the new package name within all the files under the directory.```>grep -rl 'TCGAgbm' TCGAgbm/ | xargs sed -i "" 's/TCGAgbm/TCGA_newPackage/g'``` [See more details on string matching here](http://vasir.net/blog/ubuntu/replace_string_in_multiple_files) 
+	
+
+
 4. Transform and save the clinical data tables as R objects
 	* Update the TCGA_newPackage/inst/import/history/createEventList.R file.  For example [TCGAgbm createEventList.R](https://github.com/FredHutch/Oncoscape/blob/datapackage_doc/dataPackages/TCGAgbm/inst/import/history/createEventList.R)
 	* Reference and Update [PatientHistory_ReferenceTable.xlsx](https://github.com/FredHutch/Oncoscape/blob/datapackage_doc/dataPackages/PatientHistory_ReferenceTable.xlsx) with the file names and column headers indicating the source of each field
 	* Generate and save 3 R Objects in inst/extdata/ ```>Rscript createEventList.R```
-		* Different organ sites may have slightly different arrangment of raw data tables, and column names. The createEventList.R needs to be updated to grab the accurate content.
-		* Missing Value Update: convert values such as '[Unavailable]', '[Unapplicable]', '[Unkonwn]', '[Pending]', 'unknown' to NA
-		* Name standardize: ie. convert the chemo drugs to standard chemo drug names 
-		* Update all the values in the testing functions. Design the tests to reflect all the updates and value increments (in Progression)
+		* Different organ sites may have slightly different arrangments of raw data tables, and column names. The createEventList.R needs to be updated to grab the accurate content.
+		* Missing Value Update: convert values such as '[Unavailable]', '[Unapplicable]', '[Unknown]', '[Pending]', 'unknown' to NA
+		* Name standardization: ie. convert the chemo drugs to standard chemo drug names 
+		* Update all the values in the testing functions. Design the tests to reflect all the updates and value increments (e.g. in Progression)
 		
 6. Update manifest.tsv:pushpin: at TCGA_newPackage/inst/extdata 
  	 
