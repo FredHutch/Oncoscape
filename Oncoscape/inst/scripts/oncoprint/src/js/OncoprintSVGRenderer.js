@@ -66,6 +66,11 @@
 		this.container = d3.select(container_selector_string);
 		this.container.classed('noselect', true).selectAll('*').remove();
 		this.container.append('br');
+		(function initLegend() {
+			if (config.legend) {
+				self.legend_table = d3.select(container_selector_string).append('table').style('border-collapse', 'collapse');
+			}
+		})();
 		var content_area = d3.select(container_selector_string).append('div').classed('oncoprint-content-area', true);
 		(function initLabelContainer() {
 			self.label_container = content_area.append('div').classed(LABEL_AREA_CONTAINER_CLASS, true).style('position', 'relative');
@@ -214,11 +219,7 @@
 		}, function() {
 			$(self.label_div.node()).find('.'+self.getTrackButtonCSSClass()).stop().fadeOut(500);
 		});
-		(function initLegend() {
-			if (config.legend) {
-				self.legend_table = d3.select(container_selector_string).append('table').style('border-collapse', 'collapse');
-			}
-		})();
+		
 		(function reactToOncoprint() {
 			$(oncoprint).on(events.REMOVE_TRACK, function(evt, data) {
 				var track_id = data.track_id;
