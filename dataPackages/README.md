@@ -15,8 +15,8 @@ Oncoscape transforms and hosts TCGA level 3 data within the public site [oncosca
 
 
 4. Transform and save the clinical data tables as R objects
-	* Update the TCGA_newPackage/inst/import/history/createEventList.R file.  For example [TCGAgbm createEventList.R](https://github.com/FredHutch/Oncoscape/blob/datapackage_doc/dataPackages/TCGAgbm/inst/import/history/createEventList.R)
-	* Reference and Update [PatientHistory_ReferenceTable.xlsx](https://github.com/FredHutch/Oncoscape/blob/datapackage_doc/dataPackages/PatientHistory_ReferenceTable.xlsx) with the file names and column headers indicating the source of each field
+	* Update the TCGA_newPackage/inst/import/history/createEventList.R file.  For example [TCGAgbm createEventList.R](https://github.com/FredHutch/Oncoscape/blob/develop/dataPackages/TCGAgbm/inst/import/history/createEventList.R)
+	* Reference and Update [PatientHistory_ReferenceTable.xlsx](https://github.com/FredHutch/Oncoscape/blob/develop/dataPackages/PatientHistory_ReferenceTable.xlsx) with the file names and column headers indicating the source of each field
 	* Generate and save 3 R Objects in inst/extdata/ ```>Rscript createEventList.R```
 		* Different organ sites may have slightly different arrangments of raw data tables, and column names. The createEventList.R needs to be updated to grab the accurate content.
 		* Missing Value Update: convert values such as '[Unavailable]', '[Unapplicable]', '[Unknown]', '[Pending]', 'unknown' to NA
@@ -31,19 +31,19 @@ Oncoscape transforms and hosts TCGA level 3 data within the public site [oncosca
 3. Save raw data for various datatypes by querying for: Copy Number Aberration, Mutation, Expression, Methylation and Protein
 	* Store the molecular data at RawData/TCGA_newPackage/ along with the updated _mysql_cBio_TCGA_calls.txt_:pushpin: 
 4. Create R objects storing matrices of molecular profiles
-	* Update the import & testing script for each molecular data type. For example, [TCGAgbm copy number](https://github.com/FredHutch/Oncoscape/tree/datapackage_doc/dataPackages/TCGAgbm/inst/import/copyNumber)
+	* Update the import & testing script for each molecular data type. For example, [TCGAgbm copy number](https://github.com/FredHutch/Oncoscape/tree/develop/dataPackages/TCGAgbm/inst/import/copyNumber)
 	* Generate and save each R Object in inst/extdata/, e.g. ```>Rscript createCopyNumberMatrix.R```
-5. Update the manifest file to recognize and load each data type.  For example,  [TCGAgbm](https://github.com/FredHutch/Oncoscape/tree/datapackage_doc/dataPackages/TCGAgbm/inst/extdata/manifest.tsv):pushpin: 
+5. Update the manifest file to recognize and load each data type.  For example,  [TCGAgbm](https://github.com/FredHutch/Oncoscape/tree/develop/dataPackages/TCGAgbm/inst/extdata/manifest.tsv):pushpin: 
 
 ## Data Package
 Each disease type accesses the clinical and molecular profiles through it's instance of the SttrDataPackage constructor class.  To add and link a new data package to Oncoscape, it must be added to the install, test and build targets as described here.
 
 1. Update files linked to test/install targets:
-	* [install R packages globally](https://github.com/FredHutch/Oncoscape/tree/datapackage_doc/installRpackages_global.sh)
-	* [install R packages locally](https://github.com/FredHutch/Oncoscape/tree/datapackage_doc/installRpackages_local.sh)
-	* [uninstall R packages](https://github.com/FredHutch/Oncoscape/tree/datapackage_doc/removeInstalledOncoscapePackages.R)
-	* [Oncoscape/dataPackages/makefile](https://github.com/FredHutch/Oncoscape/blob/datapackage_doc/dataPackages/makefile)
-	* [run develop branch](https://github.com/FredHutch/Oncoscape/blob/datapackage_doc/Oncoscape/inst/scripts/apps/oncoscape/runOncoscapeApp-7777.R)
+	* [install R packages globally](https://github.com/FredHutch/Oncoscape/tree/develop/installRpackages_global.sh)
+	* [install R packages locally](https://github.com/FredHutch/Oncoscape/tree/develop/installRpackages_local.sh)
+	* [uninstall R packages](https://github.com/FredHutch/Oncoscape/tree/develop/removeInstalledOncoscapePackages.R)
+	* [Oncoscape/dataPackages/makefile](https://github.com/FredHutch/Oncoscape/blob/develop/dataPackages/makefile)
+	* [run develop branch](https://github.com/FredHutch/Oncoscape/blob/develop/Oncoscape/inst/scripts/apps/oncoscape/runOncoscapeApp-7777.R)
 2.  Build and Install new data package from Oncoscape/dataPackages/:
 	* `R CMD Build <TCGA_newPackage>`
 	* `R CMD Install <TCGA_newPackage>`
