@@ -5,8 +5,8 @@ Version: 0.99.02
 Date: 2015-11-09
 Author: Paul Shannon
 Maintainer: Paul Shannon <pshannon@fredhutch.org>
-Depends: R (>= 3.2.2), SttrDataPackage, PatientHistory
-Imports: methods, BiocGenerics
+Depends: R (>= 3.2.2), SttrDataPackage, PatientHistory, RCyjs (>= 1.1.33)
+Imports: methods, BiocGenerics, org.Hs.eg.db, TxDb.Hsapiens.UCSC.hg19.knownGene, GWASTools
 Suggests: RUnit
 Description: Construct a "genes and samples" network from clinical and molecular data
   contained within an SttrDataPackage subclass.
