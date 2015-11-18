@@ -11,4 +11,6 @@ mtx.methHM27.RData	mtx.meth	matrix	methylation	beta values	259	2552	patient	gene
 mtx.mrna_Agi.RData	mtx.mrna	matrix	mRNA expression	ratios	186	17212	patient	gene	-28.7792	47.0682	tcga luad and lusc
 mtx.mrna_U133.RData	mtx.mrna_U133	matrix	mRNA expression	ratios	133	11878	patient	gene	-9.9347	61.9539	tcga lusc
 mtx.mrna_Seq.RData	mtx.mrna_Seq	matrix	mRNA expression	ratios	991	20444	patient	gene	-4.8681	38659.0448	tcga luad and lusc
-genesets.RData	genesets	list	geneset	NA	1	NA	gene	NA	NA	NA	tcga.pancan.mutated
+genesets.RData	genesets	list	geneset	NA	3	NA	gene	NA	NA	NA	marker.genes.545, tcga.GBM.classifiers, tcga.pancan.mutated
+gbmPathways.json.RData	g.gbmPathways.json	character	network	GBM-related Pathways	156	203	nodes	edges	NA	NA	manual curation by Hamid Bolouri
+egfr.json.RData	g.egfr.json	character	network	egfr signaling	32	14	nodes	edges	NA	NA	manual curation

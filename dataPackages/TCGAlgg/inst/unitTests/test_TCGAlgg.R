@@ -62,7 +62,7 @@ testManifest <- function()
                             "ucsc 2/24/15; RNAseq; combat adjusted normalization for batch effects",
                             "tcga cBio","tcga cBio",
                             "tcga cBio; one probe per gene- most anti-correlated with expression",
-                            "marker.genes.545, tcga.GBM.classifiers")
+                            "marker.genes.545, tcga.GBM.classifiers, tcga.pancan.mutated")
    checkTrue(all(expected.provenance %in% provenance))
 
 

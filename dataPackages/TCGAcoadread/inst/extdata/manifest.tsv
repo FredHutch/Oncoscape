@@ -10,4 +10,6 @@ mtx.mut.RData	mtx.mut	matrix	mutations	aa substitutions	223	14780	patient	gene	N
 mtx.prot.RData	mtx.prot	matrix	protein abundance	Z scores	461	171	patient	protein	-6.59943171	14.26631908	tcga cBio
 mtx.methHM450.RData	mtx.meth	matrix	methylation	beta values	383	15915	patient	gene	0.005459927	0.994947172	tcga cBio; one probe per gene- most anti-correlated with expression
 mtx.methHM27.RData	mtx.meth	matrix	methylation	beta values	233	1667	patient	gene	0.005000012	0.994361464	tcga cBio; one probe per gene- most anti-correlated with expression
-genesets.RData	genesets	list	geneset	NA	2	NA	gene	NA	NA	NA	marker.genes.545, tcga.GBM.classifiers
+genesets.RData	genesets	list	geneset	NA	3	NA	gene	NA	NA	NA	marker.genes.545, tcga.GBM.classifiers, tcga.pancan.mutated
+gbmPathways.json.RData	g.gbmPathways.json	character	network	GBM-related Pathways	156	203	nodes	edges	NA	NA	manual curation by Hamid Bolouri
+egfr.json.RData	g.egfr.json	character	network	egfr signaling	32	14	nodes	edges	NA	NA	manual curation
