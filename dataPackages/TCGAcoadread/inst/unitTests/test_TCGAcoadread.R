@@ -75,7 +75,7 @@ testManifest <- function()
    
    expected.provenance <- c("tcga cBio","tcga gbm and lgg","tcga",                                                               
                             "tcga cBio; one probe per gene- most anti-correlated with expression",
-                            "marker.genes.545, tcga.GBM.classifiers" )
+                            "marker.genes.545, tcga.GBM.classifiers, tcga.pancan.mutated" )
    checkTrue(all(expected.provenance %in% tbl$provenance));
 
 
@@ -144,21 +144,21 @@ testExpression <- function()
     checkTrue(file.exists(file))
 
     load(file)
-    checkTrue(exists("mtx.mrna"))
-    checkTrue(is(mtx.mrna, "matrix"))
-    checkEquals(class(mtx.mrna[1,1]), "numeric")
+    checkTrue(exists("mtx.mrna_Seq"))
+    checkTrue(is(mtx.mrna_Seq, "matrix"))
+    checkEquals(class(mtx.mrna_Seq[1,1]), "numeric")
 
-    checkEquals(dim(mtx.mrna), c(365, 20444))
+    checkEquals(dim(mtx.mrna_Seq), c(365, 20444))
 
     # a reasonable range of expression log2 ratios
-    checkEquals(fivenum(mtx.mrna), c(-5.8288,-0.5422,-0.1750,0.3700,15252.2394))
+    checkEquals(fivenum(mtx.mrna_Seq), c(-5.8288,-0.5422,-0.1750,0.3700,15252.2394))
 
     # all colnames should be recognzied gene symbols.  no isoform suffixes yet
-    #   checkTrue(all(colnames(mtx.mrna) %in% keys(org.Hs.egSYMBOL2EG)))
+    #   checkTrue(all(colnames(mtx.mrna_Seq) %in% keys(org.Hs.egSYMBOL2EG)))
 
     # all rownames should follow "TCGA.02.0014" format.  no multiply-sampled suffixes yet
     regex <- "^TCGA\\.\\w\\w\\.\\w\\w\\w\\w\\.[0-9][0-9]$"
-    checkEquals(length(grep(regex, rownames(mtx.mrna))), nrow(mtx.mrna))
+    checkEquals(length(grep(regex, rownames(mtx.mrna_Seq))), nrow(mtx.mrna_Seq))
 
 
 
