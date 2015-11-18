@@ -4,13 +4,13 @@
 Oncoscape transforms and hosts TCGA level 3 data within the public site [oncoscape.sttrcancer.org](http://oncoscape.sttrcancer.org).  The following description explains how to obtain and transform TCGA data into the necessary data structures and classes for Oncoscape.
 
 ## Clinical Data
-1. Create a new folder within [Oncoscape/dataPackages](https://github.com/FredHutch/Oncoscape/tree/datapackage_doc/dataPackages)/RawData/ using a name that describes the dataset.  For example, TCGAgbm includes the TCGA glioblastoma multiforme data, TCGAlgg includes the lower grade glioma, and TCGAbrain encompasses TCGAgbm and TCGAlgg.  Note that the RawData folder is not currently tracked within git in order to reduce the datapackage size.  This may change if/when data is separated into a subModule or there is sufficient need expressed by collaborators.
+1. Create a new folder within [Oncoscape/dataPackages](https://github.com/FredHutch/Oncoscape/tree/develop/dataPackages)/RawData/ using a name that describes the dataset.  For example, TCGAgbm includes the TCGA glioblastoma multiforme data, TCGAlgg includes the lower grade glioma, and TCGAbrain encompasses TCGAgbm and TCGAlgg.  Note that the RawData folder is not currently tracked within git in order to reduce the datapackage size.  This may change if/when data is separated into a subModule or there is sufficient need expressed by collaborators.
 2. Download [TCGA data](https://tcga-data.nci.nih.gov/tcga/)
 	* Choose the desired dataset and select the link of clinical cases within the cancer details.  For example, [TCGAgbm](https://tcga-data.nci.nih.gov/tcga/tcgaCancerDetails.jsp?diseaseType=GBM&diseaseName=Glioblastoma%20multiforme) has 523 cases as of 11/16/15
 	* Click on the "BioTab" header to select all samples in that format, and click "Build Archive."  For example, the [TCGAgbm data matrix](https://tcga-data.nci.nih.gov/tcga/dataAccessMatrix.htm?mode=ApplyFilter&showMatrix=true&diseaseType=GBM&tumorNormal=TN&tumorNormal=T&tumorNormal=NT&platformType=-999).
 	* Enter your email and download the files to the directory created in step 1.
-3. Create a new directory as the basis for the data package under  [Oncoscape/dataPackages/](https://github.com/FredHutch/Oncoscape/tree/datapackage_doc/dataPackages/)
-	* The easiest method is to copy [Oncoscape/dataPackages/TCGAgbm](https://github.com/FredHutch/Oncoscape/tree/datapackage_doc/dataPackages/TCGAgbm) as a template then replace all instances of "TCGAgbm" with the new package name within all the files under the directory.```>grep -rl 'TCGAgbm' TCGAgbm/ | xargs sed -i "" 's/TCGAgbm/TCGA_newPackage/g'``` [See more details on string matching here](http://vasir.net/blog/ubuntu/replace_string_in_multiple_files) 
+3. Create a new directory as the basis for the data package under  [Oncoscape/dataPackages/](https://github.com/FredHutch/Oncoscape/tree/develop/dataPackages/)
+	* The easiest method is to copy [Oncoscape/dataPackages/TCGAgbm](https://github.com/FredHutch/Oncoscape/tree/develop/dataPackages/TCGAgbm) as a template then replace all instances of "TCGAgbm" with the new package name within all the files under the directory.```>grep -rl 'TCGAgbm' TCGAgbm/ | xargs sed -i "" 's/TCGAgbm/TCGA_newPackage/g'``` [See more details on string matching here](http://vasir.net/blog/ubuntu/replace_string_in_multiple_files) 
 	
 
 
