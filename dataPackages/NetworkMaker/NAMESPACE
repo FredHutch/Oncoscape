@@ -1,14 +1,14 @@
 exportClasses(NetworkMaker)
 
 exportMethods(
-  getPackage,
-  calculateSimilarityMatrix,
-  getSampleCoordinates,
+  calculateSampleSimilarityMatrix,
+  getSampleSimilarityCoordinates,
   buildChromosomalTable,
   getChromosomalInfo,
-  samplesToGraph,
-  transformSimilarityToScreenCoordinates,
-  transformChromLocsToScreenCoordinates
+  getSamplesGraph,
+  getChromosomeGraph,
+  getSampleScreenCoordinates,
+  getChromosomeScreenCoordinates
   )
 
 export(
