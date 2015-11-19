@@ -345,7 +345,7 @@ test.genesChromosomeGraph.DEMOdz <- function()
 
     rcy <- RCyjs(portRange=6047:6100, quiet=TRUE, graph=g, hideEdges=FALSE)
     httpSetStyle(rcy, "style.js")
-    tbl.pos <- getChromosomeScreenCoordinates(netMaker, xOrigin=0, yOrigin=0, topY=2000, chromDelta=100)
+    tbl.pos <- getChromosomeScreenCoordinates(netMaker, xOrigin=0, yOrigin=0, yMax=2000, chromDelta=100)
     setPosition(rcy, tbl.pos)
     fit(rcy, 100)
 
@@ -388,7 +388,7 @@ test.transformChromLocsToScreenCoordinates <- function()
     checkTrue(all(tbl$screen.y == 0))
     checkTrue(all(tbl$screen.x == 0))
 
-    tbl.pos <- getChromosomeScreenCoordinates(netMaker, xOrigin=10, yOrigin=0, topY=2000, chromDelta=100)
+    tbl.pos <- getChromosomeScreenCoordinates(netMaker, xOrigin=10, yOrigin=0, yMax=2000, chromDelta=100)
 
     checkTrue(all(tbl.pos$x != 0))
     checkTrue(all(tbl.pos$y != 0))
@@ -420,7 +420,7 @@ test.fullDisplay.DEMOdz <- function()
     httpAddGraph(rcy, g.chrom)
     httpSetStyle(rcy, "style.js")
 
-    tbl.pos <- getChromosomeScreenCoordinates(netMaker, xOrigin=1000, yOrigin=000, topY=2000, chromDelta=200)
+    tbl.pos <- getChromosomeScreenCoordinates(netMaker, xOrigin=1000, yOrigin=000, yMax=2000, chromDelta=200)
     setPosition(rcy, tbl.pos)
     fit(rcy, 100)
     setBackgroundColor(rcy, "#E8E8E0")
