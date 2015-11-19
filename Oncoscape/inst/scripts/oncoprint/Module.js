@@ -308,13 +308,7 @@ function sat(maxReps)
 } // sat
 //----------------------------------------------------------------------------------------------------
 return{
-   init: function(){
-   		hub.registerSelectionDestination(selectionDestinations, thisModulesOutermostDiv);
-   		hub.addOnDocumentReadyFunction(initializeUI);
-   		hub.addMessageHandler("sendSelectionTo_Oncoprint", handleSelections);
-   		hub.addMessageHandler("displayOncoprint", displayOncoprint);
-   		hub.addMessageHandler("datasetSpecified", datasetSpecified); 
-   },
+   init: initializeModule,
    sat: sat
    }; // OncoprintTabModule return value
 
