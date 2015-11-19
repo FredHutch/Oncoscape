@@ -12,24 +12,28 @@ runTests <- function()
   test.calculateSimilarity.DEMOdz()
   test.calculateSimilarity.TCGAgbm()
   test.calculateSimilarity.TCGAgbm.completeSubset()
-  test.samplesToGraph.DEMOdz()
+  test.getSamplesGraph.DEMOdz()
+  test.buildChromosomalTable();
+  test.transformChromLocsToScreenCoordinates();
+  test.genesChromosomeGraph.DEMOdz();
+  test.fullDisplay.DEMOdz()
   
 } # runTests
 #----------------------------------------------------------------------------------------------------
 testConstructor <- function()
 {
    print("--- testConstructor")
-   dzName <- "DEMOdz"
-   netMaker <- NetworkMaker(dzName)
-   checkEquals(getPackage(netMaker), dzName)
+   dz <- DEMOdz();
+   netMaker <- NetworkMaker(dz)
    
 } # testConstructor
 #----------------------------------------------------------------------------------------------------
 test.extractSamplesAndGenes <- function()
 {
     print("--- test.extractSamplesAndGenes")
-    dzName <- "DEMOdz"
-    netMaker <- NetworkMaker(dzName)
+    dz <- DEMOdz();
+
+    netMaker <- NetworkMaker(dz)
     x <- NetworkMaker:::.extractSamplesAndGenes(netMaker)
     checkEquals(names(x), c("samples", "genes"))
     checkEquals(length(x$samples), 20)
@@ -47,10 +51,9 @@ test.calculateSimilarity.DEMOdz <- function()
     dz <- DEMOdz() 
     checkTrue(all(c("mtx.mut", "mtx.cn") %in% names(matrices(dz))))
 
-    dzName <- "DEMOdz"
-    netMaker <- NetworkMaker(dzName)
-    calculateSimilarityMatrix(netMaker)
-    tbl.pos <- getSampleCoordinates(netMaker)
+    netMaker <- NetworkMaker(dz)
+    calculateSampleSimilarityMatrix(netMaker)
+    tbl.pos <- getSampleSimilarityCoordinates(netMaker)
        # should be one x,y,z position vector for every patient
 
     sampleCount <- nrow(getPatientTable(dz))
@@ -140,10 +143,9 @@ test.calculateSimilarity.TCGAgbm <- function()
     load(system.file(package="NetworkMaker", "extdata", "genesets.RData"))
     goi <- sort(unique(unlist(genesets, use.names=FALSE)))
 
-    dzName <- "TCGAgbm"
-    netMaker <- NetworkMaker(dzName, verbose=TRUE)
-    calculateSimilarityMatrix(netMaker, genes=goi)
-    tbl.pos <- getSampleCoordinates(netMaker)
+    netMaker <- NetworkMaker(dz, verbose=TRUE)
+    calculateSampleSimilarityMatrix(netMaker, genes=goi)
+    tbl.pos <- getSampleSimilarityCoordinates(netMaker)
 
        # should be one x,y,z position vector for every patient
 
@@ -214,10 +216,9 @@ test.calculateSimilarity.TCGAgbm.completeSubset <- function()
     goi <- intersect(goi, intersect(colnames(mut), colnames(cn))) # 928
     poi <- sort(intersect(rownames(mut), rownames(cn)))           # 281
     
-    dzName <- "TCGAgbm"
-    netMaker <- NetworkMaker(dzName)
-    calculateSimilarityMatrix(netMaker, samples=poi, genes=goi)
-    tbl.pos <- getSampleCoordinates(netMaker)
+    netMaker <- NetworkMaker(dz)
+    calculateSampleSimilarityMatrix(netMaker, samples=poi, genes=goi)
+    tbl.pos <- getSampleSimilarityCoordinates(netMaker)
 
        # should be one x,y,z position vector for every patient
 
@@ -303,23 +304,23 @@ test.calculateSimilarity.TCGAgbm.completeSubset <- function()
 
 } # test.calculateSimilarity.TCGAgbm.completeSubset
 #----------------------------------------------------------------------------------------------------
-test.samplesToGraph.DEMOdz <- function()
+test.getSamplesGraph.DEMOdz <- function()
 {
-    print("--- test.samplesToGraph.DEMOdz")
+    print("--- test.getSamplesGraph.DEMOdz")
     dz <- DEMOdz() 
     checkTrue(all(c("mtx.mut", "mtx.cn") %in% names(matrices(dz))))
 
-    dzName <- "DEMOdz"
-    netMaker <- NetworkMaker(dzName)
-    calculateSimilarityMatrix(netMaker)
-    tbl.pos <- getSampleCoordinates(netMaker)
-    g <- samplesToGraph(netMaker)
+    netMaker <- NetworkMaker(dz)
+    calculateSampleSimilarityMatrix(netMaker)
+    tbl.pos <- getSampleSimilarityCoordinates(netMaker)
+    g <- getSamplesGraph(netMaker)
     checkEquals(sort(nodes(g)), sort(rownames(tbl.pos)))
     checkEquals(length(edgeNames(g)), 0)
     checkEquals(sort(noaNames(g)), c("id", "nodeType", "subType", "x", "y"))
     rcy <- RCyjs(portRange=6047:6100, quiet=TRUE, graph=g, hideEdges=TRUE)
     httpSetStyle(rcy, "style.js")
-    tbl.xpos <- transformSimilarityToScreenCoordinates(netMaker, xSpan=2000, ySpan=5000)
+    #tbl.xpos <- getSampleScreenCoordinates(netMaker, xSpan=2000, ySpan=5000)
+    tbl.xpos <- getSampleScreenCoordinates(netMaker, xOrigin=0, yOrigin=0, xMax=2000, yMax=5000)
     setPosition(rcy, tbl.xpos)    
     fit(rcy, 100)
 
@@ -331,18 +332,22 @@ test.samplesToGraph.DEMOdz <- function()
     checkEqualsNumeric(tbl.1$x, tbl.xpos$x[1], tol=1e-4)
     checkEqualsNumeric(tbl.1$y, tbl.xpos$y[1], tol=1e-4)
 
-} # test.samplesToGraph.DEMOdz()
+} # test.getSamplesGraph.DEMOdz()
 #----------------------------------------------------------------------------------------------------
 test.genesChromosomeGraph.DEMOdz <- function()
 {
     print("--- test.genesChromosomeGraph.DEMOdz")
     dz <- DEMOdz() 
     checkTrue(all(c("mtx.mut", "mtx.cn") %in% names(matrices(dz))))
+    netMaker <- NetworkMaker(dz)
+    genes <- head(colnames(matrices(dz)$mtx.mut))
+    g <- getChromosomeGraph(netMaker, genes)
 
-    dzName <- "DEMOdz"
-    netMaker <- NetworkMaker(dzName)
-    g <- geneChromosomeGraph(netMaker)
-
+    rcy <- RCyjs(portRange=6047:6100, quiet=TRUE, graph=g, hideEdges=FALSE)
+    httpSetStyle(rcy, "style.js")
+    tbl.pos <- getChromosomeScreenCoordinates(netMaker, xOrigin=0, yOrigin=0, topY=2000, chromDelta=100)
+    setPosition(rcy, tbl.pos)
+    fit(rcy, 100)
 
 } # test.genesChromosomeGraph.DEMOdz()
 #----------------------------------------------------------------------------------------------------
@@ -351,7 +356,7 @@ test.buildChromosomalTable <- function()
     print("--- test.buildChromosomalTable")
     dz <- DEMOdz()
     genes <- head(colnames(matrices(dz)$mtx.mut))
-    netMaker <- NetworkMaker("DEMOdz")
+    netMaker <- NetworkMaker(dz)
     tbl <- buildChromosomalTable(netMaker, genes)
 
        # four landmarks for each chromsome: two centromeres, two telomeres
@@ -367,23 +372,23 @@ test.buildChromosomalTable <- function()
     checkEquals(tbl.freq$Var, c("arm", "gene", "telomere.end", "telomere.start"))
     checkEquals(tbl.freq$Freq, c(48,  6, 24, 24))
 
-
 } # test.buildChromosomalTable
 #----------------------------------------------------------------------------------------------------
 test.transformChromLocsToScreenCoordinates <- function()
 {
     print("--- test.transformChromLocsToScreenCoordinates")
     dz <- DEMOdz()
-    netMaker <- NetworkMaker("DEMOdz")
+    netMaker <- NetworkMaker(dz)
     
     genes <- head(colnames(matrices(dz)$mtx.mut))
     tbl <- buildChromosomalTable(netMaker, genes);
-
+    checkEquals(dim(tbl), c(102, 8))
+    
          # no screen coordinates assigned
     checkTrue(all(tbl$screen.y == 0))
     checkTrue(all(tbl$screen.x == 0))
 
-    tbl.pos <- transformChromLocsToScreenCoordinates(netMaker, centerY=0, topY=2000)
+    tbl.pos <- getChromosomeScreenCoordinates(netMaker, xOrigin=10, yOrigin=0, topY=2000, chromDelta=100)
 
     checkTrue(all(tbl.pos$x != 0))
     checkTrue(all(tbl.pos$y != 0))
@@ -391,9 +396,36 @@ test.transformChromLocsToScreenCoordinates <- function()
       # chr2q telomere terminates the longest q arm
     checkEquals(tbl.pos[which(tbl.pos$y == min(tbl.pos$y)),"id"], "end.2")
       # chr1p telomere terminates the longest p arm
-    checkEquals(tbl.xpos[which(tbl.pos$y == max(tbl.pos$y)),"id"],  "start.1")
+    checkEquals(tbl.pos[which(tbl.pos$y == max(tbl.pos$y)),"id"],  "start.1")
 
 } # test.transformChromLocsToScreenCoordinates
+#----------------------------------------------------------------------------------------------------
+test.fullDisplay.DEMOdz <- function()
+{
+    print("--- test.fullDisplay.DEMOdz")
+
+    dz <- DEMOdz() 
+    netMaker <- NetworkMaker(dz)
+    calculateSampleSimilarityMatrix(netMaker)
+    g <- getSamplesGraph(netMaker)
+    rcy <- RCyjs(portRange=6047:6100, quiet=TRUE, graph=g, hideEdges=TRUE)
+    httpSetStyle(rcy, "style.js")
+    tbl.pos <- getSampleScreenCoordinates(netMaker, xOrigin=0, yOrigin=0, xMax=2000, yMax=5000)
+
+    setPosition(rcy, tbl.pos)    
+    fit(rcy, 100)
+
+    genes <- head(colnames(matrices(dz)$mtx.mut))
+    g.chrom <- getChromosomeGraph(netMaker, genes)
+    httpAddGraph(rcy, g.chrom)
+    httpSetStyle(rcy, "style.js")
+
+    tbl.pos <- getChromosomeScreenCoordinates(netMaker, xOrigin=1000, yOrigin=000, topY=2000, chromDelta=200)
+    setPosition(rcy, tbl.pos)
+    fit(rcy, 100)
+    setBackgroundColor(rcy, "#E8E8E0")
+    
+} # test.fullDisplay.DEMOdz
 #----------------------------------------------------------------------------------------------------
 if(!interactive())
     runTests()
