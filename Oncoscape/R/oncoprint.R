@@ -142,11 +142,11 @@ create.oncoprint.input <- function(string, ds)
         }else{
             res = "No overlapping patients or genes within dataset, please re-select"
             printf("=== printing result json file, result is a string\n")
-            return <- list(status="failed", payload=toJSON(res))
+            return <- list(status="error", payload=toJSON(res))
         }
     }else{
         res = "It seems you only selected either patients or genes, please re-select to include both information"
         printf("=== only genes or patients are selected, status failed\n")
-        return <- list(status="failed", payload=toJSON(res))
+        return <- list(status="error", payload=toJSON(res))
     }
 }

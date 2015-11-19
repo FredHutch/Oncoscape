@@ -118,7 +118,7 @@ function displayOncoprint(msg)
    
    console.log("displayOncoprint print recieved msg.payload: %s", msg.payload);
    
-   if(msg.status == "failed") {
+   if(msg.status == "error") {
    		alert(msg.payload);
    		$("#onc").empty();
    }else{
@@ -224,7 +224,55 @@ function map_mut_data(mut_promise, data){
 								}else{ return x;} 
 							})
 	   }
-//----------------------------------------------------------------------------------------------------	   	   
+//-------------------------------------------------------------------------------------------
+// when a dataset is specified, this module 
+//  1) extracts the name of the dataset from the payload of the incoming msg
+//  2) (for now) extracts the name of the matrices, from the manifest (also in the payload
+//     of the incoming msg, chooses the first mtx.mrna entry it finds
+//  3) sends a "createPLSR" message to the server, with dataset & matrix name specified
+//  4) asks that the server, upon successful completion of that createPLSR request, callback
+//     here so that the sliders can be set
+  function datasetSpecified(msg)
+  {
+      hub.enableTab(thisModulesOutermostDiv);
+     var dataPackageName = msg.payload.datasetName;
+        
+     var dataElementNames = msg.payload.rownames;
+
+      // for now, and very temporarily, use the first match (if any are found)
+     var hits_rna = dataElementNames.map(function(name) {if(name.indexOf("mtx.rna") >= 0) return(name);});
+     hits_rna = hits_rna.filter(function(n){ return (n !== undefined); });
+
+     var dataName = null;
+
+     if(hits_rna.length > 0){
+      // for now always grab the first hit, remove the trailing .RData
+      // the oncoprint constructor wants both dataPacakgeName & a matrix name
+      // our convention is that the manifest rowname is the same as
+      // its name, with ".RData" appended
+      dataName = hits_rna[0].replace(".RData", "");
+      }
+     else{
+      return;
+      }
+ 
+
+   
+//     createOncoprintObjectOnServer(dataPackageName, dataName);
+
+  } // datasetSpecified
+//--------------------------------------------------------------------------------------------
+  function createOncoprintObjectOnServer(dataPackageName, dataName)
+  {
+    console.log("create Oncoprint on server " + dataPackageName + ": " + dataName);
+    payload = {dataPackage: dataPackageName, dataName: dataName};
+    msg = {cmd: "createOncoprint", callback: "DisplayOncoprint", status: "request", payload: payload};
+    msg.json = JSON.stringify(msg);
+    hub.send(msg.json);
+
+  } // createTimelinesObjectOnServer
+
+//----------------------------------------------------------------------------------------------------         
 function initializeModule()
 {
    hub.registerSelectionDestination(selectionDestinations, thisModulesOutermostDiv);
