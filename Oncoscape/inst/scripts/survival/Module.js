@@ -18,7 +18,7 @@ function initializeUI()
    survivalCurveDiv = $("#survivalCurveDiv");
    survivalImageArea = $("#survivalImageArea");
    statusDiv = $("#survivalStatusDiv");
-
+   $("#survivalCurveDiv").css("display", "none");
    $(window).resize(handleWindowResize);
    handleWindowResize();
    hub.disableTab(thisModulesOutermostDiv);
@@ -39,39 +39,40 @@ function handleWindowResize()
   
 } // handleWindowResize
 //--------------------------------------------------------------------------------------------------     
-     function handlePatientIDs(msg){
-  
-		if(msg.status == "success"){
+ function handlePatientIDs(msg) {
+
+    if(msg.status == "success"){
              var patientIDs = msg.payload;            
- 			  analyzeSelectedTissues(patientIDs, "");
-         } else{
+    		  analyzeSelectedTissues(patientIDs, "");
+    } else {
              console.log("survival handlePatientIDs about to call alert: " + msg);
              alert(msg.payload);
-         }
+    }
 
-	} //handlePatientIDs
+} //handlePatientIDs
 //--------------------------------------------------------------------------------------------------     
-     function handleIncomingIDs(msg){
-          
-	   var ids = msg.payload.value;
-	   var count = msg.payload.count;
-	   var source = msg.payload.source;  
+function handleIncomingIDs(msg) 
+{    
+    var ids = msg.payload.value;
+    var count = msg.payload.count;
+    var source = msg.payload.source;  
 
-	   if(typeof(ids) == "string")
-    	  ids = [ids];
+    if(typeof(ids) == "string")
+      ids = [ids];
 
-	   console.log("Survival module, " + msg.cmd + " count: " + count);
-       msg = {cmd: "canonicalizePatientIDsInDataset", callback: "survivalHandlePatientIDs", status: "request", 
-                    payload: ids};
-             hub.send(JSON.stringify(msg));
-     } // handlePatientIDs
+    console.log("Survival module, " + msg.cmd + " count: " + count);
+     msg = {cmd: "canonicalizePatientIDsInDataset", callback: "survivalHandlePatientIDs", status: "request", 
+                  payload: ids};
+           hub.send(JSON.stringify(msg));
+} // handlePatientIDs
 
 //----------------------------------------------------------------------------------------------------
 function analyzeSelectedTissues(patientIDs, title)
 {
    console.log("Survival module, hub.send 'calculateSurvivalCurves' for %d patientIDs",
                patientIDs.length);
-
+   $("#survivalInstructions").css("display", "none");
+   $("#survivalCurveDiv").css("display", "block");
    var payload = {sampleIDs: patientIDs, title: title};
    var msg = {cmd:"calculateSurvivalCurves", callback: "displaySurvivalCurves", status: "request", 
               payload: payload};
@@ -80,13 +81,13 @@ function analyzeSelectedTissues(patientIDs, title)
 
 } // analyzeSelectedTissues
 //----------------------------------------------------------------------------------------------------
-function getSurvivalPlot(msg)
+function getSurvivalPlot(msg) 
 {
    console.log("create Survival Plot for: ", msg);
    var payload = JSON.parse(msg.payload);
    var storage = [];
 
-   for(var i=0;i<Object.keys(payload).length;i++){
+   for(var i=0;i<Object.keys(payload).length;i++) {
       var patient = Object.keys(payload)[i];
       storage.push({ID: patient, value: payload[patient]});
       }
@@ -124,8 +125,8 @@ function specifyCurrentDataset(datasetName)
 function datasetSpecified(msg)
 {
    console.log("--- Module.survival, datasetSpecified: " + msg.payload);
-   hub.enableTab(thisModulesOutermostDiv)
-   document.getElementById("survivalImageArea").src = ""
+   hub.enableTab(thisModulesOutermostDiv);
+   document.getElementById("survivalImageArea").src = "";
 
 } // datasetSpecified
 //----------------------------------------------------------------------------------------------------
@@ -182,7 +183,7 @@ return{
    init: function(){
       hub.addOnDocumentReadyFunction(initializeUI);
       hub.registerSelectionDestination(selectionDestinationsOfferedHere, thisModulesOutermostDiv);
-	  hub.addMessageHandler("datasetSpecified", datasetSpecified);
+	    hub.addMessageHandler("datasetSpecified", datasetSpecified);
       hub.addMessageHandler("survivalDatasetSpecified", datasetSpecified);
       hub.addMessageHandler("displaySurvivalCurves", displaySurvivalCurves);
       hub.addMessageHandler("sendSelectionTo_survival", handleIncomingIDs);
