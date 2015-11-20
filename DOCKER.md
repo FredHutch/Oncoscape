@@ -276,7 +276,7 @@ Paramater Description:
 
 After you execute the above command you'll be dropped to a bash shell inside this new container. You are now root in an isolated Linux environment that has everything that you need to build and run Oncoscape. The container is empty so you'll need to clone the Oncoscape repo (git is included in the container) and install/build/configure/run as you like. You can create new branches, edit code (vim, emacs and nano are provided), commit and push to github right from inside the container. 
 
-***NOTE:*** Windows users only. While the "Docker Quick Start Terminal" is fine for managing, starting, and stopping containers, we suggest using an editor (nano, vi, emacs) for interactive work and editing files inside the container. Both the standard command prompt (cmd.exe) and Powershell console are available. Note that when using 'vi' in a container via cmd.exe or Powershell consoles, the arrow keys do not work and you'll need to use the traditional 'hjkl' keys to move the cursor: 'h'=left, 'j'=down, 'k'=up, 'l'=right.
+***NOTE:*** Windows users only. While the "Docker Quick Start Terminal" is fine for managing, starting, and stopping containers, you'll want to use either the standard command prompt (cmd.exe) or Powershell consoles for interactive work such editing files inside the container. Note that when using 'vi' in a container via cmd.exe or Powershell consoles, the arrow keys do not work and you'll need to use the traditional 'hjkl' keys to move the cursor: 'h'=left, 'j'=down, 'k'=up, 'l'=right.
 
 Setup the environment variables required by docker for the shell of your choice as shown below:
 
