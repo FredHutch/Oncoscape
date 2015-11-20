@@ -61,10 +61,24 @@ test_allPackagesRemoved <- function(pkgs){
 } #test_allPackageRemoved
 #----------------------------------------------------------------------------------------------------
 # this list needs ongoing curation.  add new Oncoscape-related package names here
-pkgs <- c("DEMOdz", "OncoDev", "OncoDev14", "Oncoscape",
-          "PLSR", "PCA", "PatientHistory", "SttrDataPackage", "SttrDataSet",
-          "TCGAbrain", "TCGAgbm", "TCGAlgg", "TCGAluad", "TCGAbrca","TCGAprad", "TCGAlusc", "TCGAlung","TCGAhnsc",
-          "TCGAcoad","TCGAread","TCGAcoadread", "iDEMOdz", "pls")
+
+args <- commandArgs()
+print(args)
+
+if(length(args) == 5){
+   directories <- args[5]
+   directories <- strsplit(directories, ";")[[1]]
+} else { directories = "." }
+
+pkgs <- c()
+ for(pkg.dir in directories){
+ 	pkg.path = list.files(path=pkg.dir, pattern = "DESCRIPTION", recursive = TRUE, include.dirs=TRUE, full.name=T) 	
+	pkg.names <- lapply(pkg.path, function(pkg.filename){ gsub('Package:\\s+', "", grep('^Package:\\s+.+',readLines(pkg.filename), value=T))  })
+ 	pkgs <- c(pkgs, unlist(pkg.names))
+ }
+ 
+ pkgs <- unique(pkgs)
+
 
 if(!interactive()){
   test_removePackage()
