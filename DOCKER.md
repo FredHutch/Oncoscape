@@ -20,7 +20,7 @@ Docker is not just for ease of deployment, it's also provides developers with a 
 
 Running a Docker environment on Mac OS X requires Mac OS X 10.8 "Mountain Lion" or higher.
 
-To get docker running on on a Mac follow the instructions below: 
+To get docker running on a Mac follow the instructions below: 
 
 - Go to the Docker Toolbox Mac OS page: https://www.docker.com/docker-toolbox
 - Download the Mac OS X version of the installer
@@ -51,7 +51,7 @@ After the above command returns the Docker VM should be up and running. To confi
 eval "$(docker-machine env default)"
 ```
 
-Now lets make sure it's working by running a small "hello world" container with the following command:
+Now let's make sure it's working by running a small "hello world" container with the following command:
 
 ```bash
 docker run --rm hello-world
@@ -86,7 +86,7 @@ To get docker running on on Windows, follow the instructions below:
 - Following the install wizard to install the Docker-Toolbox
 - See http://docs.docker.com/windows/step_one/ for more detailed install instructions
 
-After the Docker Toolbox as been successfully installed, double click on the "Docker Quickstart Terminal" shortcut that was created during the installation process. This will open a new terminal Window and start the default Docker VM (this may take a minute or two, especially the first time). When it's finished starting the terminal will look like the following:
+After the Docker Toolbox has been successfully installed, double click on the "Docker Quickstart Terminal" shortcut that was created during the installation process. This will open a new terminal Window and start the default Docker VM (this may take a minute or two, especially the first time). When it's finished starting the terminal will look like the following:
 
 ```
                         ##         .
@@ -138,7 +138,7 @@ eval "$(docker-machine env --shell=bash default)"
 
 Docker runs natively on Linux so you won't have to install an enabling technology like Docker Machine or Boot2Docker as is required on Windows and Mac OS platforms. 
 
-Docker requires a 64-bit version regardless and your kernel must be 3.10 at minimum. Linux distributions such as Ubunut 14.04+ and CentOS 7 are ready to run docker. To pull images from the the Docker Hub you'll need docker version 1.6 or higher.
+Docker requires a 64-bit version regardless and your kernel must be 3.10 at minimum. Linux distributions such as Ubuntu 14.04+ and CentOS 7 are ready to run docker. To pull images from the the Docker Hub you'll need docker version 1.6 or higher.
 
 Docker can be installed using your distributions package manager. For example the following will install Docker 1.6 on Ubuntu 14.04: 
 
@@ -182,6 +182,8 @@ This message shows that your installation appears to be working correctly.
 
 ##5. Running the Oncoscape Docker container
 
+This section covers running Oncoscape in a container for either test/demo purposes or deploying on a production server. If you just want to get Oncoscape up and running quickly to check it out, then this section is for you. If you want to build and develop Oncoscape in a container, skip this section and move on to [Developing Oncoscape inside a Docker container](#6-developing-oncoscape-inside-a-docker-container).
+
 Before you can run Oncoscape, we first need to pull it down to the system we are going to run it on. This is accomplished with the following command:
 
 ```
@@ -209,7 +211,7 @@ To access the application just open a web browser (Chrome is currently the only 
 - **Remote Linux server**: http://removeservername:7777
 - **Local Mac OS X or Windows system**: you'll first need to determine the IP address of the Docker Machine with the command "*docker-machine ip default*", then point your browser to this IP address, appending the Oncoscape port, for example http://192.168.99.100:7777 (replacing 192.168.99.100 with the IP of your Docker Machine VM).
 
-You can see which conatiners are running on your system with the "docker ps" command. For example, the output below shows that a development and production (master) version of Oncoscape is currently running on this system:
+You can see which containers are running on your system with the "docker ps" command. For example, the output below shows that a development and production (master) version of Oncoscape is currently running on this system:
 
 ```
 $ docker ps
@@ -239,5 +241,106 @@ oncoscapedev
 
 ##6. Developing Oncoscape inside a Docker container
 
-*Coming Soon*
+In the previous section we simply ran Oncoscape in a container, but Docker is not just for running and deploying applications, it’s great for development too. Using Docker for development provides consistent, clean development environment. Each build can be in a fresh environment without any dependencies on your development workstation or clashes/contamination with your workstation. All developers can use the same OS, same system libraries, same language runtime, no matter what host OS they are using (even Windows). The development environment is the exact same as the production environment. You only need Docker to develop; you don’t need to install a bunch of language environments, libraries and tools on your machine. 
 
+A Docker conatiner recipe for the Oncoscape development environment is located at https://github.com/FredHutch/Oncoscape-dev-environment
+
+To use the Oncoscape development container use 'git' to clone the Oncoscape development container repository to you Docker enabled development system, build a container image and then run it. Here are the commands required to create a container image tagged "oncodev" (you can name something it else if you like): 
+
+```bash
+git clone https://github.com/FredHutch/Oncoscape-dev-environment.git
+cd Oncoscape-dev-environment
+docker build -t oncodev .
+```
+The build process will take several minutes to complete. When the build is finished, there will be a new container image registered with your Docker engine named "oncodev" (or whatever you named it). Check to see that the new image was registered with the following command:
+
+```bash
+docker images
+```
+The above command will list the images registered with your docker engine and will look similar to the following:
+
+```
+REPOSITORY      TAG         IMAGE ID        CREATED         VIRTUAL SIZE
+oncodev         latest      31ee6c745277    2 minutes ago    751.8 MB
+```
+
+Now that we have an image registered, you are ready to start making development environment containers. To use the development environment, create and run a container from the image you built and registered, attach to it. Here is an example (assuming you named your image 'oncodev'):
+
+```bash
+docker run -ti -p 7777:7777 --name myoncodev01 --hostname myoncodev01 oncodev
+```
+After you execute the above command you'll be dropped to a bash shell inside this new container. You are now root in an isolated Linux environment that has everything that you need to build and run Oncoscape. The container is empty so you'll need to clone the Oncoscape repo (git is included in the container) and install/build/configure/run as you like. You can create new branches, edit code (vim, emacs and nano are provided), commit and push to github right from inside the container. The '--name myoncodev01' flag tags this container (chose whatever name you like). The '--hostname myoncodev01' sets the hostname inside the container to match the container instance name. The bash prompt inside the container will include the provided hostname to make it clear what environment you are currently in. The '-p 7777:7777' flag tells docker that you want to bind TCP port 7777 inside your container to TCP port 7777 on your Docker-Machine VM (or directly to the host on Linux). You can bind as many ports as you need my using multiple '-p'. The port that you bind to outside the container doesn't have to match the port inside the container. For example '-p 80:7777' will map TCP port 80 outside the container to TCP port 7777 inside the container.
+
+***NOTE:*** Windows users only. While the "Docker Quick Start Terminal" is fine for managing, starting, and stopping containers, it's a very poor console for interactive work inside of a container such as using and editor (nano, vi, emacs) to edit files. You can use either the stardard command prompt (cmd.exe), the Powershell console. Regardless if you choose cmd.exe or Powershell you'll likely want to adjust the size of the console and color scheme (Powershell) to make it more usable. Also when using 'vi' in a container via cmd.exe or Powershell consoles, the arrow keys don't work, you'll need to use the traditional 'hjkl' keys to move around the cursor: 'h'=left, 'j'=down, 'k'=up, 'l'=right.
+
+If you are using the classic command prompt (cmd.exe) you'll need to setup the environment variables required by docker with the following command:
+
+```
+FOR /f "tokens=*" %i IN ('docker-machine.exe env --shell=cmd default') DO %i
+```
+
+If you are using the Powershell console you'll need to setup the environment variables required by docker with the following command:
+
+```
+docker-machine.exe env --shell=powershell default | Invoke-Expression
+```
+
+After you build and run Oncoscape in a container you'll likely want to point your browser at it. If you are running docker on Linux you simply have to point your browser at either http://localhost:7777 (replacing 7777 with the TCP port bound outside the container) or http://servername:7777 if it's running on a remote server. If you are running Docker on Mac OS X or Windows you first have to determine the IP address of the Docker Machine VM. To do so you'll need to run the following command:
+
+```bash
+docker-machine ip default
+```
+
+The output of the above command will be a private IP address that you can only reach from your development workstation. After you have this IP address simply point you browser at it with the desired port "http://192.168.99.100:7777" for example.
+
+#### Stopping and starting your containers
+
+To stop your development container, simply exit the bash shell with the "exit" command. This will stop the container and drop you back on your workstation’s command line. You can see all of your containers running and stopped with the following command:
+
+```bash
+docker ps -a
+```
+The output of the above command will look similar to the following:
+
+```
+CONTAINER ID   IMAGE      COMMAND   CREATED             STATUS                 NAMES
+3bb2bc400dd3   oncodev    "bash"    19 minutes ago      Exited 7 seconds ago   myoncodev01               
+```
+
+If you want to start your container again and enter it, simply run the following commands replacing "myoncodev01" with the name of your container:
+
+```bash
+docker start myoncodev01
+docker attach myoncodev01
+```
+This will drop you back into an instance of bash running inside your container. 
+
+You're not limited to a single container, you can have as many different Oncoscape development environments on you system as you need.
+
+#### Accessing data outside of your container
+
+In the examples above we cloned the Oncocape repository inside of the container. If you'd rather clone it to your workstation directly and access it from inside your container you can use the Docker 'volumes' feature. For example let's say that you have cloned the Oncoscape repo to /Users/myuser/Oncoscape and want to fire up a container and access this external data from inside your container. To accomplish this you'll need to use the '-v' flag when creating a new container and tell it what folder on your workstation you want to be mounted inside the container. Here is an example:
+
+```bash
+docker run -ti -p 7777:7777 -v /Users/myuser/Oncoscape:/opt/Oncoscape --name myoncodev02 --hostname myoncodev02 oncodev
+```
+
+After running the above command, you should see that the '/User/myuser/Oncoscape' folder on your development workstation is now mounted read/write to '/opt/Oncoscape' inside this new container. You can change to this directory and use git just like you do on your workstation. It's worth noting that any modifications to this directory or files it contains inside the container, is directly modifying the files outside of your container. This approach can save you a lot of time and disk space by not having to clone the repo inside each container, but if you need true isolation between each conatiner, this might not be the right approach.
+
+***NOTE:*** Windows users can't specify the local folder they want mounted in the traditional *'C:/xyz'* format. You'll need to use the *'/c/xzy'* format. For example *"-v /c/Users/myuser/Oncoscape:/opt/Oncoscape"* will mount 'C:\Users\myuser\Oncoscape' on your workstation to *'/opt/Oncoscape'* inside the container.
+
+#### Cleaning up unneeded containers and images
+
+To delete a container you don't need any longer, it must first be stopped if it's currently running then use the following command replacing "myoncodev03" with the name of the container you wish to delete:
+
+```
+docker rm myoncodev03
+```
+
+To delete the oncodev image that you built, first there must be no containers running or stopped that are based off of it. When there are no containers created from the oncodev image remaining you can delete this image with the following command replacing "oncodev" with name of the image you created:
+
+```
+docker rmi oncodev
+```
+
+You can see which containers are on you workstation with the "docker ps -a" command and which images are on your workstation with the "docker images" command.
