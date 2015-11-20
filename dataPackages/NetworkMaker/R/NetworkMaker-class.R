@@ -19,9 +19,9 @@ setGeneric('buildChromosomalTable',      signature='obj', function(obj, genes) s
 setGeneric('getChromosomalInfo',         signature='obj', function(obj) standardGeneric('getChromosomalInfo'))
 setGeneric('getSamplesGraph',            signature='obj', function(obj) standardGeneric('getSamplesGraph'))
 setGeneric('getChromosomeGraph',         signature='obj', function(obj, genes) standardGeneric('getChromosomeGraph'))
-setGeneric('getSampleScreenCoordinates', signature='obj', function(obj, xOrigin, yOrigin, xMax, yMax)
+setGeneric('getSampleScreenCoordinates', signature='obj', function(obj, xOrigin=0, yOrigin=0, xMax=2000, yMax=5000)
                                                                 standardGeneric('getSampleScreenCoordinates'))
-setGeneric('getChromosomeScreenCoordinates',  signature='obj', function(obj, xOrigin=1000, yOrigin=0, topY=2000, chromDelta=200)
+setGeneric('getChromosomeScreenCoordinates',  signature='obj', function(obj, xOrigin=1000, yOrigin=0, yMax=2000, chromDelta=200)
                                                                 standardGeneric('getChromosomeScreenCoordinates'))
 #----------------------------------------------------------------------------------------------------
 # constructor
@@ -233,7 +233,7 @@ setMethod("getSampleScreenCoordinates", "NetworkMaker",
 #----------------------------------------------------------------------------------------------------
 setMethod("getChromosomeScreenCoordinates", "NetworkMaker",
 
-  function(obj, xOrigin=1000, yOrigin=0, topY=2000, chromDelta=200){
+  function(obj, xOrigin=1000, yOrigin=0, yMax=2000, chromDelta=200){
 
       tbl <- getChromosomalInfo(obj)
       chroms <- sort(unique(tbl$chrom))
@@ -242,7 +242,7 @@ setMethod("getChromosomeScreenCoordinates", "NetworkMaker",
          chrom.indices <- which(tbl$chrom == chrom)
          if(length(chrom.indices) > 0){
             tbl.sub <- tbl[chrom.indices,]
-            screen.Y <- chromosomeLocToCanvas(tbl.sub, yOrigin, topY)
+            screen.Y <- chromosomeLocToCanvas(tbl.sub, yOrigin, yMax)
             tbl[chrom.indices, "screen.y"] <- screen.Y
             tbl[chrom.indices, "screen.x"] <- .calculate.screen.X(chrom, xOrigin=xOrigin, delta=chromDelta)
             } # if any genes on this chromosome
@@ -343,7 +343,8 @@ setMethod("getChromosomalInfo", "NetworkMaker",
    arm.q <- grep("q", bands)
    arm.na <- which(is.na(bands))
    arm.cen <- grep("cen", bands)
-   stopifnot(sum(length(arm.p), length(arm.q),  length(arm.na), length(arm.cen)) == length(bands))
+   browser()
+   stopifnot(sum(length(arm.p), length(arm.q),  length(arm.na), length(arm.cen)) >= length(bands))
 
    result <- vector("character", length(bands))
    result[arm.p] <- "p"
@@ -356,13 +357,13 @@ setMethod("getChromosomalInfo", "NetworkMaker",
    
 } # .extractChromArmFromCytoband
 #----------------------------------------------------------------------------------------------------
-chromosomeLocToCanvas <- function(tbl, yOrigin, topY)
+chromosomeLocToCanvas <- function(tbl, yOrigin, yMax)
 {
    stopifnot(length(unique(tbl$chrom)) == 1)   # just one chromosome at a time
 
    loc.half.span <- 249250621/2    # a bit more than the length of chrom 1, the longest
 
-   scale <- loc.half.span / topY
+   scale <- loc.half.span / yMax
    
    loc.midpoints <- subset(tbl, type=="arm")$loc
    loc.mid <- sum(loc.midpoints)/2;   # map this to canvas coordinate y=0

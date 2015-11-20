@@ -1,8 +1,8 @@
 Package: NetworkMaker
 Type: Package
 Title: NetworkMaker: build cyjs networks for SttrDataPackages
-Version: 0.99.03
-Date: 2015-11-18
+Version: 0.99.04
+Date: 2015-11-19
 Author: Paul Shannon
 Maintainer: Paul Shannon <pshannon@fredhutch.org>
 Depends: R (>= 3.2.2), SttrDataPackage, PatientHistory, RCyjs (>= 1.1.33)
