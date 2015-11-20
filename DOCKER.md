@@ -278,7 +278,7 @@ After you execute the above command you'll be dropped to a bash shell inside thi
 
 ***NOTE:*** Windows users only. While the "Docker Quick Start Terminal" is fine for managing, starting, and stopping containers, we suggest using an editor (nano, vi, emacs) for interactive work and editing files inside the container. Both the standard command prompt (cmd.exe) and Powershell console are available. Note that when using 'vi' in a container via cmd.exe or Powershell consoles, the arrow keys do not work and you'll need to use the traditional 'hjkl' keys to move the cursor: 'h'=left, 'j'=down, 'k'=up, 'l'=right.
 
-setup the environment variables required by docker with the following command:
+Setup the environment variables required by docker for the shell of your choice as shown below:
 
 ***Classic command prompt (cmd.exe)***
 ```
