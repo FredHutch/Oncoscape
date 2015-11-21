@@ -129,7 +129,9 @@ function displayOncoprint(msg)
 	   console.log("displayOncoprint print recieved genes: %s",xx[1]);
 	   genes = xx[1];
        processed_data = JSON.parse(xx[0]);
+       var then = Date.now(); 
 	   onc = Oncoprint.create('#onc', {cell_padding: cell_padding, cell_width: cell_width});
+       console.log("Milliseconds to create Oncoprint div: ", Date.now() - then)
 	   
 	  
 	   onc.suppressRendering();
@@ -160,9 +162,11 @@ function displayOncoprint(msg)
 			})
 	   		
    	   }else{	
+	        var startGenes = Date.now(); 
 			tracks_to_load = genes.length;
 			console.log(tracks_to_load);
 			for(i = 0; i < genes.length; i++){
+				var thisGeneStart = Date.now();
 				gene = genes[i];
 			
 				var data_gene = processed_data.filter(function(obj){return obj.gene === gene}); 
@@ -182,8 +186,11 @@ function displayOncoprint(msg)
 						onc.sort();
 					};
 				})
+				console.log("Milliseconds to step through ", gene, " track: ", Date.now() - thisGeneStart)
+
 				}
-	   
+	          console.log("Milliseconds to step through all gene tracks: ", Date.now() - startGenes)
+
 	   }	
    }
    console.log("#######Computing since msg sent took: " + (Date.now() - compute_start) + " milliseconds"); 
