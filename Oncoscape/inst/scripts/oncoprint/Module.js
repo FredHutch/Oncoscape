@@ -17,7 +17,7 @@ var OncoprintModule = (function () {
   var cell_padding = 3;
   var cell_width = 4;
   var whitespace_on = true;
-  var track_id = [];
+//  var track_id = [];
   var cnv_data,mnra_data,mut_data, cnv_data_promise,mrna_data_promise,mut_data_promise;
   var OncoprintDiv = $("#oncoprintDiv");
   var ControlsDiv = $("#oncoprintControlsDiv");
@@ -140,59 +140,44 @@ function displayOncoprint(msg)
    	   map_mrna_data(mrna_data_promise, cnv_data);
    	   map_mut_data(mut_data_promise, mrna_data);*/	
    		
-   	   if(typeof(genes) === "string"){
-   	   		i = 0;
-   	   		gene = genes;
-   	   		tracks_to_load = 1;
-   	   		console.log(tracks_to_load);			
-			var data_gene = processed_data.filter(function(obj){return obj.gene === gene});     
-			$.when(processed_data).then(function() {
+ 		var startGenes = Date.now(); 
+				
+		$.when(processed_data).then(function() {
+
+		   if(typeof(genes) === "string"){
+				genes = [genes]
+		   }	
+			tracks_to_load = genes.length;
+			console.log("Number of tracks to load: ", tracks_to_load);
+
+			var track_id = [];
+			for(i = 0; i < genes.length; i++){
+				var thisGeneStart = Date.now();
+				gene = genes[i];
+	
+				var data_gene = processed_data.filter(function(obj){return obj.gene === gene}); 
+
+				var addTrackStart = Date.now()
 				track_id[i] = onc.addTrack({label: gene, removable:true}, 0);
-				tracks_to_load -= 1;
+				console.log("Milliseconds to addTrack ", gene, " : ", Date.now() - addTrackStart)
+
 				if(i == 0){
 					onc.setRuleSet(track_id[i], Oncoprint.GENETIC_ALTERATION);
 				}else{
 					onc.useSameRuleSet(track_id[i], track_id[0]);
 				}
+
 				onc.setTrackData(track_id[i], data_gene, true);
-				if (tracks_to_load === 0) {
-					onc.releaseRendering();
-					onc.sort();
-				};
-			})
-	   		
-   	   }else{	
-	        var startGenes = Date.now(); 
-			tracks_to_load = genes.length;
-			console.log(tracks_to_load);
-			for(i = 0; i < genes.length; i++){
-				var thisGeneStart = Date.now();
-				gene = genes[i];
+
+			}
 			
-				var data_gene = processed_data.filter(function(obj){return obj.gene === gene}); 
-				    
-				$.when(processed_data).then(function() {
-					track_id[i] = onc.addTrack({label: gene, removable:true}, 0);
-					tracks_to_load -= 1;
-					if(i == 0){
-						onc.setRuleSet(track_id[i], Oncoprint.GENETIC_ALTERATION);
-						
-					}else{
-						onc.useSameRuleSet(track_id[i], track_id[0]);
-					}
-					onc.setTrackData(track_id[i], data_gene, true);
-					if (tracks_to_load === 0) {
-						onc.releaseRendering();
-						onc.sort();
-					};
-				})
-				console.log("Milliseconds to step through ", gene, " track: ", Date.now() - thisGeneStart)
+			onc.releaseRendering();
+			onc.sort();
+		console.log("Milliseconds to step through processded_data ", Date.now() - startGenes)
+		})
 
-				}
-	          console.log("Milliseconds to step through all gene tracks: ", Date.now() - startGenes)
 
-	   }	
-   }
+	}
    console.log("#######Computing since msg sent took: " + (Date.now() - compute_start) + " milliseconds"); 
 } // displaySurvivalCurves
 //----------------------------------------------------------------------------------------------------
