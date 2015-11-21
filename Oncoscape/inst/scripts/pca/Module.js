@@ -81,13 +81,13 @@ function initializeUI ()
 /// BUG FIX NECESSARY:		
 //  $("#pcaSendSelectionsMenu").css("display", "none")                                                     
 ///
-  hub.disableTab(thisModulesOutermostDiv)
+  hub.disableTab(thisModulesOutermostDiv);
  
-}; // initializeUI
+} // initializeUI
 //----------------------------------------------------------------------------------------------------
 function showLegend(){
 
-  var text = $("#PCALegend").html()
+  var text = $("#PCALegend").html();
   var title = "PCA Legend";
   $("<div>").html(text).dialog({title: title, width:600, height:600});
 
@@ -109,7 +109,7 @@ function handlePatientClassification (msg)
       console.log("got classification, length " + patientClassification.length);
       }
    else{
-     alert("error!" + msg.payload)
+     alert("error!" + msg.payload);
      }
 
    //drawLegend()
@@ -120,12 +120,12 @@ function requestGeneSetNames()
 {
    console.log("=== requestGeneSetNames");
 
-   callback = "pcaHandleGeneSetNames"
+   callback = "pcaHandleGeneSetNames";
 
    msg = {cmd:"getGeneSetNames",
           callback: callback,
           status:"request",
-          payload:""}
+          payload:""};
 
    hub.send(JSON.stringify(msg));
 
@@ -146,7 +146,7 @@ function addGeneSetNamesToMenu (geneSetNames)
 
    geneSetMenu.empty();
 
-   if(geneSetNames.length == 0) {
+   if(geneSetNames.length === 0) {
      postStatus("addGeneSetNamesToMenu: geneSetNames.length == 0");
      return;
      }
@@ -157,7 +157,7 @@ function addGeneSetNamesToMenu (geneSetNames)
      } // for i
 
   postStatus("addGeneSetNamesToMenu: complete");
-  hub.enableTab(thisModulesOutermostDiv)
+  hub.enableTab(thisModulesOutermostDiv);
 
 
 
@@ -172,10 +172,10 @@ function useAllSamplesInCurrentDataset()
 //----------------------------------------------------------------------------------------------------
 function changePCAids(msg)
 {
-   patientIDs = []
+   patientIDs = [];
    selections = msg.payload;
-   d3.values(selections).forEach(function(d){ d.patientIDs.forEach(function(id){patientIDs.push(id)})})
-   sendSelectionToModule("PCA", patientIDs)
+   d3.values(selections).forEach(function(d){ d.patientIDs.forEach(function(id){patientIDs.push(id);});});
+   sendSelectionToModule("PCA", patientIDs);
 
 } // changePCAids
 //----------------------------------------------------------------------------------------------------
@@ -185,7 +185,7 @@ function drawLegend ()
      return;
 
   for(var i=0; i<patientClassification.length; i++){
-    if(patientClassification[i].gbmDzSubType[0] == null | patientClassification[i].gbmDzSubType[0] == ""){
+    if(patientClassification[i].gbmDzSubType[0] === null | patientClassification[i].gbmDzSubType[0] === ""){
       patientClassification[i].gbmDzSubType[0]= "undefined";
       } // if
     } // for i
@@ -194,7 +194,7 @@ function drawLegend ()
                           .key(function(d) { return d.gbmDzSubType[0]; })
                           .map(patientClassification, d3.map);
 
-  var LegendLabels = d3.values(classifications.keys())
+  var LegendLabels = d3.values(classifications.keys());
  
   var Legendsvg = d3.select("#pcaLegend").append("svg")
                       .attr("id", "pcaLegendSVG")
@@ -213,14 +213,14 @@ function drawLegend ()
                          .data(LegendLabels)
                          .enter().append("g")
                          .attr("transform", function(d, i) { 
-                             return "translate(" + i*TextOffSet(d) + ",0)" 
+                             return "translate(" + i*TextOffSet(d) + ",0)"; 
                              });
 
     var text = legend.append("text")
                       .attr("y", 10)
                       .attr("x", 0)
                       .style("font-size", 12)
-                      .text(function(d) { return d})
+                      .text(function(d) { return d;})
                       .attr("transform", function(d, i) { 
                           return "translate(" + 15 + ",0)";
                            });
@@ -229,8 +229,8 @@ function drawLegend ()
           .attr("cx", 0)
           .attr("cy", 5)
           .attr("r", function(d) { return 6;})
-          .style("fill", function(d)   { if(d=="undefined") return "white"; return classifications.get(d)[0].color[0]})
-          .style("stroke", function(d) { if(d=="undefined") return "black"; return classifications.get(d)[0].color[0]})
+          .style("fill", function(d)   { if(d=="undefined") return "white"; return classifications.get(d)[0].color[0];})
+          .style("stroke", function(d) { if(d=="undefined") return "black"; return classifications.get(d)[0].color[0];});
  
 } // drawLegend
 //----------------------------------------------------------------------------------------------------
@@ -271,7 +271,7 @@ function sendSelections(event)
 {
   var destination = pcaSendSelectionMenu.val();
 
-  var selectedIDs = pointsInBrushedRegion()
+  var selectedIDs = pointsInBrushedRegion();
        
    if(selectedIDs.length > 0){
       var cmd = "sendSelectionTo_" + destination;
@@ -290,16 +290,16 @@ function pcaPlot (msg)
 {
    if(msg.status == "success"){
       pcaScores = msg.payload.scores;
-      currentIdentifiers = msg.payload.ids
+      currentIdentifiers = msg.payload.ids;
      
       d3PcaScatterPlot(pcaScores);
 
-      var pcaData = msg.payload.importance
+      var pcaData = msg.payload.importance;
       var PC1var = 100 * msg.payload["importance.PC1"];
       var PC2var = 100 * msg.payload["importance.PC2"];
-      var pcaText = $("#pcaTextDisplayDiv").html("")
-      pcaText.append("Proportion of Variance: ")
-      pcaText.append("PC1: "+PC1var.toFixed(2) + "%, PC2: "+PC2var.toFixed(2)+"%")
+      var pcaText = $("#pcaTextDisplayDiv").html("");
+      pcaText.append("Proportion of Variance: ");
+      pcaText.append("PC1: "+PC1var.toFixed(2) + "%, PC2: "+PC2var.toFixed(2)+"%");
         
       //if(!firstTime){  // first call comes at startup.  do not want to raise tab then.
       hub.raiseTab(thisModulesOutermostDiv);
@@ -312,8 +312,7 @@ function pcaPlot (msg)
       postStatus("pcaPlot: error");
       }
      firstTime = false;
-     };
-
+}
 //----------------------------------------------------------------------------------------------------
 function postStatus(msg)
 {
@@ -344,7 +343,7 @@ function highlightPatientIDs(msg)
    console.log("=== Module.pca, highlightPatientIDs, intersection:");
    console.log(JSON.stringify(intersection));
 
-   if(intersection.length == 0){
+   if(intersection.length === 0){
      count = candidates.length;
      errorMessage = "None of the incoming ids were recognized: ";
      for(var i=0; i < count; i++){
@@ -361,7 +360,7 @@ function highlightPatientIDs(msg)
 function selectPoints(ids, clearIDs)
 {
    console.log("=== module.pca: selectPoints");
-   console.log("    incoming ids count: " + ids.length)
+   console.log("    incoming ids count: " + ids.length);
    //console.log(ids);
 
    d3.selectAll("circle")
@@ -398,7 +397,9 @@ function calculate()
    var payload = {genes: currentGeneSet};
 
    if(currentPatientIDs !== null)
-       payload["samples"] = currentPatientIDs;
+       payload.samples = currentPatientIDs;
+       //payload["samples"] = currentPatientIDs;
+
 
    msg = {cmd: "calculatePCA", callback: "pcaPlot", status: "request", payload: payload};
    hub.send(JSON.stringify(msg));
@@ -437,11 +438,11 @@ function d3PlotBrushReader ()
 
   console.log("width: " + width);
   if(width > 0.001 &   pointsInBrushedRegion().length > 0){
-    console.log("enabling pcaSendSelectionMenu")
+    console.log("enabling pcaSendSelectionMenu");
     pcaSendSelectionMenu.prop("disabled",false);
     }
   else{
-    console.log("disabling pcaSendSelectionMenu")
+    console.log("disabling pcaSendSelectionMenu");
     pcaSendSelectionMenu.prop("disabled",true);
     }
 
@@ -482,10 +483,10 @@ function d3PcaScatterPlot(dataset)
        // todo:  after finding min and max, determine largest of each axis in abs value
        // todo:  then find next larger even number, use that throughout
      
-   xMax = xMax * 1.1
-   xMin = xMin * 1.1
-   yMax = yMax * 1.1
-   yMin = yMin * 1.1
+   xMax = xMax * 1.1;
+   xMin = xMin * 1.1;
+   yMax = yMax * 1.1;
+   yMin = yMin * 1.1;
 
      //console.log("xMax: " + xMax);   console.log("xMin: " + xMin);
      //console.log("yMax: " + yMax);   console.log("yMin: " + yMin);
@@ -558,12 +559,12 @@ function d3PcaScatterPlot(dataset)
                    .attr("cy", function(d,i) {return yScale(d[1]);})
                    .attr("r", function(d) { return 3;})
                    .style("fill", function(d) {
-                        var color = chooseColor(d[0])
-                        if(color == "") return "white"
+                        var color = chooseColor(d[0]);
+                        if(color === "") return "white";
                         return color;})
                    .style("stroke", function(d) {
-                        var color = chooseColor(d[0])
-                        if(color == "") return "black"
+                        var color = chooseColor(d[0]);
+                        if(color === "") return "black";
                         return color;})
                    .on("mouseover", function(d,i){
                          tooltip.text(currentIdentifiers[i]);
@@ -642,7 +643,7 @@ demoPCAHighlight = function ()
    ids = ["TCGA.06.0192", "TCGA.12.0775", "TCGA.14.0789"];
    selectPoints(ids, true);
 
-} // demoHighlight
+}; // demoHighlight
 //----------------------------------------------------------------------------------------------------
 demo = function ()
 {
@@ -651,7 +652,7 @@ demo = function ()
 
   hub.send(JSON.stringify(msg));
 
-} // demo
+}; // demo
 //----------------------------------------------------------------------------------------------------
 //function requestGeneSetNames()
 //{
@@ -681,7 +682,7 @@ function demoPcaCalculateAndDraw(msg)
      }
 
   var currentGeneSet = geneSetMenu.val();
-  if(currentGeneSet == null)
+  if(currentGeneSet === null)
       currentGeneSet = "tcga.GBM.classifiers";
 
   console.log("demoPCA, currentGeneSet: " + currentGeneSet);
@@ -752,7 +753,7 @@ function testCalculate()
    QUnit.test('testPcaCalculate', function(assert) {
       $("#pcaCalculateButton").prop("disabled", false);
       $("#pcaCalculateButton").css({"background-color": "red", "color": "green"});
-      $("#pcaGeneSetSelector").val("random.24")
+      $("#pcaGeneSetSelector").val("random.24");
       assert.expect(1);   // tests (assertions) in next function, testContentsOfPcaPlot
       setTimeout(function(){
          $("#pcaCalculateButton").click();
@@ -822,7 +823,7 @@ function initializeModule()
    hub.registerSelectionDestination(selectionDestinationsOfferedHere, thisModulesOutermostDiv);
    hub.addMessageHandler("datasetSpecified", datasetSpecified);
    hub.addMessageHandler("sendSelectionTo_PCA", handlePatientIDs);
-   hub.addMessageHandler("sendSelectionTo_PCA (highlight)", highlightPatientIDs)
+   hub.addMessageHandler("sendSelectionTo_PCA (highlight)", highlightPatientIDs);
    hub.addMessageHandler("pcaObjectCreated", pcaObjectCreated);
    hub.addMessageHandler("pcaHandleGeneSetNames", handleGeneSetNames);
    hub.addMessageHandler("pcaPlot", pcaPlot);
