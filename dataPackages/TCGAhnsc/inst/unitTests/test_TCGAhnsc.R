@@ -80,7 +80,7 @@ testManifest <- function()
          checkEqualsNumeric(max(x, na.rm=T), maxValue, tolerance=10e-5)
          }
       provenance <- tbl$provenance[i];
-      checkEquals(provenance, "tcga")
+#      checkEquals(provenance, "tcga")
       } # for i
 
    TRUE

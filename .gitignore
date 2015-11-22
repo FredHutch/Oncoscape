@@ -2,11 +2,11 @@
 ######################
 *.log
 *.out
-<<<<<<< HEAD
 nohup.out
-=======
 dataPackages/RawData
->>>>>>> e68366e92af08d5d6e63d1aae4a30f581bae2ce3
+Oncoscape/inst/unitTests/test_OncoDev14_BenchMark*
+Oncoscape/inst/scripts/markersAndSamples/log.*
+Oncoscape/inst/scripts/datasets/log.*
 
 # Packages #
 ############
@@ -25,13 +25,10 @@ dataPackages/RawData
 .Trashes
 ehthumbs.db
 Thumbs.db
-<<<<<<< HEAD
 index.html
 
 # Installation files #
 ######################
-.setupR
+.setupR*
 Rlibs
-=======
 .Rhistory
->>>>>>> e68366e92af08d5d6e63d1aae4a30f581bae2ce3

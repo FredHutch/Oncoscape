@@ -95,6 +95,10 @@ function addGeneSetNamesToMenu (geneSetNames)
    if(geneSetNames.length === 0) {
       return;
       }
+   
+  if(typeof geneSetNames == "string") 
+   	 geneSetNames = [geneSetNames] 
+
       
    for(var i=0; i < geneSetNames.length; i++){
       optionMarkup = "<option>" + geneSetNames[i] + "</option>";
@@ -536,7 +540,8 @@ function datasetSpecified(msg)
       hub.disableButton(calculateButton);
       return;
       }
-   
+   d3plsrDisplay.select("#plsrSVG").remove();  // so that old layouts aren't mistaken for new dataset
+      
    createPlsrObjectOnServer(dataPackageName, matrixName);
 
 } // datasetSpecified

@@ -18,7 +18,10 @@ TCGAread <- function()
                                   data.frames=data$data.frames,
                                   history=data$history,
                                   manifest=data$manifest,
-                                  genesets=data$genesets))
+                                 genesets=data$genesets,
+                                 networks = data$networks,
+                                 sampleCategorizations=data$sampleCategorizations
+))
 
   obj
 

@@ -8,6 +8,7 @@ options(stringsAsFactors=FALSE)
 runTests <- function()
 {
   testConstructor();
+  test.mutationMatrixTo01Matrix()
   test.extractSamplesAndGenes()
   test.calculateSimilarity.DEMOdz()
   test.calculateSimilarity.TCGAgbm()
@@ -18,7 +19,8 @@ runTests <- function()
   test.genesChromosomeGraph.DEMOdz();
   test.fullDisplay.6genes.DEMOdz()
   test.screenCoordinateManipulations.DEMOdz()
-  test.fullDisplay.DEMOdz()
+  test.fullDisplay.allGenes.DEMOdz()
+  test.fullDisplay.withMutations.allGenes.TCGAgbm()
   
 } # runTests
 #----------------------------------------------------------------------------------------------------
@@ -29,6 +31,32 @@ testConstructor <- function()
    netMaker <- NetworkMaker(dz)
    
 } # testConstructor
+#----------------------------------------------------------------------------------------------------
+test.mutationMatrixTo01Matrix <- function()
+{
+   print("--- test.mutationMatrixTo01Matrix")
+
+    # the utility function handles 3 possible forms of missing value tokens: NA, "NA", ""
+    # test them all
+
+   dz <- DEMOdz() 
+   checkTrue("mtx.mut" %in% names(matrices(dz)))
+   mut <- matrices(dz)$mtx.mut      
+   mut.01 <- NetworkMaker:::.mutationMatrixTo01Matrix(mut)
+   checkEquals(sum(mut.01), length(which(!is.na(mut))))
+
+   mut.nachar <- mut
+   mut.nachar[which(is.na(mut.nachar))] <- "NA"
+   mtx.01 <- NetworkMaker:::.mutationMatrixTo01Matrix(mut.nachar)
+   checkEquals(sum(mtx.01), length(which(!is.na(mut))))
+
+   mut.emptyString <- mut
+   mut.emptyString[which(is.na(mut.emptyString))] <- ""
+   mtx.01 <- NetworkMaker:::.mutationMatrixTo01Matrix(mut.emptyString)
+   checkEquals(sum(mtx.01), length(which(!is.na(mut))))
+
+
+} # test.mutationMatrixTo01Matrix
 #----------------------------------------------------------------------------------------------------
 test.extractSamplesAndGenes <- function()
 {
@@ -537,6 +565,74 @@ test.fullDisplay.allGenes.TCGAgbm <- function()
     fit(rcy, 100)
     
 } # test.fullDisplay.allGenes.TCGAgbm
+#----------------------------------------------------------------------------------------------------
+test.addMutationsToGraph.DEMOdz <- function()
+{
+    print("--- test.addMutationstoGraph.DEMOdz")
+
+    dz <- DEMOdz() 
+    netMaker <- NetworkMaker(dz)
+    goi <- colnames(matrices(dz)$mtx.mut)
+    g.mut <- getMutationGraph(netMaker, goi)
+
+    calculateSampleSimilarityMatrix(netMaker)
+    g <- getSamplesGraph(netMaker)
+    rcy <- RCyjs(portRange=6047:6100, quiet=TRUE, graph=g, hideEdges=TRUE)
+    httpSetStyle(rcy, "style.js")
+    tbl.pos <- getSampleScreenCoordinates(netMaker, xOrigin=0, yOrigin=0, xMax=2000, yMax=5000)
+
+    setPosition(rcy, tbl.pos)    
+    fit(rcy, 100)
+
+    g.chrom <- getChromosomeGraph(netMaker, goi)
+    httpAddGraph(rcy, g.chrom)
+    httpSetStyle(rcy, "style.js")
+
+    tbl.pos <- getChromosomeScreenCoordinates(netMaker, xOrigin=1000, yOrigin=000, yMax=2000, chromDelta=200)
+    setPosition(rcy, tbl.pos)
+    fit(rcy, 100)
+
+    g.mut <- getMutationGraph(netMaker, goi)
+    httpAddGraph(rcy, g.mut)
+    httpSetStyle(rcy, "style.js")
+
+} # test.addMutationsToGraph.DEMOdz
+#----------------------------------------------------------------------------------------------------
+test.fullDisplay.withMutations.allGenes.TCGAgbm <- function()
+{
+    print("--- test.fullDisplay.withMutations.allGenes.TCGAgbm")
+
+    dz <- TCGAgbm()
+    netMaker <- NetworkMaker(dz)
+
+    load(system.file(package="NetworkMaker", "extdata", "genesets.RData"))
+    goi <- sort(unique(genesets$tcga.GBM.classifiers, genesets$marker.genes.545))
+    calculateSampleSimilarityMatrix(netMaker, genes=goi)
+
+    g <- getSamplesGraph(netMaker)
+    rcy <- RCyjs(portRange=6047:6100, quiet=TRUE, graph=g, hideEdges=TRUE)
+    httpSetStyle(rcy, "style.js")
+    tbl.pos <- getSampleScreenCoordinates(netMaker, xOrigin=0, yOrigin=0, xMax=2000, yMax=5000)
+
+    setPosition(rcy, tbl.pos)    
+    fit(rcy, 100)
+
+    g.chrom <- getChromosomeGraph(netMaker, goi)
+    httpAddGraph(rcy, g.chrom)
+    httpSetStyle(rcy, "style.js")
+
+    tbl.pos <- getChromosomeScreenCoordinates(netMaker, xOrigin=1500, yOrigin=000, yMax=2000, chromDelta=200)
+    setPosition(rcy, tbl.pos)
+    fit(rcy, 100)
+    
+    g.mut <- getMutationGraph(netMaker, goi)
+    edge.count.before <- getEdgeCount(rcy)
+    httpAddGraph(rcy, g.mut)
+    edge.count.after <- getEdgeCount(rcy)
+    checkEquals(edge.count.after - edge.count.before, length(edgeNames(g.mut)))
+    httpSetStyle(rcy, "style.js")
+
+} # test.fullDisplay.withMutations.allGenes.TCGAgbm
 #----------------------------------------------------------------------------------------------------
 if(!interactive())
     runTests()

@@ -19,6 +19,7 @@ setGeneric('buildChromosomalTable',      signature='obj', function(obj, genes) s
 setGeneric('getChromosomalInfo',         signature='obj', function(obj) standardGeneric('getChromosomalInfo'))
 setGeneric('getSamplesGraph',            signature='obj', function(obj) standardGeneric('getSamplesGraph'))
 setGeneric('getChromosomeGraph',         signature='obj', function(obj, genes) standardGeneric('getChromosomeGraph'))
+setGeneric('getMutationGraph',           signature='obj', function(obj, genes) standardGeneric('getMutationGraph'))
 setGeneric('getSampleScreenCoordinates', signature='obj', function(obj, xOrigin=0, yOrigin=0, xMax=2000, yMax=5000)
                                                                 standardGeneric('getSampleScreenCoordinates'))
 setGeneric('getChromosomeScreenCoordinates',  signature='obj', function(obj, xOrigin=1000, yOrigin=0, yMax=2000, chromDelta=200)
@@ -80,16 +81,7 @@ setMethod("calculateSampleSimilarityMatrix", "NetworkMaker",
         # mutation matrices indicate wildtype by what token?  "" or NA or "NA"?
         # until this is standardized and enforced check for each
 
-     
-     if(length(which(mut == "NA")) > 0){
-         mut.01 <- (mut != "NA") + 0   # coerce to integers by adding zero
-     } else if (length(which(is.na(mut))) > 0){
-         mut.01 <- (!is.na(mut)) + 0
-     } else if (length(which(mut == "")) > 0){
-         mut.01 <- (mut != "") + 0
-     } else {
-         stop("unexpected mut values")
-     }
+     mut.01 <- .mutationMatrixTo01Matrix(mut)
 
      stopifnot(all(sort(unique(as.integer(mut.01))) == c(0,1)))
 
@@ -195,6 +187,48 @@ setMethod("getChromosomeGraph", "NetworkMaker",
     g <- addEdge(q.arm.nodes, q.telomeres, g)
     edgeData(g, p.arm.nodes, p.telomeres, "edgeType") <- "chromosome"
     edgeData(g, q.arm.nodes, q.telomeres, "edgeType") <- "chromosome"
+
+    return(g)
+    })
+
+#----------------------------------------------------------------------------------------------------
+setMethod("getMutationGraph", "NetworkMaker",
+
+  function(obj, genes){
+
+    mut <- obj@mtx.mut
+    samples <- rownames(mut)
+    goi <- intersect(genes, colnames(mut))
+    stopifnot(goi > 0)
+    mut <- mut[, goi]
+
+       # standardize the matrix to zeroes and ones, providing painless search
+       # for non-null (not missing) values
+    mut.01 <- .mutationMatrixTo01Matrix(mut)
+    indices <- which(mut.01 == 1)
+    
+    rows <- 1 + (indices - 1) %% nrow(mut.01)
+    cols <- 1 + (indices -1) %/% nrow(mut.01)
+       # with row/column sample/gene pairs, now retrieve the mutations themselves
+    vals = unlist(lapply(1:length(indices), function(i) mut[rows[i], cols[i]]))
+
+    tbl <- data.frame(sample=rownames(mut)[rows],
+                      gene=colnames(mut)[cols],
+                      val=vals, stringsAsFactors=FALSE)
+
+    sample.nodes <- canonicalizePatientIDs(obj@pkg, tbl$sample)
+    gene.nodes <- tbl$gene
+    all.nodes <- unique(c(sample.nodes, gene.nodes))
+    
+    g <- graphNEL(nodes=all.nodes, edgemode="directed")
+    nodeDataDefaults(g, attr="id") <- "unassigned"
+    edgeDataDefaults(g, attr="edgeType") <- "unassigned"
+    edgeDataDefaults(g, attr="subType") <- "unassigned"
+
+    nodeData(g, all.nodes, "id") <- all.nodes
+    g <- addEdge(sample.nodes, gene.nodes, g)
+    edgeData(g, sample.nodes, gene.nodes, "edgeType") <- "mutation"
+    edgeData(g, sample.nodes, gene.nodes, "subType") <- tbl$val
 
     return(g)
     })
@@ -343,7 +377,7 @@ setMethod("getChromosomalInfo", "NetworkMaker",
    arm.q <- grep("q", bands)
    arm.na <- which(is.na(bands))
    arm.cen <- grep("cen", bands)
-   browser()
+   # browser()
    stopifnot(sum(length(arm.p), length(arm.q),  length(arm.na), length(arm.cen)) >= length(bands))
 
    result <- vector("character", length(bands))
@@ -393,4 +427,20 @@ chromosomeLocToCanvas <- function(tbl, yOrigin, yMax)
    screen.x
 
 } # .calculate.screen.X
+#----------------------------------------------------------------------------------------------------
+.mutationMatrixTo01Matrix <- function(mtx.mut)
+{
+     if(length(which(mtx.mut == "NA")) > 0){
+         mtx.mut.01 <- (mtx.mut != "NA") + 0   # coerce to integers by adding zero
+     } else if (length(which(is.na(mtx.mut))) > 0){
+         mtx.mut.01 <- (!is.na(mtx.mut)) + 0
+     } else if (length(which(mtx.mut == "")) > 0){
+         mtx.mut.01 <- (mtx.mut != "") + 0
+     } else {
+         stop("unexpected mtx.mut values")
+     }
+
+    mtx.mut.01
+
+} # .mutationMatrixTo01Matrix
 #----------------------------------------------------------------------------------------------------
