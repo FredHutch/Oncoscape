@@ -20,6 +20,7 @@ setGeneric('getChromosomalInfo',         signature='obj', function(obj) standard
 setGeneric('getSamplesGraph',            signature='obj', function(obj) standardGeneric('getSamplesGraph'))
 setGeneric('getChromosomeGraph',         signature='obj', function(obj, genes) standardGeneric('getChromosomeGraph'))
 setGeneric('getMutationGraph',           signature='obj', function(obj, genes) standardGeneric('getMutationGraph'))
+setGeneric('getCopyNumberGraph',         signature='obj', function(obj, genes, included.scores=c(-2, 2)) standardGeneric('getCopyNumberGraph'))
 setGeneric('getSampleScreenCoordinates', signature='obj', function(obj, xOrigin=0, yOrigin=0, xMax=2000, yMax=5000)
                                                                 standardGeneric('getSampleScreenCoordinates'))
 setGeneric('getChromosomeScreenCoordinates',  signature='obj', function(obj, xOrigin=1000, yOrigin=0, yMax=2000, chromDelta=200)
@@ -231,6 +232,64 @@ setMethod("getMutationGraph", "NetworkMaker",
     edgeData(g, sample.nodes, gene.nodes, "subType") <- tbl$val
 
     return(g)
+    })
+
+#----------------------------------------------------------------------------------------------------
+setMethod("getCopyNumberGraph", "NetworkMaker",
+
+  function(obj, genes, included.scores=c(-2, 2)){
+
+    cn <- obj@mtx.cn
+    samples <- rownames(cn)
+    goi <- intersect(genes, colnames(cn))
+    stopifnot(goi > 0)
+    cn <- cn[, goi]
+
+        # create an edge table for the copy number (gistic) scores explicitly
+        # included by method argument
+    
+    indices <- which(cn %in% included.scores)
+    rows <- 1 + (indices - 1) %% nrow(cn)
+    cols <- 1 + (indices -1) %/% nrow(cn)
+
+       # with row/column sample/gene pairs, now retrieve the mutations themselves
+    vals = unlist(lapply(1:length(indices), function(i) cn[rows[i], cols[i]]))
+    tbl <- data.frame(sample=rownames(cn)[rows],
+                      gene=colnames(cn)[cols],
+                      val=vals, stringsAsFactors=FALSE)
+
+    sample.nodes <- canonicalizePatientIDs(obj@pkg, tbl$sample)
+    gene.nodes <- tbl$gene
+    all.nodes <- unique(c(sample.nodes, gene.nodes))
+    
+    g <- graphNEL(nodes=all.nodes, edgemode="directed")
+    nodeDataDefaults(g, attr="id") <- "unassigned"
+    edgeDataDefaults(g, attr="edgeType") <- "unassigned"
+    edgeDataDefaults(g, attr="subType") <- "unassigned"
+
+    nodeData(g, all.nodes, "id") <- all.nodes
+    g <- addEdge(sample.nodes, gene.nodes, g)
+    edgeData(g, sample.nodes, gene.nodes, "edgeType") <- ""
+
+    cnLoss.1 <- which(tbl$val == -1)
+    cnLoss.2 <- which(tbl$val == -2)
+    cnGain.1 <- which(tbl$val == 1)
+    cnGain.2 <- which(tbl$val == 2)
+  
+    samples.corrected <- canonicalizePatientIDs(obj@pkg, tbl$sample[cnLoss.1])
+    edgeData(g, samples.corrected, tbl$gene[cnLoss.1], "edgeType") <- "cnLoss.1"
+                                                
+    samples.corrected <- canonicalizePatientIDs(obj@pkg, tbl$sample[cnLoss.2])
+    edgeData(g, samples.corrected, tbl$gene[cnLoss.2], "edgeType") <- "cnLoss.2"
+
+    samples.corrected <- canonicalizePatientIDs(obj@pkg, tbl$sample[cnGain.1])
+    edgeData(g, samples.corrected, tbl$gene[cnGain.1], "edgeType") <- "cnGain.1"
+
+    samples.corrected <- canonicalizePatientIDs(obj@pkg, tbl$sample[cnGain.2])
+    edgeData(g, samples.corrected, tbl$gene[cnGain.2], "edgeType") <- "cnGain.2"
+
+    return(g)
+
     })
 
 #----------------------------------------------------------------------------------------------------
