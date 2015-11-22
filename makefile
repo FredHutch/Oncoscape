@@ -1,4 +1,9 @@
 default: install test
+
+clean:
+	R --vanilla -f removeInstalledOncoscapePackages.R
+
+
 ####
 #  INSTALL
 #>make
@@ -31,7 +36,8 @@ test:
 	(cd dataPackages/; make test)
 	(cd analysisPackages/; make test)
 	(cd Oncoscape/inst/unitTests; make test)
-	
+	(cd Oncoscape/inst/scripts; make check)
+		
 # launches Oncoscape on the provided port then tests modules using websocket requests	
 testWS:
 	python testAllWebsocketOperations.py localhost:7777 | tee testAllWebsocketOperations_7777.log &

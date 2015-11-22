@@ -156,6 +156,7 @@ function requestDataSetSummary(dataSetName)
 
    var msg = {cmd: "getDataManifest",  callback: "displayDataManifest", status: "request", 
               payload: dataSetName};
+   hub.logEventOnServer(thisModulesName, "datasets requestDataSummary", "request", dataSetName);
 
    hub.send(JSON.stringify(msg));
 
@@ -214,6 +215,7 @@ function displayDataManifest(msg)
      handleWindowResize();
      hub.enableButton(useThisDatasetButton);
      postStatus("manifest table displayed");
+     hub.logEventOnServer(thisModulesName, "datasets requestDataSummary", "complete", "");
      }); // tableElement.ready
 
 } // displayDataManifest
