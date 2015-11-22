@@ -8,6 +8,7 @@ exportMethods(
   getSamplesGraph,
   getChromosomeGraph,
   getMutationGraph,
+  getCopyNumberGraph,
   getSampleScreenCoordinates,
   getChromosomeScreenCoordinates
   )
