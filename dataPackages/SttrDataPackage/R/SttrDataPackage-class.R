@@ -189,7 +189,6 @@ setMethod("getPatientTable", "SttrDataPackageClass",
          if(variable.name == "ptList")         clinical <- PatientHistory::setpatientList(clinical, historyList)
          if(variable.name == "catList")  clinical <- PatientHistory::seteventTypeList(clinical, historyList)
 
-#         history <- PatientHistory(historyList)
          }
       else if(class == "list" & category=="geneset") {
          eval(parse(text=sprintf("genesets <- %s", variable.name)))
