@@ -21,7 +21,7 @@ runTests <- function()
   test.screenCoordinateManipulations.DEMOdz()
   test.fullDisplay.allGenes.DEMOdz()
   test.fullDisplay.withMutations.allGenes.TCGAgbm()
-  test.addCopyNumberEdges.DEMOdz()
+  test.fullDisplay.withMutations.withCopyNumber.allGenes.DEMOdz()
   test.fullDisplay.withMutations.withCopyNumber.allGenes.TCGAgbm()
   
 } # runTests
@@ -636,14 +636,16 @@ test.fullDisplay.withMutations.allGenes.TCGAgbm <- function()
 
 } # test.fullDisplay.withMutations.allGenes.TCGAgbm
 #----------------------------------------------------------------------------------------------------
-test.addCopyNumberEdges.DEMOdz <- function()
+test.fullDisplay.withMutations.withCopyNumber.allGenes.DEMOdz <- function()
 {
-    print("--- test.addCopyNumberEdges")
+    print("--- test.fullDisplay.withMutations.withCopyNumber.allGenes.DEMOdz")
     
     dz <- DEMOdz() 
     netMaker <- NetworkMaker(dz)
 
-    calculateSampleSimilarityMatrix(netMaker)
+    gistic.scores <-c(-2, -1, 1, 2)
+
+    calculateSampleSimilarityMatrix(netMaker, copyNumberValues=gistic.scores)
     g <- getSamplesGraph(netMaker)
     rcy <- RCyjs(portRange=6047:6100, quiet=TRUE, graph=g, hideEdges=TRUE)
     httpSetStyle(rcy, "style.js")
@@ -657,17 +659,22 @@ test.addCopyNumberEdges.DEMOdz <- function()
     httpAddGraph(rcy, g.chrom)
     httpSetStyle(rcy, "style.js")
 
-    tbl.pos <- getChromosomeScreenCoordinates(netMaker, xOrigin=1000, yOrigin=000, yMax=2000, chromDelta=200)
+    tbl.pos <- getChromosomeScreenCoordinates(netMaker, xOrigin=1400, yOrigin=000, yMax=2000, chromDelta=200)
     setPosition(rcy, tbl.pos)
     fit(rcy, 100)
 
+    g.mut <- getMutationGraph(netMaker, goi)
+    httpAddGraph(rcy, g.mut)
+
     edge.count.before <- getEdgeCount(rcy)
-    g.cn <- getCopyNumberGraph(netMaker, goi, c(-2, -1, 1, 2))
+    g.cn <- getCopyNumberGraph(netMaker, goi, gistic.scores)
+    xx <<- g.cn
     httpAddGraph(rcy, g.cn)
     edge.count.after <- getEdgeCount(rcy)
-    checkEquals(edge.count.after - edge.count.before, length(edgeNames(g.cn)))
+    print(noquote(checkEquals(edge.count.after - edge.count.before, length(edgeNames(g.cn)))))
+    invisible(rcy)
 
-} # test.addCopyNumberEdges.DEMOdz
+} # test.fullDisplay.withMutations.withCopyNumber.allGenes.DEMOdz
 #----------------------------------------------------------------------------------------------------
 test.fullDisplay.withMutations.withCopyNumber.allGenes.TCGAgbm <- function()
 {
@@ -707,7 +714,8 @@ test.fullDisplay.withMutations.withCopyNumber.allGenes.TCGAgbm <- function()
     g.cn <- getCopyNumberGraph(netMaker, goi, included.scores=c(-2,2))
     httpAddGraph(rcy, g.cn)
     edge.count.after <- getEdgeCount(rcy)
-    checkEquals(edge.count.after - edge.count.before, length(edgeNames(g.cn)))
+    print(noquote(checkEquals(edge.count.after - edge.count.before, length(edgeNames(g.cn)))))
+    invisible(rcy)
 
 } # test.fullDisplay.withMutations.withCopyNumber.allGenes.TCGAgbm
 #----------------------------------------------------------------------------------------------------

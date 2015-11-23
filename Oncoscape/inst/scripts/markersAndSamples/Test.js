@@ -348,7 +348,8 @@ function testColorTumorsByCategory()
      
    var tumorNodes = cwMarkers.nodes().fnFilter(function(node){ return(node.data("nodeType") == "patient");});
    tumorNodes.map(function(node){node.data({"subType": "unassigned"});});
-   var subTypes = jQuery.unique(tumorNodes.map(function(node){return(node.data("subType"));}));
+   //var subTypes = jQuery.unique(tumorNodes.map(function(node){return(node.data("subType"));}));
+   var subTypes = hub.uniqueElementsOfArray(tumorNodes.map(function(node){return(node.data("subType"));}));
    console.log("before tumor category test, should be just one subType: " + subTypes.length);
    
    if(markersAndSamplesStatusObserver === null){
@@ -361,7 +362,7 @@ function testColorTumorsByCategory()
         var statusMsg = $(minorStatusDiv).text();
         QUnit.test(title, function(assert) {
            console.log("-- in QUnit.test for testColorTumorsByCategory");
-           var subTypes = jQuery.unique(tumorNodes.map(function(node){return(node.data("subType"));}));
+           var subTypes = hub.uniqueElementsOfArray(tumorNodes.map(function(node){return(node.data("subType"));}));
            console.log(" during tumor category test, should be > one subType: " + subTypes.length);
            assert.ok(subTypes.length > 1);  // more than just the single "unassigned" enforced above;
            markEndOfTestingDataSet();
@@ -378,7 +379,7 @@ function testColorTumorsByCategory()
    var allCategoryNames = $("#cyMarkersTumorCategorizationsMenu").children().map(function() {return $(this).val();}).get();
    console.log("--- still setting up testColorTumorsByCateory, names: ");
    console.log(JSON.stringify(allCategoryNames));
-   var firstCategory = allCategoryNames[1];  // the 0th name is always the menu title. choose the next one
+   var firstCategory = allCategoryNames[2];  // the 0th name is always the menu title. 1st is "Clear". choose the next one
    $("#cyMarkersTumorCategorizationsMenu").val(firstCategory);
    $("#cyMarkersTumorCategorizationsMenu").trigger("change");
 

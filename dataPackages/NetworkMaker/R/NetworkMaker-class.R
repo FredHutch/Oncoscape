@@ -12,7 +12,7 @@ options(stringsAsFactors = FALSE)
                          )
 
 #----------------------------------------------------------------------------------------------------
-setGeneric('calculateSampleSimilarityMatrix',  signature='obj', function(obj, samples=NA, genes=NA)
+setGeneric('calculateSampleSimilarityMatrix',  signature='obj', function(obj, samples=NA, genes=NA, copyNumberValues=c(-2, 2))
                                                                 standardGeneric('calculateSampleSimilarityMatrix'))
 setGeneric('getSampleSimilarityCoordinates',   signature='obj', function(obj) standardGeneric('getSampleSimilarityCoordinates'))
 setGeneric('buildChromosomalTable',      signature='obj', function(obj, genes) standardGeneric('buildChromosomalTable'))
@@ -24,7 +24,7 @@ setGeneric('getCopyNumberGraph',         signature='obj', function(obj, genes, i
 setGeneric('getSampleScreenCoordinates', signature='obj', function(obj, xOrigin=0, yOrigin=0, xMax=2000, yMax=5000)
                                                                 standardGeneric('getSampleScreenCoordinates'))
 setGeneric('getChromosomeScreenCoordinates',  signature='obj', function(obj, xOrigin=1000, yOrigin=0, yMax=2000, chromDelta=200)
-                                                                standardGeneric('getChromosomeScreenCoordinates'))
+    standardGeneric('getChromosomeScreenCoordinates'))
 #----------------------------------------------------------------------------------------------------
 # constructor
 NetworkMaker <- function(dataPackage, verbose=FALSE)
@@ -64,7 +64,7 @@ NetworkMaker <- function(dataPackage, verbose=FALSE)
 # .extractSamplesAndGenes is used
 setMethod("calculateSampleSimilarityMatrix", "NetworkMaker",
 
-  function (obj, samples=NA, genes=NA) {
+  function (obj, samples=NA, genes=NA, copyNumberValues=c(-2, 2)) {
 
      mut <- obj@mtx.mut
 
@@ -96,6 +96,8 @@ setMethod("calculateSampleSimilarityMatrix", "NetworkMaker",
         genes <- intersect(colnames(cn), genes)
         cn <- cn[, genes]
         }
+
+    cn[!cn %in% copyNumberValues] <- 0
 
         # we distinguish between copy number genes, and mutated genes:
      colnames(cn) <-     paste(colnames(cn),     ".cn", sep="");
@@ -132,7 +134,8 @@ setMethod("getSamplesGraph", "NetworkMaker",
     tbl.pos <- obj@state[["sampleSimilarityCoordinates"]]
     all.nodes <- rownames(tbl.pos)
     g <- graphNEL(nodes=all.nodes, edgemode="directed")
-    nodeDataDefaults(g, attr="nodeType") <- "sample"
+     # change nodeType to "sample" later, updating all networks at once, and the markers/Test.js
+    nodeDataDefaults(g, attr="nodeType") <- "patient"   
     nodeDataDefaults(g, attr="subType") <- "unassigned"
     nodeDataDefaults(g, attr="id") <- "unassigned"
     nodeDataDefaults(g, attr="x") <- 0
