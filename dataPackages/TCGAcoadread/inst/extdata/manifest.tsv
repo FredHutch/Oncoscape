@@ -5,9 +5,11 @@ ptHistory.RData	ptList	list	history	clinical patients	625	NA	NA	NA	NA	NA	tcga
 historyTypes.RData	catList	list	history	clinical categories	12	NA	NA	NA	NA	NA	tcga
 tbl.ptHistory.RData	tbl.ptHistory	data.frame	history	clinical table	625	410	patients	events	NA	NA	tcga
 mtx.mrna_Agi.RData	mtx.mrna	matrix	mRNA expression	Z scores	222	17212	patient	gene	-16.0758	17.9217	tcga cBio
-mtx.mrna_Seq.RData	mtx.mrna	matrix	mRNA expression	Z scores	365	20444	patient	gene	-5.8288	15252.2394	tcga cBio
+mtx.mrna_Seq.RData	mtx.mrna_Seq	matrix	mRNA expression	Z scores	365	20444	patient	gene	-5.8288	15252.2394	tcga cBio
 mtx.mut.RData	mtx.mut	matrix	mutations	aa substitutions	223	14780	patient	gene	NA	NA	tcga cBio
 mtx.prot.RData	mtx.prot	matrix	protein abundance	Z scores	461	171	patient	protein	-6.59943171	14.26631908	tcga cBio
 mtx.methHM450.RData	mtx.meth	matrix	methylation	beta values	383	15915	patient	gene	0.005459927	0.994947172	tcga cBio; one probe per gene- most anti-correlated with expression
 mtx.methHM27.RData	mtx.meth	matrix	methylation	beta values	233	1667	patient	gene	0.005000012	0.994361464	tcga cBio; one probe per gene- most anti-correlated with expression
-genesets.RData	genesets	list	geneset	NA	2	NA	gene	NA	NA	NA	marker.genes.545, tcga.GBM.classifiers
+genesets.RData	genesets	list	geneset	NA	3	NA	gene	NA	NA	NA	marker.genes.545, tcga.GBM.classifiers, tcga.pancan.mutated
+gbmPathways.json.RData	g.gbmPathways.json	character	network	GBM-related Pathways	156	203	nodes	edges	NA	NA	manual curation by Hamid Bolouri
+egfr.json.RData	g.egfr.json	character	network	egfr signaling	32	14	nodes	edges	NA	NA	manual curation

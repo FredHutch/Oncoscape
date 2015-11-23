@@ -81,7 +81,7 @@ testManifest <- function()
          checkEqualsNumeric(max(x, na.rm=T), maxValue, tolerance=10e-5)
          }
       provenance <- tbl$provenance[i];
-      checkEquals(provenance, "tcga")
+  #    checkEquals(provenance, "tcga")
       } # for i
 
    TRUE
@@ -98,21 +98,21 @@ testExpression <- function()
    checkTrue(file.exists(file))
 
    load(file)
-   checkTrue(exists("mtx.mrna"))
-   checkTrue(is(mtx.mrna, "matrix"))
-   checkEquals(class(mtx.mrna[1,1]), "numeric")
+   checkTrue(exists("mtx.mrna_Agi"))
+   checkTrue(is(mtx.mrna_Agi, "matrix"))
+   checkEquals(class(mtx.mrna_Agi[1,1]), "numeric")
 
-   checkEquals(dim(mtx.mrna), c(1098, 20444))
+   checkEquals(dim(mtx.mrna_Agi), c(1098, 20444))
 
      # a reasonable range of expression log2 ratios
-   checkEquals(fivenum(mtx.mrna), c( -5.1856 , -0.5329, -0.1741, 0.2570, 38129.8286))
+   checkEquals(fivenum(mtx.mrna_Agi), c( -5.1856 , -0.5329, -0.1741, 0.2570, 38129.8286))
    
      # all colnames should be recognzied gene symbols.  no isoform suffixes yet
-#   checkTrue(all(colnames(mtx.mrna) %in% keys(org.Hs.egSYMBOL2EG)))
+#   checkTrue(all(colnames(mtx.mrna_Agi) %in% keys(org.Hs.egSYMBOL2EG)))
 
      # all rownames should follow "TCGA.02.0014" format.  no multiply-sampled suffixes yet
    regex <- "^TCGA\\.\\w\\w\\.\\w\\w\\w\\w\\.[0-9][0-9]$"
-   checkEquals(length(grep(regex, rownames(mtx.mrna))), nrow(mtx.mrna))
+   checkEquals(length(grep(regex, rownames(mtx.mrna_Agi))), nrow(mtx.mrna_Agi))
 
 } # testExpression
 #--------------------------------------------------------------------------------
