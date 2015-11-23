@@ -326,8 +326,18 @@ function requestTumorCategorization()
   var allCategoryNames = tumorCategorizationsMenu.children().map(function() {return $(this).val();}).get();
   var menuTitle = allCategoryNames[0];
   var categorizationName = tumorCategorizationsMenu.val();
+
   if(categorizationName === menuTitle)
      return;
+
+  if(categorizationName === "Clear"){  // handle this case here directly
+    var tumorsInGraph = cwMarkers.nodes("[nodeType='patient']");
+    tumorsInGraph.forEach(function(node, index){
+       node.data({subType: "unassigned"});
+       node.style({'border-color': "black"});
+       });
+     return;
+     } // clear
      
   console.log("apply " + categorizationName);
   hub.logEventOnServer(thisModulesName, "markersApplyTumorCategorization", "request", "");
@@ -347,16 +357,18 @@ function applyTumorCategorization(msg)
    var tbl = msg.payload.tbl;
    hub.logEventOnServer(thisModulesName, "markersApplyTumorCategorization", "data received", "");
 
-
    tumorsInGraph.forEach(function(node, index){
       var nodeID = node.id();  // our convention is that this is the tumor name, eg, "TCGA.02.0014"
       var indexInTable = tumorsInTable.indexOf(nodeID);
       if(indexInTable >= 0){
          var cluster = tbl[indexInTable][0];
+         var color = tbl[indexInTable][1];
          node.data({subType: cluster});
+         node.style({'border-color': color});
          }
       else{
          node.data({subType: "unassigned"});
+         node.style({'border-color': "black"});
          }
        }); // forEach
 
@@ -963,6 +975,7 @@ function configureSampleCategorizationMenu(msg)
    var titleOption = "Tumor Groups...";
 
    tumorCategorizationsMenu.append("<option>" + titleOption + "</option>");
+   tumorCategorizationsMenu.append("<option>Clear</option>");
 
    for(var i=0; i < categorizations.length; i++){
      tumorCategorizationsMenu.append("<option>" + categorizations[i] + "</option>");
