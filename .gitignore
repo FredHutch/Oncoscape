@@ -4,6 +4,9 @@
 *.out
 nohup.out
 dataPackages/RawData
+Oncoscape/inst/unitTests/test_OncoDev14_BenchMark*
+Oncoscape/inst/scripts/markersAndSamples/log.*
+Oncoscape/inst/scripts/datasets/log.*
 
 # Packages #
 ############
