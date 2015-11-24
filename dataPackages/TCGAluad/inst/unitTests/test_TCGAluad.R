@@ -19,6 +19,8 @@ runTests <- function()
   testMethylation()#
   testProteinAbundance() 
   testCanonicalizePatientIDs()
+  testGeneSets()
+  testNetworks()
   
     # the following tests address the -use- of this class by client code
 
@@ -83,7 +85,7 @@ testManifest <- function()
          checkEqualsNumeric(max(x, na.rm=T), maxValue, tolerance=10e-5)
          }
       provenance <- tbl$provenance[i];
-      checkEquals(provenance, "tcga")
+#      checkEquals(provenance, "tcga")
       } # for i
 
    TRUE
@@ -100,21 +102,21 @@ testExpression <- function()
    checkTrue(file.exists(file))
 
    load(file)
-   checkTrue(exists("mtx.mrna"))
-   checkTrue(is(mtx.mrna, "matrix"))
-   checkEquals(class(mtx.mrna[1,1]), "numeric")
+   checkTrue(exists("mtx.mrna_Seq"))
+   checkTrue(is(mtx.mrna_Seq, "matrix"))
+   checkEquals(class(mtx.mrna_Seq[1,1]), "numeric")
 
-   checkEquals(dim(mtx.mrna), c(490, 20444))
+   checkEquals(dim(mtx.mrna_Seq), c(490, 20444))
 
      # a reasonable range of expression log2 ratios
-   checkEquals(fivenum(mtx.mrna), c(-4.8681,   -0.5498,   -0.2024,    0.2909, 38659.0448))
+   checkEquals(fivenum(mtx.mrna_Seq), c(-4.8681,   -0.5498,   -0.2024,    0.2909, 38659.0448))
    
      # all colnames should be recognzied gene symbols.  no isoform suffixes yet
-#   checkTrue(all(colnames(mtx.mrna) %in% keys(org.Hs.egSYMBOL2EG)))
+#   checkTrue(all(colnames(mtx.mrna_Seq) %in% keys(org.Hs.egSYMBOL2EG)))
 
      # all rownames should follow "TCGA.02.0014" format.  no multiply-sampled suffixes yet
    regex <- "^TCGA\\.\\w\\w\\.\\w\\w\\w\\w\\.[0-9][0-9]$"
-   checkEquals(length(grep(regex, rownames(mtx.mrna))), nrow(mtx.mrna))
+   checkEquals(length(grep(regex, rownames(mtx.mrna_Seq))), nrow(mtx.mrna_Seq))
    #---------------mtx.mrna_Seq---------------------
    dir <- system.file(package="TCGAluad", "extdata")
    checkTrue(file.exists(dir))
@@ -122,16 +124,16 @@ testExpression <- function()
    checkTrue(file.exists(file))
    
    load(file)
-   checkTrue(exists("mtx.mrna"))
-   checkTrue(is(mtx.mrna, "matrix"))
-   checkEquals(class(mtx.mrna[1,1]), "numeric")
+   checkTrue(exists("mtx.mrna_Agi"))
+   checkTrue(is(mtx.mrna_Agi, "matrix"))
+   checkEquals(class(mtx.mrna_Agi[1,1]), "numeric")
    
-   checkEquals(dim(mtx.mrna), c(32, 17212))
+   checkEquals(dim(mtx.mrna_Agi), c(32, 17212))
    
    # a reasonable range of expression log2 ratios
-   checkEquals(fivenum(mtx.mrna), c(-28.7792 , -0.7019 , -0.0091  , 0.7126,  22.6737))
+   checkEquals(fivenum(mtx.mrna_Agi), c(-28.7792 , -0.7019 , -0.0091  , 0.7126,  22.6737))
    # all colnames should be recognzied gene symbols.  no isoform suffixes yet
-   #   checkTrue(all(colnames(mtx.mrna) %in% keys(org.Hs.egSYMBOL2EG)))
+   #   checkTrue(all(colnames(mtx.mrna_Agi) %in% keys(org.Hs.egSYMBOL2EG)))
    
    # all rownames should follow "TCGA.02.0014" format.  no multiply-sampled suffixes yet
    regex <- "^TCGA\\.\\w\\w\\.\\w\\w\\w\\w\\.[0-9][0-9]$"
@@ -344,6 +346,30 @@ testHistoryTable <- function()
    checkEquals(as.character(events[1,c("Survival", "AgeDx", "TimeFirstProgression")]), c("0", "25752", "NA"))
 
 } # testHistoryList
+#----------------------------------------------------------------------------------------------------
+testGeneSets <- function()
+{
+   print("--- testGeneSets")
+   dz <- TCGAluad()
+   expected <- c("tcga.pancan.mutated") 
+   checkTrue(all(expected %in% getGeneSetNames(dz)))
+   
+   geneSymbols <- getGeneSetGenes(dz, expected[1])
+   checkEquals(length(geneSymbols), 64)
+
+
+} # testGeneSets
+#----------------------------------------------------------------------------------------------------
+testNetworks <- function()
+{
+   print("--- testNetworks")
+   dz <- TCGAluad()
+#   expected <- c("g.gbmPathways.json") 
+#   checkTrue(all(expected %in% names(networks(dz))))
+
+#	checkTrue(nchar(networks(dz)[["g.markers.json"]]) > 0 )
+	
+} # testNetworks
 #----------------------------------------------------------------------------------------------------
 testCanonicalizePatientIDs <- function()
 {

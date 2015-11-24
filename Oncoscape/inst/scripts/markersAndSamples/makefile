@@ -3,7 +3,7 @@ default:
 	jshint Test.js
 	m4 index.pre > index.html
 	R CMD INSTALL ../../..
-	R -f runMarkers.R  demo@fhcrc.org "DEMOdz"
+	R -f runMarkers.R  demo@fhcrc.org "DEMOdz;TCGAluad"
 
 test:
 	jshint Module.js
