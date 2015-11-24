@@ -119,7 +119,7 @@ function displayOncoprint(msg)
    $("#onc").empty();
    console.log("entering displayOncoprint");
    
-   console.log("displayOncoprint print recieved msg.payload: %s", msg.payload);
+//   console.log("displayOncoprint print recieved msg.payload: %s", msg.payload);
    
    if(msg.status == "error") {
    		alert(msg.payload);
