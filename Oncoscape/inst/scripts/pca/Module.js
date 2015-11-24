@@ -793,7 +793,7 @@ function testContentsOfPcaPlot()
 
 } // testContentsOfPcaPlot
 //----------------------------------------------------------------------------------------------------
-// query the oncoscape server for user id.  the callback then makes a local (that is,
+/* query the oncoscape server for user id.  the callback then makes a local (that is,
 // Module-specific) decision to run this module's automated tests based upon that id
 //
 function runAutomatedTestsIfAppropriate()
@@ -803,9 +803,9 @@ function runAutomatedTestsIfAppropriate()
 
    hub.send(JSON.stringify(msg));
 
-} // runAutomatedTestsIfAppropriate
+} // runAutomatedTestsIfAppropriate */
 //----------------------------------------------------------------------------------------------------
-function assessUserIdForTesting(msg)
+/*function assessUserIdForTesting(msg)
 {
    var userID = msg.payload;
 
@@ -815,7 +815,7 @@ function assessUserIdForTesting(msg)
           runTests();
       } // if autoTest
 
-} // assessUserIdForTesting
+} // assessUserIdForTesting*/
 //----------------------------------------------------------------------------------------------------
 function initializeModule()
 {
@@ -828,8 +828,8 @@ function initializeModule()
    hub.addMessageHandler("pcaHandleGeneSetNames", handleGeneSetNames);
    hub.addMessageHandler("pcaPlot", pcaPlot);
    hub.addMessageHandler("demoPcaCalculateAndDraw", demoPcaCalculateAndDraw);
-   hub.addMessageHandler("pcaAssessUserIdForTesting", assessUserIdForTesting);
-   hub.addSocketConnectedFunction(runAutomatedTestsIfAppropriate);
+   //hub.addMessageHandler("pcaAssessUserIdForTesting", assessUserIdForTesting);
+   //hub.addSocketConnectedFunction(runAutomatedTestsIfAppropriate);
 
    //hub.addMessageHandler("handlePatientClassification", handlePatientClassification)
    // hub.addSocketConnectedFunction(getPatientClassification);
