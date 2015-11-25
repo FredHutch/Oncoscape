@@ -18,7 +18,7 @@ release:
 test:
 	jshint Module.js
 	jshint Test.js
-	m4 indexTabs.pre > index.html
+	m4 index.pre > index.html
 	R --vanilla CMD INSTALL --no-test-load --no-lock ../../..
 	- kill `ps aux | grep runPcaTest.R | egrep -v grep | awk '{print $$2}'`
 	nohup R --vanilla -f runPcaTest.R &
@@ -31,4 +31,5 @@ check:
 	jshint Module.js
 	jshint Test.js
 	m4 index.pre > index.html
+	R CMD INSTALL  ../../..
 	R -f runPca.R  autotest.10@nowhere.org.exitOnCompletion "DEMOdz;TCGAgbm;TCGAbrain"

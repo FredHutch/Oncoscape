@@ -590,7 +590,6 @@ function datasetSpecified(msg)
    hits = hits.filter(function(n){ return (n !== undefined); });
 
    var matrixName = null;
-
    if(hits.length > 0){
         // for now always grab the first (last!) hit, remove the trailing .RData
         // the PCA constructor wants both dataPacakgeName & a matrix name
@@ -692,7 +691,7 @@ function demoPcaCalculateAndDraw(msg)
 
 } // demoPcaCalculateAndDraw
 //----------------------------------------------------------------------------------------------------
-function runTests()
+/*function runTests()
 {
   // the test does not currently depend upon any other tabs, but we want to add some
   // real world complexity to the situation, so we use tabs, including cpa (of course)
@@ -709,9 +708,9 @@ function runTests()
    testResultsOutputDiv.css({display: "block"});
    testLoadDataset();
 
-} // runTests
+} // runTests*/
 //--------------------------------------------------------------------------------------------
-function testLoadDataset()
+/*function testLoadDataset()
 {
    QUnit.test('choose DEMOdz dataset', function(assert) {
       hub.raiseTab("datasetsDiv");
@@ -742,28 +741,9 @@ function testLoadDataset()
          }, 5000);
       });
 
-} // testLoadDataset
+} // testLoadDataset*/
 //----------------------------------------------------------------------------------------------------
-function testCalculate()
-{
-   hub.raiseTab(thisModulesOutermostDiv);
-   console.log("starting testCalculate");
-
-     // enable the calculate button, change its color, then click
-   QUnit.test('testPcaCalculate', function(assert) {
-      $("#pcaCalculateButton").prop("disabled", false);
-      $("#pcaCalculateButton").css({"background-color": "red", "color": "green"});
-      $("#pcaGeneSetSelector").val("random.24");
-      assert.expect(1);   // tests (assertions) in next function, testContentsOfPcaPlot
-      setTimeout(function(){
-         $("#pcaCalculateButton").click();
-         testContentsOfPcaPlot();
-         }, 6000);
-      });
-
-} // testCalculate
-//----------------------------------------------------------------------------------------------------
-function testContentsOfPcaPlot()
+/*function testContentsOfPcaPlot()
 {
    console.log("--- testContentsOfPcaPlot");
 
@@ -791,7 +771,7 @@ function testContentsOfPcaPlot()
       });
 
 
-} // testContentsOfPcaPlot
+} // testContentsOfPcaPlot*/
 //----------------------------------------------------------------------------------------------------
 /* query the oncoscape server for user id.  the callback then makes a local (that is,
 // Module-specific) decision to run this module's automated tests based upon that id

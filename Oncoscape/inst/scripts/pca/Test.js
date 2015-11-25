@@ -1,3 +1,4 @@
+//12:46pm
 // pca/Test.js
 //------------------------------------------------------------------------------------------------------------------------
 var pcaTestModule = (function () {
@@ -58,7 +59,7 @@ function runTests(datasetNames, reps, exitOnCompletion)
          testStatusObserver = new MutationObserver(onMutation);
          testStatusObserver.observe(target, config);
          if(datasetIndex < (datasetNames.length * reps))
-            testLoadDataSetDisplayNetworkSendIDs(datasetNames[datasetIndex % datasetNames.length]);
+            testLoadDatasetPCA(datasetNames[datasetIndex % datasetNames.length]);
          }
       else{
          console.log("mutation observer function detected end of datasets");
@@ -79,74 +80,96 @@ function runTests(datasetNames, reps, exitOnCompletion)
 
 } // runTests
 //------------------------------------------------------------------------------------------------------------------------
-function testLoadDataSetDisplayNetworkSendIDs(dataSetName)
+function testLoadDatasetPCA(dataSetName)
 {
-   var testTitle = "testLoadDataSetDisplayNetworkSendIDs";
+   var testTitle = "testLoadDatasetPCA";
    console.log(testTitle);
-
-      // when our module receives the resulting 'datasetSpecified' msg, which includes the dataset's manifest
-      // in its payload, it requests 
-      //   - the markers network: to be displayed by cyjs
-      //   - sampleCategorizationNames, to populate the dropdown menu
-      // when the network is loaded, the statusDiv is updated, which is detected here, and we
-      // check to see that a reasonable number of nodes are contained in the loaded graph.
-      // when those tests are over, we then cascade through a number of gui operations: search, node selections
-      // network operations
-
+  
    if(pcaStatusObserver === null){
       pcaStatusObserver = new MutationObserver(function(mutations) {
-        hub.raiseTab("pcaDiv");
+        //hub.raiseTab("pcaDiv");
         mutation = mutations[0];
         pcaStatusObserver.disconnect();
         pcaStatusObserver = null;
         var id = mutation.target.id;
         var msg = $("#pcaStatusDiv").text();
-        QUnit.test("pca loaded: " + dataSetName, function(assert) {
-           var done1 = assert.async();
-           var done2 = assert.async();
-           assert.expect(2);
-           setTimeout(function(){
-           assert.ok($((1+1) === 2)); done1();
-             assert.equal($("string1", "string1")); done2();
-             $("#selectDatasetButton").click();
-             hub.raiseTab(thisModulesOutermostDiv);
-             testCalculate();
-           }, 5000);
+        QUnit.test('choose dataset for pca: '+ dataSetName, function(assert) {
+          hub.raiseTab("datasetsDiv");
+          $("#datasetMenu").val(dataSetName);
+          $("#datasetMenu").trigger("change");
+          assert.equal($("#datasetMenu").val(), dataSetName);
+          //var datasetsManifestTableLength = $("#datasetsManifestTable tr").length;
+          //console.log("*****datasetsManifestTableLength is: ",datasetsManifestTableLength);
+          //assert.equal(datasetsManifestTableLength, 18);
+          //assert.ok(datasetsManifestTableLength > 9);
+          //assert.equal($("#datasetsManifestTable tbody tr").eq(0).find("td").eq(0).text(), 
+          //            "mRNA expression");
+         hub.raiseTab("pcaDiv");
+         testCalculate();
+         //testDisplayManifest(dataSetName);
         });
       }); // new MutationObserver
     } // if null mutation observer
-
-
+    
    var config = {attributes: true, childList: true, characterData: true};
    var target = document.querySelector(minorStatusDiv);
    pcaStatusObserver.observe(target, config);
 
    var msg = {cmd: "specifyCurrentDataset", callback: "datasetSpecified", status: "request", payload:  dataSetName};
-
    console.log("about to send specifyCurrentDataset msg to server: " + dataSetName);
    hub.send(JSON.stringify(msg));
 
-} // testLoadDataSetDisplayNetworkSendIDs
+} // testLoadDataset
 //----------------------------------------------------------------------------------------------------
 function testCalculate()
 {
-   hub.raiseTab(thisModulesOutermostDiv);
+   hub.raiseTab("pcaDiv");
    console.log("starting testCalculate");
 
      // enable the calculate button, change its color, then click
    QUnit.test('testPcaCalculate', function(assert) {
       $("#pcaCalculateButton").prop("disabled", false);
       $("#pcaCalculateButton").css({"background-color": "red", "color": "green"});
-      $("#pcaGeneSetSelector").val("random.24");
-      assert.expect(1);   // tests (assertions) in next function, testContentsOfPcaPlot
-      setTimeout(function(){
-         $("#pcaCalculateButton").click();
-         markEndOfTestingDataSet();
-         }, 6000);
-      });
+      //$("#pcaGeneSetSelector").val("random.24");
+      document.getElementById("pcaGeneSetSelector").selectedIndex = 0;
+      $("#pcaGeneSetSelector").trigger("change");
+      console.log("*****pcaGeneSetSelector current value is: ", $("#pcaGeneSetSelector").val());
+      // check if the "Calculate" is clicked
+      assert.equal($("#pcaCalculateButton").css('color'), "rgb(0, 128, 0)");
+      // tests (assertions) in next function, testContentsOfPcaPlot
+      $("#pcaCalculateButton").click();
+      testContentsOfPcaPlot();
+    });
 
 } // testCalculate
-//---------------------------------------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------
+function testContentsOfPcaPlot()
+{
+   console.log("--- testContentsOfPcaPlot");
+   if(pcaStatusObserver === null){
+      pcaStatusObserver = new MutationObserver(function(mutations) {
+        mutation = mutations[0];
+        pcaStatusObserver.disconnect();
+        pcaStatusObserver = null;
+        var id = mutation.target.id;
+        var statusMsg = $(minorStatusDiv).text();
+           QUnit.test('testPcaContents', function(assert) { 
+              assert.ok($("circle").length > 120); 
+              markEndOfTestingDataSet();     
+            });
+      }); // new MutationObserver
+    } // if null mutation observer
+
+   var config = {attributes: true, childList: true, characterData: true};
+   var target = document.querySelector(minorStatusDiv);
+   pcaStatusObserver.observe(target, config);
+
+   var msg = {cmd: "specifyCurrentDataset", callback: "datasetSpecified", status: "request", payload:  dataSetName};
+   console.log("about to send specifyCurrentDataset msg to server: " + dataSetName);
+   hub.send(JSON.stringify(msg));
+
+} // testContentsOfPcaPlot
+//----------------------------------------------------------------------------------------------------
 function markEndOfTestingDataSet()
 {
   console.log("end of testing dataset");
