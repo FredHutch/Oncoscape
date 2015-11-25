@@ -154,7 +154,15 @@ function testContentsOfPcaPlot()
         var id = mutation.target.id;
         var statusMsg = $(minorStatusDiv).text();
            QUnit.test('testPcaContents', function(assert) { 
-              assert.ok($("circle").length > 120); 
+              assert.ok($("circle").length > 120);
+              var c0 = $("circle")[0];
+              var xPos = Number(c0.getAttribute("cx"));
+              var yPos =  Number(c0.getAttribute("cy"));
+              var radius = Number(c0.getAttribute("r"));
+              console.log(xPos + "  " + yPos + "  " + radius);
+              assert.ok(xPos > 0);
+              assert.ok(yPos > 0);
+              assert.equal(radius, 3);
               markEndOfTestingDataSet();     
             });
       }); // new MutationObserver
@@ -164,9 +172,9 @@ function testContentsOfPcaPlot()
    var target = document.querySelector(minorStatusDiv);
    pcaStatusObserver.observe(target, config);
 
-   var msg = {cmd: "specifyCurrentDataset", callback: "datasetSpecified", status: "request", payload:  dataSetName};
-   console.log("about to send specifyCurrentDataset msg to server: " + dataSetName);
-   hub.send(JSON.stringify(msg));
+   //var msg = {cmd: "specifyCurrentDataset", callback: "datasetSpecified", status: "request", payload:  dataSetName};
+   //console.log("about to send specifyCurrentDataset msg to server: " + dataSetName);
+   //hub.send(JSON.stringify(msg));
 
 } // testContentsOfPcaPlot
 //----------------------------------------------------------------------------------------------------
