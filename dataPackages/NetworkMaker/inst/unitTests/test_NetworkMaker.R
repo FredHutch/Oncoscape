@@ -1,9 +1,12 @@
 library(RUnit)
 library(NetworkMaker)
-library(SttrDataPackage)
 library(DEMOdz)
 library(TCGAgbm)
 options(stringsAsFactors=FALSE)
+   # we use one cytoscape.js style file throughout
+STYLE.FILE <- "style.js"
+STYLE.FILE <- system.file(package="NetworkMaker", "extdata", "style.js")
+stopifnot(file.exists(STYLE.FILE))
 #----------------------------------------------------------------------------------------------------
 runTests <- function()
 {
@@ -84,8 +87,8 @@ test.calculateSimilarity.DEMOdz <- function()
     checkTrue(all(c("mtx.mut", "mtx.cn") %in% names(matrices(dz))))
 
     netMaker <- NetworkMaker(dz)
-    calculateSampleSimilarityMatrix(netMaker)
-    tbl.pos <- getSampleSimilarityCoordinates(netMaker)
+    calculateSampleSimilarityMatrix(netMaker, copyNumberValues=c(-2, -1, 1, 1))
+    tbl.pos <- getSimilarityMatrix(netMaker)
        # should be one x,y,z position vector for every patient
 
     sampleCount <- nrow(getPatientTable(dz))
@@ -177,7 +180,7 @@ test.calculateSimilarity.TCGAgbm <- function()
 
     netMaker <- NetworkMaker(dz, verbose=TRUE)
     calculateSampleSimilarityMatrix(netMaker, genes=goi)
-    tbl.pos <- getSampleSimilarityCoordinates(netMaker)
+    tbl.pos <- getSimilarityMatrix(netMaker)
 
        # should be one x,y,z position vector for every patient
 
@@ -201,7 +204,7 @@ test.calculateSimilarity.TCGAgbm <- function()
     
     mdist.check <- as.matrix(dist(tbl.pos))
     checkTrue(min(mdist.check) == 0.0)
-    checkTrue(max(mdist.check) > 20)   # 30.3037 with TCGA_0.99.23
+    checkTrue(max(mdist.check) > 15)   # 17.20599 with default copyNumberValues c(-2,2).  no +/- 1 scores
     
     min.dist <- min(mdist.check[mdist.check != 0])
     max.dist <- max(mdist.check)
@@ -249,8 +252,8 @@ test.calculateSimilarity.TCGAgbm.completeSubset <- function()
     poi <- sort(intersect(rownames(mut), rownames(cn)))           # 281
     
     netMaker <- NetworkMaker(dz)
-    calculateSampleSimilarityMatrix(netMaker, samples=poi, genes=goi)
-    tbl.pos <- getSampleSimilarityCoordinates(netMaker)
+    calculateSampleSimilarityMatrix(netMaker, samples=poi, genes=goi, c(-2, -1, 1, 2))
+    tbl.pos <- getSimilarityMatrix(netMaker)
 
        # should be one x,y,z position vector for every patient
 
@@ -343,16 +346,15 @@ test.getSamplesGraph.DEMOdz <- function()
     checkTrue(all(c("mtx.mut", "mtx.cn") %in% names(matrices(dz))))
 
     netMaker <- NetworkMaker(dz)
-    calculateSampleSimilarityMatrix(netMaker)
-    tbl.pos <- getSampleSimilarityCoordinates(netMaker)
+    calculateSampleSimilarityMatrix(netMaker, copyNumberValues=c(-2, -1, 1, 2))
+    tbl.pos <- getSimilarityMatrix(netMaker)
     g <- getSamplesGraph(netMaker)
     checkEquals(sort(nodes(g)), sort(rownames(tbl.pos)))
     checkEquals(length(edgeNames(g)), 0)
     checkEquals(sort(noaNames(g)), c("id", "nodeType", "subType", "x", "y"))
     rcy <- RCyjs(portRange=6047:6100, quiet=TRUE, graph=g, hideEdges=TRUE)
-    httpSetStyle(rcy, "style.js")
-    #tbl.xpos <- getSampleScreenCoordinates(netMaker, xSpan=2000, ySpan=5000)
-    tbl.xpos <- getSampleScreenCoordinates(netMaker, xOrigin=0, yOrigin=0, xMax=2000, yMax=5000)
+    httpSetStyle(rcy, STYLE.FILE)
+    tbl.xpos <- getSimilarityScreenCoordinates(netMaker, xOrigin=0, yOrigin=0, xMax=2000, yMax=5000)
     setPosition(rcy, tbl.xpos)    
     fit(rcy, 100)
 
@@ -376,7 +378,7 @@ test.genesChromosomeGraph.DEMOdz <- function()
     g <- getChromosomeGraph(netMaker, genes)
 
     rcy <- RCyjs(portRange=6047:6100, quiet=TRUE, graph=g, hideEdges=FALSE)
-    httpSetStyle(rcy, "style.js")
+    httpSetStyle(rcy, STYLE.FILE)
     tbl.pos <- getChromosomeScreenCoordinates(netMaker, xOrigin=0, yOrigin=0, yMax=2000, chromDelta=100)
     setPosition(rcy, tbl.pos)
     fit(rcy, 100)
@@ -438,11 +440,11 @@ test.fullDisplay.6genes.DEMOdz <- function()
 
     dz <- DEMOdz() 
     netMaker <- NetworkMaker(dz)
-    calculateSampleSimilarityMatrix(netMaker)
+    calculateSampleSimilarityMatrix(netMaker, copyNumberValues=c(-2, -1, 1, 2))
     g <- getSamplesGraph(netMaker)
     rcy <- RCyjs(portRange=6047:6100, quiet=TRUE, graph=g, hideEdges=TRUE)
-    httpSetStyle(rcy, "style.js")
-    tbl.pos <- getSampleScreenCoordinates(netMaker, xOrigin=0, yOrigin=0, xMax=2000, yMax=5000)
+    httpSetStyle(rcy, STYLE.FILE)
+    tbl.pos <- getSimilarityScreenCoordinates(netMaker, xOrigin=0, yOrigin=0, xMax=2000, yMax=5000)
 
     setPosition(rcy, tbl.pos)    
     fit(rcy, 100)
@@ -450,14 +452,45 @@ test.fullDisplay.6genes.DEMOdz <- function()
     genes <- head(colnames(matrices(dz)$mtx.mut))
     g.chrom <- getChromosomeGraph(netMaker, genes)
     httpAddGraph(rcy, g.chrom)
-    httpSetStyle(rcy, "style.js")
+    httpSetStyle(rcy, STYLE.FILE)
 
-    tbl.pos <- getChromosomeScreenCoordinates(netMaker, xOrigin=1000, yOrigin=000, yMax=2000, chromDelta=200)
+    tbl.pos <- getChromosomeScreenCoordinates(netMaker, xOrigin=1500, yOrigin=000, yMax=2000, chromDelta=200)
     setPosition(rcy, tbl.pos)
     fit(rcy, 100)
     setBackgroundColor(rcy, "#E8E8E0")
     
 } # test.fullDisplay.6genes.DEMOdz
+#----------------------------------------------------------------------------------------------------
+test.fullDisplay.6genes.DEMOdz.precalculatedSimilarity <- function()
+{
+    print("--- test.fullDisplay.6genes.DEMOdz.precalculatedSimilarity")
+
+    dz <- DEMOdz() 
+    netMaker <- NetworkMaker(dz)
+
+    filename <- system.file(package="NetworkMaker", "extdata", "DEMOdz.sampleSimilarity.tsv")
+    stopifnot(file.exists(filename))
+    usePrecalculatedSampleSimilarityMatrix(netMaker, filename)
+
+    g <- getSamplesGraph(netMaker)
+    rcy <- RCyjs(portRange=6047:6100, quiet=TRUE, graph=g, hideEdges=TRUE)
+    httpSetStyle(rcy, STYLE.FILE)
+    tbl.pos <- getSimilarityScreenCoordinates(netMaker, xOrigin=0, yOrigin=0, xMax=2000, yMax=5000)
+
+    setPosition(rcy, tbl.pos)    
+    fit(rcy, 100)
+
+    genes <- head(colnames(matrices(dz)$mtx.mut))
+    g.chrom <- getChromosomeGraph(netMaker, genes)
+    httpAddGraph(rcy, g.chrom)
+    httpSetStyle(rcy, STYLE.FILE)
+
+    tbl.pos <- getChromosomeScreenCoordinates(netMaker, xOrigin=1500, yOrigin=000, yMax=2000, chromDelta=200)
+    setPosition(rcy, tbl.pos)
+    fit(rcy, 100)
+    setBackgroundColor(rcy, "#E8E8E0")
+    
+} # test.fullDisplay.6genes.DEMOdz.precalculatedSimilarity
 #----------------------------------------------------------------------------------------------------
 test.screenCoordinateManipulations.DEMOdz <- function()
 {
@@ -465,11 +498,11 @@ test.screenCoordinateManipulations.DEMOdz <- function()
 
     dz <- DEMOdz() 
     netMaker <- NetworkMaker(dz)
-    calculateSampleSimilarityMatrix(netMaker)
+    calculateSampleSimilarityMatrix(netMaker, copyNumberValues=c(-2, -1, 1, 2))
     g <- getSamplesGraph(netMaker)
     rcy <- RCyjs(portRange=6047:6100, quiet=TRUE, graph=g, hideEdges=TRUE)
-    httpSetStyle(rcy, "style.js")
-    tbl.pos <- getSampleScreenCoordinates(netMaker, xOrigin=0, yOrigin=0, xMax=2000, yMax=5000)
+    httpSetStyle(rcy, STYLE.FILE)
+    tbl.pos <- getSimilarityScreenCoordinates(netMaker, xOrigin=0, yOrigin=0, xMax=2000, yMax=5000)
 
     setPosition(rcy, tbl.pos)    
     fit(rcy, 100)
@@ -477,7 +510,7 @@ test.screenCoordinateManipulations.DEMOdz <- function()
     genes <- head(colnames(matrices(dz)$mtx.mut))
     g.chrom <- getChromosomeGraph(netMaker, genes)
     httpAddGraph(rcy, g.chrom)
-    httpSetStyle(rcy, "style.js")
+    httpSetStyle(rcy, STYLE.FILE)
 
     tbl.pos <- getChromosomeScreenCoordinates(netMaker, xOrigin=1000, yOrigin=0, yMax=2000, chromDelta=200)
     setPosition(rcy, tbl.pos)
@@ -490,7 +523,7 @@ test.screenCoordinateManipulations.DEMOdz <- function()
     sample.pos <- RCyjs::getPosition(rcy, soi)
 
        # reposition the samples (aka tumors, patients)
-    tbl.pos <- getSampleScreenCoordinates(netMaker, xOrigin=100, yOrigin=-100, xMax=2000, yMax=5000)
+    tbl.pos <- getSimilarityScreenCoordinates(netMaker, xOrigin=100, yOrigin=-100, xMax=2000, yMax=5000)
     setPosition(rcy, tbl.pos)
     new.sample.pos <- RCyjs::getPosition(rcy, soi)
 
@@ -519,11 +552,11 @@ test.fullDisplay.allGenes.DEMOdz <- function()
 
     dz <- DEMOdz() 
     netMaker <- NetworkMaker(dz)
-    calculateSampleSimilarityMatrix(netMaker)
+    calculateSampleSimilarityMatrix(netMaker, copyNumberValues=c(-2, -1, 1, 2))
     g <- getSamplesGraph(netMaker)
     rcy <- RCyjs(portRange=6047:6100, quiet=TRUE, graph=g, hideEdges=TRUE)
-    httpSetStyle(rcy, "style.js")
-    tbl.pos <- getSampleScreenCoordinates(netMaker, xOrigin=0, yOrigin=0, xMax=2000, yMax=5000)
+    httpSetStyle(rcy, STYLE.FILE)
+    tbl.pos <- getSimilarityScreenCoordinates(netMaker, xOrigin=0, yOrigin=0, xMax=2000, yMax=5000)
 
     setPosition(rcy, tbl.pos)    
     fit(rcy, 100)
@@ -531,7 +564,7 @@ test.fullDisplay.allGenes.DEMOdz <- function()
     genes <- colnames(matrices(dz)$mtx.mut)
     g.chrom <- getChromosomeGraph(netMaker, genes)
     httpAddGraph(rcy, g.chrom)
-    httpSetStyle(rcy, "style.js")
+    httpSetStyle(rcy, STYLE.FILE)
 
     tbl.pos <- getChromosomeScreenCoordinates(netMaker, xOrigin=1000, yOrigin=000, yMax=2000, chromDelta=200)
     setPosition(rcy, tbl.pos)
@@ -552,15 +585,15 @@ test.fullDisplay.allGenes.TCGAgbm <- function()
 
     g <- getSamplesGraph(netMaker)
     rcy <- RCyjs(portRange=6047:6100, quiet=TRUE, graph=g, hideEdges=TRUE)
-    httpSetStyle(rcy, "style.js")
-    tbl.pos <- getSampleScreenCoordinates(netMaker, xOrigin=0, yOrigin=0, xMax=2000, yMax=5000)
+    httpSetStyle(rcy, STYLE.FILE)
+    tbl.pos <- getSimilarityScreenCoordinates(netMaker, xOrigin=0, yOrigin=0, xMax=2000, yMax=5000)
 
     setPosition(rcy, tbl.pos)    
     fit(rcy, 100)
 
     g.chrom <- getChromosomeGraph(netMaker, goi)
     httpAddGraph(rcy, g.chrom)
-    httpSetStyle(rcy, "style.js")
+    httpSetStyle(rcy, STYLE.FILE)
 
     tbl.pos <- getChromosomeScreenCoordinates(netMaker, xOrigin=1500, yOrigin=000, yMax=2000, chromDelta=200)
     setPosition(rcy, tbl.pos)
@@ -580,15 +613,15 @@ test.addMutationsToGraph.DEMOdz <- function()
     calculateSampleSimilarityMatrix(netMaker)
     g <- getSamplesGraph(netMaker)
     rcy <- RCyjs(portRange=6047:6100, quiet=TRUE, graph=g, hideEdges=TRUE)
-    httpSetStyle(rcy, "style.js")
-    tbl.pos <- getSampleScreenCoordinates(netMaker, xOrigin=0, yOrigin=0, xMax=2000, yMax=5000)
+    httpSetStyle(rcy, STYLE.FILE)
+    tbl.pos <- getSimilarityScreenCoordinates(netMaker, xOrigin=0, yOrigin=0, xMax=2000, yMax=5000)
 
     setPosition(rcy, tbl.pos)    
     fit(rcy, 100)
 
     g.chrom <- getChromosomeGraph(netMaker, goi)
     httpAddGraph(rcy, g.chrom)
-    httpSetStyle(rcy, "style.js")
+    httpSetStyle(rcy, STYLE.FILE)
 
     tbl.pos <- getChromosomeScreenCoordinates(netMaker, xOrigin=1000, yOrigin=000, yMax=2000, chromDelta=200)
     setPosition(rcy, tbl.pos)
@@ -596,7 +629,7 @@ test.addMutationsToGraph.DEMOdz <- function()
 
     g.mut <- getMutationGraph(netMaker, goi)
     httpAddGraph(rcy, g.mut)
-    httpSetStyle(rcy, "style.js")
+    httpSetStyle(rcy, STYLE.FILE)
 
 } # test.addMutationsToGraph.DEMOdz
 #----------------------------------------------------------------------------------------------------
@@ -613,15 +646,15 @@ test.fullDisplay.withMutations.allGenes.TCGAgbm <- function()
 
     g <- getSamplesGraph(netMaker)
     rcy <- RCyjs(portRange=6047:6100, quiet=TRUE, graph=g, hideEdges=TRUE)
-    httpSetStyle(rcy, "style.js")
-    tbl.pos <- getSampleScreenCoordinates(netMaker, xOrigin=0, yOrigin=0, xMax=2000, yMax=5000)
+    httpSetStyle(rcy, STYLE.FILE)
+    tbl.pos <- getSimilarityScreenCoordinates(netMaker, xOrigin=0, yOrigin=0, xMax=2000, yMax=5000)
 
     setPosition(rcy, tbl.pos)    
     fit(rcy, 100)
 
     g.chrom <- getChromosomeGraph(netMaker, goi)
     httpAddGraph(rcy, g.chrom)
-    httpSetStyle(rcy, "style.js")
+    httpSetStyle(rcy, STYLE.FILE)
 
     tbl.pos <- getChromosomeScreenCoordinates(netMaker, xOrigin=1500, yOrigin=000, yMax=2000, chromDelta=200)
     setPosition(rcy, tbl.pos)
@@ -631,7 +664,7 @@ test.fullDisplay.withMutations.allGenes.TCGAgbm <- function()
     edge.count.before <- getEdgeCount(rcy)
     httpAddGraph(rcy, g.mut)
     edge.count.after <- getEdgeCount(rcy)
-    httpSetStyle(rcy, "style.js")
+    httpSetStyle(rcy, STYLE.FILE)
     checkEquals(edge.count.after - edge.count.before, length(edgeNames(g.mut)))
 
 } # test.fullDisplay.withMutations.allGenes.TCGAgbm
@@ -648,8 +681,8 @@ test.fullDisplay.withMutations.withCopyNumber.allGenes.DEMOdz <- function()
     calculateSampleSimilarityMatrix(netMaker, copyNumberValues=gistic.scores)
     g <- getSamplesGraph(netMaker)
     rcy <- RCyjs(portRange=6047:6100, quiet=TRUE, graph=g, hideEdges=TRUE)
-    httpSetStyle(rcy, "style.js")
-    tbl.pos <- getSampleScreenCoordinates(netMaker, xOrigin=0, yOrigin=0, xMax=2000, yMax=5000)
+    httpSetStyle(rcy, STYLE.FILE)
+    tbl.pos <- getSimilarityScreenCoordinates(netMaker, xOrigin=0, yOrigin=0, xMax=2000, yMax=5000)
 
     setPosition(rcy, tbl.pos)    
     fit(rcy, 100)
@@ -657,7 +690,7 @@ test.fullDisplay.withMutations.withCopyNumber.allGenes.DEMOdz <- function()
     goi <- colnames(matrices(dz)$mtx.mut)
     g.chrom <- getChromosomeGraph(netMaker, goi)
     httpAddGraph(rcy, g.chrom)
-    httpSetStyle(rcy, "style.js")
+    httpSetStyle(rcy, STYLE.FILE)
 
     tbl.pos <- getChromosomeScreenCoordinates(netMaker, xOrigin=1400, yOrigin=000, yMax=2000, chromDelta=200)
     setPosition(rcy, tbl.pos)
@@ -689,15 +722,15 @@ test.fullDisplay.withMutations.withCopyNumber.allGenes.TCGAgbm <- function()
 
     g <- getSamplesGraph(netMaker)
     rcy <- RCyjs(portRange=6047:6100, quiet=TRUE, graph=g, hideEdges=TRUE)
-    httpSetStyle(rcy, "style.js")
-    tbl.pos <- getSampleScreenCoordinates(netMaker, xOrigin=0, yOrigin=0, xMax=2000, yMax=5000)
+    httpSetStyle(rcy, STYLE.FILE)
+    tbl.pos <- getSimilarityScreenCoordinates(netMaker, xOrigin=0, yOrigin=0, xMax=2000, yMax=5000)
 
     setPosition(rcy, tbl.pos)    
     fit(rcy, 100)
 
     g.chrom <- getChromosomeGraph(netMaker, goi)
     httpAddGraph(rcy, g.chrom)
-    httpSetStyle(rcy, "style.js")
+    httpSetStyle(rcy, STYLE.FILE)
 
     tbl.pos <- getChromosomeScreenCoordinates(netMaker, xOrigin=1500, yOrigin=000, yMax=2000, chromDelta=200)
     setPosition(rcy, tbl.pos)
@@ -708,7 +741,7 @@ test.fullDisplay.withMutations.withCopyNumber.allGenes.TCGAgbm <- function()
     httpAddGraph(rcy, g.mut)
     edge.count.after <- getEdgeCount(rcy)
     checkEquals(edge.count.after - edge.count.before, length(edgeNames(g.mut)))
-    httpSetStyle(rcy, "style.js")
+    httpSetStyle(rcy, STYLE.FILE)
 
     edge.count.before <- getEdgeCount(rcy)
     g.cn <- getCopyNumberGraph(netMaker, goi, included.scores=c(-2,2))
@@ -719,6 +752,7 @@ test.fullDisplay.withMutations.withCopyNumber.allGenes.TCGAgbm <- function()
 
 } # test.fullDisplay.withMutations.withCopyNumber.allGenes.TCGAgbm
 #----------------------------------------------------------------------------------------------------
-if(!interactive())
-    runTests()
-    
+if(!interactive()){
+  runTests()
+  quit("no")
+  }

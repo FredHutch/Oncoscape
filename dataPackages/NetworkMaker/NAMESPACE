@@ -2,14 +2,15 @@ exportClasses(NetworkMaker)
 
 exportMethods(
   calculateSampleSimilarityMatrix,
-  getSampleSimilarityCoordinates,
+  usePrecalculatedSampleSimilarityMatrix,
+  getSimilarityMatrix,
   buildChromosomalTable,
   getChromosomalInfo,
   getSamplesGraph,
   getChromosomeGraph,
   getMutationGraph,
   getCopyNumberGraph,
-  getSampleScreenCoordinates,
+  getSimilarityScreenCoordinates,
   getChromosomeScreenCoordinates
   )
 

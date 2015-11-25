@@ -133,6 +133,8 @@ function testSearch()
 {
    console.log("--- Test.markers testSearch");
    var searchBox = $("#markersAndTissuesSearchBox");
+   setTimeout(function(){searchBox.val("");}, 0);
+   cwMarkers.nodes().unselect();
    var netOpsMenu = $("#cyMarkersOperationsMenu");
    var nodes = cwMarkers.nodes().filterFn(function(node){return (node.data("nodeType") === "patient");});
    var nodesByDegree = nodes.map(function(node){return {id:node.data("id"), degree:node.degree()};});
@@ -145,7 +147,7 @@ function testSearch()
      netOpsMenu.trigger("change");
      cwMarkers.filter("node:selected").unselect();
      assert.equal(cwMarkers.filter("node:selected").length, 0, "zero selected nodes");
-     searchBox.val(mostConnectedNode.id);
+     setTimeout(function(){searchBox.val(mostConnectedNode.id);}, 0);
      searchBox.trigger(jQuery.Event("keydown", {which: 13}));
      assert.equal(cwMarkers.filter("node:selected").length, 1, "one selected node from search box: " +
                   mostConnectedNode.id);
@@ -162,6 +164,8 @@ function testSearch()
      console.log("selected nodes after filter: " + selectedNodeNames);
      assert.ok(cwMarkers.filter("node:selected").length == expectedSelectionCount,
                "found expected number of selected nodes: " + selectedNodes.length);
+     setTimeout(function(){searchBox.val("");}, 0);
+     cwMarkers.nodes().unselect();
      testSendGoodIDs();
      });
 
