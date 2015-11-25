@@ -14,15 +14,17 @@ options(stringsAsFactors = FALSE)
 #----------------------------------------------------------------------------------------------------
 setGeneric('calculateSampleSimilarityMatrix',  signature='obj', function(obj, samples=NA, genes=NA, copyNumberValues=c(-2, 2))
                                                                 standardGeneric('calculateSampleSimilarityMatrix'))
-setGeneric('getSampleSimilarityCoordinates',   signature='obj', function(obj) standardGeneric('getSampleSimilarityCoordinates'))
+setGeneric('usePrecalculatedSampleSimilarityMatrix',  signature='obj', function(obj, filename)
+                                                                standardGeneric('usePrecalculatedSampleSimilarityMatrix'))
+setGeneric('getSimilarityMatrix',        signature='obj', function(obj) standardGeneric('getSimilarityMatrix'))
 setGeneric('buildChromosomalTable',      signature='obj', function(obj, genes) standardGeneric('buildChromosomalTable'))
 setGeneric('getChromosomalInfo',         signature='obj', function(obj) standardGeneric('getChromosomalInfo'))
 setGeneric('getSamplesGraph',            signature='obj', function(obj) standardGeneric('getSamplesGraph'))
 setGeneric('getChromosomeGraph',         signature='obj', function(obj, genes) standardGeneric('getChromosomeGraph'))
 setGeneric('getMutationGraph',           signature='obj', function(obj, genes) standardGeneric('getMutationGraph'))
 setGeneric('getCopyNumberGraph',         signature='obj', function(obj, genes, included.scores=c(-2, 2)) standardGeneric('getCopyNumberGraph'))
-setGeneric('getSampleScreenCoordinates', signature='obj', function(obj, xOrigin=0, yOrigin=0, xMax=2000, yMax=5000)
-                                                                standardGeneric('getSampleScreenCoordinates'))
+setGeneric('getSimilarityScreenCoordinates', signature='obj', function(obj, xOrigin=0, yOrigin=0, xMax=2000, yMax=5000)
+                                                                standardGeneric('getSimilarityScreenCoordinates'))
 setGeneric('getChromosomeScreenCoordinates',  signature='obj', function(obj, xOrigin=1000, yOrigin=0, yMax=2000, chromDelta=200)
     standardGeneric('getChromosomeScreenCoordinates'))
 #----------------------------------------------------------------------------------------------------
@@ -59,6 +61,21 @@ NetworkMaker <- function(dataPackage, verbose=FALSE)
    list(samples=sample.names, genes=gene.names)
 
 } # .extractSamplesAndGenes
+#----------------------------------------------------------------------------------------------------
+setMethod("usePrecalculatedSampleSimilarityMatrix", "NetworkMaker",
+
+    function(obj, filename){
+       stopifnot(file.exists(filename))
+       tbl.pos <- read.table(filename, comment.char="#", sep="\t", as.is=TRUE)
+           # discovering (questionably?) that mdscale in two dimensions lost
+           # information found in three, i have instituted an ad hoc policy
+           # in which a 3rd dimension "z" is used to weight (factor 0.2) the y coordinate.
+           # if there is no z column add it in.
+       if(ncol(tbl.pos) == 2)
+          tbl.pos$z <- rep(0.0, nrow(tbl.pos))
+       obj@state[["similarityMatrix"]] <- tbl.pos
+       })
+
 #----------------------------------------------------------------------------------------------------
 # samples and genes args are only for testing; in normal operation the full lists from
 # .extractSamplesAndGenes is used
@@ -115,23 +132,23 @@ setMethod("calculateSampleSimilarityMatrix", "NetworkMaker",
      tbl.pos <- as.data.frame(cmdscale(dmtx, k=3))
      colnames(tbl.pos) <- c("x", "y", "z")
      rownames(tbl.pos) <- canonicalizePatientIDs(obj@pkg, rownames(tbl.pos))
-     obj@state[["sampleSimilarityCoordinates"]] <- tbl.pos
+     obj@state[["similarityMatrix"]] <- tbl.pos
      })
 
 #----------------------------------------------------------------------------------------------------
-setMethod("getSampleSimilarityCoordinates", "NetworkMaker",
+setMethod("getSimilarityMatrix", "NetworkMaker",
 
-  function(obj){
-    stopifnot("sampleSimilarityCoordinates" %in% ls(obj@state))
-    return(obj@state[["sampleSimilarityCoordinates"]])
-    })
-
+   function(obj){
+      stopifnot("similarityMatrix" %in% ls(obj@state));
+      return (obj@state[["similarityMatrix"]])
+      })
+                    
 #----------------------------------------------------------------------------------------------------
 setMethod("getSamplesGraph", "NetworkMaker",
 
   function(obj){
-    stopifnot("sampleSimilarityCoordinates" %in% ls(obj@state))
-    tbl.pos <- obj@state[["sampleSimilarityCoordinates"]]
+    stopifnot("similarityMatrix" %in% ls(obj@state))
+    tbl.pos <- obj@state[["similarityMatrix"]]
     all.nodes <- rownames(tbl.pos)
     g <- graphNEL(nodes=all.nodes, edgemode="directed")
      # change nodeType to "sample" later, updating all networks at once, and the markers/Test.js
@@ -296,14 +313,14 @@ setMethod("getCopyNumberGraph", "NetworkMaker",
     })
 
 #----------------------------------------------------------------------------------------------------
-setMethod("getSampleScreenCoordinates", "NetworkMaker",
+setMethod("getSimilarityScreenCoordinates", "NetworkMaker",
 
   function(obj, xOrigin, yOrigin, xMax, yMax){ # xSpan, ySpan){
 
      xSpan <- xMax - xOrigin
      ySpan <- yMax - yOrigin
 
-     tbl.pos <- getSampleSimilarityCoordinates(obj)
+     tbl.pos <- getSimilarityMatrix(obj)
      # browser()
      x.range <- range(tbl.pos$x)  # [1] -0.6168073  2.8896624
      y.range <- range(tbl.pos$y)  # [1] -3.036395  1.003921
@@ -492,6 +509,9 @@ chromosomeLocToCanvas <- function(tbl, yOrigin, yMax)
 #----------------------------------------------------------------------------------------------------
 .mutationMatrixTo01Matrix <- function(mtx.mut)
 {
+     if(any(mtx.mut == "") && any(is.na(mtx.mut)))
+        mtx.mut[mtx.mut==""] <- NA
+     
      if(length(which(mtx.mut == "NA")) > 0){
          mtx.mut.01 <- (mtx.mut != "NA") + 0   # coerce to integers by adding zero
      } else if (length(which(is.na(mtx.mut))) > 0){
