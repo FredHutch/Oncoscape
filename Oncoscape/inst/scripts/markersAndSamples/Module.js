@@ -15,6 +15,9 @@ var markersAndTissuesModule = (function () {
   var subSelectButton;
   var helpButton;
   var infoMenu;
+  var zoomMode = "Spread";
+  var initialZoom;
+  var oldZoom;
   var edgeTypeSelector;
   var mouseOverReadout;
   var graphOperationsMenu;
@@ -223,8 +226,8 @@ function configureCytoscape ()
   cwMarkers.cytoscape({
      boxSelectionEnabled: true,
      showOverlay: false,
-     minZoom: 0.01,
-     maxZoom: 8.0,
+     minZoom: 0.001,
+     maxZoom: 1000.0,
      layout: {
        name: "preset",
        fit: true
@@ -232,6 +235,17 @@ function configureCytoscape ()
    ready: function() {
       console.log("cwMarkers ready");
       cwMarkers = this;
+      initialZoom = cwMarkers.zoom();
+      //cwMarkers.one('zoom', function(event){
+      //    console.log("--- zoom");
+      //    console.log(event);
+      //    if(zoomMode === "Spread")
+      //      smartZoom(initialZoom, event);
+      //    });
+
+      //cwMarkers.on('zoom', function(event){smartZoom(initialZoom, event);});
+      cwMarkers.on('zoom', smartZoom);
+
       cwMarkers.on('mouseover', 'node', function(evt){
          var node = evt.cyTarget;
          mouseOverReadout.val(node.id());
@@ -261,7 +275,7 @@ function configureCytoscape ()
       //hideAllEdges();
       configureLayoutsMenu(layoutMenu);
       cwMarkers.fit(50);
-      }, // cy.ready
+      }, // cwMarkers.ready
      }) // .cytoscape
     .cytoscapePanzoom({ });   // need to learn about options
 
@@ -276,6 +290,142 @@ function handleWindowResize ()
 
 } // handleWindowResize
 //----------------------------------------------------------------------------------------------------
+// expand node size and display node labels when:
+//   1) the user's coordinate space, due to zooming, has shrunk to < 600 pixels
+//   2) the zoom factor is so large relative to the initial zoom (a global variable, set on startup)
+// 
+function smartZoom(event)
+{
+   console.log("smartZoom");
+   var queuedEvents = $("#cyMarkersDiv").queue();
+   
+   var zoomRatio = cwMarkers.zoom()/initialZoom;
+   if(zoomRatio < 1.0){
+      defaultStyle();
+      console.log("returning, zoomRatio < 1.0: " + zoomRatio);
+      return;
+      }
+      
+   var visibleCoords = cwMarkers.extent();
+   var visibleOnScreen = function(node){
+      if(node.data("landmark"))
+         return(false);
+      var x = node.position().x;
+      var y = node.position().y;
+      return(x >= visibleCoords.x1 && x <= visibleCoords.x2 &&
+             y >= visibleCoords.y1 && y <= visibleCoords.y2);
+      };
+      
+   console.log("starting calculation of visibleNodes");
+   var visibleNodes = cwMarkers.nodes().fnFilter(function(node){return(visibleOnScreen(node));});		
+   console.log("visibleNode count: " + visibleNodes.length);
+   if(visibleNodes.length > 100){
+      defaultStyle();
+      console.log("returning, visibleNode count: " + visibleNodes.length);
+      return;
+      }
+   console.log("need to smartZoom, setting hanlder off to discard queued events");
+   //cwMarkers.off('zoom', smartZoom);
+
+   //console.log(event);
+   var newZoom = 1.0 + cwMarkers.zoom() - oldZoom;
+   oldZoom = cwMarkers.zoom(); // keep this for next time
+
+
+   console.log("complete");
+
+      // TODO: these two ratios might be reduced to just one
+      
+   var windowRatio = cwMarkers.width()/cwMarkers.extent().h;
+   
+   //var fontSize = Math.round(cwMarkers.extent().h/40);
+   //if(fontSize < 1)
+   //   fontSize = 1;
+   var fontSize = cwMarkers.extent().h/60;
+   if(fontSize < 0.6)
+     fontSize = 0.6;
+     
+   var fontSizeString = fontSize + "px";
+   var borderWidthString = cwMarkers.extent().h/600 + "px";
+   console.log("--- new fontsize: " + fontSizeString);
+   console.log("--- new borderWidth: " + borderWidthString);
+   //infoDisplay.val("zoomRatio: " + zoomRatio.toFixed(3) + ", screen: " + windowRatio.toFixed(3));
+
+     // rule: if zoomed in 
+   
+   var newWidth, newHeight, id;
+   visibleNodes.map(function(node){
+      newWidth = 3 *  node.data("trueWidth") / zoomRatio;
+      newHeight = 3 *  node.data("trueHeight") / zoomRatio;
+      id = node.id();
+      node.data({zoomed: true});
+      node.style({width: newWidth, height: newHeight, label: id, "font-size": fontSizeString,
+                 "border-width": borderWidthString});
+      });
+
+  console.log("visibleNode mapping complete, adding smartZoom handler back");
+  //cwMarkers.on('zoom', smartZoom);
+
+  //cwMarkers.on('zoom', function(event){smartZoom(initialZoom, event);});
+       
+//   visibleNodes.map(function(node){
+//      //if(zoomRatio > 1.0 & cwMarkers.extent().h < 600){
+//      if(zoomRatio > 1.0 & windowRatio > 2.0){
+//         newWidth = node.data("trueWidth") / zoomRatio;
+//         newHeight = node.data("trueHeight") / zoomRatio;
+//         id = node.id();
+//         //node.style({width: newWidth, height: newHeight});
+//         node.data({zoomed: true});
+//         node.style({width: newWidth, height: newHeight, label: id, "font-size": fontSizeString,
+//                     "border-width": borderWidthString});
+//         }
+//      else{
+//         newWidth = node.data("trueWidth");
+//         newHeight = node.data("trueHeight");
+//         fontSizeString = "8px";
+//         borderWidthString = "1px";
+//         id = node.id();
+//         node.style({width: newWidth, height: newHeight, label: id, "font-size": fontSizeString,
+//                     "border-width": borderWidthString});
+//
+//         //defaultStyle();
+//         }
+//      }); // map all visible nodes
+
+} // smartZoom
+//----------------------------------------------------------------------------------------------------
+function defaultStyle()
+{
+   var zoomedNodes = cwMarkers.nodes("[zoomed]");
+   console.log("restoring default style, zoomed node count: " + zoomedNodes.length);
+   
+   zoomedNodes.map(function(node){node.style({width: node.data('trueWidth'),
+                                              height: node.data('trueHeight'),
+                                              zoomed: false,
+                                             'border-width': "1px",
+                                             'font-size': "3px"});});
+    /**********
+    cy.nodes("node[nodeType != 'labeleledLandmark']").map(function(node){
+       var newWidth = node.data("trueWidth");
+       var newHeight = node.data("trueHeight");
+       node.style({width: newWidth, height: newHeight, label: ""});
+       }); // map
+
+    cy.nodes("node[nodeType = 'labeledLandmark']").map(function(node){
+       var newWidth = node.data("trueWidth");
+       var newHeight = node.data("trueHeight");
+       node.style({width: newWidth,
+                   height: newHeight, 
+                  'border-color': 'green',
+                  'border-width': 1,
+                  'shape': 'roundrectangle',
+                  //'label': 'data(id)',
+                  'font-size': '36px'});
+       }); // map
+    **********/
+
+} // defaultStyle
+//--------------------------------------------------------------------------------
 // there are often subgroups among a selected node.
 // here we opreate only on those distinguished by different node border color
 // the dialog posted here provided interactive select/deselect of those originally
@@ -866,7 +1016,7 @@ function doSearch(e)
       console.log("searchString: " + searchString);
       var idsActual = nodeIDs();
       var idsUpper = upperCaseNodeIDs();
-      var hits = idsUpper.filter(function(id) {return(id.startsWith(searchString));});
+      var hits = idsUpper.filter(function(id) {return(id.indexOf(searchString) === 0);});
       var hitIndices = hits.map(function(hit) {return(idsUpper.indexOf(hit));});
       var hitsActual = hitIndices.map(function(hit) {return(idsActual[hit]);});
       selectNodes(hitsActual);
@@ -896,7 +1046,7 @@ function displayMarkersNetwork(msg)
       cwMarkers.filter("edge[edgeType='chromosome']").show();
       cwMarkers.nodes().unselect();
         // map current node degree into a node attribute of that name
-      cwMarkers.nodes().map(function(node){node.data({degree: node.degree()});});
+      cwMarkers.nodes().map(function(node){node.data({degree: node.degree(), trueWidth: node.width(), trueHeight: node.height()});});
 
       var edgeTypes = hub.uniqueElementsOfArray(cwMarkers.edges().map(function(edge){
                                return(edge.data("edgeType"));}
