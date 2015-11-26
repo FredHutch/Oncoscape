@@ -12,7 +12,7 @@ calculateSampleSimilarityMatrix(netMaker, genes=goi, copyNumberValues=gistic.sco
 g <- getSamplesGraph(netMaker)
 rcy <- RCyjs(portRange=6047:6100, quiet=TRUE, graph=g, hideEdges=TRUE)
 httpSetStyle(rcy, "style.js")
-tbl.pos <- getSampleScreenCoordinates(netMaker, xOrigin=0, yOrigin=0, xMax=2000, yMax=5000)
+tbl.pos <- getSimilarityScreenCoordinates(netMaker, xOrigin=0, yOrigin=0, xMax=2000, yMax=5000)
 setPosition(rcy, tbl.pos)    
 fit(rcy, 100)
 g.chrom <- getChromosomeGraph(netMaker, goi)

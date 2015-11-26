@@ -181,7 +181,7 @@ setMethod("getChromosomeGraph", "NetworkMaker",
     
     g <- graphNEL(nodes=all.nodes, edgemode="directed")
     nodeDataDefaults(g, attr="nodeType") <- "unassigned"
-    nodeDataDefaults(g, attr="landmark")  <- "not"
+    nodeDataDefaults(g, attr="landmark")  <- FALSE
     nodeDataDefaults(g, attr="id") <- "unassigned"
          # "true" dimenions are used to restore from current dimensions after
          # resizing with zooming
@@ -194,8 +194,9 @@ setMethod("getChromosomeGraph", "NetworkMaker",
     nodeData(g, all.nodes, "id") <- all.nodes
 
     nodeData(g, centromere.nodes, "nodeType") <- "centromere"
-    nodeData(g, centromere.nodes, "landmark") <- "visible"
+    nodeData(g, centromere.nodes, "landmark") <- TRUE
     nodeData(g, telomere.nodes,   "nodeType") <- "telomere"
+    nodeData(g, telomere.nodes,   "landmark") <- TRUE
     nodeData(g, gene.nodes,       "nodeType") <- "gene"
 
     chroms.in.order <- c(1:22, "X", "Y")
@@ -509,7 +510,7 @@ chromosomeLocToCanvas <- function(tbl, yOrigin, yMax)
 #----------------------------------------------------------------------------------------------------
 .mutationMatrixTo01Matrix <- function(mtx.mut)
 {
-     if(any(mtx.mut == "") && any(is.na(mtx.mut)))
+     if(any(mtx.mut == "", na.rm=TRUE) && any(is.na(mtx.mut)))
         mtx.mut[mtx.mut==""] <- NA
      
      if(length(which(mtx.mut == "NA")) > 0){
