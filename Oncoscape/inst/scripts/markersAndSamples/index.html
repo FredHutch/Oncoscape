@@ -1095,6 +1095,7 @@ function requestDataSetSummary(dataSetName)
 
    var msg = {cmd: "getDataManifest",  callback: "displayDataManifest", status: "request", 
               payload: dataSetName};
+   hub.logEventOnServer(thisModulesName, "datasets requestDataSummary", "request", dataSetName);
 
    hub.send(JSON.stringify(msg));
 
@@ -1153,6 +1154,7 @@ function displayDataManifest(msg)
      handleWindowResize();
      hub.enableButton(useThisDatasetButton);
      postStatus("manifest table displayed");
+     hub.logEventOnServer(thisModulesName, "datasets requestDataSummary", "complete", "");
      }); // tableElement.ready
 
 } // displayDataManifest
@@ -2721,6 +2723,8 @@ body.wait, body.wait *{
 #markersAndPatientssDiv{
   }
 
+button {font-size:10pt !important;}
+
 #cyMarkersDiv {
   background-color: #FAFAFA;  // light gray
   height: 400px;
@@ -2746,6 +2750,9 @@ markersAndTissuesMouseOverReadout{
   }
 
 
+#cyMarkersClearSelectionButton #cyMarkersHideEdgesButton #cyMarkersShowEdgesButton #cyMarkersShowAllEdgesButton {
+   font-size:8pt  !important;
+   }
 
 #markersAndTissuesbuttonDiv{
   margin-top: 1px;
@@ -2757,32 +2764,41 @@ markersAndTissuesMouseOverReadout{
   }
 
 .chosen-container, .chosen-drop, .chosen-drop .chosen-search, .chosen-drop .chosen-search input {
-  width: 80%;
+  width: 100% !important;
   -webkit-box-sizing: border-box;
      -moz-box-sizing: border-box;
           box-sizing: border-box;
 }
 
-#bottomMargin{
-  height:18px;
+.chosen-container { width:350px !important; 
+                    height:auto;
+                    font-size:8pt;}
+iframe {
+display: initial !important;
 }
 
 
+#MTNavForm{
+  padding:4px !important;
+  margin-top:4px !important;
+  margin-bottom:0px !important;
+  margin-left:0px !important;
+}
+#bottomMargin{
+  height:18px;
+}
 </style>
 
+
 <div id="markersAndPatientsDiv" class="container-fluid">
-   <div id="markersAndTissuesControlsDiv" class="controlsGrid">
-     <div id="markersAndTissueControlsRow1">
-       <select id="cyMarkersOperationsMenu"></select>
-       <input type="text" id="markersAndTissuesMouseOverReadout" disabled
-                          value="(node and edge names displayed here)" style="width:400px"></input>
-       <select id="cyMarkersTumorCategorizationsMenu" class="SelectionMenu"></select>
-     <select class="SelectionMenu" type="button" id="cyMarkersSendSelectionsMenu" style="float:right; margin-right:15px"></select>
-    </div>
-   <br>
-   <div id="markersAndTissueControlsRow2">
-       <select class="chosen-select selectpicker SelectionMenu" 
-                    style="width:360px;"
+   <div id="markersAndTissuesButtonDiv" style="margin-bottom: 0px; margin-top: 8px;">
+      <input type="text" id="markersAndTissuesMouseOverReadout" disabled value="(names displayed here)"></input>
+
+     <select id="cyMarkersOperationsMenu" type="button" class="btn btn-primary navbar-form selectpicker SelectionMenu" style="font-size:11pt"></select>
+     <select id="cyMarkersTumorCategorizationsMenu" class="SelectionMenu" style="font-size:8pt;"></select>
+      
+     <select class="chosen-select form-control dropdown navbar-form selectpicker SelectionMenu" 
+                    style="width:280px;font-size:12pt"
                     data-placeholder="Select edge types to display" 
                     multiple id="markersEdgeTypeSelector">
            <option value="mutation" class="btn-info" selected>Mut</option>
@@ -2791,11 +2807,15 @@ markersAndTissuesMouseOverReadout{
            <option value="cnGain.1" class="btn-info" selected>C+1</option>
            <option value="cnLoss.1" class="btn-info" selected>C-1</option>
        </select>
-
-     <select id="markerLayouts"name="markerLayoutMenu"></select>
-     <button id="markersSubSelectButton">Subselect</button>
-     <input  type="text" id="markersAndTissuesSearchBox" placeholder="search" style="width:160px;font-size:12pt"></input>
-    </div>
+     
+ 
+   <input  type="text" id="markersAndTissuesSearchBox" placeholder="search" style="width:100px;font-size:11pt"></input>
+   <select class="SelectionMenu" type="button" id="cyMarkersSendSelectionsMenu" style="float:right; margin-right:15px"></select>
+ 
+   <select class="btn btn-primary selectpicker SelectionMenu" type="button" id="markerLayouts"
+            name="markerLayoutMenu"></select>
+   <button id="markersSubSelectButton">Subselect</button>
+ 
    </div>
    
    

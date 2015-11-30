@@ -1,5 +1,8 @@
 default:  test
 
+clean: 
+	R --vanilla -f ../removeInstalledOncoscapePackages.R
+
 installAndTest: install test
 
 install:

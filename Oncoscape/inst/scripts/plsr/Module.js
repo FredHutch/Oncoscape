@@ -84,7 +84,7 @@ function initializeUI ()
    $(window).resize(handleWindowResize);
    handleWindowResize();
    
-   hub.disableTab(thisModulesOutermostDiv)
+   hub.disableTab(thisModulesOutermostDiv);
 
 
 } // initializeUI
@@ -95,6 +95,10 @@ function addGeneSetNamesToMenu (geneSetNames)
    if(geneSetNames.length === 0) {
       return;
       }
+   
+  if(typeof geneSetNames == "string") 
+   	 geneSetNames = [geneSetNames] 
+
       
    for(var i=0; i < geneSetNames.length; i++){
       optionMarkup = "<option>" + geneSetNames[i] + "</option>";
@@ -176,7 +180,8 @@ function requestPLSRByOnsetAndSurvival()
   msg.json = JSON.stringify(msg);
 
   hub.send(msg.json);
-
+  $("#plsrInstructions").css("display", "none");
+  $("#plsrDisplay").css("display", "block");
 }  // requestPLSRByOnsetAndSurvival
 //--------------------------------------------------------------------------------------------------
 function setupSliders()
@@ -492,7 +497,7 @@ function handleGeneSetNames(msg)
    newNames = msg.payload;
    addGeneSetNamesToMenu(newNames);
    hub.enableButton(calculateButton);
-   hub.enableTab(thisModulesOutermostDiv)
+   hub.enableTab(thisModulesOutermostDiv);
 
    postStatus("plsr ui now configured");
 
@@ -536,7 +541,8 @@ function datasetSpecified(msg)
       hub.disableButton(calculateButton);
       return;
       }
-   
+   d3plsrDisplay.select("#plsrSVG").remove();  // so that old layouts aren't mistaken for new dataset
+      
    createPlsrObjectOnServer(dataPackageName, matrixName);
 
 } // datasetSpecified
