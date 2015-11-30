@@ -163,7 +163,7 @@ function testContentsOfPcaPlot()
               assert.ok(xPos > 0);
               assert.ok(yPos > 0);
               assert.equal(radius, 3);
-              markEndOfTestingDataSet();     
+              testSendGoodIDs(); 
             });
       }); // new MutationObserver
     } // if null mutation observer
@@ -178,6 +178,55 @@ function testContentsOfPcaPlot()
 
 } // testContentsOfPcaPlot
 //----------------------------------------------------------------------------------------------------
+function testSendGoodIDs()
+{
+   console.log("entering Test.pac:testSendGoodIDs");
+
+   var title = "testSendIDs";
+   console.log(title);
+
+      // first test is to clear any existing selection, then send 10 node
+      // ids (simple name strings) taken from the network itself.67                                                           
+      // these nodes are sent to the network using hub.send
+      // we then check to see that these 10 nodes are selected in cyjs
+
+   
+   // selection of incoming identifiers can be a bit promiscuous.  for instance,
+   // sending "Y" will select "Y" and "YWHAE"
+   var currentGeneSet = $("#pcaGeneSetSelector").val();
+   //var selectedPatientIdentifiers = msg.payload.value;
+   var currentIdentifiers = requestSampleNames().splice(0,9);
+   
+   console.log('currentGeneSet: ', currentGeneSet, 'and currentIdentifiers: ', currentIdentifiers);
+          
+   if(pcaStatusObserver === null){
+      pcaStatusObserver = new MutationObserver(function(mutations) {
+        mutation = mutations[0];
+        pcaStatusObserver.disconnect();
+        pcaStatusObserver = null;
+        var id = mutation.target.id;
+        var statusMsg = $(minorStatusDiv).text();
+        QUnit.test(title, function(assert) {
+           console.log("-- in QUnit.test for testSendIDs " + 10 + "  statusMsg: " + statusMsg);
+           var selectedNodes = currentPatientIDs;
+           assert.ok(selectedNodes.length === 10, "incoming 10 nodes, selected: " +
+                     selectedNodes.length);
+           markEndOfTestingDataSet();     
+           });
+        }); // new MutationObserver
+      } // if null mutation observer
+
+   var config = {attributes: true, childList: true, characterData: true};
+   var target = document.querySelector(minorStatusDiv);
+   pcaStatusObserver.observe(target, config);
+
+   console.log("testSendIDs, sending " + JSON.stringify(ids));
+   var payload = {samples: currentPatientIDs, genes: currentGeneSet, source: "pca/Test.js::testSendIDs"};
+   msg = {cmd: "calculatePCA", callback: "pcaPlot", status: "request", payload: payload};
+   hub.send(JSON.stringify(msg));
+
+} // testSendGoodIDs
+//------------------------------------------------------------------------------------------------------------------------
 function markEndOfTestingDataSet()
 {
   console.log("end of testing dataset");

@@ -131,6 +131,21 @@ function requestGeneSetNames()
 
 } // requestGeneSetNames
 //----------------------------------------------------------------------------------------------------
+function requestSampleNames()
+{
+   console.log("=== requestSampleNames");
+
+   callback = " ";
+
+   msg = {cmd:"canonicalizePatientIDsInDataset",
+          callback:callback ,
+          status:"request",
+          payload:""};
+
+   hub.send(JSON.stringify(msg));
+
+} // requestSampleNames
+//----------------------------------------------------------------------------------------------------
 function handleGeneSetNames(msg)
 {
    console.log("=== handleGeneSetNames");
@@ -629,9 +644,12 @@ function pcaObjectCreated(msg)
    console.log("=== pcaObjectCreated");
    console.log(msg);
 
-   if(msg.status == "response")
+   if(msg.status == "response"){
       requestGeneSetNames();
-   else
+      console.log("*************after requestGeneSetNames: ", msg);
+      requestSampleNames();
+      console.log("*************after requestSampleNames: ", msg);
+    }else
       alert("PCA module failed to create PCA object on server");
 
 } // pcaObjectCreated
