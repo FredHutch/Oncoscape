@@ -137,7 +137,7 @@ function displayOncoprint(msg)
        processed_data = JSON.parse(xx[0]);
        var then = Date.now(); 
 	   onc = Oncoprint.create('#onc', {cell_padding: cell_padding, cell_width: cell_width});
-       console.log("Milliseconds to create Oncoprint div: ", Date.now() - then)
+       console.log("Milliseconds to create Oncoprint div: ", Date.now() - then);
 	   
 	  
 	   onc.suppressRendering();
@@ -151,7 +151,7 @@ function displayOncoprint(msg)
 		$.when(processed_data).then(function() {
 
 		   if(typeof(genes) === "string"){
-				genes = [genes]
+				genes = [genes];
 		   }	
 			tracks_to_load = genes.length;
 			console.log("Number of tracks to load: ", tracks_to_load);
@@ -161,13 +161,14 @@ function displayOncoprint(msg)
 				var thisGeneStart = Date.now();
 				gene = genes[i];
 	
-				var data_gene = processed_data.filter(function(obj){return obj.gene === gene}); 
+				//var data_gene = processed_data.filter(function(obj){return obj.gene === gene;}); 
+        var data_gene = processed_data.filter(data_gene_map); 
 
-				var addTrackStart = Date.now()
+				var addTrackStart = Date.now();
 				track_id[i] = onc.addTrack({label: gene, removable:true}, 0);
-				console.log("Milliseconds to addTrack ", gene, " : ", Date.now() - addTrackStart)
+				console.log("Milliseconds to addTrack ", gene, " : ", Date.now() - addTrackStart);
 
-				if(i == 0){
+				if(i === 0){
 					onc.setRuleSet(track_id[i], Oncoprint.GENETIC_ALTERATION);
 				}else{
 					onc.useSameRuleSet(track_id[i], track_id[0]);
@@ -179,13 +180,17 @@ function displayOncoprint(msg)
 			
 			onc.releaseRendering();
 			onc.sort();
-		console.log("Milliseconds to step through processded_data ", Date.now() - startGenes)
-		})
+		  console.log("Milliseconds to step through processded_data ", Date.now() - startGenes);
+		});
 
 
 	}
    console.log("#######Computing since msg sent took: " + (Date.now() - compute_start) + " milliseconds"); 
 } // displaySurvivalCurves
+//---------------------------------------------------------------------------------------   
+function data_gene_map(obj) {
+  return obj.gene === gene;
+}
 //----------------------------------------------------------------------------------------------------
 function map_cnv_data(data){
 				cnv_data = _.map(data, function(x) {
@@ -194,20 +199,21 @@ function map_cnv_data(data){
 							if(x.value == -1) x.cna='HEMIZYGOUSLYDELETED'; 
 							if(x.value == -2) x.cna='HOMODELETED'; 
 							//if(x.value != "") x.mut_type='MISSENSE';
-							x.patient = x.sample; return x; })
+							x.patient = x.sample; return x; });
 	   }
+//---------------------------------------------------------------------------------------    
 function map_mrna_data(mrna_promise, data){
 				mrna_data = _.map(data, function(x) {
 								single_sample = x.sample;
 								single_gene = x.gene;
 								y = mrna_data_promise.filter(function (obj) {
 										return (obj.sample == single_sample && obj.gene == single_gene);});
-								if(y.length != 0){
+								if(y.length !== 0){
 									if(y[0].value > 2) x.mrna='UPREGULATED';
 									if(y[0].value < -2) x.mrna='DOWNREGULATED';
 									x.patient = x.sample; return x;
 								}else{ return x;} 
-							})
+							});
 	   }
 //---------------------------------------------------------------------------------------	   
 function map_mut_data(mut_promise, data){
@@ -216,11 +222,11 @@ function map_mut_data(mut_promise, data){
 								single_gene = x.gene;
 								y = mut_data_promise.filter(function (obj) {
 										return (obj.sample == single_sample && obj.gene == single_gene);});
-								if(y.length != 0){
-									if(y[0].value != "") x.mut_type='MISSENSE';
+								if(y.length !== 0){
+									if(y[0].value !== "") x.mut_type='MISSENSE';
 									x.patient = x.sample; return x;
 								}else{ return x;} 
-							})
+							});
 	   }
 //-------------------------------------------------------------------------------------------
 // when a dataset is specified, this module 

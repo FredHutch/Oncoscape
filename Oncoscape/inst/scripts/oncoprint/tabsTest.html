@@ -5,11 +5,12 @@
 
 
 <script>
+include(../testManager/Module.js)
+include(../tabsApp/code.js)
 include(../datasets/Module.js)
-include(../patientHistory/Module.js)
-include(../markersAndSamples/Module.js)
 include(../oncoprint/Module.js)
-
+include(../markersAndSamples/Module.js)
+include(../oncoprint/Test.js)
 </script>
 
 <body>
@@ -17,13 +18,13 @@ include(../oncoprint/Module.js)
 <div id="oncoscapeTabs">
    <ul>
      <li><a href="#datasetsDiv">Datasets</a></li>
-     <li><a href="#patientHistoryDiv">Patient History</a></li>
      <li><a href="#markersAndPatientsDiv">Markers &amp; Patients</a></li>
      <li><a href="#oncoprintDiv">Oncoprint</a></li>
+     <li><a href="#oncoprintTestDiv">OncoprintTest</a></li>
    </ul>
 include(../oncoprint/widget.html)
-include(../patientHistory/widget.html)
 include(../datasets/widget.html)
 include(../markersAndSamples/widget.html)
+include(../oncoprint/test.html)
 
 </div>
