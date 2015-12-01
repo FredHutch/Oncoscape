@@ -1,3 +1,4 @@
+// 19:15
 // oncoprint/Test.js
 //------------------------------------------------------------------------------------------------------------------------
 var oncoprintTestModule = (function () {
@@ -58,7 +59,8 @@ function runTests(datasetNames, reps, exitOnCompletion)
          testStatusObserver = new MutationObserver(onMutation);
          testStatusObserver.observe(target, config);
          if(datasetIndex < (datasetNames.length * reps))
-            testLoadDataSetDisplayNetworkSendIDs(datasetNames[datasetIndex % datasetNames.length]);
+            console.log('*****before testLoadDatasetOncoprint');
+            testLoadDatasetOncoprint(datasetNames[datasetIndex % datasetNames.length]);
          }
       else{
          console.log("mutation observer function detected end of datasets");
@@ -79,9 +81,9 @@ function runTests(datasetNames, reps, exitOnCompletion)
 
 } // runTests
 //------------------------------------------------------------------------------------------------------------------------
-function testLoadDataSetDisplayNetworkSendIDs(dataSetName)
+function testLoadDatasetOncoprint(dataSetName)
 {
-   var testTitle = "testLoadDataSetDisplayNetworkSendIDs";
+   var testTitle = "testLoadDatasetOncoprint";
    console.log(testTitle);
 
       // when our module receives the resulting 'datasetSpecified' msg, which includes the dataset's manifest
@@ -95,16 +97,21 @@ function testLoadDataSetDisplayNetworkSendIDs(dataSetName)
 
    if(oncoprintStatusObserver === null){
       oncoprintStatusObserver = new MutationObserver(function(mutations) {
-        hub.raiseTab("oncoprintDiv");
+        hub.raiseTab("datasetsDiv");
         mutation = mutations[0];
         oncoprintStatusObserver.disconnect();
         oncoprintStatusObserver = null;
         var id = mutation.target.id;
         var msg = $("#oncoprintStatusDiv").text();
         QUnit.test("oncoprint loaded: " + dataSetName, function(assert) {
-           console.log("oncoprint loaded, with " + nodeCount + " nodes and " + edgeCount + " edges.");
-           //assert.ok(nodeCount > 10, dataSetName + " nodeCount > 10");
-           //assert.ok(edgeCount > 10, dataSetName + " edgeCount > 10");
+           //hub.raiseTab("datasetsDiv");
+           console.log('*****before val');
+           $("#datasetMenu").val(dataSetName);
+           console.log('*****before trigger');
+           $("#datasetMenu").trigger("change");
+           console.log('*****before assetion');
+           assert.equal($("#datasetMenu").val(), dataSetName);
+           //hub.raiseTab("oncoprintDiv");
            markEndOfTestingDataSet();
            });
         }); // new MutationObserver
