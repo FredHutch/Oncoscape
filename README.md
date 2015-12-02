@@ -2,7 +2,7 @@
 
 A web application to apply/develop analysis tools for Molecular and Clinical data
 
-See our [website](http://oncoscape.sttrcancer.org) to start analyzing TCGA data using tools hosted by [STTR](http://sttrcancer.org) at [Fred Hutch](http://www.fredhutch.org) or find instructions for how to install and run Oncoscape on your own machine on our [wiki page](http://github.com/oncoscape/Oncoscape/wiki/Home/) or from our [Installation instructions](Install.md).
+See our [website](http://oncoscape.sttrcancer.org) to start analyzing TCGA data using tools hosted by [STTR](http://sttrcancer.org) at [Fred Hutch](http://www.fredhutch.org) or follow the [Installation instructions](INSTALL.md) to install and run Oncoscape on your own machine.
 
 ## Version: oncoDev14 (Release)		
 Last Modified 8/20/15		
@@ -36,7 +36,7 @@ TCGA's study of Glioblastoma multiforme.
 ## Install		
 
 Oncoscape can be installed within a local Rlibs folder or within the native R application.		
-Read [INSTALL.txt](INSTALL.txt) for instructions.		
+Read [INSTALL.md](INSTALL.md) for instructions.		
 
 ## Configure		
 
@@ -62,7 +62,7 @@ Jenny Zhang under the direction of the STTR at Fred Hutch.
 	
 ## Contact		
 
-To report any bugs, submit patches, or request new features, please log an issue [in our issue tracker](https://github.com/oncoscape/Oncoscape/issues/new)
+To report any bugs, submit patches, or request new features, please log an issue [in our issue tracker](https://github.com/FredHutch/Oncoscape/issues/new)
 
 STTRcancer		
 Fred Hutchinson Cancer Research Center		
