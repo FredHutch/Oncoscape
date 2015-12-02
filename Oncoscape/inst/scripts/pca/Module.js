@@ -42,6 +42,7 @@ var PCAModule = (function () {
 
   var sendSelectionsMenuTitle = "Send selection...";
   var selectionDestinationsOfferedHere = ["PCA", "PCA (highlight)"];
+  
 
 //----------------------------------------------------------------------------------------------------
 function initializeUI ()
@@ -167,7 +168,7 @@ function addGeneSetNamesToMenu (geneSetNames)
      }
     
    if(typeof geneSetNames == "string") 
-   	 geneSetNames = [geneSetNames] 
+   	 geneSetNames = [geneSetNames]; 
  
       
    for(var i=0; i < geneSetNames.length; i++){
@@ -676,26 +677,6 @@ demo = function ()
 
 }; // demo
 //----------------------------------------------------------------------------------------------------
-//function requestGeneSetNames()
-//{
-//   callback = "pcaHandleGeneSetNames";
-//
-//   msg = {cmd:"getGeneSetNames",
-//          callback: callback,
-//          status:"request",
-//          payload:""};
-//
-//   hub.send(JSON.stringify(msg));
-//
-//} // requestGeneSetNames
-////--------------------------------------------------------------------------------------------
-//function handleGeneSetNames(msg)
-//{
-//   newNames = msg.payload;
-//   addGeneSetNamesToMenu(newNames);
-//
-//} // handleGeneSetNames
-//--------------------------------------------------------------------------------------------
 function demoPcaCalculateAndDraw(msg)
 {
   if(msg.status != "success"){
@@ -714,89 +695,7 @@ function demoPcaCalculateAndDraw(msg)
 
 } // demoPcaCalculateAndDraw
 //----------------------------------------------------------------------------------------------------
-/*function runTests()
-{
-  // the test does not currently depend upon any other tabs, but we want to add some
-  // real world complexity to the situation, so we use tabs, including cpa (of course)
-  // and the usual introcutory "Datasets" tab.  make sure it is there.
-  // tests depend upon the presence of 2 tabs in addition to the present one.
-
-  var datasetsTabPresent = $("#datasetsDiv").length > 0;
-
-  if(!datasetsTabPresent){
-     alert("Datasets tab needed for QUnit testing");
-     return;
-     } // check for other needed tabs
-
-   testResultsOutputDiv.css({display: "block"});
-   testLoadDataset();
-
-} // runTests*/
-//--------------------------------------------------------------------------------------------
-/*function testLoadDataset()
-{
-   QUnit.test('choose DEMOdz dataset', function(assert) {
-      hub.raiseTab("datasetsDiv");
-      var desiredDataset = "DEMOdz";
-      var dzNames = $("#datasetMenu option").map(function(opt){return this.value;});
-
-      if($.inArray(desiredDataset, dzNames) < 0){
-         alert("cannot run tests:  " + desiredDataset + " dataset not loaded");
-         return;
-         }
-
-      $("#datasetMenu").val(desiredDataset);
-      $("#datasetMenu").trigger("change");
-
-      var done1 = assert.async();
-      var done2 = assert.async();
-      var done3 = assert.async();
-      assert.expect(3);
-
-      setTimeout(function(){
-         assert.equal($("#datasetMenu").val(), desiredDataset);  done1();
-         assert.ok($("#datasetsManifestTable tr").length >= 10); done2();
-         assert.equal($("#datasetsManifestTable tbody tr").eq(0).find("td").eq(0).text(), 
-                      "mRNA expression"); done3();
-         $("#selectDatasetButton").click();
-         hub.raiseTab(thisModulesOutermostDiv);
-         testCalculate();
-         }, 5000);
-      });
-
-} // testLoadDataset*/
-//----------------------------------------------------------------------------------------------------
-/*function testContentsOfPcaPlot()
-{
-   console.log("--- testContentsOfPcaPlot");
-
-      // wait 5 seconds
-      // make sure there are the right number of circles
-      // check the coordinates of two, selected arbitrarily
-   QUnit.test('testPcaContents', function(assert) {
-      assert.expect(5);
-      var done1 = assert.async();
-      var done2 = assert.async();
-      var done3 = assert.async();
-      var done4 = assert.async();
-      var done5 = assert.async();
-      setTimeout(function(){
-         assert.ok($("circle").length > 120); done1();
-         var c0 = $("circle")[0];
-         var xPos = Number(c0.getAttribute("cx"));
-         var yPos =  Number(c0.getAttribute("cy"));
-         var radius = Number(c0.getAttribute("r"));
-         console.log(xPos + "  " + yPos + "  " + radius);
-         assert.ok(xPos > 0); done3();
-         assert.ok(yPos > 0); done4();
-         assert.equal(radius, 3); done5();
-         }, 5000);
-      });
-
-
-} // testContentsOfPcaPlot*/
-//----------------------------------------------------------------------------------------------------
-/* query the oncoscape server for user id.  the callback then makes a local (that is,
+// query the oncoscape server for user id.  the callback then makes a local (that is,
 // Module-specific) decision to run this module's automated tests based upon that id
 //
 function runAutomatedTestsIfAppropriate()
@@ -806,9 +705,9 @@ function runAutomatedTestsIfAppropriate()
 
    hub.send(JSON.stringify(msg));
 
-} // runAutomatedTestsIfAppropriate */
+} // runAutomatedTestsIfAppropriate 
 //----------------------------------------------------------------------------------------------------
-/*function assessUserIdForTesting(msg)
+function assessUserIdForTesting(msg)
 {
    var userID = msg.payload;
 
@@ -818,7 +717,14 @@ function runAutomatedTestsIfAppropriate()
           runTests();
       } // if autoTest
 
-} // assessUserIdForTesting*/
+} // assessUserIdForTesting
+//----------------------------------------------------------------------------------------------------
+function getDataTableMeta()
+{
+  var metaData = msg.payload;
+  console.log("*****metaData:", metaData);
+  return metaData;
+}
 //----------------------------------------------------------------------------------------------------
 function initializeModule()
 {
@@ -831,6 +737,7 @@ function initializeModule()
    hub.addMessageHandler("pcaHandleGeneSetNames", handleGeneSetNames);
    hub.addMessageHandler("pcaPlot", pcaPlot);
    hub.addMessageHandler("demoPcaCalculateAndDraw", demoPcaCalculateAndDraw);
+   hub.addMessageHandler("getDataTableMeta", getDataTableMeta);
    //hub.addMessageHandler("pcaAssessUserIdForTesting", assessUserIdForTesting);
    //hub.addSocketConnectedFunction(runAutomatedTestsIfAppropriate);
 

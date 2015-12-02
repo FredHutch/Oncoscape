@@ -1,4 +1,4 @@
-//12:46pm
+//16:04
 // pca/Test.js
 //------------------------------------------------------------------------------------------------------------------------
 var pcaTestModule = (function () {
@@ -11,6 +11,8 @@ var pcaTestModule = (function () {
 
     var minorStatusDiv = "#pcaStatusDiv";
     var majorStatusDiv = "#pcaTestStatusDiv";
+
+    
 
        // to detect when the full test of a dataset is complete, so that the next dataset can be tested
        // the div watched here is in test.html
@@ -31,8 +33,9 @@ function runTests(datasetNames, reps, exitOnCompletion)
    console.log("reps: " + reps);
    console.log("exitOnCompletion: " + exitOnCompletion);
    
-   var datasetIndex = -1;
    
+   var datasetIndex = -1;
+
    var config = {attributes: true, childList: true, characterData: true};
    var target =  document.querySelector(majorStatusDiv);
 
@@ -105,8 +108,8 @@ function testLoadDatasetPCA(dataSetName)
           //assert.equal($("#datasetsManifestTable tbody tr").eq(0).find("td").eq(0).text(), 
           //            "mRNA expression");
          hub.raiseTab("pcaDiv");
-         testCalculate();
-         //testDisplayManifest(dataSetName);
+         testCalculate(dataSetName);
+         //test datasetMenu dropdown menu value;
         });
       }); // new MutationObserver
     } // if null mutation observer
@@ -121,25 +124,48 @@ function testLoadDatasetPCA(dataSetName)
 
 } // testLoadDataset
 //----------------------------------------------------------------------------------------------------
-function testCalculate()
+function testCalculate(dataSetName)
 {
    hub.raiseTab("pcaDiv");
    console.log("starting testCalculate");
+   var genesetIndex = -1;
+   
+    if(pcaStatusObserver === null){
+      pcaStatusObserver = new MutationObserver(function(mutations) {
+        //hub.raiseTab("pcaDiv");
+        mutation = mutations[0];
+        pcaStatusObserver.disconnect();
+        pcaStatusObserver = null;
+        var id = mutation.target.id;
+        var msg = $("#pcaStatusDiv").text();
+        // enable the calculate button, change its color, then click
+        genesetIndex++;
+        if(genesetIndex < document.getElementById("pcaGeneSetSelector").length){
+          QUnit.test('testPcaCalculate', function(assert) {
+          $("#pcaCalculateButton").prop("disabled", false);
+          $("#pcaCalculateButton").css({"background-color": "red", "color": "green"});
+          //$("#pcaGeneSetSelector").val("random.24");
+          document.getElementById("pcaGeneSetSelector").selectedIndex = genesetIndex;
+          $("#pcaGeneSetSelector").trigger("change");
+          console.log("*****pcaGeneSetSelector current value is: ", $("#pcaGeneSetSelector").val());
+          // check if the "Calculate" is clicked
+          assert.equal($("#pcaCalculateButton").css('color'), "rgb(0, 128, 0)");
+          // tests (assertions) in next function, testContentsOfPcaPlot
+          //$("#pcaCalculateButton").click();
+          console.log("*****within testCalculate payload : ", msg.payload);
+          testContentsOfPcaPlot();
+          //markEndOfTestingDataSet();
+          });
+        }  
+      }); // new MutationObserver
+    } // if null mutation observer    
+   var config = {attributes: true, childList: true, characterData: true};
+   var target = document.querySelector(minorStatusDiv);
+   pcaStatusObserver.observe(target, config);
 
-     // enable the calculate button, change its color, then click
-   QUnit.test('testPcaCalculate', function(assert) {
-      $("#pcaCalculateButton").prop("disabled", false);
-      $("#pcaCalculateButton").css({"background-color": "red", "color": "green"});
-      //$("#pcaGeneSetSelector").val("random.24");
-      document.getElementById("pcaGeneSetSelector").selectedIndex = 0;
-      $("#pcaGeneSetSelector").trigger("change");
-      console.log("*****pcaGeneSetSelector current value is: ", $("#pcaGeneSetSelector").val());
-      // check if the "Calculate" is clicked
-      assert.equal($("#pcaCalculateButton").css('color'), "rgb(0, 128, 0)");
-      // tests (assertions) in next function, testContentsOfPcaPlot
-      $("#pcaCalculateButton").click();
-      testContentsOfPcaPlot();
-    });
+   var msg = {cmd: "requestDataTableMeta", callback: "", status: "request", payload:  dataSetName};
+   console.log("about to send requestDataTableMeta msg to server: " + dataSetName);
+   hub.send(JSON.stringify(msg));
 
 } // testCalculate
 //----------------------------------------------------------------------------------------------------
@@ -153,6 +179,8 @@ function testContentsOfPcaPlot()
         pcaStatusObserver = null;
         var id = mutation.target.id;
         var statusMsg = $(minorStatusDiv).text();
+        
+        console.log("***** withint testContents payload : ", msg.payload);
            QUnit.test('testPcaContents', function(assert) { 
               assert.ok($("circle").length > 120);
               var c0 = $("circle")[0];
@@ -163,7 +191,8 @@ function testContentsOfPcaPlot()
               assert.ok(xPos > 0);
               assert.ok(yPos > 0);
               assert.equal(radius, 3);
-              testSendGoodIDs(); 
+              markEndOfTestingDataSet();
+              //testSendGoodIDs(); 
             });
       }); // new MutationObserver
     } // if null mutation observer
