@@ -311,7 +311,7 @@ function pcaPlot (msg)
    if(msg.status == "success"){
       pcaScores = msg.payload.scores;
       currentIdentifiers = msg.payload.ids;
-     
+      console.log("*****pcaPlot currentIdentifiers", currentIdentifiers);
       d3PcaScatterPlot(pcaScores);
 
       var pcaData = msg.payload.importance;
@@ -719,13 +719,6 @@ function assessUserIdForTesting(msg)
 
 } // assessUserIdForTesting
 //----------------------------------------------------------------------------------------------------
-function getDataTableMeta()
-{
-  var metaData = msg.payload;
-  console.log("*****metaData:", metaData);
-  return metaData;
-}
-//----------------------------------------------------------------------------------------------------
 function initializeModule()
 {
    hub.addOnDocumentReadyFunction(initializeUI);
@@ -737,7 +730,6 @@ function initializeModule()
    hub.addMessageHandler("pcaHandleGeneSetNames", handleGeneSetNames);
    hub.addMessageHandler("pcaPlot", pcaPlot);
    hub.addMessageHandler("demoPcaCalculateAndDraw", demoPcaCalculateAndDraw);
-   hub.addMessageHandler("getDataTableMeta", getDataTableMeta);
    //hub.addMessageHandler("pcaAssessUserIdForTesting", assessUserIdForTesting);
    //hub.addSocketConnectedFunction(runAutomatedTestsIfAppropriate);
 

@@ -11,6 +11,6 @@ exportMethods(
   getDataMatrixName,
   setDataMatrixName,
   getDataPackage,
-  calculate,
-  requestDataMeta
+  calculate
   )
+

@@ -12,7 +12,6 @@ setGeneric('getDataPackage',        signature='obj', function(obj) standardGener
 setGeneric('setDataMatrixName',     signature='obj', function(obj, dataMatrixName) standardGeneric ('setDataMatrixName'))
 setGeneric('getDataMatrixName',     signature='obj', function(obj) standardGeneric ('getDataMatrixName'))
 setGeneric("calculate",             signature='obj', function(obj, genes=NA, samples=NA) standardGeneric("calculate"))
-setGeneric("requestDataMeta",       signature='obj', function(obj) standardGeneric ("requestDataMeta"))
 #----------------------------------------------------------------------------------------------------
 PCA <- function(sttrDataPackage, dataMatrixName)
 {
@@ -126,22 +125,4 @@ setMethod("calculate", "PCA",
 
    }) # calculate
 
-#----------------------------------------------------------------------------------------------------
-setMethod("requestDataMeta", "PCA",
-
-   function(obj){
-
-   printf("=== entering PCA::requestDataMeta");
-   mtx <- matrices(getDataPackage(obj))[[getDataMatrixName(obj)]]
-
-   printf("dim(mtx): %d x %d", nrow(mtx), ncol(mtx))
-   
-   printf("looking at column.sums");
-   mtx[is.na(mtx)] <- 0.0
-   
-   result <- list()
-   result$sampleIDs <- rownames(mtx)
-   result$genes <- colnames(mtx)
-   invisible (result)   
-}) # requestDataMeta        
 #----------------------------------------------------------------------------------------------------

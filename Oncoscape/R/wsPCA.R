@@ -97,21 +97,3 @@ ws.calculatePCA <- function(ws, msg)
 
 } # ws.calculatePCA
 #----------------------------------------------------------------------------------------------------
-ws.requestDataTableMeta <- function(ws, msg)
-{
-  printf("=== ws.requestDataTableMeta")
-  print(msg)
-
-  mypca <- state[["mypca"]]
-  
-  x <- requestDataMeta(mypca)
-  sampleIDs = x$sampleIDs
-  genes = x$genes
-  payload <- list(sampleIDs=sampleIDs, genes=genes)
-
-
-   json <- jsonlite::toJSON(list(cmd="getDataTableMeta", callback="", status="success", payload=payload),
-                            auto_unbox=TRUE)
-   ws$send(json)
-} # ws.requestDataTableMeta
-#----------------------------------------------------------------------------------------------------
