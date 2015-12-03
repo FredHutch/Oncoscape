@@ -1,6 +1,6 @@
 //----------------------------------------------------------------------------------------------------
 
-
+var g_pcaMsg; 
 var PCAModule = (function () {
 
   var currentPatientIDs = null;
@@ -311,7 +311,10 @@ function pcaPlot (msg)
    if(msg.status == "success"){
       pcaScores = msg.payload.scores;
       currentIdentifiers = msg.payload.ids;
-      console.log("*****pcaPlot currentIdentifiers", currentIdentifiers);
+      //capture message and store to a global variable for testing purpose
+      g_pcaMsg = {g_selectedIDs:currentIdentifiers, g_pcaScores:pcaScores };
+      for(var i = 0; i < g_pcaMsg.g_selectedIDs.length; i++) { g_pcaMsg.g_selectedIDs[i] = g_pcaMsg.g_selectedIDs[i].slice(0, 12);}
+      console.log("*****pcaPlot g_selectedIDs", g_pcaMsg.g_selectedIDs);
       d3PcaScatterPlot(pcaScores);
 
       var pcaData = msg.payload.importance;
@@ -371,6 +374,7 @@ function highlightPatientIDs(msg)
        }
      title = "Unrecognized Identifiers";
      $('<div />').html(errorMessage).dialog({title: title, width:600, height:300});
+     postStatus("intersection.length === 0");
      } // if intersection
    else
      selectPoints(intersection, true);
@@ -396,7 +400,7 @@ function selectPoints(ids, clearIDs)
      .transition()
      .attr("r", 7)
      .duration(500);
-
+   postStatus("selectPoints to highlight");
 } // selectPoints
 //----------------------------------------------------------------------------------------------------
 function clearSelection()
@@ -521,7 +525,8 @@ function d3PcaScatterPlot(dataset)
    var yScale = d3.scale.linear()
                   .domain([yMin, yMax])
                   .range([height - padding, padding]); // note inversion 
-
+  g_pcaMsg.xScale = xScale;
+  g_pcaMsg.yScale = yScale; 
    var xTranslationForYAxis = xScale(0);
    var yTranslationForXAxis = yScale(0);
 
@@ -652,9 +657,6 @@ function pcaObjectCreated(msg)
 
    if(msg.status == "response"){
       requestGeneSetNames();
-      console.log("*************after requestGeneSetNames: ", msg);
-      requestSampleNames();
-      console.log("*************after requestSampleNames: ", msg);
     }else
       alert("PCA module failed to create PCA object on server");
 
