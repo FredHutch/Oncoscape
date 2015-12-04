@@ -1,5 +1,4 @@
 //----------------------------------------------------------------------------------------------------
-
 var g_pcaMsg; 
 var PCAModule = (function () {
 
@@ -311,8 +310,10 @@ function pcaPlot (msg)
    if(msg.status == "success"){
       pcaScores = msg.payload.scores;
       currentIdentifiers = msg.payload.ids;
+      console.log("*****pcaPlot received currentIdentifier length: ", currentIdentifiers.length);
+      console.log("*****pcaPlot received pcaScores length: ", pcaScores.length);
       //capture message and store to a global variable for testing purpose
-      g_pcaMsg = {g_selectedIDs:currentIdentifiers, g_pcaScores:pcaScores };
+      g_pcaMsg = {g_selectedIDs:currentIdentifiers, g_pcaScores:pcaScores};
       for(var i = 0; i < g_pcaMsg.g_selectedIDs.length; i++) { g_pcaMsg.g_selectedIDs[i] = g_pcaMsg.g_selectedIDs[i].slice(0, 12);}
       console.log("*****pcaPlot g_selectedIDs", g_pcaMsg.g_selectedIDs);
       d3PcaScatterPlot(pcaScores);
@@ -348,11 +349,12 @@ function highlightPatientIDs(msg)
    hub.raiseTab(thisModulesOutermostDiv);
 
    var candidates = msg.payload.value;
+   var testing = msg.payload.testing;
+   //g_pcaMsg.g_selectedIDs = candidates;
    console.log("=== Module.pca, highlightPatientIDs, candidates:");
    console.log(JSON.stringify(candidates));
    console.log("=== Module.pca, highlightPatientIDs, currentIdentifiers:");
    console.log(JSON.stringify(currentIdentifiers));
-
      // with currentIdentifiers (local shorter sample IDs) first, they
      // are returned:
      //   hub.intersectionOfArrays(currentIdentifiers, candidates)  ->    
@@ -376,19 +378,21 @@ function highlightPatientIDs(msg)
      $('<div />').html(errorMessage).dialog({title: title, width:600, height:300});
      postStatus("intersection.length === 0");
      } // if intersection
-   else
-     selectPoints(intersection, true);
-
+   else{
+     selectPoints(intersection, true, testing);
+     postStatus("intersection.length !== 0");
+   }
 } // highlightPatientIDs
 //----------------------------------------------------------------------------------------------------
-function selectPoints(ids, clearIDs)
+function selectPoints(ids, clearIDs, testing)
 {
    console.log("=== module.pca: selectPoints");
    console.log("    incoming ids count: " + ids.length);
    //console.log(ids);
-
-   d3.selectAll("circle")
-     .filter(function(d, i){
+   
+   if(!testing) {
+      d3.selectAll("circle")
+        .filter(function(d, i){
         //console.log("examining currentIdentifier " + i + ": " + currentIdentifiers[i]);
         if(typeof(d) == "undefined")
            return(false);
@@ -396,11 +400,25 @@ function selectPoints(ids, clearIDs)
         //console.log("match: " + match);
         return (match >= 0);
         }) // filter
-     .classed("highlighted", true)
-     .transition()
-     .attr("r", 7)
-     .duration(500);
-   postStatus("selectPoints to highlight");
+        .classed("highlighted", true)
+        .transition()
+        .attr("r", 7)
+        .duration(500);
+   }else{
+      d3.selectAll("circle")
+        .filter(function(d, i){
+        //console.log("examining currentIdentifier " + i + ": " + currentIdentifiers[i]);
+        if(typeof(d) == "undefined")
+           return(false);
+        match = ids.indexOf(currentIdentifiers[i]);
+        //console.log("match: " + match);
+        return (match >= 0);
+        }) // filter
+        .classed("highlighted", true)
+        .attr("r", 7);
+   } 
+     
+     //.attr("r", 7);
 } // selectPoints
 //----------------------------------------------------------------------------------------------------
 function clearSelection()
@@ -439,6 +457,7 @@ function handlePatientIDs(msg)
      var currentGeneSet = geneSetMenu.val();
      var selectedPatientIdentifiers = msg.payload.value;
      currentPatientIDs = msg.payload.value;
+     console.log("*****handlePatientIDs received patientID length: ", currentPatientIDs.length);
      var payload = {samples: currentPatientIDs, genes: currentGeneSet};
      msg = {cmd: "calculatePCA", callback: "pcaPlot", status: "request", payload: payload};
      hub.enableButton(useAllSamplesInCurrentDatasetButton);
@@ -495,7 +514,6 @@ function chooseColor(d)
 //----------------------------------------------------------------------------------------------------
 function d3PcaScatterPlot(dataset)
 {
-   //pcaSendSelectionMenu.prop("disabled",true);
    var padding = 50;
    var width = $("#pcaDisplay").width();
    var height = $("#pcaDisplay").height();
@@ -575,8 +593,7 @@ function d3PcaScatterPlot(dataset)
       .attr("dy", ".71em")
       .style("font-size", 14)
       .style("text-anchor", "end") //start, middle
-      .text("PC2");
-            
+      .text("PC2");       
    var circle = svg.append("g").selectAll("circle")
                    .data(dataset)
                    .enter()
@@ -599,8 +616,6 @@ function d3PcaScatterPlot(dataset)
                    .on("mousemove", function(){return tooltip.style("top",
                            (d3.event.pageY-10)+"px").style("left",(d3.event.pageX+10)+"px");})
                    .on("mouseout", function(){return tooltip.style("visibility", "hidden");});
-      
- 
 } // d3PcaScatterPlot
 //----------------------------------------------------------------------------------------------------
 function datasetSpecified(msg)
