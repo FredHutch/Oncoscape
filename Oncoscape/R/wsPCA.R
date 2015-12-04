@@ -3,6 +3,7 @@
 addRMessageHandler("echo", "ws.pcaEchoHandler")
 addRMessageHandler("createPCA", "ws.createPCA")
 addRMessageHandler("calculatePCA", "ws.calculatePCA")
+addRMessageHandler("requestDataTableMeta", "ws.requestDataTableMeta")
 #----------------------------------------------------------------------------------------------------
 ws.pcaEchoHandler <- function(ws, msg)
 {
