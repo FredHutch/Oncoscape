@@ -352,9 +352,9 @@ function highlightPatientIDs(msg)
    var testing = msg.payload.testing;
    //g_pcaMsg.g_selectedIDs = candidates;
    console.log("=== Module.pca, highlightPatientIDs, candidates:");
-   console.log(JSON.stringify(candidates));
+   //console.log(JSON.stringify(candidates));
    console.log("=== Module.pca, highlightPatientIDs, currentIdentifiers:");
-   console.log(JSON.stringify(currentIdentifiers));
+   //console.log(JSON.stringify(currentIdentifiers));
      // with currentIdentifiers (local shorter sample IDs) first, they
      // are returned:
      //   hub.intersectionOfArrays(currentIdentifiers, candidates)  ->    

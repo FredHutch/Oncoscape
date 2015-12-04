@@ -57,7 +57,7 @@ function runTests(datasetNames, reps, exitOnCompletion)
       var msg = $(majorStatusDiv).text();
       console.log("test status changed, text: " + msg);
       datasetIndex++;
-      if(datasetIndex < (datasetNames.length * reps)){
+      if(datasetIndex < (datasetNames.length * reps )){
          console.log("about to test dataset " + datasetNames[datasetIndex]);      
          testStatusObserver = new MutationObserver(onMutation);
          testStatusObserver.observe(target, config);
@@ -171,7 +171,7 @@ function testContentsOfPcaPlot()
       var xPos = Number(cir_random.getAttribute("cx"));
       var yPos =  Number(cir_random.getAttribute("cy"));
       var radius = Number(cir_random.getAttribute("r"));
-      console.log("*****testContentsOfPcaPlot circleIndex:" + circleIndex + "coordinates" + xPos + "  " + yPos + "  " + radius);
+      console.log("*****testContentsOfPcaPlot coordinates" + xPos + "  " + yPos + "  " + radius);
       // get score for this circle, maybe check tooltip name too
       assert.equal(xPos, g_pcaMsg.xScale(g_pcaMsg.g_pcaScores[circleIndex][0]));
       assert.equal(yPos, g_pcaMsg.yScale(g_pcaMsg.g_pcaScores[circleIndex][1]));
@@ -259,16 +259,31 @@ function testSendIDstoHighlight() {
 	       console.log("-- in QUnit.test for testSendIDstoHighlight " + ids.length + "  statusMsg: " + statusMsg);
 	       console.log("*****testSendIDstoHighlight circles number appear: ", $("circle").length);
 	       console.log("*****testSendIDstoHighlight current global g_selectIDs number: ", g_pcaMsg.g_selectedIDs.length);
-	       assert.ok($("circle").length >= g_pcaMsg.g_selectedIDs.length);
-	       var circleIndex = hub.getRandomInt(0, $("circle").length - 1);
+         console.log("*****testSendIDstoHighlight current ids number: ", ids.length);
+	       assert.ok($("circle").length >= ids.length);
+	       var circleIndex = hub.getRandomInt(0, ids.length - 1);
+         
+         var Highlighted = [];
+         var RadiusNot7 = [];
+         for(var i = 0; i < ids.length; i++){
+            if($("circle")[i].getAttribute('class') === "highlighted")
+              Highlighted.push(i);
+            if($("circle")[i].getAttribute('class') !== 7)
+              RadiusNot7.push(i);
+         }
+         console.log("*****testSendIDstoHighlight number of notHighlighted:", Highlighted.length);
+         console.log("*****testSendIDstoHighlight RadiusNot7:", RadiusNot7);
+
 	       var cir_random = $("circle")[circleIndex];
 	       var xPos = Number(cir_random.getAttribute("cx"));
 	       var yPos =  Number(cir_random.getAttribute("cy"));
 	       var radius = Number(cir_random.getAttribute("r"));
 	       console.log("*****testContentsOfPcaPlot circleIndex:" + circleIndex + "coordinates" + xPos + "  " + yPos + "  " + radius);
 	       // get score for this circle, maybe check tooltip name too
+         assert.equal(Highlighted.length, ids.length);
 	       assert.equal(xPos, g_pcaMsg.xScale(g_pcaMsg.g_pcaScores[circleIndex][0]));
 	       assert.equal(yPos, g_pcaMsg.yScale(g_pcaMsg.g_pcaScores[circleIndex][1]));
+         console.log("*****before radius comparison");
 	       assert.equal(radius, 7);
 	       markEndOfTestingDataSet(); 
 	       });
