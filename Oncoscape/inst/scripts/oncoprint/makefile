@@ -30,7 +30,7 @@ check:
 	jshint Module.js
 	jshint Test.js
 	R CMD INSTALL ../../..
-	m4 indexTabs.pre > index.html
+	m4 index.pre > index.html
 	R -f runOncoprint.R  autotest.10@nowhere.org.exitOnCompletion "DEMOdz;TCGAgbm;TCGAbrain"
 
 

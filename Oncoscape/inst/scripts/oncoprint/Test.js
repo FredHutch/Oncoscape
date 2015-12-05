@@ -1,4 +1,4 @@
-// 19:15
+//13:47
 // oncoprint/Test.js
 //------------------------------------------------------------------------------------------------------------------------
 var oncoprintTestModule = (function () {
@@ -60,9 +60,10 @@ function runTests(datasetNames, reps, exitOnCompletion)
          testStatusObserver.observe(target, config);
          if(datasetIndex < (datasetNames.length * reps))
             console.log('*****before testLoadDatasetOncoprint');
+            console.log("*****dataSetNames is: ", datasetNames);
+            console.log("*****datasetIndex is: ", datasetIndex);
             testLoadDatasetOncoprint(datasetNames[datasetIndex % datasetNames.length]);
-         }
-      else{
+       }else{
          console.log("mutation observer function detected end of datasets");
          if(exitOnCompletion){
             var payload = {errorCount: Object.keys(sessionStorage).length,
@@ -85,7 +86,7 @@ function testLoadDatasetOncoprint(dataSetName)
 {
    var testTitle = "testLoadDatasetOncoprint";
    console.log(testTitle);
-
+   console.log("*****testLoadDatasetOncoprint dataSetName is: ", dataSetName);
       // when our module receives the resulting 'datasetSpecified' msg, which includes the dataset's manifest
       // in its payload, it requests 
       //   - the oncoprint network: to be displayed by cyjs
@@ -111,8 +112,9 @@ function testLoadDatasetOncoprint(dataSetName)
            $("#datasetMenu").trigger("change");
            console.log('*****before assetion');
            assert.equal($("#datasetMenu").val(), dataSetName);
-           //hub.raiseTab("oncoprintDiv");
-           markEndOfTestingDataSet();
+           hub.raiseTab("oncoprintDiv");
+           testOfStartingMessage(dataSetName);
+           //markEndOfTestingDataSet();
            });
         }); // new MutationObserver
       } // if null mutation observer
@@ -128,6 +130,164 @@ function testLoadDatasetOncoprint(dataSetName)
    hub.send(JSON.stringify(msg));
 
 } // testLoadDataSetDisplayNetworkSendIDs
+//------------------------------------------------------------------------------------------------------------------------
+function testOfStartingMessage()
+{
+  console.log("*****testOfStartingMessage");  
+  QUnit.test("oncoprint checking the starting message", function(assert) {
+      assert.equal($("#oncoprintInstructions").is(":visible"),false);
+      testSendGoodMsg();
+      //markEndOfTestingDataSet();
+   });  
+}
+//------------------------------------------------------------------------------------------------------------------------
+function testSendGoodMsg()
+{
+  var testTitle = "testSendGoodMsg";
+  console.log(testTitle);
+  var sampleIDs = ["TCGA.06.0125", "TCGA.12.1088", "TCGA.02.0113", "TCGA.02.0114", "TCGA.08.0344"];
+  var genes = ["EGFR", "ELAVL2"];
+  var string = sampleIDs.concat(genes);
+   
+  if(oncoprintStatusObserver === null){
+    oncoprintStatusObserver = new MutationObserver(function(mutations) {
+      hub.raiseTab("datasetsDiv");
+      mutation = mutations[0];
+      oncoprintStatusObserver.disconnect();
+      oncoprintStatusObserver = null;
+      var id = mutation.target.id;
+      var msg = $("#oncoprintStatusDiv").text();
+      QUnit.test("oncoprint testSendGoodMsg: ", function(assert) {
+          console.log("*****testSednGoodMsg");
+          assert.equal($(".oncoprint-label-area-ctr div span").length/3, genes.length);
+          testSendBadMsg();
+       });
+    }); // new MutationObserver
+  } // if null mutation observer
+
+
+   var config = {attributes: true, childList: true, characterData: true};
+   var target = document.querySelector(minorStatusDiv);
+   oncoprintStatusObserver.observe(target, config);
+   
+   var payload = {value: string, count: string.length, source: "oncoprint/Test.js::testSendGoodMsg"};
+   var msg = {cmd: "sendSelectionTo_Oncoprint", callback: "", status: "request", payload:  payload};
+
+   console.log("about to send testSendGoodMsg msg to server: " + msg);
+   hub.send(JSON.stringify(msg));
+} // testSendGoodMsg
+//------------------------------------------------------------------------------------------------------------------------
+function testSendBadMsg()
+{
+  var testTitle = "testSendBadMsg";
+  console.log(testTitle);
+  var sampleIDs = ["TCGA.06.0125", "TCGA.12.1088", "TCGA.02.0113", "TCGA.02.0114", "TCGA.08.0344"];
+  var string = sampleIDs;
+   
+  if(oncoprintStatusObserver === null){
+    oncoprintStatusObserver = new MutationObserver(function(mutations) {
+      hub.raiseTab("datasetsDiv");
+      mutation = mutations[0];
+      oncoprintStatusObserver.disconnect();
+      oncoprintStatusObserver = null;
+      var id = mutation.target.id;
+      var msg = $("#oncoprintStatusDiv").text();
+      QUnit.test("oncoprint testSendBadMsg: ", function(assert) {
+          console.log("*****testSendBadMsg");
+          assert.equal($("#onc").is(':empty'), true);
+          testSendBigNumber();
+      });
+    }); // new MutationObserver
+  } // if null mutation observer
+
+
+   var config = {attributes: true, childList: true, characterData: true};
+   var target = document.querySelector(minorStatusDiv);
+   oncoprintStatusObserver.observe(target, config);
+   
+   var payload = {value: string, count: string.length, source: "oncoprint/Test.js::testtestSendBadMsg"};
+   var msg = {cmd: "sendSelectionTo_Oncoprint", callback: "", status: "request", payload:  payload};
+
+   console.log("about to send testSendBadMsg msg to server: " + msg);
+   hub.send(JSON.stringify(msg));
+
+} // testSendBadMsg
+//------------------------------------------------------------------------------------------------------------------------
+function testSendBigNumber()
+{
+  var testTitle = "testSendBigNumber";
+  console.log(testTitle);
+  var range = 351;
+   
+  if(oncoprintStatusObserver === null){
+    oncoprintStatusObserver = new MutationObserver(function(mutations) {
+      hub.raiseTab("datasetsDiv");
+      mutation = mutations[0];
+      oncoprintStatusObserver.disconnect();
+      oncoprintStatusObserver = null;
+      var id = mutation.target.id;
+      var msg = $("#oncoprintStatusDiv").text();
+      QUnit.test("oncoprint testSendBigNumber: ", function(assert) {
+          console.log("*****testSendBigNumber");
+          assert.equal($("#onc").is(':empty'), true);
+          markEndOfTestingDataSet();
+          //testSendRandomizedGoodMsg();
+      });
+    }); // new MutationObserver
+  } // if null mutation observer
+
+
+   var config = {attributes: true, childList: true, characterData: true};
+   var target = document.querySelector(minorStatusDiv);
+   oncoprintStatusObserver.observe(target, config);
+   
+   var payload = {value: range, count: range.length, source: "oncoprint/Test.js::testSendBigNumber"};
+   var msg = {cmd: "sendSelectionTo_Oncoprint", callback: "", status: "request", payload:  payload};
+
+   console.log("about to send testSendBigNumber msg to server: " + msg);
+   hub.send(JSON.stringify(msg));
+
+} // testSendBigNumber
+//------------------------------------------------------------------------------------------------------------------------
+function testSendRandomizedGoodMsg()
+{
+  var testTitle = "testSendRandomizedGoodMsg";
+  console.log(testTitle);
+  /*var sampleIDs = ["TCGA.06.0125", "TCGA.12.1088", "TCGA.02.0113", "TCGA.02.0114", "TCGA.08.0344"];
+  var genes = ["EGFR", "ELAVL2"];
+  var string = sampleIDs.concat(genes);*/
+  var totalNodesLength = hub.getRandomInt(1,350);
+  console.log("*****testSendRandomizedGoodMsg totalNodesLength is: ", totalNodesLength);
+
+  
+  if(oncoprintStatusObserver === null){
+    oncoprintStatusObserver = new MutationObserver(function(mutations) {
+      hub.raiseTab("datasetsDiv");
+      mutation = mutations[0];
+      oncoprintStatusObserver.disconnect();
+      oncoprintStatusObserver = null;
+      var id = mutation.target.id;
+      var msg = $("#oncoprintStatusDiv").text();
+      QUnit.test("oncoprint testSendRandomizedGoodMsg: ", function(assert) {
+          console.log("*****testSendRandomizedGoodMsg");
+          var genes = document.getElementById("oncoprintStatusDiv").innerHTML.string.split(',');
+          assert.equal($(".oncoprint-label-area-ctr div span").length/3, genes.length);
+          markEndOfTestingDataSet();
+       });
+    }); // new MutationObserver
+  } // if null mutation observer
+
+
+   var config = {attributes: true, childList: true, characterData: true};
+   var target = document.querySelector(minorStatusDiv);
+   oncoprintStatusObserver.observe(target, config);
+   
+   var payload = {value: totalNodesLength, count: totalNodesLength.length, source: "oncoprint/Test.js::testSendRandomizedGoodMsg"};
+   var msg = {cmd: "sendSelectionTo_Oncoprint", callback: "", status: "request", payload:  payload};
+
+   console.log("about to send testSendRandomizedGoodMsg msg to server: " + msg);
+   hub.send(JSON.stringify(msg));
+} // testSendRandomizedGoodMsg
 //------------------------------------------------------------------------------------------------------------------------
 function markEndOfTestingDataSet()
 {
