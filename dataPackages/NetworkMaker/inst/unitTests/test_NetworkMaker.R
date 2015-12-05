@@ -13,6 +13,7 @@ runTests <- function()
   testConstructor();
   test.mutationMatrixTo01Matrix()
   test.extractSamplesAndGenes()
+  test.extractRestrictedSamplesAndGenes() # restricted in call to class constructor
   test.calculateSimilarity.DEMOdz()
   test.calculateSimilarity.TCGAgbm()
   test.calculateSimilarity.TCGAgbm.completeSubset()
@@ -73,6 +74,25 @@ test.extractSamplesAndGenes <- function()
     checkEquals(names(x), c("samples", "genes"))
     checkEquals(length(x$samples), 20)
     checkEquals(length(x$genes), 64)
+    
+} # test.extractSamplesAndGenes
+#----------------------------------------------------------------------------------------------------
+test.extractRestictedSamplesAndGenes <- function()
+{
+    print("--- test.extractSamplesAndGenes")
+    dz <- DEMOdz();
+    samples.sub <- head(rownames(getPatientTable(dz)))
+    genes.sub <- head(colnames(matrices(dz)[[1]]))
+
+      # add some bogus ids
+    samples <- c(samples.sub, "fubar")
+    genes   <- c(genes.sub,   "bogus")
+
+    netMaker <- NetworkMaker(dz, samples=samples, genes=genes)
+    x <- NetworkMaker:::.extractSamplesAndGenes(netMaker)
+    checkEquals(names(x), c("samples", "genes"))
+    checkEquals(length(x$samples), length(samples.sub))
+    checkEquals(length(x$genes), length(genes.sub))
     
 } # test.extractSamplesAndGenes
 #----------------------------------------------------------------------------------------------------

@@ -11,6 +11,7 @@ Description:
 License: GPL
 LazyLoad: yes
 Collate: OncoDev14.R
+         AuxPort.R
          getUserInfo.R
          getUserData.R
          histogramCoordinates.R

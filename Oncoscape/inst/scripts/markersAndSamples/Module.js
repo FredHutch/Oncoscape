@@ -11,6 +11,8 @@ var markersAndTissuesModule = (function () {
   var cyDiv;
   var searchBox;
   var hideEdgesButton, showEdgesButton, showAllEdgesButton, clearSelectionButton, sfnButton;
+  var markersFitViewButton, markersHideEdgesButton, markersShowEdgesButton;
+
   var nodeRestriction = [];
   var subSelectButton;
   var helpButton;
@@ -56,6 +58,22 @@ function initializeUI ()
   sendSelectionsMenu = hub.configureSendSelectionMenu("#cyMarkersSendSelectionsMenu", 
                                                       [thisModulesName], sendSelections,
                                                       sendSelectionsMenuTitle);
+
+  markersFitViewButton = $("#markersFitViewButton");
+  markersFitViewButton.click(function(){cwMarkers.fit(50);});
+  //hub.disableButton(markersFitViewButton);
+  
+  markersHideEdgesButton = $("#markersHideEdgesButton");
+  markersHideEdgesButton.click(hideAllEdges);
+  hub.disableButton(markersHideEdgesButton);
+  
+  markersShowEdgesFromButton = $("#markersShowEdgesFromSelectedButton");
+  markersShowEdgesFromButton.click(showEdgesFromSelectedNodes);
+  hub.disableButton(markersShowEdgesFromButton);
+
+  //$("#markersFitViewButton").click(function(){cwMarkers.fit();});
+  //$("#markersHideEdgesButton").click(hideAllEdges);
+  //$("#markersShowEdgesFromSelectedButton").click(showEdgesFromSelectedNodes);
 
   tumorCategorizationsMenu = $("#cyMarkersTumorCategorizationsMenu");
   tumorCategorizationsMenu.empty();
@@ -110,27 +128,42 @@ function initializeUI ()
 
    mouseOverReadout = $("#markersAndTissuesMouseOverReadout");
    configureCytoscape();
-   //$(".chosen-select").chosen();
    $(window).resize(handleWindowResize);
 
    subSelectButton = $("#markersSubSelectButton");
    subSelectButton.click(subSelectNodes);
 
-  //if(hub.socketConnected())
-  //   runAutomatedTestsIfAppropriate();
-  //else
-  //   hub.addSocketConnectedFunction(runAutomatedTestsIfAppropriate);
-
-   setInterval(function(){
-      var count = cwMarkers.nodes("node:selected").length;
-      var disable = (count === 0);
-      sendSelectionsMenu.attr("disabled", disable);
-      subSelectButton.attr("disabled", disable);
-      }, 500);
+   setInterval(buttonAndMenuStatusSetter, 500);
       
    hub.disableTab(thisModulesOutermostDiv);
  
 } // initializeUI
+//----------------------------------------------------------------------------------------------------
+// some buttons and menu are live or disabled depending on the presence of e.g., selected nodes
+// or visible (non-chromosome) edges.   check those things and set their states appropriately
+
+function buttonAndMenuStatusSetter()
+{
+   var selectedNodeCount = cwMarkers.nodes("node:selected").length;
+   if(selectedNodeCount === 0){
+      hub.disableButton(sendSelectionsMenu);
+      hub.disableButton(subSelectButton);
+      hub.disableButton(markersShowEdgesFromButton);
+      }
+   else{
+      hub.enableButton(sendSelectionsMenu);
+      hub.enableButton(subSelectButton);
+      hub.enableButton(markersShowEdgesFromButton);
+      }
+      
+   var visibleEdges = cwMarkers.edges().fnFilter(function(e){return(e.visible());})
+                                       .fnFilter(function(e){return(e.data("edgeType") != "chromosome");}).length;
+   if(visibleEdges > 0)
+       hub.enableButton(markersHideEdgesButton);
+   else
+       hub.disableButton(markersHideEdgesButton);
+
+} // buttonAndMenuStatusSetter
 //----------------------------------------------------------------------------------------------------
 function sendSelections(event)
 {
@@ -224,6 +257,8 @@ function configureCytoscape ()
 {
   cwMarkers = $("#cyMarkersDiv");
   cwMarkers.cytoscape({
+     hideEdgesOnViewport: true,
+     hideLabelsOnViewport: true,
      boxSelectionEnabled: true,
      showOverlay: false,
      minZoom: 0.001,
@@ -236,15 +271,9 @@ function configureCytoscape ()
       console.log("cwMarkers ready");
       cwMarkers = this;
       initialZoom = cwMarkers.zoom();
-      //cwMarkers.one('zoom', function(event){
-      //    console.log("--- zoom");
-      //    console.log(event);
-      //    if(zoomMode === "Spread")
-      //      smartZoom(initialZoom, event);
-      //    });
-
-      //cwMarkers.on('zoom', function(event){smartZoom(initialZoom, event);});
-      cwMarkers.on('zoom', smartZoom);
+      var debouncedSmartZoom = debounce(smartZoom, 100);
+      cwMarkers.on('zoom', debouncedSmartZoom);
+      cwMarkers.on('pan', debouncedSmartZoom);
 
       cwMarkers.on('mouseover', 'node', function(evt){
          var node = evt.cyTarget;
@@ -276,8 +305,7 @@ function configureCytoscape ()
       configureLayoutsMenu(layoutMenu);
       cwMarkers.fit(50);
       }, // cwMarkers.ready
-     }) // .cytoscape
-    .cytoscapePanzoom({ });   // need to learn about options
+     }); // .cytoscape
 
 } // configureCytoscape
 //----------------------------------------------------------------------------------------------------
@@ -290,19 +318,40 @@ function handleWindowResize ()
 
 } // handleWindowResize
 //----------------------------------------------------------------------------------------------------
+// Returns a function, that, as long as it continues to be invoked, will not
+// be triggered. The function will be called after it stops being called for
+// N milliseconds. If `immediate` is passed, trigger the function on the
+// leading edge, instead of the trailing.
+function debounce(func, wait, immediate)
+{
+   var timeout;
+   return function() {
+      var context = this, args = arguments;
+      var later = function() {
+         timeout = null;
+         if (!immediate) func.apply(context, args);
+          };
+       var callNow = immediate && !timeout;
+       clearTimeout(timeout);
+       timeout = setTimeout(later, wait);
+       if (callNow) func.apply(context, args);
+       };
+}
+//----------------------------------------------------------------------------------------------------
 // expand node size and display node labels when:
 //   1) the user's coordinate space, due to zooming, has shrunk to < 600 pixels
 //   2) the zoom factor is so large relative to the initial zoom (a global variable, set on startup)
 // 
 function smartZoom(event)
 {
-   console.log("smartZoom");
+   //console.log("smartZoom");
    var queuedEvents = $("#cyMarkersDiv").queue();
    
    var zoomRatio = cwMarkers.zoom()/initialZoom;
+   console.log("zoomRatio: " + zoomRatio);
+
    if(zoomRatio < 1.0){
       defaultStyle();
-      console.log("returning, zoomRatio < 1.0: " + zoomRatio);
       return;
       }
       
@@ -310,48 +359,50 @@ function smartZoom(event)
    var visibleOnScreen = function(node){
       if(node.data("landmark"))
          return(false);
-      var x = node.position().x;
-      var y = node.position().y;
-      return(x >= visibleCoords.x1 && x <= visibleCoords.x2 &&
-             y >= visibleCoords.y1 && y <= visibleCoords.y2);
+      //var x = node.position().x;
+      //var y = node.position().y;
+      var bbox = node.boundingBox();
+      var visibleX = (bbox.x1 >= visibleCoords.x1 && bbox.x1 <= visibleCoords.x2) |
+                     (bbox.x2 >= visibleCoords.x1 && bbox.x2 <= visibleCoords.x2);
+      if(!visibleX)
+        return false;
+      var visibleY = (bbox.y1 >= visibleCoords.y1 && bbox.y1 <= visibleCoords.y2) |
+                     (bbox.y2 >= visibleCoords.y1 && bbox.y2 <= visibleCoords.y2);
+      return(visibleY);
+      //return(x >= visibleCoords.x1 && x <= visibleCoords.x2 &&
+      //       y >= visibleCoords.y1 && y <= visibleCoords.y2);
       };
       
-   console.log("starting calculation of visibleNodes");
+   //console.log("starting calculation of visibleNodes");
    var visibleNodes = cwMarkers.nodes().fnFilter(function(node){return(visibleOnScreen(node));});		
    console.log("visibleNode count: " + visibleNodes.length);
-   if(visibleNodes.length > 100){
+   if(visibleNodes.length > 400){
       defaultStyle();
-      console.log("returning, visibleNode count: " + visibleNodes.length);
+      //console.log("returning, visibleNode count: " + visibleNodes.length);
       return;
       }
-   console.log("need to smartZoom, setting hanlder off to discard queued events");
+   //console.log("need to smartZoom, setting hanlder off to discard queued events");
    //cwMarkers.off('zoom', smartZoom);
 
    //console.log(event);
    var newZoom = 1.0 + cwMarkers.zoom() - oldZoom;
    oldZoom = cwMarkers.zoom(); // keep this for next time
 
-
-   console.log("complete");
+   //console.log("complete");
 
       // TODO: these two ratios might be reduced to just one
       
    var windowRatio = cwMarkers.width()/cwMarkers.extent().h;
    
-   //var fontSize = Math.round(cwMarkers.extent().h/40);
-   //if(fontSize < 1)
-   //   fontSize = 1;
    var fontSize = cwMarkers.extent().h/60;
    if(fontSize < 0.6)
      fontSize = 0.6;
      
    var fontSizeString = fontSize + "px";
    var borderWidthString = cwMarkers.extent().h/600 + "px";
-   console.log("--- new fontsize: " + fontSizeString);
-   console.log("--- new borderWidth: " + borderWidthString);
-   //infoDisplay.val("zoomRatio: " + zoomRatio.toFixed(3) + ", screen: " + windowRatio.toFixed(3));
-
-     // rule: if zoomed in 
+   //console.log("--- new fontsize: " + fontSizeString);
+   //console.log("--- new borderWidth: " + borderWidthString);
+   cwMarkers.edges().style({"width": borderWidthString});
    
    var newWidth, newHeight, id;
    visibleNodes.map(function(node){
@@ -363,66 +414,23 @@ function smartZoom(event)
                  "border-width": borderWidthString});
       });
 
-  console.log("visibleNode mapping complete, adding smartZoom handler back");
+  //console.log("visibleNode mapping complete, adding smartZoom handler back");
   //cwMarkers.on('zoom', smartZoom);
 
-  //cwMarkers.on('zoom', function(event){smartZoom(initialZoom, event);});
-       
-//   visibleNodes.map(function(node){
-//      //if(zoomRatio > 1.0 & cwMarkers.extent().h < 600){
-//      if(zoomRatio > 1.0 & windowRatio > 2.0){
-//         newWidth = node.data("trueWidth") / zoomRatio;
-//         newHeight = node.data("trueHeight") / zoomRatio;
-//         id = node.id();
-//         //node.style({width: newWidth, height: newHeight});
-//         node.data({zoomed: true});
-//         node.style({width: newWidth, height: newHeight, label: id, "font-size": fontSizeString,
-//                     "border-width": borderWidthString});
-//         }
-//      else{
-//         newWidth = node.data("trueWidth");
-//         newHeight = node.data("trueHeight");
-//         fontSizeString = "8px";
-//         borderWidthString = "1px";
-//         id = node.id();
-//         node.style({width: newWidth, height: newHeight, label: id, "font-size": fontSizeString,
-//                     "border-width": borderWidthString});
-//
-//         //defaultStyle();
-//         }
-//      }); // map all visible nodes
 
 } // smartZoom
 //----------------------------------------------------------------------------------------------------
 function defaultStyle()
 {
    var zoomedNodes = cwMarkers.nodes("[zoomed]");
-   console.log("restoring default style, zoomed node count: " + zoomedNodes.length);
+   // console.log("restoring default style, zoomed node count: " + zoomedNodes.length);
+   cwMarkers.edges().style({"width": "1px"});
    
    zoomedNodes.map(function(node){node.style({width: node.data('trueWidth'),
                                               height: node.data('trueHeight'),
                                               zoomed: false,
                                              'border-width': "1px",
                                              'font-size': "3px"});});
-    /**********
-    cy.nodes("node[nodeType != 'labeleledLandmark']").map(function(node){
-       var newWidth = node.data("trueWidth");
-       var newHeight = node.data("trueHeight");
-       node.style({width: newWidth, height: newHeight, label: ""});
-       }); // map
-
-    cy.nodes("node[nodeType = 'labeledLandmark']").map(function(node){
-       var newWidth = node.data("trueWidth");
-       var newHeight = node.data("trueHeight");
-       node.style({width: newWidth,
-                   height: newHeight, 
-                  'border-color': 'green',
-                  'border-width': 1,
-                  'shape': 'roundrectangle',
-                  //'label': 'data(id)',
-                  'font-size': '36px'});
-       }); // map
-    **********/
 
 } // defaultStyle
 //--------------------------------------------------------------------------------
@@ -582,7 +590,6 @@ function selectFirstNeighbors ()
 {
   selectedNodes = cwMarkers.filter('node:selected');
   showEdgesForNodes(cwMarkers, selectedNodes);
-
 }
 //----------------------------------------------------------------------------------------------------
 function invertSelection ()
@@ -710,67 +717,9 @@ function showEdges()
 
 } // showEdges
 //----------------------------------------------------------------------------------------------------
-// function showEdgesFromSelectedNodes()
-// {
-//    var selectedNodes = cwMarkers.filter('node:selected');
-// 
-//       // break out the selected nodes into the two groups we care about: 
-//       //    genes & tumors (aka, patients)
-// 
-//    var tumorNodes = selectedNodes.filter("[nodeType='patient']");
-//    var geneNodes  = selectedNodes.filter("[nodeType='gene']");
-// 
-//       // if any tumor node restriction is in force, only 
-//       // the intersecton of that with our current selection is kept
-// 
-//    if(tumorNodeRestriction.length > 0){
-//       var correctedTumorNodes = [];
-//       tumorNodes.forEach(function(node){
-//         if(tumorNodeRestriction.indexOf(node.id()) >= 0){
-//            console.log("match!");
-//            correctedTumorNodes.push(node);
-//           } // if matched
-//         }); // forEach
-//      console.log("some tumor nodes restricted, some selected");
-//      tumorNodes = correctedTumorNodes;   // 0 or more
-//      } // some tumor nodes restricted
-// 
-//    if(geneNodeRestriction.length > 0){
-//       var correctedGeneNodes = [];
-//       geneNodes.forEach(function(node){
-//        if(geneNodeRestriction.indexOf(node.id()) >= 0){
-//          console.log("match!");
-//          correctedTumorNodes.push(node);
-//           } // if matched
-//        }); // forEach
-//     console.log("some gene nodes restricted, some selected");
-//     geneNodes = correctedGeneNodes;   // 0 or more
-//     } // some gene node restriction
-//        
-//    selectedNodes = tumorNodes;
-//    geneNodes.forEach(function(node){selectedNodes.push(node)});
-// 
-//    if(selectedNodes.length == 0) {
-//       return;
-//       }
-// 
-//       // "closed" means that we have tumors and genes specified, and
-//       // only want to find connections among them
-// 
-//    //var closedCandidates = FALSE;
-// 
-//    //if(tumorNodes.length > 0 & geneNodes.length > 0)
-//    //   closedCandidates = TRUE;
-// 
-//    debugger;
-//    showEdgesForNodes(cwMarkers, selectedNodes);
-// 
-// } // showEdgesFromSelectedNodes
-//----------------------------------------------------------------------------------------------------
 function zoomSelection()
 {
    cwMarkers.fit(cwMarkers.$(':selected'), 50);
-
 }
 //----------------------------------------------------------------------------------------------------
 function selectedNodeIDs(cw)
@@ -791,6 +740,7 @@ function selectedNodeNames(cw)
    for(var n=0; n < noi.length; n++){
      names.push(noi[n].data('name'));
      }
+
   return(names);
 
 } // selectedNodeNames
@@ -848,20 +798,18 @@ function selectSourceAndTargetNodesOfEdges(cw, edges)
 
 } // selecteSourceAndTargetNodesOfEdge
 //----------------------------------------------------------------------------------------------------
-  // todo: massive inefficiencies here
+// todo: massive inefficiencies here
 function showEdgesForNodes(cw, nodes)
 {
 
   var edgeTypes = edgeTypeSelector.val();
   console.log("=== showEdgesForNodes, edgeType count: " + edgeTypes.length);
-  console.log(edgeTypes);
+  //console.log(edgeTypes);
 
   if(edgeTypes.length === 0)
       return;
 
   var filterStrings = [];
-
-  $("body").toggleClass("wait");
 
   setTimeout(function(){
      for(var e=0; e < edgeTypes.length; e++){
@@ -875,19 +823,17 @@ function showEdgesForNodes(cw, nodes)
           } // for n
         } // for e
 
-      console.log("filterString count: " + filterStrings.length);
+      //console.log("filterString count: " + filterStrings.length);
       filter = filterStrings.join();
-      console.log("filter created, about to apply...");
+      //console.log("filter created, about to apply...");
       var existingEdges = cw.edges(filter);
-      console.log("filtering complete");
+      //console.log("filtering complete");
       if(existingEdges.length > 0) {
-         console.log("about to show edges");
+         //console.log("about to show edges");
          existingEdges.show();
-         console.log("edges shown...");
+         //console.log("edges shown...");
          }
-     }, 1000); // setTimeout
-
-  $("body").toggleClass("wait");
+     }, 0); // setTimeout
 
 } // showEdgesForNodes
 //----------------------------------------------------------------------------------------------------
