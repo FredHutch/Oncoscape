@@ -1,5 +1,5 @@
 # multi-dimensonal scaling (a projection) of copy number ("CNA") and single nucelotide mutations ("SNA") across
-# all human genes, 459 TCGA GBM tumors, and 273 TCGA LGG tumors
+# all human genes, 459 TCGA LGG tumors, and 273 TCGA GBM tumors
 x	y
 TCGA.E1.5319	5.3591612668455e-05	-3.41433396697118e-05
 TCGA.HT.7693	1.43187627613307e-05	4.01887278720089e-05

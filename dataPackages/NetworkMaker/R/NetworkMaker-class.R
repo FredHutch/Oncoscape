@@ -29,12 +29,32 @@ setGeneric('getChromosomeScreenCoordinates',  signature='obj', function(obj, xOr
     standardGeneric('getChromosomeScreenCoordinates'))
 #----------------------------------------------------------------------------------------------------
 # constructor
-NetworkMaker <- function(dataPackage, verbose=FALSE)
+NetworkMaker <- function(dataPackage, samples=NA, genes=NA, verbose=FALSE)
 {
   stopifnot("mtx.mut" %in% names(matrices(dataPackage)))
   stopifnot("mtx.cn"  %in% names(matrices(dataPackage)))
   mtx.mut <- matrices(dataPackage)[["mtx.mut"]]
   mtx.cn <- matrices(dataPackage)[["mtx.cn"]]
+
+  if(!all(is.na(samples))){
+      recognized.samples <- intersect(samples, intersect(rownames(mtx.mut), rownames(mtx.cn)))
+      if(verbose)
+          warning(sprintf("%d of %d samples found in both mut and cn matrices",
+                          length(recognized.samples), length(samples)))
+      stopifnot(length(recognized.samples) >= 5)
+      mtx.mut <- mtx.mut[recognized.samples,]
+      mtx.cn  <- mtx.cn[recognized.samples,]
+      } # samples specfied in constructor call
+
+  if(!all(is.na(genes))){
+      recognized.genes <- intersect(genes, intersect(colnames(mtx.mut), colnames(mtx.cn)))
+      if(verbose)
+          warning(sprintf("%d of %d genes found in both mut and cn matrices",
+                          length(recognized.genes), length(genes)))
+      stopifnot(length(recognized.genes) >= 5)   # arbitrary but not unreasonable threshold
+      mtx.mut <- mtx.mut[,recognized.genes]
+      mtx.cn  <- mtx.cn[,recognized.genes]
+      } # genes specfied in constructor call
 
   obj <- .NetworkMaker(pkg=dataPackage, mtx.mut=mtx.mut, mtx.cn=mtx.cn, state=new.env(parent=emptyenv()))
 
@@ -43,21 +63,15 @@ NetworkMaker <- function(dataPackage, verbose=FALSE)
 } # NetworkMaker constructor
 #----------------------------------------------------------------------------------------------------
 # our convention:
-#   samples (patients) are all those listed in the patientHistory
-#   genes are all those mentioned in the package gene lists, combined
+#   samples (patients) and genes are all those for which we have both copynumber and mutation data,
+#   if genes and samples are provided to the constructor (see above), then only the intersection
+#   of those identifiers with those found in cn and mut data will be returned
 .extractSamplesAndGenes <- function(obj)
 {
    sample.names <- sort(unique(c(rownames(obj@mtx.mut), rownames(obj@mtx.cn))))
    sample.names <- canonicalizePatientIDs(obj@pkg, sample.names)
-   gene.names <- c()
-   geneSetNames <- getGeneSetNames(obj@pkg)
-   stopifnot(length(geneSetNames) >= 1)
-   for(name in geneSetNames){
-     gene.names <- c(gene.names, getGeneSetGenes(obj@pkg, name))
-     } # for name
+   gene.names <-   sort(unique(c(colnames(obj@mtx.mut), colnames(obj@mtx.cn))))
 
-   gene.names <- sort(unique(gene.names))
-    
    list(samples=sample.names, genes=gene.names)
 
 } # .extractSamplesAndGenes

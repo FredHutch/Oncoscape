@@ -53,7 +53,7 @@ OncoDev14 = function(port, scriptDir, userID, datasetNames, password=NA_characte
 
    wsCon <- .setupWebSocketHandlers(wsCon, browserFile)
    oncoscape@wsServer <- wsCon
-
+   state[["auxPort"]] <- AuxPort(wsCon, port+1);
       
    oncoscape
 
@@ -168,6 +168,14 @@ dispatchMessage <- function(WS, msg)
       #printf("--- keepAlive: %s", date())
       return();
       }
+    if(msg$status == "forBrowser"){
+        printf("R sees message for browser");
+        print(paste(as.character(msg), collapse=";  "))
+        msg$status <- "request"
+        print("sending to browser");
+        WS$send(toJSON(msg))
+        return();
+        }
     stopifnot(msg$cmd %in% ls(dispatchMap));
     printf("====== Oncoscape.dispatchMessage: %s  [%s]", msg$cmd, format(Sys.time(), "%a %b %d %Y %X"));;
     function.name <- dispatchMap[[msg$cmd]]
