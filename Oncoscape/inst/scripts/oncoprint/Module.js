@@ -1,11 +1,12 @@
 "user strict";
 //----------------------------------------------------------------------------------------------------
 var OncoprintModule = (function () {
-
   var statusDiv; 
   var sendSelectionsMenu;
+
   var thisModulesName = "Oncoprint";
   var thisModulesOutermostDiv = "oncoprintDiv";
+
   var sendSelectionsMenuTitle = "Send selection...";
 
       // sometimes a module offers multiple selection destinations
@@ -22,26 +23,25 @@ var OncoprintModule = (function () {
   var OncoprintDiv = $("#oncoprintDiv");
   var ControlsDiv = $("#oncoprintControlsDiv");
   var compute_start;
-  var oncoprint_genes; 
 //--------------------------------------------------------------------------------------------
 function initializeUI()
 {
   statusDiv = $("#oncoprintStatusDiv");
   $(window).resize(handleWindowResize);
-  
+
   sendSelectionsMenu = hub.configureSendSelectionMenu("#oncoprintSendSelectionsMenu", 
                                                       selectionDestinations, 
                                                       sendSelections,
                                                       sendSelectionsMenuTitle);
   $("#oncoprintControlsDiv").css("display", "none");
   $('#toggle_whitespace').click(function() {
-	onc.toggleCellPadding();
-	});
+  onc.toggleCellPadding();
+  });
   var z = 1;
   $('#reduce_cell_width').click(function() {
-	z *= 0.5;
-	onc.setZoom(z);
-	});
+  z *= 0.5;
+  onc.setZoom(z);
+  });
   
   handleWindowResize();
   hub.disableTab(thisModulesOutermostDiv);
@@ -56,7 +56,7 @@ function handleWindowResize()
 
   $("#onc").width(OncoprintDiv.width()); //  * 0.95);
   
-  OncoprintDiv.height($("#onc").height() + 100);  // leave room for tabs above	
+  OncoprintDiv.height($("#onc").height() + 100);  // leave room for tabs above  
 
 } // handleWindowResize
 //--------------------------------------------------------------------------------------------
@@ -86,60 +86,39 @@ function handleSelections(msg)
    
    var ids = msg.payload.value;
    
-   if(typeof(ids) == "string"){
+   if(typeof(ids) == "string")
       ids = [ids];
-      console.log("Oncoprint module, " + msg.cmd + " patients and markers: " + ids);
-      $("#onc").empty();
-      compute_start = Date.now();
-      $("#oncoprintInstructions").css("display", "none");
-      $("#oncoprintControlsDiv").css("display", "block");
-      analyzeSelectedTissues(ids);
-   }else{
-      var range = ids;
-      console.log("Oncoprint module, " + msg.cmd + " patients and markers lenght is " + range);
-      analyzeSelectedTissues(range);
-   }
+   
+   console.log("Oncoprint module, " + msg.cmd + " patients and markers: " + ids);
+   $("#onc").empty();
+   compute_start = Date.now();
+   $("#oncoprintInstructions").css("display", "none");
+   $("#oncoprintControlsDiv").css("display", "block");
+
+   analyzeSelectedTissues(ids);
 } // handleSelections
 //----------------------------------------------------------------------------------------------------
-function analyzeSelectedTissues(value)
-{		
+function postStatus(msg)
+{
+  statusDiv.text(msg);
+
+} // postStatus
+//----------------------------------------------------------------------------------------------------
+function analyzeSelectedTissues(IDs)
+{   
    $("#onc").append("Computing...");
    console.log("Oncoprint module, hub.send 'oncoprint_data_selection' for %d IDs",
-               value.length);
-   var payload;
-   var msg;
-
-   if(typeof(value) == "string"){
-      if(value.length > 350){
-          alert("Please choose less than 350 Nodes");
-          $("#onc").empty();
-          $("#oncoprintControlsDiv").css("display", "none");
-          $("#oncoprintInstructions").css("display", "block");
-          postStatus("*****analyzeSelectedTissues more than 350 nodes are selected");
-       }else{
-        payload = {sampleIDs: value};
-        msg = {cmd:"oncoprint_data_selection", callback: "displayOncoprint", status: "request", 
-              payload: payload};
-         console.log("msg cmd, call back, status, payload: %s,%s,%s,%s", msg.cmd, msg.callback, msg.status, msg.payload.sampleIDs );
-         hub.send(JSON.stringify(msg));
-       }
+               IDs.length);
+   if(IDs.length > 350){
+      postStatus("too many nodes selected");
+      alert("Please choose less than 350 Nodes");
    }else{
-      if(value > 350){
-          alert("Please choose less than 350 Nodes");
-          $("#onc").empty();
-          $("#oncoprintControlsDiv").css("display", "none");
-          $("#oncoprintInstructions").css("display", "block");
-          postStatus("*****analyzeSelectedTissues requesting more than 350 nodes");
-       }else{
-         payload = {sampleIDs: value};
-         msg = {cmd:"oncoprint_data_selection", callback: "displayOncoprint", status: "request", 
-              payload: payload};
-         console.log("msg cmd, call back, status, payload: %s,%s,%s,%s", msg.cmd, msg.callback, msg.status, msg.payload.sampleIDs );
-         hub.send(JSON.stringify(msg));
-       }
-   }
-
-   
+     var payload = {sampleIDs: IDs};
+     var msg = {cmd:"oncoprint_data_selection", callback: "displayOncoprint", status: "request", 
+          payload: payload};
+     console.log("msg cmd, call back, status, payload: %s,%s,%s,%s", msg.cmd, msg.callback, msg.status, msg.payload.sampleIDs );
+     hub.send(JSON.stringify(msg));
+  }
 
 } // analyzeSelectedTissues
 //----------------------------------------------------------------------------------------------------
@@ -149,120 +128,108 @@ function displayOncoprint(msg)
    console.log("entering displayOncoprint");
    
    console.log("displayOncoprint print recieved msg.payload: %s", msg.payload);
-   var genes;
+   
    if(msg.status == "error") {
-   		$("#onc").empty();
-      postStatus("*****displayOncoprint error occured");
       alert(msg.payload);
+      $("#onc").empty();
+      postStatus("error from R");
    }else{
-	    /*cnv_data_promise = xx[0];
-	    mrna_data_promise = xx[1];
-	    mut_data_promise = xx[2];*/
-	   xx = JSON.parse(msg.payload);
-	   console.log("displayOncoprint print recieved genes: %s",xx[1]);
-	   genes = xx[1];
+      /*cnv_data_promise = xx[0];
+      mrna_data_promise = xx[1];
+      mut_data_promise = xx[2];*/
+     xx = JSON.parse(msg.payload);
+     console.log("displayOncoprint print recieved genes: %s",xx[1]);
+     genes = xx[1];
        processed_data = JSON.parse(xx[0]);
        var then = Date.now(); 
-	   onc = Oncoprint.create('#onc', {cell_padding: cell_padding, cell_width: cell_width});
-       console.log("Milliseconds to create Oncoprint div: ", Date.now() - then);
-	   
-	  
-	   onc.suppressRendering();
+     onc = Oncoprint.create('#onc', {cell_padding: cell_padding, cell_width: cell_width});
+       console.log("Milliseconds to create Oncoprint div: ", Date.now() - then); 
+     onc.suppressRendering();
        
-	  /*map_cnv_data(cnv_data_promise);
-   	   map_mrna_data(mrna_data_promise, cnv_data);
-   	   map_mut_data(mut_data_promise, mrna_data);*/	
-   		
- 		var startGenes = Date.now(); 
-				
-		$.when(processed_data).then(function() {
+    /*map_cnv_data(cnv_data_promise);
+       map_mrna_data(mrna_data_promise, cnv_data);
+       map_mut_data(mut_data_promise, mrna_data);*/ 
+      
+    var startGenes = Date.now(); 
+        
+    $.when(processed_data).then(function() {
 
-		  if(typeof(genes) === "string"){
-				 genes = [genes];
-		  	
-			tracks_to_load = genes.length;
-			console.log("Number of tracks to load: ", tracks_to_load);
+       if(typeof(genes) === "string"){
+        genes = [genes];
+       }  
+      tracks_to_load = genes.length;
+      console.log("Number of tracks to load: ", tracks_to_load);
 
-			var track_id = [];
-			for(i = 0; i < genes.length; i++){
-				var thisGeneStart = Date.now();
-				gene = genes[i];
-	
-				//var data_gene = processed_data.filter(function(obj){return obj.gene === gene;}); 
+      var track_id = [];
+      for(i = 0; i < genes.length; i++){
+        var thisGeneStart = Date.now();
+        gene = genes[i];
+  
         var data_gene = processed_data.filter(data_gene_map); 
 
-				var addTrackStart = Date.now();
-				track_id[i] = onc.addTrack({label: gene, removable:true}, 0);
-				console.log("Milliseconds to addTrack ", gene, " : ", Date.now() - addTrackStart);
+        var addTrackStart = Date.now();
+        track_id[i] = onc.addTrack({label: gene, removable:true}, 0);
+        console.log("Milliseconds to addTrack ", gene, " : ", Date.now() - addTrackStart);
 
-				if(i === 0){
-					onc.setRuleSet(track_id[i], Oncoprint.GENETIC_ALTERATION);
-				}else{
-					onc.useSameRuleSet(track_id[i], track_id[0]);
-				}
+        if(i === 0){
+          onc.setRuleSet(track_id[i], Oncoprint.GENETIC_ALTERATION);
+        }else{
+          onc.useSameRuleSet(track_id[i], track_id[0]);
+        }
 
-				onc.setTrackData(track_id[i], data_gene, true);
+        onc.setTrackData(track_id[i], data_gene, true);
 
-			}
-			
-			onc.releaseRendering();
-			onc.sort();
-		  console.log("Milliseconds to step through processded_data ", Date.now() - startGenes);
       }
-		});
-
-    postStatus(genes);
-	}
+      
+      onc.releaseRendering();
+      onc.sort();
+      console.log("Milliseconds to step through processded_data ", Date.now() - startGenes);
+    });    
+    postStatus("oncoprint is displayed");
+  }
    console.log("#######Computing since msg sent took: " + (Date.now() - compute_start) + " milliseconds"); 
    
 } // displaySurvivalCurves
-//---------------------------------------------------------------------------------------
-function postStatus(msg)
-{
-  statusDiv.text(msg);
-
-} // postStatus
-//----------------------------------------------------------------------------------------------------   
+//----------------------------------------------------------------------------------------------------
 function data_gene_map(obj) {
   return obj.gene === gene;
 }
 //----------------------------------------------------------------------------------------------------
 function map_cnv_data(data){
-				cnv_data = _.map(data, function(x) {
-							if(x.value == 2) x.cna='AMPLIFIED';
-							if(x.value == 1) x.cna='GAINED';
-							if(x.value == -1) x.cna='HEMIZYGOUSLYDELETED'; 
-							if(x.value == -2) x.cna='HOMODELETED'; 
-							//if(x.value != "") x.mut_type='MISSENSE';
-							x.patient = x.sample; return x; });
-	   }
-//---------------------------------------------------------------------------------------    
+        cnv_data = _.map(data, function(x) {
+              if(x.value == 2) x.cna='AMPLIFIED';
+              if(x.value == 1) x.cna='GAINED';
+              if(x.value == -1) x.cna='HEMIZYGOUSLYDELETED'; 
+              if(x.value == -2) x.cna='HOMODELETED'; 
+              //if(x.value != "") x.mut_type='MISSENSE';
+              x.patient = x.sample; return x; });
+     }
 function map_mrna_data(mrna_promise, data){
-				mrna_data = _.map(data, function(x) {
-								single_sample = x.sample;
-								single_gene = x.gene;
-								y = mrna_data_promise.filter(function (obj) {
-										return (obj.sample == single_sample && obj.gene == single_gene);});
-								if(y.length !== 0){
-									if(y[0].value > 2) x.mrna='UPREGULATED';
-									if(y[0].value < -2) x.mrna='DOWNREGULATED';
-									x.patient = x.sample; return x;
-								}else{ return x;} 
-							});
-	   }
-//---------------------------------------------------------------------------------------	   
+        mrna_data = _.map(data, function(x) {
+                single_sample = x.sample;
+                single_gene = x.gene;
+                y = mrna_data_promise.filter(function (obj) {
+                    return (obj.sample == single_sample && obj.gene == single_gene);});
+                if(y.length !== 0){
+                  if(y[0].value > 2) x.mrna='UPREGULATED';
+                  if(y[0].value < -2) x.mrna='DOWNREGULATED';
+                  x.patient = x.sample; return x;
+                }else{ return x;} 
+              });
+     }
+//---------------------------------------------------------------------------------------    
 function map_mut_data(mut_promise, data){
-				mut_data = _.map(data, function(x) {
-								single_sample = x.sample;
-								single_gene = x.gene;
-								y = mut_data_promise.filter(function (obj) {
-										return (obj.sample == single_sample && obj.gene == single_gene);});
-								if(y.length !== 0){
-									if(y[0].value !== "") x.mut_type='MISSENSE';
-									x.patient = x.sample; return x;
-								}else{ return x;} 
-							});
-	   }
+        mut_data = _.map(data, function(x) {
+                single_sample = x.sample;
+                single_gene = x.gene;
+                y = mut_data_promise.filter(function (obj) {
+                    return (obj.sample == single_sample && obj.gene == single_gene);});
+                if(y.length !== 0){
+                  if(y[0].value !== "") x.mut_type='MISSENSE';
+                  x.patient = x.sample; return x;
+                }else{ return x;} 
+              });
+     }
 //-------------------------------------------------------------------------------------------
 // when a dataset is specified, this module 
 //  1) extracts the name of the dataset from the payload of the incoming msg
@@ -278,7 +245,7 @@ function datasetSpecified(msg)
    $("#oncoprintInstructions").css("display", "block");
    $("#oncoprintControlsDiv").css("display", "none");
    $("#onc").empty();
-   postStatus("*****loaded dataset");
+   postStatus("dataset specified");
 } // datasetSpecified
 //--------------------------------------------------------------------------------------------
 /*function initializeModule()
@@ -288,7 +255,6 @@ function datasetSpecified(msg)
    hub.addMessageHandler("sendSelectionTo_Oncoprint", handleSelections);
    hub.addMessageHandler("displayOncoprint", displayOncoprint);
    hub.addMessageHandler("datasetSpecified", datasetSpecified);
-
 }*/ // initializeModule
 //----------------------------------------------------------------------------------------------------
 function demoPatientSet()
@@ -318,11 +284,11 @@ function sat(maxReps)
 //----------------------------------------------------------------------------------------------------
 return{
    init: function(){
-	      hub.registerSelectionDestination(selectionDestinations, thisModulesOutermostDiv);
-	  	  hub.addOnDocumentReadyFunction(initializeUI);
-	  	  hub.addMessageHandler("datasetSpecified", datasetSpecified);
-	   	  hub.addMessageHandler("sendSelectionTo_Oncoprint", handleSelections);
-	   	  hub.addMessageHandler("displayOncoprint", displayOncoprint);
+        hub.registerSelectionDestination(selectionDestinations, thisModulesOutermostDiv);
+        hub.addOnDocumentReadyFunction(initializeUI);
+        hub.addMessageHandler("datasetSpecified", datasetSpecified);
+        hub.addMessageHandler("sendSelectionTo_Oncoprint", handleSelections);
+        hub.addMessageHandler("displayOncoprint", displayOncoprint);
       },
 }; // OncoprintTabModule return value
 
@@ -331,4 +297,3 @@ return{
 
 OncoprintM = OncoprintModule();
 OncoprintM.init();
-

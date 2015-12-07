@@ -1,4 +1,4 @@
-//13:47
+//14:33
 // oncoprint/Test.js
 //------------------------------------------------------------------------------------------------------------------------
 var oncoprintTestModule = (function () {
@@ -114,7 +114,6 @@ function testLoadDatasetOncoprint(dataSetName)
            assert.equal($("#datasetMenu").val(), dataSetName);
            hub.raiseTab("oncoprintDiv");
            testOfStartingMessage(dataSetName);
-           //markEndOfTestingDataSet();
            });
         }); // new MutationObserver
       } // if null mutation observer
@@ -158,8 +157,10 @@ function testSendGoodMsg()
       var id = mutation.target.id;
       var msg = $("#oncoprintStatusDiv").text();
       QUnit.test("oncoprint testSendGoodMsg: ", function(assert) {
-          console.log("*****testSednGoodMsg");
+          console.log("*****testSendGoodMsg");
+          console.log("***** gene length: ", genes.length);
           assert.equal($(".oncoprint-label-area-ctr div span").length/3, genes.length);
+          //markEndOfTestingDataSet();
           testSendBadMsg();
        });
     }); // new MutationObserver
