@@ -85,11 +85,16 @@ function handleSelections(msg)
    hub.raiseTab(thisModulesOutermostDiv);   //var msgAsString = JSON.stringify(msg.payload);
    
    var ids = msg.payload.value;
-   
-   if(typeof(ids) == "string")
-      ids = [ids];
-   
-   console.log("Oncoprint module, " + msg.cmd + " patients and markers: " + ids);
+   console.log("******handleSelections msg.payload.value: ", ids);
+   console.log("******handleSelections ids typeof:", typeof(ids));
+   console.log("******handleSelections [ids] type: ", typeof([ids]));
+   //if(typeof(ids) == "string")
+      //ids = [ids];
+   if(Array.isArray(ids)){
+      console.log("Oncoprint module, " + msg.cmd + " patients and markers: " + ids);
+   }else{
+      console.log("Oncoprint module, " + msg.cmd + " patients and markers length" + ids);
+   }
    $("#onc").empty();
    compute_start = Date.now();
    $("#oncoprintInstructions").css("display", "none");
@@ -107,19 +112,41 @@ function postStatus(msg)
 function analyzeSelectedTissues(IDs)
 {   
    $("#onc").append("Computing...");
-   console.log("Oncoprint module, hub.send 'oncoprint_data_selection' for %d IDs",
-               IDs.length);
-   if(IDs.length > 350){
-      postStatus("too many nodes selected");
-      alert("Please choose less than 350 Nodes");
-   }else{
-     var payload = {sampleIDs: IDs};
-     var msg = {cmd:"oncoprint_data_selection", callback: "displayOncoprint", status: "request", 
-          payload: payload};
-     console.log("msg cmd, call back, status, payload: %s,%s,%s,%s", msg.cmd, msg.callback, msg.status, msg.payload.sampleIDs );
-     hub.send(JSON.stringify(msg));
-  }
-
+   var payload;
+   var msg;
+   if(Array.isArray(IDs)){ 
+     console.log("Oncoprint module, hub.send 'oncoprint_data_selection' for %d IDs",
+                 IDs.length);
+     if(IDs.length > 350){
+        postStatus("too many nodes selected");
+        alert("Please choose less than 350 Nodes");
+        $("#oncoprintInstructions").css("display", "block");
+        $("#oncoprintControlsDiv").css("display", "none");
+        $("#onc").empty();
+     }else{
+       payload = {sampleIDs: IDs};
+       msg = {cmd:"oncoprint_data_selection", callback: "displayOncoprint", status: "request", 
+            payload: payload};
+       console.log("msg cmd, call back, status, payload: %s,%s,%s,%s", msg.cmd, msg.callback, msg.status, msg.payload.sampleIDs );
+       hub.send(JSON.stringify(msg));
+    }
+  }else{
+     console.log("Oncoprint module, hub.send 'oncoprint_data_selection' for %d IDs",
+                 IDs);
+     if(IDs > 350){
+        postStatus("too many nodes selected");
+        alert("Please choose less than 350 Nodes");
+        $("#oncoprintInstructions").css("display", "block");
+        $("#oncoprintControlsDiv").css("display", "none");
+        $("#onc").empty();
+     }else{
+       payload = {sampleIDs: IDs};
+       msg = {cmd:"oncoprint_data_selection", callback: "displayOncoprint", status: "request", 
+            payload: payload};
+       console.log("msg cmd, call back, status, payload: %s,%s,%s,%s", msg.cmd, msg.callback, msg.status, msg.payload.sampleIDs );
+       hub.send(JSON.stringify(msg));
+    }
+  }  
 } // analyzeSelectedTissues
 //----------------------------------------------------------------------------------------------------
 function displayOncoprint(msg)
