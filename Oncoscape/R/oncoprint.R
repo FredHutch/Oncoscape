@@ -1,4 +1,4 @@
-create.oncoprint.input <- function(string, ds)
+create.oncoprint.input <- function(string, ds, testing)
 {
     ds.matrices = SttrDataPackage:::matrices(ds)
     cnv <- ds.matrices$mtx.cn
@@ -8,14 +8,49 @@ create.oncoprint.input <- function(string, ds)
     }else{      mrna <- ds.matrices$mtx.mrna.bc }
     genes_all = unique(union(union(colnames(cnv),colnames(mut)),colnames(mrna)))
     patients_all = unique(union(union(rownames(cnv),rownames(mut)),rownames(mrna)))
+    
+    patients = c();
+    genes = c();
 
-    if(any(string %in% genes_all) && any(string %in% substring(patients_all,1,12))){
+    if(is.numeric(string)){
+        printf("*****receive number")
+        printf("*****receive number")
+        if(string > 50){
+            geneLength = sample(c(1:50),1)
+        }else{
+            geneLength = sample(c(1:as.integer(string)),1)
+        }    
+        printf("*****geneLength is : %d\n", geneLength)
+        patientLength = as.integer(string) - geneLength
+        printf("*****patientLength is : %d\n", patientLength)
+        geneLowerBound = sample(c(1:(length(genes_all) - geneLength)),1)
+        printf("*****geneLowerBound is : %d\n", geneLowerBound)
+        if(length(patients_all) > patientLength){
+            patientLowerBound = sample(c(1:(length(patients_all) - patientLength)),1)   
+        }else{
+            patientLowerBound = sample(c(1:length(patients_all)),1)   
+        }
+        
+        printf("*****patientLowerBound is : %d\n", patientLowerBound)
+        genes = genes_all[c(geneLowerBound:(geneLowerBound+geneLength-1))] 
+        printf("*****length of genes is: %d\n", length(genes))
+        patients = patients_all[c(patientLowerBound:(patientLowerBound+patientLength-1))]
+        printf("*****length of patients is: %d\n", length(patients))
+    }else if(any(string %in% genes_all) && any(string %in% substring(patients_all,1,12))){
         patient_core_Ids <- string[string %in% substring(patients_all,1,12)]
         patients <- patients_all[match(patient_core_Ids,substring(patients_all,1,12))]#locate back to the original patient IDs
         genes <- string[string %in% genes_all]
-        
+        printf("*****original string and patients and genes processing block")
+    }else{
+        res = "It seems you only selected either patients or genes, please re-select to include both information"
+        printf("=== only genes or patients are selected, status failed\n")
+        if(testing == "testing"){
+            return <- list(status="error", payload=toJSON(res), testing="testing")
+        }else{
+            return <- list(status="error", payload=toJSON(res), testing="not testing")
+        }
+    }    
         printf("=== entering into data processing")
-        
         if(!is.null(cnv)){
             patients_cnv <- intersect(patients, rownames(cnv))
             genes_cnv <- intersect(genes, colnames(cnv))
@@ -132,21 +167,27 @@ create.oncoprint.input <- function(string, ds)
         }
      
 
-        
+        printf("=== res_flattened status:%d\n", exists("res_flattened"));
         if(exists("res_flattened")){
             r <- jsonlite:::toJSON(res_flattened, pretty = TRUE)
             #res = list(r,genes)
             res = list(r,genes)
             printf("=== printing result json file\n")
-            return <- list(status="success", payload=toJSON(res))
+            printf("=== dimension of res_flattened:%d, %d\n", dim(res_flattened)[1], dim(res_flattened)[2])
+            if(testing == "testing"){
+                return <- list(status="success", payload=toJSON(res), testing="testing")
+            }else{
+                return <- list(status="success", payload=toJSON(res), testing="not testing")
+            }
         }else{
             res = "No overlapping patients or genes within dataset, please re-select"
             printf("=== printing result json file, result is a string\n")
-            return <- list(status="error", payload=toJSON(res))
+            if(testing == "testing"){
+                return <- list(status="error", payload=toJSON(res), testing="testing")
+            }else{
+                return <- list(status="error", payload=toJSON(res), testing="not testing")
+            }
         }
-    }else{
-        res = "It seems you only selected either patients or genes, please re-select to include both information"
-        printf("=== only genes or patients are selected, status failed\n")
-        return <- list(status="error", payload=toJSON(res))
-    }
+    
+    
 }

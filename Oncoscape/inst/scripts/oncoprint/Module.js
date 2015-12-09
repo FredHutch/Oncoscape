@@ -23,6 +23,7 @@ var OncoprintModule = (function () {
   var OncoprintDiv = $("#oncoprintDiv");
   var ControlsDiv = $("#oncoprintControlsDiv");
   var compute_start;
+  var genes; 
 //--------------------------------------------------------------------------------------------
 function initializeUI()
 {
@@ -85,9 +86,12 @@ function handleSelections(msg)
    hub.raiseTab(thisModulesOutermostDiv);   //var msgAsString = JSON.stringify(msg.payload);
    
    var ids = msg.payload.value;
+   var testingMode = msg.testing;
+
    console.log("******handleSelections msg.payload.value: ", ids);
    console.log("******handleSelections ids typeof:", typeof(ids));
    console.log("******handleSelections [ids] type: ", typeof([ids]));
+   console.log("******handleSelections msg.payload.testing: ", testingMode);
    //if(typeof(ids) == "string")
       //ids = [ids];
    if(Array.isArray(ids)){
@@ -100,7 +104,7 @@ function handleSelections(msg)
    $("#oncoprintInstructions").css("display", "none");
    $("#oncoprintControlsDiv").css("display", "block");
 
-   analyzeSelectedTissues(ids);
+   analyzeSelectedTissues(ids, testingMode);
 } // handleSelections
 //----------------------------------------------------------------------------------------------------
 function postStatus(msg)
@@ -109,7 +113,7 @@ function postStatus(msg)
 
 } // postStatus
 //----------------------------------------------------------------------------------------------------
-function analyzeSelectedTissues(IDs)
+function analyzeSelectedTissues(IDs, testingMode)
 {   
    $("#onc").append("Computing...");
    var payload;
@@ -117,14 +121,24 @@ function analyzeSelectedTissues(IDs)
    if(Array.isArray(IDs)){ 
      console.log("Oncoprint module, hub.send 'oncoprint_data_selection' for %d IDs",
                  IDs.length);
-     if(IDs.length > 350){
-        postStatus("too many nodes selected");
+     if(IDs.length > 350 && testingMode !== "testing"){
         alert("Please choose less than 350 Nodes");
         $("#oncoprintInstructions").css("display", "block");
         $("#oncoprintControlsDiv").css("display", "none");
         $("#onc").empty();
+        postStatus("too many nodes selected");
+     }else if(IDs.length > 350 && testingMode === "testing"){
+        console.log("*****analyzeSelectedTissues, testing mode is: ", testingMode);
+        $("#oncoprintInstructions").css("display", "block");
+        $("#oncoprintControlsDiv").css("display", "none");
+        $("#onc").empty();
+        postStatus("too many nodes selected");
      }else{
-       payload = {sampleIDs: IDs};
+       if(testingMode === "testing"){
+          payload = {sampleIDs: IDs, testing:"testing"};
+       }else{
+          payload = {sampleIDs: IDs, testing:"not testing"};
+       }   
        msg = {cmd:"oncoprint_data_selection", callback: "displayOncoprint", status: "request", 
             payload: payload};
        console.log("msg cmd, call back, status, payload: %s,%s,%s,%s", msg.cmd, msg.callback, msg.status, msg.payload.sampleIDs );
@@ -133,17 +147,28 @@ function analyzeSelectedTissues(IDs)
   }else{
      console.log("Oncoprint module, hub.send 'oncoprint_data_selection' for %d IDs",
                  IDs);
-     if(IDs > 350){
-        postStatus("too many nodes selected");
+     if(IDs > 350 && testingMode !== "testing"){
+        
         alert("Please choose less than 350 Nodes");
         $("#oncoprintInstructions").css("display", "block");
         $("#oncoprintControlsDiv").css("display", "none");
         $("#onc").empty();
+        postStatus("too many nodes selected");
+     }else if(IDs > 350 && testingMode === "testing"){
+        console.log("*****analyzeSelectedTissues, testing mode is: ", testingMode);
+        $("#oncoprintInstructions").css("display", "block");
+        $("#oncoprintControlsDiv").css("display", "none");
+        $("#onc").empty();
+        postStatus("too many nodes selected");
      }else{
-       payload = {sampleIDs: IDs};
+       if(testingMode === "testing"){
+          payload = {sampleIDs: IDs, testing:"testing"};
+       }else{
+          payload = {sampleIDs: IDs, testing:"not testing"};
+       }   
        msg = {cmd:"oncoprint_data_selection", callback: "displayOncoprint", status: "request", 
             payload: payload};
-       console.log("msg cmd, call back, status, payload: %s,%s,%s,%s", msg.cmd, msg.callback, msg.status, msg.payload.sampleIDs );
+       console.log("msg cmd, call back, status, payload: %s,%s,%s,%s", msg.cmd, msg.callback, msg.status, msg.payload.sampleIDs, msg.payload.testing );
        hub.send(JSON.stringify(msg));
     }
   }  
@@ -156,8 +181,12 @@ function displayOncoprint(msg)
    
    console.log("displayOncoprint print recieved msg.payload: %s", msg.payload);
    
-   if(msg.status == "error") {
-      alert(msg.payload);
+   if(msg.status === "error") {
+      if(msg.testing !== "testing"){
+        alert(msg.payload);
+      }
+      genes = [];
+      console.log("*****Genes are empty array");
       $("#onc").empty();
       postStatus("error from R");
    }else{
@@ -167,8 +196,9 @@ function displayOncoprint(msg)
      xx = JSON.parse(msg.payload);
      console.log("displayOncoprint print recieved genes: %s",xx[1]);
      genes = xx[1];
-       processed_data = JSON.parse(xx[0]);
-       var then = Date.now(); 
+     processed_data = JSON.parse(xx[0]);
+     console.log("*****no error report but the processed_data is: ", processed_data);
+     var then = Date.now(); 
      onc = Oncoprint.create('#onc', {cell_padding: cell_padding, cell_width: cell_width});
        console.log("Milliseconds to create Oncoprint div: ", Date.now() - then); 
      onc.suppressRendering();
@@ -177,37 +207,37 @@ function displayOncoprint(msg)
        map_mrna_data(mrna_data_promise, cnv_data);
        map_mut_data(mut_data_promise, mrna_data);*/ 
       
-    var startGenes = Date.now(); 
+      var startGenes = Date.now(); 
         
-    $.when(processed_data).then(function() {
+      $.when(processed_data).then(function() {
 
-       if(typeof(genes) === "string"){
-        genes = [genes];
-       }  
-      tracks_to_load = genes.length;
-      console.log("Number of tracks to load: ", tracks_to_load);
+         if(typeof(genes) === "string"){
+          genes = [genes];
+         }  
+        tracks_to_load = genes.length;
+        console.log("Number of tracks to load: ", tracks_to_load);
 
-      var track_id = [];
-      for(i = 0; i < genes.length; i++){
-        var thisGeneStart = Date.now();
-        gene = genes[i];
-  
-        var data_gene = processed_data.filter(data_gene_map); 
+        var track_id = [];
+        for(i = 0; i < genes.length; i++){
+          var thisGeneStart = Date.now();
+          gene = genes[i];
+    
+          var data_gene = processed_data.filter(data_gene_map); 
 
-        var addTrackStart = Date.now();
-        track_id[i] = onc.addTrack({label: gene, removable:true}, 0);
-        console.log("Milliseconds to addTrack ", gene, " : ", Date.now() - addTrackStart);
+          var addTrackStart = Date.now();
+          track_id[i] = onc.addTrack({label: gene, removable:true}, 0);
+          console.log("Milliseconds to addTrack ", gene, " : ", Date.now() - addTrackStart);
 
-        if(i === 0){
-          onc.setRuleSet(track_id[i], Oncoprint.GENETIC_ALTERATION);
-        }else{
-          onc.useSameRuleSet(track_id[i], track_id[0]);
+          if(i === 0){
+            onc.setRuleSet(track_id[i], Oncoprint.GENETIC_ALTERATION);
+          }else{
+            onc.useSameRuleSet(track_id[i], track_id[0]);
+          }
+
+          onc.setTrackData(track_id[i], data_gene, true);
+
         }
-
-        onc.setTrackData(track_id[i], data_gene, true);
-
-      }
-      
+        
       onc.releaseRendering();
       onc.sort();
       console.log("Milliseconds to step through processded_data ", Date.now() - startGenes);
@@ -317,6 +347,9 @@ return{
         hub.addMessageHandler("sendSelectionTo_Oncoprint", handleSelections);
         hub.addMessageHandler("displayOncoprint", displayOncoprint);
       },
+    genes: function(){
+       return genes;
+    }
 }; // OncoprintTabModule return value
 
 //----------------------------------------------------------------------------------------------------
