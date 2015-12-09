@@ -54,13 +54,11 @@ function runTests(datasetNames, reps, exitOnCompletion)
       var msg = $(majorStatusDiv).text();
       console.log("test status changed, text: " + msg);
       datasetIndex++;
-      if(datasetIndex < (datasetNames.length * reps * 5)){
-      //if(datasetIndex < (datasetNames.length)){  
+      if(datasetIndex < (datasetNames.length * reps)){
          console.log("about to test dataset " + datasetNames[datasetIndex]);      
          testStatusObserver = new MutationObserver(onMutation);
          testStatusObserver.observe(target, config);
-         if(datasetIndex < (datasetNames.length * reps * 5))
-         //if(datasetIndex < (datasetNames.length))
+         if(datasetIndex < (datasetNames.length * reps))
             console.log('*****before testLoadDatasetOncoprint');
             console.log("*****dataSetNames is: ", datasetNames);
             console.log("*****datasetIndex is: ", datasetIndex);
