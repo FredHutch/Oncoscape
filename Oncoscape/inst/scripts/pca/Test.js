@@ -57,7 +57,7 @@ function runTests(datasetNames, reps, exitOnCompletion)
       var msg = $(majorStatusDiv).text();
       console.log("test status changed, text: " + msg);
       datasetIndex++;
-      if(datasetIndex < (datasetNames.length * reps )){
+      if(datasetIndex < (datasetNames.length * reps)){
          console.log("about to test dataset " + datasetNames[datasetIndex]);      
          testStatusObserver = new MutationObserver(onMutation);
          testStatusObserver.observe(target, config);
@@ -163,7 +163,7 @@ function testCalculate(genesetList)
 function testContentsOfPcaPlot()
 {
    console.log("--- testContentsOfPcaPlot");
-   
+   var g_pcaMsg = pca.ModuleMsg();
     QUnit.test('testPcaContents', function(assert) { 
       assert.equal($("circle").length, g_pcaMsg.g_selectedIDs.length);
       var circleIndex = hub.getRandomInt(0, g_pcaMsg.g_selectedIDs.length - 1);
@@ -193,6 +193,7 @@ function testSendIDs() {
    //var ids = g_pcaMsg.g_selectedIDs.splice(-1, 1);
    var ids;
    var maxNodes = 200;
+   var g_pcaMsg = pca.ModuleMsg();
    if(g_pcaMsg.g_selectedIDs.length <= maxNodes){
       ids = g_pcaMsg.g_selectedIDs.slice(0, g_pcaMsg.g_selectedIDs.length);
    }else{
@@ -208,6 +209,7 @@ function testSendIDs() {
         var id = mutation.target.id;
         var statusMsg = $(minorStatusDiv).text();
         QUnit.test(title, function(assert) {
+           g_pcaMsg = pca.ModuleMsg();
            console.log("-- in QUnit.test for testSendIDs " + ids.length + "  statusMsg: " + statusMsg);
            //TCGAgbm is using mtx.mrna.ueArray, sampleID duplicates: "TCGA.06.0145.01.1" "TCGA.06.0145.01.2" "TCGA.06.0145.01.3"
  													//"TCGA.06.0137.01.1" "TCGA.06.0137.01.2" "TCGA.06.0145.01.4"
@@ -247,6 +249,7 @@ function testSendIDstoHighlight() {
    var title = "testSendIDstoHighlight";
    console.log(title);
    //sending all the ids to highligh
+   var g_pcaMsg = pca.ModuleMsg();
    var ids = g_pcaMsg.g_selectedIDs;
    if(pcaStatusObserver === null){
 	 pcaStatusObserver = new MutationObserver(function(mutations) {

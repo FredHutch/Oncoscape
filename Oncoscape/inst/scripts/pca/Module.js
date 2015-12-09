@@ -1,5 +1,5 @@
 //----------------------------------------------------------------------------------------------------
-var g_pcaMsg; 
+
 var PCAModule = (function () {
 
   var currentPatientIDs = null;
@@ -24,9 +24,6 @@ var PCAModule = (function () {
   var testResultsOutputDiv;
 
   var patientMenu;
-
-
-
   var pcaSendSelectionMenu;
 
   var thisModulesName = "PCA";
@@ -41,7 +38,7 @@ var PCAModule = (function () {
 
   var sendSelectionsMenuTitle = "Send selection...";
   var selectionDestinationsOfferedHere = ["PCA", "PCA (highlight)"];
-  
+  var g_pcaMsg; 
 
 //----------------------------------------------------------------------------------------------------
 function initializeUI ()
@@ -736,6 +733,10 @@ function assessUserIdForTesting(msg)
 
 } // assessUserIdForTesting
 //----------------------------------------------------------------------------------------------------
+function ModuleMsg(){
+  return g_pcaMsg;
+}
+//----------------------------------------------------------------------------------------------------
 function initializeModule()
 {
    hub.addOnDocumentReadyFunction(initializeUI);
@@ -757,7 +758,8 @@ function initializeModule()
 //----------------------------------------------------------------------------------------------------
 return{
   init: initializeModule,
-  demo: demo
+  demo: demo,
+  ModuleMsg: ModuleMsg
   };
     
 }); // PCAModule
