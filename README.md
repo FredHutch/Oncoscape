@@ -1,8 +1,10 @@
 # Oncoscape
 
-A web application to apply/develop analysis tools for Molecular and Clinical data
+Oncoscape is a web application that hosts an integrated suite of analysis tools for users to explore hypotheses related to molecular and clinical data in order to better understand cancer biology and treatment options.
 
-See our [website](http://oncoscape.sttrcancer.org) to start analyzing TCGA data using tools hosted by [STTR](http://sttrcancer.org) at [Fred Hutch](http://www.fredhutch.org) or follow the [Installation instructions](INSTALL.md) to install and run Oncoscape on your own machine.
+--**_Intro and Demo and videos coming soon_**
+
+See our [website](http://oncoscape.sttrcancer.org) to start analyzing TCGA data using tools hosted by [STTR](http://sttrcancer.org) at [Fred Hutch](http://www.fredhutch.org) or follow the [Installation instructions](INSTALL.md) to install and run Oncoscape on your own machine.  Contribution from external developers is not only welcome, but encouraged; please see our [contributing guidelines](CONTRIBUTING.md) for details.
 
 ## Version: oncoDev14 (Release)		
 Last Modified 8/20/15		
@@ -24,7 +26,7 @@ message passing.
 
 Oncoscape's design encourages custom deployments focused on any clinical/molecular 		
 data set. Oncoscape, here at GitHub, ships with patient and molecular data from the 		
-TCGA's study of Glioblastoma multiforme. 		
+TCGA. 		
 
 ##	Main Components:		
 * oncoDev14        - main oncoscape code with all tabs/submodules		
@@ -48,12 +50,12 @@ PatientHistory and SttrDataPackage are required base classes of the data package
 ## Documentation		
 
 Documentation for each module and dataset can be found within the respective R package.  		
-An overview of how to contribute new modules is ###TBD###		
+An overview of how to contribute new modules is under development.  For comments, questions or suggestions, please contact us through the outlets listed below.		
 
 ## Update		
 
 OncoDev14 (v1.4.60) was built and tested under R version >=3.2.1		
-The latest version of Oncoscape can be obtained through the gitHub website ####		
+The [latest release](http://oncoscape.sttrcancer.org) of Oncoscape is maintained under the 'master' branch of our GitHub repository, while the [beta version](http://oncotest1.sttrcancer.org) includes upcoming enhancements maintained under the 'develop' branch.
 
 ## Authors		
 
@@ -62,7 +64,7 @@ Jenny Zhang under the direction of the STTR at Fred Hutch.
 	
 ## Contact		
 
-To report any bugs, submit patches, or request new features, please log an issue [in our issue tracker](https://github.com/FredHutch/Oncoscape/issues/new)
+To report any bugs, submit patches, or request new features, please log an issue [in our issue tracker](https://github.com/FredHutch/Oncoscape/issues/new).  For direct inquiries, please send an email to contact@oncoscape.org.
 
 STTRcancer		
 Fred Hutchinson Cancer Research Center		
