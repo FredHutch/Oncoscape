@@ -64,31 +64,3 @@ runTests <- function()
 
 } # exploreExpressionData 
 #----------------------------------------------------------------------------------------------------
-	#WHAT IS THIS DOING
-   
-   for(name in expression.matrix.names){
-       # create a variable mtx using matrices function from STTRDataPackageClass, and grab all the matrices in the package and
-       #list them as mtx."name of the matrix" Example:mtx.mrna.ueArray, mtx.mrna.bc
-       
-       mtx <- matrices(dz)[[name]];
-       
-       #Print the name of the matrix as a string, the number or rows as a digit, number of cols as a digit of the mtx variables. 
-       printf("  * %s: %d x %d", name, nrow(mtx), ncol(mtx))
-       
-       # create a variable that finds matches in both patient.names (from getpatienttable) and rownames of the any mRNA data packages
-       # This is finding exact patient ID matches. intersect returns common values of two vectors
-       exact.patientIDs.with.expression <- intersect(patient.names, rownames(mtx))
-       
-       #create a variable tmp to call the loop as a function (?) and find similar patterns in the patient.names 
-       # and the rownames(patient identifies) in all matrices in the package.
-       tmp <- sapply(patient.names, function(name) grep(name, rownames(mtx)))
-       
-       #make this output a variable that returns as a vector 
-       matchable.patientIDs.with.expression <- names(which(unlist(tmp) > 0))
-       
-       
-       #print the results as patients with expression data (string), digit (length of exact), digit (length of matchable)
-       printf("    patients with expression data in %s: %d exact, %d matchable", name,
-              length(exact.patientIDs.with.expression),
-              length(matchable.patientIDs.with.expression))
-       } # for name
