@@ -11,7 +11,7 @@ var markersAndTissuesModule = (function () {
   var cyDiv;
   var searchBox;
   var hideEdgesButton, showEdgesButton, showAllEdgesButton, clearSelectionButton, sfnButton;
-  var markersFitViewButton, markersHideEdgesButton, markersShowEdgesButton;
+  var markersFitViewButton, markersHideEdgesButton, markersShowEdgesButton, markersZoomSelectedButton;
 
   var nodeRestriction = [];
   var subSelectButton;
@@ -30,6 +30,9 @@ var markersAndTissuesModule = (function () {
   var thisModulesName = "MarkersAndPatients";
   var thisModulesOutermostDiv = "markersAndPatientsDiv";
   var userID = "NA";
+
+     // assigned on first load, used when tumor groups are cleared
+  var defaultPatientNodeColor = "black";  
 
       // sometimes a module offers multiple selection destinations.
       // usually there is just one:
@@ -61,8 +64,10 @@ function initializeUI ()
 
   markersFitViewButton = $("#markersFitViewButton");
   markersFitViewButton.click(function(){cwMarkers.fit(50);});
-  //hub.disableButton(markersFitViewButton);
   
+  markersZoomSelectedButton = $("#markersZoomSelectedButton");
+  markersZoomSelectedButton.click(zoomSelected);
+
   markersHideEdgesButton = $("#markersHideEdgesButton");
   markersHideEdgesButton.click(hideAllEdges);
   hub.disableButton(markersHideEdgesButton);
@@ -144,18 +149,32 @@ function initializeUI ()
 
 function buttonAndMenuStatusSetter()
 {
-   var selectedNodeCount = cwMarkers.nodes("node:selected").length;
+   var selectedNodes = cwMarkers.nodes("node:selected");
+   var selectedNodeCount = selectedNodes.length;
+   var selectedPatientNodes = cwMarkers.nodes("node[nodeType='patient']:selected");
+   var selectedPatientNodeCount = selectedPatientNodes.length;
+   
    if(selectedNodeCount === 0){
       hub.disableButton(sendSelectionsMenu);
-      hub.disableButton(subSelectButton);
       hub.disableButton(markersShowEdgesFromButton);
+      hub.disableButton(markersZoomSelectedButton);
       }
    else{
       hub.enableButton(sendSelectionsMenu);
-      hub.enableButton(subSelectButton);
       hub.enableButton(markersShowEdgesFromButton);
+      hub.enableButton(markersZoomSelectedButton);
       }
       
+      // the Subselect button is only on if a primary selection has been made
+   var categories = selectedPatientNodes.map(function(e) {return e.data().category;});
+   var categoriesPresent = categories.filter(function(e){return e;}).length > 0;  // undefined & null filtered out
+
+   if(selectedPatientNodeCount > 0 & categoriesPresent)
+      hub.enableButton(subSelectButton);
+   else
+      hub.disableButton(subSelectButton);
+   
+
    var visibleEdges = cwMarkers.edges().fnFilter(function(e){return(e.visible());})
                                        .fnFilter(function(e){return(e.data("edgeType") != "chromosome");}).length;
    if(visibleEdges > 0)
@@ -257,8 +276,8 @@ function configureCytoscape ()
 {
   cwMarkers = $("#cyMarkersDiv");
   cwMarkers.cytoscape({
-     hideEdgesOnViewport: true,
-     hideLabelsOnViewport: true,
+     hideEdgesOnViewport: false,
+     hideLabelsOnViewport: false,
      boxSelectionEnabled: true,
      showOverlay: false,
      minZoom: 0.001,
@@ -405,14 +424,16 @@ function smartZoom(event)
    cwMarkers.edges().style({"width": borderWidthString});
    
    var newWidth, newHeight, id;
-   visibleNodes.map(function(node){
-      newWidth = 3 *  node.data("trueWidth") / zoomRatio;
-      newHeight = 3 *  node.data("trueHeight") / zoomRatio;
-      id = node.id();
-      node.data({zoomed: true});
-      node.style({width: newWidth, height: newHeight, label: id, "font-size": fontSizeString,
-                 "border-width": borderWidthString});
-      });
+   cwMarkers.batch(function(){
+      visibleNodes.map(function(node){
+         newWidth = 3 *  node.data("trueWidth") / zoomRatio;
+         newHeight = 3 *  node.data("trueHeight") / zoomRatio;
+         id = node.id();
+         node.data({zoomed: true});
+         node.style({width: newWidth, height: newHeight, label: id, "font-size": fontSizeString,
+                    "border-width": borderWidthString});
+         });
+       });
 
   //console.log("visibleNode mapping complete, adding smartZoom handler back");
   //cwMarkers.on('zoom', smartZoom);
@@ -433,24 +454,32 @@ function defaultStyle()
                                              'font-size': "3px"});});
 
 } // defaultStyle
-//--------------------------------------------------------------------------------
-// there are often subgroups among a selected node.
-// here we opreate only on those distinguished by different node border color
-// the dialog posted here provided interactive select/deselect of those originally
-// selected nodes, by color.
-// this function could be made smarter by being made avaialble (via the subselect button) only
-// if multiple border colors are found within the currently selected nodes
+//----------------------------------------------------------------------------------------------------
+// tumor (patient, sample) nodes can be categorized, usually based upon independent biology,
+// expressed in simple named tables included in each data package.  Each sample group in these
+// tables is assigned a color for distinctive display.
+// here we present a simple dialog so that one or more categories within the current selection
+// can be subselected
 //
 function subSelectNodes()
 {
-  var selectedNodes = cwMarkers.nodes("node:selected");
-  var borderColors =  jQuery.unique(selectedNodes.map(function(node){return (node.style("border-color"));}));
-  console.log(JSON.stringify(borderColors));
+  var selectedPatientNodes = cwMarkers.nodes("node[nodeType='patient']:selected");
+  var categories = jQuery.unique(selectedPatientNodes.map(function(e){return e.data("category");}));
+
+  var colors = jQuery.unique(selectedPatientNodes.map(function(node){return (node.style("background-color"));}));
+
+
+  console.log(JSON.stringify(colors));
 
   var content = "<form action=''>";
-  for(i=0; i < borderColors.length; i++){
-     var color = borderColors[i];
-     var e = "<input type='checkbox' class='markersSubSelectRadioButton' name='" + color + "' checked> " + color + "<br>";
+  for(i=0; i < categories.length; i++){
+     var category = categories[i];
+     var color = colors[i];
+     var id = "cb" + i;
+     var e = "<input id='" + id + "' type='checkbox' class='markersSubSelectRadioButton' name='" + category + "'" +
+             " style='background':'" + color + "'" + " checked> " +
+             "<label for='" + id + "' style='color:" + color + "'>" + category + "</label><br>";
+     console.log(e);
      content = content + e;
      }
   content = content + "</form>";
@@ -458,7 +487,8 @@ function subSelectNodes()
 
   content = content + button;
 
-  var dialog =  $('<div id="markersSubSelectDialog" />').html(content).dialog();
+  var dialog = $('<div id="markersSubSelectDialog" />').html(content).dialog({title:"Subselect by Sample Category",
+                                                                              width: "500px"});
 
   $("#markersSubSelectCloseButton").click(function(){
      console.log("close dialog");
@@ -468,10 +498,10 @@ function subSelectNodes()
   $(".markersSubSelectRadioButton").click(function(e) {
       console.log("radio!"); 
       console.log(this.name + " " + this.checked);
-      var color = this.name;
-      var selectSubset = this.checked;
-      var subsetNodes = selectedNodes.filterFn(function(node) {return(node.style("border-color") == color);});
-      if(selectSubset)
+      var category = this.name;
+      var doSelectNodes = this.checked;
+      var subsetNodes = selectedPatientNodes.filterFn(function(e){return(e.data("category") === category);});
+      if(doSelectNodes)
          subsetNodes.select();
       else
          subsetNodes.unselect();
@@ -479,21 +509,34 @@ function subSelectNodes()
 
 } // subSelectNodes
 //----------------------------------------------------------------------------------------------------
+// patient (sample, tumor) nodes sometimes get category data attached: the tumorCategorizationsMenu
+// initiates that process.  the server supplies (nodeID, cluster|group, color) triples, one for
+// each categorized tumor.  we place the group into a category field in the node's data, and collapse
+// all the color/category assignments down into a few style rules.
+// in this function, all of that (possibly) present information is stripped out.
+function clearTumorCategoriesAndCategoryStyles()
+{
+   var patientNodes = cwMarkers.nodes("node[nodeType ='patient']");
+   cwMarkers.batch(function(){
+      patientNodes.map(function(e){if("category" in e.data()) delete e.data().category;});
+      });
+      
+   var oldStyle = cwMarkers.style().json();
+   var newStyle = oldStyle.filter(function(e){return(e.selector.indexOf("node[category"));});
+   cwMarkers.style(newStyle);
+
+} // clearTumorCategoriesAndCategoryStyles
+//----------------------------------------------------------------------------------------------------
 function requestTumorCategorization()
 {
   var allCategoryNames = tumorCategorizationsMenu.children().map(function() {return $(this).val();}).get();
   var menuTitle = allCategoryNames[0];
   var categorizationName = tumorCategorizationsMenu.val();
 
-  if(categorizationName === menuTitle)
-     return;
+  console.log("--- requestTumorCategorization, name: " + categorizationName);
 
-  if(categorizationName === "Clear"){  // handle this case here directly
-    var tumorsInGraph = cwMarkers.nodes("[nodeType='patient']");
-    tumorsInGraph.forEach(function(node, index){
-       node.data({subType: "unassigned"});
-       node.style({'border-color': "black"});
-       });
+  if(categorizationName === menuTitle || categorizationName === "Clear"){
+     clearTumorCategoriesAndCategoryStyles();
      return;
      } // clear
      
@@ -513,26 +556,69 @@ function applyTumorCategorization(msg)
    var tumorsInGraph = cwMarkers.nodes("[nodeType='patient']");
    var tumorsInTable = msg.payload.rownames;
    var tbl = msg.payload.tbl;
+   var categoryRules = {};
+   tbl.forEach(function(row){categoryRules[row[0]] = row[1];});
+
+
+        /* jshint ignore:start */
+	//debugger;
+	/* jshint ignore:end */
+
+   categoryRuleNames = Object.keys(categoryRules);
+   categoryRuleNames.filter(function(name){return name !== "null";});
+   categoryRuleNames.filter(function(name){return name !== null;});
+   var newRules = [];
+
+   categoryRuleNames.forEach(function(name){
+      var selector = "node[category='" + name + "']";
+      color=categoryRules[name];
+      console.log(selector + ": " + color);
+      newRules.push({"selector": selector, "style": {"background-color": color}});
+      var selector2 = selector + ":selected";
+      newRules.push({"selector": selector2, "style": {"border-color": "red",
+                                                      "background-color": color,
+                                                      "border-width": "10px"}});
+      });
+
+      // category=unassigned nodes are rendered in grey
+   newRules.push({"selector": "node[category='unassigned']",
+                     style: {"background-color": "lightgray"}});
+
+     // but get the standard treatment when selected
+   newRules.push({"selector": "node[category='unassigned']:selected",
+                     style: {"border-color": "red",
+                             "background-color": "lightgray",
+                             "border-width": "10px"}});
+
    hub.logEventOnServer(thisModulesName, "markersApplyTumorCategorization", "data received", "");
 
-   tumorsInGraph.forEach(function(node, index){
-      var nodeID = node.id();  // our convention is that this is the tumor name, eg, "TCGA.02.0014"
-      var indexInTable = tumorsInTable.indexOf(nodeID);
-      if(indexInTable >= 0){
-         var cluster = tbl[indexInTable][0];
-         var color = tbl[indexInTable][1];
-         node.data({subType: cluster});
-         node.style({'border-color': color});
-         }
-      else{
-         node.data({subType: "unassigned"});
-         node.style({'border-color': "black"});
-         }
-       }); // forEach
+   console.log("starting tumorsInGraph.forEach");
+   cwMarkers.batch(function() {
+      tumorsInGraph.forEach(function(node, index){
+        var nodeID = node.id();  // our convention is that this is the tumor name, eg, "TCGA.02.0014"
+        var indexInTable = tumorsInTable.indexOf(nodeID);
+        if(indexInTable >= 0){
+           var cluster = tbl[indexInTable][0];
+           var color = tbl[indexInTable][1];
+           node.data({category: cluster});
+           }
+        else{
+           node.data({category: "unassigned"});
+           }
+         }); // forEach
+       }); // batch
 
-  cwMarkers.style().update();
+  console.log("ending tumorsInGraph.forEach");
+
+  var oldStyle = cwMarkers.style().json();
+     // remove any pre-existing node category rules
+  var oldStyleClean = oldStyle.filter(function(e){return(e.selector.indexOf("node[category"));});
+
+  var newStyle = oldStyleClean.concat(newRules);
+  cwMarkers.style(newStyle);
+  
   postStatus("applyTumorCategorization complete");
-  hub.logEventOnServer(thisModulesName, "markersApplyTumorCategorization", "node subType assigned", "");
+  hub.logEventOnServer(thisModulesName, "markersApplyTumorCategorization", "node category assigned", "");
 
 } // applyTumorCategorization
 //----------------------------------------------------------------------------------------------------
@@ -747,6 +833,7 @@ function selectedNodeNames(cw)
 //----------------------------------------------------------------------------------------------------
 function showEdgesFromSelectedNodes()
 {
+   
    var targets = nodeRestriction;
    var selectedNodes = cwMarkers.nodes("node:selected");
    var neighbors = selectedNodes.neighborhood();
@@ -760,6 +847,7 @@ function showEdgesFromSelectedNodes()
 
    if(targets.length === 0){
       candidateEdges.show();
+      postStatus("showEdgesFromSelectedNodes");
       return;
       }
 
@@ -772,6 +860,8 @@ function showEdgesFromSelectedNodes()
       var actual=edge.connectedNodes().map(function(node){return node.id();});
       return(intersects(actual, targets));
        }).show();
+
+   postStatus("showEdgesFromSelectedNodes");
 
 } // showEdgesFromSelectedNodes
 //----------------------------------------------------------------------------------------------------
@@ -934,6 +1024,8 @@ function selectNodes(nodeNames)
        } // if found, index >= 0
     } // for i
 
+   postStatus("nodes selected: " + allNodes.length);
+
 } // selectNodes
 //----------------------------------------------------------------------------------------------------
    // todo: build up the filter string first, then send it all at once
@@ -959,6 +1051,8 @@ function doSearch(e)
 
    if (keyCode == 13) {
       var searchString = searchBox.val().toUpperCase();
+      if(searchString.length === 0)
+         return;
       console.log("searchString: " + searchString);
       var idsActual = nodeIDs();
       var idsUpper = upperCaseNodeIDs();
@@ -1002,6 +1096,8 @@ function displayMarkersNetwork(msg)
       var defaultLayout = JSON.stringify(cwMarkers.nodes().map(function(n){
                                          return({id:n.id(), position:n.position()});}));
       localStorage.markersDefault = defaultLayout;
+      defaultPatientNodeColor = cwMarkers.nodes("[nodeType='patient']").style("background-color");
+
       hub.logEventOnServer(thisModulesName, "display markers network", "complete", "");
 
         //postStatus("markers network displayed");  // deferred; set when the category menu is configured

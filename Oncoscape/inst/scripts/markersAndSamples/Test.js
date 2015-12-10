@@ -107,7 +107,7 @@ function testLoadDataSetDisplayNetworkSendIDs(dataSetName)
            console.log("markersAndSamples loaded, with " + nodeCount + " nodes and " + edgeCount + " edges.");
            assert.ok(nodeCount > 10, dataSetName + " nodeCount > 10");
            assert.ok(edgeCount > 10, dataSetName + " edgeCount > 10");
-           testSearch();
+           testSearchAndSelect();
            });
         }); // new MutationObserver
       } // if null mutation observer
@@ -127,9 +127,109 @@ function testLoadDataSetDisplayNetworkSendIDs(dataSetName)
 //   1) clear selection
 //   2) find the node with highest degree
 //   3) select that node
+//   4) test that it is selected
+function testSearchAndSelect()
+{
+   var title = "testSearchAndSelect";
+   console.log("--- Test.markers " + title);
+   var searchBoxID = "#markersAndTissuesSearchBox";
+   var searchBox = $(searchBoxID);
+   cwMarkers.nodes().unselect();
+   searchBox.val("");
+
+      // all nodes have a "degree" data attribute, a count of its edges.  find the 
+      // most connected patient node
+
+   var nodes = cwMarkers.nodes().filterFn(function(node){return (node.data("nodeType") === "patient");});
+   var nodesByDegree = nodes.map(function(node){return {id:node.data("id"), degree:node.degree()};});
+   var mySort = function(a,b) {return(b.degree - a.degree);};
+   var mostConnectedNode = nodesByDegree.sort(mySort)[0];
+   var highestDegree = mostConnectedNode.degree;
+   console.log("mostConnectedNode: " + JSON.stringify(mostConnectedNode));
+
+   var config = {attributes: true, childList: true, characterData: true};
+   var target = document.querySelector(minorStatusDiv);
+
+   if(markersAndSamplesStatusObserver === null){
+      markersAndSamplesStatusObserver = new MutationObserver(function(mutations) {
+         mutation = mutations[0];
+         markersAndSamplesStatusObserver.disconnect();
+         markersAndSamplesStatusObserver = null;
+         var id = mutation.target.id;
+         var statusMsg = $(minorStatusDiv).text();
+         QUnit.test(title, function(assert) {
+            console.log("-- in QUnit.test for testSearchAndSelect " + 7 + "  statusMsg: " + statusMsg);
+            var selectedNode = cwMarkers.filter("node:selected").map(function(node){return node.id();});
+            assert.equal(selectedNode.length, 1, "exactly 1 selected node");
+            assert.equal(selectedNode, mostConnectedNode.id, "selected node has highest degree");
+            testShowEdgesFromSelectedNode();
+            });
+         }); // new MutationObserver
+      } // if observer null
+      
+   markersAndSamplesStatusObserver.observe(target, config);
+   searchBox.val(mostConnectedNode.id);
+   searchBox.trigger(jQuery.Event("keydown", {which: 13}));
+
+}  // testSearchAndSelect
+//------------------------------------------------------------------------------------------------------------------------
+//   1) one and only one node, the one with highest degree, is already selected.
+//   2) manipulate the graphOperations menu to "Show Edges from Selected Nodes"
+//   3) the number of edges should equals sum of
+//       a) the always-visible chromsome edges
+//       b) the degree of the selected node
+function testShowEdgesFromSelectedNode()
+{
+   var title = "testShowEdgesFromSelectedNode";
+   console.log("--- Test.markers " + title);
+
+   var degree = -1;
+   var chromosomeEdgeCount = -1;
+
+   QUnit.test(title + " initially just one node selected, chromomsome edges visible", function(assert){
+      var selectedNode = cwMarkers.filter("node:selected");
+      assert.equal(selectedNode.length, 1, "still just one node selected");
+      degree = selectedNode.degree();
+      assert.ok(degree > 0, "degree > 0");
+        // our convention is that chromosome edges are always visible.  get the count
+      chromosomeEdgeCount = cwMarkers.edges("edge[edgeType='chromosome']:visible").length;
+      console.log("chrom edge count: " + chromosomeEdgeCount);
+      assert.ok(chromosomeEdgeCount > 23, "permanently visible chromosome edges found");  // 48 (on 7 dec 2015)
+      });
+      
+   var config = {attributes: true, childList: true, characterData: true};
+   var target = document.querySelector(minorStatusDiv);
+    
+   if(markersAndSamplesStatusObserver === null){
+     console.log("observer is null");
+     markersAndSamplesStatusObserver = new MutationObserver(function(mutations) {
+         mutation = mutations[0];
+         markersAndSamplesStatusObserver.disconnect();
+         markersAndSamplesStatusObserver = null;
+         var id = mutation.target.id;
+         var statusMsg = $(minorStatusDiv).text();
+         QUnit.test(title, function(assert) {
+            var totalEdgeCount = cwMarkers.edges().length;
+            var visibleEdgeCount = cwMarkers.edges("edge:visible").length;
+            assert.equal(degree + chromosomeEdgeCount, visibleEdgeCount, "visibleEdgeCount correct");
+            markEndOfTestingDataSet();
+            });
+         }); // new MutationObserver
+     } // if observer null
+      
+   markersAndSamplesStatusObserver.observe(target, config);
+   var netOpsMenu = $("#cyMarkersOperationsMenu");
+   netOpsMenu.val("Show Edges from Selected Nodes");
+   netOpsMenu.trigger("change");
+
+}  // testShowEdgesFromSelectedNode
+//------------------------------------------------------------------------------------------------------------------------
+//   1) clear selection
+//   2) find the node with highest degree
+//   3) select that node
 //   4) show edges, select all connected
 //   5) make sure selected node count minus one is equal to degree of the original node
-function testSearch()
+function oldTestSearch()
 {
    console.log("--- Test.markers testSearch");
    var searchBox = $("#markersAndTissuesSearchBox");
@@ -147,29 +247,36 @@ function testSearch()
      netOpsMenu.trigger("change");
      cwMarkers.filter("node:selected").unselect();
      assert.equal(cwMarkers.filter("node:selected").length, 0, "zero selected nodes");
-     setTimeout(function(){searchBox.val(mostConnectedNode.id);}, 0);
-     searchBox.trigger(jQuery.Event("keydown", {which: 13}));
-     assert.equal(cwMarkers.filter("node:selected").length, 1, "one selected node from search box: " +
-                  mostConnectedNode.id);
-     netOpsMenu.val("Show Edges from Selected Nodes");
-     netOpsMenu.trigger("change");
-     netOpsMenu.val("Select All Connected Nodes");
-     netOpsMenu.trigger("change");
-     console.log("about to check for selected nodes");
-     var expectedSelectionCount = mostConnectedNode.degree + 1; // include self
-     var nodes = cwMarkers.nodes();
-     var nodeNames = JSON.stringify(cwMarkers.nodes().map(function(node){return node.id();}));
-     var selectedNodes = cwMarkers.filter("node:selected");
-     var selectedNodeNames = JSON.stringify(selectedNodes.map(function(node){return node.id();}));
-     console.log("selected nodes after filter: " + selectedNodeNames);
-     assert.ok(cwMarkers.filter("node:selected").length == expectedSelectionCount,
-               "found expected number of selected nodes: " + selectedNodes.length);
-     setTimeout(function(){searchBox.val("");}, 0);
-     cwMarkers.nodes().unselect();
-     testSendGoodIDs();
+     searchBox.val(mostConnectedNode.id);
+     setTimeout(function(){
+       assert.equal(searchBox.val(), mostConnectedNode.id);
+       searchBox.trigger(jQuery.Event("keydown", {which: 13}));
+       assert.equal(cwMarkers.filter("node:selected").length, 1, "one selected node from search box: " +
+                    mostConnectedNode.id);
+       netOpsMenu.val("Show Edges from Selected Nodes");
+       netOpsMenu.trigger("change");
+       netOpsMenu.val("Select All Connected Nodes");
+       netOpsMenu.trigger("change");
+       console.log("about to check for selected nodes");
+       var expectedSelectionCount = mostConnectedNode.degree + 1; // include self
+       var nodes = cwMarkers.nodes();
+       var nodeNames = JSON.stringify(cwMarkers.nodes().map(function(node){return node.id();}));
+       //var selectedNodes = cwMarkers.filter("node:selected");
+       var selectedNodes = cwMarkers.nodes("node:selected");
+       console.log("cwMarkers filter sees selected nodes, count: " + selectedNodes.length);
+       var selectedNodeNames = JSON.stringify(selectedNodes.map(function(node){return node.id();}));
+       console.log("selected nodes after filter: " + selectedNodeNames);
+       assert.ok(cwMarkers.filter("node:selected").length == expectedSelectionCount,
+                 "found expected number of selected nodes: " + selectedNodes.length);
+       //setTimeout(function(){searchBox.val("");}, 0);
+       //searchBox.val("");
+       //cwMarkers.nodes().unselect();
+       markEndOfTestingDataSet();
+       }, 0);
+     //testSendGoodIDs();
      });
 
-}  // testSearch
+}  // oldTestSearch
 //------------------------------------------------------------------------------------------------------------------------
 function testSendGoodIDs()
 {
