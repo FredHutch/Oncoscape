@@ -49,11 +49,12 @@ ADD makefile /home/sttrweb/Oncoscape/
 
 WORKDIR /home/sttrweb/Oncoscape
 
-RUN make install
 RUN chown -R sttrweb:sttrweb /home/sttrweb 
 
-EXPOSE 7777
-
 USER sttrweb
+
+RUN make installLocal
+
+EXPOSE 7777
 
 CMD make oncoDocker
