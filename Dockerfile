@@ -45,7 +45,7 @@ ADD installRpackages_global.sh /home/sttrweb/Oncoscape/
 ADD installRpackages_local.sh /home/sttrweb/Oncoscape/
 ADD testAllWebsocketOperations.py /home/sttrweb/Oncoscape/
 ADD makefile /home/sttrweb/Oncoscape/
-ADD removeInstalledOncoscapePackages.R /home/sttrweb/Oncoscape/
+#ADD removeInstalledOncoscapePackages.R /home/sttrweb/Oncoscape/
 
 WORKDIR /home/sttrweb/Oncoscape
 
