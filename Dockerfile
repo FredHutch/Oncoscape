@@ -22,7 +22,7 @@ RUN apt-get -y -qq update && apt-get -y -qq install \
 	python-pip
 
 # Install required non-apt packages   
-RUN pip install websocket-client && npm install -g jshint
+RUN pip install websocket-client && npm install -g jshint && npm install -g qunit
 
 # required to get jshint working 
 RUN ln -s /usr/bin/nodejs /usr/bin/node
@@ -35,7 +35,7 @@ RUN useradd -u 7534 -m -d /home/sttrweb -c "sttr web application" sttrweb && \
 
 # Set environment variable for Oncoscape data location
 ENV ONCOSCAPE_USER_DATA_STORE file:///home/sttrweb/data
-ENV R_LIBS /home/sttrweb/rlib
+#ENV R_LIBS /home/sttrweb/rlib
 
 ADD Oncoscape /home/sttrweb/Oncoscape/Oncoscape
 ADD analysisPackages /home/sttrweb/Oncoscape/analysisPackages
@@ -49,11 +49,11 @@ ADD removeInstalledOncoscapePackages.R /home/sttrweb/Oncoscape/
 
 WORKDIR /home/sttrweb/Oncoscape
 
-RUN chown -R sttrweb:sttrweb /home/sttrweb 
+#RUN chown -R sttrweb:sttrweb /home/sttrweb 
 
-USER sttrweb
+#USER sttrweb
 
-RUN make installLocal
+RUN make install
 
 EXPOSE 7777
 
