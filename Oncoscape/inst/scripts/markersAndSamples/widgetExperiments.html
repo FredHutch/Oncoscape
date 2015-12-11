@@ -35,8 +35,11 @@
       <table id="markersControlsLayoutTable">
          <tr>
            <td style="width:25%">
-             <input type="text" id="markersAndTissuesMouseOverReadout" disabled value="(names displayed here)"
-                    style="width:100%; margin-right:5px"></input>
+             <input type="text" id="markersAndTissuesMouseOverReadout" disabled
+                    title="Edge and node names displayed here on hover"  style="width:80%; margin-right:2px"></input>
+             <input type="text" id="markersSelectionCountReadout", disabled
+                    title="Selected node count" style="width: 40px;"></input>
+
            </td>
    
            <td style="width:20%">
@@ -77,11 +80,6 @@
              <select id="markersEdgeTypeSelector" 
                 class="chosen-select form-control dropdown navbar-form selectpicker SelectionMenu"
                  multiple>
-                   <option value="mutation" class="btn-info" selected>Mut</option>
-                   <option value="cnGain.2" class="btn-info" selected>Copy+2</option>
-                   <option value="cnLoss.2" class="btn-info" selected>Copy-2</option>
-                   <option value="cnGain.1" class="btn-info" selected>C+1</option>
-                   <option value="cnLoss.1" class="btn-info" selected>C-1</option>
             </select>
           </td>
       </tr>
