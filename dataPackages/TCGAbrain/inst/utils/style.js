@@ -43,12 +43,12 @@ vizmap =  [
 
    {"selector":"node[nodeType='centromere']", style:
       {"shape": "roundrectangle",
-       "width": "120px", 
-       "height": "40px",
+       "width": "180px", 
+       "height": "80px",
        "content": "data(id)",
        "border-color": "green",
        "border-width": 1,
-       "font-size": "24px"
+       "font-size": "56px"
        }},
 
    {"selector":"node[nodeType='telomere']", style:

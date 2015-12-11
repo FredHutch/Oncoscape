@@ -25,8 +25,9 @@ setGeneric('getMutationGraph',           signature='obj', function(obj, genes) s
 setGeneric('getCopyNumberGraph',         signature='obj', function(obj, genes, included.scores=c(-2, 2)) standardGeneric('getCopyNumberGraph'))
 setGeneric('getSimilarityScreenCoordinates', signature='obj', function(obj, xOrigin=0, yOrigin=0, xMax=2000, yMax=5000)
                                                                 standardGeneric('getSimilarityScreenCoordinates'))
-setGeneric('getChromosomeScreenCoordinates',  signature='obj', function(obj, xOrigin=1000, yOrigin=0, yMax=2000, chromDelta=200)
-    standardGeneric('getChromosomeScreenCoordinates'))
+setGeneric('getChromosomeScreenCoordinates',  signature='obj', function(obj, xOrigin=1000, yOrigin=0, yMax=2000,
+                                                                        chromDelta=200, spaceAroundCentromere=100)
+                                                               standardGeneric('getChromosomeScreenCoordinates'))
 #----------------------------------------------------------------------------------------------------
 # constructor
 NetworkMaker <- function(dataPackage, samples=NA, genes=NA, verbose=FALSE)
@@ -161,9 +162,30 @@ setMethod("getSimilarityMatrix", "NetworkMaker",
 setMethod("getSamplesGraph", "NetworkMaker",
 
   function(obj){
+
     stopifnot("similarityMatrix" %in% ls(obj@state))
     tbl.pos <- obj@state[["similarityMatrix"]]
-    all.nodes <- rownames(tbl.pos)
+
+      # in an ideal study, we would receive, or be able to calculate, a similarity matrix
+      # for all samples.  since that is often not the case, we trawl here all
+      # samples, designate them as unpositioned, so that client code
+      # (for instance TCGAbrain/inst/utils/constructMarkersNetwork.R) can identify them
+      # and position them as the map maker sees fit.
+
+    positioned.samples <- rownames(tbl.pos)
+
+    cn.samples <- canonicalizePatientIDs(obj@pkg, rownames(obj@mtx.cn))
+    mut.samples <- canonicalizePatientIDs(obj@pkg, rownames(obj@mtx.mut))
+    patient.samples <- rownames(getPatientTable(obj@pkg))
+
+    unpositioned.cn.samples <- setdiff(cn.samples, positioned.samples)
+    unpositioned.mut.samples <- setdiff(mut.samples, positioned.samples)
+    unpositioned.pt.samples <- setdiff(patient.samples, positioned.samples)
+    
+    unpositioned.samples <- unique(c(unpositioned.cn.samples, unpositioned.mut.samples,
+                                     unpositioned.pt.samples))
+
+    all.nodes <- c(positioned.samples, unpositioned.samples)
     g <- graphNEL(nodes=all.nodes, edgemode="directed")
      # change nodeType to "sample" later, updating all networks at once, and the markers/Test.js
     nodeDataDefaults(g, attr="nodeType") <- "patient"   
@@ -171,13 +193,15 @@ setMethod("getSamplesGraph", "NetworkMaker",
     nodeDataDefaults(g, attr="id") <- "unassigned"
     nodeDataDefaults(g, attr="x") <- 0
     nodeDataDefaults(g, attr="y") <- 0
+    nodeDataDefaults(g, attr="positioned") <- FALSE
 
     edgeDataDefaults(g, attr="edgeType") <- "unassigned"
     edgeDataDefaults(g, attr="subType") <- "unassigned"
 
     nodeData(g, all.nodes, "id") <- all.nodes
-    nodeData(g, all.nodes, "x") <- tbl.pos$x
-    nodeData(g, all.nodes, "y") <- tbl.pos$y + (0.2 * tbl.pos$z)
+    nodeData(g, positioned.samples, "x") <- tbl.pos$x
+    nodeData(g, positioned.samples, "y") <- tbl.pos$y
+    nodeData(g, positioned.samples, "positioned") <- TRUE
     return(g)
     })
 
@@ -190,9 +214,17 @@ setMethod("getChromosomeGraph", "NetworkMaker",
 
     all.nodes <- tbl.info$name
     centromere.nodes <- subset(tbl.info, type=="arm")$name
+
+         # experiment: just one centromere per chromosome, rather than
+         # two "half-centromeres" one for each arm
+    centromere.nodes <- sub("p", "", centromere.nodes)
+    centromere.nodes <- sub("q", "", centromere.nodes)
+    centromere.nodes <- unique(centromere.nodes)
+    
     telomere.nodes <- tbl.info$name[grep("telomere", tbl.info$type)]
     gene.nodes <- subset(tbl.info, type=="gene")$name
     
+    all.nodes <- c(centromere.nodes, telomere.nodes, gene.nodes)
     g <- graphNEL(nodes=all.nodes, edgemode="directed")
     nodeDataDefaults(g, attr="nodeType") <- "unassigned"
     nodeDataDefaults(g, attr="landmark")  <- FALSE
@@ -201,6 +233,7 @@ setMethod("getChromosomeGraph", "NetworkMaker",
          # resizing with zooming
     nodeDataDefaults(g, attr="trueWidth") <- 0
     nodeDataDefaults(g, attr="trueHeight") <- 0
+    nodeDataDefaults(g, attr="positioned") <- TRUE
     
     edgeDataDefaults(g, attr="edgeType") <- "unassigned"
     edgeDataDefaults(g, attr="subType") <- "unassigned"
@@ -214,15 +247,16 @@ setMethod("getChromosomeGraph", "NetworkMaker",
     nodeData(g, gene.nodes,       "nodeType") <- "gene"
 
     chroms.in.order <- c(1:22, "X", "Y")
-    p.arm.nodes <- paste("chr", chroms.in.order, "p", sep="")
-    q.arm.nodes <- paste("chr", chroms.in.order, "q", sep="")
+    p.arm.nodes <- paste(chroms.in.order, "p", sep="")
+    q.arm.nodes <- paste(chroms.in.order, "q", sep="")
+
     p.telomeres <- paste("start.", chroms.in.order, sep="")
     q.telomeres <- paste("end.", chroms.in.order, sep="")
 
-    g <- addEdge(p.arm.nodes, p.telomeres, g)
-    g <- addEdge(q.arm.nodes, q.telomeres, g)
-    edgeData(g, p.arm.nodes, p.telomeres, "edgeType") <- "chromosome"
-    edgeData(g, q.arm.nodes, q.telomeres, "edgeType") <- "chromosome"
+    g <- addEdge(centromere.nodes, p.telomeres, g)
+    g <- addEdge(centromere.nodes, q.telomeres, g)
+    edgeData(g, centromere.nodes, p.telomeres, "edgeType") <- "chromosome"
+    edgeData(g, centromere.nodes, q.telomeres, "edgeType") <- "chromosome"
 
     return(g)
     })
@@ -299,10 +333,13 @@ setMethod("getCopyNumberGraph", "NetworkMaker",
     
     g <- graphNEL(nodes=all.nodes, edgemode="directed")
     nodeDataDefaults(g, attr="id") <- "unassigned"
+    nodeDataDefaults(g, attr="nodeType")  <- "unassigned"
+    
     edgeDataDefaults(g, attr="edgeType") <- "unassigned"
     edgeDataDefaults(g, attr="subType") <- "unassigned"
 
     nodeData(g, all.nodes, "id") <- all.nodes
+
     g <- addEdge(sample.nodes, gene.nodes, g)
     edgeData(g, sample.nodes, gene.nodes, "edgeType") <- ""
 
@@ -361,16 +398,32 @@ setMethod("getSimilarityScreenCoordinates", "NetworkMaker",
 #----------------------------------------------------------------------------------------------------
 setMethod("getChromosomeScreenCoordinates", "NetworkMaker",
 
-  function(obj, xOrigin=1000, yOrigin=0, yMax=2000, chromDelta=200){
+  function(obj, xOrigin=1000, yOrigin=0, yMax=2000, chromDelta=200, spaceAroundCentromere=100){
 
       tbl <- getChromosomalInfo(obj)
+         # collapse centromere pairs (one pair for each arm on each chromsome) into a single
+         # centromere per chromosome, centered at the midpoint between the two
+         # members of the pair
+
       chroms <- sort(unique(tbl$chrom))
 
+      for(chrom in chroms){ # "1", "2", ... "X", "Y"
+         regex <- sprintf("^chr%s[pq]$", chrom);
+         indices <- grep(regex, tbl$name)
+         stopifnot(length(indices) == 2)
+         centromere.center <- sum(tbl[indices, "loc"])/2
+         chrom.name <- sprintf("chr%s", chrom)
+         new.row <- list(name=chrom.name, map=chrom, loc=centromere.center, chrom=chrom, arm=NA,
+                         type="centromere", screen.x=0, screen.y=0)
+         tbl <- tbl[-(indices),]
+         tbl <- rbind(tbl, as.data.frame(new.row, stringsAsFactors=FALSE))
+         } # for chrom
+      
       for(chrom in chroms){
          chrom.indices <- which(tbl$chrom == chrom)
          if(length(chrom.indices) > 0){
             tbl.sub <- tbl[chrom.indices,]
-            screen.Y <- chromosomeLocToCanvas(tbl.sub, yOrigin, yMax)
+            screen.Y <- chromosomeLocToCanvas(tbl.sub, yOrigin, yMax, spaceAroundCentromere)
             tbl[chrom.indices, "screen.y"] <- screen.Y
             tbl[chrom.indices, "screen.x"] <- .calculate.screen.X(chrom, xOrigin=xOrigin, delta=chromDelta)
             } # if any genes on this chromosome
@@ -432,7 +485,6 @@ setMethod("buildChromosomalTable", "NetworkMaker",
       type <- rep("arm", length(arm))
       tbl.arms <- data.frame(name=names, map=map, loc=loc, chrom=chrom, arm=arm, type=type, stringsAsFactors=FALSE)
    
-   
       tbl <- rbind(tbl, tbl.start, tbl.end, tbl.arms)
       tbl <- cbind(tbl, list(screen.x=rep(0,nrow(tbl)),
                              screen.y=rep(0,nrow(tbl))),
@@ -444,12 +496,6 @@ setMethod("buildChromosomalTable", "NetworkMaker",
          warning(sprintf("failed to map these genes to chromosomes: %s", paste(badly.mapped.gene.names, collapse=", ")))
          tbl <- tbl[-badly.mapped,]
          } # some genes failed to map to chromosomes
-   
-      #sample.indices <- c(head(grep("gene", tbl$type), n=2),
-      #                    head(grep("arm", tbl$type), n=2),
-      #                    head(grep("telomere.start", tbl$type), n=2),
-      #                    head(grep("telomere.end", tbl$type), n=2))
-      #print(tbl[sample.indices,])
    
       obj@state[["chromosomalCoordinates"]] <- tbl
       
@@ -485,7 +531,7 @@ setMethod("getChromosomalInfo", "NetworkMaker",
    
 } # .extractChromArmFromCytoband
 #----------------------------------------------------------------------------------------------------
-chromosomeLocToCanvas <- function(tbl, yOrigin, yMax)
+chromosomeLocToCanvas <- function(tbl, yOrigin, yMax, spaceAroundCentromere=100)
 {
    stopifnot(length(unique(tbl$chrom)) == 1)   # just one chromosome at a time
 
@@ -493,8 +539,8 @@ chromosomeLocToCanvas <- function(tbl, yOrigin, yMax)
 
    scale <- loc.half.span / yMax
    
-   loc.midpoints <- subset(tbl, type=="arm")$loc
-   loc.mid <- sum(loc.midpoints)/2;   # map this to canvas coordinate y=0
+   # loc.midpoints <- subset(tbl, type=="arm")$loc
+   loc.mid <- subset(tbl, type=="centromere")$loc    # map this to canvas coordinate y=0
    loc.max <- subset(tbl, type=="telomere.end")$loc
    loc.min <- subset(tbl, type=="telomere.start")$loc
 
@@ -503,9 +549,16 @@ chromosomeLocToCanvas <- function(tbl, yOrigin, yMax)
       y <- y /scale
       y <- y * -1
       y <- y - yOrigin
-      }
+         # move all genes and telomeres a fixed amount away from the centromere, for less crowded
+         # and more readable display
+      if(y != 0){
+         delta <- sign(y) * spaceAroundCentromere
+         y <- y + delta;
+         } # if not a centromere
+      y
+      } # canvas.y function
 
-   as.integer(canvas.y(tbl$loc))
+   as.integer(lapply(tbl$loc, canvas.y))
 
 
 } # chromosomeLocToCanvas

@@ -4,10 +4,13 @@ vizmap =  [
         "text-halign":"center",
         "background-color":"rgb(250, 250, 250)",
         "border-color": "black",
+        "border-with": "1px",
         "shape": "ellipse",
         "width": 100,
         "height": 100,
-        content: "data(id)"
+        content: "data(id)",
+        "width":"mapData(degree,  0.0, 150.0, 30.0, 160.0)",
+        "height":"mapData(degree, 0.0, 150.0, 30.0, 160.0)"
         }},
         
     {selector:"node:selected", css: {
@@ -19,23 +22,19 @@ vizmap =  [
 
         }},
         
-    {selector: 'node[nodeType="sample"]', css:{
+    {selector: 'node[nodeType="patient"]', css:{
         "content":"data(label)",
         "border-color": "black",
         "border-width": "3px",
         "font-size" : 8,
         "background-color": "rgb(250, 250, 250)",
         "shape" : "ellipse",
-        "width"   : "mapData(degree, 0.0, 2.0, 60.0, 120.0)",
-        "height"  : "mapData(degree, 0.0, 2.0, 60.0, 120.0)",
         content: "data(id)"
 
         }},
            
     {selector: 'node[nodeType="gene"]', css:{
         "shape"  : "ellipse",
-        "width"   : "mapData(degree, 0.0, 20.0, 60.0, 200.0)",
-        "height"  : "mapData(degree, 0.0, 20.0, 60.0, 200.0)",
         "font-size": 8,
         content: "data(id)",
         "border-color": "blue",
@@ -44,12 +43,12 @@ vizmap =  [
 
    {"selector":"node[nodeType='centromere']", style:
       {"shape": "roundrectangle",
-       "width": "120px", 
-       "height": "40px",
+       "width": "180px", 
+       "height": "80px",
        "content": "data(id)",
        "border-color": "green",
        "border-width": 1,
-       "font-size": "24px"
+       "font-size": "56px"
        }},
 
    {"selector":"node[nodeType='telomere']", style:
@@ -66,8 +65,8 @@ vizmap =  [
     {selector: 'node[nodeType="gene fusion"]', css:{
         "content":"data(label)",
         "shape"  : "roundrectangle",
-        "width"   : "mapData(degree, 0.0, 20.0, 60.0, 200.0)",
-        "height"  : "mapData(degree, 0.0, 20.0, 60.0, 200.0)",
+        "width"   : "mapData(degree, 0.0, 20.0, 20.0, 100.0)",
+        "height"  : "mapData(degree, 0.0, 20.0, 20.0, 100.0)",
         "font-size": 18,
         "border-color": "red",
         "border-width": "3px"}},
@@ -87,7 +86,7 @@ vizmap =  [
     {selector:"node[nodeType='gene']:selected",css: {
        "border-width": "8px"}},
 
-    {selector:"node[nodeType='sample']:selected",css: {
+    {selector:"node[nodeType='patient']:selected",css: {
        "border-width": "8px"}},
 
     {"selector":"edge[edgeType='chromosome']",
