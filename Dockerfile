@@ -11,23 +11,21 @@ RUN apt-key adv --keyserver keyserver.ubuntu.com --recv-keys 51716619E084DAB9
 # Update the system and install packages
 RUN apt-get -y -qq update && apt-get -y -qq install \
 	r-base=3.2.2* \
+	vim \
 	make \
 	m4 \
 	gcc \
 	g++ \
 	libxml2 \
 	libxml2-dev \
-	nodejs \
+	nodejs-legacy \
 	npm \
 	python-pip
 
 # Install required non-apt packages   
 RUN pip install websocket-client && npm install -g jshint
 
-# required to get jshint working 
-RUN ln -s /usr/bin/nodejs /usr/bin/node
-
-# create the sttrweb user and data directory
+# Create the sttrweb user and data directory
 RUN useradd -u 7534 -m -d /home/sttrweb -c "sttr web application" sttrweb && \
 	mkdir /home/sttrweb/data && \
 	mkdir /home/sttrweb/Oncoscape && \
@@ -35,7 +33,7 @@ RUN useradd -u 7534 -m -d /home/sttrweb -c "sttr web application" sttrweb && \
 
 # Set environment variable for Oncoscape data location
 ENV ONCOSCAPE_USER_DATA_STORE file:///home/sttrweb/data
-ENV R_LIBS /home/sttrweb/rlib
+#ENV R_LIBS /home/sttrweb/rlib
 
 ADD Oncoscape /home/sttrweb/Oncoscape/Oncoscape
 ADD analysisPackages /home/sttrweb/Oncoscape/analysisPackages
@@ -49,11 +47,11 @@ ADD removeInstalledOncoscapePackages.R /home/sttrweb/Oncoscape/
 
 WORKDIR /home/sttrweb/Oncoscape
 
-RUN chown -R sttrweb:sttrweb /home/sttrweb 
+#RUN chown -R sttrweb:sttrweb /home/sttrweb 
 
-USER sttrweb
+#USER sttrweb
 
-RUN make installLocal
+RUN make install
 
 EXPOSE 7777
 
