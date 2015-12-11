@@ -13,7 +13,7 @@ runTests <- function()
   testConstructor();
   test.mutationMatrixTo01Matrix()
   test.extractSamplesAndGenes()
-  test.extractRestrictedSamplesAndGenes() # restricted in call to class constructor
+  #test.extractRestrictedSamplesAndGenes() # restricted in call to class constructor
   test.calculateSimilarity.DEMOdz()
   test.calculateSimilarity.TCGAgbm()
   test.calculateSimilarity.TCGAgbm.completeSubset()
@@ -27,6 +27,8 @@ runTests <- function()
   test.fullDisplay.withMutations.allGenes.TCGAgbm()
   test.fullDisplay.withMutations.withCopyNumber.allGenes.DEMOdz()
   test.fullDisplay.withMutations.withCopyNumber.allGenes.TCGAgbm()
+
+  test.genesChromosomeGraph.TCGAbrain()
   
 } # runTests
 #----------------------------------------------------------------------------------------------------
@@ -547,11 +549,12 @@ test.screenCoordinateManipulations.DEMOdz <- function()
     setPosition(rcy, tbl.pos)
     new.sample.pos <- RCyjs::getPosition(rcy, soi)
 
-      # very crude test.  differences should be  100 (x) and -100 (y), but are  112 and -50.
+      # very crude test.  differences should be  100 (x) and -100 (y), but are  112 and 50.
       # need to track that down.
     
+    
     checkTrue(new.sample.pos$x - sample.pos$x > 10)
-    checkTrue(new.sample.pos$y - sample.pos$y < -10)
+    checkTrue(new.sample.pos$y - sample.pos$y > 10)
 
          # reposition the chromosomes and genes
     tbl.pos <- getChromosomeScreenCoordinates(netMaker, xOrigin=2000, yOrigin=-500, yMax=2000, chromDelta=200)
@@ -771,6 +774,13 @@ test.fullDisplay.withMutations.withCopyNumber.allGenes.TCGAgbm <- function()
     invisible(rcy)
 
 } # test.fullDisplay.withMutations.withCopyNumber.allGenes.TCGAgbm
+#----------------------------------------------------------------------------------------------------
+# do we have ready access to the same genes hamid uses in his famous gbm/lgg CNA/SNA hobo plot?
+test.genesChromosomeGraph.TCGAbrain <- function()
+{
+    print("--- test.genesChromosomeGraph.TCGAbrain")
+    
+} # test.genesChromosomeGraph.TCGAbrain
 #----------------------------------------------------------------------------------------------------
 if(!interactive()){
   runTests()

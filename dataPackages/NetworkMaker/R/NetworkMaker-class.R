@@ -347,13 +347,13 @@ setMethod("getSimilarityScreenCoordinates", "NetworkMaker",
      x <- x + xOrigin
    
      y <- tbl.pos$y
-     y <- y - min(y)  #
+     y <- y - min(y) 
      y <- y/max(y)
      y <- (y * ySpan) - (ySpan/2)
      y <- y + yOrigin
 
      tbl.pos$x <- x
-     tbl.pos$y <- y
+     tbl.pos$y <- -y   # screen coordinates have origin at top left corner.  "normal" is lower left
      tbl.pos$id <- rownames(tbl.pos)
      tbl.pos
      })

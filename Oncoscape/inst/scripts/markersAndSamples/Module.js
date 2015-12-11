@@ -292,7 +292,7 @@ function configureCytoscape ()
       console.log("cwMarkers ready");
       cwMarkers = this;
       initialZoom = cwMarkers.zoom();
-      var debouncedSmartZoom = debounce(smartZoom, 100);
+      var debouncedSmartZoom = debounce(smartZoom, 20);
       cwMarkers.on('zoom', debouncedSmartZoom);
       cwMarkers.on('pan', debouncedSmartZoom);
 
@@ -426,10 +426,11 @@ function smartZoom(event)
    cwMarkers.edges().style({"width": borderWidthString});
    
    var newWidth, newHeight, id;
+   var factor = 1.5; // 3
    cwMarkers.batch(function(){
       visibleNodes.map(function(node){
-         newWidth = 3 *  node.data("trueWidth") / zoomRatio;
-         newHeight = 3 *  node.data("trueHeight") / zoomRatio;
+         newWidth = factor *  node.data("trueWidth") / zoomRatio;
+         newHeight = factor *  node.data("trueHeight") / zoomRatio;
          id = node.id();
          node.data({zoomed: true});
          node.style({width: newWidth, height: newHeight, label: id, "font-size": fontSizeString,

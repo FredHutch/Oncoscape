@@ -8,9 +8,11 @@ options(stringsAsFactors=FALSE)
 dz <- TCGAbrain() 
 netMaker <- NetworkMaker(dz)
 
-load(system.file(package="NetworkMaker", "extdata", "genesets.RData"))
-goi <- sort(unique(genesets$tcga.GBM.classifiers, genesets$marker.genes.545))
-
+# load(system.file(package="NetworkMaker", "extdata", "genesets.RData"))
+# flawed!goi <- sort(unique(genesets$tcga.GBM.classifiers, genesets$marker.genes.545))
+print(load("goi545.from.approvedHoboPlot25sep2015.RData"))
+stopifnot(all(c("MDM2", "MDM4") %in% goi))
+          
 filename <- "MDS.joint.SNA.CNA.allBenes.tsv"
 usePrecalculatedSampleSimilarityMatrix(netMaker, filename)
 
