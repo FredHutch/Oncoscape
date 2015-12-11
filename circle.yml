@@ -11,3 +11,4 @@ test:
   override:
     - docker run -d -p 80:7777 --name oncoscape-$CIRCLE_SHA1 oncoscape:$CIRCLE_SHA1; sleep 60
     - curl --retry 10 --retry-delay 10 -v http://localhost:80
+    - sudo lxc-attach -n "$(docker inspect --format '{{.Id}}' oncoscape-$CIRCLE_SHA1)" -- bash -c "export ONCOSCAPE_USER_DATA_STORE=file:///home/sttrweb/data; cd /home/sttrweb/Oncoscape && make test"
