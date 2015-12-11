@@ -398,6 +398,9 @@ test.genesChromosomeGraph.DEMOdz <- function()
     netMaker <- NetworkMaker(dz)
     genes <- head(colnames(matrices(dz)$mtx.mut))
     g <- getChromosomeGraph(netMaker, genes)
+    nodes <- nodes(g)
+       # should be 24 centromeres, 48 telomeres, 6 genes: 78 nodes total
+    checkEquals(length(nodes), 78)
 
     rcy <- RCyjs(portRange=6047:6100, quiet=TRUE, graph=g, hideEdges=FALSE)
     httpSetStyle(rcy, STYLE.FILE)
@@ -447,7 +450,7 @@ test.transformChromLocsToScreenCoordinates <- function()
     tbl.pos <- getChromosomeScreenCoordinates(netMaker, xOrigin=10, yOrigin=0, yMax=2000, chromDelta=100)
 
     checkTrue(all(tbl.pos$x != 0))
-    checkTrue(all(tbl.pos$y != 0))
+    checkEquals(length(which(tbl.pos$y==0)), 24)   # centromeres, one per chromosome
 
       # chr2q telomere terminates the longest q arm
     checkEquals(tbl.pos[which(tbl.pos$y == min(tbl.pos$y)),"id"], "end.2")
