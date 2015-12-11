@@ -1389,6 +1389,8 @@ function buttonAndMenuStatusSetter()
 {
    var selectedNodes = cwMarkers.nodes("node:selected");
    var selectedNodeCount = selectedNodes.length;
+   $("#markersSelectionCountReadout").val(selectedNodeCount);
+   
    var selectedPatientNodes = cwMarkers.nodes("node[nodeType='patient']:selected");
    var selectedPatientNodeCount = selectedPatientNodes.length;
    
@@ -1706,18 +1708,16 @@ function subSelectNodes()
 
   var colors = jQuery.unique(selectedPatientNodes.map(function(node){return (node.style("background-color"));}));
 
-
-  console.log(JSON.stringify(colors));
-
   var content = "<form action=''>";
   for(i=0; i < categories.length; i++){
      var category = categories[i];
      var color = colors[i];
+     var selector = "[category='" + category + "']:selected";
+     var count = cwMarkers.nodes(selector).length;
      var id = "cb" + i;
-     var e = "<input id='" + id + "' type='checkbox' class='markersSubSelectRadioButton' name='" + category + "'" +
+     var e = "<html><body><input id='" + id + "' type='checkbox' class='markersSubSelectRadioButton' name='" + category + "'" +
              " style='background':'" + color + "'" + " checked> " +
-             "<label for='" + id + "' style='color:" + color + "'>" + category + "</label><br>";
-     console.log(e);
+             "<label for='" + id + "' style='color:" + color + "'>" + category + " (" + count + ")</label><br></body></html>";
      content = content + e;
      }
   content = content + "</form>";
@@ -1729,13 +1729,11 @@ function subSelectNodes()
                                                                               width: "500px"});
 
   $("#markersSubSelectCloseButton").click(function(){
-     console.log("close dialog");
+     console.log("about to remove subselect dialog");
      $("#markersSubSelectDialog").remove();
      });
 
   $(".markersSubSelectRadioButton").click(function(e) {
-      console.log("radio!"); 
-      console.log(this.name + " " + this.checked);
       var category = this.name;
       var doSelectNodes = this.checked;
       var subsetNodes = selectedPatientNodes.filterFn(function(e){return(e.data("category") === category);});
@@ -2309,28 +2307,27 @@ function displayMarkersNetwork(msg)
    hub.logEventOnServer(thisModulesName, "display markers network", "data received", "");
 
    if(msg.status == "success"){
-      console.log("nchar(network): " + msg.payload.length);
-      var json = JSON.parse(msg.payload);
-      cwMarkers.remove(cwMarkers.edges());
-      cwMarkers.remove(cwMarkers.nodes());
-      console.log(" after JSON.parse, json.length: " + json.length);
-      console.log("  about to add json.elements");
-      cwMarkers.add(json.elements);
-      console.log("  about to add  json.style");
-      cwMarkers.style(json.style);
-      console.log("   hiding edges");
-      cwMarkers.edges().hide();
-      cwMarkers.filter("edge[edgeType='chromosome']").style({"curve-style": "bezier"});
-      cwMarkers.filter("edge[edgeType='chromosome']").show();
-      cwMarkers.nodes().unselect();
-        // map current node degree into a node attribute of that name
-      cwMarkers.nodes().map(function(node){node.data({degree: node.degree(), trueWidth: node.width(), trueHeight: node.height()});});
-
-      var edgeTypes = hub.uniqueElementsOfArray(cwMarkers.edges().map(function(edge){
-                               return(edge.data("edgeType"));}
-                               ));
-      updateEdgeSelectionWidget(edgeTypes);  // preserve only known edgeTypes
-      cwMarkers.fit(20);
+         console.log("nchar(network): " + msg.payload.length);
+         var json = JSON.parse(msg.payload);
+             cwMarkers.remove(cwMarkers.edges());
+           cwMarkers.remove(cwMarkers.nodes());
+           console.log(" after JSON.parse, json.length: " + json.length);
+           console.log("  about to add json.elements");
+           cwMarkers.add(json.elements);
+           cwMarkers.style(json.style);
+           cwMarkers.edges().hide();
+         cwMarkers.filter("edge[edgeType='chromosome']").style({"curve-style": "bezier"});
+         cwMarkers.filter("edge[edgeType='chromosome']").show();
+         cwMarkers.nodes().unselect();
+           // map current node degree into a node attribute of that name
+         cwMarkers.nodes().map(function(node){node.data({degree: node.degree(), trueWidth: node.width(), trueHeight: node.height()});});
+   
+         var edgeTypes = hub.uniqueElementsOfArray(cwMarkers.edges().map(function(edge){
+                                  return(edge.data("edgeType"));}
+                                  ));
+         updateEdgeSelectionWidget(edgeTypes);  // preserve only known edgeTypes
+         cwMarkers.fit(20);
+         
       var defaultLayout = JSON.stringify(cwMarkers.nodes().map(function(n){
                                          return({id:n.id(), position:n.position()});}));
       localStorage.markersDefault = defaultLayout;
@@ -2362,17 +2359,20 @@ function postStatus(msg)
 function updateEdgeSelectionWidget(edgeTypes)
 {
      // loop over currently offered edge types
-   var options = $("#markersEdgeTypeSelector").children();
-   for(var i=0; i < options.length; i++){
-      var optionElement = options[i];
-      var optionValue = optionElement.value;
-      var found = jQuery.inArray(optionValue, edgeTypes) >= 0;
-      console.log("checking option '" + optionValue + "':  " + found);
-      if(!found){
-         console.log("  deleting selector option " + optionValue);
-         $("#markersEdgeTypeSelector option[value='" + optionValue + "']").remove();
-         } // unrecognized edge type
+     //             <option value="mutation" class="btn-info" selected>Mut</option>
+
+   var edgeTypeMenu = $("#markersEdgeTypeSelector");
+   edgeTypeMenu.find('option').remove();
+   edgeTypeMenu.trigger("chosen:updated");
+   
+   edgeTypes = edgeTypes.filter(function(e){return(e !== "chromosome");});
+
+   for(var i=0; i < edgeTypes.length; i++){
+      var name = edgeTypes[i];
+      var optionMarkup =  "<option value='" + name + "' class='btn-info' selected>" + name + "</option>";
+      $("#markersEdgeTypeSelector").append(optionMarkup);
       }
+      
    $("#markersEdgeTypeSelector").trigger("chosen:updated");
 
 } // updateEdgeSelectionWidget
@@ -2651,7 +2651,7 @@ function testShowEdgesFromSelectedNode()
             var totalEdgeCount = cwMarkers.edges().length;
             var visibleEdgeCount = cwMarkers.edges("edge:visible").length;
             assert.equal(degree + chromosomeEdgeCount, visibleEdgeCount, "visibleEdgeCount correct");
-            markEndOfTestingDataSet();
+            testSendGoodIDs();
             });
          }); // new MutationObserver
      } // if observer null
@@ -2662,60 +2662,6 @@ function testShowEdgesFromSelectedNode()
    netOpsMenu.trigger("change");
 
 }  // testShowEdgesFromSelectedNode
-//------------------------------------------------------------------------------------------------------------------------
-//   1) clear selection
-//   2) find the node with highest degree
-//   3) select that node
-//   4) show edges, select all connected
-//   5) make sure selected node count minus one is equal to degree of the original node
-function oldTestSearch()
-{
-   console.log("--- Test.markers testSearch");
-   var searchBox = $("#markersAndTissuesSearchBox");
-   setTimeout(function(){searchBox.val("");}, 0);
-   cwMarkers.nodes().unselect();
-   var netOpsMenu = $("#cyMarkersOperationsMenu");
-   var nodes = cwMarkers.nodes().filterFn(function(node){return (node.data("nodeType") === "patient");});
-   var nodesByDegree = nodes.map(function(node){return {id:node.data("id"), degree:node.degree()};});
-   var mySort = function(a,b) {return(b.degree - a.degree);};
-   var mostConnectedNode = nodesByDegree.sort(mySort)[0];
-   console.log("mostConnectedNode: " + JSON.stringify(mostConnectedNode));
-
-   QUnit.test("markers testSearch", function(assert){
-     netOpsMenu.val("Hide All Edges");
-     netOpsMenu.trigger("change");
-     cwMarkers.filter("node:selected").unselect();
-     assert.equal(cwMarkers.filter("node:selected").length, 0, "zero selected nodes");
-     searchBox.val(mostConnectedNode.id);
-     setTimeout(function(){
-       assert.equal(searchBox.val(), mostConnectedNode.id);
-       searchBox.trigger(jQuery.Event("keydown", {which: 13}));
-       assert.equal(cwMarkers.filter("node:selected").length, 1, "one selected node from search box: " +
-                    mostConnectedNode.id);
-       netOpsMenu.val("Show Edges from Selected Nodes");
-       netOpsMenu.trigger("change");
-       netOpsMenu.val("Select All Connected Nodes");
-       netOpsMenu.trigger("change");
-       console.log("about to check for selected nodes");
-       var expectedSelectionCount = mostConnectedNode.degree + 1; // include self
-       var nodes = cwMarkers.nodes();
-       var nodeNames = JSON.stringify(cwMarkers.nodes().map(function(node){return node.id();}));
-       //var selectedNodes = cwMarkers.filter("node:selected");
-       var selectedNodes = cwMarkers.nodes("node:selected");
-       console.log("cwMarkers filter sees selected nodes, count: " + selectedNodes.length);
-       var selectedNodeNames = JSON.stringify(selectedNodes.map(function(node){return node.id();}));
-       console.log("selected nodes after filter: " + selectedNodeNames);
-       assert.ok(cwMarkers.filter("node:selected").length == expectedSelectionCount,
-                 "found expected number of selected nodes: " + selectedNodes.length);
-       //setTimeout(function(){searchBox.val("");}, 0);
-       //searchBox.val("");
-       //cwMarkers.nodes().unselect();
-       markEndOfTestingDataSet();
-       }, 0);
-     //testSendGoodIDs();
-     });
-
-}  // oldTestSearch
 //------------------------------------------------------------------------------------------------------------------------
 function testSendGoodIDs()
 {
@@ -2886,22 +2832,26 @@ function testSendMixedIDs()
 
 } // testSendMixedIDs
 //------------------------------------------------------------------------------------------------------------------------
+// the ui provides a pulldown menu for all of the tumor categorizations.  choosing an item from this menu
+// causes some or all of the tumor nodes to be rendered in color by category.
+// set that menu programmatically, test to see that 
 function testColorTumorsByCategory()
 {
    console.log("entering Test.markers:testColorTumorsByCategory");
 
    var title = "testColorTumorsByCategory";
    console.log(title);
-     // set all tumor node-border colors to white: no tumor classification coloring scheme
-     // would a) consist of just one group and b) mark it with such a nondescript color
-     // then manipulate the menu, make sure that at least some of the colors have changed
      
+      // the default state is: no category data attributes on nodes, no category style rules.
+      // test the former:
+      
    var tumorNodes = cwMarkers.nodes().fnFilter(function(node){ return(node.data("nodeType") == "patient");});
-   tumorNodes.map(function(node){node.data({"subType": "unassigned"});});
-   //var subTypes = jQuery.unique(tumorNodes.map(function(node){return(node.data("subType"));}));
-   var subTypes = hub.uniqueElementsOfArray(tumorNodes.map(function(node){return(node.data("subType"));}));
-   console.log("before tumor category test, should be just one subType: " + subTypes.length);
-   
+   QUnit.test("no tumor categories to start", function(assert){
+      var categories = tumorNodes.map(function(node){node.data("category");});
+      var nonNullCategories = categories.filter(function(val){return val;});
+      assert.equal(nonNullCategories.length, 0);
+      });
+      
    if(markersAndSamplesStatusObserver === null){
       markersAndSamplesStatusObserver = new MutationObserver(function(mutations) {
         console.log("mutation observer for testColorTumorsByCategory");
@@ -2912,9 +2862,10 @@ function testColorTumorsByCategory()
         var statusMsg = $(minorStatusDiv).text();
         QUnit.test(title, function(assert) {
            console.log("-- in QUnit.test for testColorTumorsByCategory");
-           var subTypes = hub.uniqueElementsOfArray(tumorNodes.map(function(node){return(node.data("subType"));}));
-           console.log(" during tumor category test, should be > one subType: " + subTypes.length);
-           assert.ok(subTypes.length > 1);  // more than just the single "unassigned" enforced above;
+           var categories = hub.uniqueElementsOfArray(tumorNodes.map(function(node){return(node.data("category"));}));
+           console.log(" during tumor category test, should be > one category: " + categories.length);
+           assert.ok(categories.length > 1);  // more than just the single "unassigned" enforced above;
+           //testColorTumorsByClassification();
            markEndOfTestingDataSet();
            });
         }); // new MutationObserver
@@ -2953,6 +2904,7 @@ function testColorTumorsByClassification()
         QUnit.test(title, function(assert) {
            assert.ok(10 === 10, msg);
            });
+        markEndOfTestingDataSet();
         }); // new MutationObserver
       } // if null mutation observer
 
@@ -3064,8 +3016,11 @@ moduleTests.push(markersTester);
       <table id="markersControlsLayoutTable">
          <tr>
            <td style="width:25%">
-             <input type="text" id="markersAndTissuesMouseOverReadout" disabled value="(names displayed here)"
-                    style="width:100%; margin-right:5px"></input>
+             <input type="text" id="markersAndTissuesMouseOverReadout" disabled
+                    title="Edge and node names displayed here on hover"  style="width:80%; margin-right:2px"></input>
+             <input type="text" id="markersSelectionCountReadout", disabled
+                    title="Selected node count" style="width: 40px;"></input>
+
            </td>
    
            <td style="width:20%">
@@ -3106,11 +3061,6 @@ moduleTests.push(markersTester);
              <select id="markersEdgeTypeSelector" 
                 class="chosen-select form-control dropdown navbar-form selectpicker SelectionMenu"
                  multiple>
-                   <option value="mutation" class="btn-info" selected>Mut</option>
-                   <option value="cnGain.2" class="btn-info" selected>Copy+2</option>
-                   <option value="cnLoss.2" class="btn-info" selected>Copy-2</option>
-                   <option value="cnGain.1" class="btn-info" selected>C+1</option>
-                   <option value="cnLoss.1" class="btn-info" selected>C-1</option>
             </select>
           </td>
       </tr>

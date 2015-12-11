@@ -151,6 +151,8 @@ function buttonAndMenuStatusSetter()
 {
    var selectedNodes = cwMarkers.nodes("node:selected");
    var selectedNodeCount = selectedNodes.length;
+   $("#markersSelectionCountReadout").val(selectedNodeCount);
+   
    var selectedPatientNodes = cwMarkers.nodes("node[nodeType='patient']:selected");
    var selectedPatientNodeCount = selectedPatientNodes.length;
    
@@ -468,18 +470,16 @@ function subSelectNodes()
 
   var colors = jQuery.unique(selectedPatientNodes.map(function(node){return (node.style("background-color"));}));
 
-
-  console.log(JSON.stringify(colors));
-
   var content = "<form action=''>";
   for(i=0; i < categories.length; i++){
      var category = categories[i];
      var color = colors[i];
+     var selector = "[category='" + category + "']:selected";
+     var count = cwMarkers.nodes(selector).length;
      var id = "cb" + i;
-     var e = "<input id='" + id + "' type='checkbox' class='markersSubSelectRadioButton' name='" + category + "'" +
+     var e = "<html><body><input id='" + id + "' type='checkbox' class='markersSubSelectRadioButton' name='" + category + "'" +
              " style='background':'" + color + "'" + " checked> " +
-             "<label for='" + id + "' style='color:" + color + "'>" + category + "</label><br>";
-     console.log(e);
+             "<label for='" + id + "' style='color:" + color + "'>" + category + " (" + count + ")</label><br></body></html>";
      content = content + e;
      }
   content = content + "</form>";
@@ -491,13 +491,11 @@ function subSelectNodes()
                                                                               width: "500px"});
 
   $("#markersSubSelectCloseButton").click(function(){
-     console.log("close dialog");
+     console.log("about to remove subselect dialog");
      $("#markersSubSelectDialog").remove();
      });
 
   $(".markersSubSelectRadioButton").click(function(e) {
-      console.log("radio!"); 
-      console.log(this.name + " " + this.checked);
       var category = this.name;
       var doSelectNodes = this.checked;
       var subsetNodes = selectedPatientNodes.filterFn(function(e){return(e.data("category") === category);});
@@ -1071,28 +1069,27 @@ function displayMarkersNetwork(msg)
    hub.logEventOnServer(thisModulesName, "display markers network", "data received", "");
 
    if(msg.status == "success"){
-      console.log("nchar(network): " + msg.payload.length);
-      var json = JSON.parse(msg.payload);
-      cwMarkers.remove(cwMarkers.edges());
-      cwMarkers.remove(cwMarkers.nodes());
-      console.log(" after JSON.parse, json.length: " + json.length);
-      console.log("  about to add json.elements");
-      cwMarkers.add(json.elements);
-      console.log("  about to add  json.style");
-      cwMarkers.style(json.style);
-      console.log("   hiding edges");
-      cwMarkers.edges().hide();
-      cwMarkers.filter("edge[edgeType='chromosome']").style({"curve-style": "bezier"});
-      cwMarkers.filter("edge[edgeType='chromosome']").show();
-      cwMarkers.nodes().unselect();
-        // map current node degree into a node attribute of that name
-      cwMarkers.nodes().map(function(node){node.data({degree: node.degree(), trueWidth: node.width(), trueHeight: node.height()});});
-
-      var edgeTypes = hub.uniqueElementsOfArray(cwMarkers.edges().map(function(edge){
-                               return(edge.data("edgeType"));}
-                               ));
-      updateEdgeSelectionWidget(edgeTypes);  // preserve only known edgeTypes
-      cwMarkers.fit(20);
+         console.log("nchar(network): " + msg.payload.length);
+         var json = JSON.parse(msg.payload);
+             cwMarkers.remove(cwMarkers.edges());
+           cwMarkers.remove(cwMarkers.nodes());
+           console.log(" after JSON.parse, json.length: " + json.length);
+           console.log("  about to add json.elements");
+           cwMarkers.add(json.elements);
+           cwMarkers.style(json.style);
+           cwMarkers.edges().hide();
+         cwMarkers.filter("edge[edgeType='chromosome']").style({"curve-style": "bezier"});
+         cwMarkers.filter("edge[edgeType='chromosome']").show();
+         cwMarkers.nodes().unselect();
+           // map current node degree into a node attribute of that name
+         cwMarkers.nodes().map(function(node){node.data({degree: node.degree(), trueWidth: node.width(), trueHeight: node.height()});});
+   
+         var edgeTypes = hub.uniqueElementsOfArray(cwMarkers.edges().map(function(edge){
+                                  return(edge.data("edgeType"));}
+                                  ));
+         updateEdgeSelectionWidget(edgeTypes);  // preserve only known edgeTypes
+         cwMarkers.fit(20);
+         
       var defaultLayout = JSON.stringify(cwMarkers.nodes().map(function(n){
                                          return({id:n.id(), position:n.position()});}));
       localStorage.markersDefault = defaultLayout;
@@ -1124,17 +1121,20 @@ function postStatus(msg)
 function updateEdgeSelectionWidget(edgeTypes)
 {
      // loop over currently offered edge types
-   var options = $("#markersEdgeTypeSelector").children();
-   for(var i=0; i < options.length; i++){
-      var optionElement = options[i];
-      var optionValue = optionElement.value;
-      var found = jQuery.inArray(optionValue, edgeTypes) >= 0;
-      console.log("checking option '" + optionValue + "':  " + found);
-      if(!found){
-         console.log("  deleting selector option " + optionValue);
-         $("#markersEdgeTypeSelector option[value='" + optionValue + "']").remove();
-         } // unrecognized edge type
+     //             <option value="mutation" class="btn-info" selected>Mut</option>
+
+   var edgeTypeMenu = $("#markersEdgeTypeSelector");
+   edgeTypeMenu.find('option').remove();
+   edgeTypeMenu.trigger("chosen:updated");
+   
+   edgeTypes = edgeTypes.filter(function(e){return(e !== "chromosome");});
+
+   for(var i=0; i < edgeTypes.length; i++){
+      var name = edgeTypes[i];
+      var optionMarkup =  "<option value='" + name + "' class='btn-info' selected>" + name + "</option>";
+      $("#markersEdgeTypeSelector").append(optionMarkup);
       }
+      
    $("#markersEdgeTypeSelector").trigger("chosen:updated");
 
 } // updateEdgeSelectionWidget
