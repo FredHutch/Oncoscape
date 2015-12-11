@@ -17,7 +17,7 @@ RUN apt-get -y -qq update && apt-get -y -qq install \
 	g++ \
 	libxml2 \
 	libxml2-dev \
-	nodejs \
+	nodejs-legacy \
 	npm \
 	python-pip
 
