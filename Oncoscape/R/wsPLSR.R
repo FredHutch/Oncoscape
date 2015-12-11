@@ -33,8 +33,8 @@ createPLSR <- function(ws, msg)
    response <- plsrDataSummary(myplsr)
    return.msg <- list(cmd=msg$callback, callback="", status="response", payload=response)
    
-   if(!dir.exists("~/tmp"))
-	   dir.create("~/tmp")
+   #if(!dir.exists("~/tmp"))
+   #   dir.create("~/tmp")
    
    printf("createPLSR about to send msg: %s", return.msg$cmd)
    
@@ -72,7 +72,7 @@ calculate_plsr <- function(ws, msg)
    
    #factors <- apply(factors.df, 1, as.list)
    #names(factors) <- NULL
-   save(factors.df, factors, file="~/tmp/factors.bug.RData")
+   #save(factors.df, factors, file="~/tmp/factors.bug.RData")
    printf("--- factors after apply on factors.df");
    print(factors)
 
@@ -88,7 +88,7 @@ calculate_plsr <- function(ws, msg)
           
    print(showMethods("calculatePLSR"))
 
-   save(factors, genes, file="~/tmp/calculatePLSR.inputs.RData")
+   #save(factors, genes, file="~/tmp/calculatePLSR.inputs.RData")
 
    x <- calculatePLSR(myplsr, factors, genes)
    printf("---- about to print result of calculatePLSR");
