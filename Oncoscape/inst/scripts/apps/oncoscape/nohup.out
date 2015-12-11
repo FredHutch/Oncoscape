@@ -13156,3 +13156,333 @@ $Survival
 [1]    3.0   82.0  772.0 2620.5 3524.0
 
 [1] >> ==== Oncoscape.dispatchMessage: getGeneSetNames
+
+R version 3.2.1 (2015-06-18) -- "World-Famous Astronaut"
+Copyright (C) 2015 The R Foundation for Statistical Computing
+Platform: x86_64-apple-darwin13.4.0 (64-bit)
+
+R is free software and comes with ABSOLUTELY NO WARRANTY.
+You are welcome to redistribute it under certain conditions.
+Type 'license()' or 'licence()' for distribution details.
+
+  Natural language support but running in an English locale
+
+R is a collaborative project with many contributors.
+Type 'contributors()' for more information and
+'citation()' on how to cite R or R packages in publications.
+
+Type 'demo()' for some demos, 'help()' for on-line help, or
+'help.start()' for an HTML browser interface to help.
+Type 'q()' to quit R.
+
+> library(OncoDev14)
+Loading required package: jsonlite
+Loading required package: httpuv
+Loading required package: SttrDataPackage
+Loading required package: PatientHistory
+
+Attaching package: ‘SttrDataPackage’
+
+The following object is masked from ‘package:utils’:
+
+    history
+
+Loading required package: survival
+Loading required package: base64enc
+Loading required package: PCA
+Loading required package: BiocGenerics
+Loading required package: parallel
+
+Attaching package: ‘BiocGenerics’
+
+The following objects are masked from ‘package:parallel’:
+
+    clusterApply, clusterApplyLB, clusterCall, clusterEvalQ,
+    clusterExport, clusterMap, parApply, parCapply, parLapply,
+    parLapplyLB, parRapply, parSapply, parSapplyLB
+
+The following object is masked from ‘package:stats’:
+
+    xtabs
+
+The following objects are masked from ‘package:base’:
+
+    anyDuplicated, append, as.data.frame, as.vector, cbind, colnames,
+    do.call, duplicated, eval, evalq, Filter, Find, get, intersect,
+    is.unsorted, lapply, Map, mapply, match, mget, order, paste, pmax,
+    pmax.int, pmin, pmin.int, Position, rank, rbind, Reduce, rep.int,
+    rownames, sapply, setdiff, sort, table, tapply, union, unique,
+    unlist, unsplit
+
+Loading required package: RUnit
+Loading required package: PLSR
+Loading required package: pls
+
+Attaching package: ‘pls’
+
+The following object is masked from ‘package:stats’:
+
+    loadings
+
+
+Attaching package: ‘PLSR’
+
+The following objects are masked from ‘package:PCA’:
+
+    getDataMatrixName, getDataPackage, printf, setDataMatrixName
+
+
+Attaching package: ‘OncoDev14’
+
+The following object is masked from ‘package:PLSR’:
+
+    show
+
+The following object is masked from ‘package:PCA’:
+
+    show
+
+The following object is masked from ‘package:SttrDataPackage’:
+
+    show
+
+The following object is masked from ‘package:methods’:
+
+    show
+
+The following object is masked from ‘package:base’:
+
+    close
+
+Warning message:
+package ‘jsonlite’ was built under R version 3.2.2 
+> sessionInfo()
+R version 3.2.1 (2015-06-18)
+Platform: x86_64-apple-darwin13.4.0 (64-bit)
+Running under: OS X 10.10.3 (Yosemite)
+
+locale:
+[1] en_US.UTF-8/en_US.UTF-8/en_US.UTF-8/C/en_US.UTF-8/en_US.UTF-8
+
+attached base packages:
+[1] parallel  stats     graphics  grDevices utils     datasets  methods  
+[8] base     
+
+other attached packages:
+ [1] OncoDev14_1.4.92        PLSR_1.0.16             pls_2.5-0              
+ [4] PCA_1.0.13              RUnit_0.4.31            BiocGenerics_0.14.0    
+ [7] base64enc_0.1-3         survival_2.38-3         SttrDataPackage_0.99.19
+[10] PatientHistory_0.99.6   httpuv_1.3.3            jsonlite_0.9.19        
+
+loaded via a namespace (and not attached):
+[1] Rcpp_0.12.2    plyr_1.8.3     magrittr_1.5   stringi_1.0-1  reshape2_1.4.1
+[6] splines_3.2.1  tools_3.2.1    stringr_1.0.0 
+> scriptDir <- "apps/oncoscape"
+> stopifnot(nchar(Sys.getenv("ONCOSCAPE_USER_DATA_STORE")) > 0)
+> userID <- "test@nowhere.org"
+> current.datasets <- c("TCGAgbm;TCGAbrain")
+> port <- 7777
+> onco <- OncoDev14(port=port, scriptDir=scriptDir, userID=userID, datasetNames=current.datasets)
+[1] OncoDev14 ctor, datasetNames: TCGAgbm;TCGAbrain
+[1] OncoDev14.loadDataPackages
+[1] OncoDev14:.loadDataPackages: TCGAgbm
+Welcome to Bioconductor
+
+    Vignettes contain introductory material; view with
+    'browseVignettes()'. To cite Bioconductor, see
+    'citation("Biobase")', and for packages 'citation("pkgname")'.
+
+Creating a generic function for ‘nchar’ from package ‘base’ in package ‘S4Vectors’
+Loading required package: DBI
+
+[1] SttrDataPackage ctor, networks.found: 2
+OncoDev14 loading:       datasets[['TCGAgbm']] <- TCGAgbm()    2.58 seconds
+  new list of loaded datasets: TCGAgbm
+[1] OncoDev14:.loadDataPackages: TCGAbrain
+[1] SttrDataPackage ctor, networks.found: 3
+[1] TCGAbrain ctor, nchar(network): 2672175
+[1] concluding TCGAbrain ctor, network count: 3
+OncoDev14 loading:   datasets[['TCGAbrain']] <- TCGAbrain()    4.64 seconds
+  new list of loaded datasets: TCGAbrain,TCGAgbm
+[1] === datsets now available in datasets environment: TCGAbrain,TCGAgbm
+Warning messages:
+1: package ‘GenomeInfoDb’ was built under R version 3.2.2 
+2: package ‘S4Vectors’ was built under R version 3.2.2 
+3: package ‘IRanges’ was built under R version 3.2.2 
+4: In .recacheSubclasses(def@className, def, doSubclasses, env) :
+  undefined subclass "externalRefMethod" of class "expressionORfunction"; definition not updated
+5: In .recacheSubclasses(def@className, def, doSubclasses, env) :
+  undefined subclass "externalRefMethod" of class "functionORNULL"; definition not updated
+> if(Sys.info()[["nodename"]] != "lopez") 
++    browseURL(sprintf("http://localhost:%d", port))
+> run(onco)
+[1] OncoDev14::run, starting service loop on port 7777
+
+R version 3.2.1 (2015-06-18) -- "World-Famous Astronaut"
+Copyright (C) 2015 The R Foundation for Statistical Computing
+Platform: x86_64-apple-darwin13.4.0 (64-bit)
+
+R is free software and comes with ABSOLUTELY NO WARRANTY.
+You are welcome to redistribute it under certain conditions.
+Type 'license()' or 'licence()' for distribution details.
+
+  Natural language support but running in an English locale
+
+R is a collaborative project with many contributors.
+Type 'contributors()' for more information and
+'citation()' on how to cite R or R packages in publications.
+
+Type 'demo()' for some demos, 'help()' for on-line help, or
+'help.start()' for an HTML browser interface to help.
+Type 'q()' to quit R.
+
+> library(OncoDev14)
+Loading required package: jsonlite
+Loading required package: httpuv
+Loading required package: SttrDataPackage
+Loading required package: PatientHistory
+
+Attaching package: ‘SttrDataPackage’
+
+The following object is masked from ‘package:utils’:
+
+    history
+
+Loading required package: survival
+Loading required package: base64enc
+Loading required package: PCA
+Loading required package: BiocGenerics
+Loading required package: parallel
+
+Attaching package: ‘BiocGenerics’
+
+The following objects are masked from ‘package:parallel’:
+
+    clusterApply, clusterApplyLB, clusterCall, clusterEvalQ,
+    clusterExport, clusterMap, parApply, parCapply, parLapply,
+    parLapplyLB, parRapply, parSapply, parSapplyLB
+
+The following object is masked from ‘package:stats’:
+
+    xtabs
+
+The following objects are masked from ‘package:base’:
+
+    anyDuplicated, append, as.data.frame, as.vector, cbind, colnames,
+    do.call, duplicated, eval, evalq, Filter, Find, get, intersect,
+    is.unsorted, lapply, Map, mapply, match, mget, order, paste, pmax,
+    pmax.int, pmin, pmin.int, Position, rank, rbind, Reduce, rep.int,
+    rownames, sapply, setdiff, sort, table, tapply, union, unique,
+    unlist, unsplit
+
+Loading required package: RUnit
+Loading required package: PLSR
+Loading required package: pls
+
+Attaching package: ‘pls’
+
+The following object is masked from ‘package:stats’:
+
+    loadings
+
+
+Attaching package: ‘PLSR’
+
+The following objects are masked from ‘package:PCA’:
+
+    getDataMatrixName, getDataPackage, printf, setDataMatrixName
+
+
+Attaching package: ‘OncoDev14’
+
+The following object is masked from ‘package:PLSR’:
+
+    show
+
+The following object is masked from ‘package:PCA’:
+
+    show
+
+The following object is masked from ‘package:SttrDataPackage’:
+
+    show
+
+The following object is masked from ‘package:methods’:
+
+    show
+
+The following object is masked from ‘package:base’:
+
+    close
+
+Warning message:
+package ‘jsonlite’ was built under R version 3.2.2 
+> sessionInfo()
+R version 3.2.1 (2015-06-18)
+Platform: x86_64-apple-darwin13.4.0 (64-bit)
+Running under: OS X 10.10.3 (Yosemite)
+
+locale:
+[1] en_US.UTF-8/en_US.UTF-8/en_US.UTF-8/C/en_US.UTF-8/en_US.UTF-8
+
+attached base packages:
+[1] parallel  stats     graphics  grDevices utils     datasets  methods  
+[8] base     
+
+other attached packages:
+ [1] OncoDev14_1.4.92        PLSR_1.0.16             pls_2.5-0              
+ [4] PCA_1.0.13              RUnit_0.4.31            BiocGenerics_0.14.0    
+ [7] base64enc_0.1-3         survival_2.38-3         SttrDataPackage_0.99.19
+[10] PatientHistory_0.99.6   httpuv_1.3.3            jsonlite_0.9.19        
+
+loaded via a namespace (and not attached):
+[1] Rcpp_0.12.2    plyr_1.8.3     magrittr_1.5   stringi_1.0-1  reshape2_1.4.1
+[6] splines_3.2.1  tools_3.2.1    stringr_1.0.0 
+> scriptDir <- "apps/oncoscape"
+> stopifnot(nchar(Sys.getenv("ONCOSCAPE_USER_DATA_STORE")) > 0)
+> userID <- "test@nowhere.org"
+> current.datasets <- c("TCGAgbm;TCGAbrain")
+> port <- 7777
+> onco <- OncoDev14(port=port, scriptDir=scriptDir, userID=userID, datasetNames=current.datasets)
+[1] OncoDev14 ctor, datasetNames: TCGAgbm;TCGAbrain
+[1] OncoDev14.loadDataPackages
+[1] OncoDev14:.loadDataPackages: TCGAgbm
+Welcome to Bioconductor
+
+    Vignettes contain introductory material; view with
+    'browseVignettes()'. To cite Bioconductor, see
+    'citation("Biobase")', and for packages 'citation("pkgname")'.
+
+Creating a generic function for ‘nchar’ from package ‘base’ in package ‘S4Vectors’
+Loading required package: DBI
+
+[1] SttrDataPackage ctor, networks.found: 2
+OncoDev14 loading:       datasets[['TCGAgbm']] <- TCGAgbm()    1.84 seconds
+  new list of loaded datasets: TCGAgbm
+[1] OncoDev14:.loadDataPackages: TCGAbrain
+[1] SttrDataPackage ctor, networks.found: 3
+[1] TCGAbrain ctor, nchar(network): 2672175
+[1] concluding TCGAbrain ctor, network count: 3
+OncoDev14 loading:   datasets[['TCGAbrain']] <- TCGAbrain()    3.73 seconds
+  new list of loaded datasets: TCGAbrain,TCGAgbm
+[1] === datsets now available in datasets environment: TCGAbrain,TCGAgbm
+Warning messages:
+1: package ‘GenomeInfoDb’ was built under R version 3.2.2 
+2: package ‘S4Vectors’ was built under R version 3.2.2 
+3: package ‘IRanges’ was built under R version 3.2.2 
+4: In .recacheSubclasses(def@className, def, doSubclasses, env) :
+  undefined subclass "externalRefMethod" of class "expressionORfunction"; definition not updated
+5: In .recacheSubclasses(def@className, def, doSubclasses, env) :
+  undefined subclass "externalRefMethod" of class "functionORNULL"; definition not updated
+> if(Sys.info()[["nodename"]] != "lopez") 
++    browseURL(sprintf("http://localhost:%d", port))
+> run(onco)
+[1] OncoDev14::run, starting service loop on port 7777
+Error in startServer("0.0.0.0", port(self), self@wsServer) : 
+  Failed to create server
+Calls: run -> run -> startServer
+Execution halted
+[1] ====== Oncoscape.dispatchMessage: getUserId  [Fri Dec 11 2015 12:48:51]
+[1] ====== Oncoscape.dispatchMessage: getUserId  [Fri Dec 11 2015 12:48:51]
+[1] ====== Oncoscape.dispatchMessage: getDataSetNames  [Fri Dec 11 2015 12:48:51]
+[1] wsDatasets:getAllDataSetNames: TCGAbrain, TCGAgbm
