@@ -20,6 +20,8 @@ HugoGenes <- unique(c(genes.luad, genes.lusc))
 checkEquals(length(HugoGenes), ncol(tbl.TCGAluad))
 checkEquals(length(HugoGenes), ncol(tbl.TCGAlusc))
 
+tbl.TCGAluad <- tbl.TCGAluad[, colnames(tbl.TCGAlusc)]
+
 mtx.cn <- rbind(tbl.TCGAluad, tbl.TCGAlusc)
 
 checkEquals(nrow(mtx.cn), nrow(tbl.TCGAluad) + nrow(tbl.TCGAlusc) )
