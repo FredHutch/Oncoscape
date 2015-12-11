@@ -22,10 +22,9 @@ RUN apt-get -y -qq update && apt-get -y -qq install \
 	python-pip
 
 # Install required non-apt packages   
-RUN pip install websocket-client && npm install -g jshint && npm install -g qunit
-
-# required to get jshint working 
-RUN ln -s /usr/bin/nodejs /usr/bin/node
+RUN pip install websocket-client
+RUN npm install -g jshint
+RUN npm install -g qunit
 
 # create the sttrweb user and data directory
 RUN useradd -u 7534 -m -d /home/sttrweb -c "sttr web application" sttrweb && \
