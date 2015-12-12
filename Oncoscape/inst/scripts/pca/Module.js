@@ -38,8 +38,8 @@ var PCAModule = (function () {
 
   var sendSelectionsMenuTitle = "Send selection...";
   var selectionDestinationsOfferedHere = ["PCA", "PCA (highlight)"];
-  var g_pcaMsg; 
-
+  var pcaMsg; 
+  var highlightIndex = [];
 //----------------------------------------------------------------------------------------------------
 function initializeUI ()
 {
@@ -306,13 +306,14 @@ function pcaPlot (msg)
 {
    if(msg.status == "success"){
       pcaScores = msg.payload.scores;
+      var geneSet = msg.payload.geneSetName;
       currentIdentifiers = msg.payload.ids;
       console.log("*****pcaPlot received currentIdentifier length: ", currentIdentifiers.length);
       console.log("*****pcaPlot received pcaScores length: ", pcaScores.length);
       //capture message and store to a global variable for testing purpose
-      g_pcaMsg = {g_selectedIDs:currentIdentifiers, g_pcaScores:pcaScores};
-      for(var i = 0; i < g_pcaMsg.g_selectedIDs.length; i++) { g_pcaMsg.g_selectedIDs[i] = g_pcaMsg.g_selectedIDs[i].slice(0, 12);}
-      console.log("*****pcaPlot g_selectedIDs", g_pcaMsg.g_selectedIDs);
+      pcaMsg = {selectedIDs:currentIdentifiers, pcaScores:pcaScores, geneSet:geneSet};
+      for(var i = 0; i < pcaMsg.selectedIDs.length; i++) { pcaMsg.selectedIDs[i] = pcaMsg.selectedIDs[i].slice(0, 12);}
+      console.log("*****pcaPlot selectedIDs", pcaMsg.selectedIDs);
       d3PcaScatterPlot(pcaScores);
 
       var pcaData = msg.payload.importance;
@@ -346,8 +347,8 @@ function highlightPatientIDs(msg)
    hub.raiseTab(thisModulesOutermostDiv);
 
    var candidates = msg.payload.value;
-   var testing = msg.payload.testing;
-   //g_pcaMsg.g_selectedIDs = candidates;
+   //var testing = msg.payload.testing;
+   //pcaMsg.selectedIDs = candidates;
    console.log("=== Module.pca, highlightPatientIDs, candidates:");
    //console.log(JSON.stringify(candidates));
    console.log("=== Module.pca, highlightPatientIDs, currentIdentifiers:");
@@ -359,7 +360,12 @@ function highlightPatientIDs(msg)
      // rather than
      //    hub.intersectionOfArrays(candidates, currentIdentifiers) ->  
      //      ["TCGA.02.0114.01", "TCGA.12.1088.01"]
-
+   if(currentIdentifiers.length === 0){
+     title = "PCA plot not calculated";
+     errorMessage = "Please calculate PCA plot before sending identifiers for highlighting.";
+     $('<div />').html(errorMessage).dialog({title: title, width:600, height:300});
+     return; 
+   }
    var intersection = hub.intersectionOfArrays(candidates, currentIdentifiers);
    // debugger;
    console.log("=== Module.pca, highlightPatientIDs, intersection:");
@@ -376,47 +382,40 @@ function highlightPatientIDs(msg)
      postStatus("intersection.length === 0");
      } // if intersection
    else{
-     selectPoints(intersection, true, testing);
-     postStatus("intersection.length !== 0");
+     selectPoints(intersection, true);
+     //postStatus("intersection.length !== 0");
    }
 } // highlightPatientIDs
 //----------------------------------------------------------------------------------------------------
-function selectPoints(ids, clearIDs, testing)
+function selectPoints(ids, clearIDs)
 {
    console.log("=== module.pca: selectPoints");
    console.log("    incoming ids count: " + ids.length);
    //console.log(ids);
    
-   if(!testing) {
-      d3.selectAll("circle")
-        .filter(function(d, i){
-        //console.log("examining currentIdentifier " + i + ": " + currentIdentifiers[i]);
-        if(typeof(d) == "undefined")
+   if(true){
+     d3.selectAll("circle")
+       .filter(function(d, i){
+         //console.log("examining currentIdentifier " + i + ": " + currentIdentifiers[i]);
+         if(typeof(d) == "undefined")
            return(false);
-        match = ids.indexOf(currentIdentifiers[i]);
-        //console.log("match: " + match);
-        return (match >= 0);
-        }) // filter
-        .classed("highlighted", true)
-        .transition()
-        .attr("r", 7)
-        .duration(500);
-   }else{
-      d3.selectAll("circle")
-        .filter(function(d, i){
-        //console.log("examining currentIdentifier " + i + ": " + currentIdentifiers[i]);
-        if(typeof(d) == "undefined")
-           return(false);
-        match = ids.indexOf(currentIdentifiers[i]);
-        //console.log("match: " + match);
-        return (match >= 0);
-        }) // filter
-        .classed("highlighted", true)
-        .attr("r", 7);
-   } 
-     
-     //.attr("r", 7);
-} // selectPoints
+         match = ids.indexOf(currentIdentifiers[i]);
+         //highlightIndex.push(match);
+         //console.log("match: " + match);
+         return (match >= 0);
+       }) // filter
+       .classed("highlighted", true)
+       .transition()
+       .attr("r", 7)
+       .duration(500);
+   }
+   //pcaMsg.highlightIndex = highlightIndex;
+   setTimeout(function(){
+            console.log("*****Module.js within selectPoints before qunit");
+            console.log("***** Date time: ", Date());
+            postStatus("selectPoints are highlighted"); 
+   }, 5000);
+ } // selectPoints
 //----------------------------------------------------------------------------------------------------
 function clearSelection()
 {
@@ -540,8 +539,8 @@ function d3PcaScatterPlot(dataset)
    var yScale = d3.scale.linear()
                   .domain([yMin, yMax])
                   .range([height - padding, padding]); // note inversion 
-  g_pcaMsg.xScale = xScale;
-  g_pcaMsg.yScale = yScale; 
+  pcaMsg.xScale = xScale;
+  pcaMsg.yScale = yScale; 
    var xTranslationForYAxis = xScale(0);
    var yTranslationForXAxis = yScale(0);
 
@@ -734,7 +733,7 @@ function assessUserIdForTesting(msg)
 } // assessUserIdForTesting
 //----------------------------------------------------------------------------------------------------
 function ModuleMsg(){
-  return g_pcaMsg;
+  return pcaMsg;
 }
 //----------------------------------------------------------------------------------------------------
 function initializeModule()

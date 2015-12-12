@@ -88,7 +88,7 @@ ws.calculatePCA <- function(ws, msg)
    
    payload <- list(scores=mtx.loadings, ids=ids, maxValue=max.value,
                    importance.PC1=importance.PC1,
-                   importance.PC2=importance.PC2)
+                   importance.PC2=importance.PC2, geneSetName=geneSetName)
 
 
    json <- jsonlite::toJSON(list(cmd=msg$callback, callback="", status="success", payload=payload),

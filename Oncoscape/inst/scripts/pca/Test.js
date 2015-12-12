@@ -57,11 +57,13 @@ function runTests(datasetNames, reps, exitOnCompletion)
       var msg = $(majorStatusDiv).text();
       console.log("test status changed, text: " + msg);
       datasetIndex++;
-      if(datasetIndex < (datasetNames.length * reps)){
+      //if(datasetIndex < (datasetNames.length * reps)){
+      if(datasetIndex < (datasetNames.length * 50)){  
          console.log("about to test dataset " + datasetNames[datasetIndex]);      
          testStatusObserver = new MutationObserver(onMutation);
          testStatusObserver.observe(target, config);
-         if(datasetIndex < (datasetNames.length * reps))
+         //if(datasetIndex < (datasetNames.length * reps))
+         if(datasetIndex < (datasetNames.length * 50)) 
             testLoadDatasetPCA(datasetNames[datasetIndex % datasetNames.length]);
          }
       else{
@@ -122,8 +124,13 @@ function testCalculate(genesetList)
 {
    hub.raiseTab("pcaDiv");
    console.log("starting testCalculate");
+   var genesetLength = genesetList.length;
+   console.log("******testCalculate - Current geneset length is:", genesetLength);
+   genesetIndex = hub.getRandomInt(0, $("#pcaGeneSetSelector option").length - 1);
+   geneset = genesetList[genesetIndex];     
    
-    if(pcaStatusObserver === null){
+
+   if(pcaStatusObserver === null){
       pcaStatusObserver = new MutationObserver(function(mutations) {
         //hub.raiseTab("pcaDiv");
         mutation = mutations[0];
@@ -132,19 +139,20 @@ function testCalculate(genesetList)
         var id = mutation.target.id;
         var msg = $("#pcaStatusDiv").text();
         // enable the calculate button, change its color, then click
-        var genesetLength = genesetList.length;
-        console.log("******testCalculate - Current geneset length is:", genesetLength);
-        genesetIndex = hub.getRandomInt(0, $("#pcaGeneSetSelector option").length - 1);
-        geneset = genesetList[genesetIndex];
+        
         QUnit.test('testPcaCalculate', function(assert){
+          pcaMsg = pca.ModuleMsg();
+          console.log("*****testCalculate pcaMsg.geneSet ",pcaMsg.geneSet);
+          console.log("*****testCalculate geneset: ",geneset);
+          assert.equal(pcaMsg.geneSet, geneset);
           $("#pcaCalculateButton").prop("disabled", false);
           $("#pcaCalculateButton").css({"background-color": "red", "color": "green"});
-          $("#pcaGeneSetSelector").val(geneset);
-          assert.equal($("#pcaGeneSetSelector").val(), geneset);
-          $("#pcaGeneSetSelector").trigger("change");
+          assert.equal($("#pcaCalculateButton").css('color'), "rgb(0, 128, 0)");
+          //$("#pcaGeneSetSelector").val(geneset);
+          //$("#pcaGeneSetSelector").trigger("change");
           // check if the "Calculate" is clicked
           $("#pcaDisplay").show();
-          assert.equal($("#pcaCalculateButton").css('color'), "rgb(0, 128, 0)");
+          
           testContentsOfPcaPlot();
         });  
       }); // new MutationObserver
@@ -153,8 +161,8 @@ function testCalculate(genesetList)
    var target = document.querySelector(minorStatusDiv);
    pcaStatusObserver.observe(target, config);
    
-   var currentGeneSet = $("#pcaGeneSetSelector").val();
-   var payload = {genes: currentGeneSet, source: "pca/Test.js::testCalculate"};
+   
+   var payload = {genes: geneset, source: "pca/Test.js::testCalculate"};
    msg = {cmd: "calculatePCA", callback: "pcaPlot", status: "request", payload: payload};
    hub.send(JSON.stringify(msg));
 
@@ -163,18 +171,18 @@ function testCalculate(genesetList)
 function testContentsOfPcaPlot()
 {
    console.log("--- testContentsOfPcaPlot");
-   var g_pcaMsg = pca.ModuleMsg();
+   var pcaMsg = pca.ModuleMsg();
     QUnit.test('testPcaContents', function(assert) { 
-      assert.equal($("circle").length, g_pcaMsg.g_selectedIDs.length);
-      var circleIndex = hub.getRandomInt(0, g_pcaMsg.g_selectedIDs.length - 1);
+      assert.equal($("circle").length, pcaMsg.selectedIDs.length);
+      var circleIndex = hub.getRandomInt(0, pcaMsg.selectedIDs.length - 1);
       var cir_random = $("circle")[circleIndex];
       var xPos = Number(cir_random.getAttribute("cx"));
       var yPos =  Number(cir_random.getAttribute("cy"));
       var radius = Number(cir_random.getAttribute("r"));
       console.log("*****testContentsOfPcaPlot coordinates" + xPos + "  " + yPos + "  " + radius);
       // get score for this circle, maybe check tooltip name too
-      assert.equal(xPos, g_pcaMsg.xScale(g_pcaMsg.g_pcaScores[circleIndex][0]));
-      assert.equal(yPos, g_pcaMsg.yScale(g_pcaMsg.g_pcaScores[circleIndex][1]));
+      assert.equal(xPos, pcaMsg.xScale(pcaMsg.pcaScores[circleIndex][0]));
+      assert.equal(yPos, pcaMsg.yScale(pcaMsg.pcaScores[circleIndex][1]));
       assert.equal(radius, 3);
       testSendIDs(); 
    });
@@ -190,16 +198,16 @@ function testSendIDs() {
       // ids (simple name strings) taken from the network itself.
       // these nodes are sent to the network using hub.send
       // we then check to see that these 10 nodes are selected in cyjs
-   //var ids = g_pcaMsg.g_selectedIDs.splice(-1, 1);
+   //var ids = pcaMsg.selectedIDs.splice(-1, 1);
    var ids;
    var maxNodes = 200;
-   var g_pcaMsg = pca.ModuleMsg();
-   if(g_pcaMsg.g_selectedIDs.length <= maxNodes){
-      ids = g_pcaMsg.g_selectedIDs.slice(0, g_pcaMsg.g_selectedIDs.length);
+   var pcaMsg = pca.ModuleMsg();
+   if(pcaMsg.selectedIDs.length <= maxNodes){
+      ids = pcaMsg.selectedIDs.slice(0, pcaMsg.selectedIDs.length);
    }else{
-      ids = g_pcaMsg.g_selectedIDs.slice(0, maxNodes);
+      ids = pcaMsg.selectedIDs.slice(0, maxNodes);
    }
-   //console.log("*****testSendIDs number of original global circles appeared: " + $("circle").length + "number of original global value stored: " + g_pcaMsg.g_selectedIDs.length);  
+   //console.log("*****testSendIDs number of original global circles appeared: " + $("circle").length + "number of original global value stored: " + pcaMsg.selectedIDs.length);  
    //console.log("*****testSendIDs number of ids to be sent: " + ids.length);  
    if(pcaStatusObserver === null){
       pcaStatusObserver = new MutationObserver(function(mutations) {
@@ -209,7 +217,7 @@ function testSendIDs() {
         var id = mutation.target.id;
         var statusMsg = $(minorStatusDiv).text();
         QUnit.test(title, function(assert) {
-           g_pcaMsg = pca.ModuleMsg();
+           pcaMsg = pca.ModuleMsg();
            console.log("-- in QUnit.test for testSendIDs " + ids.length + "  statusMsg: " + statusMsg);
            //TCGAgbm is using mtx.mrna.ueArray, sampleID duplicates: "TCGA.06.0145.01.1" "TCGA.06.0145.01.2" "TCGA.06.0145.01.3"
  													//"TCGA.06.0137.01.1" "TCGA.06.0137.01.2" "TCGA.06.0145.01.4"
@@ -220,12 +228,13 @@ function testSendIDs() {
 													//"TCGA.06.0216.01.1"
            //DEMOdz: mtx.mrna.bc, sampleID duplicates: "TCGA.06.0747" "TCGA.06.0749"
            //TCGAbrain: mtx.mrna.bc, no sampleID duplicates
+           //All sample IDs will be returned, so there might be duplicate points drawn representing samples for a given patient.
            assert.ok($("circle").length >= ids.length);
            //console.log("*****all ids sent length:", ids.length);
-           //console.log("*****all ids received length:", g_pcaMsg.g_selectedIDs.length);
+           //console.log("*****all ids received length:", pcaMsg.selectedIDs.length);
            //console.log("*****unique ids sent length:", $.unique(ids).length);
-           //console.log("*****unique ids received length:", $.unique(g_pcaMsg.g_selectedIDs).length);
-           assert.equal($.unique(ids).length, $.unique(g_pcaMsg.g_selectedIDs).length);
+           //console.log("*****unique ids received length:", $.unique(pcaMsg.selectedIDs).length);
+           assert.equal($.unique(ids).length, $.unique(pcaMsg.selectedIDs).length);
            testSendIDstoHighlight();
            });
         }); // new MutationObserver
@@ -249,8 +258,8 @@ function testSendIDstoHighlight() {
    var title = "testSendIDstoHighlight";
    console.log(title);
    //sending all the ids to highligh
-   var g_pcaMsg = pca.ModuleMsg();
-   var ids = g_pcaMsg.g_selectedIDs;
+   var pcaMsg = pca.ModuleMsg();
+   var ids = pcaMsg.selectedIDs;
    if(pcaStatusObserver === null){
 	 pcaStatusObserver = new MutationObserver(function(mutations) {
 	    mutation = mutations[0];
@@ -258,34 +267,29 @@ function testSendIDstoHighlight() {
 	    pcaStatusObserver = null;
 	    var id = mutation.target.id;
 	    var statusMsg = $(minorStatusDiv).text();
+      //var pcaMsg = pca.ModuleMsg();
+      //highlightIndex = pcaMsg.highlightIndex;
 	    QUnit.test(title, function(assert) {
 	       console.log("-- in QUnit.test for testSendIDstoHighlight " + ids.length + "  statusMsg: " + statusMsg);
 	       console.log("*****testSendIDstoHighlight circles number appear: ", $("circle").length);
-	       console.log("*****testSendIDstoHighlight current global g_selectIDs number: ", g_pcaMsg.g_selectedIDs.length);
+	       console.log("*****testSendIDstoHighlight current global selectIDs number: ", pcaMsg.selectedIDs.length);
          console.log("*****testSendIDstoHighlight current ids number: ", ids.length);
 	       assert.ok($("circle").length >= ids.length);
-	       var circleIndex = hub.getRandomInt(0, ids.length - 1);
-         
-         var Highlighted = [];
-         var RadiusNot7 = [];
-         for(var i = 0; i < ids.length; i++){
-            if($("circle")[i].getAttribute('class') === "highlighted")
-              Highlighted.push(i);
-            if($("circle")[i].getAttribute('class') !== 7)
-              RadiusNot7.push(i);
-         }
-         console.log("*****testSendIDstoHighlight number of notHighlighted:", Highlighted.length);
-         console.log("*****testSendIDstoHighlight RadiusNot7:", RadiusNot7);
-
-	       var cir_random = $("circle")[circleIndex];
+	       var randomIndex = hub.getRandomInt(0, ids.length - 1);
+         //var circleIndex = highlightIndex[randomIndex];
+         //console.log("*****testSendIDstoHighlight randomIndex: ", randomIndex);
+         //console.log("*****testSendIDstoHighlight circleIndex: ", circleIndex);
+         var Highlighted = d3.selectAll(".highlighted")[0].length;
+         console.log("*****testSendIDstoHighlight number of Highlighted:", Highlighted);
+	       var cir_random = $("circle")[randomIndex];
 	       var xPos = Number(cir_random.getAttribute("cx"));
 	       var yPos =  Number(cir_random.getAttribute("cy"));
 	       var radius = Number(cir_random.getAttribute("r"));
-	       console.log("*****testContentsOfPcaPlot circleIndex:" + circleIndex + "coordinates" + xPos + "  " + yPos + "  " + radius);
+	       console.log("*****testContentsOfPcaPlot randomIndex:" + randomIndex + "coordinates" + xPos + "  " + yPos + "  " + radius);
 	       // get score for this circle, maybe check tooltip name too
-         assert.equal(Highlighted.length, ids.length);
-	       assert.equal(xPos, g_pcaMsg.xScale(g_pcaMsg.g_pcaScores[circleIndex][0]));
-	       assert.equal(yPos, g_pcaMsg.yScale(g_pcaMsg.g_pcaScores[circleIndex][1]));
+         assert.equal(Highlighted, ids.length);
+	       assert.equal(xPos, pcaMsg.xScale(pcaMsg.pcaScores[randomIndex][0]));
+	       assert.equal(yPos, pcaMsg.yScale(pcaMsg.pcaScores[randomIndex][1]));
          console.log("*****before radius comparison");
 	       assert.equal(radius, 7);
 	       markEndOfTestingDataSet(); 
@@ -299,7 +303,7 @@ function testSendIDstoHighlight() {
 
    console.log("testSendIDstoHighlight, sending " + JSON.stringify(ids));
    var count = $.unique(ids).length;
-   var payload = {value: $.unique(ids), testing:true, count: count , source: "pca/Test.js::testSendIDstoHighlight"};
+   var payload = {value: $.unique(ids), count: count , source: "pca/Test.js::testSendIDstoHighlight"};
    var msg = {cmd: "sendSelectionTo_PCA (highlight)", callback: "", status: "request", payload:  payload};
    
    hub.send(JSON.stringify(msg));
