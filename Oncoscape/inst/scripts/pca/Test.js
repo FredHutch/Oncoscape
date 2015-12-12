@@ -57,13 +57,11 @@ function runTests(datasetNames, reps, exitOnCompletion)
       var msg = $(majorStatusDiv).text();
       console.log("test status changed, text: " + msg);
       datasetIndex++;
-      //if(datasetIndex < (datasetNames.length * reps)){
-      if(datasetIndex < (datasetNames.length * 50)){  
+      if(datasetIndex < (datasetNames.length * reps)){
          console.log("about to test dataset " + datasetNames[datasetIndex]);      
          testStatusObserver = new MutationObserver(onMutation);
          testStatusObserver.observe(target, config);
-         //if(datasetIndex < (datasetNames.length * reps))
-         if(datasetIndex < (datasetNames.length * 50)) 
+         if(datasetIndex < (datasetNames.length * reps))
             testLoadDatasetPCA(datasetNames[datasetIndex % datasetNames.length]);
          }
       else{
