@@ -27,4 +27,4 @@ deployment:
       - docker tag fredhutch/oncoscape:$CIRCLE_SHA1 fredhutch/oncoscape:develop
       - docker login -e $DOCKER_EMAIL -u $DOCKER_USER -p $DOCKER_PASS
       - docker push fredhutch/oncoscape:develop; sleep 60
-      #- curl -X POST $DEPLOY_TUTUM
+      - curl -X POST $DEPLOY_TUTUM_DEVELOP
