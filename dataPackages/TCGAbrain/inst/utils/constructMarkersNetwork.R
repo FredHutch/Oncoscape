@@ -19,7 +19,7 @@ create.and.display <- function()
    styleFile <- "/Users/pshannon/oncogit/Oncoscape/dataPackages/TCGAgbm/inst/utils/style.js"
    #styleFile <- "style.js"
    httpSetStyle(rcy, styleFile)
-   tbl.pos <- getSimilarityScreenCoordinates(netMaker, xOrigin=0, yOrigin=0, xMax=2000, yMax=5000)
+   tbl.pos <- getSimilarityScreenCoordinates(netMaker, xOrigin=0, yOrigin=0, xMax=8000, yMax=8000)
    setPosition(rcy, tbl.pos)    
    
    fit(rcy, 100)
@@ -27,7 +27,7 @@ create.and.display <- function()
    httpAddGraph(rcy, g.chrom)
    httpSetStyle(rcy, styleFile)
    
-   tbl.pos <- getChromosomeScreenCoordinates(netMaker, xOrigin=1400, yOrigin=000, yMax=2000, chromDelta=200)
+   tbl.pos <- getChromosomeScreenCoordinates(netMaker, xOrigin=5500, yOrigin=0, yMax=3000, chromDelta=200)
    setPosition(rcy, tbl.pos)
    fit(rcy, 100)
    g.mut <- getMutationGraph(netMaker, goi)
@@ -52,7 +52,7 @@ create.and.display <- function()
 
    unpositioned.nodes <- names(which(!noa(g, "positioned")))
    selectNodes(rcy, unpositioned.nodes)
-   layoutSelectionInGrid(rcy, x=2300, y=1400, w=1000, h=500)
+   layoutSelectionInGrid(rcy, x=-3000, y=2800, w=1400, h=400)
    fit(rcy)
 
    return(list(rcy=rcy, g=g, g.mut=g.mut, g.cn=g.cn, unpositioned=unpositioned.nodes))
