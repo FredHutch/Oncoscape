@@ -1380,9 +1380,10 @@ def test_eventLogging():
   assert(result["cmd"] == callback)
   
      # for now, an absolutely minimal test:  just log one event
-  payload = {"eventName": "test", "eventStatus": "request", "moduleOfOrigin": "python ws tester", "comment": "no comment"};
-  msg = dumps({"cmd": "logEvent", "status": "request", "callback": "", "payload": payload})
-  ws.send(msg)
+  #payload = {"eventName": "test", "eventStatus": "request", "moduleOfOrigin": "python ws tester", "comment": "no comment"};
+  #msg = dumps({"cmd": "logEvent", "status": "request", "callback": "", "payload": payload})
+  #ws.send(msg)
+  #result = loads(ws.recv())
 
 #------------------------------------------------------------------------------------------------------------------------
 interactive = (sys.argv[0] != "testWebSocketOperations.py")

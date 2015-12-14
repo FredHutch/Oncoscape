@@ -84,7 +84,7 @@ function initializeUI ()
    $(window).resize(handleWindowResize);
    handleWindowResize();
    
-   hub.disableTab(thisModulesOutermostDiv)
+   hub.disableTab(thisModulesOutermostDiv);
 
 
 } // initializeUI
@@ -180,7 +180,8 @@ function requestPLSRByOnsetAndSurvival()
   msg.json = JSON.stringify(msg);
 
   hub.send(msg.json);
-
+  $("#plsrInstructions").css("display", "none");
+  $("#plsrDisplay").css("display", "block");
 }  // requestPLSRByOnsetAndSurvival
 //--------------------------------------------------------------------------------------------------
 function setupSliders()
@@ -496,7 +497,7 @@ function handleGeneSetNames(msg)
    newNames = msg.payload;
    addGeneSetNamesToMenu(newNames);
    hub.enableButton(calculateButton);
-   hub.enableTab(thisModulesOutermostDiv)
+   hub.enableTab(thisModulesOutermostDiv);
 
    postStatus("plsr ui now configured");
 

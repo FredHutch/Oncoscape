@@ -1,6 +1,5 @@
 library(RUnit)
 library(TCGAcoad)
-#library(R.utils)
 library(org.Hs.eg.db)
 Sys.setlocale("LC_ALL", "C")
   ## to prevent issues with different sort calls (3/3/15)
