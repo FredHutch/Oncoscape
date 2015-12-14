@@ -1,8 +1,11 @@
 default: install test
 
+# by default removeInstalledOncoscapePackages.R will recursively remove any R package from all libraries
+# for matching subdirectory names with a DESCRIPTION file.  To specify certain directories for recursive package
+#  removal, include an additional argument specifying the relative paths using a colon separated string, eg
+# "dataPackages;analysisPackages;." where the "." includes the current directory.
 clean:
-	R --vanilla -f removeInstalledOncoscapePackages.R
-
+	R --vanilla -f removeInstalledOncoscapePackages.R "dataPackages;analysisPackages;Oncoscape"
 
 ####
 #  INSTALL
@@ -37,6 +40,12 @@ test:
 	(cd analysisPackages/; make test)
 	(cd Oncoscape/inst/unitTests; make test)
 	(cd Oncoscape/inst/scripts; make check)
+
+citest:
+	(cd dataPackages/; make test)
+	(cd analysisPackages/; make test)
+	(cd Oncoscape/inst/unitTests; make test)
+		
 		
 # launches Oncoscape on the provided port then tests modules using websocket requests	
 testWS:
@@ -76,6 +85,12 @@ oncoAppLocal7788:
 
 oncoApp7788:
 	(cd Oncoscape/inst/scripts/apps/oncotest/; make run;)
+
+oncoWin:
+	(cd Oncoscape/inst/scripts/apps/oncoscape/; make runWin;)
+
+oncoWinLocal:
+	(cd Oncoscape/inst/scripts/apps/oncoscape/; make runWinLocal;)
 
 oncoDocker:
 	(cd Oncoscape/inst/scripts/apps/oncoscape/; make runDocker;)

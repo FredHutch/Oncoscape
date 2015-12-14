@@ -1,5 +1,8 @@
 all:  PCA.pkg PLSR.pkg
 
+clean: 
+	R --vanilla -f ../removeInstalledOncoscapePackages.R
+
 test: 
 	(cd PLSR/inst/unitTests; make test;)
 	(cd PCA/inst/unitTests; make test;)

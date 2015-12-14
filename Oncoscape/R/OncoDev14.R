@@ -49,7 +49,10 @@ OncoDev14 = function(port, scriptDir, userID, datasetNames, password=NA_characte
       browserFile <- system.file(package="OncoDev14", "scripts", "default.html")
    else
       browserFile <- system.file(package="OncoDev14", "scripts", scriptDir, "index.html")
-   stopifnot(file.exists(browserFile))
+   if(!file.exists(browserFile)){
+      printf("browserFile not found using scriptDir: %s", scriptDir);
+   	  stop("Could not locate browser File")
+   }
 
    wsCon <- .setupWebSocketHandlers(wsCon, browserFile)
    oncoscape@wsServer <- wsCon

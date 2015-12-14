@@ -1548,10 +1548,10 @@ createPatientList <- function(Allevents=NA){
 #		 printf("Birth: %s Death: %s Diagnosis %s Progression %s", birth, death, diagnosis, progression)
 	    OneDay = 1000 *60 * 60*24;
 
-		AgeDx   <- data.frame(name="Age at Diagnosis", value =NA, units="Years"); 
-		Survival  <- data.frame(name="Survival", value =NA, units="Years");
-		Dx2Prog <- data.frame(name="Diagnosis to Progression", value =NA,units="Months");
-		ProgDeath <- data.frame(name="Progression to Status", value =NA, units="Months"); 
+		AgeDx   <- data.frame(name="Age at Diagnosis", value =NA, units="Years", eventIDs =c()); 
+		Survival  <- data.frame(name="Survival", value =NA, units="Years", eventIDs =c());
+		Dx2Prog <- data.frame(name="Diagnosis to Progression", value =NA,units="Months", eventIDs =c());
+		ProgDeath <- data.frame(name="Progression to Status", value =NA, units="Months", eventIDs =c()); 
     	if(class(birth) == "Date" && class(diagnosis) == "Date") AgeDx$value = as.numeric(diagnosis - birth)/365.25
     	if(class(death) == "Date" && class(diagnosis) == "Date") Survival$value = as.numeric(death - diagnosis)/365.25
     	if(class(progression) == "Date" && class(diagnosis) == "Date") Dx2Prog$value = as.numeric(progression - diagnosis)/30.425

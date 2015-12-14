@@ -59,8 +59,8 @@ function initializeUI ()
 
   calculatePcaButton = $("#pcaCalculateButton");
   calculatePcaButton.button();
+  $("#pcaDisplay").css("display", "none");
   calculatePcaButton.click(calculate);
-
   useAllSamplesInCurrentDatasetButton = $("#pcaUseAllSamplesButton");
   useAllSamplesInCurrentDatasetButton.button();
   useAllSamplesInCurrentDatasetButton.click(useAllSamplesInCurrentDataset);
@@ -406,7 +406,8 @@ function calculate()
 
    msg = {cmd: "calculatePCA", callback: "pcaPlot", status: "request", payload: payload};
    hub.send(JSON.stringify(msg));
-
+   $("#pcaInstructions").css("display", "none");
+   $("#pcaDisplay").css("display", "block");
 } // calculate
 //----------------------------------------------------------------------------------------------------
 function handlePatientIDs(msg)

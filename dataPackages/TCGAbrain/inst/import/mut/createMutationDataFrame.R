@@ -20,8 +20,13 @@ HugoGenes <- unique(c(genes.gbm, genes.lgg))
 checkEquals(length(HugoGenes), ncol(tbl.TCGAgbm))
 checkEquals(length(HugoGenes), ncol(tbl.TCGAlgg))
 
+tbl.TCGAlgg <- tbl.TCGAlgg[, colnames(tbl.TCGAgbm)]
+
 mtx.mut <- rbind(tbl.TCGAgbm, tbl.TCGAlgg)
 
+gene = "MUC16"
+sample = "TCGA.DU.8168.01"
+checkEquals(mtx.mut[sample, gene], "P9537T")
 checkEquals(nrow(mtx.mut), nrow(tbl.TCGAgbm) + nrow(tbl.TCGAlgg) )
 
 save(mtx.mut, file="../../extdata/mtx.mut.RData")
