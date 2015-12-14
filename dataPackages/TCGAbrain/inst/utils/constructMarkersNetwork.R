@@ -59,15 +59,24 @@ create.and.display <- function()
 
 } # create.and.display
 #------------------------------------------------------------------------------------------------------------------------
-saveGraph <- function()
+saveGraph <- function(rcy)
 {
+   showEdges(rcy, "chromosome")
    g.markers.json <- getJSON(rcy)
-   filename <- "../extdata/markers.json.TCGAbrain.RData"
+   filename <- "../extdata/markers.json.RData"
    printf("saving as %s, %d nodes, %d edges", filename, getNodeCount(rcy), getEdgeCount(rcy))
    save(g.markers.json, file=filename)
 
 } # saveGraph
 #------------------------------------------------------------------------------------------------------------------------
 x <- create.and.display()
+rcy <- x$rcy
 
- 
+# some genes are not yet mapped because they use obsolete symbols.  until this is fixed, look
+# for them at 0,0, move them to i.e., below chr 12, make sure they are selected, then
+# layoutSelectionInGrid(rcy, x=5800, y=2000, w=800, h=400)
+
+
+# when you are satisifed with the layout, deselect any selections, then
+#  saveGraph(rcy)
+
