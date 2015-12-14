@@ -36,15 +36,24 @@ NetworkMaker <- function(dataPackage, samples=NA, genes=NA, verbose=FALSE)
   stopifnot("mtx.cn"  %in% names(matrices(dataPackage)))
   mtx.mut <- matrices(dataPackage)[["mtx.mut"]]
   mtx.cn <- matrices(dataPackage)[["mtx.cn"]]
+  all.known.samples <- .allKnownSampleIDsCanonicalized(dataPackage)
 
   if(!all(is.na(samples))){
-      recognized.samples <- intersect(samples, intersect(rownames(mtx.mut), rownames(mtx.cn)))
+      recognized.samples <- intersect(samples, all.known.samples)
       if(verbose)
           warning(sprintf("%d of %d samples found in both mut and cn matrices",
                           length(recognized.samples), length(samples)))
-      stopifnot(length(recognized.samples) >= 5)
-      mtx.mut <- mtx.mut[recognized.samples,]
-      mtx.cn  <- mtx.cn[recognized.samples,]
+      
+         # allow for incoming samples like "TCGA.FG.A6J3" and matrices with rownames "TCGA.FG.A6J3.01"
+      mut.sample.indices <- as.integer(lapply(recognized.samples, function(s) grep(s, rownames(mtx.mut))))
+      mut.sample.indices <- mut.sample.indices[which(!is.na(mut.sample.indices))]
+      stopifnot(length(mut.sample.indices) >= 2)   # a bare minimum
+      mtx.mut <- mtx.mut[mut.sample.indices,]
+
+      cn.sample.indices <- as.integer(lapply(recognized.samples, function(s) grep(s, rownames(mtx.cn))))
+      cn.sample.indices <- cn.sample.indices[which(!is.na(cn.sample.indices))]
+      stopifnot(length(cn.sample.indices) >= 2)   # a bare minimum
+      mtx.cn <- mtx.cn[cn.sample.indices,]
       } # samples specfied in constructor call
 
   if(!all(is.na(genes))){
@@ -57,25 +66,22 @@ NetworkMaker <- function(dataPackage, samples=NA, genes=NA, verbose=FALSE)
       mtx.cn  <- mtx.cn[,recognized.genes]
       } # genes specfied in constructor call
 
+  #browser()
   obj <- .NetworkMaker(pkg=dataPackage, mtx.mut=mtx.mut, mtx.cn=mtx.cn, state=new.env(parent=emptyenv()))
 
   obj
 
 } # NetworkMaker constructor
 #----------------------------------------------------------------------------------------------------
-# our convention:
-#   samples (patients) and genes are all those for which we have both copynumber and mutation data,
-#   if genes and samples are provided to the constructor (see above), then only the intersection
-#   of those identifiers with those found in cn and mut data will be returned
-.extractSamplesAndGenes <- function(obj)
+.allKnownSampleIDsCanonicalized <- function(pkg)
 {
-   sample.names <- sort(unique(c(rownames(obj@mtx.mut), rownames(obj@mtx.cn))))
-   sample.names <- canonicalizePatientIDs(obj@pkg, sample.names)
-   gene.names <-   sort(unique(c(colnames(obj@mtx.mut), colnames(obj@mtx.cn))))
+   all.ids <- c(rownames(matrices(pkg)$mtx.mut),
+                rownames(matrices(pkg)$mtx.cn),
+                rownames(getPatientTable(pkg)))
 
-   list(samples=sample.names, genes=gene.names)
+   canonicalizePatientIDs(pkg, sort(unique(all.ids)))
 
-} # .extractSamplesAndGenes
+} # .allKnownSampleIDsCanonicalized
 #----------------------------------------------------------------------------------------------------
 setMethod("usePrecalculatedSampleSimilarityMatrix", "NetworkMaker",
 
@@ -93,7 +99,6 @@ setMethod("usePrecalculatedSampleSimilarityMatrix", "NetworkMaker",
 
 #----------------------------------------------------------------------------------------------------
 # samples and genes args are only for testing; in normal operation the full lists from
-# .extractSamplesAndGenes is used
 setMethod("calculateSampleSimilarityMatrix", "NetworkMaker",
 
   function (obj, samples=NA, genes=NA, copyNumberValues=c(-2, 2)) {
@@ -373,7 +378,7 @@ setMethod("getSimilarityScreenCoordinates", "NetworkMaker",
      ySpan <- yMax - yOrigin
 
      tbl.pos <- getSimilarityMatrix(obj)
-     # browser()
+     #browser()
      x.range <- range(tbl.pos$x)  # [1] -0.6168073  2.8896624
      y.range <- range(tbl.pos$y)  # [1] -3.036395  1.003921
 
@@ -517,7 +522,7 @@ setMethod("getChromosomalInfo", "NetworkMaker",
    arm.q <- grep("q", bands)
    arm.na <- which(is.na(bands))
    arm.cen <- grep("cen", bands)
-   # browser()
+   #browser()
    stopifnot(sum(length(arm.p), length(arm.q),  length(arm.na), length(arm.cen)) >= length(bands))
 
    result <- vector("character", length(bands))

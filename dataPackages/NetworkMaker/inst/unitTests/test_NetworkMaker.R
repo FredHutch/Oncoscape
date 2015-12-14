@@ -2,6 +2,7 @@ library(RUnit)
 library(NetworkMaker)
 library(DEMOdz)
 library(TCGAgbm)
+library(TCGAbrain)
 options(stringsAsFactors=FALSE)
    # we use one cytoscape.js style file throughout
 STYLE.FILE <- "style.js"
@@ -12,7 +13,7 @@ runTests <- function()
 {
   testConstructor();
   test.mutationMatrixTo01Matrix()
-  test.extractSamplesAndGenes()
+  #test.extractSamplesAndGenes()
   #test.extractRestrictedSamplesAndGenes() # restricted in call to class constructor
   test.calculateSimilarity.DEMOdz()
   test.calculateSimilarity.TCGAgbm()
@@ -66,37 +67,37 @@ test.mutationMatrixTo01Matrix <- function()
 
 } # test.mutationMatrixTo01Matrix
 #----------------------------------------------------------------------------------------------------
-test.extractSamplesAndGenes <- function()
-{
-    print("--- test.extractSamplesAndGenes")
-    dz <- DEMOdz();
-
-    netMaker <- NetworkMaker(dz)
-    x <- NetworkMaker:::.extractSamplesAndGenes(netMaker)
-    checkEquals(names(x), c("samples", "genes"))
-    checkEquals(length(x$samples), 20)
-    checkEquals(length(x$genes), 64)
-    
-} # test.extractSamplesAndGenes
+#test.extractSamplesAndGenes <- function()
+#{
+#    print("--- test.extractSamplesAndGenes")
+#    dz <- DEMOdz();
+#
+#    netMaker <- NetworkMaker(dz)
+#    x <- NetworkMaker:::.extractSamplesAndGenes(netMaker)
+#    checkEquals(names(x), c("samples", "genes"))
+#    checkEquals(length(x$samples), 20)
+#    checkEquals(length(x$genes), 64)
+#    
+#} # test.extractSamplesAndGenes
 #----------------------------------------------------------------------------------------------------
-test.extractRestictedSamplesAndGenes <- function()
-{
-    print("--- test.extractSamplesAndGenes")
-    dz <- DEMOdz();
-    samples.sub <- head(rownames(getPatientTable(dz)))
-    genes.sub <- head(colnames(matrices(dz)[[1]]))
-
-      # add some bogus ids
-    samples <- c(samples.sub, "fubar")
-    genes   <- c(genes.sub,   "bogus")
-
-    netMaker <- NetworkMaker(dz, samples=samples, genes=genes)
-    x <- NetworkMaker:::.extractSamplesAndGenes(netMaker)
-    checkEquals(names(x), c("samples", "genes"))
-    checkEquals(length(x$samples), length(samples.sub))
-    checkEquals(length(x$genes), length(genes.sub))
-    
-} # test.extractSamplesAndGenes
+#test.extractRestictedSamplesAndGenes <- function()
+#{
+#    print("--- test.extractSamplesAndGenes")
+#    dz <- DEMOdz();
+#    samples.sub <- head(rownames(getPatientTable(dz)))
+#    genes.sub <- head(colnames(matrices(dz)[[1]]))
+#
+#      # add some bogus ids
+#    samples <- c(samples.sub, "fubar")
+#    genes   <- c(genes.sub,   "bogus")
+#
+#    netMaker <- NetworkMaker(dz, samples=samples, genes=genes)
+#    x <- NetworkMaker:::.extractSamplesAndGenes(netMaker)
+#    checkEquals(names(x), c("samples", "genes"))
+#    checkEquals(length(x$samples), length(samples.sub))
+#    checkEquals(length(x$genes), length(genes.sub))
+#    
+#} # test.extractSamplesAndGenes
 #----------------------------------------------------------------------------------------------------
 test.calculateSimilarity.DEMOdz <- function()
 {
@@ -373,7 +374,7 @@ test.getSamplesGraph.DEMOdz <- function()
     g <- getSamplesGraph(netMaker)
     checkEquals(sort(nodes(g)), sort(rownames(tbl.pos)))
     checkEquals(length(edgeNames(g)), 0)
-    checkEquals(sort(noaNames(g)), c("id", "nodeType", "subType", "x", "y"))
+    checkEquals(sort(noaNames(g)), c("id", "nodeType", "positioned", "subType", "x", "y"))
     rcy <- RCyjs(portRange=6047:6100, quiet=TRUE, graph=g, hideEdges=TRUE)
     httpSetStyle(rcy, STYLE.FILE)
     tbl.xpos <- getSimilarityScreenCoordinates(netMaker, xOrigin=0, yOrigin=0, xMax=2000, yMax=5000)
@@ -485,6 +486,37 @@ test.fullDisplay.6genes.DEMOdz <- function()
     setBackgroundColor(rcy, "#E8E8E0")
     
 } # test.fullDisplay.6genes.DEMOdz
+#----------------------------------------------------------------------------------------------------
+test.fullDisplay.14genes.someObsolete.TCGAbrain <- function()
+{
+    print("--- test.fullDisplay.10genes.TCGAbrain")
+
+    dz <- TCGAbrain()
+    goi <- c("DAXX", "DUX4", "FRG1B", "C2ORF44", "FCGR2B", "FCRL4", "FLG", "MUC1",
+             "NTRK1", "PRCC", "SDHC", "SPTA1", "TCHH", "TPM3")
+    soi <- c("TCGA.FG.A6J3", "TCGA.06.0237", "TCGA.TQ.A7RF", "TCGA.S9.A6TZ", "TCGA.TM.A7CF", "TCGA.06.0238")
+    intersect(soi, canonicalizePatientIDs(dz, rownames(matrices(dz)$mtx.cn)))
+    netMaker <- NetworkMaker(dz, samples=soi, genes=goi)
+    calculateSampleSimilarityMatrix(netMaker, copyNumberValues=c(-2,-1, 1, 2))
+    g <- getSamplesGraph(netMaker)
+    rcy <- RCyjs(portRange=6047:6100, quiet=TRUE, graph=g, hideEdges=TRUE)
+    httpSetStyle(rcy, STYLE.FILE)
+    tbl.pos <- getSimilarityScreenCoordinates(netMaker, xOrigin=0, yOrigin=0, xMax=2000, yMax=5000)
+
+    setPosition(rcy, tbl.pos)    
+    fit(rcy, 100)
+
+    genes <- head(colnames(matrices(dz)$mtx.mut))
+    g.chrom <- getChromosomeGraph(netMaker, genes)
+    httpAddGraph(rcy, g.chrom)
+    httpSetStyle(rcy, STYLE.FILE)
+
+    tbl.pos <- getChromosomeScreenCoordinates(netMaker, xOrigin=1500, yOrigin=000, yMax=2000, chromDelta=200)
+    setPosition(rcy, tbl.pos)
+    fit(rcy, 100)
+    setBackgroundColor(rcy, "#E8E8E0")
+    
+} # test.fullDisplay.14genes.someObsolete.TCGAbrain
 #----------------------------------------------------------------------------------------------------
 test.fullDisplay.6genes.DEMOdz.precalculatedSimilarity <- function()
 {
