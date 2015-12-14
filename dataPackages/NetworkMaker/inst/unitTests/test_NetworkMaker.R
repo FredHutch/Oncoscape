@@ -559,7 +559,7 @@ test.screenCoordinateManipulations.DEMOdz <- function()
     g <- getSamplesGraph(netMaker)
     rcy <- RCyjs(portRange=6047:6100, quiet=TRUE, graph=g, hideEdges=TRUE)
     httpSetStyle(rcy, STYLE.FILE)
-    tbl.pos <- getSimilarityScreenCoordinates(netMaker, xOrigin=0, yOrigin=0, xMax=2000, yMax=5000)
+    tbl.pos <- getSimilarityScreenCoordinates(netMaker, xOrigin=0, yOrigin=0, xMax=5000, yMax=5000)
 
     setPosition(rcy, tbl.pos)    
     fit(rcy, 100)
@@ -569,7 +569,7 @@ test.screenCoordinateManipulations.DEMOdz <- function()
     httpAddGraph(rcy, g.chrom)
     httpSetStyle(rcy, STYLE.FILE)
 
-    tbl.pos <- getChromosomeScreenCoordinates(netMaker, xOrigin=1000, yOrigin=0, yMax=2000, chromDelta=200)
+    tbl.pos <- getChromosomeScreenCoordinates(netMaker, xOrigin=3000, yOrigin=0, yMax=2000, chromDelta=200)
     setPosition(rcy, tbl.pos)
     fit(rcy, 100)
 
@@ -599,8 +599,8 @@ test.screenCoordinateManipulations.DEMOdz <- function()
     new.gene.pos <- RCyjs::getPosition(rcy, goi)
 
         # simple test on the one gene
-    checkTrue(new.gene.pos$x - gene.pos$x > 950)
-    checkTrue(new.gene.pos$y - gene.pos$y > 450)
+    checkTrue(new.gene.pos$x - gene.pos$x < -950)  # x: 3800 -> 2800
+    checkTrue(new.gene.pos$y - gene.pos$y > 450)     # y: -666 -> -166
     
 } # test.screenCoordinateManipulations.DEMOdz
 #----------------------------------------------------------------------------------------------------
