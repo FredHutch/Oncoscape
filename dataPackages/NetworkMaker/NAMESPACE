@@ -1,0 +1,25 @@
+exportClasses(NetworkMaker)
+
+exportMethods(
+  calculateSampleSimilarityMatrix,
+  usePrecalculatedSampleSimilarityMatrix,
+  getSimilarityMatrix,
+  buildChromosomalTable,
+  getChromosomalInfo,
+  getSamplesGraph,
+  getChromosomeGraph,
+  getMutationGraph,
+  getCopyNumberGraph,
+  getSimilarityScreenCoordinates,
+  getChromosomeScreenCoordinates
+  )
+
+export(
+   NetworkMaker
+   )
+
+import(PatientHistory)
+import(SttrDataPackage)
+importClassesFrom(methods, character, integer)
+importFrom(methods, new)
+
