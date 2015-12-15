@@ -107,7 +107,7 @@ function testLoadDataSetDisplayNetworkSendIDs(dataSetName)
            console.log("markersAndSamples loaded, with " + nodeCount + " nodes and " + edgeCount + " edges.");
            assert.ok(nodeCount > 10, dataSetName + " nodeCount > 10");
            assert.ok(edgeCount > 10, dataSetName + " edgeCount > 10");
-           testSearch();
+           testSearchAndSelect();
            });
         }); // new MutationObserver
       } // if null mutation observer
@@ -127,45 +127,102 @@ function testLoadDataSetDisplayNetworkSendIDs(dataSetName)
 //   1) clear selection
 //   2) find the node with highest degree
 //   3) select that node
-//   4) show edges, select all connected
-//   5) make sure selected node count minus one is equal to degree of the original node
-function testSearch()
+//   4) test that it is selected
+function testSearchAndSelect()
 {
-   console.log("--- Test.markers testSearch");
-   var searchBox = $("#markersAndTissuesSearchBox");
-   var netOpsMenu = $("#cyMarkersOperationsMenu");
+   var title = "testSearchAndSelect";
+   console.log("--- Test.markers " + title);
+   var searchBoxID = "#markersAndTissuesSearchBox";
+   var searchBox = $(searchBoxID);
+   cwMarkers.nodes().unselect();
+   searchBox.val("");
+
+      // all nodes have a "degree" data attribute, a count of its edges.  find the 
+      // most connected patient node
+
    var nodes = cwMarkers.nodes().filterFn(function(node){return (node.data("nodeType") === "patient");});
    var nodesByDegree = nodes.map(function(node){return {id:node.data("id"), degree:node.degree()};});
    var mySort = function(a,b) {return(b.degree - a.degree);};
    var mostConnectedNode = nodesByDegree.sort(mySort)[0];
+   var highestDegree = mostConnectedNode.degree;
    console.log("mostConnectedNode: " + JSON.stringify(mostConnectedNode));
 
-   QUnit.test("markers testSearch", function(assert){
-     netOpsMenu.val("Hide All Edges");
-     netOpsMenu.trigger("change");
-     cwMarkers.filter("node:selected").unselect();
-     assert.equal(cwMarkers.filter("node:selected").length, 0, "zero selected nodes");
-     searchBox.val(mostConnectedNode.id);
-     searchBox.trigger(jQuery.Event("keydown", {which: 13}));
-     assert.equal(cwMarkers.filter("node:selected").length, 1, "one selected node from search box: " +
-                  mostConnectedNode.id);
-     netOpsMenu.val("Show Edges from Selected Nodes");
-     netOpsMenu.trigger("change");
-     netOpsMenu.val("Select All Connected Nodes");
-     netOpsMenu.trigger("change");
-     console.log("about to check for selected nodes");
-     var expectedSelectionCount = mostConnectedNode.degree + 1; // include self
-     var nodes = cwMarkers.nodes();
-     var nodeNames = JSON.stringify(cwMarkers.nodes().map(function(node){return node.id();}));
-     var selectedNodes = cwMarkers.filter("node:selected");
-     var selectedNodeNames = JSON.stringify(selectedNodes.map(function(node){return node.id();}));
-     console.log("selected nodes after filter: " + selectedNodeNames);
-     assert.ok(cwMarkers.filter("node:selected").length == expectedSelectionCount,
-               "found expected number of selected nodes: " + selectedNodes.length);
-     testSendGoodIDs();
-     });
+   var config = {attributes: true, childList: true, characterData: true};
+   var target = document.querySelector(minorStatusDiv);
 
-}  // testSearch
+   if(markersAndSamplesStatusObserver === null){
+      markersAndSamplesStatusObserver = new MutationObserver(function(mutations) {
+         mutation = mutations[0];
+         markersAndSamplesStatusObserver.disconnect();
+         markersAndSamplesStatusObserver = null;
+         var id = mutation.target.id;
+         var statusMsg = $(minorStatusDiv).text();
+         QUnit.test(title, function(assert) {
+            console.log("-- in QUnit.test for testSearchAndSelect " + 7 + "  statusMsg: " + statusMsg);
+            var selectedNode = cwMarkers.filter("node:selected").map(function(node){return node.id();});
+            assert.equal(selectedNode.length, 1, "exactly 1 selected node");
+            assert.equal(selectedNode, mostConnectedNode.id, "selected node has highest degree");
+            testShowEdgesFromSelectedNode();
+            });
+         }); // new MutationObserver
+      } // if observer null
+      
+   markersAndSamplesStatusObserver.observe(target, config);
+   searchBox.val(mostConnectedNode.id);
+   searchBox.trigger(jQuery.Event("keydown", {which: 13}));
+
+}  // testSearchAndSelect
+//------------------------------------------------------------------------------------------------------------------------
+//   1) one and only one node, the one with highest degree, is already selected.
+//   2) manipulate the graphOperations menu to "Show Edges from Selected Nodes"
+//   3) the number of edges should equals sum of
+//       a) the always-visible chromsome edges
+//       b) the degree of the selected node
+function testShowEdgesFromSelectedNode()
+{
+   var title = "testShowEdgesFromSelectedNode";
+   console.log("--- Test.markers " + title);
+
+   var degree = -1;
+   var chromosomeEdgeCount = -1;
+
+   QUnit.test(title + " initially just one node selected, chromomsome edges visible", function(assert){
+      var selectedNode = cwMarkers.filter("node:selected");
+      assert.equal(selectedNode.length, 1, "still just one node selected");
+      degree = selectedNode.degree();
+      assert.ok(degree > 0, "degree > 0");
+        // our convention is that chromosome edges are always visible.  get the count
+      chromosomeEdgeCount = cwMarkers.edges("edge[edgeType='chromosome']:visible").length;
+      console.log("chrom edge count: " + chromosomeEdgeCount);
+      assert.ok(chromosomeEdgeCount > 23, "permanently visible chromosome edges found");  // 48 (on 7 dec 2015)
+      });
+      
+   var config = {attributes: true, childList: true, characterData: true};
+   var target = document.querySelector(minorStatusDiv);
+    
+   if(markersAndSamplesStatusObserver === null){
+     console.log("observer is null");
+     markersAndSamplesStatusObserver = new MutationObserver(function(mutations) {
+         mutation = mutations[0];
+         markersAndSamplesStatusObserver.disconnect();
+         markersAndSamplesStatusObserver = null;
+         var id = mutation.target.id;
+         var statusMsg = $(minorStatusDiv).text();
+         QUnit.test(title, function(assert) {
+            var totalEdgeCount = cwMarkers.edges().length;
+            var visibleEdgeCount = cwMarkers.edges("edge:visible").length;
+            assert.equal(degree + chromosomeEdgeCount, visibleEdgeCount, "visibleEdgeCount correct");
+            testSendGoodIDs();
+            });
+         }); // new MutationObserver
+     } // if observer null
+      
+   markersAndSamplesStatusObserver.observe(target, config);
+   var netOpsMenu = $("#cyMarkersOperationsMenu");
+   netOpsMenu.val("Show Edges from Selected Nodes");
+   netOpsMenu.trigger("change");
+
+}  // testShowEdgesFromSelectedNode
 //------------------------------------------------------------------------------------------------------------------------
 function testSendGoodIDs()
 {
@@ -336,21 +393,26 @@ function testSendMixedIDs()
 
 } // testSendMixedIDs
 //------------------------------------------------------------------------------------------------------------------------
+// the ui provides a pulldown menu for all of the tumor categorizations.  choosing an item from this menu
+// causes some or all of the tumor nodes to be rendered in color by category.
+// set that menu programmatically, test to see that 
 function testColorTumorsByCategory()
 {
    console.log("entering Test.markers:testColorTumorsByCategory");
 
    var title = "testColorTumorsByCategory";
    console.log(title);
-     // set all tumor node-border colors to white: no tumor classification coloring scheme
-     // would a) consist of just one group and b) mark it with such a nondescript color
-     // then manipulate the menu, make sure that at least some of the colors have changed
      
+      // the default state is: no category data attributes on nodes, no category style rules.
+      // test the former:
+      
    var tumorNodes = cwMarkers.nodes().fnFilter(function(node){ return(node.data("nodeType") == "patient");});
-   tumorNodes.map(function(node){node.data({"subType": "unassigned"});});
-   var subTypes = jQuery.unique(tumorNodes.map(function(node){return(node.data("subType"));}));
-   console.log("before tumor category test, should be just one subType: " + subTypes.length);
-   
+   QUnit.test("no tumor categories to start", function(assert){
+      var categories = tumorNodes.map(function(node){node.data("category");});
+      var nonNullCategories = categories.filter(function(val){return val;});
+      assert.equal(nonNullCategories.length, 0);
+      });
+      
    if(markersAndSamplesStatusObserver === null){
       markersAndSamplesStatusObserver = new MutationObserver(function(mutations) {
         console.log("mutation observer for testColorTumorsByCategory");
@@ -361,9 +423,10 @@ function testColorTumorsByCategory()
         var statusMsg = $(minorStatusDiv).text();
         QUnit.test(title, function(assert) {
            console.log("-- in QUnit.test for testColorTumorsByCategory");
-           var subTypes = jQuery.unique(tumorNodes.map(function(node){return(node.data("subType"));}));
-           console.log(" during tumor category test, should be > one subType: " + subTypes.length);
-           assert.ok(subTypes.length > 1);  // more than just the single "unassigned" enforced above;
+           var categories = hub.uniqueElementsOfArray(tumorNodes.map(function(node){return(node.data("category"));}));
+           console.log(" during tumor category test, should be > one category: " + categories.length);
+           assert.ok(categories.length > 1);  // more than just the single "unassigned" enforced above;
+           //testColorTumorsByClassification();
            markEndOfTestingDataSet();
            });
         }); // new MutationObserver
@@ -378,7 +441,7 @@ function testColorTumorsByCategory()
    var allCategoryNames = $("#cyMarkersTumorCategorizationsMenu").children().map(function() {return $(this).val();}).get();
    console.log("--- still setting up testColorTumorsByCateory, names: ");
    console.log(JSON.stringify(allCategoryNames));
-   var firstCategory = allCategoryNames[1];  // the 0th name is always the menu title. choose the next one
+   var firstCategory = allCategoryNames[2];  // the 0th name is always the menu title. 1st is "Clear". choose the next one
    $("#cyMarkersTumorCategorizationsMenu").val(firstCategory);
    $("#cyMarkersTumorCategorizationsMenu").trigger("change");
 
@@ -402,6 +465,7 @@ function testColorTumorsByClassification()
         QUnit.test(title, function(assert) {
            assert.ok(10 === 10, msg);
            });
+        markEndOfTestingDataSet();
         }); // new MutationObserver
       } // if null mutation observer
 

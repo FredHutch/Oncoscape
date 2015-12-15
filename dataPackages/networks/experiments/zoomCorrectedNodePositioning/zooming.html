@@ -1,0 +1,355 @@
+<!DOCTYPE html>
+<html>
+<head>
+<title>zoom-corrected node positioning</title>
+<script src="http://code.jquery.com/jquery-1.11.3.js"></script>
+<script src="http://code.jquery.com/ui/1.11.4/jquery-ui.js"></script>
+
+<link rel="stylesheet" href="http://code.jquery.com/ui/1.11.4/themes/smoothness/jquery-ui.css">
+<script src="http://oncoscape.sttrcancer.org/oncoscape/js/cytoscape-2.5.0.min.js"></script>
+
+<style>
+
+html, body{
+   height: 98%;
+   }
+
+body {
+  margin: 5px;
+  }
+
+
+#outerDiv {
+  display: flex;
+  flex-flow: column nowrap;
+  //border: 1px solid red;
+  }
+  
+
+#controlsDiv {
+  flex: 1;
+  align-self: stretch;
+  border: 1px solid #444;
+  border-radius:5px;
+  background-color: #F8F8F8;
+  margin-bottom: 10px;
+  -webkit-box-pack: center;
+  -moz-box-pack: center;
+  -ms-flex-pack: center;
+  -webkit-justify-content: center;
+  justify-content: center;
+  }
+
+.selectMenus{
+   float: right;
+   font-size: 16px;
+   }
+   
+#cyDiv {
+  flex: 1;
+  //align-self: stretch;
+  border: 1px solid #444;
+  border-radius:5px;
+  background-color: #F8F8F8;
+  -webkit-box-pack: center;
+  -moz-box-pack: center;
+  -ms-flex-pack: center;
+  -webkit-justify-content: center;
+  justify-content: center;
+  }
+
+.appControlButtons{
+   font-size: 16px;
+   float:right;
+   margin: 10px;
+   margin-top: 20px;
+   margin-bottom: 20px;
+   }
+
+select {
+  font-size: 16px;
+  }
+
+
+</style>
+
+<script>
+
+var cy;
+var cyDiv;
+var controlsDiv;
+var initialZoom;
+var oldZoom;
+var zoomModeMenu;
+var zoomMode = "Fixed";
+var nodeLabelVisibilityMenu;
+var nodeLabelVisibility = "Never";
+var resetButton;
+var infoDisplay;
+//----------------------------------------------------------------------------------------------------
+function initializeUI()
+{
+   cyDiv = $('#cyDiv');
+    
+   controlsDiv = $('#controlsDiv');
+
+   zoomModeMenu = $("#zoomModeMenu");
+   zoomModeMenu.change(setZoomMode);
+
+   nodeLabelVisibilityMenu = $("#nodeLabelVisibilityMenu");
+   nodeLabelVisibilityMenu.change(setNodeLabelVisibility);
+   resetButton = $("#resetButton");
+
+   infoDisplay = $("#infoDisplay");
+
+   $(window).resize(handleWindowResize);
+   $("#resetButton").click(function(){
+      cy.zoom(1);
+      cy.zoom({level: 1.0, renderedPosition:{x:$(window).width()/2, y:$(window).height()/2}});
+      cy.nodes().map(function(node){node.style({width: node.data("trueWidth"), height: node.data("trueHeight")})})
+      cy.fit(50);
+      });
+      
+   createNetwork()
+   handleWindowResize();
+
+}  // initializeUI
+//--------------------------------------------------------------------------------
+function handleWindowResize ()
+{
+  w = $(window).width() * 0.99;
+  h = $(window).height() * 0.97;
+
+  cyDiv.width(w);
+  cyDiv.height(h - controlsDiv.height());
+
+  controlsDiv.width(w);
+
+} // handleWindowResize
+//--------------------------------------------------------------------------------
+function setNodeLabelVisibility()
+{
+  nodeLabelVisibility = $("#nodeLabelVisibilityMenu option:selected").text();
+  console.log("setNodeVisibility: " + nodeLabelVisibility);
+
+  if(nodeLabelVisibility === "Always")
+     cy.style().selector('node').style({'label': 'data(id)'}).update()
+  else if(nodeLabelVisibility === "Never")
+     cy.style().selector('node').style({'label': ''}).update()
+
+} // setZoomMode
+//--------------------------------------------------------------------------------
+function defaultStyle()
+{
+    cy.nodes("node[nodeType != 'labeleledLandmark']").map(function(node){
+       var newWidth = node.data("trueWidth");
+       var newHeight = node.data("trueHeight");
+       node.style({width: newWidth, height: newHeight, label: ""});
+       }); // map
+
+    cy.nodes("node[nodeType = 'labeledLandmark']").map(function(node){
+       var newWidth = node.data("trueWidth");
+       var newHeight = node.data("trueHeight");
+       node.style({width: newWidth,
+                   height: newHeight, 
+                  'border-color': 'green',
+                  'border-width': 1,
+                  'shape': 'roundrectangle',
+                  //'label': 'data(id)',
+                  'font-size': '36px'});
+       }); // map
+
+} // defaultStyle
+//--------------------------------------------------------------------------------
+function setZoomMode()
+{
+  zoomMode = $("#zoomModeMenu option:selected").text();
+  if(zoomMode === "Fixed"){
+     defaultStyle();
+     } // fixed
+
+} // setZoomMode
+//--------------------------------------------------------------------------------
+function createNetwork()
+{
+   console.log('starting createNetwork');
+   cy = cytoscape({
+     container: document.getElementById('cyDiv'), // container to render in
+     elements: {
+       nodes: [
+        {data: {id: 'a',        trueWidth: 100,  trueHeight: 100,  nodeType: "tumor"}, position: {x: 3579, y: -234}}, 
+        {data: {id: 'b',        trueWidth: 100,  trueHeight: 100,  nodeType: "tumor"}, position: {x: 3629, y: -184}},
+        {data: {id: 'c',        trueWidth: 100,  trueHeight: 100,  nodeType: "tumor"}, position: {x: 3729, y: -84}},
+        {data: {id: "AGAP2",    trueWidth: 74.4, trueHeight: 74.4, nodeType: "gene"}, position: {x: 4319, y: -329.7674560776734}},
+        {data: {id: "ALDH2",    trueWidth: 28,   trueHeight: 28,   nodeType: "gene"}, position: {x: 4319, y: -697.7213140971809}},
+        {data: {id: "ARID2",    trueWidth: 32,   trueHeight: 32,   nodeType: "gene"}, position: {x: 4319, y: -136.7674560776734}},
+        {data: {id: "ATF1",     trueWidth: 26.4, trueHeight: 26.4, nodeType: "gene"}, position: {x: 4319, y: -217.7674560776734}},
+        {data: {id: "BCL7A",    trueWidth: 28.8, trueHeight: 28.8, nodeType: "gene"}, position: {x: 4319, y: -807.8701911146661}},
+        {data: {id: "BTG1",     trueWidth: 23.2, trueHeight: 23.2, nodeType: "gene"}, position: {x: 4319, y: -608.6653323806352}},
+        {data: {id: "CCND2",    trueWidth: 48.8, trueHeight: 48.8, nodeType: "gene"}, position: {x: 4319, y:  532.2325439223266}},
+        {data: {id: "CDK2",     trueWidth: 27.2, trueHeight: 27.2, nodeType: "gene"}, position: {x: 4319, y: -301.7674560776734}},
+        {data: {id: "CDK4",     trueWidth: 74.4, trueHeight: 74.4, nodeType: "gene"}, position: {x: 4319, y: -329.7674560776734}},
+        {data: {id: "CDKN1B",   trueWidth: 30.4, trueHeight: 30.4, nodeType: "gene"}, position: {x: 4319, y:  395.2325439223266}},
+        {data: {id: "DDIT3",    trueWidth: 52.8, trueHeight: 52.8, nodeType: "gene"}, position: {x: 4319, y: -325.7674560776734}},
+        {data: {id: "ERBB3",    trueWidth: 28,   trueHeight: 28,   nodeType: "gene"}, position: {x: 4319, y: -302.7674560776734}},
+        {data: {id: "ERC1",     trueWidth: 44,   trueHeight: 44,   nodeType: "gene"}, position: {x: 4319, y:  584.2325439223266}},
+        {data: {id: "ETV6",     trueWidth: 35.2, trueHeight: 35.2, nodeType: "gene"}, position: {x: 4319, y:  413.2325439223266}},
+        {data: {id: "GLI1",     trueWidth: 50.4, trueHeight: 50.4, nodeType: "gene"}, position: {x: 4319, y: -324.7674560776734}},
+        {data: {id: "HMGA2",    trueWidth: 26.4, trueHeight: 26.4, nodeType: "gene"}, position: {x: 4319, y: -459.7674560776734}},
+        {data: {id: "HNF1A",    trueWidth: 28.8, trueHeight: 28.8, nodeType: "gene"}, position: {x: 4319, y: -791.8701911146662}},
+        {data: {id: "HOXC11",   trueWidth: 28,   trueHeight: 28,   nodeType: "gene"}, position: {x: 4319, y: -269.7674560776734}},
+        {data: {id: "HOXC13",   trueWidth: 27.2, trueHeight: 27.2, nodeType: "gene"}, position: {x: 4319, y: -268.7674560776734}},
+        {data: {id: "KDM5A",    trueWidth: 44,   trueHeight: 44,   nodeType: "gene"}, position: {x: 4319, y:  596.2325439223266}},
+        {data: {id: "KMT2D",    trueWidth: 33.6, trueHeight: 33.6, nodeType: "gene"}, position: {x: 4319, y: -189.7674560776734}},
+        {data: {id: "KRAS",     trueWidth: 34.4, trueHeight: 34.4, nodeType: "gene"}, position: {x: 4319, y:  195.2325439223266}},
+        {data: {id: "LRIG3",    trueWidth: 33.6, trueHeight: 33.6, nodeType: "gene"}, position: {x: 4319, y: -347.7674560776734}},
+        {data: {id: "MDM2",     trueWidth: 48,   trueHeight: 48,   nodeType: "gene"}, position: {x: 4319, y: -507.7674560776734}},
+        {data: {id: "MIR200C",  trueWidth: 42.4, trueHeight: 42.4, nodeType: "gene"}, position: {x: 4319, y:  488.2325439223266}},
+        {data: {id: "NACA",     trueWidth: 29.6, trueHeight: 29.6, nodeType: "gene"}, position: {x: 4319, y: -312.7674560776734}},
+        {data: {id: "PIK3C2G",  trueWidth: 36.8, trueHeight: 36.8, nodeType: "gene"}, position: {x: 4319, y:  306.2325439223266}},
+        {data: {id: "PMEL",     trueWidth: 28,   trueHeight: 28,   nodeType: "gene"}, position: {x: 4319, y: -300.7674560776734}},
+        {data: {id: "PRH1",     trueWidth: 35.2, trueHeight: 35.2, nodeType: "gene"}, position: {x: 4319, y:  425.2325439223266}},
+        {data: {id: "PRR4",     trueWidth: 36,   trueHeight: 36,   nodeType: "gene"}, position: {x: 4319, y:  425.2325439223266}},
+        {data: {id: "PTPN11",   trueWidth: 34.4, trueHeight: 34.4, nodeType: "gene"}, position: {x: 4319, y: -707.7213140971809}},
+        {data: {id: "SH2B3",    trueWidth: 29.6, trueHeight: 29.6, nodeType: "gene"}, position: {x: 4319, y: -691.7213140971809}},
+        {data: {id: "WIF1",     trueWidth: 29.6, trueHeight: 29.6, nodeType: "gene"}, position: {x: 4319, y: -446.7674560776734}},
+        {data: {id: "ZNF384",   trueWidth: 44,   trueHeight: 44,   nodeType: "gene"}, position: {x: 4319, y:  493.2325439223266}},
+        {data: {id: "chr12p",   trueWidth: 120,  trueHeight: 60,    nodeType: "labeledLandmark"},   position: {x: 4319, y:   53.2325439223266}},
+        {data: {id: "chr12q",   trueWidth: 120,  trueHeight: 60,    nodeType: "labeledLandmark"},   position: {x: 4319, y:  -14.7674560776733}},
+        {data: {id: "start.12", trueWidth: 20.8, trueHeight: 20.8,  nodeType: "unlabeledLandmark"}, position: {x: 4319, y:  602.2325439223266}},
+        {data: {id: "end.12",   trueWidth: 20.8, trueHeight: 20.8,  nodeType: "unlabeledLandmark"}, position: {x: 4319, y: -944.7120857010824}}
+        ],
+      edges: [
+        {data: {id: "chrom12q", source: "chr12q",   target: "end.12"}},
+        {data: {id: "chrom12p", source: "start.12", target: "chr12p"}}
+        ]},
+
+     style: [
+       {selector: 'node',
+        style: {
+           'border-color': 'gray',
+           'borderWidth': 1,
+           'text-valign': 'center',
+           'text-halign': 'center',
+           width: 100,
+           height: 100,
+           'background-color': '#E8E8E8',
+           'label': '' // data(id)'
+        }},
+      {selector: 'node:selected',
+         style: {
+            'borderWidth': 5
+            }},
+
+      {selector: 'node[nodeType="labeledLandmark"]',
+         style: {
+           'border-color': 'green',
+           'border-width': 1,
+           'shape': 'roundrectangle',
+           'label': 'data(id)',
+           'font-size': '36px'
+           }},
+            
+      {selector: 'edge',
+        style: {
+          'width': 2,
+          'line-color': 'blue'
+         }}],
+
+     layout: {
+       name: 'preset'
+       },
+     ready: function(){
+       console.log('cy ready');
+       handleWindowResize();
+       cy.nodes().map(function(node){node.style({width: node.data("trueWidth"), height: node.data("trueHeight")})})
+       cy.fit(50);
+       //cy.zoom({level: 1.0, renderedPosition:{x:$(window).width()/2, y:$(window).height()/2}});
+       initialZoom = cy.zoom();
+       oldZoom = cy.zoom();
+       cy.on('zoom', function(event){
+          if(zoomMode === "Spread")
+            smartZoom(initialZoom, event);
+          });
+       } // ready
+     });  // cytoscape
+
+} // createNetwork
+//----------------------------------------------------------------------------------------------------
+// expand node size and display node labels when:
+//   1) the user's coordinate space, due to zooming, has shrunk to < 600 pixels
+//   2) the zoom factor is so large relative to the initial zoom (a global variable, set on startup)
+// 
+function smartZoom(initialZoom, event)
+{
+   console.log("smartZoom");
+   console.log(event);
+   var newZoom = 1.0 + cy.zoom() - oldZoom;
+   oldZoom = cy.zoom(); // keep this for next time
+
+   var visibleCoords = cy.extent();
+
+   var visibleOnScreen = function(node){
+      var x = node.position().x;
+      var y = node.position().y;
+      return(x >= visibleCoords.x1 && x <= visibleCoords.x2 &&
+             y >= visibleCoords.y1 && y <= visibleCoords.y2);
+      }
+      
+   var visibleNodes = cy.nodes().fnFilter(function(node){return(visibleOnScreen(node));})
+
+      // TODO: these two ratios might be reduced to just one
+      
+   var zoomRatio = cy.zoom()/initialZoom;
+   var windowRatio = cy.width()/cy.extent().h;
+   
+   var fontSize = Math.round(cy.extent().h/40);
+   if(fontSize < 1)
+      fontSize = 1;
+   var fontSizeString = fontSize + "px"
+   infoDisplay.val("zoomRatio: " + zoomRatio.toFixed(3) + ", screen: " + windowRatio.toFixed(3));
+
+     // rule: if zoomed in 
+   visibleNodes.map(function(node){
+      //if(zoomRatio > 1.0 & cy.extent().h < 600){
+      if(zoomRatio > 1.0 & windowRatio > 2.0){
+         var newWidth = node.data("trueWidth") / zoomRatio;
+         var newHeight = node.data("trueHeight") / zoomRatio;
+         var id = node.id();
+         node.style({width: newWidth, height: newHeight, label: id, "font-size": fontSizeString});
+         }
+      else{
+         defaultStyle();
+         }
+      }) // map all visible nodes
+
+} // smartZoom
+//----------------------------------------------------------------------------------------------------
+$(document).ready(initializeUI);
+  
+</script>
+
+</head>
+<body>
+  <div  id='outerDiv'>
+
+    <div id='controlsDiv'>
+         <select title="Node zooming mode"  id="zoomModeMenu" class="appControlButtons" >
+              <option value="fixed">Fixed</option>
+              <option value="spread">Spread</option>
+         </select>
+         </span>
+
+        <select title="Node label visibility" id="nodeLabelVisibilityMenu" class="appControlButtons">
+           <option value="always">Always</option>
+           <option value="never">Never</option>
+           <option value="onSpread">On spread zoom</option>
+        </select>
+      <button title="Restore initial layout" id='resetButton' class="appControlButtons">Reset</button>
+      <input type="text" title="run-time info" id="infoDisplay" style="width:400px; font-size: 18px; margin:20px; background-color: white"><text>
+    </div>
+
+    <div id='cyDiv'></div>
+  </div>
+</body>
+</html>
