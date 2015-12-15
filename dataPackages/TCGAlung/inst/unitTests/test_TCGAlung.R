@@ -114,21 +114,21 @@ testExpression <- function()
    checkTrue(file.exists(file))
 
    load(file)
-   checkTrue(exists("mtx.mrna"))
-   checkTrue(is(mtx.mrna, "matrix"))
-   checkEquals(class(mtx.mrna[1,1]), "numeric")
+   checkTrue(exists("mtx.mrna_Agi"))
+   checkTrue(is(mtx.mrna_Agi, "matrix"))
+   checkEquals(class(mtx.mrna_Agi[1,1]), "numeric")
 
-   checkEquals(dim(mtx.mrna), c(186, 17212))
+   checkEquals(dim(mtx.mrna_Agi), c(186, 17212))
 
      # a reasonable range of expression log2 ratios
-   checkEquals(fivenum(mtx.mrna), c(-28.7792, -0.7257,-0.0585,0.6586,47.0682))
+   checkEquals(fivenum(mtx.mrna_Agi), c(-28.7792, -0.7257,-0.0585,0.6586,47.0682))
    
      # all colnames should be recognzied gene symbols.  no isoform suffixes yet
-     #checkTrue(all(colnames(mtx.mrna) %in% keys(org.Hs.egSYMBOL2EG))) #354 are not
+     #checkTrue(all(colnames(mtx.mrna_Agi) %in% keys(org.Hs.egSYMBOL2EG))) #354 are not
 
      # all rownames should follow "TCGA.02.0014" format.  no multiply-sampled suffixes yet
    regex <- "^TCGA\\.\\w\\w\\.\\w\\w\\w\\w\\.[0-9][0-9]$"
-   checkEquals(length(grep(regex, rownames(mtx.mrna))), nrow(mtx.mrna))
+   checkEquals(length(grep(regex, rownames(mtx.mrna_Agi))), nrow(mtx.mrna_Agi))
    
     #-------mtx.mrna_Seq.RData-------
     file <- file.path(dir, "mtx.mrna_Seq.RData")
@@ -155,20 +155,20 @@ testExpression <- function()
     checkTrue(file.exists(file))
     
     load(file)
-    checkTrue(exists("mtx.mrna_U133"))
-    checkTrue(is(mtx.mrna_U133, "matrix"))
-    checkEquals(class(mtx.mrna_U133[1,1]), "numeric")
+    checkTrue(exists("mtx.mrna"))
+    checkTrue(is(mtx.mrna, "matrix"))
+    checkEquals(class(mtx.mrna[1,1]), "numeric")
     
-    checkEquals(dim(mtx.mrna_U133), c(133, 11878))
+    checkEquals(dim(mtx.mrna), c(133, 11878))
     
     # a reasonable range of expression log2 ratios
-    checkEquals(fivenum(mtx.mrna_U133), c( -9.9347,-0.6941 ,-0.0825 , 0.6419 ,61.9539))
+    checkEquals(fivenum(mtx.mrna), c( -9.9347,-0.6941 ,-0.0825 , 0.6419 ,61.9539))
     # all colnames should be recognzied gene symbols.  no isoform suffixes yet
-    #checkTrue(all(colnames(mtx.mrna_U133) %in% keys(org.Hs.egSYMBOL2EG))) #143 are not
+    #checkTrue(all(colnames(mtx.mrna) %in% keys(org.Hs.egSYMBOL2EG))) #143 are not
     
     # all rownames should follow "TCGA.02.0014" format.  no multiply-sampled suffixes yet
     regex <- "^TCGA\\.\\w\\w\\.\\w\\w\\w\\w\\.[0-9][0-9]$"
-    checkEquals(length(grep(regex, rownames(mtx.mrna_U133))), nrow(mtx.mrna_U133))
+    checkEquals(length(grep(regex, rownames(mtx.mrna))), nrow(mtx.mrna))
 
 } # testExpression
 #--------------------------------------------------------------------------------

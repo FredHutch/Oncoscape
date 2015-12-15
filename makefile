@@ -40,6 +40,12 @@ test:
 	(cd analysisPackages/; make test)
 	(cd Oncoscape/inst/unitTests; make test)
 	(cd Oncoscape/inst/scripts; make check)
+
+citest:
+	(cd dataPackages/; make test)
+	(cd analysisPackages/; make test)
+	(cd Oncoscape/inst/unitTests; make test)
+		
 		
 # launches Oncoscape on the provided port then tests modules using websocket requests	
 testWS:

@@ -72,6 +72,7 @@ logEvent <- function(ws, msg)
 
   state[["log"]] <- rbind(state[["log"]], as.data.frame(new.event, stringsAsFactors=FALSE))
   print(new.event)
+  # saveLog()
   
 } # logEvent
 #----------------------------------------------------------------------------------------------------
@@ -140,13 +141,8 @@ getLoggedEvents <- function(ws, msg)
 
 } # getLoggedEvents
 #----------------------------------------------------------------------------------------------------
-exitAfterTesting <- function(ws, msg)
+saveLog <- function()
 {
-   
-   payload <- msg$payload
-   error.count <- payload$errorCount
-   errors <- payload$errrs;
-    
    if("log" %in% ls(state)){
       log <- state[["log"]]
       filename <- sprintf("log.%s.RData", gsub(" ", ".", Sys.time()));
@@ -154,6 +150,17 @@ exitAfterTesting <- function(ws, msg)
       message(sprintf("saving log to %s", full.path))
       save(log, file=full.path)
       }
+
+} # saveLog
+#----------------------------------------------------------------------------------------------------
+exitAfterTesting <- function(ws, msg)
+{
+   
+   payload <- msg$payload
+   error.count <- payload$errorCount
+   errors <- payload$errrs;
+
+   saveLog()    
    message("tests complete, oncoscape server now exiting")
    quit(save="no", status=error.count, runLast=FALSE);
 
