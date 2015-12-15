@@ -1,8 +1,6 @@
 //----------------------------------------------------------------------------------------------------
-// move these all back inside module scope when debugging is done
-
+// declare the cytoscape object in global scope, permitting	 easy manipulation in the javascript console.
 var cwMarkers;
-var markersTester;
 
 //----------------------------------------------------------------------------------------------------
 var markersAndTissuesModule = (function () {
@@ -75,10 +73,6 @@ function initializeUI ()
   markersShowEdgesFromButton = $("#markersShowEdgesFromSelectedButton");
   markersShowEdgesFromButton.click(showEdgesFromSelectedNodes);
   hub.disableButton(markersShowEdgesFromButton);
-
-  //$("#markersFitViewButton").click(function(){cwMarkers.fit();});
-  //$("#markersHideEdgesButton").click(hideAllEdges);
-  //$("#markersShowEdgesFromSelectedButton").click(showEdgesFromSelectedNodes);
 
   tumorCategorizationsMenu = $("#cyMarkersTumorCategorizationsMenu");
   tumorCategorizationsMenu.empty();
@@ -207,17 +201,22 @@ function sendSelections(event)
 
 } // sendSelections
 //--------------------------------------------------------------------------------------------
-function configureLayoutsMenu(layoutMenu){
-
+// we currently support a limited amount cyjs layout save and restore.
+// among the limitations are:
+//   a) they are saved on the user's computer
+//   b) they can only be retrieved if the same computer, the same browser, and the same url
+//      is used
+function configureLayoutsMenu(layoutMenu)
+{
    console.log("--- configureLayoutsMenu");
    layoutMenu.append("<option>Layouts...</option>");
    layoutMenu.append("<option> Save Current</option>");
 
    var defaultLayout = JSON.stringify(cwMarkers.nodes().map(function(n){
-          var result = {id:n.id(), position:n.position()};
-          return (result);  
-          }) // map
-       ); // stringify
+       var result = {id:n.id(), position:n.position()};
+       return (result);  
+       }) // map
+     ); // stringify
 
    localStorage.markersDefault = defaultLayout;
 
@@ -259,20 +258,6 @@ function performLayout(event){
   layoutMenu.val("Layouts...");   // restore the title
 
 } // performLayout
-//--------------------------------------------------------------------------------------------
-function sendSelection()
-{
-   destinationModule = sendSelectionsMenu.val();
-   var nodeNames = selectedNodeNames(cwMarkers);
-   if(nodeNames.length === 0){
-      console.log("no nodes selected!");
-      return;
-      }
-   metadata = {};
-   sendSelectionToModule(destinationModule, nodeNames, metadata);
-   sendSelectionsMenu.val("Send Selection...");
-
-} // sendSelectionsMenuChanged
 //--------------------------------------------------------------------------------------------
 function configureCytoscape ()
 {
@@ -330,12 +315,13 @@ function configureCytoscape ()
 
 } // configureCytoscape
 //----------------------------------------------------------------------------------------------------
-function handleWindowResize ()
+function handleWindowResize()
 {
    cyDiv.width(0.95 * $(window).width());
    cyDiv.height(0.8 * $(window).height());
+      // todo: should preserve preceeding view.
    cwMarkers.resize();
-   cwMarkers.fit(50);
+   cwMarkers.fit(50);  
 
 } // handleWindowResize
 //----------------------------------------------------------------------------------------------------
@@ -362,12 +348,17 @@ function debounce(func, wait, immediate)
 // expand node size and display node labels when:
 //   1) the user's coordinate space, due to zooming, has shrunk to < 600 pixels
 //   2) the zoom factor is so large relative to the initial zoom (a global variable, set on startup)
-// 
+//
+// the current implemetation is decidely imperfect.  the operations accomplished here take too
+// long, creating a sometimes quite unsatisfying user experience.
+// this has been mitigated somewhat by
+//    - deboucncing (at some interval)
+//    - expanding nodes, adjusting font, node border and edge width only when well zoomed in
+//      AND a modest number of nodes are onscreen
+//    - trying to avoid layout when possible in the base network.
+//  
 function smartZoom(event)
 {
-   //console.log("smartZoom");
-   var queuedEvents = $("#cyMarkersDiv").queue();
-   
    var zoomRatio = cwMarkers.zoom()/initialZoom;
    console.log("zoomRatio: " + zoomRatio);
 
@@ -380,8 +371,6 @@ function smartZoom(event)
    var visibleOnScreen = function(node){
       if(node.data("landmark"))
          return(false);
-      //var x = node.position().x;
-      //var y = node.position().y;
       var bbox = node.boundingBox();
       var visibleX = (bbox.x1 >= visibleCoords.x1 && bbox.x1 <= visibleCoords.x2) |
                      (bbox.x2 >= visibleCoords.x1 && bbox.x2 <= visibleCoords.x2);
@@ -390,26 +379,16 @@ function smartZoom(event)
       var visibleY = (bbox.y1 >= visibleCoords.y1 && bbox.y1 <= visibleCoords.y2) |
                      (bbox.y2 >= visibleCoords.y1 && bbox.y2 <= visibleCoords.y2);
       return(visibleY);
-      //return(x >= visibleCoords.x1 && x <= visibleCoords.x2 &&
-      //       y >= visibleCoords.y1 && y <= visibleCoords.y2);
       };
       
-   //console.log("starting calculation of visibleNodes");
    var visibleNodes = cwMarkers.nodes().fnFilter(function(node){return(visibleOnScreen(node));});		
    console.log("visibleNode count: " + visibleNodes.length);
    if(visibleNodes.length > 400){
       defaultStyle();
-      //console.log("returning, visibleNode count: " + visibleNodes.length);
       return;
       }
-   //console.log("need to smartZoom, setting hanlder off to discard queued events");
-   //cwMarkers.off('zoom', smartZoom);
-
-   //console.log(event);
    var newZoom = 1.0 + cwMarkers.zoom() - oldZoom;
    oldZoom = cwMarkers.zoom(); // keep this for next time
-
-   //console.log("complete");
 
       // TODO: these two ratios might be reduced to just one
       
@@ -421,8 +400,6 @@ function smartZoom(event)
      
    var fontSizeString = fontSize + "px";
    var borderWidthString = cwMarkers.extent().h/600 + "px";
-   //console.log("--- new fontsize: " + fontSizeString);
-   //console.log("--- new borderWidth: " + borderWidthString);
    cwMarkers.edges().style({"width": borderWidthString});
    
    var newWidth, newHeight, id;
@@ -438,23 +415,21 @@ function smartZoom(event)
          });
        });
 
-  //console.log("visibleNode mapping complete, adding smartZoom handler back");
-  //cwMarkers.on('zoom', smartZoom);
-
-
 } // smartZoom
 //----------------------------------------------------------------------------------------------------
+// undo any changes brought about during smartZoom.
+// TODO: it seems a better approach would be to remove the zoomed attribute, and apply the style rules
+// everywhere with which the network was initialized.
 function defaultStyle()
 {
    var zoomedNodes = cwMarkers.nodes("[zoomed]");
-   // console.log("restoring default style, zoomed node count: " + zoomedNodes.length);
    cwMarkers.edges().style({"width": "1px"});
    
-   zoomedNodes.map(function(node){node.style({width: node.data('trueWidth'),
-                                              height: node.data('trueHeight'),
+   zoomedNodes.map(function(node){node.style({width: node.data("trueWidth"),
+                                              height: node.data("trueHeight"),
                                               zoomed: false,
-                                             'border-width': "1px",
-                                             'font-size': "3px"});});
+                                             "border-width": "1px",
+                                             "font-size":    "3px"});});
 
 } // defaultStyle
 //----------------------------------------------------------------------------------------------------
@@ -549,25 +524,52 @@ function requestTumorCategorization()
 
 } // requestTumorCategorization
 //----------------------------------------------------------------------------------------------------
+// msg.payload has 3 fields: colnames, rownames, tbl
+//   colnames: ["cluster", "color"]
+//   rownames: possibly large number of tumors (samples) with category (cluster) & color assigned
+//   tbl: a matrix, rownames.length x colnames.lenght, of cluster and color assignments
+// representing this data structure
+//                    cluster         color
+//  TCGA.08.0525    Classical     chocolate
+//   ...
+//
+// strategy:
+//    get unique cluster/color pairs (far fewer of these, typically, than sample ids (tbl rows).
+//    each sample named in the tbl, and also found in the network, will get a "category" (aka "cluster")
+//    attribute assigned to it near the end of this function.
+//    first, however, cyjs/css style rules are handcrafted, one for unique cluster value, and one
+//    for each cluster value if the node is selected.
+
 function applyTumorCategorization(msg)
 {
    console.log("=== applyTumorCategorization");
+
    var tumorsInGraph = cwMarkers.nodes("[nodeType='patient']");
    var tumorsInTable = msg.payload.rownames;
    var tbl = msg.payload.tbl;
    var categoryRules = {};
+
+      // this forEach loop inelegantly reduces many rows to a unique set
+      // by overwriting, e.g., categoryRules["G-CIMP"] = "purple" each of
+      // the time it is seen.  this inefficiency could be eliminated by
+      // sending across just the unique rules from R as a payload field
+      // (and also removing the color column from tbl).
+      
    tbl.forEach(function(row){categoryRules[row[0]] = row[1];});
 
 
-        /* jshint ignore:start */
-	//debugger;
-	/* jshint ignore:end */
-
    categoryRuleNames = Object.keys(categoryRules);
+     // e.g. ["G-CIMP", "Classical", "null", "Proneural", "Neural", "Mesenchymal"]
    categoryRuleNames.filter(function(name){return name !== "null";});
    categoryRuleNames.filter(function(name){return name !== null;});
    var newRules = [];
 
+     // translate the categoryRules into cyjs/css style rules, which
+     // look like this:
+     // {"selector":"node[category='Classical']","style":{"background-color":"chocolate"}}
+     // {"selector":"node[category='Classical']:selected",
+     //     "style":{"border-color":"red","background-color":"chocolate","border-width":"10px"}}"
+     
    categoryRuleNames.forEach(function(name){
       var selector = "node[category='" + name + "']";
       color=categoryRules[name];
@@ -591,6 +593,10 @@ function applyTumorCategorization(msg)
 
    hub.logEventOnServer(thisModulesName, "markersApplyTumorCategorization", "data received", "");
 
+      // iterate across the tumor ('patient') nodes, add a category attribute, assign
+      // a cluster value from the tbl, which will select one of the style rules just
+      // created above.
+
    console.log("starting tumorsInGraph.forEach");
    cwMarkers.batch(function() {
       tumorsInGraph.forEach(function(node, index){
@@ -598,7 +604,6 @@ function applyTumorCategorization(msg)
         var indexInTable = tumorsInTable.indexOf(nodeID);
         if(indexInTable >= 0){
            var cluster = tbl[indexInTable][0];
-           var color = tbl[indexInTable][1];
            node.data({category: cluster});
            }
         else{
@@ -608,6 +613,9 @@ function applyTumorCategorization(msg)
        }); // batch
 
   console.log("ending tumorsInGraph.forEach");
+
+    // get a copy of the current style, remove any old node-category style rules, add the new ones
+    // set this new style
 
   var oldStyle = cwMarkers.style().json();
      // remove any pre-existing node category rules
@@ -746,40 +754,6 @@ function handleIncomingIdentifiers(msg)
    hub.raiseTab(thisModulesOutermostDiv);
 
 } // handleIncomingIdentifiers
-//----------------------------------------------------------------------------------------------------
-  // run all that should happen when this module receives an incoming selection of patientIDs
-function demoMarkersIncomingSelectionOfIDs()
-{
-
-   names = ["TCGA.06.0210", "TCGA.02.0106", "TCGA.02.0111",
-            "TCGA.06.0194", "TCGA.06.0164", "TCGA.06.0409", "TCGA.02.0004",
-            "TCGA.02.0051", "TCGA.08.0390", "TCGA.02.0025", "TCGA.08.0392",
-            "TCGA.02.0079", "TCGA.12.0620", "TCGA.08.0373", "TCGA.06.0645",
-            "TCGA.06.0192", "TCGA.12.0776", "TCGA.12.0778", "TCGA.06.0750",
-            "TCGA.06.0878", "TCGA.14.0789", "TCGA.06.0881", "BCL11A",
-            "BRCA1", "MDM2", "PIK3R1", "ABCA1", "CDK6", "CNTRL", "FH",
-            "IFNA1", "LMO2", "PRKCA", "RELA", "STK11", "ZEB1", "CCNB1IP1",
-            "CREB3L1", "GDF2", "OR4K2", "PRKCH", "WAS"];
-
-   subset = [];
-   for(var i=0; i < 10; i++)
-     subset.push(names[getRandomInt(0, names.length -1)]);
-
-   selectNodes(subset);
-
-} // demoIncomingSelectionOfPatientIDs
-//----------------------------------------------------------------------------------------------------
-function allNodeIDs()
-{
-   ids = [];
-   allNodes = cwMarkers.nodes();
-
-   for(i=0; i < allNodes.length; i++)
-       ids.push(allNodes[i].data("id"));
-
-   return(ids);
-
-} // allNodeIDs
 //----------------------------------------------------------------------------------------------------
 function showEdges()
 {
@@ -1027,7 +1001,7 @@ function selectNodes(nodeNames)
 
 } // selectNodes
 //----------------------------------------------------------------------------------------------------
-   // todo: build up the filter string first, then send it all at once
+// todo: build up the filter string first, then send it all at once
 function selectNodesByID(nodeIDs) {
 
   if(typeof(nodeIDs) == "string")   // trap scalar, but expect and support arrays
@@ -1082,8 +1056,11 @@ function displayMarkersNetwork(msg)
          cwMarkers.filter("edge[edgeType='chromosome']").style({"curve-style": "bezier"});
          cwMarkers.filter("edge[edgeType='chromosome']").show();
          cwMarkers.nodes().unselect();
-           // map current node degree into a node attribute of that name
-         cwMarkers.nodes().map(function(node){node.data({degree: node.degree(), trueWidth: node.width(), trueHeight: node.height()});});
+           // map current node degree into a node attribute of that name, 
+           // save the initial width and height to restore values after zooming.
+         cwMarkers.nodes().map(function(node){node.data({degree: node.degree(), 
+                                                         trueWidth: node.width(), 
+                                                         trueHeight: node.height()});});
    
          var edgeTypes = hub.uniqueElementsOfArray(cwMarkers.edges().map(function(edge){
                                   return(edge.data("edgeType"));}
