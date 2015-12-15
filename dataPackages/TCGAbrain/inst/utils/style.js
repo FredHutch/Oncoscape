@@ -27,7 +27,7 @@ vizmap =  [
         "border-color": "black",
         "border-width": "3px",
         "font-size" : 8,
-        "background-color": "rgb(250, 250, 250)",
+        "background-color": "rgb(220, 120, 220)",
         "shape" : "ellipse",
         content: "data(id)"
 
@@ -36,19 +36,28 @@ vizmap =  [
     {selector: 'node[nodeType="gene"]', css:{
         "shape"  : "ellipse",
         "font-size": 8,
+        "background-color": "rgb(120, 220, 220)",
         content: "data(id)",
         "border-color": "blue",
         "border-width": "1px"}},
 
 
+    {"selector": "node[nodeType='patient']:selected", "css":{
+        "background-color": "rgb(250, 80, 80)"
+        }},
+
+    {"selector": "node[nodeType='gene']:selected", "css":{
+        "background-color": "rgb(250, 80, 80)"
+        }},
+
    {"selector":"node[nodeType='centromere']", style:
       {"shape": "roundrectangle",
-       "width": "180px", 
-       "height": "80px",
+       "width": "240px", 
+       "height": "100px",
        "content": "data(id)",
-       "border-color": "green",
-       "border-width": 1,
-       "font-size": "56px"
+       "border-color": "darkgreen",
+       "border-width": 2,
+       "font-size": "92px"
        }},
 
    {"selector":"node[nodeType='telomere']", style:
@@ -60,34 +69,6 @@ vizmap =  [
        "width": 10,
        "height": 10
        }},
-
-
-    {selector: 'node[nodeType="gene fusion"]', css:{
-        "content":"data(label)",
-        "shape"  : "roundrectangle",
-        "width"   : "mapData(degree, 0.0, 20.0, 20.0, 100.0)",
-        "height"  : "mapData(degree, 0.0, 20.0, 20.0, 100.0)",
-        "font-size": 18,
-        "border-color": "red",
-        "border-width": "3px"}},
-
-    {selector:"node[nodeType='gene fusion']:selected",css: {
-       "border-width": "8px"}},
-
-    {selector: 'node[nodeType="drug"]', css:{
-        "content":"data(label)",
-        "shape"  : "rectangle",
-        "width"   : "mapData(degree, 0.0, 20.0, 40.0, 200.0)",
-        "height"  : "mapData(degree, 0.0, 20.0, 40.0, 200.0)",
-        "font-size": 30,
-        "border-color": "red",
-        "border-width": "1px"}},
-
-    {selector:"node[nodeType='gene']:selected",css: {
-       "border-width": "8px"}},
-
-    {selector:"node[nodeType='patient']:selected",css: {
-       "border-width": "8px"}},
 
     {"selector":"edge[edgeType='chromosome']",
        "style":{"line-color":"rgb(0,0,128)",
