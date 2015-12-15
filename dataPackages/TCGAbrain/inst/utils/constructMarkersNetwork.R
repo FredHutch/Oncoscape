@@ -27,7 +27,7 @@ create.and.display <- function()
    httpAddGraph(rcy, g.chrom)
    httpSetStyle(rcy, styleFile)
    
-   tbl.pos <- getChromosomeScreenCoordinates(netMaker, xOrigin=5500, yOrigin=0, yMax=3000, chromDelta=200)
+   tbl.pos <- getChromosomeScreenCoordinates(netMaker, xOrigin=5000, yOrigin=0, yMax=4000, chromDelta=300)
    setPosition(rcy, tbl.pos)
    fit(rcy, 100)
    g.mut <- getMutationGraph(netMaker, goi)
@@ -47,7 +47,6 @@ create.and.display <- function()
    hideAllEdges(rcy)
    showEdges(rcy, "chromosome")
    httpSetStyle(rcy, "../../../DEMOdz/inst/utils/style.js")
-   hideAllEdges(rcy)
    fit(rcy)
 
    unpositioned.nodes <- names(which(!noa(g, "positioned")))
@@ -61,7 +60,6 @@ create.and.display <- function()
 #------------------------------------------------------------------------------------------------------------------------
 saveGraph <- function(rcy)
 {
-   showEdges(rcy, "chromosome")
    g.markers.json <- getJSON(rcy)
    filename <- "../extdata/markers.json.RData"
    printf("saving as %s, %d nodes, %d edges", filename, getNodeCount(rcy), getEdgeCount(rcy))
@@ -74,9 +72,10 @@ rcy <- x$rcy
 
 # some genes are not yet mapped because they use obsolete symbols.  until this is fixed, look
 # for them at 0,0, move them to i.e., below chr 12, make sure they are selected, then
-# layoutSelectionInGrid(rcy, x=5800, y=2000, w=800, h=400)
+# layoutSelectionInGrid(rcy, x=7700, y=2000, w=800, h=400)
 
 
 # when you are satisifed with the layout, deselect any selections, then
+#  fit(rcy)
 #  saveGraph(rcy)
 
