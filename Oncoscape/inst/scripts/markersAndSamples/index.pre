@@ -26,7 +26,7 @@ include(../markersAndSamples/Test.js)
    </ul>
 
 include(../datasets/widget.html)
-include(../markersAndSamples/widgetExperiments.html)
+include(../markersAndSamples/widget.html)
 include(../markersAndSamples/test.html)
 </div>
 
