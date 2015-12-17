@@ -525,7 +525,7 @@ create.Diagnosis.record <- function(patient.id)
                      PtNum=patient.number,
                      study=study,
                      Name=name,
-                     Fields = list(date=diagnosis.date, disease=disease, siteCode=tissueSourceSiteCode, method=NA))
+                     Fields = list(date=diagnosis.date, disease=disease, siteCode=tissueSourceSiteCode))
    
     good.records.found <- good.records.found + 1
     result[[good.records.found]] <- new.event
@@ -540,8 +540,8 @@ test_create.Diagnosis.record <- function()
  
    x <- create.Diagnosis.record(tcga.ids[1])
     checkEquals(names(x[[1]]), c("PatientID", "PtNum", "study", "Name", "Fields"))
-    checkEquals(names(x[[1]]$Fields), c("date", "disease", "siteCode", "method"))
-    checkEquals(x[[1]], list(PatientID="TCGA.CS.6290", PtNum=1, study=study, Name="Diagnosis", Fields=list(date="01/01/2009", disease="Central nervous system", siteCode="CS", method=NA)))
+    checkEquals(names(x[[1]]$Fields), c("date", "disease", "siteCode"))
+    checkEquals(x[[1]], list(PatientID="TCGA.CS.6290", PtNum=1, study=study, Name="Diagnosis", Fields=list(date="01/01/2009", disease="Central nervous system", siteCode="CS")))
 
 } # test_create.Diagnosis.record
 #------------------------------------------------------------------------------------------------------------------------
@@ -1255,20 +1255,20 @@ create.Pathology.record <- function(patient.id)
       pathDisease <- tbl.pathSub$tumor_tissue_site[pathEvent]
       pathHistology <- tbl.pathSub$histologic_diagnosis[pathEvent]    
       collection <- tbl.pathSub$prospective_collection[pathEvent]
-      bucket <- "Low Grade Glioma"
+      histology.category <- "Low Grade Glioma"
       if(collection == "YES"){ collection = "prospective"
       } else if( tbl.pathSub$retrospective_collection  == "YES"){ collection = "retrospective"
       } else { collection = NA }
       grade <- tbl.pathSub$tumor_grade
       
-      if(grade == "G3") bucket = "High Grade Glioma"
+      if(grade == "G3") histology.category = "High Grade Glioma"
       
       
       new.event <- list(PatientID=patient.id,
                         PtNum=patient.number,
                         study=study,
                         Name=name,
-                        Fields = list(date=date, disease=pathDisease, histology=pathHistology, bucket=bucket,collection=collection, grade=grade))
+                        Fields = list(date=date, disease=pathDisease, histology=pathHistology, histology.category=histology.category,collection=collection, grade=grade))
       good.records.found <- good.records.found + 1
       result[[good.records.found]] <- new.event
       }} # for pathEvent
@@ -1288,7 +1288,7 @@ create.Pathology.record <- function(patient.id)
                         PtNum=patient.number,
                         study=study,
                         Name=name,
-                        Fields = list(date=omf.date, disease=disease, histology=histology, bucket=bucket, collection=NA, grade=NA))
+                        Fields = list(date=omf.date, disease=disease, histology=histology, histology.category=histology.category, collection=NA, grade=NA))
    
        good.records.found <- good.records.found + 1
        result[[good.records.found]] <- new.event
@@ -1305,8 +1305,8 @@ test_create.Pathology.record <- function()
     x <- create.Pathology.record(tcga.ids[1])
     checkTrue(is.list(x))
     checkEquals(names(x[[1]]), c("PatientID", "PtNum","study", "Name", "Fields"))
-    checkEquals(names(x[[1]][["Fields"]]), c("date", "disease", "histology","bucket", "collection", "grade"))
-    checkEquals(x[[1]], list(PatientID="TCGA.CS.6290", PtNum=1, study=study, Name="Pathology", Fields=list(date="01/01/2009", disease="Central nervous system", histology="Astrocytoma", bucket="High Grade Glioma", collection="retrospective", grade="G3")))
+    checkEquals(names(x[[1]][["Fields"]]), c("date", "disease", "histology","histology.category", "collection", "grade"))
+    checkEquals(x[[1]], list(PatientID="TCGA.CS.6290", PtNum=1, study=study, Name="Pathology", Fields=list(date="01/01/2009", disease="Central nervous system", histology="Astrocytoma", histology.category="High Grade Glioma", collection="retrospective", grade="G3")))
     
 } # test_create.Pathology.record
 #------------------------------------------------------------------------------------------------------------------------
@@ -1599,7 +1599,10 @@ create.Background.record <- function(patient.id)
     if(length(YES)==0) YES=NA
     if(length(NO)==0) NO=NA
     Symptoms = list(YES=YES, NO=NO)
-    
+
+    neoadjuvant.treatment <- tbl.pt.Sub$history_neoadjuvant_treatment
+    if(neoadjuvant.treatment == "[Not Available]") neoadjuvant.treatment <- NA
+
     First.Symptom <- tbl.pt.Sub$related_symptom_first_present
     if(First.Symptom == "[Not Available]") First.Symptom=NA
     
@@ -1658,9 +1661,9 @@ create.Background.record <- function(patient.id)
         First_Tx_Outcome = tolower(First_Tx_Outcome)
     }
     return(list(PatientID=patient.id, PtNum=patient.number, study=study, Name=name, Fields = list(History = History,
-    Symptoms=Symptoms, First.Symptom=First.Symptom, First.Symptom.Duration=First.Symptom.Duration,
-    Food.Allergy=Food.Allergy,Animal.Allergy=Animal.Allergy,Age.First.Allergy=Age.First.Allergy,
-    First.Treatment.Outcome=First_Tx_Outcome)))
+    neoadjuvant.treatment=neoadjuvant.treatment, Symptoms=Symptoms, First.Symptom=First.Symptom, 
+    First.Symptom.Duration=First.Symptom.Duration, Food.Allergy=Food.Allergy,Animal.Allergy=Animal.Allergy,
+    Age.First.Allergy=Age.First.Allergy, First.Treatment.Outcome=First_Tx_Outcome)))
 } #create.Background.record
 #---------------------------------------------------------------------------------------------------
 test_create.Background.record <- function()
@@ -1668,12 +1671,12 @@ test_create.Background.record <- function()
     x <- create.Background.record("TCGA-CS-6290")
     checkTrue(is.list(x))
     checkEquals(names(x), c("PatientID", "PtNum", "study", "Name", "Fields"))
-    checkEquals(names(x[["Fields"]]), c("History","Symptoms","First.Symptom","First.Symptom.Duration","Food.Allergy",
+    checkEquals(names(x[["Fields"]]), c("History","neoadjuvant.treatment","Symptoms","First.Symptom","First.Symptom.Duration","Food.Allergy",
     "Animal.Allergy","Age.First.Allergy","First.Treatment.Outcome"))
     checkEquals(x, list(PatientID="TCGA.CS.6290", PtNum=1, study=study, Name="Background",
     Fields=list(History=list(YES=c("seizures","family cancer"),
     NO=c("ionizing rt","headaches","eczema","dust mold", "neoadjuvant medication",
-    "family brain tumor","asthma","hay fever","neoadjuvant steroid")),
+    "family brain tumor","asthma","hay fever","neoadjuvant steroid")),neoadjuvant.treatment="No",
     Symptoms=list(YES=NA,NO=c("visual","motor","mental","sensory")),
     First.Symptom="Seizures",
     First.Symptom.Duration="0 - 30 Days",
@@ -1683,7 +1686,7 @@ test_create.Background.record <- function()
     checkEquals(x, list(PatientID="TCGA.QH.A6CU", PtNum=275, study=study, Name="Background",
     Fields=list(History=list(YES=c("seizures","dust mold","neoadjuvant medication",
     "hay fever","neoadjuvant steroid","family cancer"),
-    NO=c("ionizing rt","headaches","eczema","family brain tumor","asthma")),
+    NO=c("ionizing rt","headaches","eczema","family brain tumor","asthma")),neoadjuvant.treatment="No",
     Symptoms=list(YES=c("mental"),NO=c("visual","motor","sensory")),
     First.Symptom="Seizures",
     First.Symptom.Duration="0 - 30 Days",

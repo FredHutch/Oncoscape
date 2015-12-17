@@ -1244,6 +1244,7 @@ create.Pathology.record <- function(patient.id)
             pathDisease <- tbl.pathSub$tumor_tissue_site[pathEvent]
             pathHistology <- tbl.pathSub$histologic_diagnosis[pathEvent]
             collection <- tbl.pathSub$prospective_collection[pathEvent]
+            pathMethod <-tbl.pathSub$initial_pathologic_diagnosis_method[pathEvent]
             T.Stage <- tbl.pathSub$clinical_T[pathEvent]
             N.Stage <- tbl.pathSub$clinical_N[pathEvent]
             M.Stage <- tbl.pathSub$clinical_M[pathEvent]
@@ -1257,6 +1258,12 @@ create.Pathology.record <- function(patient.id)
             } else if( tbl.pathSub$retrospective_collection  == "YES"){ collection = "retrospective"
             } else { collection = NA }
             
+            if(pathMethod == "Cytology (e.g. Peritoneal or pleural fluid)") pathMethod = "Cytology"
+            if(pathMethod == "Fine needle aspiration biopsy") pathMethod = "Aspirate"
+            if(pathMethod == "Core needle biopsy") pathMethod = "Core Biopsy"
+            if(pathMethod == "Other method, specify:") pathMethod = "Other"        
+            if(pathMethod == "Unknown" | pathMethod == "[Not Available]") pathMethod = NA
+            
             if (T.Stage == "[Not Available]" | T.Stage == "[Not Applicable]" | T.Stage == "[Unknown]") T.Stage = NA
             if (N.Stage == "[Not Available]" | N.Stage == "[Not Applicable]" | N.Stage == "[Unknown]") N.Stage = NA
             if (M.Stage == "[Not Available]" | M.Stage == "[Not Applicable]" | M.Stage == "[Unknown]") M.Stage = NA
@@ -1266,8 +1273,8 @@ create.Pathology.record <- function(patient.id)
             PtNum=patient.number,
             study=study,
             Name=name,
-            Fields = list(date=date, disease=pathDisease, histology=pathHistology, collection=collection, T.Stage=T.Stage, N.Stage=N.Stage, M.Stage=M.Stage,
-            S.Stage=S.Stage,staging.System=staging.System))
+            Fields = list(date=date, disease=pathDisease, histology=pathHistology, histology.category=NA, collection=collection, T.Stage=T.Stage, N.Stage=N.Stage, M.Stage=M.Stage,
+            S.Stage=S.Stage,staging.System=staging.System, method=pathMethod))
             good.records.found <- good.records.found + 1
             result[[good.records.found]] <- new.event
         }
@@ -1291,7 +1298,7 @@ create.Pathology.record <- function(patient.id)
             PtNum=patient.number,
             study=study,
             Name=name,
-            Fields = list(date=omf.date, disease=disease, histology=histology, collection=NA, T.Stage=NA, N.Stage=NA, M.Stage=NA,S.Stage=NA,staging.System=NA))
+            Fields = list(date=omf.date, disease=disease, histology=histology, histology.category=NA, collection=NA, T.Stage=NA, N.Stage=NA, M.Stage=NA,S.Stage=NA,staging.System=NA, method=NA))
             
             good.records.found <- good.records.found + 1
             result[[good.records.found]] <- new.event
@@ -1308,9 +1315,15 @@ test_create.Pathology.record <- function()
     x <- create.Pathology.record("TCGA-CH-5753")
     checkTrue(is.list(x)) #have both pt and omf
     checkEquals(names(x[[1]]), c("PatientID", "PtNum", "study", "Name", "Fields"))
-    checkEquals(names(x[[1]][["Fields"]]), c("date", "disease", "histology", "collection", "T.Stage", "N.Stage","M.Stage","S.Stage","staging.System"))
-    checkEquals(x[[1]], list(PatientID= "TCGA.CH.5753", PtNum=25, study=study, Name="Pathology", Fields=list(date="01/01/2008", disease="Prostate", histology="Prostate Adenocarcinoma Acinar Type", collection="prospective", T.Stage=NA,N.Stage=NA,M.Stage="M0",S.Stage=NA,staging.System=NA)))
-    checkEquals(x[[2]], list(PatientID= "TCGA.CH.5753", PtNum=25, study=study, Name="Pathology", Fields=list(date=NA, disease="Lymph node(s)", histology="Other, specify", collection=NA, T.Stage=NA,N.Stage=NA,M.Stage=NA,S.Stage=NA,staging.System=NA)))
+    checkEquals(names(x[[1]][["Fields"]]), c("date", "disease", "histology","histology.category", 
+        "collection", "T.Stage", "N.Stage","M.Stage","S.Stage","staging.System", "method"))
+    checkEquals(x[[1]], list(PatientID= "TCGA.CH.5753", PtNum=25, study=study, Name="Pathology", 
+        Fields=list(date="01/01/2008", disease="Prostate", histology="Prostate Adenocarcinoma Acinar Type", 
+        histology.category=NA, collection="prospective", T.Stage=NA,N.Stage=NA,M.Stage="M0",S.Stage=NA,
+        staging.System=NA, method="Core Biopsy")))
+    checkEquals(x[[2]], list(PatientID= "TCGA.CH.5753", PtNum=25, study=study, Name="Pathology", 
+        Fields=list(date=NA, disease="Lymph node(s)", histology="Other, specify", histology.category=NA, 
+        collection=NA, T.Stage=NA,N.Stage=NA,M.Stage=NA,S.Stage=NA,staging.System=NA, method=NA)))
 } # test_create.Pathology.record
 #------------------------------------------------------------------------------------------------------------------------
 create.all.Pathology.records <- function(patient.ids)
@@ -1528,7 +1541,11 @@ create.Background.record <- function(patient.id)
     if(length(NO)==0) NO=NA
     history = list(YES=YES, NO=NO)
     if(First_Tx_Outcome == "[Not Available]") First_Tx_Outcome = NA
-    return(list(PatientID=patient.id, PtNum=patient.number, study=study, Name=name, Fields = list(History = history, neoadjuvant.treatment=neoadjuvant.treatment,First_Tx_Outcome=First_Tx_Outcome,tobacco.usages=NA, smoking.status=NA, num.packs.years=NA,num.packs.day=NA, alcohol.usage.yrs=NA, alcohol.amount=NA, neoadjuvant.treatment=NA,num.children=NA, carcinogen.exposure=NA, occupation=NA,marital.status=NA, vietnam.vet=NA)))
+    return(list(PatientID=patient.id, PtNum=patient.number, study=study, Name=name, 
+        Fields = list(History = history, neoadjuvant.treatment=neoadjuvant.treatment,
+        First_Tx_Outcome=First_Tx_Outcome,tobacco.usages=NA, smoking.status=NA, 
+        num.packs.years=NA,num.packs.day=NA, alcohol.usage.yrs=NA, alcohol.amount=NA,
+        num.children=NA, carcinogen.exposure=NA, occupation=NA,marital.status=NA)))
 } # create.Background.record
 #-----------------------------------------------------------------------------------------------------------------------
 test_create.Background.record <- function()
@@ -1539,9 +1556,12 @@ test_create.Background.record <- function()
     checkEquals(names(x), c("PatientID", "PtNum", "study", "Name", "Fields"))
     checkEquals(names(x$Fields),c("History","neoadjuvant.treatment" ,"First_Tx_Outcome",
     "tobacco.usages","smoking.status","num.packs.years", "num.packs.day","alcohol.usage.yrs",
-    "alcohol.amount","neoadjuvant.treatment","num.children","carcinogen.exposure","occupation",
-    "marital.status","vietnam.vet"))
-    checkEquals(x, list(PatientID="TCGA.EJ.7789", PtNum=100, study="TCGAprad", Name="Background", Fields=list(History=list(YES=c("history of other malignancy"),NO=NA),neoadjuvant.treatment="No", First_Tx_Outcome=NA,tobacco.usages=NA, smoking.status=NA, num.packs.years=NA,num.packs.day=NA, alcohol.usage.yrs=NA, alcohol.amount=NA, neoadjuvant.treatment=NA, num.children=NA,carcinogen.exposure=NA,occupation=NA,marital.status=NA,vietnam.vet=NA)))
+    "alcohol.amount","num.children","carcinogen.exposure","occupation",
+    "marital.status"))
+    checkEquals(x, list(PatientID="TCGA.EJ.7789", PtNum=100, study="TCGAprad", Name="Background", 
+        Fields=list(History=list(YES=c("history of other malignancy"),NO=NA),neoadjuvant.treatment="No", 
+        First_Tx_Outcome=NA,tobacco.usages=NA, smoking.status=NA, num.packs.years=NA,num.packs.day=NA, 
+        alcohol.usage.yrs=NA, alcohol.amount=NA, num.children=NA,carcinogen.exposure=NA,occupation=NA,marital.status=NA)))
     
 } # test_create.Background.record
 #------------------------------------------------------------------------------------------------------------------------
