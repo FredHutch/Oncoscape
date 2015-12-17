@@ -1,35 +1,32 @@
-exportClasses(OncoDev14, UserDataStore)
+exportClasses(ChinookServer)
 
 export(
-  OncoDev14,
-  UserDataStore,
-  addRMessageHandler
+  ChinookServer,
+  addMessageHandler
   )
 
 exportMethods(
-  show,
   run,
   serverVersion,
   close,
   port,
-  getDataSetNames,
+  getDatasetNames,
   setActiveDataSet,
   getActiveDataSet,
-  getUserID,
-  getUserGroups,
-  getURI,
-  getUserDirectory,
-  addData,
-  getDataItem,
-  deleteDataItem,
-  getSummary
+  getAnalysisPackageNames
+  #getUserID,
+  #getUserGroups,
+  #getURI,
+  #getUserDirectory,
+  #addData
+  #getDataItem,
+  #deleteDataItem,
+  #getSummary
   )
 
 importClassesFrom(methods, character, integer)
 importFrom(methods, new)
 
-
 import(BiocGenerics)
 import(httpuv)
 import(jsonlite)
-import(reshape2)

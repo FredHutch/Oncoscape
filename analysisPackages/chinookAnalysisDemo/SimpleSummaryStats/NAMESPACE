@@ -1,0 +1,13 @@
+exportClasses(SimpleSummaryStats)
+
+exportMethods (
+    calculate
+  )
+
+export(
+   SimpleSummaryStats
+   )
+
+importClassesFrom(methods, character, integer)
+importFrom(methods, new)
+
