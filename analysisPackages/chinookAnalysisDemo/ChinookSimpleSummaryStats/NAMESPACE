@@ -1,0 +1,13 @@
+exportClasses(ChinookSimpleSummaryStats)
+
+exportMethods (
+   registerHandlers
+   )
+
+export(
+   ChinookSimpleSummaryStats
+   )
+
+importClassesFrom(methods, character, integer)
+importFrom(methods, new)
+

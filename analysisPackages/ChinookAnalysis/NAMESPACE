@@ -1,0 +1,15 @@
+
+exportClasses(ChinookAnalysis)
+
+exportMethods (
+  getName,
+  registerHandlers
+  )
+
+export(
+   ChinookAnalysis
+   )
+
+importClassesFrom(methods, character, integer)
+importFrom(methods, new)
+

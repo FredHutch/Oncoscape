@@ -1,0 +1,14 @@
+Package: SimpleSummaryStats
+Type: Package
+Title: SimpleSummaryStats: calculate min, max, mean and sd of a numeric vector.
+Version: 1.0.1
+Date: 2015-12-16
+Author: Paul Shannon
+Maintainer: Paul Shannon <pshannon@fredhutch.org>
+Depends: R (>= 3.2.2)
+Imports: methods, BiocGenerics
+Suggests: RUnit
+Description: An intentionally tiny calculation in a package, an example useful
+ for a (separate) demonstration of how to add a computation (an analysis) to the ChinookServer.
+License: GPL-2
+LazyLoad: yes

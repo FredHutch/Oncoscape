@@ -1,0 +1,13 @@
+Package: ChinookAnalysis
+Type: Package
+Title: ChinookAnalysis: an abstract base class for Oncoscape/STTR data analysis packages
+Version: 1.0.1
+Date: 2015-12-16
+Author: Paul Shannon
+Maintainer: Paul Shannon <pshannon@fredhutch.org>
+Depends: R (>= 3.2.2), ChinookServer
+Imports: methods, BiocGenerics
+Suggests: RUnit
+Description: A base class, extended for each specific case study
+License: GPL-2
+LazyLoad: yes

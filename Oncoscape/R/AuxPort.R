@@ -8,7 +8,7 @@ AuxPort <- function(primaryWebSocketServer, port)
    print(noquote(sprintf("OncoDev14/AuxPort , starting service loop on port %d", port)));
    auxWsID <- startDaemonizedServer("0.0.0.0", port,  wsCon)
 
-   printf ("leaving AuxPort")
+   printf ("leaving AuxPort, having started daemonized server on %d", port)
    return(auxPortState)
 
   # while (TRUE) {

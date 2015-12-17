@@ -1,28 +1,15 @@
-Package: OncoDev14
+Package: ChinookServer
 Type: Package
-Title: Oncoscape:  Coordinated Exploration of Clinical and Molecular Cancer Data
-Version: 1.4.93
-Date: 2015-12-10
+Title: ChinookServer:  Support WebSocket and HTTP transmission of simple JSON messages
+Version: 1.0.1
+Date: 2015-12-15
 Author: Paul Shannon
 Maintainer:  <pshannon@fhcrc.org>
-Depends: R (>= 3.2.0), jsonlite, httpuv, SttrDataPackage, survival, base64enc, PCA, PLSR
+Depends: R (>= 3.2.2), jsonlite, httpuv, SttrDataPackage
 Suggests: RUnit
 Description:  
 License: GPL
 LazyLoad: yes
-Collate: OncoDev14.R
+Collate: ChinookServer.R
          AuxPort.R
-         getUserInfo.R
-         getUserData.R
-         histogramCoordinates.R
-         UserDataStore-class.R
-         wsUserDataStore.R
-         wsGeneral.R
-         wsDatasets.R
-         wsSurvival.R
-	      wsOncoprint.R
-         oncoprint.R
-         survival.R
-         wsPLSR.R
-         wsPCA.R
-         wsTimelines.R
+
