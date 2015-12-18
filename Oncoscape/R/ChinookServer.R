@@ -141,11 +141,25 @@ setMethod("addMessageHandler", "ChinookServer",
 #------------------------------------------------------------------------------------------------------------------------
 .setupWebSocketHandlers <- function(wsCon, browserFile)
 {
+   quiet <- FALSE     # promote this to a constructor parameter
    wsCon$open <- FALSE
    wsCon$ws <- NULL
    wsCon$result <- NULL
      # process http requests
    wsCon$call = function(req) {
+      queryString <- req$QUERY_STRING
+      if(nchar(queryString) > 0){
+         if(!quiet) print("--- bv$call, about to call dynamically assigned queryProcessor");
+         fields <- ls(req)
+         for(field in fields){
+            printf("---- request field: %s", field)
+            print(req[[field]]);
+            }
+         body <- chinookHttpQueryProcessor(queryString)
+         return(list(status=200L, headers = list('Content-Type' = 'text/html'),
+                     body=body))
+         } # the request had a query string
+
       wsUrl = paste(sep='', '"', "ws://",
                    ifelse(is.null(req$HTTP_HOST), req$SERVER_NAME, req$HTTP_HOST),
                    '"')
@@ -188,6 +202,9 @@ setMethod("addMessageHandler", "ChinookServer",
 #------------------------------------------------------------------------------------------------------------------------
 dispatchMessage <- function(WS, msg)
 {
+  printf("--- entering ChinookServer dispatchMessage, msg: ")
+  print(msg)
+    
   errorFunction <- function(cond){
     return.msg <- list()
     return.msg$cmd <- msg$callback
@@ -313,3 +330,36 @@ setMethod("getMessageNames", "ChinookServer",
     function(self){
       return(ls(dispatchMap))
     })
+
+#------------------------------------------------------------------------------------------------------------------------
+chinookHttpQueryProcessor <- function(queryString)
+{
+   printf("=== chinookHttpQueryProcessor")
+   print(queryString)
+   print(URLdecode(queryString))
+     # for reasons not quite clear, the query string comes in with extra characters
+     # following the expected filename:
+     #
+     #  "?sampleStyle.js&_=1443650062946"
+     #
+     # check for that, cleanup the string, then see if the file can be found
+
+   queryString <- URLdecode(queryString)
+   diagnostic.string <- substr(queryString,1,10)
+   printf("--- diagnostic.string: |%s|", diagnostic.string)
+   jsonPrefixFound <- diagnostic.string == "?jsonMsg='";
+   printf("--- matched? %s", jsonPrefixFound)
+   
+   if(jsonPrefixFound){
+      rawJSON <- substr(queryString, 11, nchar(queryString)-1)  # drop enclosing single quotes
+      msg <- fromJSON(URLdecode(rawJSON))
+      printf("calling dispatch on %s", msg$cmd);
+      print(msg$cmd)
+      return(dispatchMessage("http", msg))
+      } # if jsonMsg queryString
+   
+   return("from the chinookHttpQueryProcessor");
+
+} # chinookHttpQueryProcessor
+#----------------------------------------------------------------------------------------------------
+
