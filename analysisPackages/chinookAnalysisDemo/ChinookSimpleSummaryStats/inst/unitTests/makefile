@@ -13,4 +13,5 @@ delay:
 
 py:
 	python testWebSocketOperations.py
-
+	python testHttpOperations.py
+        

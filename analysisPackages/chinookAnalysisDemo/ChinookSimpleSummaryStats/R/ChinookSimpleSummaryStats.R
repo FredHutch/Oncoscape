@@ -26,7 +26,7 @@ setMethod("registerMessageHandlers", "ChinookSimpleSummaryStats",
      })
 
 #----------------------------------------------------------------------------------------------------
-SummaryStats.calculate <- function(ws, msg)
+SummaryStats.calculate <- function(channel, msg)
 {
    print(msg)
 
@@ -41,7 +41,14 @@ SummaryStats.calculate <- function(ws, msg)
    print(x)
 
    return.msg <- list(cmd=msg$callback, status="success", callback="", payload=x)
-   ws$send(toJSON(return.msg))
+   result <- toJSON(return.msg)
+   
+   printf("class(channel): %s", class(channel))
+
+   if("WebSocket" %in% is(channel))
+      channel$send(result)
+   else
+      return(result)
 
 } # SummaryStats.calculate
 #----------------------------------------------------------------------------------------------------
