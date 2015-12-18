@@ -1582,12 +1582,20 @@ create.Background.record <- function(patient.id)
     }else{ if (his_op == "NO") NO = c(NO,"history of colon polyps")
         else YES = c(YES, "history of colon polyps")
     }
+    if(family.colorec.history  == "[Not Available]" |family.colorec.history  == "[Unknown]"){
+      family.colorec.history =NA
+    }else{
+      if(family.colorec.history == "NO") NO = c(NO, "family history of colorectal cancer")
+      else YES = c(YES, "family history of colorectal cancer")
+    }
     if(length(YES)==0) YES=NA
     if(length(NO)==0) NO=NA
     history = list(YES=YES, NO=NO)
-    if(family.colorec.history  == "[Not Available]" |family.colorec.history  == "[Unknown]") family.colorec.history =NA
     if(First_Tx_Outcome == "[Not Available]") First_Tx_Outcome = NA
-    return(list(PatientID=patient.id, PtNum=patient.number, study=study, Name=name, Fields = list(History = history, family.colorec.history =family.colorec.history , neoadjuvant.treatment=neoadjuvant.treatment,First_Tx_Outcome=First_Tx_Outcome,tobacco.usages=NA, smoking.status=NA, num.packs.years=NA,num.packs.day=NA, alcohol.usage.yrs=NA, alcohol.amount=NA, neoadjuvant.treatment=NA)))
+    return(list(PatientID=patient.id, PtNum=patient.number, study=study, Name=name, 
+      Fields = list(History = history, neoadjuvant.treatment=neoadjuvant.treatment,
+      First_Tx_Outcome=First_Tx_Outcome,tobacco.usages=NA, smoking.status=NA, num.packs.years=NA,
+      num.packs.day=NA, alcohol.usage.yrs=NA, alcohol.amount=NA)))
 } #create.Background.record
 #---------------------------------------------------------------------------------------------------
 test_create.Background.record <- function()
@@ -1595,12 +1603,19 @@ test_create.Background.record <- function()
     x <- create.Background.record(tcga.ids[1])
     checkTrue(is.list(x))
     checkEquals(names(x), c("PatientID", "PtNum", "study", "Name", "Fields"))
-    checkEquals(names(x[["Fields"]]), c("History", "family.colorec.history", "neoadjuvant.treatment","First_Tx_Outcome","tobacco.usages","smoking.status","num.packs.years","num.packs.day","alcohol.usage.yrs", "alcohol.amount","neoadjuvant.treatment"))
-    checkEquals(x, list(PatientID="TCGA.3L.AA1B", PtNum=1, study=study, Name="Background", Fields=list(History=list(YES=c("history of other malignancy","history of colon polyps"),NO=NA),family.colorec.history="0", neoadjuvant.treatment="No", First_Tx_Outcome="Complete Remission/Response",tobacco.usages=NA, smoking.status=NA, num.packs.years=NA,num.packs.day=NA, alcohol.usage.yrs=NA, alcohol.amount=NA, neoadjuvant.treatment=NA)))
+    checkEquals(names(x[["Fields"]]), c("History", "neoadjuvant.treatment","First_Tx_Outcome",
+      "tobacco.usages","smoking.status","num.packs.years","num.packs.day","alcohol.usage.yrs", 
+      "alcohol.amount"))
+    checkEquals(x, list(PatientID="TCGA.3L.AA1B", PtNum=1, study=study, Name="Background", 
+      Fields=list(History=list(YES=c("history of other malignancy","history of colon polyps",
+      "family history of colorectal cancer"),NO=NA), neoadjuvant.treatment="No", First_Tx_Outcome="Complete Remission/Response",
+      tobacco.usages=NA, smoking.status=NA, num.packs.years=NA,num.packs.day=NA, alcohol.usage.yrs=NA, alcohol.amount=NA)))
     x <- create.Background.record(tcga.ids[100]) # treatment_outment_first_course == "[discrepancy]"
-    checkEquals(x, list(PatientID="TCGA.AA.3660", PtNum=100, study=study, Name="Background", Fields=list(History=list(YES=c("history of other malignancy"),NO=c("history of colon polyps")),family.colorec.history="0", neoadjuvant.treatment="No", First_Tx_Outcome=NA,tobacco.usages=NA, smoking.status=NA, num.packs.years=NA,num.packs.day=NA, alcohol.usage.yrs=NA, alcohol.amount=NA, neoadjuvant.treatment=NA)))
+    checkEquals(x, list(PatientID="TCGA.AA.3660", PtNum=100, study=study, Name="Background", 
+      Fields=list(History=list(YES=c("history of other malignancy", "family history of colorectal cancer"),
+      NO=c("history of colon polyps")), neoadjuvant.treatment="No", First_Tx_Outcome=NA,tobacco.usages=NA, 
+      smoking.status=NA, num.packs.years=NA,num.packs.day=NA, alcohol.usage.yrs=NA, alcohol.amount=NA)))
 } #test_create.Background.record
-#---------------------------------------------------------------------------------------------------
 #---------------------------------------------------------------------------------------------------
 createPatientList <- function(Allevents=NA){
 
