@@ -1225,7 +1225,7 @@ create.Pathology.record <- function(patient.id)
             PtNum=patient.number,
             study=study,
             Name=name,
-            Fields = list(date=date, disease=pathDisease, histology=pathHistology,bucket=pathHistology, collection=collection, T.Stage=T.Stage, N.Stage=N.Stage, M.Stage=M.Stage,
+            Fields = list(date=date, disease=pathDisease, histology=pathHistology,histology.category=NA, collection=collection, T.Stage=T.Stage, N.Stage=N.Stage, M.Stage=M.Stage,
             S.Stage=S.Stage,staging.System=staging.System))
             good.records.found <- good.records.found + 1
             result[[good.records.found]] <- new.event
@@ -1247,7 +1247,7 @@ create.Pathology.record <- function(patient.id)
             PtNum=patient.number,
             study=study,
             Name=name,
-            Fields = list(date=omf.date, disease=disease, histology=histology,bucket=histology, collection=NA, T.Stage=NA, N.Stage=NA, M.Stage=NA,S.Stage=NA,staging.System=NA))
+            Fields = list(date=omf.date, disease=disease, histology=histology,histology.category=NA, collection=NA, T.Stage=NA, N.Stage=NA, M.Stage=NA,S.Stage=NA,staging.System=NA))
             
             good.records.found <- good.records.found + 1
             result[[good.records.found]] <- new.event
@@ -1264,11 +1264,11 @@ test_create.Pathology.record <- function()
     x <- create.Pathology.record("TCGA-AF-2687")
     checkTrue(is.list(x))
     checkEquals(names(x[[1]]), c("PatientID", "PtNum", "study", "Name", "Fields"))
-    checkEquals(names(x[[1]][["Fields"]]), c("date", "disease", "histology","bucket","collection","T.Stage","N.Stage","M.Stage","S.Stage", "staging.System"))
-    checkEquals(x[[1]], list(PatientID="TCGA.AF.2687", PtNum=1, study=study, Name="Pathology", Fields=list(date="01/01/2009", disease="Rectum", histology="Rectal Adenocarcinoma",bucket="Rectal Adenocarcinoma", collection="prospective", T.Stage="T3",N.Stage="N2",M.Stage="M0",S.Stage="Stage IIIC", staging.System=NA)))
+    checkEquals(names(x[[1]][["Fields"]]), c("date", "disease", "histology","histology.category","collection","T.Stage","N.Stage","M.Stage","S.Stage", "staging.System"))
+    checkEquals(x[[1]], list(PatientID="TCGA.AF.2687", PtNum=1, study=study, Name="Pathology", Fields=list(date="01/01/2009", disease="Rectum", histology="Rectal Adenocarcinoma",histology.category=NA, collection="prospective", T.Stage="T3",N.Stage="N2",M.Stage="M0",S.Stage="Stage IIIC", staging.System=NA)))
     
     x <- create.Pathology.record("TCGA-AG-A00H") #has omf
-    checkEquals(x[[1]], list(PatientID="TCGA.AG.A00H", PtNum=79, study=study, Name="Pathology",Fields=list(date="01/01/2008",disease="Rectum", histology="Rectal Adenocarcinoma", bucket="Rectal Adenocarcinoma", collection="retrospective", T.Stage="T3",N.Stage="N0",M.Stage="M0",S.Stage="Stage IIA", staging.System="6th")))
+    checkEquals(x[[1]], list(PatientID="TCGA.AG.A00H", PtNum=79, study=study, Name="Pathology",Fields=list(date="01/01/2008",disease="Rectum", histology="Rectal Adenocarcinoma", histology.category=NA, collection="retrospective", T.Stage="T3",N.Stage="N0",M.Stage="M0",S.Stage="Stage IIA", staging.System="6th")))
 
 
 } # test_create.Pathology.record
