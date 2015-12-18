@@ -19,6 +19,8 @@ setGeneric("setActiveDataSet",     signature="self", function(self, dataSetName)
 setGeneric("getActiveDataSet",     signature="self", function(self) standardGeneric("getActiveDataSet"))
 setGeneric('close',                signature="self", function(self) standardGeneric("close"))
 setGeneric("serverVersion",        signature="self", function(self) standardGeneric("serverVersion"))
+setGeneric("addMessageHandler",    signature="self", function(self, messageName, functionToCall) standardGeneric("addMessageHandler"))
+setGeneric("getMessageNames",      signature="self", function(self) standardGeneric("getMessageNames"))
 #------------------------------------------------------------------------------------------------------------------------
 printf <- function(...) print(noquote(sprintf(...)))
 dispatchMap <- new.env(parent=emptyenv())
@@ -46,25 +48,16 @@ ChinookServer = function(port=NA_integer_, analysisPackageNames=NA_character_, d
                             currentDatasetName=NA_character_)
    
    .loadDataPackages(datasetNames)
-   .loadAnalysisPackages(analysisPackageNames)
+   .loadAnalysisPackages(analysisPackageNames, server)
 
    if(is.na(browserFile))
       browserFile <- system.file(package="ChinookServer", "scripts", "default.html")
-   else
-       browserFile <- browserFile;
-   
-   if(!file.exists(browserFile)){
-      printf("browserFile not found: %s", browserFile)
-      stop("Could not locate browserFile")
-      }
+
+   stopifnot(file.exists(browserFile))
 
    wsCon <- .setupWebSocketHandlers(wsCon, browserFile)
    server@wsServer <- wsCon
 
-   state[["auxPort"]] <- NA_integer_
-   if(!is.na(port))
-      state[["auxPort"]] <- AuxPort(wsCon, port+1);
-      
    server
 
 } # ctor
@@ -102,12 +95,12 @@ toJSON <- function(..., auto_unbox = TRUE)
         } # if data package successfully loaded, ctor defined
      } # for datasetName
 
-   printf("=== datsets now available in the instantiated.datasets environment: %s",
-          paste(ls(instantiated.datasets), collapse=","))
+   printf("=== datasets now available to the server: %s",
+             paste(ls(instantiated.datasets), collapse=","))
     
 } # .loadDataPackages
 #------------------------------------------------------------------------------------------------------------------------
-.loadAnalysisPackages <- function(analysisPackageNames)
+.loadAnalysisPackages <- function(analysisPackageNames, server)
 {
    printf("ChinookServer.loadAnalysisPackages");
     
@@ -118,31 +111,33 @@ toJSON <- function(..., auto_unbox = TRUE)
         message(sprintf("failed to load analysis package '%s'", packageName))
         })
      if(exists(packageName)){
-        instantiation.string <- sprintf("pkg <- %s()", packageName);
+        instantiation.string <- sprintf("pkg <- %s(server)", packageName);
+        printf("about to eval instantiation.string: %s", instantiation.string)
         duration <- system.time(tryCatch(eval(parse(text=instantiation.string)),
                                 error=function(e)
                                 message(sprintf("failure calling constructor for '%s'", packageName))))[["elapsed"]]
          
-        stopifnot('ChinookAnalysisPackage' %in% is(pkg))
-        assignment.string <- sprintf("instantiated.analsyisPackages[['%s']] <- pkg", packageName)
-        eval(parse(text=assignment.string))
-        message(sprintf("ChinookServer loading: %40s %7.2f seconds", assignment.string, duration))
+        stopifnot('ChinookAnalysis' %in% is(pkg))
+        storePkg.string <- sprintf("instantiated.analysisPackages[['%s']] <- pkg", packageName)
+        eval(parse(text=storePkg.string))
+        message(sprintf("ChinookServer loading: %40s %7.2f seconds", storePkg.string, duration))
         message(sprintf("  new list of instantiated.analysisPackages: %s",
                         paste(ls(instantiated.analysisPackages), collapse=",")))
         } # if analysis package successfully loaded, ctor defined
      } # for packageName
 
-   printf("=== datsets now available in datasets environment: %s",
+   printf("=== analysis packages now available to the server: %s",
           paste(ls(instantiated.analysisPackages), collapse=","))
     
 } # .loadAnalysisPackages
 #------------------------------------------------------------------------------------------------------------------------
-addMessageHandler <- function(key, function.name)
-{
-   printf("ChinookServer addRMessageHandler: '%s'", key);
-   dispatchMap[[key]] <- function.name
-    
-} # addMessageHandler
+setMethod("addMessageHandler", "ChinookServer",
+
+      function(self, messageName, functionToCall) {
+         printf("ChinookServer::addMessageHandler: '%s'", messageName);
+         dispatchMap[[messageName]] <- functionToCall
+         }) # addMessageHandler
+
 #------------------------------------------------------------------------------------------------------------------------
 .setupWebSocketHandlers <- function(wsCon, browserFile)
 {
@@ -154,15 +149,16 @@ addMessageHandler <- function(key, function.name)
       wsUrl = paste(sep='', '"', "ws://",
                    ifelse(is.null(req$HTTP_HOST), req$SERVER_NAME, req$HTTP_HOST),
                    '"')
-     list(
-       status = 200L,
-       headers = list('Content-Type' = 'text/html'),
-       body = c(file=browserFile))
-       }
+      list(
+        status = 200L,
+        headers = list('Content-Type' = 'text/html'),
+        body = c(file=browserFile)
+        )
+      } # call
 
-      # called whenever a websocket connection is opened
+      #  whenever a websocket connection is opened
    wsCon$onWSOpen = function(ws) {   
-      #printf("---- wsCon$onWSOpen");
+      printf("---- wsCon$onWSOpen");
       wsCon$ws <- ws
       ws$onMessage(function(binary, rawMessage) {
          message <- as.list(fromJSON(rawMessage))
@@ -209,7 +205,6 @@ dispatchMessage <- function(WS, msg)
 
   tryCatch({
     if(msg$cmd == "keepAlive"){
-      #printf("--- keepAlive: %s", date())
       return();
       }
     if(msg$status == "forBrowser"){
@@ -223,6 +218,7 @@ dispatchMessage <- function(WS, msg)
     stopifnot(msg$cmd %in% ls(dispatchMap));
     printf("====== Server.dispatchMessage: %s  [%s]", msg$cmd, format(Sys.time(), "%a %b %d %Y %X"));;
     function.name <- dispatchMap[[msg$cmd]]
+    printf("    function.name: %s", function.name)
     success <- TRUE   
     stopifnot(!is.null(function.name))
     func <- get(function.name)
@@ -312,3 +308,8 @@ setMethod("port", "ChinookServer",
     })
 
 #------------------------------------------------------------------------------------------------------------------------
+setMethod("getMessageNames", "ChinookServer",
+
+    function(self){
+      return(ls(dispatchMap))
+    })

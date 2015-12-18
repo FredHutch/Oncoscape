@@ -1,5 +1,6 @@
 library(RUnit)
 library(ChinookSimpleSummaryStats)
+library(ChinookServer)
 #----------------------------------------------------------------------------------------------------
 runTests <- function()
 {
@@ -11,13 +12,24 @@ testNullServerConstructor <- function()
 {
    print("--- testNullServerConstructor")
 
-   print(1)
    server <- ChinookServer()
-   print(2)
    stats <- ChinookSimpleSummaryStats(server)
-   print(3)
+   checkEquals(getMessageNames(server), "numericVectorSummaryStats")
    
 } # testNullServerConstructor
+#----------------------------------------------------------------------------------------------------
+testNormalUseConstructor <- function()
+{
+   analysisPackages = "ChinookSimpleSummaryStats"
+   datasets <- NA_character_
+   browserFile <- NA_character_
+   userCredentials <- "test@nowhere.net"
+
+   chinook <- ChinookServer(port=4001, analysisPackages, datasets, browserFile, userCredentials)
+   stats <- ChinookSimpleSummaryStats()
+   setServer(stats, chinook)
+
+} # testNormalUseConstructor
 #----------------------------------------------------------------------------------------------------
 if(!interactive())
     runTests()

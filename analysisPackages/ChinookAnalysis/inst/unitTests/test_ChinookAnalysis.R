@@ -11,8 +11,15 @@ runTests <- function()
 testConstructor <- function()
 {
    print("--- testConstructor")
-   ap <- ChinookAnalysis("test", server=NA)
-   checkEquals(getName(ap), "test")
+   ca <- ChinookAnalysis("test")
+   server <- ChinookServer()
+   setServer(ca, server)
+   checkEquals(getName(ca), "test")
+   checkEquals(getServer(ca), server)
+   
+   ca2 <- ChinookAnalysis("test2")   # also an empty server
+   checkEquals(getName(ca2), "test2")
+   checkTrue(is.na(getServer(ca2)))
    
 } # testConstructor
 #----------------------------------------------------------------------------------------------------

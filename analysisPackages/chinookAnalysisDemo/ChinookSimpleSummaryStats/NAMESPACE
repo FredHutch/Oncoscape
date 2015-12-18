@@ -1,11 +1,8 @@
 exportClasses(ChinookSimpleSummaryStats)
 
-exportMethods (
-   registerHandlers
-   )
-
 export(
-   ChinookSimpleSummaryStats
+    ChinookSimpleSummaryStats,
+    SummaryStats.calculate
    )
 
 importClassesFrom(methods, character, integer)

@@ -9,7 +9,7 @@ options(stringsAsFactors = FALSE)
                         )
 
 #----------------------------------------------------------------------------------------------------
-setGeneric('calculate', signature='obj', function (obj) standardGeneric ('calculate'))
+setGeneric('calculate', signature='obj', function (obj, data) standardGeneric ('calculate'))
 #----------------------------------------------------------------------------------------------------
 # constructor
 SimpleSummaryStats <- function(data=0)
