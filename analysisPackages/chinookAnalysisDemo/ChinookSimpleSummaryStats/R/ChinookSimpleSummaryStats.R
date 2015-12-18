@@ -9,21 +9,39 @@
 ChinookSimpleSummaryStats <- function(server)
 {
     printf("starting ChinookSimpleSummaryStats ctor")
-    obj <- .ChinookSimpleSummaryStats(ChinookAnalysis(name="SimpleSummaryStats", server=server),
+    obj <- .ChinookSimpleSummaryStats(ChinookAnalysis(name="SimpleSummaryStats"),
                                       impl=SimpleSummaryStats())
+    setServer(obj, server)
+    registerMessageHandlers(obj)
 
     printf("leaving ChinookSimpleSummaryStats ctor")
     obj
 
 } # SummaryStats constructor
 #----------------------------------------------------------------------------------------------------
-setMethod("registerHandlers", "ChinookSimpleSummaryStats",
+setMethod("registerMessageHandlers", "ChinookSimpleSummaryStats",
 
   function (obj) {
-      return(list(mean=mean(obj@data, na.rm=TRUE),
-                  sd=sd(obj@data, na.rm=TRUE),
-                  min=min(obj@data, na.rm=TRUE),
-                  max=max(obj@data, na.rm=TRUE)))
+     addMessageHandler(getServer(obj), "numericVectorSummaryStats", "SummaryStats.calculate")
      })
 
+#----------------------------------------------------------------------------------------------------
+SummaryStats.calculate <- function(ws, msg)
+{
+   print(msg)
+
+   callback <- msg$callback
+   vector <- as.numeric(msg$payload)
+   printf("vector: %d, %f", length(vector), sum(vector))
+   print(vector)
+   
+   stats <- SimpleSummaryStats(vector)
+   x <- calculate(stats)
+   printf("---- about to return stats result:")
+   print(x)
+
+   return.msg <- list(cmd=msg$callback, status="success", callback="", payload=x)
+   ws$send(toJSON(return.msg))
+
+} # SummaryStats.calculate
 #----------------------------------------------------------------------------------------------------

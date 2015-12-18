@@ -1,7 +1,7 @@
 exportClasses(SimpleSummaryStats)
 
 exportMethods (
-    calculate
+  calculate
   )
 
 export(

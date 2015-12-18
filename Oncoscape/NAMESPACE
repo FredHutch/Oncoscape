@@ -1,8 +1,7 @@
 exportClasses(ChinookServer)
 
 export(
-  ChinookServer,
-  addMessageHandler
+  ChinookServer
   )
 
 exportMethods(
@@ -13,7 +12,9 @@ exportMethods(
   getDatasetNames,
   setActiveDataSet,
   getActiveDataSet,
-  getAnalysisPackageNames
+  getAnalysisPackageNames,
+  addMessageHandler,
+  getMessageNames    
   #getUserID,
   #getUserGroups,
   #getURI,

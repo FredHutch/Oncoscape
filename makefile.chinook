@@ -1,0 +1,6 @@
+default:
+	R CMD install Oncoscape && R -f Oncoscape/inst/unitTests/test_ChinookServer.R
+	R CMD install analysisPackages/ChinookAnalysis && R -f analysisPackages/ChinookAnalysis/inst/unitTests/test_ChinookAnalysis.R
+	R CMD install analysisPackages/chinookAnalysisDemo/SimpleSummaryStats && R -f analysisPackages/chinookAnalysisDemo/SimpleSummaryStats/inst/unitTests/test_SimpleSummaryStats.R 
+	R CMD install analysisPackages/chinookAnalysisDemo/ChinookSimpleSummaryStats && R -f analysisPackages/chinookAnalysisDemo/ChinookSimpleSummaryStats/inst/unitTests/test_ChinookSimpleSummaryStats.R
+	(cd ~/oncogit/Oncoscape/analysisPackages/chinookAnalysisDemo/ChinookSimpleSummaryStats/inst/unitTests; make)

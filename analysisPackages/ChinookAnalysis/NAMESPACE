@@ -2,8 +2,10 @@
 exportClasses(ChinookAnalysis)
 
 exportMethods (
+  setServer,
+  getServer,
   getName,
-  registerHandlers
+  registerMessageHandlers
   )
 
 export(
