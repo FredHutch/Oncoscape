@@ -90,7 +90,8 @@ tbl.nte <- read.table("clinical_nte_luad.txt", quote="", sep="\t", header=TRUE, 
 tbl.nte <- tbl.nte[3:nrow(tbl.nte),]
 tbl.omf <- read.table("clinical_omf_v4.0_luad.txt", quote="", sep="\t", header=TRUE, as.is=TRUE)
 tbl.omf <- tbl.omf[3:nrow(tbl.omf),]
-
+load("../../omf.histology.RData")
+tbl.omf.histology <- subset(omf.histology, diseaseType==study)
 setwd(currDir)
 
 #------------------------------------------------------------------------------------------------------------------------
@@ -1365,12 +1366,17 @@ create.Pathology.record <- function(patient.id)
       disease <- tbl.omfSub$other_malignancy_anatomic_site[omfEvent]
 
       omfOffset = tbl.omfSub$days_to_other_malignancy_dx[omfEvent]
-      histology.category <- tbl.omfSub$other_malignancy_histological_type[omfEvent]
-      histology <- tbl.omfSub$other_malignancy_histological_type_text[omfEvent]
+      histology <- tbl.omfSub$other_malignancy_histological_type[omfEvent]
+      histology_text <- tbl.omfSub$other_malignancy_histological_type_text[omfEvent]
+      if(histology_text != "[Not Applicable]"){
+        histology <- paste(histology, histology_text, sep=":")
+      }
+      histology.category = tbl.omf.histology[tbl.omf.histology$omf.histology==histology, 4]
+      if(histology.category == "[Not Available]") histology.category = NA
+
 
 
       if(disease   == "[Not Available]") disease = NA
-      if(histology.category == "[Not Applicable]" |histology.category == "[Not Available]" | histology == "[Pending]") histology.category = NA
       if(histology == "[Not Available]" | histology == "[Not Applicable]" | histology == "[Pending]") histology = NA
       if(omfOffset == "[Not Available]"){ omf.date = NA
       }else{  omf.date = reformatDate(as.Date(diagnosis.date, "%m/%d/%Y") + as.integer(omfOffset))}
@@ -1401,7 +1407,7 @@ test_create.Pathology.record <- function()
     
     x <- create.Pathology.record("TCGA-05-4382") #has omf
     checkEquals(x[[1]], list(PatientID="TCGA.05.4382", PtNum=5, study=study, Name="Pathology",Fields=list(date="01/01/2009", disease="Lung", histology="Lung Adenocarcinoma Mixed Subtype", histology.category="Lung Adenocarcinoma", collection="retrospective",T.Stage="T2",N.Stage="N0",M.Stage="M0",S.Stage="Stage IB",staging.System="6th")))
-    checkEquals(x[[2]], list(PatientID="TCGA.05.4382", PtNum=5, study=study, Name="Pathology",Fields=list(date=NA, disease="Penis", histology="carcinoma in situ of penis", histology.category="Other, specify", collection=NA, T.Stage=NA, N.Stage=NA, M.Stage=NA, S.Stage=NA, staging.System=NA)))
+    checkEquals(x[[2]], list(PatientID="TCGA.05.4382", PtNum=5, study=study, Name="Pathology",Fields=list(date=NA, disease="Penis", histology="Other, specify:carcinoma in situ of penis", histology.category=NA, collection=NA, T.Stage=NA, N.Stage=NA, M.Stage=NA, S.Stage=NA, staging.System=NA)))
 } # test_create.Pathology.record
 #------------------------------------------------------------------------------------------------------------------------
 create.all.Pathology.records <- function(patient.ids)

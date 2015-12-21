@@ -95,6 +95,8 @@ tbl.omf <- read.table("clinical_omf_v4.0_hnsc.txt", quote="", sep="\t", header=T
 tbl.omf <- tbl.omf[3:nrow(tbl.omf),]
 tbl.cqcf <- read.table("clinical_cqcf_hnsc.txt",quote="",sep="\t",header=TRUE, as.is=TRUE) #read
 tbl.cqcf <-tbl.cqcf[3:nrow(tbl.f3),]
+load("../../omf.histology.RData")
+tbl.omf.histology <- subset(omf.histology, diseaseType==study)
 setwd(currDir)
 
 
@@ -1378,6 +1380,13 @@ create.Pathology.record <- function(patient.id)
       disease <- tbl.omfSub$other_malignancy_anatomic_site[omfEvent]
       omfOffset = tbl.omfSub$days_to_other_malignancy_dx[omfEvent]
       histology <- tbl.omfSub$other_malignancy_histological_type[omfEvent]
+        histology_text <- tbl.omfSub$other_malignancy_histological_type_text[omfEvent]
+        if(histology_text != "[Not Applicable]"){
+           histology <- paste(histology, histology_text, sep=":")
+        }
+        histology.category = tbl.omf.histology[tbl.omf.histology$omf.histology==histology, 4]
+        if(histology.category == "[Not Available]") histology.category = NA
+
 
       if(disease   == "[Not Available]") disease = NA
       if(histology == "[Not Available]") histology = NA
@@ -1389,7 +1398,7 @@ create.Pathology.record <- function(patient.id)
                         study=study,
                         Name=name,
                         Fields = list(date=omf.date, disease=disease, histology=histology, 
-                          histology.category=NA, collection=NA, T.Stage=NA, N.Stage=NA, 
+                          histology.category=histology.category, collection=NA, T.Stage=NA, N.Stage=NA, 
                           M.Stage=NA,S.Stage=NA,staging.System=NA))
    
        good.records.found <- good.records.found + 1
@@ -1422,7 +1431,7 @@ test_create.Pathology.record <- function()
       S.Stage="Stage IVA",staging.System="6th")))
     checkEquals(x[[2]], list(PatientID="TCGA.BA.4075", PtNum=3, study=study, Name="Pathology",
       Fields=list(date=NA, disease="Tongue, Base of tongue", histology="Squamous Cell Carcinoma, Not Otherwise Specified",  
-      histology.category=NA,collection=NA,T.Stage=NA,N.Stage=NA,M.Stage=NA,S.Stage=NA,staging.System=NA)))
+      histology.category="Squamous Cell Carcinoma",collection=NA,T.Stage=NA,N.Stage=NA,M.Stage=NA,S.Stage=NA,staging.System=NA)))
 } # test_create.Pathology.record
 #------------------------------------------------------------------------------------------------------------------------
 create.all.Pathology.records <- function(patient.ids)
