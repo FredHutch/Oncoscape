@@ -88,7 +88,8 @@ tbl.nte <- read.table("nationwidechildrens.org_clinical_nte_lgg.txt", quote="", 
 tbl.nte <- tbl.nte[3:nrow(tbl.nte),]
 tbl.omf <- read.table("nationwidechildrens.org_clinical_omf_v4.0_lgg.txt", quote="", sep="\t", header=TRUE, as.is=TRUE)
 tbl.omf <- tbl.omf[3:nrow(tbl.omf),]
-
+load("../../omf.histology.RData")
+tbl.omf.histology <- subset(omf.histology, diseaseType==study)
 setwd(currDir)
 
 #------------------------------------------------------------------------------------------------------------------------
@@ -1278,6 +1279,13 @@ create.Pathology.record <- function(patient.id)
       disease <- tbl.omfSub$other_malignancy_anatomic_site[omfEvent]
       omfOffset = tbl.omfSub$days_to_other_malignancy_dx[omfEvent]
       histology <- tbl.omfSub$other_malignancy_histological_type[omfEvent]
+      histology <- tbl.omfSub$other_malignancy_histological_type[omfEvent]
+        histology_text <- tbl.omfSub$other_malignancy_histological_type_text[omfEvent]
+        if(histology_text != "[Not Applicable]"){
+           histology <- paste(histology, histology_text, sep=":")
+        }
+      histology.category = tbl.omf.histology[tbl.omf.histology$omf.histology==histology, 4]
+      if(histology.category == "[Not Available]") histology.category = NA
 
       if(disease   == "[Not Available]") disease = NA
       if(histology == "[Not Available]") histology = NA
@@ -1307,7 +1315,10 @@ test_create.Pathology.record <- function()
     checkEquals(names(x[[1]]), c("PatientID", "PtNum","study", "Name", "Fields"))
     checkEquals(names(x[[1]][["Fields"]]), c("date", "disease", "histology","histology.category", "collection", "grade"))
     checkEquals(x[[1]], list(PatientID="TCGA.CS.6290", PtNum=1, study=study, Name="Pathology", Fields=list(date="01/01/2009", disease="Central nervous system", histology="Astrocytoma", histology.category="High Grade Glioma", collection="retrospective", grade="G3")))
-    
+    x <- create.Pathology.record("TCGA-FG-8187")
+    checkEquals(x[[1]], list(PatientID="TCGA.FG.8187", PtNum=130, study=study, Name="Pathology", Fields=list(date="01/01/2011", disease="Central nervous system", histology="Oligoastrocytoma", histology.category="Low Grade Glioma", collection="prospective", grade="G2")))
+    checkEquals(x[[2]], list(PatientID="TCGA.FG.8187", PtNum=130, study=study, Name="Pathology", Fields=list(date=NA, disease="Testicle", histology="Other, specify:Germ Cell", histology.category=NA, collection=NA, grade=NA)))
+ 
 } # test_create.Pathology.record
 #------------------------------------------------------------------------------------------------------------------------
 create.all.Pathology.records <- function(patient.ids)
