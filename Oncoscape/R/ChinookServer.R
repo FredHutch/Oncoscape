@@ -58,11 +58,13 @@ ChinookServer = function(port=NA_integer_, analysisPackageNames=NA_character_, d
    wsCon <- .setupWebSocketHandlers(wsCon, browserFile)
    server@wsServer <- wsCon
 
+   state[["auxPortState"]] <- AuxPort(wsCon, port+1)
+
    server
 
 } # ctor
 #------------------------------------------------------------------------------------------------------------------------
-# the semanitcs of toJSON changed between RJSONIO and jsonlite: in the latter, scalars are
+# the semantics of toJSON changed between RJSONIO and jsonlite: in the latter, scalars are
 # promoted to arrays of length 1.  rather than change our javascript code, and since such
 # promotion -- while sensible in the context of R -- strikes me as gratuitous, I follow
 # jeroen ooms suggestion, creating this wrapper
@@ -166,7 +168,7 @@ setMethod("addMessageHandler", "ChinookServer",
       list(
         status = 200L,
         headers = list('Content-Type' = 'text/html'),
-        body = c(file=browserFile)
+        body =  "hello from ChinookServer main port"
         )
       } # call
 
@@ -248,12 +250,18 @@ dispatchMessage <- function(WS, msg)
 setMethod("run", "ChinookServer",
 
   function(self) {
-     print(noquote(sprintf("ChinookServer::run, starting service loop on port %d", port(self))))
-
+     printf("starting ChinookServer::run")
      wsID <- startServer("0.0.0.0", port(self),  self@wsServer)
      self@wsServer$wsID <- wsID
 
- #    print(noquote(sprintf("ChinookServer::run, starting service loop on port %d", port(self))))
+     aux <- state[["auxPortState"]]
+     aux.port <- port(self) + 1
+     aux$auxWsID <- startDaemonizedServer("0.0.0.0", aux.port,  aux)
+     state[["auxPortState"]] <- aux
+     printf("  started daemonized server on aux port %s", aux.port)
+
+     printf("   starting main on port %s, service loop", port(self))
+     
      while (TRUE) {
        service()
        Sys.sleep(0.001)
@@ -362,4 +370,65 @@ chinookHttpQueryProcessor <- function(queryString)
 
 } # chinookHttpQueryProcessor
 #----------------------------------------------------------------------------------------------------
+AuxPort <- function(primaryWebSocketServer, port)
+{
+   aux.wsCon <- new.env(parent=emptyenv())
+   aux.wsCon <- .setupAuxPortWebSocketHandlers(primaryWebSocketServer, aux.wsCon, port)
+   print(noquote(sprintf("ChinookServer/AuxPort , starting service loop on port %s", port)));
+   # auxWsID <- startDaemonizedServer("0.0.0.0", port,  aux.wsCon)
+   # printf ("leaving AuxPort, having started daemonized server on %s", port)
+   print(aux.wsCon)
+   return(aux.wsCon)
+
+} # AuxPort
+#---------------------------------------------------------------------------------------------------
+.setupAuxPortWebSocketHandlers <- function(primaryWebSocketServer, wsCon, port)
+{
+   wsCon$open <- FALSE
+   wsCon$ws <- NULL
+   wsCon$result <- NULL
+     # process http requests
+   wsCon$call = function(req) {
+      wsUrl = paste(sep='', '"', "ws://",
+                   ifelse(is.null(req$HTTP_HOST), req$SERVER_NAME, req$HTTP_HOST),
+                   '"')
+     list(
+       status = 200L,
+       headers = list('Content-Type' = 'text/html'),
+       body = "hello from ChinookServer auxiliary port")
+       }
+
+      # called whenever a websocket connection is opened
+   wsCon$onWSOpen = function(ws) {   
+      #printf("---- wsCon$onWSOpen");
+      wsCon$ws <- ws
+      ws$onMessage(function(binary, rawMessage) {
+         message <- as.list(fromJSON(rawMessage))
+         wsCon$lastMessage <- message
+         if(!is(message, "list")){
+            message("message: new websocket message is not a list");
+            return;
+            }
+         if (! "cmd" %in% names(message)){
+            message("error: new websocket messages has no 'cmd' field");
+            return;
+            }
+         cmd <- message$cmd
+         printf("ChinookSever/AuxPort onMessage, cmd: %s ", cmd);
+         printf("sending to primaryWebSocketServer, fields %s",
+                paste(ls(primaryWebSocketServer), collapse=","))
+         primaryWebSocketServer$ws$send(toJSON(message))
+         printf("after dispatch to primary");
+         #print(rawMessage)
+         #printf("OncoDev14:onMessage, cooked ");
+         #print(message)
+         #dispatchMessage(ws, message);
+         }) # onMessage
+       wsCon$open <- TRUE
+       } # onWSOpen
+
+   wsCon
+
+} # .setupAuxPortWebSocketHandlers
+#--------------------------------------------------------------------------------
 

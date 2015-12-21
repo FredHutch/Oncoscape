@@ -3,7 +3,7 @@ default: kill server delay py
 
 
 kill: 
-	- kill `ps aux | grep $(SERVER) | grep -v grep | awk '{print $$2}'`
+	- kill `ps x | grep $(SERVER) | grep -v grep | awk '{print $$1}'`
 
 server: kill
 	bash R --no-save --silent -f $(SERVER) &
