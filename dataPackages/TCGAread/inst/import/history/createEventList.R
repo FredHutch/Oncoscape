@@ -90,7 +90,8 @@ tbl.nte <- read.table("clinical_nte_read.txt", quote="", sep="\t", header=TRUE, 
 tbl.nte <- tbl.nte[3:nrow(tbl.nte),]
 tbl.omf <- read.table("clinical_omf_v4.0_read.txt", quote="", sep="\t", header=TRUE, as.is=TRUE)
 tbl.omf <- tbl.omf[3:nrow(tbl.omf),]
-
+load("../../omf.histology.RData")
+tbl.omf.histology <- subset(omf.histology, diseaseType==study)
 setwd(currDir)
 
 #------------------------------------------------------------------------------------------------------------------------
@@ -1237,6 +1238,13 @@ create.Pathology.record <- function(patient.id)
             disease <- tbl.omfSub$other_malignancy_anatomic_site[omfEvent]
             omfOffset = tbl.omfSub$days_to_other_malignancy_dx[omfEvent]
             histology <- tbl.omfSub$other_malignancy_histological_type[omfEvent]
+            histology_text <- tbl.omfSub$other_malignancy_histological_type_text[omfEvent]
+            if(histology_text != "[Not Applicable]"){
+               histology <- paste(histology, histology_text, sep=":")
+            }
+            histology.category = tbl.omf.histology[tbl.omf.histology$omf.histology==histology, 4]
+            if(histology.category == "[Not Available]") histology.category = NA
+
             
             if(disease   == "[Not Available]") disease = NA
             if(histology == "[Not Available]") histology = NA
@@ -1247,7 +1255,7 @@ create.Pathology.record <- function(patient.id)
             PtNum=patient.number,
             study=study,
             Name=name,
-            Fields = list(date=omf.date, disease=disease, histology=histology,histology.category=NA, collection=NA, T.Stage=NA, N.Stage=NA, M.Stage=NA,S.Stage=NA,staging.System=NA))
+            Fields = list(date=omf.date, disease=disease, histology=histology, histology.category=histology.category, collection=NA, T.Stage=NA, N.Stage=NA, M.Stage=NA,S.Stage=NA,staging.System=NA))
             
             good.records.found <- good.records.found + 1
             result[[good.records.found]] <- new.event

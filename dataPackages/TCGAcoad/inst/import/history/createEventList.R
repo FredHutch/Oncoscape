@@ -90,7 +90,8 @@ tbl.nte <- read.table("clinical_nte_coad.txt", quote="", sep="\t", header=TRUE, 
 tbl.nte <- tbl.nte[3:nrow(tbl.nte),]
 tbl.omf <- read.table("clinical_omf_v4.0_coad.txt", quote="", sep="\t", header=TRUE, as.is=TRUE)
 tbl.omf <- tbl.omf[3:nrow(tbl.omf),]
-
+load("../../omf.histology.RData")
+tbl.omf.histology <- subset(omf.histology, diseaseType==study)
 setwd(currDir)
 
 #------------------------------------------------------------------------------------------------------------------------
@@ -1236,6 +1237,13 @@ create.Pathology.record <- function(patient.id)
             disease <- tbl.omfSub$other_malignancy_anatomic_site[omfEvent]
             omfOffset = tbl.omfSub$days_to_other_malignancy_dx[omfEvent]
             histology <- tbl.omfSub$other_malignancy_histological_type[omfEvent]
+            histology_text <- tbl.omfSub$other_malignancy_histological_type_text[omfEvent]
+            if(histology_text != "[Not Applicable]"){
+               histology <- paste(histology, histology_text, sep=":")
+            }
+            histology.category = tbl.omf.histology[tbl.omf.histology$omf.histology==histology, 4]
+            if(histology.category == "[Not Available]") histology.category = NA
+
             
             if(disease   == "[Not Available]" | disease == "[Pending]") disease = NA
             if(histology == "[Not Available]") histology = NA
@@ -1246,7 +1254,7 @@ create.Pathology.record <- function(patient.id)
             PtNum=patient.number,
             study=study,
             Name=name,
-            Fields = list(date=omf.date, disease=disease, histology=histology,histology.category=NA, collection=NA, T.Stage=NA, N.Stage=NA, M.Stage=NA,S.Stage=NA,staging.System=NA))
+            Fields = list(date=omf.date, disease=disease, histology=histology, histology.category=histology.category, collection=NA, T.Stage=NA, N.Stage=NA, M.Stage=NA,S.Stage=NA,staging.System=NA))
             
             good.records.found <- good.records.found + 1
             result[[good.records.found]] <- new.event
@@ -1269,6 +1277,7 @@ test_create.Pathology.record <- function()
     
     x <- create.Pathology.record("TCGA-A6-2677") #has omf
     checkEquals(x[[1]], list(PatientID="TCGA.A6.2677", PtNum=10, study=study, Name="Pathology",Fields=list(date="01/01/2009",  disease="Colon", histology="Colon Adenocarcinoma",histology.category=NA, collection="prospective", T.Stage="T3",N.Stage="N2",M.Stage="M0",S.Stage="Stage IIIC", staging.System="6th")))
+    checkEquals(x[[2]], list(PatientID="TCGA.A6.2677", PtNum=10, study=study, Name="Pathology",Fields=list(date=NA,  disease="Kidney", histology="Kidney Clear Cell Renal Carcinoma",histology.category="Kidney Clear Cell Renal Carcinoma", collection=NA, T.Stage=NA,N.Stage=NA,M.Stage=NA,S.Stage=NA, staging.System=NA)))
 
 } # test_create.Pathology.record
 #------------------------------------------------------------------------------------------------------------------------

@@ -94,7 +94,8 @@ tbl.nte <- read.table("clinical_nte_brca.txt", quote="", sep="\t", header=TRUE, 
 tbl.nte <- tbl.nte[3:nrow(tbl.nte),]
 tbl.omf <- read.table("clinical_omf_v4.0_brca.txt", quote="", sep="\t", header=TRUE, as.is=TRUE)
 tbl.omf <- tbl.omf[3:nrow(tbl.omf),]
-
+load("../../omf.histology.RData")
+tbl.omf.histology <- subset(omf.histology, diseaseType==study)
 setwd(currDir)
 Her2_cols    <- colnames(tbl.pt)[grep("her2",colnames(tbl.pt))]
 ER_cols      <- colnames(tbl.pt)[grep("_er_",colnames(tbl.pt))]
@@ -1339,6 +1340,13 @@ create.Pathology.record <- function(patient.id)
           disease <- tbl.omfSub$other_malignancy_anatomic_site[omfEvent]
           omfOffset = tbl.omfSub$days_to_other_malignancy_dx[omfEvent]
           histology <- tbl.omfSub$other_malignancy_histological_type[omfEvent]
+          histology_text <- tbl.omfSub$other_malignancy_histological_type_text[omfEvent]
+          if(histology_text != "[Not Applicable]"){
+             histology <- paste(histology, histology_text, sep=":")
+          }
+          histology.category = tbl.omf.histology[tbl.omf.histology$omf.histology==histology, 4]
+          if(histology.category == "[Not Available]") histology.category = NA
+
           omf_T.Stage <- tbl.omfSub$pathologic_T[omfEvent]
           omf_N.Stage <- tbl.omfSub$pathologic_N[omfEvent]
           omf_M.Stage <- tbl.omfSub$pathologic_M[omfEvent]
@@ -1361,8 +1369,8 @@ create.Pathology.record <- function(patient.id)
                             PtNum=patient.number,
                             study=study,
                             Name=name,
-                            Fields = list(date=omf.date, disease=disease, histology=histology,  histology.category=NA,collection=NA, 
-                            T.Stage=omf_T.Stage, N.Stage=omf_N.Stage, M.Stage=omf_M.Stage,S.Stage=omf_S.Stage,
+                            Fields = list(date=omf.date, disease=disease, histology=histology, histology.category=histology.category, 
+                              collection=NA, T.Stage=omf_T.Stage, N.Stage=omf_N.Stage, M.Stage=omf_M.Stage,S.Stage=omf_S.Stage,
                             staging.System=omf_staging.System, method=NA))
        
            good.records.found <- good.records.found + 1
@@ -1396,7 +1404,7 @@ test_create.Pathology.record <- function()
       histology="Infiltrating Ductal Carcinoma", histology.category=NA, collection="retrospective",T.Stage="T1",N.Stage="NX",M.Stage="M0",
       S.Stage="Stage X",staging.System=NA, method="Other")))
     checkEquals(x[[2]], list(PatientID="TCGA.B6.A0I8", PtNum=459, study=study, Name="Pathology",Fields=list(date=NA, disease="Breast", 
-      histology="Adenocarcinoma, Not Otherwise Specified", histology.category=NA, collection=NA,T.Stage="T2",N.Stage="N0",M.Stage="M0",
+      histology="Adenocarcinoma, Not Otherwise Specified", histology.category="Adenocarcinoma", collection=NA,T.Stage="T2",N.Stage="N0",M.Stage="M0",
       S.Stage="Stage II",staging.System="2nd", method=NA)))
 
 } # test_create.Pathology.record
