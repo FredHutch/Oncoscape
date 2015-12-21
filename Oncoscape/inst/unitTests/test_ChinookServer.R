@@ -1,13 +1,16 @@
 # test_ChinookServer.R
 #------------------------------------------------------------------------------------------------------------------------
-PORT = 4124
+PORT = 4001
 #------------------------------------------------------------------------------------------------------------------------
 library(RUnit)
+library(RCurl)
 library(ChinookServer)
+library(tools)
 #------------------------------------------------------------------------------------------------------------------------
 runTests <- function()
 {
    test_constructor()
+   test_runningServer()
 
 } # runTests
 #------------------------------------------------------------------------------------------------------------------------
@@ -23,6 +26,11 @@ test_constructor <- function()
    userCredentials <- "test@nowhere.net"
 
    chinook <- ChinookServer(port=PORT, analysisPackages, datasets, browserFile, userCredentials)
+
+     # run(chinook) 
+     #  this will block, preventing the next tests.
+     # see test_runningServer below for a live test of the server
+
    checkEquals(port(chinook), PORT)
    version <- serverVersion(chinook)
        # 1.0.1 or greater and interpretable as integers
@@ -32,6 +40,48 @@ test_constructor <- function()
    checkEquals(length(getMessageNames(chinook)), 0)   # analysis packages register messages, none registered yet
 
 } # test_constructor
+#------------------------------------------------------------------------------------------------------------------------
+# unix-style ps (process status) helper function to locate process id of any instance of the named script
+# and to kill it 
+killServer <- function(scriptName)
+{
+    printf("   chinook server already running?")
+    cmd <- sprintf("ps x | grep %s | grep -v grep |awk '{print $1}'", scriptName)
+    pids <- system(cmd, intern=TRUE)
+
+    if(length(pids) > 0){
+       printf("   killing already running server")
+       pids <- as.integer(pids)
+       lapply(pids, pskill)
+       printf("   waiting 10 seconds for kill to complete")
+       Sys.sleep(10)
+       }
+
+} # killServer
+#------------------------------------------------------------------------------------------------------------------------
+test_runningServer <- function()
+{
+    printf("--- test_runningServer")
+    scriptName <- "runTestingChinookServer.R"
+    killServer(scriptName)
+    printf("   starting server in background")
+    system(sprintf("bash R --no-save --silent -f %s &", scriptName))
+
+       # give it some time to start
+    printf("   giving server a chance to start, sleeping 10")
+    Sys.sleep(10)
+
+    printf("   checking main port http get")
+    url <- sprintf("http://localhost:%d", PORT)
+    checkEquals(getURL(url), "hello from ChinookServer main port")
+
+    printf("   checking aux port http get")
+    url <- sprintf("http://localhost:%d", PORT+1)
+    checkEquals(getURL(url), "hello from ChinookServer auxiliary port")
+
+    killServer(scriptName)
+
+} # test_runningServer
 #------------------------------------------------------------------------------------------------------------------------
 if(!interactive())
     runTests()
