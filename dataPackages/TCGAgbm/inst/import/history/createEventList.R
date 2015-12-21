@@ -90,7 +90,8 @@ tbl.nte <- read.table("clinical_nte_gbm.txt", quote="", sep="\t", header=TRUE, a
 tbl.nte <- tbl.nte[3:nrow(tbl.nte),]
 tbl.omf <- read.table("clinical_omf_v4.0_gbm.txt", quote="", sep="\t", header=TRUE, as.is=TRUE)
 tbl.omf <- tbl.omf[3:nrow(tbl.omf),]
-
+load("../../omf.histology.RData")
+tbl.omf.histology <- subset(omf.histology, diseaseType==study)
 setwd(currDir)
 
 #------------------------------------------------------------------------------------------------------------------------
@@ -1253,25 +1254,32 @@ create.Pathology.record <- function(patient.id)
       }} # for pathEvent
       
      if(nrow(tbl.omfSub)>0){
-     for(omfEvent in 1:nrow(tbl.omfSub)){
-      disease <- tbl.omfSub$other_malignancy_anatomic_site[omfEvent]
-      omfOffset = tbl.omfSub$days_to_other_malignancy_dx[omfEvent]
-      histology <- tbl.omfSub$other_malignancy_histological_type[omfEvent]
+	     for(omfEvent in 1:nrow(tbl.omfSub)){
+	      disease <- tbl.omfSub$other_malignancy_anatomic_site[omfEvent]
+	      omfOffset = tbl.omfSub$days_to_other_malignancy_dx[omfEvent]
+	      histology <- tbl.omfSub$other_malignancy_histological_type[omfEvent]
+	      histology_text <- tbl.omfSub$other_malignancy_histological_type_text[omfEvent]
+	      if(histology_text != "[Not Applicable]"){
+	   	  	 histology <- paste(histology, histology_text, sep=":")
+	  	  }
+	      histology.category = tbl.omf.histology[tbl.omf.histology$omf.histology==histology, 4]
+	      if(histology.category == "[Not Available]") histology.category = NA
 
-      if(disease   == "[Not Available]") disease = NA
-      if(histology == "[Not Available]") histology = NA
-      if(omfOffset == "[Not Available]"){ omf.date = NA
-      }else{  omf.date = reformatDate(as.Date(diagnosis.date, "%m/%d/%Y") + as.integer(omfOffset))      }
-      
-       new.event <- list(PatientID=patient.id,
-                        PtNum=patient.number,
-                        study=study,
-                        Name=name,
-                        Fields = list(date=omf.date, disease=disease, histology=histology, histology.category="High Grade Glioma",collection=NA, grade="G4", method=NA))
-   
-       good.records.found <- good.records.found + 1
-       result[[good.records.found]] <- new.event
-     } }
+	      if(disease   == "[Not Available]") disease = NA
+	      if(histology == "[Not Available]") histology = NA
+	      if(omfOffset == "[Not Available]"){ omf.date = NA
+	      }else{  omf.date = reformatDate(as.Date(diagnosis.date, "%m/%d/%Y") + as.integer(omfOffset))      }
+	      
+	       new.event <- list(PatientID=patient.id,
+	                        PtNum=patient.number,
+	                        study=study,
+	                        Name=name,
+	                        Fields = list(date=omf.date, disease=disease, histology=histology, histology.category=histology.category, collection=NA, grade="G4", method=NA))
+	   
+	       good.records.found <- good.records.found + 1
+	       result[[good.records.found]] <- new.event
+	     } 
+	 }
 
 
    result[1:good.records.found]
@@ -1289,7 +1297,7 @@ test_create.Pathology.record <- function()
     
     x <- create.Pathology.record("TCGA-06-0209") #has omf
     checkEquals(x[[1]], list(PatientID="TCGA.06.0209", PtNum=372, study=study, Name="Pathology",Fields=list(date="01/01/1997", disease="Brain", histology="Untreated primary (de novo) GBM", histology.category="High Grade Glioma",collection=NA, grade="G4", method="Tumor resection")))
-    checkEquals(x[[2]], list(PatientID="TCGA.06.0209", PtNum=372, study=study, Name="Pathology",Fields=list(date=NA, disease="Prostate", histology="Adenocarcinoma, Not Otherwise Specified",histology.category="High Grade Glioma",  collection=NA, grade="G4", method=NA)))
+    checkEquals(x[[2]], list(PatientID="TCGA.06.0209", PtNum=372, study=study, Name="Pathology",Fields=list(date=NA, disease="Prostate", histology="Adenocarcinoma, Not Otherwise Specified",histology.category="Adenocarcinoma",  collection=NA, grade="G4", method=NA)))
 
 
 } # test_create.Pathology.record
