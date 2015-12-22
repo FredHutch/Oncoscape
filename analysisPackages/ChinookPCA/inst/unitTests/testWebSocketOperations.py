@@ -26,6 +26,3 @@ assert(fieldNames.index("importance.PC1") >= 0)
 assert(fieldNames.index("importance.PC2") >= 0)
 assert(len(payload["scores"]) == len(payload["ids"]))
 
-
-
-print payload
