@@ -159,10 +159,10 @@ setMethod("addMessageHandler", "ChinookServer",
       if(nchar(queryString) > 0){
          if(!quiet) print("--- bv$call, about to call dynamically assigned queryProcessor");
          fields <- ls(req)
-         for(field in fields){
-            printf("---- request field: %s", field)
-            print(req[[field]]);
-            }
+         #for(field in fields){
+         #   printf("---- request field: %s", field)
+         #   print(req[[field]]);
+         #   }
          body <- chinookHttpQueryProcessor(server, queryString)
          return(list(status=200L, headers = list('Content-Type' = 'text/html'),
                      body=body))
@@ -353,26 +353,20 @@ setMethod("getMessageNames", "ChinookServer",
 chinookHttpQueryProcessor <- function(server, queryString)
 {
    printf("=== chinookHttpQueryProcessor")
-   print(queryString)
-   print(URLdecode(queryString))
-     # for reasons not quite clear, the query string comes in with extra characters
-     # following the expected filename:
-     #
-     #  "?sampleStyle.js&_=1443650062946"
-     #
-     # check for that, cleanup the string, then see if the file can be found
+   #print(queryString)
+   #print(URLdecode(queryString))
 
    queryString <- URLdecode(queryString)
    diagnostic.string <- substr(queryString,1,10)
-   printf("--- diagnostic.string: |%s|", diagnostic.string)
+   #printf("--- diagnostic.string: |%s|", diagnostic.string)
    jsonPrefixFound <- diagnostic.string == "?jsonMsg='";
-   printf("--- matched? %s", jsonPrefixFound)
+   #printf("--- matched? %s", jsonPrefixFound)
    
    if(jsonPrefixFound){
       rawJSON <- substr(queryString, 11, nchar(queryString)-1)  # drop enclosing single quotes
       msg <- fromJSON(URLdecode(rawJSON))
-      printf("calling dispatch on %s", msg$cmd);
-      print(msg$cmd)
+      #printf("calling dispatch on %s", msg$cmd);
+      #print(msg$cmd)
       return(dispatchMessage(server, "http", msg))
       } # if jsonMsg queryString
    
