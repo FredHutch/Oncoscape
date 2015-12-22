@@ -1,0 +1,11 @@
+exportClasses(ChinookPCA)
+
+export(
+    ChinookPCA,
+    PCA.create,
+    PCA.calculate
+   )
+
+importClassesFrom(methods, character, integer)
+importFrom(methods, new)
+

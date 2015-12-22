@@ -7,7 +7,7 @@ printf = function (...) print (noquote (sprintf (...)))
                    )
 #----------------------------------------------------------------------------------------------------
 #setGeneric('show',                  signature='obj', function(obj) standardGeneric ('show'))
-setGeneric('pcaDataSummary',           signature='obj', function(obj) standardGeneric ('pcaDataSummary'))
+setGeneric('pcaDataSummary',        signature='obj', function(obj) standardGeneric ('pcaDataSummary'))
 setGeneric('getDataPackage',        signature='obj', function(obj) standardGeneric ('getDataPackage'))
 setGeneric('setDataMatrixName',     signature='obj', function(obj, dataMatrixName) standardGeneric ('setDataMatrixName'))
 setGeneric('getDataMatrixName',     signature='obj', function(obj) standardGeneric ('getDataMatrixName'))
@@ -32,7 +32,8 @@ setMethod("pcaDataSummary", "PCA",
 #----------------------------------------------------------------------------------------------------
 setMethod("show", "PCA",
   function (obj) {
-     msg <- sprintf("PCA object data '%s'", obj@dataPackage)
+     #msg <- sprintf("PCA object data '%s'", obj@dataPackage)
+     msg <- sprintf("PCA object")
      cat (msg, "\n", sep="")
      })
 
