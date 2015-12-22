@@ -10,6 +10,7 @@ exportMethods(
   close,
   port,
   getDatasetNames,
+  getDataset,
   setActiveDataSet,
   getActiveDataSet,
   getAnalysisPackageNames,
