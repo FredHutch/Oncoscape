@@ -1,6 +1,6 @@
 # test_ChinookServer.R
 #------------------------------------------------------------------------------------------------------------------------
-PORT = 4001
+PORT = 4099
 #------------------------------------------------------------------------------------------------------------------------
 library(RUnit)
 library(RCurl)
@@ -10,6 +10,7 @@ library(tools)
 runTests <- function()
 {
    test_constructor()
+   test_retrieveDatasets()
    test_runningServer()
 
 } # runTests
@@ -41,6 +42,38 @@ test_constructor <- function()
 
 } # test_constructor
 #------------------------------------------------------------------------------------------------------------------------
+test_retrieveDatasets <- function()
+{
+   print("--- test_retrieveDatasets")
+
+   analysisPackages = "ChinookSimpleSummaryStats"
+   datasets <- c("DEMOdz", "TCGAgbm")
+   browserFile <- NA_character_
+   userCredentials <- "test@nowhere.net"
+
+   chinook <- ChinookServer(port=PORT, analysisPackages, datasets, browserFile, userCredentials)
+
+     # run(chinook) 
+     #  this will block, preventing the next tests.
+     # see test_runningServer below for a live test of the server
+
+   checkTrue(all(datasets %in% getDatasetNames(chinook)))
+   dz <- getDataset(chinook, "DEMOdz")
+   checkTrue("mtx.mut" %in% names(matrices(dz)))
+
+   dz2 <- getDataset(chinook, "TCGAgbm")
+   checkTrue("mtx.mut" %in% names(matrices(dz2)))
+
+      checkEquals(port(chinook), PORT)
+   version <- serverVersion(chinook)
+       # 1.0.1 or greater and interpretable as integers
+   checkTrue(sum(as.integer(strsplit(version, ".", fixed=TRUE)[[1]])) > 1)
+   checkEquals(getDatasetNames(chinook), datasets)
+   checkEquals(getAnalysisPackageNames(chinook), analysisPackages)
+   checkEquals(getMessageNames(chinook), "numericVectorSummaryStats")   # analysis packages register messages, none registered yet
+
+} # test_retrieveDatasets
+#------------------------------------------------------------------------------------------------------------------------
 # unix-style ps (process status) helper function to locate process id of any instance of the named script
 # and to kill it 
 killServer <- function(scriptName)
@@ -55,6 +88,9 @@ killServer <- function(scriptName)
        lapply(pids, pskill)
        printf("   waiting 10 seconds for kill to complete")
        Sys.sleep(10)
+       }
+    else{
+       printf("   no previous server found");
        }
 
 } # killServer
