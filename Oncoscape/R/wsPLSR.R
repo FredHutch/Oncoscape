@@ -13,10 +13,10 @@ createPLSR <- function(ws, msg)
    printf("    callback: %s", msg$callback)
    print(msg$payload)
 
-   dataPackageName = msg$payload$dataPackage
+#   dataPackageName = msg$payload$dataPackage
    matrixName = msg$payload$matrixName
 
-   printf("    dataPackageName: %s", dataPackageName);
+#   printf("    dataPackageName: %s", dataPackageName);
    printf("         matrixName: %s", matrixName);
    
    #require(dataPackageName, character.only=TRUE)
