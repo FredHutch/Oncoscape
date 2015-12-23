@@ -27,6 +27,10 @@ setGeneric("getMessageNames",      signature="self", function(self) standardGene
 #------------------------------------------------------------------------------------------------------------------------
 printf <- function(...) print(noquote(sprintf(...)))
 #------------------------------------------------------------------------------------------------------------------------
+# web socket protocols seem to require that simple functions be used for configuation, but some object
+# state can be needed.  this unexported file-local variable works around that.
+local.state <- new.env(parent=emptyenv())
+#------------------------------------------------------------------------------------------------------------------------
 # constructor
 ChinookServer = function(port=NA_integer_, analysisPackageNames=NA_character_, datasetNames=NA_character_,
                          browserFile=NA_character_, userCredentials=NA_character_)
@@ -57,6 +61,7 @@ ChinookServer = function(port=NA_integer_, analysisPackageNames=NA_character_, d
    server@wsServer <- wsCon
 
    state[["auxPortState"]] <- AuxPort(wsCon, port+1)
+   local.state[["server"]] <- server
 
    server
 
@@ -389,8 +394,8 @@ AuxPort <- function(primaryWebSocketServer, port)
        }
 
       # called whenever a websocket connection is opened
+
    wsCon$onWSOpen = function(ws) {   
-      #printf("---- wsCon$onWSOpen");
       wsCon$ws <- ws
       ws$onMessage(function(binary, rawMessage) {
          message <- as.list(fromJSON(rawMessage))
@@ -404,15 +409,19 @@ AuxPort <- function(primaryWebSocketServer, port)
             return;
             }
          cmd <- message$cmd
-         printf("ChinookSever/AuxPort onMessage, cmd: %s ", cmd);
-         printf("sending to primaryWebSocketServer, fields %s",
-                paste(ls(primaryWebSocketServer), collapse=","))
-         primaryWebSocketServer$ws$send(toJSON(message))
-         printf("after dispatch to primary");
-         #print(rawMessage)
-         #printf("OncoDev14:onMessage, cooked ");
-         #print(message)
-         #dispatchMessage(ws, message);
+         dispatchMap <- local.state[["server"]]@dispatchMap
+         if(cmd %in% ls(dispatchMap)){
+           function.name <- dispatchMap[[msg$cmd]]
+           printf("    function.name: %s", function.name)
+           func <- get(function.name)
+           do.call(func, list(primaryWebSocketServer$ws, msg))
+           }
+         else{         
+            printf("ChinookSever/AuxPort onMessage, cmd: %s ", cmd);
+            printf("sending to primaryWebSocketServer, fields %s", paste(ls(primaryWebSocketServer), collapse=","))
+            primaryWebSocketServer$ws$send(toJSON(message))
+            printf("after dispatch to primary");
+            }
          }) # onMessage
        wsCon$open <- TRUE
        } # onWSOpen
