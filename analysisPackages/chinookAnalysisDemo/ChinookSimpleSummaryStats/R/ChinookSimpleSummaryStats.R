@@ -2,7 +2,7 @@
 .ChinookSimpleSummaryStats <- setClass ("ChinookSimpleSummaryStats", 
                                         representation = representation(impl="SimpleSummaryStats"),
                                         contains = "ChinookAnalysis"
-                                       )
+                                        )
 
 #----------------------------------------------------------------------------------------------------
 # constructor
@@ -26,6 +26,14 @@ setMethod("registerMessageHandlers", "ChinookSimpleSummaryStats",
      })
 
 #----------------------------------------------------------------------------------------------------
+# only functions (but not methods) can be dispatched to.  this next function is therefore 
+# part of the package, is exported, but is not part of the class defined here.
+# this makes it available to call out of the dispatch handler in ChinookServer.
+#
+# if the function needs access to class information, then our standard technique is to
+# create, at package-global scope, but sealed within this package, a 
+#   local.state <- new.env(parent=empty.env())
+# to which both methods and functions can read and write.  see ChinookPCA for an example
 SummaryStats.calculate <- function(channel, msg)
 {
    print(msg)
