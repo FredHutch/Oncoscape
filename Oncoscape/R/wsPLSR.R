@@ -32,7 +32,10 @@ createPLSR <- function(ws, msg)
    
    response <- plsrDataSummary(myplsr)
    return.msg <- list(cmd=msg$callback, callback="", status="response", payload=response)
-      
+   
+   #if(!dir.exists("~/tmp"))
+   #   dir.create("~/tmp")
+   
    printf("createPLSR about to send msg: %s", return.msg$cmd)
    
    ws$send(toJSON(return.msg));
@@ -69,9 +72,6 @@ calculate_plsr <- function(ws, msg)
    
    #factors <- apply(factors.df, 1, as.list)
    #names(factors) <- NULL
-   #if(!dir.exists("~/tmp"))
-   #	   dir.create("~/tmp")
-
    #save(factors.df, factors, file="~/tmp/factors.bug.RData")
    printf("--- factors after apply on factors.df");
    print(factors)
@@ -118,12 +118,10 @@ summarizePLSRPatientAttributes <- function(ws, msg)
    summary <- summarizeNumericPatientAttributes(myplsr, attributes)
    print("------------ summary returned");
    print(summary)
-	status <- "success"
+   status <- "to be examined element by element"
    payload <- summary
 
    return.msg <- list(cmd=msg$callback, callback="", status=status, payload=payload)
-   print(return.msg)
-
    ws$send(toJSON(return.msg))
 
 } # summarizePLSRPatientAttributes
