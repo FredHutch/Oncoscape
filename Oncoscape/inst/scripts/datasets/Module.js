@@ -103,15 +103,14 @@ function selectManifest(event)
 {
    selectedDataSet = datasetMenu.val();
    console.log("dataset '" + selectedDataSet + "'");
+   $("#datasetsManifestTable").css("display", "none");
 
    if(selectedDataSet === ""){
       $("#datasetInstructions").css("display", "block");
-      $("#datasetsManifestTable").css("display", "none");
       hub.disableButton(useThisDatasetButton);
       }
     else{
       $("#datasetInstructions").css("display", "none");
-      $("#datasetsManifestTable").css("display", "block");
       requestDataSetSummary(selectedDataSet);
     }
 
@@ -164,6 +163,8 @@ function requestDataSetSummary(dataSetName)
 //----------------------------------------------------------------------------------------------------
 function displayDataManifest(msg)
 {
+   $("#datasetsManifestTable").css("display", "block");
+
    var payload = msg.payload;
    var tblColumnNames = payload.colnames;
 
