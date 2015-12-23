@@ -97,7 +97,7 @@ function addGeneSetNamesToMenu (geneSetNames)
       }
    
   if(typeof geneSetNames == "string") 
-   	 geneSetNames = [geneSetNames] 
+   	 geneSetNames = [geneSetNames]; 
 
       
    for(var i=0; i < geneSetNames.length; i++){

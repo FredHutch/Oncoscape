@@ -3,9 +3,20 @@
 
 var PlsrTestModule = (function (){
 
-   var plsrStatusObserver = null;
+      // for observing relatively small scale status changes: i.e., network loaded and displayed
+       // the div watched here is in widget.html
 
-//--------------------------------------------------------------------------------------------
+    var plsrStatusObserver = null;
+    var testStatusObserver = null;   // modified at the end of each dataset test
+
+    var minorStatusDiv = "#plsrStatusDiv";
+    var majorStatusDiv = "#plsrTestStatusDiv";
+
+       // to detect when the full test of a dataset is complete, so that the next dataset can be tested
+       // the div watched here is in test.html
+
+
+//------------------------------------------------------------------------------------------------------------------------
 function runTests()
 {
    console.log("starting PlsrTestModule runTests");
