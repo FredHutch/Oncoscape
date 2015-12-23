@@ -1,0 +1,18 @@
+exportClasses(ChinookDataset)
+
+exportMethods (
+  getName,
+  getDataSet,
+  setServer,
+  getServer,
+  registerMessageHandlers
+  )
+
+export(
+   ChinookDataset
+   )
+
+import(SttrDataPackage)
+importClassesFrom(methods, character, integer)
+importFrom(methods, new)
+
