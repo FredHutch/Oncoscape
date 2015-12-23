@@ -20,6 +20,8 @@ protIDs <- unique(c(proteins.luad, proteins.lusc))
 checkEquals(length(protIDs), ncol(tbl.TCGAluad))
 checkEquals(length(protIDs), ncol(tbl.TCGAlusc))
 
+tbl.TCGAluad <- tbl.TCGAluad[, colnames(tbl.TCGAlusc)]
+
 mtx.prot <- rbind(tbl.TCGAluad, tbl.TCGAlusc)
 
 checkEquals(nrow(mtx.prot), nrow(tbl.TCGAluad) + nrow(tbl.TCGAlusc) )
