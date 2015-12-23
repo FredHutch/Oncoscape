@@ -26,10 +26,6 @@ setGeneric("addMessageHandler",    signature="self", function(self, messageName,
 setGeneric("getMessageNames",      signature="self", function(self) standardGeneric("getMessageNames"))
 #------------------------------------------------------------------------------------------------------------------------
 printf <- function(...) print(noquote(sprintf(...)))
-
-#
-#instantiated.datasets <- new.env(parent=emptyenv())
-#instantiated.analysisPackages <- new.env(parent=emptyenv())
 #------------------------------------------------------------------------------------------------------------------------
 # constructor
 ChinookServer = function(port=NA_integer_, analysisPackageNames=NA_character_, datasetNames=NA_character_,
@@ -56,11 +52,6 @@ ChinookServer = function(port=NA_integer_, analysisPackageNames=NA_character_, d
    
    .loadDataPackages(server, datasetNames)
    .loadAnalysisPackages(server, analysisPackageNames)
-
-   if(is.na(browserFile))
-      browserFile <- system.file(package="ChinookServer", "scripts", "default.html")
-
-   stopifnot(file.exists(browserFile))
 
    wsCon <- .setupWebSocketHandlers(server, wsCon, browserFile)
    server@wsServer <- wsCon
@@ -149,33 +140,28 @@ setMethod("addMessageHandler", "ChinookServer",
 #------------------------------------------------------------------------------------------------------------------------
 .setupWebSocketHandlers <- function(server, wsCon, browserFile)
 {
-   quiet <- FALSE     # promote this to a constructor parameter
    wsCon$open <- FALSE
    wsCon$ws <- NULL
    wsCon$result <- NULL
-     # process http requests
+
+     # process http requests, handling queryString is 
+
    wsCon$call = function(req) {
       queryString <- req$QUERY_STRING
       if(nchar(queryString) > 0){
-         if(!quiet) print("--- bv$call, about to call dynamically assigned queryProcessor");
          fields <- ls(req)
-         #for(field in fields){
-         #   printf("---- request field: %s", field)
-         #   print(req[[field]]);
-         #   }
          body <- chinookHttpQueryProcessor(server, queryString)
          return(list(status=200L, headers = list('Content-Type' = 'text/html'),
                      body=body))
          } # the request had a query string
-
-      wsUrl = paste(sep='', '"', "ws://",
-                   ifelse(is.null(req$HTTP_HOST), req$SERVER_NAME, req$HTTP_HOST),
-                   '"')
-      list(
-        status = 200L,
-        headers = list('Content-Type' = 'text/html'),
-        body =  "hello from ChinookServer main port"
-        )
+      httpBody <- "hello from ChinookServer main port"
+      if(!is.na(browserFile))
+          httpBody <- c(file=browserFile)
+      response <- list(status = 200L,
+                       headers = list('Content-Type' = 'text/html'),
+                       body = httpBody
+                       )
+      return(response)
       } # call
 
       #  whenever a websocket connection is opened
