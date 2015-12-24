@@ -15,4 +15,4 @@ assert(payload["max"][0]  == 7.1879)
 assert(payload["min"][0]  == 0.7884)
 assert(payload["sd"][0]   == 2.4993)
 assert(payload["mean"][0] == 4.9858)
-print "True"
+print (True)

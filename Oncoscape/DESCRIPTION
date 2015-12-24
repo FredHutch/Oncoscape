@@ -5,7 +5,7 @@ Version: 1.0.3
 Date: 2015-12-22
 Author: Paul Shannon
 Maintainer:  <pshannon@fhcrc.org>
-Depends: R (>= 3.2.2), jsonlite, httpuv, SttrDataPackage
+Depends: R (>= 3.2.2), jsonlite, httpuv
 Suggests: RUnit
 Description:  
 License: GPL

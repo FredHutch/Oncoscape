@@ -38,7 +38,7 @@ test_constructor <- function()
    checkTrue(sum(as.integer(strsplit(version, ".", fixed=TRUE)[[1]])) > 1)
    checkEquals(getDatasetNames(chinook), datasets)
    checkEquals(getAnalysisPackageNames(chinook), analysisPackages)
-   checkEquals(length(getMessageNames(chinook)), 0)   # analysis packages register messages, none registered yet
+   checkTrue("getDatasetManifest" %in% getMessageNames(chinook))
 
 } # test_constructor
 #------------------------------------------------------------------------------------------------------------------------
@@ -58,10 +58,10 @@ test_retrieveDatasets <- function()
      # see test_runningServer below for a live test of the server
 
    checkTrue(all(datasets %in% getDatasetNames(chinook)))
-   dz <- getDataset(chinook, "DEMOdz")
+   dz <- getDatasetByName(chinook, "DEMOdz")
    checkTrue("mtx.mut" %in% names(matrices(dz)))
 
-   dz2 <- getDataset(chinook, "TCGAgbm")
+   dz2 <- getDatasetByName(chinook, "TCGAgbm")
    checkTrue("mtx.mut" %in% names(matrices(dz2)))
 
       checkEquals(port(chinook), PORT)
@@ -70,7 +70,7 @@ test_retrieveDatasets <- function()
    checkTrue(sum(as.integer(strsplit(version, ".", fixed=TRUE)[[1]])) > 1)
    checkEquals(getDatasetNames(chinook), datasets)
    checkEquals(getAnalysisPackageNames(chinook), analysisPackages)
-   checkEquals(getMessageNames(chinook), "numericVectorSummaryStats")   # analysis packages register messages, none registered yet
+   checkTrue("getDatasetManifest" %in% getMessageNames(chinook))
 
 } # test_retrieveDatasets
 #------------------------------------------------------------------------------------------------------------------------

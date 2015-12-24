@@ -6,7 +6,7 @@ options(stringsAsFactors=FALSE)
 runTests <- function()
 {
    test.noDatasetConstructor();
-   #test.datasetConstructor()    
+   test.datasetConstructor()
 
 } # runTests
 #----------------------------------------------------------------------------------------------------
@@ -29,11 +29,15 @@ test.datasetConstructor <- function()
 {
    print("--- test.datasetConstructor")
    dz <- DEMOdz()
-   ca <- ChinookDataset("DEMOdz", dz)
+   cds <- ChinookDataset("DEMOdz", dz)
    server <- ChinookServer()
-   setServer(ca, server)
-   checkEquals(getName(ca), "DEMOdz")
-   checkEquals(getServer(ca), server)
+   setServer(cds, server)
+   checkEquals(getName(cds), "DEMOdz")
+   checkEquals(getServer(cds), server)
+   dz2 <- getDataset(cds)
+   checkIdentical(dz, dz2)
+   browser()
+   x <- 99
    
 } # test.datasetConstructor
 #----------------------------------------------------------------------------------------------------
