@@ -1,5 +1,6 @@
 library(RUnit)
 library(ChinookDataset)
+library(ChinookServer)
 library(DEMOdz)
 options(stringsAsFactors=FALSE)
 #----------------------------------------------------------------------------------------------------
@@ -36,8 +37,6 @@ test.datasetConstructor <- function()
    checkEquals(getServer(cds), server)
    dz2 <- getDataset(cds)
    checkIdentical(dz, dz2)
-   browser()
-   x <- 99
    
 } # test.datasetConstructor
 #----------------------------------------------------------------------------------------------------
