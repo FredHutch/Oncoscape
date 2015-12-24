@@ -2,14 +2,15 @@ exportClasses(ChinookDataset)
 
 exportMethods (
   getName,
-  getDataSet,
+  getDataset,
   setServer,
   getServer,
   registerMessageHandlers
   )
 
 export(
-   ChinookDataset
+   ChinookDataset,
+   Dataset.getManifest
    )
 
 import(SttrDataPackage)

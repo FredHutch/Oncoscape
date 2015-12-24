@@ -9,4 +9,3 @@ Depends: R (>= 3.1.1), SttrDataPackage, org.Hs.eg.db, RUnit
 Imports: methods, BiocGenerics
 Description:  A demonstration, example and template for those building their own onscoscape-compatible SttrDataPackages
 License: GPL-2
-LazyLoad: yes

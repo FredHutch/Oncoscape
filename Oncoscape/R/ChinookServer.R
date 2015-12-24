@@ -17,7 +17,7 @@ setGeneric("run",                  signature="self", function(self) standardGene
 setGeneric("port",                 signature="self", function(self) standardGeneric("port"))
 setGeneric("getAnalysisPackageNames",  signature="self", function(self) standardGeneric("getAnalysisPackageNames"))
 setGeneric("getDatasetNames",          signature="self", function(self) standardGeneric("getDatasetNames"))
-setGeneric("getDataset",           signature="self", function(self, datasetName) standardGeneric("getDataset"))
+setGeneric("getDatasetByName",     signature="self", function(self, datasetName) standardGeneric("getDatasetByName"))
 setGeneric("setActiveDataSet",     signature="self", function(self, dataSetName) standardGeneric("setActiveDataSet"))
 setGeneric("getActiveDataSet",     signature="self", function(self) standardGeneric("getActiveDataSet"))
 setGeneric('close',                signature="self", function(self) standardGeneric("close"))
@@ -92,7 +92,10 @@ toJSON <- function(..., auto_unbox = TRUE)
                                 message(sprintf("failure calling constructor for '%s'", datasetName))))[["elapsed"]]
          
         stopifnot('SttrDataPackageClass' %in% is(dz))
-        assignment.string <- sprintf("server@state[['%s']] <- dz", datasetName)
+        chinookDataset <- ChinookDataset(datasetName, dz)
+        setServer(chinookDataset, server)
+        registerMessageHandlers(chinookDataset)
+        assignment.string <- sprintf("server@state[['%s']] <- chinookDataset", datasetName)
         eval(parse(text=assignment.string))
         message(sprintf("ChinookServer loading: %40s %7.2f seconds", assignment.string, duration))
         #message(sprintf("  new list of instantiated datasets: %s",
@@ -289,12 +292,13 @@ setMethod("getDatasetNames", "ChinookServer",
     })
 
 #------------------------------------------------------------------------------------------------------------------------
-setMethod("getDataset", "ChinookServer",
+setMethod("getDatasetByName", "ChinookServer",
 
    function(self, datasetName){
       if(!datasetName %in% ls(self@state))
           return(NULL)
-      return(self@state[[datasetName]])
+      chinookDataset <- self@state[[datasetName]]
+      return(getDataset(chinookDataset))
       })
 
 #------------------------------------------------------------------------------------------------------------------------
