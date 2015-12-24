@@ -1,6 +1,10 @@
 default:
+	R CMD install dataPackages/DEMOdz && R -f dataPackages/DEMOdz/inst/unitTests/test_DEMOdz.R 
 	R CMD install Oncoscape && (cd Oncoscape/inst/unitTests; R -f test_ChinookServer.R)
 	R CMD install analysisPackages/ChinookAnalysis && R -f analysisPackages/ChinookAnalysis/inst/unitTests/test_ChinookAnalysis.R
 	R CMD install analysisPackages/chinookAnalysisDemo/SimpleSummaryStats && R -f analysisPackages/chinookAnalysisDemo/SimpleSummaryStats/inst/unitTests/test_SimpleSummaryStats.R 
 	R CMD install analysisPackages/chinookAnalysisDemo/ChinookSimpleSummaryStats && R -f analysisPackages/chinookAnalysisDemo/ChinookSimpleSummaryStats/inst/unitTests/test_ChinookSimpleSummaryStats.R
-	(cd ~/oncogit/Oncoscape/analysisPackages/chinookAnalysisDemo/ChinookSimpleSummaryStats/inst/unitTests; make)
+	(cd analysisPackages/chinookAnalysisDemo/ChinookSimpleSummaryStats/inst/unitTests; make)
+	(cd analysisPackages/chinookAnalysisDemo/ChinookSimpleSummaryStats/inst/unitTests; make)
+	R CMD install dataPackages/ChinookDataset  && R -f dataPackages/ChinookDataset/inst/unitTests/test_ChinookDataset.R
+	(cd dataPackages/ChinookDataset/inst/unitTests; make)
