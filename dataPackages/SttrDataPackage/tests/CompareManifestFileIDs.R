@@ -1,23 +1,56 @@
-library(RUnit)
-library(DEMOdz)
-library(TCGAgbm)
-library(TCGAbrain)
-
+#load libraries 
+library("TCGAbrain")
+library("TCGAbrca")
+library("TCGAprad")
+library("TCGAbrain")
+library("TCGAbrca")
+library("DEMOdz")
+library("TCGAgbm")
+library("TCGAhnsc")
+library("TCGAlgg")
+library("TCGAluad")
+library("TCGAlung")
+library("TCGAlusc")
+library("TCGAprad")
+library("TCGAcoadread")
 
 #----------------------------------------------------------------------------------------------------
 printf <- function(...) print(noquote(sprintf(...)))
 #----------------------------------------------------------------------------------------------------
-	# construct these objects just one, for subsequent examination and testing
+# construct these objects for subsequent examination and testing
 
-if(!exists("ddz"))
-   ddz <- DEMOdz()
+if (!exists("brain"))
+  brain <- TCGAbrain()
 
-if(!exists("gbm"))
-   gbm <- TCGAgbm()
+if (!exists("brca"))
+  brca <- TCGAbrca()
 
-if(!exists("brain"))
-   brain <- TCGAbrain()
-   
+if (!exists("ddz"))
+  ddz <- DEMOdz()
+
+if (!exists("gbm"))
+  gbm <- TCGAgbm()
+
+if (!exists("hnsc"))
+  hnsc <- TCGAhnsc()
+
+if (!exists("lgg"))
+  lgg <- TCGAlgg()
+
+if (!exists("luad"))
+  luad <- TCGAluad()
+
+if (!exists("lung"))
+  lung <- TCGAlung()
+
+if (!exists("lusc"))
+  lusc <- TCGAlusc()
+
+if (!exists("prad"))
+  prad <- TCGAprad()
+
+if (!exists("coadread"))
+  coadread <- TCGAcoadread()   
   
 #----------------------------------------------------------------------------------------------------
 runTests <- function()
@@ -25,9 +58,17 @@ runTests <- function()
     category.types<-c("mutations", "copy number", "mRNA expression", "protein abundance", "methylation") 
     for(category.name in category.types){
   
-    	exploreExpressionData(ddz, "DEMOdz", category.name)
+       	exploreExpressionData(ddz, "DEMOdz", category.name)
     	exploreExpressionData(gbm, "TCGAgbm", category.name)
     	exploreExpressionData(brain, "TCGAbrain", category.name)
+    	exploreExpressionData(brca, "TCGAbrca", category.name)
+    	exploreExpressionData(hnsc, "TCGAhnsc", category.name)
+    	exploreExpressionData(lgg, "TCGAlgg", category.name)
+    	exploreExpressionData(luad, "TCGAluad", category.name)
+    	exploreExpressionData(lung, "TCGAlung", category.name)
+    	exploreExpressionData(lusc, "TCGAlusc", category.name)
+    	exploreExpressionData(prad, "TCGAprad", category.name)
+    	exploreExpressionData(coadread, "TCGAcoadread", category.name)
     }  
 } # runTests
 #----------------------------------------------------------------------------------------------------
