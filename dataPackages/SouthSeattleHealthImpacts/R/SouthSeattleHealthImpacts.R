@@ -1,18 +1,16 @@
 #----------------------------------------------------------------------------------------------------
 printf = function (...) print (noquote (sprintf (...)))
 #----------------------------------------------------------------------------------------------------
-.DEMOdz <- setClass ("DEMOdzClass", contains = "Dataset")
-#----------------------------------------------------------------------------------------------------
-#setGeneric('historyTable',   signature='obj', function (obj) standardGeneric ('historyTable'))
+.SouthSeattleHealthImpacts <- setClass ("SouthSeattleHealthImpacts", contains = "Dataset")
 #----------------------------------------------------------------------------------------------------
 # constructor
-DEMOdz <- function()
+SouthSeattleHealthImpacts <- function()
 {
-  dir <- system.file(package="DEMOdz", "extdata")
+  dir <- system.file(package="SouthSeattleHealthImpacts", "extdata")
   stopifnot(file.exists(dir))
   data <- Dataset:::.loadFiles(dir)
 
-  obj <- .DEMOdz(Dataset(name="DEMOdz",
+  obj <- .SouthSeattleHealthImpacts(Dataset(name="SouthSeattleHealthImpacts",
                          matrices=data$matrices,
                          data.frames=data$data.frames,
                          history=data$history,
@@ -23,21 +21,21 @@ DEMOdz <- function()
 
   obj
 
-} # DEMOdz constructor
+} # SouthSeattleHealthImpacts constructor
 #----------------------------------------------------------------------------------------------------
-setMethod("show", "DEMOdzClass",
+setMethod("show", "SouthSeattleHealthImpacts",
 
   function (obj) {
      contents <- paste(manifest(obj)$variable, collapse=", ")
-     msg <- sprintf("DEMOdz: %s", contents);
+     msg <- sprintf("SouthSeattleHealthImpacts: %s", contents);
      cat (msg, "\n", sep="")
      })
 
 #----------------------------------------------------------------------------------------------------
-setMethod('canonicalizeSampleIDs', "DEMOdzClass",
+setMethod('canonicalizeSampleIDs', "SouthSeattleHealthImpacts",
 
-  function (obj, subject.ids) {
-  	 
-     subject.ids
+  function (obj, sample.ids) {
+     sample.ids
      })
+
 #----------------------------------------------------------------------------------------------------
