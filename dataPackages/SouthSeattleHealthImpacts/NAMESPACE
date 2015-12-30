@@ -1,0 +1,9 @@
+exportClasses(SouthSeattleHealthImpacts)
+
+export(
+   SouthSeattleHealthImpacts
+   )
+
+importClassesFrom(methods, character, integer)
+importFrom(methods, new)
+

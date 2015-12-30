@@ -1,0 +1,11 @@
+Package: SouthSeattleHealthImpacts
+Type: Package
+Title: South Seattle Health Impacts: Categorical Data from Gould & Cummings.
+Version: 1.0.0
+Date: 2015-12-29
+Author: Paul Shannon
+Maintainer: Paul Shannon <pshannon@fredhutch.org>
+Depends: R (>= 3.1.1), Dataset, org.Hs.eg.db, RUnit
+Imports: methods, BiocGenerics
+Description:  from Gould, Linn, and B. J. Cummings. Duwamish Valley Cumulative Health Impacts Analysis: Seattle, Washington. The Coalition, 2013.
+License: GPL-2

@@ -1,0 +1,16 @@
+exportClasses(SubjectHistory)
+
+exportMethods (
+    getTable,
+    setTable,
+    getSubjectIDs,
+    getEventNames
+  )
+
+export(
+   SubjectHistory
+   )
+
+importClassesFrom(methods, character, integer)
+importFrom(methods, new)
+

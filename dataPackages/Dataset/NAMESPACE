@@ -1,0 +1,29 @@
+exportClasses(Dataset)
+
+exportMethods (
+  show,
+  matrices,
+  data.frames,
+  history,
+  manifest,
+  entities, 
+  getEventList,
+  getEventTypeList,
+  getSubjectList,
+  getSubjectTable,
+  getGeneSetNames,
+  getGeneSetGenes,
+  networks,
+  canonicalizeSampleIDs,
+  getSampleCategorizationNames,
+  getSampleCategorization
+  )
+
+export(
+   Dataset
+   )
+
+import(SubjectHistory)
+importClassesFrom(methods, character, integer)
+importFrom(methods, new)
+
