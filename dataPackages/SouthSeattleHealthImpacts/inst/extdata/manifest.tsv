@@ -1,4 +1,4 @@
 variable	class	category	subcategory	entity.count	feature.count	entity.type	feature.type	minValue	maxValue	provenance
 tbl.factors.RData	tbl.factors	data.frame	environment	health-related factors	10	25	zip code	factors	NA	NA	Duwamish Valley Cumulative Health Impacts Analysis, Gould & Cummings
 tbl.neighborhoods.RData	tbl.neighborhoods	data.frame	geography	neighborhood names by zipcode	10	4	zip code	name,lat,long	NA	NA	manual curation by Paul Shannon
-zipCodes-json.RData	zipCodes	character	geography	zipcode boundaries	32	NA	zip code	lat,long pairs	NA	NA	US government
+zipCodes-json.RData	zipCodes	json	geography	zipcode boundaries	32	NA	zip code	lat,long pairs	NA	NA	US government

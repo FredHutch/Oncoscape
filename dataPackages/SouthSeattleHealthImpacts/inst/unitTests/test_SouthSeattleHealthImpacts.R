@@ -12,7 +12,7 @@ runTests <- function()
 
   testManifest()
   testConstructor();
-  testCanonicalizePatientIDs()
+  testCanonicalizeSampleIDs()
 
 } # runTests
 #----------------------------------------------------------------------------------------------------
@@ -36,7 +36,7 @@ testManifest <- function()
    
    checkTrue(all(expected.rownames %in% rownames(tbl)))
 
-   expected.classes <- c("data.frame", "character")   # new ones may be added
+   expected.classes <- c("data.frame", "json")   # new ones may be added
    checkTrue(all(tbl$class %in% expected.classes))
 
    expected.categories <- c("environment", "geography")
@@ -53,16 +53,17 @@ testManifest <- function()
       checkEquals(load(full.name), variable.name)
         # get a handle on the variable, "x"
       eval(parse(text=sprintf("%s <- %s", "x", variable.name)))
-      class <- tbl$class[i]
+      promised.class <- tbl$class[i]
       category <- tbl$category[i]
       subcategory <- tbl$subcategory[i]
       entity.count <- tbl$entity.count[i]
       feature.count <- tbl$feature.count[i]
-      if(class(x) == "list")
-          checkEquals(class(x[[1]]), class)
+      printf("tbl row %d, promised.class = '%s'", i, promised.class)      
+      if(promised.class == "json")
+          checkEquals(class(x[[1]]), "character")
       else
-          checkEquals(class(x), class)
-      if(class %in% c("matrix", "data.frame")){
+          checkEquals(class(x), promised.class)
+      if(promised.class %in% c("matrix", "data.frame")){
          checkTrue(nrow(x) >= entity.count)
          checkTrue(ncol(x) >= feature.count)
          }
@@ -70,7 +71,7 @@ testManifest <- function()
       feature.type <- tbl$feature.type[i]
       minValue <- tbl$minValue[i]
       maxValue <- tbl$maxValue[i]
-      if(class == "matrix" && !is.na(minValue)){
+      if(promised.class == "matrix" && !is.na(minValue)){
          checkEqualsNumeric(min(x, na.rm=TRUE), minValue, tolerance=10e-5)
          checkEqualsNumeric(max(x, na.rm=TRUE), maxValue, tolerance=10e-5)
          }

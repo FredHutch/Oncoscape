@@ -29,8 +29,8 @@ exportMethods(
 importClassesFrom(methods, character, integer)
 importFrom(methods, new)
 
-import(SttrDataPackage)
-importFrom(ChinookDataset, registerMessageHandlers, ChinookDataset, setServer, getDataset)
+import(Dataset)
+import(ChinookDataset)
 import(BiocGenerics)
 import(httpuv)
 import(jsonlite)

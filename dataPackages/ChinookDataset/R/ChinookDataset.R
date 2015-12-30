@@ -28,7 +28,7 @@ ChinookDataset <- function(name="", dataset=NULL)
    state <- new.env(parent=emptyenv())
 
    if(!is.null(dataset))
-       stopifnot("SttrDataPackageClass" %in% is(dataset))
+       stopifnot("Dataset" %in% is(dataset))
    
    state[["dataset"]] <- dataset
 

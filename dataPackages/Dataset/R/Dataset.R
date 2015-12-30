@@ -156,22 +156,22 @@ setMethod("getSubjectTable", "Dataset",
    data.frames <- vector("list", data.frame.count)
 
    clinical <- SubjectHistory()
-   if(length(grep("history", tbl$category)) == 0)
-       warning("no history events found")
+   #if(length(grep("history", tbl$category)) == 0)
+   #    warning("no history events found")
  
    genesets <- list()
-   if(length(grep("geneset", tbl$category)) == 0)
-       warning("no genesets found")
+   #if(length(grep("geneset", tbl$category)) == 0)
+   #    warning("no genesets found")
 
    network.count <- length(grep("network", tbl$category))
    networks <- vector("list", network.count)
-   if(network.count == 0)
-       warning("no networks found")
+   #if(network.count == 0)
+   #    warning("no networks found")
  
    sampleCategorizations.found <- length(grep("categorized samples", tbl$category))
    sampleCategorizations <- vector("list", sampleCategorizations.found)
-   if(sampleCategorizations.found == 0)
-     warning("no categorized samples found")
+   #if(sampleCategorizations.found == 0)
+   #  warning("no categorized samples found")
    
      # re-initialize these so that they can be tracked as each row and data object is read in
    matrices.found <- 0
@@ -250,17 +250,17 @@ setMethod("getSubjectTable", "Dataset",
 
 
    history <- SubjectHistory()
-   if(length(grep("history", tbl$category)) == 0)
-       warning("no history events found")
+   #if(length(grep("history", tbl$category)) == 0)
+   #    warning("no history events found")
  
    genesets <- list()
-   if(length(grep("geneset", tbl$category)) == 0)
-       warning("no genesets found")
+   #if(length(grep("geneset", tbl$category)) == 0)
+   #    warning("no genesets found")
 
    network.count <- length(grep("network", tbl$category))
    networks <- vector("list", network.count)
-   if(network.count == 0)
-       warning("no networks found")
+   #if(network.count == 0)
+   #    warning("no networks found")
  
    matrices.found <- 0
    data.frames.found <- 0
