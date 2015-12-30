@@ -13,7 +13,7 @@ export(
    Dataset.getManifest
    )
 
-import(SttrDataPackage)
+import(Dataset)
 importClassesFrom(methods, character, integer)
 importFrom(methods, new)
 

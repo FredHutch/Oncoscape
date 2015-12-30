@@ -91,7 +91,7 @@ toJSON <- function(..., auto_unbox = TRUE)
                                 error=function(e)
                                 message(sprintf("failure calling constructor for '%s'", datasetName))))[["elapsed"]]
          
-        stopifnot('SttrDataPackageClass' %in% is(dz))
+        stopifnot('Dataset' %in% is(dz))
         chinookDataset <- ChinookDataset(datasetName, dz)
         setServer(chinookDataset, server)
         registerMessageHandlers(chinookDataset)
@@ -353,9 +353,9 @@ chinookHttpQueryProcessor <- function(server, queryString)
 
    queryString <- URLdecode(queryString)
    diagnostic.string <- substr(queryString,1,10)
-   #printf("--- diagnostic.string: |%s|", diagnostic.string)
+   printf("--- diagnostic.string: |%s|", diagnostic.string)
    jsonPrefixFound <- diagnostic.string == "?jsonMsg='";
-   #printf("--- matched? %s", jsonPrefixFound)
+   printf("--- matched? %s", jsonPrefixFound)
    
    if(jsonPrefixFound){
       rawJSON <- substr(queryString, 11, nchar(queryString)-1)  # drop enclosing single quotes

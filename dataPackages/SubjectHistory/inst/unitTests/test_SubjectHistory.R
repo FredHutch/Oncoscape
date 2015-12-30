@@ -42,3 +42,5 @@ test.constructorWithSampleHistoryTable <- function()
    
 } # test.constructorWithSampleHistoryTable
 #----------------------------------------------------------------------------------------------------
+if(!interactive())
+    runTests()
