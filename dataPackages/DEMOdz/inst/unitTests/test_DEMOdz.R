@@ -55,7 +55,7 @@ testManifest <- function()
    
    checkTrue(all(expected.rownames %in% rownames(tbl)))
 
-   expected.classes <- c("data.frame", "list", "matrix", "character")   # new ones may be added
+   expected.classes <- c("data.frame", "list", "matrix", "character", "json")   # new ones may be added
    checkTrue(all(tbl$class %in% expected.classes))
 
    expected.categories <- unique(c("copy number", "geneset", "history","mRNA expression", "methylation",
@@ -77,6 +77,7 @@ testManifest <- function()
       subcategory <- tbl$subcategory[i]
       entity.count <- tbl$entity.count[i]
       feature.count <- tbl$feature.count[i]
+      printf("class: %s - %s", class, class(x))
       checkEquals(class(x), class)
       if(class %in% c("matrix", "data.frame")){
          checkEquals(entity.count, nrow(x))

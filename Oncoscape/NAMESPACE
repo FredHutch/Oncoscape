@@ -1,7 +1,8 @@
 exportClasses(ChinookServer)
 
 export(
-  ChinookServer
+  ChinookServer,
+  printf
   )
 
 exportMethods(

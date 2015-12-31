@@ -1,13 +1,13 @@
 Package: Dataset
 Type: Package
 Title: Dataset: a base class for Chinook-compatible datasets
-Version: 0.99.20
-Date: 2015-12-28
+Version: 0.99.21
+Date: 2015-12-31
 Author: Paul Shannon, Lisa McFerrin
 Maintainer: Paul Shannon <pshannon@fredhutch.org>
 Depends: R (>= 3.1.1), SubjectHistory
 Imports: methods, BiocGenerics
 Suggests: RUnit
-Description: A  base class, extended for each specific case study
+Description: A  base class, extended for each specific study
 License: GPL-2
 LazyLoad: yes
