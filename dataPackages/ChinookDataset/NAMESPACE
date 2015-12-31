@@ -10,7 +10,9 @@ exportMethods (
 
 export(
    ChinookDataset,
-   Dataset.getManifest
+   Dataset.getManifest,
+   Dataset.getDataFrame,
+   Dataset.getJSON    
    )
 
 import(Dataset)

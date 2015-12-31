@@ -78,29 +78,20 @@ setMethod("registerMessageHandlers", "ChinookDataset",
 
   function (obj) {
      addMessageHandler(getServer(obj), "getDatasetManifest", "Dataset.getManifest")
+     addMessageHandler(getServer(obj), "getDatasetDataFrame", "Dataset.getDataFrame")
+     addMessageHandler(getServer(obj), "getDatasetJSON", "Dataset.getJSON")
      })
 
 #----------------------------------------------------------------------------------------------------
 Dataset.getManifest <- function(channel, msg)
 {
-   #printf("ChinookDataset::Dataset.getManifest")
    self <- local.state[["self"]]
-   #printf("local.state[['self']]:")
-   #print(is(self))
    contained.dataset <- getDataset(self)
-   #printf("contained.dataset")
-   #print(is(contained.dataset))
 
    tbl <- manifest(contained.dataset)
-   #printf("--- tbl")
-   #print(tbl)
    datasetName <- getName(self)
-   #printf("--- datasetName: %s", datasetName);
-   payload <- getDataManifestAsJSON(datasetName, tbl)
-   #print(names(payload))
+   payload <- .dataframeToJSON(datasetName, tbl)
    response <- toJSON(list(cmd=msg$callback, status="success", callback="", payload=payload))
-
-   #print(is(channel))
    
    if("WebSocket" %in% is(channel))
       channel$send(response)
@@ -109,32 +100,66 @@ Dataset.getManifest <- function(channel, msg)
 
 } # Dataset.getManifest
 #----------------------------------------------------------------------------------------------------
-getDataManifestAsJSON <-function(datasetName, tbl)
+.dataframeToJSON <-function(datasetName, tbl)
 {
     # the first two columns, "variable" and "class" are not so relevant for the oncoscape display
-  #print(0)
-  tbl <- tbl[, -c(1,2)]
-    # make some column names more friendly
-  #print(1)
-  column.titles <- colnames(tbl)
-  #print(2)
-  column.titles <- sub("entity.count", "rows", column.titles)
-  #print(3)
-  column.titles <- sub("feature.count", "cols", column.titles)
-  #print(4)
-  column.titles <- sub("entity.", "row ", column.titles)
-  #print(5)
-  column.titles <- sub("feature.", "column ", column.titles, fixed=TRUE)
-  #print(6)
-  
-  matrix <- as.matrix(tbl)
-  #print(7)
-  colnames(matrix) <- NULL
-  #print(8)
-    
-  list(datasetName=datasetName, colnames=column.titles, rownames=rownames(tbl), mtx=matrix)
+  variable.names <- tbl[,1]
+  #tbl <- tbl[, -c(1,2)]
 
-} # getDataManifestAsJSON
+    # make some column names more friendly
+  column.titles <- colnames(tbl)
+  column.titles <- sub("entity.count", "rows", column.titles)
+  column.titles <- sub("feature.count", "cols", column.titles)
+  column.titles <- sub("entity.", "row ", column.titles)
+  column.titles <- sub("feature.", "column ", column.titles, fixed=TRUE)
+  matrix <- as.matrix(tbl)
+  colnames(matrix) <- NULL
+    
+  list(datasetName=datasetName, variables=variable.names, colnames=column.titles,
+       rownames=rownames(tbl), mtx=matrix)
+
+} # .dataframeToJSON
+#----------------------------------------------------------------------------------------------------
+Dataset.getDataFrame <- function(channel, msg)
+{
+   self <- local.state[["self"]]
+   contained.dataset <- getDataset(self)
+   name <- msg$payload
+   stopifnot(name %in% names(data.frames(contained.dataset)))
+   tbl <- data.frames(contained.dataset)[[name]]
+   datasetName <- getName(self)
+   payload <- .dataframeToJSON(datasetName, tbl)
+   response <- toJSON(list(cmd=msg$callback, status="success", callback="", payload=payload))
+   
+   if("WebSocket" %in% is(channel))
+      channel$send(response)
+   else
+      return(response)
+
+} # Dataset.getDataFrame
+#----------------------------------------------------------------------------------------------------
+Dataset.getJSON <- function(channel, msg)
+{
+   self <- local.state[["self"]]
+   contained.dataset <- getDataset(self)
+   name <- msg$payload
+   #printf("ChinookDataset, about to get JSON object with name %s", name)
+   json.obj <- getJSON(contained.dataset, name)
+   #printf("  class of object: %s", class(json.obj))
+   #print(json.obj)
+
+   stopifnot(!is.na(json.obj))
+   stopifnot(class(json.obj) == "json")
+   
+   payload <- json.obj
+   response <- toJSON(list(cmd=msg$callback, status="success", callback="", payload=payload))
+
+   if("WebSocket" %in% is(channel))
+      channel$send(response)
+   else
+      return(response)
+
+} # Dataset.getJSON
 #----------------------------------------------------------------------------------------------------
 # addRMessageHandler("getDataManifest", "getDataManifest");
 # addRMessageHandler("getPatientHistoryTable", "getPatientHistoryTable")

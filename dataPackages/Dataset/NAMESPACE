@@ -13,6 +13,7 @@ exportMethods (
   getSubjectTable,
   getGeneSetNames,
   getGeneSetGenes,
+  getJSON,
   networks,
   canonicalizeSampleIDs,
   getSampleCategorizationNames,

@@ -16,6 +16,7 @@ SouthSeattleHealthImpacts <- function()
                          history=data$history,
                          manifest=data$manifest,
                          genesets=data$genesets,
+                         json.objects=data$json.objects,
                          networks=data$networks,
                          sampleCategorizations=data$sampleCategorizations))
 

@@ -11,6 +11,7 @@ options(stringsAsFactors = FALSE)
                                                manifest="data.frame",
                                                genesets="list",
                                                networks="list",
+                                               json.objects="list",
                                                sampleCategorizations="list")
                          )
 
@@ -19,6 +20,7 @@ setGeneric('matrices',        signature='obj', function (obj) standardGeneric ('
 setGeneric('data.frames',     signature='obj', function (obj) standardGeneric ('data.frames'))
 setGeneric('history',         signature='obj', function (obj) standardGeneric ('history'))
 setGeneric('manifest',        signature='obj', function (obj) standardGeneric ('manifest'))
+setGeneric('getJSON',         signature='obj', function (obj, variableName) standardGeneric ('getJSON'))
 setGeneric("entities",        signature="obj", function (obj, signature) standardGeneric ("entities"))
 setGeneric('getEventList',    signature='obj', function (obj) standardGeneric ('getEventList'))
 setGeneric('getEventTypeList',signature='obj', function (obj) standardGeneric ('getEventTypeList'))
@@ -41,12 +43,12 @@ setGeneric('canonicalizeSampleIDs',   signature='obj', function (obj, sample.ids
 #----------------------------------------------------------------------------------------------------
 # constructor
 Dataset <- function(name="", matrices=list(), data.frames=list(), history=SubjectHistory(),
-                            manifest=data.frame(), genesets=list(), networks=list(),
-                            sampleCategorizations=list())
+                            manifest=data.frame(), genesets=list(), json.objects=list(),
+                            networks=list(), sampleCategorizations=list())
 {
   obj <- .Dataset(name=name, matrices=matrices, data.frames=data.frames, history=history,
-                          manifest=manifest, genesets=genesets, networks=networks,
-                          sampleCategorizations=sampleCategorizations)
+                  manifest=manifest, genesets=genesets, json.objects=json.objects,
+                  networks=networks, sampleCategorizations=sampleCategorizations)
 
   obj
 
@@ -86,6 +88,15 @@ setMethod("manifest", "Dataset",
 
   function (obj) {
      obj@manifest
+     })
+
+#----------------------------------------------------------------------------------------------------
+setMethod("getJSON", "Dataset",
+
+  function (obj, variableName) {
+      if(variableName %in% names(obj@json.objects))
+          return(obj@json.objects[[variableName]])
+      NA
      })
 
 #----------------------------------------------------------------------------------------------------
@@ -163,6 +174,8 @@ setMethod("getSubjectTable", "Dataset",
    #if(length(grep("geneset", tbl$category)) == 0)
    #    warning("no genesets found")
 
+   json.objects <- list()
+
    network.count <- length(grep("network", tbl$category))
    networks <- vector("list", network.count)
    #if(network.count == 0)
@@ -178,6 +191,7 @@ setMethod("getSubjectTable", "Dataset",
    data.frames.found <- 0
    networks.found <- 0
    sampleCategorizations.found <- 0
+   json.objects.found <- 0
    
    for(i in 1:nrow(tbl)){
       file.name <- rownames(tbl)[i]
@@ -220,12 +234,16 @@ setMethod("getSubjectTable", "Dataset",
          eval(parse(text=sprintf("data.frames[[%d]] <- %s", data.frames.found, variable.name)))
          names(data.frames)[data.frames.found] <- variable.name;
          }
+      else if(class == "json"){
+         json.objects.found <- json.objects.found + 1
+         eval(parse(text=sprintf("json.objects[[%d]] <- %s", json.objects.found, variable.name)))
+         names(json.objects)[json.objects.found] <- variable.name;
+         }
       } # for i
 
-    printf("Dataset ctor, networks.found: %d", networks.found)
     result <- list(manifest=tbl, matrices=matrices, data.frames=data.frames,
-                   history=clinical, genesets=genesets, networks=networks,
-                   sampleCategorizations=sampleCategorizations)
+                   history=clinical, genesets=genesets, json.objects=json.objects,
+                   networks=networks, sampleCategorizations=sampleCategorizations)
     
     return(result)
 
