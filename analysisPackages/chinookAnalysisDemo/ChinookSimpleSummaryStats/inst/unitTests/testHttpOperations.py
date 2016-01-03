@@ -8,8 +8,8 @@ request = "http://localhost:4001?jsonMsg='%s'" % msg
 rawResult = urlopen(request).read()
 result = loads(rawResult.decode())   # bytes.decode()
 payload = result["payload"]
-assert(payload["max"][0]  == 7.1879)
-assert(payload["min"][0]  == 0.7884)
-assert(payload["sd"][0]   == 2.4993)
-assert(payload["mean"][0] == 4.9858)
+assert(payload["max"]  == 7.1879)
+assert(payload["min"]  == 0.7884)
+assert(payload["sd"]   == 2.4993)
+assert(payload["mean"] == 4.9858)
 print (True)

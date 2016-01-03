@@ -1,6 +1,8 @@
 library(RUnit)
 library(SouthSeattleHealthImpacts)
-
+library(RCurl)
+library(jsonlite)
+#----------------------------------------------------------------------------------------------------
 # standardize alphabetic sort order
 Sys.setlocale("LC_ALL", "C")
 #----------------------------------------------------------------------------------------------------
@@ -13,6 +15,7 @@ runTests <- function()
   testManifest()
   testConstructor();
   testCanonicalizeSampleIDs()
+  testGetAllViaChinnok()
 
 } # runTests
 #----------------------------------------------------------------------------------------------------
@@ -97,5 +100,12 @@ testCanonicalizeSampleIDs <- function()
    print("--- testCanonicalizeSampleIDs -- no yet implemented")
 }
 #----------------------------------------------------------------------------------------------------
+testGetAllViaChinnok <- function()
+{
+    print("--- testGetAllViaChinnok")
+    
+
+} # testGetAllViaChinnok
+#---------------------------------------------------------------------------------------------------
 if(!interactive())
    runTests()

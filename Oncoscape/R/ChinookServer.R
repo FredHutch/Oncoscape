@@ -24,6 +24,7 @@ setGeneric('close',                signature="self", function(self) standardGene
 setGeneric("serverVersion",        signature="self", function(self) standardGeneric("serverVersion"))
 setGeneric("addMessageHandler",    signature="self", function(self, messageName, functionToCall) standardGeneric("addMessageHandler"))
 setGeneric("getMessageNames",      signature="self", function(self) standardGeneric("getMessageNames"))
+setGeneric('registerMessageHandlers', signature='obj', function (obj) standardGeneric ('registerMessageHandlers'))
 #------------------------------------------------------------------------------------------------------------------------
 printf <- function(...) print(noquote(sprintf(...)))
 #------------------------------------------------------------------------------------------------------------------------
@@ -62,7 +63,8 @@ ChinookServer = function(port=NA_integer_, analysisPackageNames=NA_character_, d
 
    state[["auxPortState"]] <- AuxPort(wsCon, port+1)
    local.state[["server"]] <- server
-
+   registerMessageHandlers(server)
+   
    server
 
 } # ctor
@@ -199,6 +201,12 @@ setMethod("addMessageHandler", "ChinookServer",
 #------------------------------------------------------------------------------------------------------------------------
 dispatchMessage <- function(server, WS, msg)
 {
+  if(msg$cmd == "keepAlive")
+     return()
+  
+  if(msg$cmd == "logEvent")   # not yet implemented.  todo
+      return()
+  
   printf("--- entering ChinookServer dispatchMessage, msg: ")
   print(msg)
     
@@ -241,6 +249,14 @@ dispatchMessage <- function(server, WS, msg)
     }, error=errorFunction)
 
 } # dispatchMessage
+#------------------------------------------------------------------------------------------------------------------------
+setMethod("registerMessageHandlers", "ChinookServer",
+
+  function (obj) {
+     addMessageHandler(obj, "getDatasetNames", "ChinookServer.getDatasetNames")
+     addMessageHandler(obj, "getDataSetNames", "ChinookServer.getDatasetNames")
+     })
+
 #------------------------------------------------------------------------------------------------------------------------
 setMethod("run", "ChinookServer",
 
@@ -368,7 +384,7 @@ chinookHttpQueryProcessor <- function(server, queryString)
    return("from the chinookHttpQueryProcessor");
 
 } # chinookHttpQueryProcessor
-#----------------------------------------------------------------------------------------------------
+#------------------------------------------------------------------------------------------------------------------------
 AuxPort <- function(primaryWebSocketServer, port)
 {
    aux.wsCon <- new.env(parent=emptyenv())
@@ -380,7 +396,7 @@ AuxPort <- function(primaryWebSocketServer, port)
    return(aux.wsCon)
 
 } # AuxPort
-#---------------------------------------------------------------------------------------------------
+#------------------------------------------------------------------------------------------------------------------------
 .setupAuxPortWebSocketHandlers <- function(primaryWebSocketServer, wsCon, port)
 {
    wsCon$open <- FALSE
@@ -433,5 +449,18 @@ AuxPort <- function(primaryWebSocketServer, port)
    wsCon
 
 } # .setupAuxPortWebSocketHandlers
-#--------------------------------------------------------------------------------
+#------------------------------------------------------------------------------------------------------------------------
+ChinookServer.getDatasetNames <- function(channel, msg)
+{
+   self <- local.state[["server"]]
 
+   payload <- list(datasets=getDatasetNames(self))
+   response <- toJSON(list(cmd=msg$callback, status="success", callback="", payload=payload))
+   
+   if("WebSocket" %in% is(channel))
+      channel$send(response)
+   else
+      return(response)
+
+} # ChinookServer.getDatasetNames
+#------------------------------------------------------------------------------------------------------------------------

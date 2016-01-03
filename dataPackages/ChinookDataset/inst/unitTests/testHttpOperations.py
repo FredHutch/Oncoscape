@@ -9,12 +9,12 @@ result = loads(rawResult.decode())   # bytes.decode()
 payload = result["payload"]
 
 fieldNames = list(payload.keys())
-assert(len(fieldNames) == 4)
+assert(len(fieldNames) == 5)
 assert(fieldNames.index("mtx") >= 0)
 assert(fieldNames.index("colnames") >= 0)
 assert(fieldNames.index("rownames") >= 0)
 assert(fieldNames.index("datasetName") >= 0)
 
-assert(payload["datasetName"][0] == "DEMOdz")
+assert(payload["datasetName"] == "DEMOdz")
 print(True)
 

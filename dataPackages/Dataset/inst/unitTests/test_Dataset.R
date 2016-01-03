@@ -10,7 +10,8 @@ runTests <- function()
   test.getSubjectHistoryList()
   test.getSubjectHistoryTable()
   test.getGeneSets()
-
+  test.getItemNamesGetItems()
+  
 } # runTests
 #----------------------------------------------------------------------------------------------------
 test.constructor <- function()
@@ -20,8 +21,10 @@ test.constructor <- function()
    checkEquals(length(matrices(dp)), 0)
    checkEquals(nrow(manifest(dp)), 0)
    sh <- history(dp)
-   checkEquals(class(history(dp))[1], "SubjectHistory")
-   checkEquals(nrow(getTable(history(dp))), 0)
+   checkEquals(class(history(dp))[1], "data.frame")
+   #checkEquals(class(history(dp))[1], "SubjectHistory")
+   #checkEquals(nrow(getTable(history(dp))), 0)
+   checkEquals(nrow(history(dp)), 0)
    
 } # test.constructor
 #----------------------------------------------------------------------------------------------------
@@ -46,7 +49,7 @@ test.loadFiles <- function()
 
    checkTrue(all(expected.variables %in% x$manifest$variable))
    
-   expected.classes <- c("data.frame", "list", "matrix", "character")
+   expected.classes <- c("data.frame", "list", "matrix", "character", "json")
    checkTrue(all(x$manifest$class %in% expected.classes))
 
    checkTrue(length(x$matrices) > 4)
@@ -134,7 +137,8 @@ test.getSubjectHistoryTable <- function()
 {
    print("--- test.getSubjectHistoryTable")
    dp <- DEMOdz();
-   tbl.subjectHistory <- getTable(history(dp))
+   #tbl.subjectHistory <- getTable(history(dp))
+   tbl.subjectHistory <- history(dp)
    checkEquals(class(tbl.subjectHistory), "data.frame")
    checkEquals(nrow(tbl.subjectHistory), 20)
 
@@ -149,7 +153,25 @@ test.getGeneSets <- function()
    checkEquals(sort(names), c("random.24", "random.40", "test4"))
    genes.24 <- getGeneSetGenes(dz, "random.24")
 
-} # test.getPatientTable
+} # test.getGeneSets
+#----------------------------------------------------------------------------------------------------
+test.getItemNamesGetItems <- function()
+{
+   print("--- test.getItemNamesGetItems")
+   dz <- DEMOdz();
+
+   names <- getItemNames(dz)
+   checkTrue(length(names) > 8)
+   checkTrue("sampleJSON" %in% names)
+   checkTrue("mtx.cn" %in% names)
+   checkTrue("matrix" %in% is(getItemByName(dz, "mtx.cn")))
+   checkTrue("json" %in% is(getItemByName(dz, "sampleJSON")))
+   #checkTrue("data.frame" %in% is(getItemByName(dz, "tbl.ptHistory")))
+      # the SubjectHistory 
+   tbl.history <- getItemByName(dz, "tbl.ptHistory")
+   checkTrue("data.frame" %in% is(tbl.history))
+
+} # test.getItemNamesGetItems
 #----------------------------------------------------------------------------------------------------
 if(!interactive())
    runTests()
