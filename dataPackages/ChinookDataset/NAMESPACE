@@ -5,6 +5,8 @@ exportMethods (
   getDataset,
   setServer,
   getServer,
+  getItemNames,
+  getItemByName,    
   registerMessageHandlers
   )
 

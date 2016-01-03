@@ -8,6 +8,7 @@ runTests <- function()
 {
    test.noDatasetConstructor();
    test.datasetConstructor()
+   #test.getItemByName()
 
 } # runTests
 #----------------------------------------------------------------------------------------------------
@@ -38,6 +39,32 @@ test.datasetConstructor <- function()
    dz2 <- getDataset(cds)
    checkIdentical(dz, dz2)
    
+} # test.datasetConstructor
+#----------------------------------------------------------------------------------------------------
+test.getItemByName <- function()
+{
+   print("--- test.datasetConstructor")
+   dz <- DEMOdz()
+   cds <- ChinookDataset("DEMOdz", dz)
+   dz.vars <- getItemNames(cds)
+   checkTrue("character" %in% is(dz.vars))
+   checkTrue(length(dz.vars) > 10)               # found 18 on (3 jan 2016)
+   checkTrue(length(grep("^mtx", dz.vars)) > 3)  # found  6 on (3 jan 2016)
+
+} # test.getItemByName
+#----------------------------------------------------------------------------------------------------
+test.getItemByName <- function()
+{
+   print("--- test.datasetConstructor")
+   dz <- DEMOdz()
+   cds <- ChinookDataset("DEMOdz", dz)
+   server <- ChinookServer()
+   setServer(cds, server)
+   checkEquals(getName(cds), "DEMOdz")
+   checkEquals(getServer(cds), server)
+   
+  
+    
 } # test.datasetConstructor
 #----------------------------------------------------------------------------------------------------
 if(!interactive())

@@ -14,7 +14,7 @@ testNullServerConstructor <- function()
 
    server <- ChinookServer()
    stats <- ChinookSimpleSummaryStats(server)
-   checkEquals(getMessageNames(server), "numericVectorSummaryStats")
+   checkTrue("numericVectorSummaryStats" %in% getMessageNames(server))
    
 } # testNullServerConstructor
 #----------------------------------------------------------------------------------------------------
@@ -26,8 +26,7 @@ testNormalUseConstructor <- function()
    userCredentials <- "test@nowhere.net"
 
    chinook <- ChinookServer(port=4001, analysisPackages, datasets, browserFile, userCredentials)
-   stats <- ChinookSimpleSummaryStats()
-   setServer(stats, chinook)
+   stats <- ChinookSimpleSummaryStats(chinook)
 
 } # testNormalUseConstructor
 #----------------------------------------------------------------------------------------------------

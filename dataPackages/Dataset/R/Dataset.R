@@ -7,25 +7,29 @@ options(stringsAsFactors = FALSE)
                                                name="character",
                                                matrices="list",
                                                data.frames="list",
-                                               history="SubjectHistory",
+                                               #history="SubjectHistory",
+                                               history="data.frame",
                                                manifest="data.frame",
                                                genesets="list",
                                                networks="list",
                                                json.objects="list",
-                                               sampleCategorizations="list")
+                                               sampleCategorizations="list",
+                                               dictionary="environment")
                          )
 
 #----------------------------------------------------------------------------------------------------
+setGeneric('getItemNames',    signature='obj', function(obj) standardGeneric('getItemNames'))
+setGeneric('getItemByName',   signature='obj', function(obj, name) standardGeneric('getItemByName'))
 setGeneric('matrices',        signature='obj', function (obj) standardGeneric ('matrices'))
 setGeneric('data.frames',     signature='obj', function (obj) standardGeneric ('data.frames'))
 setGeneric('history',         signature='obj', function (obj) standardGeneric ('history'))
 setGeneric('manifest',        signature='obj', function (obj) standardGeneric ('manifest'))
 setGeneric('getJSON',         signature='obj', function (obj, variableName) standardGeneric ('getJSON'))
 setGeneric("entities",        signature="obj", function (obj, signature) standardGeneric ("entities"))
-setGeneric('getEventList',    signature='obj', function (obj) standardGeneric ('getEventList'))
-setGeneric('getEventTypeList',signature='obj', function (obj) standardGeneric ('getEventTypeList'))
-setGeneric('getSubjectList',  signature='obj', function (obj) standardGeneric ('getSubjectList'))
-setGeneric('getSubjectTable', signature='obj', function (obj, subject.ids=NA, selectCols=NA) standardGeneric ('getSubjectTable'))
+#setGeneric('getEventList',    signature='obj', function (obj) standardGeneric ('getEventList'))
+#setGeneric('getEventTypeList',signature='obj', function (obj) standardGeneric ('getEventTypeList'))
+#setGeneric('getSubjectList',  signature='obj', function (obj) standardGeneric ('getSubjectList'))
+#setGeneric('getSubjectTable', signature='obj', function (obj, subject.ids=NA, selectCols=NA) standardGeneric ('getSubjectTable'))
 setGeneric('getGeneSetNames', signature='obj', function (obj) standardGeneric ('getGeneSetNames'))
 setGeneric('getGeneSetGenes', signature='obj', function (obj, geneSetName) standardGeneric ('getGeneSetGenes'))
 setGeneric('getSampleCategorizationNames',
@@ -42,13 +46,37 @@ setGeneric('canonicalizeSampleIDs',   signature='obj', function (obj, sample.ids
 
 #----------------------------------------------------------------------------------------------------
 # constructor
-Dataset <- function(name="", matrices=list(), data.frames=list(), history=SubjectHistory(),
-                            manifest=data.frame(), genesets=list(), json.objects=list(),
-                            networks=list(), sampleCategorizations=list())
+Dataset <- function(name="", matrices=list(), data.frames=list(), history=data.frame(),
+                             manifest=data.frame(), genesets=list(), json.objects=list(),
+                             networks=list(), sampleCategorizations=list(), dictionary=new.env(parent=emptyenv()))
 {
   obj <- .Dataset(name=name, matrices=matrices, data.frames=data.frames, history=history,
                   manifest=manifest, genesets=genesets, json.objects=json.objects,
-                  networks=networks, sampleCategorizations=sampleCategorizations)
+                  networks=networks, sampleCategorizations=sampleCategorizations,
+                  dictionary=dictionary)
+
+  #browser()
+  if(nrow(manifest) > 0)
+    for(i in 1:nrow(manifest)){
+       class <- manifest[i, "class"]
+       variable.name <- manifest[i, "variable"]
+       category <- manifest[i, "category"]
+       if(class == "matrix"){
+          obj@dictionary[[variable.name]] <- matrices[[variable.name]]
+          }
+       else if(class == "data.frame"){
+          if(category == "history")
+             obj@dictionary[[variable.name]] <- history
+          else
+            obj@dictionary[[variable.name]] <- data.frames[[variable.name]]
+          }
+       else if(class == "json"){
+          obj@dictionary[[variable.name]] <- json.objects[[variable.name]]
+          }
+       else if(class == "SubjectHistory"){
+          obj@dictionary[[variable.name]] <- history
+          }
+       } # for i
 
   obj
 
@@ -61,6 +89,22 @@ setMethod("show", "Dataset",
      cat (msg, "\n", sep="")
      print(manifest(obj)[, c("variable", "class", "category", "entity.count", "feature.count")])
      })
+
+#----------------------------------------------------------------------------------------------------
+setMethod("getItemNames", "Dataset",
+
+  function (obj) {
+    return(ls(obj@dictionary))
+    })
+
+#----------------------------------------------------------------------------------------------------
+setMethod("getItemByName", "Dataset",
+
+  function (obj, name) {
+    if(!name %in% getItemNames(obj))
+      return(NA)
+    return(obj@dictionary[[name]])
+    })
 
 #----------------------------------------------------------------------------------------------------
 setMethod("matrices", "Dataset",
@@ -111,43 +155,43 @@ setMethod ("entities", "Dataset",
          return(NA)
       })
  #----------------------------------------------------------------------------------------------------
-setMethod("getEventList", "Dataset",
-
-   function (obj) {
-
-      stopifnot(class(obj@history)[1] == "SubjectHistory")
-      # test that the slot is not null
-      getEventList(obj@history)
-    })
- #----------------------------------------------------------------------------------------------------
-setMethod("getEventTypeList", "Dataset",
-
-   function (obj) {
-
-      stopifnot(class(obj@history)[1] == "SubjectHistory")
-      # test that the slot is not null
-      getEventTypeList(obj@history)
-    })
- #----------------------------------------------------------------------------------------------------
-setMethod("getSubjectList", "Dataset",
-
-   function (obj) {
-
-      stopifnot(class(obj@history)[1] == "SubjectHistory")
-      # test that the slot is not null
-      getSubjectList(obj@history)
-    })
-    
-#----------------------------------------------------------------------------------------------------
-setMethod("getSubjectTable", "Dataset",
-
-   function (obj, subject.ids=NA, selectCols=NA) {
-
-    stopifnot(class(obj@history)[1] == "SubjectHistory")
-      # test that the slot is not null
-    getTable(obj@history, subject.ids, selectCols)
-    })
-          
+#setMethod("getEventList", "Dataset",
+#
+#   function (obj) {
+#
+#      stopifnot(class(obj@history)[1] == "SubjectHistory")
+#      # test that the slot is not null
+#      getEventList(obj@history)
+#    })
+# #----------------------------------------------------------------------------------------------------
+#setMethod("getEventTypeList", "Dataset",
+#
+#   function (obj) {
+#
+#      stopifnot(class(obj@history)[1] == "SubjectHistory")
+#      # test that the slot is not null
+#      getEventTypeList(obj@history)
+#    })
+# #----------------------------------------------------------------------------------------------------
+#setMethod("getSubjectList", "Dataset",
+#
+#   function (obj) {
+#
+#      stopifnot(class(obj@history)[1] == "SubjectHistory")
+#      # test that the slot is not null
+#      getSubjectList(obj@history)
+#    })
+#    
+##----------------------------------------------------------------------------------------------------
+#setMethod("getSubjectTable", "Dataset",
+#
+#   function (obj, subject.ids=NA, selectCols=NA) {
+#
+#    stopifnot(class(obj@history)[1] == "SubjectHistory")
+#      # test that the slot is not null
+#    getTable(obj@history, subject.ids, selectCols)
+#    })
+#          
 #---------------------------------------------------------------------------------------------------
 # data.directory will contain a manifest.tsv file, which names and describes data files of
 # several sorts (matrices, data.frames, a history file) which together describe a study
@@ -166,7 +210,7 @@ setMethod("getSubjectTable", "Dataset",
    matrices <- vector("list", matrix.count)
    data.frames <- vector("list", data.frame.count)
 
-   clinical <- SubjectHistory()
+   #clinical <- SubjectHistory()
    #if(length(grep("history", tbl$category)) == 0)
    #    warning("no history events found")
  
@@ -227,7 +271,8 @@ setMethod("getSubjectTable", "Dataset",
          }
       else if(class == "data.frame" & category=="history") {
 		 eval(parse(text=sprintf("tbl.subjectHistory <- %s", variable.name)))
-		 clinical <- SubjectHistory::setTable(clinical, tbl.subjectHistory)
+		 history <- tbl.subjectHistory
+		 #clinical <- SubjectHistory::setTable(clinical, tbl.subjectHistory)
 		 }
       else if(class == "data.frame") {
          data.frames.found <- data.frames.found + 1
@@ -242,94 +287,13 @@ setMethod("getSubjectTable", "Dataset",
       } # for i
 
     result <- list(manifest=tbl, matrices=matrices, data.frames=data.frames,
-                   history=clinical, genesets=genesets, json.objects=json.objects,
+                   history=history, genesets=genesets, json.objects=json.objects,
                    networks=networks, sampleCategorizations=sampleCategorizations)
     
     return(result)
 
 } # .loadFiles
 #---------------------------------------------------------------------------------------------------
-# data.connection will contain a manifest.tsv file, which names and describes data files of
-# several sorts (matrices, data.frames, a history file) which together describe a study
-.loadTables <- function(data.directory, data.connection)
-{
-   stopifnot(file.exists(data.directory))
-   manifest.file <- file.path(data.directory, "manifest.tsv")
-   
-   tbl <- read.table(manifest.file, sep="\t", as.is=TRUE)
-   stopifnot(colnames(tbl) == c("variable", "class", "category", "subcategory",
-                                "entity.count", "feature.count", "entity.type",
-                                "feature.type", "minValue", "maxValue", "provenance"))
-
-   matrix.count <- length(grep("matrix", tbl$class))
-   data.frame.count <- length(grep("data.frame", tbl$class))
-   matrices <- vector("list", matrix.count)
-   data.frames <- vector("list", data.frame.count)
-
-
-   history <- SubjectHistory()
-   #if(length(grep("history", tbl$category)) == 0)
-   #    warning("no history events found")
- 
-   genesets <- list()
-   #if(length(grep("geneset", tbl$category)) == 0)
-   #    warning("no genesets found")
-
-   network.count <- length(grep("network", tbl$category))
-   networks <- vector("list", network.count)
-   #if(network.count == 0)
-   #    warning("no networks found")
- 
-   matrices.found <- 0
-   data.frames.found <- 0
-   networks.found <- 0
-   tables <- sqlTables(data.connection)[, "TABLE_NAME"]
-    
-   for(i in 1:nrow(tbl)){
-      file.name <- rownames(tbl)[i]
-      variable.name <- tbl$variable[i]
-      class <- tbl$class[i]
-      category <- tbl$category[i]
-  
-      table <- sqlFetch(data.connection, variable.name)
-
-      if(class == "matrix") {
-         matrices.found <- matrices.found + 1
-         matrices[[matrices.found]] <- as.matrix(table)
-         names(matrices)[matrices.found] <- variable.name;
-         }
-      else if(class == "data.frame") {
-         data.frames.found <- data.frames.found + 1
-         matrices[[data.frames.found]] <- table
-         names(data.frames)[data.frames.found] <- variable.name;
-         }
-      else if(class == "list" & category=="history") {
-          historyEvents<- apply(table,1, function(item){
-            as.list(item)
-          })
-          historyList <- lapply(historyEvents, function(event) {c(event[1:4], Fields=list(fromJSON(event$Fields))) })
-          
-          history <- SubjectHistory(historyList)
-         }
-      else if(class == "list" & category=="geneset") {
-         eval(parse(text=sprintf("genesets <- %s", variable.name)))
-         }
-      else if(class == "character" & category=="network") {
-         networks.found <- networks.found + 1
-         eval(parse(text=sprintf("networks[[%d]] <- %s", networks.found, variable.name)))
-         names(networks)[networks.found] <- variable.name
-         }
-      } # for i
-
-    printf("Dataset ctor, networks.found: %d", networks.found)
-    result <- list(manifest=tbl, matrices=matrices, data.frames=data.frames,
-                   history=history, genesets=genesets, networks=networks)
-    
-    return(result)
-
-} # .loadTables
-
-#----------------------------------------------------------------------------------------------------
 setMethod("getGeneSetNames", "Dataset",
 
   function (obj) {

@@ -2,7 +2,9 @@ exportClasses(ChinookServer)
 
 export(
   ChinookServer,
-  printf
+  printf,
+  ChinookServer.getDatasetNames,
+  toJSON
   )
 
 exportMethods(
