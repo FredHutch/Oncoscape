@@ -44,9 +44,9 @@ setMethod("getDataset", "ChinookDataset",
 
   function (obj) {
      if("dataset" %in% ls(obj@state))
-         return(obj@state[["dataset"]])
+        return(obj@state[["dataset"]])
      else
-         return(NA)
+        return(NA)
      })
 
 #----------------------------------------------------------------------------------------------------
@@ -61,9 +61,9 @@ setMethod("getServer", "ChinookDataset",
 
   function (obj) {
      if("server" %in% ls(obj@state))
-         return(obj@state[["server"]])
+        return(obj@state[["server"]])
      else
-         return(NA)
+        return(NA)
      })
 
 #----------------------------------------------------------------------------------------------------
@@ -77,10 +77,11 @@ setMethod("getName", "ChinookDataset",
 setMethod("registerMessageHandlers", "ChinookDataset",
 
   function (obj) {
-     addMessageHandler(getServer(obj), "getDatasetManifest", "Dataset.getManifest")
-     addMessageHandler(getServer(obj), "getDataManifest", "Dataset.getManifest")
-     addMessageHandler(getServer(obj), "getDatasetDataFrame", "Dataset.getDataFrame")
-     addMessageHandler(getServer(obj), "getDatasetJSON", "Dataset.getJSON")
+     addMessageHandler(getServer(obj), "getDatasetManifest",   "Dataset.getManifest")
+     addMessageHandler(getServer(obj), "getDataManifest",      "Dataset.getManifest")
+     addMessageHandler(getServer(obj), "getDatasetDataFrame",  "Dataset.getDataFrame")
+     addMessageHandler(getServer(obj), "getDatasetJSON",       "Dataset.getJSON")
+     addMessageHandler(getServer(obj), "getDatasetItemNames",  "Dataset.getItemNames")
      addMessageHandler(getServer(obj), "getDatasetItemByName", "Dataset.getItemByName")
      })
 
@@ -92,7 +93,7 @@ Dataset.getManifest <- function(channel, msg)
 
    tbl <- manifest(dataset)
    datasetName <- getName(self)
-   payload <- .dataframeOrMatrixToJSON(datasetName, tbl)
+   payload <- .prepDataframeOrMatrixForJSON(datasetName, tbl)
    column.titles <- payload$colnames   
      # make some column names more friendly
     column.titles <- sub("entity.count", "rows", column.titles)
@@ -103,8 +104,8 @@ Dataset.getManifest <- function(channel, msg)
    payload$colnames <- column.titles
    
    response <- toJSON(list(cmd=msg$callback, status="success", callback="", payload=payload))
-   printf("ChinookDataset.getManifest about to return this json:")
-   print(response)
+   #printf("ChinookDataset.getManifest about to return this json:")
+   #print(response)
    
    if("WebSocket" %in% is(channel))
       channel$send(response)
@@ -113,7 +114,7 @@ Dataset.getManifest <- function(channel, msg)
 
 } # Dataset.getManifest
 #----------------------------------------------------------------------------------------------------
-.dataframeOrMatrixToJSON <-function(datasetName, tbl)
+.prepDataframeOrMatrixForJSON <-function(datasetName, tbl)
 {
     # the first two columns, "variable" and "class" are not so relevant for the oncoscape display
   variable.names <- tbl[,1]
@@ -124,10 +125,15 @@ Dataset.getManifest <- function(channel, msg)
   matrix <- as.matrix(tbl)
   colnames(matrix) <- NULL
     
-  list(datasetName=datasetName, variables=variable.names, colnames=column.titles,
-       rownames=rownames(tbl), mtx=matrix)
+  result <- list(datasetName=datasetName, variables=variable.names, colnames=column.titles,
+                 rownames=rownames(tbl), mtx=matrix)
 
-} # .dataframeOrMatrixToJSON
+  #printf("-------- leaving .prepDataframeOrMatrixForJSON")
+  #print(result)
+
+  result
+
+} # .prepDataframeOrMatrixForJSON
 #----------------------------------------------------------------------------------------------------
 Dataset.getDataFrame <- function(channel, msg)
 {
@@ -137,7 +143,7 @@ Dataset.getDataFrame <- function(channel, msg)
    stopifnot(name %in% names(data.frames(dataset)))
    tbl <- data.frames(dataset)[[name]]
    datasetName <- getName(self)
-   payload <- .dataframeOrMatrixToJSON(datasetName, tbl)
+   payload <- .prepDataframeOrMatrixForJSON(datasetName, tbl)
    response <- toJSON(list(cmd=msg$callback, status="success", callback="", payload=payload))
    
    if("WebSocket" %in% is(channel))
@@ -170,36 +176,61 @@ Dataset.getJSON <- function(channel, msg)
 
 } # Dataset.getJSON
 #----------------------------------------------------------------------------------------------------
-Dataset.getItemByName <- function(channel, msg)
+Dataset.getItemNames <- function(channel, msg)
 {
    self <- local.state[["self"]]
    dataset <- getDataset(self)
-   tbl.m <- manifest(dataset)
+
+   payload <- getItemNames(dataset)
+   response <- toJSON(list(cmd=msg$callback, status="success", callback="", payload=payload))
+
+   if("WebSocket" %in% is(channel))
+      channel$send(response)
+   else
+      return(response)
+
+} # Dataset.getItemNames
+#----------------------------------------------------------------------------------------------------
+Dataset.getItemByName <- function(channel, msg)
+{
+   self <- local.state[["self"]]
+   dataset.name <- getName(self)
+   dataset <- getDataset(self)
 
    item.names <- msg$payload
-   stopifnot(all(item.names) %in% tbl.m$variables)
+   available.items <- getItemNames(dataset)
+   #printf("ChinookDataset.getItemByName, available.items:")
+   #print(available.items)
+   #printf("   requested items: %s", paste(item.names, collapse=","))
+   #printf("in? %s", item.names[1] %in% available.items)
+   #printf("all in? %s", all(item.names) %in% available.items)
+   #printf("setdiff: %s", setdiff(item.names, available.items))
+   stopifnot(all(item.names %in% available.items))
 
    data.list <- vector("list", length=length(item.names))
 
    i <- 0
    for(name in item.names){
-      index <- which(tbl.m$variables == name)
-      class <- tbl.m$class[index]
+      item <- getItemByName(dataset, name)
+      class <- class(item)
       i <- i + 1
       if(class == "matrix"){
         matrix <- matrices(dataset)[[name]]
-        data.json <- .dataframeOrMatrixToJSON(matrix)
+        data.json <- .prepDataframeOrMatrixForJSON(dataset.name, matrix)
         }
       else if(class == "data.frame"){
         df <- data.frames(dataset)[[name]]
-        data.json <- .dataframeOrMatrixToJSON(df)
+        data.json <- .prepDataframeOrMatrixForJSON(dataset.name, df)
         }
       else if(class == "json")
-        data <-  getJSON(dataset, name)
-      data.list[[i]] <- data
+        data.json <-  getJSON(dataset, name)
+      data.list[[i]] <- data.json
       }
 
+   #printf("--- getDataItemByName, assembled list, length: %d", length(data.list))
    names(data.list) <- item.names
+   #print(data.list)
+  
 
    payload <- data.list
    response <- toJSON(list(cmd=msg$callback, status="success", callback="", payload=payload))

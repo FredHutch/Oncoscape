@@ -8,7 +8,7 @@ runTests <- function()
 {
    test.noDatasetConstructor();
    test.datasetConstructor()
-   #test.getItemByName()
+   test..prepDataframeOrMatrixForJSON()
 
 } # runTests
 #----------------------------------------------------------------------------------------------------
@@ -41,31 +41,33 @@ test.datasetConstructor <- function()
    
 } # test.datasetConstructor
 #----------------------------------------------------------------------------------------------------
-test.getItemByName <- function()
+test..prepDataframeOrMatrixForJSON <- function()
 {
-   print("--- test.datasetConstructor")
+   print("--- test..prepDataframeOrMatrixForJSON")
    dz <- DEMOdz()
    cds <- ChinookDataset("DEMOdz", dz)
-   dz.vars <- getItemNames(cds)
-   checkTrue("character" %in% is(dz.vars))
-   checkTrue(length(dz.vars) > 10)               # found 18 on (3 jan 2016)
-   checkTrue(length(grep("^mtx", dz.vars)) > 3)  # found  6 on (3 jan 2016)
+   #server <- ChinookServer()
+   #setServer(cds, server)
 
-} # test.getItemByName
-#----------------------------------------------------------------------------------------------------
-test.getItemByName <- function()
-{
-   print("--- test.datasetConstructor")
-   dz <- DEMOdz()
-   cds <- ChinookDataset("DEMOdz", dz)
-   server <- ChinookServer()
-   setServer(cds, server)
-   checkEquals(getName(cds), "DEMOdz")
-   checkEquals(getServer(cds), server)
+     # not many mutations, but two found in EGFR for 0749:
+   mtx.mut <- matrices(dz)$mtx.mut
+
+   expected.mutations <- "A289T,V774M"
+   row <- which(rownames(mtx.mut) == "TCGA.06.0749")
+   col <- which(colnames(mtx.mut) == "EGFR")
+
+   checkEquals(mtx.mut[row, col], expected.mutations)
+
+   prepped.list <- ChinookDataset:::.prepDataframeOrMatrixForJSON("DEMOdz", mtx.mut)
+   checkEquals(sort(names(prepped.list)), c("colnames", "datasetName", "mtx", "rownames", "variables"))
+   checkTrue(as.logical(prepped.list$mtx[row, col] == expected.mutations))
+
+   json.var <- toJSON(prepped.list)
+   checkTrue(nchar(json.var) > 7000)   # actually 7447 on (3 jan 2016)
+      # a crude search
+   checkEquals(grep(expected.mutations, json.var), 1)
    
-  
-    
-} # test.datasetConstructor
+} # test..prepDataframeOrMatrixForJSON
 #----------------------------------------------------------------------------------------------------
 if(!interactive())
     runTests()

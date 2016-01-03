@@ -5,16 +5,16 @@ exportMethods (
   getDataset,
   setServer,
   getServer,
-  getItemNames,
-  getItemByName,    
   registerMessageHandlers
   )
 
 export(
    ChinookDataset,
+   Dataset.getItemNames,
+   Dataset.getItemByName,
    Dataset.getManifest,
    Dataset.getDataFrame,
-   Dataset.getJSON    
+   Dataset.getJSON
    )
 
 import(Dataset)
