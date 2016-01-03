@@ -253,6 +253,7 @@ dispatchMessage <- function(server, WS, msg)
 setMethod("registerMessageHandlers", "ChinookServer",
 
   function (obj) {
+     addMessageHandler(obj, "getRegisteredMessageNames", "ChinookServer.getMessageNames")
      addMessageHandler(obj, "getDatasetNames", "ChinookServer.getDatasetNames")
      addMessageHandler(obj, "getDataSetNames", "ChinookServer.getDatasetNames")
      })
@@ -463,4 +464,18 @@ ChinookServer.getDatasetNames <- function(channel, msg)
       return(response)
 
 } # ChinookServer.getDatasetNames
+#------------------------------------------------------------------------------------------------------------------------
+ChinookServer.getMessageNames <- function(channel, msg)
+{
+   self <- local.state[["server"]]
+
+   payload <- ls(self@dispatchMap)
+   response <- toJSON(list(cmd=msg$callback, status="success", callback="", payload=payload))
+   
+   if("WebSocket" %in% is(channel))
+      channel$send(response)
+   else
+      return(response)
+
+} # ChinookServer.getMessageNames
 #------------------------------------------------------------------------------------------------------------------------
