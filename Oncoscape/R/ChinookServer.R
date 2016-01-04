@@ -453,6 +453,7 @@ AuxPort <- function(primaryWebSocketServer, port)
 #------------------------------------------------------------------------------------------------------------------------
 ChinookServer.getDatasetNames <- function(channel, msg)
 {
+   printf("=== ChinookServer.getDatasetNames")
    self <- local.state[["server"]]
 
    payload <- list(datasets=getDatasetNames(self))
@@ -467,6 +468,7 @@ ChinookServer.getDatasetNames <- function(channel, msg)
 #------------------------------------------------------------------------------------------------------------------------
 ChinookServer.getMessageNames <- function(channel, msg)
 {
+   printf("=== ChinookServer.getMessageNames")
    self <- local.state[["server"]]
 
    payload <- ls(self@dispatchMap)
