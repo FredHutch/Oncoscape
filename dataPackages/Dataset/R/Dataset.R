@@ -214,6 +214,7 @@ setMethod ("entities", "Dataset",
    #if(length(grep("history", tbl$category)) == 0)
    #    warning("no history events found")
  
+   history <- data.frame()
    genesets <- list()
    #if(length(grep("geneset", tbl$category)) == 0)
    #    warning("no genesets found")
