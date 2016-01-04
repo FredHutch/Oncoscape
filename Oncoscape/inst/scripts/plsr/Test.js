@@ -1,3 +1,4 @@
+// 15:15
 // plsr/Test.js
 //------------------------------------------------------------------------------------------------------------------------
 
@@ -98,13 +99,15 @@ function testLoadDatasetplsr(dataSetName)
         var msg = $("#plsrStatusDiv").text();
         QUnit.test('choose dataset for plsr: '+ dataSetName, function(assert) {
           hub.raiseTab("datasetsDiv");
+          console.log("*****before change datasetname.");
           $("#datasetMenu").val(dataSetName);
           $("#datasetMenu").trigger("change");
           assert.equal($("#datasetMenu").val(), dataSetName);
+          console.log("*****change dataSetName.");
           hub.raiseTab("plsrDiv");
           var genesetList = $("#plsrGeneSetSelector option").map(function(opt){return this.value;});
           console.log("***** genesetList: ", genesetList);
-          aseert.equals(document.getElementById("plsrInstructions").style.display, "block");
+          //aseert.equals(document.getElementById("plsrInstructions").style.display, "block");
           markEndOfTestingDataSet();
           //testCalculate(genesetList);
         });
@@ -252,64 +255,6 @@ function testSendIDs() {
    hub.send(JSON.stringify(msg));
 
 } // testSendIDs
-//----------------------------------------------------------------------------------------------------
-function testSendIDstoHighlight() {
-   console.log("entering Test.plsr:testSendIDstoHighlight");
-
-   var title = "testSendIDstoHighlight";
-   console.log(title);
-   //sending all the ids to highligh
-   var plsrMsg = plsr.ModuleMsg();
-   var ids = plsrMsg.selectedIDs;
-   if(plsrStatusObserver === null){
-   plsrStatusObserver = new MutationObserver(function(mutations) {
-      mutation = mutations[0];
-      plsrStatusObserver.disconnect();
-      plsrStatusObserver = null;
-      var id = mutation.target.id;
-      var statusMsg = $(minorStatusDiv).text();
-      //var plsrMsg = plsr.ModuleMsg();
-      //highlightIndex = plsrMsg.highlightIndex;
-      QUnit.test(title, function(assert) {
-         console.log("-- in QUnit.test for testSendIDstoHighlight " + ids.length + "  statusMsg: " + statusMsg);
-         console.log("*****testSendIDstoHighlight circles number appear: ", $("circle").length);
-         console.log("*****testSendIDstoHighlight current global selectIDs number: ", plsrMsg.selectedIDs.length);
-         console.log("*****testSendIDstoHighlight current ids number: ", ids.length);
-         assert.ok($("circle").length >= ids.length);
-         var randomIndex = hub.getRandomInt(0, ids.length - 1);
-         //var circleIndex = highlightIndex[randomIndex];
-         //console.log("*****testSendIDstoHighlight randomIndex: ", randomIndex);
-         //console.log("*****testSendIDstoHighlight circleIndex: ", circleIndex);
-         var Highlighted = d3.selectAll(".highlighted")[0].length;
-         console.log("*****testSendIDstoHighlight number of Highlighted:", Highlighted);
-         var cir_random = $("circle")[randomIndex];
-         var xPos = Number(cir_random.getAttribute("cx"));
-         var yPos =  Number(cir_random.getAttribute("cy"));
-         var radius = Number(cir_random.getAttribute("r"));
-         console.log("*****testContentsOfplsrPlot randomIndex:" + randomIndex + "coordinates" + xPos + "  " + yPos + "  " + radius);
-         // get score for this circle, maybe check tooltip name too
-         assert.equal(Highlighted, ids.length);
-         assert.equal(xPos, plsrMsg.xScale(plsrMsg.plsrScores[randomIndex][0]));
-         assert.equal(yPos, plsrMsg.yScale(plsrMsg.plsrScores[randomIndex][1]));
-         console.log("*****before radius comparison");
-         assert.equal(radius, 7);
-         markEndOfTestingDataSet(); 
-         });
-     }); // new MutationObserver
-  } // if null mutation observer
-
-   var config = {attributes: true, childList: true, characterData: true};
-   var target = document.querySelector(minorStatusDiv);
-   plsrStatusObserver.observe(target, config);
-
-   console.log("testSendIDstoHighlight, sending " + JSON.stringify(ids));
-   var count = $.unique(ids).length;
-   var payload = {value: $.unique(ids), count: count , source: "plsr/Test.js::testSendIDstoHighlight"};
-   var msg = {cmd: "sendSelectionTo_plsr (highlight)", callback: "", status: "request", payload:  payload};
-   
-   hub.send(JSON.stringify(msg));
-
-} // testSendIDstoHighlight
 //------------------------------------------------------------------------------------------------------------------------
 function markEndOfTestingDataSet()
 {

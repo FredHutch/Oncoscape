@@ -1,4 +1,12 @@
 default: install test
+
+# by default removeInstalledOncoscapePackages.R will recursively remove any R package from all libraries
+# for matching subdirectory names with a DESCRIPTION file.  To specify certain directories for recursive package
+#  removal, include an additional argument specifying the relative paths using a colon separated string, eg
+# "dataPackages;analysisPackages;." where the "." includes the current directory.
+clean:
+	R --vanilla -f removeInstalledOncoscapePackages.R "dataPackages;analysisPackages;Oncoscape"
+
 ####
 #  INSTALL
 #>make
@@ -31,7 +39,14 @@ test:
 	(cd dataPackages/; make test)
 	(cd analysisPackages/; make test)
 	(cd Oncoscape/inst/unitTests; make test)
-	
+	(cd Oncoscape/inst/scripts; make check)
+
+citest:
+	(cd dataPackages/; make test)
+	(cd analysisPackages/; make test)
+	(cd Oncoscape/inst/unitTests; make test)
+		
+		
 # launches Oncoscape on the provided port then tests modules using websocket requests	
 testWS:
 	python testAllWebsocketOperations.py localhost:7777 | tee testAllWebsocketOperations_7777.log &
@@ -48,10 +63,11 @@ cleanupTests:
 # installOncoscape
 ####
 installOncoscape:
-	(cd Oncoscape; R  --vanilla CMD INSTALL --no-test-load --no-lock .; R CMD BUILD .)
+	(cd Oncoscape; R  --vanilla CMD INSTALL --no-test-load --no-lock .)
 
 installOncoscapeLocal:
-	(cd Oncoscape; R -l $(R_LIBS)  --vanilla CMD INSTALL --no-test-load --no-lock .; sudo R CMD BUILD .)
+	(cd Oncoscape; R --vanilla CMD INSTALL -l $(R_LIBS) --no-test-load --no-lock .)
+	(cd Oncoscape; sudo R --vanilla CMD BUILD .)
 
 # oncoApp7777: kills then launches R server: public Brain datasets on port 7777
 ####
@@ -63,6 +79,12 @@ oncoAppLocal7777:
 
 oncoApp7777:
 	(cd Oncoscape/inst/scripts/apps/oncoscape/; make run;)
+
+oncoAppLocal7788:
+	(cd Oncoscape/inst/scripts/apps/oncotest/; make runLocal;)
+
+oncoApp7788:
+	(cd Oncoscape/inst/scripts/apps/oncotest/; make run;)
 
 oncoWin:
 	(cd Oncoscape/inst/scripts/apps/oncoscape/; make runWin;)
