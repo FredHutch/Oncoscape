@@ -62,7 +62,9 @@ calculate_plsr <- function(ws, msg)
    printf("genes for calculatePLSR after possible lookup(%d)", length(genes))
    print(genes)
    factors.df <- msg$payload$factors
+   print("*****after factors.df assignment")
    print(factors.df)
+   print("*****before nrow factors.df")
    factors <- vector("list", nrow(factors.df))
    for(r in 1:nrow(factors.df)){
       factors[[r]] <- as.list(factors.df[r,])
@@ -118,7 +120,8 @@ summarizePLSRPatientAttributes <- function(ws, msg)
    summary <- summarizeNumericPatientAttributes(myplsr, attributes)
    print("------------ summary returned");
    print(summary)
-   status <- "to be examined element by element"
+   #status <- "to be examined element by element"
+   status <- "success"
    payload <- summary
 
    return.msg <- list(cmd=msg$callback, callback="", status=status, payload=payload)

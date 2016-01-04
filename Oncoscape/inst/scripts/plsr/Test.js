@@ -108,8 +108,8 @@ function testLoadDatasetplsr(dataSetName)
           var genesetList = $("#plsrGeneSetSelector option").map(function(opt){return this.value;});
           console.log("***** genesetList: ", genesetList);
           //aseert.equals(document.getElementById("plsrInstructions").style.display, "block");
-          markEndOfTestingDataSet();
-          //testCalculate(genesetList);
+          //markEndOfTestingDataSet();
+          testCalculate(genesetList);
         });
       }); // new MutationObserver
     } // if null mutation observer
@@ -145,10 +145,10 @@ function testCalculate(genesetList)
         // enable the calculate button, change its color, then click
         
         QUnit.test('testplsrCalculate', function(assert){
-          plsrMsg = plsr.ModuleMsg();
-          console.log("*****testCalculate plsrMsg.geneSet ",plsrMsg.geneSet);
+          //plsrMsg = plsr.ModuleMsg();
+          //console.log("*****testCalculate plsrMsg.geneSet ",plsrMsg.geneSet);
           console.log("*****testCalculate geneset: ",geneset);
-          assert.equal(plsrMsg.geneSet, geneset);
+          //assert.equal(plsrMsg.geneSet, geneset);
           $("#plsrCalculateButton").prop("disabled", false);
           $("#plsrCalculateButton").css({"background-color": "red", "color": "green"});
           assert.equal($("#plsrCalculateButton").css('color'), "rgb(0, 128, 0)");
@@ -164,10 +164,23 @@ function testCalculate(genesetList)
    var config = {attributes: true, childList: true, characterData: true};
    var target = document.querySelector(minorStatusDiv);
    plsrStatusObserver.observe(target, config);
-   
-   
-   var payload = {genes: geneset, source: "plsr/Test.js::testCalculate"};
-   msg = {cmd: "calculateplsr", callback: "plsrPlot", status: "request", payload: payload};
+   var ageAtDxMinThreshold = Number($("#plsrAgeAtDxMinSliderReadout").val()) * 365.24;
+   var ageAtDxMaxThreshold = Number($("#plsrAgeAtDxMaxSliderReadout").val()) * 365.24;
+   var survivalMinThreshold = Number($("#plsrSurvivalMinSliderReadout").val()) * 365.24; 
+   var survivalMaxThreshold = Number($("#plsrSurvivalMaxSliderReadout").val()) * 365.24;
+   factor1 = {name: "AgeDx", 
+             low: ageAtDxMinThreshold, 
+             high: ageAtDxMaxThreshold};
+
+   factor2 = {name: "Survival", 
+             low: survivalMinThreshold,
+             high: survivalMaxThreshold};
+  
+   var payload = {genes: geneset, source: "plsr/Test.js::testCalculate",
+                  factorCount: 2, factors: [factor1, factor2]};
+   msg = {cmd: "calculatePLSR", callback: "handlePlsrResults", status: "request", payload: payload};
+   console.log("***** msg is: ", msg);
+
    hub.send(JSON.stringify(msg));
 
 } // testCalculate
@@ -188,7 +201,8 @@ function testContentsOfplsrPlot()
       assert.equal(xPos, plsrMsg.xScale(plsrMsg.plsrScores[circleIndex][0]));
       assert.equal(yPos, plsrMsg.yScale(plsrMsg.plsrScores[circleIndex][1]));
       assert.equal(radius, 3);
-      testSendIDs(); 
+      markEndOfTestingDataSet(); 
+      //testSendIDs(); 
    });
 
 } // testContentsOfplsrPlot
