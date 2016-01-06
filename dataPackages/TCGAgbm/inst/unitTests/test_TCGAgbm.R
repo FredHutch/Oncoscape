@@ -64,8 +64,9 @@ testManifest <- function()
                                "protein abundance", "network", "geneset")
    checkTrue(all(expected.categories %in% tbl$category))
    
-   expected.rownames <- c("mtx.cn.RData", "events.RData","ptHistory.RData","historyTypes.RData", "mtx.mrna.RData", "mtx.mrna.ueArray.RData", "mtx.mut.RData",
-                                "mtx.prot.RData", "markers.json.RData", "genesets.RData")
+   expected.rownames <- c("mtx.cn.RData", "events.RData","ptHistory.RData","historyTypes.RData",
+                          "mtx.mrna.RData", "mtx.mrna.ueArray.RData", "mtx.mut.RData",
+                          "mtx.prot.RData", "markers.json.RData", "genesets.RData")
    checkTrue(all(expected.rownames %in% rownames(tbl)))
    expected.classes <- c("character", "list", "matrix")
    checkTrue(all(expected.classes %in% tbl$class))

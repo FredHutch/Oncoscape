@@ -20,10 +20,17 @@ HugoGenes <- unique(c(genes.gbm, genes.lgg))
 checkEquals(length(HugoGenes), ncol(tbl.TCGAgbm))
 checkEquals(length(HugoGenes), ncol(tbl.TCGAlgg))
 
+tbl.TCGAlgg <- tbl.TCGAlgg[, colnames(tbl.TCGAgbm)]
 mtx.cn <- rbind(tbl.TCGAgbm, tbl.TCGAlgg)
+
+gene <- "PIK3R2"
+sample <- "TCGA.E1.5318.01"
+checkEquals(mtx.cn[sample, gene], 2)
 
 checkEquals(nrow(mtx.cn), nrow(tbl.TCGAgbm) + nrow(tbl.TCGAlgg) )
 checkEquals(as.list(table(mtx.cn)), list(`-2`=95773,`-1`=3380402,  `0`=18618648, `1`=2435083, `2`=123211))
+
+
 save(mtx.cn, file="../../extdata/mtx.cn.RData")
 
 
