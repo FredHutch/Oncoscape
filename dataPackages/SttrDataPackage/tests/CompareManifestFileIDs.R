@@ -1,9 +1,6 @@
 #load libraries 
 library("TCGAbrain")
 library("TCGAbrca")
-library("TCGAprad")
-library("TCGAbrain")
-library("TCGAbrca")
 library("DEMOdz")
 library("TCGAgbm")
 library("TCGAhnsc")
