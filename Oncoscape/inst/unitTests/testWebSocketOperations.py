@@ -243,7 +243,7 @@ def test_histogramCoordinatesDEMOdz_mrna():
 
 # testHistogramCoordinatesDEMOdz_mrna
 #------------------------------------------------------------------------------------------------------------------------
-def test_specifyCurrentDataset():
+def test_specifyCurrentDataset_GBM():
 
   "set current dataset, with legal value, with a nonsensical one"
 
@@ -251,19 +251,6 @@ def test_specifyCurrentDataset():
 
   cmd = "specifyCurrentDataset"
   callback = "datasetSpecified"
-  dataset = "DEMOdz";
-  payload = dataset
-  
-     # set a legitimate dataset
-  msg = dumps({"cmd": cmd, "status": "request", "callback": callback, "payload": payload})
-  ws.send(msg)
-  result = loads(ws.recv())
-  payload = result["payload"]
-  assert(payload.keys() == ['datasetName', 'mtx', 'rownames', 'colnames'])
-  assert(payload["rownames"][0:2] == ['mtx.mrna.ueArray.RData', 'mtx.mrna.bc.RData'])
-  assert(result["cmd"] == callback)
-  
-     # set another legitimate dataset
   dataset = "TCGAgbm";
   payload = dataset
   
@@ -1182,6 +1169,24 @@ def test_pcaCalculate():
 def test_plsr():
 
   print "--- test_plsr"
+
+   #------------------------------------------------------------
+   # first specify currentDataSet
+   #------------------------------------------------------------
+  cmd = "specifyCurrentDataset"
+  callback = "datasetSpecified"
+  dataset = "DEMOdz";
+  payload = dataset
+  
+     # set a legitimate dataset
+  msg = dumps({"cmd": cmd, "status": "request", "callback": callback, "payload": payload})
+  ws.send(msg)
+  result = loads(ws.recv())
+  
+  assert result["payload"]["datasetName"] == dataset;
+  assert result["cmd"] == callback
+  assert result["status"] == "success"
+
 
   test_plsrCreateWithDataSet()
   test_plsrSummarizePLSRPatientAttributes()
