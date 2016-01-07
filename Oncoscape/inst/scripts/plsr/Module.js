@@ -42,6 +42,7 @@ var PLSRModule = (function () {
   var selectionDestinationsOfferedHere = ["PLSR (highlight)"];
  
   var expressionDataSetName = "";
+  var plsrMsg; 
 
 //--------------------------------------------------------------------------------------------
 function initializeUI () 
@@ -248,9 +249,12 @@ function handlePlsrResults (msg)
    vectorNames = payload.vectorNames;
    geneLoadings = payload.loadings;
    geneNames = payload.loadingNames;
-
+   console.log("****** handlePlsrResults vectors length: ", vectors.length);
+   console.log("****** handlePlsrResults vectorNames: ", vectorNames);
+   console.log("****** geneLoadings: ", geneLoadings);
+   console.log("****** geneNames: ", geneNames);
    currentAbsoluteMaxValue = absMaxValue; // most recent max value, used for scaling
-
+   plsrMsg = {genes:geneLoadings, geneNames:geneNames};
    svg = d3PlsrScatterPlot(geneLoadings, geneNames, vectors, vectorNames, absMaxValue);
    postStatus("scatterplot complete");
 
@@ -305,6 +309,9 @@ function d3PlsrScatterPlot(genes, geneNames, vectors, vectorNames, absMaxValue)
    var yScale = d3.scale.linear()
                   .domain([negAbsMaxValue, absMaxValue])
                   .range([height - padding, padding]); // note inversion 
+   
+   plsrMsg.xScale = xScale;
+   plsrMsg.yScale = yScale; 
 
    var xAxis = d3.svg.axis()
                  .scale(xScale)
@@ -476,6 +483,7 @@ function highlightGenes(msg)
      } // if intersection
    else
      selectPoints(candidates, true);
+   postStatus("highlighted are plotted");
 
 } // highlightGenes
 //----------------------------------------------------------------------------------------------------
@@ -609,8 +617,13 @@ function initializeModule()
 
 } // initializeModule
 //--------------------------------------------------------------------------------------------
+function ModuleMsg(){
+  return plsrMsg;
+}
+//----------------------------------------------------------------------------------------------------
 return{
    init: initializeModule,
+   ModuleMsg: ModuleMsg
    };
 
 }); // PLSRModule
