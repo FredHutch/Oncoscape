@@ -56,16 +56,4 @@ ExpressionTables<-lapply(datapackages,function(dp){
 })
 names(ExpressionTables)=datapackages
 
-#Lisa
-ExpressionTables<-lapply(datapackages,function(dp){
-  manifest<-Data(dp)
-  #create variable of only the desired categories from the manifests
-  LegitManifest<-subset(manifest,(grepl(category,("copy number|mutations|protein abundance|methylation|mrna expression"),ignore.case = TRUE)))
-  print(paste("This datapackage is", dp))
-  #set files names as a variable
-  filenames<-rownames(LegitManifest)
-  CompareFunction(LegitManifest, filenames, dp)
-})
-names(ExpressionTables)=datapackages
-
 #----------------------------------------------------------------------------------------------------------------------------
