@@ -1,3 +1,21 @@
+#Script to compare patients across the different manifest categories 
+#----------------------------------------------------------------------------------------------------------------------------
+#load libraries 
+library("TCGAbrain")
+library("TCGAbrca")
+library("TCGAprad")
+library("TCGAbrain")
+library("TCGAbrca")
+library("DEMOdz")
+library("TCGAgbm")
+library("TCGAhnsc")
+library("TCGAlgg")
+library("TCGAluad")
+library("TCGAlung")
+library("TCGAlusc")
+library("TCGAprad")
+library("TCGAcoadread")
+
 #Create a variable of all the datapackages available for testing
 datapackages<-c("TCGAbrain","TCGAbrca","DEMOdz","TCGAgbm","TCGAhnsc","TCGAlgg","TCGAluad","TCGAlung","TCGAlusc","TCGAprad","TCGAcoadread")
 
@@ -8,7 +26,6 @@ Data<-function(dp){
   manifest <- read.table(file, sep="\t", as.is=TRUE)
   return(manifest)
 }
-
 
 #Compare Function-loops datapackage manifests and grabs (sampleIDs)
 CompareFunction<-function(LegitManifest,filenames,dp){
@@ -44,16 +61,15 @@ CompareFunction<-function(LegitManifest,filenames,dp){
   print(Final)
 }
 
-#Final lapply for results #HACKED
+#Final lapply for results 
 ExpressionTables<-lapply(datapackages,function(dp){
-  manifest=Data(dp)
+  manifest<-Data(dp)
   #create variable of only the desired categories from the manifests
-  LegitManifest<-subset(manifest,category %in% c("copy number", "mutations", "protein abundance", "methylation", "mrna expression"))
+  LegitManifest<-subset(manifest,(grepl("copy number|mutations|protein abundance|methylation|mrna expression",category ,ignore.case = TRUE)))
   print(paste("This datapackage is", dp))
   #set files names as a variable
   filenames<-rownames(LegitManifest)
   CompareFunction(LegitManifest, filenames, dp)
 })
 names(ExpressionTables)=datapackages
-
-#----------------------------------------------------------------------------------------------------------------------------
+#--------------------------------------------------------------------------------------------------------------------------------------
