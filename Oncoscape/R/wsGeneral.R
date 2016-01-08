@@ -145,7 +145,7 @@ saveLog <- function()
 {
    if("log" %in% ls(state)){
       log <- state[["log"]]
-      filename <- sprintf("log.%s.RData", gsub(" ", ".", Sys.time()));
+      filename <- sprintf("log.%s.RData", gsub(":", ".", gsub(" ", ".", Sys.time())));
       full.path <- file.path(getwd(), filename);
       message(sprintf("saving log to %s", full.path))
       save(log, file=full.path)
