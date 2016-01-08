@@ -249,7 +249,7 @@ function handlePlsrResults (msg)
    vectorNames = payload.vectorNames;
    geneLoadings = payload.loadings;
    geneNames = payload.loadingNames;
-   console.log("****** handlePlsrResults vectors length: ", vectors.length);
+   console.log("****** handlePlsrResults vectors: ", vectors);
    console.log("****** handlePlsrResults vectorNames: ", vectorNames);
    console.log("****** geneLoadings: ", geneLoadings);
    console.log("****** geneNames: ", geneNames);
@@ -443,7 +443,12 @@ function selectPoints(ids, clearIDs)
      .duration(500);
 
   hub.enableButton(clearSelectionButton);
-
+  //pcaMsg.highlightIndex = highlightIndex;
+   setTimeout(function(){
+            console.log("***** Module.js within selectPoints before qunit");
+            console.log("***** Date time: ", Date());
+            postStatus("selectPoints are highlighted"); 
+   }, 5000);
 } // selectPoints
 //----------------------------------------------------------------------------------------------------
 function clearSelection()
@@ -483,7 +488,6 @@ function highlightGenes(msg)
      } // if intersection
    else
      selectPoints(candidates, true);
-   postStatus("highlighted are plotted");
 
 } // highlightGenes
 //----------------------------------------------------------------------------------------------------

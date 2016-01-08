@@ -198,8 +198,8 @@ function testContentsOfplsrPlot()
       assert.equal(xPos, plsrMsg.xScale(plsrMsg.genes[circleIndex][0]), "tested one circle's x coordinate");
       assert.equal(yPos, plsrMsg.yScale(plsrMsg.genes[circleIndex][1]), "tested one circle's y coordinate");
       assert.equal(radius, 3, "tested one circle's radius");
-      //markEndOfTestingDataSet(); 
-      testSendIDs(); 
+      markEndOfTestingDataSet(); 
+      //testSendIDs(); 
    });
 
 } // testContentsOfplsrPlot
