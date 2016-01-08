@@ -13,7 +13,9 @@ createTimelines <- function(ws, msg)
    print(msg$payload)
 
    currentDataSetName <- state[["currentDatasetName"]]
-   ds <- state[[currentDataSetName]];
+   printf("    using current Dataset: %s", currentDataSetName)
+
+   ds <- datasets[[currentDataSetName]];
    events <- getEventList(ds)
    pts <- getPatientList(ds)
    eventTypes <- getEventTypeList(ds)

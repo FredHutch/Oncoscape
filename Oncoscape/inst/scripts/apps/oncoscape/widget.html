@@ -5,6 +5,7 @@
 
 
 <script>
+include(../../Dashboard/Module.js)
 include(../../datasets/Module.js)
 include(../../patientHistory/Module.js)
 include(../../patientTimelines/Module.js)
@@ -27,6 +28,7 @@ include(Test.js)
 
 <div id="oncoscapeTabs">
    <ul>
+     <li><a href="#DashboardDiv">Dashboard</a></li>
      <li><a href="#datasetsDiv">Datasets</a></li>
      <li><a href="#patientHistoryDiv">Patient History</a></li>
      <li><a href="#patientTimeLinesDiv">Timelines</a></li>
@@ -39,6 +41,7 @@ include(Test.js)
 
    </ul>
 
+include(../../Dashboard/widget.html)
 include(../../datasets/widget.html)
 include(../../patientHistory/widget.html)
 include(../../patientTimelines/widget.html)
@@ -55,5 +58,11 @@ include(../../oncoprint/widget.html)
 	<span style="float:left; width:33%">
 	  <a href="http://www.fredhutch.org" target="_blank"><img width="235" height="80" src="http://oncoscape.sttrcancer.org/oncoscape/images/FredHutch_h_tag_4col_RBG_tm.png" alt="Fred Hutch"/></a>
 	</span>
+
+    <span id="githubIssues" style="float:right; margin:10px" title="GitHub Help Wanted Issues">
+       <a href="https://github.com/FredHutch/Oncoscape/labels/help%20wanted" target="_blank" >
+          <img width="40" src="http://oncoscape.sttrcancer.org/oncoscape/images/GitHub-Mark-120px-plus.png"
+          alt="GitHub Issues" data-canonical-src="http://oncoscape.sttrcancer.org/oncoscape/images/GitHub-Mark-120px-plus.png"></a>
+    </span>
 
 </div>

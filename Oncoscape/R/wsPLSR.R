@@ -13,10 +13,10 @@ createPLSR <- function(ws, msg)
    printf("    callback: %s", msg$callback)
    print(msg$payload)
 
-   dataPackageName = msg$payload$dataPackage
+#   dataPackageName = msg$payload$dataPackage
    matrixName = msg$payload$matrixName
 
-   printf("    dataPackageName: %s", dataPackageName);
+#   printf("    dataPackageName: %s", dataPackageName);
    printf("         matrixName: %s", matrixName);
    
    #require(dataPackageName, character.only=TRUE)
@@ -24,7 +24,7 @@ createPLSR <- function(ws, msg)
       # this creates a real variable, ds, which is an object of whatever dataSetName names
 
    currentDataSetName <- state[["currentDatasetName"]]
-   ds <- state[[currentDataSetName]];
+   ds <- datasets[[currentDataSetName]];
    cmd <- sprintf("myplsr <- PLSR(ds, '%s')", matrixName);
    printf("createPLSR about to eval cmd: %s", cmd)
    eval(parse(text=cmd))
