@@ -83,6 +83,7 @@ setMethod("registerMessageHandlers", "ChinookDataset",
      addMessageHandler(getServer(obj), "getDatasetJSON",       "Dataset.getJSON")
      addMessageHandler(getServer(obj), "getDatasetItemNames",  "Dataset.getItemNames")
      addMessageHandler(getServer(obj), "getDatasetItemByName", "Dataset.getItemByName")
+     addMessageHandler(getServer(obj), "getNetwork",           "Dataset.getNetwork")
      })
 
 #----------------------------------------------------------------------------------------------------
@@ -241,6 +242,34 @@ Dataset.getItemByName <- function(channel, msg)
       return(response)
 
 } # Dataset.getItemByName
+#----------------------------------------------------------------------------------------------------
+Dataset.getMarkersNetwork <- function(channel, msg)
+{
+
+   self <- local.state[["self"]]
+   dataset <- getDataset(self)
+   tbl.manifest <- manifest(dataset)
+   variable.name = "g.markers.json"
+   stopifnot(variable.name %in% tbl.manifest$variable)
+
+   payload <- networks(dataset)[[markerName]]
+   printf("wsDatasets.getMarkersAndSamplesNetwork, size: %d", nchar(payload));
+   response <- toJSON(list(cmd=msg$callback, status="success", callback="", payload=payload))
+   
+   if("WebSocket" %in% is(channel))
+      channel$send(response)
+   else
+      return(response)
+
+  datasetName <- state[["currentDatasetName"]]
+  dataset <- datasets[[datasetName]]
+
+  if(markerName %in% names(networks(dataset))){
+     ws$send(toJSON(return.msg))
+     return()
+     }
+
+} # Dataset.getMarkersNetwork
 #----------------------------------------------------------------------------------------------------
 # addRMessageHandler("getDataManifest", "getDataManifest");
 # addRMessageHandler("getPatientHistoryTable", "getPatientHistoryTable")

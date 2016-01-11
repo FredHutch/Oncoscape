@@ -18,8 +18,8 @@ setGeneric("port",                 signature="self", function(self) standardGene
 setGeneric("getAnalysisPackageNames",  signature="self", function(self) standardGeneric("getAnalysisPackageNames"))
 setGeneric("getDatasetNames",          signature="self", function(self) standardGeneric("getDatasetNames"))
 setGeneric("getDatasetByName",     signature="self", function(self, datasetName) standardGeneric("getDatasetByName"))
-setGeneric("setActiveDataSet",     signature="self", function(self, dataSetName) standardGeneric("setActiveDataSet"))
-setGeneric("getActiveDataSet",     signature="self", function(self) standardGeneric("getActiveDataSet"))
+setGeneric("setActiveDataset",     signature="self", function(self, dataSetName) standardGeneric("setActiveDataset"))
+setGeneric("getActiveDataset",     signature="self", function(self) standardGeneric("getActiveDataset"))
 setGeneric('close',                signature="self", function(self) standardGeneric("close"))
 setGeneric("serverVersion",        signature="self", function(self) standardGeneric("serverVersion"))
 setGeneric("addMessageHandler",    signature="self", function(self, messageName, functionToCall) standardGeneric("addMessageHandler"))
@@ -158,6 +158,7 @@ setMethod("addMessageHandler", "ChinookServer",
 
    wsCon$call = function(req) {
       queryString <- req$QUERY_STRING
+      printf("call (%d), queryString: ", nchar(queryString), queryString)
       if(nchar(queryString) > 0){
          fields <- ls(req)
          body <- chinookHttpQueryProcessor(server, queryString)
@@ -190,7 +191,9 @@ setMethod("addMessageHandler", "ChinookServer",
             return;
             }
          cmd <- message$cmd
-         dispatchMessage(server, ws, message);
+         printf("===* calling dispatchMessage from main port ws$onMessage")
+         #dispatchMessage(server, ws, message);
+         dispatchMessage(ws, message);
          }) # onMessage
        wsCon$open <- TRUE
        } # onWSOpen
@@ -199,7 +202,7 @@ setMethod("addMessageHandler", "ChinookServer",
 
 } # .setupWebSocketHandlers
 #------------------------------------------------------------------------------------------------------------------------
-dispatchMessage <- function(server, WS, msg)
+dispatchMessage <- function(WS, msg)
 {
   if(msg$cmd == "keepAlive")
      return()
@@ -232,11 +235,20 @@ dispatchMessage <- function(server, WS, msg)
     if(msg$status == "forBrowser"){
         printf("R sees message for browser");
         print(paste(as.character(msg), collapse=";  "))
+        printf("class of msg: %s", class(msg))
+        print(msg)
         msg$status <- "request"
-        print("sending to browser");
-        WS$send(toJSON(msg))
-        return();
+        primaryWebSocketServer <- local.state[["server"]]@wsServer
+        printf("sending to browser, class of WS is %s", class(primaryWebSocketServer$ws));
+        primaryWebSocketServer$ws$send(toJSON(msg))
+        printf("after primaryWebSocketServer$ws$send");
+        # WS$send(toJSON(msg))
+        result <- toJSON(list(cmd=msg$callback, status="success", callback="", payload="sent to browser"))
+        return(result);
         }
+
+    server <- local.state[["server"]]
+    
     stopifnot(msg$cmd %in% ls(server@dispatchMap));
     printf("====== Server.dispatchMessage: %s  [%s]", msg$cmd, format(Sys.time(), "%a %b %d %Y %X"));;
     function.name <- server@dispatchMap[[msg$cmd]]
@@ -254,8 +266,13 @@ setMethod("registerMessageHandlers", "ChinookServer",
 
   function (obj) {
      addMessageHandler(obj, "getRegisteredMessageNames", "ChinookServer.getMessageNames")
-     addMessageHandler(obj, "getDatasetNames", "ChinookServer.getDatasetNames")
-     addMessageHandler(obj, "getDataSetNames", "ChinookServer.getDatasetNames")
+     addMessageHandler(obj, "setVariable",               "ChinookServer.setVariable")
+     addMessageHandler(obj, "getVariableNames",          "ChinookServer.getVariableNames")
+     addMessageHandler(obj, "getVariable",               "ChinookServer.getVariable")
+     addMessageHandler(obj, "deleteVariable",            "ChinookServer.deleteVariable")
+     addMessageHandler(obj, "specifyCurrentDataset",     "ChinookServer.specifyCurrentDataset")
+     addMessageHandler(obj, "getDatasetNames",           "ChinookServer.getDatasetNames")
+     addMessageHandler(obj, "getDatasetNames",           "ChinookServer.getDatasetNames")
      })
 
 #------------------------------------------------------------------------------------------------------------------------
@@ -322,7 +339,7 @@ setMethod("getDatasetByName", "ChinookServer",
 # some refactoring needed here.  this method on the class is not available (yet?) to
 # wsDatasets.R, since the ChinookServer object is not visible here.  so this method is not
 # called, not used.   see instead wsDatasets.specifyCurrentDataset
-setMethod("setActiveDataSet",  "ChinookServer",
+setMethod("setActiveDataset",  "ChinookServer",
 
    function(self, dataSetName){
       if(!dataSetName %in% getDatasetNames(self)){
@@ -335,13 +352,13 @@ setMethod("setActiveDataSet",  "ChinookServer",
      constructionNeeded <- !dataSetName %in% ls(self@state)
      printf("%s construction needed? %s", dataSetName, constructionNeeded);
      if(constructionNeeded){
-         printf("ChinookServer.setActiveDataSet creating and storing a new %s object", dataSetName);
+         printf("ChinookServer.setActiveDataset creating and storing a new %s object", dataSetName);
          eval(parse(text=sprintf("ds <- %s()", dataSetName)))
          } # creating and store new instance
       })
 
 #------------------------------------------------------------------------------------------------------------------------
-setMethod("getActiveDataSet",  "ChinookServer",
+setMethod("getActiveDataset",  "ChinookServer",
 
    function(self){
       self@state[["currentDatasetName"]]
@@ -365,8 +382,8 @@ setMethod("getMessageNames", "ChinookServer",
 chinookHttpQueryProcessor <- function(server, queryString)
 {
    printf("=== chinookHttpQueryProcessor")
-   #print(queryString)
-   #print(URLdecode(queryString))
+   print(queryString)
+   print(URLdecode(queryString))
 
    queryString <- URLdecode(queryString)
    diagnostic.string <- substr(queryString,1,10)
@@ -379,7 +396,13 @@ chinookHttpQueryProcessor <- function(server, queryString)
       msg <- fromJSON(URLdecode(rawJSON))
       #printf("calling dispatch on %s", msg$cmd);
       #print(msg$cmd)
-      return(dispatchMessage(server, "http", msg))
+      server <- local.state[["server"]]
+      printf("===* calling dispatchMessage from chinookHttpQueryProcessor")
+      #printf("    server:")
+      #print(server)
+      result <- dispatchMessage("http", msg)
+      printf("chinookHttpQueryProcessor, after dispatchMessage, result: %s", result);
+      return(result)
       } # if jsonMsg queryString
    
    return("from the chinookHttpQueryProcessor");
@@ -405,21 +428,28 @@ AuxPort <- function(primaryWebSocketServer, port)
    wsCon$result <- NULL
      # process http requests
    wsCon$call = function(req) {
-      wsUrl = paste(sep='', '"', "ws://",
-                   ifelse(is.null(req$HTTP_HOST), req$SERVER_NAME, req$HTTP_HOST),
-                   '"')
-     list(
-       status = 200L,
-       headers = list('Content-Type' = 'text/html'),
-       body = "hello from ChinookServer auxiliary port")
-       }
-
-      # called whenever a websocket connection is opened
+      queryString <- req$QUERY_STRING
+      printf("call (%d), aux queryString: ", nchar(queryString), queryString)
+      if(nchar(queryString) > 0){
+         fields <- ls(req)
+         body <- chinookHttpQueryProcessor(primaryWebSocketServer, queryString)
+         return(list(status=200L, headers = list('Content-Type' = 'text/html'),
+                     body=body))
+         } # the request had a query string
+      httpBody <- "hello from ChinookServer auxiliary port"
+      response <- list(status = 200L,
+                       headers = list('Content-Type' = 'text/html'),
+                       body = httpBody
+                       )
+      return(response)
+      } # call
 
    wsCon$onWSOpen = function(ws) {   
       wsCon$ws <- ws
       ws$onMessage(function(binary, rawMessage) {
+         printf("new ws message on AUX port: ")
          message <- as.list(fromJSON(rawMessage))
+         print(message)
          wsCon$lastMessage <- message
          if(!is(message, "list")){
             message("message: new websocket message is not a list");
@@ -431,16 +461,18 @@ AuxPort <- function(primaryWebSocketServer, port)
             }
          cmd <- message$cmd
          dispatchMap <- local.state[["server"]]@dispatchMap
+         printf(" about to dispatch from aux handler: %s (in map? %s)", cmd, cmd %in% ls(dispatchMap))
          if(cmd %in% ls(dispatchMap)){
-           function.name <- dispatchMap[[msg$cmd]]
+           function.name <- dispatchMap[[cmd]]
            printf("    function.name: %s", function.name)
            func <- get(function.name)
-           do.call(func, list(primaryWebSocketServer$ws, msg))
+           do.call(func, list(wsCon$ws, message))
            }
          else{         
             printf("ChinookSever/AuxPort onMessage, cmd: %s ", cmd);
             printf("sending to primaryWebSocketServer, fields %s", paste(ls(primaryWebSocketServer), collapse=","))
             primaryWebSocketServer$ws$send(toJSON(message))
+            #primaryWebSocketServer$ws$send(toJSON(message))
             printf("after dispatch to primary");
             }
          }) # onMessage
@@ -450,6 +482,101 @@ AuxPort <- function(primaryWebSocketServer, port)
    wsCon
 
 } # .setupAuxPortWebSocketHandlers
+#------------------------------------------------------------------------------------------------------------------------
+ChinookServer.setVariable <- function(channel, msg)
+{
+   variable <- msg$payload$name
+   value <- msg$payload$value
+
+   if(variable != "server")
+       local.state[[variable]] <- value
+
+   response <- toJSON(list(cmd=msg$callback, status="success", callback="", payload=""))
+
+   if("WebSocket" %in% is(channel))
+      channel$send(response)
+   else
+      return(response)
+
+} # ChinookServer.setVariable
+#------------------------------------------------------------------------------------------------------------------------
+ChinookServer.getVariableNames <- function(channel, msg)
+{
+   payload <- sort(ls(local.state))
+
+   if("server" %in% payload)   # protect the server variable from being seen, from being manipulated
+       payload <- payload[-which(payload=="server")]
+
+   response <- toJSON(list(cmd=msg$callback, status="success", callback="", payload=payload))
+
+   if("WebSocket" %in% is(channel))
+      channel$send(response)
+   else
+      return(response)
+
+} # ChinookServer.getVariableNames
+#------------------------------------------------------------------------------------------------------------------------
+ChinookServer.getVariable <- function(channel, msg)
+{
+   variable <- msg$payload$name
+   value <- local.state[[variable]]
+   payload <- list(name=variable, value=value)
+   
+   response <- toJSON(list(cmd=msg$callback, status="success", callback="", payload=payload))
+
+   if("WebSocket" %in% is(channel))
+      channel$send(response)
+   else
+      return(response)
+
+} # ChinookServer.getVariable
+#------------------------------------------------------------------------------------------------------------------------
+ChinookServer.deleteVariable <- function(channel, msg)
+{
+   variable <- msg$payload$name
+
+   status <- "error"   # be pessimistic
+
+   if(variable != "server" && variable %in% ls(local.state)){
+      rm(list=variable, envir=local.state)
+      status <- "success"
+      }
+   
+   response <- toJSON(list(cmd=msg$callback, status=status, callback="", payload=""))
+
+   if("WebSocket" %in% is(channel))
+      channel$send(response)
+   else
+      return(response)
+
+} # ChinookServer.getVariable
+#------------------------------------------------------------------------------------------------------------------------
+# a client has selected a dataset name, and tells us that they have done so.  Our convention is that
+#
+#  1) we here set the selected dataset as our default, load and instantiate it if needed 
+#  2) issue the callback message provided by the client
+#  3) depending explicitly on consistency among the current set of clients (i.e., various javascript modules
+#     each running in their own jQuery tab in a web browser), we may have many such callbacks to issue.
+#  4) this is how we handle notification of these separate clients that, until further notice, there is a new
+#     current datset, and they may want to respond appropriately
+#  5) that appropriate response could be:  give me the markers (genes & samples) network for this new dataset,
+#     or give me the mRNA expression data so that I can calculate a default PCA
+#
+ChinookServer.specifyCurrentDataset <- function(channel, msg)
+{
+   printf("=== ChinookServer.specifyCurrentDataset")
+   self <- local.state[["server"]]
+   newDatasetName <- msg$payload
+   stopifnot(newDatasetName %in% getDatasetNames(self))
+   setActiveDataset(self, newDatasetName);
+   response <- toJSON(list(cmd=msg$callback, status="success", callback="", payload=""))
+
+   if("WebSocket" %in% is(channel))
+      channel$send(response)
+   else
+      return(response)
+
+} # ChinookServer.specifyCurrentDataset
 #------------------------------------------------------------------------------------------------------------------------
 ChinookServer.getDatasetNames <- function(channel, msg)
 {
@@ -473,11 +600,21 @@ ChinookServer.getMessageNames <- function(channel, msg)
 
    payload <- ls(self@dispatchMap)
    response <- toJSON(list(cmd=msg$callback, status="success", callback="", payload=payload))
-   
+   printf("--- response");
+   print(response)
+   printf("--- channel")
+   print(channel)
+   printf("channel type? %s", paste(is(channel), collapse=","))
+   return(.send(channel, response))
+
+} # ChinookServer.getMessageNames
+#------------------------------------------------------------------------------------------------------------------------
+.send <- function(channel, response)
+{
    if("WebSocket" %in% is(channel))
-      channel$send(response)
+      invisible(channel$send(response))
    else
       return(response)
 
-} # ChinookServer.getMessageNames
+} # .send
 #------------------------------------------------------------------------------------------------------------------------

@@ -1,25 +1,13 @@
 exportClasses(Dataset)
 
-exportMethods (
+exportMethods(
   show,
+  getName,
+  getManifest,
+  getSubjectHistory,
   getItemNames,
   getItemByName,
-  matrices,
-  data.frames,
-  history,
-  manifest,
-  entities, 
-  #getEventList,
-  #getEventTypeList,
-  #getSubjectList,
-  #getSubjectTable,
-  getGeneSetNames,
-  getGeneSetGenes,
-  getJSON,
-  networks,
-  canonicalizeSampleIDs,
-  getSampleCategorizationNames,
-  getSampleCategorization
+  sampleIdToSubjectId
   )
 
 export(

@@ -11,12 +11,16 @@ runTests <- function()
 test.defaultConstructor <- function()
 {
    print("--- test.defaultConstructor")
+
    history <- SubjectHistory();
+
    tbl <- getTable(history)
    checkEquals(dim(tbl), c(0,0))
 
    checkEquals(length(getSubjectIDs(history)), 0)
    checkEquals(length(getEventNames(history)), 0)
+
+   checkEquals(getEventList(history), list())
    
 } # test.defaultConstructor
 #----------------------------------------------------------------------------------------------------
@@ -37,8 +41,8 @@ test.constructorWithSampleHistoryTable <- function()
    checkEquals(length(eventNames), 6)
    checkEquals(eventNames, c("ptNum", "study", "Birth.date", "Birth.gender", "Drug.date1", "Diagnosis.date"))
 
-   checkEquals(dim(getTable(history, selected.subjects="TCGA.02.0014")), c(1,6))
-   checkEquals(dim(getTable(history, selected.events=c("Birth.date", "Diagnosis.date"))), c(10,2))
+   checkEquals(dim(getTable(history, subjectIDs="TCGA.02.0014")), c(1,6))
+   checkEquals(dim(getTable(history, eventNames=c("Birth.date", "Diagnosis.date"))), c(10,2))
    
 } # test.constructorWithSampleHistoryTable
 #----------------------------------------------------------------------------------------------------

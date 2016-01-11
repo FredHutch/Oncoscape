@@ -4,7 +4,7 @@ from json import *
 
 payload = [5.4964085, 0.7883715, 6.4879698, 4.9685336, 7.1878731]
 msg = quote(dumps({"cmd": "numericVectorSummaryStats", "status": "request", "callback": "", "payload": payload}))
-request = "http://localhost:4001?jsonMsg='%s'" % msg
+request = "http://localhost:4038?jsonMsg='%s'" % msg
 rawResult = urlopen(request).read()
 result = loads(rawResult.decode())   # bytes.decode()
 payload = result["payload"]

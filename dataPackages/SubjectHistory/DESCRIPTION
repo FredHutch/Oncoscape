@@ -1,6 +1,6 @@
 Package: SubjectHistory
 Type: Package
-Title: SubjectHistory: a base class for Chinook subject (patient, participant, or other entity) history data
+Title: SubjectHistory: a base class for Chinook subject (patient, participant, or other entity) historical data
 Version: 1.0.1
 Date: 2015-12-29
 Author: Paul Shannon
