@@ -92,7 +92,7 @@ Dataset.getManifest <- function(channel, msg)
    self <- local.state[["self"]]
    dataset <- getDataset(self)
 
-   tbl <- manifest(dataset)
+   tbl <- getManifest(dataset)
    datasetName <- getName(self)
    payload <- .prepDataframeOrMatrixForJSON(datasetName, tbl)
    column.titles <- payload$colnames   
