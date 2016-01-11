@@ -1,6 +1,6 @@
 # test_ChinookServer.R
 #------------------------------------------------------------------------------------------------------------------------
-PORT = 4099
+PORT = 6001
 #------------------------------------------------------------------------------------------------------------------------
 library(RUnit)
 library(RCurl)
@@ -101,7 +101,7 @@ killServer <- function(scriptName)
 test_runningServer <- function()
 {
     printf("--- test_runningServer")
-    scriptName <- "runTestingChinookServer.R"
+    scriptName <- "runEmptyChinookServer.R"
     killServer(scriptName)
     printf("   starting server in background")
     system(sprintf("bash R --no-save --silent -f %s &", scriptName))

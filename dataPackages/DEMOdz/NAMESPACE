@@ -1,4 +1,4 @@
-exportClasses(DEMOdzClass)
+exportClasses(DEMOdz)
 
 export(
    DEMOdz

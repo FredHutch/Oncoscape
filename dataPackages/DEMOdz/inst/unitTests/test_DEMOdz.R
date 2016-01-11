@@ -1,41 +1,29 @@
 library(RUnit)
 library(DEMOdz)
-library(org.Hs.eg.db)
-
-# standardize alphabetic sort order
-Sys.setlocale("LC_ALL", "C")
+library(jsonlite)
+#----------------------------------------------------------------------------------------------------
+Sys.setlocale("LC_ALL", "C")  # standardize alphabetic sort order
 #----------------------------------------------------------------------------------------------------
 printf <- function(...) print(noquote(sprintf(...)))
 #----------------------------------------------------------------------------------------------------
-runTests <- function()
+runTests <- function(quiet=TRUE)
 {
-  printf("=== test_DEMOdz.R, runTests()")
-
-    # first tests are concerned with reading, parsing, and transforming
-    # data to -create- a DEMOdz data package
-  testManifest()
-  testExpression1()
-  testExpression1()
-  testCopyNumber()
-  testMutation() 
-  testHistoryList()
-  testHistoryTable()
-#  testMethylation() 
-#  testProteinAbundance() 
-
-    # the following tests address the -use- of this class by client code
-  testConstructor();
-  testMatrixAndDataframeAccessors()
-  testNetworks()
-  testSampleCategories()
-  testCanonicalizePatientIDs()
+  testManifestAndDataConsistency(quiet)   # qc on the manifest and extdata: verify this before proceeding 
+  testConstructor(quiet);
+  testManifest(quiet)
+  testMatrices(quiet)
+  testDataFrames(quiet)
+  testNetworks(quiet)
+  testSubjectHistory(quiet)
 
 } # runTests
 #----------------------------------------------------------------------------------------------------
-testManifest <- function()
+# pass these tests before building the package: it reads from inst/extdata directly, using
+# a relative pathnames
+testManifestAndDataConsistency <- function(quiet=TRUE)
 {
-   printf("--- testManifest")
-   dir <- system.file(package="DEMOdz", "extdata")
+   printf("--- testManifestAndDataConsistency")
+   dir <- "../extdata"
    checkTrue(file.exists(dir))
    
    file <- file.path(dir, "manifest.tsv")
@@ -49,15 +37,14 @@ testManifest <- function()
                                 "feature.type", "minValue", "maxValue", "provenance"))
  
    expected.rownames <- c("mtx.mrna.ueArray.RData","mtx.mrna.bc.RData", "mtx.mut.RData", "mtx.cn.RData",
-                          "events.RData","ptHistory.RData","historyTypes.RData", "tbl.ptHistory.RData", "mtx.prot.RData",
-                          "mtx.meth.RData", "genesets.RData", "markers.json.RData")
+                          "mtx.meth.RData", "markers.json.RData")
    
    checkTrue(all(expected.rownames %in% rownames(tbl)))
 
-   expected.classes <- c("data.frame", "list", "matrix", "character", "json")   # new ones may be added
+   expected.classes <- c("data.frame", "matrix", "character", "json")   # new ones may be added
    checkTrue(all(tbl$class %in% expected.classes))
 
-   expected.categories <- unique(c("copy number", "geneset", "history","mRNA expression", "methylation",
+   expected.categories <- unique(c("copy number", "history","mRNA expression", "methylation",
                                    "mutations", "network", "protein abundance"))
    checkTrue(all(expected.categories %in% tbl$category))
    
@@ -76,7 +63,7 @@ testManifest <- function()
       subcategory <- tbl$subcategory[i]
       entity.count <- tbl$entity.count[i]
       feature.count <- tbl$feature.count[i]
-      printf("class: %s - %s", class, class(x))
+      #printf("class: %s - %s", class, class(x))
       checkEquals(class(x), class)
       if(class %in% c("matrix", "data.frame")){
          checkEquals(entity.count, nrow(x))
@@ -95,74 +82,130 @@ testManifest <- function()
          checkEqualsNumeric(max(x, na.rm=TRUE), maxValue, tolerance=10e-5)
          }
       provenance <- tbl$provenance[i];
-      # checkTrue(grepl("tcga", provenance))
+      checkTrue(nchar(provenance) > 0)
       } # for i
 
    TRUE
    
+} # testManifestAndDataConsistency
+#----------------------------------------------------------------------------------------------------
+testConstructor <- function(quiet=TRUE)
+{
+   printf("--- testConstructor")
+   dz <- DEMOdz();
+   checkTrue("Dataset" %in% is(dz))
+   tbl.manifest <- getManifest(dz)
+   checkTrue(nrow(tbl.manifest) >= 10)
+
+      # should be as many items (and thus itemNames) as rows in the manifest
+
+   checkEquals(length(getItemNames(dz)), nrow(tbl.manifest))
+   classes <- sort(unique(tbl.manifest$class))
+
+   matrix.variables <- subset(tbl.manifest, class=="matrix")$variable
+   checkTrue(length(matrix.variables) > 0)
+   for(name in matrix.variables){
+      mtx <- getItemByName(dz, name)
+      checkTrue("matrix" %in% is(mtx))
+      checkTrue(nrow(mtx) > 0)
+      checkTrue(ncol(mtx) > 0)
+      if(!quiet) printf("    %s: %d x %d", name, nrow(mtx), ncol(mtx))
+      }
+
+   dataframe.variables <- subset(tbl.manifest, class=="data.frame")$variable
+   checkTrue(length(dataframe.variables) > 0)
+   for(name in dataframe.variables){
+      tbl <- getItemByName(dz, name)
+      checkTrue("data.frame" %in% is(tbl))
+      checkTrue(nrow(tbl) > 0)
+      checkTrue(ncol(tbl) > 0)
+      if(!quiet) printf("    %s: %d x %d", name, nrow(tbl), ncol(tbl))
+      }
+
+} # testConstructor
+#----------------------------------------------------------------------------------------------------
+testManifest <- function(quiet=TRUE)
+{
+    printf("--- testManifest")
+    dz <- DEMOdz()
+    tbl <- getManifest(dz)
+    checkEquals(colnames(tbl), c("variable", "class", "category", "subcategory",
+                                 "entity.count", "feature.count", "entity.type",
+                                 "feature.type", "minValue", "maxValue", "provenance"))
+    checkTrue(nrow(tbl) > 8)
+    
 } # testManifest
 #----------------------------------------------------------------------------------------------------
-testExpression1 <- function()
+testMatrices <- function(quiet=TRUE)
 {
-   printf("--- testExpression")
+   printf("--- testMatrices")
+   dz <- DEMOdz()
+   tbl.manifest <- getManifest(dz)
+   matrix.names <- subset(tbl.manifest, class=="matrix")$variable
+   checkTrue(all(matrix.names %in% getItemNames(dz)))
 
-   dir <- system.file(package="DEMOdz", "extdata")
-   checkTrue(file.exists(dir))
-   file <- file.path(dir, "mtx.mrna.ueArray.RData")
-   checkTrue(file.exists(file))
+   for(name in matrix.names){
+      mtx <- getItemByName(dz, name)
+      checkTrue("matrix" %in% is(mtx))
+      checkTrue(nrow(mtx) > 0)
+      checkTrue(ncol(mtx) > 0)
+      }
 
-   load(file)
-   checkTrue(exists("mtx.mrna.ueArray"))
-   checkTrue(is(mtx.mrna.ueArray, "matrix"))
-   checkEquals(class(mtx.mrna.ueArray[1,1]), "numeric")
-
-   checkEquals(dim(mtx.mrna.ueArray), c(20, 64))
-
-     # should be no NAs.  won't always be the case...
-   checkEquals(length(which(is.na(mtx.mrna.ueArray))), 0)
-
-     # a reasonable range of expression log2 ratios
-   checkEquals(fivenum(mtx.mrna.ueArray), c(-4.098870, -0.747000, -0.012800,  0.718805,  5.870990))
-   
-     # all colnames should be recognzied gene symbols.  no isoform suffixes yet
-   checkTrue(all(colnames(mtx.mrna.ueArray) %in% keys(org.Hs.egSYMBOL2EG)))
-
-     # all rownames should follow "TCGA.02.0014" format.  no multiply-sampled suffixes yet
-   regex <- "^TCGA\\.[0-9][0-9]\\.[0-9][0-9][0-9][0-9]$"
-   checkEquals(length(grep(regex, rownames(mtx.mrna.ueArray))), nrow(mtx.mrna.ueArray))
-
-} # testExpression
-#----------------------------------------------------------------------------------------------------
-testExpression2 <- function()
+} # testMatrices
+#--------------------------------------------------------------------------------
+testDataFrames <- function(quiet=TRUE)
 {
-   printf("--- testExpression")
+   printf("--- testDataFrames")
+   dz <- DEMOdz()
+   tbl.manifest <- getManifest(dz)
+   dataframe.names <- subset(tbl.manifest, class=="data.frame")$variable
+   checkTrue(all(dataframe.names %in% getItemNames(dz)))
 
-   dir <- system.file(package="DEMOdz", "extdata")
-   checkTrue(file.exists(dir))
-   file <- file.path(dir, "mtx.mrna.bc.RData")
-   checkTrue(file.exists(file))
+   for(name in dataframe.names){
+      tbl <- getItemByName(dz, name)
+      checkTrue("data.frame" %in% is(mtx))
+      checkTrue(nrow(tbl) > 0)
+      checkTrue(ncol(tbl) > 0)
+      }
 
-   load(file)
-   checkTrue(exists("mtx.mrna.bc"))
-   checkTrue(is(mtx.mrna.bc, "matrix"))
-   checkEquals(class(mtx.mrna.bc[1,1]), "numeric")
+} # testDataFrames
+#--------------------------------------------------------------------------------
+testNetworks <- function(quiet=TRUE)
+{
+   printf("--- testNetworks")
+   dz <- DEMOdz()
+   tbl.manifest <- getManifest(dz)
+   network.names <- subset(tbl.manifest, category=="network")$variable
+   checkTrue(all(network.names %in% getItemNames(dz)))
+      # get the item -- it's a character string, in json format.
+      # fromJSON can read strings, turn the object into an R list, usually a named list of 
+      # named lists.
+      # then make sure this can be converted into a proper json object
+      # todo: might want to handle networks -- that is, save them -- as serialized json
+      # objects.  scripts in the utils directory of each data package, which use
+      # the NetworkMaker class, could easily be modified to do so.
 
-   checkEquals(dim(mtx.mrna.bc), c(141, 64))
+   for(name in network.names){
+      item <- getItemByName(dz, name)
+      checkTrue("character" %in% is(item))
+      item.as.R.list <- fromJSON(item)
+      checkTrue("list" %in% is(item.as.R.list))
+      item.as.json <- toJSON(item.as.R.list)
+      checkTrue("json" %in% is(item.as.json))
+      } # for name
+    
+} # testNetworks
+#--------------------------------------------------------------------------------
+# a standard slot in the DataSet class, which might be empty, might be constructed
+# from a data.frame and/or an events list.  at present, the DEMOdz SubjectHistory
+# is created only from a tab-delimited file.
+testSubjectHistory <- function(quiet=TRUE)
+{
+    dz <- DEMOdz()
+    tbl.history <- getTable(getSubjectHistory(dz))
+    checkEquals(dim(tbl.history), c(20, 162))
 
-     # should be no NAs.  won't always be the case...
-   checkEquals(length(which(is.na(mtx.mrna.bc))), 0)
-
-     # a reasonable range of expression log2 ratios
-   checkEquals(fivenum(mtx.mrna.bc), c(-0.234010,  0.837845,  1.340940,  1.733705,  2.409100))
-   
-     # all colnames should be recognzied gene symbols.  no isoform suffixes yet
-   checkTrue(all(colnames(mtx.mrna.bc) %in% keys(org.Hs.egSYMBOL2EG)))
-
-     # all rownames should follow "TCGA.02.0014" format.  no multiply-sampled suffixes yet
-   regex <- "^TCGA\\.[0-9][0-9]\\.[0-9][0-9][0-9][0-9]$"
-   checkEquals(length(grep(regex, rownames(mtx.mrna.bc))), nrow(mtx.mrna.bc))
-
-} # testExpression
+} # testSubjectHistory
 #--------------------------------------------------------------------------------
 testMutation <- function()
 {
@@ -277,65 +320,13 @@ testMethylation <- function()
 } # testExpression
 
 #----------------------------------------------------------------------------------------------------
-testConstructor <- function()
-{
-   printf("--- testConstructor")
-
-   dp <- DEMOdz();
-   checkTrue(nrow(manifest(dp)) >= 10)
-   checkTrue(length(matrices(dp)) >= 6)
-  
-   expected.matrix.names <- c("mtx.mrna.ueArray", "mtx.mrna.bc", "mtx.mut", "mtx.cn", "mtx.prot", "mtx.meth")
-   checkTrue(all(expected.matrix.names %in% names(matrices(dp))))
-   # checkTrue(eventCount(history(dp)) > 100)
-   
-} # testConstructor
-#----------------------------------------------------------------------------------------------------
-testMatrixAndDataframeAccessors <- function()
-{
-#   printf("--- testMatrixAndDataframeAccessors")
-#   dp <- DEMOdz();
-#   checkTrue("mtx.mrna" %in% names(matrices(dp)))
-#   samples <- head(entities(dp, "mtx.mrna"), n=3)
-#   checkEquals(samples, c("TCGA.02.0014", "TCGA.02.0021", "TCGA.02.0028"))
-    
-
-} # testMatrixAndDataframeAccessors
-#--------------------------------------------------------------------------------
-testHistoryList <- function()
-{
-   printf("--- testHistoryList: temporarily disabled as SubjectHistory class is completed")
-   return();
-   dp <- DEMOdz();
-   checkTrue("history" %in% manifest(dp)$variable)
-   records <- history(dp)
-
-   events <- geteventList(records)
-   checkEquals(length(events), 201)
-   
-   event.counts <- as.list(table(unlist(lapply(events,
-                           function(element) element$Name), use.names=FALSE)))
-    checkEquals(event.counts,
-               list(Absent=9,
-                    Birth=20,
-                    Diagnosis=20,
-                    Drug=41,
-                    Encounter=39,
-                    Pathology=20,
-                    Procedure=5,
-                    Progression=12,
-                    Radiation=15,
-                    Status=20))
-
-
-} # testHistory
 #----------------------------------------------------------------------------------------------------
 testHistoryTable <- function()
 {
    printf("--- testHistoryTable - deferred until PatientHistory is refactored")
    return()
    
-   dp <- DEMOdz()
+   dz <- DEMOdz()
    tbl <- getTable(history(dp))
    checkEquals(dim(tbl), c(20, 162))
 
@@ -362,18 +353,6 @@ testHistoryTable <- function()
 
 } # testHistoryTable
 #----------------------------------------------------------------------------------------------------
-testNetworks <- function()
-{
-   printf("--- testNetworks")
-   ddz <- DEMOdz()
-   networks <- networks(ddz)
-   checkTrue(length(networks) >= 1)
-   checkTrue("g.markers.json" %in% names(networks))
-   g.markers.json <- networks$g.markers.json
-   checkTrue(nchar(g.markers.json) > 20000)
-
-} # testNetworks
-#----------------------------------------------------------------------------------------------------
 testSampleCategories <- function()
 {
    printf("--- testSampleCategories")
@@ -389,17 +368,17 @@ testSampleCategories <- function()
 
 } # testSampleCategories
 #----------------------------------------------------------------------------------------------------
-testCanonicalizePatientIDs <- function()
+testSampleIdToSubjectId <- function()
 {
-   print("--- testCanonicalizePatientIDs - deferred pending refactoring")
+   printf("--- testSampleIdToSubjectId - deferred pending refactoring")
    return(TRUE)
-   dp <- DEMOdz()
-   IDs <- names(getPatientList(dp))
-   ptIDs <- canonicalizePatientIDs(dp, IDs)
+   #dp <- DEMOdz()
+   # <- names(getPatientList(dp))
+   #ptIDs <- canonicalizePatientIDs(dp, IDs)
    
    checkTrue(all(grepl("^TCGA\\.\\w\\w\\.\\w\\w\\w\\w$", ptIDs)))
 
-}
+} # testCa
 #----------------------------------------------------------------------------------------------------
 if(!interactive())
    runTests()

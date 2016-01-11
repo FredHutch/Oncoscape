@@ -2,7 +2,7 @@ exportClasses(SubjectHistory)
 
 exportMethods (
     getTable,
-    setTable,
+    getEventList,
     getSubjectIDs,
     getEventNames
   )
