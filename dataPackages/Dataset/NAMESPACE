@@ -6,7 +6,7 @@ exportMethods(
   getManifest,
   getSubjectHistory,
   getItemNames,
-  getItemByName,
+  getItem,
   sampleIdToSubjectId
   )
 

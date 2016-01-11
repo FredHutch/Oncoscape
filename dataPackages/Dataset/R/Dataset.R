@@ -14,7 +14,7 @@ setGeneric("getName",              signature="obj", function(obj) standardGeneri
 setGeneric("getManifest",          signature="obj", function(obj) standardGeneric ("getManifest"))
 setGeneric("getSubjectHistory",    signature="obj", function(obj) standardGeneric ("getSubjectHistory"))
 setGeneric("getItemNames",         signature="obj", function(obj) standardGeneric("getItemNames"))
-setGeneric("getItemByName",        signature="obj", function(obj, name) standardGeneric("getItemByName"))
+setGeneric("getItem",              signature="obj", function(obj, name, entities=NA, features=NA) standardGeneric("getItem"))
 setGeneric("sampleIdToSubjectId",  signature="obj", function(obj, sample.ids) standardGeneric ("sampleIdToSubjectId"))
 #----------------------------------------------------------------------------------------------------
 Dataset <- function(name="", manifest=data.frame(), history=SubjectHistory(), dictionary=new.env(parent=emptyenv()))
@@ -49,12 +49,23 @@ setMethod("getItemNames", "Dataset",
     })
 
 #----------------------------------------------------------------------------------------------------
-setMethod("getItemByName", "Dataset",
+# at present, subsetting is supported only for 2d data items - matrices and data.frames
+setMethod("getItem", "Dataset",
 
-  function (obj, name) {
+  function (obj, name, entities=NA, features=NA) {
+
     if(!name %in% getItemNames(obj))
-      return(NA)
-    return(obj@dictionary[[name]])
+       return(NA)
+
+    x <- obj@dictionary[[name]]
+
+    if(class(x) %in% c("matrix", "data.frame")){
+       if(!all(is.na(entities)))
+         x <- x[intersect(entities, rownames(x)),]
+       if(!all(is.na(features)))
+         x <- x[, intersect(features, colnames(x))]
+       } # matrix or data.frame
+    x
     })
 
 #----------------------------------------------------------------------------------------------------

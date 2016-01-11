@@ -1,23 +1,15 @@
-printf = function (...) print (noquote (sprintf (...)))
-args <- commandArgs()
-print(args)
+library(ChinookServer)
+library(RUnit)
+analysisPackages <- NA_character_
+PORT=6013
+datasets <- "DEMOdz"
+browserFile <- "index.html"
+userCredentials <- "test@nowhere.net"
+chinook <- ChinookServer(port=PORT, analysisPackages, datasets, browserFile, userCredentials)
 
-userID <- "demo@fredhutch.org"
-current.datasets <- "DEMOdz"
+if(Sys.info()[["nodename"]] != "lopez") 
+   browseURL(sprintf("http://localhost:%d", PORT))
 
-if(length(args) == 5)
-   userID <- args[4]
-   current.datasets <- args[5]
+run(chinook)
 
-printf("userID: %s", userID);
-printf("current.datasets: %s", current.datasets)
 
-library(OncoDev14)
-scriptDir <- "datasets"
-port <- 7578
-
-onco <- OncoDev14(port=port, scriptDir=scriptDir, userID=userID, datasetNames=current.datasets)
-if(Sys.info()[["nodename"]] != "lopez"){
-  browseURL(sprintf("http://localhost:%d", port))
-  }
-run(onco)

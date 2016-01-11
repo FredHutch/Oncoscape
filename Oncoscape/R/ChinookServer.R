@@ -191,7 +191,7 @@ setMethod("addMessageHandler", "ChinookServer",
             return;
             }
          cmd <- message$cmd
-         printf("===* calling dispatchMessage from main port ws$onMessage")
+         #printf("===* calling dispatchMessage from main port ws$onMessage")
          #dispatchMessage(server, ws, message);
          dispatchMessage(ws, message);
          }) # onMessage
