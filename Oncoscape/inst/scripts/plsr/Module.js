@@ -42,7 +42,7 @@ var PLSRModule = (function () {
   var selectionDestinationsOfferedHere = ["PLSR (highlight)"];
  
   var expressionDataSetName = "";
-  var plsrMsg; 
+  var plsrMsg = {}; 
 
 //--------------------------------------------------------------------------------------------
 function initializeUI () 
@@ -129,6 +129,13 @@ function handleAgeAtDxAndSurvivalRanges(msg)
    ageAtDxMax = Math.floor(msg.payload.AgeDx[4]/365.24);
    survivalMin = Math.floor(msg.payload.Survival[0]/365.24);
    survivalMax = Math.floor(msg.payload.Survival[4]/365.24);
+   console.log("***** ageAtDxMin: ", ageAtDxMin);
+
+   plsrMsg.ageAtDxMin = msg.payload.AgeDx[0];
+   plsrMsg.ageAtDxMax = msg.payload.AgeDx[4];
+   plsrMsg.survivalMin = msg.payload.Survival[0];
+   plsrMsg.survivalMax = msg.payload.Survival[4];
+  
 
    //ageAtDxMin = Math.floor(msg.payload.AgeDx[0])-1;
    //ageAtDxMax = Math.floor(msg.payload.AgeDx[4])+1;
@@ -254,7 +261,10 @@ function handlePlsrResults (msg)
    console.log("****** geneLoadings: ", geneLoadings);
    console.log("****** geneNames: ", geneNames);
    currentAbsoluteMaxValue = absMaxValue; // most recent max value, used for scaling
-   plsrMsg = {genes:geneLoadings, geneNames:geneNames};
+   plsrMsg.genes = geneLoadings;
+   plsrMsg.geneNames = geneNames;
+   plsrMsg.vectors = vectors;
+   plsrMsg.vectorNames = vectorNames;
    svg = d3PlsrScatterPlot(geneLoadings, geneNames, vectors, vectorNames, absMaxValue);
    postStatus("scatterplot complete");
 
