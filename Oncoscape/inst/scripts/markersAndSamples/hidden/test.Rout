@@ -1,0 +1,27 @@
+
+R version 3.2.2 Patched (2015-10-11 r69509) -- "Fire Safety"
+Copyright (C) 2015 The R Foundation for Statistical Computing
+Platform: x86_64-apple-darwin13.4.0 (64-bit)
+
+R is free software and comes with ABSOLUTELY NO WARRANTY.
+You are welcome to redistribute it under certain conditions.
+Type 'license()' or 'licence()' for distribution details.
+
+  Natural language support but running in an English locale
+
+R is a collaborative project with many contributors.
+Type 'contributors()' for more information and
+'citation()' on how to cite R or R packages in publications.
+
+Type 'demo()' for some demos, 'help()' for on-line help, or
+'help.start()' for an HTML browser interface to help.
+Type 'q()' to quit R.
+
+Bioconductor version 3.1 (BiocInstaller 1.18.5), ?biocLite for help
+A newer version of Bioconductor is available for this version of R, ?BiocUpgrade for help
+> print("hello world")
+[1] "hello world"
+> 
+> proc.time()
+   user  system elapsed 
+  0.246   0.030   0.261 

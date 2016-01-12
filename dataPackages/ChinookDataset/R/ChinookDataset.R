@@ -276,14 +276,7 @@ Dataset.getSubjectHistoryTable <- function(channel, msg)
    self <- local.state[["self"]]
    datasetName <- getName(self)
    dataset <- getDataset(self)
-   tbl.history <- getTable(getSubjectHistory(dataset))[, 1:5]
-
-   #payload.field.names <- names(msg$payload)
-   #durationFormat <- "byDay"
-   #if("durationFormat" %in% payload.field.names)
-   #   durationFormat <- msg$payload$durationFormat
-      
-   #tbl.history <- .getPatientHistory(datasetName, durationFormat)
+   tbl.history <- getTable(getSubjectHistory(dataset))
 
    printf("ChinookDataset.getSubjectHistoryTable, dim (%d, %d)", nrow(tbl.history), ncol(tbl.history))
    payload <- .prepDataframeOrMatrixForJSON(datasetName, tbl.history)
@@ -293,6 +286,25 @@ Dataset.getSubjectHistoryTable <- function(channel, msg)
    .send(channel, return.msg)
 
 } # Dataset.getSubjectHistoryTable
+#----------------------------------------------------------------------------------------------------
+Dataset.getNetwork <- function(channel, msg)
+{
+   self <- local.state[["self"]]
+   datasetName <- getName(self)
+   dataset <- getDataset(self)
+   networkCategory = msg$payload$networkCategory
+   tbl.manifest <- getManifest(dataset)
+
+   stopifnot(networkCategory %in% tbl.manifest$subcategory)
+   variableName <- subset(tbl.manifest, subcategory == networkCategory)$variable
+   stopifnot(variableName %in% getItemNames(dataset))
+   json <- getItem(dataset, variableName)
+
+   return.msg <- toJSON(list(cmd=msg$callback, status="success", callback="", payload=json))
+
+   .send(channel, return.msg)
+
+} # Dataset.getNetwork
 #----------------------------------------------------------------------------------------------------
 .send <- function(channel, response)
 {
