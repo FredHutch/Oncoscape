@@ -1,8 +1,8 @@
 library(RUnit)
 library(NetworkMaker)
 library(DEMOdz)
-library(TCGAgbm)
-library(TCGAbrain)
+#library(TCGAgbm)
+#library(TCGAbrain)
 options(stringsAsFactors=FALSE)
    # we use one cytoscape.js style file throughout
 STYLE.FILE <- "style.js"
@@ -16,8 +16,8 @@ runTests <- function()
   #test.extractSamplesAndGenes()
   #test.extractRestrictedSamplesAndGenes() # restricted in call to class constructor
   test.calculateSimilarity.DEMOdz()
-  test.calculateSimilarity.TCGAgbm()
-  test.calculateSimilarity.TCGAgbm.completeSubset()
+  #test.calculateSimilarity.TCGAgbm()
+  #test.calculateSimilarity.TCGAgbm.completeSubset()
   test.getSamplesGraph.DEMOdz()
   test.buildChromosomalTable();
   test.transformChromLocsToScreenCoordinates();
@@ -25,11 +25,11 @@ runTests <- function()
   test.fullDisplay.6genes.DEMOdz()
   test.screenCoordinateManipulations.DEMOdz()
   test.fullDisplay.allGenes.DEMOdz()
-  test.fullDisplay.withMutations.allGenes.TCGAgbm()
+  #test.fullDisplay.withMutations.allGenes.TCGAgbm()
   test.fullDisplay.withMutations.withCopyNumber.allGenes.DEMOdz()
-  test.fullDisplay.withMutations.withCopyNumber.allGenes.TCGAgbm()
+  #test.fullDisplay.withMutations.withCopyNumber.allGenes.TCGAgbm()
 
-  test.genesChromosomeGraph.TCGAbrain()
+  #test.genesChromosomeGraph.TCGAbrain()
   
 } # runTests
 #----------------------------------------------------------------------------------------------------
@@ -49,8 +49,8 @@ test.mutationMatrixTo01Matrix <- function()
     # test them all
 
    dz <- DEMOdz() 
-   checkTrue("mtx.mut" %in% names(matrices(dz)))
-   mut <- matrices(dz)$mtx.mut      
+   checkTrue("mtx.mut" %in% getItemNames(dz))
+   mut <- getItem(dz, "mtx.mut")
    mut.01 <- NetworkMaker:::.mutationMatrixTo01Matrix(mut)
    checkEquals(sum(mut.01), length(which(!is.na(mut))))
 
@@ -84,7 +84,7 @@ test.mutationMatrixTo01Matrix <- function()
 #{
 #    print("--- test.extractSamplesAndGenes")
 #    dz <- DEMOdz();
-#    samples.sub <- head(rownames(getPatientTable(dz)))
+#    samples.sub <- head(rownames(getTable(getSubjectHistory(dz))))
 #    genes.sub <- head(colnames(matrices(dz)[[1]]))
 #
 #      # add some bogus ids
@@ -107,14 +107,14 @@ test.calculateSimilarity.DEMOdz <- function()
        # an already-constructed object.
     
     dz <- DEMOdz() 
-    checkTrue(all(c("mtx.mut", "mtx.cn") %in% names(matrices(dz))))
+    checkTrue(all(c("mtx.mut", "mtx.cn") %in% getItemNames(dz)))
 
     netMaker <- NetworkMaker(dz)
     calculateSampleSimilarityMatrix(netMaker, copyNumberValues=c(-2, -1, 1, 1))
     tbl.pos <- getSimilarityMatrix(netMaker)
        # should be one x,y,z position vector for every patient
 
-    sampleCount <- nrow(getPatientTable(dz))
+    sampleCount <- nrow(getTable(getSubjectHistory(dz)))
     checkEquals(dim(tbl.pos), c(sampleCount, 3))
 
        # from direct inspection, these two tumors appear most similar:
@@ -145,7 +145,7 @@ test.calculateSimilarity.DEMOdz <- function()
     max.pair <- c(rownames(mdist.check)[row], colnames(mdist.check)[col])
 
        # with the pair now identified, count the mutation differences
-    mtx.mut <- matrices(dz)[["mtx.mut"]]
+    mtx.mut <- getItem(dz, "mtx.mut")
     vec.1 <- mtx.mut[min.pair[1],]
     vec.1[is.na(vec.1)] <- ""
     vec.2 <- mtx.mut[min.pair[2],]
@@ -153,7 +153,7 @@ test.calculateSimilarity.DEMOdz <- function()
     mins.mutation.differences <- length(which(vec.1 != vec.2))
 
        # and the copy number differences
-    mtx.cn <- matrices(dz)[["mtx.cn"]]
+    mtx.cn <- getItem(dz, "mtx.cn")
     vec.1 <- mtx.cn[min.pair[1],]
     vec.1[is.na(vec.1)] <- ""
     vec.2 <- mtx.cn[min.pair[2],]
@@ -163,7 +163,7 @@ test.calculateSimilarity.DEMOdz <- function()
     mins.differences <- mins.mutation.differences + mins.cn.differences
 
        # now repeat for the most different samples
-    mtx.mut <- matrices(dz)[["mtx.mut"]]
+    mtx.mut <- getItem(dz, "mtx.mut")
     vec.1 <- mtx.mut[max.pair[1],]
     vec.1[is.na(vec.1)] <- ""
     vec.2 <- mtx.mut[max.pair[2],]
@@ -171,7 +171,7 @@ test.calculateSimilarity.DEMOdz <- function()
     maxes.mutation.differences <- length(which(vec.1 != vec.2))
 
       # and the copy number differences
-    mtx.cn <- matrices(dz)[["mtx.cn"]]
+    mtx.cn <- getItem(dz, "mtx.cn")
     vec.1 <- mtx.cn[max.pair[1],]
     vec.1[is.na(vec.1)] <- ""
     vec.2 <- mtx.cn[max.pair[2],]
@@ -207,7 +207,7 @@ test.calculateSimilarity.TCGAgbm <- function()
 
        # should be one x,y,z position vector for every patient
 
-    sampleCount <- nrow(getPatientTable(dz))
+    sampleCount <- nrow(getTable(getSubjectHistory(dz)))
        # (9 nov 2015: TCGA_0.99.23 has 592 tumors, but cn &/or mut data
        # on only 573 of them
 
@@ -245,7 +245,7 @@ test.calculateSimilarity.TCGAgbm <- function()
     max.pair <- c(rownames(mdist.check)[row], colnames(mdist.check)[col])
 
        # with the pair now identified, count the mutation differences
-    mtx.mut <- matrices(dz)[["mtx.mut"]]
+    mtx.mut <- getItem(dz, "mtx.mut")
 
        # NetworkMaker accomodates missing mutation values, for
        # tumors in which no mutations have been seen
@@ -269,8 +269,8 @@ test.calculateSimilarity.TCGAgbm.completeSubset <- function()
       # restrict to interesting genes
     load(system.file(package="NetworkMaker", "extdata", "genesets.RData"))
     goi <- sort(unique(unlist(genesets, use.names=FALSE)))
-    mut <- matrices(dz)$mtx.mut
-    cn <- matrices(dz)$mtx.cn
+    mut <- getItem(dz, "mtx.mut")
+    cn <- getItem(dz, "mtx.cn")
     goi <- intersect(goi, intersect(colnames(mut), colnames(cn))) # 928
     poi <- sort(intersect(rownames(mut), rownames(cn)))           # 281
     
@@ -280,7 +280,7 @@ test.calculateSimilarity.TCGAgbm.completeSubset <- function()
 
        # should be one x,y,z position vector for every patient
 
-    sampleCount <- nrow(getPatientTable(dz))
+    sampleCount <- nrow(getTable(getSubjectHistory(dz)))
        # (9 nov 2015: TCGA_0.99.23 has 592 tumors, but cn &/or mut data
        # on only 573 of them
 
@@ -318,8 +318,8 @@ test.calculateSimilarity.TCGAgbm.completeSubset <- function()
     max.pair <- c(rownames(mdist.check)[row], colnames(mdist.check)[col])
 
        # with the pair now identified, count the mutation differences
-    mtx.mut <- matrices(dz)[["mtx.mut"]]
-    rownames(mtx.mut) <- canonicalizePatientIDs(dz, rownames(mtx.mut))
+    mtx.mut <- getItem(dz, "mtx.mut")
+    rownames(mtx.mut) <- sampleIdToSubjectId(dz, rownames(mtx.mut))
     vec.1 <- mtx.mut[min.pair[1],]
     vec.1[is.na(vec.1)] <- ""
     vec.2 <- mtx.mut[min.pair[2],]
@@ -327,8 +327,8 @@ test.calculateSimilarity.TCGAgbm.completeSubset <- function()
     mins.mutation.differences <- length(which(vec.1 != vec.2))
 
        # and the copy number differences
-    mtx.cn <- matrices(dz)[["mtx.cn"]]
-    rownames(mtx.cn) <- canonicalizePatientIDs(dz, rownames(mtx.cn))
+    mtx.cn <- getItem(dz, "mtx.cn")
+    rownames(mtx.cn) <- sampleIdToSubjectId(dz, rownames(mtx.cn))
 
     vec.1 <- mtx.cn[min.pair[1],]
     vec.1[is.na(vec.1)] <- ""
@@ -339,8 +339,8 @@ test.calculateSimilarity.TCGAgbm.completeSubset <- function()
     mins.differences <- mins.mutation.differences + mins.cn.differences
 
        # now repeat for the most different samples
-    mtx.mut <- matrices(dz)[["mtx.mut"]]
-    rownames(mtx.mut) <- canonicalizePatientIDs(dz, rownames(mtx.mut))
+    mtx.mut <- getItem(dz, "mtx.mut")
+    rownames(mtx.mut) <- sampleIdToSubjectId(dz, rownames(mtx.mut))
     vec.1 <- mtx.mut[max.pair[1],]
     vec.1[is.na(vec.1)] <- ""
     vec.2 <- mtx.mut[max.pair[2],]
@@ -348,8 +348,8 @@ test.calculateSimilarity.TCGAgbm.completeSubset <- function()
     maxes.mutation.differences <- length(which(vec.1 != vec.2))
 
       # and the copy number differences
-    mtx.cn <- matrices(dz)[["mtx.cn"]]
-    rownames(mtx.cn) <- canonicalizePatientIDs(dz, rownames(mtx.cn))
+    mtx.cn <- getItem(dz, "mtx.cn")
+    rownames(mtx.cn) <- sampleIdToSubjectId(dz, rownames(mtx.cn))
     vec.1 <- mtx.cn[max.pair[1],]
     vec.1[is.na(vec.1)] <- ""
     vec.2 <- mtx.cn[max.pair[2],]
@@ -366,7 +366,7 @@ test.getSamplesGraph.DEMOdz <- function()
 {
     print("--- test.getSamplesGraph.DEMOdz")
     dz <- DEMOdz() 
-    checkTrue(all(c("mtx.mut", "mtx.cn") %in% names(matrices(dz))))
+    checkTrue(all(c("mtx.mut", "mtx.cn") %in% getItemNames(dz)))
 
     netMaker <- NetworkMaker(dz)
     calculateSampleSimilarityMatrix(netMaker, copyNumberValues=c(-2, -1, 1, 2))
@@ -395,9 +395,9 @@ test.genesChromosomeGraph.DEMOdz <- function()
 {
     print("--- test.genesChromosomeGraph.DEMOdz")
     dz <- DEMOdz() 
-    checkTrue(all(c("mtx.mut", "mtx.cn") %in% names(matrices(dz))))
+    checkTrue(all(c("mtx.mut", "mtx.cn") %in% getItemNames(dz)))
     netMaker <- NetworkMaker(dz)
-    genes <- head(colnames(matrices(dz)$mtx.mut))
+    genes <- head(colnames(getItem(dz, "mtx.mut")))
     g <- getChromosomeGraph(netMaker, genes)
     nodes <- nodes(g)
        # should be 24 centromeres, 48 telomeres, 6 genes: 78 nodes total
@@ -415,7 +415,7 @@ test.buildChromosomalTable <- function()
 {
     print("--- test.buildChromosomalTable")
     dz <- DEMOdz()
-    genes <- head(colnames(matrices(dz)$mtx.mut))
+    genes <- head(colnames(getItem(dz, "mtx.mut")))
     netMaker <- NetworkMaker(dz)
     tbl <- buildChromosomalTable(netMaker, genes)
 
@@ -440,7 +440,7 @@ test.transformChromLocsToScreenCoordinates <- function()
     dz <- DEMOdz()
     netMaker <- NetworkMaker(dz)
     
-    genes <- head(colnames(matrices(dz)$mtx.mut))
+    genes <- head(colnames(getItem(dz, "mtx.mut")))
     tbl <- buildChromosomalTable(netMaker, genes);
     checkEquals(dim(tbl), c(102, 8))
     
@@ -475,7 +475,7 @@ test.fullDisplay.6genes.DEMOdz <- function()
     setPosition(rcy, tbl.pos)    
     fit(rcy, 100)
 
-    genes <- head(colnames(matrices(dz)$mtx.mut))
+    genes <- head(colnames(getItem(dz, "mtx.mut")))
     g.chrom <- getChromosomeGraph(netMaker, genes)
     httpAddGraph(rcy, g.chrom)
     httpSetStyle(rcy, STYLE.FILE)
@@ -495,7 +495,7 @@ test.fullDisplay.14genes.someObsolete.TCGAbrain <- function()
     goi <- c("DAXX", "DUX4", "FRG1B", "C2ORF44", "FCGR2B", "FCRL4", "FLG", "MUC1",
              "NTRK1", "PRCC", "SDHC", "SPTA1", "TCHH", "TPM3")
     soi <- c("TCGA.FG.A6J3", "TCGA.06.0237", "TCGA.TQ.A7RF", "TCGA.S9.A6TZ", "TCGA.TM.A7CF", "TCGA.06.0238")
-    intersect(soi, canonicalizePatientIDs(dz, rownames(matrices(dz)$mtx.cn)))
+    intersect(soi, sampleIdToSubjectId(dz, rownames(getItem(dz, "mtx.cn"))))
     netMaker <- NetworkMaker(dz, samples=soi, genes=goi)
     calculateSampleSimilarityMatrix(netMaker, copyNumberValues=c(-2,-1, 1, 2))
     g <- getSamplesGraph(netMaker)
@@ -506,7 +506,7 @@ test.fullDisplay.14genes.someObsolete.TCGAbrain <- function()
     setPosition(rcy, tbl.pos)    
     fit(rcy, 100)
 
-    genes <- head(colnames(matrices(dz)$mtx.mut))
+    genes <- head(colnames(getItem(dz, "mtx.mut")))
     g.chrom <- getChromosomeGraph(netMaker, genes)
     httpAddGraph(rcy, g.chrom)
     httpSetStyle(rcy, STYLE.FILE)
@@ -537,7 +537,7 @@ test.fullDisplay.6genes.DEMOdz.precalculatedSimilarity <- function()
     setPosition(rcy, tbl.pos)    
     fit(rcy, 100)
 
-    genes <- head(colnames(matrices(dz)$mtx.mut))
+    genes <- head(colnames(getItem(dz, "mtx.mut")))
     g.chrom <- getChromosomeGraph(netMaker, genes)
     httpAddGraph(rcy, g.chrom)
     httpSetStyle(rcy, STYLE.FILE)
@@ -564,7 +564,7 @@ test.screenCoordinateManipulations.DEMOdz <- function()
     setPosition(rcy, tbl.pos)    
     fit(rcy, 100)
 
-    genes <- head(colnames(matrices(dz)$mtx.mut))
+    genes <- head(colnames(getItem(dz, "mtx.mut")))
     g.chrom <- getChromosomeGraph(netMaker, genes)
     httpAddGraph(rcy, g.chrom)
     httpSetStyle(rcy, STYLE.FILE)
@@ -574,7 +574,7 @@ test.screenCoordinateManipulations.DEMOdz <- function()
     fit(rcy, 100)
 
     goi <- genes[1]
-    soi <- rownames(matrices(dz)$mtx.mut)[1]
+    soi <- rownames(getItem(dz, "mtx.mut"))[1]
     
     gene.pos <- RCyjs::getPosition(rcy, goi)
     sample.pos <- RCyjs::getPosition(rcy, soi)
@@ -619,7 +619,7 @@ test.fullDisplay.allGenes.DEMOdz <- function()
     setPosition(rcy, tbl.pos)    
     fit(rcy, 100)
 
-    genes <- colnames(matrices(dz)$mtx.mut)
+    genes <- colnames(getItem(dz, "mtx.mut"))
     g.chrom <- getChromosomeGraph(netMaker, genes)
     httpAddGraph(rcy, g.chrom)
     httpSetStyle(rcy, STYLE.FILE)
@@ -665,7 +665,7 @@ test.addMutationsToGraph.DEMOdz <- function()
 
     dz <- DEMOdz() 
     netMaker <- NetworkMaker(dz)
-    goi <- colnames(matrices(dz)$mtx.mut)
+    goi <- colnames(getItem(dz, "mtx.mut"))
     g.mut <- getMutationGraph(netMaker, goi)
 
     calculateSampleSimilarityMatrix(netMaker)
@@ -745,7 +745,7 @@ test.fullDisplay.withMutations.withCopyNumber.allGenes.DEMOdz <- function()
     setPosition(rcy, tbl.pos)    
     fit(rcy, 100)
 
-    goi <- colnames(matrices(dz)$mtx.mut)
+    goi <- colnames(getItem(dz, "mtx.mut"))
     g.chrom <- getChromosomeGraph(netMaker, goi)
     httpAddGraph(rcy, g.chrom)
     httpSetStyle(rcy, STYLE.FILE)

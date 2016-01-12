@@ -1,8 +1,8 @@
 Package: ChinookServer
 Type: Package
 Title: ChinookServer:  Support WebSocket and HTTP transmission of simple JSON messages
-Version: 1.0.4
-Date: 2016-01-06
+Version: 1.0.5
+Date: 2016-01-11
 Author: Paul Shannon
 Maintainer:  <pshannon@fhcrc.org>
 Depends: R (>= 3.2.2), jsonlite, httpuv

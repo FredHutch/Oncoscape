@@ -142,10 +142,10 @@ toJSON <- function(..., auto_unbox = TRUE)
 #------------------------------------------------------------------------------------------------------------------------
 setMethod("addMessageHandler", "ChinookServer",
 
-      function(self, messageName, functionToCall) {
-         printf("ChinookServer::addMessageHandler: '%s'", messageName);
-         self@dispatchMap[[messageName]] <- functionToCall
-         }) # addMessageHandler
+    function(self, messageName, functionToCall) {
+       printf("ChinookServer::addMessageHandler: '%s'", messageName);
+       self@dispatchMap[[messageName]] <- functionToCall
+       }) # addMessageHandler
 
 #------------------------------------------------------------------------------------------------------------------------
 .setupWebSocketHandlers <- function(server, wsCon, browserFile)

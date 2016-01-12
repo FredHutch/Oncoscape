@@ -77,13 +77,14 @@ setMethod("getName", "ChinookDataset",
 setMethod("registerMessageHandlers", "ChinookDataset",
 
   function (obj) {
-     addMessageHandler(getServer(obj), "getDatasetManifest",   "Dataset.getManifest")
-     addMessageHandler(getServer(obj), "getDataManifest",      "Dataset.getManifest")
-     addMessageHandler(getServer(obj), "getDatasetDataFrame",  "Dataset.getDataFrame")
-     addMessageHandler(getServer(obj), "getDatasetJSON",       "Dataset.getJSON")
-     addMessageHandler(getServer(obj), "getDatasetItemNames",  "Dataset.getItemNames")
-     addMessageHandler(getServer(obj), "getDatasetItemByName", "Dataset.getItemByName")
-     addMessageHandler(getServer(obj), "getNetwork",           "Dataset.getNetwork")
+     addMessageHandler(getServer(obj), "getDatasetManifest",     "Dataset.getManifest")
+     addMessageHandler(getServer(obj), "getDataManifest",        "Dataset.getManifest")
+     addMessageHandler(getServer(obj), "getDatasetDataFrame",    "Dataset.getDataFrame")
+     addMessageHandler(getServer(obj), "getDatasetJSON",         "Dataset.getJSON")
+     addMessageHandler(getServer(obj), "getDatasetItemNames",    "Dataset.getItemNames")
+     addMessageHandler(getServer(obj), "getDatasetItemByName",   "Dataset.getItemByName")
+     addMessageHandler(getServer(obj), "getSubjectHistoryTable", "Dataset.getSubjectHistoryTable")
+     addMessageHandler(getServer(obj), "getNetwork",             "Dataset.getNetwork")             
      })
 
 #----------------------------------------------------------------------------------------------------
@@ -245,7 +246,6 @@ Dataset.getItemByName <- function(channel, msg)
 #----------------------------------------------------------------------------------------------------
 Dataset.getMarkersNetwork <- function(channel, msg)
 {
-
    self <- local.state[["self"]]
    dataset <- getDataset(self)
    tbl.manifest <- manifest(dataset)
@@ -271,14 +271,36 @@ Dataset.getMarkersNetwork <- function(channel, msg)
 
 } # Dataset.getMarkersNetwork
 #----------------------------------------------------------------------------------------------------
-# addRMessageHandler("getDataManifest", "getDataManifest");
-# addRMessageHandler("getPatientHistoryTable", "getPatientHistoryTable")
-# addRMessageHandler("getPatientHistoryDxAndSurvivalMinMax", "getPatientHistoryDxAndSurvivalMinMax")
-# addRMessageHandler("getGeneSetNames",    "wsGetGeneSetNames")
-# addRMessageHandler("getGeneSetGenes",    "wsGetGeneSetGenes")
-# addRMessageHandler("getSampleCategorizationNames", "wsGetSampleCategorizationNames")
-# addRMessageHandler("getSampleCategorization",      "wsGetSampleCategorization")
-# addRMessageHandler("getMarkersNetwork", "getMarkersAndSamplesNetwork")
-# addRMessageHandler("getPathway",        "getPathway")
-# addRMessageHandler("getDrugGeneInteractions", "getDrugGeneInteractions")
-# addRMessageHandler("canonicalizePatientIDsInDataset",    "canonicalizePatientIDsInDataset")
+Dataset.getSubjectHistoryTable <- function(channel, msg)
+{
+   self <- local.state[["self"]]
+   datasetName <- getName(self)
+   dataset <- getDataset(self)
+   tbl.history <- getTable(getSubjectHistory(dataset))[, 1:5]
+
+   #payload.field.names <- names(msg$payload)
+   #durationFormat <- "byDay"
+   #if("durationFormat" %in% payload.field.names)
+   #   durationFormat <- msg$payload$durationFormat
+      
+   #tbl.history <- .getPatientHistory(datasetName, durationFormat)
+
+   printf("ChinookDataset.getSubjectHistoryTable, dim (%d, %d)", nrow(tbl.history), ncol(tbl.history))
+   payload <- .prepDataframeOrMatrixForJSON(datasetName, tbl.history)
+   print(payload)
+   return.msg <- toJSON(list(cmd=msg$callback, status="success", callback="", payload=payload))
+
+   .send(channel, return.msg)
+
+} # Dataset.getSubjectHistoryTable
+#----------------------------------------------------------------------------------------------------
+.send <- function(channel, response)
+{
+   if("WebSocket" %in% is(channel))
+      channel$send(response)
+   else
+       return(response)
+
+} # .send
+#----------------------------------------------------------------------------------------------------
+

@@ -18,8 +18,8 @@ export(
    NetworkMaker
    )
 
-import(PatientHistory)
-import(SttrDataPackage)
+import(SubjectHistory)
+import(Dataset)
 importClassesFrom(methods, character, integer)
 importFrom(methods, new)
 
