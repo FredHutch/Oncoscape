@@ -14,7 +14,10 @@ export(
    Dataset.getItemByName,
    Dataset.getManifest,
    Dataset.getDataFrame,
-   Dataset.getJSON
+   Dataset.getJSON,
+   Dataset.getItemNames,
+   Dataset.getItemByName,
+   Dataset.getSubjectHistoryTable
    )
 
 import(Dataset)

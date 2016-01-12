@@ -4,7 +4,7 @@ options(stringsAsFactors = FALSE)
 #----------------------------------------------------------------------------------------------------
 .NetworkMaker <- setClass ("NetworkMaker", 
                          representation = representation (
-                             pkg="SttrDataPackageClass",
+                             pkg="Dataset",
                              mtx.mut="matrix",
                              mtx.cn="matrix",
                              state="environment"
@@ -32,10 +32,10 @@ setGeneric('getChromosomeScreenCoordinates',  signature='obj', function(obj, xOr
 # constructor
 NetworkMaker <- function(dataPackage, samples=NA, genes=NA, verbose=FALSE)
 {
-  stopifnot("mtx.mut" %in% names(matrices(dataPackage)))
-  stopifnot("mtx.cn"  %in% names(matrices(dataPackage)))
-  mtx.mut <- matrices(dataPackage)[["mtx.mut"]]
-  mtx.cn <- matrices(dataPackage)[["mtx.cn"]]
+  stopifnot("mtx.mut" %in% getItemNames(dataPackage))
+  stopifnot("mtx.cn"  %in% getItemNames(dataPackage))
+  mtx.mut <- getItem(dataPackage, "mtx.mut")
+  mtx.cn  <- getItem(dataPackage, "mtx.cn")
   all.known.samples <- .allKnownSampleIDsCanonicalized(dataPackage)
 
   if(!all(is.na(samples))){
@@ -75,11 +75,11 @@ NetworkMaker <- function(dataPackage, samples=NA, genes=NA, verbose=FALSE)
 #----------------------------------------------------------------------------------------------------
 .allKnownSampleIDsCanonicalized <- function(pkg)
 {
-   all.ids <- c(rownames(matrices(pkg)$mtx.mut),
-                rownames(matrices(pkg)$mtx.cn),
-                rownames(getPatientTable(pkg)))
+   all.ids <- c(rownames(getItem(pkg, "mtx.mut")),
+                rownames(getItem(pkg, "$mtx.cn")),
+                rownames(getTable(getSubjectHistory(pkg))))
 
-   canonicalizePatientIDs(pkg, sort(unique(all.ids)))
+   #sampleIdToSubjectId(pkg, sort(unique(all.ids)))
 
 } # .allKnownSampleIDsCanonicalized
 #----------------------------------------------------------------------------------------------------
@@ -151,7 +151,7 @@ setMethod("calculateSampleSimilarityMatrix", "NetworkMaker",
      dmtx <- as.matrix(dist(mtx))
      tbl.pos <- as.data.frame(cmdscale(dmtx, k=3))
      colnames(tbl.pos) <- c("x", "y", "z")
-     rownames(tbl.pos) <- canonicalizePatientIDs(obj@pkg, rownames(tbl.pos))
+     rownames(tbl.pos) <- sampleIdToSubjectId(obj@pkg, rownames(tbl.pos))
      obj@state[["similarityMatrix"]] <- tbl.pos
      })
 
@@ -179,9 +179,9 @@ setMethod("getSamplesGraph", "NetworkMaker",
 
     positioned.samples <- rownames(tbl.pos)
 
-    cn.samples <- canonicalizePatientIDs(obj@pkg, rownames(obj@mtx.cn))
-    mut.samples <- canonicalizePatientIDs(obj@pkg, rownames(obj@mtx.mut))
-    patient.samples <- rownames(getPatientTable(obj@pkg))
+    cn.samples <- sampleIdToSubjectId(obj@pkg, rownames(obj@mtx.cn))
+    mut.samples <- sampleIdToSubjectId(obj@pkg, rownames(obj@mtx.mut))
+    patient.samples <- rownames(getTable(getSubjectHistory(obj@pkg)))
 
     unpositioned.cn.samples <- setdiff(cn.samples, positioned.samples)
     unpositioned.mut.samples <- setdiff(mut.samples, positioned.samples)
@@ -291,7 +291,7 @@ setMethod("getMutationGraph", "NetworkMaker",
                       gene=colnames(mut)[cols],
                       val=vals, stringsAsFactors=FALSE)
 
-    sample.nodes <- canonicalizePatientIDs(obj@pkg, tbl$sample)
+    sample.nodes <- sampleIdToSubjectId(obj@pkg, tbl$sample)
     gene.nodes <- tbl$gene
     all.nodes <- unique(c(sample.nodes, gene.nodes))
     
@@ -332,7 +332,7 @@ setMethod("getCopyNumberGraph", "NetworkMaker",
                       gene=colnames(cn)[cols],
                       val=vals, stringsAsFactors=FALSE)
 
-    sample.nodes <- canonicalizePatientIDs(obj@pkg, tbl$sample)
+    sample.nodes <- sampleIdToSubjectId(obj@pkg, tbl$sample)
     gene.nodes <- tbl$gene
     all.nodes <- unique(c(sample.nodes, gene.nodes))
     
@@ -353,16 +353,16 @@ setMethod("getCopyNumberGraph", "NetworkMaker",
     cnGain.1 <- which(tbl$val == 1)
     cnGain.2 <- which(tbl$val == 2)
   
-    samples.corrected <- canonicalizePatientIDs(obj@pkg, tbl$sample[cnLoss.1])
+    samples.corrected <- sampleIdToSubjectId(obj@pkg, tbl$sample[cnLoss.1])
     edgeData(g, samples.corrected, tbl$gene[cnLoss.1], "edgeType") <- "cnLoss.1"
                                                 
-    samples.corrected <- canonicalizePatientIDs(obj@pkg, tbl$sample[cnLoss.2])
+    samples.corrected <- sampleIdToSubjectId(obj@pkg, tbl$sample[cnLoss.2])
     edgeData(g, samples.corrected, tbl$gene[cnLoss.2], "edgeType") <- "cnLoss.2"
 
-    samples.corrected <- canonicalizePatientIDs(obj@pkg, tbl$sample[cnGain.1])
+    samples.corrected <- sampleIdToSubjectId(obj@pkg, tbl$sample[cnGain.1])
     edgeData(g, samples.corrected, tbl$gene[cnGain.1], "edgeType") <- "cnGain.1"
 
-    samples.corrected <- canonicalizePatientIDs(obj@pkg, tbl$sample[cnGain.2])
+    samples.corrected <- sampleIdToSubjectId(obj@pkg, tbl$sample[cnGain.2])
     edgeData(g, samples.corrected, tbl$gene[cnGain.2], "edgeType") <- "cnGain.2"
 
     return(g)

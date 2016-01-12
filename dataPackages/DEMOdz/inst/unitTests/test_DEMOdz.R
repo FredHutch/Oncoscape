@@ -214,7 +214,7 @@ testSubjectHistory <- function(quiet=TRUE)
     dz <- DEMOdz()
     checkTrue("SubjectHistory" %in% is(getSubjectHistory(dz)))
     tbl.history <- getTable(getSubjectHistory(dz))
-    checkEquals(dim(tbl.history), c(20, 162))
+    checkEquals(dim(tbl.history), c(20, 7))
 
 } # testSubjectHistory
 #--------------------------------------------------------------------------------
@@ -223,7 +223,7 @@ testGetItemWithSubsetting <- function(quiet=TRUE)
     printf("--- testGetItemWithSubsetting")
     
     dz <- DEMOdz()
-      # get a name at randome
+      # get a name at random
     matrix.name <- subset(getManifest(dz), class=="matrix")$variable[1]
     mtx <- getItem(dz, matrix.name)
     checkTrue("matrix" %in% is(mtx))
