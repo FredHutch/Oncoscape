@@ -38,7 +38,13 @@ create.and.display <- function()
 #------------------------------------------------------------------------------------------------------------------------
 saveGraph <- function(rcy)
 {
-   g.markers.json <- getJSON(rcy)
+   g.markers.char <- getJSON(rcy)
+
+     # a convoluted way to get an actual json object to save via serialization
+     # todo: will explore changing RCyjs::getJSON to produce json directly at another
+     # todo:  time (pshannon, 12 jan 2016)
+
+   g.markers.json <- toJSON(fromJSON(g.markers.char))
    filename <- "../extdata/markers.json.RData"
    printf("saving as %s, %d nodes, %d edges", filename, getNodeCount(rcy), getEdgeCount(rcy))
    save(g.markers.json, file=filename)

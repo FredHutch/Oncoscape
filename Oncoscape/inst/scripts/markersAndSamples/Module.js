@@ -54,6 +54,12 @@ var markersAndTissuesModule = (function () {
 //--------------------------------------------------------------------------------------------
 function initializeUI ()
 {
+  $("#oncoscapeTabs").tabs({
+     activate: function(event, ui){
+        if(typeof(cwMarkers != "undefined")){
+           console.log("cwMarkers fit & resize");
+           cwMarkers.fit(50).resize();
+        }}});
 
   cyDiv = $("#cyMarkersDiv");
   statusDiv = $("#markersAndPatientsStatusDiv");
@@ -1066,7 +1072,8 @@ function doSearch(e)
 function displayMarkersNetwork(msg)
 {
    console.log("--- Module.markers: displayMarkersNetwork");
-
+   hub.enableTab(thisModulesOutermostDiv);
+   hub.raiseTab(thisModulesOutermostDiv);
    hub.logEventOnServer(thisModulesName, "display markers network", "data received", "");
 
    if(msg.status == "success"){
@@ -1104,7 +1111,7 @@ function displayMarkersNetwork(msg)
 
       var msg2 = {cmd: "getSampleCategorizationNames", callback: "configureSampleCategorizationMenu",
                   status: "request", payload: ""};
-      hub.send(JSON.stringify(msg2));
+      //hub.send(JSON.stringify(msg2));
       }
    else{
      console.log("displayMarkersNetwork error: " + msg.payload);
@@ -1150,7 +1157,8 @@ function datasetSpecified (msg)
 
    hub.logEventOnServer(thisModulesName, "display markers network", "request", "");
 
-   var newMsg = {cmd: "getMarkersNetwork",  callback: "displayMarkersNetwork", status: "request", payload: datasetName};
+   payload = {datasetName: datasetName, networkCategory: "markers & samples"};
+   var newMsg = {cmd: "getNetwork",  callback: "displayMarkersNetwork", status: "request", payload: payload};
    hub.send(JSON.stringify(newMsg));
 
 } // datasetSpecified

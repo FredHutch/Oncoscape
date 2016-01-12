@@ -196,11 +196,7 @@ testNetworks <- function(quiet=TRUE)
 
    for(name in network.names){
       item <- getItem(dz, name)
-      checkTrue("character" %in% is(item))
-      item.as.R.list <- fromJSON(item)
-      checkTrue("list" %in% is(item.as.R.list))
-      item.as.json <- toJSON(item.as.R.list)
-      checkTrue("json" %in% is(item.as.json))
+      checkTrue("json" %in% is(item))
       } # for name
     
 } # testNetworks
