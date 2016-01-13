@@ -18,7 +18,7 @@ msg = dumps({"cmd": "calculatePCA", "status": "request", "callback":"", "payload
 ws.send(msg)
 result = loads(ws.recv())
 payload = result["payload"]
-fieldNames = payload.keys()
+fieldNames = list(payload.keys())
 assert(fieldNames.index("ids") >= 0)
 assert(fieldNames.index("maxValue") >= 0)
 assert(fieldNames.index("scores") >= 0)

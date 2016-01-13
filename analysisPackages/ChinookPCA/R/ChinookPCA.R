@@ -45,7 +45,7 @@ PCA.create <- function(channel, msg)
    
    printf("%s loaded in server? ", datasetName %in% getDatasetNames(server))
           
-   dataset <- getDataset(server, datasetName)
+   dataset <- getDatasetByName(server, datasetName)
    cmd <- sprintf("mypca <- PCA(dataset, '%s')",  matrixName);
    printf("   PCA.create cmd: |%s|", cmd)
    eval(parse(text=cmd))
