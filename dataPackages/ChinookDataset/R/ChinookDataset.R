@@ -213,19 +213,15 @@ Dataset.getItemByName <- function(channel, msg)
 
    i <- 0
    for(name in item.names){
-      item <- getItemByName(dataset, name)
+      item <- getItem(dataset, name)
       class <- class(item)
       i <- i + 1
       if(class == "matrix"){
-        matrix <- matrices(dataset)[[name]]
-        data.json <- .prepDataframeOrMatrixForJSON(dataset.name, matrix)
+        data.json <- .prepDataframeOrMatrixForJSON(dataset.name, item)
         }
       else if(class == "data.frame"){
-        df <- data.frames(dataset)[[name]]
-        data.json <- .prepDataframeOrMatrixForJSON(dataset.name, df)
+        data.json <- .prepDataframeOrMatrixForJSON(dataset.name, item)
         }
-      else if(class == "json")
-        data.json <-  getJSON(dataset, name)
       data.list[[i]] <- data.json
       }
 
