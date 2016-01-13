@@ -61,7 +61,7 @@ test_retrieveDatasets <- function()
 
    checkTrue(all(datasets %in% getDatasetNames(chinook)))
    dz <- getDatasetByName(chinook, "DEMOdz")
-   checkTrue("mtx.mut" %in% names(matrices(dz)))
+   checkTrue("mtx.mut" %in% getItemNames(dz))
 
       # next tests deferred until TCGAgbm is converted to be a Dataset, not an SttrDataPackage
    #dz2 <- getDatasetByName(chinook, "TCGAgbm")
