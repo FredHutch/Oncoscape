@@ -1,15 +1,14 @@
 exportClasses(PCA)
 
 export(
-  PCA,
-  printf
+  PCA
   )
 
 exportMethods(
   show,
   pcaDataSummary,
-  getDataMatrixName,
-  setDataMatrixName,
-  getDataPackage,
+  #getMatrixName,
+  #setMatrixByName,
+  #getDataPackage,
   calculate
   )

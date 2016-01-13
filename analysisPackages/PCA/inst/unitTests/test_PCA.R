@@ -1,14 +1,14 @@
 library(PCA)
 library(RUnit)
 library(DEMOdz)
-library(TCGAgbm)
+#library(TCGAgbm)
 Sys.setlocale("LC_ALL", "C")
 
-if(!exists("marker.genes.545")){
-    print(load(system.file(package="TCGAgbm", "extdata", "genesets.RData")))
-    marker.genes.545 <- genesets$marker.genes.545
-    tcga.GBM.classifiers <- genesets$tcga.GBM.classifiers
-    }
+#if(!exists("marker.genes.545")){
+#    print(load(system.file(package="TCGAgbm", "extdata", "genesets.RData")))
+#    marker.genes.545 <- genesets$marker.genes.545
+#    tcga.GBM.classifiers <- genesets$tcga.GBM.classifiers
+#   }
 #----------------------------------------------------------------------------------------------------
 runTests <- function()
 {
@@ -26,9 +26,9 @@ test_constructor = function()
    matrix.name <- "mtx.mrna.ueArray"
    pca <- PCA(demoDz, matrix.name)
 
-   checkEquals(getDataPackage(pca), demoDz)
-   checkTrue(grepl("PCA package", pcaDataSummary(pca)))
-   checkEquals(getDataMatrixName(pca), matrix.name)
+   checkTrue(grepl("PCA object", pcaDataSummary(pca)))
+   checkTrue(grepl("DEMOdz", pcaDataSummary(pca)))
+   checkTrue(grepl(matrix.name, pcaDataSummary(pca)))
 
 } # test_constructor
 #----------------------------------------------------------------------------------------------------
@@ -46,7 +46,7 @@ test_calculate <- function()
       # the components should average out to very near zero
    checkEqualsNumeric(mean(as.matrix(x$scores[, 1:20])), 0, 1e-10)
 
-   mtx <- matrices(dz)[[mtx.name]]
+   mtx <- getItem(dz, mtx.name)
       # should be loadings for each gene
    checkEquals(ncol(mtx), nrow(x$loadings))
    checkEquals(nrow(x$scores), nrow(mtx))
@@ -65,7 +65,7 @@ test_calculate_patientSubset <- function()
    mtx.name <- "mtx.mrna.ueArray"
    pca <- PCA(dz, mtx.name)
 
-   mtx <- matrices(dz)[[mtx.name]]
+   mtx <- getItem(dz, mtx.name)
    poi <- rownames(mtx)[1:10]
    x <- calculate(pca, samples=poi)
 
@@ -90,7 +90,7 @@ test_calculate_geneSubset <- function()
    mtx.name <- "mtx.mrna.ueArray"
    pca <- PCA(dz, mtx.name)
 
-   mtx <- matrices(dz)[[mtx.name]]
+   mtx <- getItem(dz, mtx.name)
    goi <- colnames(mtx)[1:10]
    x <- calculate(pca, genes=goi)
 
