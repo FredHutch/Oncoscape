@@ -26,6 +26,9 @@ testManifestAndDataConsistency <- function(quiet=TRUE)
 {
    printf("--- testManifestAndDataConsistency")
    dir <- "../extdata"
+   if(!file.exists(dir))
+       dir <- system.file(package="DEMOdz", "extdata")
+   
    checkTrue(file.exists(dir))
    
    file <- file.path(dir, "manifest.tsv")
