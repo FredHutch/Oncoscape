@@ -1,0 +1,13 @@
+Package: GenomicSimilarity
+Type: Package
+Title: Calculate Genomic Similarity among Samples in Two Dimensions
+Version: 0.99.0
+Date: 2015-12-01
+Author: Paul Shannon
+Maintainer:  <pshannon@fredhutch.org>
+Depends: R (>= 3.2.2)
+Suggests: RUnit
+Description:  Calculate sample-to-sample similarity sing (initially, at least)
+   copy number and mutation calls, and multi-dimensional scaling
+License: GPL
+LazyLoad: yes
