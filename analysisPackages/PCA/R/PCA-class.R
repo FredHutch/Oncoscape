@@ -2,71 +2,73 @@ printf = function (...) print (noquote (sprintf (...)))
 #----------------------------------------------------------------------------------------------------
 .PCA <- setClass ("PCA", 
                    representation = representation(
-                        dataPackage="SttrDataPackageClass",
-                        dataMatrixName="character")   # eg, "mtx.mrna" or "mtx.mrna.normalized"
+                        dataset="Dataset",
+                        matrixName="character")   # eg, "mtx.mrna" or "mtx.mrna.normalized"
                    )
 #----------------------------------------------------------------------------------------------------
-#setGeneric('show',                  signature='obj', function(obj) standardGeneric ('show'))
 setGeneric('pcaDataSummary',        signature='obj', function(obj) standardGeneric ('pcaDataSummary'))
-setGeneric('getDataPackage',        signature='obj', function(obj) standardGeneric ('getDataPackage'))
-setGeneric('setDataMatrixName',     signature='obj', function(obj, dataMatrixName) standardGeneric ('setDataMatrixName'))
-setGeneric('getDataMatrixName',     signature='obj', function(obj) standardGeneric ('getDataMatrixName'))
+#setGeneric('getDataPackage',        signature='obj', function(obj) standardGeneric ('getDataPackage'))
+#setGeneric('setDataMatrixName',     signature='obj', function(obj, dataMatrixName) standardGeneric ('setDataMatrixName'))
+#setGeneric('getDataMatrixName',     signature='obj', function(obj) standardGeneric ('getDataMatrixName'))
 setGeneric("calculate",             signature='obj', function(obj, genes=NA, samples=NA) standardGeneric("calculate"))
 #----------------------------------------------------------------------------------------------------
-PCA <- function(sttrDataPackage, dataMatrixName)
+PCA <- function(dataset,  matrixName)
 {
-   obj <- .PCA(dataPackage=sttrDataPackage, dataMatrixName=dataMatrixName)
-   
-   stopifnot(dataMatrixName %in% names(matrices(sttrDataPackage)))
+   stopifnot(matrixName %in% .recognized.matrix.names(dataset))
+   obj <- .PCA(dataset=dataset, matrixName=matrixName)
    obj
 
 } # PCA constructor
 #----------------------------------------------------------------------------------------------------
+.recognized.matrix.names <- function(dataset)
+{
+   subset(getManifest(dataset), class=="matrix")$variable
+
+} # .recognized.matrix.names
+#----------------------------------------------------------------------------------------------------
 setMethod("pcaDataSummary", "PCA",
+
   function (obj) {
-     msg <- sprintf("PCA package, matrices: %s",
-                    paste(names(matrices(getDataPackage(obj))), collapse=","))
+     msg <- sprintf("PCA object for object %s, matrix %s", getName(obj@dataset), obj@matrixName)
      msg
      })
 
 #----------------------------------------------------------------------------------------------------
 setMethod("show", "PCA",
   function (obj) {
-     #msg <- sprintf("PCA object data '%s'", obj@dataPackage)
-     msg <- sprintf("PCA object")
-     cat (msg, "\n", sep="")
+     cat (pcaDataSummary(ob), "\n", sep="")
      })
 
 #----------------------------------------------------------------------------------------------------
-setMethod("getDataPackage", "PCA",
-
-   function (obj) {
-     obj@dataPackage
-     })
-
-#----------------------------------------------------------------------------------------------------
-setMethod("setDataMatrixName", "PCA",
-
-  function (obj, dataMatrixName) {
-     stopifnot(dataMatrixName %in% names(matrices(obj@dataPackage)))
-     obj@dataMatrixName <- dataMatrixName
-     invisible(obj)
-     })
-
-#----------------------------------------------------------------------------------------------------
-setMethod("getDataMatrixName", "PCA",
-
-  function (obj) {
-     obj@dataMatrixName
-     })
-
+#setMethod("getDataset", "PCA",
+#
+#   function (obj) {
+#     obj@dataset
+#     })
+#
+##----------------------------------------------------------------------------------------------------
+#setMethod("setMatrixByName", "PCA",
+#
+#  function (obj, matrixName) {
+#     stopifnot(matrixName %in% .recognized.matrix.names(obj)
+#     obj@matrixName <- matrixName
+#     invisible(obj)
+#     })
+#
+##----------------------------------------------------------------------------------------------------
+#setMethod("getMatrixName", "PCA",
+#
+#  function (obj) {
+#     obj@matrixName
+#     })
+#
 #----------------------------------------------------------------------------------------------------
 setMethod("calculate", "PCA",
 
    function(obj, genes=NA, samples=NA){
 
    printf("=== entering PCA::calculate");
-   mtx <- matrices(getDataPackage(obj))[[getDataMatrixName(obj)]]
+   mtx <- getItem(obj@dataset, obj@matrixName)
 
    printf("dim(mtx): %d x %d", nrow(mtx), ncol(mtx))
    

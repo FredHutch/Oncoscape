@@ -18,6 +18,8 @@ default:
 	echo =========== 9
 	(cd analysisPackages/chinookAnalysisDemo/ChinookSimpleSummaryStats/inst/unitTests; make)
 	echo =========== 10
-	R CMD install dataPackages/ChinookDataset  && R -f dataPackages/ChinookDataset/inst/unitTests/test_ChinookDataset.R
+	(cd analysisPackages; R CMD install PCA && R -f PCA/inst/unitTests/test_PCA.R)
 	echo =========== 11
+	R CMD install dataPackages/ChinookDataset  && R -f dataPackages/ChinookDataset/inst/unitTests/test_ChinookDataset.R
+	echo =========== 12
 	(cd dataPackages/ChinookDataset/inst/unitTests; make)

@@ -1,11 +1,11 @@
 Package: PCA
 Type: Package
 Title:  Oncoscape PCA Wrapper
-Version: 1.0.13
-Date: 2015-08-06
+Version: 1.1.1
+Date: 2016-01-13
 Author: Paul Shannon
 Maintainer:  <pshannon@fredhutch.org>
-Depends: R (>= 3.1.0), BiocGenerics, RUnit, SttrDataPackage
+Depends: R (>= 3.1.0), BiocGenerics, RUnit, Dataset
 Suggests: RUnit
 Description:  An Oncoscape wrapper for pca (principal component analysis) on gene expression data.
 License: GPL
