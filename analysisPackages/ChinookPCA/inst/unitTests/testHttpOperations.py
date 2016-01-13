@@ -1,12 +1,13 @@
-from urllib2 import *
+from urllib.request import urlopen
+from urllib.parse import quote
 from json import *
 
 payload = {"datasetName": "DEMOdz", "matrixName": "mtx.mrna.ueArray"};
 msg = quote(dumps({"cmd": "createPCA", "status": "request", "callback": "", "payload": payload}))
 request = "http://localhost:4009?jsonMsg='%s'" % msg
-print request
+print(request)
 rawResult = urlopen(request).read()
-result = loads(rawResult)
+result = loads(rawResult.decode())
 payload = result["payload"]
 
    # typical response: "PCA(DEMOdz(), 'mtx.mrna.ueArray') version 1.0.13 created"
@@ -21,12 +22,12 @@ payload = {}
 msg = quote(dumps({"cmd": "calculatePCA", "status": "request", "callback":"", "payload": payload}))
 
 request = "http://localhost:4009?jsonMsg='%s'" % msg
-print request
+print(request)
 rawResult = urlopen(request).read()
-result = loads(rawResult)
+result = loads(rawResult.decode())
 
 payload = result["payload"]
-fieldNames = payload.keys()
+fieldNames = list(payload.keys())
 assert(fieldNames.index("ids") >= 0)
 assert(fieldNames.index("maxValue") >= 0)
 assert(fieldNames.index("scores") >= 0)

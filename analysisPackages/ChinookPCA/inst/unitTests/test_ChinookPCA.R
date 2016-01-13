@@ -15,7 +15,8 @@ testNullServerConstructor <- function()
 
    server <- ChinookServer()
    pca <- ChinookPCA(server)
-   checkEquals(getMessageNames(server), "createPCA")
+   checkTrue("createPCA" %in% getMessageNames(server))
+   checkTrue("calculatePCA" %in% getMessageNames(server))
    
 } # testNullServerConstructor
 #----------------------------------------------------------------------------------------------------
@@ -33,11 +34,11 @@ testNormalServerConstructor <- function()
 
       # make sure the server properly created an instance of ChinookPCA
    checkTrue("ChinookPCA" %in% ls(server@state))
-   instance <- server@state[["ChinookPCA"]]
+   pca.instance <- server@state[["ChinookPCA"]]
 
        # test for proper class and base class
-   checkTrue("ChinookPCA" %in% is(x))
-   checkTrue("ChinookAnalysis" %in% is(x))
+   checkTrue("ChinookPCA" %in% is(pca.instance))
+   checkTrue("ChinookAnalysis" %in% is(pca.instance))
 
 } # testNormalServerConstructor
 #----------------------------------------------------------------------------------------------------

@@ -23,3 +23,5 @@ default:
 	R CMD install dataPackages/ChinookDataset  && R -f dataPackages/ChinookDataset/inst/unitTests/test_ChinookDataset.R
 	echo =========== 12
 	(cd dataPackages/ChinookDataset/inst/unitTests; make)
+	echo =========== 13
+	R CMD install analysisPackages/ChinookPCA && (cd analysisPackages/ChinookPCA/inst/unitTests; make)
