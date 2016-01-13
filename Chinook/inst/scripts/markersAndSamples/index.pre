@@ -1,0 +1,19 @@
+include(m4-workarounds.txt)
+include(index.common)
+include(common.css)
+
+<script>
+include(hub/Module.js)
+var hub = HubModule();
+hub.addOnDocumentReadyFunction(function() {
+  $("#oncoscapeTabs").tabs();
+  hub.raiseTab("datasetsDiv");
+  })
+
+hub.start();
+
+</script>
+<body>
+include(tabs.html)
+</body>
+</html>
