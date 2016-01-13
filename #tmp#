@@ -1,0 +1,420 @@
+On branch pshannon-refactor-server
+You are currently reverting commit 891a870.
+  (fix conflicts and run "git revert --continue")
+  (use "git revert --abort" to cancel the revert operation)
+
+Changes to be committed:
+  (use "git reset HEAD <file>..." to unstage)
+
+	modified:   Chinook/inst/scripts/markersAndSamples/Module.js
+	modified:   Chinook/inst/scripts/markersAndSamples/index.html
+	modified:   Chinook/inst/scripts/markersAndSamples/index.pre
+	modified:   Chinook/inst/scripts/markersAndSamples/makefile
+	modified:   Chinook/inst/scripts/markersAndSamples/runMarkers.R
+	new file:   Oncoscape/inst/scripts/markersAndSamples/log.2015-11-13.18:16:49.RData
+	modified:   dataPackages/ChinookDataset/DESCRIPTION
+	modified:   dataPackages/ChinookDataset/NAMESPACE
+	modified:   dataPackages/ChinookDataset/R/ChinookDataset.R
+	modified:   dataPackages/DEMOdz/inst/extdata/gbmPathways.json.RData
+	modified:   dataPackages/DEMOdz/inst/extdata/manifest.tsv
+	modified:   dataPackages/DEMOdz/inst/extdata/markers.json.RData
+	modified:   dataPackages/DEMOdz/inst/unitTests/test_DEMOdz.R
+	modified:   dataPackages/DEMOdz/inst/utils/constructMarkersNetwork.R
+
+Unmerged paths:
+  (use "git reset HEAD <file>..." to unstage)
+  (use "git add/rm <file>..." as appropriate to mark resolution)
+
+	added by us:     Chinook/inst/scripts/markersAndSamples/hidden/Module.js
+	added by us:     Chinook/inst/scripts/markersAndSamples/hidden/Test.js
+	added by us:     Chinook/inst/scripts/markersAndSamples/hidden/index.pre
+	added by us:     Chinook/inst/scripts/markersAndSamples/hidden/indexTabs.pre
+	added by us:     Chinook/inst/scripts/markersAndSamples/hidden/makefile
+	added by us:     Chinook/inst/scripts/markersAndSamples/hidden/makefile-pshannon
+	added by us:     Chinook/inst/scripts/markersAndSamples/hidden/run.R
+	added by us:     Chinook/inst/scripts/markersAndSamples/hidden/runMarkers.R
+	added by us:     Chinook/inst/scripts/markersAndSamples/hidden/runMarkersApp.R
+	added by us:     Chinook/inst/scripts/markersAndSamples/hidden/runMarkersTest.R
+	added by us:     Chinook/inst/scripts/markersAndSamples/hidden/tabsTest.html
+	added by us:     Chinook/inst/scripts/markersAndSamples/hidd en/test.R
+	added by us:     Chinook/inst/scripts/markersAndSamples/hidden/test.Rout
+	added by us:     Chinook/inst/scripts/markersAndSamples/hidden/test.html
+	added by us:     Chinook/inst/scripts/markersAndSamples/hidden/tmp
+	added by us:     Chinook/inst/scripts/markersAndSamples/tabs.html
+	added by us:     Chinook/inst/scripts/markersAndSamples/widget.html
+	added by us:     Chinook/inst/scripts/pathways/pi3k-akt/runDevel.R
+	added by them:   Oncoscape/inst/scripts/markersAndSamples/Test.js
+	both deleted:    Oncoscape/inst/scripts/markersAndSamples/hidden/Test.js
+	both deleted:    Oncoscape/inst/scripts/markersAndSamples/hidden/indexTabs.pre
+	both deleted:    Oncoscape/inst/scripts/markersAndSamples/hidden/run.R
+	both deleted:    Oncoscape/inst/scripts/markersAndSamples/hidden/runDevel.R
+	both deleted:    Oncoscape/inst/scripts/markersAndSamples/hidden/runMarkersApp.R
+	both deleted:    Oncoscape/inst/scripts/markersAndSamples/hidden/runMarkersTest.R
+	both deleted:    Oncoscape/inst/scripts/markersAndSamples/hidden/tabsTest.html
+	both deleted:    Oncoscape/inst/scripts/markersAndSamples/hidden/test.html
+	added by them:   Oncoscape/inst/scripts/markersAndSamples/indexTabs.pre
+	added by them:   Oncoscape/inst/scripts/markersAndSamples/run.R
+	added by them:   Oncoscape/inst/scripts/markersAndSamples/runDevel.R
+	added by them:   Oncoscape/inst/scripts/markersAndSamples/runMarkersApp.R
+	added by them:   Oncoscape/inst/scripts/markersAndSamples/runMarkersTest.R
+	added by them:   Oncoscape/inst/scripts/markersAndSamples/tabsTest.html
+	added by them:   Oncoscape/inst/scripts/markersAndSamples/test.html
+
+Changes not staged for commit:
+  (use "git add <file>..." to update what will be committed)
+  (use "git checkout -- <file>..." to discard changes in working directory)
+
+	modified:   Chinook/DESCRIPTION
+	modified:   Chinook/NAMESPACE
+	modified:   Chinook/R/ChinookServer.R
+	modified:   Chinook/inst/extdata/gbmGenesets.RData
+	modified:   Chinook/inst/extdata/tbl.dzSubTypes.RData
+	modified:   Chinook/inst/extdata/tbl.history-592-patients-9-columns.RData
+	modified:   Chinook/inst/scripts/apps/eric/README.md
+	modified:   Chinook/inst/scripts/apps/eric/Test.js
+	modified:   Chinook/inst/scripts/apps/eric/index.html
+	modified:   Chinook/inst/scripts/apps/eric/index.pre
+	modified:   Chinook/inst/scripts/apps/eric/makefile
+	modified:   Chinook/inst/scripts/apps/eric/runEricAsServer-port11005.R
+	modified:   Chinook/inst/scripts/apps/eric/runEricAsServer-port11995.R
+	modified:   Chinook/inst/scripts/apps/eric/widget.html
+	modified:   Chinook/inst/scripts/apps/oncoplex/ModuleTest.js
+	modified:   Chinook/inst/scripts/apps/oncoplex/code.js
+	modified:   Chinook/inst/scripts/apps/oncoplex/index.pre
+	modified:   Chinook/inst/scripts/apps/oncoplex/makefile
+	modified:   Chinook/inst/scripts/apps/oncoplex/runOncoplexAsServer.R
+	modified:   Chinook/inst/scripts/apps/oncoplex/widget.html
+	modified:   Chinook/inst/scripts/apps/oncoplex/widgetTest.html
+	modified:   Chinook/inst/scripts/apps/oncoscape/Test.js
+	modified:   Chinook/inst/scripts/apps/oncoscape/code.js
+	modified:   Chinook/inst/scripts/apps/oncoscape/index.html
+	modified:   Chinook/inst/scripts/apps/oncoscape/index.pre
+	modified:   Chinook/inst/scripts/apps/oncoscape/makefile
+	modified:   Chinook/inst/scripts/apps/oncoscape/makefile.lopez.paul
+	modified:   Chinook/inst/scripts/apps/oncoscape/moncon.py
+	modified:   Chinook/inst/scripts/apps/oncoscape/runOncoscapeApp-7777.R
+	modified:   Chinook/inst/scripts/apps/oncoscape/setup.js
+	modified:   Chinook/inst/scripts/apps/oncoscape/testTab.html
+	modified:   Chinook/inst/scripts/apps/oncoscape/widget.html
+	modified:   Chinook/inst/scripts/apps/oncotest/Test.js
+	modified:   Chinook/inst/scripts/apps/oncotest/code.js
+	modified:   Chinook/inst/scripts/apps/oncotest/index.html
+	modified:   Chinook/inst/scripts/apps/oncotest/index.pre
+	modified:   Chinook/inst/scripts/apps/oncotest/makefile
+	modified:   Chinook/inst/scripts/apps/oncotest/makefile.lopez.paul
+	modified:   Chinook/inst/scripts/apps/oncotest/moncon.py
+	modified:   Chinook/inst/scripts/apps/oncotest/oncoscape.ico
+	modified:   Chinook/inst/scripts/apps/oncotest/runOncoscapeApp-7788.R
+	modified:   Chinook/inst/scripts/apps/oncotest/runOncotestApp.R
+	modified:   Chinook/inst/scripts/apps/oncotest/setup.js
+	modified:   Chinook/inst/scripts/apps/oncotest/testTab.html
+	modified:   Chinook/inst/scripts/apps/oncotest/widget.html
+	modified:   Chinook/inst/scripts/blankTab/Module.js
+	modified:   Chinook/inst/scripts/blankTab/index.html
+	modified:   Chinook/inst/scripts/blankTab/index.pre
+	modified:   Chinook/inst/scripts/blankTab/indexTabs.pre
+	modified:   Chinook/inst/scripts/blankTab/makefile
+	modified:   Chinook/inst/scripts/blankTab/run.R
+	modified:   Chinook/inst/scripts/blankTab/runBlankTabTest.R
+	modified:   Chinook/inst/scripts/blankTab/runDevel.R
+	modified:   Chinook/inst/scripts/blankTab/tabsTest.html
+	modified:   Chinook/inst/scripts/blankTab/widget.html
+	modified:   Chinook/inst/scripts/common.css
+	modified:   Chinook/inst/scripts/common.js
+	modified:   Chinook/inst/scripts/datasets/.Rhistory
+	modified:   Chinook/inst/scripts/datasets/Module.js
+	modified:   Chinook/inst/scripts/datasets/Test.js
+	modified:   Chinook/inst/scripts/datasets/index.pre
+	modified:   Chinook/inst/scripts/datasets/indexTabs.pre
+	modified:   Chinook/inst/scripts/datasets/log.2015-11-13.18:11:50.RData
+	modified:   Chinook/inst/scripts/datasets/makefile
+	modified:   Chinook/inst/scripts/datasets/run.R
+	modified:   Chinook/inst/scripts/datasets/runDatasets.R
+	modified:   Chinook/inst/scripts/datasets/runDevel.R
+	modified:   Chinook/inst/scripts/datasets/tabs.html
+	modified:   Chinook/inst/scripts/datasets/tabsTest.html
+	modified:   Chinook/inst/scripts/datasets/test.html
+	modified:   Chinook/inst/scripts/datasets/webTests/jqueryDemo.js
+	modified:   Chinook/inst/scripts/datasets/webTests/makefile
+	modified:   Chinook/inst/scripts/datasets/webTests/singlePage.js
+	modified:   Chinook/inst/scripts/datasets/widget.html
+	modified:   Chinook/inst/scripts/datasets/wsJsonTests/test.py
+	modified:   Chinook/inst/scripts/gbmPathways/Module.js
+	modified:   Chinook/inst/scripts/gbmPathways/Module.js-18sep
+	modified:   Chinook/inst/scripts/gbmPathways/Module.js-mine
+	modified:   Chinook/inst/scripts/gbmPathways/Module.js-new-broken
+	modified:   Chinook/inst/scripts/gbmPathways/Module.js-old
+	modified:   Chinook/inst/scripts/gbmPathways/Test.js
+	modified:   Chinook/inst/scripts/gbmPathways/code.js
+	modified:   Chinook/inst/scripts/gbmPathways/credits.html
+	modified:   Chinook/inst/scripts/gbmPathways/curatedGBMVizmap.js
+	modified:   Chinook/inst/scripts/gbmPathways/curatedGBMVizmap.js-17sep
+	modified:   Chinook/inst/scripts/gbmPathways/curatedGBMVizmap.js-old
+	modified:   Chinook/inst/scripts/gbmPathways/curatedGBMpathways.js
+	modified:   Chinook/inst/scripts/gbmPathways/help.html
+	modified:   Chinook/inst/scripts/gbmPathways/index.html
+	modified:   Chinook/inst/scripts/gbmPathways/index.pre
+	modified:   Chinook/inst/scripts/gbmPathways/indexTabs.pre
+	modified:   Chinook/inst/scripts/gbmPathways/legend.html
+	modified:   Chinook/inst/scripts/gbmPathways/makefile
+	modified:   Chinook/inst/scripts/gbmPathways/run.R
+	modified:   Chinook/inst/scripts/gbmPathways/runDevel.R
+	modified:   Chinook/inst/scripts/gbmPathways/runGBMPathwaysApp.R
+	modified:   Chinook/inst/scripts/gbmPathways/tabs.html
+	modified:   Chinook/inst/scripts/gbmPathways/tabsTest.html
+	modified:   Chinook/inst/scripts/gbmPathways/tmp.js
+	modified:   Chinook/inst/scripts/gbmPathways/vizmap.js
+	modified:   Chinook/inst/scripts/gbmPathways/widget.html
+	modified:   Chinook/inst/scripts/gbmPathways/widget.html-18sep
+	modified:   Chinook/inst/scripts/gbmPathways/widget.html-mine
+	modified:   Chinook/inst/scripts/gbmPathways/widget.html-new-broken
+	modified:   Chinook/inst/scripts/gbmPathways/widget.html-old
+	modified:   Chinook/inst/scripts/genesetTtest/Module.js
+	modified:   Chinook/inst/scripts/genesetTtest/gstt.html
+	modified:   Chinook/inst/scripts/genesetTtest/gstt.jsp
+	modified:   Chinook/inst/scripts/genesetTtest/gstt_casper.js
+	modified:   Chinook/inst/scripts/genesetTtest/gstt_original.html
+	modified:   Chinook/inst/scripts/genesetTtest/index.html
+	modified:   Chinook/inst/scripts/genesetTtest/index.pre
+	modified:   Chinook/inst/scripts/genesetTtest/indexTabs.pre
+	modified:   Chinook/inst/scripts/genesetTtest/makefile
+	modified:   Chinook/inst/scripts/genesetTtest/run.R
+	modified:   Chinook/inst/scripts/genesetTtest/runBlankTabTest.R
+	modified:   Chinook/inst/scripts/genesetTtest/runDevel.R
+	modified:   Chinook/inst/scripts/genesetTtest/tabsTest.html
+	modified:   Chinook/inst/scripts/genesetTtest/widget.html
+	modified:   Chinook/inst/scripts/hub/Module.js
+	modified:   Chinook/inst/scripts/hub/makefile
+	modified:   Chinook/inst/scripts/hub/testHub.js
+	modified:   Chinook/inst/scripts/hub/testHub.js-pre
+	modified:   Chinook/inst/scripts/index.common
+	modified:   Chinook/inst/scripts/linkout/Module.js
+	modified:   Chinook/inst/scripts/linkout/indexTabs.pre
+	modified:   Chinook/inst/scripts/linkout/makefile
+	modified:   Chinook/inst/scripts/linkout/runLinkout.R
+	modified:   Chinook/inst/scripts/linkout/tabsTest.html
+	modified:   Chinook/inst/scripts/linkout/widget.html
+	modified:   Chinook/inst/scripts/login/Module.js
+	modified:   Chinook/inst/scripts/login/index.html
+	modified:   Chinook/inst/scripts/login/index.pre
+	modified:   Chinook/inst/scripts/login/indexTabs.pre
+	modified:   Chinook/inst/scripts/login/makefile
+	modified:   Chinook/inst/scripts/login/run.R
+	modified:   Chinook/inst/scripts/login/runBlankTabTest.R
+	modified:   Chinook/inst/scripts/login/runDevel.R
+	modified:   Chinook/inst/scripts/login/tabsTest.html
+	modified:   Chinook/inst/scripts/login/widget.html
+	modified:   Chinook/inst/scripts/m4-workarounds.txt
+	modified:   Chinook/inst/scripts/makefile
+	modified:   Chinook/inst/scripts/markersAndSamples/hidden/runDevel.R
+	modified:   Chinook/inst/scripts/markersAndSamples/hidden/widget.html
+	modified:   Chinook/inst/scripts/minimalTest/.Rhistory
+	modified:   Chinook/inst/scripts/minimalTest/index.html
+	modified:   Chinook/inst/scripts/minimalTest/junk
+	modified:   Chinook/inst/scripts/oncoprint/Module-demo.js
+	modified:   Chinook/inst/scripts/oncoprint/Module.js
+	modified:   Chinook/inst/scripts/oncoprint/gulpfile.js
+	modified:   Chinook/inst/scripts/oncoprint/index.html
+	modified:   Chinook/inst/scripts/oncoprint/index.pre
+	modified:   Chinook/inst/scripts/oncoprint/indexTabs.pre
+	modified:   Chinook/inst/scripts/oncoprint/makefile
+	modified:   Chinook/inst/scripts/oncoprint/run.R
+	modified:   Chinook/inst/scripts/oncoprint/runBlankTabTest.R
+	modified:   Chinook/inst/scripts/oncoprint/runDevel.R
+	modified:   Chinook/inst/scripts/oncoprint/src/.js/D3SVGCellRenderer.js
+	modified:   Chinook/inst/scripts/oncoprint/src/.js/OncoprintToolbar.js
+	modified:   Chinook/inst/scripts/oncoprint/src/.js/ReadOnlyObject.js
+	modified:   Chinook/inst/scripts/oncoprint/src/.js/RuleSet.js
+	modified:   Chinook/inst/scripts/oncoprint/src/.js/Toolbar.js
+	modified:   Chinook/inst/scripts/oncoprint/src/.js/events.js
+	modified:   Chinook/inst/scripts/oncoprint/src/.js/globals.js
+	modified:   Chinook/inst/scripts/oncoprint/src/.js/main.js
+	modified:   Chinook/inst/scripts/oncoprint/src/.js/oncoprint.js
+	modified:   Chinook/inst/scripts/oncoprint/src/.js/renderers.js
+	modified:   Chinook/inst/scripts/oncoprint/src/.js/rendering_engine.js
+	modified:   Chinook/inst/scripts/oncoprint/src/.js/signals.js
+	modified:   Chinook/inst/scripts/oncoprint/src/.js/sorting.js
+	modified:   Chinook/inst/scripts/oncoprint/src/.js/track.js
+	modified:   Chinook/inst/scripts/oncoprint/src/.js/utils.js
+	modified:   Chinook/inst/scripts/oncoprint/src/.js/utils2.js
+	modified:   Chinook/inst/scripts/oncoprint/src/css/oncoprint.css
+	modified:   Chinook/inst/scripts/oncoprint/src/html/toolbar.html
+	modified:   Chinook/inst/scripts/oncoprint/src/js/OncoprintRenderer.js
+	modified:   Chinook/inst/scripts/oncoprint/src/js/OncoprintSVGRenderer.js
+	modified:   Chinook/inst/scripts/oncoprint/src/js/RuleSet.js
+	modified:   Chinook/inst/scripts/oncoprint/src/js/defaults.js
+	modified:   Chinook/inst/scripts/oncoprint/src/js/events.js
+	modified:   Chinook/inst/scripts/oncoprint/src/js/oncoprint.js
+	modified:   Chinook/inst/scripts/oncoprint/src/js/utils.js
+	modified:   Chinook/inst/scripts/oncoprint/tabsTest.html
+	modified:   Chinook/inst/scripts/oncoprint/test_page-working.js
+	modified:   Chinook/inst/scripts/oncoprint/widget-working.html
+	modified:   Chinook/inst/scripts/oncoprint/widget.html
+	modified:   Chinook/inst/scripts/oncoprint/widget_forTabs.html
+	modified:   Chinook/inst/scripts/pathways/gbmPathways/Module.js
+	modified:   Chinook/inst/scripts/pathways/gbmPathways/index.pre
+	modified:   Chinook/inst/scripts/pathways/gbmPathways/indexTabs.pre
+	modified:   Chinook/inst/scripts/pathways/gbmPathways/makefile
+	modified:   Chinook/inst/scripts/pathways/gbmPathways/runGbmPathwaysApp.R
+	modified:   Chinook/inst/scripts/pathways/gbmPathways/tabsTest.html
+	modified:   Chinook/inst/scripts/pathways/gbmPathways/widget.html
+	modified:   Chinook/inst/scripts/pathways/pi3k-akt/Module.js
+	modified:   Chinook/inst/scripts/pathways/pi3k-akt/Module.markers-v12
+	modified:   Chinook/inst/scripts/pathways/pi3k-akt/Module.standard
+	modified:   Chinook/inst/scripts/pathways/pi3k-akt/cwMarkers-layout.json
+	modified:   Chinook/inst/scripts/pathways/pi3k-akt/ericsLayout-2015jan02.json
+	modified:   Chinook/inst/scripts/pathways/pi3k-akt/index.html
+	modified:   Chinook/inst/scripts/pathways/pi3k-akt/index.pre
+	modified:   Chinook/inst/scripts/pathways/pi3k-akt/indexTabs.pre
+	modified:   Chinook/inst/scripts/pathways/pi3k-akt/junk.tmp
+	modified:   Chinook/inst/scripts/pathways/pi3k-akt/layoutFull.js
+	modified:   Chinook/inst/scripts/pathways/pi3k-akt/layoutNew.js
+	modified:   Chinook/inst/scripts/pathways/pi3k-akt/makefile
+	modified:   Chinook/inst/scripts/pathways/pi3k-akt/mut.cyjs
+	modified:   Chinook/inst/scripts/pathways/pi3k-akt/mutCopyNumberChromNetwork.js
+	modified:   Chinook/inst/scripts/pathways/pi3k-akt/mutCopyNumberChromNetwork.json
+	modified:   Chinook/inst/scripts/pathways/pi3k-akt/mutNetwork.json
+	modified:   Chinook/inst/scripts/pathways/pi3k-akt/network.old
+	modified:   Chinook/inst/scripts/pathways/pi3k-akt/run.R
+	modified:   Chinook/inst/scripts/pathways/pi3k-akt/runPathwayApp.R
+	modified:   Chinook/inst/scripts/pathways/pi3k-akt/style.js
+	modified:   Chinook/inst/scripts/pathways/pi3k-akt/tabsTest.html
+	modified:   Chinook/inst/scripts/pathways/pi3k-akt/tmpasdfa
+	modified:   Chinook/inst/scripts/pathways/pi3k-akt/vizmap.json
+	modified:   Chinook/inst/scripts/pathways/pi3k-akt/vizmap.old
+	modified:   Chinook/inst/scripts/pathways/pi3k-akt/widget.html
+	modified:   Chinook/inst/scripts/pathways/pi3k-akt/widget.old
+	modified:   Chinook/inst/scripts/pathways/pi3k-akt/widget.standard
+	modified:   Chinook/inst/scripts/patientHistory/Module.js
+	modified:   Chinook/inst/scripts/patientHistory/index.html
+	modified:   Chinook/inst/scripts/patientHistory/index.pre
+	modified:   Chinook/inst/scripts/patientHistory/indexTabs.pre
+	modified:   Chinook/inst/scripts/patientHistory/makefile
+	modified:   Chinook/inst/scripts/patientHistory/run.R
+	modified:   Chinook/inst/scripts/patientHistory/runDevel.R
+	modified:   Chinook/inst/scripts/patientHistory/tabsTest.html
+	modified:   Chinook/inst/scripts/patientHistory/widget.html
+	modified:   Chinook/inst/scripts/patientTimelines/.Rhistory
+	modified:   Chinook/inst/scripts/patientTimelines/Module.js
+	modified:   Chinook/inst/scripts/patientTimelines/index.html
+	modified:   Chinook/inst/scripts/patientTimelines/index.pre
+	modified:   Chinook/inst/scripts/patientTimelines/indexTabs.pre
+	modified:   Chinook/inst/scripts/patientTimelines/indexTest.pre
+	modified:   Chinook/inst/scripts/patientTimelines/makefile
+	modified:   Chinook/inst/scripts/patientTimelines/manifest.txt
+	modified:   Chinook/inst/scripts/patientTimelines/npm-debug.log
+	modified:   Chinook/inst/scripts/patientTimelines/run.R
+	modified:   Chinook/inst/scripts/patientTimelines/runDevel.R
+	modified:   Chinook/inst/scripts/patientTimelines/tabsTest.html
+	modified:   Chinook/inst/scripts/patientTimelines/widget.html
+	modified:   Chinook/inst/scripts/pca/Module.js
+	modified:   Chinook/inst/scripts/pca/code.js
+	modified:   Chinook/inst/scripts/pca/credits.html
+	modified:   Chinook/inst/scripts/pca/help.html
+	modified:   Chinook/inst/scripts/pca/index.html
+	modified:   Chinook/inst/scripts/pca/index.pre
+	modified:   Chinook/inst/scripts/pca/indexTabs.pre
+	modified:   Chinook/inst/scripts/pca/legend.html
+	modified:   Chinook/inst/scripts/pca/makefile
+	modified:   Chinook/inst/scripts/pca/run.R
+	modified:   Chinook/inst/scripts/pca/runDevel.R
+	modified:   Chinook/inst/scripts/pca/runPcaApp.R
+	modified:   Chinook/inst/scripts/pca/tabsTest.html
+	modified:   Chinook/inst/scripts/pca/widget.html
+	modified:   Chinook/inst/scripts/plsr/Module.js
+	modified:   Chinook/inst/scripts/plsr/Module.js-mine
+	modified:   Chinook/inst/scripts/plsr/Test.js
+	modified:   Chinook/inst/scripts/plsr/code.js
+	modified:   Chinook/inst/scripts/plsr/index.html
+	modified:   Chinook/inst/scripts/plsr/index.pre
+	modified:   Chinook/inst/scripts/plsr/makefile
+	modified:   Chinook/inst/scripts/plsr/plsrTestTab.html
+	modified:   Chinook/inst/scripts/plsr/runPLSR.R
+	modified:   Chinook/inst/scripts/plsr/runPlsrTest.R
+	modified:   Chinook/inst/scripts/plsr/tabsTest.html
+	modified:   Chinook/inst/scripts/plsr/widget.html
+	modified:   Chinook/inst/scripts/subjectHistory/Module.js
+	modified:   Chinook/inst/scripts/subjectHistory/index.pre
+	modified:   Chinook/inst/scripts/subjectHistory/makefile
+	modified:   Chinook/inst/scripts/subjectHistory/runSubjectHistory.R
+	modified:   Chinook/inst/scripts/subjectHistory/tabs.html
+	modified:   Chinook/inst/scripts/subjectHistory/widget.html
+	modified:   Chinook/inst/scripts/survival/Module.js
+	modified:   Chinook/inst/scripts/survival/code.js
+	modified:   Chinook/inst/scripts/survival/credits.html
+	modified:   Chinook/inst/scripts/survival/help.html
+	modified:   Chinook/inst/scripts/survival/index.html
+	modified:   Chinook/inst/scripts/survival/index.pre
+	modified:   Chinook/inst/scripts/survival/indexTabs.pre
+	modified:   Chinook/inst/scripts/survival/legend.html
+	modified:   Chinook/inst/scripts/survival/makefile
+	modified:   Chinook/inst/scripts/survival/manifest.txt
+	modified:   Chinook/inst/scripts/survival/run.R
+	modified:   Chinook/inst/scripts/survival/runDevel.R
+	modified:   Chinook/inst/scripts/survival/tabsTest.html
+	modified:   Chinook/inst/scripts/survival/test.js
+	modified:   Chinook/inst/scripts/survival/widget.html
+	modified:   Chinook/inst/scripts/tabsApp/code.js
+	modified:   Chinook/inst/scripts/tabsApp/index.html
+	modified:   Chinook/inst/scripts/tabsApp/index.pre
+	modified:   Chinook/inst/scripts/tabsApp/makefile
+	modified:   Chinook/inst/scripts/tabsApp/runAsServer.R
+	modified:   Chinook/inst/scripts/tabsApp/runDevel.R
+	modified:   Chinook/inst/scripts/tabsApp/runSQLdata.R
+	modified:   Chinook/inst/scripts/tabsApp/widget.html
+	modified:   Chinook/inst/scripts/testManager/Module.js
+	modified:   Chinook/inst/scripts/tests/Module.js
+	modified:   Chinook/inst/scripts/tests/index.html
+	modified:   Chinook/inst/scripts/tests/index.pre
+	modified:   Chinook/inst/scripts/tests/indexTabs.pre
+	modified:   Chinook/inst/scripts/tests/makefile
+	modified:   Chinook/inst/scripts/tests/run.R
+	modified:   Chinook/inst/scripts/tests/runDevel.R
+	modified:   Chinook/inst/scripts/tests/tabsTest.html
+	modified:   Chinook/inst/scripts/tests/test.js
+	modified:   Chinook/inst/scripts/tests/widget.html
+	modified:   Chinook/inst/scripts/userDataStore/Module.js
+	modified:   Chinook/inst/scripts/userDataStore/index.html
+	modified:   Chinook/inst/scripts/userDataStore/index.pre
+	modified:   Chinook/inst/scripts/userDataStore/indexTabs.pre
+	modified:   Chinook/inst/scripts/userDataStore/makefile
+	modified:   Chinook/inst/scripts/userDataStore/run.R
+	modified:   Chinook/inst/scripts/userDataStore/runDevel.R
+	modified:   Chinook/inst/scripts/userDataStore/tabsTest.html
+	modified:   Chinook/inst/scripts/userDataStore/widget.html
+	modified:   Chinook/inst/scripts/userDetails/Module.js
+	modified:   Chinook/inst/scripts/userDetails/index.html
+	modified:   Chinook/inst/scripts/userDetails/index.html-skeleton
+	modified:   Chinook/inst/scripts/userDetails/index.pre
+	modified:   Chinook/inst/scripts/userDetails/makefile
+	modified:   Chinook/inst/scripts/userDetails/widget.html
+	modified:   Chinook/inst/unitTests/makefile
+	modified:   Chinook/inst/unitTests/testEmptyChinookServer.py
+	modified:   Chinook/inst/unitTests/test_ChinookServer.R
+	modified:   Chinook/makefile
+	modified:   dataPackages/ChinookDataset/inst/unitTests/test_ChinookDataset.R
+	modified:   makefile.chinook
+
+Untracked files:
+  (use "git add <file>..." to include in what will be committed)
+
+	Chinook/R/hidden/
+	Chinook/inst/scripts/datasets/log.2015-11-03.17:06:29.RData
+	Chinook/inst/scripts/jupyter/
+	Chinook/inst/scripts/markersAndSamples/.RData
+	Chinook/inst/scripts/testManager/test.html
+	Chinook/inst/unitTests/hidden/
+	analysisPackages/GenomicSimilarity/
+	analysisPackages/chinookAnalysisDemo/ChinookSimpleSummaryStats/inst/unitTests/.RData
+	dataPackages/NetworkMaker/g.json
+	dataPackages/NetworkMaker/inst/unitTests/g.json
+	dataPackages/SttrDataPackage/R/SttrDataPackage-class.R-06nov2015
+	dataPackages/TCGAbrain/inst/extdata/markers.json.RData-hidden
+	dataPackages/TCGAgbm/inst/utils/style.js-old
+	dataPackages/networks/UWlungMarkersAndTissues/
+	dataPackages/removeInstalledPackages.R
+	dataPackages/tumorCategories/
+	tmp
+	tmp.sh
+	webapps/
+

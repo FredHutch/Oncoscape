@@ -1,0 +1,32 @@
+include(../m4-workarounds.txt)
+include(../index.common)
+include(../common.css)
+
+<script>
+
+include(../hub/Module.js)
+var hub = HubModule();
+hub.start();
+
+include(../testManager/Module.js)
+include(../tabsApp/code.js)
+include(../datasets/Module.js)
+include(../jupyter/Module.js)
+
+</script>
+
+<body>
+
+<div id="oncoscapeTabs">
+   <ul>
+     <li><a href="#datasetsDiv">Datasets</a></li>
+     <li><a href="#jupyter">Jupyter</a></li>
+     <li><a href="#jupyterTestDiv">Tests</a></li>
+   </ul>
+
+include(../datasets/widget.html)
+include(../jupyter/widget.html)
+</div>
+
+</body>
+</html>

@@ -1,0 +1,12 @@
+exportClasses(GenomicSimilarity)
+
+exportMethods(
+   calculate,
+   getMatrixNames,
+   getSimilarityTable
+   )
+
+# functions
+export(
+  GenomicSimilarity
+)

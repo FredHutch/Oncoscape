@@ -1,0 +1,9 @@
+mv Oncoscape/inst/scripts/markersAndSamples/Test.js ~/tmp/oncogit/lostfilesSafe/
+mv Oncoscape/inst/scripts/markersAndSamples/indexTabs.pre ~/tmp/oncogit/lostfilesSafe/
+mv Oncoscape/inst/scripts/markersAndSamples/log.2015-11-13.18:16:49.RData ~/tmp/oncogit/lostfilesSafe/
+mv Oncoscape/inst/scripts/markersAndSamples/run.R ~/tmp/oncogit/lostfilesSafe/
+mv Oncoscape/inst/scripts/markersAndSamples/runDevel.R ~/tmp/oncogit/lostfilesSafe/
+mv Oncoscape/inst/scripts/markersAndSamples/runMarkersApp.R ~/tmp/oncogit/lostfilesSafe/
+mv Oncoscape/inst/scripts/markersAndSamples/runMarkersTest.R ~/tmp/oncogit/lostfilesSafe/
+mv Oncoscape/inst/scripts/markersAndSamples/tabsTest.html ~/tmp/oncogit/lostfilesSafe/
+mv Oncoscape/inst/scripts/markersAndSamples/test.html ~/tmp/oncogit/lostfilesSafe/
