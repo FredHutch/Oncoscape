@@ -50,7 +50,7 @@ test..prepDataframeOrMatrixForJSON <- function()
    #setServer(cds, server)
 
      # not many mutations, but two found in EGFR for 0749:
-   mtx.mut <- matrices(dz)$mtx.mut
+   mtx.mut <- getItem(dz, "mtx.mut")
 
    expected.mutations <- "A289T,V774M"
    row <- which(rownames(mtx.mut) == "TCGA.06.0749")
