@@ -1,13 +1,11 @@
 #----------------------------------------------------------------------------------------------------
-.ChinookPCA <- setClass ("ChinookPCA", 
-                           contains = "ChinookAnalysis"
-                           )
-
+.ChinookPCA <- setClass ("ChinookPCA", contains = "ChinookAnalysis")
 #----------------------------------------------------------------------------------------------------
 # only functions - not methods - can be dispatched to in a web socket handler.
 # since these functions sometimes need information and operations which properly belong
 # to instances of the class specified here, we create (and seal within this package) 
 # the "local.state" environment, so that called-back functions have access to all that they need
+
 local.state <- new.env(parent=emptyenv())
 #----------------------------------------------------------------------------------------------------
 # constructor
@@ -35,13 +33,21 @@ setMethod("registerMessageHandlers", "ChinookPCA",
 PCA.create <- function(channel, msg)
 {
    printf("--- entering PCA.create");
+   print(msg)
    datasetName <- msg$payload$datasetName
    matrixName  <- msg$payload$matrixName
+
+   printf("datasetName: %s", datasetName)
+   printf(" matrixName: %s", matrixName)
 
       # need to instantiate dataset
       # might want to store (cache) the instantiation on the Chinook server
 
    server <- getServer(local.state[["self"]])
+   printf("   server:")
+   print(server)
+   printf("   --- getDatasetNames(server)")
+   print(getDatasetNames(server))
    
    printf("%s loaded in server? ", datasetName %in% getDatasetNames(server))
           
