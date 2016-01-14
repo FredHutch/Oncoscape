@@ -569,7 +569,7 @@ ChinookServer.specifyCurrentDataset <- function(channel, msg)
    newDatasetName <- msg$payload
    stopifnot(newDatasetName %in% getDatasetNames(self))
    setActiveDataset(self, newDatasetName);
-   response <- toJSON(list(cmd=msg$callback, status="success", callback="", payload=""))
+   response <- toJSON(list(cmd=msg$callback, status="success", callback="", payload=newDatasetName))
 
    if("WebSocket" %in% is(channel))
       channel$send(response)

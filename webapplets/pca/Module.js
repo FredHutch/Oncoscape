@@ -1,3 +1,5 @@
+var datasetName = null;
+
 var PCAModule = (function () {
 
   var currentPatientIDs = null;
@@ -292,15 +294,16 @@ function pcaPlot (msg)
    if(msg.status == "success"){
       pcaScores = msg.payload.scores;
       currentIdentifiers = msg.payload.ids
-     
-      d3PcaScatterPlot(pcaScores);
 
       var pcaData = msg.payload.importance
-      var PC1var = 100 * msg.payload["importance.PC1"];
-      var PC2var = 100 * msg.payload["importance.PC2"];
-      var pcaText = $("#pcaTextDisplayDiv").html("")
-      pcaText.append("Proportion of Variance: ")
-      pcaText.append("PC1: "+PC1var.toFixed(2) + "%, PC2: "+PC2var.toFixed(2)+"%")
+      var pc1variance = 100 * msg.payload["importance.PC1"];
+      var pc2variance = 100 * msg.payload["importance.PC2"];
+
+      d3PcaScatterPlot(pcaScores, pc1variance, pc2variance);
+
+      //var pcaText = $("#pcaTextDisplayDiv").html("")
+      //pcaText.append("Proportion of Variance: ")
+      //pcaText.append("PC1: "+PC1var.toFixed(2) + "%, PC2: "+PC2var.toFixed(2)+"%")
         
       //if(!firstTime){  // first call comes at startup.  do not want to raise tab then.
       hub.raiseTab(thisModulesOutermostDiv);
@@ -395,16 +398,18 @@ function clearSelection()
 //----------------------------------------------------------------------------------------------------
 function calculate()
 {
-   var currentGeneSet = geneSetMenu.val();
-   var payload = {genes: currentGeneSet};
+   //var currentGeneSet = geneSetMenu.val();
+   //var payload = {genes: currentGeneSet};
 
-   if(currentPatientIDs !== null)
-       payload["samples"] = currentPatientIDs;
+   //if(currentPatientIDs !== null)
+   //    payload["samples"] = currentPatientIDs;
 
+   var payload = {};
    msg = {cmd: "calculatePCA", callback: "pcaPlot", status: "request", payload: payload};
    hub.send(JSON.stringify(msg));
    $("#pcaInstructions").css("display", "none");
    $("#pcaDisplay").css("display", "block");
+
 } // calculate
 //----------------------------------------------------------------------------------------------------
 function handlePatientIDs(msg)
@@ -469,7 +474,7 @@ function chooseColor(d)
 
 } // chooseColor
 //----------------------------------------------------------------------------------------------------
-function d3PcaScatterPlot(dataset)
+function d3PcaScatterPlot(dataset, pc1variance, pc2variance)
 {
    //pcaSendSelectionMenu.prop("disabled",true);
    var padding = 50;
@@ -538,8 +543,8 @@ function d3PcaScatterPlot(dataset)
        .attr("transform", "translate(0, " + yTranslationForXAxis + ")")
        .call(xAxis)
        .append("text")
-       .style("font-size", 14)
-       .text("PC1");
+       .style("font-size", 10)
+       .text("PC1 (" + pc1variance + "%)");
 
    svg.append("g")
       .attr("class", "y axis")
@@ -548,9 +553,9 @@ function d3PcaScatterPlot(dataset)
       .append("text")
       .attr("y", 10)
       .attr("dy", ".71em")
-      .style("font-size", 14)
-      .style("text-anchor", "end") //start, middle
-      .text("PC2");
+      .style("font-size", 10)
+      .style("text-anchor", "start") // end, start, middle
+      .text("PC2 (" + pc2variance + "%)");
             
    var circle = svg.append("g").selectAll("circle")
                    .data(dataset)
@@ -583,14 +588,17 @@ function datasetSpecified(msg)
    console.log("=== datasetSpecified");
    console.log(msg);
 
-   var dataPackageName = msg.payload.datasetName;
-   var dataElementNames = msg.payload.rownames;
+   datasetName = msg.payload;
 
       // for now, and very temporarily, use the first match (if any are found)
+
+   var matrixName = "mtx.mrna.ueArray";
+
+   /***********
+   var dataElementNames = msg.payload.rownames;
    var hits = dataElementNames.map(function(name) {if(name.indexOf("mtx.mrna") >= 0) return(name);});
    hits = hits.filter(function(n){ return (n !== undefined); });
 
-   var matrixName = null;
 
    if(hits.length > 0){
         // for now always grab the first (last!) hit, remove the trailing .RData
@@ -602,26 +610,29 @@ function datasetSpecified(msg)
       matrixName = hits[lastHit].replace(".RData", "");
       }
    else{
-      alert("No mtx.mrna in dataset '" + dataPackageName + "'");
+      alert("No mtx.mrna in dataset '" + datasetName + "'");
       hub.disableButton(calculatePcaButton);
       return;
       }
+    ************/
 
    console.log("== calling createPcaObjectOnServer");
-   createPcaObjectOnServer(dataPackageName, matrixName);
+ 
+  createPcaObjectOnServer(datasetName, matrixName);
 
    d3pcaDisplay.select("#pcaSVG").remove();  // so that old layouts aren't mistaken for new dataset
 
 } // datasetSpecified
 //--------------------------------------------------------------------------------------------
-function createPcaObjectOnServer(dataPackageName, matrixName)
+function createPcaObjectOnServer(datasetName, matrixName)
 {
-  console.log("create PCA on server " + dataPackageName + ": " + matrixName);
-  payload = {dataPackage: dataPackageName, matrixName: matrixName};
+  console.log("create PCA on server " + datasetName + ": " + matrixName);
+  payload = {datasetName: datasetName, matrixName: matrixName};
 
   msg = {cmd: "createPCA", callback: "pcaObjectCreated", status: "request", payload: payload};
 
   msg.json = JSON.stringify(msg);
+  console.log(msg.json);
   hub.send(msg.json);
 
 } // createPcaObjectOnServer
@@ -630,31 +641,17 @@ function pcaObjectCreated(msg)
 {
    console.log("=== pcaObjectCreated");
    console.log(msg);
-
-   #if(msg.status == "response")
-   #   requestGeneSetNames();
-   #else
-   #   alert("PCA module failed to create PCA object on server");
+   hub.enableTab("pcaDiv");
+   hub.raiseTab("pcaDiv");
+   calculate();
+   
+   //if(msg.status == "response")
+   //  requestGeneSetNames();
+   //else
+   //   alert("PCA module failed to create PCA object on server");
 
 } // pcaObjectCreated
 //--------------------------------------------------------------------------------------------
-// a simple test.  can be called from the console in global scope
-demoPCAHighlight = function ()
-{
-   ids = ["TCGA.06.0192", "TCGA.12.0775", "TCGA.14.0789"];
-   selectPoints(ids, true);
-
-} // demoHighlight
-//----------------------------------------------------------------------------------------------------
-demo = function ()
-{
-  msg = {cmd: "specifyCurrentDataset", callback: "pcaCurrentDataSetSpecified",
-         status: "request", payload: "DEMOdz"};
-
-  hub.send(JSON.stringify(msg));
-
-} // demo
-//----------------------------------------------------------------------------------------------------
 //function requestGeneSetNames()
 //{
 //   callback = "pcaHandleGeneSetNames";
@@ -830,7 +827,7 @@ function initializeModule()
    hub.addMessageHandler("pcaPlot", pcaPlot);
    hub.addMessageHandler("demoPcaCalculateAndDraw", demoPcaCalculateAndDraw);
    hub.addMessageHandler("pcaAssessUserIdForTesting", assessUserIdForTesting);
-   hub.addSocketConnectedFunction(runAutomatedTestsIfAppropriate);
+   //hub.addSocketConnectedFunction(runAutomatedTestsIfAppropriate);
 
    //hub.addMessageHandler("handlePatientClassification", handlePatientClassification)
    // hub.addSocketConnectedFunction(getPatientClassification);
@@ -839,10 +836,10 @@ function initializeModule()
 //----------------------------------------------------------------------------------------------------
 return{
   init: initializeModule,
-  demo: demo
   };
     
 }); // PCAModule
 //----------------------------------------------------------------------------------------------------
 pca = PCAModule();
 pca.init();
+

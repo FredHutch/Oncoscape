@@ -227,10 +227,11 @@ function specifyCurrentDataset()
    hub.disableAllTabsExcept([thisModulesOutermostDiv, "userDataStoreDiv"]);
    $("#loadingDatasetMessage").css("display", "inline");
 	
-   var msg = {cmd: "specifyCurrentDataset",  callback: "datasetSpecified", 
-              status: "request", payload: selectedDataset};
+   var msg = JSON.stringify({cmd: "specifyCurrentDataset",  callback: "datasetSpecified", 
+                            status: "request", payload: selectedDataset});
 
-   hub.send(JSON.stringify(msg));
+   console.log(msg)
+   hub.send(msg);
 
 } // specifyCurrentDataset
 //----------------------------------------------------------------------------------------------------
