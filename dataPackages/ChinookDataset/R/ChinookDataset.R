@@ -77,24 +77,28 @@ setMethod("getName", "ChinookDataset",
 setMethod("registerMessageHandlers", "ChinookDataset",
 
   function (obj) {
-     addMessageHandler(getServer(obj), "getDatasetManifest",     "Dataset.getManifest")
-     addMessageHandler(getServer(obj), "getDataManifest",        "Dataset.getManifest")
-     addMessageHandler(getServer(obj), "getDatasetDataFrame",    "Dataset.getDataFrame")
-     addMessageHandler(getServer(obj), "getDatasetJSON",         "Dataset.getJSON")
-     addMessageHandler(getServer(obj), "getDatasetItemNames",    "Dataset.getItemNames")
-     addMessageHandler(getServer(obj), "getDatasetItemByName",   "Dataset.getItemByName")
-     addMessageHandler(getServer(obj), "getSubjectHistoryTable", "Dataset.getSubjectHistoryTable")
-     addMessageHandler(getServer(obj), "getNetwork",             "Dataset.getNetwork")             
+     addMessageHandler(getServer(obj), "getDatasetManifest",       "Dataset.getManifest")
+     addMessageHandler(getServer(obj), "getDataManifest",          "Dataset.getManifest")
+     addMessageHandler(getServer(obj), "getDatasetDataFrame",      "Dataset.getDataFrame")
+     addMessageHandler(getServer(obj), "getDatasetJSON",           "Dataset.getJSON")
+     addMessageHandler(getServer(obj), "getDatasetItemNames",      "Dataset.getItemNames")
+     addMessageHandler(getServer(obj), "getDatasetItemByName",     "Dataset.getItemByName")
+     addMessageHandler(getServer(obj), "getSubjectHistoryTable",   "Dataset.getSubjectHistoryTable")
+     addMessageHandler(getServer(obj), "getNetwork",               "Dataset.getNetwork")             
+     addMessageHandler(getServer(obj), "getExpressionMatrixNames", "Dataset.getExpressionMatrixNames") 
+     printf("registered messages: %s", paste(getMessageNames(getServer(obj)), collapse=","))
      })
 
 #----------------------------------------------------------------------------------------------------
 Dataset.getManifest <- function(channel, msg)
 {
+   datasetName <- msg$payload;
    self <- local.state[["self"]]
-   dataset <- getDataset(self)
-
+   server <- getServer(self)
+   dataset <- getDatasetByName(server, datasetName)
    tbl <- getManifest(dataset)
-   datasetName <- getName(self)
+
+   #datasetName <- getName(self)
    payload <- .prepDataframeOrMatrixForJSON(datasetName, tbl)
    column.titles <- payload$colnames   
      # make some column names more friendly
@@ -115,6 +119,27 @@ Dataset.getManifest <- function(channel, msg)
       return(response)
 
 } # Dataset.getManifest
+#----------------------------------------------------------------------------------------------------
+Dataset.getExpressionMatrixNames <- function(channel, msg)
+{
+   requested.dataset <- msg$payload$datasetName
+   self <- local.state[["self"]]
+   server <- getServer(self)
+   dataset <- getDatasetByName(server, requested.dataset)
+   datasetName <- getName(dataset)
+   printf(" 245, datasetName, requested: %s   loaded 1: %s", requested.dataset, datasetName)
+   stopifnot(requested.dataset == datasetName)
+
+   tbl <- getManifest(dataset)
+   indices <- grep("mrna expression", tbl$category, ignore.case=TRUE)
+   names <- tbl[indices, "variable"]
+   printf("   expressionMatrixNames: %s", paste(names, collapse=","))
+   payload <- list(datasetName=datasetName, expressionMatrixNames=names);
+   response <- toJSON(list(cmd=msg$callback, status="success", callback="", payload=payload))
+   
+   .send(channel, response)
+
+} # Dataset.getExpressionMatrixNames
 #----------------------------------------------------------------------------------------------------
 .prepDataframeOrMatrixForJSON <-function(datasetName, tbl)
 {

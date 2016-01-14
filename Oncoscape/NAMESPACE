@@ -14,8 +14,6 @@ exportMethods(
   port,
   getDatasetNames,
   getDatasetByName,
-  setActiveDataset,
-  getActiveDataset,
   getAnalysisPackageNames,
   addMessageHandler,
   getMessageNames    

@@ -150,13 +150,13 @@ function handleDatasetNames(msg)
 
 } // handleDatasetNames
 //----------------------------------------------------------------------------------------------------
-function requestDatasetSummary(dataSetName)
+function requestDatasetSummary(datasetName)
 {
    console.log("=== requestDatasetSummary");
 
    var msg = {cmd: "getDataManifest",  callback: "displayDataManifest", status: "request", 
-              payload: dataSetName};
-   hub.logEventOnServer(thisModulesName, "datasets requestDataSummary", "request", dataSetName);
+              payload: datasetName};
+   hub.logEventOnServer(thisModulesName, "datasets requestDataSummary", "request", datasetName);
 
    hub.send(JSON.stringify(msg));
 

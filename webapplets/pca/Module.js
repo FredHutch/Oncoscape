@@ -22,10 +22,7 @@ var PCAModule = (function () {
   var pcaTextDisplay, pcaScreeDiv, pcaScoresDiv;
 
   var testResultsOutputDiv;
-
   var patientMenu;
-
-
 
   var pcaSendSelectionMenu;
 
@@ -35,6 +32,7 @@ var PCAModule = (function () {
   var clearSelectionButton;
   var calculatePcaButton;
   var useAllSamplesInCurrentDatasetButton;
+  var expressionMatrixMenu;
   var geneSetMenu;
   var currentIdentifiers = [];
   var infoMenu;
@@ -64,6 +62,8 @@ function initializeUI ()
   useAllSamplesInCurrentDatasetButton.button();
   useAllSamplesInCurrentDatasetButton.click(useAllSamplesInCurrentDataset);
   hub.disableButton(useAllSamplesInCurrentDatasetButton);
+
+  expressionMatrixMenu = $("#pcaExpressionMatrixSelector")
 
   geneSetMenu = $("#pcaGeneSetSelector");
   geneSetMenu.change(function(){
@@ -592,7 +592,8 @@ function datasetSpecified(msg)
 
       // for now, and very temporarily, use the first match (if any are found)
 
-   var matrixName = "mtx.mrna.ueArray";
+   //var matrixName = "mtx.mrna.ueArray";
+   var matrixName = "mtx.mrna.bc";
 
    /***********
    var dataElementNames = msg.payload.rownames;
@@ -617,12 +618,46 @@ function datasetSpecified(msg)
     ************/
 
    console.log("== calling createPcaObjectOnServer");
- 
-  createPcaObjectOnServer(datasetName, matrixName);
+   getExpressionMatrixNames();
+   //createPcaObjectOnServer(datasetName, matrixName);
 
    d3pcaDisplay.select("#pcaSVG").remove();  // so that old layouts aren't mistaken for new dataset
 
 } // datasetSpecified
+//--------------------------------------------------------------------------------------------
+function getExpressionMatrixNames()
+{
+  console.log("requesting expressionMatrixNames")
+  payload = {datasetName: datasetName}
+
+  msg = {cmd: "getExpressionMatrixNames", callback: "pcaHandleExpressionMatrixNames",
+         status: "request", payload: payload};
+
+  msg.json = JSON.stringify(msg);
+  console.log(msg.json);
+  hub.send(msg.json);
+
+} // getExpressionMatrixNames
+//--------------------------------------------------------------------------------------------
+function handleExpressionMatrixNames(msg)
+{
+   console.log("--- handleExpressionMatrixNames")
+   console.log(JSON.stringify(msg))
+   expressionMatrixMenu.empty()
+
+   var matrixNames = msg.payload.expressionMatrixNames;
+   if(typeof(matrixNames) == "string")
+      matrixNames = [matrixNames];
+
+   for(var i=0; i < matrixNames.length; i++){
+      var name = matrixNames[i];
+      var optionMarkup =  "<option value='" + name + "'>" + name + "</option>";
+      expressionMatrixMenu.append(optionMarkup);
+      }
+
+   console.log("expression matrix menu updated");
+
+} // handleExpressionMatrixNames
 //--------------------------------------------------------------------------------------------
 function createPcaObjectOnServer(datasetName, matrixName)
 {
@@ -672,161 +707,19 @@ function pcaObjectCreated(msg)
 //
 //} // handleGeneSetNames
 //--------------------------------------------------------------------------------------------
-function demoPcaCalculateAndDraw(msg)
-{
-  if(msg.status != "success"){
-     alert("demoPCA failed: " + msg.payload);
-     return;
-     }
-
-  var currentGeneSet = geneSetMenu.val();
-  if(currentGeneSet == null)
-      currentGeneSet = "tcga.GBM.classifiers";
-
-  console.log("demoPCA, currentGeneSet: " + currentGeneSet);
-  payload = {ids: "", geneSet: currentGeneSet};
-  msg = {cmd: "calculate_mRNA_PCA", callback: "pcaPlot", status: "request", payload: payload};
-  hub.send(JSON.stringify(msg));
-
-} // demoPcaCalculateAndDraw
-//----------------------------------------------------------------------------------------------------
-function runTests()
-{
-  // the test does not currently depend upon any other tabs, but we want to add some
-  // real world complexity to the situation, so we use tabs, including cpa (of course)
-  // and the usual introcutory "Datasets" tab.  make sure it is there.
-  // tests depend upon the presence of 2 tabs in addition to the present one.
-
-  var datasetsTabPresent = $("#datasetsDiv").length > 0;
-
-  if(!datasetsTabPresent){
-     alert("Datasets tab needed for QUnit testing");
-     return;
-     } // check for other needed tabs
-
-   testResultsOutputDiv.css({display: "block"});
-   testLoadDataset();
-
-} // runTests
-//--------------------------------------------------------------------------------------------
-function testLoadDataset()
-{
-   QUnit.test('choose DEMOdz dataset', function(assert) {
-      hub.raiseTab("datasetsDiv");
-      var desiredDataset = "DEMOdz";
-      var dzNames = $("#datasetMenu option").map(function(opt){return this.value;});
-
-      if($.inArray(desiredDataset, dzNames) < 0){
-         alert("cannot run tests:  " + desiredDataset + " dataset not loaded");
-         return;
-         }
-
-      $("#datasetMenu").val(desiredDataset);
-      $("#datasetMenu").trigger("change");
-
-      var done1 = assert.async();
-      var done2 = assert.async();
-      var done3 = assert.async();
-      assert.expect(3);
-
-      setTimeout(function(){
-         assert.equal($("#datasetMenu").val(), desiredDataset);  done1();
-         assert.ok($("#datasetsManifestTable tr").length >= 10); done2();
-         assert.equal($("#datasetsManifestTable tbody tr").eq(0).find("td").eq(0).text(), 
-                      "mRNA expression"); done3();
-         $("#selectDatasetButton").click();
-         hub.raiseTab(thisModulesOutermostDiv);
-         testCalculate();
-         }, 5000);
-      });
-
-} // testLoadDataset
-//----------------------------------------------------------------------------------------------------
-function testCalculate()
-{
-   hub.raiseTab(thisModulesOutermostDiv);
-   console.log("starting testCalculate");
-
-     // enable the calculate button, change its color, then click
-   QUnit.test('testPcaCalculate', function(assert) {
-      $("#pcaCalculateButton").prop("disabled", false);
-      $("#pcaCalculateButton").css({"background-color": "red", "color": "green"});
-      $("#pcaGeneSetSelector").val("random.24")
-      assert.expect(1);   // tests (assertions) in next function, testContentsOfPcaPlot
-      setTimeout(function(){
-         $("#pcaCalculateButton").click();
-         testContentsOfPcaPlot();
-         }, 6000);
-      });
-
-} // testCalculate
-//----------------------------------------------------------------------------------------------------
-function testContentsOfPcaPlot()
-{
-   console.log("--- testContentsOfPcaPlot");
-
-      // wait 5 seconds
-      // make sure there are the right number of circles
-      // check the coordinates of two, selected arbitrarily
-   QUnit.test('testPcaContents', function(assert) {
-      assert.expect(5);
-      var done1 = assert.async();
-      var done2 = assert.async();
-      var done3 = assert.async();
-      var done4 = assert.async();
-      var done5 = assert.async();
-      setTimeout(function(){
-         assert.ok($("circle").length > 120); done1();
-         var c0 = $("circle")[0];
-         var xPos = Number(c0.getAttribute("cx"));
-         var yPos =  Number(c0.getAttribute("cy"));
-         var radius = Number(c0.getAttribute("r"));
-         console.log(xPos + "  " + yPos + "  " + radius);
-         assert.ok(xPos > 0); done3();
-         assert.ok(yPos > 0); done4();
-         assert.equal(radius, 3); done5();
-         }, 5000);
-      });
-
-
-} // testContentsOfPcaPlot
-//----------------------------------------------------------------------------------------------------
-// query the oncoscape server for user id.  the callback then makes a local (that is,
-// Module-specific) decision to run this module's automated tests based upon that id
-//
-function runAutomatedTestsIfAppropriate()
-{
-   var msg = {cmd: "getUserId",  callback: "pcaAssessUserIdForTesting",
-              status: "request", payload: ""};
-
-   hub.send(JSON.stringify(msg));
-
-} // runAutomatedTestsIfAppropriate
-//----------------------------------------------------------------------------------------------------
-function assessUserIdForTesting(msg)
-{
-   var userID = msg.payload;
-
-   if(userID.indexOf("autoTest") === 0){
-      console.log("plsr/Module.js running tests for user " + userID);
-      for(var i=0; i < 3; i++)
-          runTests();
-      } // if autoTest
-
-} // assessUserIdForTesting
-//----------------------------------------------------------------------------------------------------
 function initializeModule()
 {
    hub.addOnDocumentReadyFunction(initializeUI);
    hub.registerSelectionDestination(selectionDestinationsOfferedHere, thisModulesOutermostDiv);
    hub.addMessageHandler("datasetSpecified", datasetSpecified);
+   hub.addMessageHandler("pcaHandleExpressionMatrixNames", handleExpressionMatrixNames)
    hub.addMessageHandler("sendSelectionTo_PCA", handlePatientIDs);
    hub.addMessageHandler("sendSelectionTo_PCA (highlight)", highlightPatientIDs)
    hub.addMessageHandler("pcaObjectCreated", pcaObjectCreated);
    hub.addMessageHandler("pcaHandleGeneSetNames", handleGeneSetNames);
    hub.addMessageHandler("pcaPlot", pcaPlot);
-   hub.addMessageHandler("demoPcaCalculateAndDraw", demoPcaCalculateAndDraw);
-   hub.addMessageHandler("pcaAssessUserIdForTesting", assessUserIdForTesting);
+   //hub.addMessageHandler("demoPcaCalculateAndDraw", demoPcaCalculateAndDraw);
+   //hub.addMessageHandler("pcaAssessUserIdForTesting", assessUserIdForTesting);
    //hub.addSocketConnectedFunction(runAutomatedTestsIfAppropriate);
 
    //hub.addMessageHandler("handlePatientClassification", handlePatientClassification)

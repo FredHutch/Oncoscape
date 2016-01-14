@@ -13,17 +13,17 @@
          )
 
 #------------------------------------------------------------------------------------------------------------------------
-setGeneric("run",                  signature="self", function(self) standardGeneric("run"))
-setGeneric("port",                 signature="self", function(self) standardGeneric("port"))
-setGeneric("getAnalysisPackageNames",  signature="self", function(self) standardGeneric("getAnalysisPackageNames"))
-setGeneric("getDatasetNames",          signature="self", function(self) standardGeneric("getDatasetNames"))
-setGeneric("getDatasetByName",     signature="self", function(self, datasetName) standardGeneric("getDatasetByName"))
-setGeneric("setActiveDataset",     signature="self", function(self, dataSetName) standardGeneric("setActiveDataset"))
-setGeneric("getActiveDataset",     signature="self", function(self) standardGeneric("getActiveDataset"))
-setGeneric('close',                signature="self", function(self) standardGeneric("close"))
-setGeneric("serverVersion",        signature="self", function(self) standardGeneric("serverVersion"))
-setGeneric("addMessageHandler",    signature="self", function(self, messageName, functionToCall) standardGeneric("addMessageHandler"))
-setGeneric("getMessageNames",      signature="self", function(self) standardGeneric("getMessageNames"))
+setGeneric("run",                     signature="self", function(self) standardGeneric("run"))
+setGeneric("port",                    signature="self", function(self) standardGeneric("port"))
+setGeneric("getAnalysisPackageNames", signature="self", function(self) standardGeneric("getAnalysisPackageNames"))
+setGeneric("getDatasetNames",         signature="self", function(self) standardGeneric("getDatasetNames"))
+setGeneric("getDatasetByName",        signature="self", function(self, datasetName) standardGeneric("getDatasetByName"))
+#setGeneric("setActiveDataset",     signature="self", function(self, dataSetName) standardGeneric("setActiveDataset"))
+#setGeneric("getActiveDataset",     signature="self", function(self) standardGeneric("getActiveDataset"))
+setGeneric('close',                   signature="self", function(self) standardGeneric("close"))
+setGeneric("serverVersion",           signature="self", function(self) standardGeneric("serverVersion"))
+setGeneric("addMessageHandler",       signature="self", function(self, messageName, functionToCall) standardGeneric("addMessageHandler"))
+setGeneric("getMessageNames",         signature="self", function(self) standardGeneric("getMessageNames"))
 setGeneric('registerMessageHandlers', signature='obj', function (obj) standardGeneric ('registerMessageHandlers'))
 #------------------------------------------------------------------------------------------------------------------------
 printf <- function(...) print(noquote(sprintf(...)))
@@ -339,31 +339,31 @@ setMethod("getDatasetByName", "ChinookServer",
 # some refactoring needed here.  this method on the class is not available (yet?) to
 # wsDatasets.R, since the ChinookServer object is not visible here.  so this method is not
 # called, not used.   see instead wsDatasets.specifyCurrentDataset
-setMethod("setActiveDataset",  "ChinookServer",
-
-   function(self, dataSetName){
-      if(!dataSetName %in% getDatasetNames(self)){
-          msg <- sprintf("Dataset name '%s' not recognized. Choose from: %s", dataSetName,
-                         paste(getDatasetNames(self), collapse=";"))
-          warning(msg)
-          return();
-          }
-     self@state[["currentDatasetName"]] <- dataSetName
-     constructionNeeded <- !dataSetName %in% ls(self@state)
-     printf("%s construction needed? %s", dataSetName, constructionNeeded);
-     if(constructionNeeded){
-         printf("ChinookServer.setActiveDataset creating and storing a new %s object", dataSetName);
-         eval(parse(text=sprintf("ds <- %s()", dataSetName)))
-         } # creating and store new instance
-      })
-
+#setMethod("setActiveDataset",  "ChinookServer",
+#
+#   function(self, dataSetName){
+#      if(!dataSetName %in% getDatasetNames(self)){
+#          msg <- sprintf("Dataset name '%s' not recognized. Choose from: %s", dataSetName,
+#                         paste(getDatasetNames(self), collapse=";"))
+#          warning(msg)
+#          return();
+#          }
+#     self@state[["currentDatasetName"]] <- dataSetName
+#     constructionNeeded <- !dataSetName %in% ls(self@state)
+#     printf("%s construction needed? %s", dataSetName, constructionNeeded);
+#     if(constructionNeeded){
+#         printf("ChinookServer.setActiveDataset creating and storing a new %s object", dataSetName);
+#         eval(parse(text=sprintf("ds <- %s()", dataSetName)))
+#         } # creating and store new instance
+#      })
+#
 #------------------------------------------------------------------------------------------------------------------------
-setMethod("getActiveDataset",  "ChinookServer",
-
-   function(self){
-      self@state[["currentDatasetName"]]
-      })
-
+#setMethod("getActiveDataset",  "ChinookServer",
+#
+#   function(self){
+#      self@state[["currentDatasetName"]]
+#      })
+#
 #------------------------------------------------------------------------------------------------------------------------
 setMethod("port", "ChinookServer",
 
@@ -568,7 +568,7 @@ ChinookServer.specifyCurrentDataset <- function(channel, msg)
    self <- local.state[["server"]]
    newDatasetName <- msg$payload
    stopifnot(newDatasetName %in% getDatasetNames(self))
-   setActiveDataset(self, newDatasetName);
+   # setActiveDataset(self, newDatasetName);
    response <- toJSON(list(cmd=msg$callback, status="success", callback="", payload=newDatasetName))
 
    if("WebSocket" %in% is(channel))

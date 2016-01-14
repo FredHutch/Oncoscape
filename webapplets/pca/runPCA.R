@@ -1,7 +1,7 @@
 library(ChinookServer)
 library(RUnit)
 PORT=6015
-datasets <- "DEMOdz"
+datasets <- c("DEMOdz", "TCGAbrain")
 analysisPackages <- c("ChinookPCA")
 browserFile <- "index.html"
 userCredentials <- "test@nowhere.net"
