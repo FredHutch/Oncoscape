@@ -85,7 +85,7 @@ setMethod("registerMessageHandlers", "ChinookDataset",
      addMessageHandler(getServer(obj), "getDatasetItemByName",     "Dataset.getItemByName")
      addMessageHandler(getServer(obj), "getSubjectHistoryTable",   "Dataset.getSubjectHistoryTable")
      addMessageHandler(getServer(obj), "getNetwork",               "Dataset.getNetwork")             
-     addMessageHandler(getServer(obj), "getExpressionMatrixNames", "Dataset.getExpressionMatrixNames") 
+     addMessageHandler(getServer(obj), "getMatrixNamesByCategory", "Dataset.getMatrixNamesByCategory") 
      printf("registered messages: %s", paste(getMessageNames(getServer(obj)), collapse=","))
      })
 
@@ -120,26 +120,27 @@ Dataset.getManifest <- function(channel, msg)
 
 } # Dataset.getManifest
 #----------------------------------------------------------------------------------------------------
-Dataset.getExpressionMatrixNames <- function(channel, msg)
+Dataset.getMatrixNamesByCategory <- function(channel, msg)
 {
    requested.dataset <- msg$payload$datasetName
+   category.string <- msg$payload$category
    self <- local.state[["self"]]
    server <- getServer(self)
    dataset <- getDatasetByName(server, requested.dataset)
    datasetName <- getName(dataset)
-   printf(" 245, datasetName, requested: %s   loaded 1: %s", requested.dataset, datasetName)
+   printf(" 330, datasetName, requested: %s   loaded 1: %s", requested.dataset, datasetName)
    stopifnot(requested.dataset == datasetName)
 
    tbl <- getManifest(dataset)
-   indices <- grep("mrna expression", tbl$category, ignore.case=TRUE)
+   indices <- grep(category.string, tbl$category, ignore.case=TRUE)
    names <- tbl[indices, "variable"]
-   printf("   expressionMatrixNames: %s", paste(names, collapse=","))
+   printf("   matrixNames by category: %s", paste(names, collapse=","))
    payload <- list(datasetName=datasetName, expressionMatrixNames=names);
    response <- toJSON(list(cmd=msg$callback, status="success", callback="", payload=payload))
    
    .send(channel, response)
 
-} # Dataset.getExpressionMatrixNames
+} # Dataset.getMatrixNamesByCategory
 #----------------------------------------------------------------------------------------------------
 .prepDataframeOrMatrixForJSON <-function(datasetName, tbl)
 {

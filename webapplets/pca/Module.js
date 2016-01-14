@@ -628,9 +628,9 @@ function datasetSpecified(msg)
 function getExpressionMatrixNames()
 {
   console.log("requesting expressionMatrixNames")
-  payload = {datasetName: datasetName}
+  payload = {datasetName: datasetName, category: "mrna expression"}
 
-  msg = {cmd: "getExpressionMatrixNames", callback: "pcaHandleExpressionMatrixNames",
+  msg = {cmd: "getMatrixNamesByCategory", callback: "pcaHandleExpressionMatrixNames",
          status: "request", payload: payload};
 
   msg.json = JSON.stringify(msg);

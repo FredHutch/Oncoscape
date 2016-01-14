@@ -13,7 +13,7 @@ export(
    Dataset.getItemNames,
    Dataset.getItemByName,
    Dataset.getManifest,
-   Dataset.getExpressionMatrixNames,
+   Dataset.getMatrixNamesByCategory,
    Dataset.getDataFrame,
    Dataset.getJSON,
    Dataset.getSubjectHistoryTable,
