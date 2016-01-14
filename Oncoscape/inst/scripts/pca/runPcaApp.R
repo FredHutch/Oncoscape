@@ -1,4 +1,4 @@
-library(Chinook)
+library(OncoDev14)
 scriptDir <- "pca"
 userID <- "autoTest@nowhere.org"
 #current.datasets <- "DEMOdz;TCGAgbm"

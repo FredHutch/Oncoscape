@@ -28,7 +28,7 @@ setGeneric('registerMessageHandlers', signature='obj', function (obj) standardGe
 #------------------------------------------------------------------------------------------------------------------------
 printf <- function(...) print(noquote(sprintf(...)))
 #------------------------------------------------------------------------------------------------------------------------
-# web socket protocols seem to require that simple functions be used for configuation, but some object
+# web socket protocols require that simple functions be used for configuation, but some object
 # state can be needed.  this unexported file-local variable works around that.
 local.state <- new.env(parent=emptyenv())
 #------------------------------------------------------------------------------------------------------------------------

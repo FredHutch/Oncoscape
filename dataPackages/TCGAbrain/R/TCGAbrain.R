@@ -1,37 +1,32 @@
 #----------------------------------------------------------------------------------------------------
 printf = function (...) print (noquote (sprintf (...)))
 #----------------------------------------------------------------------------------------------------
-.DEMOdz <- setClass ("DEMOdz", contains = "Dataset")
+.TCGAbrain <- setClass ("TCGAbrainClass", contains = "Dataset")
+#----------------------------------------------------------------------------------------------------
+#setGeneric('historyTable',   signature='obj', function (obj) standardGeneric ('historyTable'))
 #----------------------------------------------------------------------------------------------------
 # constructor
-DEMOdz <- function()
+TCGAbrain <- function()
 {
-   dir <- system.file(package="DEMOdz", "extdata")
+   dir <- system.file(package="TCGAbrain", "extdata")
    stopifnot(file.exists(dir))
    full.path <- file.path(dir, "manifest.tsv")
    stopifnot(file.exists(full.path))
    manifest <- read.table(full.path, sep="\t", header=TRUE, as.is=TRUE);
    result <- Dataset:::.loadFiles(dir, manifest)
 
-   .DEMOdz(Dataset(name="DEMOdz", manifest=manifest,
-                   history=result$subjectHistory,
-                   dictionary=result$dictionary))
+   obj <- .TCGAbrain(Dataset(name="TCGAbrain", manifest=manifest,
+                             history=result$subjectHistory,
+                             dictionary=result$dictionary))
 
-} # DEMOdz constructor
+    obj
+
+} # TCGAbrain constructor
 #----------------------------------------------------------------------------------------------------
-setMethod("show", "DEMOdz",
-
-  function (obj) {
-     contents <- paste(getManifest(obj)$variable, collapse=", ")
-     msg <- sprintf("DEMOdz: %s", contents);
-     cat (msg, "\n", sep="")
-     })
-
-#----------------------------------------------------------------------------------------------------
-setMethod('sampleIdToSubjectId', "DEMOdz",
+setMethod('sampleIdToSubjectId', 'TCGAbrainClass',
 
   function (obj, sample.ids) {
-     sample.ids
+    gsub("(^TCGA\\.\\w\\w\\.\\w\\w\\w\\w).*","\\1", sample.ids)
      })
 
 #----------------------------------------------------------------------------------------------------
