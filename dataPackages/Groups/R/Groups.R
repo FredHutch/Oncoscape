@@ -62,8 +62,8 @@ setMethod("getGroup", "Groups",
   
   stopifnot(file.exists(data.directory))
   subdirs <- dir(data.directory)
+
   for(subdir in subdirs){
-     #printf("----- %s", subdir)
      files <- list.files(file.path(data.directory, subdir))
      for(file in files){
         full.path <- file.path(data.directory, subdir, file)

@@ -1,8 +1,8 @@
 Package: Groups
 Type: Package
 Title: Groups: easy storage for, and access to, groups of entity identifiers
-Version: 1.0.1
-Date: 2016-01-03
+Version: 1.0.2
+Date: 2016-01-15
 Author: Paul Shannon, Lisa McFerrin
 Maintainer: Paul Shannon <pshannon@fredhutch.org>
 Depends: R (>= 3.2.2), SubjectHistory
