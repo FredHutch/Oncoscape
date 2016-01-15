@@ -1,0 +1,14 @@
+exportClasses(Groups)
+
+exportMethods(
+  getGroupNames,
+  getGroup
+  )
+
+export(
+   Groups
+   )
+
+importClassesFrom(methods, character, integer)
+importFrom(methods, new)
+
