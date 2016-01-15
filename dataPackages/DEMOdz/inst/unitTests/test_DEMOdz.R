@@ -46,7 +46,7 @@ testManifestAndDataConsistency <- function(quiet=TRUE)
    
    checkTrue(all(expected.rownames %in% rownames(tbl)))
 
-   expected.classes <- c("data.frame", "matrix", "character", "json")   # new ones may be added
+   expected.classes <- c("data.frame", "matrix", "character", "json", "list")   # new ones may be added
    checkTrue(all(tbl$class %in% expected.classes))
 
    expected.categories <- unique(c("copy number", "subjectHistory","mRNA expression", "methylation",

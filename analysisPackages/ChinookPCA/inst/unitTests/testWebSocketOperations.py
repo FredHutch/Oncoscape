@@ -4,16 +4,7 @@ from websocket import create_connection
 from json import *
 ws = create_connection("ws://localhost:4009")
 
-payload = {"datasetName": "DEMOdz", "matrixName": "mtx.mrna.ueArray"}
-msg = dumps({"cmd": "createPCA", "status":"request", "callback":"", "payload": payload})
-ws.send(msg)
-result = loads(ws.recv())
-payload = result["payload"]
-   # typical response: "PCA(DEMOdz(), 'mtx.mrna.ueArray') version 1.0.13 created"
-assert(payload.index("PCA(DEMOdz") == 0)
-
-# request calculation of PCA on the full dataset
-payload = {}
+payload = {"datasetName": "DEMOdz", "matrixName": "mtx.mrna.ueArray", "geneset": "random.40"}
 msg = dumps({"cmd": "calculatePCA", "status": "request", "callback":"", "payload": payload})
 ws.send(msg)
 result = loads(ws.recv())

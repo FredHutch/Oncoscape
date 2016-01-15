@@ -9,3 +9,5 @@ mtx.meth.RData	mtx.meth	matrix	methylation	beta values	9	58	patient	gene	0.01123
 markers.json.RData	g.markers.json	json	network	markers & samples	156	409	nodes	edges	NA	NA	TCGA
 gbmPathways.json.RData	g.gbmPathways.json	json	network	GBM-related Pathways	156	203	nodes	edges	NA	NA	manual curation by Hamid Bolouri
 sampleJSON.RData	sampleJSON	json	for testing	demo	NA	NA	NA	NA	NA	NA	list of lists, different types, random values, for testing
+geneSets.RData	geneSets	list	groups	genes	3	NA	genes	NA	NA	NA	hand-curated by Paul Shannon
+tumorGroups.RData	tumorGroups	list	group list	tumors	1	NA	tumors	NA	NA	NA	from Verhaak et al 2010, supplemented by Hamid Bolouri

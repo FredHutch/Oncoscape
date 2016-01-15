@@ -5,7 +5,7 @@ Version: 1.0.1
 Date: 2015-12-21
 Author: Paul Shannon
 Maintainer: Paul Shannon <pshannon@fredhutch.org>
-Depends: R (>= 3.2.2), ChinookAnalysis, PCA
+Depends: R (>= 3.2.2), ChinookAnalysis, PCA, Groups
 Imports: methods, BiocGenerics
 Suggests: RUnit
 Description: Add a ChinookAnalysis facade to the PCA package

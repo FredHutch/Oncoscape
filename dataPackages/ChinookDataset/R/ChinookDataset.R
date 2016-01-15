@@ -221,18 +221,25 @@ Dataset.getItemNames <- function(channel, msg)
 #----------------------------------------------------------------------------------------------------
 Dataset.getItemByName <- function(channel, msg)
 {
-   self <- local.state[["self"]]
-   dataset.name <- getName(self)
-   dataset <- getDataset(self)
+   datasetName <- msg$payload$dataset;
+   item.names  <- msg$payload$items;
 
-   item.names <- msg$payload
+   printf("===== Dataset.getItemByName")
+   printf("    datasetName: %s", datasetName)
+   printf("     item.names: %s", item.names)
+   
+   self <- local.state[["self"]]
+   server <- getServer(self)
+   dataset <- getDatasetByName(server, datasetName)
+
    available.items <- getItemNames(dataset)
-   #printf("ChinookDataset.getItemByName, available.items:")
-   #print(available.items)
-   #printf("   requested items: %s", paste(item.names, collapse=","))
-   #printf("in? %s", item.names[1] %in% available.items)
-   #printf("all in? %s", all(item.names) %in% available.items)
-   #printf("setdiff: %s", setdiff(item.names, available.items))
+   printf("ChinookDataset.getItemByName, available.items:")
+   print(available.items)
+   printf("   requested items: %s", paste(item.names, collapse=","))
+   printf("in? %s", item.names[1] %in% available.items)
+   printf("all in? %s", all(item.names %in% available.items))
+   printf("setdiff: %s", setdiff(item.names, available.items))
+
    stopifnot(all(item.names %in% available.items))
 
    data.list <- vector("list", length=length(item.names))
@@ -247,6 +254,9 @@ Dataset.getItemByName <- function(channel, msg)
         }
       else if(class == "data.frame"){
         data.json <- .prepDataframeOrMatrixForJSON(dataset.name, item)
+        }
+      else{
+         data.json <- item
         }
       data.list[[i]] <- data.json
       }

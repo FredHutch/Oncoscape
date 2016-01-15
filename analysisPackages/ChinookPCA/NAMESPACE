@@ -2,7 +2,6 @@ exportClasses(ChinookPCA)
 
 export(
     ChinookPCA,
-    PCA.create,
     PCA.calculate
    )
 

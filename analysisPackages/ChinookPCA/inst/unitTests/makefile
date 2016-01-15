@@ -1,5 +1,5 @@
 SERVER = runChinookPCAServer.R
-default: kill server delay py
+default: kill server delay pyWS
 
 
 kill: 
