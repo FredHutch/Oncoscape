@@ -26,8 +26,6 @@ var PCAModule = (function () {
 
   var patientMenu;
 
-
-
   var pcaSendSelectionMenu;
 
   var thisModulesName = "PCA";
@@ -37,6 +35,7 @@ var PCAModule = (function () {
   var calculatePcaButton;
   var useAllSamplesInCurrentDatasetButton;
   var geneSetMenu;
+  var expressionDataSetMenu;
   var currentIdentifiers = [];
   var infoMenu;
 
@@ -65,6 +64,11 @@ function initializeUI ()
   useAllSamplesInCurrentDatasetButton.button();
   useAllSamplesInCurrentDatasetButton.click(useAllSamplesInCurrentDataset);
   hub.disableButton(useAllSamplesInCurrentDatasetButton);
+
+  expressionDataSetMenu = $("#pcaExpressionDataSetSelector");
+  expressionDataSetMenu.change(function(){
+     console.log("the expression data is: " + expressionDataSetMenu.val());
+  });
 
   geneSetMenu = $("#pcaGeneSetSelector");
   geneSetMenu.change(function(){
@@ -166,6 +170,58 @@ function addGeneSetNamesToMenu (geneSetNames)
 
 
 } // addGeneSetNamesToMenu
+//----------------------------------------------------------------------------------------------------
+//---
+function requestExpressionDataSetNames()
+{
+   console.log("=== requestExpressionDataNames");
+
+   callback = "pcaHandleExpressionDataSetNames"
+
+   msg = {cmd:"getExpressionDataSetNames",
+          callback: callback,
+          status:"request",
+          payload:""}
+
+   hub.send(JSON.stringify(msg));
+
+} // requestExpressionDataSetNames
+//----------------------------------------------------------------------------------------------------
+function handleExpressionDataSetNames(msg)
+{
+   console.log("=== handleExpressionDataSetNames");
+
+   newNames = msg.payload;
+   addExpressionDataSetNamesToMenu(newNames);
+
+} // handleExpressionDataSetNames
+//----------------------------------------------------------------------------------------------------
+function addExpressionDataSetNamesToMenu (expressionDataSetNames)
+{
+   console.log("Module.pca:addExpressionDataSetNamesToMenu");
+
+   expressionDataSetMenu.empty();
+
+   if(expressionDataSetNames.length == 0) {
+     postStatus("addExpressionDataSetNamesToMenu: expressionDataSetNames.length == 0");
+     return;
+     }
+    
+   if(typeof expressionDataSetNames == "string") 
+     expressionDataSetNames = [expressionDataSetNames] 
+ 
+      
+   for(var i=0; i < expressionDataSetNames.length; i++){
+     optionMarkup = "<option>" + expressionDataSetNames[i] + "</option>";
+     expressionDataSetMenu.append(optionMarkup);
+     } // for i
+
+  postStatus("addExpressionDataSetNamesToMenu: complete");
+  hub.enableTab(thisModulesOutermostDiv)
+
+
+
+} // addExpressionDataSetNamesToMenu
 //----------------------------------------------------------------------------------------------------
 function useAllSamplesInCurrentDataset()
 {
@@ -603,8 +659,7 @@ function datasetSpecified(msg)
         // TODO: this needs to be a user menu selection (29 jun 2015)
       var lastHit = hits.length - 1;
       matrixName = hits[lastHit].replace(".RData", "");
-      }
-   else{
+    }else{
       alert("No mtx.mrna in dataset '" + dataPackageName + "'");
       hub.disableButton(calculatePcaButton);
       return;
@@ -634,10 +689,12 @@ function pcaObjectCreated(msg)
    console.log("=== pcaObjectCreated");
    console.log(msg);
 
-   if(msg.status == "response")
+   if(msg.status == "response"){
       requestGeneSetNames();
-   else
+      requestExpressionDataSetNames();
+   }else{
       alert("PCA module failed to create PCA object on server");
+   }
 
 } // pcaObjectCreated
 //--------------------------------------------------------------------------------------------
@@ -830,6 +887,7 @@ function initializeModule()
    hub.addMessageHandler("sendSelectionTo_PCA (highlight)", highlightPatientIDs)
    hub.addMessageHandler("pcaObjectCreated", pcaObjectCreated);
    hub.addMessageHandler("pcaHandleGeneSetNames", handleGeneSetNames);
+   hub.addMessageHandler("pcaHandleExpressionDataSetNames", handleExpressionDataSetNames);
    hub.addMessageHandler("pcaPlot", pcaPlot);
    hub.addMessageHandler("demoPcaCalculateAndDraw", demoPcaCalculateAndDraw);
    hub.addMessageHandler("pcaAssessUserIdForTesting", assessUserIdForTesting);

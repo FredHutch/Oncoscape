@@ -7,6 +7,8 @@ addRMessageHandler("getPatientHistoryDxAndSurvivalMinMax", "getPatientHistoryDxA
 addRMessageHandler("getSampleDataFrame", "getSampleDataFrame")
 addRMessageHandler("getGeneSetNames",    "wsGetGeneSetNames")
 addRMessageHandler("getGeneSetGenes",    "wsGetGeneSetGenes")
+addRMessageHandler("getExpressionDataSetNames",    "wsGetExpressionDataSetNames")
+addRMessageHandler("getExpressionDataSetExpression",    "wsGetExpressionDataSetExpression")
 addRMessageHandler("getSampleCategorizationNames", "wsGetSampleCategorizationNames")
 addRMessageHandler("getSampleCategorization",      "wsGetSampleCategorization")
 addRMessageHandler("getMarkersNetwork", "getMarkersAndSamplesNetwork")
@@ -282,6 +284,31 @@ wsGetGeneSetGenes <- function(ws, msg)
   ws$send(toJSON(return.msg))
 
 } # wsGetGeneSetGenes
+#----------------------------------------------------------------------------------------------------
+wsGetExpressionDataSetNames <- function(ws, msg)
+{
+  datasetName <- state[["currentDatasetName"]]
+  dataset <- datasets[[datasetName]]
+
+  payload <- getExpressionDataSetNames(dataset)
+  return.msg <- list(cmd=msg$callback, status="success", callback="", payload=payload)
+
+  ws$send(toJSON(return.msg))
+
+} # wsGetExpressionDataSetNames
+#----------------------------------------------------------------------------------------------------
+wsGetExpressionDataSetExpression <- function(ws, msg)
+{
+  datasetName <- state[["currentDatasetName"]]
+  dataset <- datasets[[datasetName]]
+  expressionDataSetName <- msg$payload
+  stopifnot(expressionDataSetName %in% getExpressionDataSetNames(dataset))
+
+  payload <- getExpressionDataSetExpression(dataset, expressionDataSetName)
+  return.msg <- list(cmd=msg$callback, status="success", callback="", payload=payload)
+  ws$send(toJSON(return.msg))
+
+} # wsGetExpressionDataSetExpression
 #----------------------------------------------------------------------------------------------------
 wsGetSampleCategorizationNames <- function(ws, msg)
 {
