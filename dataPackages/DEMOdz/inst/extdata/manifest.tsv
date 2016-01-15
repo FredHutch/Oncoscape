@@ -11,3 +11,4 @@ gbmPathways.json.RData	g.gbmPathways.json	json	network	GBM-related Pathways	156	
 sampleJSON.RData	sampleJSON	json	for testing	demo	NA	NA	NA	NA	NA	NA	list of lists, different types, random values, for testing
 geneSets.RData	geneSets	list	groups	genes	3	NA	genes	NA	NA	NA	hand-curated by Paul Shannon
 tumorGroups.RData	tumorGroups	list	group list	tumors	1	NA	tumors	NA	NA	NA	from Verhaak et al 2010, supplemented by Hamid Bolouri
+tbl.groupVizProps.RData	tbl.groupVizProps	data.frame	visual properties	nodes	13	5	group	attributes	NA	NA	colors chosen by Paul Shannon	

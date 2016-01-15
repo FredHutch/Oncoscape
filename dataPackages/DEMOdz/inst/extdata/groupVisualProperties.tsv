@@ -1,0 +1,14 @@
+group	type	id	color	shape
+verhaak.2010.gbm	tumor	GCIMP	blue	ellipse
+verhaak.2010.gbm	tumor	Mesenchymal	green	ellipse
+verhaak.2010.gbm	tumor	Neural	purple	ellipse
+verhaak.2010.gbm	tumor	Proneural	turquoise	ellipse
+verhaak.2010.gbm	tumor	unclassified	lightgray	ellipse
+glioma8	tumor	nonCIMP.gainNRAS.mutTP53	chartreuse	ellipse
+glioma8	tumor	nonCIMP.gainNRAS.wtTP53	aquamarine	ellipse
+glioma8	tumor	nonCIMP.wtNRAS.wtTP53	orange	ellipse
+glioma8	tumor	nonCIMP.wtNRAS.mutTP53	magenta	ellipse
+glioma8	tumor	lggCIMP.not1p19q.mutATRX.mutTP53	blue	ellipse
+glioma8	tumor	lggCIMP.not1p19q.wtATRX.mutTP53	cyan	ellipse
+glioma8	tumor	lggCIMP.del1p19q.mutCIC.mutFUBP1	green	ellipse
+glioma8	tumor	lggCIMP.del1p19q.wtCIC.wtFUBP1	forestgreen	ellipse

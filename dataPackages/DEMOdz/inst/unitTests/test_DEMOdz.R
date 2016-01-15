@@ -174,7 +174,7 @@ testDataFrames <- function(quiet=TRUE)
 
    for(name in dataframe.names){
       tbl <- getItem(dz, name)
-      checkTrue("data.frame" %in% is(mtx))
+      checkTrue("data.frame" %in% is(tbl))
       checkTrue(nrow(tbl) > 0)
       checkTrue(ncol(tbl) > 0)
       }
