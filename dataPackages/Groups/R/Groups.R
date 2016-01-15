@@ -3,27 +3,42 @@ printf = function (...) print (noquote (sprintf (...)))
 options(stringsAsFactors = FALSE)
 #----------------------------------------------------------------------------------------------------
 .Groups <- setClass ("Groups", 
-                      representation = representation (
+                     representation = representation (
+                                            name="character",
                                             groups="environment")
                      )
 #----------------------------------------------------------------------------------------------------
+setGeneric("getName",              signature="obj", function(obj) standardGeneric ("getName"))
 setGeneric("getGroupNames",        signature="obj", function(obj) standardGeneric ("getGroupNames"))
 setGeneric("getGroup",             signature="obj", function(obj, name) standardGeneric ("getGroup"))
 #----------------------------------------------------------------------------------------------------
-Groups <- function(data.directory=system.file(package="Groups", "extdata"))
+Groups <- function(name="", data.directory=system.file(package="Groups", "extdata"))
 {
   dictionary <- .loadFiles(data.directory)
     
-  obj <- .Groups(groups=dictionary)
-  
-  obj
+  .Groups(name=name, groups=dictionary)
 
 } # Groups constructor
+#----------------------------------------------------------------------------------------------------
+setMethod("show", "Groups",
+
+   function(object){
+     msg <- sprintf("a Groups object, containing %d identifier groups", length(ls(object@groups)))
+     cat (msg, "\n", sep="")
+     })
+
+#----------------------------------------------------------------------------------------------------
+setMethod("getName", "Groups",
+
+  function (obj) {
+    return(obj@name)
+    })
+
 #----------------------------------------------------------------------------------------------------
 setMethod("getGroupNames", "Groups",
 
   function (obj) {
-    return(ls(obj@dictionary))
+    return(ls(obj@groups))
     })
 
 #----------------------------------------------------------------------------------------------------
@@ -35,7 +50,7 @@ setMethod("getGroup", "Groups",
     if(!name %in% getGroupNames(obj))
        return(NA)
 
-    obj@dictionary[[name]]
+    obj@groups[[name]]
     })
 
 #----------------------------------------------------------------------------------------------------

@@ -1,6 +1,7 @@
 exportClasses(Groups)
 
 exportMethods(
+  getName,
   getGroupNames,
   getGroup
   )
