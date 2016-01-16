@@ -34,6 +34,7 @@ var PCAModule = (function () {
   var useAllSamplesInCurrentDatasetButton;
   var expressionMatrixMenu;
   var geneSetMenu;
+  var sampleGroupVizMenu;
   var currentIdentifiers = [];
   var infoMenu;
 
@@ -71,6 +72,10 @@ function initializeUI ()
      //msg = {payload: {ids:currentIdentifiers}, status: "success"}
      //handlePatientIDs(msg)
      });  // ASSUMES success and requires use of GLOBAL variable storing identifiers WITHOUT passing through WS
+
+
+  sampleGroupVizMenu = $("#pcaVizGroupSelector");
+  sampleGroupVizMenu.change(updateSampleViz);
 
   pcaTextDisplay = $("#pcaTextDisplayDiv");
 
@@ -151,8 +156,7 @@ function addGeneSetNamesToMenu (geneSetNames)
      }
     
    if(typeof geneSetNames == "string") 
-   	 geneSetNames = [geneSetNames] 
- 
+      geneSetNames = [geneSetNames] 
       
    for(var i=0; i < geneSetNames.length; i++){
      optionMarkup = "<option>" + geneSetNames[i] + "</option>";
@@ -162,7 +166,22 @@ function addGeneSetNamesToMenu (geneSetNames)
   postStatus("addGeneSetNamesToMenu: complete");
   hub.enableTab(thisModulesOutermostDiv)
 
+} // addGeneSetNamesToMenu
+//------------------------------------------------------------------------------------------------------------------------
+function addSampleGroupNamesToMenu(names)
+{
+   sampleGroupVizMenu.empty();
 
+   if(typeof names == "string") 
+      names = [names] 
+      
+   for(var i=0; i < names.length; i++){
+     optionMarkup = "<option>" + names[i] + "</option>";
+     sampleGroupVizMenu.append(optionMarkup);
+     } // for i
+
+  postStatus("addGeneSetNamesToMenu: complete");
+  hub.enableTab(thisModulesOutermostDiv)
 
 } // addGeneSetNamesToMenu
 //------------------------------------------------------------------------------------------------------------------------
@@ -707,10 +726,53 @@ function handleGeneSetNames(msg)
 {
    newNames = msg.payload.geneSets
    addGeneSetNamesToMenu(newNames);
-   hub.enableTab("pcaDiv");
-   hub.raiseTab("pcaDiv");
+   requestGroupVizGroupNames();
    
 } // handleGeneSetNames
+//------------------------------------------------------------------------------------------------------------------------
+function requestGroupVizGroupNames()
+{
+   hub.enableTab("pcaDiv");
+   hub.raiseTab("pcaDiv");
+
+   callback = "pcaHandleGroupVizGroupNames";
+               
+   payload = {dataset: datasetName, items: "tbl.groupVizProps"};
+   msg = {cmd:"getDatasetItemByName", callback: callback, status: "request", payload: payload};
+
+   hub.send(JSON.stringify(msg));
+
+} // requestGroupVizGroupNames
+//------------------------------------------------------------------------------------------------------------------------
+function handleGroupVizGroupNames(msg)
+{
+   console.log("==== handleGroupVizGroupNames");
+   var mtx = msg.payload["tbl.groupVizProps"].mtx;
+   var groupNames = jQuery.unique(mtx.map(function(row){return row[0]}));
+   addSampleGroupNamesToMenu(groupNames);
+   
+} // handleGroupVizGroupNames
+//------------------------------------------------------------------------------------------------------------------------
+// called when user changes the pcaVizGroupSelector menu
+function updateSampleViz()
+{
+   var groupName = sampleGroupVizMenu.val();
+   callback = "pcaHandleSampleColors";
+   cmd = "getSampleColors";             
+   payload = {dataset: datasetName, groupName: groupName, samples: currentIdentifiers};
+
+   msg = {cmd: "getSampleColors", callback: callback, status: "request", payload: payload};
+
+   hub.send(JSON.stringify(msg));
+
+} // updateSampleViz
+//------------------------------------------------------------------------------------------------------------------------
+getSampleColors = function(msg)
+{
+   console.log("=== getSampleColors")
+   console.log(msg);
+
+} // getSampleColors
 //------------------------------------------------------------------------------------------------------------------------
 function initializeModule()
 {
@@ -720,8 +782,8 @@ function initializeModule()
    hub.addMessageHandler("pcaHandleExpressionMatrixNames", handleExpressionMatrixNames)
    hub.addMessageHandler("sendSelectionTo_PCA", handlePatientIDs);
    hub.addMessageHandler("sendSelectionTo_PCA (highlight)", highlightPatientIDs)
-   //hub.addMessageHandler("pcaObjectCreated", pcaObjectCreated);
    hub.addMessageHandler("pcaHandleGeneSetNames", handleGeneSetNames);
+   hub.addMessageHandler("pcaHandleGroupVizGroupNames", handleGroupVizGroupNames);
    hub.addMessageHandler("pcaPlot", pcaPlot);
    //hub.addMessageHandler("demoPcaCalculateAndDraw", demoPcaCalculateAndDraw);
    //hub.addMessageHandler("pcaAssessUserIdForTesting", assessUserIdForTesting);
@@ -731,14 +793,12 @@ function initializeModule()
    // hub.addSocketConnectedFunction(getPatientClassification);
 
 } // initializeModule
-//----------------------------------------------------------------------------------------------------
 //------------------------------------------------------------------------------------------------------------------------
 return{
   init: initializeModule,
   };
     
 }); // PCAModule
-//----------------------------------------------------------------------------------------------------
 //------------------------------------------------------------------------------------------------------------------------
 pca = PCAModule();
 pca.init();

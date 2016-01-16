@@ -86,6 +86,7 @@ setMethod("registerMessageHandlers", "ChinookDataset",
      addMessageHandler(getServer(obj), "getSubjectHistoryTable",   "Dataset.getSubjectHistoryTable")
      addMessageHandler(getServer(obj), "getNetwork",               "Dataset.getNetwork")             
      addMessageHandler(getServer(obj), "getMatrixNamesByCategory", "Dataset.getMatrixNamesByCategory") 
+     addMessageHandler(getServer(obj), "getSampleColors",          "Dataset.getSampleColors") 
      printf("registered messages: %s", paste(getMessageNames(getServer(obj)), collapse=","))
      })
 
@@ -119,6 +120,18 @@ Dataset.getManifest <- function(channel, msg)
       return(response)
 
 } # Dataset.getManifest
+#----------------------------------------------------------------------------------------------------
+Dataset.getSampleColors <- function(channel, msg)
+{
+   self <- local.state[["self"]]
+   server <- getServer(self)
+
+   datasetName <- msg$payload$dataset;
+   dataset <- getDatasetByName(server, datasetName)
+   tumorGroups <- getItem(dataset, "tumorGroups")
+   print(tumorGroups)
+    
+} # Dataset.getSampleColors
 #----------------------------------------------------------------------------------------------------
 Dataset.getMatrixNamesByCategory <- function(channel, msg)
 {
@@ -250,10 +263,10 @@ Dataset.getItemByName <- function(channel, msg)
       class <- class(item)
       i <- i + 1
       if(class == "matrix"){
-        data.json <- .prepDataframeOrMatrixForJSON(dataset.name, item)
+        data.json <- .prepDataframeOrMatrixForJSON(datasetName, item)
         }
       else if(class == "data.frame"){
-        data.json <- .prepDataframeOrMatrixForJSON(dataset.name, item)
+        data.json <- .prepDataframeOrMatrixForJSON(datasetName, item)
         }
       else{
          data.json <- item
