@@ -11,6 +11,7 @@ options(stringsAsFactors = FALSE)
 setGeneric("getName",              signature="obj", function(obj) standardGeneric ("getName"))
 setGeneric("getGroupNames",        signature="obj", function(obj) standardGeneric ("getGroupNames"))
 setGeneric("getGroup",             signature="obj", function(obj, name) standardGeneric ("getGroup"))
+setGeneric("createColorList",      signature="obj", function(obj, ids, target.group, tbl.viz) standardGeneric ("createColorList"))
 #----------------------------------------------------------------------------------------------------
 Groups <- function(name="", data.directory=system.file(package="Groups", "extdata"))
 {
@@ -77,3 +78,44 @@ setMethod("getGroup", "Groups",
 
 } # .loadFiles
 #---------------------------------------------------------------------------------------------------
+setMethod("createColorList", "Groups",
+
+  function (obj, ids, target.group, tbl.viz) {
+   subgroups <- grep(target.group, unlist(getGroupNames(obj), use.names=FALSE), value=TRUE)
+
+   ids.by.group <- lapply(subgroups, function(group) intersect(ids, getGroup(obj, group)))
+   names(ids.by.group) <- subgroups
+
+   tbl.work <- data.frame(id=ids, meta.group=target.group, group="", color="lightgray")
+
+   groups.for.ids <- rep("unassigned", length(ids))
+   colors         <- rep("lightgray", length(ids))
+   
+   names(groups.for.ids) <- ids
+   names(colors) <- ids
+   
+   for(id in tbl.work$id){
+      index <- which(as.logical(lapply(subgroups, function(name) id %in% getGroup(obj, name))))
+      if(length(index) == 1){
+        group <- subgroups[index]
+        target.groupWithTrailingDot <- sprintf("%s.", target.group)
+        group.shortened <- gsub(target.groupWithTrailingDot, "", group)
+        groups.for.ids[[id]] <- group.shortened
+        color <- tbl.viz$color[match(group.shortened, tbl.viz$id)]
+        if(!is.na(color))
+           colors[[id]] <- color
+        #printf("%s: %d: %s   %s -> %s", id, index, subgroups[index], target.group, group.shortened)
+        } # if  id found in a Groups list
+      } # for id
+
+   tbl.work$group <- groups.for.ids
+   tbl.work$color <- colors
+
+        # to convert to a json-friendly list
+   tumor.colors <- tbl.work$color
+   names(tumor.colors) <- tbl.work$id
+
+   as.list(tumor.colors)
+   }) # createColorList
+
+#----------------------------------------------------------------------------------------------------

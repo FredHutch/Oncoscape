@@ -1,5 +1,7 @@
 library(RUnit)
 library(Groups)
+library(DEMOdz)
+
 options(stringsAsFactors=FALSE)
 #----------------------------------------------------------------------------------------------------
 Sys.setlocale("LC_ALL", "C")   # set sort order, used by some tests
@@ -39,7 +41,6 @@ test.categorization.of.DEMOdz.tumors <- function()
 {
    printf("--- test.categorization.of.DEMOdz.tumors")
     
-   require(DEMOdz)
    dataset <- DEMOdz()
    gdb <- Groups()
    ids <- getTable(getSubjectHistory(dataset))$ID
@@ -75,7 +76,6 @@ test.categorization.of.DEMOdz.tumors <- function()
 test.createColorList.verhaak <- function()
 {
    printf("--- test.createColorList.verhaak")
-   require(DEMOdz)
    dataset <- DEMOdz()
    groupsDB <- Groups()
    ids <- getTable(getSubjectHistory(dataset))$ID
@@ -84,7 +84,7 @@ test.createColorList.verhaak <- function()
    checkTrue(length(grep(target.group, getGroupNames(groupsDB))) > 0)
    tbl.viz <- getItem(dataset, "tbl.groupVizProps")
 
-   x <- createColorList(ids, target.group, groupsDB, tbl.viz)
+   x <- createColorList(groupsDB, ids, target.group, tbl.viz)
 
    checkEquals(length(x), length(ids))
    checkEquals(x$bogus, "lightgray")
@@ -121,7 +121,7 @@ test.createColorList.glioma8 <- function()
    checkTrue(length(grep(target.group, getGroupNames(groupsDB))) > 0)
    tbl.viz <- getItem(dataset, "tbl.groupVizProps")
 
-   x <- createColorList(ids, target.group, groupsDB, tbl.viz)
+   x <- createColorList(groupsDB, ids, target.group, tbl.viz)
 
    checkEquals(length(x), length(ids))
    checkEquals(x$bogus, "lightgray")
@@ -151,107 +151,6 @@ test.createColorList.glioma8 <- function()
   checkEquals(mapped.count, 4)
 
 } # test.createColorList.glioma8
-#----------------------------------------------------------------------------------------------------
-createColorList <- function(ids, target.group, groupsDB, tbl.viz)
-{
-   subgroups <- grep(target.group, unlist(getGroupNames(groupsDB), use.names=FALSE), value=TRUE)
-
-   ids.by.group <- lapply(subgroups, function(group) intersect(ids, getGroup(groupsDB, group)))
-   names(ids.by.group) <- subgroups
-
-   tbl.work <- data.frame(id=ids, meta.group=target.group, group="", color="lightgray")
-
-   groups.for.ids <- rep("unassigned", length(ids))
-   colors         <- rep("lightgray", length(ids))
-   
-   names(groups.for.ids) <- ids
-   names(colors) <- ids
-   
-   for(id in tbl.work$id){
-      index <- which(as.logical(lapply(subgroups, function(name) id %in% getGroup(groupsDB, name))))
-      if(length(index) == 1){
-        group <- subgroups[index]
-        target.groupWithTrailingDot <- sprintf("%s.", target.group)
-        group.shortened <- gsub(target.groupWithTrailingDot, "", group)
-        groups.for.ids[[id]] <- group.shortened
-        color <- tbl.viz$color[match(group.shortened, tbl.viz$id)]
-        if(!is.na(color))
-           colors[[id]] <- color
-        #printf("%s: %d: %s   %s -> %s", id, index, subgroups[index], target.group, group.shortened)
-        } # if  id found in a groupsDB list
-      } # for id
-
-   tbl.work$group <- groups.for.ids
-   tbl.work$color <- colors
-
-        # to convert to a json-friendly list
-   tumor.colors <- tbl.work$color
-   names(tumor.colors) <- tbl.work$id
-
-   as.list(tumor.colors)
-
-} # createColorList
-#----------------------------------------------------------------------------------------------------
-test.color.categorization.of.DEMOdz.tumors <- function()
-{
-   printf("--- test.color.categorization.of.DEMOdz.tumors")
-   require(DEMOdz)
-   dataset <- DEMOdz()
-   gdb <- Groups()
-   ids <- getTable(getSubjectHistory(dataset))$ID
-   tumorGroups <- getItem(dataset, "tumorGroups")
-   checkTrue(all(c("verhaak.2010.gbm", "glioma8") %in% names(tumorGroups)))
-
-   metagroupName <- "verhaak.2010.gbm"
-       # make sure this name is truly the stem of multiple actual groups
-   checkTrue(length(grep(metagroupName, getGroupNames(gdb))) > 1)   
-   meta.group <- tumorGroups[[metagroupName]];  # i.e., all glimoa8 groups, or all verhaak.2010.gbmp groups
-   member.group.names <- unlist(meta.group, use.names=FALSE)
-   ids.by.group <- lapply(member.group.names, function(group) intersect(ids, getGroup(gdb, group)))
-   names(ids.by.group) <- member.group.names
-
-   tbl.viz <- getItem(dataset, "tbl.groupVizProps")
-   tbl.tmp <- data.frame(id=ids, meta.group=metagroupName, group="", color="lightgray")
-   #which(as.logical(lapply(getGroupNames(gdb), function(name) "TCGA.12.0657" %in% getGroup(gdb, name))))
-
-   groups.for.ids <- rep("unassigned", length(ids))
-   colors <- rep("lightgray", length(ids))
-   
-   names(groups.for.ids) <- ids
-   names(colors) <- ids
-   
-   for(id in tbl.tmp$id){
-      index <- which(as.logical(lapply(member.group.names, function(name) id %in% getGroup(gdb, name))))
-      group <- member.group.names[index]
-      metagroupNameWithTrailingDot <- sprintf("%s.", metagroupName)
-      group.shortened <- gsub(metagroupNameWithTrailingDot, "", group)
-      groups.for.ids[[id]] <- group.shortened
-      color <- tbl.viz$color[match(group.shortened, tbl.viz$id)]
-      if(!is.na(color))
-         colors[[id]] <- color
-      printf("%s: %d: %s   %s -> %s", id, index, member.group.names[index], metagroupName, group.shortened)
-      }
-   tbl.tmp$group <- groups.for.ids
-   tbl.tmp$color <- colors
-   checkEquals(nrow(tbl.tmp), length(ids))
-   checkEquals(unique(tbl.tmp$meta.group), "verhaak.2010.gbm")
-   checkEquals(sort(unique(tbl.tmp$group)), c("Classical", "GCIMP", "Mesenchymal", "Neural", "Proneural"))
-   checkEquals(sort(subset(tbl.viz, group==metagroupName)$color),
-               sort(unique(tbl.tmp$color)))
-
-     # now be sure that each tumor is actually in the group we say that it is
-   for(i in 1:nrow(tbl.tmp)){
-     full.group.name <- sprintf("%s.%s", tbl.tmp$meta.group[i], tbl.tmp$group[i])
-     id <- tbl.tmp$id[i]
-     checkTrue(id %in% getGroup(gdb, full.group.name))
-     } # for i
-
-     # to convert to a json-friendly list
-   tumor.colors <- tbl.tmp$color
-   names(tumor.colors) <- tbl.tmp$id
-   tumor.colors <- as.list(tumor.colors)
-   
-} # test.color.categorization.of.DEMOdz.tumors
 #----------------------------------------------------------------------------------------------------
 if(!interactive())
    runTests()

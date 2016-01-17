@@ -3,7 +3,8 @@ exportClasses(Groups)
 exportMethods(
   getName,
   getGroupNames,
-  getGroup
+  getGroup,
+  createColorList
   )
 
 export(

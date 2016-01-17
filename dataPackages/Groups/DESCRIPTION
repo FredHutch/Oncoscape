@@ -1,7 +1,7 @@
 Package: Groups
 Type: Package
 Title: Groups: easy storage for, and access to, groups of entity identifiers (genes, tumors, etc.)
-Version: 1.0.3
+Version: 1.0.4
 Date: 2016-01-16
 Author: Paul Shannon
 Maintainer: Paul Shannon <paul.thurmond.shannon@gmail.com>
