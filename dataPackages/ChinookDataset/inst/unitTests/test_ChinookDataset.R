@@ -9,6 +9,7 @@ runTests <- function()
    test.noDatasetConstructor();
    test.datasetConstructor()
    test..prepDataframeOrMatrixForJSON()
+   test.missingItem()
 
 } # runTests
 #----------------------------------------------------------------------------------------------------
@@ -68,6 +69,16 @@ test..prepDataframeOrMatrixForJSON <- function()
    checkEquals(grep(expected.mutations, json.var), 1)
    
 } # test..prepDataframeOrMatrixForJSON
+#----------------------------------------------------------------------------------------------------
+test.missingItem <- function()
+{
+   print("--- test.missingItem")
+   dz <- DEMOdz()
+   cds <- ChinookDataset("DEMOdz", dz)
+   bogus <- getItem(dz, "bogus")
+   checkTrue(is.na(bogus))
+    
+} # test.missingItem
 #----------------------------------------------------------------------------------------------------
 if(!interactive())
     runTests()

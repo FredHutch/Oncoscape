@@ -8,7 +8,7 @@ ws = create_connection("ws://localhost:4019")
 def testManifest():
 
   print("--- testManifest")
-  print("    DEMOdz")
+
   payload = {"dataset": "DEMOdz"}
   msg = dumps({"cmd": "getDatasetManifest", "status":"request", "callback":"", "payload": payload})
   ws.send(msg)
@@ -38,17 +38,21 @@ def testManifest():
 #----------------------------------------------------------------------------------------------------
 def testAvailableMessages():
 
+  print("--- testAvailableMessages")
+
   msg = dumps({"cmd": "getRegisteredMessageNames", "status":"request", "callback":"", "payload": ""})
   ws.send(msg)
   result = loads(ws.recv())
   payload = result["payload"]
-  print(payload)
+  #print(payload)
   assert(payload.index("getDatasetItemNames") >= 0)
   assert(payload.index("getDatasetItemsByName") >= 0)
   assert(payload.index("getDatasetItemSubsetByName") >= 0)
 
 #----------------------------------------------------------------------------------------------------
 def testListDataItemsAvailable():
+
+  print("--- testListDataItemsAvailable")
 
   payload = {"dataset": "DEMOdz"}
   msg = dumps({"cmd": "getDatasetItemNames", "status":"request", "callback":"", "payload": payload})
@@ -59,8 +63,8 @@ def testListDataItemsAvailable():
      # ensure that the copy number matrix is among them
   assert(demodz_itemNames.index("mtx.cn") >= 0)
   assert(demodz_itemNames.index("sampleJSON") >= 0)
-  print("demodz_itemNames")
-  print(demodz_itemNames)
+  #print("demodz_itemNames")
+  #print(demodz_itemNames)
 
   payload = {"dataset": "TCGAbrain"}
   msg = dumps({"cmd": "getDatasetItemNames", "status":"request", "callback":"", "payload": payload})
@@ -68,15 +72,19 @@ def testListDataItemsAvailable():
   result = loads(ws.recv())
   brain_itemNames = result["payload"]
   assert(len(brain_itemNames) > 3)
+
      # ensure that the copy number matrix is among them
   assert(brain_itemNames.index("mtx.cn") >= 0)
+
      # but that sampleJSON, unique to DEMOdz, is not
   assert(("sampleJSON" in brain_itemNames) == False)
-  print("brain_itemNames")
-  print(brain_itemNames)
+  #print("brain_itemNames")
+  #print(brain_itemNames)
 
 #----------------------------------------------------------------------------------------------------
 def testRequestCopyNumberMatrix():
+
+  print("--- testRequestCopyNumberMatrix")
 
   payload = {"dataset": "DEMOdz", "items": "mtx.cn"}
   msg = dumps({"cmd": "getDatasetItemsByName", "status":"request", "callback":"", "payload": payload})
@@ -94,7 +102,7 @@ def testRequestCopyNumberMatrix():
   assert(rowCount == 20)
   assert(colCount == 64)
 
-    # expect this result (R version)
+    # expect this result (R version) for TCGAbrain
     #                  PTEN EGFR
     #  TCGA.TM.A7C3.01   -1    2
     #  TCGA.S9.A7R1.01    0    0
@@ -125,6 +133,8 @@ def testRequestCopyNumberMatrix():
 
 #----------------------------------------------------------------------------------------------------
 def testRequestCopyNumberMutationMatricesSampleJSON():
+
+  print("--- testRequestCopyNumberMutationMatricesSampleJSON")
 
   itemsRequested = ["mtx.cn", "mtx.mut", "sampleJSON"]
   payload = {"dataset": "DEMOdz", "items": itemsRequested}
@@ -164,10 +174,48 @@ def testRequestCopyNumberMutationMatricesSampleJSON():
   assert(mtx[16][4] == 'A289T,V774M')
 
 #----------------------------------------------------------------------------------------------------
+def testRequestSingleItemNonexistent():
+
+  print("--- testRequestSingleItemNonexistent")
+
+  payload = {"dataset": "DEMOdz", "items": "bogus"}
+  msg = dumps({"cmd": "getDatasetItemsByName", "status":"request", "callback":"", "payload": payload})
+  ws.send(msg)
+  result = loads(ws.recv())
+  payload = result["payload"]
+  assert(payload['bogus'] == None)
+
+#----------------------------------------------------------------------------------------------------
+def testRequestThreeItemsTwoNonexistent():
+
+  print("--- testRequestThreeItemsTwoNonexistent")
+
+  itemsRequested = ["mtx.cn", "bogus", "bagus"]
+  payload = {"dataset": "DEMOdz", "items": itemsRequested}
+  msg = dumps({"cmd": "getDatasetItemsByName", "status":"request", "callback":"", "payload": payload})
+  ws.send(msg)
+  result = loads(ws.recv())
+  payload = result["payload"]
+  assert(payload['bogus'] == None)
+  assert(payload['bagus'] == None)
+  item = payload['mtx.cn']
+  fieldNames = list(item.keys())
+  fieldNames.sort()
+  assert(fieldNames == ['colnames', 'datasetName', 'mtx', 'rownames', 'variables'])
+  mtx = item["mtx"]
+  rowCount = len(mtx)
+  colCount = len(mtx[0])
+  assert(rowCount == 20)
+  assert(colCount == 64)
+
+
+#----------------------------------------------------------------------------------------------------
 testManifest()
 testAvailableMessages()
 testListDataItemsAvailable()
 testRequestCopyNumberMatrix()
-#testRequestCopyNumberMutationMatricesSampleJSON()
+testRequestCopyNumberMutationMatricesSampleJSON()
+testRequestSingleItemNonexistent()
+testRequestThreeItemsTwoNonexistent()
 
 print(True)

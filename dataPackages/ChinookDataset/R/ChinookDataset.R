@@ -272,7 +272,7 @@ Dataset.getItemsByName <- function(channel, msg)
    printf("all in? %s", all(item.names %in% available.items))
    printf("setdiff: %s", setdiff(item.names, available.items))
 
-   stopifnot(all(item.names %in% available.items))
+   #stopifnot(all(item.names %in% available.items))
 
    data.list <- vector("list", length=length(item.names))
 
