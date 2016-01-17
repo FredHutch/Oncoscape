@@ -265,7 +265,7 @@ setMethod("registerMessageHandlers", "ChinookServer",
      addMessageHandler(obj, "getVariableNames",          "ChinookServer.getVariableNames")
      addMessageHandler(obj, "getVariable",               "ChinookServer.getVariable")
      addMessageHandler(obj, "deleteVariable",            "ChinookServer.deleteVariable")
-     #addMessageHandler(obj, "specifyCurrentDataset",     "ChinookServer.specifyCurrentDataset")
+     addMessageHandler(obj, "specifyCurrentDataset",     "ChinookServer.specifyCurrentDataset")
      addMessageHandler(obj, "getDatasetNames",           "ChinookServer.getDatasetNames")
      addMessageHandler(obj, "getDatasetNames",           "ChinookServer.getDatasetNames")
      })
@@ -529,21 +529,21 @@ ChinookServer.deleteVariable <- function(channel, msg)
 #  5) that appropriate response could be:  give me the markers (genes & samples) network for this new dataset,
 #     or give me the mRNA expression data so that I can calculate a default PCA
 #
-#ChinookServer.specifyCurrentDataset <- function(channel, msg)
-#{
-#   #printf("=== ChinookServer.specifyCurrentDataset")
-#   self <- local.state[["server"]]
-#   newDatasetName <- msg$payload
-#   stopifnot(newDatasetName %in% getDatasetNames(self))
-#   # setActiveDataset(self, newDatasetName);
-#   response <- toJSON(list(cmd=msg$callback, status="success", callback="", payload=newDatasetName))
-#
-#   if("WebSocket" %in% is(channel))
-#      channel$send(response)
-#   else
-#      return(response)
-#
-#} # ChinookServer.specifyCurrentDataset
+ChinookServer.specifyCurrentDataset <- function(channel, msg)
+{
+   #printf("=== ChinookServer.specifyCurrentDataset")
+   self <- local.state[["server"]]
+   newDatasetName <- msg$payload
+   stopifnot(newDatasetName %in% getDatasetNames(self))
+   # setActiveDataset(self, newDatasetName);
+   response <- toJSON(list(cmd=msg$callback, status="success", callback="", payload=newDatasetName))
+
+   if("WebSocket" %in% is(channel))
+      channel$send(response)
+   else
+      return(response)
+
+} # ChinookServer.specifyCurrentDataset
 #------------------------------------------------------------------------------------------------------------------------
 ChinookServer.getDatasetNames <- function(channel, msg)
 {
