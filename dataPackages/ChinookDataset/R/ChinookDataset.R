@@ -123,13 +123,35 @@ Dataset.getManifest <- function(channel, msg)
 #----------------------------------------------------------------------------------------------------
 Dataset.getSampleColors <- function(channel, msg)
 {
+   printf("======== entering Dataset.getSampleColors")
    self <- local.state[["self"]]
    server <- getServer(self)
 
    datasetName <- msg$payload$dataset;
+
+     # the stem of shared name, eg "glioma8" from the pca ui "color by..." menu
+     # where the actual groups include (among others)
+     #  "glioma8.nonCIMP.wtNRAS.mutTP53"
+     #  "glioma8.nonCIMP.wtNRAS.wtTP53"
+
+   metagroupName <- msg$payload$groupName;   
+   ids <- msg$payload$samples;
+   
    dataset <- getDatasetByName(server, datasetName)
    tumorGroups <- getItem(dataset, "tumorGroups")
+   tbl.viz <- getItem(dataset, "tbl.groupVizProps")
+   printf("--- tumorGroups for %s, groupName: %s, id count: %d",
+          datasetName, groupName, length(ids))
    print(tumorGroups)
+   print(tbl.viz)
+   
+   gdb <- Groups()
+   metagroup <- tumorGroups[[metagroupName]];  # i.e., all glimoa8 groups, or all verhaak.2010.gbmp groups
+   subgroup.names <- unlist(metagroup, use.names=FALSE)
+   ids.by.group <- lapply(subgroup.names, function(group) intersect(ids, getGroup(gdb, group)))
+   names(ids.by.group) <- subgroup.names
+   printf("====== ids.by.group")
+   print(ids.by.group)
     
 } # Dataset.getSampleColors
 #----------------------------------------------------------------------------------------------------
