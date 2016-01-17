@@ -76,7 +76,6 @@ testManifestAndDataConsistency <- function(quiet=TRUE)
          }
       if(class == "list"){
          checkEquals(entity.count, length(x))
-         checkTrue(is.na(feature.count))
          }
       entity.type <- tbl$entity.type[i]
       feature.type <- tbl$feature.type[i]
