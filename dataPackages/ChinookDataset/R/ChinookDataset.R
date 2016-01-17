@@ -124,7 +124,7 @@ Dataset.getManifest <- function(channel, msg)
 #----------------------------------------------------------------------------------------------------
 Dataset.getSampleColors <- function(channel, msg)
 {
-   printf("======== entering Dataset.getSampleColors")
+   #printf("======== entering Dataset.getSampleColors")
    self <- local.state[["self"]]
    server <- getServer(self)
 
@@ -157,13 +157,13 @@ Dataset.getMatrixNamesByCategory <- function(channel, msg)
    server <- getServer(self)
    dataset <- getDatasetByName(server, requested.dataset)
    datasetName <- getName(dataset)
-   printf(" 330, datasetName, requested: %s   loaded 1: %s", requested.dataset, datasetName)
+   #printf(" 330, datasetName, requested: %s   loaded 1: %s", requested.dataset, datasetName)
    stopifnot(requested.dataset == datasetName)
 
    tbl <- getManifest(dataset)
    indices <- grep(category.string, tbl$category, ignore.case=TRUE)
    names <- tbl[indices, "variable"]
-   printf("   matrixNames by category: %s", paste(names, collapse=","))
+   #printf("   matrixNames by category: %s", paste(names, collapse=","))
    payload <- list(datasetName=datasetName, expressionMatrixNames=names);
    response <- toJSON(list(cmd=msg$callback, status="success", callback="", payload=payload))
    
@@ -256,21 +256,21 @@ Dataset.getItemsByName <- function(channel, msg)
    datasetName <- msg$payload$dataset;
    item.names  <- msg$payload$items;
 
-   printf("===== Dataset.getItemsByName")
-   printf("    datasetName: %s", datasetName)
-   printf("     item.names: %s", item.names)
+   #printf("===== Dataset.getItemsByName")
+   #printf("    datasetName: %s", datasetName)
+   #printf("     item.names: %s", item.names)
    
    self <- local.state[["self"]]
    server <- getServer(self)
    dataset <- getDatasetByName(server, datasetName)
 
    available.items <- getItemNames(dataset)
-   printf("ChinookDataset.getItemByName, available.items:")
-   print(available.items)
-   printf("   requested items: %s", paste(item.names, collapse=","))
-   printf("in? %s", item.names[1] %in% available.items)
-   printf("all in? %s", all(item.names %in% available.items))
-   printf("setdiff: %s", setdiff(item.names, available.items))
+   #printf("ChinookDataset.getItemByName, available.items:")
+   #print(available.items)
+   #printf("   requested items: %s", paste(item.names, collapse=","))
+   #printf("in? %s", item.names[1] %in% available.items)
+   #printf("all in? %s", all(item.names %in% available.items))
+   #printf("setdiff: %s", setdiff(item.names, available.items))
 
    #stopifnot(all(item.names %in% available.items))
 
@@ -312,9 +312,9 @@ Dataset.getItemSubsetByName <- function(channel, msg)
    entities <- msg$payload$entities;
    features <- msg$payload$features;
 
-   printf("===== Dataset.getItemsByName")
-   printf("    datasetName: %s", datasetName)
-   printf("     item.names: %s", item.name)
+   #printf("===== Dataset.getItemsByName")
+   #printf("    datasetName: %s", datasetName)
+   #printf("     item.names: %s", item.name)
    
    self <- local.state[["self"]]
    server <- getServer(self)
@@ -346,7 +346,7 @@ Dataset.getMarkersNetwork <- function(channel, msg)
    stopifnot(variable.name %in% tbl.manifest$variable)
 
    payload <- networks(dataset)[[markerName]]
-   printf("wsDatasets.getMarkersAndSamplesNetwork, size: %d", nchar(payload));
+   #printf("wsDatasets.getMarkersAndSamplesNetwork, size: %d", nchar(payload));
    response <- toJSON(list(cmd=msg$callback, status="success", callback="", payload=payload))
    
    if("WebSocket" %in% is(channel))
@@ -371,9 +371,9 @@ Dataset.getSubjectHistoryTable <- function(channel, msg)
    dataset <- getDataset(self)
    tbl.history <- getTable(getSubjectHistory(dataset))
 
-   printf("ChinookDataset.getSubjectHistoryTable, dim (%d, %d)", nrow(tbl.history), ncol(tbl.history))
+   #printf("ChinookDataset.getSubjectHistoryTable, dim (%d, %d)", nrow(tbl.history), ncol(tbl.history))
    payload <- .prepDataframeOrMatrixForJSON(datasetName, tbl.history)
-   print(payload)
+   #print(payload)
    return.msg <- toJSON(list(cmd=msg$callback, status="success", callback="", payload=payload))
 
    .send(channel, return.msg)

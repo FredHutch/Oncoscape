@@ -138,7 +138,7 @@ toJSON <- function(..., auto_unbox = TRUE)
 setMethod("addMessageHandler", "ChinookServer",
 
     function(self, messageName, functionToCall) {
-       #printf("ChinookServer::addMessageHandler: '%s'", messageName);
+       #printf("ChinaookServer::addMessageHandler: '%s'", messageName);
        self@dispatchMap[[messageName]] <- functionToCall
        }) # addMessageHandler
 
@@ -205,7 +205,7 @@ dispatchMessage <- function(WS, msg)
   if(msg$cmd == "logEvent")   # not yet implemented.  todo
       return()
   
-  #printf("--- entering ChinookServer dispatchMessage, msg: ")
+  printf("--- ChinookServer dispatchMessage: %s", msg$cmd)
   #print(msg)
     
   errorFunction <- function(cond){
