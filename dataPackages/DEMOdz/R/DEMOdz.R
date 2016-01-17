@@ -3,11 +3,6 @@ printf = function (...) print (noquote (sprintf (...)))
 #----------------------------------------------------------------------------------------------------
 .DEMOdz <- setClass ("DEMOdz", contains = "Dataset")
 #----------------------------------------------------------------------------------------------------
-<<<<<<< HEAD
-=======
-#setGeneric('historyTable',   signature='obj', function (obj) standardGeneric ('historyTable'))
-#----------------------------------------------------------------------------------------------------
->>>>>>> 81395fd01ecbef350decba460ce0f8a9d9333261
 # constructor
 DEMOdz <- function()
 {

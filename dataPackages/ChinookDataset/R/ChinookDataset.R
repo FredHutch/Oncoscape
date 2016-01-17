@@ -77,7 +77,6 @@ setMethod("getName", "ChinookDataset",
 setMethod("registerMessageHandlers", "ChinookDataset",
 
   function (obj) {
-<<<<<<< HEAD
      addMessageHandler(getServer(obj), "getDatasetManifest",       "Dataset.getManifest")
      addMessageHandler(getServer(obj), "getDataManifest",          "Dataset.getManifest")
      addMessageHandler(getServer(obj), "getDatasetDataFrame",      "Dataset.getDataFrame")
@@ -89,36 +88,17 @@ setMethod("registerMessageHandlers", "ChinookDataset",
      addMessageHandler(getServer(obj), "getMatrixNamesByCategory", "Dataset.getMatrixNamesByCategory") 
      addMessageHandler(getServer(obj), "getSampleColors",          "Dataset.getSampleColors") 
      printf("registered messages: %s", paste(getMessageNames(getServer(obj)), collapse=","))
-=======
-     addMessageHandler(getServer(obj), "getDatasetManifest",     "Dataset.getManifest")
-     addMessageHandler(getServer(obj), "getDataManifest",        "Dataset.getManifest")
-     addMessageHandler(getServer(obj), "getDatasetDataFrame",    "Dataset.getDataFrame")
-     addMessageHandler(getServer(obj), "getDatasetJSON",         "Dataset.getJSON")
-     addMessageHandler(getServer(obj), "getDatasetItemNames",    "Dataset.getItemNames")
-     addMessageHandler(getServer(obj), "getDatasetItemByName",   "Dataset.getItemByName")
-     addMessageHandler(getServer(obj), "getSubjectHistoryTable", "Dataset.getSubjectHistoryTable")
-     addMessageHandler(getServer(obj), "getNetwork",             "Dataset.getNetwork")             
->>>>>>> 81395fd01ecbef350decba460ce0f8a9d9333261
      })
 
 #----------------------------------------------------------------------------------------------------
 Dataset.getManifest <- function(channel, msg)
 {
-<<<<<<< HEAD
    datasetName <- msg$payload;
    self <- local.state[["self"]]
    server <- getServer(self)
    dataset <- getDatasetByName(server, datasetName)
    tbl <- getManifest(dataset)
 
-   #datasetName <- getName(self)
-=======
-   self <- local.state[["self"]]
-   dataset <- getDataset(self)
-
-   tbl <- getManifest(dataset)
-   datasetName <- getName(self)
->>>>>>> 81395fd01ecbef350decba460ce0f8a9d9333261
    payload <- .prepDataframeOrMatrixForJSON(datasetName, tbl)
    column.titles <- payload$colnames   
      # make some column names more friendly
@@ -140,7 +120,6 @@ Dataset.getManifest <- function(channel, msg)
 
 } # Dataset.getManifest
 #----------------------------------------------------------------------------------------------------
-<<<<<<< HEAD
 Dataset.getSampleColors <- function(channel, msg)
 {
    printf("======== entering Dataset.getSampleColors")
@@ -190,8 +169,6 @@ Dataset.getMatrixNamesByCategory <- function(channel, msg)
 
 } # Dataset.getMatrixNamesByCategory
 #----------------------------------------------------------------------------------------------------
-=======
->>>>>>> 81395fd01ecbef350decba460ce0f8a9d9333261
 .prepDataframeOrMatrixForJSON <-function(datasetName, tbl)
 {
     # the first two columns, "variable" and "class" are not so relevant for the oncoscape display
@@ -271,7 +248,7 @@ Dataset.getItemNames <- function(channel, msg)
 #----------------------------------------------------------------------------------------------------
 Dataset.getItemByName <- function(channel, msg)
 {
-<<<<<<< HEAD
+
    datasetName <- msg$payload$dataset;
    item.names  <- msg$payload$items;
 
@@ -291,20 +268,6 @@ Dataset.getItemByName <- function(channel, msg)
    printf("all in? %s", all(item.names %in% available.items))
    printf("setdiff: %s", setdiff(item.names, available.items))
 
-=======
-   self <- local.state[["self"]]
-   dataset.name <- getName(self)
-   dataset <- getDataset(self)
-
-   item.names <- msg$payload
-   available.items <- getItemNames(dataset)
-   #printf("ChinookDataset.getItemByName, available.items:")
-   #print(available.items)
-   #printf("   requested items: %s", paste(item.names, collapse=","))
-   #printf("in? %s", item.names[1] %in% available.items)
-   #printf("all in? %s", all(item.names) %in% available.items)
-   #printf("setdiff: %s", setdiff(item.names, available.items))
->>>>>>> 81395fd01ecbef350decba460ce0f8a9d9333261
    stopifnot(all(item.names %in% available.items))
 
    data.list <- vector("list", length=length(item.names))
@@ -315,7 +278,6 @@ Dataset.getItemByName <- function(channel, msg)
       class <- class(item)
       i <- i + 1
       if(class == "matrix"){
-<<<<<<< HEAD
         data.json <- .prepDataframeOrMatrixForJSON(datasetName, item)
         }
       else if(class == "data.frame"){
@@ -323,12 +285,6 @@ Dataset.getItemByName <- function(channel, msg)
         }
       else{
          data.json <- item
-=======
-        data.json <- .prepDataframeOrMatrixForJSON(dataset.name, item)
-        }
-      else if(class == "data.frame"){
-        data.json <- .prepDataframeOrMatrixForJSON(dataset.name, item)
->>>>>>> 81395fd01ecbef350decba460ce0f8a9d9333261
         }
       data.list[[i]] <- data.json
       }
