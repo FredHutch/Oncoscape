@@ -11,12 +11,12 @@ local.state <- new.env(parent=emptyenv())
 # constructor
 ChinookPCA <- function(server)
 {
-    printf("starting ChinookPCA ctor")
+    #printf("starting ChinookPCA ctor")
     obj <- .ChinookPCA(ChinookAnalysis(name="PCA"))
     setServer(obj, server)
     registerMessageHandlers(obj)
 
-    printf("leaving ChinookPCA ctor")
+    #printf("leaving ChinookPCA ctor")
     local.state[["self"]] <- obj
     obj
 
@@ -31,32 +31,43 @@ setMethod("registerMessageHandlers", "ChinookPCA",
 #----------------------------------------------------------------------------------------------------
 PCA.calculate <- function(channel, msg)
 {
-   printf("---- entering PCA.calculate")
-   print(msg)
+   #printf("---- entering PCA.calculate")
+   #print(msg)
    datasetName <- msg$payload$datasetName
    matrixName  <- msg$payload$matrixName
    genesetName <- msg$payload$geneset
-
-   printf("datasetName: %s", datasetName)
-   printf(" matrixName: %s", matrixName)
-   printf("    geneset: %s", genesetName)
+   if(length(genesetName) == 0)
+      genesetName <- NA
+   else if(nchar(genesetName) == 0)
+       genesetName <- NA
+   
+   #print(genesetName)
+   #print(length(genesetName))
+   #print(nchar(genesetName))
+   #printf("datasetName: %s", datasetName)
+   #printf(" matrixName: %s", matrixName)
+   #printf("    geneset: %s", genesetName)
 
       # need to instantiate dataset
       # might want to store (cache) the instantiation on the Chinook server
 
    server <- getServer(local.state[["self"]])
-   printf("   server:")
-   print(server)
-   printf("   --- getDatasetNames(server)")
-   print(getDatasetNames(server))
+   #printf("   server:")
+   #print(server)
+   #printf("   --- getDatasetNames(server)")
+   #print(getDatasetNames(server))
    
-   printf("%s loaded in server? ", datasetName %in% getDatasetNames(server))
+   #printf("%s loaded in server? ", datasetName %in% getDatasetNames(server))
           
    dataset <- getDatasetByName(server, datasetName)
    pca <- PCA(dataset, matrixName)
    groupManager <- Groups()
-   stopifnot(genesetName %in% getGroupNames(groupManager))
-   genes <- getGroup(groupManager, genesetName)
+   if(length(genesetName) == 0)
+     genes <- NA
+   else if(!is.na(genesetName))
+      genes <- getGroup(groupManager, genesetName)
+   else
+      genes <- NA
    
    x <- calculate(pca, genes, samples)
      # fashion a 3-column data.frame nicely suited to use with d3: gene, PC1, PC2

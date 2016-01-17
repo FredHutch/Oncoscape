@@ -33,7 +33,7 @@ local.state <- new.env(parent=emptyenv())
 ChinookServer = function(port=NA_integer_, analysisPackageNames=NA_character_, datasetNames=NA_character_,
                          browserFile=NA_character_, userCredentials=NA_character_)
 {
-   printf("ChinookServer ctor, datasetNames: %s", paste(datasetNames, collapse=","))
+   #printf("ChinookServer ctor, datasetNames: %s", paste(datasetNames, collapse=","))
    
    state <- new.env(parent=emptyenv())
    state[["userCredentials"]] <- userCredentials
@@ -75,7 +75,7 @@ toJSON <- function(..., auto_unbox = TRUE)
 #------------------------------------------------------------------------------------------------------------------------
 .loadDataPackages <- function(server, datasetNames)
 {
-   printf("ChinookServer.loadDataPackages");
+   #printf("ChinookServer.loadDataPackages");
    for(datasetName in datasetNames){
      printf("ChinookServer:.loadDataPackages: %s", datasetName);
      load.string <- sprintf("require(%s, quietly=TRUE)", datasetName)
@@ -106,7 +106,7 @@ toJSON <- function(..., auto_unbox = TRUE)
 #------------------------------------------------------------------------------------------------------------------------
 .loadAnalysisPackages <- function(server, analysisPackageNames)
 {
-   printf("ChinookServer.loadAnalysisPackages");
+   #printf("ChinookServer.loadAnalysisPackages");
     
    for(packageName in analysisPackageNames){
      printf("ChinookServer:.loadAnalysisPackages: %s", packageName);
@@ -116,7 +116,7 @@ toJSON <- function(..., auto_unbox = TRUE)
         })
      if(exists(packageName)){
         instantiation.string <- sprintf("pkg <- %s(server)", packageName);
-        printf("about to eval instantiation.string: %s", instantiation.string)
+        #printf("about to eval instantiation.string: %s", instantiation.string)
         duration <- system.time(tryCatch(eval(parse(text=instantiation.string)),
                                 error=function(e)
                                 message(sprintf("failure calling constructor for '%s'", packageName))))[["elapsed"]]
@@ -138,7 +138,7 @@ toJSON <- function(..., auto_unbox = TRUE)
 setMethod("addMessageHandler", "ChinookServer",
 
     function(self, messageName, functionToCall) {
-       printf("ChinookServer::addMessageHandler: '%s'", messageName);
+       #printf("ChinookServer::addMessageHandler: '%s'", messageName);
        self@dispatchMap[[messageName]] <- functionToCall
        }) # addMessageHandler
 
@@ -153,7 +153,7 @@ setMethod("addMessageHandler", "ChinookServer",
 
    wsCon$call = function(req) {
       queryString <- req$QUERY_STRING
-      printf("call (%d), queryString: ", nchar(queryString), queryString)
+      #printf("call (%d), queryString: ", nchar(queryString), queryString)
       if(nchar(queryString) > 0){
          fields <- ls(req)
          body <- chinookHttpQueryProcessor(server, queryString)
@@ -172,7 +172,7 @@ setMethod("addMessageHandler", "ChinookServer",
 
       #  whenever a websocket connection is opened
    wsCon$onWSOpen = function(ws) {   
-      printf("---- wsCon$onWSOpen");
+      #printf("---- wsCon$onWSOpen");
       wsCon$ws <- ws
       ws$onMessage(function(binary, rawMessage) {
          message <- as.list(fromJSON(rawMessage))
@@ -205,8 +205,8 @@ dispatchMessage <- function(WS, msg)
   if(msg$cmd == "logEvent")   # not yet implemented.  todo
       return()
   
-  printf("--- entering ChinookServer dispatchMessage, msg: ")
-  print(msg)
+  #printf("--- entering ChinookServer dispatchMessage, msg: ")
+  #print(msg)
     
   errorFunction <- function(cond){
     return.msg <- list()
@@ -228,15 +228,15 @@ dispatchMessage <- function(WS, msg)
       return();
       }
     if(msg$status == "forBrowser"){
-        printf("R sees message for browser");
-        print(paste(as.character(msg), collapse=";  "))
-        printf("class of msg: %s", class(msg))
-        print(msg)
+        #printf("R sees message for browser");
+        #print(paste(as.character(msg), collapse=";  "))
+        #printf("class of msg: %s", class(msg))
+        #print(msg)
         msg$status <- "request"
         primaryWebSocketServer <- local.state[["server"]]@wsServer
-        printf("sending to browser, class of WS is %s", class(primaryWebSocketServer$ws));
+        #printf("sending to browser, class of WS is %s", class(primaryWebSocketServer$ws));
         primaryWebSocketServer$ws$send(toJSON(msg))
-        printf("after primaryWebSocketServer$ws$send");
+        #printf("after primaryWebSocketServer$ws$send");
         # WS$send(toJSON(msg))
         result <- toJSON(list(cmd=msg$callback, status="success", callback="", payload="sent to browser"))
         return(result);
@@ -245,9 +245,9 @@ dispatchMessage <- function(WS, msg)
     server <- local.state[["server"]]
     
     stopifnot(msg$cmd %in% ls(server@dispatchMap));
-    printf("====== Server.dispatchMessage: %s  [%s]", msg$cmd, format(Sys.time(), "%a %b %d %Y %X"));;
+    #printf("====== Server.dispatchMessage: %s  [%s]", msg$cmd, format(Sys.time(), "%a %b %d %Y %X"));;
     function.name <- server@dispatchMap[[msg$cmd]]
-    printf("    function.name: %s", function.name)
+    #printf("    function.name: %s", function.name)
     success <- TRUE   
     stopifnot(!is.null(function.name))
     func <- get(function.name)
@@ -265,7 +265,7 @@ setMethod("registerMessageHandlers", "ChinookServer",
      addMessageHandler(obj, "getVariableNames",          "ChinookServer.getVariableNames")
      addMessageHandler(obj, "getVariable",               "ChinookServer.getVariable")
      addMessageHandler(obj, "deleteVariable",            "ChinookServer.deleteVariable")
-     addMessageHandler(obj, "specifyCurrentDataset",     "ChinookServer.specifyCurrentDataset")
+     #addMessageHandler(obj, "specifyCurrentDataset",     "ChinookServer.specifyCurrentDataset")
      addMessageHandler(obj, "getDatasetNames",           "ChinookServer.getDatasetNames")
      addMessageHandler(obj, "getDatasetNames",           "ChinookServer.getDatasetNames")
      })
@@ -324,7 +324,7 @@ setMethod("getDatasetNames", "ChinookServer",
 setMethod("getDatasetByName", "ChinookServer",
 
    function(self, datasetName){
-      printf("ChinookServer::getDatasetByName, ls(state): %s", paste(ls(self@state), collapse=","))
+      #printf("ChinookServer::getDatasetByName, ls(state): %s", paste(ls(self@state), collapse=","))
       if(!datasetName %in% ls(self@state))
           return(NULL)
       chinookDataset <- self@state[[datasetName]]
@@ -348,15 +348,15 @@ setMethod("getMessageNames", "ChinookServer",
 #------------------------------------------------------------------------------------------------------------------------
 chinookHttpQueryProcessor <- function(server, queryString)
 {
-   printf("=== chinookHttpQueryProcessor")
-   print(queryString)
-   print(URLdecode(queryString))
+   #printf("=== chinookHttpQueryProcessor")
+   #print(queryString)
+   #print(URLdecode(queryString))
 
    queryString <- URLdecode(queryString)
    diagnostic.string <- substr(queryString,1,10)
-   printf("--- diagnostic.string: |%s|", diagnostic.string)
+   #printf("--- diagnostic.string: |%s|", diagnostic.string)
    jsonPrefixFound <- diagnostic.string == "?jsonMsg='";
-   printf("--- matched? %s", jsonPrefixFound)
+   #printf("--- matched? %s", jsonPrefixFound)
    
    if(jsonPrefixFound){
       rawJSON <- substr(queryString, 11, nchar(queryString)-1)  # drop enclosing single quotes
@@ -364,11 +364,11 @@ chinookHttpQueryProcessor <- function(server, queryString)
       #printf("calling dispatch on %s", msg$cmd);
       #print(msg$cmd)
       server <- local.state[["server"]]
-      printf("===* calling dispatchMessage from chinookHttpQueryProcessor")
+      #printf("===* calling dispatchMessage from chinookHttpQueryProcessor")
       #printf("    server:")
       #print(server)
       result <- dispatchMessage("http", msg)
-      printf("chinookHttpQueryProcessor, after dispatchMessage, result: %s", result);
+      #printf("chinookHttpQueryProcessor, after dispatchMessage, result: %s", result);
       return(result)
       } # if jsonMsg queryString
    
@@ -396,7 +396,7 @@ AuxPort <- function(primaryWebSocketServer, port)
      # process http requests
    wsCon$call = function(req) {
       queryString <- req$QUERY_STRING
-      printf("call (%d), aux queryString: ", nchar(queryString), queryString)
+      #printf("call (%d), aux queryString: ", nchar(queryString), queryString)
       if(nchar(queryString) > 0){
          fields <- ls(req)
          body <- chinookHttpQueryProcessor(primaryWebSocketServer, queryString)
@@ -414,9 +414,9 @@ AuxPort <- function(primaryWebSocketServer, port)
    wsCon$onWSOpen = function(ws) {   
       wsCon$ws <- ws
       ws$onMessage(function(binary, rawMessage) {
-         printf("new ws message on AUX port: ")
+         #printf("new ws message on AUX port: ")
          message <- as.list(fromJSON(rawMessage))
-         print(message)
+         #print(message)
          wsCon$lastMessage <- message
          if(!is(message, "list")){
             message("message: new websocket message is not a list");
@@ -428,19 +428,19 @@ AuxPort <- function(primaryWebSocketServer, port)
             }
          cmd <- message$cmd
          dispatchMap <- local.state[["server"]]@dispatchMap
-         printf(" about to dispatch from aux handler: %s (in map? %s)", cmd, cmd %in% ls(dispatchMap))
+         #printf(" about to dispatch from aux handler: %s (in map? %s)", cmd, cmd %in% ls(dispatchMap))
          if(cmd %in% ls(dispatchMap)){
            function.name <- dispatchMap[[cmd]]
-           printf("    function.name: %s", function.name)
+           #printf("    function.name: %s", function.name)
            func <- get(function.name)
            do.call(func, list(wsCon$ws, message))
            }
          else{         
-            printf("ChinookSever/AuxPort onMessage, cmd: %s ", cmd);
-            printf("sending to primaryWebSocketServer, fields %s", paste(ls(primaryWebSocketServer), collapse=","))
+            #printf("ChinookSever/AuxPort onMessage, cmd: %s ", cmd);
+            #printf("sending to primaryWebSocketServer, fields %s", paste(ls(primaryWebSocketServer), collapse=","))
             primaryWebSocketServer$ws$send(toJSON(message))
             #primaryWebSocketServer$ws$send(toJSON(message))
-            printf("after dispatch to primary");
+            #printf("after dispatch to primary");
             }
          }) # onMessage
        wsCon$open <- TRUE
@@ -529,25 +529,25 @@ ChinookServer.deleteVariable <- function(channel, msg)
 #  5) that appropriate response could be:  give me the markers (genes & samples) network for this new dataset,
 #     or give me the mRNA expression data so that I can calculate a default PCA
 #
-ChinookServer.specifyCurrentDataset <- function(channel, msg)
-{
-   printf("=== ChinookServer.specifyCurrentDataset")
-   self <- local.state[["server"]]
-   newDatasetName <- msg$payload
-   stopifnot(newDatasetName %in% getDatasetNames(self))
-   # setActiveDataset(self, newDatasetName);
-   response <- toJSON(list(cmd=msg$callback, status="success", callback="", payload=newDatasetName))
-
-   if("WebSocket" %in% is(channel))
-      channel$send(response)
-   else
-      return(response)
-
-} # ChinookServer.specifyCurrentDataset
+#ChinookServer.specifyCurrentDataset <- function(channel, msg)
+#{
+#   #printf("=== ChinookServer.specifyCurrentDataset")
+#   self <- local.state[["server"]]
+#   newDatasetName <- msg$payload
+#   stopifnot(newDatasetName %in% getDatasetNames(self))
+#   # setActiveDataset(self, newDatasetName);
+#   response <- toJSON(list(cmd=msg$callback, status="success", callback="", payload=newDatasetName))
+#
+#   if("WebSocket" %in% is(channel))
+#      channel$send(response)
+#   else
+#      return(response)
+#
+#} # ChinookServer.specifyCurrentDataset
 #------------------------------------------------------------------------------------------------------------------------
 ChinookServer.getDatasetNames <- function(channel, msg)
 {
-   printf("=== ChinookServer.getDatasetNames")
+   #printf("=== ChinookServer.getDatasetNames")
    self <- local.state[["server"]]
 
    payload <- list(datasets=getDatasetNames(self))
@@ -562,7 +562,7 @@ ChinookServer.getDatasetNames <- function(channel, msg)
 #------------------------------------------------------------------------------------------------------------------------
 ChinookServer.getMessageNames <- function(channel, msg)
 {
-   printf("=== ChinookServer.getMessageNames")
+   #printf("=== ChinookServer.getMessageNames")
    self <- local.state[["server"]]
 
    payload <- ls(self@dispatchMap)

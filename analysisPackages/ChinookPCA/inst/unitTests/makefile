@@ -1,7 +1,9 @@
 SERVER = runChinookPCAServer.R
-default: kill server delay pyWS
+default: build kill server delay pyWS
 
-
+build:
+	R CMD INSTALL ../..
+        
 kill: 
 	- kill `ps x | grep $(SERVER) | grep -v grep | awk '{print $$1}'`
 

@@ -67,18 +67,18 @@ setMethod("calculate", "PCA",
 
    function(obj, genes=NA, samples=NA){
 
-   printf("=== entering PCA::calculate");
+   #printf("=== entering PCA::calculate");
    mtx <- getItem(obj@dataset, obj@matrixName)
 
-   printf("dim(mtx): %d x %d", nrow(mtx), ncol(mtx))
+   #printf("dim(mtx): %d x %d", nrow(mtx), ncol(mtx))
    
-   printf("looking at column.sums");
+   #printf("looking at column.sums");
    mtx[is.na(mtx)] <- 0.0
    
    column.sums <- colSums(mtx)
    removers <- as.integer(which(column.sums == 0))
    if(length(removers) > 0) {
-       printf("removing %d columns", length(removers))
+       #printf("removing %d columns", length(removers))
        mtx <- mtx[, -removers]
        } # if removers
 
@@ -93,13 +93,13 @@ setMethod("calculate", "PCA",
          stop(cat(error.msg.1, error.msg.2))
          }
       mtx <- mtx[keepers,]
-      printf("mtx subsetted on %d keepers, dim: %d, %d", length(keepers), nrow(mtx), ncol(mtx))
+      #printf("mtx subsetted on %d keepers, dim: %d, %d", length(keepers), nrow(mtx), ncol(mtx))
       } # some possibly valid samples provided
 
    if(!all(is.na(genes)))
       mtx <- mtx[, intersect(colnames(mtx), genes)]
    
-   printf("before prcomp, %d, %d", nrow(mtx), ncol(mtx))
+   #printf("before prcomp, %d, %d", nrow(mtx), ncol(mtx))
    
    PCs <- tryCatch(
       prcomp(mtx,center=T,scale=T),

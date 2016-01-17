@@ -113,7 +113,7 @@ function selectManifest(event)
       $("#datasetInstructions").css("display", "none");
       $("#datasetsManifestTable").css("display", "block");
       requestDatasetSummary(selectedDataset);
-    }
+      }
 
 } // selectManifest
 //----------------------------------------------------------------------------------------------------
@@ -154,8 +154,9 @@ function requestDatasetSummary(datasetName)
 {
    console.log("=== requestDatasetSummary");
 
+   payload = {dataset: datasetName}
    var msg = {cmd: "getDataManifest",  callback: "displayDataManifest", status: "request", 
-              payload: datasetName};
+              payload: payload};
    hub.logEventOnServer(thisModulesName, "datasets requestDataSummary", "request", datasetName);
 
    hub.send(JSON.stringify(msg));

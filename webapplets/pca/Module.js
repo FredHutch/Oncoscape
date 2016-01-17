@@ -121,35 +121,9 @@ function handlePatientClassification (msg)
 
 } // handlePatientClassification
 //------------------------------------------------------------------------------------------------------------------------
-function requestGeneSetNames()
-{
-   console.log("=== requestGeneSetNames");
-
-   callback = "pcaHandleGeneSetNames"
-
-   msg = {cmd:"getGeneSetNames",
-          callback: callback,
-          status:"request",
-          payload:""}
-
-   hub.send(JSON.stringify(msg));
-
-} // requestGeneSetNames
-//------------------------------------------------------------------------------------------------------------------------
-function handleGeneSetNames(msg)
-{
-   console.log("=== handleGeneSetNames");
-
-   newNames = msg.payload;
-   addGeneSetNamesToMenu(newNames);
-
-} // handleGeneSetNames
-//------------------------------------------------------------------------------------------------------------------------
 function addGeneSetNamesToMenu (geneSetNames)
 {
    console.log("Module.pca:addGetSetNamesToMenu");
-
-   geneSetMenu.empty();
 
    if(geneSetNames.length == 0) {
      postStatus("addGeneSetNamesToMenu: geneSetNames.length == 0");
@@ -171,8 +145,6 @@ function addGeneSetNamesToMenu (geneSetNames)
 //------------------------------------------------------------------------------------------------------------------------
 function addSampleGroupNamesToMenu(names)
 {
-   sampleGroupVizMenu.empty();
-
    if(typeof names == "string") 
       names = [names] 
       
@@ -181,10 +153,10 @@ function addSampleGroupNamesToMenu(names)
      sampleGroupVizMenu.append(optionMarkup);
      } // for i
 
-  postStatus("addGeneSetNamesToMenu: complete");
+  postStatus("addSampleGroupNamesToMenu: complete");
   hub.enableTab(thisModulesOutermostDiv)
 
-} // addGeneSetNamesToMenu
+} // addSampleGroupNamesToMenu
 //------------------------------------------------------------------------------------------------------------------------
 function useAllSamplesInCurrentDataset()
 {
@@ -718,7 +690,7 @@ function requestGeneSetNames()
    callback = "pcaHandleGeneSetNames";
 
    payload = {dataset: datasetName, items: "geneSets"};
-   msg = {cmd:"getDatasetItemByName", callback: callback, status: "request", payload: payload};
+   msg = {cmd:"getDatasetItemsByName", callback: callback, status: "request", payload: payload};
 
    hub.send(JSON.stringify(msg));
 
@@ -726,8 +698,13 @@ function requestGeneSetNames()
 //------------------------------------------------------------------------------------------------------------------------
 function handleGeneSetNames(msg)
 {
+   geneSetMenu.empty();
+
    newNames = msg.payload.geneSets
-   addGeneSetNamesToMenu(newNames);
+   if(newNames != null){
+      addGeneSetNamesToMenu(newNames);
+      }
+
    requestGroupVizGroupNames();
    
 } // handleGeneSetNames
@@ -740,7 +717,7 @@ function requestGroupVizGroupNames()
    callback = "pcaHandleGroupVizGroupNames";
                
    payload = {dataset: datasetName, items: "tbl.groupVizProps"};
-   msg = {cmd:"getDatasetItemByName", callback: callback, status: "request", payload: payload};
+   msg = {cmd:"getDatasetItemsByName", callback: callback, status: "request", payload: payload};
 
    hub.send(JSON.stringify(msg));
 
@@ -749,9 +726,15 @@ function requestGroupVizGroupNames()
 function handleGroupVizGroupNames(msg)
 {
    console.log("==== handleGroupVizGroupNames");
-   var mtx = msg.payload["tbl.groupVizProps"].mtx;
-   var groupNames = jQuery.unique(mtx.map(function(row){return row[0]}));
-   addSampleGroupNamesToMenu(groupNames);
+   sampleGroupVizMenu.empty();
+
+   var tbl = msg.payload["tbl.groupVizProps"];
+
+   if(tbl != null){
+     var mtx = msg.payload["tbl.groupVizProps"].mtx;
+     var groupNames = jQuery.unique(mtx.map(function(row){return row[0]}));
+     addSampleGroupNamesToMenu(groupNames);
+     }
    
 } // handleGroupVizGroupNames
 //------------------------------------------------------------------------------------------------------------------------
