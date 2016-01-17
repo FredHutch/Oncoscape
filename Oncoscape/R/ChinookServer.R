@@ -567,11 +567,11 @@ ChinookServer.getMessageNames <- function(channel, msg)
 
    payload <- ls(self@dispatchMap)
    response <- toJSON(list(cmd=msg$callback, status="success", callback="", payload=payload))
-   printf("--- response");
-   print(response)
-   printf("--- channel")
-   print(channel)
-   printf("channel type? %s", paste(is(channel), collapse=","))
+   #printf("--- response");
+   #print(response)
+   #printf("--- channel")
+   #print(channel)
+   #printf("channel type? %s", paste(is(channel), collapse=","))
    return(.send(channel, response))
 
 } # ChinookServer.getMessageNames
