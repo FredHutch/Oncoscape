@@ -1,5 +1,8 @@
 var datasetName = null;
+<<<<<<< HEAD
 var colorList;
+=======
+>>>>>>> 81395fd01ecbef350decba460ce0f8a9d9333261
 
 var PCAModule = (function () {
 
@@ -23,8 +26,16 @@ var PCAModule = (function () {
   var pcaTextDisplay, pcaScreeDiv, pcaScoresDiv;
 
   var testResultsOutputDiv;
+<<<<<<< HEAD
   var patientMenu;
 
+=======
+
+  var patientMenu;
+
+
+
+>>>>>>> 81395fd01ecbef350decba460ce0f8a9d9333261
   var pcaSendSelectionMenu;
 
   var thisModulesName = "PCA";
@@ -33,16 +44,24 @@ var PCAModule = (function () {
   var clearSelectionButton;
   var calculatePcaButton;
   var useAllSamplesInCurrentDatasetButton;
+<<<<<<< HEAD
   var expressionMatrixMenu;
   var geneSetMenu;
   var sampleGroupVizMenu;
+=======
+  var geneSetMenu;
+>>>>>>> 81395fd01ecbef350decba460ce0f8a9d9333261
   var currentIdentifiers = [];
   var infoMenu;
 
   var sendSelectionsMenuTitle = "Send selection...";
   var selectionDestinationsOfferedHere = ["PCA", "PCA (highlight)"];
 
+<<<<<<< HEAD
 //------------------------------------------------------------------------------------------------------------------------
+=======
+//----------------------------------------------------------------------------------------------------
+>>>>>>> 81395fd01ecbef350decba460ce0f8a9d9333261
 function initializeUI ()
 {
   pcaDisplay = $("#pcaDisplay");
@@ -65,8 +84,11 @@ function initializeUI ()
   useAllSamplesInCurrentDatasetButton.click(useAllSamplesInCurrentDataset);
   hub.disableButton(useAllSamplesInCurrentDatasetButton);
 
+<<<<<<< HEAD
   expressionMatrixMenu = $("#pcaExpressionMatrixSelector")
 
+=======
+>>>>>>> 81395fd01ecbef350decba460ce0f8a9d9333261
   geneSetMenu = $("#pcaGeneSetSelector");
   geneSetMenu.change(function(){
      console.log("gene set is now " + geneSetMenu.val());
@@ -74,10 +96,13 @@ function initializeUI ()
      //handlePatientIDs(msg)
      });  // ASSUMES success and requires use of GLOBAL variable storing identifiers WITHOUT passing through WS
 
+<<<<<<< HEAD
 
   sampleGroupVizMenu = $("#pcaVizGroupSelector");
   sampleGroupVizMenu.change(updateSampleViz);
 
+=======
+>>>>>>> 81395fd01ecbef350decba460ce0f8a9d9333261
   pcaTextDisplay = $("#pcaTextDisplayDiv");
 
   pcaSendSelectionMenu = hub.configureSendSelectionMenu("#pcaSendSelectionsMenu", 
@@ -89,7 +114,11 @@ function initializeUI ()
   hub.disableTab(thisModulesOutermostDiv)
  
 }; // initializeUI
+<<<<<<< HEAD
 //------------------------------------------------------------------------------------------------------------------------
+=======
+//----------------------------------------------------------------------------------------------------
+>>>>>>> 81395fd01ecbef350decba460ce0f8a9d9333261
 function showLegend(){
 
   var text = $("#PCALegend").html()
@@ -97,7 +126,11 @@ function showLegend(){
   $("<div>").html(text).dialog({title: title, width:600, height:600});
 
 } // showHelp
+<<<<<<< HEAD
 //------------------------------------------------------------------------------------------------------------------------
+=======
+//----------------------------------------------------------------------------------------------------
+>>>>>>> 81395fd01ecbef350decba460ce0f8a9d9333261
 function getPatientClassification ()
 {
    payload = "";
@@ -106,7 +139,11 @@ function getPatientClassification ()
    hub.send(JSON.stringify(msg));
 
 } // getPatientClassification
+<<<<<<< HEAD
 //------------------------------------------------------------------------------------------------------------------------
+=======
+//----------------------------------------------------------------------------------------------------
+>>>>>>> 81395fd01ecbef350decba460ce0f8a9d9333261
 function handlePatientClassification (msg)
 {
    if(msg.status == "success"){
@@ -120,7 +157,11 @@ function handlePatientClassification (msg)
    //drawLegend()
 
 } // handlePatientClassification
+<<<<<<< HEAD
 //------------------------------------------------------------------------------------------------------------------------
+=======
+//----------------------------------------------------------------------------------------------------
+>>>>>>> 81395fd01ecbef350decba460ce0f8a9d9333261
 function requestGeneSetNames()
 {
    console.log("=== requestGeneSetNames");
@@ -135,7 +176,11 @@ function requestGeneSetNames()
    hub.send(JSON.stringify(msg));
 
 } // requestGeneSetNames
+<<<<<<< HEAD
 //------------------------------------------------------------------------------------------------------------------------
+=======
+//----------------------------------------------------------------------------------------------------
+>>>>>>> 81395fd01ecbef350decba460ce0f8a9d9333261
 function handleGeneSetNames(msg)
 {
    console.log("=== handleGeneSetNames");
@@ -144,7 +189,11 @@ function handleGeneSetNames(msg)
    addGeneSetNamesToMenu(newNames);
 
 } // handleGeneSetNames
+<<<<<<< HEAD
 //------------------------------------------------------------------------------------------------------------------------
+=======
+//----------------------------------------------------------------------------------------------------
+>>>>>>> 81395fd01ecbef350decba460ce0f8a9d9333261
 function addGeneSetNamesToMenu (geneSetNames)
 {
    console.log("Module.pca:addGetSetNamesToMenu");
@@ -157,7 +206,12 @@ function addGeneSetNamesToMenu (geneSetNames)
      }
     
    if(typeof geneSetNames == "string") 
+<<<<<<< HEAD
       geneSetNames = [geneSetNames] 
+=======
+   	 geneSetNames = [geneSetNames] 
+ 
+>>>>>>> 81395fd01ecbef350decba460ce0f8a9d9333261
       
    for(var i=0; i < geneSetNames.length; i++){
      optionMarkup = "<option>" + geneSetNames[i] + "</option>";
@@ -167,6 +221,7 @@ function addGeneSetNamesToMenu (geneSetNames)
   postStatus("addGeneSetNamesToMenu: complete");
   hub.enableTab(thisModulesOutermostDiv)
 
+<<<<<<< HEAD
 } // addGeneSetNamesToMenu
 //------------------------------------------------------------------------------------------------------------------------
 function addSampleGroupNamesToMenu(names)
@@ -186,13 +241,23 @@ function addSampleGroupNamesToMenu(names)
 
 } // addGeneSetNamesToMenu
 //------------------------------------------------------------------------------------------------------------------------
+=======
+
+
+} // addGeneSetNamesToMenu
+//----------------------------------------------------------------------------------------------------
+>>>>>>> 81395fd01ecbef350decba460ce0f8a9d9333261
 function useAllSamplesInCurrentDataset()
 {
   currentPatientIDs = null;
   hub.disableButton(useAllSamplesInCurrentDatasetButton);
 
 }  // useAllSamplesInCurrentDataset
+<<<<<<< HEAD
 //------------------------------------------------------------------------------------------------------------------------
+=======
+//----------------------------------------------------------------------------------------------------
+>>>>>>> 81395fd01ecbef350decba460ce0f8a9d9333261
 function changePCAids(msg)
 {
    patientIDs = []
@@ -201,7 +266,11 @@ function changePCAids(msg)
    sendSelectionToModule("PCA", patientIDs)
 
 } // changePCAids
+<<<<<<< HEAD
 //------------------------------------------------------------------------------------------------------------------------
+=======
+//----------------------------------------------------------------------------------------------------
+>>>>>>> 81395fd01ecbef350decba460ce0f8a9d9333261
 function drawLegend ()
 {
   if(typeof(patientClassification) == "undefined")
@@ -256,7 +325,11 @@ function drawLegend ()
           .style("stroke", function(d) { if(d=="undefined") return "black"; return classifications.get(d)[0].color[0]})
  
 } // drawLegend
+<<<<<<< HEAD
 //------------------------------------------------------------------------------------------------------------------------
+=======
+//----------------------------------------------------------------------------------------------------
+>>>>>>> 81395fd01ecbef350decba460ce0f8a9d9333261
 function pcaHandleWindowResize () 
 {
   pcaDisplay.width($(window).width() * 0.95);
@@ -267,7 +340,11 @@ function pcaHandleWindowResize ()
     }
 
 } // handleWindowResize
+<<<<<<< HEAD
 //------------------------------------------------------------------------------------------------------------------------
+=======
+//----------------------------------------------------------------------------------------------------
+>>>>>>> 81395fd01ecbef350decba460ce0f8a9d9333261
 function pointsInBrushedRegion()
 {
   x1=pcaSelectedRegion[0][0];
@@ -289,7 +366,11 @@ function pointsInBrushedRegion()
   return(selectedIDs);
 
 } // pointsInBrushedRegion
+<<<<<<< HEAD
 //------------------------------------------------------------------------------------------------------------------------
+=======
+//----------------------------------------------------------------------------------------------------
+>>>>>>> 81395fd01ecbef350decba460ce0f8a9d9333261
 function sendSelections(event)
 {
   var destination = pcaSendSelectionMenu.val();
@@ -308,7 +389,11 @@ function sendSelections(event)
      }
 
 } // sendSelections
+<<<<<<< HEAD
 //------------------------------------------------------------------------------------------------------------------------
+=======
+//----------------------------------------------------------------------------------------------------
+>>>>>>> 81395fd01ecbef350decba460ce0f8a9d9333261
 function pcaPlot (msg)
 {
    if(msg.status == "success"){
@@ -338,13 +423,21 @@ function pcaPlot (msg)
      firstTime = false;
      };
 
+<<<<<<< HEAD
 //------------------------------------------------------------------------------------------------------------------------
+=======
+//----------------------------------------------------------------------------------------------------
+>>>>>>> 81395fd01ecbef350decba460ce0f8a9d9333261
 function postStatus(msg)
 {
   $("#pcaStatusDiv").text(msg);
 
 } // postStatus
+<<<<<<< HEAD
 //------------------------------------------------------------------------------------------------------------------------
+=======
+//----------------------------------------------------------------------------------------------------
+>>>>>>> 81395fd01ecbef350decba460ce0f8a9d9333261
 function highlightPatientIDs(msg)
 {
    hub.raiseTab(thisModulesOutermostDiv);
@@ -381,7 +474,11 @@ function highlightPatientIDs(msg)
      selectPoints(intersection, true);
 
 } // highlightPatientIDs
+<<<<<<< HEAD
 //------------------------------------------------------------------------------------------------------------------------
+=======
+//----------------------------------------------------------------------------------------------------
+>>>>>>> 81395fd01ecbef350decba460ce0f8a9d9333261
 function selectPoints(ids, clearIDs)
 {
    console.log("=== module.pca: selectPoints");
@@ -403,7 +500,11 @@ function selectPoints(ids, clearIDs)
      .duration(500);
 
 } // selectPoints
+<<<<<<< HEAD
 //------------------------------------------------------------------------------------------------------------------------
+=======
+//----------------------------------------------------------------------------------------------------
+>>>>>>> 81395fd01ecbef350decba460ce0f8a9d9333261
 function clearSelection()
 {
    d3.selectAll("circle")
@@ -415,23 +516,39 @@ function clearSelection()
   pcaHandleWindowResize();
 
 } // clearSelection
+<<<<<<< HEAD
 //------------------------------------------------------------------------------------------------------------------------
 function calculate()
 {
    var geneSet = geneSetMenu.val();
    var expressionMatrix = expressionMatrixMenu.val()
    var payload = {datasetName: datasetName, geneset: geneSet, matrixName: expressionMatrix};
+=======
+//----------------------------------------------------------------------------------------------------
+function calculate()
+{
+   //var currentGeneSet = geneSetMenu.val();
+   //var payload = {genes: currentGeneSet};
+>>>>>>> 81395fd01ecbef350decba460ce0f8a9d9333261
 
    //if(currentPatientIDs !== null)
    //    payload["samples"] = currentPatientIDs;
 
+<<<<<<< HEAD
+=======
+   var payload = {};
+>>>>>>> 81395fd01ecbef350decba460ce0f8a9d9333261
    msg = {cmd: "calculatePCA", callback: "pcaPlot", status: "request", payload: payload};
    hub.send(JSON.stringify(msg));
    $("#pcaInstructions").css("display", "none");
    $("#pcaDisplay").css("display", "block");
 
 } // calculate
+<<<<<<< HEAD
 //------------------------------------------------------------------------------------------------------------------------
+=======
+//----------------------------------------------------------------------------------------------------
+>>>>>>> 81395fd01ecbef350decba460ce0f8a9d9333261
 function handlePatientIDs(msg)
 {
    console.log("Module.pca: handlePatientIDs");
@@ -450,7 +567,11 @@ function handlePatientIDs(msg)
      }
 
 } // handlePatientIDs
+<<<<<<< HEAD
 //------------------------------------------------------------------------------------------------------------------------
+=======
+//----------------------------------------------------------------------------------------------------
+>>>>>>> 81395fd01ecbef350decba460ce0f8a9d9333261
 function d3PlotBrushReader ()
 {
      //console.log("plotBrushReader 1037a 22jul2014");
@@ -473,7 +594,11 @@ function d3PlotBrushReader ()
     }
 
 } // d3PlotBrushReader
+<<<<<<< HEAD
 //------------------------------------------------------------------------------------------------------------------------
+=======
+//----------------------------------------------------------------------------------------------------
+>>>>>>> 81395fd01ecbef350decba460ce0f8a9d9333261
 function chooseColor(d)
 {
   /********
@@ -493,7 +618,11 @@ function chooseColor(d)
    return("black");
 
 } // chooseColor
+<<<<<<< HEAD
 //------------------------------------------------------------------------------------------------------------------------
+=======
+//----------------------------------------------------------------------------------------------------
+>>>>>>> 81395fd01ecbef350decba460ce0f8a9d9333261
 function d3PcaScatterPlot(dataset, pc1variance, pc2variance)
 {
    //pcaSendSelectionMenu.prop("disabled",true);
@@ -602,7 +731,11 @@ function d3PcaScatterPlot(dataset, pc1variance, pc2variance)
       
  
 } // d3PcaScatterPlot
+<<<<<<< HEAD
 //------------------------------------------------------------------------------------------------------------------------
+=======
+//----------------------------------------------------------------------------------------------------
+>>>>>>> 81395fd01ecbef350decba460ce0f8a9d9333261
 function datasetSpecified(msg)
 {
    console.log("=== datasetSpecified");
@@ -612,8 +745,12 @@ function datasetSpecified(msg)
 
       // for now, and very temporarily, use the first match (if any are found)
 
+<<<<<<< HEAD
    //var matrixName = "mtx.mrna.ueArray";
    var matrixName = "mtx.mrna.bc";
+=======
+   var matrixName = "mtx.mrna.ueArray";
+>>>>>>> 81395fd01ecbef350decba460ce0f8a9d9333261
 
    /***********
    var dataElementNames = msg.payload.rownames;
@@ -638,12 +775,18 @@ function datasetSpecified(msg)
     ************/
 
    console.log("== calling createPcaObjectOnServer");
+<<<<<<< HEAD
    getExpressionMatrixNames();
    //createPcaObjectOnServer(datasetName, matrixName);
+=======
+ 
+  createPcaObjectOnServer(datasetName, matrixName);
+>>>>>>> 81395fd01ecbef350decba460ce0f8a9d9333261
 
    d3pcaDisplay.select("#pcaSVG").remove();  // so that old layouts aren't mistaken for new dataset
 
 } // datasetSpecified
+<<<<<<< HEAD
 //------------------------------------------------------------------------------------------------------------------------
 function getExpressionMatrixNames()
 {
@@ -684,6 +827,9 @@ function handleExpressionMatrixNames(msg)
 
 } // handleExpressionMatrixNames
 //------------------------------------------------------------------------------------------------------------------------
+=======
+//--------------------------------------------------------------------------------------------
+>>>>>>> 81395fd01ecbef350decba460ce0f8a9d9333261
 function createPcaObjectOnServer(datasetName, matrixName)
 {
   console.log("create PCA on server " + datasetName + ": " + matrixName);
@@ -696,7 +842,11 @@ function createPcaObjectOnServer(datasetName, matrixName)
   hub.send(msg.json);
 
 } // createPcaObjectOnServer
+<<<<<<< HEAD
 //------------------------------------------------------------------------------------------------------------------------
+=======
+//--------------------------------------------------------------------------------------------
+>>>>>>> 81395fd01ecbef350decba460ce0f8a9d9333261
 function pcaObjectCreated(msg)
 {
    console.log("=== pcaObjectCreated");
@@ -711,6 +861,7 @@ function pcaObjectCreated(msg)
    //   alert("PCA module failed to create PCA object on server");
 
 } // pcaObjectCreated
+<<<<<<< HEAD
 //------------------------------------------------------------------------------------------------------------------------
 function requestGeneSetNames()
 {
@@ -775,11 +926,178 @@ handleSampleColors = function(msg)
 
 } // handelSampleColors
 //------------------------------------------------------------------------------------------------------------------------
+=======
+//--------------------------------------------------------------------------------------------
+//function requestGeneSetNames()
+//{
+//   callback = "pcaHandleGeneSetNames";
+//
+//   msg = {cmd:"getGeneSetNames",
+//          callback: callback,
+//          status:"request",
+//          payload:""};
+//
+//   hub.send(JSON.stringify(msg));
+//
+//} // requestGeneSetNames
+////--------------------------------------------------------------------------------------------
+//function handleGeneSetNames(msg)
+//{
+//   newNames = msg.payload;
+//   addGeneSetNamesToMenu(newNames);
+//
+//} // handleGeneSetNames
+//--------------------------------------------------------------------------------------------
+function demoPcaCalculateAndDraw(msg)
+{
+  if(msg.status != "success"){
+     alert("demoPCA failed: " + msg.payload);
+     return;
+     }
+
+  var currentGeneSet = geneSetMenu.val();
+  if(currentGeneSet == null)
+      currentGeneSet = "tcga.GBM.classifiers";
+
+  console.log("demoPCA, currentGeneSet: " + currentGeneSet);
+  payload = {ids: "", geneSet: currentGeneSet};
+  msg = {cmd: "calculate_mRNA_PCA", callback: "pcaPlot", status: "request", payload: payload};
+  hub.send(JSON.stringify(msg));
+
+} // demoPcaCalculateAndDraw
+//----------------------------------------------------------------------------------------------------
+function runTests()
+{
+  // the test does not currently depend upon any other tabs, but we want to add some
+  // real world complexity to the situation, so we use tabs, including cpa (of course)
+  // and the usual introcutory "Datasets" tab.  make sure it is there.
+  // tests depend upon the presence of 2 tabs in addition to the present one.
+
+  var datasetsTabPresent = $("#datasetsDiv").length > 0;
+
+  if(!datasetsTabPresent){
+     alert("Datasets tab needed for QUnit testing");
+     return;
+     } // check for other needed tabs
+
+   testResultsOutputDiv.css({display: "block"});
+   testLoadDataset();
+
+} // runTests
+//--------------------------------------------------------------------------------------------
+function testLoadDataset()
+{
+   QUnit.test('choose DEMOdz dataset', function(assert) {
+      hub.raiseTab("datasetsDiv");
+      var desiredDataset = "DEMOdz";
+      var dzNames = $("#datasetMenu option").map(function(opt){return this.value;});
+
+      if($.inArray(desiredDataset, dzNames) < 0){
+         alert("cannot run tests:  " + desiredDataset + " dataset not loaded");
+         return;
+         }
+
+      $("#datasetMenu").val(desiredDataset);
+      $("#datasetMenu").trigger("change");
+
+      var done1 = assert.async();
+      var done2 = assert.async();
+      var done3 = assert.async();
+      assert.expect(3);
+
+      setTimeout(function(){
+         assert.equal($("#datasetMenu").val(), desiredDataset);  done1();
+         assert.ok($("#datasetsManifestTable tr").length >= 10); done2();
+         assert.equal($("#datasetsManifestTable tbody tr").eq(0).find("td").eq(0).text(), 
+                      "mRNA expression"); done3();
+         $("#selectDatasetButton").click();
+         hub.raiseTab(thisModulesOutermostDiv);
+         testCalculate();
+         }, 5000);
+      });
+
+} // testLoadDataset
+//----------------------------------------------------------------------------------------------------
+function testCalculate()
+{
+   hub.raiseTab(thisModulesOutermostDiv);
+   console.log("starting testCalculate");
+
+     // enable the calculate button, change its color, then click
+   QUnit.test('testPcaCalculate', function(assert) {
+      $("#pcaCalculateButton").prop("disabled", false);
+      $("#pcaCalculateButton").css({"background-color": "red", "color": "green"});
+      $("#pcaGeneSetSelector").val("random.24")
+      assert.expect(1);   // tests (assertions) in next function, testContentsOfPcaPlot
+      setTimeout(function(){
+         $("#pcaCalculateButton").click();
+         testContentsOfPcaPlot();
+         }, 6000);
+      });
+
+} // testCalculate
+//----------------------------------------------------------------------------------------------------
+function testContentsOfPcaPlot()
+{
+   console.log("--- testContentsOfPcaPlot");
+
+      // wait 5 seconds
+      // make sure there are the right number of circles
+      // check the coordinates of two, selected arbitrarily
+   QUnit.test('testPcaContents', function(assert) {
+      assert.expect(5);
+      var done1 = assert.async();
+      var done2 = assert.async();
+      var done3 = assert.async();
+      var done4 = assert.async();
+      var done5 = assert.async();
+      setTimeout(function(){
+         assert.ok($("circle").length > 120); done1();
+         var c0 = $("circle")[0];
+         var xPos = Number(c0.getAttribute("cx"));
+         var yPos =  Number(c0.getAttribute("cy"));
+         var radius = Number(c0.getAttribute("r"));
+         console.log(xPos + "  " + yPos + "  " + radius);
+         assert.ok(xPos > 0); done3();
+         assert.ok(yPos > 0); done4();
+         assert.equal(radius, 3); done5();
+         }, 5000);
+      });
+
+
+} // testContentsOfPcaPlot
+//----------------------------------------------------------------------------------------------------
+// query the oncoscape server for user id.  the callback then makes a local (that is,
+// Module-specific) decision to run this module's automated tests based upon that id
+//
+function runAutomatedTestsIfAppropriate()
+{
+   var msg = {cmd: "getUserId",  callback: "pcaAssessUserIdForTesting",
+              status: "request", payload: ""};
+
+   hub.send(JSON.stringify(msg));
+
+} // runAutomatedTestsIfAppropriate
+//----------------------------------------------------------------------------------------------------
+function assessUserIdForTesting(msg)
+{
+   var userID = msg.payload;
+
+   if(userID.indexOf("autoTest") === 0){
+      console.log("plsr/Module.js running tests for user " + userID);
+      for(var i=0; i < 3; i++)
+          runTests();
+      } // if autoTest
+
+} // assessUserIdForTesting
+//----------------------------------------------------------------------------------------------------
+>>>>>>> 81395fd01ecbef350decba460ce0f8a9d9333261
 function initializeModule()
 {
    hub.addOnDocumentReadyFunction(initializeUI);
    hub.registerSelectionDestination(selectionDestinationsOfferedHere, thisModulesOutermostDiv);
    hub.addMessageHandler("datasetSpecified", datasetSpecified);
+<<<<<<< HEAD
    hub.addMessageHandler("pcaHandleExpressionMatrixNames", handleExpressionMatrixNames)
    hub.addMessageHandler("sendSelectionTo_PCA", handlePatientIDs);
    hub.addMessageHandler("sendSelectionTo_PCA (highlight)", highlightPatientIDs)
@@ -789,19 +1107,36 @@ function initializeModule()
    hub.addMessageHandler("pcaPlot", pcaPlot);
    //hub.addMessageHandler("demoPcaCalculateAndDraw", demoPcaCalculateAndDraw);
    //hub.addMessageHandler("pcaAssessUserIdForTesting", assessUserIdForTesting);
+=======
+   hub.addMessageHandler("sendSelectionTo_PCA", handlePatientIDs);
+   hub.addMessageHandler("sendSelectionTo_PCA (highlight)", highlightPatientIDs)
+   hub.addMessageHandler("pcaObjectCreated", pcaObjectCreated);
+   hub.addMessageHandler("pcaHandleGeneSetNames", handleGeneSetNames);
+   hub.addMessageHandler("pcaPlot", pcaPlot);
+   hub.addMessageHandler("demoPcaCalculateAndDraw", demoPcaCalculateAndDraw);
+   hub.addMessageHandler("pcaAssessUserIdForTesting", assessUserIdForTesting);
+>>>>>>> 81395fd01ecbef350decba460ce0f8a9d9333261
    //hub.addSocketConnectedFunction(runAutomatedTestsIfAppropriate);
 
    //hub.addMessageHandler("handlePatientClassification", handlePatientClassification)
    // hub.addSocketConnectedFunction(getPatientClassification);
 
 } // initializeModule
+<<<<<<< HEAD
 //------------------------------------------------------------------------------------------------------------------------
+=======
+//----------------------------------------------------------------------------------------------------
+>>>>>>> 81395fd01ecbef350decba460ce0f8a9d9333261
 return{
   init: initializeModule,
   };
     
 }); // PCAModule
+<<<<<<< HEAD
 //------------------------------------------------------------------------------------------------------------------------
+=======
+//----------------------------------------------------------------------------------------------------
+>>>>>>> 81395fd01ecbef350decba460ce0f8a9d9333261
 pca = PCAModule();
 pca.init();
 

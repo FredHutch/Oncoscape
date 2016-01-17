@@ -1,8 +1,13 @@
 Package: ChinookDataset
 Type: Package
 Title: ChinookDataset: a general purpose wrapper Chinook/Oncoscape/STTR data packages
+<<<<<<< HEAD
 Version: 1.0.4
 Date: 2016-01-14
+=======
+Version: 1.0.3
+Date: 2016-01-12
+>>>>>>> 81395fd01ecbef350decba460ce0f8a9d9333261
 Author: Paul Shannon
 Maintainer: Paul Shannon <pshannon@fredhutch.org>
 Depends: R (>= 3.2.2)

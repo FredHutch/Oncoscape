@@ -46,7 +46,11 @@ testManifestAndDataConsistency <- function(quiet=TRUE)
    
    checkTrue(all(expected.rownames %in% rownames(tbl)))
 
+<<<<<<< HEAD
    expected.classes <- c("data.frame", "matrix", "character", "json", "list")   # new ones may be added
+=======
+   expected.classes <- c("data.frame", "matrix", "character", "json")   # new ones may be added
+>>>>>>> 81395fd01ecbef350decba460ce0f8a9d9333261
    checkTrue(all(tbl$class %in% expected.classes))
 
    expected.categories <- unique(c("copy number", "subjectHistory","mRNA expression", "methylation",
@@ -174,7 +178,11 @@ testDataFrames <- function(quiet=TRUE)
 
    for(name in dataframe.names){
       tbl <- getItem(dz, name)
+<<<<<<< HEAD
       checkTrue("data.frame" %in% is(tbl))
+=======
+      checkTrue("data.frame" %in% is(mtx))
+>>>>>>> 81395fd01ecbef350decba460ce0f8a9d9333261
       checkTrue(nrow(tbl) > 0)
       checkTrue(ncol(tbl) > 0)
       }

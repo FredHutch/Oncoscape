@@ -150,13 +150,22 @@ function handleDatasetNames(msg)
 
 } // handleDatasetNames
 //----------------------------------------------------------------------------------------------------
+<<<<<<< HEAD
 function requestDatasetSummary(datasetName)
+=======
+function requestDatasetSummary(dataSetName)
+>>>>>>> 81395fd01ecbef350decba460ce0f8a9d9333261
 {
    console.log("=== requestDatasetSummary");
 
    var msg = {cmd: "getDataManifest",  callback: "displayDataManifest", status: "request", 
+<<<<<<< HEAD
               payload: datasetName};
    hub.logEventOnServer(thisModulesName, "datasets requestDataSummary", "request", datasetName);
+=======
+              payload: dataSetName};
+   hub.logEventOnServer(thisModulesName, "datasets requestDataSummary", "request", dataSetName);
+>>>>>>> 81395fd01ecbef350decba460ce0f8a9d9333261
 
    hub.send(JSON.stringify(msg));
 

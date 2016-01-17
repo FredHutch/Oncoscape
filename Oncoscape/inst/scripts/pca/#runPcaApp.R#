@@ -1,8 +1,4 @@
-<<<<<<< HEAD
 library(OncoDev14)
-=======
-library(Chinook)
->>>>>>> 81395fd01ecbef350decba460ce0f8a9d9333261
 scriptDir <- "pca"
 userID <- "autoTest@nowhere.org"
 #current.datasets <- "DEMOdz;TCGAgbm"

@@ -13,6 +13,7 @@
          )
 
 #------------------------------------------------------------------------------------------------------------------------
+<<<<<<< HEAD
 setGeneric("run",                     signature="self", function(self) standardGeneric("run"))
 setGeneric("port",                    signature="self", function(self) standardGeneric("port"))
 setGeneric("getAnalysisPackageNames", signature="self", function(self) standardGeneric("getAnalysisPackageNames"))
@@ -24,11 +25,28 @@ setGeneric('close',                   signature="self", function(self) standardG
 setGeneric("serverVersion",           signature="self", function(self) standardGeneric("serverVersion"))
 setGeneric("addMessageHandler",       signature="self", function(self, messageName, functionToCall) standardGeneric("addMessageHandler"))
 setGeneric("getMessageNames",         signature="self", function(self) standardGeneric("getMessageNames"))
+=======
+setGeneric("run",                  signature="self", function(self) standardGeneric("run"))
+setGeneric("port",                 signature="self", function(self) standardGeneric("port"))
+setGeneric("getAnalysisPackageNames",  signature="self", function(self) standardGeneric("getAnalysisPackageNames"))
+setGeneric("getDatasetNames",          signature="self", function(self) standardGeneric("getDatasetNames"))
+setGeneric("getDatasetByName",     signature="self", function(self, datasetName) standardGeneric("getDatasetByName"))
+setGeneric("setActiveDataset",     signature="self", function(self, dataSetName) standardGeneric("setActiveDataset"))
+setGeneric("getActiveDataset",     signature="self", function(self) standardGeneric("getActiveDataset"))
+setGeneric('close',                signature="self", function(self) standardGeneric("close"))
+setGeneric("serverVersion",        signature="self", function(self) standardGeneric("serverVersion"))
+setGeneric("addMessageHandler",    signature="self", function(self, messageName, functionToCall) standardGeneric("addMessageHandler"))
+setGeneric("getMessageNames",      signature="self", function(self) standardGeneric("getMessageNames"))
+>>>>>>> 81395fd01ecbef350decba460ce0f8a9d9333261
 setGeneric('registerMessageHandlers', signature='obj', function (obj) standardGeneric ('registerMessageHandlers'))
 #------------------------------------------------------------------------------------------------------------------------
 printf <- function(...) print(noquote(sprintf(...)))
 #------------------------------------------------------------------------------------------------------------------------
+<<<<<<< HEAD
 # web socket protocols require that simple functions be used for configuation, but some object
+=======
+# web socket protocols seem to require that simple functions be used for configuation, but some object
+>>>>>>> 81395fd01ecbef350decba460ce0f8a9d9333261
 # state can be needed.  this unexported file-local variable works around that.
 local.state <- new.env(parent=emptyenv())
 #------------------------------------------------------------------------------------------------------------------------
@@ -339,6 +357,7 @@ setMethod("getDatasetByName", "ChinookServer",
 # some refactoring needed here.  this method on the class is not available (yet?) to
 # wsDatasets.R, since the ChinookServer object is not visible here.  so this method is not
 # called, not used.   see instead wsDatasets.specifyCurrentDataset
+<<<<<<< HEAD
 #setMethod("setActiveDataset",  "ChinookServer",
 #
 #   function(self, dataSetName){
@@ -364,6 +383,33 @@ setMethod("getDatasetByName", "ChinookServer",
 #      self@state[["currentDatasetName"]]
 #      })
 #
+=======
+setMethod("setActiveDataset",  "ChinookServer",
+
+   function(self, dataSetName){
+      if(!dataSetName %in% getDatasetNames(self)){
+          msg <- sprintf("Dataset name '%s' not recognized. Choose from: %s", dataSetName,
+                         paste(getDatasetNames(self), collapse=";"))
+          warning(msg)
+          return();
+          }
+     self@state[["currentDatasetName"]] <- dataSetName
+     constructionNeeded <- !dataSetName %in% ls(self@state)
+     printf("%s construction needed? %s", dataSetName, constructionNeeded);
+     if(constructionNeeded){
+         printf("ChinookServer.setActiveDataset creating and storing a new %s object", dataSetName);
+         eval(parse(text=sprintf("ds <- %s()", dataSetName)))
+         } # creating and store new instance
+      })
+
+#------------------------------------------------------------------------------------------------------------------------
+setMethod("getActiveDataset",  "ChinookServer",
+
+   function(self){
+      self@state[["currentDatasetName"]]
+      })
+
+>>>>>>> 81395fd01ecbef350decba460ce0f8a9d9333261
 #------------------------------------------------------------------------------------------------------------------------
 setMethod("port", "ChinookServer",
 
@@ -568,7 +614,11 @@ ChinookServer.specifyCurrentDataset <- function(channel, msg)
    self <- local.state[["server"]]
    newDatasetName <- msg$payload
    stopifnot(newDatasetName %in% getDatasetNames(self))
+<<<<<<< HEAD
    # setActiveDataset(self, newDatasetName);
+=======
+   setActiveDataset(self, newDatasetName);
+>>>>>>> 81395fd01ecbef350decba460ce0f8a9d9333261
    response <- toJSON(list(cmd=msg$callback, status="success", callback="", payload=newDatasetName))
 
    if("WebSocket" %in% is(channel))

@@ -25,10 +25,15 @@ ChinookPCA <- function(server)
 setMethod("registerMessageHandlers", "ChinookPCA",
 
   function (obj) {
+<<<<<<< HEAD
+=======
+     addMessageHandler(getServer(obj), "createPCA",    "PCA.create")
+>>>>>>> 81395fd01ecbef350decba460ce0f8a9d9333261
      addMessageHandler(getServer(obj), "calculatePCA", "PCA.calculate")
      })
 
 #----------------------------------------------------------------------------------------------------
+<<<<<<< HEAD
 PCA.calculate <- function(channel, msg)
 {
    printf("---- entering PCA.calculate")
@@ -40,6 +45,17 @@ PCA.calculate <- function(channel, msg)
    printf("datasetName: %s", datasetName)
    printf(" matrixName: %s", matrixName)
    printf("    geneset: %s", genesetName)
+=======
+PCA.create <- function(channel, msg)
+{
+   printf("--- entering PCA.create");
+   print(msg)
+   datasetName <- msg$payload$datasetName
+   matrixName  <- msg$payload$matrixName
+
+   printf("datasetName: %s", datasetName)
+   printf(" matrixName: %s", matrixName)
+>>>>>>> 81395fd01ecbef350decba460ce0f8a9d9333261
 
       # need to instantiate dataset
       # might want to store (cache) the instantiation on the Chinook server
@@ -53,12 +69,40 @@ PCA.calculate <- function(channel, msg)
    printf("%s loaded in server? ", datasetName %in% getDatasetNames(server))
           
    dataset <- getDatasetByName(server, datasetName)
+<<<<<<< HEAD
    pca <- PCA(dataset, matrixName)
    groupManager <- Groups()
    stopifnot(genesetName %in% getGroupNames(groupManager))
    genes <- getGroup(groupManager, genesetName)
    
    x <- calculate(pca, genes, samples)
+=======
+   cmd <- sprintf("mypca <- PCA(dataset, '%s')",  matrixName);
+   printf("   PCA.create cmd: |%s|", cmd)
+   eval(parse(text=cmd))
+   local.state[["pca"]] <- mypca
+   
+   payload <- sprintf("PCA(%s(), '%s') version %s created", datasetName, matrixName,
+                      sessionInfo()$otherPkgs$PCA$Version)
+   response <- jsonlite::toJSON(list(cmd=msg$callback, callback="", status="success", payload=payload),
+                                auto_unbox=TRUE)
+
+   if("WebSocket" %in% is(channel))
+      channel$send(response)
+   else
+      return(response)
+
+} # PCA.create
+#----------------------------------------------------------------------------------------------------
+PCA.calculate <- function(channel, msg)
+{
+   mypca <- local.state[["pca"]]
+
+   genes <- NA
+   samples <- NA
+   
+   x <- calculate(mypca, genes, samples)
+>>>>>>> 81395fd01ecbef350decba460ce0f8a9d9333261
      # fashion a 3-column data.frame nicely suited to use with d3: gene, PC1, PC2
      # add two more scalar field: pc1.varianceAccountedFor, pc2.varianceAccounted for
    

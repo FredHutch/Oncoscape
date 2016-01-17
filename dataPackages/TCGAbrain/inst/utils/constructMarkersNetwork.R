@@ -36,7 +36,11 @@ create.and.display <- function()
    
      # track down a bug in the build of TCGAbrain
      # expect a cnGain.2 edge between "TCGA.E1.5318" and PIK3R2
+<<<<<<< HEAD
    mtx.cn <- getItem(dz, "mtx.cn")
+=======
+   mtx.cn <- matrices(dz)$mtx.cn
+>>>>>>> 81395fd01ecbef350decba460ce0f8a9d9333261
    gene <- "PIK3R2"
    sample <- "TCGA.E1.5318.01"
    mtx.cn[sample, gene]  # [1] -1, should be +2
@@ -60,6 +64,7 @@ create.and.display <- function()
 #------------------------------------------------------------------------------------------------------------------------
 saveGraph <- function(rcy)
 {
+<<<<<<< HEAD
    g.markers.char <- getJSON(rcy)
 
      # a convoluted way to get an actual json object to save via serialization
@@ -67,22 +72,31 @@ saveGraph <- function(rcy)
      # todo:  time (pshannon, 12 jan 2016)
 
    g.markers.json <- toJSON(fromJSON(g.markers.char))
+=======
+   g.markers.json <- getJSON(rcy)
+>>>>>>> 81395fd01ecbef350decba460ce0f8a9d9333261
    filename <- "../extdata/markers.json.RData"
    printf("saving as %s, %d nodes, %d edges", filename, getNodeCount(rcy), getEdgeCount(rcy))
    save(g.markers.json, file=filename)
 
+<<<<<<< HEAD
 
 
+=======
+>>>>>>> 81395fd01ecbef350decba460ce0f8a9d9333261
 } # saveGraph
 #------------------------------------------------------------------------------------------------------------------------
 x <- create.and.display()
 rcy <- x$rcy
+<<<<<<< HEAD
 hideAllEdges(rcy)
 showEdges(rcy, "chromosome")
 clearSelection(rcy)
 selectNodes(rcy, c("C2ORF44", "DAXX", "DUX4", "FRG1B", "STL"))
 layoutSelectionInGrid(rcy, x=7700, y=2000, w=800, h=400)
 fit(rcy)
+=======
+>>>>>>> 81395fd01ecbef350decba460ce0f8a9d9333261
 
 # some genes are not yet mapped because they use obsolete symbols.  until this is fixed, look
 # for them at 0,0, move them to i.e., below chr 12, make sure they are selected, then

@@ -13,8 +13,11 @@ export(
    Dataset.getItemNames,
    Dataset.getItemByName,
    Dataset.getManifest,
+<<<<<<< HEAD
    Dataset.getSampleColors,
    Dataset.getMatrixNamesByCategory,
+=======
+>>>>>>> 81395fd01ecbef350decba460ce0f8a9d9333261
    Dataset.getDataFrame,
    Dataset.getJSON,
    Dataset.getSubjectHistoryTable,
