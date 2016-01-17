@@ -7,7 +7,6 @@
                         userCredentials="character",
                         datasetNames="character",
                         analysisPackageNames="character",
-                        currentDatasetName="character",
                         state="environment",
                         dispatchMap="environment")
          )
@@ -38,7 +37,6 @@ ChinookServer = function(port=NA_integer_, analysisPackageNames=NA_character_, d
    
    state <- new.env(parent=emptyenv())
    state[["userCredentials"]] <- userCredentials
-   state[["currentDatasetName"]] <- NA_character_
 
    dispatchMap <- new.env(parent=emptyenv())
    wsCon <- new.env(parent=emptyenv())
@@ -49,7 +47,6 @@ ChinookServer = function(port=NA_integer_, analysisPackageNames=NA_character_, d
                             userCredentials=userCredentials,
                             datasetNames=datasetNames,
                             analysisPackageNames=analysisPackageNames,
-                            currentDatasetName=NA_character_,
                             state=state,
                             dispatchMap=dispatchMap)
    
@@ -327,6 +324,7 @@ setMethod("getDatasetNames", "ChinookServer",
 setMethod("getDatasetByName", "ChinookServer",
 
    function(self, datasetName){
+      printf("ChinookServer::getDatasetByName, ls(state): %s", paste(ls(self@state), collapse=","))
       if(!datasetName %in% ls(self@state))
           return(NULL)
       chinookDataset <- self@state[[datasetName]]

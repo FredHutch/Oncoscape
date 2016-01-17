@@ -425,8 +425,8 @@ function calculate()
    //if(currentPatientIDs !== null)
    //    payload["samples"] = currentPatientIDs;
 
-   var payload = {};
    msg = {cmd: "calculatePCA", callback: "pcaPlot", status: "request", payload: payload};
+   console.log("sending calculatePCA: " + JSON.stringify(msg))
    hub.send(JSON.stringify(msg));
    $("#pcaInstructions").css("display", "none");
    $("#pcaDisplay").css("display", "block");
