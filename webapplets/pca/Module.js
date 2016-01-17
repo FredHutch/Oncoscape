@@ -1,4 +1,5 @@
 var datasetName = null;
+var colorList;
 
 var PCAModule = (function () {
 
@@ -758,21 +759,21 @@ function updateSampleViz()
 {
    var groupName = sampleGroupVizMenu.val();
    callback = "pcaHandleSampleColors";
-   cmd = "getSampleColors";             
-   payload = {dataset: datasetName, groupName: groupName, samples: currentIdentifiers};
 
+   payload = {dataset: datasetName, groupName: groupName, samples: currentIdentifiers};
    msg = {cmd: "getSampleColors", callback: callback, status: "request", payload: payload};
 
    hub.send(JSON.stringify(msg));
 
 } // updateSampleViz
 //------------------------------------------------------------------------------------------------------------------------
-getSampleColors = function(msg)
+handleSampleColors = function(msg)
 {
    console.log("=== getSampleColors")
    console.log(msg);
+   colorList = msg.payload;
 
-} // getSampleColors
+} // handelSampleColors
 //------------------------------------------------------------------------------------------------------------------------
 function initializeModule()
 {
@@ -784,6 +785,7 @@ function initializeModule()
    hub.addMessageHandler("sendSelectionTo_PCA (highlight)", highlightPatientIDs)
    hub.addMessageHandler("pcaHandleGeneSetNames", handleGeneSetNames);
    hub.addMessageHandler("pcaHandleGroupVizGroupNames", handleGroupVizGroupNames);
+   hub.addMessageHandler("pcaHandleSampleColors", handleSampleColors);
    hub.addMessageHandler("pcaPlot", pcaPlot);
    //hub.addMessageHandler("demoPcaCalculateAndDraw", demoPcaCalculateAndDraw);
    //hub.addMessageHandler("pcaAssessUserIdForTesting", assessUserIdForTesting);
