@@ -10,7 +10,7 @@ server: kill
 delay:
 	sleep 10
 
-py: pyWS  pyHTTP
+py: pyWS
 
 pyWS:
 	python testWebSocketOperations.py

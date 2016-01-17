@@ -1,7 +1,7 @@
 library(ChinookServer)
 library(ChinookDataset)
 analysisPackages = "ChinookPCA"
-datasets <- "DEMOdz"
+datasets <- c("DEMOdz", "TCGAbrain")
 browserFile <- NA_character_
 userCredentials <- "test@nowhere.net"
 

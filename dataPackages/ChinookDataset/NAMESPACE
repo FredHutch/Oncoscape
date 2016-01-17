@@ -2,16 +2,17 @@ exportClasses(ChinookDataset)
 
 exportMethods (
   getName,
-  getDataset,
   setServer,
   getServer,
+  getDataset,
   registerMessageHandlers
   )
 
 export(
    ChinookDataset,
    Dataset.getItemNames,
-   Dataset.getItemByName,
+   Dataset.getItemsByName,
+   Dataset.getItemSubsetByName,
    Dataset.getManifest,
    Dataset.getSampleColors,
    Dataset.getMatrixNamesByCategory,

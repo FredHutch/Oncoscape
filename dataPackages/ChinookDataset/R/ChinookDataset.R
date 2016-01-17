@@ -77,23 +77,25 @@ setMethod("getName", "ChinookDataset",
 setMethod("registerMessageHandlers", "ChinookDataset",
 
   function (obj) {
-     addMessageHandler(getServer(obj), "getDatasetManifest",       "Dataset.getManifest")
-     addMessageHandler(getServer(obj), "getDataManifest",          "Dataset.getManifest")
-     addMessageHandler(getServer(obj), "getDatasetDataFrame",      "Dataset.getDataFrame")
-     addMessageHandler(getServer(obj), "getDatasetJSON",           "Dataset.getJSON")
-     addMessageHandler(getServer(obj), "getDatasetItemNames",      "Dataset.getItemNames")
-     addMessageHandler(getServer(obj), "getDatasetItemByName",     "Dataset.getItemByName")
-     addMessageHandler(getServer(obj), "getSubjectHistoryTable",   "Dataset.getSubjectHistoryTable")
-     addMessageHandler(getServer(obj), "getNetwork",               "Dataset.getNetwork")             
-     addMessageHandler(getServer(obj), "getMatrixNamesByCategory", "Dataset.getMatrixNamesByCategory") 
-     addMessageHandler(getServer(obj), "getSampleColors",          "Dataset.getSampleColors") 
+     addMessageHandler(getServer(obj), "getDatasetManifest",          "Dataset.getManifest")
+     addMessageHandler(getServer(obj), "getDataManifest",             "Dataset.getManifest")
+     addMessageHandler(getServer(obj), "getDatasetDataFrame",         "Dataset.getDataFrame")
+     addMessageHandler(getServer(obj), "getDatasetJSON",              "Dataset.getJSON")
+     addMessageHandler(getServer(obj), "getDatasetItemNames",         "Dataset.getItemNames")
+     addMessageHandler(getServer(obj), "getDatasetItemsByName",       "Dataset.getItemsByName")
+     addMessageHandler(getServer(obj), "getDatasetItemSubsetByName",  "Dataset.getItemSubsetByName")
+     addMessageHandler(getServer(obj), "getSubjectHistoryTable",      "Dataset.getSubjectHistoryTable")
+     addMessageHandler(getServer(obj), "getNetwork",                  "Dataset.getNetwork")             
+     addMessageHandler(getServer(obj), "getMatrixNamesByCategory",    "Dataset.getMatrixNamesByCategory") 
+     addMessageHandler(getServer(obj), "getSampleColors",             "Dataset.getSampleColors") 
      printf("registered messages: %s", paste(getMessageNames(getServer(obj)), collapse=","))
      })
 
 #----------------------------------------------------------------------------------------------------
 Dataset.getManifest <- function(channel, msg)
 {
-   datasetName <- msg$payload;
+   datasetName <- msg$payload$dataset;
+    
    self <- local.state[["self"]]
    server <- getServer(self)
    dataset <- getDatasetByName(server, datasetName)
@@ -233,8 +235,11 @@ Dataset.getJSON <- function(channel, msg)
 #----------------------------------------------------------------------------------------------------
 Dataset.getItemNames <- function(channel, msg)
 {
+   datasetName <- msg$payload$dataset;
+
    self <- local.state[["self"]]
-   dataset <- getDataset(self)
+   server <- getServer(self)
+   dataset <- getDatasetByName(server, datasetName)
 
    payload <- getItemNames(dataset)
    response <- toJSON(list(cmd=msg$callback, status="success", callback="", payload=payload))
@@ -246,13 +251,12 @@ Dataset.getItemNames <- function(channel, msg)
 
 } # Dataset.getItemNames
 #----------------------------------------------------------------------------------------------------
-Dataset.getItemByName <- function(channel, msg)
+Dataset.getItemsByName <- function(channel, msg)
 {
-
    datasetName <- msg$payload$dataset;
    item.names  <- msg$payload$items;
 
-   printf("===== Dataset.getItemByName")
+   printf("===== Dataset.getItemsByName")
    printf("    datasetName: %s", datasetName)
    printf("     item.names: %s", item.names)
    
@@ -289,10 +293,7 @@ Dataset.getItemByName <- function(channel, msg)
       data.list[[i]] <- data.json
       }
 
-   #printf("--- getDataItemByName, assembled list, length: %d", length(data.list))
    names(data.list) <- item.names
-   #print(data.list)
-  
 
    payload <- data.list
    response <- toJSON(list(cmd=msg$callback, status="success", callback="", payload=payload))
@@ -302,7 +303,39 @@ Dataset.getItemByName <- function(channel, msg)
    else
       return(response)
 
-} # Dataset.getItemByName
+} # Dataset.getItemsByName
+#----------------------------------------------------------------------------------------------------
+Dataset.getItemSubsetByName <- function(channel, msg)
+{
+   datasetName <- msg$payload$dataset;
+   item.name  <- msg$payload$item;
+   entities <- msg$payload$entities;
+   features <- msg$payload$features;
+
+   printf("===== Dataset.getItemsByName")
+   printf("    datasetName: %s", datasetName)
+   printf("     item.names: %s", item.name)
+   
+   self <- local.state[["self"]]
+   server <- getServer(self)
+   dataset <- getDatasetByName(server, datasetName)
+
+   item <- getItem(dataset, item.name, entities=entities, features=features)
+   class <- class(item)
+
+   stopifnot(class %in% c("matrix", "data.frame"))
+   
+   if(class == "matrix"){
+      data.json <- .prepDataframeOrMatrixForJSON(datasetName, item)
+      }
+   else if(class == "data.frame"){
+      data.json <- .prepDataframeOrMatrixForJSON(datasetName, item)
+      }
+
+  response <- toJSON(list(cmd=msg$callback, status="success", callback="", payload=data.json))
+  .send(channel, response)
+
+} # Dataset.getItemSubsetByName
 #----------------------------------------------------------------------------------------------------
 Dataset.getMarkersNetwork <- function(channel, msg)
 {
