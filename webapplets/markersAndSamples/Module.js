@@ -3,6 +3,8 @@
 
 var cwMarkers;
 var markersTester;
+var datasetName;
+var currentTumors;
 
 //----------------------------------------------------------------------------------------------------
 var markersAndTissuesModule = (function () {
@@ -534,6 +536,8 @@ function clearTumorCategoriesAndCategoryStyles()
 //----------------------------------------------------------------------------------------------------
 function requestTumorCategorization()
 {
+  patientIDs = cwMarkers.nodes().filter('node[nodeType="patient"]').map(function(node){return(node.id())});
+
   var allCategoryNames = tumorCategorizationsMenu.children().map(function() {return $(this).val();}).get();
   var menuTitle = allCategoryNames[0];
   var categorizationName = tumorCategorizationsMenu.val();
@@ -541,15 +545,26 @@ function requestTumorCategorization()
   console.log("--- requestTumorCategorization, name: " + categorizationName);
 
   if(categorizationName === menuTitle || categorizationName === "Clear"){
-     clearTumorCategoriesAndCategoryStyles();
+     //clearTumorCategoriesAndCategoryStyles();
+     // "rgb(220, 120, 220)"
+   cwMarkers.batch(function(){
+      patientIDs.map(function(id){
+         s='node[id="' + id + '"]';
+         cwMarkers.filter(s).style({"background-color": "rgb(220, 120, 220)"});
+         });
+      });
      return;
      } // clear
      
   console.log("apply " + categorizationName);
   hub.logEventOnServer(thisModulesName, "markersApplyTumorCategorization", "request", "");
 
-  var msg = {cmd: "getSampleCategorization", callback: "markersApplyTumorCategorization",
-             status: "request", payload: categorizationName};
+  //var msg = {cmd: "getSampleCategorization", callback: "markersApplyTumorCategorization",
+  //           status: "request", payload: categorizationName};
+
+  payload = {dataset: datasetName, groupName: categorizationName, samples: patientIDs};
+  callback = "markersApplyTumorCategorization";
+  msg = {cmd: "getSampleColors", callback: callback, status: "request", payload: payload};
 
   hub.send(JSON.stringify(msg));
 
@@ -558,16 +573,24 @@ function requestTumorCategorization()
 function applyTumorCategorization(msg)
 {
    console.log("=== applyTumorCategorization");
+   var colorAssignments = msg.payload.colors;
+   var ids = Object.keys(colorAssignments);
+   cwMarkers.batch(function(){
+      ids.map(function(id){
+         s='node[id="' + id + '"]';
+         cwMarkers.filter(s).style({"background-color": colorAssignments[id]});
+         });
+      });
+
+   return;
+   
+    /******************************
    var tumorsInGraph = cwMarkers.nodes("[nodeType='patient']");
    var tumorsInTable = msg.payload.rownames;
    var tbl = msg.payload.tbl;
    var categoryRules = {};
    tbl.forEach(function(row){categoryRules[row[0]] = row[1];});
 
-
-        /* jshint ignore:start */
-	//debugger;
-	/* jshint ignore:end */
 
    categoryRuleNames = Object.keys(categoryRules);
    categoryRuleNames.filter(function(name){return name !== "null";});
@@ -624,6 +647,7 @@ function applyTumorCategorization(msg)
   
   postStatus("applyTumorCategorization complete");
   hub.logEventOnServer(thisModulesName, "markersApplyTumorCategorization", "node category assigned", "");
+    ******************************/
 
 } // applyTumorCategorization
 //----------------------------------------------------------------------------------------------------
@@ -1110,9 +1134,14 @@ function displayMarkersNetwork(msg)
 
       hub.logEventOnServer(thisModulesName, "getSampleCategorizationNames", "request", "");
 
-      var msg2 = {cmd: "getSampleCategorizationNames", callback: "configureSampleCategorizationMenu",
-                  status: "request", payload: ""};
-      //hub.send(JSON.stringify(msg2));
+      //var msg2 = {cmd: "getSampleCategorizationNames", callback: "configureSampleCategorizationMenu",
+      //            status: "request", payload: ""};
+
+      console.log("=== displayMarkersNetwork about to send msg2, asking for tumorGroups");
+      callback = "configureSampleCategorizationMenu";
+      payload = {dataset: datasetName, items: "tumorGroups"};
+      msg2 = {cmd:"getDatasetItemsByName", callback: callback, status: "request", payload: payload};
+      hub.send(JSON.stringify(msg2));
       }
    else{
      console.log("displayMarkersNetwork error: " + msg.payload);
@@ -1154,7 +1183,7 @@ function updateEdgeSelectionWidget(edgeTypes)
 // this module uses the dataset name to request the g.markers.json network from the server
 function datasetSpecified (msg)
 {
-   var datasetName = msg.payload;
+   datasetName = msg.payload;
 
    hub.logEventOnServer(thisModulesName, "display markers network", "request", "");
 
@@ -1174,10 +1203,10 @@ function configureSampleCategorizationMenu(msg)
    console.log("=== configureSampleCategorizationMenu");
    //console.log(msg.payload);
    tumorCategorizationsMenu.empty();
-   var categorizations = msg.payload;
+   var categorizations = Object.keys(msg.payload.tumorGroups);
 
    if(typeof categorizations == "string") 
-   	 categorizations = [categorizations];
+      categorizations = [categorizations];
 
    var titleOption = "Tumor Groups...";
 

@@ -774,7 +774,8 @@ function updateSampleViz()
    var value = sampleGroupVizMenu.val();
    if(value == "Black"){
       colorList = null;
-      pcaHandleWindowResize();
+      colorLegend = null;
+      pcaHandleWindowResize();  // force redraw
       return;
       }
       
