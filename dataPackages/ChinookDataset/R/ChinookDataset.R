@@ -79,13 +79,13 @@ setMethod("registerMessageHandlers", "ChinookDataset",
   function (obj) {
      addMessageHandler(getServer(obj), "getDatasetManifest",          "Dataset.getManifest")
      addMessageHandler(getServer(obj), "getDataManifest",             "Dataset.getManifest")
-     addMessageHandler(getServer(obj), "getDatasetDataFrame",         "Dataset.getDataFrame")
-     addMessageHandler(getServer(obj), "getDatasetJSON",              "Dataset.getJSON")
+     #addMessageHandler(getServer(obj), "getDatasetDataFrame",         "Dataset.getDataFrame")
+     #addMessageHandler(getServer(obj), "getDatasetJSON",              "Dataset.getJSON")
      addMessageHandler(getServer(obj), "getDatasetItemNames",         "Dataset.getItemNames")
      addMessageHandler(getServer(obj), "getDatasetItemsByName",       "Dataset.getItemsByName")
      addMessageHandler(getServer(obj), "getDatasetItemSubsetByName",  "Dataset.getItemSubsetByName")
      addMessageHandler(getServer(obj), "getSubjectHistoryTable",      "Dataset.getSubjectHistoryTable")
-     addMessageHandler(getServer(obj), "getNetwork",                  "Dataset.getNetwork")             
+     #addMessageHandler(getServer(obj), "getNetwork",                  "Dataset.getNetwork")             
      addMessageHandler(getServer(obj), "getMatrixNamesByCategory",    "Dataset.getMatrixNamesByCategory") 
      addMessageHandler(getServer(obj), "getSampleColors",             "Dataset.getSampleColors") 
      printf("registered messages: %s", paste(getMessageNames(getServer(obj)), collapse=","))
@@ -386,13 +386,15 @@ Dataset.getNetwork <- function(channel, msg)
    self <- local.state[["self"]]
    datasetName <- getName(self)
    dataset <- getDataset(self)
-   networkCategory = msg$payload$networkCategory
-   tbl.manifest <- getManifest(dataset)
+   itemName <- "g.markers.json"
+   #networkCategory = msg$payload$networkCategory
+   #tbl.manifest <- getManifest(dataset)
 
-   stopifnot(networkCategory %in% tbl.manifest$subcategory)
-   variableName <- subset(tbl.manifest, subcategory == networkCategory)$variable
-   stopifnot(variableName %in% getItemNames(dataset))
-   json <- getItem(dataset, variableName)
+   #stopifnot(networkCategory %in% tbl.manifest$subcategory)
+   #variableName <- subset(tbl.manifest, subcategory == networkCategory)$variable
+   #stopifnot(variableName %in% getItemNames(dataset))
+   #json <- getItem(dataset, variableName)
+   json <- getItem(dataset, itemName)
 
    return.msg <- toJSON(list(cmd=msg$callback, status="success", callback="", payload=json))
 

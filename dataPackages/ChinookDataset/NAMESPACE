@@ -16,10 +16,10 @@ export(
    Dataset.getManifest,
    Dataset.getSampleColors,
    Dataset.getMatrixNamesByCategory,
-   Dataset.getDataFrame,
-   Dataset.getJSON,
-   Dataset.getSubjectHistoryTable,
-   Dataset.getNetwork    
+   #Dataset.getDataFrame,
+   #Dataset.getJSON,
+   Dataset.getSubjectHistoryTable
+   #Dataset.getNetwork    
    )
 
 import(Dataset)
