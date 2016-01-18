@@ -11,9 +11,9 @@ runTests <- function()
   test.loadFiles()
   test.constructor();
   test.categorization.of.DEMOdz.tumors()
-  #test.color.categorization.of.DEMOdz.tumors()
   test.createColorList.verhaak()
   test.createColorList.glioma8()
+  test.createColorLegend()
   
 } # runTests
 #----------------------------------------------------------------------------------------------------
@@ -151,6 +151,17 @@ test.createColorList.glioma8 <- function()
   checkEquals(mapped.count, 4)
 
 } # test.createColorList.glioma8
+#----------------------------------------------------------------------------------------------------
+test.createColorLegend <- function()
+{
+   print("--- test.createColorLegend")
+   dataset <- DEMOdz()
+   groupsDB <- Groups()
+   target.group <- "glioma8"
+   tbl.viz <- getItem(dataset, "tbl.groupVizProps")
+   legend <- createColorLegend(groupsDB, target.group, tbl.viz)
+    
+} # test.createColorLegend
 #----------------------------------------------------------------------------------------------------
 if(!interactive())
    runTests()

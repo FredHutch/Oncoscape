@@ -143,8 +143,9 @@ Dataset.getSampleColors <- function(channel, msg)
    tbl.viz <- getItem(dataset, "tbl.groupVizProps")
    groupsDB <- Groups()
    color.list <- createColorList(groupsDB, ids, target.group, tbl.viz)
-
-   response <- toJSON(list(cmd=msg$callback, status="success", callback="", payload=color.list))
+   color.legend <- createColorLegend(groupsDB, target.group, tbl.viz)
+   payload <- list(colors=color.list, legend=color.legend)
+   response <- toJSON(list(cmd=msg$callback, status="success", callback="", payload=payload))
    .send(channel, response)
     
 } # Dataset.getSampleColors

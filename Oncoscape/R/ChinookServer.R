@@ -206,7 +206,6 @@ dispatchMessage <- function(WS, msg)
       return()
   
   printf("--- ChinookServer dispatchMessage: %s", msg$cmd)
-  #print(msg)
     
   errorFunction <- function(cond){
     return.msg <- list()

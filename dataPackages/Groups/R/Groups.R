@@ -12,6 +12,7 @@ setGeneric("getName",              signature="obj", function(obj) standardGeneri
 setGeneric("getGroupNames",        signature="obj", function(obj) standardGeneric ("getGroupNames"))
 setGeneric("getGroup",             signature="obj", function(obj, name) standardGeneric ("getGroup"))
 setGeneric("createColorList",      signature="obj", function(obj, ids, target.group, tbl.viz) standardGeneric ("createColorList"))
+setGeneric("createColorLegend",    signature="obj", function(obj, target.group, tbl.viz) standardGeneric ("createColorLegend"))
 #----------------------------------------------------------------------------------------------------
 Groups <- function(name="", data.directory=system.file(package="Groups", "extdata"))
 {
@@ -117,5 +118,18 @@ setMethod("createColorList", "Groups",
 
    as.list(tumor.colors)
    }) # createColorList
+
+#----------------------------------------------------------------------------------------------------
+setMethod("createColorLegend", "Groups",
+
+  function (obj, target.group, tbl.viz) {
+
+     tbl.tmp <- subset(tbl.viz, group == target.group, select=c("id", "color"))
+     result <- as.list(tbl.tmp$color)
+     names(result) <- tbl.tmp$id
+
+     result
+     
+    }) # createColorList
 
 #----------------------------------------------------------------------------------------------------

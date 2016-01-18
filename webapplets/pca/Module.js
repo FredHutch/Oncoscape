@@ -1,5 +1,8 @@
 var datasetName = null;
-var colorList;
+var colorList = null;
+var colorLegend = null;
+var pc1variance = null;
+var pc2variance = null;
 
 var PCAModule = (function () {
 
@@ -32,7 +35,8 @@ var PCAModule = (function () {
   var tempTest;
   var clearSelectionButton;
   var calculatePcaButton;
-  var useAllSamplesInCurrentDatasetButton;
+  var displayInfoButton;
+  //var useAllSamplesInCurrentDatasetButton;
   var expressionMatrixMenu;
   var geneSetMenu;
   var sampleGroupVizMenu;
@@ -60,10 +64,16 @@ function initializeUI ()
   calculatePcaButton.button();
   $("#pcaDisplay").css("display", "none");
   calculatePcaButton.click(calculate);
-  useAllSamplesInCurrentDatasetButton = $("#pcaUseAllSamplesButton");
-  useAllSamplesInCurrentDatasetButton.button();
-  useAllSamplesInCurrentDatasetButton.click(useAllSamplesInCurrentDataset);
-  hub.disableButton(useAllSamplesInCurrentDatasetButton);
+
+  displayInfoButton = $("#pcaInfoButton")
+  displayInfoButton.button();
+  //hub.disableButton(displayInfoButton);
+  displayInfoButton.click(displayInfo);
+  
+  //useAllSamplesInCurrentDatasetButton = $("#pcaUseAllSamplesButton");
+  //useAllSamplesInCurrentDatasetButton.button();
+  //useAllSamplesInCurrentDatasetButton.click(useAllSamplesInCurrentDataset);
+  //hub.disableButton(useAllSamplesInCurrentDatasetButton);
 
   expressionMatrixMenu = $("#pcaExpressionMatrixSelector")
 
@@ -77,6 +87,7 @@ function initializeUI ()
 
   sampleGroupVizMenu = $("#pcaVizGroupSelector");
   sampleGroupVizMenu.change(updateSampleViz);
+  hub.disableButton(sampleGroupVizMenu);
 
   pcaTextDisplay = $("#pcaTextDisplayDiv");
 
@@ -90,13 +101,27 @@ function initializeUI ()
  
 }; // initializeUI
 //------------------------------------------------------------------------------------------------------------------------
-function showLegend(){
+function displayInfo()
+{
+   var title = "PCA Details";
+   var text = "";
+   text = text + "<ul>";
+   text = text + "  <li> PC1 variance: " + pc1variance + "%";
+   text = text + "  <li> PC2 variance: " + pc2variance + "%";
 
-  var text = $("#PCALegend").html()
-  var title = "PCA Legend";
-  $("<div>").html(text).dialog({title: title, width:600, height:600});
+   if(colorLegend != null){
+      var categories = Object.keys(colorLegend)
+      for(var i=0; i < categories.length; i++){
+         category = categories[i];
+         text = text + "  <li> " + category + ": " + colorLegend[category];
+         } // for i
+      }
+      
+  text = text + "</ul>";
+  
+  $("<div>").html(text).dialog({title: title, width:500, height:300});
 
-} // showHelp
+} // displayInfo
 //------------------------------------------------------------------------------------------------------------------------
 function getPatientClassification ()
 {
@@ -116,8 +141,6 @@ function handlePatientClassification (msg)
    else{
      alert("error!" + msg.payload)
      }
-
-   //drawLegend()
 
 } // handlePatientClassification
 //------------------------------------------------------------------------------------------------------------------------
@@ -148,6 +171,9 @@ function addSampleGroupNamesToMenu(names)
    if(typeof names == "string") 
       names = [names] 
       
+   optionMarkup = "<option>Black</option>";
+   sampleGroupVizMenu.append(optionMarkup);
+
    for(var i=0; i < names.length; i++){
      optionMarkup = "<option>" + names[i] + "</option>";
      sampleGroupVizMenu.append(optionMarkup);
@@ -158,12 +184,12 @@ function addSampleGroupNamesToMenu(names)
 
 } // addSampleGroupNamesToMenu
 //------------------------------------------------------------------------------------------------------------------------
-function useAllSamplesInCurrentDataset()
-{
-  currentPatientIDs = null;
-  hub.disableButton(useAllSamplesInCurrentDatasetButton);
-
-}  // useAllSamplesInCurrentDataset
+//function useAllSamplesInCurrentDataset()
+//{
+//  currentPatientIDs = null;
+//  hub.disableButton(useAllSamplesInCurrentDatasetButton);
+//
+//}  // useAllSamplesInCurrentDataset
 //------------------------------------------------------------------------------------------------------------------------
 function changePCAids(msg)
 {
@@ -231,7 +257,7 @@ function drawLegend ()
 //------------------------------------------------------------------------------------------------------------------------
 function pcaHandleWindowResize () 
 {
-  pcaDisplay.width($(window).width() * 0.95);
+  pcaDisplay.width($(window).width() * 0.90);
   pcaDisplay.height($(window).height() * 0.80);
 
   if(!firstTime){
@@ -283,13 +309,18 @@ function sendSelections(event)
 //------------------------------------------------------------------------------------------------------------------------
 function pcaPlot (msg)
 {
+   hub.enableButton(sampleGroupVizMenu);
+   hub.enableButton(displayInfoButton);
+   
    if(msg.status == "success"){
       pcaScores = msg.payload.scores;
       currentIdentifiers = msg.payload.ids
 
       var pcaData = msg.payload.importance
-      var pc1variance = 100 * msg.payload["importance.PC1"];
-      var pc2variance = 100 * msg.payload["importance.PC2"];
+      pc1variance = msg.payload["importance.PC1"];
+      pc2variance = msg.payload["importance.PC2"];
+      pc1variance =  Math.round(10000 * pc1variance)/100;
+      pc2variance =  Math.round(10000 * pc2variance)/100;
 
       d3PcaScatterPlot(pcaScores, pc1variance, pc2variance);
 
@@ -415,7 +446,7 @@ function handlePatientIDs(msg)
      currentPatientIDs = msg.payload.value;
      var payload = {samples: currentPatientIDs, genes: currentGeneSet};
      msg = {cmd: "calculatePCA", callback: "pcaPlot", status: "request", payload: payload};
-     hub.enableButton(useAllSamplesInCurrentDatasetButton);
+     //hub.enableButton(useAllSamplesInCurrentDatasetButton);
      hub.send(JSON.stringify(msg));
      }
    else{
@@ -447,23 +478,21 @@ function d3PlotBrushReader ()
 
 } // d3PlotBrushReader
 //------------------------------------------------------------------------------------------------------------------------
-function chooseColor(d)
+function chooseColor(id)
 {
-  /********
-  var id = d.id;
-  for(var i=0; i<patientClassification.length; i++){
-    var patientID = patientClassification[i]._row;
-      // "TCGA.02.0047.01".indexOf("TCGA.02.0047") -> 0
-      // using this strategy for partial match allows patient/tumor/sample multiplicity to be mapped
-      // to patient classification
-    if(id.indexOf(patientID) == 0){
-       result = patientClassification[i].color;
-       return(result)
-       } // if match
-    } // for i
- 
-   *********/
-   return("black");
+  //console.log("chooseColor for " + id);
+
+  if(colorList == null)
+     return("black")
+     
+  var allIDs = Object.keys(colorList)
+  if(allIDs.indexOf(id) > 0){
+     color = colorList[id];
+     console.log(id + ": " + color);
+     return(color);
+     }
+
+  return("black");
 
 } // chooseColor
 //------------------------------------------------------------------------------------------------------------------------
@@ -536,8 +565,8 @@ function d3PcaScatterPlot(dataset, pc1variance, pc2variance)
        .attr("transform", "translate(0, " + yTranslationForXAxis + ")")
        .call(xAxis)
        .append("text")
-       .style("font-size", 10)
-       .text("PC1 (" + pc1variance + "%)");
+       .style("font-size", 14)
+       .text("PC1");
 
    svg.append("g")
       .attr("class", "y axis")
@@ -546,9 +575,9 @@ function d3PcaScatterPlot(dataset, pc1variance, pc2variance)
       .append("text")
       .attr("y", 10)
       .attr("dy", ".71em")
-      .style("font-size", 10)
+      .style("font-size", 14)
       .style("text-anchor", "start") // end, start, middle
-      .text("PC2 (" + pc2variance + "%)");
+      .text("PC2");
             
    var circle = svg.append("g").selectAll("circle")
                    .data(dataset)
@@ -557,12 +586,13 @@ function d3PcaScatterPlot(dataset, pc1variance, pc2variance)
                    .attr("cx", function(d,i) {return xScale(d[0]);})
                    .attr("cy", function(d,i) {return yScale(d[1]);})
                    .attr("r", function(d) { return 3;})
-                   .style("fill", function(d) {
-                        var color = chooseColor(d[0])
+                   .style("fill", function(d,i) {
+                        console.log("setting style for circle: " + currentIdentifiers[i]);
+                        var color = chooseColor(currentIdentifiers[i]);
                         if(color == "") return "white"
                         return color;})
-                   .style("stroke", function(d) {
-                        var color = chooseColor(d[0])
+                   .style("stroke", function(d, i) {
+                        var color = chooseColor(currentIdentifiers[i]);
                         if(color == "") return "black"
                         return color;})
                    .on("mouseover", function(d,i){
@@ -741,10 +771,16 @@ function handleGroupVizGroupNames(msg)
 // called when user changes the pcaVizGroupSelector menu
 function updateSampleViz()
 {
-   var groupName = sampleGroupVizMenu.val();
+   var value = sampleGroupVizMenu.val();
+   if(value == "Black"){
+      colorList = null;
+      pcaHandleWindowResize();
+      return;
+      }
+      
    callback = "pcaHandleSampleColors";
 
-   payload = {dataset: datasetName, groupName: groupName, samples: currentIdentifiers};
+   payload = {dataset: datasetName, groupName: value, samples: currentIdentifiers};
    msg = {cmd: "getSampleColors", callback: callback, status: "request", payload: payload};
 
    hub.send(JSON.stringify(msg));
@@ -753,9 +789,13 @@ function updateSampleViz()
 //------------------------------------------------------------------------------------------------------------------------
 handleSampleColors = function(msg)
 {
+   hub.enableButton(displayInfoButton);
+   
    console.log("=== getSampleColors")
-   console.log(msg);
-   colorList = msg.payload;
+   colorList = msg.payload.colors;
+   colorLegend = msg.payload.legend
+     // a simple strategy to force redraw, in which colorList is include
+   pcaHandleWindowResize();
 
 } // handelSampleColors
 //------------------------------------------------------------------------------------------------------------------------
