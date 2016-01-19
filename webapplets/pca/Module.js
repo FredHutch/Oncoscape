@@ -488,7 +488,7 @@ function chooseColor(id)
   var allIDs = Object.keys(colorList)
   if(allIDs.indexOf(id) > 0){
      color = colorList[id];
-     console.log(id + ": " + color);
+     //console.log(id + ": " + color);
      return(color);
      }
 
@@ -587,7 +587,7 @@ function d3PcaScatterPlot(dataset, pc1variance, pc2variance)
                    .attr("cy", function(d,i) {return yScale(d[1]);})
                    .attr("r", function(d) { return 3;})
                    .style("fill", function(d,i) {
-                        console.log("setting style for circle: " + currentIdentifiers[i]);
+                        //console.log("setting style for circle: " + currentIdentifiers[i]);
                         var color = chooseColor(currentIdentifiers[i]);
                         if(color == "") return "white"
                         return color;})
