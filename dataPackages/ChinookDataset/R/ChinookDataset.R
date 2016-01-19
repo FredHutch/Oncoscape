@@ -139,11 +139,17 @@ Dataset.getSampleColors <- function(channel, msg)
    ids <- msg$payload$samples;
    
    dataset <- getDatasetByName(server, datasetName)
-   ids <- sampleIdToSubjectId(dataset, ids);
+   subjectIDs <- sampleIdToSubjectId(dataset, ids);
+      # create a map from subjectIDs back to the incoming (possibly different sample) ids
+   id.map <- ids
+   names(id.map) <- subjectIDs
    tumorGroups <- getItem(dataset, "tumorGroups")
    tbl.viz <- getItem(dataset, "tbl.groupVizProps")
    groupsDB <- Groups()
-   color.list <- createColorList(groupsDB, ids, target.group, tbl.viz)
+   color.list <- createColorList(groupsDB, subjectIDs, target.group, tbl.viz)
+      # restore the original ids, which may have been mapped (above) from
+      # sample ids (as in TCGAbrain) to subject ids.
+   names(color.list) <- as.character(id.map[names(color.list)])
    color.legend <- createColorLegend(groupsDB, target.group, tbl.viz)
    payload <- list(colors=color.list, legend=color.legend)
    response <- toJSON(list(cmd=msg$callback, status="success", callback="", payload=payload))

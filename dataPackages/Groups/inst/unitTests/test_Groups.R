@@ -85,7 +85,6 @@ test.createColorList.verhaak <- function()
    tbl.viz <- getItem(dataset, "tbl.groupVizProps")
 
    x <- createColorList(groupsDB, ids, target.group, tbl.viz)
-
    checkEquals(length(x), length(ids))
    checkEquals(x$bogus, "lightgray")
    tbl.xtab <- as.data.frame(table(unlist(x)))
