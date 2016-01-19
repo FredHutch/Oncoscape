@@ -31,10 +31,8 @@ local.state <- new.env(parent=emptyenv())
 #------------------------------------------------------------------------------------------------------------------------
 # constructor
 ChinookServer = function(port=NA_integer_, analysisPackageNames=NA_character_, datasetNames=NA_character_,
-                         browserFile=NA_character_, userCredentials=NA_character_)
+                         browserFile=NA_character_, userCredentials=NA_character_, auxPort=NA_integer_)
 {
-   #printf("ChinookServer ctor, datasetNames: %s", paste(datasetNames, collapse=","))
-   
    state <- new.env(parent=emptyenv())
    state[["userCredentials"]] <- userCredentials
 
@@ -56,7 +54,9 @@ ChinookServer = function(port=NA_integer_, analysisPackageNames=NA_character_, d
    wsCon <- .setupWebSocketHandlers(server, wsCon, browserFile)
    server@wsServer <- wsCon
 
-   state[["auxPortState"]] <- AuxPort(wsCon, port+1)
+   if(!is.na(auxPort))
+       state[["auxPortState"]] <- AuxPort(wsCon, port+1)
+   
    local.state[["server"]] <- server
    registerMessageHandlers(server)
    
@@ -277,11 +277,11 @@ setMethod("run", "ChinookServer",
      wsID <- startServer("0.0.0.0", port(self),  self@wsServer)
      self@wsServer$wsID <- wsID
 
-     aux <- self@state[["auxPortState"]]
-     aux.port <- port(self) + 1
-     aux$auxWsID <- startDaemonizedServer("0.0.0.0", aux.port,  aux)
-     self@state[["auxPortState"]] <- aux
-     printf("  started daemonized server on aux port %s", aux.port)
+     #aux <- self@state[["auxPortState"]]
+     #aux.port <- port(self) + 1
+     #aux$auxWsID <- startDaemonizedServer("0.0.0.0", aux.port,  aux)
+     #self@state[["auxPortState"]] <- aux
+     #printf("  started daemonized server on aux port %s", aux.port)
 
      printf("   starting main on port %s, service loop", port(self))
      

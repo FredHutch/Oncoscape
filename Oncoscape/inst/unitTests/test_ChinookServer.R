@@ -114,9 +114,10 @@ test_runningServer <- function()
     url <- sprintf("http://localhost:%d", PORT)
     checkEquals(getURL(url), "hello from ChinookServer main port")
 
-    printf("   checking aux port http get")
-    url <- sprintf("http://localhost:%d", PORT+1)
-    checkEquals(getURL(url), "hello from ChinookServer auxiliary port")
+    # aux port use deferred (pshannon 18jan2016)
+    #printf("   checking aux port http get")
+    #url <- sprintf("http://localhost:%d", PORT+1)
+    #checkEquals(getURL(url), "hello from ChinookServer auxiliary port")
 
     killServer(scriptName)
 

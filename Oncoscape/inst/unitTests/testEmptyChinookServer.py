@@ -5,7 +5,7 @@ from urllib.parse import quote
 #----------------------------------------------------------------------------------------------------
 PORT = 6001
 ws = create_connection("ws://localhost:%d" % PORT)
-wsAux = create_connection("ws://localhost:%d" % (PORT+1))
+#wsAux = create_connection("ws://localhost:%d" % (PORT+1))
 #----------------------------------------------------------------------------------------------------
 # make chinook 4-field json request over websocket
 def sendWsMain(cmd, payload):
@@ -17,13 +17,13 @@ def sendWsMain(cmd, payload):
 
 #----------------------------------------------------------------------------------------------------
 # make chinook 4-field json request over websocket
-def sendWsAux(cmd, payload):
-
-   msg = dumps({"cmd": cmd, "status":"request", "callback":"", "payload": payload})
-   wsAux.send(msg)
-   result = loads(wsAux.recv())
-   return(result["payload"])
-
+#def sendWsAux(cmd, payload):
+#
+#   msg = dumps({"cmd": cmd, "status":"request", "callback":"", "payload": payload})
+#   wsAux.send(msg)
+#   result = loads(wsAux.recv())
+#   return(result["payload"])
+#
 #----------------------------------------------------------------------------------------------------
 # do a simple get, check a "hello" comes back
 def checkMainBasicHttpResponse():
@@ -35,13 +35,13 @@ def checkMainBasicHttpResponse():
    
 #----------------------------------------------------------------------------------------------------
 # do a simple get, check a "hello" comes back
-def checkAuxBasicHttpResponse():
-
-   response = urlopen("http://localhost:%d" % (PORT + 1)).read().decode()
-   print("aux response: %s" % response)
-   assert(response == 'hello from ChinookServer auxiliary port')
-   print("http server running fine on aux port %d" % (PORT + 1))
-   
+#def checkAuxBasicHttpResponse():
+#
+#   response = urlopen("http://localhost:%d" % (PORT + 1)).read().decode()
+#   print("aux response: %s" % response)
+#   assert(response == 'hello from ChinookServer auxiliary port')
+#   print("http server running fine on aux port %d" % (PORT + 1))
+#   
 #----------------------------------------------------------------------------------------------------
 # make chinook 4-field json request over http
 def sendHttpMain(cmd, payload):
@@ -55,36 +55,38 @@ def sendHttpMain(cmd, payload):
 
 #----------------------------------------------------------------------------------------------------
 # make chinook 4-field json request over http
-def sendHttpAux(cmd, payload):
-
-   msg = quote(dumps({"cmd": cmd, "status":"request", "callback":"", "payload": payload}))
-   request = "http://localhost:%s?jsonMsg='%s'" % ((PORT+1), msg)
-   rawResult = urlopen(request).read()
-   result = loads(rawResult.decode())   # bytes.decode()
-   payload = result["payload"]
-   return(payload)
-
+#def sendHttpAux(cmd, payload):
+#
+#   msg = quote(dumps({"cmd": cmd, "status":"request", "callback":"", "payload": payload}))
+#   request = "http://localhost:%s?jsonMsg='%s'" % ((PORT+1), msg)
+#   rawResult = urlopen(request).read()
+#   result = loads(rawResult.decode())   # bytes.decode()
+#   payload = result["payload"]
+#   return(payload)
+#
 #----------------------------------------------------------------------------------------------------
 # make chinook 4-field json request over http
-def sendHttpAuxToBrowser(cmd, payload):
-
-   msg = quote(dumps({"cmd": cmd, "status": "forBrowser", "callback":"", "payload": payload}))
-   request = "http://localhost:%s?jsonMsg='%s'" % ((PORT+1), msg)
-   rawResult = urlopen(request).read()
-   result = loads(rawResult.decode())   # bytes.decode()
-   payload = result["payload"]
-   return(payload)
-
+#def sendHttpAuxToBrowser(cmd, payload):
+#
+#   msg = quote(dumps({"cmd": cmd, "status": "forBrowser", "callback":"", "payload": payload}))
+#   request = "http://localhost:%s?jsonMsg='%s'" % ((PORT+1), msg)
+#   rawResult = urlopen(request).read()
+#   result = loads(rawResult.decode())   # bytes.decode()
+#   payload = result["payload"]
+#   return(payload)
+#
 #----------------------------------------------------------------------------------------------------
 #checkMainBasicHttpResponse();
-checkAuxBasicHttpResponse();
+#checkAuxBasicHttpResponse();
+
 messageNames = sendHttpMain("getRegisteredMessageNames", "")
 messageNames2 = sendWsMain("getRegisteredMessageNames", "")
 assert(messageNames2 == messageNames)
-messageNames3 = sendHttpAux("getRegisteredMessageNames", "")
-assert(messageNames3 == messageNames)
-messageNames4 = sendWsAux("getRegisteredMessageNames", "")
-assert(messageNames4 == messageNames)
+
+#messageNames3 = sendHttpAux("getRegisteredMessageNames", "")
+#assert(messageNames3 == messageNames)
+#messageNames4 = sendWsAux("getRegisteredMessageNames", "")
+#assert(messageNames4 == messageNames)
 
 #msgNames = send("getRegisteredMessageNames", "")
 #assert('deleteVariable' in msgNames)
