@@ -118,6 +118,7 @@ test.createColorList.glioma8 <- function()
    ids <- getTable(getSubjectHistory(dataset))$ID
    ids <- c(ids, "bogus")
    target.group <- "glioma8"
+   target.group <- "glioma.grade"
    checkTrue(length(grep(target.group, getGroupNames(groupsDB))) > 0)
    tbl.viz <- getItem(dataset, "tbl.groupVizProps")
 
@@ -154,7 +155,7 @@ test.createColorList.glioma8 <- function()
 #----------------------------------------------------------------------------------------------------
 test.createColorLegend <- function()
 {
-   print("--- test.createColorLegend")
+   printf("--- test.createColorLegend")
    dataset <- DEMOdz()
    groupsDB <- Groups()
    target.group <- "glioma8"

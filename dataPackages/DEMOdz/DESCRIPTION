@@ -1,8 +1,8 @@
 Package: DEMOdz
 Type: Package
 Title: DEMOdz: illustrates the construction of an actual Chinook Project Dataset
-Version: 1.0.2
-Date: 2016-01-16
+Version: 1.0.4
+Date: 2016-01-18
 Author: Paul Shannon, Lisa McFerrin
 Maintainer: Paul Shannon <paul.thurmond.shannon@gmail.com>
 Depends: R (>= 3.2.2), Dataset, org.Hs.eg.db, RUnit

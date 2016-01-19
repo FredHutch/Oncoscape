@@ -139,6 +139,7 @@ Dataset.getSampleColors <- function(channel, msg)
    ids <- msg$payload$samples;
    
    dataset <- getDatasetByName(server, datasetName)
+   ids <- sampleIdToSubjectId(dataset, ids);
    tumorGroups <- getItem(dataset, "tumorGroups")
    tbl.viz <- getItem(dataset, "tbl.groupVizProps")
    groupsDB <- Groups()

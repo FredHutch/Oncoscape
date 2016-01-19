@@ -46,7 +46,7 @@ testManifestAndDataConsistency <- function(quiet=TRUE)
 
    checkTrue(all(expected.rownames %in% rownames(tbl)))
 
-   expected.classes <- c("data.frame", "json", "matrix")
+   expected.classes <- c("data.frame", "json", "matrix", "list")
    checkTrue(all(tbl$class %in% expected.classes))
 
    expected.categories <- unique(c("copy number", "subjectHistory", "mrna expression", "mutations", "network",
@@ -75,8 +75,8 @@ testManifestAndDataConsistency <- function(quiet=TRUE)
          checkEquals(feature.count, ncol(x))
          }
       if(class == "list"){
+         #printf("%s: entity.count: %d, x: %d", variable.name, entity.count, length(x))
          checkEquals(entity.count, length(x))
-         checkTrue(is.na(feature.count))
          }
       entity.type <- tbl$entity.type[i]
       feature.type <- tbl$feature.type[i]
