@@ -219,8 +219,6 @@ function addExpressionDataSetNamesToMenu (expressionDataSetNames)
   postStatus("addExpressionDataSetNamesToMenu: complete");
   hub.enableTab(thisModulesOutermostDiv)
 
-
-
 } // addExpressionDataSetNamesToMenu
 //----------------------------------------------------------------------------------------------------
 function useAllSamplesInCurrentDataset()
@@ -455,7 +453,8 @@ function clearSelection()
 function calculate()
 {
    var currentGeneSet = geneSetMenu.val();
-   var payload = {genes: currentGeneSet};
+   var currentExressionDataSet = expressionDataSetMenu.val();
+   var payload = {genes: currentGeneSet; expressionDataSet: currentExressionDataSet};
 
    if(currentPatientIDs !== null)
        payload["samples"] = currentPatientIDs;
