@@ -32,6 +32,7 @@ var PLSRModule = (function () {
   var currentlySelectedRegion;
   var thisModuleName = "PLSR";
   var geneSetMenu;
+  var expressionDataSetMenu;
 
   var thisModulesName = "PLSR";
   var thisModulesOutermostDiv = "plsrDiv";
@@ -65,6 +66,10 @@ function initializeUI ()
    hub.disableButton(calculateButton);
 
    geneSetMenu = $("#plsrGeneSetSelector");
+   expressionDataSetMenu = $("#plsrExpressionDataSetSelector");
+   expressionDataSetMenu.change(function(){
+      console.log("the expression data is: " + expressionDataSetMenu.val());
+   });
 
    clearSelectionButton = $("#plsrClearSelectionButton");
    clearSelectionButton.button();
@@ -97,7 +102,7 @@ function addGeneSetNamesToMenu (geneSetNames)
       }
    
   if(typeof geneSetNames == "string") 
-   	 geneSetNames = [geneSetNames] 
+   	 geneSetNames = [geneSetNames];
 
       
    for(var i=0; i < geneSetNames.length; i++){
@@ -137,6 +142,7 @@ function handleAgeAtDxAndSurvivalRanges(msg)
 
      // now that sliders are set up, setup the geneSetName selector
    requestGeneSetNames();
+   requestExpressionDataSetNames();
 
 } // handleAgeAtDxAndSurvivalRanges 
 //--------------------------------------------------------------------------------------------------
@@ -163,7 +169,7 @@ function requestPLSRByOnsetAndSurvival()
   survivalMaxThreshold = Number(survivalMaxSliderReadout.val()) * 365.24;
 
   var currentGeneSetName = geneSetMenu.val();
-
+  var currentExressionDataSet = expressionDataSetMenu.val();
   factor1 = {name: "AgeDx", 
              low: ageAtDxMinThreshold, 
              high: ageAtDxMaxThreshold};
@@ -173,6 +179,7 @@ function requestPLSRByOnsetAndSurvival()
              high: survivalMaxThreshold};
   
   payload = {genes: currentGeneSetName, 
+             expressionDataSet: currentExressionDataSet,
              factorCount: 2, 
              factors: [factor1, factor2]};
   
@@ -503,6 +510,55 @@ function handleGeneSetNames(msg)
 
 } // handleGeneSetNames
 //--------------------------------------------------------------------------------------------
+function requestExpressionDataSetNames()
+{
+   console.log("=== requestExpressionDataNames");
+
+   callback = "plsrHandleExpressionDataSetNames";
+
+   msg = {cmd:"getExpressionDataSetNames",
+          callback: callback,
+          status:"request",
+          payload:""};
+
+   hub.send(JSON.stringify(msg));
+
+} // requestExpressionDataSetNames
+//----------------------------------------------------------------------------------------------------
+function handleExpressionDataSetNames(msg)
+{
+   console.log("=== handleExpressionDataSetNames");
+
+   newNames = msg.payload;
+   addExpressionDataSetNamesToMenu(newNames);
+
+} // handleExpressionDataSetNames
+ //----------------------------------------------------------------------------------------------------
+ function addExpressionDataSetNamesToMenu (expressionDataSetNames)
+ {
+    console.log("Module.plsr:addExpressionDataSetNamesToMenu");
+ 
+    expressionDataSetMenu.empty();
+ 
+    if(expressionDataSetNames.length === 0) {
+      postStatus("addExpressionDataSetNamesToMenu: expressionDataSetNames.length == 0");
+      return;
+      }
+     
+    if(typeof expressionDataSetNames == "string") 
+      expressionDataSetNames = [expressionDataSetNames]; 
+  
+       
+    for(var i=0; i < expressionDataSetNames.length; i++){
+      optionMarkup = "<option>" + expressionDataSetNames[i] + "</option>";
+      expressionDataSetMenu.append(optionMarkup);
+      } // for i
+ 
+   postStatus("addExpressionDataSetNamesToMenu: complete");
+   hub.enableTab(thisModulesOutermostDiv);
+ 
+ } // addExpressionDataSetNamesToMenu
+//----------------------------------------------------------------------------------------------------
 // when a dataset is specified, this module 
 //  1) extracts the name of the dataset from the payload of the incoming msg
 //  2) (for now) extracts the name of the matrices, from the manifest (also in the payload
@@ -598,6 +654,7 @@ function initializeModule()
 {
    hub.addOnDocumentReadyFunction(initializeUI);
    hub.registerSelectionDestination(selectionDestinationsOfferedHere, thisModulesOutermostDiv);
+   hub.addMessageHandler("plsrHandleExpressionDataSetNames", handleExpressionDataSetNames);
    hub.addMessageHandler("plsrHandleGeneSetNames", handleGeneSetNames);
    hub.addMessageHandler("handlePlsrResults", handlePlsrResults);
    hub.addMessageHandler("handleAgeAtDxAndSurvivalRanges", handleAgeAtDxAndSurvivalRanges);

@@ -45,6 +45,7 @@ calculate_plsr <- function(ws, msg)
    print(msg)
    genes <- msg$payload$genes
    printf("gene count for calculatePLSR (%d)", length(genes))
+   
    #print(genes)
       # an artful(?) dodge:  if this is a list of genes, then they are literal genes
       # if just one, then it must be a geneSetName, and we must retrieve the genes
@@ -83,7 +84,15 @@ calculate_plsr <- function(ws, msg)
    printf("--- genes: %d", length(genes))
 
    print("------------ myplsr before calculate")
-   myplsr <- state[["myplsr"]]
+   currentDataSetName <- state[["currentDatasetName"]]
+   ds <- datasets[[currentDataSetName]];
+   matrixName = msg$payload$expressionDataSet
+   printf("expression data for calculatePLSR (%s)", matrixName)
+   cmd <- sprintf("myplsr <- PLSR(ds, '%s')", matrixName);
+   printf("createPLSR about to eval cmd: %s", cmd)
+   eval(parse(text=cmd))
+   state[["myplsr"]] <- myplsr
+
    printf("class(myplsr): %s", class(myplsr))
           
    print(showMethods("calculatePLSR"))
