@@ -71,8 +71,14 @@ ws.calculatePCA <- function(ws, msg)
    samples <- NA
    if("samples" %in% names(msg$payload))
       samples <- msg$payload$samples;
-
-
+  
+   currentDataSetName <- state[["currentDatasetName"]]
+   ds <- datasets[[currentDataSetName]];
+   matrixName = msg$payload$expressionDataSet
+   cmd <- sprintf("mypca <- PCA(ds, '%s')", matrixName);
+   printf("*****cmd is: %s", cmd)
+   eval(parse(text=cmd))
+   state[["mypca"]] <- mypca
    mypca <- state[["mypca"]]
    
    x <- calculate(mypca, genes, samples)

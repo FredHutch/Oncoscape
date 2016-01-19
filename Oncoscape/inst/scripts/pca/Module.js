@@ -454,7 +454,7 @@ function calculate()
 {
    var currentGeneSet = geneSetMenu.val();
    var currentExressionDataSet = expressionDataSetMenu.val();
-   var payload = {genes: currentGeneSet; expressionDataSet: currentExressionDataSet};
+   var payload = {genes: currentGeneSet, expressionDataSet: currentExressionDataSet}
 
    if(currentPatientIDs !== null)
        payload["samples"] = currentPatientIDs;
@@ -658,6 +658,7 @@ function datasetSpecified(msg)
         // TODO: this needs to be a user menu selection (29 jun 2015)
       var lastHit = hits.length - 1;
       matrixName = hits[lastHit].replace(".RData", "");
+      //matrixName = expressionDataSetMenu.val();
     }else{
       alert("No mtx.mrna in dataset '" + dataPackageName + "'");
       hub.disableButton(calculatePcaButton);
