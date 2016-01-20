@@ -38,6 +38,8 @@ ping <- function(ws, msg)
 #----------------------------------------------------------------------------------------------------
 logEvent <- function(ws, msg)
 {
+  printf("--- log suppressed")
+
   payload <- msg$payload
   field.names <- names(payload)
   printf("--- field.names: %d", length(field.names))
