@@ -11,7 +11,7 @@ include(../tabsApp/code.js)
 
 include(../datasets/Module.js)
 include(../plsr/Module.js)
-include(../plsr/Test.js)
+
 </script>
 
 <body>

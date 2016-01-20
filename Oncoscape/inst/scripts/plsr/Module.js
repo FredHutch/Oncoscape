@@ -594,6 +594,7 @@ function datasetSpecified(msg)
       matrixName = hits[lastHit].replace(".RData", "");
       }
    else{
+      alert("No mtx.mrna in dataset '" + dataPackageName + "'");    
       hub.disableButton(calculateButton);
       return;
       }
@@ -629,7 +630,7 @@ function requestSliderRanges(msg)
 //--------------------------------------------------------------------------------------------
 // query the oncoscape server for user id.  the callback then makes a local (that is,
 // Module-specific) decision to run this module's automated tests based upon that id
-function runAutomatedTestsIfAppropriate()
+/*function runAutomatedTestsIfAppropriate()
 {
    var msg = {cmd: "getUserId",  callback: "plsrAssessUserIdForTesting",
               status: "request", payload: ""};
@@ -648,7 +649,7 @@ function assessUserIdForTesting(msg)
       plsrTester.run();
       } // if autoTest
 
-} // assessUserIdForTesting
+} // assessUserIdForTesting*/
 //----------------------------------------------------------------------------------------------------
 function initializeModule()
 {
