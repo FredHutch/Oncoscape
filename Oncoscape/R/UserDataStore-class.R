@@ -131,7 +131,7 @@ setMethod("addData", "UserDataStore",
                      name=name,
                      user=getUserID(obj),
                      group=paste(getUserGroups(obj), collapse=";"),
-                     created=as.character(Sys.time()),
+                     created=as.character(format(Sys.time(), "%a %b %d %Y %X")),
                      permissions=permissions,
                      tags=paste(tags, collapse=";"))
      #print("------ new metadata");
