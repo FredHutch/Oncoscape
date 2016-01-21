@@ -1,60 +1,33 @@
-default: 1 2 3 4 5 6 7 8 9 10 11 12 13 14
+default: build test
 
-1:
-	echo =========== 1
-	R CMD install dataPackages/SubjectHistory && R -f dataPackages/SubjectHistory/inst/unitTests/test_SubjectHistory.R 
+clean:
+	R -f removeInstalledOncoscapePackages.R
 
-2:
-	echo =========== 2
-	R CMD install dataPackages/Dataset && R -f dataPackages/Dataset/inst/unitTests/test_Dataset.R 
+build:
+	R CMD install dataPackages/SubjectHistory
+	R CMD install dataPackages/Dataset
+	R CMD install dataPackages/DEMOdz
+	R CMD install dataPackages/TCGAbrain
+	R CMD install dataPackages/Groups
+	R CMD install dataPackages/ChinookDataset
+	R CMD install Oncoscape
+	R CMD install analysisPackages/ChinookAnalysis
+	R CMD install analysisPackages/chinookAnalysisDemo/SimpleSummaryStats/
+	R CMD install analysisPackages/chinookAnalysisDemo/ChinookSimpleSummaryStats
+	R CMD install analysisPackages/PCA
+	R CMD install analysisPackages/ChinookPCA
 
-3:
-	echo =========== 3
-	R CMD install dataPackages/DEMOdz && R -f dataPackages/DEMOdz/inst/unitTests/test_DEMOdz.R 
-4:
-	echo =========== 4
-	R CMD install dataPackages/TCGAbrain && R -f dataPackages/TCGAbrain/inst/unitTests/test_TCGAbrain.R 
-
-5:
-	echo =========== 5
-	R CMD install Oncoscape && (cd Oncoscape/inst/unitTests; R -f test_ChinookServer.R)
-
-6:
-	echo =========== 6
-	R CMD install analysisPackages/ChinookAnalysis && R -f analysisPackages/ChinookAnalysis/inst/unitTests/test_ChinookAnalysis.R
-
-7:
-	echo =========== 7
-	R CMD install analysisPackages/chinookAnalysisDemo/SimpleSummaryStats && R -f analysisPackages/chinookAnalysisDemo/SimpleSummaryStats/inst/unitTests/test_SimpleSummaryStats.R 
-
-8:
-	echo =========== 8
-	R CMD install analysisPackages/chinookAnalysisDemo/ChinookSimpleSummaryStats && R -f analysisPackages/chinookAnalysisDemo/ChinookSimpleSummaryStats/inst/unitTests/test_ChinookSimpleSummaryStats.R
-
-9:
-	echo =========== 9
+test:
+	R -f dataPackages/DEMOdz/inst/unitTests/test_DEMOdz.R
+	R -f dataPackages/Dataset/inst/unitTests/test_Dataset.R
+	R -f dataPackages/TCGAbrain/inst/unitTests/test_TCGAbrain.R
+	R -f dataPackages/Groups/inst/unitTests/test_Groups.R
+	(cd Oncoscape/inst/unitTests; make)
+	R -f analysisPackages/ChinookAnalysis/inst/unitTests/test_ChinookAnalysis.R
+	R -f analysisPackages/chinookAnalysisDemo/SimpleSummaryStats/inst/unitTests/test_SimpleSummaryStats.R
+	R -f analysisPackages/chinookAnalysisDemo/ChinookSimpleSummaryStats/inst/unitTests/test_ChinookSimpleSummaryStats.R
 	(cd analysisPackages/chinookAnalysisDemo/ChinookSimpleSummaryStats/inst/unitTests; make)
-
-10:
-	echo =========== 10
-	(cd analysisPackages/chinookAnalysisDemo/ChinookSimpleSummaryStats/inst/unitTests; make)
-
-11:
-	echo =========== 11
-	(cd analysisPackages; R CMD install PCA && R -f PCA/inst/unitTests/test_PCA.R)
-
-12:
-	echo =========== 12
-	R CMD install dataPackages/ChinookDataset  && R -f dataPackages/ChinookDataset/inst/unitTests/test_ChinookDataset.R
-
-13:
-	echo =========== 13
+	R -f analysisPackages/PCA/inst/unitTests/test_PCA.R
+	R -f dataPackages/ChinookDataset/inst/unitTests/test_ChinookDataset.R
 	(cd dataPackages/ChinookDataset/inst/unitTests; make)
-
-14:
-	echo =========== 14
-	R CMD install dataPackages/Groups && R -f dataPackages/Groups/inst/unitTests/test_Groups.R
-
-15:
-	echo =========== 15
-	R CMD install analysisPackages/ChinookPCA && (cd analysisPackages/ChinookPCA/inst/unitTests; make)
+	(cd analysisPackages/ChinookPCA/inst/unitTests; make)
