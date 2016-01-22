@@ -54,7 +54,9 @@ getAllDataSetNames <- function(ws, msg)
          paste(available.datasets, collapse=";"));
   
   stopifnot(datasetName %in% available.datasets);
-  require(datasetName, character.only=TRUE)
+  printf("calling library %s", datasetName);
+   printf("what is in state: %s", paste(ls(state), collapse=";"));
+ library(datasetName, character.only=TRUE)
 
   constructionNeeded <- !datasetName %in% ls(state)
   printf("%s construction needed? %s", datasetName, constructionNeeded);
@@ -90,6 +92,9 @@ specifyCurrentDataset <- function(ws, msg)
 # the three fields: datasetName, colnamaes, matrix
 getDataManifestAsJSON <-function(datasetName)
 {
+  printf("wsDatasets.R, getDataManifestAsJSON, datasetName: %s", datasetName)
+  printf("wsDatasets.R, getDataManifestAsJSON, datasets: %s", ls(datasets))
+  
   tbl <- manifest(datasets[[datasetName]])
 
     # the first two columns, "variable" and "class" are not so relevant for the oncoscape display
