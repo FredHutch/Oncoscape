@@ -191,8 +191,8 @@ function testContentsOfplsrPlot()
       assert.equal(xPos, plsrMsg.xScale(plsrMsg.genes[circleIndex][0]), "tested one circle's x coordinate");
       assert.equal(yPos, plsrMsg.yScale(plsrMsg.genes[circleIndex][1]), "tested one circle's y coordinate");
       assert.equal(radius, 3, "tested one circle's radius");
-      testSendIDs();
-      //testSliderUpdates(plsrMsg); 
+      //testSendIDs();
+      markEndOfTestingDataSet();
    });
 
 } // testContentsOfplsrPlot
@@ -216,7 +216,8 @@ function testSliderUpdates(plsrMsg) {
           plsrMsg = plsr.ModuleMsg();
           assert.notEqual(plsrMsg_update.vector, plsrMsg.vector, "the plsr vectors are updated.");
           $("#plsrDisplay").show();
-          testSendIDs();
+          //testSendIDs();
+          markEndOfTestingDataSet();
         });  
       }); // new MutationObserver
     } // if null mutation observer    
