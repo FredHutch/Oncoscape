@@ -1,26 +1,15 @@
 #Script to compare patients across the different manifest categories 
 #----------------------------------------------------------------------------------------------------------------------------
-#load libraries 
-library("TCGAbrain")
-library("TCGAbrca")
-library("TCGAprad")
-library("TCGAbrain")
-library("TCGAbrca")
-library("DEMOdz")
-library("TCGAgbm")
-library("TCGAhnsc")
-library("TCGAlgg")
-library("TCGAluad")
-library("TCGAlung")
-library("TCGAlusc")
-library("TCGAprad")
-library("TCGAcoadread")
 
 #Create a variable of all the datapackages available for testing
-datapackages<-c("TCGAbrain","TCGAbrca","DEMOdz","TCGAgbm","TCGAhnsc","TCGAlgg","TCGAluad","TCGAlung","TCGAlusc","TCGAprad","TCGAcoadread")
+dataPackageNames<-c("TCGAbrain","TCGAbrca","DEMOdz","TCGAgbm","TCGAhnsc","TCGAlgg","TCGAluad","TCGAlung","TCGAlusc","TCGAprad","TCGAcoadread")
 
+#load libraries 
+for(dpName in dataPackageNames)
+  library(dpName)
+  
 #function to read in all the manifest files from the different data packages
-Data<-function(dp){
+getManifest<-function(dp){
   dir <- system.file(package=dp,"extdata")
   file <- file.path(dir, "manifest.tsv") 
   manifest <- read.table(file, sep="\t", as.is=TRUE)
@@ -28,10 +17,10 @@ Data<-function(dp){
 }
 
 #Compare Function-loops datapackage manifests and grabs (sampleIDs)
-CompareFunction<-function(LegitManifest,filenames,dp){
+ComparePercentPatientIDs<-function(LegitManifest,filenames,dp){
   eval(parse(text=sprintf("Loadeddp <- %s()", dp)))
   dir <- system.file(package=dp,"extdata")
-  Final<-sapply(1:length(filenames), function(i){
+  PercentOverlapTable<-sapply(1:length(filenames), function(i){
     rowA<-LegitManifest[i,]  
     fileA<- file.path(dir, rownames(rowA))
     load(fileA)
@@ -39,7 +28,6 @@ CompareFunction<-function(LegitManifest,filenames,dp){
     eval(parse(text=sprintf("matrixA <- %s", rowA[[1]])))
     IDsA<-rownames(matrixA)
     PtIDsA<-unique(canonicalizePatientIDs (Loadeddp,IDsA)) 
-    
     
      NumberPtIDs<-sapply(1:length(filenames), function(j){
        rowB<-LegitManifest[j,]  
@@ -56,20 +44,20 @@ CompareFunction<-function(LegitManifest,filenames,dp){
     round(NumberPtIDs)
   })
   #name columns and rows
-  rownames(Final)<-filenames
-  colnames(Final)<-filenames
-  print(Final)
+  rownames(PercentOverlapTable)<-filenames
+  colnames(PercentOverlapTable)<-filenames
+  PercentOverlapTable
 }
 
 #Final lapply for results 
-ExpressionTables<-lapply(datapackages,function(dp){
-  manifest<-Data(dp)
+PercentOverlapTables<-lapply(dataPackageNames,function(dp){
+  manifest<-getManifest(dp)
   #create variable of only the desired categories from the manifests
   LegitManifest<-subset(manifest,(grepl("copy number|mutations|protein abundance|methylation|mrna expression",category ,ignore.case = TRUE)))
   print(paste("This datapackage is", dp))
   #set files names as a variable
   filenames<-rownames(LegitManifest)
-  CompareFunction(LegitManifest, filenames, dp)
+  ComparePercentPatientIDs(LegitManifest, filenames, dp)
 })
-names(ExpressionTables)=datapackages
+names(PercentOverlapTables)=dataPackageNames
 #--------------------------------------------------------------------------------------------------------------------------------------
