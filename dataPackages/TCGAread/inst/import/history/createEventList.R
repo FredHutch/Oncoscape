@@ -90,7 +90,8 @@ tbl.nte <- read.table("clinical_nte_read.txt", quote="", sep="\t", header=TRUE, 
 tbl.nte <- tbl.nte[3:nrow(tbl.nte),]
 tbl.omf <- read.table("clinical_omf_v4.0_read.txt", quote="", sep="\t", header=TRUE, as.is=TRUE)
 tbl.omf <- tbl.omf[3:nrow(tbl.omf),]
-
+load("../../omf.histology.RData")
+tbl.omf.histology <- subset(omf.histology, diseaseType==study)
 setwd(currDir)
 
 #------------------------------------------------------------------------------------------------------------------------
@@ -1225,7 +1226,7 @@ create.Pathology.record <- function(patient.id)
             PtNum=patient.number,
             study=study,
             Name=name,
-            Fields = list(date=date, disease=pathDisease, histology=pathHistology,bucket=pathHistology, collection=collection, T.Stage=T.Stage, N.Stage=N.Stage, M.Stage=M.Stage,
+            Fields = list(date=date, disease=pathDisease, histology=pathHistology,histology.category=NA, collection=collection, T.Stage=T.Stage, N.Stage=N.Stage, M.Stage=M.Stage,
             S.Stage=S.Stage,staging.System=staging.System))
             good.records.found <- good.records.found + 1
             result[[good.records.found]] <- new.event
@@ -1237,6 +1238,13 @@ create.Pathology.record <- function(patient.id)
             disease <- tbl.omfSub$other_malignancy_anatomic_site[omfEvent]
             omfOffset = tbl.omfSub$days_to_other_malignancy_dx[omfEvent]
             histology <- tbl.omfSub$other_malignancy_histological_type[omfEvent]
+            histology_text <- tbl.omfSub$other_malignancy_histological_type_text[omfEvent]
+            if(histology_text != "[Not Applicable]"){
+               histology <- paste(histology, histology_text, sep=":")
+            }
+            histology.category = tbl.omf.histology[tbl.omf.histology$omf.histology==histology, 4]
+            if(histology.category == "[Not Available]") histology.category = NA
+
             
             if(disease   == "[Not Available]") disease = NA
             if(histology == "[Not Available]") histology = NA
@@ -1247,7 +1255,7 @@ create.Pathology.record <- function(patient.id)
             PtNum=patient.number,
             study=study,
             Name=name,
-            Fields = list(date=omf.date, disease=disease, histology=histology,bucket=histology, collection=NA, T.Stage=NA, N.Stage=NA, M.Stage=NA,S.Stage=NA,staging.System=NA))
+            Fields = list(date=omf.date, disease=disease, histology=histology, histology.category=histology.category, collection=NA, T.Stage=NA, N.Stage=NA, M.Stage=NA,S.Stage=NA,staging.System=NA))
             
             good.records.found <- good.records.found + 1
             result[[good.records.found]] <- new.event
@@ -1264,11 +1272,11 @@ test_create.Pathology.record <- function()
     x <- create.Pathology.record("TCGA-AF-2687")
     checkTrue(is.list(x))
     checkEquals(names(x[[1]]), c("PatientID", "PtNum", "study", "Name", "Fields"))
-    checkEquals(names(x[[1]][["Fields"]]), c("date", "disease", "histology","bucket","collection","T.Stage","N.Stage","M.Stage","S.Stage", "staging.System"))
-    checkEquals(x[[1]], list(PatientID="TCGA.AF.2687", PtNum=1, study=study, Name="Pathology", Fields=list(date="01/01/2009", disease="Rectum", histology="Rectal Adenocarcinoma",bucket="Rectal Adenocarcinoma", collection="prospective", T.Stage="T3",N.Stage="N2",M.Stage="M0",S.Stage="Stage IIIC", staging.System=NA)))
+    checkEquals(names(x[[1]][["Fields"]]), c("date", "disease", "histology","histology.category","collection","T.Stage","N.Stage","M.Stage","S.Stage", "staging.System"))
+    checkEquals(x[[1]], list(PatientID="TCGA.AF.2687", PtNum=1, study=study, Name="Pathology", Fields=list(date="01/01/2009", disease="Rectum", histology="Rectal Adenocarcinoma",histology.category=NA, collection="prospective", T.Stage="T3",N.Stage="N2",M.Stage="M0",S.Stage="Stage IIIC", staging.System=NA)))
     
     x <- create.Pathology.record("TCGA-AG-A00H") #has omf
-    checkEquals(x[[1]], list(PatientID="TCGA.AG.A00H", PtNum=79, study=study, Name="Pathology",Fields=list(date="01/01/2008",disease="Rectum", histology="Rectal Adenocarcinoma", bucket="Rectal Adenocarcinoma", collection="retrospective", T.Stage="T3",N.Stage="N0",M.Stage="M0",S.Stage="Stage IIA", staging.System="6th")))
+    checkEquals(x[[1]], list(PatientID="TCGA.AG.A00H", PtNum=79, study=study, Name="Pathology",Fields=list(date="01/01/2008",disease="Rectum", histology="Rectal Adenocarcinoma", histology.category=NA, collection="retrospective", T.Stage="T3",N.Stage="N0",M.Stage="M0",S.Stage="Stage IIA", staging.System="6th")))
 
 
 } # test_create.Pathology.record
@@ -1576,12 +1584,21 @@ create.Background.record <- function(patient.id)
     }else{ if (his_op == "NO") NO = c(NO,"history of colon polyps")
         else YES = c(YES, "history of colon polyps")
     }
+    if(family.colorec.history  == "[Not Available]" |family.colorec.history  == "[Unknown]"){
+      family.colorec.history =NA
+    }else{
+      if(family.colorec.history == "NO") NO = c(NO, "family history of colorectal cancer")
+      else YES = c(YES, "family history of colorectal cancer")
+    }
     if(length(YES)==0) YES=NA
     if(length(NO)==0) NO=NA
     history = list(YES=YES, NO=NO)
-    if(family.colorec.history  == "[Not Available]" |family.colorec.history  == "[Unknown]") family.colorec.history =NA
+    
     if(First_Tx_Outcome == "[Not Available]") First_Tx_Outcome = NA
-    return(list(PatientID=patient.id, PtNum=patient.number, study=study, Name=name, Fields = list(History = history, family.colorec.history =family.colorec.history , neoadjuvant.treatment=neoadjuvant.treatment,First_Tx_Outcome=First_Tx_Outcome,tobacco.usages=NA, smoking.status=NA, num.packs.years=NA,num.packs.day=NA, alcohol.usage.yrs=NA, alcohol.amount=NA, neoadjuvant.treatment=NA)))
+    return(list(PatientID=patient.id, PtNum=patient.number, study=study, Name=name, 
+      Fields = list(History = history, neoadjuvant.treatment=neoadjuvant.treatment,
+      First_Tx_Outcome=First_Tx_Outcome,tobacco.usages=NA, smoking.status=NA, 
+      num.packs.years=NA,num.packs.day=NA, alcohol.usage.yrs=NA, alcohol.amount=NA)))
     
 } #create.Background.record
 #---------------------------------------------------------------------------------------------------
@@ -1590,14 +1607,21 @@ test_create.Background.record <- function()
     x <- create.Background.record(tcga.ids[1])
     checkTrue(is.list(x))
     checkEquals(names(x), c("PatientID", "PtNum", "study", "Name", "Fields"))
-    checkEquals(names(x[["Fields"]]), c("History", "family.colorec.history", "neoadjuvant.treatment","First_Tx_Outcome","tobacco.usages","smoking.status","num.packs.years","num.packs.day","alcohol.usage.yrs", "alcohol.amount","neoadjuvant.treatment"))
-    checkEquals(x, list(PatientID="TCGA.AF.2687", PtNum=1, study=study, Name="Background", Fields=list(History=list(YES=c("history of other malignancy"),NO=c("history of colon polyps")),family.colorec.history="0", neoadjuvant.treatment="No", First_Tx_Outcome=NA,tobacco.usages=NA, smoking.status=NA, num.packs.years=NA,num.packs.day=NA, alcohol.usage.yrs=NA, alcohol.amount=NA, neoadjuvant.treatment=NA)))
+    checkEquals(names(x[["Fields"]]), c("History", "neoadjuvant.treatment","First_Tx_Outcome",
+      "tobacco.usages","smoking.status","num.packs.years","num.packs.day","alcohol.usage.yrs", "alcohol.amount"))
+    checkEquals(x, list(PatientID="TCGA.AF.2687", PtNum=1, study=study, Name="Background", 
+      Fields=list(History=list(YES=c("history of other malignancy","family history of colorectal cancer"),
+        NO=c("history of colon polyps")), neoadjuvant.treatment="No", First_Tx_Outcome=NA,
+        tobacco.usages=NA, smoking.status=NA, num.packs.years=NA,num.packs.day=NA, alcohol.usage.yrs=NA, alcohol.amount=NA)))
     
     x <- create.Background.record("TCGA-AH-6547") # treatment_outment_first_course == "[discrepancy]"
-    checkEquals(x, list(PatientID="TCGA.AH.6547", PtNum=100, study=study, Name="Background", Fields=list(History=list(YES=c("history of other malignancy","history of colon polyps"),NO=NA),family.colorec.history="0", neoadjuvant.treatment="No", First_Tx_Outcome=NA,tobacco.usages=NA, smoking.status=NA, num.packs.years=NA,num.packs.day=NA, alcohol.usage.yrs=NA, alcohol.amount=NA, neoadjuvant.treatment=NA)))
+    checkEquals(x, list(PatientID="TCGA.AH.6547", PtNum=100, study=study, Name="Background", 
+      Fields=list(History=list(YES=c("history of other malignancy","history of colon polyps", 
+        "family history of colorectal cancer"),NO=NA), neoadjuvant.treatment="No", 
+        First_Tx_Outcome=NA,tobacco.usages=NA, smoking.status=NA, num.packs.years=NA,num.packs.day=NA, 
+        alcohol.usage.yrs=NA, alcohol.amount=NA)))
     
 } #test_create.Background.record
-#---------------------------------------------------------------------------------------------------
 #---------------------------------------------------------------------------------------------------
 createPatientList <- function(Allevents=NA){
 
