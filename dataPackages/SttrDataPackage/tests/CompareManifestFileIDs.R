@@ -1,8 +1,9 @@
 #load libraries 
 
 dataPackageNames <- c("TCGAbrain", "TCGAbrca", "DEMOdz", "TCGAgbm", "TCGAhnsc", "TCGAlgg", "TCGAluad", "TCGAlung", "TCGAlusc", "TCGAprad", "TCGAcoadread")
-for(name in dataPackageNames)
-  library(name)
+for(name in dataPackageNames){
+  library(name,character.only = TRUE)
+}
 
 #----------------------------------------------------------------------------------------------------
 printf <- function(...) print(noquote(sprintf(...)))
