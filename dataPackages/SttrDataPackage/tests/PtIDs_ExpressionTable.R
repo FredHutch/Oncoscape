@@ -6,7 +6,7 @@ dataPackageNames<-c("TCGAbrain","TCGAbrca","DEMOdz","TCGAgbm","TCGAhnsc","TCGAlg
 
 #load libraries 
 for(dpName in dataPackageNames)
-  library(dpName)
+  library(dpName, character.only = TRUE)
   
 #function to read in all the manifest files from the different data packages
 getManifest<-function(dp){
