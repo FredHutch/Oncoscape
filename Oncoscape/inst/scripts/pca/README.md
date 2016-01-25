@@ -1,12 +1,12 @@
 # Oncoscape - PCA
 ## Authors
-Lisa McFerrin, Paul Shannon, and Hamid Bolouri
+Lisa McFerrin, Paul Shannon, Hamid Bolouri, Jenny Zhang
 ## Manual
-* The PCA tab within Oncoscape is designed to compute Principal component analysis on the selected dataset with selected geneset. 
-* This tab can both receive/send patient IDs. And according to the geneset selected from select gene set dropdown menu (and then click "Calculate" button), users will see the pca plot of the received patient according to their expression profile. 
-* Users can also drag a rectagular box to select and then send the patients IDs to another oncoscape tab to continue the calculation.
-* If the current displayed patients are not the entire cohort, the "Use All Samples in the Current Dataset" button will be enabled. By clicking this button, the entire cohort of this dataset will be displayed.
-* When sending patient IDs from aother tab, there will be option to display them on PCA as either regular or the highlight fashion. **PCA highlight** feature could highlight the selected patients against another cohort in the background.  
+* The PCA tab computes Principal Component Analysis on the provided geneset and dataset by calling the internally developed PCA package located under the analysisPackage directory.  Default settings call prcomp() setting both center and scale to TRUE.
+* To initially populate the display, choose a geneset from the gene set dropdown menu then click "Calculate". After calculation, users will see the pca plot of the received patients according to their expression profile. 
+* This tab can both receive/send patient IDs. Drag a rectagular box to select a patient set then choose a destination from the "Send selection..." menu to continue analyzing the patients IDs in another oncoscape tab.
+* If the current plot is not representing the entire cohort of patients in the expression dataset, the "Use All Samples in the Current Dataset" button will be enabled. By clicking this button, the entire cohort of this dataset will be used in the recalculation and display.
+* When sending patient IDs from aother tab, users have the option to either recalculate PCA using just this cohort (send to "PCA") or highlight these IDs in the current display (send to "PCA highlight").
 
 ## Test
 ###### [MutationObserver](https://developer.mozilla.org/en-US/docs/Web/API/MutationObserver) is used to monitor the changes of DOM for testing purpose. 
@@ -16,9 +16,8 @@ Lisa McFerrin, Paul Shannon, and Hamid Bolouri
    make check
    ```
 ###### Features tested include:
-1. Iteration through all the data packages 
-2. randomly geneset selection within each data package
-3. calculation button on the PCA tab
-4. On the regular PCA plot, randomly checking the plotted circle features including location, css  
-5. On the highlight PCA plot, randomly checking the plotted circle features including location, css  
+1. Iterate through each available data package
+2. Randomly select a geneset within each data package
+3. Trigger calculation button on the PCA tab
+4. Randomly check that the plotted circle features include proper location and css in both the send to "PCA" and "PCA highlight" options
 
