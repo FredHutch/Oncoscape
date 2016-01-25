@@ -47,6 +47,29 @@ getAllDataSetNames <- function(ws, msg)
 
 } # getAllDataSetNames
 #----------------------------------------------------------------------------------------------------
+.loadDataset <- function(datasetName)
+{
+  available.datasets <- ls(datasets)
+  printf("wsDatasets.R, specifyCurrentDataset, available: %s",
+         paste(available.datasets, collapse=";"));
+  
+  stopifnot(datasetName %in% available.datasets);
+  printf("calling library %s", datasetName);
+   printf("what is in state: %s", paste(ls(state), collapse=";"));
+ library(datasetName, character.only=TRUE)
+
+  constructionNeeded <- !datasetName %in% ls(state)
+  printf("%s construction needed? %s", datasetName, constructionNeeded);
+  if(constructionNeeded){
+     printf("wsDatasets.specifyCurrentDataset creating and storing a new %s object", datasetName);
+     eval(parse(text=sprintf("ds <- %s()", datasetName)))
+     datasets[[datasetName]] <- ds
+	 state[[datasetName]] <- datasetName;
+
+     } # creating and storing new instance
+
+} # .loadDataset
+#----------------------------------------------------------------------------------------------------
 specifyCurrentDataset <- function(ws, msg)
 {
   available.datasets <- ls(datasets)
@@ -54,19 +77,9 @@ specifyCurrentDataset <- function(ws, msg)
          paste(available.datasets, collapse=";"));
   
   dataset <- msg$payload
+  .loadDataset(dataset)
 
-  stopifnot(dataset %in% available.datasets);
-  state[["currentDatasetName"]] <- dataset;
-  require(dataset, character.only=TRUE)
-
-  constructionNeeded <- !dataset %in% ls(state)
-  printf("%s construction needed? %s", dataset, constructionNeeded);
-  if(constructionNeeded){
-     printf("wsDatasets.specifyCurrentDataset creating and storing a new %s object", dataset);
-     eval(parse(text=sprintf("ds <- %s()", dataset)))
-     state[[dataset]] <- ds
-     } # creating and storing new instance
-
+  state[["currentDatasetName"]] <- dataset;  
   payload <- getDataManifestAsJSON(dataset)
   return.msg <- list(cmd=msg$callback, status="success", callback="",
                      payload=payload)
@@ -79,6 +92,9 @@ specifyCurrentDataset <- function(ws, msg)
 # the three fields: datasetName, colnamaes, matrix
 getDataManifestAsJSON <-function(datasetName)
 {
+  printf("wsDatasets.R, getDataManifestAsJSON, datasetName: %s", datasetName)
+  printf("wsDatasets.R, getDataManifestAsJSON, datasets: %s", ls(datasets))
+  
   tbl <- manifest(datasets[[datasetName]])
 
     # the first two columns, "variable" and "class" are not so relevant for the oncoscape display
@@ -101,6 +117,9 @@ getDataManifest <- function(ws, msg)
 {
   datasetName <- msg$payload;
 
+  if(datasetName %in% ls(datasets) && !datasetName %in% ls(state)){
+     .loadDataset(datasetName)
+  }
   if(!datasetName %in% ls(datasets)){
      return.msg <- list(cmd=msg$callback, status="error", callback="",
                         payload=sprintf("unknown dataset '%s'", datasetName))

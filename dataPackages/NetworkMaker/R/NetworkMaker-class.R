@@ -151,7 +151,9 @@ setMethod("calculateSampleSimilarityMatrix", "NetworkMaker",
      dmtx <- as.matrix(dist(mtx))
      tbl.pos <- as.data.frame(cmdscale(dmtx, k=3))
      colnames(tbl.pos) <- c("x", "y", "z")
-     rownames(tbl.pos) <- canonicalizePatientIDs(obj@pkg, rownames(tbl.pos))
+	 ptIDs <- canonicalizePatientIDs(obj@pkg, rownames(tbl.pos))
+	 tbl.pos <- tbl.pos[!duplicated(ptIDs),]
+     rownames(tbl.pos) <- ptIDs[!duplicated(ptIDs)]
      obj@state[["similarityMatrix"]] <- tbl.pos
      })
 
