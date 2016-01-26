@@ -56,7 +56,7 @@ OncoDev14 = function(port, scriptDir, userID, datasetNames, password=NA_characte
 
    wsCon <- .setupWebSocketHandlers(wsCon, browserFile)
    oncoscape@wsServer <- wsCon
-   state[["auxPort"]] <- AuxPort(wsCon, port+1);
+#   state[["auxPort"]] <- AuxPort(wsCon, port+1);
       
    oncoscape
 
@@ -77,19 +77,26 @@ toJSON <- function(..., auto_unbox = TRUE)
    datasetNames <- strsplit(datasetNames, ";")[[1]]
    for(datasetName in datasetNames){
      printf("OncoDev14:.loadDataPackages: %s", datasetName);
-     s <- sprintf("require(%s, quietly=TRUE)", datasetName)
+     s <- sprintf("require(%s, quietly=TRUE)", datasetName) 
      tryCatch(eval(parse(text=s)), error=function(e) {
-        message(sprintf("failed to load dataset '%s'", datasetName))
+        message(sprintf("failed to require dataset '%s'", datasetName))
         })
-     if(exists(datasetName)){
+	 eval(parse(text= sprintf("datasets[['%s']] <- SttrDataPackage()", datasetName)))
+        message(sprintf("OncoDev14 loading: %s", datasetName))
+
+#     s <- sprintf("require(%s, quietly=TRUE)", datasetName)
+#     tryCatch(eval(parse(text=s)), error=function(e) {
+#        message(sprintf("failed to load dataset '%s'", datasetName))
+#        })
+#     if(exists(datasetName)){
 #        s <- sprintf("datasets[['%s']] <- %s(key=%s)", datasetName, datasetName, encryptedKey)
-        s <- sprintf("datasets[['%s']] <- %s()", datasetName, datasetName)
-        duration <- system.time(tryCatch(eval(parse(text=s)),
-                                error=function(e)
-                                message(sprintf("failure calling constructor for '%s'", datasetName))))[["elapsed"]]
-        message(sprintf("OncoDev14 loading: %40s %7.2f seconds", s, duration))
-        message(sprintf("  new list of loaded datasets: %s", paste(ls(datasets), collapse=",")))
-        } # if data package successfully loaded, ctor defined
+#        s <- sprintf("datasets[['%s']] <- %s()", datasetName, datasetName)
+#        duration <- system.time(tryCatch(eval(parse(text=s)),
+#                                error=function(e)
+#                                message(sprintf("failure calling constructor for '%s'", datasetName))))[["elapsed"]]
+#        message(sprintf("OncoDev14 loading: %40s %7.2f seconds", s, duration))
+#        message(sprintf("  new list of loaded datasets: %s", paste(ls(datasets), collapse=",")))
+#        } # if data package successfully loaded, ctor defined
      } # for datasetName
 
    printf("=== datsets now available in datasets environment: %s", paste(ls(datasets), collapse=","))

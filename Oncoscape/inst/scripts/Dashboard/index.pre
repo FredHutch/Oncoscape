@@ -1,0 +1,10 @@
+include(../index.common)
+include(../common.js)
+include(../UserSettings.js)
+include(../experiment/AboutLink/Module.js)
+include(Module.js)
+<body>
+include(../experiment/AboutLink/widget.html)
+include(widget.html)
+</body>
+</html>

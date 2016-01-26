@@ -12,14 +12,27 @@ If you haven't already, start by signing up for a [GitHub account](https://githu
 
 ## Getting Started
 
+First review this simple flowchart to see the best place for you to start working and contributing to Oncoscape! 
+
+![oncoscape_user_flowchart_final](https://cloud.githubusercontent.com/assets/15098135/12570250/d3c0ab8a-c38a-11e5-85f5-61ff83c27cfe.png)
+
+
 You can clone this repository locally from GitHub using the "Clone in Desktop" 
 button from the main project site, or run this command in the Git Shell:
+
+`git clone https://github.com/FredHutch/Oncoscape.git Oncoscape`
+
+Or if you're using SSH
 
 `git clone git@github.com:FredHutch/oncoscape.git Oncoscape`
 
 If you want to make contributions to the project, 
 [forking the project](https://help.github.com/articles/fork-a-repo) is the 
 easiest way to do this. You can then clone down your fork instead:
+
+`git clone https://github.com/MY-USERNAME-HERE/Oncoscape.git Oncoscape`
+
+Or if you're using SSH
 
 `git clone git@github.com:MY-USERNAME-HERE/Oncoscape.git Oncoscape`
 
