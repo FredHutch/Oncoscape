@@ -1,0 +1,37 @@
+
+Building these examples on Windows is a bit more difficult than on Linux.
+
+* Put R in the path:
+C:\R\R-2.1X.X\bin
+C:\R\R-2.1X.X\bin\i386
+
+* Add required environment variables:
+R_HOME	C:\R\R-2.1X.X
+CYGWIN	nodosfilewarning
+
+* Then libpack and libblas for Windows needed to be obtained from:
+
+http://icl.cs.utk.edu/lapack-for-windows/lapack/index.html#libraries_mingw
+
+* The CMakeLists.txt files expect the liblapack.lib and libblas.lib files to be in the same directory as themselves for the Windows build. You can edit lines 7 and 8 of the the CMakeLists.txt files if they are not in this location.
+
+* I generally build in a 'build' directly below cmake:
+mkdir build
+cd build
+cmake -G "Unix Makefiles" ../.
+make
+
+To run these example there are further DLL dependencies required not installed by RTools:
+
+libgcc_s_dw2-1.dll
+libgfortran.dll
+libquadmath-0.dll
+liblapack.dll
+
+I was able to grab these by installing MinGW from: http://sourceforge.net/projects/mingw/files/MinGW/Base/gcc/Version4/
+Use the version that matches the gcc version that is installed by RTools.
+
+Once installed, either add their location to the PATH, or copy them to either the same directory as the example executable, or put them in the windows/system32 folder.
+
+Peter
+peter dot aberline at gmail dot com

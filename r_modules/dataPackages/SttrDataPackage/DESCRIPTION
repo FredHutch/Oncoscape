@@ -1,0 +1,13 @@
+Package: SttrDataPackage
+Type: Package
+Title: SttrDataPackage: a base class for Oncoscape/STTR case study molecular and history data
+Version: 0.99.20
+Date: 2015-11-04
+Author: Paul Shannon, Lisa McFerrin
+Maintainer: Paul Shannon <pshannon@fredhutch.org>
+Depends: R (>= 3.1.1), PatientHistory
+Imports: methods, BiocGenerics
+Suggests: RUnit
+Description: A  base class, extended for each specific case study
+License: GPL-2
+LazyLoad: yes

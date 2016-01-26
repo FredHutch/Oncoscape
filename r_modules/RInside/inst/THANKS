@@ -1,0 +1,18 @@
+
+Miguel Lechón           for finding (and fixing!) a memory-management bug
+Daniel F Schwarz        for a patch to not override pre-set environment variables
+Michael Kane            for testing on RHEL
+Jan de Leeuw            for testing on OS X
+Jeffrey Horner          for finding and fixing an OS X build bug
+Simon Urbanek           for OS X (and general) build tips
+Richard Holbrey         for initial help with the the Windows build 
+Jianping Hua            for contributing two MPI-based examples
+Murray Stokely		for a patch regarding timing of Rcpp autoloads
+James Bates		for a patch restoring RInside on Windows
+John Brzustowski	for a correction to the Windows initialization
+Peter Aberline		for contributing CMake support for all examples
+Theodore Lytras		for a patch helping to recover from (some) errors
+Spencer Behling         for a patch getting the Qt example ready for Qt 5.1
+Nicholas Pezolano       for a new MPI example
+Martin Morgan           for a new MPI example
+Kevin Ushey             for debugging a seg.fault issue post Rcpp 0.11.0

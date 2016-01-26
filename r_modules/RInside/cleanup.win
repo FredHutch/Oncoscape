@@ -1,0 +1,7 @@
+
+
+rm -vf src/*.o src/*.so inst/lib/*.h \
+		inst/lib/lib*.so inst/lib/lib*.a 
+
+cd inst/examples/standard && make -f Makefile.win clean && cd -
+## cd inst/examples/mpi && make clean && cd -

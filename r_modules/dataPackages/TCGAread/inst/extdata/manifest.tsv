@@ -1,0 +1,6 @@
+variable	class	category	subcategory	entity.count	feature.count	entity.type	feature.type	minValue	maxValue	provenance
+events.RData	history	list	history	clinical	1608	NA	NA	NA	NA	NA	tcga
+ptHistory.RData	ptList	list	history	clinical patients	171	NA	NA	NA	NA	NA	tcga
+historyTypes.RData	catList	list	history	clinical categories	12	NA	NA	NA	NA	NA	tcga
+tbl.ptHistory.RData	tbl.ptHistory	data.frame	history	clinical table	171	285	patients	events	NA	NA	tcga
+

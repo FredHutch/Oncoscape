@@ -1,0 +1,12 @@
+exportClasses(TCGAbrainClass)
+
+export(
+   TCGAbrain
+   )
+
+exportMethods(
+   )
+
+importClassesFrom(methods, character, integer)
+importFrom(methods, new)
+

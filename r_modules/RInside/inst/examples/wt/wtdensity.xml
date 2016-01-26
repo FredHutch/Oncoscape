@@ -1,0 +1,70 @@
+<?xml version="1.0" encoding="ISO-8859-1" ?>
+<messages>
+  <message id="error-missing-data">
+    <div>The data file "{1}" could not be found. Check your deployment.</div>
+  </message>
+  <message id="overview">
+
+    <h2><span>Overview</span></h2>
+
+    <p class="p">
+      This example demonstrates some of the capabilities of the
+      the <a href="http://www.webtoolkit.eu/wt/">Wt library</a>, in combination with the
+      <a href="http://dirk.eddelbuettel.com/code/rinside.html">RInside</a> classes for 
+      embedding the <a href="http://www.r-project.org">R</a> statistical language and environment.
+    </p>
+
+    <p class="p">
+      It reimplements a standard GUI / application setting:
+      drawing from a random distribution, and estimation a
+      non-parametric density for which the user selects the kernel and bandwidth.
+      <a href="http://dirk.eddelbuettel.com/code/rinside.html">RInside</a> already contains
+      an example of this using <a href="http://www.qt-project.org">Qt</a> to provide 
+      a standard <em>application</em>.
+    </p>
+
+    <p class="p">
+      Here we show how to do the same in a <em>web application</em>
+      which, thanks to the abstractions provided by
+      the <a href="http://www.webtoolkit.eu/wt/">Wt</a>, is rather straightforward.
+    </p>
+  </message>
+
+  <message id="user input">
+    <h2><span>User Input for Density Estimation</span></h2>
+  </message>
+
+  <message id="user input orig">
+    <h2><span>User Input for Density Estimation</span></h2>
+    <p class="p">
+      The user can select a bandwidth factor (to be divided by 100),
+      an R expression to generate data (with a default for a mixture
+      distributions) and a kernel function.
+    </p>
+  </message>
+
+  <message id="r result">
+    <h2><span>Resulting R Chart</span></h2>
+  </message>
+
+  <message id="r result orig">
+
+    <h2><span>Resulting R Chart</span></h2>
+
+    <p class="p">
+      The chart below is created by R given the selected user input.
+    </p>
+  </message>
+
+  <message id="browser info">
+    <h2><span>Browser Information</span></h2>
+  </message>
+
+  <message id="browser info orig">
+    <h2><span>Browser Information</span></h2>
+    <p class="p">
+      The string below is provided by the client's browser and often
+      reveals operating system and IP address.
+    </p>
+  </message>
+</messages>

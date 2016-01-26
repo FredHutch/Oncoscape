@@ -1,0 +1,12 @@
+Package: TCGAlgg
+Type: Package
+Title: TCGAlgg: TCGA Lower Grade Glioma data for SttrDataPackage
+Version: 0.99.7
+Date: 2015-11-2
+Author: Lisa McFerrin
+Maintainer: Paul Shannon <pshannon@fredhutch.org>
+Depends: R (>= 3.1.1), SttrDataPackage, org.Hs.eg.db, RUnit
+Imports: methods, BiocGenerics
+Description: Includes patient history, CNV, mutation, and RNA data
+License: GPL-2
+LazyLoad: yes

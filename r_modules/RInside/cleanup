@@ -1,0 +1,13 @@
+
+rm -vf  src/*.o src/*.so inst/lib/*.h \
+   	src/RInsideEnvVars.h src/RInsideAutoloads.h \
+	inst/lib/lib*.so inst/lib/lib*.a \
+	Librinside.a
+
+for d in standard mpi qt wt armadillo eigen threads
+do
+    cd inst/examples/${d} 
+    test -f Makefile && make clean && rm -f *~
+    cd ../../..
+done
+

@@ -1,0 +1,15 @@
+exportClasses(AnalysisDemo)
+
+exportMethods(
+  getSampleIDs,
+  getGeneSet,
+  setExpressionData,
+  getExpressionData,
+  score
+  )
+
+# export functions here
+export(
+  AnalysisDemo,
+  printf
+)

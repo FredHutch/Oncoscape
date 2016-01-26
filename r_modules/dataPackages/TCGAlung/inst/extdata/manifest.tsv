@@ -1,0 +1,16 @@
+variable	class	category	subcategory	entity.count	feature.count	entity.type	feature.type	minValue	maxValue	provenance
+mtx.cn.RData	mtx.cn	matrix	copy number	gistic scores	1016	22184	patient	gene	-2	2	tcga luad and lusc
+events.RData	history	list	history	clinical	10737	NA	NA	NA	NA	NA	tcga gbm and lgg
+ptHistory.RData	ptList	list	history	clinical patients	1015	NA	NA	NA	NA	NA	tcga
+historyTypes.RData	catList	list	history	clinical categories	12	NA	NA	NA	NA	NA	tcga
+tbl.ptHistory.RData	tbl.ptHistory	data.frame	history	clinical table	1015	383	patients	events	NA	NA	tcga
+mtx.mut.RData	mtx.mut	matrix	mutations	aa substitutions	407	16655	patient	gene	NA	NA	tcga luad and lusc
+mtx.prot.RData	mtx.prot	matrix	protein abundance	Z scores	376	228	patient	protein	-5.39682915	9.95972284	tcga luad and lusc
+mtx.methHM450.RData	mtx.meth	matrix	methylation	beta values	810	16749	patient	gene	 0.004365384	0.995690633	tcga luad and lusc; one probe per gene- most anti-correlated with expression
+mtx.methHM27.RData	mtx.meth	matrix	methylation	beta values	259	2552	patient	gene	 0.004523024	0.994422364	tcga luad and lusc; one probe per gene- most anti-correlated with expression
+mtx.mrna_Agi.RData	mtx.mrna_Agi	matrix	mRNA expression	ratios	186	17212	patient	gene	-28.7792	47.0682	tcga luad and lusc
+mtx.mrna_U133.RData	mtx.mrna	matrix	mRNA expression	ratios	133	11878	patient	gene	-9.9347	61.9539	tcga lusc
+mtx.mrna_Seq.RData	mtx.mrna_Seq	matrix	mRNA expression	ratios	991	20444	patient	gene	-4.8681	38659.0448	tcga luad and lusc
+genesets.RData	genesets	list	geneset	NA	3	NA	gene	NA	NA	NA	marker.genes.545, tcga.GBM.classifiers, tcga.pancan.mutated
+gbmPathways.json.RData	g.gbmPathways.json	character	network	GBM-related Pathways	156	203	nodes	edges	NA	NA	manual curation by Hamid Bolouri
+egfr.json.RData	g.egfr.json	character	network	egfr signaling	32	14	nodes	edges	NA	NA	manual curation

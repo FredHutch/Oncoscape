@@ -1,0 +1,25 @@
+body, html {
+  font-family: verdana,helvetica,tahoma,sans-serif;
+}
+
+p.p {
+  margin: 16px 0px;
+  font-size: smaller;
+}
+
+.box {
+  margin: 5px 20px;
+  font-size: smaller;
+  font-family: sans-serif;
+}
+
+h2 {
+  padding-left: 30px;
+  border-bottom: 1px solid #000;
+  font-size: larger;
+}
+
+h2 span {
+  border-bottom: 0.2em solid #000;
+}
+

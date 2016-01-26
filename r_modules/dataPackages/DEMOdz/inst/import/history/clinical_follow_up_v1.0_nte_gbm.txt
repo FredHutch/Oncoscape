@@ -1,0 +1,524 @@
+bcr_patient_barcode	bcr_followup_barcode	new_tumor_event_dx_days_to	new_tumor_event_radiation_tx	days_to_new_tumor_event_additional_surgery_procedure	new_neoplasm_event_type	new_tumor_event_additional_surgery_procedure	new_tumor_event_pharmaceutical_tx
+bcr_patient_barcode	bcr_followup_barcode	days_to_new_tumor_event_after_initial_treatment	additional_radiation_therapy	days_to_new_tumor_event_additional_surgery_procedure	new_neoplasm_event_type	new_tumor_event_additional_surgery_procedure	additional_pharmaceutical_therapy
+CDE_ID:2673794	CDE_ID:	CDE_ID:3392464	CDE_ID:3427615	CDE_ID:3008335	CDE_ID:3119721	CDE_ID:3427611	CDE_ID:3427616
+TCGA-02-0001	TCGA-02-0001-F22169	137	NO	[Not Available]	Recurrence	[Not Available]	NO
+TCGA-02-0003	TCGA-02-0003-F22176	40	NO	[Not Available]	Recurrence	[Not Available]	NO
+TCGA-02-0006	TCGA-02-0006-F22185	302	NO	[Not Available]	Recurrence	[Not Available]	YES
+TCGA-02-0007	TCGA-02-0007-F22191	518	YES	[Not Available]	Progression of Disease	[Not Available]	NO
+TCGA-02-0009	TCGA-02-0009-F22196	264	NO	[Not Available]	Progression of Disease	[Not Available]	[Not Available]
+TCGA-02-0009	TCGA-02-0009-F22196	[Not Available]	NO	270	Locoregional Disease	YES	[Not Available]
+TCGA-02-0010	TCGA-02-0010-F22198	351	NO	[Not Available]	Progression of Disease	[Not Available]	YES
+TCGA-02-0011	TCGA-02-0011-F22204	145	NO	[Not Available]	Progression of Disease	[Not Available]	YES
+TCGA-02-0014	TCGA-02-0014-F22211	2243	NO	[Not Available]	Progression of Disease	[Not Available]	YES
+TCGA-02-0021	TCGA-02-0021-F22225	255	NO	[Not Available]	Progression of Disease	[Not Available]	NO
+TCGA-02-0024	TCGA-02-0024-F22238	1401	NO	[Not Available]	Recurrence	[Not Available]	[Not Available]
+TCGA-02-0027	TCGA-02-0027-F22254	257	NO	[Not Available]	Progression of Disease	[Not Available]	YES
+TCGA-02-0028	TCGA-02-0028-F22262	1921	NO	[Not Available]	Progression of Disease	[Not Available]	YES
+TCGA-02-0033	TCGA-02-0033-F22269	32	NO	[Not Available]	Progression of Disease	[Not Available]	[Not Available]
+TCGA-02-0034	TCGA-02-0034-F22271	386	NO	[Not Available]	Progression of Disease	[Not Available]	NO
+TCGA-02-0037	TCGA-02-0037-F22275	37	NO	[Not Available]	Progression of Disease	[Not Available]	NO
+TCGA-02-0038	TCGA-02-0038-F22277	239	NO	[Not Available]	Progression of Disease	[Not Available]	NO
+TCGA-02-0043	TCGA-02-0043-F22283	282	NO	[Not Available]	Progression of Disease	[Not Available]	YES
+TCGA-02-0046	TCGA-02-0046-F22291	195	NO	[Not Available]	Progression of Disease	[Not Available]	[Not Available]
+TCGA-02-0047	TCGA-02-0047-F22293	57	NO	[Not Available]	Progression of Disease	[Not Available]	NO
+TCGA-02-0052	TCGA-02-0052-F22299	204	NO	[Not Available]	Progression of Disease	[Not Available]	NO
+TCGA-02-0054	TCGA-02-0054-F22303	72	NO	[Not Available]	Progression of Disease	[Not Available]	YES
+TCGA-02-0055	TCGA-02-0055-F22311	6	NO	[Not Available]	Progression of Disease	[Not Available]	NO
+TCGA-02-0057	TCGA-02-0057-F22316	473	NO	[Not Available]	Progression of Disease	[Not Available]	YES
+TCGA-02-0058	TCGA-02-0058-F22321	172	NO	[Not Available]	Progression of Disease	[Not Available]	NO
+TCGA-02-0060	TCGA-02-0060-F22327	183	NO	[Not Available]	Progression of Disease	[Not Available]	NO
+TCGA-06-0875	TCGA-06-0875-F22877	279	NO	[Not Available]	Progression of Disease	[Not Available]	NO
+TCGA-06-0876	TCGA-06-0876-F31562	424	YES	[Not Available]	[Unknown]	[Not Available]	YES
+TCGA-06-0878	TCGA-06-0878-F22888	66	NO	[Not Available]	Recurrence	[Not Available]	YES
+TCGA-06-0879	TCGA-06-0879-F22894	699	NO	[Not Available]	Recurrence	[Not Available]	NO
+TCGA-06-0879	TCGA-06-0879-F31541	699	YES	[Not Available]	Progression of Disease	[Not Available]	YES
+TCGA-06-0879	TCGA-06-0879-F31541	[Not Available]	YES	984	Locoregional Disease	YES	YES
+TCGA-06-0881	TCGA-06-0881-F22899	141	NO	[Not Available]	Recurrence	[Not Available]	YES
+TCGA-06-0881	TCGA-06-0881-F31567	141	YES	[Not Available]	Recurrence	[Not Available]	YES
+TCGA-06-0882	TCGA-06-0882-F31551	213	YES	[Not Available]	Recurrence	[Not Available]	YES
+TCGA-12-0670	TCGA-12-0670-F23531	379	NO	[Not Available]	Progression of Disease	[Not Available]	NO
+TCGA-12-0670	TCGA-12-0670-F23531	[Not Available]	NO	744	Locoregional Disease	YES	NO
+TCGA-12-0818	TCGA-12-0818-F23664	[Not Available]	NO	1643	Locoregional Disease	YES	NO
+TCGA-12-0819	TCGA-12-0819-F23673	428	NO	[Not Available]	Recurrence	[Not Available]	YES
+TCGA-12-0820	TCGA-12-0820-F23683	272	NO	[Not Available]	Recurrence	[Not Available]	YES
+TCGA-12-0821	TCGA-12-0821-F23695	259	NO	[Not Available]	Recurrence	[Not Available]	YES
+TCGA-12-0822	TCGA-12-0822-F23701	91	NO	[Not Available]	Recurrence	[Not Available]	YES
+TCGA-12-0822	TCGA-12-0822-F23701	[Not Available]	NO	112	Locoregional Disease	YES	YES
+TCGA-12-0827	TCGA-12-0827-F23714	[Not Available]	NO	452	Locoregional Disease	YES	NO
+TCGA-12-0828	TCGA-12-0828-F23726	13	NO	[Not Available]	Progression of Disease	[Not Available]	NO
+TCGA-12-0828	TCGA-12-0828-F23726	[Not Available]	NO	13	Locoregional Disease	YES	NO
+TCGA-12-0829	TCGA-12-0829-F23730	473	NO	[Not Available]	Recurrence	[Not Available]	YES
+TCGA-12-0829	TCGA-12-0829-F23730	[Not Available]	NO	467	Locoregional Disease	YES	YES
+TCGA-14-0789	TCGA-14-0789-F25061	105	NO	[Not Available]	Progression of Disease	[Not Available]	YES
+TCGA-14-0789	TCGA-14-0789-F25061	[Not Available]	NO	118	Locoregional Disease	YES	YES
+TCGA-16-0848	TCGA-16-0848-F25299	129	NO	[Not Available]	Recurrence	[Not Available]	YES
+TCGA-16-0848	TCGA-16-0848-F25299	[Not Available]	NO	105	Locoregional Disease	YES	YES
+TCGA-16-0850	TCGA-16-0850-F25305	83	NO	[Not Available]	Recurrence	[Not Available]	NO
+TCGA-16-0861	TCGA-16-0861-F25309	94	NO	[Not Available]	Recurrence	[Not Available]	NO
+TCGA-06-0650	TCGA-06-0650-F23088	351	YES	[Not Available]	Progression of Disease	[Not Available]	YES
+TCGA-06-0650	TCGA-06-0650-F23088	[Not Available]	YES	355	Locoregional Disease	YES	YES
+TCGA-06-5408	TCGA-06-5408-F22991	158	NO	[Not Available]	Progression of Disease	[Not Available]	NO
+TCGA-06-5411	TCGA-06-5411-F22999	214	YES	[Not Available]	Progression of Disease	[Not Available]	YES
+TCGA-06-5412	TCGA-06-5412-F23005	88	NO	[Not Available]	Progression of Disease	[Not Available]	NO
+TCGA-06-5413	TCGA-06-5413-F23010	195	NO	[Not Available]	Progression of Disease	[Not Available]	YES
+TCGA-06-5858	TCGA-06-5858-F23036	97	NO	[Not Available]	Progression of Disease	[Not Available]	NO
+TCGA-19-5947	TCGA-19-5947-F25462	43	NO	[Not Available]	Progression of Disease	[Not Available]	NO
+TCGA-19-5950	TCGA-19-5950-F25465	294	NO	[Not Available]	Recurrence	[Not Available]	NO
+TCGA-19-5950	TCGA-19-5950-F25465	[Not Available]	NO	294	Locoregional Disease	YES	NO
+TCGA-19-5950	TCGA-19-5950-F43163	294	NO	[Not Available]	Recurrence	[Not Available]	YES
+TCGA-19-5956	TCGA-19-5956-F43175	647	NO	[Not Available]	Progression of Disease	[Not Available]	NO
+TCGA-19-5956	TCGA-19-5956-F43175	647	NO	[Not Available]	[Unknown]	[Not Available]	NO
+TCGA-19-5958	TCGA-19-5958-F43233	356	NO	[Not Available]	Recurrence	[Not Available]	NO
+TCGA-19-5958	TCGA-19-5958-F43233	356	NO	357	Locoregional Disease	YES	NO
+TCGA-19-5959	TCGA-19-5959-F25497	119	NO	[Not Available]	Recurrence	[Not Available]	NO
+TCGA-19-5959	TCGA-19-5959-F43159	318	NO	[Not Available]	Progression of Disease	[Not Available]	YES
+TCGA-19-5960	TCGA-19-5960-F43299	382	NO	[Not Available]	Recurrence	[Not Available]	NO
+TCGA-19-5960	TCGA-19-5960-F43299	382	NO	396	Locoregional Disease	YES	NO
+TCGA-32-1979	TCGA-32-1979-F27846	265	[Not Available]	[Not Available]	Progression of Disease	[Not Available]	[Not Available]
+TCGA-32-1979	TCGA-32-1979-F27846	[Not Available]	[Not Available]	265	Locoregional Disease	YES	[Not Available]
+TCGA-41-5651	TCGA-41-5651-F28015	210	NO	[Not Available]	Progression of Disease	[Not Available]	YES
+TCGA-41-5651	TCGA-41-5651-F28015	[Not Available]	NO	231	Locoregional Disease	YES	YES
+TCGA-41-5651	TCGA-41-5651-F19525	322	YES	[Not Available]	[Unknown]	[Not Available]	YES
+TCGA-76-6191	TCGA-76-6191-F28550	323	YES	[Not Available]	Progression of Disease	[Not Available]	YES
+TCGA-76-6192	TCGA-76-6192-F28557	76	NO	[Not Available]	Progression of Disease	[Not Available]	NO
+TCGA-76-6193	TCGA-76-6193-F28561	64	NO	[Not Available]	Progression of Disease	[Not Available]	NO
+TCGA-76-6282	TCGA-76-6282-F28565	458	NO	[Not Available]	Progression of Disease	[Not Available]	NO
+TCGA-76-6282	TCGA-76-6282-F28565	[Not Available]	NO	468	Locoregional Disease	YES	NO
+TCGA-06-6388	TCGA-06-6388-F23048	85	NO	[Not Available]	Progression of Disease	[Not Available]	YES
+TCGA-06-6695	TCGA-06-6695-F23057	133	NO	[Not Available]	Progression of Disease	[Not Available]	NO
+TCGA-06-6697	TCGA-06-6697-F23062	306	NO	[Not Available]	Progression of Disease	[Not Available]	YES
+TCGA-14-1450	TCGA-14-1450-F25270	826	NO	[Not Available]	Progression of Disease	[Not Available]	YES
+TCGA-19-5953	TCGA-19-5953-F25509	119	NO	[Not Available]	Progression of Disease	[Not Available]	NO
+TCGA-28-5211	TCGA-28-5211-F15035	225	NO	[Not Available]	[Unknown]	[Not Available]	YES
+TCGA-28-5211	TCGA-28-5211-F28880	225	NO	[Not Available]	Progression of Disease	[Not Available]	YES
+TCGA-41-6646	TCGA-41-6646-F28022	200	NO	[Not Available]	Progression of Disease	[Not Available]	NO
+TCGA-74-6575	TCGA-74-6575-F16928	460	NO	[Not Available]	[Unknown]	[Not Available]	YES
+TCGA-74-6575	TCGA-74-6575-F28509	460	NO	[Not Available]	Progression of Disease	[Not Available]	YES
+TCGA-74-6575	TCGA-74-6575-F18980	93	NO	[Not Available]	[Unknown]	[Not Available]	YES
+TCGA-74-6577	TCGA-74-6577-F16920	132	NO	[Not Available]	[Unknown]	[Not Available]	NO
+TCGA-74-6577	TCGA-74-6577-F28511	132	NO	[Not Available]	Progression of Disease	[Not Available]	YES
+TCGA-74-6578	TCGA-74-6578-F16913	222	NO	[Not Available]	[Unknown]	[Not Available]	YES
+TCGA-74-6578	TCGA-74-6578-F28513	222	NO	[Not Available]	Progression of Disease	[Not Available]	YES
+TCGA-74-6584	TCGA-74-6584-F16901	91	YES	[Not Available]	[Unknown]	[Not Available]	YES
+TCGA-74-6584	TCGA-74-6584-F28517	91	YES	[Not Available]	Progression of Disease	[Not Available]	YES
+TCGA-76-6280	TCGA-76-6280-F30214	108	YES	[Not Available]	Progression of Disease	[Not Available]	NO
+TCGA-76-6280	TCGA-76-6280-F30214	[Not Available]	YES	136	Locoregional Disease	YES	NO
+TCGA-76-6286	TCGA-76-6286-F28573	180	YES	[Not Available]	Progression of Disease	[Not Available]	YES
+TCGA-76-6286	TCGA-76-6286-F28573	[Not Available]	YES	239	Locoregional Disease	YES	YES
+TCGA-76-6657	TCGA-76-6657-F28583	135	NO	[Not Available]	Progression of Disease	[Not Available]	NO
+TCGA-76-6662	TCGA-76-6662-F30219	205	NO	[Not Available]	Progression of Disease	[Not Available]	YES
+TCGA-76-6662	TCGA-76-6662-F30219	[Not Available]	NO	217	Locoregional Disease	YES	YES
+TCGA-81-5911	TCGA-81-5911-F28602	277	YES	[Not Available]	Progression of Disease	[Not Available]	YES
+TCGA-81-5911	TCGA-81-5911-F28602	[Not Available]	YES	309	Locoregional Disease	YES	YES
+TCGA-06-0155	TCGA-06-0155-F22662	256	NO	[Not Available]	Progression of Disease	[Not Available]	YES
+TCGA-06-0155	TCGA-06-0155-F22662	[Not Available]	NO	257	Locoregional Disease	YES	YES
+TCGA-06-1084	TCGA-06-1084-F22911	208	NO	[Not Available]	Progression of Disease	[Not Available]	YES
+TCGA-06-1084	TCGA-06-1084-F18620	208	NO	[Not Available]	[Unknown]	[Not Available]	YES
+TCGA-06-1087	TCGA-06-1087-F22921	109	NO	[Not Available]	Recurrence	[Not Available]	NO
+TCGA-12-1091	TCGA-12-1091-F23373	56	YES	[Not Available]	Recurrence	[Not Available]	YES
+TCGA-12-1091	TCGA-12-1091-F23373	[Not Available]	YES	812	Locoregional Disease	YES	YES
+TCGA-12-1092	TCGA-12-1092-F23390	637	NO	[Not Available]	Recurrence	[Not Available]	YES
+TCGA-12-1093	TCGA-12-1093-F23402	322	NO	[Not Available]	Recurrence	[Not Available]	YES
+TCGA-12-1093	TCGA-12-1093-F23402	[Not Available]	NO	322	Locoregional Disease	YES	YES
+TCGA-12-1094	TCGA-12-1094-F23410	186	NO	[Not Available]	Recurrence	[Not Available]	YES
+TCGA-12-1094	TCGA-12-1094-F23410	[Not Available]	NO	223	Locoregional Disease	YES	YES
+TCGA-12-1095	TCGA-12-1095-F23419	96	NO	[Not Available]	Progression of Disease	[Not Available]	YES
+TCGA-12-1096	TCGA-12-1096-F23428	270	NO	[Not Available]	Recurrence	[Not Available]	NO
+TCGA-12-1097	TCGA-12-1097-F23435	166	NO	[Not Available]	Progression of Disease	[Not Available]	YES
+TCGA-12-1098	TCGA-12-1098-F23443	93	NO	[Not Available]	Recurrence	[Not Available]	NO
+TCGA-12-1099	TCGA-12-1099-F23447	62	YES	[Not Available]	Recurrence	[Not Available]	YES
+TCGA-14-0736	TCGA-14-0736-F25026	128	NO	[Not Available]	Recurrence	[Not Available]	YES
+TCGA-14-0736	TCGA-14-0736-F25026	[Not Available]	NO	207	Locoregional Disease	YES	YES
+TCGA-14-0786	TCGA-14-0786-F25041	127	NO	[Not Available]	Recurrence	[Not Available]	YES
+TCGA-14-1034	TCGA-14-1034-F25103	282	NO	[Not Available]	Progression of Disease	[Not Available]	YES
+TCGA-14-1034	TCGA-14-1034-F25103	[Not Available]	NO	448	Locoregional Disease	YES	YES
+TCGA-14-1402	TCGA-14-1402-F25123	333	NO	[Not Available]	Progression of Disease	[Not Available]	YES
+TCGA-14-1402	TCGA-14-1402-F25123	[Not Available]	NO	868	Locoregional Disease	YES	YES
+TCGA-14-1451	TCGA-14-1451-F25134	19	YES	[Not Available]	Recurrence	[Not Available]	YES
+TCGA-14-1451	TCGA-14-1451-F25134	[Not Available]	YES	153	Locoregional Disease	YES	YES
+TCGA-14-1452	TCGA-14-1452-F25147	172	NO	[Not Available]	Recurrence	[Not Available]	YES
+TCGA-14-1454	TCGA-14-1454-F25157	291	NO	[Not Available]	Recurrence	[Not Available]	YES
+TCGA-14-1459	TCGA-14-1459-F25187	275	NO	[Not Available]	Progression of Disease	[Not Available]	YES
+TCGA-14-1459	TCGA-14-1459-F25187	[Not Available]	NO	291	Locoregional Disease	YES	YES
+TCGA-15-1446	TCGA-15-1446-F25283	443	NO	[Not Available]	Recurrence	[Not Available]	[Not Available]
+TCGA-15-1446	TCGA-15-1446-F25283	[Not Available]	NO	578	Locoregional Disease	YES	[Not Available]
+TCGA-15-1447	TCGA-15-1447-F25287	340	NO	[Not Available]	Recurrence	[Not Available]	NO
+TCGA-15-1447	TCGA-15-1447-F25287	[Not Available]	NO	499	Locoregional Disease	YES	NO
+TCGA-15-1449	TCGA-15-1449-F25293	74	NO	[Not Available]	Recurrence	[Not Available]	NO
+TCGA-16-1045	TCGA-16-1045-F25312	654	NO	[Not Available]	Recurrence	[Not Available]	YES
+TCGA-16-1047	TCGA-16-1047-F25316	25	NO	[Not Available]	Progression of Disease	[Not Available]	NO
+TCGA-16-1055	TCGA-16-1055-F25318	288	NO	[Not Available]	Recurrence	[Not Available]	NO
+TCGA-16-1056	TCGA-16-1056-F25321	239	NO	[Not Available]	Recurrence	[Not Available]	NO
+TCGA-16-1060	TCGA-16-1060-F25324	111	NO	[Not Available]	Progression of Disease	[Not Available]	NO
+TCGA-16-1062	TCGA-16-1062-F25327	518	NO	[Not Available]	Progression of Disease	[Not Available]	NO
+TCGA-16-1063	TCGA-16-1063-F25330	369	NO	[Not Available]	Progression of Disease	[Not Available]	NO
+TCGA-19-0963	TCGA-19-0963-F25357	310	NO	[Not Available]	Recurrence	[Not Available]	NO
+TCGA-19-0963	TCGA-19-0963-F25357	[Not Available]	NO	310	Locoregional Disease	YES	NO
+TCGA-26-1438	TCGA-26-1438-F26846	158	NO	[Not Available]	Progression of Disease	[Not Available]	YES
+TCGA-26-1438	TCGA-26-1438-F26846	[Not Available]	NO	297	Locoregional Disease	YES	YES
+TCGA-26-1440	TCGA-26-1440-F26857	233	NO	[Not Available]	Recurrence	[Not Available]	NO
+TCGA-26-1443	TCGA-26-1443-F26862	217	NO	[Not Available]	Progression of Disease	[Not Available]	NO
+TCGA-19-4065	TCGA-19-4065-F25511	70	NO	[Not Available]	Recurrence	[Not Available]	YES
+TCGA-19-4065	TCGA-19-4065-F25511	[Not Available]	NO	70	Locoregional Disease	YES	YES
+TCGA-02-0064	TCGA-02-0064-F22332	496	NO	[Not Available]	Recurrence	[Not Available]	YES
+TCGA-02-0069	TCGA-02-0069-F22345	873	NO	[Not Available]	Progression of Disease	[Not Available]	NO
+TCGA-02-0071	TCGA-02-0071-F22354	8	NO	[Not Available]	Progression of Disease	[Not Available]	[Not Available]
+TCGA-02-0074	TCGA-02-0074-F22356	154	NO	[Not Available]	Progression of Disease	[Not Available]	NO
+TCGA-02-0075	TCGA-02-0075-F22361	336	NO	[Not Available]	Progression of Disease	[Not Available]	NO
+TCGA-02-0080	TCGA-02-0080-F22367	2339	NO	[Not Available]	Progression of Disease	[Not Available]	YES
+TCGA-02-0083	TCGA-02-0083-F22372	463	NO	[Not Available]	Progression of Disease	[Not Available]	[Not Available]
+TCGA-02-0085	TCGA-02-0085-F22378	976	NO	[Not Available]	Progression of Disease	[Not Available]	NO
+TCGA-02-0086	TCGA-02-0086-F22382	97	NO	[Not Available]	Progression of Disease	[Not Available]	YES
+TCGA-02-0089	TCGA-02-0089-F22392	358	NO	[Not Available]	Progression of Disease	[Not Available]	NO
+TCGA-02-0102	TCGA-02-0102-F22401	450	NO	[Not Available]	Progression of Disease	[Not Available]	YES
+TCGA-02-0107	TCGA-02-0107-F22418	146	NO	[Not Available]	Recurrence	[Not Available]	[Not Available]
+TCGA-02-0113	TCGA-02-0113-F22426	1560	NO	[Not Available]	Recurrence	[Not Available]	[Not Available]
+TCGA-02-0114	TCGA-02-0114-F22430	2296	NO	[Not Available]	Recurrence	[Not Available]	YES
+TCGA-02-0115	TCGA-02-0115-F22438	91	NO	[Not Available]	Progression of Disease	[Not Available]	YES
+TCGA-02-0116	TCGA-02-0116-F22443	1231	NO	[Not Available]	Progression of Disease	[Not Available]	YES
+TCGA-06-1800	TCGA-06-1800-F22925	750	NO	[Not Available]	Recurrence	[Not Available]	NO
+TCGA-06-1800	TCGA-06-1800-F22925	[Not Available]	NO	750	Locoregional Disease	YES	NO
+TCGA-06-1801	TCGA-06-1801-F22929	232	NO	[Not Available]	Recurrence	[Not Available]	YES
+TCGA-06-1801	TCGA-06-1801-F18582	232	YES	[Not Available]	[Unknown]	[Not Available]	YES
+TCGA-06-1802	TCGA-06-1802-F22931	81	NO	[Not Available]	Recurrence	[Not Available]	YES
+TCGA-06-1802	TCGA-06-1802-F18612	81	YES	[Not Available]	[Unknown]	[Not Available]	YES
+TCGA-12-1599	TCGA-12-1599-F23754	89	NO	[Not Available]	Progression of Disease	[Not Available]	YES
+TCGA-12-1600	TCGA-12-1600-F23770	404	NO	[Not Available]	Progression of Disease	[Not Available]	NO
+TCGA-12-1602	TCGA-12-1602-F23775	140	NO	[Not Available]	Progression of Disease	[Not Available]	YES
+TCGA-14-0865	TCGA-14-0865-F25084	215	YES	[Not Available]	Progression of Disease	[Not Available]	YES
+TCGA-14-0865	TCGA-14-0865-F25084	[Not Available]	YES	238	Locoregional Disease	YES	YES
+TCGA-14-0866	TCGA-14-0866-F25091	97	NO	[Not Available]	Recurrence	[Not Available]	YES
+TCGA-14-0866	TCGA-14-0866-F25091	[Not Available]	NO	237	Locoregional Disease	YES	YES
+TCGA-14-1037	TCGA-14-1037-F25109	326	NO	[Not Available]	Recurrence	[Not Available]	YES
+TCGA-14-1458	TCGA-14-1458-F25179	81	NO	[Not Available]	Recurrence	[Not Available]	YES
+TCGA-14-1821	TCGA-14-1821-F25201	331	NO	[Not Available]	Recurrence	[Not Available]	YES
+TCGA-14-1823	TCGA-14-1823-F25207	140	NO	[Not Available]	Recurrence	[Not Available]	YES
+TCGA-14-1825	TCGA-14-1825-F25216	82	NO	[Not Available]	Progression of Disease	[Not Available]	YES
+TCGA-19-0957	TCGA-19-0957-F25340	50	NO	[Not Available]	Recurrence	[Not Available]	YES
+TCGA-19-0957	TCGA-19-0957-F25340	[Not Available]	NO	413	Locoregional Disease	YES	YES
+TCGA-19-1385	TCGA-19-1385-F25366	177	NO	[Not Available]	Recurrence	[Not Available]	YES
+TCGA-19-1385	TCGA-19-1385-F25366	[Not Available]	NO	175	Locoregional Disease	YES	YES
+TCGA-19-1386	TCGA-19-1386-F25371	237	NO	[Not Available]	Recurrence	[Not Available]	NO
+TCGA-19-1386	TCGA-19-1386-F25371	[Not Available]	NO	253	Locoregional Disease	YES	NO
+TCGA-19-1387	TCGA-19-1387-F25379	79	NO	[Not Available]	Recurrence	[Not Available]	NO
+TCGA-19-1388	TCGA-19-1388-F25383	148	NO	[Not Available]	Progression of Disease	[Not Available]	YES
+TCGA-19-1389	TCGA-19-1389-F25390	81	NO	[Not Available]	Recurrence	[Not Available]	NO
+TCGA-19-1389	TCGA-19-1389-F25390	[Not Available]	NO	81	Locoregional Disease	YES	NO
+TCGA-26-1799	TCGA-26-1799-F26867	213	NO	[Not Available]	Recurrence	[Not Available]	NO
+TCGA-27-1830	TCGA-27-1830-F26906	124	NO	[Not Available]	Recurrence	[Not Available]	NO
+TCGA-27-1832	TCGA-27-1832-F26920	176	NO	[Not Available]	Progression of Disease	[Not Available]	YES
+TCGA-27-1833	TCGA-27-1833-F26926	469	NO	[Not Available]	Recurrence	[Not Available]	YES
+TCGA-27-1834	TCGA-27-1834-F26934	335	NO	[Not Available]	Recurrence	[Not Available]	YES
+TCGA-28-1745	TCGA-28-1745-F27038	317	NO	[Not Available]	Progression of Disease	[Not Available]	NO
+TCGA-28-1749	TCGA-28-1749-F27051	280	NO	[Not Available]	Progression of Disease	[Not Available]	NO
+TCGA-28-1750	TCGA-28-1750-F27057	116	YES	[Not Available]	Progression of Disease	[Not Available]	NO
+TCGA-28-1751	TCGA-28-1751-F27064	219	[Not Available]	[Not Available]	Progression of Disease	[Not Available]	[Not Available]
+TCGA-28-1760	TCGA-28-1760-F27092	105	NO	[Not Available]	Progression of Disease	[Not Available]	NO
+TCGA-02-2466	TCGA-02-2466-F22538	128	NO	[Not Available]	Progression of Disease	[Not Available]	YES
+TCGA-02-2466	TCGA-02-2466-F22538	[Not Available]	NO	324	Locoregional Disease	YES	YES
+TCGA-02-2470	TCGA-02-2470-F22543	183	NO	[Not Available]	Progression of Disease	[Not Available]	YES
+TCGA-02-2470	TCGA-02-2470-F22543	[Not Available]	NO	189	Locoregional Disease	YES	YES
+TCGA-02-2485	TCGA-02-2485-F22553	186	NO	[Not Available]	Progression of Disease	[Not Available]	NO
+TCGA-06-2561	TCGA-06-2561-F22946	78	NO	[Not Available]	Recurrence	[Not Available]	YES
+TCGA-06-2561	TCGA-06-2561-F22946	[Not Available]	NO	91	Locoregional Disease	YES	YES
+TCGA-06-2561	TCGA-06-2561-F29202	78	YES	91	Locoregional Disease	YES	YES
+TCGA-06-2562	TCGA-06-2562-F22953	151	NO	[Not Available]	Progression of Disease	[Not Available]	NO
+TCGA-06-2563	TCGA-06-2563-F29198	554	YES	[Not Available]	[Unknown]	[Not Available]	YES
+TCGA-06-2565	TCGA-06-2565-F22965	178	YES	[Not Available]	Progression of Disease	[Not Available]	YES
+TCGA-06-2565	TCGA-06-2565-F31566	178	YES	[Not Available]	Recurrence	[Not Available]	YES
+TCGA-14-1456	TCGA-14-1456-F25170	98	NO	[Not Available]	Progression of Disease	[Not Available]	YES
+TCGA-14-2554	TCGA-14-2554-F25231	[Not Available]	NO	29	Locoregional Disease	YES	NO
+TCGA-27-1831	TCGA-27-1831-F26913	144	NO	[Not Available]	Progression of Disease	[Not Available]	NO
+TCGA-27-1835	TCGA-27-1835-F26943	157	NO	[Not Available]	Progression of Disease	[Not Available]	YES
+TCGA-27-1836	TCGA-27-1836-F26953	172	NO	[Not Available]	Progression of Disease	[Not Available]	YES
+TCGA-27-1836	TCGA-27-1836-F26953	[Not Available]	NO	236	Locoregional Disease	YES	YES
+TCGA-27-1837	TCGA-27-1837-F26965	136	NO	[Not Available]	Progression of Disease	[Not Available]	NO
+TCGA-27-1838	TCGA-27-1838-F26973	119	NO	[Not Available]	Progression of Disease	[Not Available]	NO
+TCGA-27-2518	TCGA-27-2518-F26980	539	NO	[Not Available]	Progression of Disease	[Not Available]	YES
+TCGA-27-2518	TCGA-27-2518-F26980	[Not Available]	NO	559	Locoregional Disease	YES	YES
+TCGA-27-2519	TCGA-27-2519-F26989	256	NO	[Not Available]	Progression of Disease	[Not Available]	YES
+TCGA-27-2519	TCGA-27-2519-F26989	[Not Available]	NO	274	Locoregional Disease	YES	YES
+TCGA-27-2523	TCGA-27-2523-F27003	402	NO	[Not Available]	Progression of Disease	[Not Available]	NO
+TCGA-27-2528	TCGA-27-2528-F27030	72	NO	[Not Available]	Progression of Disease	[Not Available]	YES
+TCGA-28-2506	TCGA-28-2506-F27101	84	NO	[Not Available]	Progression of Disease	[Not Available]	NO
+TCGA-28-2506	TCGA-28-2506-F27101	[Not Available]	NO	153	Locoregional Disease	YES	NO
+TCGA-28-2512	TCGA-28-2512-F30232	193	NO	[Not Available]	Progression of Disease	[Not Available]	YES
+TCGA-28-2513	TCGA-28-2513-F27113	75	YES	[Not Available]	Progression of Disease	[Not Available]	YES
+TCGA-32-1970	TCGA-32-1970-F27719	408	NO	[Not Available]	Progression of Disease	[Not Available]	NO
+TCGA-32-1986	TCGA-32-1986-F27742	233	NO	[Not Available]	Progression of Disease	[Not Available]	NO
+TCGA-06-0125	TCGA-06-0125-F22569	797	YES	[Not Available]	Progression of Disease	[Not Available]	YES
+TCGA-06-0125	TCGA-06-0125-F22569	[Not Available]	YES	812	Locoregional Disease	YES	YES
+TCGA-06-0128	TCGA-06-0128-F22582	190	YES	[Not Available]	Progression of Disease	[Not Available]	YES
+TCGA-06-0128	TCGA-06-0128-F22582	[Not Available]	YES	670	Locoregional Disease	YES	YES
+TCGA-06-0129	TCGA-06-0129-F22591	148	NO	[Not Available]	Progression of Disease	[Not Available]	YES
+TCGA-06-0129	TCGA-06-0129-F22591	[Not Available]	NO	182	Locoregional Disease	YES	YES
+TCGA-06-0130	TCGA-06-0130-F22596	244	NO	[Not Available]	Progression of Disease	[Not Available]	NO
+TCGA-06-0130	TCGA-06-0130-F22596	[Not Available]	NO	270	Locoregional Disease	YES	NO
+TCGA-06-0133	TCGA-06-0133-F22602	78	NO	[Not Available]	Progression of Disease	[Not Available]	YES
+TCGA-06-0137	TCGA-06-0137-F22609	487	NO	[Not Available]	Progression of Disease	[Not Available]	YES
+TCGA-06-0137	TCGA-06-0137-F22609	[Not Available]	NO	637	Locoregional Disease	YES	YES
+TCGA-06-0139	TCGA-06-0139-F22614	152	NO	[Not Available]	Progression of Disease	[Not Available]	YES
+TCGA-06-0141	TCGA-06-0141-F22618	145	NO	[Not Available]	Progression of Disease	[Not Available]	YES
+TCGA-06-0143	TCGA-06-0143-F22624	265	NO	[Not Available]	Recurrence	[Not Available]	YES
+TCGA-06-0143	TCGA-06-0143-F22624	[Not Available]	NO	280	Locoregional Disease	YES	YES
+TCGA-06-0147	TCGA-06-0147-F22634	92	YES	[Not Available]	Progression of Disease	[Not Available]	YES
+TCGA-06-0148	TCGA-06-0148-F22642	189	NO	[Not Available]	Progression of Disease	[Not Available]	NO
+TCGA-06-0169	TCGA-06-0169-F22697	92	NO	[Not Available]	Progression of Disease	[Not Available]	NO
+TCGA-12-1597	TCGA-12-1597-F23740	180	NO	[Not Available]	Progression of Disease	[Not Available]	YES
+TCGA-12-3644	TCGA-12-3644-F23780	1142	YES	[Not Available]	Progression of Disease	[Not Available]	YES
+TCGA-12-3644	TCGA-12-3644-F23780	[Not Available]	YES	857	Locoregional Disease	YES	YES
+TCGA-12-3646	TCGA-12-3646-F23812	1315	YES	[Not Available]	Progression of Disease	[Not Available]	YES
+TCGA-12-3646	TCGA-12-3646-F23812	[Not Available]	YES	1007	Locoregional Disease	YES	YES
+TCGA-12-3648	TCGA-12-3648-F23823	86	YES	[Not Available]	Progression of Disease	[Not Available]	YES
+TCGA-12-3648	TCGA-12-3648-F23823	[Not Available]	YES	467	Locoregional Disease	YES	YES
+TCGA-12-3649	TCGA-12-3649-F23834	351	NO	[Not Available]	Progression of Disease	[Not Available]	NO
+TCGA-12-3650	TCGA-12-3650-F23844	239	NO	[Not Available]	Progression of Disease	[Not Available]	YES
+TCGA-12-3651	TCGA-12-3651-F23859	358	YES	[Not Available]	Progression of Disease	[Not Available]	YES
+TCGA-12-3652	TCGA-12-3652-F23868	203	NO	[Not Available]	Progression of Disease	[Not Available]	YES
+TCGA-12-3653	TCGA-12-3653-F23881	224	NO	[Not Available]	Progression of Disease	[Not Available]	YES
+TCGA-12-3653	TCGA-12-3653-F23881	[Not Available]	NO	232	Locoregional Disease	YES	YES
+TCGA-19-1787	TCGA-19-1787-F25403	308	NO	[Not Available]	Recurrence	[Not Available]	YES
+TCGA-19-2619	TCGA-19-2619-F25424	146	NO	[Not Available]	Progression of Disease	[Not Available]	YES
+TCGA-19-2629	TCGA-19-2629-F25447	145	NO	[Not Available]	Progression of Disease	[Not Available]	YES
+TCGA-32-2615	TCGA-32-2615-F27788	131	YES	[Not Available]	Progression of Disease	[Not Available]	YES
+TCGA-32-2615	TCGA-32-2615-F27788	[Not Available]	YES	131	Locoregional Disease	YES	YES
+TCGA-32-2616	TCGA-32-2616-F30224	182	YES	[Not Available]	Progression of Disease	[Not Available]	NO
+TCGA-41-2571	TCGA-41-2571-F27980	26	NO	[Not Available]	Progression of Disease	[Not Available]	NO
+TCGA-41-2573	TCGA-41-2573-F27989	167	NO	[Not Available]	Progression of Disease	[Not Available]	NO
+TCGA-41-2575	TCGA-41-2575-F27996	131	YES	[Not Available]	Progression of Disease	[Not Available]	YES
+TCGA-06-0132	TCGA-06-0132-F22600	482	NO	[Not Available]	Progression of Disease	[Not Available]	YES
+TCGA-06-0138	TCGA-06-0138-F22612	394	YES	[Not Available]	Progression of Disease	[Not Available]	YES
+TCGA-06-0138	TCGA-06-0138-F22612	[Not Available]	YES	406	Locoregional Disease	YES	YES
+TCGA-06-0154	TCGA-06-0154-F22654	208	YES	[Not Available]	Progression of Disease	[Not Available]	YES
+TCGA-06-0154	TCGA-06-0154-F22654	[Not Available]	YES	235	Locoregional Disease	YES	YES
+TCGA-06-0158	TCGA-06-0158-F22676	90	NO	[Not Available]	Progression of Disease	[Not Available]	YES
+TCGA-06-0166	TCGA-06-0166-F22686	66	YES	[Not Available]	Progression of Disease	[Not Available]	NO
+TCGA-06-0168	TCGA-06-0168-F22690	461	YES	[Not Available]	Progression of Disease	[Not Available]	YES
+TCGA-06-0171	TCGA-06-0171-F22701	117	NO	[Not Available]	Progression of Disease	[Not Available]	YES
+TCGA-06-0171	TCGA-06-0171-F22701	[Not Available]	NO	119	Locoregional Disease	YES	YES
+TCGA-06-0174	TCGA-06-0174-F22708	47	NO	[Not Available]	Progression of Disease	[Not Available]	NO
+TCGA-06-0176	TCGA-06-0176-F22716	41	YES	[Not Available]	Progression of Disease	[Not Available]	NO
+TCGA-06-0176	TCGA-06-0176-F19251	41	YES	[Not Available]	[Unknown]	[Not Available]	YES
+TCGA-06-0178	TCGA-06-0178-F22720	192	NO	[Not Available]	Progression of Disease	[Not Available]	YES
+TCGA-06-0178	TCGA-06-0178-F20890	2517	NO	[Not Available]	[Unknown]	[Not Available]	YES
+TCGA-06-0184	TCGA-06-0184-F19255	1276	YES	[Not Available]	[Unknown]	[Not Available]	YES
+TCGA-06-0185	TCGA-06-0185-F22728	711	NO	[Not Available]	Progression of Disease	[Not Available]	YES
+TCGA-06-0185	TCGA-06-0185-F22728	[Not Available]	NO	711	Locoregional Disease	YES	YES
+TCGA-06-0185	TCGA-06-0185-F19261	711	YES	711	Locoregional Disease	YES	YES
+TCGA-06-0187	TCGA-06-0187-F22730	531	NO	[Not Available]	Recurrence	[Not Available]	YES
+TCGA-06-0188	TCGA-06-0188-F20854	310	NO	[Not Available]	[Unknown]	[Not Available]	YES
+TCGA-06-0190	TCGA-06-0190-F22736	88	NO	[Not Available]	Progression of Disease	[Not Available]	YES
+TCGA-06-0190	TCGA-06-0190-F22736	[Not Available]	NO	-144	Locoregional Disease	YES	YES
+TCGA-06-0195	TCGA-06-0195-F22742	147	NO	[Not Available]	Progression of Disease	[Not Available]	NO
+TCGA-06-0197	TCGA-06-0197-F22750	47	NO	[Not Available]	Progression of Disease	[Not Available]	NO
+TCGA-06-0206	TCGA-06-0206-F22755	106	NO	[Not Available]	Recurrence	[Not Available]	NO
+TCGA-06-0208	TCGA-06-0208-F22759	149	NO	[Not Available]	Progression of Disease	[Not Available]	NO
+TCGA-06-0210	TCGA-06-0210-F22767	67	NO	[Not Available]	Progression of Disease	[Not Available]	NO
+TCGA-06-0210	TCGA-06-0210-F22767	[Not Available]	NO	67	Locoregional Disease	YES	NO
+TCGA-06-0211	TCGA-06-0211-F22770	53	NO	[Not Available]	Progression of Disease	[Not Available]	YES
+TCGA-06-0211	TCGA-06-0211-F22770	[Not Available]	NO	53	Locoregional Disease	YES	YES
+TCGA-06-0214	TCGA-06-0214-F22778	48	YES	[Not Available]	Progression of Disease	[Not Available]	YES
+TCGA-06-0221	TCGA-06-0221-F22793	260	NO	[Not Available]	Progression of Disease	[Not Available]	YES
+TCGA-06-0221	TCGA-06-0221-F22793	[Not Available]	NO	280	Locoregional Disease	YES	YES
+TCGA-06-0241	TCGA-06-0241-F22808	196	NO	[Not Available]	Recurrence	[Not Available]	YES
+TCGA-06-0241	TCGA-06-0241-F20950	196	YES	[Not Available]	[Unknown]	[Not Available]	YES
+TCGA-02-0087	TCGA-02-0087-F22390	1757	NO	[Not Available]	Recurrence	[Not Available]	[Not Available]
+TCGA-02-0106	TCGA-02-0106-F22412	196	NO	[Not Available]	Recurrence	[Not Available]	YES
+TCGA-02-0111	TCGA-02-0111-F22422	74	NO	[Not Available]	Progression of Disease	[Not Available]	[Not Available]
+TCGA-02-0258	TCGA-02-0258-F22449	503	NO	[Not Available]	Recurrence	[Not Available]	[Not Available]
+TCGA-02-0260	TCGA-02-0260-F22451	[Not Available]	NO	379	Locoregional Disease	YES	[Not Available]
+TCGA-02-0266	TCGA-02-0266-F22453	293	NO	[Not Available]	Progression of Disease	[Not Available]	[Not Available]
+TCGA-02-0266	TCGA-02-0266-F22453	[Not Available]	NO	237	Locoregional Disease	YES	[Not Available]
+TCGA-02-0269	TCGA-02-0269-F22455	99	NO	[Not Available]	Progression of Disease	[Not Available]	[Not Available]
+TCGA-02-0289	TCGA-02-0289-F22463	245	NO	[Not Available]	Progression of Disease	[Not Available]	NO
+TCGA-02-0290	TCGA-02-0290-F22469	374	NO	[Not Available]	Progression of Disease	[Not Available]	NO
+TCGA-02-0317	TCGA-02-0317-F22475	238	NO	[Not Available]	Progression of Disease	[Not Available]	[Not Available]
+TCGA-02-0321	TCGA-02-0321-F22479	73	NO	[Not Available]	Progression of Disease	[Not Available]	[Not Available]
+TCGA-02-0321	TCGA-02-0321-F22479	[Not Available]	NO	74	Locoregional Disease	YES	[Not Available]
+TCGA-02-0324	TCGA-02-0324-F22481	164	NO	[Not Available]	Progression of Disease	[Not Available]	[Not Available]
+TCGA-02-0325	TCGA-02-0325-F22483	284	NO	[Not Available]	Progression of Disease	[Not Available]	YES
+TCGA-02-0326	TCGA-02-0326-F22490	5	NO	[Not Available]	Progression of Disease	[Not Available]	[Not Available]
+TCGA-02-0330	TCGA-02-0330-F22492	120	NO	[Not Available]	Progression of Disease	[Not Available]	YES
+TCGA-02-0332	TCGA-02-0332-F22500	438	NO	[Not Available]	Progression of Disease	[Not Available]	NO
+TCGA-02-0333	TCGA-02-0333-F22506	4	NO	[Not Available]	Progression of Disease	[Not Available]	[Not Available]
+TCGA-02-0337	TCGA-02-0337-F22508	691	NO	[Not Available]	Progression of Disease	[Not Available]	NO
+TCGA-02-0338	TCGA-02-0338-F22514	168	NO	[Not Available]	Progression of Disease	[Not Available]	[Not Available]
+TCGA-02-0339	TCGA-02-0339-F22516	148	NO	[Not Available]	Progression of Disease	[Not Available]	[Not Available]
+TCGA-02-0422	TCGA-02-0422-F22518	125	NO	[Not Available]	Progression of Disease	[Not Available]	[Not Available]
+TCGA-02-0432	TCGA-02-0432-F22522	1053	NO	[Not Available]	Progression of Disease	[Not Available]	[Not Available]
+TCGA-02-0439	TCGA-02-0439-F22526	13	NO	[Not Available]	Progression of Disease	[Not Available]	[Not Available]
+TCGA-02-0440	TCGA-02-0440-F22528	212	NO	[Not Available]	Progression of Disease	[Not Available]	[Not Available]
+TCGA-02-0446	TCGA-02-0446-F22532	15	NO	[Not Available]	Recurrence	[Not Available]	[Not Available]
+TCGA-02-0451	TCGA-02-0451-F22534	428	NO	[Not Available]	Recurrence	[Not Available]	[Not Available]
+TCGA-02-0451	TCGA-02-0451-F22534	[Not Available]	NO	434	Locoregional Disease	YES	[Not Available]
+TCGA-02-0456	TCGA-02-0456-F22536	12	NO	[Not Available]	Recurrence	[Not Available]	[Not Available]
+TCGA-06-0146	TCGA-06-0146-F22629	530	NO	[Not Available]	Progression of Disease	[Not Available]	NO
+TCGA-06-0146	TCGA-06-0146-F22629	[Not Available]	NO	534	Locoregional Disease	YES	NO
+TCGA-06-0149	TCGA-06-0149-F22645	204	NO	[Not Available]	Progression of Disease	[Not Available]	NO
+TCGA-06-0164	TCGA-06-0164-F22684	1428	NO	[Not Available]	Progression of Disease	[Not Available]	YES
+TCGA-06-0164	TCGA-06-0164-F22684	[Not Available]	NO	1462	Locoregional Disease	YES	YES
+TCGA-06-0175	TCGA-06-0175-F22712	39	YES	[Not Available]	Progression of Disease	[Not Available]	NO
+TCGA-06-0179	TCGA-06-0179-F22722	250	YES	[Not Available]	Progression of Disease	[Not Available]	YES
+TCGA-06-0194	TCGA-06-0194-F22740	125	NO	[Not Available]	Progression of Disease	[Not Available]	NO
+TCGA-06-0194	TCGA-06-0194-F22740	[Not Available]	NO	125	Locoregional Disease	YES	NO
+TCGA-06-0394	TCGA-06-0394-F22810	87	NO	[Not Available]	Progression of Disease	[Not Available]	YES
+TCGA-06-0397	TCGA-06-0397-F22817	[Not Available]	NO	20	Locoregional Disease	YES	NO
+TCGA-06-0409	TCGA-06-0409-F22825	334	YES	[Not Available]	Progression of Disease	[Not Available]	YES
+TCGA-06-0409	TCGA-06-0409-F22825	[Not Available]	YES	1267	Locoregional Disease	YES	YES
+TCGA-06-0412	TCGA-06-0412-F22840	130	NO	[Not Available]	Progression of Disease	[Not Available]	YES
+TCGA-06-0414	TCGA-06-0414-F22848	1013	NO	[Not Available]	Recurrence	[Not Available]	NO
+TCGA-06-0414	TCGA-06-0414-F22848	[Not Available]	NO	1055	Locoregional Disease	YES	NO
+TCGA-08-0510	TCGA-08-0510-F23288	90	NO	[Not Available]	Recurrence	[Not Available]	YES
+TCGA-08-0512	TCGA-08-0512-F23297	231	NO	[Not Available]	Progression of Disease	[Not Available]	NO
+TCGA-08-0516	TCGA-08-0516-F23303	40	YES	[Not Available]	Progression of Disease	[Not Available]	[Not Available]
+TCGA-08-0516	TCGA-08-0516-F23303	[Not Available]	YES	171	Locoregional Disease	YES	[Not Available]
+TCGA-08-0517	TCGA-08-0517-F23307	1024	NO	[Not Available]	Recurrence	[Not Available]	YES
+TCGA-08-0517	TCGA-08-0517-F23307	[Not Available]	NO	1049	Locoregional Disease	YES	YES
+TCGA-08-0518	TCGA-08-0518-F23312	134	[Not Available]	[Not Available]	Progression of Disease	[Not Available]	[Not Available]
+TCGA-08-0520	TCGA-08-0520-F23315	105	YES	[Not Available]	Recurrence	[Not Available]	YES
+TCGA-08-0521	TCGA-08-0521-F23320	125	NO	[Not Available]	Progression of Disease	[Not Available]	NO
+TCGA-08-0522	TCGA-08-0522-F23325	266	NO	[Not Available]	Progression of Disease	[Not Available]	YES
+TCGA-08-0522	TCGA-08-0522-F23325	[Not Available]	NO	266	Locoregional Disease	YES	YES
+TCGA-08-0524	TCGA-08-0524-F23333	61	NO	[Not Available]	Progression of Disease	[Not Available]	YES
+TCGA-08-0525	TCGA-08-0525-F23341	343	NO	[Not Available]	Progression of Disease	[Not Available]	YES
+TCGA-08-0525	TCGA-08-0525-F23341	[Not Available]	NO	438	Locoregional Disease	YES	YES
+TCGA-08-0529	TCGA-08-0529-F23347	328	NO	[Not Available]	Recurrence	[Not Available]	YES
+TCGA-08-0529	TCGA-08-0529-F23347	[Not Available]	NO	343	Locoregional Disease	YES	YES
+TCGA-02-0004	TCGA-02-0004-F22180	314	NO	[Not Available]	Progression of Disease	[Not Available]	NO
+TCGA-02-0015	TCGA-02-0015-F22216	456	NO	[Not Available]	Recurrence	[Not Available]	YES
+TCGA-02-0016	TCGA-02-0016-F22221	1699	NO	[Not Available]	Recurrence	[Not Available]	NO
+TCGA-02-0023	TCGA-02-0023-F22233	435	NO	[Not Available]	Progression of Disease	[Not Available]	YES
+TCGA-02-0025	TCGA-02-0025-F22242	656	NO	[Not Available]	Progression of Disease	[Not Available]	YES
+TCGA-02-0026	TCGA-02-0026-F22248	462	NO	[Not Available]	Progression of Disease	[Not Available]	YES
+TCGA-02-0039	TCGA-02-0039-F22281	102	NO	[Not Available]	Progression of Disease	[Not Available]	[Not Available]
+TCGA-02-0048	TCGA-02-0048-F22295	23	[Not Available]	[Not Available]	Progression of Disease	[Not Available]	[Not Available]
+TCGA-02-0051	TCGA-02-0051-F22297	89	NO	[Not Available]	Progression of Disease	[Not Available]	YES
+TCGA-02-0051	TCGA-02-0051-F22297	[Not Available]	NO	413	Locoregional Disease	YES	YES
+TCGA-02-0059	TCGA-02-0059-F22325	21	NO	[Not Available]	Recurrence	[Not Available]	[Not Available]
+TCGA-02-0068	TCGA-02-0068-F22338	175	NO	[Not Available]	Recurrence	[Not Available]	YES
+TCGA-02-0070	TCGA-02-0070-F22350	762	NO	[Not Available]	Recurrence	[Not Available]	NO
+TCGA-02-0104	TCGA-02-0104-F22407	1457	NO	[Not Available]	Recurrence	[Not Available]	NO
+TCGA-08-0244	TCGA-08-0244-F23117	484	[Not Available]	[Not Available]	Recurrence	[Not Available]	[Not Available]
+TCGA-08-0244	TCGA-08-0244-F23117	[Not Available]	[Not Available]	516	Locoregional Disease	YES	[Not Available]
+TCGA-08-0245	TCGA-08-0245-F23122	463	YES	[Not Available]	Progression of Disease	[Not Available]	YES
+TCGA-08-0246	TCGA-08-0246-F23131	103	NO	[Not Available]	Progression of Disease	[Not Available]	NO
+TCGA-08-0344	TCGA-08-0344-F23135	1880	YES	[Not Available]	Recurrence	[Not Available]	YES
+TCGA-08-0344	TCGA-08-0344-F23135	[Not Available]	YES	1936	Locoregional Disease	YES	YES
+TCGA-08-0346	TCGA-08-0346-F23144	75	NO	[Not Available]	Progression of Disease	[Not Available]	NO
+TCGA-08-0346	TCGA-08-0346-F23144	[Not Available]	NO	130	Locoregional Disease	YES	NO
+TCGA-08-0347	TCGA-08-0347-F23148	59	YES	[Not Available]	Progression of Disease	[Not Available]	YES
+TCGA-08-0347	TCGA-08-0347-F23148	[Not Available]	YES	472	Locoregional Disease	YES	YES
+TCGA-08-0348	TCGA-08-0348-F23157	198	YES	[Not Available]	Recurrence	[Not Available]	YES
+TCGA-08-0350	TCGA-08-0350-F23172	439	NO	[Not Available]	Recurrence	[Not Available]	YES
+TCGA-08-0351	TCGA-08-0351-F23178	1542	NO	[Not Available]	Recurrence	[Not Available]	YES
+TCGA-08-0351	TCGA-08-0351-F23178	[Not Available]	NO	1560	Locoregional Disease	YES	YES
+TCGA-08-0353	TCGA-08-0353-F23187	164	YES	[Not Available]	Progression of Disease	[Not Available]	[Not Available]
+TCGA-08-0354	TCGA-08-0354-F23193	253	NO	[Not Available]	Progression of Disease	[Not Available]	YES
+TCGA-08-0355	TCGA-08-0355-F23201	519	NO	[Not Available]	Recurrence	[Not Available]	YES
+TCGA-08-0355	TCGA-08-0355-F23201	[Not Available]	NO	615	Locoregional Disease	YES	YES
+TCGA-08-0356	TCGA-08-0356-F23211	447	NO	[Not Available]	Recurrence	[Not Available]	NO
+TCGA-08-0357	TCGA-08-0357-F23216	155	NO	[Not Available]	Recurrence	[Not Available]	YES
+TCGA-08-0357	TCGA-08-0357-F23216	[Not Available]	NO	180	Locoregional Disease	YES	YES
+TCGA-08-0360	TCGA-08-0360-F23246	112	NO	[Not Available]	Recurrence	[Not Available]	YES
+TCGA-08-0360	TCGA-08-0360-F23246	[Not Available]	NO	127	Locoregional Disease	YES	YES
+TCGA-08-0375	TCGA-08-0375-F23251	161	YES	[Not Available]	Recurrence	[Not Available]	NO
+TCGA-08-0380	TCGA-08-0380-F23255	151	NO	[Not Available]	Progression of Disease	[Not Available]	YES
+TCGA-06-0939	TCGA-06-0939-F22909	329	NO	[Not Available]	Progression of Disease	[Not Available]	YES
+TCGA-06-0939	TCGA-06-0939-F18625	360	NO	[Not Available]	[Unknown]	[Not Available]	NO
+TCGA-14-3476	TCGA-14-3476-F25240	9	NO	[Not Available]	Progression of Disease	[Not Available]	NO
+TCGA-14-4157	TCGA-14-4157-F25249	96	NO	[Not Available]	Progression of Disease	[Not Available]	NO
+TCGA-19-1790	TCGA-19-1790-F25418	88	NO	[Not Available]	Progression of Disease	[Not Available]	NO
+TCGA-26-1439	TCGA-26-1439-F26853	284	NO	[Not Available]	Progression of Disease	[Not Available]	NO
+TCGA-32-1973	TCGA-32-1973-F27724	507	NO	[Not Available]	Progression of Disease	[Not Available]	NO
+TCGA-32-1987	TCGA-32-1987-F27746	68	NO	[Not Available]	Recurrence	[Not Available]	YES
+TCGA-32-1987	TCGA-32-1987-F27746	[Not Available]	NO	68	Locoregional Disease	YES	YES
+TCGA-32-1991	TCGA-32-1991-F27753	345	NO	[Not Available]	Recurrence	[Not Available]	NO
+TCGA-32-1991	TCGA-32-1991-F27753	[Not Available]	NO	345	Locoregional Disease	YES	NO
+TCGA-32-2491	TCGA-32-2491-F27762	70	NO	[Not Available]	Recurrence	[Not Available]	YES
+TCGA-32-2494	TCGA-32-2494-F27767	488	YES	[Not Available]	Progression of Disease	[Not Available]	YES
+TCGA-32-2495	TCGA-32-2495-F27779	252	YES	[Not Available]	Recurrence	[Not Available]	YES
+TCGA-32-2495	TCGA-32-2495-F27779	[Not Available]	YES	252	Locoregional Disease	YES	YES
+TCGA-32-4209	TCGA-32-4209-F27818	94	NO	[Not Available]	Recurrence	[Not Available]	YES
+TCGA-32-4209	TCGA-32-4209-F27818	[Not Available]	NO	94	Locoregional Disease	YES	YES
+TCGA-32-4209	TCGA-32-4209-F15697	338	YES	338	Locoregional Disease	YES	YES
+TCGA-32-4209	TCGA-32-4209-F17347	436	NO	436	Locoregional Disease	YES	NO
+TCGA-32-4213	TCGA-32-4213-F27830	353	YES	[Not Available]	Recurrence	[Not Available]	YES
+TCGA-32-4213	TCGA-32-4213-F27830	[Not Available]	YES	357	Locoregional Disease	[Not Available]	YES
+TCGA-32-4213	TCGA-32-4213-F15678	561	NO	[Not Available]	[Unknown]	[Not Available]	YES
+TCGA-41-2572	TCGA-41-2572-F27983	122	NO	[Not Available]	Progression of Disease	[Not Available]	YES
+TCGA-41-3915	TCGA-41-3915-F12837	288	NO	301	Locoregional Disease	YES	NO
+TCGA-02-0079	TCGA-02-0079-F22365	798	NO	[Not Available]	Progression of Disease	[Not Available]	[Not Available]
+TCGA-06-0127	TCGA-06-0127-F22578	91	NO	[Not Available]	Progression of Disease	[Not Available]	NO
+TCGA-06-0152	TCGA-06-0152-F22647	299	NO	[Not Available]	Progression of Disease	[Not Available]	YES
+TCGA-06-0152	TCGA-06-0152-F22647	[Not Available]	NO	173	Locoregional Disease	YES	YES
+TCGA-06-0238	TCGA-06-0238-F22806	311	NO	[Not Available]	Progression of Disease	[Not Available]	NO
+TCGA-06-0644	TCGA-06-0644-F22853	85	YES	[Not Available]	Recurrence	[Not Available]	YES
+TCGA-06-0644	TCGA-06-0644-F20896	85	YES	[Not Available]	[Unknown]	[Not Available]	YES
+TCGA-06-0646	TCGA-06-0646-F22857	90	NO	[Not Available]	Progression of Disease	[Not Available]	NO
+TCGA-06-0646	TCGA-06-0646-F22857	[Not Available]	NO	103	Locoregional Disease	YES	NO
+TCGA-06-0648	TCGA-06-0648-F22859	202	NO	[Not Available]	Progression of Disease	[Not Available]	YES
+TCGA-08-0349	TCGA-08-0349-F23165	93	NO	[Not Available]	Progression of Disease	[Not Available]	YES
+TCGA-08-0358	TCGA-08-0358-F23234	264	NO	[Not Available]	Recurrence	[Not Available]	YES
+TCGA-08-0358	TCGA-08-0358-F23234	[Not Available]	NO	286	Locoregional Disease	YES	YES
+TCGA-08-0386	TCGA-08-0386-F23265	427	NO	[Not Available]	Recurrence	[Not Available]	YES
+TCGA-08-0386	TCGA-08-0386-F23265	[Not Available]	NO	442	Locoregional Disease	YES	YES
+TCGA-12-0615	TCGA-12-0615-F23452	160	NO	[Not Available]	Progression of Disease	[Not Available]	YES
+TCGA-12-0616	TCGA-12-0616-F23461	398	NO	[Not Available]	Progression of Disease	[Not Available]	YES
+TCGA-12-0619	TCGA-12-0619-F23477	203	NO	[Not Available]	Progression of Disease	[Not Available]	YES
+TCGA-06-5414	TCGA-06-5414-F23015	167	NO	[Not Available]	Progression of Disease	[Not Available]	NO
+TCGA-06-5414	TCGA-06-5414-F23015	[Not Available]	NO	270	Locoregional Disease	YES	NO
+TCGA-12-5295	TCGA-12-5295-F23890	399	NO	[Not Available]	Progression of Disease	[Not Available]	NO
+TCGA-26-5133	TCGA-26-5133-F26876	370	NO	[Not Available]	Progression of Disease	[Not Available]	NO
+TCGA-26-5133	TCGA-26-5133-F26876	[Not Available]	NO	392	Locoregional Disease	YES	NO
+TCGA-28-5208	TCGA-28-5208-F15027	148	YES	[Not Available]	[Unknown]	[Not Available]	YES
+TCGA-28-5208	TCGA-28-5208-F28868	148	YES	[Not Available]	Progression of Disease	[Not Available]	YES
+TCGA-28-5208	TCGA-28-5208-F45609	[Not Available]	YES	[Not Available]	Progression of Disease	[Not Available]	NO
+TCGA-28-5214	TCGA-28-5214-F14982	247	NO	324	Locoregional Disease	YES	[Not Available]
+TCGA-28-5214	TCGA-28-5214-F28890	247	YES	[Not Available]	Progression of Disease	[Not Available]	YES
+TCGA-28-5214	TCGA-28-5214-F28890	[Not Available]	YES	324	Locoregional Disease	YES	YES
+TCGA-28-5215	TCGA-28-5215-F14979	164	NO	[Not Available]	[Unknown]	[Not Available]	YES
+TCGA-28-5215	TCGA-28-5215-F28897	164	NO	[Not Available]	Progression of Disease	[Not Available]	YES
+TCGA-28-5219	TCGA-28-5219-F14961	258	[Not Available]	[Not Available]	[Unknown]	[Not Available]	[Not Available]
+TCGA-28-5219	TCGA-28-5219-F28910	258	[Not Available]	[Not Available]	Progression of Disease	[Not Available]	[Not Available]
+TCGA-28-5220	TCGA-28-5220-F14967	262	NO	[Not Available]	[Unknown]	[Not Available]	NO
+TCGA-28-5220	TCGA-28-5220-F28914	262	[Not Available]	[Not Available]	Progression of Disease	[Not Available]	[Not Available]
+TCGA-32-5222	TCGA-32-5222-F27842	118	NO	[Not Available]	Progression of Disease	[Not Available]	NO
+TCGA-32-5222	TCGA-32-5222-F27842	[Not Available]	NO	118	Locoregional Disease	YES	NO
+TCGA-32-5222	TCGA-32-5222-F15695	193	YES	[Not Available]	[Unknown]	[Not Available]	NO
+TCGA-76-4925	TCGA-76-4925-F28519	88	NO	[Not Available]	Progression of Disease	[Not Available]	NO
+TCGA-76-4926	TCGA-76-4926-F28523	34	YES	[Not Available]	Progression of Disease	[Not Available]	YES
+TCGA-76-4927	TCGA-76-4927-F28527	416	[Not Available]	[Not Available]	Progression of Disease	[Not Available]	[Not Available]
+TCGA-76-4927	TCGA-76-4927-F28527	[Not Available]	[Not Available]	416	Locoregional Disease	YES	[Not Available]
+TCGA-76-4931	TCGA-76-4931-F28535	112	YES	[Not Available]	Progression of Disease	[Not Available]	YES
+TCGA-76-4931	TCGA-76-4931-F28535	[Not Available]	YES	112	Locoregional Disease	YES	YES
+TCGA-76-4935	TCGA-76-4935-F28545	328	NO	[Not Available]	Progression of Disease	[Not Available]	[Not Available]
+TCGA-06-0192	TCGA-06-0192-F20865	648	YES	670	Locoregional Disease	YES	YES
+TCGA-06-0216	TCGA-06-0216-F22784	175	YES	[Not Available]	Progression of Disease	[Not Available]	YES
+TCGA-06-0216	TCGA-06-0216-F22784	[Not Available]	YES	546	Locoregional Disease	YES	YES
+TCGA-06-0686	TCGA-06-0686-F22863	160	NO	[Not Available]	Progression of Disease	[Not Available]	YES
+TCGA-06-0686	TCGA-06-0686-F22863	[Not Available]	NO	160	Locoregional Disease	YES	YES
+TCGA-06-0743	TCGA-06-0743-F22865	176	NO	[Not Available]	Progression of Disease	[Not Available]	YES
+TCGA-06-0743	TCGA-06-0743-F29624	176	NO	755	Locoregional Disease	YES	YES
+TCGA-06-0744	TCGA-06-0744-F20885	1277	NO	[Not Available]	[Unknown]	[Not Available]	NO
+TCGA-06-0745	TCGA-06-0745-F22869	92	NO	[Not Available]	Progression of Disease	[Not Available]	NO
+TCGA-12-0653	TCGA-12-0653-F33741	267	NO	[Not Available]	Progression of Disease	[Not Available]	YES
+TCGA-12-0654	TCGA-12-0654-F23492	216	YES	[Not Available]	Progression of Disease	[Not Available]	YES
+TCGA-12-0656	TCGA-12-0656-F23497	1467	NO	[Not Available]	Progression of Disease	[Not Available]	YES
+TCGA-12-0656	TCGA-12-0656-F23497	[Not Available]	NO	1467	Locoregional Disease	YES	YES
+TCGA-12-0662	TCGA-12-0662-F23511	600	NO	[Not Available]	Progression of Disease	[Not Available]	YES
+TCGA-12-0662	TCGA-12-0662-F23511	[Not Available]	NO	858	Locoregional Disease	YES	YES
+TCGA-12-0688	TCGA-12-0688-F23555	228	NO	[Not Available]	Progression of Disease	[Not Available]	YES
+TCGA-12-0691	TCGA-12-0691-F23565	98	NO	[Not Available]	Progression of Disease	[Not Available]	YES
+TCGA-12-0691	TCGA-12-0691-F23565	[Not Available]	NO	20	Locoregional Disease	YES	YES
+TCGA-12-0692	TCGA-12-0692-F23570	35	NO	[Not Available]	Progression of Disease	[Not Available]	NO
+TCGA-12-0703	TCGA-12-0703-F23573	208	YES	[Not Available]	Progression of Disease	[Not Available]	YES
+TCGA-12-0769	TCGA-12-0769-F23582	378	YES	[Not Available]	Progression of Disease	[Not Available]	YES
+TCGA-12-0772	TCGA-12-0772-F23589	607	YES	[Not Available]	Progression of Disease	[Not Available]	YES
+TCGA-12-0772	TCGA-12-0772-F23589	[Not Available]	YES	29	Locoregional Disease	YES	YES
+TCGA-12-0773	TCGA-12-0773-F23607	725	NO	[Not Available]	Progression of Disease	[Not Available]	YES
+TCGA-12-0773	TCGA-12-0773-F23607	[Not Available]	NO	748	Locoregional Disease	YES	YES
+TCGA-12-0775	TCGA-12-0775-F23626	94	NO	[Not Available]	Progression of Disease	[Not Available]	YES
+TCGA-12-0776	TCGA-12-0776-F23631	127	NO	[Not Available]	Progression of Disease	[Not Available]	YES
+TCGA-12-0778	TCGA-12-0778-F23638	232	YES	[Not Available]	Progression of Disease	[Not Available]	YES
+TCGA-12-0780	TCGA-12-0780-F23654	91	NO	[Not Available]	Progression of Disease	[Not Available]	YES
+TCGA-15-0742	TCGA-15-0742-F25278	232	NO	[Not Available]	Progression of Disease	[Not Available]	YES
