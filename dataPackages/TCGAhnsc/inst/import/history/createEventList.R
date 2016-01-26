@@ -95,6 +95,8 @@ tbl.omf <- read.table("clinical_omf_v4.0_hnsc.txt", quote="", sep="\t", header=T
 tbl.omf <- tbl.omf[3:nrow(tbl.omf),]
 tbl.cqcf <- read.table("clinical_cqcf_hnsc.txt",quote="",sep="\t",header=TRUE, as.is=TRUE) #read
 tbl.cqcf <-tbl.cqcf[3:nrow(tbl.f3),]
+load("../../omf.histology.RData")
+tbl.omf.histology <- subset(omf.histology, diseaseType==study)
 setwd(currDir)
 
 
@@ -264,7 +266,7 @@ test_create.DOB.record <- function()
 #    $units       mg mg/m2  mg/kg
 #    $totalDoseUnits       mg mg/m2  mg/kg
 #    $route       Orally, IV
-#    $schedule    5/28, every 2 weeks
+#    $schedule    5/28, every 2 week
 #    $cycle       3-4
 #    $agent       Temozolomide
 #    $treatment   neoadjuvant, adjuvant
@@ -388,7 +390,7 @@ create.Chemo.record <- function(patient.id)
      cycle           <- tbl.drugSub$pharma_adjuvant_cycles_count[chemoEvent] 
 #    $treatment   neoadjuvant, adjuvant
 #    $disease     "Brain"
-#    $schedule    5/28, every 2 weeks
+#    $schedule    5/28, every 2 week
 
 
     if(therapyType == "[Discrepancy]" || therapyType == "[Not Available]") therapyType = NA
@@ -1157,7 +1159,7 @@ create.Procedure.record <- function(patient.id)
     patient.number <- as.integer(id.map[patient.id])
     name <- "Procedure"
     
-    result <- vector("list", nrow(tbl.nteSub) + nrow(tbl.omfSub))
+    result <- vector("list", nrow(tbl.f1Sub) + nrow(tbl.f3Sub) + nrow(tbl.omfSub))
     good.records.found <- 0
     
     
@@ -1366,7 +1368,7 @@ create.Pathology.record <- function(patient.id)
                         PtNum=patient.number,
                         study=study,
                         Name=name,
-                        Fields = list(date=date, disease=pathDisease, histology=pathHistology, collection=collection, T.Stage=T.Stage, N.Stage=N.Stage, M.Stage=M.Stage,
+                        Fields = list(date=date, disease=pathDisease, histology=pathHistology, histology.category=NA, collection=collection, T.Stage=T.Stage, N.Stage=N.Stage, M.Stage=M.Stage,
                             S.Stage=S.Stage,staging.System=staging.System))
       good.records.found <- good.records.found + 1
       result[[good.records.found]] <- new.event
@@ -1378,6 +1380,13 @@ create.Pathology.record <- function(patient.id)
       disease <- tbl.omfSub$other_malignancy_anatomic_site[omfEvent]
       omfOffset = tbl.omfSub$days_to_other_malignancy_dx[omfEvent]
       histology <- tbl.omfSub$other_malignancy_histological_type[omfEvent]
+        histology_text <- tbl.omfSub$other_malignancy_histological_type_text[omfEvent]
+        if(histology_text != "[Not Applicable]"){
+           histology <- paste(histology, histology_text, sep=":")
+        }
+        histology.category = tbl.omf.histology[tbl.omf.histology$omf.histology==histology, 4]
+        if(histology.category == "[Not Available]") histology.category = NA
+
 
       if(disease   == "[Not Available]") disease = NA
       if(histology == "[Not Available]") histology = NA
@@ -1388,7 +1397,9 @@ create.Pathology.record <- function(patient.id)
                         PtNum=patient.number,
                         study=study,
                         Name=name,
-                        Fields = list(date=omf.date, disease=disease, histology=histology, collection=NA, T.Stage=NA, N.Stage=NA, M.Stage=NA,S.Stage=NA,staging.System=NA))
+                        Fields = list(date=omf.date, disease=disease, histology=histology, 
+                          histology.category=histology.category, collection=NA, T.Stage=NA, N.Stage=NA, 
+                          M.Stage=NA,S.Stage=NA,staging.System=NA))
    
        good.records.found <- good.records.found + 1
        result[[good.records.found]] <- new.event
@@ -1405,13 +1416,22 @@ test_create.Pathology.record <- function()
     x <- create.Pathology.record(tcga.ids[1])
     checkTrue(is.list(x))
     checkEquals(names(x[[1]]), c("PatientID", "PtNum", "study", "Name", "Fields"))
-    checkEquals(names(x[[1]][["Fields"]]), c("date", "disease", "histology", "collection", "T.Stage", "N.Stage","M.Stage","S.Stage","staging.System"))
-    checkEquals(x[[1]], list(PatientID= "TCGA.4P.AA8J", PtNum=1, study=study, Name="Pathology", Fields=list(date="01/01/2013", disease="Head and Neck", histology="Head and Neck Squamous Cell Carcinoma", collection="retrospective", T.Stage="T4a",N.Stage="N2a",M.Stage="M0",S.Stage="Stage IVA",staging.System="7th")))
+    checkEquals(names(x[[1]][["Fields"]]), c("date", "disease", "histology", "histology.category", 
+      "collection", "T.Stage", "N.Stage","M.Stage","S.Stage","staging.System"))
+    checkEquals(x[[1]], list(PatientID= "TCGA.4P.AA8J", PtNum=1, study=study, Name="Pathology", 
+      Fields=list(date="01/01/2013", disease="Head and Neck", histology="Head and Neck Squamous Cell Carcinoma", 
+      histology.category=NA, collection="retrospective", T.Stage="T4a",N.Stage="N2a",M.Stage="M0",
+      S.Stage="Stage IVA",staging.System="7th")))
     
     x <- create.Pathology.record("TCGA-BA-4075") #has both
     checkEquals(length(x),2)
-    checkEquals(x[[1]], list(PatientID="TCGA.BA.4075", PtNum=3, study=study, Name="Pathology",Fields=list(date="01/01/2004", disease="Head and Neck", histology="Head and Neck Squamous Cell Carcinoma", collection="retrospective",T.Stage="T4a",N.Stage="N1",M.Stage="M0",S.Stage="Stage IVA",staging.System="6th")))
-    checkEquals(x[[2]], list(PatientID="TCGA.BA.4075", PtNum=3, study=study, Name="Pathology",Fields=list(date=NA, disease="Tongue, Base of tongue", histology="Squamous Cell Carcinoma, Not Otherwise Specified", collection=NA,T.Stage=NA,N.Stage=NA,M.Stage=NA,S.Stage=NA,staging.System=NA)))
+    checkEquals(x[[1]], list(PatientID="TCGA.BA.4075", PtNum=3, study=study, Name="Pathology",
+      Fields=list(date="01/01/2004", disease="Head and Neck", histology="Head and Neck Squamous Cell Carcinoma",  
+      histology.category=NA, collection="retrospective",T.Stage="T4a",N.Stage="N1",M.Stage="M0",
+      S.Stage="Stage IVA",staging.System="6th")))
+    checkEquals(x[[2]], list(PatientID="TCGA.BA.4075", PtNum=3, study=study, Name="Pathology",
+      Fields=list(date=NA, disease="Tongue, Base of tongue", histology="Squamous Cell Carcinoma, Not Otherwise Specified",  
+      histology.category="Squamous Cell Carcinoma",collection=NA,T.Stage=NA,N.Stage=NA,M.Stage=NA,S.Stage=NA,staging.System=NA)))
 } # test_create.Pathology.record
 #------------------------------------------------------------------------------------------------------------------------
 create.all.Pathology.records <- function(patient.ids)
@@ -1538,7 +1558,7 @@ create.all.Absent.records <- function(patient.ids)
    tbl.omfSub <- subset(tbl.omf, bcr_patient_barcode %in% patient.ids & days_to_other_malignancy_dx != "[Not Available]" & days_to_other_malignancy_dx != "[Pending]" & (drug_tx_indicator == "NO" | radiation_tx_indicator == "NO"))
    
 
-  ids <- unique(c(tbl.nteSub$bcr_patient_barcode,tbl.f2Sub$bcr_patient.barcode, tbl.omfSub$bcr_patient_barcode))
+  ids <- unique(c(tbl.nteSub$bcr_patient_barcode,tbl.f3Sub$bcr_patient.barcode, tbl.omfSub$bcr_patient_barcode))
 
   count <- 1
   result <- vector("list", length(ids))
@@ -1603,15 +1623,16 @@ create.Background.record <- function(patient.id)
     date.quit.smoking <- NA
     num.packs.years <- tbl.ptSub$tobacco_smoking_pack_years_smoked
     num.packs.day <- NA
-    alcohol.weeksly.days <- tbl.ptSub$ alcohol_consumption_frequency
+    alcohol.weekly.days <- tbl.ptSub$ alcohol_consumption_frequency
     alcohol.per.day <- tbl.ptSub$alcohol_consumption_per_day
-    alcohol.amount <- NA
+    
     neoadjuvant.treatment <- tbl.ptSub$history_neoadjuvant_treatment
     
     if(num.packs.years == "[Not Available]") num.packs.years=NA
     if(neoadjuvant.treatment == "[Not Available]") neoadjuvant.treatment=NA
-    if(alcohol.weeksly.days == "[Not Available]") alcohol.weeksly.days=NA
+    if(alcohol.weekly.days == "[Not Available]") alcohol.weekly.days=NA
     if(alcohol.per.day == "[Not Available]") alcohol.per.day = NA
+    alcohol.amount <- paste(alcohol.per.day, "per day;", alcohol.weekly.days,"weekly");
     if(nrow(tbl.ptSub)>0){
             new.event <- list(PatientID=patient.id,
             PtNum=patient.number,
@@ -1619,7 +1640,7 @@ create.Background.record <- function(patient.id)
             Name=name,
             Fields = list(tobacco.usages=tobacco.usages,
             smoking.status=smoking.status, num.packs.years=num.packs.years, num.packs.day=num.packs.day,
-            alcohol.weeksly.days=alcohol.weeksly.days, alcohol.per.day=alcohol.per.day,alcohol.amount=alcohol.amount, neoadjuvant.treatment=neoadjuvant.treatment))
+            alcohol.amount=alcohol.amount, neoadjuvant.treatment=neoadjuvant.treatment))
             good.records.found <- good.records.found +1
             result[[good.records.found]] <- new.event
     }
@@ -1634,18 +1655,17 @@ test_create.Background.record <- function()
     checkTrue(is.list(x))
     checkEquals(names(x[[1]]), c("PatientID", "PtNum", "study", "Name", "Fields"))
     checkEquals(names(x[[1]][["Fields"]]), c("tobacco.usages","smoking.status","num.packs.years","num.packs.day",
-               "alcohol.weeksly.days","alcohol.per.day", "alcohol.amount","neoadjuvant.treatment"))
-    checkEquals(x[[1]], list(PatientID="TCGA.4P.AA8J", PtNum=1, study=study, Name="Background", Fields=list(tobacco.usages=c(NA, NA), smoking.status=NA, num.packs.years=NA,num.packs.day=NA, alcohol.weeksly.days=NA,alcohol.per.day=NA, alcohol.amount=NA, neoadjuvant.treatment="No")))
+                "alcohol.amount","neoadjuvant.treatment"))
+    checkEquals(x[[1]], list(PatientID="TCGA.4P.AA8J", PtNum=1, study=study, Name="Background", Fields=list(tobacco.usages=c(NA, NA), smoking.status=NA, num.packs.years=NA,num.packs.day=NA, alcohol.amount="NA per day; NA weekly", neoadjuvant.treatment="No")))
    
     x <- create.Background.record("TCGA-BA-4074") #no tobacco usage starting date
     checkEquals(names(x[[1]]), c("PatientID", "PtNum", "study", "Name", "Fields"))
     checkEquals(names(x[[1]][["Fields"]]), c("tobacco.usages","smoking.status","num.packs.years","num.packs.day",
-    "alcohol.weeksly.days", "alcohol.per.day","alcohol.amount","neoadjuvant.treatment"))
-    checkEquals(x[[1]], list(PatientID="TCGA.BA.4074", PtNum=2, study=study, Name="Background", Fields=list(tobacco.usages=c("1951",NA), smoking.status=NA, num.packs.years="51",num.packs.day=NA, alcohol.weeksly.days=NA, alcohol.per.day=NA, alcohol.amount=NA, neoadjuvant.treatment="No")))
-    
+    "alcohol.amount","neoadjuvant.treatment"))
+    checkEquals(x[[1]], list(PatientID="TCGA.BA.4074", PtNum=2, study=study, Name="Background", Fields=list(tobacco.usages=c("1951",NA), smoking.status=NA, num.packs.years="51",num.packs.day=NA, alcohol.amount="NA per day; NA weekly", neoadjuvant.treatment="No")))
     
     x <- create.Background.record("TCGA-BA-6872")
-    checkEquals(x[[1]],list(PatientID="TCGA.BA.6872", PtNum=20, study=study, Name="Background", Fields=list(tobacco.usages=c("1974",NA), smoking.status=NA, num.packs.years="40",num.packs.day=NA, alcohol.weeksly.days="7", alcohol.per.day="6", alcohol.amount=NA, neoadjuvant.treatment="No")))
+    checkEquals(x[[1]],list(PatientID="TCGA.BA.6872", PtNum=20, study=study, Name="Background", Fields=list(tobacco.usages=c("1974",NA), smoking.status=NA, num.packs.years="40",num.packs.day=NA, alcohol.amount=c("6 per day; 7 weekly"), neoadjuvant.treatment="No")))
 
 } # test_create.Background.record
 #------------------------------------------------------------------------------------------------------------------------
