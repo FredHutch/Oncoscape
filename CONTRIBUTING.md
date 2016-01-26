@@ -12,6 +12,11 @@ If you haven't already, start by signing up for a [GitHub account](https://githu
 
 ## Getting Started
 
+First review this simple flowchart to see the best place for you to start working and contributing to Oncoscape! 
+
+![oncoscape_user_flowchart_final](https://cloud.githubusercontent.com/assets/15098135/12570250/d3c0ab8a-c38a-11e5-85f5-61ff83c27cfe.png)
+
+
 You can clone this repository locally from GitHub using the "Clone in Desktop" 
 button from the main project site, or run this command in the Git Shell:
 
