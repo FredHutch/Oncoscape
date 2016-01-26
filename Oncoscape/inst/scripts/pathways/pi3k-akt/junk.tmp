@@ -1,2 +1,0 @@
-include(run.R)
-#include(~/.Rprofile)

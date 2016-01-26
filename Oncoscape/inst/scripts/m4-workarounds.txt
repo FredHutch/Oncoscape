@@ -1,4 +1,0 @@
-define(JAVASCRIPT_EVAL, eval)
-define(JAVASCRIPT_INDEX, index)
-define(JAVASCRIPT_FORMAT, format)
-
