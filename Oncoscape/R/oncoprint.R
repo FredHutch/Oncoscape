@@ -1,11 +1,15 @@
 create.oncoprint.input <- function(string, ds, testing)
 {
+    printf(" ======= entering create.oncoprint.input")
+    ds <- datasets[[ds]];
+    printf("***** type of ds is: %s", typeof(ds))
     ds.matrices = SttrDataPackage:::matrices(ds)
     cnv <- ds.matrices$mtx.cn
     mut <- ds.matrices$mtx.mut
     if("mtx.mrna" %in% names(ds.matrices)){
         mrna <- ds.matrices$mtx.mrna
     }else{      mrna <- ds.matrices$mtx.mrna.bc }
+
     genes_all = unique(union(union(colnames(cnv),colnames(mut)),colnames(mrna)))
     patients_all = unique(union(union(rownames(cnv),rownames(mut)),rownames(mrna)))
     
