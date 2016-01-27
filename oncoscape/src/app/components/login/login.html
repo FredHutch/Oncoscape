@@ -2,13 +2,19 @@
 
 	<label for="username">Username</label>
 	<input id="username" type="text" placeholder="Username"
-		ng-model="username">
+		ng-model="vm.user.name">
+
+	
 
 	<label for="password">Password</label>
-	<input id="password" type="password" placeholder="Password">
+	<input id="password" type="password" placeholder="Password"
+		ng-model="vm.user.password">
 
 	<label for="domain">Domain</label>
 	<select id="domain"
 		></select>
+
+		<br />
+{{vm.user.name}}
 
 </div>

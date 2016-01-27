@@ -1,4 +1,3 @@
-
 (function() {
   'use strict';
 
@@ -14,7 +13,7 @@
       templateUrl: 'app/components/login/login.html',
       replace: true,
       scope: {
-        username: '='
+        user: '='
       },
       controller: LoginController,
       controllerAs: 'vm',
@@ -24,11 +23,9 @@
     return directive;
 
     /** @ngInject */
-    function LoginController(moment) {
+    function LoginController(sOncoscape) {
+      debugger;
       var vm = this;
-      
-      //vm.username = "ASDF";
-      
     }
   }
 

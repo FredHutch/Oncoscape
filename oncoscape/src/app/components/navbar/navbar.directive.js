@@ -7,6 +7,7 @@
 
   /** @ngInject */
   function navbar() {
+    
     var directive = {
       restrict: 'E',
       templateUrl: 'app/components/navbar/navbar.html',
@@ -21,9 +22,8 @@
     return directive;
 
     /** @ngInject */
-    function NavbarController(moment) {
-      var vm = this;
-
+    function NavbarController() {
+      //var vm = this;
     }
   }
 

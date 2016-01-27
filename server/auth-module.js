@@ -25,13 +25,11 @@ exports.login = function(username, password, domain, cb){
 
 exports.authorize = function(req){
 
-
 };
 
 // Authenticate Using Ldap
 var authLdap = function(username, password, url, cb ){
 	var client = ldap.createClient( { url:url });
-	console.log(username + " : "+password + " : "+ url)
 	client.bind(username, password, function(err) {
     	client.unbind();
     	cb(err===null);

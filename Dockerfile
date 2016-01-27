@@ -8,8 +8,6 @@ RUN echo "deb http://cran.fhcrc.org/bin/linux/ubuntu trusty/" > /etc/apt/sources
 RUN apt-key adv --keyserver keyserver.ubuntu.com --recv-keys 51716619E084DAB9
 
 # Update the system and install packages
-
-
 RUN apt-get -y -qq update && apt-get -y -qq install \
 	r-base=3.2.3* \
 	vim \
@@ -39,10 +37,14 @@ ADD r_modules /home/sttrweb/Oncoscape/r_modules
 WORKDIR /home/sttrweb/Oncoscape/r_modules
 RUN make install
 
-# Install Node Modules
+# Install Node Server + Modules
 ADD server /home/sttrweb/Oncoscape/server
 WORKDIR /home/sttrweb/Oncoscape/server
+RUN rm -fR /home/sttrweb/Oncoscape/server/node_modules
+
+RUN npm install
 
 EXPOSE  80
+
 #CMD ["bash"]
 CMD ["node", "start.js"]

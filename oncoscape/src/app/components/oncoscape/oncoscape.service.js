@@ -3,10 +3,10 @@
 
   angular
       .module('oncoscape')
-      .service('webDevTec', webDevTec);
+      .service('sOncoscape', sOncoscape);
 
   /** @ngInject */
-  function webDevTec() {
+  function sOncoscape() {
     var data = [
       {
         'title': 'AngularJS',
@@ -65,6 +65,12 @@
     ];
 
     this.getTec = getTec;
+    this.login = login;
+
+
+    function login(username, password, domain){
+
+    }
 
     function getTec() {
       return data;
