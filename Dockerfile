@@ -24,7 +24,6 @@ RUN apt-get -y -qq update && apt-get -y -qq install \
 RUN curl -sL https://deb.nodesource.com/setup_0.12 | bash -
 
 RUN apt-get -y -qq update && apt-get -y -qq install nodejs
-	
 
 # Create the sttrweb user and data directory
 RUN useradd -u 7534 -m -d /home/sttrweb -c "sttr web application" sttrweb && \
@@ -43,8 +42,7 @@ RUN make install
 # Install Node Modules
 ADD server /home/sttrweb/Oncoscape/server
 WORKDIR /home/sttrweb/Oncoscape/server
-#RUN npm install 
 
 EXPOSE  80
-CMD ["bash"]
-#CMD ["node", "start.js"]
+#CMD ["bash"]
+CMD ["node", "start.js"]
