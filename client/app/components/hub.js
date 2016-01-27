@@ -160,7 +160,7 @@ function initializeWebSocket()
      }
 
    //socket = new WebSocket(socketURI);
-   socket = new SockJS('http://localhost/oncoscape/', null, {sessionId : 9 });
+   socket = new SockJS('/oncoscape/', null, {sessionId : 9 });
    socket = setupSocket(socket);
 
 } // initializeWebSocket
