@@ -56,7 +56,7 @@ OncoDev14 = function(port, scriptDir, userID, datasetNames, password=NA_characte
 
    wsCon <- .setupWebSocketHandlers(wsCon, browserFile)
    oncoscape@wsServer <- wsCon
-   state[["auxPort"]] <- AuxPort(wsCon, port+1);
+#   state[["auxPort"]] <- AuxPort(wsCon, port+1);
       
    oncoscape
 
@@ -77,7 +77,11 @@ toJSON <- function(..., auto_unbox = TRUE)
    datasetNames <- strsplit(datasetNames, ";")[[1]]
    for(datasetName in datasetNames){
      printf("OncoDev14:.loadDataPackages: %s", datasetName);
-        eval(parse(text= sprintf("datasets[['%s']] <- SttrDataPackage()", datasetName)))
+     s <- sprintf("require(%s, quietly=TRUE)", datasetName) 
+     tryCatch(eval(parse(text=s)), error=function(e) {
+        message(sprintf("failed to require dataset '%s'", datasetName))
+        })
+	 eval(parse(text= sprintf("datasets[['%s']] <- SttrDataPackage()", datasetName)))
         message(sprintf("OncoDev14 loading: %s", datasetName))
 
 #     s <- sprintf("require(%s, quietly=TRUE)", datasetName)

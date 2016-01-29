@@ -103,6 +103,7 @@ function selectManifest(event)
    selectedDataSet = datasetMenu.val();
    console.log("dataset '" + selectedDataSet + "'");
    $("#datasetsManifestTable").css("display", "none");
+   $("#loadingDatasetMessage").css("display", "inline");
 
    if(selectedDataSet === ""){
       $("#datasetInstructions").css("display", "block");
@@ -164,6 +165,7 @@ function requestDataSetSummary(dataSetName)
 function displayDataManifest(msg)
 {
    $("#datasetsManifestTable").css("display", "block");
+   $("#loadingDatasetMessage").css("display", "none");
 
    var payload = msg.payload;
    var tblColumnNames = payload.colnames;
@@ -225,7 +227,6 @@ function specifyCurrentDataset()
    console.log("Module.datasets 'Use Dataset' button clicked, specifyCurrentDataset: " + selectedDataSet);
 
    hub.disableAllTabsExcept([thisModulesOutermostDiv, "userDataStoreDiv", "ericTestDiv", "DashboardDiv"]);
-   $("#loadingDatasetMessage").css("display", "inline");
 	
    var msg = {cmd: "specifyCurrentDataset",  callback: "datasetSpecified", 
               status: "request", payload: selectedDataSet};
@@ -236,7 +237,7 @@ function specifyCurrentDataset()
 //----------------------------------------------------------------------------------------------------
 function datasetSpecified(msg)
 {
-	$("#loadingDatasetMessage").css("display", "none")
+
    console.log("--- Module.datasets:  datasetSpecified");
 
 } // datasetSpecified
