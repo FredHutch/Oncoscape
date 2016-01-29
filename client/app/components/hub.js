@@ -1,3 +1,7 @@
+JAVASCRIPT_EVAL = eval;
+JAVASCRIPT_INDEX = 0;
+//JAVASCRIPT_FORMAT = format;
+
 //----------------------------------------------------------------------------------------------------
 // These javascript functions and variables are arranged into a simple module so that
 // implementation details are kept private from the public API other oncoscape 
@@ -160,6 +164,7 @@ function initializeWebSocket()
      }
 
    //socket = new WebSocket(socketURI);
+   //socket = new SockJS('/oncoscape/', null, {sessionId : 9 });
    socket = new SockJS('/oncoscape/', null, {sessionId : 9 });
    socket = setupSocket(socket);
 
@@ -367,7 +372,9 @@ function raiseTab(tabIDString)
      var tabIndex = 0;//$(selectionString).parent().JAVASCRIPT_INDEX ();
      if(tabIndex < 0) throw "Module.hub does not recognize tabIDString '" + tabIDString + "'";
      console.log("Module.hub:raiseTab for '" + tabIDString + "' (" + tabIndex + ") set to active'");
-     setTimeout(function(){tabsWidget.tabs( "option", "active", tabIndex);}, 0);
+
+     // This likely needs to be refactored.  From what I can tell the timeout is used to give Jquery Tabs Widget time to init.
+     setTimeout(function(){tabsWidget.tabs( "option", "active", tabIndex);}, 1);
      } // if tabs exist
 
 } // raiseTab
@@ -676,5 +683,7 @@ hub.addOnDocumentReadyFunction(function() {
 
 // Tabs App END
 //----------------------------------------------------------------------------------------------------
-hub.raiseTab("datasetsDiv");
-hub.setTitle("oncoscape");
+$(document).ready(function(){
+  hub.raiseTab("datasetsDiv");
+  hub.setTitle("oncoscape");
+});

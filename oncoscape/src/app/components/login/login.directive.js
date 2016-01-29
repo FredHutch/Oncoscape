@@ -24,8 +24,10 @@
 
     /** @ngInject */
     function LoginController(sOncoscape) {
-      debugger;
       var vm = this;
+      vm.login = function(){
+        sOncoscape.login(vm.user.name, vm.user.password, vm.user.domain);
+      }
     }
   }
 

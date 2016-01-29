@@ -27,7 +27,7 @@ exports.start = function(config){
 
   server.get('/oncoscape/info', function (req, res) {  
     res.setHeader('access-control-allow-credentials','true');
-    res.setHeader('access-control-allow-origin', 'http://localhost:9000');//req.headers.referer.match(/^(?:https?:\/\/)?(?:[^@\n]+@)?(?:www\.)?([^:\/\n]+)/)[0]);
+    res.setHeader('access-control-allow-origin', 'http://localhost:9000');//'http://localhost:3002');//req.headers.referer.match(/^(?:https?:\/\/)?(?:[^@\n]+@)?(?:www\.)?([^:\/\n]+)/)[0]);
     res.setHeader('cache-control','no-store, no-cache, must-revalidate, max-age=0');
     res.setHeader('connection','close');
     res.setHeader('content-type','application/json; charset=UTF-8');

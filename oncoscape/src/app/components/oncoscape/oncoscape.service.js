@@ -6,75 +6,58 @@
       .service('sOncoscape', sOncoscape);
 
   /** @ngInject */
-  function sOncoscape() {
-    var data = [
-      {
-        'title': 'AngularJS',
-        'url': 'https://angularjs.org/',
-        'description': 'HTML enhanced for web apps!',
-        'logo': 'angular.png'
-      },
-      {
-        'title': 'BrowserSync',
-        'url': 'http://browsersync.io/',
-        'description': 'Time-saving synchronised browser testing.',
-        'logo': 'browsersync.png'
-      },
-      {
-        'title': 'GulpJS',
-        'url': 'http://gulpjs.com/',
-        'description': 'The streaming build system.',
-        'logo': 'gulp.png'
-      },
-      {
-        'title': 'Jasmine',
-        'url': 'http://jasmine.github.io/',
-        'description': 'Behavior-Driven JavaScript.',
-        'logo': 'jasmine.png'
-      },
-      {
-        'title': 'Karma',
-        'url': 'http://karma-runner.github.io/',
-        'description': 'Spectacular Test Runner for JavaScript.',
-        'logo': 'karma.png'
-      },
-      {
-        'title': 'Protractor',
-        'url': 'https://github.com/angular/protractor',
-        'description': 'End to end test framework for AngularJS applications built on top of WebDriverJS.',
-        'logo': 'protractor.png'
-      },
-      {
-        'title': 'Bootstrap',
-        'url': 'http://getbootstrap.com/',
-        'description': 'Bootstrap is the most popular HTML, CSS, and JS framework for developing responsive, mobile first projects on the web.',
-        'logo': 'bootstrap.png'
-      },
-      {
-        'title': 'Angular UI Bootstrap',
-        'url': 'http://angular-ui.github.io/bootstrap/',
-        'description': 'Bootstrap components written in pure AngularJS by the AngularUI Team.',
-        'logo': 'ui-bootstrap.png'
-      },
-      {
-        'title': 'Sass (Node)',
-        'url': 'https://github.com/sass/node-sass',
-        'description': 'Node.js binding to libsass, the C version of the popular stylesheet preprocessor, Sass.',
-        'logo': 'node-sass.png'
-      }
-    ];
-
-    this.getTec = getTec;
+  function sOncoscape(fOncoscape) {
+   
     this.login = login;
+    this.getDataSetNames = getDataSetNames;
+    this.getDataManifest = getDataManifest;
+    this.getPatientHistoryTable = getPatientHistoryTable;
+    this.getPatientHistoryDxAndSurvivalMinMax = getPatientHistoryDxAndSurvivalMinMax;
+    this.getSampleDataFrame = getSampleDataFrame;
+    this.getGeneSetNames = getGeneSetNames;
+    this.getSampleCategorizationNames = getSampleCategorizationNames;
+    this.getSampleCategorization = getSampleCategorization;
+    this.getMarkersNetwork = getMarkersNetwork;
+    this.getPathway = getPathway;
+    this.getDrugGeneInteractions = getDrugGeneInteractions;
+    this.getCanonicalizePatientIDsInDataset = getCanonicalizePatientIDsInDataset;
+    this.getGeneSetGenes = getGeneSetGenes;
+    this.getOncoprintDataSelection = getOncoprintDataSelection;
+    this.getPCA = getPCA;
+    this.getCalculatedPCA = getCalculatedPCA;
+    this.getPLSR = getPLSR;
+    this.getCalculatedPLSR = getCalculatedPLSR;
+    this.getSummarizedPLSRPatientAttributes = getSummarizedPLSRPatientAttributes;
+    this.getCalculatedSurvivalCurves = getCalculatedSurvivalCurves;
+    this.getTimelines = getTimelines;
+    this.getCalculatedTimelines = getCalculatedTimelines;
 
+    function login(username, password, domain){}
+    function getDataSetNames() {}
+    function getDataManifest() {}
+    function getPatientHistoryTable() {}
+    function getPatientHistoryDxAndSurvivalMinMax() {}
+    function getSampleDataFrame() {}
+    function getGeneSetNames() {}
+    function getSampleCategorizationNames() {}
+    function getSampleCategorization() {}
+    function getMarkersNetwork() {}
+    function getPathway() {}
+    function getDrugGeneInteractions() {}
+    function getCanonicalizePatientIDsInDataset() {}
+    function getGeneSetGenes() {}
+    function getOncoprintDataSelection() {}
+    function getPCA() {}
+    function getCalculatedPCA() {}
+    function getPLSR() {}
+    function getCalculatedPLSR() {}
+    function getSummarizedPLSRPatientAttributes() {}
+    function getCalculatedSurvivalCurves() {}
+    function getTimelines() {}
+    function getCalculatedTimelines() {}
 
-    function login(username, password, domain){
+    function exeCmd(msg){
 
-    }
-
-    function getTec() {
-      return data;
     }
   }
-
 })();
