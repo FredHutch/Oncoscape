@@ -31,7 +31,7 @@ def runTests():
   test_getMarkersNetwork()
   test_getPathway();
 
-  #test_pca()  # contains 3 more granular tests
+  test_pca()  # contains 3 more granular tests
   test_plsr()  # contains 3 more granular tests
 
   test_eventLogging()
@@ -1119,6 +1119,9 @@ def test_pca():
 
   test_pcaCreateWithDataSet()
   test_pcaCalculate()
+  #test_pcaTestCalculateOnGeneSubset()
+  #test_pcaTestCalculateOnSampleSubset()
+  #test_pcaTestCalculateOnGeneAndSampleSubsets()
 
 #------------------------------------------------------------------------------------------------------------------------
 def test_pcaCreateWithDataSet():
@@ -1143,9 +1146,9 @@ def test_pcaCalculate():
   "calculates pca on DEMOdz, the full mrna matrix, using pca object created above"
 
   print "--- test_pcaCalculate"
-
+  payload = {"expressionDataSet": "mtx.mrna.ueArray"};
   msg = dumps({"cmd": "calculatePCA", "status":"request", 
-              "callback":"handlePcaResult", "payload": ""})
+              "callback":"handlePcaResult", "payload": payload})
   ws.send(msg)
   result = loads(ws.recv())
   assert(result["cmd"] == "handlePcaResult")
@@ -1158,14 +1161,111 @@ def test_pcaCalculate():
   
   ids = payload["ids"]
   assert(len(ids) >= 20)
-  assert(ids.index('TCGA.02.0003.01') >= 0)
+  assert(ids.index('TCGA.02.0014') >= 0)
   
-  assert(payload["maxValue"] > 10)
+  assert(payload["maxValue"] == 8.447)
   
-  assert(payload["importance.PC1"] > 0.0)
-  assert(payload["importance.PC2"] > 0.0)
+  assert(payload["importance.PC1"] == 0.3218)
+  assert(payload["importance.PC2"] == 0.1625)
 
 #------------------------------------------------------------------------------------------------------------------------
+def test_pcaTestCalculateOnGeneSubset():
+
+  "calculates pca on DEMOdz, a mrna matrix subsetted by a list of genes, using pca object created above"
+
+  print "---***** test_pcaTestCalculateOnGeneSubset"
+
+  goi =  ["EDIL3", "EED", "EEF2", "EFEMP2", "EGFR", "EHD2", "EIF4A2", "ELAVL1", "ELAVL2", "ELF4"];
+  payload = {"genes": goi, "expressionDataSet": "mtx.mrna.bc"}
+  msg = dumps({"cmd": "calculatePCA", "status":"request", 
+              "callback":"handlePcaResult", "payload": payload})
+  ws.send(msg)
+  
+  result = loads(ws.recv())
+  assert(result["cmd"] == "handlePcaResult")
+  assert(result["status"] == "success")
+ 
+  
+  payload = result["payload"]
+  print payload 
+  keys = payload.keys()
+  print keys
+  keys.sort()
+  print keys[0]
+  #assert(keys == ['ids', 'importance.PC1', 'importance.PC2', 'loadings', 'maxValue'])
+  
+  ids = payload["ids"]
+  print ids
+  print len(ids)
+  print len(goi)
+  assert(len(ids) == len(goi))
+  assert(ids == goi)
+
+  assert(payload["maxValue"] == 5.3611)
+  assert(payload["importance.PC1"] == 0.2861)
+  assert(payload["importance.PC2"] == 0.194)
+
+#----------------------------------------------------------------------------------------------------
+def test_pcaTestCalculateOnSampleSubset():
+
+  "calculates pca on DEMOdz, a mrna matrix subsetted by a list of genes, using pca object created above"
+
+  print "---***** test_pcaTestCalculateOnSampleSubset"
+
+  soi = ["TCGA.02.0014", "TCGA.02.0021", "TCGA.02.0028", "TCGA.02.0033", "TCGA.02.0037"]
+  payload = {"samples": soi}
+  msg = dumps({"cmd": "calculatePCA", "status":"request", 
+              "callback":"handlePcaResult", "payload": payload})
+  ws.send(msg)
+  
+  result = loads(ws.recv())
+  assert(result["cmd"] == "handlePcaResult")
+  assert(result["status"] == "success")
+  payload = result["payload"]
+  keys = payload.keys()
+  keys.sort()
+  
+  assert(keys == ['ids', 'importance.PC1', 'importance.PC2', 'loadings', 'maxValue'])
+  
+  ids = payload["ids"]
+  assert(len(ids) == 64)
+  
+  assert(payload["maxValue"] == 0.2530)
+  assert(payload["importance.PC1"] == 0.5064)
+  assert(payload["importance.PC2"] == 0.2279)
+
+#----------------------------------------------------------------------------------------------------
+def test_pcaTestCalculateOnGeneAndSampleSubsets():
+
+  "calculates pca on DEMOdz, a mrna matrix subsetted by a list of genes, using pca object created above"
+
+  print "---***** test_pcaTestCalculateOnGeneAndSampleSubsets"
+
+  goi = ["EDIL3", "EED", "EEF2", "EFEMP2", "EGFR", "EHD2", "EIF4A2", "ELAVL1", "ELAVL2", "ELF4"]
+  soi = ["TCGA.02.0014", "TCGA.02.0021", "TCGA.02.0028", "TCGA.02.0033", "TCGA.02.0037"]
+  payload = {"genes": goi, "samples": soi,"expressionDataSet": "mtx.mrna.bc"}
+  
+  msg = dumps({"cmd": "calculatePCA", "status":"request", 
+              "callback":"handlePcaResult", "payload": payload})
+  ws.send(msg)
+  
+  result = loads(ws.recv())
+  assert(result["cmd"] == "handlePcaResult")
+  assert(result["status"] == "success")
+  payload = result["payload"]
+  keys = payload.keys()
+  keys.sort()
+  print payload
+  assert(keys == ['ids', 'importance.PC1', 'importance.PC2', 'loadings', 'maxValue'])
+  
+  ids = payload["ids"]
+  assert(ids == goi)
+  
+  assert(payload["maxValue"] == 0.5445)
+  assert(payload["importance.PC1"] == 0.5075)
+  assert(payload["importance.PC2"] == 0.2802)
+
+#----------------------------------------------------------------------------------------------------
 def test_plsr():
 
   print "--- test_plsr"
