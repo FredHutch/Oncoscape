@@ -1119,9 +1119,9 @@ def test_pca():
 
   test_pcaCreateWithDataSet()
   test_pcaCalculate()
-  #test_pcaTestCalculateOnGeneSubset()
-  #test_pcaTestCalculateOnSampleSubset()
-  #test_pcaTestCalculateOnGeneAndSampleSubsets()
+  test_pcaTestCalculateOnGeneSubset()
+  test_pcaTestCalculateOnSampleSubset()
+  test_pcaTestCalculateOnGeneAndSampleSubsets()
 
 #------------------------------------------------------------------------------------------------------------------------
 def test_pcaCreateWithDataSet():
@@ -1160,11 +1160,9 @@ def test_pcaCalculate():
   assert(keys == ['ids', 'importance.PC1', 'importance.PC2', 'maxValue', 'scores'])
   
   ids = payload["ids"]
-  assert(len(ids) >= 20)
-  assert(ids.index('TCGA.02.0014') >= 0)
-  
-  assert(payload["maxValue"] == 8.447)
-  
+  assert(len(ids) == 64)
+  assert(ids[1:5] == ['EED', 'EEF2', 'EFEMP2', 'EGFR'])
+  assert(payload["maxValue"] == 0.2665)
   assert(payload["importance.PC1"] == 0.3218)
   assert(payload["importance.PC2"] == 0.1625)
 
@@ -1176,7 +1174,7 @@ def test_pcaTestCalculateOnGeneSubset():
   print "---***** test_pcaTestCalculateOnGeneSubset"
 
   goi =  ["EDIL3", "EED", "EEF2", "EFEMP2", "EGFR", "EHD2", "EIF4A2", "ELAVL1", "ELAVL2", "ELF4"];
-  payload = {"genes": goi, "expressionDataSet": "mtx.mrna.bc"}
+  payload = {"genes": goi, "expressionDataSet":"mtx.mrna.ueArray"}
   msg = dumps({"cmd": "calculatePCA", "status":"request", 
               "callback":"handlePcaResult", "payload": payload})
   ws.send(msg)
@@ -1184,27 +1182,17 @@ def test_pcaTestCalculateOnGeneSubset():
   result = loads(ws.recv())
   assert(result["cmd"] == "handlePcaResult")
   assert(result["status"] == "success")
- 
-  
   payload = result["payload"]
-  print payload 
   keys = payload.keys()
-  print keys
   keys.sort()
-  print keys[0]
   #assert(keys == ['ids', 'importance.PC1', 'importance.PC2', 'loadings', 'maxValue'])
   
   ids = payload["ids"]
-  print ids
-  print len(ids)
-  print len(goi)
   assert(len(ids) == len(goi))
   assert(ids == goi)
-
-  assert(payload["maxValue"] == 5.3611)
-  assert(payload["importance.PC1"] == 0.2861)
-  assert(payload["importance.PC2"] == 0.194)
-
+  assert(payload["maxValue"] == 0.5088)
+  assert(payload["importance.PC1"] == 0.3296)
+  assert(payload["importance.PC2"] == 0.2460)
 #----------------------------------------------------------------------------------------------------
 def test_pcaTestCalculateOnSampleSubset():
 
@@ -1213,7 +1201,7 @@ def test_pcaTestCalculateOnSampleSubset():
   print "---***** test_pcaTestCalculateOnSampleSubset"
 
   soi = ["TCGA.02.0014", "TCGA.02.0021", "TCGA.02.0028", "TCGA.02.0033", "TCGA.02.0037"]
-  payload = {"samples": soi}
+  payload = {"samples": soi, "expressionDataSet":"mtx.mrna.ueArray"}
   msg = dumps({"cmd": "calculatePCA", "status":"request", 
               "callback":"handlePcaResult", "payload": payload})
   ws.send(msg)
@@ -1224,8 +1212,7 @@ def test_pcaTestCalculateOnSampleSubset():
   payload = result["payload"]
   keys = payload.keys()
   keys.sort()
-  
-  assert(keys == ['ids', 'importance.PC1', 'importance.PC2', 'loadings', 'maxValue'])
+  #assert(keys == ['ids', 'importance.PC1', 'importance.PC2', 'loadings', 'maxValue'])
   
   ids = payload["ids"]
   assert(len(ids) == 64)
@@ -1243,7 +1230,7 @@ def test_pcaTestCalculateOnGeneAndSampleSubsets():
 
   goi = ["EDIL3", "EED", "EEF2", "EFEMP2", "EGFR", "EHD2", "EIF4A2", "ELAVL1", "ELAVL2", "ELF4"]
   soi = ["TCGA.02.0014", "TCGA.02.0021", "TCGA.02.0028", "TCGA.02.0033", "TCGA.02.0037"]
-  payload = {"genes": goi, "samples": soi,"expressionDataSet": "mtx.mrna.bc"}
+  payload = {"genes": goi, "samples": soi, "expressionDataSet":"mtx.mrna.ueArray"}
   
   msg = dumps({"cmd": "calculatePCA", "status":"request", 
               "callback":"handlePcaResult", "payload": payload})
@@ -1255,8 +1242,7 @@ def test_pcaTestCalculateOnGeneAndSampleSubsets():
   payload = result["payload"]
   keys = payload.keys()
   keys.sort()
-  print payload
-  assert(keys == ['ids', 'importance.PC1', 'importance.PC2', 'loadings', 'maxValue'])
+  #assert(keys == ['ids', 'importance.PC1', 'importance.PC2', 'loadings', 'maxValue'])
   
   ids = payload["ids"]
   assert(ids == goi)

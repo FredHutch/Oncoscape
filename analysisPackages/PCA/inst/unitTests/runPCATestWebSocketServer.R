@@ -210,8 +210,15 @@ ws.calculatePCA <- function(ws, msg)
 
    samples <- NA
    if("samples" %in% names(msg$payload))
-      samples <- msg$payload$samples;
-
+      samples <- msg$payload$samples
+   if(exists("ds") == FALSE) {
+      datasetName <- "DEMOdz"
+      eval(parse(text=sprintf("ds <- %s()", datasetName)))
+   }
+   matrixName = msg$payload$expressionDataSet
+   cmd <- sprintf("mypca <- PCA(ds, '%s')", matrixName);
+   printf("*****cmd is: %s", cmd)
+   eval(parse(text=cmd))
 
    x <- calculate(mypca, genes, samples)
      # fashion a 3-column data.frame nicely suited to use with d3: gene, PC1, PC2
@@ -219,6 +226,7 @@ ws.calculatePCA <- function(ws, msg)
    
    mtx.loadings <- as.matrix(x$loadings[, 1:2])
    ids <- x$loadings$id
+   printf("*****stru of x: %s", str(x,max.level=2))
    max.value <- max(abs(c(x$loadings[,1], x$loadings[,2])))
    importance.PC1 = x$importance["Proportion of Variance", "PC1"]
    importance.PC2 = x$importance["Proportion of Variance", "PC2"]
