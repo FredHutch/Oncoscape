@@ -226,7 +226,6 @@ ws.calculatePCA <- function(ws, msg)
    
    mtx.loadings <- as.matrix(x$loadings[, 1:2])
    ids <- x$loadings$id
-   printf("*****stru of x: %s", str(x,max.level=2))
    max.value <- max(abs(c(x$loadings[,1], x$loadings[,2])))
    importance.PC1 = x$importance["Proportion of Variance", "PC1"]
    importance.PC2 = x$importance["Proportion of Variance", "PC2"]
