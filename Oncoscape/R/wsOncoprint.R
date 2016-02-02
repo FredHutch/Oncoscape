@@ -8,8 +8,7 @@ oncoprint_data_selection <- function(ws, msg)
     
     currentDataSetName <- state[["currentDatasetName"]]
     printf("***** currentDatasetName: %s", currentDataSetName)
-    ds <- datasets[[currentDataSetName]];
-    
+    ds <- currentDataSetName
     printf("=== after obtaining datasets from datapackage constructor, next is processing received ws msg")
     payload_str <- msg$payload$sampleIDs
     payload_mode <- msg$payload$testing

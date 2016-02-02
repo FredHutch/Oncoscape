@@ -1,8 +1,8 @@
 create.oncoprint.input <- function(string, ds, testing)
 {
     printf(" ======= entering create.oncoprint.input")
-    #ds <- datasets[[ds]];
-    printf("***** type of ds is: %s", typeof(ds))
+    cmd <- sprintf("ds <- datasets[['%s']]", ds)
+    eval(parse(text=cmd))
     ds.matrices = SttrDataPackage:::matrices(ds)
     cnv <- ds.matrices$mtx.cn
     mut <- ds.matrices$mtx.mut

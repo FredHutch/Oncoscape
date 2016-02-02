@@ -35,7 +35,7 @@ def runTests():
   test_plsr()  # contains 3 more granular tests
 
   test_eventLogging()
-
+  test_oncoprint()
   print "OK:  all python websocket json tests passed"
 
 #----------------------------------------------------------------------------------------------------
@@ -1307,6 +1307,29 @@ def test_plsrCalculateSmallTwoFactors():
   print maxValue
   assert(maxValue == 0.7946)
 
+#------------------------------------------------------------------------------------------------------------------------
+def test_oncoprint():
+
+  print "--- test_oncoprint"
+
+  test_oncoprintCalculate()
+#------------------------------------------------------------------------------------------------------------------------ 
+def test_oncoprintCalculate():
+  print "--- test_oncoprintCalculate"
+  string = ["PTEN","EGFR","TCGA.02.0014","TCGA.02.0021",
+    "TCGA.02.0028","TCGA.06.0201"]
+  ds = "DEModz"
+  payload_mode = "wsTesting"
+  payload = {"string": string, "ds":ds, "testing":payload_mode}
+  print payload
+  msg = dumps({"cmd": "oncoprint_data_selection", "status":"request", 
+               "callback":"", "payload": payload})
+  ws.send(msg)
+  result = loads(ws.recv())
+  payload = result["payload"];
+  print "***** playload"
+  print payload
+  #assert(payload.find("PLSR package, matrices:") >= 0)
 #------------------------------------------------------------------------------------------------------------------------
 # i developed this test (pshannon, 25 sep 2015) to probe a very confusing bug, which turned out to
 # be caused a problem in wsPLSR.calculate_plsr:
