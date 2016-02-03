@@ -249,14 +249,14 @@ function test(dataSetName)
    QUnit.test("choose dataset '" + dataSetName + "'", function(assert) {
       hub.raiseTab("datasetsDiv");
       var desiredDataset = dataSetName;
-      var dzNames = $("#datasetMenu option").map(function(opt){return this.value})
+      var dzNames = $("#datasetMenu option").map(function(opt){return this.value;});
 
       if($.inArray(desiredDataset, dzNames) < 0){
          alert("cannot run tests:  " + desiredDataset + " dataset not loaded");
          return;
          }
 
-      $("#datasetMenu").val(desiredDataset)
+      $("#datasetMenu").val(desiredDataset);
       $("#datasetMenu").trigger("change");
 
       var done1 = assert.async();
