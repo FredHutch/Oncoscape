@@ -1,8 +1,16 @@
 create.oncoprint.input <- function(string, ds, testing)
 {
     printf(" ======= entering create.oncoprint.input")
+
     cmd <- sprintf("ds <- datasets[['%s']]", ds)
     eval(parse(text=cmd))
+    #}else{
+    #    printf("***** datasets doesn't exits, create ds object")
+    #    printf("***** ds is a string %s ", ds)
+    #    eval(parse(text=sprintf("ds <- %s", ds)))    
+    #    printf("***** ds structure %s", str(ds, max.level=2))
+    #}
+    
     ds.matrices = SttrDataPackage:::matrices(ds)
     cnv <- ds.matrices$mtx.cn
     mut <- ds.matrices$mtx.mut
@@ -15,9 +23,9 @@ create.oncoprint.input <- function(string, ds, testing)
     
     patients = c();
     genes = c();
+    
 
     if(is.numeric(string)){
-        printf("*****receive number")
         printf("*****receive number")
         if(string > 50){
             geneLength = sample(c(1:50),1)
@@ -53,7 +61,9 @@ create.oncoprint.input <- function(string, ds, testing)
         }else{
             return <- list(status="error", payload=toJSON(res), testing="not testing")
         }
-    }    
+    }
+   
+
         printf("=== entering into data processing")
         if(!is.null(cnv)){
             patients_cnv <- intersect(patients, rownames(cnv))

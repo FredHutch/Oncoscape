@@ -28,8 +28,8 @@ patients_all = substring(patients_all, 1, 12)
 runTests <- function()
 {
   survey.data()
-  #demo()
-  test.oneGene()
+  demo()
+  #test.oneGene()
   #test.onePatient()
   #test.oneGeneOnePatient()
   #test.purePatients()
@@ -50,7 +50,7 @@ demo <- function()
 {
    printf("--- demo")
    string <- c("ZNF713","SEPT14","SEC61G","LANCL2","ETV1","VSTM2A","VOPP1","EGFR","TCGA.14.1402","TCGA.12.0820",
-    "TCGA.06.0876","TCGA.16.0861","TCGA.06.0879","TCGA.14.0787","TCGA.06.0743","TCGA.15.0742","TCGA.12.0657",
+    "TCGA.06.0876.01","TCGA.16.0861.01","TCGA.06.0879","TCGA.14.0787","TCGA.06.0743","TCGA.15.0742","TCGA.12.0657",
     "TCGA.12.0656","TCGA.12.0703","TCGA.12.0780","TCGA.12.0692","TCGA.06.0747","TCGA.12.0688","TCGA.06.0744",
     "TCGA.08.0358","TCGA.06.0127","TCGA.08.0375","TCGA.08.0244","TCGA.08.0357","TCGA.02.0070","TCGA.02.0023",
     "TCGA.08.0356","TCGA.02.0068","TCGA.02.0016","TCGA.08.0355","TCGA.02.0015","TCGA.08.0354","TCGA.08.0246",
@@ -245,4 +245,4 @@ timing.oncoprint <- function()
    
 } # timing.oncoprint
 #----------------------------------------------------------------------------------------------------
-runTests()
+#runTests()

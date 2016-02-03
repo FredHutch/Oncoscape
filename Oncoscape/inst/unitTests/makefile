@@ -19,7 +19,7 @@ Rtests:
 	R -f test_UserDataStore.R
 	R -f test_survival.R
 	R -f test_PCA.R
-	R -f test_oncoprint.R
+	
 
 delay:
 	sleep 30
