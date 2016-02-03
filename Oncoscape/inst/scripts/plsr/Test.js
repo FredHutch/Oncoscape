@@ -1,4 +1,4 @@
-// 15:15
+// 18:24
 // plsr/Test.js
 //------------------------------------------------------------------------------------------------------------------------
 
@@ -194,8 +194,16 @@ function testContentsOfplsrPlot()
 
       var vectors = $(".line");
       assert.equal(vectors.length, 4, "There should be 4 vectors.");
-      //testSendIDs();
-      markEndOfTestingDataSet();
+      for(var i=0; i < 4; i++){
+         var x1 = Number($(".line")[i].getAttribute("x1"));
+         var x2 = Number($(".line")[i].getAttribute("x2"));
+         var y1 = Number($(".line")[i].getAttribute("y1"));
+         var y2 = Number($(".line")[i].getAttribute("y2"));
+         var axisLength = Math.sqrt(Math.pow(x2-x1,2) + Math.pow(y2-y1,2));
+         console.log("extent for axis " + i + ": " + vectors);
+         assert.ok(axisLength > 10);
+       }  
+      testSendIDs();
    });
 
 } // testContentsOfplsrPlot
@@ -219,18 +227,17 @@ function testSliderUpdates(plsrMsg) {
           plsrMsg = plsr.ModuleMsg();
           assert.notEqual(plsrMsg_update.vector, plsrMsg.vector, "the plsr vectors are updated.");
           $("#plsrDisplay").show();
-          //testSendIDs();
-          markEndOfTestingDataSet();
+          testSendIDs();
         });  
       }); // new MutationObserver
     } // if null mutation observer    
    var config = {attributes: true, childList: true, characterData: true};
    var target = document.querySelector(minorStatusDiv);
    plsrStatusObserver.observe(target, config);
-   $("#plsrAgeAtDxMinSliderReadout").val(Number($("#plsrAgeAtDxMinSliderReadout").val())-1);
-   $("#plsrAgeAtDxMaxSliderReadout").val(Number($("#plsrAgeAtDxMaxSliderReadout").val())+1);
-   $("#plsrSurvivalMinSliderReadout").val(Number($("#plsrSurvivalMinSliderReadout").val())-1);
-   $("#plsrSurvivalMaxSliderReadout").val(Number($("#plsrSurvivalMaxSliderReadout").val())+1);
+   //$("#plsrAgeAtDxMinSliderReadout").val(Number($("#plsrAgeAtDxMinSliderReadout").val())-1);
+   //$("#plsrAgeAtDxMaxSliderReadout").val(Number($("#plsrAgeAtDxMaxSliderReadout").val())+1);
+   //$("#plsrSurvivalMinSliderReadout").val(Number($("#plsrSurvivalMinSliderReadout").val())-1);
+   //$("#plsrSurvivalMaxSliderReadout").val(Number($("#plsrSurvivalMaxSliderReadout").val())+1);
    $("#plsrCalculateButton").click();
 } // testSliderUpdates
 //------------------------------------------------------------------------------------------------------------------------
@@ -251,6 +258,7 @@ function testSendIDs() {
    //   ids = plsrMsg.geneNames.slice(0, plsrMsg.geneNames.length);
    //}else{
       ids = plsrMsg.geneNames.slice(0, maxNodes);
+      console.log("***** ids sent: ", ids);
    //}
    //console.log("*****testSendIDs number of original global circles appeared: " + $("circle").length + "number of original global value stored: " + plsrMsg.selectedIDs.length);  
    //console.log("*****testSendIDs number of ids to be sent: " + ids.length);  
@@ -263,11 +271,13 @@ function testSendIDs() {
         var statusMsg = $(minorStatusDiv).text();
         QUnit.test(title, function(assert) {
            //length_highlighted = $("circle").attr("class","highlighted").length;
-           length_highlighted = $("circle").length;
+           length_highlighted = d3.selectAll(".highlighted")[0].length;
            console.log("-- in QUnit.test for testSendIDs " + length_highlighted + "  statusMsg: " + statusMsg);
            console.log("***** length_highlighted is: ", length_highlighted);
            console.log("***** length of the ids sent: ", ids.length);
-           assert.equal(length_highlighted, ids.length);
+           assert.equal(length_highlighted, ids.length, "highlighted length equals the length of IDs");
+           assert.equal(d3.selectAll(".highlighted").attr("r"), 20, "highlighted radius is 20.");
+           assert.equal(d3.selectAll(".highlighted").attr("style"), "fill: rgb(255, 0, 0);", "highlighted style is confirmed.");
            markEndOfTestingDataSet();
            });
         }); // new MutationObserver
