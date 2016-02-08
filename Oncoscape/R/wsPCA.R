@@ -28,7 +28,7 @@ ws.createPCA <- function(ws, msg)
    print(msg)
    
    currentDataSetName <- state[["currentDatasetName"]]
-   ds <- state[[currentDataSetName]];
+   ds <- datasets[[currentDataSetName]];
    matrixName = msg$payload$matrixName
    cmd <- sprintf("mypca <- PCA(ds, '%s')", matrixName);
    eval(parse(text=cmd))
