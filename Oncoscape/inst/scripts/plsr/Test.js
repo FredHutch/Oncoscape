@@ -1,3 +1,4 @@
+// 18:24
 // plsr/Test.js
 //------------------------------------------------------------------------------------------------------------------------
 
@@ -98,15 +99,17 @@ function testLoadDatasetplsr(dataSetName)
         var msg = $("#plsrStatusDiv").text();
         QUnit.test('choose dataset for plsr: '+ dataSetName, function(assert) {
           hub.raiseTab("datasetsDiv");
+          console.log("*****before change datasetname.");
           $("#datasetMenu").val(dataSetName);
           $("#datasetMenu").trigger("change");
           assert.equal($("#datasetMenu").val(), dataSetName);
+          console.log("*****change dataSetName.");
           hub.raiseTab("plsrDiv");
           var genesetList = $("#plsrGeneSetSelector option").map(function(opt){return this.value;});
           console.log("***** genesetList: ", genesetList);
-          aseert.equals(document.getElementById("plsrInstructions").style.display, "block");
-          markEndOfTestingDataSet();
-          //testCalculate(genesetList);
+          //aseert.equals(document.getElementById("plsrInstructions").style.display, "block");
+          //markEndOfTestingDataSet();
+          testCalculate(genesetList);
         });
       }); // new MutationObserver
     } // if null mutation observer
@@ -129,7 +132,7 @@ function testCalculate(genesetList)
    console.log("******testCalculate - Current geneset length is:", genesetLength);
    genesetIndex = hub.getRandomInt(0, $("#plsrGeneSetSelector option").length - 1);
    geneset = genesetList[genesetIndex];     
-   
+   var plsrMsg = plsr.ModuleMsg();
 
    if(plsrStatusObserver === null){
       plsrStatusObserver = new MutationObserver(function(mutations) {
@@ -143,30 +146,33 @@ function testCalculate(genesetList)
         
         QUnit.test('testplsrCalculate', function(assert){
           plsrMsg = plsr.ModuleMsg();
-          console.log("*****testCalculate plsrMsg.geneSet ",plsrMsg.geneSet);
-          console.log("*****testCalculate geneset: ",geneset);
-          assert.equal(plsrMsg.geneSet, geneset);
-          $("#plsrCalculateButton").prop("disabled", false);
-          $("#plsrCalculateButton").css({"background-color": "red", "color": "green"});
-          assert.equal($("#plsrCalculateButton").css('color'), "rgb(0, 128, 0)");
-          //$("#plsrGeneSetSelector").val(geneset);
-          //$("#plsrGeneSetSelector").trigger("change");
-          // check if the "Calculate" is clicked
+          assert.equal($("#plsrCalculateButton").prop("disabled"), false);
           $("#plsrDisplay").show();
-          markEndOfTestingDataSet(); 
-          //testContentsOfplsrPlot();
+          assert.notEqual($("circle").length, 0, "There are circles plotted.");
+          var ageAtDxMin = Math.floor(plsrMsg.ageAtDxMin/365.24);
+          var ageAtDxMax = Math.floor(plsrMsg.ageAtDxMax/365.24);
+          var survivalMin = Math.floor(plsrMsg.survivalMin/365.24);
+          var survivalMax = Math.floor(plsrMsg.survivalMax/365.24);
+          var ageAtDxSpan = ageAtDxMax - ageAtDxMin;
+          var survivalSpan = survivalMax - survivalMin;
+
+          var ageAtDxMinThreshold = Math.floor(ageAtDxMin + (ageAtDxSpan/3));
+          var ageAtDxMaxThreshold = Math.floor(1 + ageAtDxMax - (ageAtDxSpan/3));
+          var survivalMinThreshold = Math.floor(survivalMin + (survivalSpan/3));
+          var survivalMaxThreshold = Math.floor(1 + survivalMax - (survivalSpan/3));
+          assert.equal(ageAtDxMinThreshold, $("#plsrAgeAtDxMinSliderReadout").val(), "age slider minimum readout checked.");
+          assert.equal(ageAtDxMaxThreshold, $("#plsrAgeAtDxMaxSliderReadout").val(), "age slider maximum readout checked.");
+          assert.equal(survivalMinThreshold, $("#plsrSurvivalMinSliderReadout").val(), "survival slider minimum readout checked.");
+          assert.equal(survivalMaxThreshold, $("#plsrSurvivalMaxSliderReadout").val(), "survial slider maximum readout checked.");
+          assert.equal($("#plsrInstructions").css("display"), "none", "plsrInstructions div disappeared.");
+          testContentsOfplsrPlot();
         });  
       }); // new MutationObserver
     } // if null mutation observer    
    var config = {attributes: true, childList: true, characterData: true};
    var target = document.querySelector(minorStatusDiv);
    plsrStatusObserver.observe(target, config);
-   
-   
-   var payload = {genes: geneset, source: "plsr/Test.js::testCalculate"};
-   msg = {cmd: "calculateplsr", callback: "plsrPlot", status: "request", payload: payload};
-   hub.send(JSON.stringify(msg));
-
+   $("#plsrCalculateButton").click();
 } // testCalculate
 //----------------------------------------------------------------------------------------------------
 function testContentsOfplsrPlot()
@@ -174,24 +180,69 @@ function testContentsOfplsrPlot()
    console.log("--- testContentsOfplsrPlot");
    var plsrMsg = plsr.ModuleMsg();
     QUnit.test('testplsrContents', function(assert) { 
-      assert.equal($("circle").length, plsrMsg.selectedIDs.length);
-      var circleIndex = hub.getRandomInt(0, plsrMsg.selectedIDs.length - 1);
+      assert.equal($("circle").length, plsrMsg.genes.length, "tested the number of circles");
+      var circleIndex = hub.getRandomInt(0, plsrMsg.genes.length - 1);
       var cir_random = $("circle")[circleIndex];
       var xPos = Number(cir_random.getAttribute("cx"));
       var yPos =  Number(cir_random.getAttribute("cy"));
       var radius = Number(cir_random.getAttribute("r"));
       console.log("*****testContentsOfplsrPlot coordinates" + xPos + "  " + yPos + "  " + radius);
       // get score for this circle, maybe check tooltip name too
-      assert.equal(xPos, plsrMsg.xScale(plsrMsg.plsrScores[circleIndex][0]));
-      assert.equal(yPos, plsrMsg.yScale(plsrMsg.plsrScores[circleIndex][1]));
-      assert.equal(radius, 3);
-      testSendIDs(); 
+      assert.equal(xPos, plsrMsg.xScale(plsrMsg.genes[circleIndex][0]), "tested one circle's x coordinate");
+      assert.equal(yPos, plsrMsg.yScale(plsrMsg.genes[circleIndex][1]), "tested one circle's y coordinate");
+      assert.equal(radius, 3, "tested one circle's radius");
+
+      var vectors = $(".line");
+      assert.equal(vectors.length, 4, "There should be 4 vectors.");
+      for(var i=0; i < 4; i++){
+         var x1 = Number($(".line")[i].getAttribute("x1"));
+         var x2 = Number($(".line")[i].getAttribute("x2"));
+         var y1 = Number($(".line")[i].getAttribute("y1"));
+         var y2 = Number($(".line")[i].getAttribute("y2"));
+         var axisLength = Math.sqrt(Math.pow(x2-x1,2) + Math.pow(y2-y1,2));
+         console.log("extent for axis " + i + ": " + vectors);
+         assert.ok(axisLength > 10);
+       }  
+      testSendIDs();
    });
 
 } // testContentsOfplsrPlot
 //----------------------------------------------------------------------------------------------------
+function testSliderUpdates(plsrMsg) {
+   console.log("entering Test.plsr:testSliderUpdates");
+   
+   var plsrMsg_update = plsr.ModuleMsg();
+
+   if(plsrStatusObserver === null){
+      plsrStatusObserver = new MutationObserver(function(mutations) {
+        //hub.raiseTab("plsrDiv");
+        mutation = mutations[0];
+        plsrStatusObserver.disconnect();
+        plsrStatusObserver = null;
+        var id = mutation.target.id;
+        var msg = $("#plsrStatusDiv").text();
+        // enable the calculate button, change its color, then click
+        
+        QUnit.test('testplsrCalculate', function(assert){
+          plsrMsg = plsr.ModuleMsg();
+          assert.notEqual(plsrMsg_update.vector, plsrMsg.vector, "the plsr vectors are updated.");
+          $("#plsrDisplay").show();
+          testSendIDs();
+        });  
+      }); // new MutationObserver
+    } // if null mutation observer    
+   var config = {attributes: true, childList: true, characterData: true};
+   var target = document.querySelector(minorStatusDiv);
+   plsrStatusObserver.observe(target, config);
+   //$("#plsrAgeAtDxMinSliderReadout").val(Number($("#plsrAgeAtDxMinSliderReadout").val())-1);
+   //$("#plsrAgeAtDxMaxSliderReadout").val(Number($("#plsrAgeAtDxMaxSliderReadout").val())+1);
+   //$("#plsrSurvivalMinSliderReadout").val(Number($("#plsrSurvivalMinSliderReadout").val())-1);
+   //$("#plsrSurvivalMaxSliderReadout").val(Number($("#plsrSurvivalMaxSliderReadout").val())+1);
+   $("#plsrCalculateButton").click();
+} // testSliderUpdates
+//------------------------------------------------------------------------------------------------------------------------
 function testSendIDs() {
-   console.log("entering Test.plsr:testSendGoodIDs");
+   console.log("entering Test.plsr:testSendIDstoHighlight");
 
    var title = "testSendIDs";
    console.log(title);
@@ -201,13 +252,14 @@ function testSendIDs() {
       // we then check to see that these 10 nodes are selected in cyjs
    //var ids = plsrMsg.selectedIDs.splice(-1, 1);
    var ids;
-   var maxNodes = 200;
+   var maxNodes = 10;
    var plsrMsg = plsr.ModuleMsg();
-   if(plsrMsg.selectedIDs.length <= maxNodes){
-      ids = plsrMsg.selectedIDs.slice(0, plsrMsg.selectedIDs.length);
-   }else{
-      ids = plsrMsg.selectedIDs.slice(0, maxNodes);
-   }
+   //if(plsrMsg.geneNames.length <= maxNodes){
+   //   ids = plsrMsg.geneNames.slice(0, plsrMsg.geneNames.length);
+   //}else{
+      ids = plsrMsg.geneNames.slice(0, maxNodes);
+      console.log("***** ids sent: ", ids);
+   //}
    //console.log("*****testSendIDs number of original global circles appeared: " + $("circle").length + "number of original global value stored: " + plsrMsg.selectedIDs.length);  
    //console.log("*****testSendIDs number of ids to be sent: " + ids.length);  
    if(plsrStatusObserver === null){
@@ -218,25 +270,15 @@ function testSendIDs() {
         var id = mutation.target.id;
         var statusMsg = $(minorStatusDiv).text();
         QUnit.test(title, function(assert) {
-           plsrMsg = plsr.ModuleMsg();
-           console.log("-- in QUnit.test for testSendIDs " + ids.length + "  statusMsg: " + statusMsg);
-           //TCGAgbm is using mtx.mrna.ueArray, sampleID duplicates: "TCGA.06.0145.01.1" "TCGA.06.0145.01.2" "TCGA.06.0145.01.3"
-                          //"TCGA.06.0137.01.1" "TCGA.06.0137.01.2" "TCGA.06.0145.01.4"
-                          //"TCGA.06.0137.01.3" "TCGA.06.0145.01.5" "TCGA.06.0138.01.1"
-                          //"TCGA.06.0156.01.1" "TCGA.06.0148.01.1" "TCGA.06.0148.01.2"
-                          //"TCGA.06.0211.01.1" "TCGA.06.0148.01.3" "TCGA.06.0176.01.1"
-                          //"TCGA.06.0154.01.1" "TCGA.06.0156.01.2" "TCGA.06.0208.01.1"
-                          //"TCGA.06.0216.01.1"
-           //DEMOdz: mtx.mrna.bc, sampleID duplicates: "TCGA.06.0747" "TCGA.06.0749"
-           //TCGAbrain: mtx.mrna.bc, no sampleID duplicates
-           //All sample IDs will be returned, so there might be duplicate points drawn representing samples for a given patient.
-           assert.ok($("circle").length >= ids.length);
-           //console.log("*****all ids sent length:", ids.length);
-           //console.log("*****all ids received length:", plsrMsg.selectedIDs.length);
-           //console.log("*****unique ids sent length:", $.unique(ids).length);
-           //console.log("*****unique ids received length:", $.unique(plsrMsg.selectedIDs).length);
-           assert.equal($.unique(ids).length, $.unique(plsrMsg.selectedIDs).length);
-           testSendIDstoHighlight();
+           //length_highlighted = $("circle").attr("class","highlighted").length;
+           length_highlighted = d3.selectAll(".highlighted")[0].length;
+           console.log("-- in QUnit.test for testSendIDs " + length_highlighted + "  statusMsg: " + statusMsg);
+           console.log("***** length_highlighted is: ", length_highlighted);
+           console.log("***** length of the ids sent: ", ids.length);
+           assert.equal(length_highlighted, ids.length, "highlighted length equals the length of IDs");
+           assert.equal(d3.selectAll(".highlighted").attr("r"), 20, "highlighted radius is 20.");
+           assert.equal(d3.selectAll(".highlighted").attr("style"), "fill: rgb(255, 0, 0);", "highlighted style is confirmed.");
+           markEndOfTestingDataSet();
            });
         }); // new MutationObserver
       } // if null mutation observer
@@ -247,69 +289,11 @@ function testSendIDs() {
 
    console.log("testSendIDs, sending " + JSON.stringify(ids));
    var payload = {value: $.unique(ids), count: $.unique(ids).length, source: "plsr/Test.js::testSendIDs"};
-   var msg = {cmd: "sendSelectionTo_plsr", callback: "", status: "request", payload:  payload};
+   var msg = {cmd: "sendSelectionTo_PLSR (highlight)", callback: "", status: "request", payload:  payload};
    
    hub.send(JSON.stringify(msg));
 
 } // testSendIDs
-//----------------------------------------------------------------------------------------------------
-function testSendIDstoHighlight() {
-   console.log("entering Test.plsr:testSendIDstoHighlight");
-
-   var title = "testSendIDstoHighlight";
-   console.log(title);
-   //sending all the ids to highligh
-   var plsrMsg = plsr.ModuleMsg();
-   var ids = plsrMsg.selectedIDs;
-   if(plsrStatusObserver === null){
-   plsrStatusObserver = new MutationObserver(function(mutations) {
-      mutation = mutations[0];
-      plsrStatusObserver.disconnect();
-      plsrStatusObserver = null;
-      var id = mutation.target.id;
-      var statusMsg = $(minorStatusDiv).text();
-      //var plsrMsg = plsr.ModuleMsg();
-      //highlightIndex = plsrMsg.highlightIndex;
-      QUnit.test(title, function(assert) {
-         console.log("-- in QUnit.test for testSendIDstoHighlight " + ids.length + "  statusMsg: " + statusMsg);
-         console.log("*****testSendIDstoHighlight circles number appear: ", $("circle").length);
-         console.log("*****testSendIDstoHighlight current global selectIDs number: ", plsrMsg.selectedIDs.length);
-         console.log("*****testSendIDstoHighlight current ids number: ", ids.length);
-         assert.ok($("circle").length >= ids.length);
-         var randomIndex = hub.getRandomInt(0, ids.length - 1);
-         //var circleIndex = highlightIndex[randomIndex];
-         //console.log("*****testSendIDstoHighlight randomIndex: ", randomIndex);
-         //console.log("*****testSendIDstoHighlight circleIndex: ", circleIndex);
-         var Highlighted = d3.selectAll(".highlighted")[0].length;
-         console.log("*****testSendIDstoHighlight number of Highlighted:", Highlighted);
-         var cir_random = $("circle")[randomIndex];
-         var xPos = Number(cir_random.getAttribute("cx"));
-         var yPos =  Number(cir_random.getAttribute("cy"));
-         var radius = Number(cir_random.getAttribute("r"));
-         console.log("*****testContentsOfplsrPlot randomIndex:" + randomIndex + "coordinates" + xPos + "  " + yPos + "  " + radius);
-         // get score for this circle, maybe check tooltip name too
-         assert.equal(Highlighted, ids.length);
-         assert.equal(xPos, plsrMsg.xScale(plsrMsg.plsrScores[randomIndex][0]));
-         assert.equal(yPos, plsrMsg.yScale(plsrMsg.plsrScores[randomIndex][1]));
-         console.log("*****before radius comparison");
-         assert.equal(radius, 7);
-         markEndOfTestingDataSet(); 
-         });
-     }); // new MutationObserver
-  } // if null mutation observer
-
-   var config = {attributes: true, childList: true, characterData: true};
-   var target = document.querySelector(minorStatusDiv);
-   plsrStatusObserver.observe(target, config);
-
-   console.log("testSendIDstoHighlight, sending " + JSON.stringify(ids));
-   var count = $.unique(ids).length;
-   var payload = {value: $.unique(ids), count: count , source: "plsr/Test.js::testSendIDstoHighlight"};
-   var msg = {cmd: "sendSelectionTo_plsr (highlight)", callback: "", status: "request", payload:  payload};
-   
-   hub.send(JSON.stringify(msg));
-
-} // testSendIDstoHighlight
 //------------------------------------------------------------------------------------------------------------------------
 function markEndOfTestingDataSet()
 {
@@ -334,4 +318,3 @@ return{
 }); // plsrTestModule
 plsrTester = plsrTestModule();
 moduleTests.push(plsrTester);
-
