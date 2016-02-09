@@ -1,4 +1,32 @@
-create.oncoprint.input <- function(string, ds, testing)
+
+random.samples.genes.oncoprint <- function(numberReceived, genes_all, patients_all)
+{
+  printf("*****receive number")
+        if(numberReceived > 50){
+            geneLength = sample(c(1:50),1)
+        }else{
+            geneLength = sample(c(1:as.integer(numberReceived)),1)
+        }    
+        printf("*****geneLength is : %d\n", geneLength)
+        patientLength = as.integer(numberReceived) - geneLength
+        printf("*****patientLength is : %d\n", patientLength)
+        geneLowerBound = sample(c(1:(length(genes_all) - geneLength)),1)
+        printf("*****geneLowerBound is : %d\n", geneLowerBound)
+        if(length(patients_all) > patientLength){
+            patientLowerBound = sample(c(1:(length(patients_all) - patientLength)),1)   
+        }else{
+            patientLowerBound = sample(c(1:length(patients_all)),1)   
+        }
+        
+        printf("*****patientLowerBound is : %d\n", patientLowerBound)
+        genes = genes_all[c(geneLowerBound:(geneLowerBound+geneLength-1))] 
+        printf("*****length of genes is: %d\n", length(genes))
+        patients = patients_all[c(patientLowerBound:(patientLowerBound+patientLength-1))]
+        printf("*****length of patients is: %d\n", length(patients))  
+    return <- list(genes=genes, patients=patients)
+} # random.samples.genes.oncoprint
+#-------------------------------------------------------------------------------
+create.oncoprint.input <- function(samplesAndGenes, ds, testing)
 {
     printf(" ======= entering create.oncoprint.input")
 
@@ -6,7 +34,7 @@ create.oncoprint.input <- function(string, ds, testing)
     eval(parse(text=cmd))
     #}else{
     #    printf("***** datasets doesn't exits, create ds object")
-    #    printf("***** ds is a string %s ", ds)
+    #    printf("***** ds is a samplesAndGenes %s ", ds)
     #    eval(parse(text=sprintf("ds <- %s", ds)))    
     #    printf("***** ds structure %s", str(ds, max.level=2))
     #}
@@ -25,34 +53,16 @@ create.oncoprint.input <- function(string, ds, testing)
     genes = c();
     
 
-    if(is.numeric(string)){
-        printf("*****receive number")
-        if(string > 50){
-            geneLength = sample(c(1:50),1)
-        }else{
-            geneLength = sample(c(1:as.integer(string)),1)
-        }    
-        printf("*****geneLength is : %d\n", geneLength)
-        patientLength = as.integer(string) - geneLength
-        printf("*****patientLength is : %d\n", patientLength)
-        geneLowerBound = sample(c(1:(length(genes_all) - geneLength)),1)
-        printf("*****geneLowerBound is : %d\n", geneLowerBound)
-        if(length(patients_all) > patientLength){
-            patientLowerBound = sample(c(1:(length(patients_all) - patientLength)),1)   
-        }else{
-            patientLowerBound = sample(c(1:length(patients_all)),1)   
-        }
-        
-        printf("*****patientLowerBound is : %d\n", patientLowerBound)
-        genes = genes_all[c(geneLowerBound:(geneLowerBound+geneLength-1))] 
-        printf("*****length of genes is: %d\n", length(genes))
-        patients = patients_all[c(patientLowerBound:(patientLowerBound+patientLength-1))]
-        printf("*****length of patients is: %d\n", length(patients))
-    }else if(any(string %in% genes_all) && any(string %in% substring(patients_all,1,12))){
-        patient_core_Ids <- string[string %in% substring(patients_all,1,12)]
-        patients <- patients_all[match(patient_core_Ids,substring(patients_all,1,12))]#locate back to the original patient IDs
-        genes <- string[string %in% genes_all]
-        printf("*****original string and patients and genes processing block")
+    if(is.numeric(samplesAndGenes)){
+        processed_message <- random.samples.genes.oncoprint(samplesAndGenes, genes_all, patients_all)
+        patients <- processed_message$patients
+        genes <- processed_message$genes
+        printf("***** after calling random.samples.genes.oncoprint function, patients are %s\n.", patients)
+    }else if(any(samplesAndGenes %in% genes_all) && any(samplesAndGenes %in% substring(patients_all,1,12))){
+        patient_core_Ids <- samplesAndGenes[samplesAndGenes %in% substring(patients_all,1,12)]
+        patients <- patients_all[match(patient_core_Ids, substring(patients_all,1,12))]#locate back to the original patient IDs
+        genes <- samplesAndGenes[samplesAndGenes %in% genes_all]
+        printf("*****original samplesAndGenes and patients and genes processing block")
     }else{
         res = "It seems you only selected either patients or genes, please re-select to include both information"
         printf("=== only genes or patients are selected, status failed\n")
@@ -195,7 +205,7 @@ create.oncoprint.input <- function(string, ds, testing)
             }
         }else{
             res = "No overlapping patients or genes within dataset, please re-select"
-            printf("=== printing result json file, result is a string\n")
+            printf("=== printing result json file, result is a samplesAndGenes\n")
             if(testing == "testing"){
                 return <- list(status="error", payload=toJSON(res), testing="testing")
             }else{
@@ -203,5 +213,5 @@ create.oncoprint.input <- function(string, ds, testing)
             }
         }
     
-    
-}
+} # create.oncoprint.input
+#-------------------------------------------------------------------------------
