@@ -458,7 +458,7 @@ function selectPoints(ids, clearIDs)
             console.log("***** Module.js within selectPoints before qunit");
             console.log("***** Date time: ", Date());
             postStatus("selectPoints are highlighted"); 
-   }, 5000);
+   }, 6000);
 } // selectPoints
 //----------------------------------------------------------------------------------------------------
 function clearSelection()
