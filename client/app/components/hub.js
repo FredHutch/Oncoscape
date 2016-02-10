@@ -165,7 +165,7 @@ function initializeWebSocket()
 
    //socket = new WebSocket(socketURI);
    //socket = new SockJS('/oncoscape/', null, {sessionId : 9 });
-   socket = new SockJS('/oncoscape/', null, {sessionId : 9 });
+   socket = new SockJS('http://localhost:80/oncoscape/', null, {sessionId : 9 });
    socket = setupSocket(socket);
 
 } // initializeWebSocket
@@ -366,10 +366,9 @@ function enableTab(tabIDstring)
 function raiseTab(tabIDString)
 {
   var tabsWidget = $("#oncoscapeTabs");
-
   if(tabsWidget.length > 0){
      var selectionString = '#oncoscapeTabs a[href="#' + tabIDString + '"]';
-     var tabIndex = 0;//$(selectionString).parent().JAVASCRIPT_INDEX ();
+     var tabIndex = $(selectionString).parent().index();
      if(tabIndex < 0) throw "Module.hub does not recognize tabIDString '" + tabIDString + "'";
      console.log("Module.hub:raiseTab for '" + tabIDString + "' (" + tabIndex + ") set to active'");
 

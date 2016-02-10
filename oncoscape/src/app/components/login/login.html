@@ -14,7 +14,8 @@
 			<div class="form-group">
 				<label for="domain">Domain</label>
 				<select id="domain" class="form-control"
-					></select>
+					ng-options="option.name for option in vm.domains track by option.name"
+					ng-model="vm.user.domain"></select>
 			</div>
 			<button class="btn btn-default" ng-click="vm.login()">Login</button>
 		</form>

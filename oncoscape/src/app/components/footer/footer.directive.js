@@ -3,7 +3,7 @@
 
   angular
     .module('oncoscape')
-    .directive('footer', footer);
+    .directive('osFooter', footer);
 
   /** @ngInject */
   function footer() {

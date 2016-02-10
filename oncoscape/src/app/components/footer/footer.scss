@@ -1,0 +1,11 @@
+// Namespace
+.footer{
+	background-color:#000;
+  	position: fixed;
+  	bottom: 0px;
+  	width: 100%;
+  	.footer-logos > a{
+  		float:right;
+  		height: 20px;
+  	}
+}
