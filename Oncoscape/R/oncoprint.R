@@ -3,10 +3,10 @@ random.samples.genes.oncoprint <- function(numberReceived, genes_all, patients_a
 {
   printf("*****receive number")
         if(numberReceived > 50){
-            geneLength = sample(c(1:50),1)
+            geneLength = sample(c(3:50),1)
         }else{
-            geneLength = sample(c(1:as.integer(numberReceived)),1)
-        }    
+            geneLength = sample(c(3:as.integer(numberReceived)),1)
+        }
         printf("*****geneLength is : %d\n", geneLength)
         patientLength = as.integer(numberReceived) - geneLength
         printf("*****patientLength is : %d\n", patientLength)
@@ -26,7 +26,7 @@ random.samples.genes.oncoprint <- function(numberReceived, genes_all, patients_a
     return <- list(genes=genes, patients=patients)
 } # random.samples.genes.oncoprint
 #-------------------------------------------------------------------------------
-create.oncoprint.input <- function(samplesAndGenes, ds, testing)
+create.oncoprint.input <- function(samplesAndGenes, ds)
 {
     printf(" ======= entering create.oncoprint.input")
 
@@ -57,7 +57,6 @@ create.oncoprint.input <- function(samplesAndGenes, ds, testing)
         processed_message <- random.samples.genes.oncoprint(samplesAndGenes, genes_all, patients_all)
         patients <- processed_message$patients
         genes <- processed_message$genes
-        printf("***** after calling random.samples.genes.oncoprint function, patients are %s\n.", patients)
     }else if(any(samplesAndGenes %in% genes_all) && any(samplesAndGenes %in% substring(patients_all,1,12))){
         patient_core_Ids <- samplesAndGenes[samplesAndGenes %in% substring(patients_all,1,12)]
         patients <- patients_all[match(patient_core_Ids, substring(patients_all,1,12))]#locate back to the original patient IDs
@@ -66,11 +65,12 @@ create.oncoprint.input <- function(samplesAndGenes, ds, testing)
     }else{
         res = "It seems you only selected either patients or genes, please re-select to include both information"
         printf("=== only genes or patients are selected, status failed\n")
-        if(testing == "testing"){
-            return <- list(status="error", payload=toJSON(res), testing="testing")
-        }else{
-            return <- list(status="error", payload=toJSON(res), testing="not testing")
-        }
+        #if(testing == "testing"){
+        #    return <- list(status="error", payload=toJSON(res), testing="testing")
+        #}else{
+        #    return <- list(status="error", payload=toJSON(res), testing="not testing")
+            return <- list(status="error", payload=res)
+        #}
     }
    
 
@@ -198,19 +198,21 @@ create.oncoprint.input <- function(samplesAndGenes, ds, testing)
             res = list(r,genes)
             printf("=== printing result json file\n")
             printf("=== dimension of res_flattened:%d, %d\n", dim(res_flattened)[1], dim(res_flattened)[2])
-            if(testing == "testing"){
-                return <- list(status="success", payload=toJSON(res), testing="testing")
-            }else{
-                return <- list(status="success", payload=toJSON(res), testing="not testing")
-            }
+            #if(testing == "testing"){
+            #    return <- list(status="success", payload=toJSON(res), testing="testing")
+            #}else{
+            #    return <- list(status="success", payload=toJSON(res), testing="not testing")
+                 return <- list(status="success", payload=toJSON(res))
+            #}
         }else{
             res = "No overlapping patients or genes within dataset, please re-select"
             printf("=== printing result json file, result is a samplesAndGenes\n")
-            if(testing == "testing"){
-                return <- list(status="error", payload=toJSON(res), testing="testing")
-            }else{
-                return <- list(status="error", payload=toJSON(res), testing="not testing")
-            }
+            #if(testing == "testing"){
+            #    return <- list(status="error", payload=toJSON(res), testing="testing")
+            #}else{
+            #    return <- list(status="error", payload=toJSON(res), testing="not testing")
+                return <- list(status="error", payload=toJSON(res))
+            #}
         }
     
 } # create.oncoprint.input

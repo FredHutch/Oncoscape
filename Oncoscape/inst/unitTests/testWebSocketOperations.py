@@ -1329,7 +1329,6 @@ def test_oncoprintCalculate():
   result = loads(ws.recv())
   assert(result["status"] == "success")
   assert(result["cmd"] == "")
-  assert(result["testing"] == "not testing")
   payload = loads(result["payload"]);
   assert(payload[1] == ["PTEN", "EGFR"])
 #------------------------------------------------------------------------------------------------------------------------   
@@ -1348,7 +1347,6 @@ def test_oncoprintOneGeneOnePatient():
   assert(loads(payload[0])[0]["cna"] == "AMPLIFIED")
   assert(result["status"] == "success")
   assert(result["cmd"] == "")
-  assert(result["testing"] == "not testing")  
 #------------------------------------------------------------------------------------------------------------------------
 def test_oncoprintPureGenes():
   print "--- test_oncoprintPureGenes"
@@ -1365,7 +1363,6 @@ def test_oncoprintPureGenes():
   assert(payload == "No overlapping patients or genes within dataset, please re-select")
   assert(result["status"] == "error")
   assert(result["cmd"] == "")
-  assert(result["testing"] == "not testing")  
 #----------------------------------------------------------------------------------------------------
 # i developed this test (pshannon, 25 sep 2015) to probe a very confusing bug, which turned out to
 # be caused a problem in wsPLSR.calculate_plsr:

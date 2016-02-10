@@ -15,9 +15,10 @@ oncoprint_data_selection <- function(ws, msg)
     }
     printf("=== after obtaining datasets from datapackage constructor, next is processing received ws msg")
     payload_str <- msg$payload$sampleIDs
-    payload_mode <- msg$payload$testing
+    #payload_mode <- msg$payload$testing
     
-    partial_msg <- create.oncoprint.input(payload_str, ds, payload_mode) 
+    #partial_msg <- create.oncoprint.input(payload_str, ds, payload_mode) 
+    partial_msg <- create.oncoprint.input(payload_str, ds)
     return.msg <-toJSON(c(cmd=msg$callback, partial_msg))
     printf("=== before sending out result")
     ws$send(return.msg)

@@ -29,13 +29,13 @@ runTests <- function()
 {
   survey.data()
   demo()
-  #test.oneGene()
-  #test.onePatient()
-  #test.oneGeneOnePatient()
-  #test.purePatients()
-  #test.pureGenes()
-  #test.missingDatatype()
-  #timing.oncoprint()
+  test.oneGene()
+  test.onePatient()
+  test.oneGeneOnePatient()
+  test.purePatients()
+  test.pureGenes()
+  test.missingDatatype()
+  timing.oncoprint()
 } # runTests
 #-------------------------------------------------------------------------------------------
 survey.data <- function()
@@ -49,14 +49,14 @@ survey.data <- function()
 demo <- function()
 {
    printf("--- demo")
-   string <- c("ZNF713","SEPT14","SEC61G","LANCL2","ETV1","VSTM2A","VOPP1","EGFR","TCGA.14.1402","TCGA.12.0820",
+   stringSent <- c("ZNF713","SEPT14","SEC61G","LANCL2","ETV1","VSTM2A","VOPP1","EGFR","TCGA.14.1402","TCGA.12.0820",
     "TCGA.06.0876.01","TCGA.16.0861.01","TCGA.06.0879","TCGA.14.0787","TCGA.06.0743","TCGA.15.0742","TCGA.12.0657",
     "TCGA.12.0656","TCGA.12.0703","TCGA.12.0780","TCGA.12.0692","TCGA.06.0747","TCGA.12.0688","TCGA.06.0744",
     "TCGA.08.0358","TCGA.06.0127","TCGA.08.0375","TCGA.08.0244","TCGA.08.0357","TCGA.02.0070","TCGA.02.0023",
     "TCGA.08.0356","TCGA.02.0068","TCGA.02.0016","TCGA.08.0355","TCGA.02.0015","TCGA.08.0354","TCGA.08.0246",
     "TCGA.08.0511","TCGA.06.0402","TCGA.02.0333","TCGA.02.0317","TCGA.02.0260","TCGA.08.0521","TCGA.02.0290",
     "TCGA.06.0394","TCGA.02.0430","TCGA.02.0289","TCGA.08.0514","TCGA.02.0269","TCGA.08.0518","TCGA.06.0157")
-    result <- OncoDev14:::create.oncoprint.input(string, "TCGAgbm", "unitTest")
+    result <- OncoDev14:::create.oncoprint.input(stringSent, "TCGAgbm")
     checkEquals(length(result), 3)
     payload <- fromJSON(result$payload)
     checkEquals(length(payload),2)
@@ -69,14 +69,14 @@ demo <- function()
 test.oneGene <- function()
 {
   printf("--- test one gene")
-  string <- c("EGFR","TCGA.14.1402","TCGA.12.0820",
+  stringSent <- c("EGFR","TCGA.14.1402","TCGA.12.0820",
     "TCGA.06.0876","TCGA.16.0861","TCGA.06.0879","TCGA.14.0787","TCGA.06.0743","TCGA.15.0742","TCGA.12.0657",
     "TCGA.12.0656","TCGA.12.0703","TCGA.12.0780","TCGA.12.0692","TCGA.06.0747","TCGA.12.0688","TCGA.06.0744",
     "TCGA.08.0358","TCGA.06.0127","TCGA.08.0375","TCGA.08.0244","TCGA.08.0357","TCGA.02.0070","TCGA.02.0023",
     "TCGA.08.0356","TCGA.02.0068","TCGA.02.0016","TCGA.08.0355","TCGA.02.0015","TCGA.08.0354","TCGA.08.0246",
     "TCGA.08.0511","TCGA.06.0402","TCGA.02.0333","TCGA.02.0317","TCGA.02.0260","TCGA.08.0521","TCGA.02.0290",
     "TCGA.06.0394","TCGA.02.0430","TCGA.02.0289","TCGA.08.0514","TCGA.02.0269","TCGA.08.0518","TCGA.06.0157")
-    result <- OncoDev14:::create.oncoprint.input(string, "TCGAgbm", "unitTest")
+    result <- OncoDev14:::create.oncoprint.input(stringSent, "TCGAgbm")
     checkEquals(length(result), 3)
     payload <- fromJSON(result$payload)
     checkEquals(length(payload),2)
@@ -88,8 +88,8 @@ test.oneGene <- function()
 test.onePatient <- function()
 {
     printf("--- test one patient")
-    string <- c("ZNF713","SEPT14","SEC61G","LANCL2","ETV1","VSTM2A","VOPP1","EGFR","TCGA.12.0820")
-    result <- OncoDev14:::create.oncoprint.input(string, "TCGAgbm", "unitTest")
+    stringSent <- c("ZNF713","SEPT14","SEC61G","LANCL2","ETV1","VSTM2A","VOPP1","EGFR","TCGA.12.0820")
+    result <- OncoDev14:::create.oncoprint.input(stringSent, "TCGAgbm")
     checkEquals(length(result), 3)
     payload <- fromJSON(result$payload)
     checkEquals(length(payload),2)
@@ -101,8 +101,8 @@ test.onePatient <- function()
 test.oneGeneOnePatient <- function()
 {
     printf("--- test one gene one patient")
-    string <- c("EGFR","TCGA.06.0876")
-    result <- OncoDev14:::create.oncoprint.input(string, "TCGAgbm", "unitTest")
+    stringSent <- c("EGFR","TCGA.06.0876")
+    result <- OncoDev14:::create.oncoprint.input(stringSent, "TCGAgbm")
     checkEquals(length(result), 3)
     checkEquals(result$status, "success")
     payload <- fromJSON(result$payload)
@@ -113,13 +113,13 @@ test.oneGeneOnePatient <- function()
 #----------------------------------------------------------------------------------------------------
 test.purePatients <- function()
 {
-    string <- c("TCGA.06.0876","TCGA.16.0861","TCGA.06.0879","TCGA.14.0787","TCGA.06.0743","TCGA.15.0742","TCGA.12.0657",
+    stringSent <- c("TCGA.06.0876","TCGA.16.0861","TCGA.06.0879","TCGA.14.0787","TCGA.06.0743","TCGA.15.0742","TCGA.12.0657",
     "TCGA.12.0656","TCGA.12.0703","TCGA.12.0780","TCGA.12.0692","TCGA.06.0747","TCGA.12.0688","TCGA.06.0744",
     "TCGA.08.0358","TCGA.06.0127","TCGA.08.0375","TCGA.08.0244","TCGA.08.0357","TCGA.02.0070","TCGA.02.0023",
     "TCGA.08.0356","TCGA.02.0068","TCGA.02.0016","TCGA.08.0355","TCGA.02.0015","TCGA.08.0354","TCGA.08.0246",
     "TCGA.08.0511","TCGA.06.0402","TCGA.02.0333","TCGA.02.0317","TCGA.02.0260","TCGA.08.0521","TCGA.02.0290",
     "TCGA.06.0394","TCGA.02.0430","TCGA.02.0289","TCGA.08.0514","TCGA.02.0269","TCGA.08.0518","TCGA.06.0157")
-    result <- OncoDev14:::create.oncoprint.input(string, "TCGAgbm", "unitTest")
+    result <- OncoDev14:::create.oncoprint.input(stringSent, "TCGAgbm")
     checkEquals(length(result), 3)
     checkEquals(result$status, "error")
     payload <- fromJSON(result$payload)
@@ -128,8 +128,8 @@ test.purePatients <- function()
 #----------------------------------------------------------------------------------------------------
 test.pureGenes <- function()
 {
-    string <- c("ZNF713","SEPT14","SEC61G","LANCL2","ETV1","VSTM2A","VOPP1","EGFR")
-    result <- OncoDev14:::create.oncoprint.input(string, "TCGAgbm", "unitTest")
+    stringSent <- c("ZNF713","SEPT14","SEC61G","LANCL2","ETV1","VSTM2A","VOPP1","EGFR")
+    result <- OncoDev14:::create.oncoprint.input(stringSent, "TCGAgbm")
     checkEquals(length(result), 3)
     checkEquals(result$status, "error")
     payload <- fromJSON(result$payload)
@@ -138,7 +138,7 @@ test.pureGenes <- function()
 #----------------------------------------------------------------------------------------------------
 test.missingDatatype <- function()
 {
-    string <- c("ZNF713","SEPT14","SEC61G","LANCL2","ETV1","VSTM2A","VOPP1","EGFR","TCGA.14.1402","TCGA.12.0820",
+    stringSent <- c("ZNF713","SEPT14","SEC61G","LANCL2","ETV1","VSTM2A","VOPP1","EGFR","TCGA.14.1402","TCGA.12.0820",
     "TCGA.06.0876","TCGA.16.0861","TCGA.06.0879","TCGA.14.0787","TCGA.06.0743","TCGA.15.0742","TCGA.12.0657",
     "TCGA.12.0656","TCGA.12.0703","TCGA.12.0780","TCGA.12.0692","TCGA.06.0747","TCGA.12.0688","TCGA.06.0744",
     "TCGA.08.0358","TCGA.06.0127","TCGA.08.0375","TCGA.08.0244","TCGA.08.0357","TCGA.02.0070","TCGA.02.0023",
@@ -149,7 +149,7 @@ test.missingDatatype <- function()
     ds_truncated <- ds
     ds_truncated@matrices$mtx.mrna <- NULL
     ds_truncated@matrices$mtx.mrna.bc <- NULL
-    result <- OncoDev14:::create.oncoprint.input(string, ds_truncated, "unitTest")
+    result <- OncoDev14:::create.oncoprint.input(stringSent, ds_truncated)
     checkEquals(length(result), 3)
     payload <- fromJSON(result$payload)
     checkEquals(length(payload),2)
@@ -164,55 +164,55 @@ timing.oncoprint <- function()
     # Scenario 1: Number of genes: 1; Number of patients: 1;
     start_1 <- proc.time();
     string_1 <- c("EGFR", patients_all[300]);
-    result_1 <- OncoDev14:::create.oncoprint.input(string_1, "TCGAgbm", "unitTest")
+    result_1 <- OncoDev14:::create.oncoprint.input(string_1, "TCGAgbm")
     computing_time_1 <- proc.time() - start_1; 
     printf("1 gene 1 patient, computations takes:%f sec",computing_time_1[1]);
     # Scenario 2: Number of genes: 1; Number of patients: 10;
     start_2 <- proc.time();
     string_2 <- c("EGFR", patients_all[c(200:210)]);
-    result_2 <- OncoDev14:::create.oncoprint.input(string_2, "TCGAgbm", "unitTest")
+    result_2 <- OncoDev14:::create.oncoprint.input(string_2, "TCGAgbm")
     computing_time_2 <- proc.time() - start_2; 
     printf("1 gene 10 patients, computations takes:%f sec",computing_time_2[1]);
     # Scenario 3:  Number of genes: 10; Number of patients: 1;
     start_3 <- proc.time();
     string_3 <- c(genes_all[c(200:209)], patients_all[300]);
-    result_3 <- OncoDev14:::create.oncoprint.input(string_3, "TCGAgbm", "unitTest")
+    result_3 <- OncoDev14:::create.oncoprint.input(string_3, "TCGAgbm")
     computing_time_3 <- proc.time() - start_3; 
     printf("10 genes 1 patient, computations takes:%f sec",computing_time_3[1]); 
     # Scenario 4:  Number of genes: 10; Number of patients: 100;
     start_4 <- proc.time();
     string_4 <- c(genes_all[c(200:209)], patients_all[c(200:299)]);
-    result_4 <- OncoDev14:::create.oncoprint.input(string_4, "TCGAgbm", "unitTest")
+    result_4 <- OncoDev14:::create.oncoprint.input(string_4, "TCGAgbm")
     computing_time_4 <- proc.time() - start_4; 
     printf("10 genes 100 patients, computations takes:%f sec",computing_time_4[1]);
     # Scenario 5:  Number of genes: 100; Number of patients: 10;
     start_5 <- proc.time();
     string_5 <- c(genes_all[c(200:299)], patients_all[c(200:209)]);
-    result_5<- OncoDev14:::create.oncoprint.input(string_5, "TCGAgbm", "unitTest")
+    result_5<- OncoDev14:::create.oncoprint.input(string_5, "TCGAgbm")
     computing_time_5 <- proc.time() - start_5; 
     printf("100 genes 10 patients, computations takes:%f sec",computing_time_5[1]);
     # Scenario 6:  Number of genes: Max number of nodes minors 1 (449); Number of patients: 1;
     start_6 <- proc.time();
     string_6 <- c(genes_all[c(20100:20549)], patients_all[349]);
-    result_6 <- OncoDev14:::create.oncoprint.input(string_6, "TCGAgbm", "unitTest")
+    result_6 <- OncoDev14:::create.oncoprint.input(string_6, "TCGAgbm")
     computing_time_6 <- proc.time() - start_6; 
     printf("449 genes 1 patient, computations takes:%f sec",computing_time_6[1]);
     # Scenario 7:  Number of genes: 1; Number of patients: Max number of nodes minors 1 (449);
     start_7 <- proc.time();
     string_7 <- c("EGFR", patients_all[c(1:449)]);
-    result_7 <- OncoDev14:::create.oncoprint.input(string_7, "TCGAgbm", "unitTest")
+    result_7 <- OncoDev14:::create.oncoprint.input(string_7, "TCGAgbm")
     computing_time_7 <- proc.time() - start_7; 
     printf("1 gene 449 patients, computations takes:%f sec",computing_time_7[1]); 
     # Scenario 8: Number of genes: 2000; Number of patients: 100;  
     start_8 <- proc.time();
     string_8 <- c(genes_all[c(1:2000)], patients_all[c(1:100)]);
-    result_8 <- OncoDev14:::create.oncoprint.input(string_8, "TCGAgbm", "unitTest")
+    result_8 <- OncoDev14:::create.oncoprint.input(string_8, "TCGAgbm")
     computing_time_8 <- proc.time() - start_8; 
     printf("20000 gene 100 patients, computations takes:%f sec",computing_time_8[1]); 
     # Scenario 9: Number of genes: 20000; Number of patients: 100;  
     start_9 <- proc.time();
     string_9 <- c(genes_all[c(1:20000)], patients_all[c(1:100)]);
-    result_9 <- OncoDev14:::create.oncoprint.input(string_9, "TCGAgbm", "unitTest")
+    result_9 <- OncoDev14:::create.oncoprint.input(string_9, "TCGAgbm")
     computing_time_9 <- proc.time() - start_9; 
     printf("20000 gene 100 patients, computations takes:%f sec",computing_time_9[1]); 
 
