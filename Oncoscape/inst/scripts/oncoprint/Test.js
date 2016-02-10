@@ -262,7 +262,7 @@ function testSendRandomizedGoodMsg()
 {
   var testTitle = "testSendRandomizedGoodMsg";
   console.log(testTitle);
-  var totalNodesLength = hub.getRandomInt(3,350);
+  var totalNodesLength = hub.getRandomInt(2,350);
   console.log("*****testSendRandomizedGoodMsg totalNodesLength is: ", totalNodesLength);
 
   

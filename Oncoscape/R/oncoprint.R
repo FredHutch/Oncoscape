@@ -2,10 +2,10 @@
 random.samples.genes.oncoprint <- function(numberReceived, genes_all, patients_all)
 {
   printf("*****receive number")
-        if(numberReceived > 50){
-            geneLength = sample(c(3:50),1)
+        if(numberReceived > 40){
+            geneLength = sample(c(1:40),1)
         }else{
-            geneLength = sample(c(3:as.integer(numberReceived)),1)
+            geneLength = sample(c(1:as.integer(numberReceived-1)),1)
         }
         printf("*****geneLength is : %d\n", geneLength)
         patientLength = as.integer(numberReceived) - geneLength
@@ -55,8 +55,12 @@ create.oncoprint.input <- function(samplesAndGenes, ds)
 
     if(is.numeric(samplesAndGenes)){
         processed_message <- random.samples.genes.oncoprint(samplesAndGenes, genes_all, patients_all)
+        #processed_message <- random.samples.genes.oncoprint(2, genes_all, patients_all)
         patients <- processed_message$patients
         genes <- processed_message$genes
+        #printf("***** after random.samples.genes.oncoprint called")
+        #printf("***** patients %s", patients)
+        #printf("***** genes %s", genes)
     }else if(any(samplesAndGenes %in% genes_all) && any(samplesAndGenes %in% substring(patients_all,1,12))){
         patient_core_Ids <- samplesAndGenes[samplesAndGenes %in% substring(patients_all,1,12)]
         patients <- patients_all[match(patient_core_Ids, substring(patients_all,1,12))]#locate back to the original patient IDs
@@ -100,7 +104,7 @@ create.oncoprint.input <- function(samplesAndGenes, ds)
                 cnv_res_flattened[,3] <- gsub(-2,"HOMODELETED",cnv_res_flattened[,3])
                 cnv_res_flattened[,3] <- gsub(2,"AMPLIFIED",cnv_res_flattened[,3])
                 cnv_res_flattened[,3] <- gsub(1,"GAINED",cnv_res_flattened[,3])
-                if(dim(cnv_res_flattened)[1] == 0 ) rm(cnv_res_flattened)
+                #if(dim(cnv_res_flattened)[1] == 0 ) rm(cnv_res_flattened)
                 }
         }
         
@@ -130,7 +134,7 @@ create.oncoprint.input <- function(samplesAndGenes, ds)
                 }else if(length(which(mrna_res_flattened$value < -2)) > 0){
                     mrna_res_flattened$value[which(mrna_res_flattened$value < -2)] <- "DOWNREGULATED"
                 }
-                if(dim(mrna_res_flattened)[1] == 0 ) rm(mrna_res_flattened)
+                #if(dim(mrna_res_flattened)[1] == 0 ) rm(mrna_res_flattened)
             }
         }
         
@@ -159,7 +163,7 @@ create.oncoprint.input <- function(samplesAndGenes, ds)
                 #mut_res_flattened$value <- gsub("",NA,mut_res_flattened$value)
                 mut_res_flattened <- mut_res_flattened[which(mut_res_flattened$value != ""),]
                 mut_res_flattened$value <- rep("MISSENSE",nrow(mut_res_flattened)) #need to update with more features, such as truncated etc.
-                if(dim(mut_res_flattened)[1] == 0 ) rm(mut_res_flattened)
+                #if(dim(mut_res_flattened)[1] == 0 ) rm(mut_res_flattened)
             }
         }
          
