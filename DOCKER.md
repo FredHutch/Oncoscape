@@ -76,7 +76,7 @@ If your output looks like the above, then you're Mac is ready to use Docker.
 
 ##3. Installing Docker on Windows
 
-Running a Docker environment on Microsoft Windows requires Windows 7, 8.x (Windows 10 is currently not supported).
+Running a Docker environment on Microsoft Windows requires Windows 7, 8.x, or 10
 
 To get docker running on on Windows, follow the instructions below: 
 
