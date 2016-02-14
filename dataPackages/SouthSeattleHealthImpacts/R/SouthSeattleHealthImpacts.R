@@ -8,19 +8,15 @@ SouthSeattleHealthImpacts <- function()
 {
   dir <- system.file(package="SouthSeattleHealthImpacts", "extdata")
   stopifnot(file.exists(dir))
-  data <- Dataset:::.loadFiles(dir)
+  full.path <- file.path(dir, "manifest.tsv")
+  stopifnot(file.exists(full.path))
 
-  obj <- .SouthSeattleHealthImpacts(Dataset(name="SouthSeattleHealthImpacts",
-                         matrices=data$matrices,
-                         data.frames=data$data.frames,
-                         history=data$history,
-                         manifest=data$manifest,
-                         genesets=data$genesets,
-                         json.objects=data$json.objects,
-                         networks=data$networks,
-                         sampleCategorizations=data$sampleCategorizations))
+  manifest <- read.table(full.path, sep="\t", header=TRUE, as.is=TRUE);
+  result <- Dataset:::.loadFiles(dir, manifest)
 
-  obj
+  .SouthSeattleHealthImpacts(Dataset(name="SouthSeattleHealthImpacts", manifest=manifest,
+                             history=result$subjectHistory,
+                             dictionary=result$dictionary))
 
 } # SouthSeattleHealthImpacts constructor
 #----------------------------------------------------------------------------------------------------
@@ -33,7 +29,7 @@ setMethod("show", "SouthSeattleHealthImpacts",
      })
 
 #----------------------------------------------------------------------------------------------------
-setMethod('canonicalizeSampleIDs', "SouthSeattleHealthImpacts",
+setMethod('sampleIdToSubjectId', "SouthSeattleHealthImpacts",
 
   function (obj, sample.ids) {
      sample.ids

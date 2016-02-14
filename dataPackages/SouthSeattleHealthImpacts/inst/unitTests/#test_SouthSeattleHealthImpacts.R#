@@ -109,7 +109,8 @@ explore.correlation <- function()
     printf("--- explore.correlation")
     d <- SouthSeattleHealthImpacts();
     checkTrue("tbl.factors" %in% getItemNames(d))
-    tbl.factors <- getItemByName(d, "tbl.factors")
+    tbl.factors <- getItem(d, "tbl.factors")
+    
 
 } # explore.correlationp
 #----------------------------------------------------------------------------------------------------
