@@ -8,7 +8,12 @@
     /** @ngInject */
     function oncoscape(osSocket, $http) {
 
+        // Functions to move during refactor
+        this.setBusy = setBusy;
         this.login = login;
+        this.setDataset = setDataset;
+
+        // Valid functions
         this.getDomains = getDomains;
         this.getDataSetNames = getDataSetNames;
         this.getDataManifest = getDataManifest;
@@ -49,6 +54,13 @@
                 }
             });
         }
+        function setBusy(value){
+            if (value){
+                $(".loader-modal").show();
+            }else{
+                $(".loader-modal").hide();
+            }
+        }
 
         function getDomains() {
             return [
@@ -57,15 +69,18 @@
                 {"name": "SCCA"}
             ];
         }
-
+        function setDataset(dataset){
+            return osSocket.request({cmd: "specifyCurrentDataset", payload: dataset });
+        }
         function getDataSetNames() {
             return osSocket.request({cmd: "getDataSetNames"});
-            
         }
-
-        function getDataManifest() {}
-
-        function getPatientHistoryTable() {}
+        function getDataManifest(dataset) {
+            return osSocket.request({cmd: "getDataManifest", payload:dataset});
+        }
+        function getPatientHistoryTable(dataset) {
+            return osSocket.request({cmd: "getPatientHistoryTable", payload:{datasetName: dataset, durationFormat: "byYear"}});
+        }
 
         function getPatientHistoryDxAndSurvivalMinMax() {}
 

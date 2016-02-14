@@ -29,7 +29,6 @@
 
             vm.login = function() {
                 osApi.login(vm.user).then(function(){
-                    if (vm.user.authenticated) console.log("YEP");
                     if (vm.user.authenticated){
                         $state.go("datasource");
                     }else{

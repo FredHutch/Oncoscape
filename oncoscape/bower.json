@@ -20,7 +20,10 @@
     "moment": "~2.10.6",
     "animate.css": "~3.4.0",
     "angular": "~1.4.2",
-    "d3": "^3.5.13"
+    "d3": "^3.5.13",
+    "datatables.net": "^1.10.11",
+    "datatables.net-bs": "^1.10.11",
+    "angular-rangeslider": "^0.0.14"
   },
   "overrides": {
     "bootstrap-sass": {
@@ -37,5 +40,6 @@
   "resolutions": {
     "jquery": "~2.1.4",
     "angular": "~1.4.2"
-  }
+  },
+  "devDependencies": {}
 }

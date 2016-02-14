@@ -25,8 +25,15 @@
         function DatasourceController(osApi, $state) {
             var vm = this;
             vm.datasets = [];
+            vm.explore = function(dataset){
+                $state.go('explore');
+            };
+
+            // Load Datasets
+            osApi.setBusy(true);
             osApi.getDataSetNames().then(function(response){
                 vm.datasets = response.payload.datasets;
+                osApi.setBusy(false);
             });
         }
     }
