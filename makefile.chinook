@@ -4,18 +4,18 @@ clean:
 	R -f removeInstalledOncoscapePackages.R
 
 build:
-	R CMD install dataPackages/SubjectHistory
-	R CMD install dataPackages/Dataset
-	R CMD install dataPackages/DEMOdz
-	R CMD install dataPackages/TCGAbrain
-	R CMD install dataPackages/Groups
-	R CMD install dataPackages/ChinookDataset
-	R CMD install Oncoscape
-	R CMD install analysisPackages/ChinookAnalysis
-	R CMD install analysisPackages/chinookAnalysisDemo/SimpleSummaryStats/
-	R CMD install analysisPackages/chinookAnalysisDemo/ChinookSimpleSummaryStats
-	R CMD install analysisPackages/PCA
-	R CMD install analysisPackages/ChinookPCA
+	R CMD INSTALL dataPackages/SubjectHistory
+	R CMD INSTALL dataPackages/Dataset
+	R CMD INSTALL dataPackages/DEMOdz
+	R CMD INSTALL dataPackages/TCGAbrain
+	R CMD INSTALL dataPackages/Groups
+	R CMD INSTALL dataPackages/ChinookDataset
+	R CMD INSTALL Oncoscape
+	R CMD INSTALL analysisPackages/ChinookAnalysis
+	R CMD INSTALL analysisPackages/chinookAnalysisDemo/SimpleSummaryStats/
+	R CMD INSTALL analysisPackages/chinookAnalysisDemo/ChinookSimpleSummaryStats
+	R CMD INSTALL analysisPackages/PCA
+	R CMD INSTALL analysisPackages/ChinookPCA
 
 test:
 	R -f dataPackages/DEMOdz/inst/unitTests/test_DEMOdz.R
