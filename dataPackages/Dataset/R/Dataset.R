@@ -2,7 +2,7 @@
 printf = function (...) print (noquote (sprintf (...)))
 options(stringsAsFactors = FALSE)
 #----------------------------------------------------------------------------------------------------
-.Dataset <- setClass ("Dataset", 
+.Dataset <- setClass ("Dataset",
                       representation = representation (
                                             name="character",
                                             manifest="data.frame",
@@ -20,7 +20,7 @@ setGeneric("sampleIdToSubjectId",  signature="obj", function(obj, sample.ids) st
 Dataset <- function(name="", manifest=data.frame(), history=SubjectHistory(), dictionary=new.env(parent=emptyenv()))
 {
   obj <- .Dataset(name=name, manifest=manifest, subjectHistory=history, dictionary=dictionary)
-  
+
   obj
 
 } # Dataset constructor
@@ -111,16 +111,16 @@ setMethod("sampleIdToSubjectId", "Dataset",
        cmd.string <- sprintf("dictionary[['%s']] <- %s", variable.name, variable.name)
        eval(parse(text=cmd.string))
        } # for i
-    
+
       # now create the SubjectHistory object.  it will be
       #   1) empty
       #   2) constructed from a data.frame
       #   3) constructed from an event list
       #   4) constructed from both
-    
+
       # first set up empty objects to use in the constructor
-   eventList <- list()  
-   table <- data.frame()  
+   eventList <- list()
+   table <- data.frame()
       # now see if actual variables are mentioned in the manifest, and
       # have been read into the dictionary, in which case grab them,
       # delete them from the dictionary
@@ -132,7 +132,7 @@ setMethod("sampleIdToSubjectId", "Dataset",
       eventList <- dictionary[[eventList.variable]]
       rm(list=eventList.variable, pos=dictionary)
       }
- 
+
    tbl.table <- subset(tbl.manifest, category=="subjectHistory" & subcategory=="table")
    if(nrow(tbl.table) == 1){
      table.variable <- tbl.table$variable
@@ -141,7 +141,7 @@ setMethod("sampleIdToSubjectId", "Dataset",
      }
 
    subjectHistory <- SubjectHistory(table, eventList)
- 
+
    return(list(dictionary=dictionary, subjectHistory=subjectHistory))
 
 } # .loadFiles

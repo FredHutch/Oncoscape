@@ -1,13 +1,13 @@
 //----------------------------------------------------------------------------------------------------
 // These javascript functions and variables are arranged into a simple module so that
-// implementation details are kept private from the public API other oncoscape 
+// implementation details are kept private from the public API other oncoscape
 // browser modules will use.  common services and utility functions are provided here
 //----------------------------------------------------------------------------------------------------
 var HubModule = (function () {
 
   var name = "HubModule";
      // keys are module names, their outermost divs are the values.
-     // providing these outermost divs allows was inspired by 
+     // providing these outermost divs allows was inspired by
      // the need to allow raising of tabs by the sending tab.
      // TODO: not sure that's still needed
 
@@ -18,7 +18,7 @@ var HubModule = (function () {
   var onDocumentReadyFunctions = [];
   var socketURI = window.location.href.replace("http://", "ws://");
   var socket;
-  
+
   var  messagingRestrictedToLogin = false;
 
   var modules = {};
@@ -85,7 +85,7 @@ function setupSocket(socket)
   catch(exception) {
     console.log("Error: " + exception);
     }
- 
+
   return(socket);
 
 } // setupSocket
@@ -124,8 +124,8 @@ function getOnDocumentReadyFunctions()
 // times out web sockets at 90 seconds.
 // this function, when called more often that that, will keep the websocket open.
 keepAlive = function()
-{   
-    //console.log("keep alive"); 
+{
+    //console.log("keep alive");
     msg = {cmd: "keepAlive", callback: "", status:"request", payload:""}
     socket.send(JSON.stringify(msg));
 
@@ -151,7 +151,7 @@ function runningInNode()
 
 } // functionRunningInNode
 //----------------------------------------------------------------------------------------------------
-function initializeWebSocket()
+function initializeWebSocket() // socketURI)
 {
    if(runningInNode()){
      console.log("--- web socket not currently available when runing in Node");
@@ -177,19 +177,19 @@ function addMessageHandler(cmd, func)
   else{
      dispatchOptions[cmd] = [func]
      }
-  
+
 } // addMessageHandler
 //----------------------------------------------------------------------------------------------------
 function getRegisteredMessageNames()
 {
    return(Object.keys(dispatchOptions));
-  
+
 } // getRegisteredMessageNames
 //----------------------------------------------------------------------------------------------------
 function getDispatchOptions()
 {
    return(dispatchOptions);
-  
+
 } // getDispatchOptions
 //----------------------------------------------------------------------------------------------------
 function dispatchMessage(msg)
@@ -256,7 +256,7 @@ function setTitle (newTitle)
 }  // setTitle
 //----------------------------------------------------------------------------------------------------
 // add a pulldown menu to the specified menuSelector, which has been provided by the caller, which
-// is assumed to be an Oncoscape module.  append the names of all previously-registered divs, 
+// is assumed to be an Oncoscape module.  append the names of all previously-registered divs,
 // except for those explicitly excluded in the incoming argument "excludedModules".
 // This supports the usual (but not universal) case: a module does not want to send selections
 // to itself.
@@ -307,7 +307,7 @@ function openCenteredBrowserWindow(url, title, w, h, replaceAnyExistingPopup) {
     if (window.focus) {
        newWindow.focus();
        }
-       
+
     return newWindow;
 
 } // openCenteredBrowserWindow
@@ -333,9 +333,9 @@ function disableAllTabsExcept(tabIDstring)
   var allDivIDs = getTabDivIDs()
   allDivIDs = allDivIDs.filter(function(i, id){ return(tabIDstring.indexOf(id) == -1) })
   for(var i=0;i<allDivIDs.length; i++){  	disableTab(allDivIDs[i]) }
-  
+
   return allDivIDs;  //returns divIDs that have been disabled
-  
+
 } // disableTab
 //--------------------------------------------------------------------------------------------
 function disableTab(tabIDstring)
@@ -370,7 +370,7 @@ function raiseTab(tabIDString)
 
 } // raiseTab
 //----------------------------------------------------------------------------------------------------
-// each of our tabs is a div, nested directly within $("oncoscapeTabs").  
+// each of our tabs is a div, nested directly within $("oncoscapeTabs").
 // this function returns an array of each of the div ids
 function getTabNames()
 {
@@ -408,7 +408,7 @@ function hideTabNav(tabTitle)
 function hideAllTabsButOne(tabTitle, tabDivIDstring)
 {
   var divIDs = getTabDivIDs();
-  
+
   $(".ui-tabs-nav li:contains('" + tabTitle + "')").hide()
   $(tabDivIDstring).hide();
 
@@ -437,12 +437,12 @@ function getRandomFloat (min, max)
     return Math.random() * (max - min) + min;
 }
 //----------------------------------------------------------------------------------------------------
-function getRandomInt (min, max) 
+function getRandomInt (min, max)
 {
     return Math.floor(Math.random() * (max - min + 1)) + min;
 }
 //----------------------------------------------------------------------------------------------------
-String.prototype.beginsWith = function (string) 
+String.prototype.beginsWith = function (string)
 {
     return(this.toLowerCase().indexOf(string.toLowerCase()) === 0);
 };
@@ -465,19 +465,19 @@ uniqueElementsOfArray = function(vector)
 //----------------------------------------------------------------------------------------------------
 // return the targets matched by the candidates, where match is tolerant of differences by suffix
 // thus incoming id "TCGA.06.0649.01" matches existing id "TCGA.06.0649" and
-//      incoming id "TCGA.06.0649"    matches existing id "TCGA.06.0649.01" 
+//      incoming id "TCGA.06.0649"    matches existing id "TCGA.06.0649.01"
 // this may cause problems with gene names, eg, MYC would mach MYCL and MYCA
-// todo: make this suffix-tolerant match suffix-specific 
+// todo: make this suffix-tolerant match suffix-specific
 function intersectionOfArrays(candidates, targets) {
 
-  hits=[]; 
+  hits=[];
 
   for(var i=0; i < candidates.length; i++){
     for (var j=0; j < targets.length; j++){
        candidate = candidates[i];
        target = targets[j];
        index1 = candidate.indexOf(target);   // "abc".indexOf("ab") -> 0
-       index2 = target.indexOf(candidate); 
+       index2 = target.indexOf(candidate);
        //console.log("c(t): " + candidate + " contains " + target + ": " + index1);
        //console.log("t(c): " + target + " contains " + candidate + ": " + index2);
        if (index1 == 0)
@@ -499,19 +499,19 @@ function setupGlobalExceptionHandler()
       var options = {buttons: { "Ok": function () { $(this).dialog("close"); } },
                      title: title};
       var text = "<i>" + errorMsg + "</i><br>" +
-                 "<br><b>Script</b>: " + url + 
-                 "<br><b>Line:</b> " + lineNumber + 
-                 "<br><b>Column:</b> " + column + 
+                 "<br><b>Script</b>: " + url +
+                 "<br><b>Line:</b> " + lineNumber +
+                 "<br><b>Column:</b> " + column +
                  "<br><b>StackTrace:</b> " +  errorObj;
       $("<div></div>").dialog(options).html(text);
       };
- 
+
 } // setupGlobalExceptionHandler
 //----------------------------------------------------------------------------------------------------
-function start()
+function start() // socketURI)
 {
   setupGlobalExceptionHandler();
-  initializeWebSocket();
+  initializeWebSocket(); // socketURI);
   $(document).ready(runOnDocumentReadyFunctions);
   QUnit.config.altertitle = false;
 
@@ -520,7 +520,7 @@ function start()
 function logEventOnServer(moduleOfOrigin, eventName, eventStatus, comment)
 {
    console.log("about to logEvent: " + eventName);
-   payload= {eventName: eventName, eventStatus: eventStatus, 
+   payload= {eventName: eventName, eventStatus: eventStatus,
              moduleOfOrigin: moduleOfOrigin, comment: comment};
 
    hub.send(JSON.stringify({cmd: "logEvent", callback: "", status: "request", payload: payload}));
