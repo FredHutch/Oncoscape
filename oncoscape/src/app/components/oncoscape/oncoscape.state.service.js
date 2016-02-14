@@ -10,9 +10,11 @@
 		this.getUser = getUser;
 		function getUser(){
 			return {
-				"name":"michael",
-				"password":"mzT1hs0nT1hs0n1q2w3e",
-				"domain":{"name":"FHCRC"}
+				"name":"",
+				"password":"",
+				"domain":{"name":"Guest"},
+				"authenticated":false,
+				"token": null
 			}
 		}
 	}

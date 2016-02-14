@@ -6,7 +6,7 @@
         .service('osApi', oncoscape);
 
     /** @ngInject */
-    function oncoscape(osSocket) {
+    function oncoscape(osSocket, $http) {
 
         this.login = login;
         this.getDomains = getDomains;
@@ -33,21 +33,33 @@
         this.getTimelines = getTimelines;
         this.getCalculatedTimelines = getCalculatedTimelines;
 
-        function login(username, password, domain) {
-            alert(username + ":" + password + ":" + domain.name);
-
+        function login(user) {
+            var req = {
+                method: 'POST',
+                url: 'http://localhost/login/',
+                data: {username:user.name, password:user.password, domain:user.domain.name}
+            };
+            return $http(req).then(function(res){
+                if (res.data.success){
+                    user.authenticated = true;
+                    user.token = res.data.token;
+                }else{
+                    user.authenticated = false;
+                    user.token = null;
+                }
+            });
         }
 
         function getDomains() {
-            return [{
-                "name": "Guest"
-            }, {
-                "name": "FHCRC"
-            }];
+            return [
+                {"name": "Guest"},
+                {"name": "FHCRC"},
+                {"name": "SCCA"}
+            ];
         }
 
-        function getDataSetNames(cb) {
-            exeCmd({cmd: "getDataSetNames",  callback: "handleDataSetNames", status: "request", payload: ""});
+        function getDataSetNames() {
+            return osSocket.request({cmd: "getDataSetNames"});
             
         }
 
@@ -93,8 +105,6 @@
 
         function getCalculatedTimelines() {}
 
-        function exeCmd(msg) {
-            osSocket.send(msg);
-        }
+       
     }
 })();

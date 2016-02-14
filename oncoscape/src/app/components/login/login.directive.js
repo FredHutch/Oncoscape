@@ -21,20 +21,20 @@
         return directive;
 
         /** @ngInject */
-        function LoginController(osApi, osState) {
+        function LoginController(osApi, osState, $state) {
             var vm = this;
-
-            function init() {
-                vm.domains = osApi.getDomains(); //angular.copy(vm.datasource);
-                vm.user = osState.getUser();
-            }
-
-            init();
+            vm.domains = osApi.getDomains();
+            vm.user = osState.getUser();
+            vm.hasError = false;
 
             vm.login = function() {
-                osApi.login(vm.user.name, vm.user.password, vm.user.domain);
-                osApi.getDataSetNames(function(){
-                    alert("HI");
+                osApi.login(vm.user).then(function(){
+                    if (vm.user.authenticated) console.log("YEP");
+                    if (vm.user.authenticated){
+                        $state.go("datasource");
+                    }else{
+                        vm.hasError = true;
+                    }
                 });
             }
         }

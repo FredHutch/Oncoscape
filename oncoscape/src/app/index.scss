@@ -4,9 +4,10 @@
  */
 $navbar-inverse-link-color: #59a5fb;
 $icon-font-path: "../../bower_components/bootstrap-sass/assets/fonts/bootstrap/";
-
 $brand-primary:         darken(#59a5fb, 6.5%) !default; // #337ab7
-
+$font-family-sans-serif: "proxima-nova-n3","proxima-nova",sans-serif;
+$font-family-serif: "proxima-nova-n3","proxima-nova",sans-serif;
+$headings-font-weight:    300 !default;
 /**
  *  Do not remove the comments below. It's the markers used by wiredep to inject
  *  sass dependencies when defined in the bower.json of your dependencies
@@ -14,12 +15,17 @@ $brand-primary:         darken(#59a5fb, 6.5%) !default; // #337ab7
 // bower:scss
 // endbower
 
+.navbar-inverse{
+	background-color: #000 !important;
+	border:none !important;
+}
 .sro{	// Screen Readers Only
 	display:none !important;
 }
 
 body{
-	padding-top:50px;
+	padding-top:70px;
+	padding-bottom:100px;
 }
 
 /**

@@ -22,8 +22,12 @@
         return directive;
 
         /** @ngInject */
-        function DatasourceController() {
-            //var vm = this;
+        function DatasourceController(osApi, $state) {
+            var vm = this;
+            vm.datasets = [];
+            osApi.getDataSetNames().then(function(response){
+                vm.datasets = response.payload.datasets;
+            });
         }
     }
 
