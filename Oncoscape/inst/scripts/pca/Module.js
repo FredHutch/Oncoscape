@@ -310,10 +310,16 @@ function pcaPlot (msg)
       currentIdentifiers = msg.payload.ids;
       console.log("*****pcaPlot received currentIdentifier length: ", currentIdentifiers.length);
       console.log("*****pcaPlot received pcaScores length: ", pcaScores.length);
+      console.log("*****pcaPlot geneSet length: ", geneSet.length);
       //capture message and store to a global variable for testing purpose
       pcaMsg = {selectedIDs:currentIdentifiers, pcaScores:pcaScores, geneSet:geneSet};
-      for(var i = 0; i < pcaMsg.selectedIDs.length; i++) { pcaMsg.selectedIDs[i] = pcaMsg.selectedIDs[i].slice(0, 12);}
-      console.log("*****pcaPlot selectedIDs", pcaMsg.selectedIDs);
+      pcaMsg.selectedIDs = currentIdentifiers;
+      pcaMsg.pcaScores = pcaScores;
+      pcaMsg.geneSet = geneSet;
+      //for(var i = 0; i < pcaMsg.selectedIDs.length; i++) { pcaMsg.selectedIDs[i] = pcaMsg.selectedIDs[i].slice(0, 12);}
+      console.log("*****pcaPlot selectedIDs length", pcaMsg.selectedIDs.length);
+      console.log("*****pcaPlot pcaScore length", pcaMsg.pcaScores.length);
+      console.log("*****pcaPlot geneSet length", pcaMsg.geneSet.length);
       d3PcaScatterPlot(pcaScores);
 
       var pcaData = msg.payload.importance;
@@ -733,6 +739,7 @@ function assessUserIdForTesting(msg)
 } // assessUserIdForTesting
 //----------------------------------------------------------------------------------------------------
 function ModuleMsg(){
+  console.log("***** in ModuleMsg, pcaMsg.selectedID.length is ", pcaMsg.selectedIDs.length);
   return pcaMsg;
 }
 //----------------------------------------------------------------------------------------------------
