@@ -80,12 +80,114 @@
 #plsrAgeAtDxSlider {
 background:#ABD3E8;
 }
+
 #plsrSurvivalSlider {
 background:#ABD3E8;
 }
 
-</style>
+#menu {
+    list-style:none;
+    margin:35px auto 0px;
+}
+.menu {
+    height:40px;
+    list-style:none;
+    padding:0px 10px 0px 10px;
+}
+.menu li {
+    float:left;
+    display:block;
+    text-align:center;
+    position:relative;
+    margin:3px 0px 0;
+    border:none;
+}
+.menu li a {
+    color: #000;
+    display:block;
+    outline:0;
+    text-decoration:none;
+    border-bottom:1px solid #dedede;
+    padding:2px 10px;
+}
 
+.menu li > div a {
+    padding: 0 0 0 14px;
+    border-bottom:none;
+}
+.dropdown-1column,
+.dropdown-2columns,
+.dropdown-3columns,
+.dropdown-4columns,
+.dropdown-5columns {
+    margin:-1px auto  0 -50px;
+    float:left;
+    position:absolute;
+    text-align:left;
+    padding:10px 5px 10px 5px;
+    border:1px solid #dedede;
+    background:#fff;
+    z-index:999;
+    display:none;
+}
+.dropdown-1column {width: 130px; margin:-1px auto 0;}
+.dropdown-2columns {width: 400px;}
+.dropdown-3columns {width: 480px;}
+.dropdown-4columns {width: 640px;}
+.dropdown-5columns {width: 810px;}
+.col-1,
+.col-2,
+.col-3,
+.col-4,
+.col-5 {
+    display:inline;
+    float: left;
+    position: relative;
+    margin-left: 5px;
+    margin-right: 5px;
+}
+.col-1 {width:150px;}
+.col-2 {width:280px;}
+.col-3 {width:470px;}
+.col-4 {width:560px;}
+.col-5 {width:800px;}
+
+.menu p, .menu h2, .menu h3, .menu ul li {
+    line-height:21px;
+    font-size:12px;
+    text-align:left;
+}
+.menu h2 {
+    font-size:21px;
+    font-weight:400;
+    letter-spacing:-1px;
+    margin:7px 0 14px 0;
+    padding-bottom:14px;
+    border-bottom:1px solid #666666;
+    color:#555;
+}
+.menu h3 {
+    font-size:15px;
+    margin:7px 0;
+    padding-bottom:2px;
+    border-bottom:1px solid #888888;
+    color:#555;
+}
+.menu p {
+    line-height:18px;
+    margin:0 0 10px 0;
+}
+
+.strong {
+    font-weight:bold;
+}
+.menu li ul li:hover {
+    background:none;
+    border:none;
+    padding:0;
+    margin:0;
+}
+</style>
 
 <div id="plsrDiv" style="padding:0px; padding-top: 5px;">
    <div id="plsrStatusDiv" style="display:none"></div>
@@ -120,7 +222,16 @@ background:#ABD3E8;
        <div id="plsrCalculateButtonDiv" class="flex-container" style="margin-right: auto; margin-top:15px;">
           <button id="plsrClearSelectionButton" style="height:50px;">Clear<br>Selection</button>
           <button id="plsrCalculateButton" style="height:50px;">Calculate</button>
-          <select class="SelectionMenu" id="plsrExpressionDataSetSelector" style="height:20px; margin-top:15px; margin-left:3px;" class="navbar-form selectpicker" ></select>
+          
+          <ul class="menu navbar-form selectpicker" id="plsrExpressionDataSetSelector" style="height:20px; margin-top:15px; margin-left:3px;" class="navbar-form selectpicker">
+            <li class="has-dropdown"><a href="#">Choose Expression Data</a><!-- multicolumns -->
+              <div class="dropdown dropdown-5columns">
+                <div class="col-5"><h2>Expression Manifest</h2>
+                </div>
+              </div>
+            </li>
+          </ul>
+
           <select class="SelectionMenu" id="plsrGeneSetSelector" style="height:20px; margin-top:15px; margin-left:3px;" class="navbar-form selectpicker" ></select>
        </div>
       <div id="plsrSendSelectionsMenuDiv" style="margin-right:10px; margin-top: 25px;">

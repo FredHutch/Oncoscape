@@ -295,7 +295,24 @@ wsGetExpressionDataSetNames <- function(ws, msg)
   datasetName <- state[["currentDatasetName"]]
   dataset <- datasets[[datasetName]]
 
-  payload <- getExpressionDataSetNames(dataset)
+  #payload <- getExpressionDataSetNames(dataset)
+  expressionDataSetNames <- getExpressionDataSetNames(dataset)
+  printf("***** expressionDataSetNames are %s ", expressionDataSetNames)
+  tbl <- manifest(datasets[[datasetName]])
+
+    # the first two columns, "variable" and "class" are not so relevant for the oncoscape display
+  #tbl <- tbl[, -c(1,2)]
+    # make some column names more friendly
+  column.titles <- colnames(tbl)
+  column.titles <- sub("entity.count", "rows", column.titles)
+  column.titles <- sub("feature.count", "cols", column.titles)
+  column.titles <- sub("entity.", "row ", column.titles)
+  column.titles <- sub("feature.", "column ", column.titles, fixed=TRUE)
+  tbl <- tbl[expressionDataSetNames,]
+  matrix <- as.matrix(tbl)
+  colnames(matrix) <- NULL
+  payload = list(datasetName=datasetName, colnames=column.titles, rownames=rownames(tbl), mtx=matrix)
+  
   return.msg <- list(cmd=msg$callback, status="success", callback="", payload=payload)
 
   ws$send(toJSON(return.msg))
