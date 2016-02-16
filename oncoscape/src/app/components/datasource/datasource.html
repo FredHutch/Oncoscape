@@ -1,14 +1,26 @@
 <section class="datasource">
-	<ul>
-		<li ng-repeat="dataset in vm.datasets">
-			<img src="/assets/images/datasets/{{dataset}}.png">
-			<h2>{{dataset}}</h2>
-			<p>Lorem ipsum dolor sit amet, cras eu mollis vivamus, ad sollicitudin rhoncus dui proin. Dolor elit ut condimentum luctus ipsam, suspendisse auctor, bibendum cubilia tellus ultrices pellentesque dictumst, egestas lectus in mattis mi class ac. Etiam odio leo vestibulum id, dui pede faucibus cras orci sit primis, massa lacus consectetuer urna pulvinar fusce. </p>
-			<a ng-click="vm.explore('metadata',dataset)">Metadata</a>
-			&nbsp;|&nbsp;
-			<a ng-click="vm.explore('history',dataset)">Patient History</a>
-			&nbsp;|&nbsp;
-			<a ng-click="vm.explore('plsr',dataset)">PLSR</a>
-		</li>
-	</ul>
+	<div class="container">
+		<div class="row">
+			<h2>Data Sources</h2>
+			<p>Sed ut perspiciatis unde omnis iste natus error sit voluptatem accusantium doloremque laudantium, totam rem aperiam, eaque ipsa quae ab illo inventore veritatis et quasi architecto beatae vitae dicta sunt explicabo. Nemo enim ipsam voluptatem quia voluptas sit aspernatur aut odit aut fugit, sed quia consequuntur magni dolores eos qui ratione voluptatem sequi nesciunt. </p>
+		</div>
+		<div class="row">
+			<ul>
+				<li ng-repeat="dataset in vm.datasets">
+					<img src="/assets/images/datasets/{{dataset}}.png">
+					<h2>{{dataset}}</h2>
+					<p>Lorem ipsum dolor sit amet, cras eu mollis vivamus, ad sollicitudin rhoncus dui proin. Dolor elit ut condimentum luctus ipsam, suspendisse auctor, bibendum cubilia tellus ultrices pellentesque dictumst, egestas lectus in mattis mi class ac. Etiam odio leo vestibulum id, dui pede faucibus cras orci sit primis, massa lacus consectetuer urna pulvinar fusce. </p>
+					<a ng-click="vm.explore('metadata',dataset)">Metadata</a>
+					&nbsp;|&nbsp;
+					<a ng-click="vm.explore('history',dataset)">Patient History</a>
+					&nbsp;|&nbsp;
+					<a ng-click="vm.explore('markers',dataset)">Markers + Patients</a>
+					&nbsp;|&nbsp;
+					<a ng-click="vm.explore('plsr',dataset)">PLSR</a>
+					&nbsp;|&nbsp;
+					<a ng-click="vm.explore('pca',dataset)">PCA</a>
+				</li>
+			</ul>
+		</div>
+	</div>
 </section>

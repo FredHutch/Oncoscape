@@ -1,4 +1,6 @@
 // Namespace
 .metadata{
- 
+	#datatable_wrapper > .row:first-child{
+		display:none;
+	}
 }

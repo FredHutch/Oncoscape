@@ -27,8 +27,29 @@ body{
 	padding-top:70px;
 }
 //TODO: Move Into Range Slider
+h2{
+	margin-bottom:20px;
+}
 .ngrs-range-slider{
 	margin-top:0px !important;
+}
+.bs-dropdown{
+	width: 100%;
+	button{
+		width: 100%;
+		text-align: left;
+		height: 28px;
+		line-height: 14px;
+		.caret{
+			float:right;
+			margin-top:5px;
+		}
+	}
+	ul{
+		li{
+			padding:5px;
+		}
+	}
 }
 
 /**

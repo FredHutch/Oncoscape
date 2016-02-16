@@ -2,6 +2,8 @@
 .datasource{
   ul{
   	list-style: none;
+    padding:0px;
+    margin:0px;
   }
   li{
   	height: 150px;
@@ -12,10 +14,11 @@
   	height: auto;
   	float:left;
   	margin-right:50px;
+    box-shadow: 3px 3px 10px #888888;
+    border-radius:50%;
   }
   h2{
   	padding-top: 15px;
     margin-bottom: 0px;
-
   }
 }

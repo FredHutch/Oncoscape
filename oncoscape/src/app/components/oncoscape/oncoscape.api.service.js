@@ -76,17 +76,17 @@
                 {"name": "SCCA"}
             ];
         }
-        function setDataset(dataset){
-            return osSocket.request({cmd: "specifyCurrentDataset", payload: dataset });
+        function setDataset(dataPackage){
+            return osSocket.request({cmd: "specifyCurrentDataset", payload: dataPackage });
         }
         function getDataSetNames() {
             return osSocket.request({cmd: "getDataSetNames"});
         }
-        function getDataManifest(dataset) {
-            return osSocket.request({cmd: "getDataManifest", payload:dataset});
+        function getDataManifest(dataPackage) {
+            return osSocket.request({cmd: "getDataManifest", payload:dataPackage});
         }
-        function getPatientHistoryTable(dataset) {
-            return osSocket.request({cmd: "getPatientHistoryTable", payload:{datasetName: dataset, durationFormat: "byYear"}});
+        function getPatientHistoryTable(dataPackage) {
+            return osSocket.request({cmd: "getPatientHistoryTable", payload:{datasetName: dataPackage, durationFormat: "byYear"}});
         }
 
         function getPatientHistoryDxAndSurvivalMinMax() {}
@@ -113,14 +113,23 @@
 
         function getOncoprintDataSelection() {}
 
-        function getPCA() {}
+        function getPCA(dataPackage, matrixName) {
+            var payload = {
+                dataPackage: dataPackage, 
+                matrixName: matrixName
+            };
+            return osSocket.request({cmd: "createPCA", payload: payload});
+        }
 
-        function getCalculatedPCA() {}
+        function getCalculatedPCA(geneSet) {
+            var payload = {genes: geneSet};
+            return osSocket.request({cmd: "calculatePCA", payload: payload});
+        }
 
         function getPLSR(dataPackage, matrixName) {
             var payload = {
-                dataPackage: "DEMOdz", 
-                matrixName: "mtx.mrna.bc"
+                dataPackage: dataPackage, 
+                matrixName: matrixName
             };
             return osSocket.request({cmd: "createPLSR", payload: payload});
         }

@@ -12,6 +12,7 @@
     "ldapjs": "^1.0.0",
     "node-uuid": "~1.4.7",
     "rstats": "^0.3.1",
+    "soap": "^0.12.0",
     "sockjs": "^0.3.15"
   },
   "devDependencies": {},

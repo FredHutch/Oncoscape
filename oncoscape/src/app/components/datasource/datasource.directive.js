@@ -11,9 +11,6 @@
         var directive = {
             restrict: 'E',
             templateUrl: 'app/components/datasource/datasource.html',
-            scope: {
-
-            },
             controller: DatasourceController,
             controllerAs: 'vm',
             bindToController: true
@@ -25,8 +22,8 @@
         function DatasourceController(osApi, $state) {
             var vm = this;
             vm.datasets = [];
-            vm.explore = function(tool, dataset){
-                $state.go(tool);
+            vm.explore = function(tool, datasource){
+                $state.go(tool, {datasource:datasource});
             };
 
             // Load Datasets

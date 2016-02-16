@@ -11,9 +11,6 @@
         var directive = {
             restrict: 'E',
             templateUrl: 'app/components/plsr/plsr.html',
-            scope: {
-
-            },
             controller: PlsrController,
             controllerAs: 'vm',
             bindToController: true
@@ -22,27 +19,32 @@
         return directive;
 
         /** @ngInject */
-        function PlsrController(osApi, $state, $timeout, $scope, d3) {
+        function PlsrController(osApi, $state, $stateParams, $timeout, $scope, d3) {
 
             // State
             var vm = this;
+            vm.datasource = $stateParams.datasource || "DEMOdz";
             vm.deathMinFilter = vm.deathMinValue = 1;
             vm.deathMaxFilter = vm.deathMaxValue = 99;
             vm.survivalMinFilter = vm.survivalMinValue = 0;
             vm.survivalMaxFilter = vm.survivalMaxValue = 10;
             vm.geneSets = [];
             vm.geneSet = null;
+            vm.update = function(){
+                update();
+            };
 
-            
-
+            // Elements
             var elChart = $("#chart");
             var d3Chart = d3.select("#chart");
 
             // Initalizae
             osApi.setBusy(true)("Loading Dataset");
-            osApi.setDataset("DEMOdz").then(function(response){
+            osApi.setDataset(vm.datasource).then(function(response){
+                var mtx = response.payload.rownames.filter(function(v){return v.indexOf("mtx.mrna")>=0});
+                mtx = mtx[mtx.length-1].replace(".RData","");
                 osApi.setBusyMessage("Creating PLSR Matrix");
-                osApi.getPLSR("DEMOdz","MATRIX").then(function(response){
+                osApi.getPLSR(vm.datasource,mtx).then(function(response){
                     osApi.setBusyMessage("Loading Gene Sets");
                     osApi.getGeneSetNames().then(function(response){
 
@@ -58,8 +60,6 @@
                             vm.deathMaxFilter = vm.deathMaxValue = Math.floor(payload.AgeDx[4]/365.24);
                             vm.survivalMinFilter = vm.survivalMinValue = Math.floor(payload.Survival[0]/365.24);
                             vm.survivalMaxFilter = vm.survivalMaxValue = Math.floor(payload.Survival[4]/365.24);
-
-                            
                             $scope.$watch('vm.geneSet', function(){
                                 update();
                             });
@@ -71,7 +71,7 @@
             // API Call To Calculate PLSR
             var update = function(){
                 osApi.setBusyMessage("Calculating PLSR");
-                osApi.getCalculatedPLSR(vm.geneSet, [
+                var factors = [
                     {
                         name: "AgeDx",     
                         low:  vm.deathMinFilter, 
@@ -81,7 +81,8 @@
                         low: vm.survivalMinFilter, 
                         high: vm.survivalMaxFilter
                     }
-                ]).then(function(response){
+                ];
+                osApi.getCalculatedPLSR(vm.geneSet, factors).then(function(response){
                     osApi.setBusyMessage("Rendering PLSR");
                     var payload = response.payload;
                     draw(
@@ -96,7 +97,6 @@
             };
             var draw = function(genes, geneNames, vectors, vectorNames, absMaxValue){
 
-                var padding = 70;
                 var width = elChart.width();
                 var height = elChart.height();
 
@@ -105,10 +105,10 @@
                 var negAbsMaxValue = -1.0 * absMaxValue;
                 var xScale = d3.scale.linear()
                  .domain([negAbsMaxValue, absMaxValue])
-                 .range([padding, width - padding * 2]);
+                 .range([0, width]);
                 var yScale = d3.scale.linear()
                  .domain([negAbsMaxValue, absMaxValue])
-                 .range([height - padding, padding]); // note inversion 
+                 .range([height, 0]); // note inversion 
                 var xAxis = d3.svg.axis()
                  .scale(xScale)
                  .orient("bottom")
@@ -161,7 +161,7 @@
                   .on("mousemove", function(){
                       return tooltip.style("top", (d3.event.pageY-10)+"px").style("left",(d3.event.pageX+10)+"px");})
                   .on("mouseout", function(){return tooltip.style("visibility", "hidden");});
-                  console.dir(vectors);
+
                 var line = svg.selectAll("line")
                  .data(vectors)
                  .enter().append("line")

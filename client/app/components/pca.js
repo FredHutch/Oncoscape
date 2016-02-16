@@ -96,6 +96,7 @@ function showLegend(){
 function getPatientClassification ()
 {
    payload = "";
+   debugger;
    msg = {cmd: "getPatientClassification", callback: "handlePatientClassification", 
           status: "request", payload: payload};
    hub.send(JSON.stringify(msg));
@@ -121,7 +122,7 @@ function requestGeneSetNames()
    console.log("=== requestGeneSetNames");
 
    callback = "pcaHandleGeneSetNames"
-
+   debugger;
    msg = {cmd:"getGeneSetNames",
           callback: callback,
           status:"request",
@@ -280,6 +281,7 @@ function sendSelections(event)
    if(selectedIDs.length > 0){
       var cmd = "sendSelectionTo_" + destination;
       payload = {value: selectedIDs, count: selectedIDs.length, source: "PCA module"};
+      debugger;
       var newMsg = {cmd: cmd,  callback: "", status: "request", payload: payload};
       pcaSendSelectionMenu.val(sendSelectionsMenuTitle);
       hub.send(JSON.stringify(newMsg));
@@ -404,6 +406,7 @@ function calculate()
    if(currentPatientIDs !== null)
        payload["samples"] = currentPatientIDs;
 
+     debugger;
    msg = {cmd: "calculatePCA", callback: "pcaPlot", status: "request", payload: payload};
    hub.send(JSON.stringify(msg));
    $("#pcaInstructions").css("display", "none");
@@ -419,6 +422,7 @@ function handlePatientIDs(msg)
      var selectedPatientIdentifiers = msg.payload.value;
      currentPatientIDs = msg.payload.value;
      var payload = {samples: currentPatientIDs, genes: currentGeneSet};
+     debugger;
      msg = {cmd: "calculatePCA", callback: "pcaPlot", status: "request", payload: payload};
      hub.enableButton(useAllSamplesInCurrentDatasetButton);
      hub.send(JSON.stringify(msg));
@@ -622,6 +626,7 @@ function createPcaObjectOnServer(dataPackageName, matrixName)
   console.log("create PCA on server " + dataPackageName + ": " + matrixName);
   payload = {dataPackage: dataPackageName, matrixName: matrixName};
 
+  debugger;
   msg = {cmd: "createPCA", callback: "pcaObjectCreated", status: "request", payload: payload};
 
   msg.json = JSON.stringify(msg);
@@ -651,6 +656,7 @@ demoPCAHighlight = function ()
 //----------------------------------------------------------------------------------------------------
 demo = function ()
 {
+  debugger;
   msg = {cmd: "specifyCurrentDataset", callback: "pcaCurrentDataSetSpecified",
          status: "request", payload: "DEMOdz"};
 
@@ -691,6 +697,7 @@ function demoPcaCalculateAndDraw(msg)
 
   console.log("demoPCA, currentGeneSet: " + currentGeneSet);
   payload = {ids: "", geneSet: currentGeneSet};
+  debugger;
   msg = {cmd: "calculate_mRNA_PCA", callback: "pcaPlot", status: "request", payload: payload};
   hub.send(JSON.stringify(msg));
 
@@ -802,6 +809,7 @@ function testContentsOfPcaPlot()
 //
 function runAutomatedTestsIfAppropriate()
 {
+  debugger;
    var msg = {cmd: "getUserId",  callback: "pcaAssessUserIdForTesting",
               status: "request", payload: ""};
 

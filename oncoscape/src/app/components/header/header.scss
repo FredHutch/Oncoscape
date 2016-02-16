@@ -10,3 +10,22 @@
 		padding:0px 20px;
 	}
 }
+.nav{
+	li{
+		color: #FFF;
+		padding:13px 5px;
+		a{
+			span{
+				padding-right:5px;
+			}
+		}
+	}
+}
+.nav-divider{
+	background-image: url(/assets/images/texture.png);
+	background-size:cover;
+	box-shadow: 3px 3px 10px #888888;
+	margin-bottom:10px;
+	height:4px;
+	width: 100%;
+}
