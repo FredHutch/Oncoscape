@@ -539,19 +539,21 @@ function handleExpressionDataSetNames(msg)
    }
 
    expManifestCols = msg.payload.colnames;
-   /*for(i=0; i<expManifestCols.length; i++){
-      var singleRecord = "<div class='col-1'><h2>" + expManifestCols[i]+
-                         "</h2></div>";
+   $(".flexcontainer").append("<div class='row' id='expManiCols'></div>");
+   for(i=0; i<expManifestCols.length; i++){
+      var singleRecord = "<div class='col-xs-1'>" + expManifestCols[i]+
+                         "</div>";
       console.log("***** add colnames ", singleRecord);
-      $(".has-dropdown").append(singleRecord);
-   }*/
+      $("#expManiCols").append(singleRecord);
+      console.log("***** $('#expMani i') is: ", $("#expManiCols"));
+   }
    console.log("***** expression dataset Names are: ", expNames);
    //addExpressionDataSetNamesToMenu(expNames);
-   addExpressionDataSetNamesToMenu(expManifestCols, expManifest);
+   addExpressionDataSetNamesToMenu(expManifest);
 
 } // handleExpressionDataSetNames
  //----------------------------------------------------------------------------------------------------
- function addExpressionDataSetNamesToMenu (expManifestCols, expManifest)
+ function addExpressionDataSetNamesToMenu (expManifest)
  {
     console.log("Module.plsr:addExpressionDataSetNamesToMenu");
  
@@ -568,19 +570,12 @@ function handleExpressionDataSetNames(msg)
     var singleRecord;
        
     for(var i=0; i<expManifest.length; i++){
-
-      //Markup = "<option>" + expManifest[i][0] + "</option>";
-      //expManifest.append(optionMarkup);
-      for(var j=0; j<5; j++){
-
-          if(j===0){
-            singleRecord = '<div a="#" class="col-1" id="'+ 
-                                expManifest[i][j] + '"><p>' + expManifest[i][j] + '</p></div>';
-          }else{
-            singleRecord = '<div class="col-1"><p>' + expManifest[i][j] + '</p></div>';
-          }
+      $(".flexcontainer").append("<div class='row' id='expMani" + i + "'></div>");
+      for(var j=0; j<expManifest[i].length; j++){
+          singleRecord = '<div class="col-xs-1"><p>' + expManifest[i][j] + '</p></div>';
           console.log("***** print single Record: ", singleRecord);
-          $(".col-5").append(singleRecord);
+          $("#expMani" + i).append(singleRecord);
+          console.log("***** $('#expMani i') is: ", $("#expMani" + i));
         } // for j
       } // for i
  

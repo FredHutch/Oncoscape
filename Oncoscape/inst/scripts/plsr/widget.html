@@ -110,7 +110,6 @@ background:#ABD3E8;
     border-bottom:1px solid #dedede;
     padding:2px 10px;
 }
-
 .menu li > div a {
     padding: 0 0 0 14px;
     border-bottom:none;
@@ -135,22 +134,6 @@ background:#ABD3E8;
 .dropdown-3columns {width: 480px;}
 .dropdown-4columns {width: 640px;}
 .dropdown-5columns {width: 810px;}
-.col-1,
-.col-2,
-.col-3,
-.col-4,
-.col-5 {
-    display:inline;
-    float: left;
-    position: relative;
-    margin-left: 5px;
-    margin-right: 5px;
-}
-.col-1 {width:150px;}
-.col-2 {width:280px;}
-.col-3 {width:470px;}
-.col-4 {width:560px;}
-.col-5 {width:800px;}
 
 .menu p, .menu h2, .menu h3, .menu ul li {
     line-height:21px;
@@ -177,7 +160,6 @@ background:#ABD3E8;
     line-height:18px;
     margin:0 0 10px 0;
 }
-
 .strong {
     font-weight:bold;
 }
@@ -186,6 +168,65 @@ background:#ABD3E8;
     border:none;
     padding:0;
     margin:0;
+}
+
+/* On the flex container */
+.flexcontainer {
+   width: 200%;
+   display: -webkit-flex;
+   display: flex;
+   -webkit-align-items: center;
+   align-items: center;
+   -webkit-justify-content: center;
+   justify-content: center;
+   /* You can set flex-wrap and flex-direction individually */
+   -webkit-flex-direction: row;
+   flex-direction: row;
+   -webkit-flex-wrap: wrap;
+   flex-wrap: wrap;
+   /* Or do it all in one line with flex flow */
+   -webkit-flex-flow: row wrap;
+   flex-flow: row wrap;
+   /* tweak the where items line up on the row */
+   /* valid values are: flex-start, flex-end, space-between, space-around, stretch */
+   -webkit-align-content: flex-end;
+   align-content: flex-end;
+}
+
+.row {
+  box-sizing: border-box;
+  display: -webkit-flex;
+  display: -ms-flexbox;
+  display: -webkit-box;
+  display: flex;
+  -webkit-flex: 0 1 auto;
+  -ms-flex: 0 1 auto;
+  -webkit-box-flex: 0;
+  flex: 0 1 auto;
+  -webkit-flex-direction: row;
+  -ms-flex-direction: row;
+  -webkit-box-orient: horizontal;
+  -webkit-box-direction: normal;
+  flex-direction: row;
+  -webkit-flex-wrap: wrap;
+  -ms-flex-wrap: wrap;
+  flex-wrap: wrap;
+  margin-right: -1rem;
+  margin-left: -1rem;
+}
+
+.col-xs-1 {
+  -ms-flex-preferred-size: 9.091%;
+  -webkit-flex-basis: 9.091%;
+  flex-basis: 9.091%;
+  max-width: 9.091%;
+  box-sizing: border-box;
+  -webkit-flex: 0 0 auto;
+  -ms-flex: 0 0 auto;
+  -webkit-box-flex: 0;
+  flex: 0 0 auto;
+  padding-right: 1rem;
+  padding-left: 1rem;
 }
 </style>
 
@@ -226,8 +267,7 @@ background:#ABD3E8;
           <ul class="menu navbar-form selectpicker" id="plsrExpressionDataSetSelector" style="height:20px; margin-top:15px; margin-left:3px;" class="navbar-form selectpicker">
             <li class="has-dropdown"><a href="#">Choose Expression Data</a><!-- multicolumns -->
               <div class="dropdown dropdown-5columns">
-                <div class="col-5"><h2>Expression Manifest</h2>
-                </div>
+                <div class="flexcontainer"></div>
               </div>
             </li>
           </ul>
