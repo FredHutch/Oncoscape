@@ -67,8 +67,11 @@ function initializeUI ()
 
    geneSetMenu = $("#plsrGeneSetSelector");
    expressionDataSetMenu = $("#plsrExpressionDataSetSelector");
-   expressionDataSetMenu.change(function(){
+   /*expressionDataSetMenu.change(function(){
       console.log("the expression data is: " + expressionDataSetMenu.val());
+   });*/
+   $("#plsrExpressionDataSetSelector").click(function(){
+      $("#plsrExpressionDataSetSelector .has-dropdown .dropdown").slideToggle();
    });
 
    clearSelectionButton = $("#plsrClearSelectionButton");
@@ -90,8 +93,7 @@ function initializeUI ()
    handleWindowResize();
    
    hub.disableTab(thisModulesOutermostDiv);
-
-
+   
 } // initializeUI
 //--------------------------------------------------------------------------------------------
 function addGeneSetNamesToMenu (geneSetNames)
@@ -529,29 +531,57 @@ function handleExpressionDataSetNames(msg)
 {
    console.log("=== handleExpressionDataSetNames");
 
-   newNames = msg.payload;
-   addExpressionDataSetNamesToMenu(newNames);
+   expManifest = msg.payload.mtx;
+   console.log("***** after grabbing manifest matrix: ", expManifest);
+   var expNames = [];
+   for(var i=0; i < expManifest.length; i++){
+     expNames.push(expManifest[i][0]);
+   }
+
+   expManifestCols = msg.payload.colnames;
+   /*for(i=0; i<expManifestCols.length; i++){
+      var singleRecord = "<div class='col-1'><h2>" + expManifestCols[i]+
+                         "</h2></div>";
+      console.log("***** add colnames ", singleRecord);
+      $(".has-dropdown").append(singleRecord);
+   }*/
+   console.log("***** expression dataset Names are: ", expNames);
+   //addExpressionDataSetNamesToMenu(expNames);
+   addExpressionDataSetNamesToMenu(expManifestCols, expManifest);
 
 } // handleExpressionDataSetNames
  //----------------------------------------------------------------------------------------------------
- function addExpressionDataSetNamesToMenu (expressionDataSetNames)
+ function addExpressionDataSetNamesToMenu (expManifestCols, expManifest)
  {
     console.log("Module.plsr:addExpressionDataSetNamesToMenu");
  
-    expressionDataSetMenu.empty();
+    //expressionDataSetMenu.empty();
  
-    if(expressionDataSetNames.length === 0) {
-      postStatus("addExpressionDataSetNamesToMenu: expressionDataSetNames.length == 0");
+    if(expManifest.length === 0) {
+      postStatus("addExpressionDataSetNamesToMenu: expManifest.length == 0");
       return;
       }
      
-    if(typeof expressionDataSetNames == "string") 
-      expressionDataSetNames = [expressionDataSetNames]; 
-  
+    if(typeof expManifest === "string") 
+      expressionDataSetNames = [expManifest][0]; 
+    
+    var singleRecord;
        
-    for(var i=0; i < expressionDataSetNames.length; i++){
-      optionMarkup = "<option>" + expressionDataSetNames[i] + "</option>";
-      expressionDataSetMenu.append(optionMarkup);
+    for(var i=0; i<expManifest.length; i++){
+
+      //Markup = "<option>" + expManifest[i][0] + "</option>";
+      //expManifest.append(optionMarkup);
+      for(var j=0; j<5; j++){
+
+          if(j===0){
+            singleRecord = '<div a="#" class="col-1" id="'+ 
+                                expManifest[i][j] + '"><p>' + expManifest[i][j] + '</p></div>';
+          }else{
+            singleRecord = '<div class="col-1"><p>' + expManifest[i][j] + '</p></div>';
+          }
+          console.log("***** print single Record: ", singleRecord);
+          $(".col-5").append(singleRecord);
+        } // for j
       } // for i
  
    postStatus("addExpressionDataSetNamesToMenu: complete");
@@ -662,7 +692,7 @@ function initializeModule()
    hub.addMessageHandler("datasetSpecified", datasetSpecified);
    hub.addMessageHandler("sendSelectionTo_PLSR (highlight)", highlightGenes);
    hub.addMessageHandler("plsrObjectCreated", requestSliderRanges);
-   hub.addMessageHandler("plsrAssessUserIdForTesting", assessUserIdForTesting);
+   //hub.addMessageHandler("plsrAssessUserIdForTesting", assessUserIdForTesting);
    hub.addSocketConnectedFunction(runAutomatedTestsIfAppropriate);
 
 } // initializeModule
