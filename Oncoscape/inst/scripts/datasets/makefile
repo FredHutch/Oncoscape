@@ -17,4 +17,4 @@ check:
 	jshint Test.js
 	m4 index.pre > index.html
 	R CMD INSTALL ../../..
-	R -f runDatasets.R  autotest.5@nowhere.org.exitOnCompletion "DEMOdz;TCGAgbm;TCGAbrain"
+	R -f runDatasets.R  autotest.5@nowhere.org.exitOnCompletion "DEMOdz;TCGAgbm;TCGAlgg;TCGAbrain;TCGAbrca;TCGAprad;TCGAlusc;TCGAluad;TCGAlung;TCGAhnsc;TCGAcoadread"

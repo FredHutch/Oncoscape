@@ -12,6 +12,6 @@ check:
 	jshint Test.js
 	R CMD INSTALL ../../..
 	m4 index.pre > index.html
-	R -f runPLSR.R  autotest.10@nowhere.org.exitOnCompletion "DEMOdz;TCGAgbm;TCGAbrain"
+	R -f runPLSR.R  autotest.10@nowhere.org.exitOnCompletion "DEMOdz;TCGAgbm;TCGAlgg;TCGAbrain;TCGAbrca;TCGAprad;TCGAlusc;TCGAluad;TCGAlung;TCGAhnsc;TCGAcoadread"
 
 
