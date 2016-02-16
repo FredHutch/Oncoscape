@@ -25,8 +25,8 @@
         function DatasourceController(osApi, $state) {
             var vm = this;
             vm.datasets = [];
-            vm.explore = function(dataset){
-                $state.go('explore');
+            vm.explore = function(tool, dataset){
+                $state.go(tool);
             };
 
             // Load Datasets

@@ -512,6 +512,7 @@ function handleGeneSetNames(msg)
 //     here so that the sliders can be set
 function datasetSpecified(msg)
 {
+  debugger;
    console.log("==== Module.plsr, datasetSpecified");
    console.log(msg);
 
@@ -542,7 +543,7 @@ function datasetSpecified(msg)
       return;
       }
    d3plsrDisplay.select("#plsrSVG").remove();  // so that old layouts aren't mistaken for new dataset
-      
+      debugger;
    createPlsrObjectOnServer(dataPackageName, matrixName);
 
 } // datasetSpecified

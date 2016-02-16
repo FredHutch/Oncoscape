@@ -3,7 +3,8 @@
   'use strict';
 
   angular
-    .module('oncoscape') 
+    .module('oncoscape')
+    .constant('d3', d3);
     // .constant('moment', moment);
 
 })();

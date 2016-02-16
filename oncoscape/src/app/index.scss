@@ -25,7 +25,10 @@ $headings-font-weight:    300 !default;
 
 body{
 	padding-top:70px;
-	padding-bottom:100px;
+}
+//TODO: Move Into Range Slider
+.ngrs-range-slider{
+	margin-top:0px !important;
 }
 
 /**

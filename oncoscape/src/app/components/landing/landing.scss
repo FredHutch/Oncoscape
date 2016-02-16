@@ -3,14 +3,14 @@
 	.marque{
 		background-image: url(/assets/images/sttr-marque.png);
 		background-size:cover;
-		
 		position:absolute;
 		left:0px;
 		right:0px;
-		height:150px;
+		height:180px;
+		box-shadow: 3px 3px 10px #888888;
 	}
 	.main-headline{
-		height:150px;
+		height:180px;
 		position:relative;
 		h1{
 			color:#FFF;

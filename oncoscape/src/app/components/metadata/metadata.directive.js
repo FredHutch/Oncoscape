@@ -35,7 +35,8 @@
                 vm.rows = response.payload.mtx;
                 $timeout(function(){
                     $('#datatable').dataTable({
-                        "paging":   false
+                        "paging":   false,
+                        "searching": false
                     });
                     osApi.setBusy(false);
                 },0,false);

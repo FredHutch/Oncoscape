@@ -15,15 +15,10 @@
       .state('login', {
         url: '/login',
         template: '<os-login>'
-
       })
       .state('datasource',{
         url: '/datasource',
         template: '<os-datasource>'
-      })
-      .state('explore',{
-        url: '/explore',
-        template: '<os-explore>'
       })
       .state('metadata',{
         url: '/metadata',
@@ -32,6 +27,10 @@
       .state('history',{
         url: '/history',
         template: '<os-history>'
+      })
+      .state('plsr',{
+        url: '/plsr',
+        template: '<os-plsr>'
       });
 
 

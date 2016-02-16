@@ -10,6 +10,7 @@
 
         // Functions to move during refactor
         this.setBusy = setBusy;
+        this.setBusyMessage = setBusyMessage;
         this.login = login;
         this.setDataset = setDataset;
 
@@ -54,12 +55,18 @@
                 }
             });
         }
+        
         function setBusy(value){
+
             if (value){
                 $(".loader-modal").show();
             }else{
                 $(".loader-modal").hide();
             }
+            return setBusyMessage;
+        }
+        function setBusyMessage(value){
+            //console.log(value);
         }
 
         function getDomains() {
@@ -86,7 +93,9 @@
 
         function getSampleDataFrame() {}
 
-        function getGeneSetNames() {}
+        function getGeneSetNames() {
+            return osSocket.request({cmd:"getGeneSetNames"});
+        }
 
         function getSampleCategorizationNames() {}
 
@@ -108,11 +117,27 @@
 
         function getCalculatedPCA() {}
 
-        function getPLSR() {}
+        function getPLSR(dataPackage, matrixName) {
+            var payload = {
+                dataPackage: "DEMOdz", 
+                matrixName: "mtx.mrna.bc"
+            };
+            return osSocket.request({cmd: "createPLSR", payload: payload});
+        }
 
-        function getCalculatedPLSR() {}
+        function getCalculatedPLSR(geneSet, factors) {
+            var payload = {
+                genes: geneSet, 
+                factorCount: factors.length, 
+                factors: factors
+            };
+            return osSocket.request({cmd: "calculatePLSR", payload: payload});
+        }
 
-        function getSummarizedPLSRPatientAttributes() {}
+        function getSummarizedPLSRPatientAttributes(attrs) {
+            attrs = attrs || ['AgeDx','Survival'];
+            return osSocket.request({cmd:'summarizePLSRPatientAttributes', payload: ["AgeDx", "Survival"]});
+        }
 
         function getCalculatedSurvivalCurves() {}
 

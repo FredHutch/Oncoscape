@@ -1,6 +1,19 @@
-<section class="history container">
-	<h2>Patient History</h2>
+<section class="plsr container">
+	<h2>PLSR</h2>
     <div class="row">
+        <div class="col-xs-4" style="padding-right:20px;">
+            <label>Gene Set</label>
+            <div class="dropdown bs-dropdown">
+              <button class="btn btn-default dropdown-toggle" type="button" id="dropdownMenu1" data-toggle="dropdown" aria-haspopup="true" aria-expanded="true">
+                {{vm.geneSet}}
+                <span class="caret"></span>
+              </button>
+              <ul class="dropdown-menu" aria-labelledby="dropdownMenu1">
+                <li ng-repeat="item in vm.geneSets"
+                    ng-click="vm.geneSet=item">{{item}}</li>
+              </ul>
+            </div>
+        </div>
         <div class="col-xs-4" style="padding-right:20px;">
             <label>Age At Death</label>
             <div range-slider 
@@ -16,23 +29,8 @@
                 max="vm.survivalMaxValue" model-max="vm.survivalMaxFilter" 
                 show-values="true" attach-handle-values="true"></div>
         </div>
-        <div class="col-xs-4" style="padding-right:20px;">
-            <label>Search</label>
-            <input type="text" class="ngrs-range-slider" style="width:100%">
-        </div>
     </div>
-    
-	<table id="datatable" class="table table-striped table-bordered" cellspacing="0">
-        <thead>
-            <tr>
-                <th ng-repeat="col in vm.colnames">{{col}}</th>
-            </tr>
-        </thead>
-        <tbody>
-        	<tr ng-repeat="row in vm.rows | filter:vm.rowFilter">
-        		<td ng-repeat="datum in row track by $index">{{datum}}</td>
-        	</tr>
-        </tbody>
-    </table>
-    
+
+	<div id="chart" style="width:100%;height:400px;"></div>
+
 </section>
