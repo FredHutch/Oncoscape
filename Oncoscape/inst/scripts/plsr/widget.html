@@ -69,9 +69,10 @@
   }
 
 
-#plsrButtonDiv {
+#plsrButtonDiv{
    padding-botton: 30px;
    }
+
 #plsrAgeAtDxSlider .ui-widget-header { border: 1px solid #fff; background: #fff; }
 #plsrAgeAtDxSlider {  background: #E8E8E8; }
 #plsrSurvivalSlider .ui-widget-header { border: 1px solid #fff; background: #fff; }
@@ -86,7 +87,6 @@ background:#ABD3E8;
 }
 
 .menu {
-    height:40px;
     list-style:none;
     padding:0px 10px 0px 10px;
     float:left;
@@ -95,6 +95,7 @@ background:#ABD3E8;
     position:relative;
     margin:3px 0px 0;
     border:none;
+    margin-top: 0px !important;
 }
 
 .dropdown {
@@ -125,8 +126,21 @@ background:#ABD3E8;
     font-weight:bold;
 }
 
-.expClickable{
-  
+.menu button{
+    height: 50px;
+    color: rgb(128, 128, 128);
+    background-color: lightgray;
+    border: 1px solid #d3d3d3;
+    background: #CBCBCB;
+    display: inline-block;
+    position: relative;
+    padding: 0;
+    margin-right: .1em;
+    text-decoration: none !important;
+    cursor: pointer;
+    text-align: center;
+    zoom: 1;
+    overflow: visible;
 }
 </style>
 
@@ -164,11 +178,12 @@ background:#ABD3E8;
           <button id="plsrClearSelectionButton" style="height:50px;">Clear<br>Selection</button>
           <button id="plsrCalculateButton" style="height:50px;">Calculate</button>
           
-          <ul class="menu navbar-form has-dropdown" id="plsrExpressionDataSetSelector" style="height:20px; margin-top:15px; margin-left:3px;"><a href="#">Choose Expression Data</a>
-             <div class="dropdown">
+          <div class="menu has-dropdown flex-container" id="plsrExpressionDataSetSelector" style="height:20px; margin-top:15px; margin-left:3px;">
+            <button><a href="#">Choose Expression Data</a></button>
+            <div class="dropdown">
                 <table class="dropdownTable"></table>
              </div>   
-          </ul>
+          </div>
 
           <select class="SelectionMenu" id="plsrGeneSetSelector" style="height:20px; margin-top:15px; margin-left:3px;" class="navbar-form selectpicker" ></select>
        </div>

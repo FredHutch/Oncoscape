@@ -76,15 +76,8 @@ function initializeUI ()
      	 $(".dropdown").slideToggle();
    	 }
    );
-   $("#plsrExpressionDataSetSelector .flexcontainer").width($(window).width()/1.2);
-   console.log("*** test1");
-   $(".expClickable").click(function(){
-   		console.log("*** test2");
-   		var id = $(this).find("td:nth-child(1)").text();
-   		console.log("***** within clicking .expClickable, id is ", id);
-		updateExpressionData(id);});
 
-   console.log("*** test3");
+   $("#plsrExpressionDataSetSelector .flexcontainer").width($(window).width()/1.2);
    clearSelectionButton = $("#plsrClearSelectionButton");
    clearSelectionButton.button();
    clearSelectionButton.click(clearSelection);
@@ -171,11 +164,12 @@ function sendSelections()
 
 } // sendSelections
 //--------------------------------------------------------------------------------------------------
-function updateExpressionData(id)
+function updateExpressionData()
 {
-	console.log("***** within updatExpressionData, the id received is: ", id);
-	var currentExpressionDataSet = id;
+  currentExpressionDataSet = $(this).siblings("td").andSelf("td").eq(0).text();
 	console.log("***** currentExpressionDataSet is ", currentExpressionDataSet);
+  var changedText = currentExpressionDataSet + " Click to change";
+  $(".menu a").eq(0).text(changedText);
 }
 //--------------------------------------------------------------------------------------------------
 function requestPLSRByOnsetAndSurvival()
@@ -476,7 +470,6 @@ function clearSelection()
 
 } // clearSelection
 //----------------------------------------------------------------------------------------------------
-
 function highlightGenes(msg)
 {
    hub.raiseTab(thisModulesOutermostDiv);
@@ -585,13 +578,12 @@ function handleExpressionDataSetNames(msg)
     for(var i=0; i<expManifest.length; i++){
       $(".dropdown table").append("<tr class='expClickable' id='expMani" + i + "'></tr>");
       for(var j=0; j<expManifest[i].length; j++){
-          singleRecord = '<td>' + expManifest[i][j] + '</td>';
-          console.log("***** print single Record: ", singleRecord);
+          singleRecord = '<td><a href="#">' + expManifest[i][j] + '</a></td>';
           $("#expMani" + i).append(singleRecord);
-          console.log("***** $('#expMani i') is: ", $("#expMani" + i));
         } // for j
       } // for i
- 
+    $(".expClickable td").click(updateExpressionData);
+  
    postStatus("addExpressionDataSetNamesToMenu: complete");
    hub.enableTab(thisModulesOutermostDiv);
 
