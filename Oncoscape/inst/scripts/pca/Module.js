@@ -41,7 +41,7 @@ var PCAModule = (function () {
 
   var sendSelectionsMenuTitle = "Send selection...";
   var selectionDestinationsOfferedHere = ["PCA", "PCA (highlight)"];
-
+  var currentExpressionDataSet;
 //----------------------------------------------------------------------------------------------------
 function initializeUI ()
 {
@@ -66,9 +66,18 @@ function initializeUI ()
   hub.disableButton(useAllSamplesInCurrentDatasetButton);
 
   expressionDataSetMenu = $("#pcaExpressionDataSetSelector");
-  expressionDataSetMenu.change(function(){
-     console.log("the expression data is: " + expressionDataSetMenu.val());
-  });
+  expressionDataSetMenu = $("#pcaExpressionDataSetSelector");
+   
+   $(".has-dropdown").click(
+      function(){
+        $(".dropdown").slideToggle();
+      },
+      function(){
+        $(".dropdown").slideToggle();
+      }
+   );
+
+   $("#pcaExpressionDataSetSelector .flexcontainer").width($(window).width()/1.2);
 
   geneSetMenu = $("#pcaGeneSetSelector");
   geneSetMenu.change(function(){
@@ -187,37 +196,65 @@ function requestExpressionDataSetNames()
 
 } // requestExpressionDataSetNames
 //----------------------------------------------------------------------------------------------------
+function updateExpressionData()
+{
+  currentExpressionDataSet = $(this).siblings("td").andSelf("td").eq(0).text();
+  console.log("***** currentExpressionDataSet is ", currentExpressionDataSet);
+  var changedText = currentExpressionDataSet + " Click to change";
+  $(".pcaExpMenu a").eq(0).text(changedText);
+} // updateExpressionData
+//----------------------------------------------------------------------------------------------------
 function handleExpressionDataSetNames(msg)
 {
    console.log("=== handleExpressionDataSetNames");
+   $(".pcaExpMenu .dropdown table").empty();
+   $(".pcaExpMenu a").eq(0).text("Choose Expression Data");
+   expManifest = msg.payload.mtx;
+   console.log("***** after grabbing manifest matrix: ", expManifest);
+   var expNames = [];
+   for(var i=0; i < expManifest.length; i++){
+     expNames.push(expManifest[i][0]);
+   }
 
-   newNames = msg.payload;
-   addExpressionDataSetNamesToMenu(newNames);
-
+   expManifestCols = msg.payload.colnames;
+   $(".dropdown table").append("<tr id='expManiCols'></tr>");
+   for(i=0; i<expManifestCols.length; i++){
+      var singleRecord = "<th class='strong'>" + expManifestCols[i]+
+                         "</th>";
+      $("#expManiCols").append(singleRecord);
+   }
+   console.log("***** expression dataset Names are: ", expNames);
+   //addExpressionDataSetNamesToMenu(expNames);
+   addExpressionDataSetNamesToMenu(expManifest);
 } // handleExpressionDataSetNames
 //----------------------------------------------------------------------------------------------------
 function addExpressionDataSetNamesToMenu (expressionDataSetNames)
 {
    console.log("Module.pca:addExpressionDataSetNamesToMenu");
-
-   expressionDataSetMenu.empty();
-
-   if(expressionDataSetNames.length == 0) {
-     postStatus("addExpressionDataSetNamesToMenu: expressionDataSetNames.length == 0");
-     return;
-     }
-    
-   if(typeof expressionDataSetNames == "string") 
-     expressionDataSetNames = [expressionDataSetNames] 
  
-      
-   for(var i=0; i < expressionDataSetNames.length; i++){
-     optionMarkup = "<option>" + expressionDataSetNames[i] + "</option>";
-     expressionDataSetMenu.append(optionMarkup);
-     } // for i
-
-  postStatus("addExpressionDataSetNamesToMenu: complete");
-  hub.enableTab(thisModulesOutermostDiv)
+    //expressionDataSetMenu.empty();
+ 
+    if(expManifest.length === 0) {
+      postStatus("addExpressionDataSetNamesToMenu: expManifest.length == 0");
+      return;
+      }
+     
+    if(typeof expManifest === "string") 
+      expressionDataSetNames = [expManifest][0]; 
+    
+    var singleRecord;
+       
+    for(var i=0; i<expManifest.length; i++){
+      $(".dropdown table").append("<tr class='expClickable' id='expMani" + i + "'></tr>");
+      for(var j=0; j<expManifest[i].length; j++){
+          singleRecord = '<td><a href="#">' + expManifest[i][j] + '</a></td>';
+          $("#expMani" + i).append(singleRecord);
+        } // for j
+      } // for i
+    $(".expClickable td").click(updateExpressionData);
+  
+   postStatus("addExpressionDataSetNamesToMenu: complete");
+   hub.enableTab(thisModulesOutermostDiv);
 
 } // addExpressionDataSetNamesToMenu
 //----------------------------------------------------------------------------------------------------
@@ -453,8 +490,7 @@ function clearSelection()
 function calculate()
 {
    var currentGeneSet = geneSetMenu.val();
-   var currentExressionDataSet = expressionDataSetMenu.val();
-   var payload = {genes: currentGeneSet, expressionDataSet: currentExressionDataSet}
+   var payload = {genes: currentGeneSet, expressionDataSet: currentExpressionDataSet}
 
    if(currentPatientIDs !== null)
        payload["samples"] = currentPatientIDs;
@@ -772,88 +808,7 @@ function runTests()
 
 } // runTests
 //--------------------------------------------------------------------------------------------
-function testLoadDataset()
-{
-   QUnit.test('choose DEMOdz dataset', function(assert) {
-      hub.raiseTab("datasetsDiv");
-      var desiredDataset = "DEMOdz";
-      var dzNames = $("#datasetMenu option").map(function(opt){return this.value;});
 
-      if($.inArray(desiredDataset, dzNames) < 0){
-         alert("cannot run tests:  " + desiredDataset + " dataset not loaded");
-         return;
-         }
-
-      $("#datasetMenu").val(desiredDataset);
-      $("#datasetMenu").trigger("change");
-
-      var done1 = assert.async();
-      var done2 = assert.async();
-      var done3 = assert.async();
-      assert.expect(3);
-
-      setTimeout(function(){
-         assert.equal($("#datasetMenu").val(), desiredDataset);  done1();
-         assert.ok($("#datasetsManifestTable tr").length >= 10); done2();
-         assert.equal($("#datasetsManifestTable tbody tr").eq(0).find("td").eq(0).text(), 
-                      "mRNA expression"); done3();
-         $("#selectDatasetButton").click();
-         hub.raiseTab(thisModulesOutermostDiv);
-         testCalculate();
-         }, 5000);
-      });
-
-} // testLoadDataset
-//----------------------------------------------------------------------------------------------------
-function testCalculate()
-{
-   hub.raiseTab(thisModulesOutermostDiv);
-   console.log("starting testCalculate");
-
-     // enable the calculate button, change its color, then click
-   QUnit.test('testPcaCalculate', function(assert) {
-      $("#pcaCalculateButton").prop("disabled", false);
-      $("#pcaCalculateButton").css({"background-color": "red", "color": "green"});
-      $("#pcaGeneSetSelector").val("random.24")
-      assert.expect(1);   // tests (assertions) in next function, testContentsOfPcaPlot
-      setTimeout(function(){
-         $("#pcaCalculateButton").click();
-         testContentsOfPcaPlot();
-         }, 6000);
-      });
-
-} // testCalculate
-//----------------------------------------------------------------------------------------------------
-function testContentsOfPcaPlot()
-{
-   console.log("--- testContentsOfPcaPlot");
-
-      // wait 5 seconds
-      // make sure there are the right number of circles
-      // check the coordinates of two, selected arbitrarily
-   QUnit.test('testPcaContents', function(assert) {
-      assert.expect(5);
-      var done1 = assert.async();
-      var done2 = assert.async();
-      var done3 = assert.async();
-      var done4 = assert.async();
-      var done5 = assert.async();
-      setTimeout(function(){
-         assert.ok($("circle").length > 120); done1();
-         var c0 = $("circle")[0];
-         var xPos = Number(c0.getAttribute("cx"));
-         var yPos =  Number(c0.getAttribute("cy"));
-         var radius = Number(c0.getAttribute("r"));
-         console.log(xPos + "  " + yPos + "  " + radius);
-         assert.ok(xPos > 0); done3();
-         assert.ok(yPos > 0); done4();
-         assert.equal(radius, 3); done5();
-         }, 5000);
-      });
-
-
-} // testContentsOfPcaPlot
-//----------------------------------------------------------------------------------------------------
 // query the oncoscape server for user id.  the callback then makes a local (that is,
 // Module-specific) decision to run this module's automated tests based upon that id
 //
@@ -871,7 +826,7 @@ function assessUserIdForTesting(msg)
    var userID = msg.payload;
 
    if(userID.indexOf("autoTest") === 0){
-      console.log("plsr/Module.js running tests for user " + userID);
+      console.log("pca/Module.js running tests for user " + userID);
       for(var i=0; i < 3; i++)
           runTests();
       } // if autoTest
@@ -891,7 +846,7 @@ function initializeModule()
    hub.addMessageHandler("pcaPlot", pcaPlot);
    hub.addMessageHandler("demoPcaCalculateAndDraw", demoPcaCalculateAndDraw);
    hub.addMessageHandler("pcaAssessUserIdForTesting", assessUserIdForTesting);
-   hub.addSocketConnectedFunction(runAutomatedTestsIfAppropriate);
+   //hub.addSocketConnectedFunction(runAutomatedTestsIfAppropriate);
 
    //hub.addMessageHandler("handlePatientClassification", handlePatientClassification)
    // hub.addSocketConnectedFunction(getPatientClassification);

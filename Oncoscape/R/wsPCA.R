@@ -33,7 +33,7 @@ ws.createPCA <- function(ws, msg)
    eval(parse(text=cmd))
    state[["mypca"]] <- mypca
    printf("ws.createPCA just executed '%s'", cmd)
-   printf("resulting mypca object:");
+   printf("resulting mypca object:")
    print(pcaDataSummary(mypca))
    
    response <- pcaDataSummary(mypca)
@@ -73,12 +73,14 @@ ws.calculatePCA <- function(ws, msg)
       samples <- msg$payload$samples;
   
    currentDataSetName <- state[["currentDatasetName"]]
-   ds <- datasets[[currentDataSetName]];
+   ds <- datasets[[currentDataSetName]]
    matrixName = msg$payload$expressionDataSet
-   cmd <- sprintf("mypca <- PCA(ds, '%s')", matrixName);
+   cmd <- sprintf("mypca <- PCA(ds, '%s')", matrixName)
    printf("*****cmd is: %s", cmd)
    eval(parse(text=cmd))
-   
+   state[["mypca"]] <- mypca
+
+
    x <- calculate(mypca, genes, samples)
      # fashion a 3-column data.frame nicely suited to use with d3: gene, PC1, PC2
      # add two more scalar field: pc1.varianceAccountedFor, pc2.varianceAccounted for
