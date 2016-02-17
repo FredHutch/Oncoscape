@@ -1275,10 +1275,11 @@ def test_plsr():
 
 
   test_plsrCreateWithDataSet()
+  test_plsrExpressionUpdateDuringSwitchingDataSet()
   test_plsrSummarizePLSRPatientAttributes()
   test_plsrCalculateSmallOneFactor()
   test_plsrCalculateSmallTwoFactors()
-  testManyGenesTwoFactors()
+  test_plsrManyGenesTwoFactors()
 
 #------------------------------------------------------------------------------------------------------------------------
 def test_plsrCreateWithDataSet():
@@ -1298,6 +1299,65 @@ def test_plsrCreateWithDataSet():
   result = loads(ws.recv())
   payload = result["payload"];
   assert(payload.find("PLSR package, matrices:") >= 0)
+
+#------------------------------------------------------------------------------------------------------------------------
+def test_plsrExpressionUpdateDuringSwitchingDataSet():
+
+  "sends dataset as a named string, gets back the list of exprssionDataSet"
+
+  print "--- test_plsrExpressionUpdateDuringSwitchingDataSet()"
+
+    # two mRNA expression matrices in DEMOdz: 
+    #   "mtx.mrna.ueArray" "mtx.mrna.bc"
+
+  # change dataset to DEMOdz
+  payload = {"dataPackage": "DEMOdz"}
+
+  msg = dumps({"cmd": "getExpressionDataSetNames", "status":"request", 
+               "callback":"", "payload": payload})
+ 
+  ws.send(msg)
+  result = loads(ws.recv())
+  payload = result["payload"];
+  print "***** within plsr expression update function, after getExpressionDataSetNames"
+  print payload["mtx"]
+  assert(len(payload["mtx"]) == 2)
+  assert(payload["mtx"][0][0] == "mtx.mrna.ueArray")
+  assert(len(payload["mtx"][0]) == 11)
+
+  # update DataSet
+  
+  msg = dumps({"cmd": "specifyCurrentDataset", "status": "request", "callback":"datasetSpecified", "payload": "TCGAgbm"})
+  ws.send(msg)
+  result = loads(ws.recv())
+
+  payload = {"dataPackage": "TCGAgbm"}
+
+  msg = dumps({"cmd": "getExpressionDataSetNames", "status":"request", 
+               "callback":"", "payload": payload})
+ 
+  ws.send(msg)
+  result = loads(ws.recv())
+  payload = result["payload"];
+  print "***** within plsr expression update function, after getExpressionDataSetNames"
+  print payload["mtx"]
+  assert(len(payload["mtx"]) == 2)
+  assert(payload["mtx"][0][0] == "mtx.mrna")
+  assert(len(payload["mtx"][0]) == 11)
+
+  # switch back to DEMOdz for the remaining tests
+  msg = dumps({"cmd": "specifyCurrentDataset", "status": "request", "callback":"datasetSpecified", "payload": "DEMOdz"})
+  ws.send(msg)
+  result = loads(ws.recv())
+  print "***** after testing the expression data update, re-specify the dataset back to DEMOdz"
+  payload = result["payload"]
+  assert(payload.keys() == ['datasetName', 'mtx', 'rownames', 'colnames'])
+  print payload["datasetName"]
+
+  payload = {"dataPackage": "DEMOdz", "matrixName": "mtx.mrna.ueArray"}
+
+  msg = dumps({"cmd": "createPLSR", "status":"request", 
+               "callback":"PLSRcreatedHandler", "payload": payload})
 
 #------------------------------------------------------------------------------------------------------------------------
 def test_plsrSummarizePLSRPatientAttributes():
@@ -1407,7 +1467,7 @@ def test_plsrCalculateSmallTwoFactors():
 #     } # for r
 #
 #
-def testManyGenesTwoFactors():
+def test_plsrManyGenesTwoFactors():
 
   "calculates plsr on DEMOdz, with two patient groups, low and high AgeDx (age at diagnosis), many genes"
 

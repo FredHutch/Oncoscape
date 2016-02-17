@@ -308,7 +308,8 @@ wsGetExpressionDataSetNames <- function(ws, msg)
   column.titles <- sub("feature.count", "cols", column.titles)
   column.titles <- sub("entity.", "row ", column.titles)
   column.titles <- sub("feature.", "column ", column.titles, fixed=TRUE)
-  tbl <- tbl[expressionDataSetNames,]
+  tbl <- tbl[paste(expressionDataSetNames, ".RData",sep=""),]
+  #printf("***** after subset with expressionDataSetNames tbl becomes %s: ", tbl)
   matrix <- as.matrix(tbl)
   colnames(matrix) <- NULL
   payload = list(datasetName=datasetName, colnames=column.titles, rownames=rownames(tbl), mtx=matrix)

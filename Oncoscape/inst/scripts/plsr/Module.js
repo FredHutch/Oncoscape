@@ -169,7 +169,7 @@ function updateExpressionData()
   currentExpressionDataSet = $(this).siblings("td").andSelf("td").eq(0).text();
 	console.log("***** currentExpressionDataSet is ", currentExpressionDataSet);
   var changedText = currentExpressionDataSet + " Click to change";
-  $(".menu a").eq(0).text(changedText);
+  $(".plsrExpMenu a").eq(0).text(changedText);
 }
 //--------------------------------------------------------------------------------------------------
 function requestPLSRByOnsetAndSurvival()
@@ -538,7 +538,8 @@ function requestExpressionDataSetNames()
 function handleExpressionDataSetNames(msg)
 {
    console.log("=== handleExpressionDataSetNames");
-
+   $(".plsrExpMenu .dropdown table").empty();
+   $(".plsrExpMenu a").eq(0).text("Choose Expression Data");
    expManifest = msg.payload.mtx;
    console.log("***** after grabbing manifest matrix: ", expManifest);
    var expNames = [];
