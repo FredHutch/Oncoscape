@@ -43,7 +43,7 @@ var PLSRModule = (function () {
   var selectionDestinationsOfferedHere = ["PLSR (highlight)"];
  
   var expressionDataSetName = "";
-
+  var currentExpressionDataSet;
 //--------------------------------------------------------------------------------------------
 function initializeUI () 
 {
@@ -67,13 +67,24 @@ function initializeUI ()
 
    geneSetMenu = $("#plsrGeneSetSelector");
    expressionDataSetMenu = $("#plsrExpressionDataSetSelector");
-   /*expressionDataSetMenu.change(function(){
-      console.log("the expression data is: " + expressionDataSetMenu.val());
-   });*/
-   $("#plsrExpressionDataSetSelector").click(function(){
-      $("#plsrExpressionDataSetSelector .has-dropdown .dropdown").slideToggle();
-   });
+   
+   $(".has-dropdown").click(
+   	 function(){
+     	 $(".dropdown").slideToggle();
+   	 },
+   	 function(){
+     	 $(".dropdown").slideToggle();
+   	 }
+   );
+   $("#plsrExpressionDataSetSelector .flexcontainer").width($(window).width()/1.2);
+   console.log("*** test1");
+   $(".expClickable").click(function(){
+   		console.log("*** test2");
+   		var id = $(this).find("td:nth-child(1)").text();
+   		console.log("***** within clicking .expClickable, id is ", id);
+		updateExpressionData(id);});
 
+   console.log("*** test3");
    clearSelectionButton = $("#plsrClearSelectionButton");
    clearSelectionButton.button();
    clearSelectionButton.click(clearSelection);
@@ -83,10 +94,7 @@ function initializeUI ()
                                                         selectionDestinationsOfferedHere,
                                                         sendSelections,
                                                         sendSelectionsMenuTitle);
-   //hub.disableButton(sendSelectionMenu);
    
-   //setupSliders();
-
    testResultsOutputDiv = $("#plsrTestingOutputDiv");
 
    $(window).resize(handleWindowResize);
@@ -163,6 +171,13 @@ function sendSelections()
 
 } // sendSelections
 //--------------------------------------------------------------------------------------------------
+function updateExpressionData(id)
+{
+	console.log("***** within updatExpressionData, the id received is: ", id);
+	var currentExpressionDataSet = id;
+	console.log("***** currentExpressionDataSet is ", currentExpressionDataSet);
+}
+//--------------------------------------------------------------------------------------------------
 function requestPLSRByOnsetAndSurvival()
 {
   ageAtDxMinThreshold = Number(ageAtDxMinSliderReadout.val()) * 365.24;
@@ -171,7 +186,7 @@ function requestPLSRByOnsetAndSurvival()
   survivalMaxThreshold = Number(survivalMaxSliderReadout.val()) * 365.24;
 
   var currentGeneSetName = geneSetMenu.val();
-  var currentExressionDataSet = expressionDataSetMenu.val();
+  
   factor1 = {name: "AgeDx", 
              low: ageAtDxMinThreshold, 
              high: ageAtDxMaxThreshold};
@@ -181,10 +196,10 @@ function requestPLSRByOnsetAndSurvival()
              high: survivalMaxThreshold};
   
   payload = {genes: currentGeneSetName, 
-             expressionDataSet: currentExressionDataSet,
+             expressionDataSet: currentExpressionDataSet,
              factorCount: 2, 
              factors: [factor1, factor2]};
-  
+  console.log("***** requestPLSRByOnsetAndSurvival payload: ", payload);
   msg = {cmd: "calculatePLSR", callback: "handlePlsrResults", status: "request", payload: payload};
   msg.json = JSON.stringify(msg);
 
@@ -539,19 +554,19 @@ function handleExpressionDataSetNames(msg)
    }
 
    expManifestCols = msg.payload.colnames;
-   /*for(i=0; i<expManifestCols.length; i++){
-      var singleRecord = "<div class='col-1'><h2>" + expManifestCols[i]+
-                         "</h2></div>";
-      console.log("***** add colnames ", singleRecord);
-      $(".has-dropdown").append(singleRecord);
-   }*/
+   $(".dropdown table").append("<tr id='expManiCols'></tr>");
+   for(i=0; i<expManifestCols.length; i++){
+      var singleRecord = "<th class='strong'>" + expManifestCols[i]+
+                         "</th>";
+      $("#expManiCols").append(singleRecord);
+   }
    console.log("***** expression dataset Names are: ", expNames);
    //addExpressionDataSetNamesToMenu(expNames);
-   addExpressionDataSetNamesToMenu(expManifestCols, expManifest);
+   addExpressionDataSetNamesToMenu(expManifest);
 
 } // handleExpressionDataSetNames
  //----------------------------------------------------------------------------------------------------
- function addExpressionDataSetNamesToMenu (expManifestCols, expManifest)
+ function addExpressionDataSetNamesToMenu (expManifest)
  {
     console.log("Module.plsr:addExpressionDataSetNamesToMenu");
  
@@ -568,24 +583,18 @@ function handleExpressionDataSetNames(msg)
     var singleRecord;
        
     for(var i=0; i<expManifest.length; i++){
-
-      //Markup = "<option>" + expManifest[i][0] + "</option>";
-      //expManifest.append(optionMarkup);
-      for(var j=0; j<5; j++){
-
-          if(j===0){
-            singleRecord = '<div a="#" class="col-1" id="'+ 
-                                expManifest[i][j] + '"><p>' + expManifest[i][j] + '</p></div>';
-          }else{
-            singleRecord = '<div class="col-1"><p>' + expManifest[i][j] + '</p></div>';
-          }
+      $(".dropdown table").append("<tr class='expClickable' id='expMani" + i + "'></tr>");
+      for(var j=0; j<expManifest[i].length; j++){
+          singleRecord = '<td>' + expManifest[i][j] + '</td>';
           console.log("***** print single Record: ", singleRecord);
-          $(".col-5").append(singleRecord);
+          $("#expMani" + i).append(singleRecord);
+          console.log("***** $('#expMani i') is: ", $("#expMani" + i));
         } // for j
       } // for i
  
    postStatus("addExpressionDataSetNamesToMenu: complete");
    hub.enableTab(thisModulesOutermostDiv);
+
  
  } // addExpressionDataSetNamesToMenu
 //----------------------------------------------------------------------------------------------------
@@ -693,7 +702,7 @@ function initializeModule()
    hub.addMessageHandler("sendSelectionTo_PLSR (highlight)", highlightGenes);
    hub.addMessageHandler("plsrObjectCreated", requestSliderRanges);
    //hub.addMessageHandler("plsrAssessUserIdForTesting", assessUserIdForTesting);
-   hub.addSocketConnectedFunction(runAutomatedTestsIfAppropriate);
+   //hub.addSocketConnectedFunction(runAutomatedTestsIfAppropriate);
 
 } // initializeModule
 //--------------------------------------------------------------------------------------------
