@@ -296,7 +296,7 @@ wsGetExpressionDataSetNames <- function(ws, msg)
   dataset <- datasets[[datasetName]]
 
   #payload <- getExpressionDataSetNames(dataset)
-  expressionDataSetNames <- getExpressionDataSetNames(dataset)
+  expressionDataSetNames <- SttrDataPackage:::getExpressionDataSetNames(dataset)
   printf("***** expressionDataSetNames are %s ", expressionDataSetNames)
   tbl <- manifest(datasets[[datasetName]])
 
@@ -308,7 +308,8 @@ wsGetExpressionDataSetNames <- function(ws, msg)
   column.titles <- sub("feature.count", "cols", column.titles)
   column.titles <- sub("entity.", "row ", column.titles)
   column.titles <- sub("feature.", "column ", column.titles, fixed=TRUE)
-  tbl <- tbl[paste(expressionDataSetNames, ".RData",sep=""),]
+  #tbl <- tbl[paste(expressionDataSetNames, ".RData",sep=""),]
+  tbl <- tbl[expressionDataSetNames,]
   #printf("***** after subset with expressionDataSetNames tbl becomes %s: ", tbl)
   matrix <- as.matrix(tbl)
   colnames(matrix) <- NULL

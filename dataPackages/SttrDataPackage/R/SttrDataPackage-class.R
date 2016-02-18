@@ -329,8 +329,8 @@ setMethod("getGeneSetGenes", "SttrDataPackageClass",
 setMethod("getExpressionDataSetNames", "SttrDataPackageClass",
 
   function (obj) {
-     names(obj@matrices)[grep("mrna",names(obj@matrices))]
-     })
+     rownames(obj@manifest)[grep("mrna",rownames(obj@manifest))]
+  })
 #----------------------------------------------------------------------------------------------------
 setMethod("getExpressionDataSetExpression", "SttrDataPackageClass",
 
