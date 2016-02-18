@@ -68,12 +68,12 @@ function initializeUI ()
    geneSetMenu = $("#plsrGeneSetSelector");
    expressionDataSetMenu = $("#plsrExpressionDataSetSelector");
    
-   $(".has-dropdown").click(
+   $(".plsrExpMenu").click(
    	 function(){
-     	 $(".dropdown").slideToggle();
+     	 $(".plsrExpMenu .dropdown").slideToggle();
    	 },
    	 function(){
-     	 $(".dropdown").slideToggle();
+     	 $(".plsrExpMenu .dropdown").slideToggle();
    	 }
    );
 
@@ -166,6 +166,7 @@ function sendSelections()
 //--------------------------------------------------------------------------------------------------
 function updateExpressionData()
 {
+  console.log("***** within updateExpressionData");
   currentExpressionDataSet = $(this).siblings("td").andSelf("td").eq(0).text();
 	console.log("***** currentExpressionDataSet is ", currentExpressionDataSet);
   var changedText = currentExpressionDataSet + " Click to change";
@@ -548,11 +549,11 @@ function handleExpressionDataSetNames(msg)
    }
 
    expManifestCols = msg.payload.colnames;
-   $(".dropdown table").append("<tr id='expManiCols'></tr>");
+   $(".plsrExpMenu .dropdown table").append("<tr id='plsrExpManiCols'></tr>");
    for(i=0; i<expManifestCols.length; i++){
       var singleRecord = "<th class='strong'>" + expManifestCols[i]+
                          "</th>";
-      $("#expManiCols").append(singleRecord);
+      $("#plsrExpManiCols").append(singleRecord);
    }
    console.log("***** expression dataset Names are: ", expNames);
    //addExpressionDataSetNamesToMenu(expNames);
@@ -577,13 +578,14 @@ function handleExpressionDataSetNames(msg)
     var singleRecord;
        
     for(var i=0; i<expManifest.length; i++){
-      $(".dropdown table").append("<tr class='expClickable' id='expMani" + i + "'></tr>");
+      $(".plsrExpMenu .dropdown table").append("<tr class='plsrExpClickable' id='plsrExpMani" + i + "'></tr>");
       for(var j=0; j<expManifest[i].length; j++){
           singleRecord = '<td><a href="#">' + expManifest[i][j] + '</a></td>';
-          $("#expMani" + i).append(singleRecord);
+          $("#plsrExpMani" + i).append(singleRecord);
+          console.log("***** single Records in plsr", singleRecord);
         } // for j
       } // for i
-    $(".expClickable td").click(updateExpressionData);
+    $(".plsrExpMenu .plsrExpClickable td").click(updateExpressionData);
   
    postStatus("addExpressionDataSetNamesToMenu: complete");
    hub.enableTab(thisModulesOutermostDiv);

@@ -68,12 +68,12 @@ function initializeUI ()
   expressionDataSetMenu = $("#pcaExpressionDataSetSelector");
   expressionDataSetMenu = $("#pcaExpressionDataSetSelector");
    
-   $(".has-dropdown").click(
+   $(".pcaExpMenu").click(
       function(){
-        $(".dropdown").slideToggle();
+        $(".pcaExpMenu .dropdown").slideToggle();
       },
       function(){
-        $(".dropdown").slideToggle();
+        $(".pcaExpMenu .dropdown").slideToggle();
       }
    );
 
@@ -217,11 +217,11 @@ function handleExpressionDataSetNames(msg)
    }
 
    expManifestCols = msg.payload.colnames;
-   $(".dropdown table").append("<tr id='expManiCols'></tr>");
+   $(".pcaExpMenu .dropdown table").append("<tr id='pcaExpManiCols'></tr>");
    for(i=0; i<expManifestCols.length; i++){
       var singleRecord = "<th class='strong'>" + expManifestCols[i]+
                          "</th>";
-      $("#expManiCols").append(singleRecord);
+      $("#pcaExpManiCols").append(singleRecord);
    }
    console.log("***** expression dataset Names are: ", expNames);
    //addExpressionDataSetNamesToMenu(expNames);
@@ -245,13 +245,14 @@ function addExpressionDataSetNamesToMenu (expressionDataSetNames)
     var singleRecord;
        
     for(var i=0; i<expManifest.length; i++){
-      $(".dropdown table").append("<tr class='expClickable' id='expMani" + i + "'></tr>");
+      $(".pcaExpMenu .dropdown table").append("<tr class='pcaExpClickable' id='pcaExpMani" + i + "'></tr>");
       for(var j=0; j<expManifest[i].length; j++){
           singleRecord = '<td><a href="#">' + expManifest[i][j] + '</a></td>';
-          $("#expMani" + i).append(singleRecord);
+          $("#pcaExpMani" + i).append(singleRecord);
+          console.log("***** single Records in pca", singleRecord);
         } // for j
       } // for i
-    $(".expClickable td").click(updateExpressionData);
+    $(".pcaExpMenu .pcaExpClickable td").click(updateExpressionData);
   
    postStatus("addExpressionDataSetNamesToMenu: complete");
    hub.enableTab(thisModulesOutermostDiv);
