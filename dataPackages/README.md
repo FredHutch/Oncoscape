@@ -15,7 +15,7 @@ Oncoscape transforms and hosts TCGA level 3 data within the public site [oncosca
 
 
 4. Transform and save the clinical data tables as R objects
-	* Update the TCGA_newPackage/inst/import/history/createEventList.R file.  For example [TCGAgbm createEventList.R](https://github.com/FredHutch/Oncoscape/blob/develop/dataPackages/TCGAgbm/inst/import/history/createEventList.R)
+	* Update the TCGA_newPackage/inst/import/history/createEventList.R file.  One example is [TCGAgbm createEventList.R](https://github.com/FredHutch/Oncoscape/blob/develop/dataPackages/TCGAgbm/inst/import/history/createEventList.R)
 	* Reference and Update [PatientHistory_ReferenceTable.xlsx](https://github.com/FredHutch/Oncoscape/blob/develop/dataPackages/PatientHistory_ReferenceTable.xlsx) with the file names and column headers indicating the source of each field
 	* Generate and save 3 R Objects in inst/extdata/ ```>Rscript createEventList.R```
 		* Different organ sites may have slightly different arrangments of raw data tables, and column names. The createEventList.R needs to be updated to grab the accurate content.
