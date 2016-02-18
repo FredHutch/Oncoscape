@@ -24,7 +24,8 @@
     "datatables.net": "^1.10.11",
     "datatables.net-bs": "^1.10.11",
     "angular-rangeslider": "^0.0.14",
-    "angular-ui-router-anim-in-out": "^1.0.2"
+    "angular-ui-router-anim-in-out": "^1.0.2",
+    "cytoscape": "^2.6.3"
   },
   "overrides": {
     "bootstrap-sass": {

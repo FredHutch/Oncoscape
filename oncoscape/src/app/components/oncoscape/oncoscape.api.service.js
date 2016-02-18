@@ -97,11 +97,18 @@
             return osSocket.request({cmd:"getGeneSetNames"});
         }
 
-        function getSampleCategorizationNames() {}
+        function getSampleCategorizationNames() {
+            return osSocket.request({cmd:'getSampleCategorizationNames'});
+        }
 
-        function getSampleCategorization() {}
+        function getSampleCategorization() {
 
-        function getMarkersNetwork() {}
+        }
+
+        function getMarkersNetwork(payload) {
+            // Payload is return From Set DataSource
+            return osSocket.request({cmd:"getMarkersNetwork", payload:payload})
+        }
 
         function getPathway() {}
 

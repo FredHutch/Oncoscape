@@ -32,11 +32,13 @@
             vm.survivalMinFilter = vm.survivalMinValue = 0;
             vm.survivalMaxFilter = vm.survivalMaxValue = 10;
             vm.search = "";
-            vm.applyFilter = function(element){
+            vm.updateFilter = function(element){
+
+                // Override Datatables Default Search Function - More Efficent Than Using Angular Bindings
                 $.fn.DataTable.ext.search = [function( settings, data, dataIndex ) {
                     var alive = parseFloat(data[3]);
                     var death = parseFloat(data[4]);
-                    console.log(death, alive);
+                    if (isNaN(alive) || isNaN(death)) return false;
                     return (death >= vm.deathMinFilter && 
                             death <= vm.deathMaxFilter &&
                             alive >= vm.survivalMinFilter && 
@@ -44,26 +46,6 @@
 
                 }];
                 dtTable.api().draw();
-                // dtTable.api().column(3).data().filter( function (value, index) {
-                //     var show = (value >= vm.deathMinFilter && value <= vm.deathMaxFilter);
-                //     console.log(show);
-                //     return show;
-                // });
-                // // dtTable.api().column(4).data().filter( function (value, index) {
-                // //     return (value >= vm.survivalMinFilter && value <= vm.survivalMaxFilter);
-                // // });
-
-                // console.log("APPLY");
-
-
-                //dtTable.api().search(vm.search).draw();
-                //console.log("HI");
-                // return (
-                //     element[3]>=vm.survivalMinFilter &&
-                //     element[3]<=vm.survivalMaxFilter &&
-                //     element[4]>=vm.deathMinFilter &&
-                //     element[4]<=vm.deathMaxFilter
-                //     );
             };
 
             // Elements
@@ -71,7 +53,6 @@
 
             // Load Datasets
             osApi.setBusy(true);
-
             osApi.setDataset(vm.datasource).then(function(response){
                 osApi.getPatientHistoryTable(vm.datasource).then(function(response){
                     vm.colnames= response.payload.colnames;

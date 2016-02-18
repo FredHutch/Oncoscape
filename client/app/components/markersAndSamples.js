@@ -200,6 +200,7 @@ function sendSelections(event)
   var cmd = "sendSelectionTo_" + destination;
   payload = {value: nodeNames, count: nodeNames.length, source: "markers and patients module"};
   var newMsg = {cmd: cmd,  callback: "", status: "request", payload: payload};
+  debugger;
 
   sendSelectionsMenu.val(sendSelectionsMenuTitle);
 
@@ -544,7 +545,7 @@ function requestTumorCategorization()
 
   var msg = {cmd: "getSampleCategorization", callback: "markersApplyTumorCategorization",
              status: "request", payload: categorizationName};
-
+debugger;
   hub.send(JSON.stringify(msg));
 
 } // requestTumorCategorization
@@ -1104,6 +1105,7 @@ function displayMarkersNetwork(msg)
 
       var msg2 = {cmd: "getSampleCategorizationNames", callback: "configureSampleCategorizationMenu",
                   status: "request", payload: ""};
+debugger;                  
       hub.send(JSON.stringify(msg2));
       }
    else{
@@ -1151,6 +1153,7 @@ function datasetSpecified (msg)
    hub.logEventOnServer(thisModulesName, "display markers network", "request", "");
 
    var newMsg = {cmd: "getMarkersNetwork",  callback: "displayMarkersNetwork", status: "request", payload: datasetName};
+debugger;   
    hub.send(JSON.stringify(newMsg));
 
 } // datasetSpecified
