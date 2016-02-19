@@ -9,7 +9,7 @@
 var rstats  = require('rstats');
 var r = new rstats.session();
 r.parseEvalQ("library('OncoDev15')");
-r.parseEvalQ("o15 <- OncoDev15('DEMOdz;TCGAgbm;TCGAlgg;TCGAbrain;')");
+r.parseEvalQ("o15 <- OncoDev15('DEMOdz;TCGAgbm;TCGAlgg;TCGAbrain;TCGAbrca;TCGAprad;TCGAlusc;TCGAluad;TCGAlung;TCGAhnsc;TCGAcoadread')");
 process.on('message', function(message) {
 	process.send(
 		r.parseEval("exeCmd(o15, '"+message+"')")

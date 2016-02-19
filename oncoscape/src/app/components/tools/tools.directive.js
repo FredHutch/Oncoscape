@@ -26,7 +26,8 @@
                 {name:'Patient History', route:'history'},
                 {name:'Markers + Patients', route:'markers'},
                 {name:'Partial Least Squares Regression (PLSR)', route:'plsr'},
-                {name:'Principal Components Analysis (PCA)', route:'pca'}
+                {name:'Principal Components Analysis (PCA)', route:'pca'},
+                {name:'GBM Pathways', route:'gbm'}
             ];
             vm.explore = function(tool, datasource){
                 $state.go(tool, {datasource:datasource});

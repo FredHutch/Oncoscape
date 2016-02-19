@@ -24,10 +24,10 @@
             // State
             var vm = this;
             vm.datasource = $stateParams.datasource || "DEMOdz";
-            vm.deathMinFilter = vm.deathMinValue = 1;
-            vm.deathMaxFilter = vm.deathMaxValue = 99;
-            vm.survivalMinFilter = vm.survivalMinValue = 0;
-            vm.survivalMaxFilter = vm.survivalMaxValue = 10;
+            vm.deathMinFilter = vm.deathMinValue = 45;
+            vm.deathMaxFilter = vm.deathMaxValue = 66;
+            vm.survivalMinFilter = vm.survivalMinValue = 3;
+            vm.survivalMaxFilter = vm.survivalMaxValue = 7;
             vm.geneSets = [];
             vm.geneSet = null;
             vm.update = function(){
@@ -56,10 +56,10 @@
 
                             // Load Min Max Values
                             var payload = response.payload;
-                            vm.deathMinFilter = vm.deathMinValue = Math.floor(payload.AgeDx[0]/365.24);
-                            vm.deathMaxFilter = vm.deathMaxValue = Math.floor(payload.AgeDx[4]/365.24);
-                            vm.survivalMinFilter = vm.survivalMinValue = Math.floor(payload.Survival[0]/365.24);
-                            vm.survivalMaxFilter = vm.survivalMaxValue = Math.floor(payload.Survival[4]/365.24);
+                            vm.deathMinValue = Math.floor(payload.AgeDx[0]/365.24);
+                            vm.deathMaxValue = Math.floor(payload.AgeDx[4]/365.24);
+                            vm.survivalMinValue = Math.floor(payload.Survival[0]/365.24);
+                            vm.survivalMaxValue = Math.floor(payload.Survival[4]/365.24);
                             $scope.$watch('vm.geneSet', function(){
                                 update();
                             });
@@ -73,17 +73,21 @@
                 osApi.setBusyMessage("Calculating PLSR");
                 var factors = [
                     {
-                        name: "AgeDx",     
-                        low:  vm.deathMinFilter, 
-                        high: vm.deathMaxFilter
-                    },{
                         name: "Survival",
-                        low: vm.survivalMinFilter, 
-                        high: vm.survivalMaxFilter
+                        low: Number(vm.survivalMinFilter)*365.24, 
+                        high: Number(vm.survivalMaxFilter)*365.24
+                    },
+                    {
+                        name: "AgeDx",     
+                        low:  Number(vm.deathMinFilter)*365.24, 
+                        high: Number(vm.deathMaxFilter)*365.24
                     }
                 ];
+               
                 osApi.getCalculatedPLSR(vm.geneSet, factors).then(function(response){
+                    
                     osApi.setBusyMessage("Rendering PLSR");
+                    
                     var payload = response.payload;
                     draw(
                         payload.loadings,
@@ -129,7 +133,7 @@
                  });
                 var assignColor = d3.scale.ordinal()
                  .domain(["gene",     "vector"])
-                 .range (["black",     "red"]);
+                 .range (["black",     "white"]);
 
                 var tooltip = d3Chart.append("div")
                               .attr("data-toggle", "tooltip")

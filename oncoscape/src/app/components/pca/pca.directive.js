@@ -34,7 +34,9 @@
             // Initalizae
             osApi.setBusy(true)("Loading Dataset");
             osApi.setDataset(vm.datasource).then(function(response) {
+
                 var mtx = response.payload.rownames.filter(function(v){return v.indexOf("mtx.mrna")>=0});
+
                 mtx = mtx[mtx.length-1].replace(".RData","");
                 osApi.setBusyMessage("Creating PCA Matrix");
                 osApi.getPCA(vm.datasource, mtx).then(function(response) {
@@ -137,25 +139,37 @@
                     .attr("class", "x axis")
                     .attr("transform", "translate(0, " + yTranslationForXAxis + ")")
                     .style({
-                        'fill': '#1396de'
+                        'stroke': '#1396de',
+                        'stroke-width' : '1px',
+                         'fill': 'none'
                     })
                     .call(xAxis)
                     .append("text")
-                    .style("font-size", 14)
+                    .style({
+                        "font-size":14,
+                        'fill':'#1396de',
+                        'stroke': 'none'
+                    })
                     .text("PC1");
 
                 svg.append("g")
                     .attr("class", "y axis")
                     .attr("transform", "translate(" + xTranslationForYAxis + ", 0)")
                     .style({
-                        'fill': '#1396de'
+                        'stroke': '#1396de',
+                        'stroke-width' : '1px',
+                         'fill': 'none'
                     })
                     .call(yAxis)
                     .append("text")
                     .attr("y", 10)
                     .attr("dy", ".71em")
-                    .style("font-size", 14)
-                    .style("text-anchor", "end") //start, middle
+                     .style({
+                        'font-size':14,
+                        'fill':'#1396de',
+                        'stroke': 'none',
+                        'text-anchor': 'end'
+                    })
                     .text("PC2");
 
                 svg.append("g").selectAll("circle")

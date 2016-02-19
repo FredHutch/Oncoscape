@@ -6,10 +6,11 @@
 		</div>
 		<div class="row">
 			<ul>
-				<li ng-repeat="dataset in vm.datasets">
+				<li ng-repeat="dataset in vm.datasets" >
 					<img src="/assets/images/datasets/{{dataset}}.png">
 					<h2>{{dataset}}</h2>
-					<p>Lorem ipsum dolor sit amet, cras eu mollis vivamus, ad sollicitudin rhoncus dui proin. Dolor elit ut condimentum luctus ipsam, suspendisse auctor, bibendum cubilia tellus ultrices pellentesque dictumst, egestas lectus in mattis mi class ac. Etiam odio leo vestibulum id, dui pede faucibus cras orci sit primis, massa lacus consectetuer urna pulvinar fusce. </p>
+					<p>Lorem ipsum dolor sit amet, cras eu mollis vivamus, ad sollicitudin rhoncus dui proin. Dolor elit ut condimentum luctus ipsam, suspendisse auctor, bibendum cubilia tellus ultrices pellentesque dictumst, egestas lectus in mattis mi class ac.  </p>
+					<nobr>
 					<a ng-click="vm.explore('metadata',dataset)">Metadata</a>
 					&nbsp;|&nbsp;
 					<a ng-click="vm.explore('history',dataset)">Patient History</a>
@@ -19,8 +20,13 @@
 					<a ng-click="vm.explore('plsr',dataset)">PLSR</a>
 					&nbsp;|&nbsp;
 					<a ng-click="vm.explore('pca',dataset)">PCA</a>
+					&nbsp;|&nbsp;
+					<a ng-click="vm.explore('gbm',dataset)">GBM</a>
+					</nobr>
 				</li>
 			</ul>
 		</div>
 	</div>
+	<br />
+	<br />
 </section>

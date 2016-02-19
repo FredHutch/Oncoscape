@@ -1,5 +1,52 @@
 <section class="markers container">
 	<h2>Markers + Patients ({{vm.datasource}})</h2>
-	<p>Save Layout + Ability To Restore</p>
-    <div id="chart" style="width:100%;height:1000px;"></div>
+	<div class="row">
+        <div class="col-xs-3" style="padding-right:20px;">
+            <label>Interactive Mode</label>
+            <div class="dropdown bs-dropdown">
+              <button class="btn btn-default dropdown-toggle" type="button" id="dropdownMenu1" data-toggle="dropdown" aria-haspopup="true" aria-expanded="true">
+                {{vm.iMode.name}}
+                <span class="caret"></span>
+              </button>
+              <ul class="dropdown-menu" aria-labelledby="dropdownMenu1">
+                <li ng-repeat="item in vm.iModes"
+                    ng-click="vm.iMode=item">{{item.name}}</li>
+              </ul>
+            </div>
+        </div>
+        <div class="col-xs-3" style="padding-right:20px;">
+            <label>Layout Mode</label>
+             <input type="text" class="ngrs-range-slider" style="width:100%"
+                ng-model="vm.search">
+        </div>
+        <div class="col-xs-3" style="padding-right:20px;">
+            <label>Display Mode</label>
+            <div class="dropdown bs-dropdown">
+              <button class="btn btn-default dropdown-toggle" type="button" id="dropdownMenu1" data-toggle="dropdown" aria-haspopup="true" aria-expanded="true">
+               <!--  <span ng-repeat="item in vm.filters | filter: item.selected">{{item.name}}</span> -->
+               Select Filters
+                <span class="caret"></span>
+              </button>
+              <ul class="dropdown-menu" aria-labelledby="dropdownMenu1">
+                <li ng-repeat="item in vm.filters"
+                    ><input type="checkbox" ng-checked="item.selected">{{item.name}}</li>
+              </ul>
+            </div>
+        </div>
+        <div class="col-xs-3" style="padding-right:20px;">
+            <label>Search</label>
+            <div class="input-group">
+		      <input type="text" class="form-control" placeholder="Search for..."ng-model="vm.search"
+		      	style="height: 28px;margin-top: 0px !important;">
+		      <span class="input-group-btn">
+		        <button class="btn btn-default" type="button"
+		        style="height: 28px;margin-top: 0px !important;">Go</button>
+		      </span>
+    		</div>
+            
+        </div>
+    </div>
+</section>
+<section class="markers container-fluid">    
+    <div id="chart" style="width:100%;height:500px;"></div>
 </section>

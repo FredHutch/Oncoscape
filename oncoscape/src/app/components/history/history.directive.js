@@ -32,8 +32,7 @@
             vm.survivalMinFilter = vm.survivalMinValue = 0;
             vm.survivalMaxFilter = vm.survivalMaxValue = 10;
             vm.search = "";
-            vm.updateFilter = function(element){
-
+            vm.applyFilter = function(element){
                 // Override Datatables Default Search Function - More Efficent Than Using Angular Bindings
                 $.fn.DataTable.ext.search = [function( settings, data, dataIndex ) {
                     var alive = parseFloat(data[3]);

@@ -17,7 +17,7 @@ exports.login = function(username, password, domain, cb){
 	switch(domain.toUpperCase()){
 		case "FHCRC":
 			authSoap(username, password, 'fhcrc', 'https://admaims47.fhcrc.org/breeze/Authentication.asmx?wsdl', cb);
-			//authLdap(username+'@fhcrc', password, 'ldaps://dc42.fhcrc.org:636', cb);
+			//authLdap(username+'@fhcrc', password, 'ldaps://rodc1.fhcrc.org:636', cb);
 			break;
 		case "SCCA":
 			authSoap(username, password, 'scca', 'https://admaims47.fhcrc.org/breeze/Authentication.asmx?wsdl', cb);
@@ -40,7 +40,7 @@ var authSoap = function(username, password, domain, url, cb){
       	  cb(result.LogonResult==='<success />');
       });
   });
-};
+};// RODC1
 
 // Authenticate Using Ldap
 var authLdap = function(username, password, url, cb){

@@ -45,6 +45,10 @@
       .state('markers',{
         url: '/markers/{datasource}',
         template: '<os-markers>'
+      })
+      .state('gbm',{
+        url: '/gbm/{datasource}',
+        template: '<os-gbm>'
       });
 
     $urlRouterProvider.otherwise('/');

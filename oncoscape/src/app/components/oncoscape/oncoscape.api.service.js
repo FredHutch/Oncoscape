@@ -11,6 +11,7 @@
         // Functions to move during refactor
         this.setBusy = setBusy;
         this.setBusyMessage = setBusyMessage;
+        this.setIFrame = setIFrame;
         this.login = login;
         this.setDataset = setDataset;
 
@@ -38,6 +39,13 @@
         this.getCalculatedSurvivalCurves = getCalculatedSurvivalCurves;
         this.getTimelines = getTimelines;
         this.getCalculatedTimelines = getCalculatedTimelines;
+        this.getPathway = getPathway;
+        this.getMrnaData = getMrnaData;
+        this.getCnvData = getCnvData;
+        this.getMutationData = getMutationData;
+        this.getModuleModificationDate = getModuleModificationDate;
+
+
 
         function login(user) {
             var req = {
@@ -56,6 +64,9 @@
             });
         }
         
+        function setIFrame(value){
+            
+        }
         function setBusy(value){
 
             if (value){
@@ -152,7 +163,7 @@
 
         function getSummarizedPLSRPatientAttributes(attrs) {
             attrs = attrs || ['AgeDx','Survival'];
-            return osSocket.request({cmd:'summarizePLSRPatientAttributes', payload: ["AgeDx", "Survival"]});
+            return osSocket.request({cmd:'summarizePLSRPatientAttributes', payload: attrs});
         }
 
         function getCalculatedSurvivalCurves() {}
@@ -161,6 +172,22 @@
 
         function getCalculatedTimelines() {}
 
+        // GBM
+        function getModuleModificationDate(){
+            return osSocket.request({cmd: "getModuleModificationDate", payload: 'gbmPathways'});
+        }
+        function getPathway(){
+            return osSocket.request({cmd: "getPathway", payload:'g.gbmPathways.json'});
+        }
+        function getMrnaData(entities, features){
+            return osSocket.request({cmd:"get_mRNA_data",payload:{entities: entities, features: features}});
+        }
+        function getCnvData(entities, features){
+            return osSocket.request({cmd:"get_cnv_data",payload:{entities: entities, features: features}});
+        }
+        function getMutationData(entities, features){
+             return osSocket.request({cmd:"get_mutation_data",payload:{entities: entities, features: features}});
+        }
        
     }
 })();

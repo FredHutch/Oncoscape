@@ -25,7 +25,9 @@
     "datatables.net-bs": "^1.10.11",
     "angular-rangeslider": "^0.0.14",
     "angular-ui-router-anim-in-out": "^1.0.2",
-    "cytoscape": "^2.6.3"
+    "cytoscape": "^2.6.3",
+    "js-signals": "signals#^1.0.0",
+    "sockjs": "^0.3.4"
   },
   "overrides": {
     "bootstrap-sass": {
