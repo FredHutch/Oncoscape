@@ -308,6 +308,7 @@ function pcaPlot (msg)
       pcaScores = msg.payload.scores;
       var geneSet = msg.payload.geneSetName;
       currentIdentifiers = msg.payload.ids;
+      console.log("*****pcaPlot received msg.payload: ", msg.payload);
       console.log("*****pcaPlot received currentIdentifier length: ", currentIdentifiers.length);
       console.log("*****pcaPlot received pcaScores length: ", pcaScores.length);
       console.log("*****pcaPlot geneSet length: ", geneSet.length);
