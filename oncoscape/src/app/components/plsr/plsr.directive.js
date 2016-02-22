@@ -30,6 +30,10 @@
             vm.survivalMaxFilter = vm.survivalMaxValue = 7;
             vm.geneSets = [];
             vm.geneSet = null;
+            vm.toggleFilter = function(){
+                $(".container-filters").toggleClass("container-filters-collapsed");
+                $(".container-filter-toggle").toggleClass("container-filter-toggle-collapsed");
+            }
             vm.update = function(){
                 update();
             };

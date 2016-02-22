@@ -32,6 +32,10 @@
             vm.survivalMinFilter = vm.survivalMinValue = 0;
             vm.survivalMaxFilter = vm.survivalMaxValue = 10;
             vm.search = "";
+            vm.toggleFilter = function(){
+                $(".container-filters").toggleClass("container-filters-collapsed");
+                $(".container-filter-toggle").toggleClass("container-filter-toggle-collapsed");
+            }
             vm.applyFilter = function(element){
                 // Override Datatables Default Search Function - More Efficent Than Using Angular Bindings
                 $.fn.DataTable.ext.search = [function( settings, data, dataIndex ) {
@@ -58,6 +62,7 @@
                     vm.rows = response.payload.tbl;
                     $timeout(function(){
                         dtTable = $('#datatable').dataTable({
+                            "scrollY": "70vh",
                             "paging": false
                         });
                         $scope.$watch('vm.search', function(){

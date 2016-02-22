@@ -1,37 +1,27 @@
-<section class="metadata container">
-	<h2>Metadata ({{vm.dataset}})</h2>
-    <div class="row">
-       <!--  <div class="col-xs-4" style="padding-right:20px;">
-            <label>Rows</label>
-            <div range-slider 
-                min="vm.deathMinValue" model-min="vm.deathMinFilter" 
-                max="vm.deathMaxValue" model-max="vm.deathMaxFilter"
-                show-values="true" attach-handle-values="true"
-                ></div>
-        </div>
-        <div class="col-xs-4" style="padding-right:20px;">
-            <label>Columns</label>
-            <div range-slider 
-                min="vm.survivalMinValue" model-min="vm.survivalMinFilter" 
-                max="vm.survivalMaxValue" model-max="vm.survivalMaxFilter" 
-                show-values="true" attach-handle-values="true"></div>
-        </div> -->
-        <div class="col-xs-4" style="padding-right:20px;">
+<section class="metadata container container-filters">
+    <h2>Metadata ({{vm.dataset}})</h2>
+    <div class="row">        
+        <div class="col-xs-4" style="margin: 10px 0 30px;">
             <label>Search</label>
-            <input type="text" class="ngrs-range-slider" style="width:100%"
+            <input type="text" class="ngrs-range-slider ngrs-range-slider-no-pad" style="width:100%"
                 ng-model="vm.search">
         </div>
     </div>
-	<table id="datatable" class="table table-striped table-bordered" cellspacing="0">
+</section>
+<section class="container-filter-toggle">
+  <img src="/assets/images/arrow_down.png" ng-click="vm.toggleFilter()">
+</section>
+<section class="metadata container-fluid container-content" style="border-top-width:0px">
+    <table id="datatable" class="table table-striped table-bordered" cellspacing="0">
         <thead>
         <tr>
             <th ng-repeat="col in vm.colnames">{{col}}</th>
         </tr>
         </thead>
         <tbody>
-        	<tr ng-repeat="row in vm.rows">
-        		<td ng-repeat="datum in row track by $index">{{datum}}</td>
-        	</tr>
+            <tr ng-repeat="row in vm.rows">
+                <td ng-repeat="datum in row track by $index">{{datum}}</td>
+            </tr>
         </tbody>
     </table>
 </section>

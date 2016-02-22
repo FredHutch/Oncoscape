@@ -22,12 +22,14 @@
         function ToolsController(osApi, $state) {
             var vm = this;
             vm.tools = [
-                {name:'MetaData', route:'metadata'},
-                {name:'Patient History', route:'history'},
-                {name:'Markers + Patients', route:'markers'},
-                {name:'Partial Least Squares Regression (PLSR)', route:'plsr'},
-                {name:'Principal Components Analysis (PCA)', route:'pca'},
-                {name:'GBM Pathways', route:'gbm'}
+                
+                
+                {name:'Markers + Patients', route:'markers', img:'markers.png'},
+                {name:'Glioblastoma Pathways (GBM)', route:'gbm', img:'gbm.png'},
+                {name:'Partial Least Squares Regression (PLSR)', route:'plsr', img:'plsr.png'},
+                {name:'Principal Components Analysis (PCA)', route:'pca', img:'pca.png'},
+                {name:'Patient History', route:'history', img:'history.png'},
+                {name:'MetaData', route:'metadata', img:'MetaData.png'}
             ];
             vm.explore = function(tool, datasource){
                 $state.go(tool, {datasource:datasource});

@@ -28,6 +28,10 @@
             vm.colnames = [];
             vm.rows = [];
             vm.search = "";
+            vm.toggleFilter = function(){
+                $(".container-filters").toggleClass("container-filters-collapsed");
+                $(".container-filter-toggle").toggleClass("container-filter-toggle-collapsed");
+            }
 
             // Elements
             var dtTable;

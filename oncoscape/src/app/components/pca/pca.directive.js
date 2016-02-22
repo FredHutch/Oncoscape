@@ -26,6 +26,10 @@
             vm.datasource = $stateParams.datasource || "DEMOdz";
             vm.geneSets = [];
             vm.geneSet = null;
+            vm.toggleFilter = function(){
+                $(".container-filters").toggleClass("container-filters-collapsed");
+                $(".container-filter-toggle").toggleClass("container-filter-toggle-collapsed");
+            }
 
             // Elements
             var elChart = $("#chart");

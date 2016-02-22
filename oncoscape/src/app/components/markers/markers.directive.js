@@ -28,6 +28,10 @@
             // View Model
             var vm = this;
             vm.datasource = $stateParams.datasource || "DEMOdz";
+            vm.toggleFilter = function(){
+                $(".container-filters").toggleClass("container-filters-collapsed");
+                $(".container-filter-toggle").toggleClass("container-filter-toggle-collapsed");
+            }
 
             // Elements
             var elChart = $("#chart");
@@ -93,7 +97,7 @@
                         events.over(function(e){ 
                             e.cyTarget.style({ 'height': '60px', 'width': '60px'});
                             e.cyTarget.neighborhood('edge').style(
-                                {'display': 'element', 'width':'3px', 'line-color':'rgb(19, 150, 222)'}
+                                {'display': 'element', 'width':'2px', 'line-color':'rgb(19, 150, 222)'}
                                 ); 
                         });
                         events.out(function(e){
@@ -109,18 +113,21 @@
                     register: function(){
                         events.over(function(e){
                             e.cyTarget.style({ 'height': '60px', 'width': '60px'});
-                            e.cyTarget.neighborhood('node').neighborhood('edge').style({
-                                display:'element', 'line-color':'rgb(56, 52,123)'
+                            e.cyTarget.neighborhood('node')
+                                .neighborhood('edge').style({
+                                    'display':'element', 
+                                    'width':'2px',
+                                    'line-color':'rgb(56, 52,123)'
                             });
                             e.cyTarget.neighborhood('edge').style({
-                                'width': '5px',
+                                'width':'4px',
                                 'line-color' : 'rgb(19, 150, 222)'
                             }); 
                         });
                         events.out(function(e){
                             e.cyTarget.style({ 'height': '30px', 'width': '30px'});
                             e.cyTarget.neighborhood('node').neighborhood('edge').style({
-                                'width': '1px',
+                                'width': '5px',
                                 display:'none'
                             });
                         });
@@ -215,7 +222,7 @@
                         style:{
                             'line-color': blue1,
                             'line-style': 'solid',
-                            'width': '1px',
+                            'width': '3px',
                             'display':'none'
                         }
                     },
