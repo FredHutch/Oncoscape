@@ -1,4 +1,4 @@
-//14:33
+//10:44
 // oncoprint/Test.js
 //------------------------------------------------------------------------------------------------------------------------
 var oncoprintTestModule = (function () {
@@ -148,7 +148,7 @@ function testSendGoodMsg()
   console.log(testTitle);
   var sampleIDs = ["TCGA.06.0125", "TCGA.12.1088", "TCGA.02.0113", "TCGA.02.0114", "TCGA.08.0344"];
   var genes = ["EGFR", "ELAVL2"];
-  var string = sampleIDs.concat(genes);
+  var stringSent = sampleIDs.concat(genes);
    
   if(oncoprintStatusObserver === null){
     oncoprintStatusObserver = new MutationObserver(function(mutations) {
@@ -162,7 +162,6 @@ function testSendGoodMsg()
           console.log("*****testSendGoodMsg");
           console.log("***** gene length: ", genes.length);
           assert.equal($(".oncoprint-label-area-ctr div span").length/3, genes.length);
-          //markEndOfTestingDataSet();
           testSendBadMsg();
        });
     }); // new MutationObserver
@@ -173,8 +172,9 @@ function testSendGoodMsg()
    var target = document.querySelector(minorStatusDiv);
    oncoprintStatusObserver.observe(target, config);
    
-   var payload = {value: string, count: string.length, source: "oncoprint/Test.js::testSendGoodMsg"};
-   var msg = {cmd: "sendSelectionTo_Oncoprint", testing:"testing", callback: "", status: "request", payload:  payload};
+   var payload = {value: stringSent, count: stringSent.length, source: "oncoprint/Test.js::testSendGoodMsg"};
+   //var msg = {cmd: "sendSelectionTo_Oncoprint", testing:"testing", callback: "", status: "request", payload:  payload};
+   var msg = {cmd: "sendSelectionTo_Oncoprint", callback: "", status: "request", payload:  payload};
 
    console.log("about to send testSendGoodMsg msg to server: " + msg);
    hub.send(JSON.stringify(msg));
@@ -185,7 +185,7 @@ function testSendBadMsg()
   var testTitle = "testSendBadMsg";
   console.log(testTitle);
   var sampleIDs = ["TCGA.06.0125", "TCGA.12.1088", "TCGA.02.0113", "TCGA.02.0114", "TCGA.08.0344"];
-  var string = sampleIDs;
+  var stringSent = sampleIDs;
    
   if(oncoprintStatusObserver === null){
     oncoprintStatusObserver = new MutationObserver(function(mutations) {
@@ -197,7 +197,10 @@ function testSendBadMsg()
       var msg = $("#oncoprintStatusDiv").text();
       QUnit.test("oncoprint testSendBadMsg: ", function(assert) {
           console.log("*****testSendBadMsg");
-          assert.equal($("#onc").is(':empty'), true);
+          assert.equal($("#onc").is(':empty'), true, "#onc is empty.");
+          console.log("***** testSendBadMsg, errorMessage1.text() is", $("#errorMessage1").text());
+          assert.equal($("#errorMessage1").text(), "No overlapping patients or genes within dataset, please re-select", "error message.");
+          $("#errorMessage1").dialog('close');
           testSendBigNumber();
       });
     }); // new MutationObserver
@@ -208,8 +211,8 @@ function testSendBadMsg()
    var target = document.querySelector(minorStatusDiv);
    oncoprintStatusObserver.observe(target, config);
    
-   var payload = {value: string, count: string.length, source: "oncoprint/Test.js::testtestSendBadMsg"};
-   var msg = {cmd: "sendSelectionTo_Oncoprint", testing:"testing", callback: "", status: "request", payload:  payload};
+   var payload = {value: stringSent, count: stringSent.length, source: "oncoprint/Test.js::testtestSendBadMsg"};
+   var msg = {cmd: "sendSelectionTo_Oncoprint", callback: "", status: "request", payload:  payload};
 
    console.log("about to send testSendBadMsg msg to server: " + msg);
    hub.send(JSON.stringify(msg));
@@ -220,7 +223,7 @@ function testSendBigNumber()
 {
   var testTitle = "testSendBigNumber";
   console.log(testTitle);
-  var range = 351;
+  var rangeSent = 351;
    
   if(oncoprintStatusObserver === null){
     oncoprintStatusObserver = new MutationObserver(function(mutations) {
@@ -233,7 +236,9 @@ function testSendBigNumber()
       QUnit.test("oncoprint testSendBigNumber: ", function(assert) {
           console.log("*****testSendBigNumber");
           assert.equal($("#onc").is(':empty'), true);
-          //markEndOfTestingDataSet();
+          console.log("***** testSendBadMsg, errorMessage2.text() is", $("#errorMessage2").text());
+          assert.equal($("#errorMessage2").text(), "Please choose less than 350 Nodes", "error message.");
+          $("#errorMessage2").dialog('close');
           testSendRandomizedGoodMsg();
       });
     }); // new MutationObserver
@@ -244,8 +249,9 @@ function testSendBigNumber()
    var target = document.querySelector(minorStatusDiv);
    oncoprintStatusObserver.observe(target, config);
    
-   var payload = {value: range, count: range.length, source: "oncoprint/Test.js::testSendBigNumber"};
-   var msg = {cmd: "sendSelectionTo_Oncoprint", testing:"testing", callback: "", status: "request", payload:  payload};
+   var payload = {value: rangeSent, count: rangeSent.length, source: "oncoprint/Test.js::testSendBigNumber"};
+   //var msg = {cmd: "sendSelectionTo_Oncoprint", testing:"testing", callback: "", status: "request", payload:  payload};
+   var msg = {cmd: "sendSelectionTo_Oncoprint", callback: "", status: "request", payload:  payload};
 
    console.log("about to send testSendBigNumber msg to server: " + msg);
    hub.send(JSON.stringify(msg));
@@ -256,7 +262,7 @@ function testSendRandomizedGoodMsg()
 {
   var testTitle = "testSendRandomizedGoodMsg";
   console.log(testTitle);
-  var totalNodesLength = hub.getRandomInt(1,350);
+  var totalNodesLength = hub.getRandomInt(2,350);
   console.log("*****testSendRandomizedGoodMsg totalNodesLength is: ", totalNodesLength);
 
   
@@ -269,12 +275,10 @@ function testSendRandomizedGoodMsg()
       var id = mutation.target.id;
       var msg = $("#oncoprintStatusDiv").text();
       QUnit.test("oncoprint testSendRandomizedGoodMsg: ", function(assert) {
-          console.log("*****testSendRandomizedGoodMsg");
-          //assert.ok($(".oncoprint-label-area-ctr div span").length/3 < totalNodesLength);
           console.log("*****OncoprintM.genes().length() is: ", OncoprintM.genes().length);
           console.log("*****OncoprintM.genes() are : ", OncoprintM.genes());
-          console.log("*****$(.oncoprint-label-area-ctr div .oncoprint-track-label-draggable).length", $(".oncoprint-label-area-ctr div .oncoprint-track-label-draggable").length);
-          console.log("*****patient length: ", $(".oncoprint-cell-area svg").length);
+          console.log("*****$(.oncoprint-label-area-ctr div .oncoprint-track-label-draggable).length", 
+                      $(".oncoprint-label-area-ctr div .oncoprint-track-label-draggable").length);
           assert.equal($(".oncoprint-label-area-ctr div .oncoprint-track-label-draggable").length, OncoprintM.genes().length);
           markEndOfTestingDataSet();
        });
@@ -287,7 +291,8 @@ function testSendRandomizedGoodMsg()
    oncoprintStatusObserver.observe(target, config);
    
    var payload = {value: totalNodesLength, count: totalNodesLength.length, source: "oncoprint/Test.js::testSendRandomizedGoodMsg"};
-   var msg = {cmd: "sendSelectionTo_Oncoprint", testing:"testing", callback: "", status: "request", payload:  payload};
+   //var msg = {cmd: "sendSelectionTo_Oncoprint", testing:"testing", callback: "", status: "request", payload:  payload};
+   var msg = {cmd: "sendSelectionTo_Oncoprint",callback: "", status: "request", payload:  payload};
 
    console.log("about to send testSendRandomizedGoodMsg msg to server: " + msg);
    hub.send(JSON.stringify(msg));

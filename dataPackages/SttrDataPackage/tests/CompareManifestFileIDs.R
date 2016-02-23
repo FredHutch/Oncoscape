@@ -1,33 +1,22 @@
-library(RUnit)
-library(DEMOdz)
-library(TCGAgbm)
-library(TCGAbrain)
+#load libraries 
 
+dataPackageNames <- c("TCGAbrain", "TCGAbrca", "DEMOdz", "TCGAgbm", "TCGAhnsc", "TCGAlgg", "TCGAluad", "TCGAlung", "TCGAlusc", "TCGAprad", "TCGAcoadread")
+for(name in dataPackageNames){
+  library(name,character.only = TRUE)
+}
 
 #----------------------------------------------------------------------------------------------------
 printf <- function(...) print(noquote(sprintf(...)))
 #----------------------------------------------------------------------------------------------------
-	# construct these objects just one, for subsequent examination and testing
-
-if(!exists("ddz"))
-   ddz <- DEMOdz()
-
-if(!exists("gbm"))
-   gbm <- TCGAgbm()
-
-if(!exists("brain"))
-   brain <- TCGAbrain()
-   
-  
 #----------------------------------------------------------------------------------------------------
 runTests <- function()
 {
     category.types<-c("mutations", "copy number", "mRNA expression", "protein abundance", "methylation") 
-    for(category.name in category.types){
-  
-    	exploreExpressionData(ddz, "DEMOdz", category.name)
-    	exploreExpressionData(gbm, "TCGAgbm", category.name)
-    	exploreExpressionData(brain, "TCGAbrain", category.name)
+    for(dpName in dataPackageNames){
+      eval(parse(text=sprintf("dp <- %s()",dpName)))
+      for(category.name in category.types){
+       	exploreExpressionData(dp, dpName, category.name)
+    	}
     }  
 } # runTests
 #----------------------------------------------------------------------------------------------------

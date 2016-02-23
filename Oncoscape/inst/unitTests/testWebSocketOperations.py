@@ -35,7 +35,7 @@ def runTests():
   test_plsr()  # contains 3 more granular tests
 
   test_eventLogging()
-
+  test_oncoprint()
   print "OK:  all python websocket json tests passed"
 
 #----------------------------------------------------------------------------------------------------
@@ -1308,6 +1308,62 @@ def test_plsrCalculateSmallTwoFactors():
   assert(maxValue == 0.7946)
 
 #------------------------------------------------------------------------------------------------------------------------
+def test_oncoprint():
+
+  print "--- test_oncoprint"
+  test_oncoprintCalculate()
+  test_oncoprintOneGeneOnePatient()
+  test_oncoprintPureGenes()
+#------------------------------------------------------------------------------------------------------------------------ 
+def test_oncoprintCalculate():
+  print "--- test_oncoprintCalculate"
+  string = ["PTEN","EGFR","TCGA.02.0047","TCGA.02.0055",
+    "TCGA.02.2483","TCGA.02.2485","TCGA.02.2486","TCGA.06.0125" ,"TCGA.06.0129" ,"TCGA.06.0130"]
+  ds = "DEMOdz"
+  payload_mode = "wsTesting"
+  payload = {"sampleIDs": string, "ds":ds, "testing":payload_mode}
+  print payload
+  msg = dumps({"cmd": "oncoprint_data_selection", "status":"request", 
+               "callback":"", "payload": payload})
+  ws.send(msg)
+  result = loads(ws.recv())
+  assert(result["status"] == "success")
+  assert(result["cmd"] == "")
+  payload = loads(result["payload"]);
+  assert(payload[1] == ["PTEN", "EGFR"])
+#------------------------------------------------------------------------------------------------------------------------   
+def test_oncoprintOneGeneOnePatient():
+  print "--- test_oncoprintOneGeneOnePatient"
+  string = ["EGFR","TCGA.06.0125"]
+  ds = "DEMOdz"
+  payload_mode = "wsTesting"
+  payload = {"sampleIDs": string, "ds":ds, "testing":payload_mode}
+  print payload
+  msg = dumps({"cmd": "oncoprint_data_selection", "status":"request", 
+               "callback":"", "payload": payload})
+  ws.send(msg)
+  result = loads(ws.recv())
+  payload = loads(result["payload"]);
+  assert(loads(payload[0])[0]["cna"] == "AMPLIFIED")
+  assert(result["status"] == "success")
+  assert(result["cmd"] == "")
+#------------------------------------------------------------------------------------------------------------------------
+def test_oncoprintPureGenes():
+  print "--- test_oncoprintPureGenes"
+  string = ["EGFR","PTEN"]
+  ds = "DEMOdz"
+  payload_mode = "wsTesting"
+  payload = {"sampleIDs": string, "ds":ds, "testing":payload_mode}
+  print payload
+  msg = dumps({"cmd": "oncoprint_data_selection", "status":"request", 
+               "callback":"", "payload": payload})
+  ws.send(msg)
+  result = loads(ws.recv())
+  payload = loads(result["payload"]);
+  assert(payload == "No overlapping patients or genes within dataset, please re-select")
+  assert(result["status"] == "error")
+  assert(result["cmd"] == "")
+#----------------------------------------------------------------------------------------------------
 # i developed this test (pshannon, 25 sep 2015) to probe a very confusing bug, which turned out to
 # be caused a problem in wsPLSR.calculate_plsr:
 #    factors.df <- msg$payload$factors
