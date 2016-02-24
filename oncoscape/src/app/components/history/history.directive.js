@@ -61,7 +61,7 @@
                     vm.colnames= response.payload.colnames;
                     vm.rows = response.payload.tbl;
                     $timeout(function(){
-                        dtTable = $('#datatable').dataTable({
+                        dtTable = $('#history-datatable').dataTable({
                             "scrollY": "70vh",
                             "paging": false
                         });

@@ -46,9 +46,13 @@
         url: '/markers/{datasource}',
         template: '<os-markers>'
       })
-      .state('gbm',{
-        url: '/gbm/{datasource}',
-        template: '<os-gbm>'
+      .state('pathways',{
+        url: '/pathways/{datasource}',
+        template: '<os-pathways>'
+      })
+      .state('compare',{
+        url: '/compare/{datasource}',
+        template: '<os-compare>'
       });
 
     $urlRouterProvider.otherwise('/');

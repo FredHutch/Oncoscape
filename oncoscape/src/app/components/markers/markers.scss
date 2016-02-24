@@ -1,4 +1,17 @@
 // Namespace
 .markers{
+	.filter-list{
+		li{
+			padding:0px;
+			margin:0px;
+		}
+	}
+	.filter-button{
+		border:solid 0px #CCC;
+		border-left-width:10px;
+		border-radius:0px;
+		margin-top:1px;
+		width: 100%;
+	}
 	
 }

@@ -42,7 +42,7 @@
                 vm.colnames= response.payload.colnames;
                 vm.rows = response.payload.mtx;
                 $timeout(function(){
-                    dtTable = $('#datatable').dataTable({
+                    dtTable = $('#metadata-datatable').dataTable({
                         "paging":   false,
                     });
                     $scope.$watch('vm.search', function(){

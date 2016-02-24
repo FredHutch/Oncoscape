@@ -73,7 +73,7 @@ h2{
 	overflow:scroll;
 	margin-top:75px;
 	margin-bottom:0px;
-	z-index:1;
+	
 }
 .container-filters{
 	max-height:200px !important;
@@ -88,25 +88,25 @@ h2{
 	border:0px solid #DDD;
 	border-bottom-width:1px;
 	outline: none !important;
-	z-index:200;
+	
 	img{
 		position:relative;
 		top:3px;
 		outline: none !important;
-		-webkit-transition: .8s ease-in-out;
-		-moz-transition: .8s ease-in-out;
-		-o-transition: .8s ease-in-out;
-		transition: .8s ease-in-out;
+		-webkit-transition: .5s ease-in-out;
+		-moz-transition: .5s ease-in-out;
+		-o-transition: .5s ease-in-out;
+		transition: .5s ease-in-out;
 		transform: rotateX(0deg);
 
 	}
 }
 .container-filter-toggle-collapsed{
 	img{
-		-webkit-transition: .8s ease-in-out;
-		-moz-transition: .8s ease-in-out;
-		-o-transition: .8s ease-in-out;
-		transition: .8s ease-in-out;
+		-webkit-transition: .5s ease-in-out;
+		-moz-transition: .5s ease-in-out;
+		-o-transition: .5s ease-in-out;
+		transition: .5s ease-in-out;
 		transform: rotateX(180deg);
 	}
 }

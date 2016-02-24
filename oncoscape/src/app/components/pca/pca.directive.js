@@ -32,8 +32,8 @@
             }
 
             // Elements
-            var elChart = $("#chart");
-            var d3Chart = d3.select("#chart");
+            var elChart = $("#pca-chart");
+            var d3Chart = d3.select("#pca-chart");
 
             // Initalizae
             osApi.setBusy(true)("Loading Dataset");

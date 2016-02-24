@@ -3,15 +3,15 @@
 
     angular
         .module('oncoscape')
-        .directive('osGbm', gbm);
+        .directive('osPathways', gbm);
 
     /** @ngInject */
     function gbm() {
 
         var directive = {
             restrict: 'E',
-            templateUrl: 'app/components/gbm/gbm.html',
-            controller: GbmController,
+            templateUrl: 'app/components/pathways/pathways.html',
+            controller: PathwaysController,
             controllerAs: 'vm',
             bindToController: true
         };
@@ -19,7 +19,7 @@
         return directive;
 
         /** @ngInject */
-        function GbmController(osApi, $state, $stateParams, $scope, $sce) {
+        function PathwaysController(osApi, $state, $stateParams, $scope, $sce) {
             var markersNetwork;
             var vm = this;
             vm.datasource = $stateParams.datasource || "DEMOdz";
@@ -31,7 +31,7 @@
             vm.frame;
 
             // Elements
-            var elChart = $("#chart");
+            var elChart = $("#gbm-chart");
             var csChart;
 
             $scope.$watch('vm.search', function(){

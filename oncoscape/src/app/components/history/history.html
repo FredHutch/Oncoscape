@@ -27,8 +27,8 @@
 <section class="container-filter-toggle">
   <img src="/assets/images/arrow_down.png" ng-click="vm.toggleFilter()">
 </section>
-<section class="history container-fluid container-content" style="border-top-width:0px">
-    <table id="datatable" class="table table-striped table-bordered" cellspacing="0">
+<section class="history container-fluid container-content" style="padding-top:20px;">
+    <table id="history-datatable" class="table table-striped table-bordered" cellspacing="0">
             <thead>
                 <tr>
                     <th ng-repeat="col in vm.colnames">{{col}}</th>

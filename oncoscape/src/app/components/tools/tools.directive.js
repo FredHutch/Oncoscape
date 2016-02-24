@@ -22,10 +22,8 @@
         function ToolsController(osApi, $state) {
             var vm = this;
             vm.tools = [
-                
-                
                 {name:'Markers + Patients', route:'markers', img:'markers.png'},
-                {name:'Glioblastoma Pathways (GBM)', route:'gbm', img:'gbm.png'},
+                {name:'Pathways', route:'pathways', img:'pathways.png'},
                 {name:'Partial Least Squares Regression (PLSR)', route:'plsr', img:'plsr.png'},
                 {name:'Principal Components Analysis (PCA)', route:'pca', img:'pca.png'},
                 {name:'Patient History', route:'history', img:'history.png'},

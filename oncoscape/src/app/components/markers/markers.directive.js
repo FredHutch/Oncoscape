@@ -22,20 +22,101 @@
         /** @ngInject */
         function MarkersController(osApi, $state, $timeout, $scope, $stateParams, cytoscape, signals) {
 
+            // Data
             var markersNetwork;
             var categorizationNames;
+            var patientData;
 
             // View Model
             var vm = this;
             vm.datasource = $stateParams.datasource || "DEMOdz";
+            vm.patientLayouts = [
+                {name:'Default'},
+                {name:'Age At Death'},
+                {name:'Gender'}
+            ];
+            vm.patientLayout = vm.patientLayouts[0];
+            vm.patient;
+            vm.filters = [
+                {id:'a', name:'mutation', color:'#004358', state:'Highlight'},
+                {id:'b', name:'cnGain.1', color:'#1F8A70', state:'Highlight'},
+                {id:'c', name:'cnLoss.1', color:'#BEDB39', state:'Highlight'},
+                {id:'d', name:'cnGain.2', color:'#FFE11A', state:'Highlight'},
+                {id:'e', name:'cnLoss.2', color:'#FD7400', state:'Highlight'}
+            ];
+
+
+            // Elements
+            var elChart = $("#markers-chart");
+            var csChart;
+
+            // Event Handlers
             vm.toggleFilter = function(){
                 $(".container-filters").toggleClass("container-filters-collapsed");
                 $(".container-filter-toggle").toggleClass("container-filter-toggle-collapsed");
-            }
+            };
+            vm.layoutPatientClick = function (e){
+                vm.patientLayout = e;
+                switch (e.name){
+                    case 'Default':
+                        csChart.$('node[nodeType="patient"]').forEach(function(item){
+                            item.position(item.data().pos);
+                        });
+                        break;
+                    case 'Age At Death':
+                        var nodes = csChart.$('node[nodeType="patient"]')
+                            //.sort( function(a, b){ return Number(a.data().patient[4]) - Number(b.data().patient[4]) })
+                            .forEach(function(item){
+                                item.position({
+                                    x: 500,
+                                    y: (item.data().patient[4] * 60) - 3000
+                                })
+                            });
 
-            // Elements
-            var elChart = $("#chart");
-            var csChart;
+                        break;
+                    case 'Gender':
+                        var xMale = 1000;
+                        var xFemale = 1000;
+                        csChart.$('node[nodeType="patient"]')
+                            .forEach(function(item){
+                                if (item.data().patient[2].toLowerCase()=='male'){
+                                    item.position({
+                                        x:xMale-=50,
+                                        y:250
+                                    });
+                                }else{
+                                    item.position({
+                                        x:xFemale-=50,
+                                        y:-250
+                                    });
+                                }
+                            });
+
+                        break;
+                }
+            };
+            vm.filterClick = function(e){
+                var el = $("#"+e.id);
+                var color;
+                switch (e.state)
+                {
+                    case 'Visible':
+                        e.state = 'Highlight';
+                        el.css("border-color",e.color);
+                        csChart.$('edge[edgeType="'+e.name+'"]').style({'line-color':e.color, 'width':'5px'});
+                        break;
+                    case 'Hidden':
+                        e.state = 'Visible';
+                        el.css("border-color","#CCC");
+                        csChart.$('edge[edgeType="'+e.name+'"]').style({'line-color':'#CCC', 'width':'5px'});
+                        break;
+                    default:
+                        e.state = 'Hidden';
+                        el.css("border-color","#FFF");
+                        csChart.$('edge[edgeType="'+e.name+'"]').style({'width':'0px'});
+                        break;
+                }
+            };
 
             // Events
             var events = (function(){
@@ -68,40 +149,52 @@
                 };
             })();
 
-            vm.filters = [
-                {name:'mutation', show:true},
-                {name:'cnGain.1', show:true},
-                {name:'cnLoss.1', show:true},
-                {name:'cnGain.2', show:true},
-                {name:'cnLoss.2', show:true}
-            ];
             vm.iModes = [
                 {
                     name: 'None',
-                    register: function(){
-                    },
-                    unregister: function(){
-
-                    }
-                },{
+                    register: function(){},
+                    unregister: function(){}
+                },
+                {
                     name: 'Show All Edges',
                     register: function(){
+                        events.over(function(e){ 
+                            if (e.cyTarget.data().nodeType=='patient'){
+                                $scope.$apply(function () { vm.patient = e.cyTarget.attr('patient'); });
+                            }
+                            e.cyTarget.style({ 'height': '60px', 'width': '60px', 'font-size':'100px'});
+                            e.cyTarget.neighborhood('node').style({'font-size':'70px'});
+                        });
+                        events.out(function(e){
+                            $scope.$apply(function () { vm.patient = null; } );
+                            e.cyTarget.style({ 'height': '30px', 'width': '30px', 'font-size':'0px'});
+                            e.cyTarget.neighborhood('node').style({'font-size':'0px'});
+                        });
                         csChart.$('edge[edgeType!="chromosome"]').style({display:'element'});
                     },
                     unregister: function(){
+                        events.removeAll();
                         csChart.$('edge[edgeType!="chromosome"]').style({display:'none'});
                     }
                 },{
                     name: 'One Degree',
                     register: function() {
                         events.over(function(e){ 
-                            e.cyTarget.style({ 'height': '60px', 'width': '60px'});
-                            e.cyTarget.neighborhood('edge').style(
-                                {'display': 'element', 'width':'2px', 'line-color':'rgb(19, 150, 222)'}
-                                ); 
+                            if (e.cyTarget.data().nodeType=='patient'){
+                                $scope.$apply(function () { vm.patient = e.cyTarget.attr('patient'); });
+                            }
+                            e.cyTarget.style({ 'height': '60px', 'width': '60px', 'font-size':'100px'});
+                            e.cyTarget.neighborhood('node').style({
+                                'font-size':'70px'
+                            });
+                            e.cyTarget.neighborhood('edge').style({
+                                'display': 'element'
+                                }); 
                         });
                         events.out(function(e){
-                            e.cyTarget.style({ 'height': '30px', 'width': '30px'});
+                            $scope.$apply(function () { vm.patient = null; } );
+                            e.cyTarget.style({ 'height': '30px', 'width': '30px', 'font-size':'0px'});
+                            e.cyTarget.neighborhood('node').style({'font-size':'0px'});
                             e.cyTarget.neighborhood('edge').style({'display': 'none'}); 
                         });
                     },
@@ -112,28 +205,33 @@
                     name: 'Two Degrees',
                     register: function(){
                         events.over(function(e){
-                            e.cyTarget.style({ 'height': '60px', 'width': '60px'});
+                            if (e.cyTarget.data().nodeType=='patient'){
+                                $scope.$apply(function () { vm.patient = e.cyTarget.attr('patient'); });
+                            }
+                            e.cyTarget.style({ 'height': '60px', 'width': '60px', 'font-size':'100px'});
                             e.cyTarget.neighborhood('node')
                                 .neighborhood('edge').style({
-                                    'display':'element', 
-                                    'width':'2px',
-                                    'line-color':'rgb(56, 52,123)'
+                                    'line-style': 'dashed',
+                                    'display':'element'
+                                    
                             });
+
+                            // Should Have Different Line Style For 1st Degree 
                             e.cyTarget.neighborhood('edge').style({
-                                'width':'4px',
-                                'line-color' : 'rgb(19, 150, 222)'
-                            }); 
+                                'line-style': 'solid'
+                            });
                         });
                         events.out(function(e){
-                            e.cyTarget.style({ 'height': '30px', 'width': '30px'});
+                            $scope.$apply(function () { vm.patient = null; } );
+                            e.cyTarget.style({ 'height': '30px', 'width': '30px', 'font-size':'0px'});
                             e.cyTarget.neighborhood('node').neighborhood('edge').style({
-                                'width': '5px',
-                                display:'none'
+                                'line-style': 'solid',
+                                'display':'none'
                             });
                         });
                     },
                     unregister: function(){
-                        events.removeAll;
+                        events.removeAll();
                     }
                 }
             ];
@@ -146,25 +244,44 @@
             // Load Datasets
             osApi.setBusy(true);
             osApi.setDataset(vm.datasource).then(function(response){
-                osApi.getMarkersNetwork(response.payload).then(function(response){
-                    markersNetwork = angular.fromJson(response.payload);
-                    osApi.getSampleCategorizationNames().then(function(response){
-                        categorizationNames = response.payload;
-                         csChart = cytoscape({
-                            container: elChart,
-                            elements: markersNetwork.elements,
-                            style: getStyles(),
-                            layout: {
-                               name: "preset",
-                               fit: true
-                            }
+                osApi.getPatientHistoryTable(vm.datasource).then(function(response){
+                    patientData = response.payload;
+                    osApi.getMarkersNetwork(response.payload).then(function(response){
+                        markersNetwork = angular.fromJson(response.payload);
+
+                        // Store Reference To Patient Data In Nodes
+                        markersNetwork.elements.nodes
+                            .filter(function(item){ return item.data.nodeType==='patient'; })
+                            .map(function(value, index, array){
+                                value.data.pos = {x:value.position.x, y:value.position.y};
+                                value.data.patient = 
+                                patientData.tbl.filter(function(item){return item[0] === value.data.id;})[0];
+                            });
+
+                        osApi.getSampleCategorizationNames().then(function(response){
+                            categorizationNames = response.payload;
+                             csChart = cytoscape({
+                                container: elChart,
+                                elements: markersNetwork.elements,
+                                style: getStyles(),
+                                layout: {
+                                   name: "preset",
+                                   fit: true
+                                }
+                            });
+                            csChart
+                                .on('mouseover','node[nodeType="gene"]', events.geneOver.dispatch )
+                                .on('mouseover','node[nodeType="patient"]', events.patientOver.dispatch)
+                                .on('mouseout', 'node[nodeType="gene"]', events.geneOut.dispatch)
+                                .on('mouseout', 'node[nodeType="patient"]', events.patientOut.dispatch);
+
+
+                            vm.filters.forEach(function(item){
+                                $("#"+item.id).css("border-color",item.color);
+                                csChart.$('edge[edgeType="'+item.name+'"]').style({'line-color':item.color, 'width':'5px'});
+                            });
+                            osApi.setBusy(false);
                         });
-                        csChart
-                            .on('mouseover','node[nodeType="gene"]', events.geneOver.dispatch )
-                            .on('mouseover','node[nodeType="patient"]', events.patientOver.dispatch)
-                            .on('mouseout', 'node[nodeType="gene"]', events.geneOut.dispatch)
-                            .on('mouseout', 'node[nodeType="patient"]', events.patientOut.dispatch);
-                        osApi.setBusy(false);
                     });
                 });
             });
@@ -206,7 +323,11 @@
                             'width': "20px",
                             'label': " data(id)",
                             'text-halign': "right",
-                            'text-valign': "center"
+                            'text-valign': "center",
+                            'text-background-color': '#FFF',
+                            'text-background-opacity': '.8',
+                            'text-background-shape': 'roundrectangle',
+                            'font-size':'0px'
                         }
                     },
                     {
@@ -220,7 +341,7 @@
                     {
                         selector: 'edge',
                         style:{
-                            'line-color': blue1,
+                            'line-color': '#CCC',
                             'line-style': 'solid',
                             'width': '3px',
                             'display':'none'
@@ -229,7 +350,7 @@
                     {   // Chromo Bars
                         selector: 'edge[edgeType="chromosome"]',
                         style:{
-                            'line-color': black,
+                            'line-color': darkblue,
                             'display':'element'
                         }
                     },

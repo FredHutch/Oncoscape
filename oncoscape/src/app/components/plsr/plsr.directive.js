@@ -39,8 +39,8 @@
             };
 
             // Elements
-            var elChart = $("#chart");
-            var d3Chart = d3.select("#chart");
+            var elChart = $("#plsr-chart");
+            var d3Chart = d3.select("#plsr-chart");
 
             // Initalizae
             osApi.setBusy(true)("Loading Dataset");
