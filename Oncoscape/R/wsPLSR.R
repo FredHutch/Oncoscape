@@ -33,9 +33,6 @@ createPLSR <- function(ws, msg)
    response <- plsrDataSummary(myplsr)
    return.msg <- list(cmd=msg$callback, callback="", status="response", payload=response)
    
-   #if(!dir.exists("~/tmp"))
-   #   dir.create("~/tmp")
-   
    printf("createPLSR about to send msg: %s", return.msg$cmd)
    
    ws$send(toJSON(return.msg));
