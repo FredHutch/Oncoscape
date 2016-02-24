@@ -585,6 +585,7 @@ function standAloneTest()
      getSocketConnectedFunctions: getSocketConnectedFunctions,
      addOnDocumentReadyFunction: addOnDocumentReadyFunction,
      getOnDocumentReadyFunctions: getOnDocumentReadyFunctions,
+     openCenteredBrowserWindow: openCenteredBrowserWindow,
      runningInNode: runningInNode,
      initializeWebSocket: initializeWebSocket,
      getSocket: getSocket,

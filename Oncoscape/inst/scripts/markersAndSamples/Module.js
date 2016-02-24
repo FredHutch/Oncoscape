@@ -523,6 +523,7 @@ function clearTumorCategoriesAndCategoryStyles()
    var oldStyle = cwMarkers.style().json();
    var newStyle = oldStyle.filter(function(e){return(e.selector.indexOf("node[category"));});
    cwMarkers.style(newStyle);
+  postStatus("clearTumorCategoryStyles complete");
 
 } // clearTumorCategoriesAndCategoryStyles
 //----------------------------------------------------------------------------------------------------
@@ -534,7 +535,7 @@ function requestTumorCategorization()
 
   console.log("--- requestTumorCategorization, name: " + categorizationName);
 
-  if(categorizationName === menuTitle || categorizationName === "Clear"){
+  if(categorizationName === menuTitle || categorizationName === "Clear"  || categorizationName === null){
      clearTumorCategoriesAndCategoryStyles();
      return;
      } // clear

@@ -228,7 +228,7 @@ function specifyCurrentDataset()
    console.log("Module.datasets 'Use Dataset' button clicked, specifyCurrentDataset: " + selectedDataSet);
  
    hub.disableAllTabsExcept([thisModulesOutermostDiv, "userDataStoreDiv", "ericTestDiv", "DashboardDiv"]);
-	
+  
    var msg = {cmd: "specifyCurrentDataset",  callback: "datasetSpecified", 
               status: "request", payload: selectedDataSet};
 

@@ -6,3 +6,5 @@ install:
 check:
 	(cd datasets; make check;)
 	(cd markersAndSamples; make check;)
+	(cd plsr; make check;)
+
