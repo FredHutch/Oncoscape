@@ -1360,7 +1360,7 @@ def test_oncoprintPureGenes():
   ws.send(msg)
   result = loads(ws.recv())
   payload = loads(result["payload"]);
-  assert(payload == "No overlapping patients or genes within dataset, please re-select")
+  assert(payload == "It seems you only selected either patients or genes, please re-select to include both information")
   assert(result["status"] == "error")
   assert(result["cmd"] == "")
 #----------------------------------------------------------------------------------------------------
