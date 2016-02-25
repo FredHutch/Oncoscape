@@ -17,8 +17,8 @@ printf("current.datasets: %s", current.datasets)
 #stopifnot(4 == 5)
 
 library(OncoDev14)
-scriptDir <- "plsr"
-port <- 7575
+scriptDir <- "pca"
+port <- 7568
 onco <- OncoDev14(port=port, scriptDir=scriptDir, userID=userID, datasetNames=current.datasets)
 if(Sys.info()[["nodename"]] != "lopez"){
   browseURL(sprintf("http://localhost:%d", port))
