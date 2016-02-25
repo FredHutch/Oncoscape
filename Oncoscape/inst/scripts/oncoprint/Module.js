@@ -165,6 +165,8 @@ function displayOncoprint(msg)
       console.log("***** displayOncoprint error section, msg.payload is ", errorMessage);
       $("#errorMessage1").text(errorMessage);
       $("#errorMessage1").dialog();
+      $("#oncoprintInstructions").css("display", "block");
+      $("#oncoprintControlsDiv").css("display", "none");  
       $("#onc").empty();
       postStatus("msg.status is error.");
    }else{
