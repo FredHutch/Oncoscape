@@ -13,3 +13,4 @@ exportMethods(
   getDataPackage,
   calculate
   )
+
