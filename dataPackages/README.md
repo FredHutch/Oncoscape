@@ -62,4 +62,3 @@ Each disease type accesses the clinical and molecular profiles through it's inst
 	>make install
 	>make test
 ```
-

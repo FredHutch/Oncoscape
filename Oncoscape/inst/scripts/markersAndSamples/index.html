@@ -854,12 +854,11 @@ function runTests(datasetNames, reps, exitOnCompletion)
       testIndex++;
       if(testIndex < moduleTests.length){
          console.log("about to test module " + testIndex);
-	 loopStatusObserver = new MutationObserver(onMutation);
+	       loopStatusObserver = new MutationObserver(onMutation);
          loopStatusObserver.observe(target, config);
          var moduleExitOnCompletion = false;
          moduleTests[testIndex].run(datasetNames, reps, moduleExitOnCompletion);
-	 }
-      else{
+	    }else{
          console.log("mutation observer function detected end of moduleTests array");
          if(exitOnCompletion){
             var payload = {errorCount: Object.keys(sessionStorage).length,
@@ -867,9 +866,9 @@ function runTests(datasetNames, reps, exitOnCompletion)
             var exitMsg = {cmd: "exitAfterTesting", callback: "", status: "request", payload: payload};
             console.log("about to send exitAfterTesting msg to server");
             hub.send(JSON.stringify(exitMsg));
-	    } // if exitOnCompletion
-	 } // else: datasets exhaused
-      }; // onMutation function
+	       } // if exitOnCompletion
+	    } // else: datasets exhaused
+    }; // onMutation function
 
    loopStatusObserver = new MutationObserver(onMutation);
    loopStatusObserver.observe(target, config);
@@ -1042,15 +1041,15 @@ function selectManifest(event)
 {
    selectedDataSet = datasetMenu.val();
    console.log("dataset '" + selectedDataSet + "'");
+   $("#datasetsManifestTable").css("display", "none");
+   $("#loadingDatasetMessage").css("display", "inline");
 
    if(selectedDataSet === ""){
       $("#datasetInstructions").css("display", "block");
-      $("#datasetsManifestTable").css("display", "none");
       hub.disableButton(useThisDatasetButton);
       }
     else{
       $("#datasetInstructions").css("display", "none");
-      $("#datasetsManifestTable").css("display", "block");
       requestDataSetSummary(selectedDataSet);
     }
 
@@ -1103,6 +1102,9 @@ function requestDataSetSummary(dataSetName)
 //----------------------------------------------------------------------------------------------------
 function displayDataManifest(msg)
 {
+   $("#datasetsManifestTable").css("display", "block");
+   $("#loadingDatasetMessage").css("display", "none");
+
    var payload = msg.payload;
    var tblColumnNames = payload.colnames;
 
@@ -1163,8 +1165,7 @@ function specifyCurrentDataset()
 {
    console.log("Module.datasets 'Use Dataset' button clicked, specifyCurrentDataset: " + selectedDataSet);
  
-   hub.disableAllTabsExcept([thisModulesOutermostDiv, "userDataStoreDiv", "ericTestDiv"]);
-   $("#loadingDatasetMessage").css("display", "inline");
+   hub.disableAllTabsExcept([thisModulesOutermostDiv, "userDataStoreDiv", "ericTestDiv", "DashboardDiv"]);
 	
    var msg = {cmd: "specifyCurrentDataset",  callback: "datasetSpecified", 
               status: "request", payload: selectedDataSet};
@@ -1175,7 +1176,6 @@ function specifyCurrentDataset()
 //----------------------------------------------------------------------------------------------------
 function datasetSpecified(msg)
 {
-   $("#loadingDatasetMessage").css("display", "none");
    console.log("--- Module.datasets:  datasetSpecified");
 
 } // datasetSpecified
@@ -2969,7 +2969,7 @@ moduleTests.push(markersTester);
      <button id="selectDatasetButton">Use Dataset</button>
 	 <span id="loadingDatasetMessage" style="display:none; margin-left:10px">Loading Dataset...</span>
      <select type="button" id="datasetsSendSelectionsMenu" style="float:right; margin:15px; display: none"></select>
-    <div id="oncoscapeLogo" style="float:right; margin-right:0.5em">	<img width="175" src="http://oncoscape.sttrcancer.org/oncoscape/images/oncoscape_logo_TM.png" alt="Oncoscape"/></div>
+
   </div>
 
    <div id="dataSetNamesOutputDiv" style="margin: 20px;"></div>

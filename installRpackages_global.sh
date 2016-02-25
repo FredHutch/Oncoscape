@@ -21,9 +21,9 @@ R --vanilla CMD INSTALL --no-test-load --no-lock TCGAread
 R --vanilla CMD INSTALL --no-test-load --no-lock TCGAcoadread
 
 cd ../analysisPackages
-R --vanilla CMD INSTALL --no-test-load --no-lock PCA
-R --vanilla CMD INSTALL --no-test-load --no-lock PLSR
+R  --vanilla CMD INSTALL --no-test-load --no-lock PCA
+R  --vanilla CMD INSTALL --no-test-load --no-lock PLSR
  
 cd ../Oncoscape
-R --vanilla CMD INSTALL --no-test-load --no-lock .
+R  --vanilla CMD INSTALL --no-test-load --no-lock .
 

@@ -99,12 +99,11 @@ function runTests(datasetNames, reps, exitOnCompletion)
       testIndex++;
       if(testIndex < moduleTests.length){
          console.log("about to test module " + testIndex);
-	 loopStatusObserver = new MutationObserver(onMutation);
+	       loopStatusObserver = new MutationObserver(onMutation);
          loopStatusObserver.observe(target, config);
          var moduleExitOnCompletion = false;
          moduleTests[testIndex].run(datasetNames, reps, moduleExitOnCompletion);
-	 }
-      else{
+	    }else{
          console.log("mutation observer function detected end of moduleTests array");
          if(exitOnCompletion){
             var payload = {errorCount: Object.keys(sessionStorage).length,
@@ -112,9 +111,9 @@ function runTests(datasetNames, reps, exitOnCompletion)
             var exitMsg = {cmd: "exitAfterTesting", callback: "", status: "request", payload: payload};
             console.log("about to send exitAfterTesting msg to server");
             hub.send(JSON.stringify(exitMsg));
-	    } // if exitOnCompletion
-	 } // else: datasets exhaused
-      }; // onMutation function
+	       } // if exitOnCompletion
+	    } // else: datasets exhaused
+    }; // onMutation function
 
    loopStatusObserver = new MutationObserver(onMutation);
    loopStatusObserver.observe(target, config);
