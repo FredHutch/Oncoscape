@@ -80,7 +80,15 @@ setMethod("calculate", "PCA",
        } # if removers
 
    if(!all(is.na(samples))){
+      
       keepers <- as.integer(unlist(lapply(samples, function(id) grep(id, rownames(mtx)))))
+      if(!is.na(table(duplicated(keepers))[2])){
+         printf("***** there are duplicates in keepers, length is %d", table(duplicated(keepers))[2])
+         keepers <- keepers[-which(duplicated(keepers))]
+         printf("***** mtx remved duplicated rows, current duplicated row length is, %d", 
+                table(duplicated(keepers))[2]) 
+         }
+      
       if(any(is.na(keepers)))
           keepers <- keepers[-is.na(keepers)]
       if(length(keepers) == 0){
@@ -90,6 +98,8 @@ setMethod("calculate", "PCA",
          stop(cat(error.msg.1, error.msg.2))
          }
       mtx <- mtx[keepers,]
+      #printf("***** mtx duplicated rows length is, %d", table(duplicated(mtx))[2])
+         
       printf("mtx subsetted on %d keepers, dim: %d, %d", length(keepers), nrow(mtx), ncol(mtx))
       } # some possibly valid samples provided
 
