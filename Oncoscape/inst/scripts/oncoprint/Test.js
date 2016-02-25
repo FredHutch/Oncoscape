@@ -199,7 +199,9 @@ function testSendBadMsg()
           console.log("*****testSendBadMsg");
           assert.equal($("#onc").is(':empty'), true, "#onc is empty.");
           console.log("***** testSendBadMsg, errorMessage1.text() is", $("#errorMessage1").text());
-          assert.equal($("#errorMessage1").text(), "No overlapping patients or genes within dataset, please re-select", "error message.");
+          assert.equal($("#errorMessage1").text(), 
+            "It seems you only selected either patients or genes, please re-select to include both information", 
+            "correct msg displayed.");
           $("#errorMessage1").dialog('close');
           testSendBigNumber();
       });
