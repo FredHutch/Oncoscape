@@ -8,11 +8,9 @@ include(../hub/Module.js)
 var hub = HubModule();
 hub.start();
 
-include(../testManager/Module.js)
 include(../tabsApp/code.js)
 include(../datasets/Module.js)
 include(../markersAndSamples/Module.js)
-include(../markersAndSamples/Test.js)
 
 </script>
 
@@ -20,14 +18,11 @@ include(../markersAndSamples/Test.js)
 
 <div id="oncoscapeTabs">
    <ul>
-     <li><a href="#datasetsDiv">Datasets</a></li>
      <li><a href="#markersAndPatientsDiv">Markers</a></li>
-     <li><a href="#markersTestDiv">Tests</a></li>
    </ul>
 
 include(../datasets/widget.html)
 include(../markersAndSamples/widget.html)
-include(../markersAndSamples/test.html)
 </div>
 
 </body>
