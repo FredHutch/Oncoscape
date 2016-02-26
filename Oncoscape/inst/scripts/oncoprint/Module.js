@@ -2,12 +2,12 @@
 //----------------------------------------------------------------------------------------------------
 var OncoprintModule = (function () {
   var statusDiv; 
-  var sendSelectionsMenu;
+//  var sendSelectionsMenu;
 
   var thisModulesName = "Oncoprint";
   var thisModulesOutermostDiv = "oncoprintDiv";
 
-  var sendSelectionsMenuTitle = "Send selection...";
+//  var sendSelectionsMenuTitle = "Send selection...";
 
       // sometimes a module offers multiple selection destinations
       // but usually just the one entry point
@@ -30,10 +30,10 @@ function initializeUI()
   statusDiv = $("#oncoprintStatusDiv");
   $(window).resize(handleWindowResize);
 
-  sendSelectionsMenu = hub.configureSendSelectionMenu("#oncoprintSendSelectionsMenu", 
-                                                      selectionDestinations, 
-                                                      sendSelections,
-                                                      sendSelectionsMenuTitle);
+//  sendSelectionsMenu = hub.configureSendSelectionMenu("#oncoprintSendSelectionsMenu", 
+//                                                      selectionDestinations, 
+//                                                      sendSelections,
+//                                                      sendSelectionsMenuTitle);
   $("#oncoprintControlsDiv").css("display", "none");
   $('#toggle_whitespace').click(function() {
   onc.toggleCellPadding();
