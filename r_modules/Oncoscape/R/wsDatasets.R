@@ -144,7 +144,7 @@ getDataManifest <- function(msg)
   tbl.history <- getPatientTable(dataset)
 
   coi.raw <- c("ptID", "study", "Birth.gender", "Survival", "AgeDx", "TimeFirstProgression",
-               "Status.status")
+               "Status.status", "Pathology.histology")
      # TODO: temporary hack:  these column names will soon be available from
      # TODO: the data package iteslf
      # x <- apply(tbl.events, 2, function(col) length(which(!is.na(col))))

@@ -6,12 +6,14 @@
             <label>Interactive Mode</label>
             <div class="dropdown bs-dropdown">
               <button class="btn btn-default dropdown-toggle" type="button" id="dropdownMenu1" data-toggle="dropdown" aria-haspopup="true" aria-expanded="true">
-                {{vm.iMode.name}}
+                {{vm.optInteractiveMode.name}}
                 <span class="caret"></span>
               </button>
-              <ul class="dropdown-menu" aria-labelledby="dropdownMenu1">
-                <li ng-repeat="item in vm.iModes"
-                    ng-click="vm.iMode=item">{{item.name}}</li>
+              <ul class="dropdown-menu" aria-labelledby="dropdownMenu1"
+                style="width:100%">
+                <li ng-repeat="item in vm.optInteractiveModes"
+                    ng-click="vm.optInteractiveMode=item">{{item.name}}</li>
+                
               </ul>
             </div>
         </div>
@@ -19,53 +21,43 @@
             <label>Layout Options</label>
             <div class="dropdown bs-dropdown">
               <button class="btn btn-default dropdown-toggle" type="button" id="dropdownMenu1" data-toggle="dropdown" aria-haspopup="true" aria-expanded="true">
-                {{vm.patientLayout.name}}
+                {{vm.optPatientLayout.name}}
                 <span class="caret"></span>
               </button>
-              <ul class="dropdown-menu" aria-labelledby="dropdownMenu1">
-              <li style="padding:5px;font-weight:600;">Patient Distribution</li>
-                <li ng-repeat="item in vm.patientLayouts"
-                    ng-click="vm.layoutPatientClick(item);">{{item.name}}</li>
+              <ul class="dropdown-menu filter-list" aria-labelledby="dropdownMenu1"
+                style="width:100%">
+                <li style="padding:5px;font-weight:600;">Patient Distribution</li>
+                <li ng-repeat="item in vm.optPatientLayouts" class="radio" style="padding-left:10px">
+                  <label>
+                    <input type="radio" name="patientType" ng-click="item.fn(item)" >{{item.name}}
+                  </label>
+                </li>
               </ul>
             </div>
         </div>
         <div class="col-xs-3" style="padding-right:20px;">
             <label>Color Options</label>
             <div class="dropdown bs-dropdown">
-
               <button class="btn btn-default dropdown-toggle" type="button" id="dropdownMenu1" data-toggle="dropdown" aria-haspopup="true" aria-expanded="true">
-               Nodes + Edges
+               Patients + Edges
                 <span class="caret"></span>
               </button>
               <ul class="dropdown-menu filter-list" aria-labelledby="dropdownMenu1"
                 style="width:100%">
-                <li style="padding:5px;font-weight:600;">Node Colors</li>
-                  <li>
-                  <button class="btn btn-default filter-button"
-                  ng-click="event.stopPropagation();">
-                        None
-                  </button>
+                <li style="padding:5px;font-weight:600;">Patients Colors</li>
+                <li ng-repeat="item in vm.optNodeColors" class="radio" style="padding-left:10px">
+                  <label>
+                    <input type="radio" name="patientType" ng-click="item.fn(item);" >
+                    {{item.name}}
+                  </label>
                 </li>
-                 <li>
-                  <button class="btn btn-default filter-button" style="border-color:#FFF"
-                  ng-click="event.stopPropagation();">
-                        TBL.glioma8
-                  </button>
-                </li>
-                <li>
-                  <button class="btn btn-default filter-button" style="border-color:#FFF"
-                  ng-click="event.stopPropagation();">
-                        TBL.verhaakPlus1
-                  </button>
-                </li>
-                <li>
-                <hr>
-                </li>
+                
+                <li><hr></li>
       
                 <li style="padding:5px;font-weight:600;">Edge Colors</li>
-                <li ng-repeat="item in vm.filters">
-                  <button class="btn btn-default filter-button" id="{{item.id}}" 
-                  ng-click="vm.filterClick(item); $event.stopPropagation();">
+                <li ng-repeat="item in vm.optEdgeColors">
+                  <button class="btn btn-default filter-button {{item.class}}"
+                  ng-click="item.fn(item); $event.stopPropagation();">
                         {{item.name}} ({{item.state}})
                   </button>
                 </li>
@@ -91,14 +83,35 @@
 <section id="markers-chart" class="markers container-fluid container-content">
 </section>
 
-<div style="background:rgba(255,255,255,.7);color:#000; position: absolute; right: 20px; top:200px;width: 200px;" ng-if="vm.patient">
-<dl>
-<dt>Patient<dt><dd>{{vm.patient[0]}}</dd>
-<dt>Study</dt><dd>{{vm.patient[1]}}</dd>
-<dt>Gender</dt><dd>{{vm.patient[2]}}</dd>
-<dt>Survival</dt><dd>{{vm.patient[3]}}</dd>
-<dt>Age At Death</dt><dd>{{vm.patient[4]}}</dd>
-<dt>1st Progression</dt><dd>{{vm.patient[5]}}</dd>
-<dt>Status</dt><dd>{{vm.patient[6]}}</dd>
-</dl>
+<!-- Legand -->
+<div class="markers container-legand">
+  <ul class="legand ">
+    <li style="padding:5px;font-weight:600;">Node Colors</li>
+    <li ng-repeat="item in vm.legandNodes">
+      <div class="circle {{item.color}}"></div>{{item.name}}
+    </li>
+    <li><hr></li>
+    <li style="padding:5px;font-weight:600;">Edge Colors</li>
+    <li ng-repeat="item in vm.optEdgeColors">
+      <button class="btn btn-default filter-button {{item.class}}"
+      ng-click="item.fn(item); $event.stopPropagation();">
+            {{item.name}} ({{item.state}})
+      </button>
+    </li>
+  </ul>
+  <ul class="legand" ng-if="vm.patient" style="width:250px;">
+    <li><hr></li>
+    <li style="padding:5px;font-weight:600;">Patient Information</li>
+    <li>PID: {{vm.patient[0]}}</li>
+    <li>SID: {{vm.patient[1]}}</li>
+    <li>GENDER: {{vm.patient[2]}}</li>
+    <li>STATUS: {{vm.patient[6]}}</li>
+    <li>DIAGNOSED: {{vm.patient[4]}} years old</li>
+    <li>SURVIVED: {{vm.patient[3]}} years</li>
+    <li>PROGRESSION: {{vm.patient[5]}}</li>
+    <li><hr></li>
+    <li style="padding:5px;font-weight:600;">Genes ({{vm.patientChromosomes.length}})</li>
+    <li><span ng-repeat="item in vm.patientChromosomes">{{item}} | </span></li>
+  </ul>
+  <dl>
 </div>

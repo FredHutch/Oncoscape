@@ -4,6 +4,7 @@
 		li{
 			padding:0px;
 			margin:0px;
+
 		}
 	}
 	.filter-button{
@@ -12,6 +13,62 @@
 		border-radius:0px;
 		margin-top:1px;
 		width: 100%;
+		text-align: left;
 	}
-	
+	.legand > li{
+		list-style: none;
+		list-style-type:none;
+		text-overflow: ellipsis;
+	}
+	.circle{
+		border-radius: 50%;
+		width: 15px;
+		height: 15px;
+		margin-right:5px;
+		margin-top:0px;
+		padding-top:0px;
+		display: inline-block;
+		background-color: #59a5fb;
+	}
+
+	.blue{
+		background-color: blue;
+	}
+	.pink{
+		background-color: pink;
+	}
+	.green{
+		background-color: green;
+	}
+	.red{
+		background-color: red;
+	}
+	.chartreuse{
+		background-color: chartreuse;
+	}
+	.aquamarine{
+		background-color: aquamarine;
+	}
+	.orange{
+		background-color: orange;
+	}
+	.magenta{
+		background-color: magenta;
+	}
+	.cyan{
+		background-color: cyan;
+	}
+	.forestgreen{
+		background-color: forestgreen;
+	}
+	.turquoise{
+		background-color: turquoise;
+	}
+	.chocolate{
+		background-color: chocolate;
+	}
+	.purple{
+		background-color: purple;
+	}
+
 }

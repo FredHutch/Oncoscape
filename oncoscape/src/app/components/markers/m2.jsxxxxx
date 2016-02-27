@@ -1,0 +1,232 @@
+(function() {
+    'use strict';
+
+    angular
+        .module('oncoscape')
+        .directive('osMarkers', markers);
+
+    /** @ngInject */
+    function markers() {
+
+        var directive = {
+            restrict: 'E',
+            templateUrl: 'app/components/markers/markers.html',
+            scope: {},
+            controller: MarkersController,
+            controllerAs: 'vm',
+            bindToController: true
+        };
+
+        return directive;
+
+        /** @ngInject */
+        function MarkersController(osApi, $state, $timeout, $scope, $stateParams, cytoscape, signals) {
+
+            var color = {
+                darkblue: 'rgb(5, 108, 225)',
+                blue: 'rgb(19, 150, 222)',
+                black: 'black',
+                white: 'white',
+                red: 'red',
+                purple: 'rgb(56, 52,123)',
+                gray: '#CCC'
+            };
+
+            var styles = [
+                {
+                    selector: 'node',
+                    style: {
+                        'background-color': color.black,
+                        'border-opacity': 1,
+                        'border-color': color.red,
+                        'border-width': "0px",
+                        'height': "20px",
+                        'width': "20px",
+                        'label': " data(id)",
+                        'text-halign': "right",
+                        'text-valign': "center",
+                        'text-background-color': color.white,
+                        'text-background-opacity': '.8',
+                        'text-background-shape': 'roundrectangle',
+                        'font-size': '0px'
+                    }
+                }, {
+                    selector: 'node[nodeType="patient"]',
+                    style: {
+                        'background-color': color.blue,
+                        'height': '50px',
+                        'width': '50px'
+                    }
+                }, {
+                    selector: 'edge',
+                    style: {
+                        'line-color': color.gray,
+                        'line-style': 'solid',
+                        'width': '3px',
+                        'display': 'none'
+                    }
+                }, { // Chromo Bars
+                    selector: 'edge[edgeType="chromosome"]',
+                    style: {
+                        'line-color': color.darkblue,
+                        'display': 'element'
+                    }
+                }, {
+                    selector: 'node[nodeType="gene"]',
+                    style: {
+                        'border-color': color.blue,
+                        'border-width': '3px',
+                        'background-color': color.white,
+                        'height': 'mapData(degree, 0, 50, 10.0, 80.0)',
+                        'width': 'mapData(degree, 0, 50, 10.0, 80.0)'
+                    }
+                }, {
+                    selector: 'node[nodeType="patient"]:selected',
+                    style: {
+                        'background-color': color.red,
+                        'width': '100px',
+                        'height': '100px',
+                        'shape': 'diamond'
+
+                    }
+                }
+            ];
+
+            var optNodeColors = [
+                
+            ];
+
+            var optEdgeColors = [
+                {   
+                    name: 'mutation', id:'edgeMutation', color:'#004358', state:'Highlight'
+                },
+                {
+                    name: 'cnGain.1', id:'edgeCnGain1', color:'#1F8A70', state:'Highlight'
+                },
+                {
+                    name: 'cnLoss.1', id:'edgeCnLoss1', color:'#BEDB39', state:'Highlight'
+                },
+                {
+                    name: 'cnGain.2', id:'edgeCnGain2', color: '#FFE11A', state: 'Highlight'
+
+                },
+                {   
+                    name: 'cnLoss.2', id:'edgeCnLoss2', color: '#FD7400', state: 'Highlight'
+                }
+            ].fn = function(edgeColor, chart){
+                var el = $("." + edgeColor.id);
+                    switch (edgeColor.state) {
+                        case 'Visible':
+                            edgeColor.state = 'Highlight';
+                            el.css("border-color", e.color);
+                            chart.$('edge[edgeType="' + e.name + '"]').style({ 'line-color': e.color, 'width': '5px' });
+                            break;
+                        case 'Hidden':
+                            edgeColor.state = 'Visible';
+                            el.css("border-color", "#CCC");
+                            chart.$('edge[edgeType="' + e.name + '"]').style({ 'line-color': '#CCC', 'width': '5px' });
+                            break;
+                        default:
+                            edgeColor.state = 'Hidden';
+                            el.css("border-color", "#FFF");
+                            chart.$('edge[edgeType="' + e.name + '"]').style({ 'width': '0px' });
+                            break;
+                    }
+            };
+
+            var optPatientLayouts = [
+                // Methods For Visually Laying Out The Patient Nodes
+                { 
+                    name: 'Hobo',
+                    fn: function(chart){
+                        chart.$('node[nodeType="patient"]').forEach(function(item) { 
+                            item.position(item.data().pos); 
+                        });
+                    }
+                }, 
+                { 
+                    name: 'Age At Diagnosis',
+                    fn: function(chart){
+                        chart.$('node[nodeType="patient"]').forEach(function(item) {
+                            try{  // Some Genes Don't Have Cooresponding Clinical Entries
+                                item.position({ x: 500, y: (item.data().patient[4] * 60) - 3000 });
+                            }catch(e){}
+                        
+                        });
+                            
+                    }
+                },
+                { 
+                    name: 'Gender',
+                    fn: function(chart){
+                        var xMale   = 1000;
+                        var xFemale = 1000;
+                        chart.$('node[nodeType="patient"]').forEach(function(item) {
+                             try{  // Some Genes Don't Have Cooresponding Clinical Entries
+                                if (item.data().patient[2].toLowerCase() == 'male') {
+                                    item.position({ x: xMale -= 50, y: 500 });
+                                }else {
+                                    item.position({ x: xFemale -= 50, y: -500 });
+                                }
+                            }catch(e){}
+                        });
+                    }
+                }
+            ];
+
+            // View Model
+            var vm = this;
+            vm.datasource = $stateParams.datasource || 'DEMOdz';
+            vm.optPatientLayouts = optPatientLayouts;
+            vm.optPatientLayout = optPatientLayouts[0];
+            vm.optEdgeColors = optEdgeColors;
+            vm.legandNodes;
+            vm.legandPatient;
+            vm.legandChromosomes;
+
+            // Elements
+            var elChart = $("#markers-chart");
+            var csChart;
+
+            // Load Data
+            var data {
+                patient:null,
+                markers:null
+            }
+            osApi.setBusy(true);
+            osApi.setDataset(vm.datasource).then(function(response) {
+                osApi.getPatientHistoryTable(vm.datasource).then(function(response) {
+                    data.patient = response.payload;
+                    osApi.getMarkersNetwork(response.payload).then(function(response) {
+                        data.markers = angular.fromJson(response.payload);
+                        data.markers.elements.nodes
+                        .filter(function(item) { return item.data.nodeType === 'patient'; })
+                        .map(function(value, index, array) {
+                            // Save Positions Of Hobo + associate With Patient Table
+                            value.data.pos = { x: value.position.x, y: value.position.y };
+                            value.data.patient = data.patient.tbl.filter(function(item) {
+                                    return item[0] === value.data.id; })[0];
+                        });
+                    });
+                });
+            });
+            
+                
+                osApi.getMarkersNetwork(response.payload).then(function(response) {
+                    data.markers = angular.fromJson(response.payload);
+                    data.markers.elements.nodes
+                        .filter(function(item) { return item.data.nodeType === 'patient'; })
+                        .map(function(value, index, array) {
+                            // Save Positions Of Hobo + associate With Patient Table
+                            value.data.pos = { x: value.position.x, y: value.position.y };
+                            value.data.patient =
+                                data.patient.tbl.filter(function(item) {
+                                    return item[0] === value.data.id; })[0];
+                        });
+
+        
+
+          
+        }
+    }
+})();

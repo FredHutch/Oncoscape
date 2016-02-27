@@ -110,7 +110,15 @@ h2{
 		transform: rotateX(180deg);
 	}
 }
-
+.container-legand{
+	background:rgba(255,255,255,.8);
+	color:#000; 
+	position:absolute; 
+	left:0px; 
+	top:200px; 
+	z-index:0; 
+	padding-left:50px;
+}
 .container-content{
 	
 	width:100%;

@@ -82,13 +82,14 @@
                 });
             });
 
+
             function getStyle() {
                 var darkblue = 'rgb(5, 108, 225)';
                 var black = 'black';
                 var blue = 'rgb(19, 150, 222)';
-                var red = 'rgb(230, 44, 28)';
+                var red = 'red';//rgb(230, 44, 28)';
                 var purple = 'rgb(56, 52,123)';
-                var green = 'rgb(56, 52,123)';//'rgb(28, 230,116)';//'green';
+                var green = 'green';//'rgb(56, 52,123)';//'rgb(28, 230,116)';//'green';
                 var orange = 'rgb(255, 152, 0)';
                 return [
                     {
@@ -302,8 +303,7 @@
                 }, {
                     'selector': 'edge[edgeType="fusion"]',
                     'style': {
-                        'line-style': 'dashed',
-                        'line-color': black
+                        'line-color': purple
                     }
                 },
                  {

@@ -15,7 +15,7 @@
             </div>
         </div>
         <div class="col-xs-4" style="padding-right:20px;">
-            <label>Age At Death</label>
+            <label>Age At Diagnosis</label>
             <div range-slider 
                 min="vm.deathMinValue" model-min="vm.deathMinFilter" 
                 max="vm.deathMaxValue" model-max="vm.deathMaxFilter"
@@ -36,4 +36,19 @@
   <img src="/assets/images/arrow_down.png" ng-click="vm.toggleFilter()">
 </section>
 <section id="plsr-chart" class="plsr container-fluid container-content">
+</section>
+
+<!-- Legand -->
+<section class="markers container-legand">
+  <ul class="legand ">
+    <li style="padding:5px;font-weight:600;">Legend</li>
+
+    <li style="border:0px solid #1396de; border-left-width:10px; padding-left:10px;margin-bottom:1px;">
+        Age At Diagnosis
+    </li>
+    <li style="border:0px solid #38347b; border-left-width:10px; padding-left:10px;margin-bottom:1px;">
+        Survival
+    </li>
+    <li><span class="circle" style="background-color:black;width:10px;height: 10px;margin-right:10px;"></span>Genes</li>
+  </ul>
 </section>

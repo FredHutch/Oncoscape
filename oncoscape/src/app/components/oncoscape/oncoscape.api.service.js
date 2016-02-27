@@ -112,8 +112,8 @@
             return osSocket.request({cmd:'getSampleCategorizationNames'});
         }
 
-        function getSampleCategorization() {
-
+        function getSampleCategorization(names) {
+            return osSocket.request({cmd:'getSampleCategorization', payload:names });
         }
 
         function getMarkersNetwork(payload) {
