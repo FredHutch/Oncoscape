@@ -12,4 +12,4 @@ mtx.meth.RData	mtx.meth	matrix	methylation	beta values	530	16223	patient	gene	0.
 genesets.RData	genesets	list	geneset	NA	3	NA	gene	NA	NA	NA	marker.genes.545, tcga.GBM.classifiers, tcga.pancan.mutated
 gbmPathways.json.RData	g.gbmPathways.json	character	network	GBM-related Pathways	156	203	nodes	edges	NA	NA	manual curation by Hamid Bolouri
 egfr.json.RData	g.egfr.json	character	network	egfr signaling	32	14	nodes	edges	NA	NA	manual curation
-markers.json.RData	g.markers.json	character	network	markers & samples	1732	13109	nodes	edges	NA	NA	TCGA
+markers.json.RData	g.markers.json	character	network	markers & samples	1353	5769	nodes	edges	NA	NA	TCGA
