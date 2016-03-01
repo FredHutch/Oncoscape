@@ -1,10 +1,7 @@
 // Namespace
 .history{
-	#datatable_wrapper > .row:first-child{
-		display:none;
-	}
-	#dataTables_info{
-		padding-left: 20px !important;
-		text-align: center;
-	}
+
+}
+.dataTables_filter{
+	display:none;
 }

@@ -3,10 +3,10 @@
 
     angular
         .module('oncoscape')
-        .directive('osPathways', gbm);
+        .directive('osPathways', pathways);
 
     /** @ngInject */
-    function gbm() {
+    function pathways() {
 
         var directive = {
             restrict: 'E',
@@ -29,6 +29,7 @@
             }
             vm.search = "";
             vm.frame;
+            vm.tip = null;
 
             // Elements
             var elChart = $("#gbm-chart");
@@ -66,18 +67,45 @@
                             name: "preset",
                             fit: true
                         }
-                    }).on('select', 'edge', function(e) {
+                    })
+                    .on('select', 'node', function(e){
+                        $('#gbm-webpage').modal();
+                        var url = "http://www.genecards.org/cgi-bin/carddisp.pl?gene="+e.cyTarget.data().id;
+                        $scope.$apply(function() {
+                            vm.frame = $sce.trustAsResourceUrl(url);
+                        });
+                        
+                    })
+                    .on('select', 'edge', function(e) {
                         $('#gbm-webpage').modal();
                         var url = "http://www.ncbi.nlm.nih.gov/pubmed/?term=" + e.cyTarget.data().pmid;
                         $scope.$apply(function() {
                             vm.frame = $sce.trustAsResourceUrl(url);
-                        })
+                        });
 
                     }).on('mouseover', 'edge', function(e){
+                        $scope.$apply(function() {
+                            vm.tip = e.cyTarget.data().source+ " Extract";
+                        });
+                        
                         e.cyTarget.style({ 'width': '4px'});
                     }).on('mouseout', 'edge', function(e){
+                        $scope.$apply(function() {
+                            vm.tip = null;
+                        });
                         e.cyTarget.style({ 'width': '2px'});
-                    });
+                    }).on('mouseover', 'node', function(e){
+                        $scope.$apply(function() {
+                            vm.tip = e.cyTarget.data().name+ " Gene Card";
+                        });
+                    }).on('mouseout', 'node', function(e){
+                        $scope.$apply(function() {
+                            vm.tip = null;
+                        });
+                    })
+
+                     
+
                     osApi.setBusy(false);
                 });
             });

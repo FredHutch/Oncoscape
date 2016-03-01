@@ -19,7 +19,7 @@
     <div class="modal-content">
       <div class="modal-header">
         <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
-        <h4 class="modal-title" id="myModalLabel">Extract</h4>
+        <h4 class="modal-title" id="myModalLabel">{{vm.tip}}</h4>
       </div>
       
 		<iframe class="modal-iframe" ng-src="{{vm.frame}}" />
@@ -39,12 +39,16 @@
         Inhibition
     </li>
     <li style="border:0px solid #38347B; border-left-width:10px; padding-left:10px;margin-bottom:1px;">
-        Mediation
+        Modification
     </li>
     <li style="border:0px solid #056ce1; border-left-width:10px; padding-left:10px;margin-bottom:1px;">
         Genes
     </li>
-    
-    
+  </ul>
+  
+  <ul class="legand" ng-if="vm.tip">
+    <li><hr></li>
+    <li style="padding:5px;font-weight:600;">Tip</li>
+    <li>View {{vm.tip}}</li>
   </ul>
 </section>

@@ -168,7 +168,9 @@
 
         function getCalculatedSurvivalCurves() {}
 
-        function getTimelines() {}
+        function getTimelines() {
+            return osSocket.request({cmd: "createTimelines"});
+        }
 
         function getCalculatedTimelines() {}
 

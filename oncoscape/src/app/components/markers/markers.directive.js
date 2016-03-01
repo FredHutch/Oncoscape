@@ -20,7 +20,7 @@
         return directive;
 
         /** @ngInject */
-        function MarkersController(osApi, $state, $timeout, $scope, $stateParams, cytoscape, signals) {
+        function MarkersController(osApi, $state, $timeout, $scope, $stateParams, cytoscape, signals, $sce) {
 
             // Const Colors 
             var color = {
@@ -100,13 +100,17 @@
                 var events = (function() {
                     var geneOver = new signals.Signal();
                     var geneOut = new signals.Signal();
+                    var geneClick = new signals.Signal();
                     var patientOver = new signals.Signal();
                     var patientOut = new signals.Signal();
+                    var patientClick = new signals.Signal();
                     var removeAll = function() {
                         geneOver.removeAll();
                         geneOut.removeAll();
                         patientOver.removeAll();
                         patientOut.removeAll();
+                        geneClick.removeAll();
+                        patientClick.removeAll();
                     }
                     var over = function(e) {
                         geneOver.add(e);
@@ -116,18 +120,27 @@
                         geneOut.add(e);
                         patientOut.add(e);
                     }
+                    var click = function(e) {
+                        geneClick.add(e);
+                        patientClick.add(e);
+                    }
                     return {
                         geneOver: geneOver,
                         geneOut: geneOut,
+                        geneClick: geneClick,
                         patientOver: patientOver,
                         patientOut: patientOut,
+                        patientClick: patientClick,
                         over: over,
                         out: out,
+                        click: click,
                         removeAll: removeAll
                     };
                 })();
 
                 chart
+                .on('click', 'node[nodeType="gene"]', events.geneClick.dispatch)
+                .on('click', 'node[nodeType="patient"]', events.patientClick.dispatch)
                 .on('mouseover', 'node[nodeType="gene"]', events.geneOver.dispatch)
                 .on('mouseover', 'node[nodeType="patient"]', events.patientOver.dispatch)
                 .on('mouseout', 'node[nodeType="gene"]', events.geneOut.dispatch)
@@ -197,6 +210,18 @@
                  }, {
                      name: 'One Degree',
                      register: function() {
+                         events.click(function(e){
+                            var ds = vm.datasource;
+                            if (ds.indexOf("TCGA"==0)){
+                                var cbioDsName = ds.substr(4)+"_tcga";
+                                var genes = e.cyTarget.neighborhood('node').map(function( n ){  return n.data().name; }).join("+");
+                                var url = "http://www.cbioportal.org/ln?cancer_study_id="+cbioDsName+"&q="+genes;
+                                $scope.$apply(function() {
+                                    window.open(url);
+                                    //vm.frame = $sce.trustAsResourceUrl(url);
+                                });
+                            }
+                        });
                          events.over(function(e) {
                              if (e.cyTarget.data().nodeType == 'patient') {
                                  $scope.$apply(function() {
@@ -316,12 +341,12 @@
                                         return { 'name': item, fn: fn } }));
                 });
 
-                vm.legandNodes = [{name:'Patients', color:'blue'}];
+                vm.legandNodes = [{name:'Patients', color:'#3993fa'}];
                 var value =  [
                     { 
                         name:'Default',
                         fn: function(item){
-                            vm.legandNodes = [{name:'Patients', color:'blue'}];
+                            vm.legandNodes = [{name:'Patients', color:'#3993fa'}];
                             chart.$('node[nodeType="patient"]').style({ 'background-color': 'rgb(19, 150, 222)' });
                         }
                     },
@@ -474,6 +499,7 @@
             vm.legandNodes;
             vm.legandPatient;
             vm.legandChromosomes;
+            vm.frame;
 
             // Elements
             var elChart = $("#markers-chart");

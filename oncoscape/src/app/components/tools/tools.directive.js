@@ -27,7 +27,8 @@
                 {name:'Partial Least Squares Regression (PLSR)', route:'plsr', img:'plsr.png'},
                 {name:'Principal Components Analysis (PCA)', route:'pca', img:'pca.png'},
                 {name:'Patient History', route:'history', img:'history.png'},
-                {name:'MetaData', route:'metadata', img:'MetaData.png'}
+                {name:'MetaData', route:'metadata', img:'MetaData.png'},
+                {name:'Timelines', route:'timelines', img:'tool.png'}
             ];
             vm.explore = function(tool, datasource){
                 $state.go(tool, {datasource:datasource});

@@ -50,6 +50,10 @@
         url: '/pathways/{datasource}',
         template: '<os-pathways>'
       })
+      .state('timelines',{
+        url: '/timelines/{datasource}',
+        template: '<os-timelines>'
+      })
       .state('compare',{
         url: '/compare/{datasource}',
         template: '<os-compare>'
