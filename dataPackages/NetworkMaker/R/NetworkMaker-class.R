@@ -7,10 +7,6 @@ options(stringsAsFactors = FALSE)
                              pkg="SttrDataPackageClass",
                              mtx.mut="matrix",
                              mtx.cn="matrix",
-<<<<<<< Updated upstream
-=======
-                         #   mtx.splice = "matrix",
->>>>>>> Stashed changes
                              state="environment"
                              )
                          )
@@ -22,21 +18,13 @@ setGeneric('usePrecalculatedSampleSimilarityMatrix',  signature='obj', function(
                                                                 standardGeneric('usePrecalculatedSampleSimilarityMatrix'))
 setGeneric('getSimilarityMatrix',        signature='obj', function(obj) standardGeneric('getSimilarityMatrix'))
 setGeneric('buildChromosomalTable',      signature='obj', function(obj, genes) standardGeneric('buildChromosomalTable'))
-<<<<<<< Updated upstream
-=======
 setGeneric('getAlteredGeneNames',        signature='obj', function(obj) standardGeneric('getAlteredGeneNames'))
->>>>>>> Stashed changes
 setGeneric('getChromosomalInfo',         signature='obj', function(obj) standardGeneric('getChromosomalInfo'))
 setGeneric('getSamplesGraph',            signature='obj', function(obj, includeUnpositionedSamples) standardGeneric('getSamplesGraph'))
 setGeneric('getChromosomeGraph',         signature='obj', function(obj, genes) standardGeneric('getChromosomeGraph'))
-<<<<<<< Updated upstream
-setGeneric('getMutationGraph',           signature='obj', function(obj, genes) standardGeneric('getMutationGraph'))
-setGeneric('getCopyNumberGraph',         signature='obj', function(obj, genes, included.scores=c(-2, 2)) standardGeneric('getCopyNumberGraph'))
-=======
 setGeneric('getMutationGraph',           signature='obj', function(obj, genes, patients) standardGeneric('getMutationGraph'))
 setGeneric('getSplicingGraph',           signature='obj', function(obj, genes) standardGeneric('getSplicingGraph'))
 setGeneric('getCopyNumberGraph',         signature='obj', function(obj, genes, patients, included.scores=c(-2, 2)) standardGeneric('getCopyNumberGraph'))
->>>>>>> Stashed changes
 setGeneric('getSimilarityScreenCoordinates', signature='obj', function(obj, xOrigin=0, yOrigin=0, xMax=2000, yMax=5000)
                                                                 standardGeneric('getSimilarityScreenCoordinates'))
 setGeneric('getChromosomeScreenCoordinates',  signature='obj', function(obj, xOrigin=1000, yOrigin=0, yMax=2000,
@@ -50,10 +38,7 @@ NetworkMaker <- function(dataPackage, samples=NA, genes=NA, verbose=FALSE)
   stopifnot("mtx.cn"  %in% names(matrices(dataPackage)))
   mtx.mut <- matrices(dataPackage)[["mtx.mut"]]
   mtx.cn <- matrices(dataPackage)[["mtx.cn"]]
-<<<<<<< Updated upstream
-=======
 #  mtx.splice <- matrices(dataPackage)[["mtx.splice"]]
->>>>>>> Stashed changes
   all.known.samples <- .allKnownSampleIDsCanonicalized(dataPackage)
 
   if(!all(is.na(samples))){
@@ -72,21 +57,9 @@ NetworkMaker <- function(dataPackage, samples=NA, genes=NA, verbose=FALSE)
       cn.sample.indices <- cn.sample.indices[which(!is.na(cn.sample.indices))]
       stopifnot(length(cn.sample.indices) >= 2)   # a bare minimum
       mtx.cn <- mtx.cn[cn.sample.indices,]
-<<<<<<< Updated upstream
       } # samples specfied in constructor call
 
   if(!all(is.na(genes))){
-=======
-
-#	  splice.sample.indices <- as.integer(lapply(recognized.samples, function(s) grep(s, rownames(mtx.splice))))
-#      splice.sample.indices <- splice.sample.indices[which(!is.na(splice.sample.indices))]
-      #stopifnot(length(splice.sample.indices) >= 2)   # a bare minimum
- #     mtx.splice <- mtx.splice[splice.sample.indices,]
-      } # samples specfied in constructor call
-
-  if(!all(is.na(genes))){
-#      recognized.genes <- intersect(genes, intersect(colnames(mtx.mut), colnames(mtx.cn), colnames(mtx.splice)))
->>>>>>> Stashed changes
       recognized.genes <- intersect(genes, intersect(colnames(mtx.mut), colnames(mtx.cn)))
       if(verbose)
           warning(sprintf("%d of %d genes found in both mut and cn matrices",
@@ -94,20 +67,11 @@ NetworkMaker <- function(dataPackage, samples=NA, genes=NA, verbose=FALSE)
       stopifnot(length(recognized.genes) >= 5)   # arbitrary but not unreasonable threshold
       mtx.mut <- mtx.mut[,recognized.genes]
       mtx.cn  <- mtx.cn[,recognized.genes]
-<<<<<<< Updated upstream
       } # genes specfied in constructor call
 
   #browser()
   obj <- .NetworkMaker(pkg=dataPackage, mtx.mut=mtx.mut, mtx.cn=mtx.cn, state=new.env(parent=emptyenv()))
 
-=======
-#      mtx.splice  <- mtx.splice[,recognized.genes]
-  } # genes specfied in constructor call
-
-  #browser()
-#  obj <- .NetworkMaker(pkg=dataPackage, mtx.mut=mtx.mut, mtx.cn=mtx.cn,mtx.splice=mtx.splice, state=new.env(parent=emptyenv()))
-  obj <- .NetworkMaker(pkg=dataPackage, mtx.mut=mtx.mut, mtx.cn=mtx.cn, state=new.env(parent=emptyenv()))
->>>>>>> Stashed changes
   obj
 
 } # NetworkMaker constructor
@@ -116,10 +80,6 @@ NetworkMaker <- function(dataPackage, samples=NA, genes=NA, verbose=FALSE)
 {
    all.ids <- c(rownames(matrices(pkg)$mtx.mut),
                 rownames(matrices(pkg)$mtx.cn),
-<<<<<<< Updated upstream
-=======
-#			 	rownames(matrices(pkg)$mtx.splice),
->>>>>>> Stashed changes
                 rownames(getPatientTable(pkg)))
 
    canonicalizePatientIDs(pkg, sort(unique(all.ids)))
@@ -244,21 +204,6 @@ setMethod("getSamplesGraph", "NetworkMaker",
     	all.nodes <- c(positioned.patients, unpositioned.patients)
     }
 
-<<<<<<< Updated upstream
-    cn.samples <- canonicalizePatientIDs(obj@pkg, rownames(obj@mtx.cn))
-    mut.samples <- canonicalizePatientIDs(obj@pkg, rownames(obj@mtx.mut))
-    patient.samples <- rownames(getPatientTable(obj@pkg))
-
-    unpositioned.cn.samples <- setdiff(cn.samples, positioned.samples)
-    unpositioned.mut.samples <- setdiff(mut.samples, positioned.samples)
-    unpositioned.pt.samples <- setdiff(patient.samples, positioned.samples)
-    
-    unpositioned.samples <- unique(c(unpositioned.cn.samples, unpositioned.mut.samples,
-                                     unpositioned.pt.samples))
-
-    all.nodes <- c(positioned.samples, unpositioned.samples)
-=======
->>>>>>> Stashed changes
     g <- graphNEL(nodes=all.nodes, edgemode="directed")
      # change nodeType to "sample" later, updating all networks at once, and the markers/Test.js
     nodeDataDefaults(g, attr="nodeType") <- "patient"   
@@ -337,12 +282,6 @@ setMethod("getChromosomeGraph", "NetworkMaker",
 #----------------------------------------------------------------------------------------------------
 setMethod("getMutationGraph", "NetworkMaker",
 
-<<<<<<< Updated upstream
-  function(obj, genes){
-
-    mut <- obj@mtx.mut
-    samples <- rownames(mut)
-=======
   function(obj, genes=NA, patients=NA){
 
     mut <- obj@mtx.mut
@@ -351,7 +290,6 @@ setMethod("getMutationGraph", "NetworkMaker",
     stopifnot(samples > 0)
 
     if(is.na(genes)) genes <- colnames(mut)
->>>>>>> Stashed changes
     goi <- intersect(genes, colnames(mut))
     stopifnot(goi > 0)
     mut <- mut[samples, goi]
@@ -390,12 +328,6 @@ setMethod("getMutationGraph", "NetworkMaker",
 #----------------------------------------------------------------------------------------------------
 setMethod("getCopyNumberGraph", "NetworkMaker",
 
-<<<<<<< Updated upstream
-  function(obj, genes, included.scores=c(-2, 2)){
-
-    cn <- obj@mtx.cn
-    samples <- rownames(cn)
-=======
   function(obj, genes=NA, patients=NA, included.scores=c(-2, 2)){
 
     cn <- obj@mtx.cn
@@ -404,7 +336,6 @@ setMethod("getCopyNumberGraph", "NetworkMaker",
     stopifnot(samples > 0)
 
     if(is.na(genes)) genes <- colnames(cn)
->>>>>>> Stashed changes
     goi <- intersect(genes, colnames(cn))
     stopifnot(goi > 0)
     cn <- cn[samples, goi]
@@ -605,9 +536,6 @@ setMethod("getChromosomalInfo", "NetworkMaker",
       obj@state[["chromosomalCoordinates"]]
   })
 
-<<<<<<< Updated upstream
-=======
-
 #----------------------------------------------------------------------------------------------------
 setMethod("getAlteredGeneNames", "NetworkMaker",
    function(obj){
@@ -624,7 +552,6 @@ setMethod("getAlteredGeneNames", "NetworkMaker",
    unique( c(colnames(mut)[genes.mut],colnames(cn)[genes.cn]))
    })
     
->>>>>>> Stashed changes
 #----------------------------------------------------------------------------------------------------
 .extractChromArmFromCytoband <- function(bands)
 {

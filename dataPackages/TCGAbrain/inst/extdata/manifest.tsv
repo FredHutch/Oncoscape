@@ -7,7 +7,7 @@ tbl.ptHistory.RData	tbl.ptHistory	data.frame	history	clinical table	1051	487	pat
 mtx.mut.RData	mtx.mut	matrix	mutations	aa substitutions	580	9789	patient	gene	NA	NA	tcga gbm and lgg
 mtx.prot.RData	mtx.prot	matrix	protein abundance	Z scores	474	264	patient	protein	-5.62437	10.30523	tcga gbm and lgg
 mtx.mrna.bc.RData	mtx.mrna.bc	matrix	mrna expression	normalized Z scores	654	18641	patient	gene	-0.7501015	2.8348106	tcga combatAdjusted
-markers.json.RData	g.markers.json	character	network	markers & samples	1576	6856	nodes	edges	NA	NA	TCGA
+markers.json.RData	g.markers.json	character	network	markers & samples	2062	15322	nodes	edges	NA	NA	TCGA
 genesets.RData	genesets	list	geneset	NA	3	NA	gene	NA	NA	NA	marker.genes.545, tcga.GBM.classifiers, tcga.pancan.mutated
 gbmPathways.json.RData	g.gbmPathways.json	character	network	GBM-related Pathways	156	203	nodes	edges	NA	NA	manual curation by Hamid Bolouri
 egfr.json.RData	g.egfr.json	character	network	egfr signaling	32	14	nodes	edges	NA	NA	manual curation

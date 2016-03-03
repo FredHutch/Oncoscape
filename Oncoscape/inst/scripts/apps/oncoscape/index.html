@@ -15,39 +15,39 @@
    <script src="http://code.jquery.com/qunit/qunit-1.18.0.js"></script>
    <link rel="stylesheet" href="http://code.jquery.com/qunit/qunit-1.18.0.css">
 
-   <script src="http://oncoscape.sttrcancer.org/oncoscape/js/jquery-2.1.3.min.js"></script>
-   <!-- script src="http://oncoscape.sttrcancer.org/oncoscape/js/jquery-1.11.2.min.js"></script-->
-   <script src="http://oncoscape.sttrcancer.org/oncoscape/js/jquery-ui-1.11.4.min.js"></script>
+   <script src="http://oncoscape-static.s3-website-us-west-2.amazonaws.com/js/jquery-2.1.3.min.js"></script>
+   <!-- script src="http://oncoscape-static.s3-website-us-west-2.amazonaws.com/js/jquery-1.11.2.min.js"></script-->
+   <script src="http://oncoscape-static.s3-website-us-west-2.amazonaws.com/js/jquery-ui-1.11.4.min.js"></script>
    <link   rel="stylesheet" type="text/css"
            href="http://ajax.googleapis.com/ajax/libs/jqueryui/1.8.7/themes/smoothness/jquery-ui.css">
 
-   <!-- script src="http://oncoscape.sttrcancer.org/oncoscape/js/cytoscape-2.4.4.min.js"></script-->
-   <script src="http://oncoscape.sttrcancer.org/oncoscape/js/cytoscape-2.5.1.min.js"></script>
+   <!-- script src="http://oncoscape-static.s3-website-us-west-2.amazonaws.com/js/cytoscape-2.4.4.min.js"></script-->
+   <script src="http://oncoscape-static.s3-website-us-west-2.amazonaws.com/js/cytoscape-2.5.1.min.js"></script>
 
-   <script src="http://oncoscape.sttrcancer.org/oncoscape/js/jquery.cytoscape.js-panzoom.js"></script>
-   <link   href="http://oncoscape.sttrcancer.org/oncoscape/css/jquery.cytoscape.js-panzoom.css" 
+   <script src="http://oncoscape-static.s3-website-us-west-2.amazonaws.com/js/jquery.cytoscape.js-panzoom.js"></script>
+   <link   href="http://oncoscape-static.s3-website-us-west-2.amazonaws.com/css/jquery.cytoscape.js-panzoom.css" 
            rel="stylesheet" 
            type="text/css">
 
 
-   <script src="http://oncoscape.sttrcancer.org/oncoscape/js/d3.min.js"></script>
+   <script src="http://oncoscape-static.s3-website-us-west-2.amazonaws.com/js/d3.min.js"></script>
 
-   <script src="http://oncoscape.sttrcancer.org/oncoscape/js/jquery.dataTables-1.10.5.min.js"></script>
+   <script src="http://oncoscape-static.s3-website-us-west-2.amazonaws.com/js/jquery.dataTables-1.10.5.min.js"></script>
    <link   rel="stylesheet" type="text/css"
-           href="http://oncoscape.sttrcancer.org/oncoscape/css/jquery.dataTables-1.10.5.min.css">
+           href="http://oncoscape-static.s3-website-us-west-2.amazonaws.com/css/jquery.dataTables-1.10.5.min.css">
 
    <script src="http://cdn.datatables.net/colvis/1.1.0/js/dataTable.colVis.js"></script>
 
    <link   rel="stylesheet" type="text/css"
            href="http://cdn.datatables.net/colvis/1.1.0/css/dataTables.colVis.css">
 
-   <script src="http://oncoscape.sttrcancer.org/oncoscape/js/jquery.multi-select.js" type="text/javascript"></script>
-   <link href="http://oncoscape.sttrcancer.org/oncoscape/css/multi-select.css" media="screen" rel="stylesheet" type="text/css">
-   <script src="http://oncoscape.sttrcancer.org/oncoscape/js/chosen.jquery.min.js" type="text/javascript"></script>
-   <link href="http://oncoscape.sttrcancer.org/oncoscape/css/chosen.min.css" media="screen" rel="stylesheet" type="text/css">
+   <script src="http://oncoscape-static.s3-website-us-west-2.amazonaws.com/js/jquery.multi-select.js" type="text/javascript"></script>
+   <link href="http://oncoscape-static.s3-website-us-west-2.amazonaws.com/css/multi-select.css" media="screen" rel="stylesheet" type="text/css">
+   <script src="http://oncoscape-static.s3-website-us-west-2.amazonaws.com/js/chosen.jquery.min.js" type="text/javascript"></script>
+   <link href="http://oncoscape-static.s3-website-us-west-2.amazonaws.com/css/chosen.min.css" media="screen" rel="stylesheet" type="text/css">
 
-    <link rel="SHORTCUT ICON" type="image/x-icon" href="http://oncoscape.sttrcancer.org/oncoscape/images/favicon.ico"/>
-    <link rel="ICON" type="image/x-icon" href="http://oncoscape.sttrcancer.org/oncoscape/images/favicon.ico"/>
+    <link rel="SHORTCUT ICON" type="image/x-icon" href="http://oncoscape-static.s3-website-us-west-2.amazonaws.com/images/favicon.ico"/>
+    <link rel="ICON" type="image/x-icon" href="http://oncoscape-static.s3-website-us-west-2.amazonaws.com/images/favicon.ico"/>
 
 
 <script> 
@@ -713,6 +713,7 @@ function standAloneTest()
      getSocketConnectedFunctions: getSocketConnectedFunctions,
      addOnDocumentReadyFunction: addOnDocumentReadyFunction,
      getOnDocumentReadyFunctions: getOnDocumentReadyFunctions,
+     openCenteredBrowserWindow: openCenteredBrowserWindow,
      runningInNode: runningInNode,
      initializeWebSocket: initializeWebSocket,
      getSocket: getSocket,
@@ -1026,6 +1027,8 @@ function selectManifest(event)
    selectedDataSet = datasetMenu.val();
    console.log("dataset '" + selectedDataSet + "'");
    $("#datasetsManifestTable").css("display", "none");
+   $("#loadingDatasetMessage").text("Loading Datasets...")
+
    $("#loadingDatasetMessage").css("display", "inline");
 
    if(selectedDataSet === ""){
@@ -1086,8 +1089,9 @@ function requestDataSetSummary(dataSetName)
 //----------------------------------------------------------------------------------------------------
 function displayDataManifest(msg)
 {
-   $("#datasetsManifestTable").css("display", "block");
-   $("#loadingDatasetMessage").css("display", "none");
+
+	specifyCurrentDataset()
+
 
    var payload = msg.payload;
    var tblColumnNames = payload.colnames;
@@ -1150,7 +1154,7 @@ function specifyCurrentDataset()
    console.log("Module.datasets 'Use Dataset' button clicked, specifyCurrentDataset: " + selectedDataSet);
  
    hub.disableAllTabsExcept([thisModulesOutermostDiv, "userDataStoreDiv", "ericTestDiv", "DashboardDiv"]);
-	
+  
    var msg = {cmd: "specifyCurrentDataset",  callback: "datasetSpecified", 
               status: "request", payload: selectedDataSet};
 
@@ -1219,7 +1223,6 @@ return{
 var dataSummaryModule = DataSummaryModule();
 dataSummaryModule.init();
 hub.registerModule("Datasets", dataSummaryModule);
-
 //----------------------------------------------------------------------------------------------------
 var patientHistoryTableRef;
 
@@ -2413,13 +2416,7 @@ var TimeLineModule = (function () {
     		calcEvents = ptList[id].calcEvents;
     		for(var j=0;j<calcEvents.length; j++){
             	if(calcEvents[j].name == OrderBy){
-					var eventValue =  calcEvents[j].value;
-					if(OrderBy == "Survival"){
-//						if(ptList[id]. == ){
-//							eventValue = 1/eventValue
-//						}
-					}
-					ptList[id].orderVal = eventValue
+					ptList[id].orderVal = calcEvents[j].value;
             		break; 
             	}
             }    
@@ -2638,6 +2635,8 @@ function initializeUI ()
    setInterval(buttonAndMenuStatusSetter, 500);
       
    hub.disableTab(thisModulesOutermostDiv);
+   $("#markersAndPatientsDiv").css("display", "none");
+
  
 } // initializeUI
 //----------------------------------------------------------------------------------------------------
@@ -3020,6 +3019,7 @@ function clearTumorCategoriesAndCategoryStyles()
    var oldStyle = cwMarkers.style().json();
    var newStyle = oldStyle.filter(function(e){return(e.selector.indexOf("node[category"));});
    cwMarkers.style(newStyle);
+  postStatus("clearTumorCategoryStyles complete");
 
 } // clearTumorCategoriesAndCategoryStyles
 //----------------------------------------------------------------------------------------------------
@@ -3031,7 +3031,7 @@ function requestTumorCategorization()
 
   console.log("--- requestTumorCategorization, name: " + categorizationName);
 
-  if(categorizationName === menuTitle || categorizationName === "Clear"){
+  if(categorizationName === menuTitle || categorizationName === "Clear"  || categorizationName === null){
      clearTumorCategoriesAndCategoryStyles();
      return;
      } // clear
@@ -3563,49 +3563,68 @@ function doSearch(e)
 function displayMarkersNetwork(msg)
 {
    console.log("--- Module.markers: displayMarkersNetwork");
-
+	var messageText = "Loading Network..."
+    var el = document.getElementById("loadingDatasetMessage");
+	el.innerHTML = messageText;
+		
    hub.logEventOnServer(thisModulesName, "display markers network", "data received", "");
-
+  
    if(msg.status == "success"){
+   window.setTimeout(function(){
          console.log("nchar(network): " + msg.payload.length);
          var json = JSON.parse(msg.payload);
-             cwMarkers.remove(cwMarkers.edges());
+         cwMarkers.batch(function(){
+           cwMarkers.remove(cwMarkers.edges());
            cwMarkers.remove(cwMarkers.nodes());
            console.log(" after JSON.parse, json.length: " + json.length);
            console.log("  about to add json.elements");
            cwMarkers.add(json.elements);
+           // map current node degree into a node attribute of that name
+       }) 
+      
+      cwMarkers.batch(function(){
            cwMarkers.style(json.style);
            cwMarkers.edges().hide();
-         cwMarkers.filter("edge[edgeType='chromosome']").style({"curve-style": "bezier"});
-         cwMarkers.filter("edge[edgeType='chromosome']").show();
-         cwMarkers.nodes().unselect();
-           // map current node degree into a node attribute of that name
-         cwMarkers.nodes().map(function(node){node.data({degree: node.degree(), trueWidth: node.width(), trueHeight: node.height()});});
-   
-         var edgeTypes = hub.uniqueElementsOfArray(cwMarkers.edges().map(function(edge){
-                                  return(edge.data("edgeType"));}
-                                  ));
-         updateEdgeSelectionWidget(edgeTypes);  // preserve only known edgeTypes
-         cwMarkers.fit(20);
-         
-      var defaultLayout = JSON.stringify(cwMarkers.nodes().map(function(n){
-                                         return({id:n.id(), position:n.position()});}));
-      localStorage.markersDefault = defaultLayout;
-      defaultPatientNodeColor = cwMarkers.nodes("[nodeType='patient']").style("background-color");
+           cwMarkers.nodes().unselect();
+	  })
+   }, 100);	
 
-      hub.logEventOnServer(thisModulesName, "display markers network", "complete", "");
+	window.setTimeout(function(){
+		messageText ="Mapping Edges..."
+		el.innerHTML = messageText;
+        
+        cwMarkers.nodes().map(function(node){node.data({degree: node.degree(), trueWidth: node.width(), trueHeight: node.height()});});
+        cwMarkers.filter("edge[edgeType='chromosome']").style({"curve-style": "bezier"});
+        cwMarkers.filter("edge[edgeType='chromosome']").show();
 
-        //postStatus("markers network displayed");  // deferred; set when the category menu is configured
+		  var edgeTypes = hub.uniqueElementsOfArray(cwMarkers.edges().map(function(edge){
+									  return(edge.data("edgeType"));}
+									  ));
+			 updateEdgeSelectionWidget(edgeTypes);  // preserve only known edgeTypes
+		  var defaultLayout = JSON.stringify(cwMarkers.nodes().map(function(n){
+											 return({id:n.id(), position:n.position()});}));
+		  localStorage.markersDefault = defaultLayout;
+		  defaultPatientNodeColor = cwMarkers.nodes("[nodeType='patient']").style("background-color");
 
-      hub.logEventOnServer(thisModulesName, "getSampleCategorizationNames", "request", "");
+		  hub.logEventOnServer(thisModulesName, "display markers network", "complete", "");
 
-      var msg2 = {cmd: "getSampleCategorizationNames", callback: "configureSampleCategorizationMenu",
+			//postStatus("markers network displayed");  // deferred; set when the category menu is configured
+
+		  hub.logEventOnServer(thisModulesName, "getSampleCategorizationNames", "request", "");
+
+		 cwMarkers.resize();
+		 cwMarkers.fit(50);
+
+     var msg2 = {cmd: "getSampleCategorizationNames", callback: "configureSampleCategorizationMenu",
                   status: "request", payload: ""};
       hub.send(JSON.stringify(msg2));
+
+    }, 100);	
       }
    else{
      console.log("displayMarkersNetwork error: " + msg.payload);
      }
+
 
 } // displayMarkersNetwork
 //----------------------------------------------------------------------------------------------------
@@ -3646,6 +3665,7 @@ function datasetSpecified (msg)
    var datasetName = msg.payload;
 
    hub.logEventOnServer(thisModulesName, "display markers network", "request", "");
+   $("#markersAndPatientsDiv").css("display", "block");
 
    var newMsg = {cmd: "getMarkersNetwork",  callback: "displayMarkersNetwork", status: "request", payload: datasetName};
    hub.send(JSON.stringify(newMsg));
@@ -3676,6 +3696,11 @@ function configureSampleCategorizationMenu(msg)
    
    hub.enableTab(thisModulesOutermostDiv);
    postStatus("markers network displayed");
+
+   $("#datasetsManifestTable").css("display", "block");
+   $("#loadingDatasetMessage").css("display", "none");
+
+	cwMarkers.fit(50);
 
 } // configureSampleCategorizationMenu
 //----------------------------------------------------------------------------------------------------
@@ -4759,40 +4784,42 @@ function handleWindowResize()
   
 } // handleWindowResize
 //--------------------------------------------------------------------------------------------------     
- function handlePatientIDs(msg) {
-
-    if(msg.status == "success"){
+     function handlePatientIDs(msg){
+  
+		if(msg.status == "success"){
              var patientIDs = msg.payload;            
-    		  analyzeSelectedTissues(patientIDs, "");
-    } else {
+ 			  analyzeSelectedTissues(patientIDs, "");
+         } else{
              console.log("survival handlePatientIDs about to call alert: " + msg);
              alert(msg.payload);
-    }
+         }
 
-} //handlePatientIDs
+	} //handlePatientIDs
 //--------------------------------------------------------------------------------------------------     
-function handleIncomingIDs(msg) 
-{    
-    var ids = msg.payload.value;
-    var count = msg.payload.count;
-    var source = msg.payload.source;  
+     function handleIncomingIDs(msg){
+          
+	   var ids = msg.payload.value;
+	   var count = msg.payload.count;
+	   var source = msg.payload.source;  
 
-    if(typeof(ids) == "string")
-      ids = [ids];
+	   if(typeof(ids) == "string")
+    	  ids = [ids];
 
-    console.log("Survival module, " + msg.cmd + " count: " + count);
-     msg = {cmd: "canonicalizePatientIDsInDataset", callback: "survivalHandlePatientIDs", status: "request", 
-                  payload: ids};
-           hub.send(JSON.stringify(msg));
-} // handlePatientIDs
+	   console.log("Survival module, " + msg.cmd + " count: " + count);
+       msg = {cmd: "canonicalizePatientIDsInDataset", callback: "survivalHandlePatientIDs", status: "request", 
+                    payload: ids};
+             hub.send(JSON.stringify(msg));
+     } // handlePatientIDs
 
 //----------------------------------------------------------------------------------------------------
 function analyzeSelectedTissues(patientIDs, title)
 {
    console.log("Survival module, hub.send 'calculateSurvivalCurves' for %d patientIDs",
                patientIDs.length);
+
    $("#survivalInstructions").css("display", "none");
    $("#survivalCurveDiv").css("display", "block");
+
    var payload = {sampleIDs: patientIDs, title: title};
    var msg = {cmd:"calculateSurvivalCurves", callback: "displaySurvivalCurves", status: "request", 
               payload: payload};
@@ -4801,13 +4828,13 @@ function analyzeSelectedTissues(patientIDs, title)
 
 } // analyzeSelectedTissues
 //----------------------------------------------------------------------------------------------------
-function getSurvivalPlot(msg) 
+function getSurvivalPlot(msg)
 {
    console.log("create Survival Plot for: ", msg);
    var payload = JSON.parse(msg.payload);
    var storage = [];
 
-   for(var i=0;i<Object.keys(payload).length;i++) {
+   for(var i=0;i<Object.keys(payload).length;i++){
       var patient = Object.keys(payload)[i];
       storage.push({ID: patient, value: payload[patient]});
       }
@@ -4845,8 +4872,8 @@ function specifyCurrentDataset(datasetName)
 function datasetSpecified(msg)
 {
    console.log("--- Module.survival, datasetSpecified: " + msg.payload);
-   hub.enableTab(thisModulesOutermostDiv);
-   document.getElementById("survivalImageArea").src = "";
+   hub.enableTab(thisModulesOutermostDiv)
+   document.getElementById("survivalImageArea").src = ""
 
 } // datasetSpecified
 //----------------------------------------------------------------------------------------------------
@@ -4903,7 +4930,7 @@ return{
    init: function(){
       hub.addOnDocumentReadyFunction(initializeUI);
       hub.registerSelectionDestination(selectionDestinationsOfferedHere, thisModulesOutermostDiv);
-	    hub.addMessageHandler("datasetSpecified", datasetSpecified);
+	  hub.addMessageHandler("datasetSpecified", datasetSpecified);
       hub.addMessageHandler("survivalDatasetSpecified", datasetSpecified);
       hub.addMessageHandler("displaySurvivalCurves", displaySurvivalCurves);
       hub.addMessageHandler("sendSelectionTo_survival", handleIncomingIDs);
@@ -5738,6 +5765,7 @@ var PLSRModule = (function () {
   var selectionDestinationsOfferedHere = ["PLSR (highlight)"];
  
   var expressionDataSetName = "";
+  var plsrMsg = {}; 
 
 //--------------------------------------------------------------------------------------------
 function initializeUI () 
@@ -5793,7 +5821,7 @@ function addGeneSetNamesToMenu (geneSetNames)
       }
    
   if(typeof geneSetNames == "string") 
-   	 geneSetNames = [geneSetNames] 
+     geneSetNames = [geneSetNames]; 
 
       
    for(var i=0; i < geneSetNames.length; i++){
@@ -5817,13 +5845,20 @@ function handleAgeAtDxAndSurvivalRanges(msg)
    console.log("=== Module.plsr, handleAgeAtDxAndSurvivalRanges");
 
    if(msg.status != "success"){
-		//error message should be issued 
-		return;
-	}
+    //error message should be issued 
+    return;
+  }
    ageAtDxMin = Math.floor(msg.payload.AgeDx[0]/365.24);
    ageAtDxMax = Math.floor(msg.payload.AgeDx[4]/365.24);
    survivalMin = Math.floor(msg.payload.Survival[0]/365.24);
    survivalMax = Math.floor(msg.payload.Survival[4]/365.24);
+   console.log("***** ageAtDxMin: ", ageAtDxMin);
+
+   plsrMsg.ageAtDxMin = msg.payload.AgeDx[0];
+   plsrMsg.ageAtDxMax = msg.payload.AgeDx[4];
+   plsrMsg.survivalMin = msg.payload.Survival[0];
+   plsrMsg.survivalMax = msg.payload.Survival[4];
+  
 
    //ageAtDxMin = Math.floor(msg.payload.AgeDx[0])-1;
    //ageAtDxMax = Math.floor(msg.payload.AgeDx[4])+1;
@@ -5944,9 +5979,15 @@ function handlePlsrResults (msg)
    vectorNames = payload.vectorNames;
    geneLoadings = payload.loadings;
    geneNames = payload.loadingNames;
-
+   console.log("****** handlePlsrResults vectors: ", vectors);
+   console.log("****** handlePlsrResults vectorNames: ", vectorNames);
+   console.log("****** geneLoadings: ", geneLoadings);
+   console.log("****** geneNames: ", geneNames);
    currentAbsoluteMaxValue = absMaxValue; // most recent max value, used for scaling
-
+   plsrMsg.genes = geneLoadings;
+   plsrMsg.geneNames = geneNames;
+   plsrMsg.vectors = vectors;
+   plsrMsg.vectorNames = vectorNames;
    svg = d3PlsrScatterPlot(geneLoadings, geneNames, vectors, vectorNames, absMaxValue);
    postStatus("scatterplot complete");
 
@@ -6001,6 +6042,9 @@ function d3PlsrScatterPlot(genes, geneNames, vectors, vectorNames, absMaxValue)
    var yScale = d3.scale.linear()
                   .domain([negAbsMaxValue, absMaxValue])
                   .range([height - padding, padding]); // note inversion 
+   
+   plsrMsg.xScale = xScale;
+   plsrMsg.yScale = yScale; 
 
    var xAxis = d3.svg.axis()
                  .scale(xScale)
@@ -6132,7 +6176,12 @@ function selectPoints(ids, clearIDs)
      .duration(500);
 
   hub.enableButton(clearSelectionButton);
-
+  //pcaMsg.highlightIndex = highlightIndex;
+   setTimeout(function(){
+            console.log("***** Module.js within selectPoints before qunit");
+            console.log("***** Date time: ", Date());
+            postStatus("selectPoints are highlighted"); 
+   }, 6000);
 } // selectPoints
 //----------------------------------------------------------------------------------------------------
 function clearSelection()
@@ -6305,26 +6354,29 @@ function initializeModule()
 
 } // initializeModule
 //--------------------------------------------------------------------------------------------
+function ModuleMsg(){
+  return plsrMsg;
+}
+//----------------------------------------------------------------------------------------------------
 return{
    init: initializeModule,
+   ModuleMsg: ModuleMsg
    };
 
 }); // PLSRModule
 //----------------------------------------------------------------------------------------------------
 plsr = PLSRModule();
 plsr.init();
-
 "user strict";
-<<<<<<< Updated upstream
 //----------------------------------------------------------------------------------------------------
 var OncoprintModule = (function () {
-
-  var sendSelectionsMenu;
+  var statusDiv; 
+//  var sendSelectionsMenu;
 
   var thisModulesName = "Oncoprint";
   var thisModulesOutermostDiv = "oncoprintDiv";
 
-  var sendSelectionsMenuTitle = "Send selection...";
+//  var sendSelectionsMenuTitle = "Send selection...";
 
       // sometimes a module offers multiple selection destinations
       // but usually just the one entry point
@@ -6340,24 +6392,26 @@ var OncoprintModule = (function () {
   var OncoprintDiv = $("#oncoprintDiv");
   var ControlsDiv = $("#oncoprintControlsDiv");
   var compute_start;
+  var genes; 
 //--------------------------------------------------------------------------------------------
 function initializeUI()
 {
+  statusDiv = $("#oncoprintStatusDiv");
   $(window).resize(handleWindowResize);
 
-  sendSelectionsMenu = hub.configureSendSelectionMenu("#oncoprintSendSelectionsMenu", 
-                                                      selectionDestinations, 
-                                                      sendSelections,
-                                                      sendSelectionsMenuTitle);
+//  sendSelectionsMenu = hub.configureSendSelectionMenu("#oncoprintSendSelectionsMenu", 
+//                                                      selectionDestinations, 
+//                                                      sendSelections,
+//                                                      sendSelectionsMenuTitle);
   $("#oncoprintControlsDiv").css("display", "none");
   $('#toggle_whitespace').click(function() {
-	onc.toggleCellPadding();
-	});
+  onc.toggleCellPadding();
+  });
   var z = 1;
   $('#reduce_cell_width').click(function() {
-	z *= 0.5;
-	onc.setZoom(z);
-	});
+  z *= 0.5;
+  onc.setZoom(z);
+  });
   
   handleWindowResize();
   hub.disableTab(thisModulesOutermostDiv);
@@ -6372,7 +6426,7 @@ function handleWindowResize()
 
   $("#onc").width(OncoprintDiv.width()); //  * 0.95);
   
-  OncoprintDiv.height($("#onc").height() + 100);  // leave room for tabs above	
+  OncoprintDiv.height($("#onc").height() + 100);  // leave room for tabs above  
 
 } // handleWindowResize
 //--------------------------------------------------------------------------------------------
@@ -6388,7 +6442,6 @@ function sendSelections(event)
 
    var newMsg = {cmd: cmd,  callback: "", status: "request", payload: payload};
 
-      // restore default (informational) title of the menu
    sendSelectionsMenu.val(sendSelectionsMenuTitle);
 
    hub.send(JSON.stringify(newMsg));
@@ -6401,141 +6454,146 @@ function handleSelections(msg)
    hub.raiseTab(thisModulesOutermostDiv);   //var msgAsString = JSON.stringify(msg.payload);
    
    var ids = msg.payload.value;
-   
-   if(typeof(ids) == "string")
-      ids = [ids];
-   
-   console.log("Oncoprint module, " + msg.cmd + " patients and markers: " + ids);
+   //var testingMode = msg.testing;
+
+   console.log("******handleSelections msg.payload.value: ", ids);
+   console.log("******handleSelections ids typeof:", typeof(ids));
+   console.log("******handleSelections [ids] type: ", typeof([ids]));
+   if(Array.isArray(ids)){
+      console.log("Oncoprint module, " + msg.cmd + " patients and markers: " + ids);
+   }else{
+      console.log("Oncoprint module, " + msg.cmd + " patients and markers length" + ids);
+   }
    $("#onc").empty();
    compute_start = Date.now();
    $("#oncoprintInstructions").css("display", "none");
    $("#oncoprintControlsDiv").css("display", "block");
-
    analyzeSelectedTissues(ids);
 } // handleSelections
 //----------------------------------------------------------------------------------------------------
-function analyzeSelectedTissues(IDs)
-{		
-   $("#onc").append("Computing...");
-   console.log("Oncoprint module, hub.send 'oncoprint_data_selection' for %d IDs",
-               IDs.length);
-   if(IDs.length > 450){
-   		alert("Please choose less than 450 Nodes");
-   }else{
-	   var payload = {sampleIDs: IDs};
-	   var msg = {cmd:"oncoprint_data_selection", callback: "displayOncoprint", status: "request", 
-				  payload: payload};
-	   console.log("msg cmd, call back, status, payload: %s,%s,%s,%s", msg.cmd, msg.callback, msg.status, msg.payload.sampleIDs );
-	   hub.send(JSON.stringify(msg));
-	}
+function postStatus(msg)
+{
+  statusDiv.text(msg);
 
+} // postStatus
+//----------------------------------------------------------------------------------------------------
+function analyzeSelectedTissues(IDs)
+{   
+   $("#onc").append("Computing...");
+   $("#errorMessage2").empty();
+   var payload;
+   var msg;
+   if(Array.isArray(IDs)){ 
+     console.log("Oncoprint module, hub.send 'oncoprint_data_selection' for %d IDs",
+                 IDs.length);
+     //if(IDs.length > 350 && testingMode !== "testing"){
+     if(IDs.length > 350){
+        $("#errorMessage2").text("Please choose less than 350 Nodes");
+        $("#errorMessage2").dialog();
+        postStatus("msg.status is error.");
+        $("#oncoprintInstructions").css("display", "block");
+        $("#oncoprintControlsDiv").css("display", "none");
+        $("#onc").empty();
+        postStatus("too many nodes selected");
+     }else{
+          payload = {sampleIDs: IDs};
+          msg = {cmd:"oncoprint_data_selection", callback: "displayOncoprint", status: "request", 
+            payload: payload};
+          hub.send(JSON.stringify(msg));
+    }   
+   }else{
+     console.log("Oncoprint module, hub.send 'oncoprint_data_selection' for %d IDs",
+                 IDs);
+     if(IDs > 350){  
+        $("#errorMessage2").text("Please choose less than 350 Nodes");
+        $("#errorMessage2").dialog();
+        postStatus("msg.status is error.");
+        $("#oncoprintInstructions").css("display", "block");
+        $("#oncoprintControlsDiv").css("display", "none");
+        $("#onc").empty();
+        postStatus("too many nodes selected");
+     }else{
+          payload = {sampleIDs: IDs};
+          msg = {cmd:"oncoprint_data_selection", callback: "displayOncoprint", status: "request", 
+            payload: payload};
+         hub.send(JSON.stringify(msg));
+       }     
+    } 
 } // analyzeSelectedTissues
 //----------------------------------------------------------------------------------------------------
 function displayOncoprint(msg)
 {
    $("#onc").empty();
+   $("#errorMessage1").empty();
    console.log("entering displayOncoprint");
    
-   console.log("displayOncoprint print recieved msg.payload: %s", msg.payload);
+   //console.log("displayOncoprint print recieved msg.payload: %s", msg.payload);
    
-   if(msg.status == "error") {
-   		alert(msg.payload);
-   		$("#onc").empty();
+   if(msg.status === "error") {
+      var errorMessage = JSON.parse(msg.payload);
+      console.log("***** displayOncoprint error section, msg.payload is ", errorMessage);
+      $("#errorMessage1").text(errorMessage);
+      $("#errorMessage1").dialog();
+      $("#oncoprintInstructions").css("display", "block");
+      $("#oncoprintControlsDiv").css("display", "none");  
+      $("#onc").empty();
+      postStatus("msg.status is error.");
    }else{
-	    /*cnv_data_promise = xx[0];
-	    mrna_data_promise = xx[1];
-	    mut_data_promise = xx[2];*/
-	   xx = JSON.parse(msg.payload);
-	   console.log("displayOncoprint print recieved genes: %s",xx[1]);
-	   genes = xx[1];
-       processed_data = JSON.parse(xx[0]);
-       var then = Date.now(); 
-	   onc = Oncoprint.create('#onc', {cell_padding: cell_padding, cell_width: cell_width});
-       console.log("Milliseconds to create Oncoprint div: ", Date.now() - then)
-	   
-	  
-	   onc.suppressRendering();
+     xx = JSON.parse(msg.payload);
+     console.log("displayOncoprint print recieved genes: %s",xx[1]);
+     genes = xx[1];
+     processed_data = JSON.parse(xx[0]);
+     console.log("*****no error report but the processed_data is: ", processed_data);
+     var then = Date.now(); 
+     onc = Oncoprint.create('#onc', {cell_padding: cell_padding, cell_width: cell_width});
+       console.log("Milliseconds to create Oncoprint div: ", Date.now() - then); 
+     onc.suppressRendering();
        
-	  /*map_cnv_data(cnv_data_promise);
-   	   map_mrna_data(mrna_data_promise, cnv_data);
-   	   map_mut_data(mut_data_promise, mrna_data);*/	
-   		
- 		var startGenes = Date.now(); 
-				
-		$.when(processed_data).then(function() {
+     var startGenes = Date.now(); 
+        
+     $.when(processed_data).then(function() {
 
-		   if(typeof(genes) === "string"){
-				genes = [genes]
-		   }	
-			tracks_to_load = genes.length;
-			console.log("Number of tracks to load: ", tracks_to_load);
+        if(typeof(genes) === "string"){
+          genes = [genes];
+         }  
+        tracks_to_load = genes.length;
+        console.log("Number of tracks to load: ", tracks_to_load);
 
-			var track_id = [];
-			for(i = 0; i < genes.length; i++){
-				var thisGeneStart = Date.now();
-				gene = genes[i];
-	
-				var data_gene = processed_data.filter(function(obj){return obj.gene === gene}); 
+        var track_id = [];
+        for(i = 0; i < genes.length; i++){
+          var thisGeneStart = Date.now();
+          gene = genes[i];
+    
+          var data_gene = processed_data.filter(data_gene_map); 
 
-				var addTrackStart = Date.now()
-				track_id[i] = onc.addTrack({label: gene, removable:true}, 0);
-				console.log("Milliseconds to addTrack ", gene, " : ", Date.now() - addTrackStart)
+          var addTrackStart = Date.now();
+          track_id[i] = onc.addTrack({label: gene, removable:true}, 0);
+          console.log("Milliseconds to addTrack ", gene, " : ", Date.now() - addTrackStart);
 
-				if(i == 0){
-					onc.setRuleSet(track_id[i], Oncoprint.GENETIC_ALTERATION);
-				}else{
-					onc.useSameRuleSet(track_id[i], track_id[0]);
-				}
+          if(i === 0){
+            onc.setRuleSet(track_id[i], Oncoprint.GENETIC_ALTERATION);
+          }else{
+            onc.useSameRuleSet(track_id[i], track_id[0]);
+          }
 
-				onc.setTrackData(track_id[i], data_gene, true);
+          onc.setTrackData(track_id[i], data_gene, true);
 
-			}
-			
-			onc.releaseRendering();
-			onc.sort();
-		console.log("Milliseconds to step through processded_data ", Date.now() - startGenes)
-		})
-
-
-	}
+        }
+        
+      onc.releaseRendering();
+      onc.sort();
+      console.log("Milliseconds to step through processded_data ", Date.now() - startGenes);
+    });    
+    postStatus("oncoprint is displayed");
+  }
    console.log("#######Computing since msg sent took: " + (Date.now() - compute_start) + " milliseconds"); 
+   
 } // displaySurvivalCurves
 //----------------------------------------------------------------------------------------------------
-function map_cnv_data(data){
-				cnv_data = _.map(data, function(x) {
-							if(x.value == 2) x.cna='AMPLIFIED';
-							if(x.value == 1) x.cna='GAINED';
-							if(x.value == -1) x.cna='HEMIZYGOUSLYDELETED'; 
-							if(x.value == -2) x.cna='HOMODELETED'; 
-							//if(x.value != "") x.mut_type='MISSENSE';
-							x.patient = x.sample; return x; })
-	   }
-function map_mrna_data(mrna_promise, data){
-				mrna_data = _.map(data, function(x) {
-								single_sample = x.sample;
-								single_gene = x.gene;
-								y = mrna_data_promise.filter(function (obj) {
-										return (obj.sample == single_sample && obj.gene == single_gene);});
-								if(y.length != 0){
-									if(y[0].value > 2) x.mrna='UPREGULATED';
-									if(y[0].value < -2) x.mrna='DOWNREGULATED';
-									x.patient = x.sample; return x;
-								}else{ return x;} 
-							})
-	   }
-//---------------------------------------------------------------------------------------	   
-function map_mut_data(mut_promise, data){
-				mut_data = _.map(data, function(x) {
-								single_sample = x.sample;
-								single_gene = x.gene;
-								y = mut_data_promise.filter(function (obj) {
-										return (obj.sample == single_sample && obj.gene == single_gene);});
-								if(y.length != 0){
-									if(y[0].value != "") x.mut_type='MISSENSE';
-									x.patient = x.sample; return x;
-								}else{ return x;} 
-							})
-	   }
+function data_gene_map(obj) {
+  return obj.gene === gene;
+}
+
 //-------------------------------------------------------------------------------------------
 // when a dataset is specified, this module 
 //  1) extracts the name of the dataset from the payload of the incoming msg
@@ -6551,18 +6609,9 @@ function datasetSpecified(msg)
    $("#oncoprintInstructions").css("display", "block");
    $("#oncoprintControlsDiv").css("display", "none");
    $("#onc").empty();
+   postStatus("dataset specified");
 } // datasetSpecified
 //--------------------------------------------------------------------------------------------
-/*function initializeModule()
-{
-   hub.registerSelectionDestination(selectionDestinations, thisModulesOutermostDiv);
-   hub.addOnDocumentReadyFunction(initializeUI);
-   hub.addMessageHandler("sendSelectionTo_Oncoprint", handleSelections);
-   hub.addMessageHandler("displayOncoprint", displayOncoprint);
-   hub.addMessageHandler("datasetSpecified", datasetSpecified);
-
-}*/ // initializeModule
-//----------------------------------------------------------------------------------------------------
 function demoPatientSet()
 {
    var longSurvivors = ["TCGA.06.6693", "TCGA.12.1088", "TCGA.02.0113", "TCGA.02.0114", "TCGA.08.0344"];
@@ -6583,19 +6632,17 @@ function demoPatientSet()
 
 } // demoPatientSet
 //----------------------------------------------------------------------------------------------------
-function sat(maxReps)
-{
-
-} // sat
-//----------------------------------------------------------------------------------------------------
 return{
    init: function(){
-	      hub.registerSelectionDestination(selectionDestinations, thisModulesOutermostDiv);
-	  	  hub.addOnDocumentReadyFunction(initializeUI);
-	  	  hub.addMessageHandler("datasetSpecified", datasetSpecified);
-	   	  hub.addMessageHandler("sendSelectionTo_Oncoprint", handleSelections);
-	   	  hub.addMessageHandler("displayOncoprint", displayOncoprint);
+        hub.registerSelectionDestination(selectionDestinations, thisModulesOutermostDiv);
+        hub.addOnDocumentReadyFunction(initializeUI);
+        hub.addMessageHandler("datasetSpecified", datasetSpecified);
+        hub.addMessageHandler("sendSelectionTo_Oncoprint", handleSelections);
+        hub.addMessageHandler("displayOncoprint", displayOncoprint);
       },
+    genes: function(){
+       return genes;
+    }
 }; // OncoprintTabModule return value
 
 //----------------------------------------------------------------------------------------------------
@@ -6603,299 +6650,6 @@ return{
 
 OncoprintM = OncoprintModule();
 OncoprintM.init();
-
-
-=======
->>>>>>> Stashed changes
-//----------------------------------------------------------------------------------------------------
-var OncoprintModule = (function () {
-
-  var sendSelectionsMenu;
-
-  var thisModulesName = "Oncoprint";
-  var thisModulesOutermostDiv = "oncoprintDiv";
-
-  var sendSelectionsMenuTitle = "Send selection...";
-
-      // sometimes a module offers multiple selection destinations
-      // but usually just the one entry point
-  var selectionDestinations = [thisModulesName];
-      // make sure to register, eg,
-      // hub.addMessageHandler("sendSelectionTo_blankTab", handleSelections);
-  var onc;
-  var cell_padding = 3;
-  var cell_width = 4;
-  var whitespace_on = true;
-//  var track_id = [];
-  var cnv_data,mnra_data,mut_data, cnv_data_promise,mrna_data_promise,mut_data_promise;
-  var OncoprintDiv = $("#oncoprintDiv");
-  var ControlsDiv = $("#oncoprintControlsDiv");
-  var compute_start;
-//--------------------------------------------------------------------------------------------
-function initializeUI()
-{
-  $(window).resize(handleWindowResize);
-
-  sendSelectionsMenu = hub.configureSendSelectionMenu("#oncoprintSendSelectionsMenu", 
-                                                      selectionDestinations, 
-                                                      sendSelections,
-                                                      sendSelectionsMenuTitle);
-  $("#oncoprintControlsDiv").css("display", "none");
-  $('#toggle_whitespace').click(function() {
-	onc.toggleCellPadding();
-	});
-  var z = 1;
-  $('#reduce_cell_width').click(function() {
-	z *= 0.5;
-	onc.setZoom(z);
-	});
-  
-  handleWindowResize();
-  hub.disableTab(thisModulesOutermostDiv);
-} // initializeUI
-//----------------------------------------------------------------------------------------------------
-function handleWindowResize()
-{
-  OncoprintDiv.width($(window).width() * 0.95);
-  
-  ControlsDiv.width(OncoprintDiv.width()); //  * 0.95);
-  ControlsDiv.height("100px");
-
-  $("#onc").width(OncoprintDiv.width()); //  * 0.95);
-  
-  OncoprintDiv.height($("#onc").height() + 100);  // leave room for tabs above	
-
-} // handleWindowResize
-//--------------------------------------------------------------------------------------------
-function sendSelections(event)
-{
-   var destination = sendSelectionsMenu.val();
-
-   var cmd = "sendSelectionTo_" + destination;
-   var dummySelections = ["dummy selection 1", "dummy selection 2"];
-
-   payload = {value: dummySelections, count: dummySelections.length, 
-             source: thisModulesName};
-
-   var newMsg = {cmd: cmd,  callback: "", status: "request", payload: payload};
-
-      // restore default (informational) title of the menu
-   sendSelectionsMenu.val(sendSelectionsMenuTitle);
-
-   hub.send(JSON.stringify(newMsg));
-
-} // sendSelections
-//----------------------------------------------------------------------------------------------------
-function handleSelections(msg)
-{
-   hub.enableTab(thisModulesOutermostDiv);
-   hub.raiseTab(thisModulesOutermostDiv);   //var msgAsString = JSON.stringify(msg.payload);
-   
-   var ids = msg.payload.value;
-   
-   if(typeof(ids) == "string")
-      ids = [ids];
-   
-   console.log("Oncoprint module, " + msg.cmd + " patients and markers: " + ids);
-   $("#onc").empty();
-   compute_start = Date.now();
-   $("#oncoprintInstructions").css("display", "none");
-   $("#oncoprintControlsDiv").css("display", "block");
-
-   analyzeSelectedTissues(ids);
-} // handleSelections
-//----------------------------------------------------------------------------------------------------
-function analyzeSelectedTissues(IDs)
-{		
-   $("#onc").append("Computing...");
-   console.log("Oncoprint module, hub.send 'oncoprint_data_selection' for %d IDs",
-               IDs.length);
-   if(IDs.length > 450){
-   		alert("Please choose less than 450 Nodes");
-   }else{
-	   var payload = {sampleIDs: IDs};
-	   var msg = {cmd:"oncoprint_data_selection", callback: "displayOncoprint", status: "request", 
-				  payload: payload};
-	   console.log("msg cmd, call back, status, payload: %s,%s,%s,%s", msg.cmd, msg.callback, msg.status, msg.payload.sampleIDs );
-	   hub.send(JSON.stringify(msg));
-	}
-
-} // analyzeSelectedTissues
-//----------------------------------------------------------------------------------------------------
-function displayOncoprint(msg)
-{
-   $("#onc").empty();
-   console.log("entering displayOncoprint");
-   
-   console.log("displayOncoprint print recieved msg.payload: %s", msg.payload);
-   
-   if(msg.status == "error") {
-   		alert(msg.payload);
-   		$("#onc").empty();
-   }else{
-	    /*cnv_data_promise = xx[0];
-	    mrna_data_promise = xx[1];
-	    mut_data_promise = xx[2];*/
-	   xx = JSON.parse(msg.payload);
-	   console.log("displayOncoprint print recieved genes: %s",xx[1]);
-	   genes = xx[1];
-       processed_data = JSON.parse(xx[0]);
-       var then = Date.now(); 
-	   onc = Oncoprint.create('#onc', {cell_padding: cell_padding, cell_width: cell_width});
-       console.log("Milliseconds to create Oncoprint div: ", Date.now() - then)
-	   
-	  
-	   onc.suppressRendering();
-       
-	  /*map_cnv_data(cnv_data_promise);
-   	   map_mrna_data(mrna_data_promise, cnv_data);
-   	   map_mut_data(mut_data_promise, mrna_data);*/	
-   		
- 		var startGenes = Date.now(); 
-				
-		$.when(processed_data).then(function() {
-
-		   if(typeof(genes) === "string"){
-				genes = [genes]
-		   }	
-			tracks_to_load = genes.length;
-			console.log("Number of tracks to load: ", tracks_to_load);
-
-			var track_id = [];
-			for(i = 0; i < genes.length; i++){
-				var thisGeneStart = Date.now();
-				gene = genes[i];
-	
-				var data_gene = processed_data.filter(function(obj){return obj.gene === gene}); 
-
-				var addTrackStart = Date.now()
-				track_id[i] = onc.addTrack({label: gene, removable:true}, 0);
-				console.log("Milliseconds to addTrack ", gene, " : ", Date.now() - addTrackStart)
-
-				if(i == 0){
-					onc.setRuleSet(track_id[i], Oncoprint.GENETIC_ALTERATION);
-				}else{
-					onc.useSameRuleSet(track_id[i], track_id[0]);
-				}
-
-				onc.setTrackData(track_id[i], data_gene, true);
-
-			}
-			
-			onc.releaseRendering();
-			onc.sort();
-		console.log("Milliseconds to step through processded_data ", Date.now() - startGenes)
-		})
-
-
-	}
-   console.log("#######Computing since msg sent took: " + (Date.now() - compute_start) + " milliseconds"); 
-} // displaySurvivalCurves
-//----------------------------------------------------------------------------------------------------
-function map_cnv_data(data){
-				cnv_data = _.map(data, function(x) {
-							if(x.value == 2) x.cna='AMPLIFIED';
-							if(x.value == 1) x.cna='GAINED';
-							if(x.value == -1) x.cna='HEMIZYGOUSLYDELETED'; 
-							if(x.value == -2) x.cna='HOMODELETED'; 
-							//if(x.value != "") x.mut_type='MISSENSE';
-							x.patient = x.sample; return x; })
-	   }
-function map_mrna_data(mrna_promise, data){
-				mrna_data = _.map(data, function(x) {
-								single_sample = x.sample;
-								single_gene = x.gene;
-								y = mrna_data_promise.filter(function (obj) {
-										return (obj.sample == single_sample && obj.gene == single_gene);});
-								if(y.length != 0){
-									if(y[0].value > 2) x.mrna='UPREGULATED';
-									if(y[0].value < -2) x.mrna='DOWNREGULATED';
-									x.patient = x.sample; return x;
-								}else{ return x;} 
-							})
-	   }
-//---------------------------------------------------------------------------------------	   
-function map_mut_data(mut_promise, data){
-				mut_data = _.map(data, function(x) {
-								single_sample = x.sample;
-								single_gene = x.gene;
-								y = mut_data_promise.filter(function (obj) {
-										return (obj.sample == single_sample && obj.gene == single_gene);});
-								if(y.length != 0){
-									if(y[0].value != "") x.mut_type='MISSENSE';
-									x.patient = x.sample; return x;
-								}else{ return x;} 
-							})
-	   }
-//-------------------------------------------------------------------------------------------
-// when a dataset is specified, this module 
-//  1) extracts the name of the dataset from the payload of the incoming msg
-//  2) (for now) extracts the name of the matrices, from the manifest (also in the payload
-//     of the incoming msg, chooses the first mtx.mrna entry it finds
-//  3) sends a "createPLSR" message to the server, with dataset & matrix name specified
-//  4) asks that the server, upon successful completion of that createPLSR request, callback
-//     here so that the sliders can be set
-function datasetSpecified(msg)
-{
-   console.log("--- Module.oncoprint, datasetSpecified: " + msg.payload);
-   hub.enableTab(thisModulesOutermostDiv);
-   $("#oncoprintInstructions").css("display", "block");
-   $("#oncoprintControlsDiv").css("display", "none");
-   $("#onc").empty();
-} // datasetSpecified
-//--------------------------------------------------------------------------------------------
-/*function initializeModule()
-{
-   hub.registerSelectionDestination(selectionDestinations, thisModulesOutermostDiv);
-   hub.addOnDocumentReadyFunction(initializeUI);
-   hub.addMessageHandler("sendSelectionTo_Oncoprint", handleSelections);
-   hub.addMessageHandler("displayOncoprint", displayOncoprint);
-   hub.addMessageHandler("datasetSpecified", datasetSpecified);
-
-}*/ // initializeModule
-//----------------------------------------------------------------------------------------------------
-function demoPatientSet()
-{
-   var longSurvivors = ["TCGA.06.6693", "TCGA.12.1088", "TCGA.02.0113", "TCGA.02.0114", "TCGA.08.0344"];
-
-   var firstFortyGbmPatients = ["TCGA.02.0001", "TCGA.02.0003", "TCGA.02.0006", "TCGA.02.0007",
-                                "TCGA.02.0009", "TCGA.02.0010", "TCGA.02.0011", "TCGA.02.0014",
-                                "TCGA.02.0021", "TCGA.02.0024", "TCGA.02.0027", "TCGA.02.0028",
-                                "TCGA.02.0033", "TCGA.02.0034", "TCGA.02.0037", "TCGA.02.0038",
-                                "TCGA.02.0043", "TCGA.02.0046", "TCGA.02.0047", "TCGA.02.0052",
-                                "TCGA.02.0054", "TCGA.02.0055", "TCGA.02.0057", "TCGA.02.0058",
-                                "TCGA.02.0060", "TCGA.06.0875", "TCGA.06.0876", "TCGA.06.0877",
-                                "TCGA.06.0878", "TCGA.06.0879", "TCGA.06.0881", "TCGA.06.0882",
-                                "TCGA.12.0670", "TCGA.12.0818", "TCGA.12.0819", "TCGA.12.0820",
-                                "TCGA.12.0821", "TCGA.12.0822", "TCGA.12.0826", "TCGA.12.0827"];
-
-   firstFortyGbmPatients.push(longSurvivors);
-   return (firstFortyGbmPatients);
-
-} // demoPatientSet
-//----------------------------------------------------------------------------------------------------
-function sat(maxReps)
-{
-
-} // sat
-//----------------------------------------------------------------------------------------------------
-return{
-   init: function(){
-	      hub.registerSelectionDestination(selectionDestinations, thisModulesOutermostDiv);
-	  	  hub.addOnDocumentReadyFunction(initializeUI);
-	  	  hub.addMessageHandler("datasetSpecified", datasetSpecified);
-	   	  hub.addMessageHandler("sendSelectionTo_Oncoprint", handleSelections);
-	   	  hub.addMessageHandler("displayOncoprint", displayOncoprint);
-      },
-}; // OncoprintTabModule return value
-
-//----------------------------------------------------------------------------------------------------
-}); // OncoprintTabModule
-
-OncoprintM = OncoprintModule();
-OncoprintM.init();
-
-
 //----------------------------------------------------------------------------------------------------
 var LinkoutModule = (function () {
 
@@ -7163,7 +6917,6 @@ return{
 oat = OncoscapeAppTestModule();
 oat.init();
 
-
 </script>
 
 <body>
@@ -7198,13 +6951,13 @@ ul.UserDocs {
    src="https://camo.githubusercontent.com/a6677b08c955af8400f44c6298f40e7d19cc5b2d/68747470733a2f2f73332e616d617a6f6e6177732e636f6d2f6769746875622f726962626f6e732f666f726b6d655f72696768745f677261795f3664366436642e706e67"
     alt="Fork me on GitHub" data-canonical-src="https://s3.amazonaws.com/github/ribbons/forkme_right_gray_6d6d6d.png"></a>
 <!--    	<span id="InfoLogo_pathways" style="float:right">
-          <img height="50" src="http://oncoscape.sttrcancer.org/oncoscape/images/oncoscape_thumb.png"
-          alt="Info" data-canonical-src="http://oncoscape.sttrcancer.org/oncoscape/images/oncoscape_thumb.png">
+          <img height="50" src="http://oncoscape-static.s3-website-us-west-2.amazonaws.com/images/oncoscape_thumb.png"
+          alt="Info" data-canonical-src="http://oncoscape-static.s3-website-us-west-2.amazonaws.com/images/oncoscape_thumb.png/images/oncoscape_thumb.png">
         </span>
 -->
 
    <div align="center" class="jumbotron"> 
-       <div id="oncoscapeLogo" >	<img width="375" src="http://oncoscape.sttrcancer.org/oncoscape/images/oncoscape_logo_FINAL.png" alt="Oncoscape"/></div>
+       <div id="oncoscapeLogo" >	<img width="375" src="http://oncoscape-static.s3-website-us-west-2.amazonaws.com/images/oncoscape_logo_FINAL.png" alt="Oncoscape"/></div>
 
        <span> (version 1.4.93, December 10th, 2015)<br></span>
        <p> <font color="red">This website is undergoing frequent modification.  <br> User beware!</font></p>
@@ -7303,7 +7056,6 @@ ul.UserDocs {
   <div id="dataSummaryControlsDiv">
      <span id="selectDataSetMenuLabel" style="margin-left: 20px;">Available Datasets</span>
      <select type="button" id="datasetMenu" style="margin: 5px;"><option> </option></select>
-     <button id="selectDatasetButton">Use Dataset</button>
 	 <span id="loadingDatasetMessage" style="display:none; margin-left:10px">Loading Dataset...</span>
      <select type="button" id="datasetsSendSelectionsMenu" style="float:right; margin:15px; display: none"></select>
 
@@ -7313,7 +7065,7 @@ ul.UserDocs {
 
    <div id="dataSummaryOutputDiv" style="margin: 20px;overflow-x:auto">
       <div id="datasetInstructions">Please select a dataset from the above menu.</div>
-      <table id="datasetsManifestTable" class="display" cellpadding="0" cellspacing="0" style="margin:0px; width:auto; display:none; border:none"></table>
+<!--      <table id="datasetsManifestTable" class="display" cellpadding="0" cellspacing="0" style="margin:0px; width:auto; display:none; border:none"></table>  -->
    </div>
 </div>
 
@@ -7663,10 +7415,7 @@ $("#gbmPathwaysMovieButton").click(function(){
   }
 
 </style>
-<<<<<<< Updated upstream
-=======
 
->>>>>>> Stashed changes
 
 <div id="markersAndPatientsDiv">
    <div id="markersAndTissuesControlsDiv">
@@ -7678,19 +7427,6 @@ $("#gbmPathwaysMovieButton").click(function(){
              <input type="text" id="markersSelectionCountReadout", disabled
                     title="Selected node count" style="width: 40px;"></input>
 
-<<<<<<< Updated upstream
-<div id="markersAndPatientsDiv">
-   <div id="markersAndTissuesControlsDiv">
-      <table id="markersControlsLayoutTable">
-         <tr>
-           <td style="width:25%">
-             <input type="text" id="markersAndTissuesMouseOverReadout" disabled
-                    title="Edge and node names displayed here on hover"  style="width:80%; margin-right:2px"></input>
-             <input type="text" id="markersSelectionCountReadout", disabled
-                    title="Selected node count" style="width: 40px;"></input>
-
-=======
->>>>>>> Stashed changes
            </td>
    
            <td style="width:20%">
@@ -10662,11 +10398,13 @@ window.Oncoprint = (function() {
 <div id = 'oncoprintDiv'>
 <div id="oncoprintInstructions" style="display: block">Please select and send up to 350 genes and patients from another tab, such as Markers &amp Patients, to populate the display.</div>
 <div id="oncoprintControlsDiv">  
-	<select type="button" id="oncoprintSendSelectionsMenu" style="float:right; margin:15px"></select>
+<!--	<select type="button" id="oncoprintSendSelectionsMenu" style="float:right; margin:15px"></select>  -->
 	<div id='onc'></div>
     <button id='toggle_whitespace' >Toggle Whitespace</button>
     <button id='reduce_cell_width'>Reduce Cell Width</button>
 </div>
+<div id="errorMessage1"></div>
+<div id="errorMessage2"></div>
 </div>
 
 
@@ -10674,17 +10412,16 @@ window.Oncoprint = (function() {
 
 <div id="footer-logos" style="margin-left:auto; margin-right:auto">
 	<span style="float:left; width:33%">
-	  <a href="http://www.fredhutch.org" target="_blank"><img width="235" height="80" src="http://oncoscape.sttrcancer.org/oncoscape/images/FredHutch_h_tag_4col_RBG_tm.png" alt="Fred Hutch"/></a>
+	  <a href="http://www.fredhutch.org" target="_blank"><img width="235" height="80" src="http://oncoscape-static.s3-website-us-west-2.amazonaws.com/images/FredHutch_h_tag_4col_RBG_tm.png" alt="Fred Hutch"/></a>
 	</span>
 
     <span id="githubIssues" style="float:right; margin:10px" title="GitHub Help Wanted Issues">
        <a href="https://github.com/FredHutch/Oncoscape/labels/help%20wanted" target="_blank" >
-          <img width="40" src="http://oncoscape.sttrcancer.org/oncoscape/images/GitHub-Mark-120px-plus.png"
-          alt="GitHub Issues" data-canonical-src="http://oncoscape.sttrcancer.org/oncoscape/images/GitHub-Mark-120px-plus.png"></a>
+          <img width="40" src="http://oncoscape-static.s3-website-us-west-2.amazonaws.com/images/GitHub-Mark-120px-plus.png"
+          alt="GitHub Issues" data-canonical-src="http://oncoscape-static.s3-website-us-west-2.amazonaws.com/images/GitHub-Mark-120px-plus.png"></a>
     </span>
 
 </div>
-
 <script>
 hub.hideTab("blank tab", "#blankTabDiv");
 </script>

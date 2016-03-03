@@ -1,5 +1,7 @@
 library(NetworkMaker)
 library(SttrDataPackage)
+library(org.Hs.eg.db)
+
 printf = function (...) print (noquote (sprintf (...)))
 options(stringsAsFactors=FALSE)
 
@@ -15,8 +17,13 @@ diseaseDataP <- c("TCGAbrca", "TCGAlung","TCGAluad","TCGAprad","TCGAlgg","TCGAgb
 create.and.display <- function(includeUnpositionedSamples=TRUE)
 {
    load(system.file(package="NetworkMaker", "extdata", "genesets.RData"))
-   goi <- sort(unique(genesets$tcga.GBM.classifiers, genesets$marker.genes.545))
-#	goi <- getAlteredGeneNames(netMaker)
+   goi <- sort(unique(c(genesets$tcga.GBM.classifiers, genesets$marker.genes.545)))
+   db <- org.Hs.eg.db
+   tbl <- select(db, columns=c("SYMBOL", "MAP", "CHRLOC"), keytype="SYMBOL", keys=goi)
+   goi <- unique(tbl[!is.na(tbl$MAP),"SYMBOL"]);
+   goi <- goi[-which(goi=="MAPT")]
+ 
+ #	goi <- getAlteredGeneNames(netMaker)
    gistic.scores <-c(-2, 2)
    
    #calculateSampleSimilarityMatrix(netMaker, genes=goi, copyNumberValues=gistic.scores)
@@ -54,7 +61,7 @@ create.and.display <- function(includeUnpositionedSamples=TRUE)
 
    httpSetStyle(rcy, system.file(package="NetworkMaker", "extdata", "style.js")) 
    # temporary fix, accomodating orphan genes (not mapped to chromosomes):
-
+   
    unpositioned.nodes <- names(which(!noa(g, "positioned")))
 #   selectNodes(rcy, unpositioned.nodes)
    layoutSelectionInGrid(rcy, x=-2000, y=3300, w=1400, h=400)
@@ -81,11 +88,11 @@ for(i in 1:length(diseaseAbbr)){
 	print(diseaseName)
 
 	setwd(paste("/Volumes/homes/Lisa/oncoscape/OncoGit/Oncoscape/dataPackages",dataFolderName, "inst/import/network/marker/", sep="/"))
-	filePath <- paste0("/Volumes/homes/HollandLabShared/Hamid/Oncoscape2015/", diseaseName)
+#	filePath <- paste0("/Volumes/homes/HollandLabShared/Hamid/Oncoscape2015/", diseaseName)
 
-	MDS.SNV.CNV.OV <- get(load(paste0(filePath,"/MDS.SNV.CNV.OV.RData")))
+#	MDS.SNV.CNV.OV <- get(load(paste0(filePath,"/MDS.SNV.CNV.OV.RData")))
 
-	write.table(MDS.SNV.CNV.OV, file="MDS.SNV.CNV.tsv", quote=F, sep="\t", col.names=c("x","y"))
+#	write.table(MDS.SNV.CNV.OV, file="MDS.SNV.CNV.tsv", quote=F, sep="\t", col.names=c("x","y"))
 
 	eval(parse(text=sprintf("library(%s)", dataFolderName)))
 	eval(parse(text=sprintf("dz <- %s()" , dataFolderName)))
