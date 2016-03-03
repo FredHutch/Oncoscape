@@ -1069,7 +1069,7 @@ function doSearch(e)
 function displayMarkersNetwork(msg)
 {
    console.log("--- Module.markers: displayMarkersNetwork");
-	var messageText = "Loading Network...(this may take ~10 seconds due to the number of nodes and edges, please be patient"
+	var messageText = "Loading Network...(may take 10-20 seconds)"
     var el = document.getElementById("loadingDatasetMessage");
 	el.innerHTML = messageText;
 		
