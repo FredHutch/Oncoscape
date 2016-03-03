@@ -1,0 +1,55 @@
+<section class="timelines container container-filters">
+	<h2>Timelines ({{vm.datasource}})</h2>
+	<div class="row">
+        <div class="col-xs-4" style="padding-right:20px;">
+            <label>Search</label>
+            <input type="text" class="ngrs-range-slider" style="width:100%"
+                ng-model="vm.search">
+        </div>
+  </div>
+</section>
+<section class="container-filter-toggle">
+  <img src="/assets/images/arrow_down.png" ng-click="vm.toggleFilter()">
+</section>
+<section id="timelines-chart" class="timelines container-fluid container-content">
+</section>
+
+<!-- Legand -->
+<section class="markers container-legand">
+  <ul class="legand ">
+    <li style="padding:5px;font-weight:600;">Events</li>
+
+    <li style="border:0px solid green; border-left-width:10px; padding-left:10px;margin-bottom:1px;">
+        Birth
+    </li>
+    <li style="border:0px solid red; border-left-width:10px; padding-left:10px;margin-bottom:1px;">
+        Encounter
+    </li>
+    <li style="border:0px solid #38347B; border-left-width:10px; padding-left:10px;margin-bottom:1px;">
+        Diagnosis
+    </li>
+    <li style="border:0px solid #056ce1; border-left-width:10px; padding-left:10px;margin-bottom:1px;">
+        Procedure
+    </li>
+    <li style="border:0px solid #056ce1; border-left-width:10px; padding-left:10px;margin-bottom:1px;">
+        Pathology
+    </li>
+    <li style="border:0px solid #056ce1; border-left-width:10px; padding-left:10px;margin-bottom:1px;">
+        Radiation
+    </li>
+    <li style="border:0px solid #056ce1; border-left-width:10px; padding-left:10px;margin-bottom:1px;">
+        Drug
+    </li>
+     <li style="border:0px solid #056ce1; border-left-width:10px; padding-left:10px;margin-bottom:1px;">
+        Progression
+    </li>
+    <li style="border:0px solid #056ce1; border-left-width:10px; padding-left:10px;margin-bottom:1px;">
+        Status
+    </li>
+    <li style="border:0px solid #056ce1; border-left-width:10px; padding-left:10px;margin-bottom:1px;">
+        Absent
+    </li>
+    
+    
+  </ul>
+</section>

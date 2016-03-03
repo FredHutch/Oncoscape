@@ -1,6 +1,11 @@
 # BufferStreams
 
-[![NPM version](https://badge.fury.io/js/bufferstreams.png)](https://npmjs.org/package/bufferstreams) [![Build Status](https://travis-ci.org/nfroidure/BufferStreams.png?branch=master)](https://travis-ci.org/nfroidure/BufferStreams) [![Dependency Status](https://david-dm.org/nfroidure/bufferstreams.png)](https://david-dm.org/nfroidure/bufferstreams) [![devDependency Status](https://david-dm.org/nfroidure/bufferstreams/dev-status.png)](https://david-dm.org/nfroidure/bufferstreams#info=devDependencies) [![Coverage Status](https://coveralls.io/repos/nfroidure/BufferStreams/badge.png?branch=master)](https://coveralls.io/r/nfroidure/BufferStreams?branch=master) [![Code Climate](https://codeclimate.com/github/nfroidure/BufferStreams.png)](https://codeclimate.com/github/nfroidure/BufferStreams)
+[![NPM version](https://img.shields.io/npm/v/bufferstreams.svg)](https://www.npmjs.com/package/bufferstreams)
+[![Build Status](https://travis-ci.org/nfroidure/BufferStreams.svg?branch=master)](https://travis-ci.org/nfroidure/BufferStreams)
+[![Dependency Status](https://img.shields.io/david/nfroidure/bufferstreams.svg?label=deps)](https://david-dm.org/nfroidure/bufferstreams)
+[![devDependency Status](https://img.shields.io/david/dev/nfroidure/bufferstreams.svg?label=devDeps)](https://david-dm.org/nfroidure/bufferstreams#info=devDependencies)
+[![Coverage Status](https://coveralls.io/repos/nfroidure/BufferStreams/badge.svg?branch=master)](https://coveralls.io/r/nfroidure/BufferStreams?branch=master)
+[![Code Climate](https://codeclimate.com/github/nfroidure/BufferStreams/badges/gpa.svg)](https://codeclimate.com/github/nfroidure/BufferStreams)
 
 BufferStreams abstracts streams to allow you to deal with their whole content in
  a single buffer when it becomes necessary (by example: a legacy library that

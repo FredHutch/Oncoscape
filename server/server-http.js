@@ -33,7 +33,7 @@ exports.start = function(config){
   server.get('/oncoscape/info', function (req, res) {  
     res.setHeader('access-control-allow-credentials','true');
 
-    res.setHeader('access-control-allow-origin', "http://localhost:3002");//req.headers.referer.match(/^(?:https?:\/\/)?(?:[^@\n]+@)?(?:www\.)?([^:\/\n]+)/)[0]);
+    res.setHeader('access-control-allow-origin', "http://localhost:3002");
     res.setHeader('cache-control','no-store, no-cache, must-revalidate, max-age=0');
     res.setHeader('connection','close');
     res.setHeader('content-type','application/json; charset=UTF-8');
@@ -62,35 +62,16 @@ exports.start = function(config){
         res.json({success:false});
       }
     });
-
   });
+
   server.post('/', function (req, res){
-
-    var username = req.body.username;
-    var password = req.body.password;
-    var domain = req.body.domain;
-
-    auth.login(username, password, domain, function(isValid){
-      if (isValid){
-        var token = uuid.v1();
-        res.cookie('token', token);
-        res.sendFile(__dirname + '/public/index.html');
-      }else{
-        res.sendFile(__dirname + '/public/login.html');
-      }
-    });
+    res.sendFile(__dirname + '/public/index.html');
   });
 
   server.get('/', function (req, res){
-    res.sendFile( (req.cookies.token==undefined) ?
-      __dirname + '/public/login.html' :
-      __dirname + '/public/index.html'
-    );
+    res.sendFile( __dirname + '/public/index.html' );
   });
 
-  server.get('/Login', function(req, res){
-    res.sendFile(__dirname + '/public/login.html');
-  });
 
   // Use Public Directory To Serve Static Files
   server.use(express.static('public'));

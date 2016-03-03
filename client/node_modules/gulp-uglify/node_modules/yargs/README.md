@@ -18,27 +18,27 @@ examples
 With yargs, the options be just a hash!
 -------------------------------------------------------------------
 
-plunder.js:
+xup.js:
 
 ````javascript
 #!/usr/bin/env node
 var argv = require('yargs').argv;
 
-if (argv.ships > 3 && argv.distance < 53.5) {
+if (argv.rif - 5 * argv.xup > 7.138) {
     console.log('Plunder more riffiwobbles!');
 }
 else {
-    console.log('Retreat from the xupptumblers!');
+    console.log('Drop the xupptumblers!');
 }
 ````
 
 ***
 
-    $ ./plunder.js --ships=4 --distance=22
+    $ ./xup.js --rif=55 --xup=9.52
     Plunder more riffiwobbles!
 
-    $ ./plunder.js --ships 12 --distance 98.7
-    Retreat from the xupptumblers!
+    $ ./xup.js --rif 12 --xup 8.1
+    Drop the xupptumblers!
 
 ![Joe was one optimistic pirate.](http://i.imgur.com/4WFGVJ9.png)
 
@@ -153,31 +153,31 @@ DEBUG("Extra chatty mode");
 Tell users how to use yer options and make demands.
 -------------------------------------------------
 
-area.js:
+divide.js:
 
 ````javascript
 #!/usr/bin/env node
 var argv = require('yargs')
-    .usage('Usage: $0 -w [num] -yh[num]')
-    .demand(['w','h'])
+    .usage('Usage: $0 -x [num] -y [num]')
+    .demand(['x','y'])
     .argv;
 
-console.log("The area is:", argv.w * argv.h);
+console.log(argv.x / argv.y);
 ````
 
 ***
 
-    $ ./area.js -w 55 -h 11
-    605
+    $ ./divide.js -x 55 -y 11
+    5
 
-    $ node ./area.js -w 4.91 -w 2.51
-    Usage: node ./area.js -w [num] -h [num]
+    $ node ./divide.js -x 4.91 -z 2.51
+    Usage: node ./divide.js -x [num] -y [num]
 
     Options:
-      -w  [required]
-      -h  [required]
+      -x  [required]
+      -y  [required]
 
-    Missing required arguments: h
+    Missing required arguments: y
 
 After yer demands have been met, demand more! Ask for non-hypenated arguments!
 -----------------------------------------
@@ -501,33 +501,18 @@ present script similar to how `$0` works in bash or perl.
 
 `opts` is optional and acts like calling `.options(opts)`.
 
-.command(cmd, desc, [fn])
+.command(cmd, desc)
 -------------------
 
-Document the commands exposed by your application.
+Document the commands exposed by your application (stored in the `_` variable).
 
-use `desc` to provide a description for each command your application accepts (the
-values stored in `argv._`).
-
-Optionally, you can provide a handler `fn` which will be executed when
-a given command is provided. The handler will be executed with an instance
-of `yargs`, which can be used to compose nested commands.
-
-Here's an example of top-level and nested commands in action:
+As an example, here's how the npm cli might document some of its commands:
 
 ```js
 var argv = require('yargs')
   .usage('npm <command>')
   .command('install', 'tis a mighty fine package to install')
-  .command('publish', 'shiver me timbers, should you be sharing all that', function (yargs) {
-    argv = yargs.option('f', {
-      alias: 'force',
-      description: 'yar, it usually be a bad idea'
-    })
-    .help('help')
-    .argv
-  })
-  .help('help')
+  .command('publish', 'shiver me timbers, should you be sharing all that')
   .argv;
 ```
 
@@ -595,7 +580,7 @@ regardless of whether they resemble numbers.
 ----------
 
 Tell the parser to interpret `key` as an array. If `.array('foo')` is set,
-`--foo foo bar` will be parsed as `['foo', 'bar']` rather than as `'bar'`.
+`--foo bar` will be parsed as `['bar']` rather than as `'bar'`.
 
 .nargs(key, count)
 -----------
@@ -618,9 +603,8 @@ Optionally `.nargs()` can take an object of `key`/`narg` pairs.
 .config(key)
 ------------
 
-Tells the parser that if the option specified by `key` is passed in, it
-should be interpreted as a path to a JSON config file. The file is loaded
-and parsed, and its properties are set as arguments.
+Tells the parser to interpret `key` as a path to a JSON config file. The file
+is loaded and parsed, and its properties are set as arguments.
 
 .wrap(columns)
 --------------
@@ -629,9 +613,6 @@ Format usage output to wrap at `columns` many columns.
 
 By default wrap will be set to `Math.min(80, windowWidth)`. Use `.wrap(null)` to
 specify no column limit.
-
-`yargs.wrap(yargs.terminalWidth())` can be used to maximize the width
-of yargs' usage instructions.
 
 .strict()
 ---------
@@ -706,10 +687,10 @@ var argv = require('yargs')
 
     Specify --help for available options
 
-.showHelp(consoleLevel='error')
+.showHelp(fn=console.error)
 ---------------------------
 
-Print the usage data using the [`console`](https://nodejs.org/api/console.html) function `consoleLevel` for printing.
+Print the usage data using `fn` for printing.
 
 Example:
 
@@ -717,12 +698,6 @@ Example:
 var yargs = require("yargs")
        .usage("$0 -operand1 number -operand2 number -operation [add|subtract]");
 yargs.showHelp();
-```
-
-Or, to print the usage data to `stdout` instead, you can specify the use of `console.log`:
-
-```
-yargs.showHelp("log");
 ```
 
 Later on, ```argv``` can be retrived with ```yargs.argv```

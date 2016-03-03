@@ -17,7 +17,8 @@ RUN apt-get -y -qq update && apt-get -y -qq install \
 	g++ \
 	libxml2 \
 	libxml2-dev \
-	python-pip 
+	python-pip \
+	nano
 
 RUN curl -sL https://deb.nodesource.com/setup_0.12 | bash -
 
