@@ -22,8 +22,22 @@ exports.start = function(config){
   server.use(bodyParser.urlencoded({ extended: true })); 
   server.use(cookieParser())
   server.use(function(req, res, next) { // Diable Cors
-    res.header("Access-Control-Allow-Origin", "*");
-    res.header("Access-Control-Allow-Headers", "Origin, X-Requested-With, Content-Type, Accept");
+     var oneof = false;
+    if(req.headers.origin) {
+        res.header('Access-Control-Allow-Origin', req.headers.origin);
+        oneof = true;
+    }
+    if(req.headers['access-control-request-method']) {
+        res.header('Access-Control-Allow-Methods', req.headers['access-control-request-method']);
+        oneof = true;
+    }
+    if(req.headers['access-control-request-headers']) {
+        res.header('Access-Control-Allow-Headers', req.headers['access-control-request-headers']);
+        oneof = true;
+    }
+    if(oneof) {
+        res.header('Access-Control-Max-Age', 60 * 60 * 24 * 365);
+    }
     next();
   });
 
@@ -31,9 +45,6 @@ exports.start = function(config){
   server.get('/ping', function (req, res) { res.send('ping'); });
 
   server.get('/oncoscape/info', function (req, res) {  
-    res.setHeader('access-control-allow-credentials','true');
-
-    res.setHeader('access-control-allow-origin', "http://localhost:3002");
     res.setHeader('cache-control','no-store, no-cache, must-revalidate, max-age=0');
     res.setHeader('connection','close');
     res.setHeader('content-type','application/json; charset=UTF-8');
