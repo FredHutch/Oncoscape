@@ -20,7 +20,7 @@
         }
 
         // Create Sock JS Instace
-        var socket = new SockJS('http://localhost/oncoscape/', '', {
+        var socket = new SockJS('http://'+document.domain+'/oncoscape', '', {
             'debug': true,
             'devel': true
         });
