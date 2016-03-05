@@ -1,7 +1,7 @@
-exportClasses(TCGApradClass)
+exportClasses(TCGApaadClass)
 
 export(
-   TCGAprad
+   TCGApaad
    )
 
 exportMethods(

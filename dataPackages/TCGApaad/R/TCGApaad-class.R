@@ -1,19 +1,19 @@
 #----------------------------------------------------------------------------------------------------
 printf = function (...) print (noquote (sprintf (...)))
 #----------------------------------------------------------------------------------------------------
-.TCGAprad <- setClass ("TCGApradClass", contains = "SttrDataPackageClass")
+.TCGApaad <- setClass ("TCGApaadClass", contains = "SttrDataPackageClass")
 #----------------------------------------------------------------------------------------------------
 #setGeneric('historyTable',   signature='obj', function (obj) standardGeneric ('historyTable'))
 #----------------------------------------------------------------------------------------------------
 # constructor
-#TCGAprad <- function(name="", matrices=list(), history=PatientHistory(), manifest=data.frame())
-TCGAprad <- function()
+#TCGApaad <- function(name="", matrices=list(), history=PatientHistory(), manifest=data.frame())
+TCGApaad <- function()
 {
-  dir <- system.file(package="TCGAprad", "extdata")
+  dir <- system.file(package="TCGApaad", "extdata")
   stopifnot(file.exists(dir))
   data <- SttrDataPackage:::.loadFiles(dir)
 
-  obj <- .TCGAprad(SttrDataPackage(name="TCGAprad",
+  obj <- .TCGApaad(SttrDataPackage(name="TCGApaad",
                                  matrices=data$matrices,
                                  data.frames=data$data.frames,
                                  history=data$history,
@@ -28,7 +28,7 @@ TCGAprad <- function()
 } # TCGAprad constructor
 
 #----------------------------------------------------------------------------------------------------
-setMethod('canonicalizePatientIDs', 'TCGApradClass',
+setMethod('canonicalizePatientIDs', 'TCGApaadClass',
   function (obj, patient.ids) {
   	 
      ptIDs =  gsub("(^TCGA\\.\\w\\w\\.\\w\\w\\w\\w).*","\\1", patient.ids)

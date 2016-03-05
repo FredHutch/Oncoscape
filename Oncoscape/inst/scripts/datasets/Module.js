@@ -166,9 +166,8 @@ function requestDataSetSummary(dataSetName)
 //----------------------------------------------------------------------------------------------------
 function displayDataManifest(msg)
 {
-
-	specifyCurrentDataset()
-
+   $("#datasetsManifestTable").css("display", "block");
+   $("#loadingDatasetMessage").css("display", "none");
 
    var payload = msg.payload;
    var tblColumnNames = payload.colnames;

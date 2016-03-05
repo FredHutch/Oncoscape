@@ -141,8 +141,6 @@ function initializeUI ()
    setInterval(buttonAndMenuStatusSetter, 500);
       
    hub.disableTab(thisModulesOutermostDiv);
-   $("#markersAndPatientsDiv").css("display", "none");
-
  
 } // initializeUI
 //----------------------------------------------------------------------------------------------------
@@ -1173,7 +1171,6 @@ function datasetSpecified (msg)
    var datasetName = msg.payload;
 
    hub.logEventOnServer(thisModulesName, "display markers network", "request", "");
-   $("#markersAndPatientsDiv").css("display", "block");
 
    var newMsg = {cmd: "getMarkersNetwork",  callback: "displayMarkersNetwork", status: "request", payload: datasetName};
    hub.send(JSON.stringify(newMsg));
@@ -1204,11 +1201,6 @@ function configureSampleCategorizationMenu(msg)
    
    hub.enableTab(thisModulesOutermostDiv);
    postStatus("markers network displayed");
-
-   $("#datasetsManifestTable").css("display", "block");
-   $("#loadingDatasetMessage").css("display", "none");
-
-	cwMarkers.fit(50);
 
 } // configureSampleCategorizationMenu
 //----------------------------------------------------------------------------------------------------

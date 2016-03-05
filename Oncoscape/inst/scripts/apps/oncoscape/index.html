@@ -1089,9 +1089,8 @@ function requestDataSetSummary(dataSetName)
 //----------------------------------------------------------------------------------------------------
 function displayDataManifest(msg)
 {
-
-	specifyCurrentDataset()
-
+   $("#datasetsManifestTable").css("display", "block");
+   $("#loadingDatasetMessage").css("display", "none");
 
    var payload = msg.payload;
    var tblColumnNames = payload.colnames;
@@ -2635,8 +2634,6 @@ function initializeUI ()
    setInterval(buttonAndMenuStatusSetter, 500);
       
    hub.disableTab(thisModulesOutermostDiv);
-   $("#markersAndPatientsDiv").css("display", "none");
-
  
 } // initializeUI
 //----------------------------------------------------------------------------------------------------
@@ -3563,16 +3560,17 @@ function doSearch(e)
 function displayMarkersNetwork(msg)
 {
    console.log("--- Module.markers: displayMarkersNetwork");
-	var messageText = "Loading Network..."
+	var messageText = "Loading Network...(may take 10-20 seconds)"
     var el = document.getElementById("loadingDatasetMessage");
 	el.innerHTML = messageText;
 		
    hub.logEventOnServer(thisModulesName, "display markers network", "data received", "");
   
    if(msg.status == "success"){
+         var json = JSON.parse(msg.payload);
+
    window.setTimeout(function(){
          console.log("nchar(network): " + msg.payload.length);
-         var json = JSON.parse(msg.payload);
          cwMarkers.batch(function(){
            cwMarkers.remove(cwMarkers.edges());
            cwMarkers.remove(cwMarkers.nodes());
@@ -3582,16 +3580,17 @@ function displayMarkersNetwork(msg)
            // map current node degree into a node attribute of that name
        }) 
       
-      cwMarkers.batch(function(){
-           cwMarkers.style(json.style);
-           cwMarkers.edges().hide();
-           cwMarkers.nodes().unselect();
-	  })
    }, 100);	
 
 	window.setTimeout(function(){
 		messageText ="Mapping Edges..."
 		el.innerHTML = messageText;
+
+		  cwMarkers.batch(function(){
+			   cwMarkers.style(json.style);
+			   cwMarkers.edges().hide();
+			   cwMarkers.nodes().unselect();
+		  })
         
         cwMarkers.nodes().map(function(node){node.data({degree: node.degree(), trueWidth: node.width(), trueHeight: node.height()});});
         cwMarkers.filter("edge[edgeType='chromosome']").style({"curve-style": "bezier"});
@@ -3665,7 +3664,6 @@ function datasetSpecified (msg)
    var datasetName = msg.payload;
 
    hub.logEventOnServer(thisModulesName, "display markers network", "request", "");
-   $("#markersAndPatientsDiv").css("display", "block");
 
    var newMsg = {cmd: "getMarkersNetwork",  callback: "displayMarkersNetwork", status: "request", payload: datasetName};
    hub.send(JSON.stringify(newMsg));
@@ -3696,11 +3694,6 @@ function configureSampleCategorizationMenu(msg)
    
    hub.enableTab(thisModulesOutermostDiv);
    postStatus("markers network displayed");
-
-   $("#datasetsManifestTable").css("display", "block");
-   $("#loadingDatasetMessage").css("display", "none");
-
-	cwMarkers.fit(50);
 
 } // configureSampleCategorizationMenu
 //----------------------------------------------------------------------------------------------------
@@ -7056,6 +7049,7 @@ ul.UserDocs {
   <div id="dataSummaryControlsDiv">
      <span id="selectDataSetMenuLabel" style="margin-left: 20px;">Available Datasets</span>
      <select type="button" id="datasetMenu" style="margin: 5px;"><option> </option></select>
+     <button id="selectDatasetButton">Use Dataset</button>
 	 <span id="loadingDatasetMessage" style="display:none; margin-left:10px">Loading Dataset...</span>
      <select type="button" id="datasetsSendSelectionsMenu" style="float:right; margin:15px; display: none"></select>
 
@@ -7065,7 +7059,7 @@ ul.UserDocs {
 
    <div id="dataSummaryOutputDiv" style="margin: 20px;overflow-x:auto">
       <div id="datasetInstructions">Please select a dataset from the above menu.</div>
-<!--      <table id="datasetsManifestTable" class="display" cellpadding="0" cellspacing="0" style="margin:0px; width:auto; display:none; border:none"></table>  -->
+      <table id="datasetsManifestTable" class="display" cellpadding="0" cellspacing="0" style="margin:0px; width:auto; display:none; border:none"></table>
    </div>
 </div>
 
