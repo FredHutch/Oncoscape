@@ -20,13 +20,13 @@
         return directive;
 
         /** @ngInject */
-        function FiltersController(osApi, $stateParams, d3) {
+        function FiltersController(osApi, osState, $stateParams, d3) {
 
             // View Model
             var vm = this;
             vm.datasource = $stateParams.datasource || "DEMOdz";
 
-            var data = osApi.getFilters();
+            var data = osState.getFilters();
 
             // Elements
             var elChart = angular.element("#filters-chart");

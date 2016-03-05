@@ -1,3 +1,14 @@
+# Bower + Gulp Node_modules
+server/node_modules/
+client/node_modules/
+client/bower_components/
+client/coverage/
+client/.sass-cache/
+client/.idea/
+client/.tmp/
+client/dist/
+
+
 # Logs and databases #
 ######################
 *.log
