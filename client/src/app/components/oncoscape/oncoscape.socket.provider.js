@@ -3,7 +3,6 @@
 
     angular
         .module('oncoscape')
-        .value('SockJS', window.SockJS)
         .factory('osSocket', oncoscape);
 
     /** @ngInject */

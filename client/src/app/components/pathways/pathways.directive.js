@@ -19,27 +19,27 @@
         return directive;
 
         /** @ngInject */
-        function PathwaysController(osApi, $state, $stateParams, $scope, $sce) {
+        function PathwaysController(osApi, $state, $stateParams, $scope, $sce, cytoscape) {
             var markersNetwork;
             var vm = this;
             vm.datasource = $stateParams.datasource || "DEMOdz";
             vm.toggleFilter = function(){
-                $(".container-filters").toggleClass("container-filters-collapsed");
-                $(".container-filter-toggle").toggleClass("container-filter-toggle-collapsed");
+                angular.element(".container-filters").toggleClass("container-filters-collapsed");
+                angular.element(".container-filter-toggle").toggleClass("container-filter-toggle-collapsed");
             }
             vm.search = "";
             vm.frame;
             vm.tip = null;
 
             // Elements
-            var elChart = $("#gbm-chart");
+            var elChart = angular.element("#gbm-chart");
             var csChart;
 
             $scope.$watch('vm.search', function(){
-                if (csChart === undefined) return;
+                if (angular.isUndefined(csChart)) return;
                 var term = vm.search.toUpperCase();
                 var len = term.length;
-                csChart.nodes().map( function(ele, i, eles){
+                csChart.nodes().map( function(ele){
                     if (len==0){
                         ele.unselect();
                     }
@@ -55,7 +55,7 @@
 
             // Load Datasets
             osApi.setBusy(true);
-            osApi.setDataset(vm.datasource).then(function(response) {
+            osApi.setDataset(vm.datasource).then(function() {
                 osApi.getPathway().then(function(response) {
 
                     markersNetwork = angular.fromJson(response.payload);
@@ -69,7 +69,7 @@
                         }
                     })
                     .on('select', 'node', function(e){
-                        $('#gbm-webpage').modal();
+                        angular.element('#gbm-webpage').modal();
                         var url = "http://www.genecards.org/cgi-bin/carddisp.pl?gene="+e.cyTarget.data().id;
                         $scope.$apply(function() {
                             vm.frame = $sce.trustAsResourceUrl(url);
@@ -77,7 +77,7 @@
                         
                     })
                     .on('select', 'edge', function(e) {
-                        $('#gbm-webpage').modal();
+                        angular.element('#gbm-webpage').modal();
                         var url = "http://www.ncbi.nlm.nih.gov/pubmed/?term=" + e.cyTarget.data().pmid;
                         $scope.$apply(function() {
                             vm.frame = $sce.trustAsResourceUrl(url);
@@ -98,7 +98,7 @@
                         $scope.$apply(function() {
                             vm.tip = e.cyTarget.data().name+ " Gene Card";
                         });
-                    }).on('mouseout', 'node', function(e){
+                    }).on('mouseout', 'node', function(){
                         $scope.$apply(function() {
                             vm.tip = null;
                         });
@@ -113,12 +113,9 @@
 
             function getStyle() {
                 var darkblue = 'rgb(5, 108, 225)';
-                var black = 'black';
-                var blue = 'rgb(19, 150, 222)';
                 var red = 'red';//rgb(230, 44, 28)';
                 var purple = 'rgb(56, 52,123)';
                 var green = 'green';//'rgb(56, 52,123)';//'rgb(28, 230,116)';//'green';
-                var orange = 'rgb(255, 152, 0)';
                 return [
                     {
                         'selector': 'node',

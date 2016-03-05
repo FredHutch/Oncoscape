@@ -63,12 +63,13 @@
                 .style("visibility", "hidden");
 
               var lines, circles, text;
-              
+              var xScale, yScale;
+
               function create(abs, vectors, genes){
-                try {circles.remove();}catch(e){}
-                try {lines.remove();}catch(e){}
+                if (circles) circles.remove();
+                if (lines) lines.remove();
                 var nAbs = -1.0 * abs;
-                var xScale, yScale;
+                
                 xScale = d3.scale.linear().domain([nAbs, abs]).range([0, width])
                 yScale = d3.scale.linear().domain([nAbs, abs]).range([height, 0])
                 text = svg.selectAll("text")
@@ -206,7 +207,7 @@
                 });
                 mtx = mtx[mtx.length - 1].replace(".RData", "");
                 osApi.setBusyMessage("Creating PLSR Matrix");
-                osApi.getPLSR(vm.datasource, mtx).then(function(response) {
+                osApi.getPLSR(vm.datasource, mtx).then(function() {
                     osApi.setBusyMessage("Loading Gene Sets");
                     osApi.getGeneSetNames().then(function(response) {
 
@@ -233,7 +234,6 @@
 
             // API Call To Calculate PLSR
             var update = function(animate) {
-              console.log("CALC PLSR");
                 osApi.setBusyMessage("Calculating PLSR");
                 var factors = [{
                     name: "Survival",
@@ -251,11 +251,11 @@
 
                     // Clean Up Data
                     var payload = response.payload;
-                    var genes = payload.loadings.map(function(item, index, collection) {
+                    var genes = payload.loadings.map(function(item, index) {
                       item.name = payload.loadingNames[index];
                       return item;
                     });
-                    var vectors = payload.vectors.map(function(item, index, collection) {
+                    var vectors = payload.vectors.map(function(item, index) {
                       item.name = payload.vectorNames[index];
                       return item;
                     });

@@ -26,25 +26,7 @@
             var vm = this;
             vm.datasource = $stateParams.datasource || "DEMOdz";
 
-            var data = {
-                name: vm.datasource,
-                "parent": "null",
-                "children": [{
-                    "name": "Level 2: A",
-                    "children": [{
-                        "name": "Son of A"
-                    }, {
-                        "name": "Daughter of A",
-                        "children": [{
-                            "name": "Son of A"
-                        }, {
-                            "name": "Daughter of A"
-                        }]
-                    }]
-                }, {
-                    "name": "Level 2: B"
-                }]
-            }
+            var data = osApi.getFilters();
 
             // Elements
             var elChart = angular.element("#filters-chart");

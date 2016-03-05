@@ -20,7 +20,7 @@
         return directive;
 
         /** @ngInject */
-        function MarkersController(osApi, $state, $timeout, $scope, $stateParams, cytoscape, signals, $sce) {
+        function MarkersController(osApi, $state, $timeout, $scope, $stateParams, cytoscape, signals, $window) {
 
             // Const Colors 
             var color = {
@@ -170,9 +170,7 @@
                                      'border-width': 150
                                  }
                              }, {
-                                 duration: 300,
-
-
+                                 duration: 300
                              });
                              e.cyTarget.neighborhood('node').style({
                                  'font-size': '70px'
@@ -217,8 +215,7 @@
                                 var genes = e.cyTarget.neighborhood('node').map(function( n ){  return n.data().name; }).join("+");
                                 var url = "http://www.cbioportal.org/ln?cancer_study_id="+cbioDsName+"&q="+genes;
                                 $scope.$apply(function() {
-                                    window.open(url);
-                                    //vm.frame = $sce.trustAsResourceUrl(url);
+                                    $window.open(url);
                                 });
                             }
                         });
@@ -324,7 +321,7 @@
                     chart.$('node[nodeType="patient"]').style({ 'background-color': 'rgb(19, 150, 222)' });
                     osApi.getSampleCategorization(item.name).then(function(response) {
                         vm.legandNodes = response.payload.tbl.map( function(e){ return e[0]+"|"+e[1]; }).filter( function(v, i, s) { return s.indexOf(v)===i; }).map( function(e) { var p=e.split("|"); return {'name':p[0], 'color':p[1]}});
-                        chart.$('node[nodeType="patient"]').forEach(function(ele, i, eles) {
+                        chart.$('node[nodeType="patient"]').forEach(function(ele) {
                             var id = ele.data().id;
                             for (var i = 0; i < this.rownames.length; i++) {
                                 if (id === this.rownames[i]) {
@@ -345,38 +342,37 @@
                 var value =  [
                     { 
                         name:'Default',
-                        fn: function(item){
+                        fn: function(){
                             vm.legandNodes = [{name:'Patients', color:'#3993fa'}];
                             chart.$('node[nodeType="patient"]').style({ 'background-color': 'rgb(19, 150, 222)' });
                         }
                     },
                     {
                         name: 'Gender',
-                        fn: function(item){
+                        fn: function(){
                             vm.legandNodes = [{name:'Male', color:'blue'}, {name:'Female', color:'pink'}];
-                            chart.$('node[nodeType="patient"]').forEach(function(ele, i, eles) {
-                                try{
-                                    ele.style({
+                            chart.$('node[nodeType="patient"]').forEach(function(ele) {
+                                if (ele.data().patient){
+                                     ele.style({
                                         'background-color':
                                             (ele.data().patient[2] === 'male') ? 'rgb(5, 108, 225)' :
                                             (ele.data().patient[2] === 'female') ? 'pink' : 'black'
                                     });
-                                }catch(e){ console.log(ele.data().id)}
+                                }
                             });
                         }
                     },
                     {
                         name: 'Age At Diagnosis',
-                        fn: function(item){
+                        fn: function(){
                             vm.legandNodes = [{name:'Young', color:'green'}, {name:'Old', color:'red'}];
-                            var hsv2rgb=function(a){var e,r,t=a.hue,s=a.sat,c=a.val,n=[];if(0===s)e=[c,c,c];else switch(t/=60,r=Math.floor(t),n=[c*(1-s),c*(1-s*(t-r)),c*(1-s*(1-(t-r)))],r){case 0:e=[c,n[2],n[0]];break;case 1:e=[n[1],c,n[0]];break;case 2:e=[n[0],c,n[2]];break;case 3:e=[n[0],n[1],c];break;case 4:e=[n[2],n[0],c];break;default:e=[c,n[0],n[1]]}return"#"+e.map(function(a){return("0"+Math.round(255*a).toString(16)).slice(-2)}).join("")};
-                            chart.$('node[nodeType="patient"]').forEach(function(ele, i, eles) {
-                                try{
+                            chart.$('node[nodeType="patient"]').forEach(function(ele) {
+                                if (ele.data().patient){
                                     var age = ele.data().patient[4];
                                     ele.style({
                                         'background-color': 'rgb(' + ((255 * age) / 100) + ',' + ((255 * (100 - age)) / 100) + ',0)'
                                     });
-                                }catch(e){ console.log(ele.data().id)}
+                                }
                             });
                         }
                     }
@@ -388,7 +384,7 @@
             // Edge Color Options
             var optEdgeColorsFactory = function(chart){
                 var fn = function(edgeColor){
-                    var el = $("." + edgeColor.class);
+                    var el = angular.element("." + edgeColor.class);
                     switch (edgeColor.state) {
                         case 'Visible':
                             edgeColor.state = 'Highlight';
@@ -432,7 +428,7 @@
                 ];
                 $timeout(function(){
                         value.forEach(function(item) {
-                            $("." + item.class).css("border-color", item.color);
+                            angular.element("." + item.class).css("border-color", item.color);
                             chart.$('edge[edgeType="' + item.name + '"]').style({ 'line-color': item.color, 'width': '5px' });
                         });
                     });
@@ -456,10 +452,9 @@
                         fn: function(item){
                             vm.optPatientLayout = item;
                             chart.$('node[nodeType="patient"]').forEach(function(item) {
-                                try{  // Some Genes Don't Have Cooresponding Clinical Entries
+                                if (item.data().patient){
                                     item.position({ x: 500, y: (item.data().patient[4] * 60) - 3000 });
-                                }catch(e){}
-                            
+                                }
                             });
                                 
                         }
@@ -471,13 +466,13 @@
                             var xMale   = 1000;
                             var xFemale = 1000;
                             chart.$('node[nodeType="patient"]').forEach(function(item) {
-                                 try{  // Some Genes Don't Have Cooresponding Clinical Entries
+                                 if (item.data().patient){
                                     if (item.data().patient[2].toLowerCase() == 'male') {
                                         item.position({ x: xMale -= 50, y: 500 });
                                     }else {
                                         item.position({ x: xFemale -= 50, y: -500 });
                                     }
-                                }catch(e){}
+                                }
                             });
                         }
                     }
@@ -502,7 +497,7 @@
             vm.frame;
 
             // Elements
-            var elChart = $("#markers-chart");
+            var elChart = angular.element("#markers-chart");
             var chart;
             
             // Initialize
@@ -511,14 +506,14 @@
                 markers:null
             }
             osApi.setBusy(true);
-            osApi.setDataset(vm.datasource).then(function(response) {
+            osApi.setDataset(vm.datasource).then(function() {
                 osApi.getPatientHistoryTable(vm.datasource).then(function(response) {
                     data.patient = response.payload;
                     osApi.getMarkersNetwork(response.payload).then(function(response) {
                         data.markers = angular.fromJson(response.payload);
                         data.markers.elements.nodes
                         .filter(function(item) { return item.data.nodeType === 'patient'; })
-                        .map(function(value, index, array) {
+                        .map(function(value) {
 
                             // Save Positions Of Hobo + associate With Patient Table
                             value.data.pos = { x: value.position.x, y: value.position.y };

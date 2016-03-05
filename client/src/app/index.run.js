@@ -9,7 +9,7 @@
     function runBlock($log, $rootScope) {
 
         // Actions To Take On State Change
-        $rootScope.$on('$stateChangeStart', function(event, toState, toParams, fromState, fromParams, options) {
+        $rootScope.$on('$stateChangeStart', function() {
 
             // Reset DataTable Custom Filters
             angular.element.fn.DataTable.ext.search = [];

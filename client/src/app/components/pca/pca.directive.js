@@ -27,12 +27,12 @@
             vm.geneSets = [];
             vm.geneSet = null;
             vm.toggleFilter = function(){
-                $(".container-filters").toggleClass("container-filters-collapsed");
-                $(".container-filter-toggle").toggleClass("container-filter-toggle-collapsed");
+                angular.element(".container-filters").toggleClass("container-filters-collapsed");
+                angular.element(".container-filter-toggle").toggleClass("container-filter-toggle-collapsed");
             }
 
             // Elements
-            var elChart = $("#pca-chart");
+            var elChart = angular.element("#pca-chart");
             var d3Chart = d3.select("#pca-chart");
 
             // Initalizae
@@ -43,7 +43,7 @@
 
                 mtx = mtx[mtx.length-1].replace(".RData","");
                 osApi.setBusyMessage("Creating PCA Matrix");
-                osApi.getPCA(vm.datasource, mtx).then(function(response) {
+                osApi.getPCA(vm.datasource, mtx).then(function() {
                     osApi.setBusyMessage("Loading Gene Sets");
                     osApi.getGeneSetNames().then(function(response) {
 
@@ -122,17 +122,6 @@
                     .style("visibility", "hidden")
                     .text("a simple tooltip");
 
-                var d3brush = d3.svg.brush()
-                    .x(xScale)
-                    .y(yScale)
-                    .on("brushend", function() {
-                        var currentlySelectedRegion = d3brush.extent();
-                        var x0 = currentlySelectedRegion[0][0];
-                        var x1 = currentlySelectedRegion[1][0];
-                        var width = Math.abs(x0 - x1);
-                        selectedIDs = identifyEntitiesInCurrentSelection();
-                    });
-
                 var svg = d3Chart.append("svg")
                     .attr("id", "chart")
                     .attr("width", width)
@@ -180,18 +169,17 @@
                     .data(dataset)
                     .enter()
                     .append("circle")
-                    .attr("cx", function(d, i) {
+                    .attr("cx", function(d) {
                         return xScale(d[0]);
                     })
-                    .attr("cy", function(d, i) {
+                    .attr("cy", function(d) {
                         return yScale(d[1]);
                     })
-                    .attr("r", function(d) {
+                    .attr("r", function() {
                         return 3;
                     })
                     .style("fill", "#000")
-                    .on("mouseover", function(d, i) {
-                        tooltip.text(currentIdentifiers[i]);
+                    .on("mouseover", function() {
                         return tooltip.style("visibility", "visible");
                     })
                     .on("mousemove", function() {

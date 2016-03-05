@@ -11,7 +11,6 @@
         // Functions to move during refactor
         this.setBusy = setBusy;
         this.setBusyMessage = setBusyMessage;
-        this.setIFrame = setIFrame;
         this.login = login;
         this.setDataset = setDataset;
 
@@ -39,11 +38,11 @@
         this.getCalculatedSurvivalCurves = getCalculatedSurvivalCurves;
         this.getTimelines = getTimelines;
         this.getCalculatedTimelines = getCalculatedTimelines;
-        this.getPathway = getPathway;
         this.getMrnaData = getMrnaData;
         this.getCnvData = getCnvData;
         this.getMutationData = getMutationData;
         this.getModuleModificationDate = getModuleModificationDate;
+
 
 
 
@@ -64,19 +63,17 @@
             });
         }
         
-        function setIFrame(value){
-            
-        }
+        
         function setBusy(value){
 
             if (value){
-                $(".loader-modal").show();
+                angular.element(".loader-modal").show();
             }else{
-                $(".loader-modal").hide();
+                angular.element(".loader-modal").hide();
             }
             return setBusyMessage;
         }
-        function setBusyMessage(value){
+        function setBusyMessage(){
             //console.log(value);
         }
 
@@ -87,8 +84,10 @@
                 {"name": "SCCA"}
             ];
         }
+
         function setDataset(dataPackage){
             return osSocket.request({cmd: "specifyCurrentDataset", payload: dataPackage });
+                //.then(function(){ });
         }
         function getDataSetNames() {
             return osSocket.request({cmd: "getDataSetNames"});
@@ -120,8 +119,6 @@
             // Payload is return From Set DataSource
             return osSocket.request({cmd:"getMarkersNetwork", payload:payload})
         }
-
-        function getPathway() {}
 
         function getDrugGeneInteractions() {}
 

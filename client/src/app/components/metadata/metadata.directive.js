@@ -21,7 +21,6 @@
         /** @ngInject */
         function MetadataController(osApi, $state, $timeout, $scope, $stateParams) {
 
-
             // View Model
             var vm = this;
             vm.dataset = $stateParams.datasource || "DEMOdz";
@@ -29,8 +28,8 @@
             vm.rows = [];
             vm.search = "";
             vm.toggleFilter = function(){
-                $(".container-filters").toggleClass("container-filters-collapsed");
-                $(".container-filter-toggle").toggleClass("container-filter-toggle-collapsed");
+                angular.element(".container-filters").toggleClass("container-filters-collapsed");
+                angular.element(".container-filter-toggle").toggleClass("container-filter-toggle-collapsed");
             }
 
             // Elements
@@ -42,8 +41,8 @@
                 vm.colnames= response.payload.colnames;
                 vm.rows = response.payload.mtx;
                 $timeout(function(){
-                    dtTable = $('#metadata-datatable').dataTable({
-                        "paging":   false,
+                    dtTable = angular.element('#metadata-datatable').dataTable({
+                        "paging":   false
                     });
                     $scope.$watch('vm.search', function(){
                         dtTable.api().search(vm.search).draw();
