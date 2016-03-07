@@ -3,6 +3,7 @@ options(stringsAsFactors=FALSE)
 library(RUnit)
 library(R.utils)
 library(stringr)
+library(plyr)
 
 stopifnot(file.exists("TCGA_Reference_Filenames.txt"))
 TCGAfilename<-read.table("TCGA_Reference_Filenames.txt", sep="\t", header=TRUE)
@@ -20,7 +21,7 @@ if(!interactive()){
     i<- which(TCGAfilename$study == study)
     directory <- TCGAfilename[i,"directory"]
     stopifnot(file.exists(directory))
-    loadRawFiles()
+    #loadRawFiles()
   }
   #source(paste(directory,TCGAfilename[i,"test"],sep="/"), local=TRUE)
 }
@@ -164,7 +165,7 @@ reformatDate <- function(dateString)
   format(strptime(dateString, "%Y-%m-%d"), "%m/%d/%Y")
 } # reformatDate
 #----------------------------------------------------------------------------------------------------
-parseEvents = function(patient.ids=NA)
+parseEvents <- function(patient.ids=NA)
 {
   dob.events <- lapply(patient.ids, function(id) create.DOB.record(id))
   diagnosis.events <- create.all.Diagnosis.records(patient.ids)
@@ -197,53 +198,166 @@ parseEvents = function(patient.ids=NA)
   
 } # parseEvents
 #----------------------------------------------------------------------------------------------------
-create.DOB.record <- function(patient.id)
-{
-  tbl.pt.row <- subset(RawTables[["tbl.pt"]], bcr_patient_barcode==patient.id) 
-  patient.id <- gsub("-", ".", patient.id, fixed=TRUE)
-  patient.number <- as.integer(id.map[patient.id])
-  diagnosis.year <- tbl.pt.row$initial_pathologic_dx_year
+##################################################################################
+########################         Refactoring         #############################
+##################################################################################
 
-  #from lusc
-   if(diagnosis.year == "[Not Available]"){
-      diagnosis.date = NA #typo in orginal! diangosis.date = NA
-      dob = NA
-  }else{
-    diagnosis.date <- as.Date(sprintf("%s-%s-%s", diagnosis.year, "01", "01"))
-    if(tbl.pt.row$birth_days_to == "[Not Available]"){ dob= NA
-    }else{
-      birth.offset <-   as.integer(tbl.pt.row$birth_days_to)
-      dob <- reformatDate(format(diagnosis.date + birth.offset))
-    }
+
+
+########################   Step 1: Set Classes for the fields    #################
+setClass("tcgaId");
+setAs("character","tcgaId", function(from) {
+  as.character(str_replace_all(from,"-","." )) 
+});
+#--------------------------------------------------------------------------------
+setClass("tcgaDate");
+setAs("character","tcgaDate", function(from){
+  # If 4 Year Date
+  if ( (str_length(from)==4) && !is.na(as.integer(from) ) ){
+    return(as.Date( paste(from, "-1-1", sep=""), "%Y-%d-%m"))
   }
-
-  #from lgg
-  #diagnosis.date <- as.Date(sprintf("%s-%s-%s", diagnosis.year, "01", "01"))
-  #if(tbl.pt.row$birth_days_to == "[Not Available]"){ dob= NA
-  #} else{   birth.offset <-   as.integer(tbl.pt.row$birth_days_to)
-  #dob <- reformatDate(format(diagnosis.date + birth.offset))
-  #}
-
-  race <- tbl.pt.row$race
-  ethnicity <- tbl.pt.row$ethnicity
-  gender <- tbl.pt.row$gender
-  #check
-  if(gender == "Unspecified") gender = "absent"
-  if(gender == "Unknown") gender = NA
-  if(!is.na(gender)) gender= tolower(gender)
+  return(NA)
+});
+#--------------------------------------------------------------------------------
+setClass("upperCharacter");
+setAs("character","upperCharacter", function(from){
+  toupper(from)
+});
+#--------------------------------------------------------------------------------
+rawTablesRequest <- function(study, table){
+	if(table == "DOB"){
+		return(paste(TCGAfilename[TCGAfilename$study==study,2], 
+			         TCGAfilename[TCGAfilename$study==study,3], sep="/"))
+	}
+	if(table == "Diagnosis"){
+		return(paste(TCGAfilename[TCGAfilename$study==study,2], 
+			         TCGAfilename[TCGAfilename$study==study,3], sep="/"))
+	}
+}
+#--------------------------------------------------------------------------------
+loadData <- function(uri, columns){
   
-  if(race == "Not reported") race = "absent"
-  if(race == "Unknown" || race == "[Not Available]" || race == "[Not Evaluated]" || race == "[Unknown]") race = NA
-  if(!is.na(race)) race=tolower(race)
+  # Columns :: Create List From Url
+  header <- unlist(strsplit(readLines(uri, n=1),'\t'));
   
-  if(ethnicity == "Not reported") ethnicity  = "absent"
-  if(ethnicity == "Unknown" || ethnicity == "[Not Available]" || ethnicity == "[Not Evaluated]" || ethnicity == "[Unknown]") ethnicity  = NA
-  if(!is.na(ethnicity)) ethnicity=tolower(ethnicity)
+  # Columns :: Change Names Of Columns
+  colNames <- unlist(lapply(header, function(x) {
+    for (name in names(columns)){
+      if (name==x) return(columns[[name]]$name)
+    }
+    return(x);
+  }));
   
-  return(list(PatientID=patient.id, PtNum=patient.number, study=study, Name="Birth", Fields= list(date=c(dob), gender=gender, race=race, ethnicity=ethnicity)))
+  # Columns :: Specify Data Type For Columns
+  colData <- unlist(lapply(header, function(x) {
+    for (name in names(columns)){
+      if (name==x) return(columns[[name]]$data)
+    }
+    return("NULL");
+  }));
+  
+  # Table :: Read Table From URL
+   df <- read.delim(uri,
+				    header=FALSE, 
+				    skip=3,
+				    dec=".", 
+				    strip.white=TRUE,
+				    numerals="warn.loss",
+				    col.names = colNames,
+				    colClasses = colData
+				  )
 
-} # create.DOB.record
+   df <- mDOBEthnicity(df)
+   df <- mDOBRace(df)
+}
+#--------------------------------------------------------------------------------
+ptNumMapUpdate <- function(){
+	return(data.frame(PatientID=data.DOB$PatientID, 
+		              PatientNumber=(seq(1:length(data.DOB$PatientID)))))
+}
+#--------------------------------------------------------------------------------
 
+
+
+########################     Step 2: Get Unique Values  ##########################
+uniqueEthnicity <- c()
+uniqueEthnicityPerStudy <- function(study){
+	uri <- rawTablesRequest(study, "DOB")
+	df <- loadData(uri, 
+	             list(
+				    'bcr_patient_barcode' = list(name = "PatientID", data = "tcgaId"),
+				    'gender' = list(name = "gender", data = "upperCharacter"),
+				    'ethnicity' = list(name = "ethnicity", data ="upperCharacter"),
+				    'race' = list(name = "race", data = "upperCharacter"),
+				    'initial_pathologic_dx_year' = list(name = "dxyear", data = "tcgaDate")
+				  ))
+	print(study)
+	print(unique(df$ethnicity))
+	uniqueEthnicity = unique(c(uniqueEthnicity,unique(df$ethnicity)))
+	
+} # generateFromList
+
+generateFromList <- function(x, y){
+	unique(c(uniqueEthnicityPerStudy(x), uniqueEthnicityPerStudy(y)))
+}
+# Traver through all the organ data
+studies <- TCGAfilename$study 
+
+
+
+
+Reduce(generateFromList, studies)
+generateFromList_ethnicity <- lapply(studies, uniqueEthnicityPerStudy)
+
+
+
+
+
+################################################     Step 3: Mapping Values       ################################################
+mDOBEthnicity <- function(df){
+	df$ethnicity <- mapvalues(df$ethnicity, from = c("[Not Available]","ASIAN", "BLACK OR AFRICAN AMERICAN", "WHITE"), 
+					to = c(NA,"ASIAN", "BLACK OR AFRICAN AMERICAN", "WHITE"), warn_missing = T)
+	return(df)
+}	
+#--------------------------------------------------------------------------------
+mDOBRace <- function(df){
+	df$race <- mapvalues(df$race, from = c("[Not Available]","HISPANIC OR LATINO", "NOT HISPANIC OR LATINO"), 
+							to = c(NA, "HISPANIC OR LATINO", "NOT HISPANIC OR LATINO"), warn_missing = T)
+	return(df)
+}	
+
+
+################################################     Step 4: Generate Result    ##################################################
+create.all.DOB.records <- function(study){
+	#study <- "TCGAgbm"
+	uri <- rawTablesRequest(study, "DOB")
+	data.DOB <- loadData(uri, 
+	             list(
+				    'bcr_patient_barcode' = list(name = "PatientID", data = "tcgaId"),
+				    'gender' = list(name = "gender", data = "character"),
+				    'ethnicity' = list(name = "ethnicity", data ="character"),
+				    'race' = list(name = "race", data = "character"),
+				    'initial_pathologic_dx_year' = list(name = "dxyear", data = "tcgaDate")
+				  )
+		)
+    ptNumMap <- ptNumMapUpdate()
+    result <- apply(data.DOB, 1, function(x){
+    				PatientID = getElement(x, "PatientID")
+    				PtNum = ptNumMap[ptNumMap$PatientID == PatientID,]$PatientNumber
+    				date = getElement(x, "dxyear")
+    				gender = getElement(x, "gender")
+    				race = getElement(x, "race")
+    				ethnicity = getElement(x, "ethnicity")
+    				return(list(PatientID=PatientID, PtNum=PtNum, study=study, Name="Birth", 
+    				 			Fields=list(date=date, gender=gender, race=race, ethnicity=ethnicity)))	
+    				})
+	return(result)
+}
+#--------------------------------------------------------------------------------------------------------------------------------
+
+
+#################################################    Step 5: Unit Test   #########################################################
+# use Filter function, index 479 is a good option
 
 
 
@@ -474,10 +588,10 @@ getDateDifference <- function(date1, date2, instance1=1, instance2=1){
 }
 #----------------------------------------------------------------------------------------------------
 RawTables <- loadRawFiles()
-	tcga.ids <- unique(RawTables[["tbl.pt"]]$bcr_patient_barcode)
-	id.map <- 1:length(tcga.ids)
-	fixed.ids <- gsub("-", ".", tcga.ids, fixed=TRUE)
-	names(id.map) <- fixed.ids
+tcga.ids <- unique(RawTables[["tbl.pt"]]$bcr_patient_barcode)
+id.map <- 1:length(tcga.ids)
+fixed.ids <- gsub("-", ".", tcga.ids, fixed=TRUE)
+names(id.map) <- fixed.ids
 
 ProcessedData <- run(RawTables, tcga.ids)
 runTests()
