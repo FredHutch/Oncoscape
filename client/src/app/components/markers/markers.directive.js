@@ -496,6 +496,12 @@
             vm.legandChromosomes;
             vm.frame;
 
+            // VM Event Handlers
+            vm.toggleFilter = function() {
+                angular.element(".container-filters").toggleClass("container-filters-collapsed");
+                angular.element(".container-filter-toggle").toggleClass("container-filter-toggle-collapsed");
+            }
+
             // Elements
             var elChart = angular.element("#markers-chart");
             var chart;

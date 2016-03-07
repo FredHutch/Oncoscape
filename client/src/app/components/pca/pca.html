@@ -1,7 +1,7 @@
 <section class="pca container container-filters">
-  <h2>Principal Component Analysis({{vm.datasource}})</h2>
+  <h2>Principal Component Analysis ({{vm.datasource}})</h2>
     <div class="row">
-        <div class="col-xs-4" style="padding-right:20px;margin: 10px 0 30px;">
+        <div class="col-xs-4" style="padding-right:20px;">
             <label>Gene Set</label>
             <div class="dropdown bs-dropdown">
               <button class="btn btn-default dropdown-toggle" type="button" id="dropdownMenu1" data-toggle="dropdown" aria-haspopup="true" aria-expanded="true">
@@ -14,14 +14,43 @@
               </ul>
             </div>
         </div>
+        <div class="col-xs-4" style="padding-right:20px;">
+            <label>Color Options</label>
+            <div class="dropdown bs-dropdown">
+              <button class="btn btn-default dropdown-toggle" type="button" id="dropdownMenu1" data-toggle="dropdown" aria-haspopup="true" aria-expanded="true">
+               Patients Colors
+                <span class="caret"></span>
+              </button>
+              <ul class="dropdown-menu filter-list" aria-labelledby="dropdownMenu1"
+                style="width:100%">
+                <li ng-repeat="item in vm.optNodeColors" class="radio" style="padding-left:10px">
+                  <label>
+                    <input type="radio" name="patientType" ng-click="item.fn(item);" >
+                    {{item.name}}
+                  </label>
+                </li>
+              </ul>
+            </div>
+        </div>
+        <div class="col-xs-4">
+            <label>Create Cohort</label>
+            <div class="input-group">
+              <input type="text" class="form-control" placeholder="Cohort Name" style="height:29px;"
+                ng-model="vm.cohort">
+              <span class="input-group-btn">
+                <button class="btn btn-primary" type="button"
+                    style="height:29px;"
+                    ng-click="vm.createCohort()">Go!</button>
+              </span>
+            </div>
+        </div>
     </div>
 </section>
 <section class="container-filter-toggle">
   <img src="/assets/images/arrow_down.png" ng-click="vm.toggleFilter()">
 </section>
-<section id="pca-chart" class="pca container-fluid container-content" style="margin:50px;">
+<section id="pca-chart" class="pca container-fluid" style="margin:50px 100px;height: 60vh">
 </section>
-
 
 <!-- Legand -->
 <section class="markers container-legand">

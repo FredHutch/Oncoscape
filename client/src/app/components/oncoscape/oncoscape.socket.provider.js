@@ -6,7 +6,7 @@
         .factory('osSocket', oncoscape);
 
     /** @ngInject */
-    function oncoscape(SockJS, $rootScope, $q, $log) {
+    function oncoscape(SockJS, $rootScope, $q, $log, domain) {
        
         // Object To Store Call Back Promises
         var callbacks = {};
@@ -19,7 +19,7 @@
         }
 
         // Create Sock JS Instace
-        var socket = new SockJS('http://'+document.domain+'/oncoscape', '', {
+        var socket = new SockJS('http://'+domain+'/oncoscape', '', {
             'debug': true,
             'devel': true
         });

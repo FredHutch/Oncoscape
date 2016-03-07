@@ -25,11 +25,18 @@
             // View Model
             var vm = this;
             vm.datasource = $stateParams.datasource || "DEMOdz";
+            osState.filterChange.add(function(){
+                osApi.showFilter();
+                update(root);
+            });
+            vm.close = function(){
+                osApi.hideFilter();
+            }
 
             var data = osState.getFilters();
 
             // Elements
-            var elChart = angular.element("#filters-chart");
+            // var elChart = angular.element("#filters-chart");
 
             // Size
             var margin = {
@@ -38,8 +45,8 @@
                 bottom: 30,
                 left: 40
             };
-            var width = elChart.width() - margin.left - margin.right;
-            var height = elChart.height() - margin.top - margin.bottom;
+            var width = 1000 - margin.left - margin.right;
+            var height = 250 - margin.top - margin.bottom;
             var i = 0;
 
             var tree = d3.layout.tree()
@@ -54,7 +61,7 @@
                 .attr("width", width + margin.right + margin.left)
                 .attr("height", height + margin.top + margin.bottom)
                 .append("g")
-                .attr("transform", "translate(" + margin.left + "," + margin.top + ")");
+                .attr("transform", "translate(" + ((1000/2)-100) + "," + margin.top + ")");
 
             var root = data;
             update(root);
@@ -81,6 +88,9 @@
                     .attr("class", "node")
                     .attr("transform", function(d) {
                         return "translate(" + d.y + "," + d.x + ")";
+                    })
+                    .on("click", function(){
+                        
                     });
 
                 nodeEnter.append("circle")

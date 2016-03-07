@@ -20,7 +20,7 @@
         return directive;
 
         /** @ngInject */
-        function HistoryController(osApi, $state, $timeout, $scope, $stateParams) {
+        function HistoryController(osApi, osState, $state, $timeout, $scope, $stateParams) {
 
             // View Model
             var vm = this;
@@ -35,7 +35,7 @@
             vm.toggleFilter = function(){
                 angular.element(".container-filters").toggleClass("container-filters-collapsed");
                 angular.element(".container-filter-toggle").toggleClass("container-filter-toggle-collapsed");
-            }
+            };
             vm.applyFilter = function(){
                 // Override Datatables Default Search Function - More Efficent Than Using Angular Bindings
                 angular.element.fn.DataTable.ext.search = [function( settings, data ) {
@@ -50,7 +50,15 @@
                 }];
                 dtTable.api().draw();
             };
-
+            vm.cohort;
+            vm.createCohort = function(){
+                osState.addFilter(
+                    {
+                        name:vm.cohort,
+                        fn: function(){}
+                    }
+                );
+            };
             // Elements
             var dtTable;
 

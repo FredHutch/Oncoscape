@@ -33,7 +33,11 @@
 
             // Elements
             var elChart = angular.element("#pca-chart");
-            var d3Chart = d3.select("#pca-chart");
+            var d3Chart = d3.select("#pca-chart")
+                .append("svg")
+                .attr("id", "chart");
+            var d3xAxis = d3Chart.append("g");
+            var d3yAxis = d3Chart.append("g");
 
             // Initalizae
             osApi.setBusy(true)("Loading Dataset");
@@ -65,45 +69,31 @@
                     var payload = response.payload;
                     vm.pc1 = response.payload["importance.PC1"];
                     vm.pc2 = response.payload["importance.PC2"];
-
                     draw(payload.scores)
-
                     osApi.setBusy(false);
                 });
             };
 
             // Render
             var draw = function(dataset) {
-
-                var padding = 70;
                 var width = elChart.width();
                 var height = elChart.height();
 
-                d3Chart.select("#chart").remove();
-
-                var xMax = d3.max(dataset, function(d) {
-                    return +d[0];
-                }) * 1.1;
-                var xMin = d3.min(dataset, function(d) {
-                    return +d[0];
-                }) * 1.1;
-                var yMax = d3.max(dataset, function(d) {
-                    return +d[1];
-                }) * 1.1;
-                var yMin = d3.min(dataset, function(d) {
-                    return +d[1];
-                }) * 1.1;
-
+                var max, min;
+                max = d3.max(dataset, function(d) { return +d[0]; });
+                min = d3.min(dataset, function(d) { return +d[0]; });
+                var xMax = ((Math.abs(max)>Math.abs(min)) ? max : min) * 1.2;
+                max = d3.max(dataset, function(d) { return +d[1]; });
+                min = d3.min(dataset, function(d) { return +d[1]; });
+                var yMax = ((Math.abs(max)>Math.abs(min)) ? max : min) * 1.2;
+                
                 var xScale = d3.scale.linear()
-                    .domain([xMin, xMax])
-                    .range([padding, width - padding]);
+                    .domain([-xMax, xMax])
+                    .range([0, width]);
 
                 var yScale = d3.scale.linear()
-                    .domain([yMin, yMax])
-                    .range([height - padding, padding]); // note inversion 
-
-                var xTranslationForYAxis = xScale(0);
-                var yTranslationForXAxis = yScale(0);
+                    .domain([-yMax, yMax])
+                    .range([height, 0]);
 
                 var xAxis = d3.svg.axis()
                     .scale(xScale)
@@ -115,79 +105,55 @@
                     .orient("left")
                     .ticks(5);
 
-                var tooltip = d3Chart.append("div")
-                    .attr("data-toggle", "tooltip")
-                    .style("position", "absolute")
-                    .style("z-index", "10")
-                    .style("visibility", "hidden")
-                    .text("a simple tooltip");
-
-                var svg = d3Chart.append("svg")
-                    .attr("id", "chart")
+                d3Chart
                     .attr("width", width)
                     .attr("height", height);
-                //.call(d3PlotBrush);
 
-                svg.append("g")
-                    .attr("class", "x axis")
-                    .attr("transform", "translate(0, " + yTranslationForXAxis + ")")
-                    .style({
-                        'stroke': '#1396de',
-                        'stroke-width' : '1px',
-                         'fill': 'none'
-                    })
+                
+                var circles = d3Chart.selectAll("circle").data(dataset, function(d) { return d; })
+                    circles.enter()
+                        .append("circle")
+                        .attr("cx",width*.5)
+                        .attr("cy",height*.5)
+                        .attr("r", function() { return 3; })
+                        .style("fill-opacity", "0")
+                        .transition()
+                            .duration(750)
+                            .delay(function(d, i) {
+                                return i / 300 * 500; 
+                            })
+                            .attr("cx", function(d) { return xScale(d[0]); })
+                            .attr("cy", function(d) { return yScale(d[1]); })
+                            .style("fill-opacity", 1)
+                    circles.exit()
+                        .transition()
+                            .duration(600)
+                            .delay(function(d, i) {
+                                return i / 300 * 500; 
+                            })
+                            .attr("cx",width*.5)
+                            .attr("cy",height*.5)
+                            .style("fill-opacity", "0")
+                            .remove();
+
+
+                d3xAxis
+                    .attr("class", "axis")
+                    .attr("transform", "translate(0, " + yScale(0) + ")")
                     .call(xAxis)
                     .append("text")
-                    .style({
-                        "font-size":14,
-                        'fill':'#1396de',
-                        'stroke': 'none'
-                    })
                     .text("PC1");
 
-                svg.append("g")
-                    .attr("class", "y axis")
-                    .attr("transform", "translate(" + xTranslationForYAxis + ", 0)")
-                    .style({
-                        'stroke': '#1396de',
-                        'stroke-width' : '1px',
-                         'fill': 'none'
-                    })
+                d3yAxis
+                    .attr("class", "axis")
+                    .attr("transform", "translate(" + xScale(0) + ", 0)")
                     .call(yAxis)
                     .append("text")
                     .attr("y", 10)
                     .attr("dy", ".71em")
-                     .style({
-                        'font-size':14,
-                        'fill':'#1396de',
-                        'stroke': 'none',
-                        'text-anchor': 'end'
-                    })
                     .text("PC2");
 
-                svg.append("g").selectAll("circle")
-                    .data(dataset)
-                    .enter()
-                    .append("circle")
-                    .attr("cx", function(d) {
-                        return xScale(d[0]);
-                    })
-                    .attr("cy", function(d) {
-                        return yScale(d[1]);
-                    })
-                    .attr("r", function() {
-                        return 3;
-                    })
-                    .style("fill", "#000")
-                    .on("mouseover", function() {
-                        return tooltip.style("visibility", "visible");
-                    })
-                    .on("mousemove", function() {
-                        return tooltip.style("top", (d3.event.pageY - 10) + "px").style("left", (d3.event.pageX + 10) + "px");
-                    })
-                    .on("mouseout", function() {
-                        return tooltip.style("visibility", "hidden");
-                    });
+          
             };
         }
     }

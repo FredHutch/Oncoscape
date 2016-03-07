@@ -1,11 +1,15 @@
 <section class="metadata container container-filters">
     <h2>Metadata ({{vm.dataset}})</h2>
     <div class="row">        
-        <div class="col-xs-4" style="margin: 10px 0 30px;">
+        <div class="col-xs-9" style="padding-right: 60px;">
+            {{vm.dataset}} raw data was provided by <a href="http://cancergenome.nih.gov/">The Cancer Genome Atlas</a> on MM/DD/YYY. Processing of data was conducted by the <a href="http://www.sttrcancer.org/en.html">Solid Tumor Translational Research Organization</a> in conjuntion with the <a href="http://www.fhcrc.org">Fred Hutchinson Cancer Research Center</a>, <a href="http://www.uwmedicine.org/">UW Medicine</a> and <a href="http://www.scca.org">The Seattle Cancer Care Alliance</a>. For information on variables, units and summary choices review the <a>Code Books</a>.
+        </div>
+        <div class="col-xs-3" style="margin: 10px 0 30px;">
             <label>Search</label>
             <input type="text" class="ngrs-range-slider ngrs-range-slider-no-pad" style="width:100%"
                 ng-model="vm.search">
         </div>
+
     </div>
 </section>
 <section class="container-filter-toggle">

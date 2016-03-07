@@ -1,7 +1,7 @@
 <section class="plsr container container-filters">
 	<h2>Partial Least Squares Regression ({{vm.datasource}})</h2>
     <div class="row">
-        <div class="col-xs-4" style="padding-right:20px;">
+        <div class="col-xs-3" style="padding-right:20px;">
             <label>Gene Set</label>
             <div class="dropdown bs-dropdown">
               <button class="btn btn-default dropdown-toggle" type="button" id="dropdownMenu1" data-toggle="dropdown" aria-haspopup="true" aria-expanded="true">
@@ -14,7 +14,7 @@
               </ul>
             </div>
         </div>
-        <div class="col-xs-4" style="padding-right:20px;">
+        <div class="col-xs-3" style="padding-right:20px;">
             <label>Age At Diagnosis</label>
             <div range-slider 
                 min="vm.deathMinValue" model-min="vm.deathMinFilter" 
@@ -22,13 +22,25 @@
                 show-values="true" attach-handle-values="true"
                 on-handle-up="vm.update()"></div>
         </div>
-        <div class="col-xs-4" style="padding-right:20px;">
+        <div class="col-xs-3" style="padding-right:20px;">
             <label>Survival</label>
             <div range-slider 
                 min="vm.survivalMinValue" model-min="vm.survivalMinFilter" 
                 max="vm.survivalMaxValue" model-max="vm.survivalMaxFilter" 
                 show-values="true" attach-handle-values="true"
                 on-handle-up="vm.update()"></div>
+        </div>
+        <div class="col-xs-3">
+            <label>Create Cohort</label>
+            <div class="input-group">
+              <input type="text" class="form-control" placeholder="Cohort Name" style="height:29px;"
+                ng-model="vm.cohort">
+              <span class="input-group-btn">
+                <button class="btn btn-primary" type="button"
+                    style="height:29px;"
+                    ng-click="vm.createCohort()">Go!</button>
+              </span>
+            </div>
         </div>
     </div>
 </section>
@@ -37,6 +49,20 @@
 </section>
 <section id="plsr-chart" class="plsr container-fluid container-content">
 </section>
+
+
+<div class="modal fade pathways" id="plsr-webpage" tabindex="-1" role="dialog" aria-labelledby="myModalLabel">
+  <div class="modal-dialog" role="document">
+    <div class="modal-content">
+      <div class="modal-header">
+        <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+        <h4 class="modal-title" id="myModalLabel">{{vm.tip}}</h4>
+      </div>
+      
+    <iframe class="modal-iframe" ng-src="{{vm.frame}}" />
+    </div>
+  </div>
+</div>
 
 <!-- Legand -->
 <section class="markers container-legand">

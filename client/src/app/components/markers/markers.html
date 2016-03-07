@@ -64,16 +64,18 @@
               </ul>
             </div>
         </div>
-        <div class="col-xs-3" style="padding-right:20px;">
-            <label>Search</label>
+        <div class="col-xs-3">
+            <label>Create Cohort</label>
             <div class="input-group">
-		      <input type="text" class="form-control" placeholder="Search for..."ng-model="vm.search"
-		      	style="height: 28px;margin-top: 0px !important;">
-		      <span class="input-group-btn">
-		        <button class="btn btn-default" type="button"
-		        style="height: 28px;margin-top: 0px !important;">Go</button>
-		      </span>
-    		</div>
+              <input type="text" class="form-control" placeholder="Cohort Name" style="height:29px;"
+                ng-model="vm.cohort">
+              <span class="input-group-btn">
+                <button class="btn btn-primary" type="button"
+                    style="height:29px;"
+                    ng-click="vm.createCohort()">Go!</button>
+              </span>
+            </div>
+        </div>
       </div>
   </div>
 </section>

@@ -19,7 +19,7 @@
         return directive;
 
         /** @ngInject */
-        function PlsrController(osApi, $state, $stateParams, $timeout, $scope, d3) {
+        function PlsrController(osApi, $state, $stateParams, $timeout, $scope, d3, $sce) {
 
             // View Model
             var vm = this;
@@ -30,12 +30,14 @@
             vm.survivalMaxFilter = vm.survivalMaxValue = 7;
             vm.geneSets = [];
             vm.geneSet = null;
+            vm.frame;
+            vm.tip = null;
 
             // VM Event Handlers
             vm.toggleFilter = function() {
                 angular.element(".container-filters").toggleClass("container-filters-collapsed");
                 angular.element(".container-filter-toggle").toggleClass("container-filter-toggle-collapsed");
-            }
+            };
             vm.update = function() {
                 update(true);
             };
@@ -116,6 +118,13 @@
                       return 3;
                   })
                   .style("fill", 'black')
+                  .on("click", function(d) {
+                    angular.element('#plsr-webpage').modal();
+                        var url = "http://www.genecards.org/cgi-bin/carddisp.pl?gene="+d.name;
+                        $scope.$apply(function() {
+                            vm.frame = $sce.trustAsResourceUrl(url);
+                        });
+                  })
                   .on("mouseover", function(d) {
                       var pt = d3.mouse(this);
                       tooltip
@@ -246,7 +255,6 @@
                 }];
 
                 osApi.getCalculatedPLSR(vm.geneSet, factors).then(function(response) {
-
                     osApi.setBusyMessage("Rendering PLSR");
 
                     // Clean Up Data

@@ -22,8 +22,11 @@
         return directive;
 
         /** @ngInject */
-        function HeaderController() {
-            //var vm = this;
+        function HeaderController(osApi) {
+            var vm = this;
+            vm.cohortClick = function(){
+                osApi.showFilter();
+            };
         }
     }
 

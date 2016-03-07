@@ -1,7 +1,7 @@
 <section class="history container container-filters">
 	<h2>Patient History ({{vm.datasource}})</h2>
     <div class="row">
-        <div class="col-xs-4" style="padding-right:20px;">
+        <div class="col-xs-3" style="padding-right:20px;">
             <label>Age At Death</label>
             <div range-slider 
                 min="vm.deathMinValue" model-min="vm.deathMinFilter" 
@@ -9,7 +9,7 @@
                 show-values="true" attach-handle-values="true"
                 on-handle-up="vm.applyFilter()"></div>
         </div>
-        <div class="col-xs-4" style="padding-right:20px;">
+        <div class="col-xs-3" style="padding-right:20px;">
             <label>Survival</label>
             <div range-slider 
                 min="vm.survivalMinValue" model-min="vm.survivalMinFilter" 
@@ -17,10 +17,22 @@
                 show-values="true" attach-handle-values="true"
                 on-handle-up="vm.applyFilter()"></div>
         </div>
-        <div class="col-xs-4" style="padding-right:20px;">
+        <div class="col-xs-3" style="padding-right:20px">
             <label>Search</label>
-            <input type="text" class="ngrs-range-slider" style="width:80%"
+            <input type="text" class="ngrs-range-slider" style="width: 100%;"
                 ng-model="vm.search">
+        </div>
+        <div class="col-xs-3">
+            <label>Create Cohort</label>
+            <div class="input-group">
+              <input type="text" class="form-control" placeholder="Cohort Name" style="height:29px;"
+                ng-model="vm.cohort">
+              <span class="input-group-btn">
+                <button class="btn btn-primary" type="button"
+                    style="height:29px;"
+                    ng-click="vm.createCohort()">Go!</button>
+              </span>
+            </div>
         </div>
     </div>
 </section>

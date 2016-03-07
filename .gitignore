@@ -6,7 +6,6 @@ client/coverage/
 client/.sass-cache/
 client/.idea/
 client/.tmp/
-client/dist/
 
 
 # Logs and databases #

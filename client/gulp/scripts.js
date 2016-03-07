@@ -3,6 +3,7 @@
 var path = require('path');
 var gulp = require('gulp');
 var conf = require('./conf');
+var jslint = require('gulp-jslint');
 
 var browserSync = require('browser-sync');
 

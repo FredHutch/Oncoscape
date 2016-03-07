@@ -1,13 +1,19 @@
 // Namespace
 .filters{
-	background-color:rgba(0,0,0,.9);
-	min-height:250px;
+	display:none;
 	position:absolute;
-	top:74px;
-	width:100%;
-	padding:0px 100px;
+	top:73px;
 	z-index:2000;
-	
+	width:100%;
+	.filters-tree{
+		background-color:rgba(0,0,0,.9);
+		min-height:250px;
+		
+		padding:0px 100px;
+	}
+	.close{
+
+	}
 }
 
 .node circle {

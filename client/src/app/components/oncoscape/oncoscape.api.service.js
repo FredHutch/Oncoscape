@@ -6,13 +6,19 @@
         .service('osApi', oncoscape);
 
     /** @ngInject */
-    function oncoscape(osSocket, $http) {
+    function oncoscape(osSocket, osState, $http) {
 
         // Functions to move during refactor
         this.setBusy = setBusy;
         this.setBusyMessage = setBusyMessage;
         this.login = login;
         this.setDataset = setDataset;
+        this.showFilter = function(){
+            angular.element("#filter-dropdown").slideDown();
+        }
+        this.hideFilter = function(){
+            angular.element("#filter-dropdown").slideUp();
+        }
 
         // Valid functions
         this.getDomains = getDomains;
