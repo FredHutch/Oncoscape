@@ -25,6 +25,180 @@ if(!interactive()){
   }
   #source(paste(directory,TCGAfilename[i,"test"],sep="/"), local=TRUE)
 }
+##################################################################################
+########################         Refactoring         #############################
+##################################################################################
+
+
+
+########################   Step 1: Set Classes for the fields    #################
+setClass("tcgaId");
+setAs("character","tcgaId", function(from) {
+  as.character(str_replace_all(from,"-","." )) 
+});
+#--------------------------------------------------------------------------------
+setClass("tcgaDate");
+setAs("character","tcgaDate", function(from){
+  # If 4 Year Date
+  if ( (str_length(from)==4) && !is.na(as.integer(from) ) ){
+    return(as.Date( paste(from, "-1-1", sep=""), "%Y-%d-%m"))
+  }
+  return(NA)
+});
+#--------------------------------------------------------------------------------
+setClass("upperCharacter");
+setAs("character","upperCharacter", function(from){
+  toupper(from)
+});
+#--------------------------------------------------------------------------------
+rawTablesRequest <- function(study, table){
+	if(table == "DOB" || table == "Diagnosis"){
+		return(paste(TCGAfilename[TCGAfilename$study==study,2], 
+			         TCGAfilename[TCGAfilename$study==study,3], sep="/"))
+	}
+}
+#--------------------------------------------------------------------------------
+loadData <- function(uri, columns){
+  
+  # Columns :: Create List From Url
+  header <- unlist(strsplit(readLines(uri, n=1),'\t'));
+  
+  # Columns :: Change Names Of Columns
+  colNames <- unlist(lapply(header, function(x) {
+    for (name in names(columns)){
+      if (name==x) return(columns[[name]]$name)
+    }
+    return(x);
+  }));
+  
+  # Columns :: Specify Data Type For Columns
+  colData <- unlist(lapply(header, function(x) {
+    for (name in names(columns)){
+      if (name==x) return(columns[[name]]$data)
+    }
+    return("NULL");
+  }));
+  
+  # Table :: Read Table From URL
+   df <- read.delim(uri,
+				    header=FALSE, 
+				    skip=3,
+				    dec=".", 
+				    strip.white=TRUE,
+				    numerals="warn.loss",
+				    col.names = colNames,
+				    colClasses = colData
+				  )
+   df <- mDOBEthnicity(df)
+   df <- mDOBRace(df)
+}
+#--------------------------------------------------------------------------------
+ptNumMapUpdate <- function(){
+	return(data.frame(PatientID=data.DOB$PatientID, 
+		              PatientNumber=(seq(1:length(data.DOB$PatientID)))))
+}
+#--------------------------------------------------------------------------------
+
+########################     Step 2: Get Unique Values  ##########################
+if(FALSE){
+	uniqueEthnicity <- c()
+uniqueEthnicityPerStudy <- function(study){
+	uri <- rawTablesRequest(study, "DOB")
+	df <- loadData(uri, 
+	             list(
+				    'bcr_patient_barcode' = list(name = "PatientID", data = "tcgaId"),
+				    'gender' = list(name = "gender", data = "upperCharacter"),
+				    'ethnicity' = list(name = "ethnicity", data ="upperCharacter"),
+				    'race' = list(name = "race", data = "upperCharacter"),
+				    'initial_pathologic_dx_year' = list(name = "dxyear", data = "tcgaDate")
+				  ))
+	print(study)
+	print(unique(df$ethnicity))
+	unique(df$ethnicity)
+} # generateFromList
+
+generateFromList <- function(x, y){
+	unique(c(uniqueEthnicityPerStudy(x), uniqueEthnicityPerStudy(y)))
+}
+
+# Traver through all the organ data
+studies <- TCGAfilename$study 
+
+Reduce(generateFromList, studies)
+#generateFromList_ethnicity <- lapply(studies, uniqueEthnicityPerStudy)
+}
+
+################################################     Step 3: Mapping Values       ################################################
+mDOBEthnicity <- function(df){
+	df$ethnicity <- mapvalues(df$ethnicity, from = c("[Not Available]","ASIAN", "BLACK OR AFRICAN AMERICAN", "WHITE"), 
+					to = c(NA,"ASIAN", "BLACK OR AFRICAN AMERICAN", "WHITE"), warn_missing = T)
+	return(df)
+}	
+#--------------------------------------------------------------------------------
+mDOBRace <- function(df){
+	df$race <- mapvalues(df$race, from = c("[Not Available]","HISPANIC OR LATINO", "NOT HISPANIC OR LATINO"), 
+							to = c(NA, "HISPANIC OR LATINO", "NOT HISPANIC OR LATINO"), warn_missing = T)
+	return(df)
+}
+#--------------------------------------------------------------------------------	
+
+################################################     Step 4: Generate Result    ##################################################
+create.all.DOB.records <- function(study_name){
+	#study <- "TCGAgbm"
+	uri <- rawTablesRequest(study_name, "DOB")
+	data.DOB <- loadData(uri, 
+	             list(
+				    'bcr_patient_barcode' = list(name = "PatientID", data = "tcgaId"),
+				    'gender' = list(name = "gender", data = "upperCharacter"),
+				    'ethnicity' = list(name = "ethnicity", data ="upperCharacter"),
+				    'race' = list(name = "race", data = "upperCharacter"),
+				    'initial_pathologic_dx_year' = list(name = "dxyear", data = "tcgaDate")
+				  )
+		)
+    ptNumMap <- ptNumMapUpdate()
+    result <- apply(data.DOB, 1, function(x){
+    				PatientID = getElement(x, "PatientID")
+    				PtNum = ptNumMap[ptNumMap$PatientID == PatientID,]$PatientNumber
+    				date = getElement(x, "dxyear")
+    				gender = getElement(x, "gender")
+    				race = getElement(x, "race")
+    				ethnicity = getElement(x, "ethnicity")
+    				return(list(PatientID=PatientID, PtNum=PtNum, study=study_name, Name="Birth", 
+    				 			Fields=list(date=date, gender=gender, race=race, ethnicity=ethnicity)))	
+    				})
+	#return(result)
+	print(c(study_name, dim(data.DOB), length(result)))
+}
+lapply(studies, create.all.DOB.records)
+#--------------------------------------------------------------------------------------------------------------------------------
+create.all.Diagnosis.records <- function(study_name){
+	#study <- "TCGAgbm"
+	uri <- rawTablesRequest(study_name, "Diagnosis")
+	data.Diagnosis <- loadData(uri, 
+		              list(
+					     'bcr_patient_barcode' = list(name = "PatientID", data = "tcgaId"),
+					     'tumor_tissue_site' = list(name = "disease", data ="upperCharacter"),
+					     'tissue_source_site' = list(name = "tissueSourceSiteCode", data = "upperCharacter"),
+					     'initial_pathologic_dx_year' = list(name = "dxyear", data = "tcgaDate")
+					   ))
+    ptNumMap <- ptNumMapUpdate()
+    result <- apply(data.Diagnosis, 1, function(x){
+    				PatientID = getElement(x, "PatientID")
+    				PtNum = ptNumMap[ptNumMap$PatientID == PatientID,]$PatientNumber
+    				date = getElement(x, "dxyear")
+    				disease = getElement(x, "disease")
+    				siteCode = getElement(x, "tissueSourceSiteCode")
+    				return(list(PatientID=PatientID, PtNum=PtNum, study=study_name, Name="Diagnosis", 
+    				 			Fields=list(date=date, disease=disease, siteCode=siteCode)))
+    				})
+	#return(result)
+	print(c(study_name, dim(data.Diagnosis), length(result)))
+}
+lapply(studies, create.all.Diagnosis.records)
+#--------------------------------------------------------------------------------------------------------------------------------
+
+#################################################    Step 5: Unit Test   #########################################################
+# use Filter function, index 479 is a good option
 
 #----------------------------------------------------------------------------------------------------
 loadRawFiles <- function()	{ 
@@ -198,168 +372,6 @@ parseEvents <- function(patient.ids=NA)
   
 } # parseEvents
 #----------------------------------------------------------------------------------------------------
-##################################################################################
-########################         Refactoring         #############################
-##################################################################################
-
-
-
-########################   Step 1: Set Classes for the fields    #################
-setClass("tcgaId");
-setAs("character","tcgaId", function(from) {
-  as.character(str_replace_all(from,"-","." )) 
-});
-#--------------------------------------------------------------------------------
-setClass("tcgaDate");
-setAs("character","tcgaDate", function(from){
-  # If 4 Year Date
-  if ( (str_length(from)==4) && !is.na(as.integer(from) ) ){
-    return(as.Date( paste(from, "-1-1", sep=""), "%Y-%d-%m"))
-  }
-  return(NA)
-});
-#--------------------------------------------------------------------------------
-setClass("upperCharacter");
-setAs("character","upperCharacter", function(from){
-  toupper(from)
-});
-#--------------------------------------------------------------------------------
-rawTablesRequest <- function(study, table){
-	if(table == "DOB"){
-		return(paste(TCGAfilename[TCGAfilename$study==study,2], 
-			         TCGAfilename[TCGAfilename$study==study,3], sep="/"))
-	}
-	if(table == "Diagnosis"){
-		return(paste(TCGAfilename[TCGAfilename$study==study,2], 
-			         TCGAfilename[TCGAfilename$study==study,3], sep="/"))
-	}
-}
-#--------------------------------------------------------------------------------
-loadData <- function(uri, columns){
-  
-  # Columns :: Create List From Url
-  header <- unlist(strsplit(readLines(uri, n=1),'\t'));
-  
-  # Columns :: Change Names Of Columns
-  colNames <- unlist(lapply(header, function(x) {
-    for (name in names(columns)){
-      if (name==x) return(columns[[name]]$name)
-    }
-    return(x);
-  }));
-  
-  # Columns :: Specify Data Type For Columns
-  colData <- unlist(lapply(header, function(x) {
-    for (name in names(columns)){
-      if (name==x) return(columns[[name]]$data)
-    }
-    return("NULL");
-  }));
-  
-  # Table :: Read Table From URL
-   df <- read.delim(uri,
-				    header=FALSE, 
-				    skip=3,
-				    dec=".", 
-				    strip.white=TRUE,
-				    numerals="warn.loss",
-				    col.names = colNames,
-				    colClasses = colData
-				  )
-
-   df <- mDOBEthnicity(df)
-   df <- mDOBRace(df)
-}
-#--------------------------------------------------------------------------------
-ptNumMapUpdate <- function(){
-	return(data.frame(PatientID=data.DOB$PatientID, 
-		              PatientNumber=(seq(1:length(data.DOB$PatientID)))))
-}
-#--------------------------------------------------------------------------------
-
-
-
-########################     Step 2: Get Unique Values  ##########################
-uniqueEthnicity <- c()
-uniqueEthnicityPerStudy <- function(study){
-	uri <- rawTablesRequest(study, "DOB")
-	df <- loadData(uri, 
-	             list(
-				    'bcr_patient_barcode' = list(name = "PatientID", data = "tcgaId"),
-				    'gender' = list(name = "gender", data = "upperCharacter"),
-				    'ethnicity' = list(name = "ethnicity", data ="upperCharacter"),
-				    'race' = list(name = "race", data = "upperCharacter"),
-				    'initial_pathologic_dx_year' = list(name = "dxyear", data = "tcgaDate")
-				  ))
-	print(study)
-	print(unique(df$ethnicity))
-	uniqueEthnicity = unique(c(uniqueEthnicity,unique(df$ethnicity)))
-	
-} # generateFromList
-
-generateFromList <- function(x, y){
-	unique(c(uniqueEthnicityPerStudy(x), uniqueEthnicityPerStudy(y)))
-}
-# Traver through all the organ data
-studies <- TCGAfilename$study 
-
-
-
-
-Reduce(generateFromList, studies)
-generateFromList_ethnicity <- lapply(studies, uniqueEthnicityPerStudy)
-
-
-
-
-
-################################################     Step 3: Mapping Values       ################################################
-mDOBEthnicity <- function(df){
-	df$ethnicity <- mapvalues(df$ethnicity, from = c("[Not Available]","ASIAN", "BLACK OR AFRICAN AMERICAN", "WHITE"), 
-					to = c(NA,"ASIAN", "BLACK OR AFRICAN AMERICAN", "WHITE"), warn_missing = T)
-	return(df)
-}	
-#--------------------------------------------------------------------------------
-mDOBRace <- function(df){
-	df$race <- mapvalues(df$race, from = c("[Not Available]","HISPANIC OR LATINO", "NOT HISPANIC OR LATINO"), 
-							to = c(NA, "HISPANIC OR LATINO", "NOT HISPANIC OR LATINO"), warn_missing = T)
-	return(df)
-}	
-
-
-################################################     Step 4: Generate Result    ##################################################
-create.all.DOB.records <- function(study){
-	#study <- "TCGAgbm"
-	uri <- rawTablesRequest(study, "DOB")
-	data.DOB <- loadData(uri, 
-	             list(
-				    'bcr_patient_barcode' = list(name = "PatientID", data = "tcgaId"),
-				    'gender' = list(name = "gender", data = "character"),
-				    'ethnicity' = list(name = "ethnicity", data ="character"),
-				    'race' = list(name = "race", data = "character"),
-				    'initial_pathologic_dx_year' = list(name = "dxyear", data = "tcgaDate")
-				  )
-		)
-    ptNumMap <- ptNumMapUpdate()
-    result <- apply(data.DOB, 1, function(x){
-    				PatientID = getElement(x, "PatientID")
-    				PtNum = ptNumMap[ptNumMap$PatientID == PatientID,]$PatientNumber
-    				date = getElement(x, "dxyear")
-    				gender = getElement(x, "gender")
-    				race = getElement(x, "race")
-    				ethnicity = getElement(x, "ethnicity")
-    				return(list(PatientID=PatientID, PtNum=PtNum, study=study, Name="Birth", 
-    				 			Fields=list(date=date, gender=gender, race=race, ethnicity=ethnicity)))	
-    				})
-	return(result)
-}
-#--------------------------------------------------------------------------------------------------------------------------------
-
-
-#################################################    Step 5: Unit Test   #########################################################
-# use Filter function, index 479 is a good option
-
-
 
 
 
