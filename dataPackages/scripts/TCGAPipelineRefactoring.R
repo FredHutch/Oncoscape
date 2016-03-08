@@ -80,7 +80,7 @@ loadData <- function(uri, columns){
   }));
   
   # Table :: Read Table From URL
-   df <- read.delim(uri,
+  read.delim(uri,
 				    header=FALSE, 
 				    skip=3,
 				    dec=".", 
@@ -89,8 +89,6 @@ loadData <- function(uri, columns){
 				    col.names = colNames,
 				    colClasses = colData
 				  )
-   df <- mDOBEthnicity(df)
-   df <- mDOBRace(df)
 }
 #--------------------------------------------------------------------------------
 ptNumMapUpdate <- function(){
@@ -98,45 +96,40 @@ ptNumMapUpdate <- function(){
 		              PatientNumber=(seq(1:length(data.DOB$PatientID)))))
 }
 #--------------------------------------------------------------------------------
-
 ########################     Step 2: Get Unique Values  ##########################
-if(FALSE){
-	uniqueEthnicity <- c()
-uniqueEthnicityPerStudy <- function(study){
-	uri <- rawTablesRequest(study, "DOB")
-	df <- loadData(uri, 
-	             list(
-				    'bcr_patient_barcode' = list(name = "PatientID", data = "tcgaId"),
-				    'gender' = list(name = "gender", data = "upperCharacter"),
-				    'ethnicity' = list(name = "ethnicity", data ="upperCharacter"),
-				    'race' = list(name = "race", data = "upperCharacter"),
-				    'initial_pathologic_dx_year' = list(name = "dxyear", data = "tcgaDate")
-				  ))
-	print(study)
-	print(unique(df$ethnicity))
-	unique(df$ethnicity)
-} # generateFromList
+studies <- TCGAfilename$study 
+DOB.unique.Ethnicity = c()
+DOB.unique.Race = c()
 
-generateFromList <- function(x, y){
-	unique(c(uniqueEthnicityPerStudy(x), uniqueEthnicityPerStudy(y)))
+DOB.unique.request <- function(study_name){
+  uri <- rawTablesRequest(study_name, "DOB")
+  df  <- loadData(uri, 
+               list(
+                    'bcr_patient_barcode' = list(name = "PatientID", data = "tcgaId"),
+                    'gender' = list(name = "gender", data = "upperCharacter"),
+                    'ethnicity' = list(name = "ethnicity", data ="upperCharacter"),
+                    'race' = list(name = "race", data = "upperCharacter"),
+                    'initial_pathologic_dx_year' = list(name = "dxyear", data = "tcgaDate")
+                ))
+  unique.ethnicity <- unique(df$ethnicity)
+  DOB.unique.Ethnicity <- unique(c(DOB.unique.Ethnicity, unique.ethnicity))
+  unique.race <- unique(df$race)
+  DOB.unique.Race <- unique(c(DOB.unique.Race, unique.race))
 }
 
-# Traver through all the organ data
-studies <- TCGAfilename$study 
 
 Reduce(generateFromList, studies)
-#generateFromList_ethnicity <- lapply(studies, uniqueEthnicityPerStudy)
-}
+
 
 ################################################     Step 3: Mapping Values       ################################################
-mDOBEthnicity <- function(df){
-	df$ethnicity <- mapvalues(df$ethnicity, from = c("[Not Available]","ASIAN", "BLACK OR AFRICAN AMERICAN", "WHITE"), 
+DOB.mapping.ERace <- function(df){
+	df$race <- mapvalues(df$race, from = c("[Not Available]","ASIAN", "BLACK OR AFRICAN AMERICAN", "WHITE"), 
 					to = c(NA,"ASIAN", "BLACK OR AFRICAN AMERICAN", "WHITE"), warn_missing = T)
 	return(df)
 }	
 #--------------------------------------------------------------------------------
-mDOBRace <- function(df){
-	df$race <- mapvalues(df$race, from = c("[Not Available]","HISPANIC OR LATINO", "NOT HISPANIC OR LATINO"), 
+DOB.mapping.Ethnicity <- function(df){
+	df$ethnicity <- mapvalues(df$ethnicity, from = c("[Not Available]","HISPANIC OR LATINO", "NOT HISPANIC OR LATINO"), 
 							to = c(NA, "HISPANIC OR LATINO", "NOT HISPANIC OR LATINO"), warn_missing = T)
 	return(df)
 }
@@ -155,6 +148,8 @@ create.all.DOB.records <- function(study_name){
 				    'initial_pathologic_dx_year' = list(name = "dxyear", data = "tcgaDate")
 				  )
 		)
+    data.DOB <- DOB.mapping.Ethnicity(data.DOB)
+    data.DOB <- DOB.mapping.Race(data.DOB)
     ptNumMap <- ptNumMapUpdate()
     result <- apply(data.DOB, 1, function(x){
     				PatientID = getElement(x, "PatientID")
