@@ -70,6 +70,23 @@ rawTablesRequest <- function(study, table){
 				 paste(TCGAfilename[TCGAfilename$study==study,]$directory, 
 			         TCGAfilename[TCGAfilename$study==study,]$omf, sep="/")))
 	}
+	if(table == "Status"){
+		return(c(paste(TCGAfilename[TCGAfilename$study==study,]$directory, 
+			         TCGAfilename[TCGAfilename$study==study,]$pt, sep="/"),
+
+				 ifelse(is.na(TCGAfilename[TCGAfilename$study==study,]$f1), 
+				 		NA,
+				 		paste(TCGAfilename[TCGAfilename$study==study,]$directory, 
+			         	TCGAfilename[TCGAfilename$study==study,]$f1, sep="/")),
+				 ifelse(is.na(TCGAfilename[TCGAfilename$study==study,]$f2), 
+				 		NA,
+				 		paste(TCGAfilename[TCGAfilename$study==study,]$directory, 
+			         	TCGAfilename[TCGAfilename$study==study,]$f2, sep="/")),
+				 ifelse(is.na(TCGAfilename[TCGAfilename$study==study,]$f3), 
+				 		NA,
+				 		paste(TCGAfilename[TCGAfilename$study==study,]$directory, 
+			         	TCGAfilename[TCGAfilename$study==study,]$f3, sep="/"))))
+	}
 }
 #--------------------------------------------------------------------------------
 loadData <- function(uri, columns){
@@ -112,10 +129,8 @@ ptNumMapUpdate <- function(df){
 #--------------------------------------------------------------------------------
 
 ###################     Step 2: Get Unique Values & Mapping  ####################
-
 studies <- TCGAfilename$study 
-
-#----------------------     DOB functions Start Here      ------------------------
+#----------------------     DOB functions Start Here      -----------------------
 if(DOB){
 	DOB.unique.request <- function(study_name){
 	  uri <- rawTablesRequest(study_name, "DOB")
@@ -142,18 +157,8 @@ if(DOB){
 	}
 	#--------------------------------------------------------------------------------
 	DOB.unique.values <- Reduce(DOB.unique.aggregate, lapply(studies, DOB.unique.request))
-	DOB.unique.race <- DOB.unique.values$unique.race
-	DOB.unique.ethnicity <- DOB.unique.values$unique.ethnicity
-	#[1] "WHITE"                            "BLACK OR AFRICAN AMERICAN"       
-	#[3] "ASIAN"                            "[NOT AVAILABLE]"                 
-	#[5] "AMERICAN INDIAN OR ALASKA NATIVE" "[NOT EVALUATED]"                 
-	#[7] "[UNKNOWN]"   
-
-	#[1] "NOT HISPANIC OR LATINO" "HISPANIC OR LATINO"     "[NOT AVAILABLE]"       
-	#[4] "[NOT EVALUATED]"        "[UNKNOWN]"   
-	#-------------------
 	DOB.mapping.race <- function(df){
-		from <- DOB.unique.race
+		from <- DOB.unique.values$unique.race
 		to 	 <- from 
 		to[match(c("[UNKNOWN]","[NOT AVAILABLE]","[NOT EVALUATED]"), to)] <- NA
 		df$race <- mapvalues(df$race, from = from, to = to, warn_missing = T)
@@ -161,15 +166,14 @@ if(DOB){
 	}	
 	#--------------------------------------------------------------------------------
 	DOB.mapping.ethnicity <- function(df){
-		from <- DOB.unique.ethnicity 
+		from <- DOB.unique.values$unique.ethnicity 
 		to 	 <- from 
 		to[match(c("[NOT EVALUATED]","[NOT AVAILABLE]","[UNKNOWN]"), to)] <- NA
 		df$ethnicity <- mapvalues(df$ethnicity, from = from, to = to, warn_missing = T)
 		return(df)
-	}
-	#----------------------     DOB functions End Here      --------------------------
-}
-#----------------------   Diagnosis functions Start Here   -----------------------
+	}	
+} # End of DOB Native Functions
+#----------------------   Diagnosis functions Start Here   ----------------------
 if(DIAGNOSIS){
 	Diagnosis.unique.request <- function(study_name){
 	  uri <- rawTablesRequest(study_name, "Diagnosis")
@@ -195,27 +199,7 @@ if(DIAGNOSIS){
 	}
 	#--------------------------------------------------------------------------------
 	Diagnosis.unique.values <- Reduce(Diagnosis.unique.aggregate, lapply(studies, Diagnosis.unique.request))
-	#[1] "BREAST"                 "COLON"                  "[NOT AVAILABLE]"       
-	#[4] "BRAIN"                  "HEAD AND NECK"          "CENTRAL NERVOUS SYSTEM"
-	#[7] "LUNG"                   "PROSTATE"               "RECTUM"   
-	#[1] "3C" "4H" "5L" "5T" "A1" "A2" "A7" "A8" "AC" "AN" "AO" "AQ" "AR" "B6" "BH"
-	# [16] "C8" "D8" "E2" "E9" "EW" "GI" "GM" "HN" "JL" "LD" "LL" "LQ" "MS" "OK" "OL"
-	# [31] "PE" "PL" "S3" "UL" "UU" "W8" "WT" "XX" "Z7" "3L" "4N" "4T" "A6" "AA" "AD"
-	# [46] "AM" "AU" "AY" "AZ" "CA" "CK" "CM" "D5" "DM" "F4" "G4" "NH" "QG" "QL" "RU"
-	# [61] "WS" "02" "06" "12" "14" "16" "15" "19" "26" "28" "32" "41" "76" "81" "87"
-	# [76] "74" "27" "OX" "RR" "4W" "08" "4P" "BA" "BB" "C9" "CN" "CQ" "CR" "CV" "CX"
-	# [91] "D6" "DQ" "F7" "H7" "HD" "HL" "IQ" "KU" "MT" "MZ" "P3" "QK" "RS" "T2" "T3"
-	#[106] "TN" "UF" "UP" "WA" "CS" "DU" "FG" "E1" "EZ" "HT" "HW" "FN" "IK" "DB" "P5"
-	#[121] "DH" "QH" "KT" "R8" "S9" "TM" "VW" "F6" "VM" "VV" "W9" "WH" "WY" "05" "35"
-	#[136] "38" "44" "49" "4B" "50" "53" "55" "62" "64" "67" "69" "71" "73" "75" "78"
-	#[151] "80" "83" "86" "91" "93" "95" "97" "99" "J2" "L4" "L9" "MN" "MP" "NJ" "S2"
-	#[166] "18" "21" "22" "33" "34" "37" "39" "43" "46" "51" "52" "56" "58" "60" "63"
-	#[181] "66" "68" "6A" "70" "77" "79" "85" "90" "92" "94" "96" "98" "J1" "L3" "LA"
-	#[196] "MF" "NC" "NK" "O2" "XC" "2A" "4L" "CH" "EJ" "FC" "G9" "H9" "HC" "HI" "J4"
-	#[211] "J9" "KC" "KK" "M7" "MG" "QU" "SU" "TK" "TP" "V1" "VN" "VP" "WW" "X4" "XA"
-	#[226] "XJ" "XK" "XQ" "Y6" "YJ" "YL" "ZG" "AF" "AG" "AH" "BM" "CI" "CL" "DC" "DT"
-	#[241] "DY" "EF" "EI" "F5" "G5"
-	#-------------------
+	
 	Diagnosis.mapping.disease <- function(df){
 		from <- Diagnosis.unique.values$unique.disease
 		to 	 <- from 
@@ -232,9 +216,8 @@ if(DIAGNOSIS){
 								  			 to = to, warn_missing = T)
 		return(df)
 	}
-	#----------------------     Diagnosis functions End Here      --------------------	
-}
-#----------------------   Drug functions Start Here   ----------------------------
+} # End of Diagnosis Native Functions
+#----------------------   Drug functions Start Here   ---------------------------
 if(DRUG){
 	Drug.unique.request <- function(study_name){
 	  	uri <- rawTablesRequest(study_name, "Drug")
@@ -397,10 +380,8 @@ if(DRUG){
 							to = to, warn_missing = F)
 		return(df)
 	}	
-	#--------------------------------------------------------------------------------
-	#----------------------     Drug functions End Here      --------------------
-}
-#----------------------   Radiation functions Start Here   ------------------------
+} # End of Drug Native Functions
+#----------------------   Radiation functions Start Here   ----------------------
 if(RAD){
 	Rad.unique.request <- function(study_name){
 	  	uri <- rawTablesRequest(study_name, "Radiation")
@@ -420,7 +401,7 @@ if(RAD){
 						     'radiation_therapy_site' = list(name = "target", data = "upperCharacter"),
 						     'radiation_total_dose' = list(name = "totalDose", data = "upperCharacter"),
 						     'radiation_adjuvant_units' = list(name = "totalDoseUnits", data = "upperCharacter"),
-						     'radiation_adjuvant_fractions_total' = list(name = "NumFractions", data = "character")
+						     'radiation_adjuvant_fractions_total' = list(name = "numFractions", data = "character")
 						   ))
 		tbl.omf <- loadData(uri[3], 
 			              list(
@@ -446,7 +427,7 @@ if(RAD){
 		unique.target <- unique(df$target)
 		unique.totalDose <- unique(df$totalDose)
 		unique.totalDoseUnits <- unique(df$totalDoseUnits)
-		unique.NumFractions <- unique(df$NumFractions)
+		unique.numFractions <- unique(df$numFractions)
 	  	result = list(unique.radStart=unique.radStart, 
 					  unique.radEnd=unique.radEnd, 
 	  				  unique.radType=unique.radType,
@@ -455,7 +436,7 @@ if(RAD){
 	  				  unique.target=unique.target,
 	  				  unique.totalDose=unique.totalDose,
 	  				  unique.totalDoseUnits=unique.totalDoseUnits,
-	  				  unique.NumFractions=unique.NumFractions)
+	  				  unique.numFractions=unique.numFractions)
 	  	print(study_name)
 	  	return(result)
 	}
@@ -469,7 +450,7 @@ if(RAD){
 				   unique.target=unique(c(res1$unique.target, res2$unique.target)),
 				   unique.totalDose=unique(c(res1$unique.totalDose, res2$unique.totalDose)),
 				   unique.totalDoseUnits=unique(c(res1$unique.totalDoseUnits, res2$unique.totalDoseUnits)),
-				   unique.NumFractions=unique(c(res1$unique.NumFractions, res2$unique.NumFractions)))
+				   unique.numFractions=unique(c(res1$unique.numFractions, res2$unique.numFractions)))
 	    return(res)
 	}
 	#--------------------------------------------------------------------------------
@@ -528,33 +509,95 @@ if(RAD){
 		from <- Rad.unique.values$unique.totalDose
 		to 	 <- from 
 		to[match("[NOT AVAILABLE]", to)] <- NA
+		df$totalDose <- mapvalues(df$totalDose, from = from, to = to, warn_missing = F)
 
 		#******need to strip 'CGY' and re-assign it to totalDoseUnit
+		df$totalDoseUnits[grep("CGY", df$totalDose)] <- "CGY"
+		df$totalDose[grep("CGY", df$totalDose)] <- str_extract(df$totalDose[grep("CGY", df$totalDose)],"[0-9,]+")
+		
+		df$totalDose[which(df$totalDoseUnits == "CGY")] <- 
+					as.integer(df$totalDose[which(df$totalDoseUnits == "CGY")]) * 100
 
-		df$totalDose <- mapvalues(df$totalDose, from = from, to = to, warn_missing = F)
+		df$totalDoseUnits[which(df$totalDoseUnits == "CGY")] <- "GY"
 		return(df)
 	}	
 	#--------------------------------------------------------------------------------
 	Rad.mapping.totalDoseUnits <- function(df){
-		from <- Drug.unique.values$unique.totalDoseUnits
+		from <- Rad.unique.values$unique.totalDoseUnits
 		to 	 <- from 
 		to[match("[NOT AVAILABLE]", to)] <- NA
 		df$totalDoseUnits <- mapvalues(df$totalDoseUnits, from = from, 
 							to = to, warn_missing = F)
+		df$totalDoseUnits[which(is.na(df$totalDose))] <- NA
 		return(df)
 	}	
 	#--------------------------------------------------------------------------------
-	Rad.mapping.cycle <- function(df){
-		from <- Drug.unique.values$unique.cycle
+	Rad.mapping.numFractions <- function(df){
+		from <- Rad.unique.values$unique.numFractions
 		to 	 <- from 
 		to[match("[NOT AVAILABLE]", to)] <- NA
-		df$cycle <- mapvalues(df$cycle, from = from, 
+		df$NumFractions <- mapvalues(df$NumFractions, from = from, 
 							to = to, warn_missing = F)
 		return(df)
 	}	
 	#--------------------------------------------------------------------------------
 	#----------------------    Radiation functions End Here      --------------------
-}
+} # End of Radition Native Functions
+#----------------------     Status functions Start Here      --------------------
+if(STATUS){
+	Status.unique.request <- function(study_name){
+	  uri <- rawTablesRequest(study_name, "Status")
+	  df  <- loadData(uri, 
+	               list(
+	                    'bcr_patient_barcode' = list(name = "PatientID", data = "tcgaId"),
+	                    'gender' = list(name = "gender", data = "upperCharacter"),
+	                    'ethnicity' = list(name = "ethnicity", data ="upperCharacter"),
+	                    'race' = list(name = "race", data = "upperCharacter"),
+	                    'initial_pathologic_dx_year' = list(name = "dxyear", data = "tcgaDate")
+	                ))
+	  unique.ethnicity <- unique(df$ethnicity)
+	  unique.race <- unique(df$race)
+	  result = list(unique.ethnicity=unique.ethnicity, unique.race=unique.race)
+	  return(result)
+	}
+	#--------------------------------------------------------------------------------
+	res_list. = lapply(studies, Status.unique.request)
+
+	Status.unique.aggregate <- function(res1, res2){
+		res = list(unique.ethnicity=unique(c(res1$unique.ethnicity,res2$unique.ethnicity)),
+				   unique.race=unique(c(res1$unique.race, res2$unique.race)))
+	    return(res)
+	}
+	#--------------------------------------------------------------------------------
+	Status.unique.values <- Reduce(DOB.unique.aggregate, lapply(studies, DOB.unique.request))
+	DOB.unique.race <- DOB.unique.values$unique.race
+	DOB.unique.ethnicity <- DOB.unique.values$unique.ethnicity
+	#[1] "WHITE"                            "BLACK OR AFRICAN AMERICAN"       
+	#[3] "ASIAN"                            "[NOT AVAILABLE]"                 
+	#[5] "AMERICAN INDIAN OR ALASKA NATIVE" "[NOT EVALUATED]"                 
+	#[7] "[UNKNOWN]"   
+
+	#[1] "NOT HISPANIC OR LATINO" "HISPANIC OR LATINO"     "[NOT AVAILABLE]"       
+	#[4] "[NOT EVALUATED]"        "[UNKNOWN]"   
+	#-------------------
+	DOB.mapping.race <- function(df){
+		from <- DOB.unique.race
+		to 	 <- from 
+		to[match(c("[UNKNOWN]","[NOT AVAILABLE]","[NOT EVALUATED]"), to)] <- NA
+		df$race <- mapvalues(df$race, from = from, to = to, warn_missing = T)
+		return(df)
+	}	
+	#--------------------------------------------------------------------------------
+	DOB.mapping.ethnicity <- function(df){
+		from <- DOB.unique.ethnicity 
+		to 	 <- from 
+		to[match(c("[NOT EVALUATED]","[NOT AVAILABLE]","[UNKNOWN]"), to)] <- NA
+		df$ethnicity <- mapvalues(df$ethnicity, from = from, to = to, warn_missing = T)
+		return(df)
+	}
+	#----------------------     DOB functions End Here      --------------------------
+} # End of Status Native Functions
+#----------------------   Progression functions Start Here   --------------------
 
 
 ################################################     Step 4: Generate Result    ##################################################
@@ -700,12 +743,12 @@ create.all.Rad.records <- function(study_name){
 					     'radiation_therapy_started_days_to' = list(name = "radStart", data = "character"),
 					     'radiation_therapy_ended_days_to' = list(name = "radEnd", data = "character"),
 					     'radiation_therapy_type' = list(name = "radType", data = "upperCharacter"),
-					     'therapy_regimen' = list(name = "intent", data = "upperCharacter"),
 					     'radiation_type_other' = list(name = "radTypeOther", data = "upperCharacter"),
+					     'therapy_regimen' = list(name = "intent", data = "upperCharacter"),
 					     'radiation_therapy_site' = list(name = "target", data = "upperCharacter"),
 					     'radiation_total_dose' = list(name = "totalDose", data = "upperCharacter"),
 					     'radiation_adjuvant_units' = list(name = "totalDoseUnits", data = "upperCharacter"),
-					     'radiation_adjuvant_fractions_total' = list(name = "NumFractions", data = "character")
+					     'radiation_adjuvant_fractions_total' = list(name = "numFractions", data = "character")
 					   ))
 	tbl.omf <- loadData(uri[3], 
 		              list(
@@ -726,29 +769,58 @@ create.all.Rad.records <- function(study_name){
     data.Rad  <- Rad.mapping.radType(data.Rad)
     data.Rad  <- Rad.mapping.intent(data.Rad)
     data.Rad  <- Rad.mapping.target(data.Rad)
+    data.Rad  <- Rad.mapping.totalDose(data.Rad)
+    data.Rad  <- Rad.mapping.totalDoseUnits(data.Rad)
+    data.Rad  <- Rad.mapping.numFractions(data.Rad)
 
 
     # result
     ptNumMap <- ptNumMapUpdate(tbl.pt)
+
     result <- apply(data.Rad, 1, function(x){
     				PatientID = getElement(x, "PatientID")
     				PtNum = ptNumMap[ptNumMap$PatientID == PatientID,]$PatientNumber
     				date = c(getElement(x, "start"), getElement(x, "end"))
-    				therapyType = getElement(x, "therapyType")
+    				radType = getElement(x, "radType")
     				intent = getElement(x, "intent")
+    				target = getElement(x, "target")
     				totalDose = getElement(x, "totalDose")
     				totalDoseUnits = getElement(x, "totalDoseUnits")
     				numFractions = getElement(x, "numFractions")
     				return(list(PatientID=PatientID, PtNum=PtNum, study=study_name, Name="Radiation", 
-    				 			Fields=list(date=date, therapyType=therapyType, intent=intent, 
+    				 			Fields=list(date=date, radType=radType, intent=intent, 
     				 						target=target, totalDose=totalDose, totalDoseUnits=totalDoseUnits, 
-    				 						numFractions=NumFractions)))
+    				 						numFractions=numFractions)))
     				})
 	print(c(study_name, dim(data.Rad), length(result)))
 }
-lapply(studies, create.all.Chemo.records)
+lapply(studies, create.all.Rad.records)
 #--------------------------------------------------------------------------------------------------------------------------------
+create.all.Status.records <- function(study_name){
+	uri <- rawTablesRequest(study_name, "Status")
+	tbl.pt <- loadData(uri[1], 
+		              list(
+					     'bcr_patient_barcode' = list(name = "PatientID", data = "tcgaId"),
+					     'initial_pathologic_dx_year' = list(name = "dxyear", data = "tcgaDate"),
+					     'vital_status' = list(name = "vital", data = "upperCharacter"),
+					     'tumor_status' = list(name = "tumorStatus", data = "upperCharacter"),
+					     'last_contact_days_to' = list(name = "lastContact", data = "character"),
+					     'death_days_to' = list(name = "deathDate", data = "character")
+					   ))
+	tbl.f1 <- loadData(uri[2], 
+		              list(
+					     'bcr_patient_barcode' = list(name = "PatientID", data = "tcgaId"),
+					     'vital_status' = list(name = "vital", data = "upperCharacter"),
+					     'tumor_status' = list(name = "tumorStatus", data = "upperCharacter"),
+					     'last_contact_days_to' = list(name = "lastContact", data = "character"),
+					     'death_days_to' = list(name = "deathDate", data = "character")
+					   ))
 
+	ifelse()
+	
+}
+lapply(studies, create.all.Status.records)
+#--------------------------------------------------------------------------------------------------------------------------------
 
 
 
@@ -778,96 +850,7 @@ lapply(studies, create.all.Chemo.records)
 #################################################    Step 5: Unit Test   #########################################################
 # use Filter function, index 479 is a good option
 
-#----------------------------------------------------------------------------------------------------
-loadRawFiles <- function()	{ 
-	  
-  RawTables <- list()
-  if (length(TCGAfilename[i,"pt"])>0){
-	  print(paste(TCGAfilename[i,"pt"] , "being loaded for tbl.pt", study))
-	  tbl.pt <- read.table(paste(directory,TCGAfilename[i,"pt"],sep="/"), quote="", sep="\t", header=TRUE, as.is=TRUE)
-	  tbl.pt <- tbl.pt[3:nrow(tbl.pt),]
-	  RawTables[["tbl.pt"]] <- tbl.pt
-	  #print(paste(colnames(tbl.pt))) 
-	  }else{
-	  print(paste("tbl.pt does not exist for: ", study, sep=""))
-  }
-  if (length(TCGAfilename[i,"f1"])>0){
-    print(paste(TCGAfilename[i,"f1"] , "being loaded for tbl.followup_1", study))
-    tbl.followup_1 <- read.table(paste(directory,TCGAfilename[i,"f1"],sep="/"), quote="", sep="\t", header=TRUE, as.is=TRUE)
-    tbl.followup_1 <- tbl.followup_1[3:nrow(tbl.followup_1),]
-    RawTables[["tbl.followup_1"]] <- tbl.followup_1
-    #print(paste(colnames(tbl.followup_1))) 
-    }else{
-    print(paste("tbl.followup_1 does not exist for: ", study, sep=""))
-  }
-  if (length(TCGAfilename[i,"rad"])>0){
-    print(paste(TCGAfilename[i,"rad"] , "being loaded for tbl.rad", study))
-    tbl.rad <- read.table(paste(directory,TCGAfilename[i,"rad"],sep="/"), quote="", sep="\t", header=TRUE, as.is=TRUE)
-    tbl.rad <- tbl.rad[3:nrow(tbl.rad),]
-    RawTables[["tbl.rad"]] <- tbl.rad
-  }else{
-    print(paste("tbl.rad does not exist for: ", study, sep=""))
-  }
-  if (length(TCGAfilename[i,"omf"])>0){
-    print(paste(TCGAfilename[i,"omf"] , "being loaded for tbl.omf", study))
-    tbl.omf <- read.table(paste(directory,TCGAfilename[i,"omf"],sep="/"), quote="", sep="\t", header=TRUE, as.is=TRUE)
-    tbl.omf <- tbl.omf[3:nrow(tbl.omf),]
-    RawTables[["tbl.omf"]] <- tbl.omf
-  }else{
-    print(paste("tbl.omf does not exist for: ", study, sep=""))
-  }
-  #if (length(TCGAfilename[i,"f2"])>0){
-  if (!is.na(TCGAfilename[i,"f2"])){
-    print(paste(TCGAfilename[i,"f2"] , "being loaded for tbl.followup_2", study))
-    tbl.followup_2 <- read.table(paste(directory,TCGAfilename[i,"f2"],sep="/"), quote="", sep="\t", header=TRUE, as.is=TRUE)
-    tbl.followup_2 <- tbl.followup_2[3:nrow(tbl.followup_2),]
-    RawTables[["tbl.followup_2"]] <- tbl.followup_2
-    #print(paste(colnames(tbl.followup_2))) 	  
-    }else{
-    print(paste("tbl.followup_2 does not exist for: ", study, sep=""))
-    }
-  #if (length(TCGAfilename[i,"nte_f1"])>0){
-  if (!is.na(TCGAfilename[i,"nte_f1"])){  
-    print(paste(TCGAfilename[i,"nte_f1"] , "being loaded for tbl.nte_followup_1", study))
-    tbl.nte_followup_1 <- read.table(paste(directory,TCGAfilename[i,"nte_f1"],sep="/"), quote="", sep="\t", header=TRUE, as.is=TRUE)
-    tbl.nte_followup_1 <- tbl.nte_followup_1[3:nrow(tbl.nte_followup_1),]
-    RawTables[["tbl.nte_followup_1"]] <- tbl.nte_followup_1
-    #print(paste(colnames(tbl.nte_followup_1)))  
-    }else{
-    print(paste("tbl.nte_followup_1 does not exist for: ", study, sep=""))
-  }
 
-  if (!is.na(TCGAfilename[i,"f3"])){  
-    print(paste(TCGAfilename[i,"f3"] , "being loaded for tbl.followup_3", study))
-    tbl.followup_3 <- read.table(paste(directory,TCGAfilename[i,"f3"],sep="/"), quote="", sep="\t", header=TRUE, as.is=TRUE)
-    tbl.followup_3 <- tbl.followup_3[3:nrow(tbl.followup_3),]
-    RawTables[["tbl.followup_3"]] <- tbl.followup_3
-    #print(paste(colnames(tbl.followup_3))) 
-    }else{
-    print(paste("tbl.followup_3 does not exist for: ", study, sep=""))
-  }
-  if (length(TCGAfilename[i,"nte"])>0){ 
-    print(paste(TCGAfilename[i,"nte"] , "being loaded for tbl.nte", study))
-    tbl.nte <- read.table(paste(directory,TCGAfilename[i,"nte"],sep="/"), quote="", sep="\t", header=TRUE, as.is=TRUE)
-    tbl.nte <- tbl.nte[3:nrow(tbl.nte),]
-    RawTables[["tbl.nte"]] <- tbl.nte
-    #print(paste(colnames(tbl.nte)))  
-    }else{
-    print(paste("tbl.nte does not exist for: ", study, sep=""))
-  }
-
-  if (!is.na(TCGAfilename[i,"drug"])){  
-    print(paste(TCGAfilename[i,"drug"] , "being loaded for tbl.drug", study))
-    tbl.drug <- read.table(paste(directory,TCGAfilename[i,"drug"],sep="/"), quote="", sep="\t", header=TRUE, as.is=TRUE)
-    tbl.drug <- tbl.drug[3:nrow(tbl.drug),]
-    RawTables[["tbl.drug"]] <- tbl.drug
-  }else{
-    print(paste("tbl.drug does not exist for: ", study, sep=""))
-  }
-	 
-	RawTables
-
-} # loadRawFiles
 #----------------------------------------------------------------------------------------------------
 run <- function(RawTables, tcga.ids)
 {
