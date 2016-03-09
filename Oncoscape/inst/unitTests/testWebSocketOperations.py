@@ -1155,11 +1155,15 @@ def test_pcaCalculate():
   assert(result["status"] == "success")
   
   payload = result["payload"]
+  print "*****"
+  print payload
   keys = payload.keys()
   keys.sort()
-  assert(keys == ['ids', 'importance.PC1', 'importance.PC2', 'maxValue', 'scores'])
+  print keys
+  assert(keys == ['geneSetName', 'ids', 'importance.PC1', 'importance.PC2', 'maxValue', 'scores'])
   
   ids = payload["ids"]
+  print ids
   assert(len(ids) == 64)
   assert(ids[1:5] == ['EED', 'EEF2', 'EFEMP2', 'EGFR'])
   assert(payload["maxValue"] == 0.2665)
