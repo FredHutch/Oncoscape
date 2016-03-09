@@ -55,4 +55,4 @@ RUN make install
 
 EXPOSE 7777
 
-CMD make oncoDockerMnP
+CMD make oncoDocker
