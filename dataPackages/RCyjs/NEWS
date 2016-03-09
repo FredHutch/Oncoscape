@@ -1,0 +1,42 @@
+CHANGES IN VERSION 1.9.8
+-------------------------
+
+BUG FIXES
+
+    o Significant (3x) speedup.  A 5000-node, 6000-edge graph transmits 
+      to Cytoscape from R in about 20 seconds.
+
+
+CHANGES IN VERSION 1.8.0
+-------------------------
+
+NEW FEATURES
+
+    o setNodeOpacityRule, controlling node fill color, border and/or label; interpolate & lookup modes both supported
+
+    o getNodeSize
+
+    o saveImage now supports pdf as well as png and svg formats
+
+    o setDefaultEdgeFontSize
+
+    o getAdjacentEdgeNames
+
+SIGNIFICANT USER-VISIBLE CHANGES
+
+    o changed method names: layout -> layoutNetwork, version -> pluginVersion, 
+      get/setPosition -> get/setNodePosition
+
+    o NAMESPACE now imports four more methods from the graph package, helpful
+      for package developers using RCytoscape: edgemode, addNode, addEdge, 
+      requested by Robert Flight.
+
+BUG FIXES
+
+    o Changed getNodePosition node.name.delimiter to eliminate regex token, 
+      from ':.:' to ':-:' saveLayout now has optional 3rd parameter, 
+      'timestamp.in.filename'
+
+    o Fixed bug in setNodeLabelDirect.  Multiple nodes, one label now works. 
+
+    o setCenter now casts x,y to numeric before sending out to CyRPC
