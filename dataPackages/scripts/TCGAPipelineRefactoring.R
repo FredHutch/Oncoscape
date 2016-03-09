@@ -62,6 +62,14 @@ rawTablesRequest <- function(study, table){
 				 paste(TCGAfilename[TCGAfilename$study==study,]$directory, 
 			         TCGAfilename[TCGAfilename$study==study,]$omf, sep="/")))
 	}
+	if(table == "Radiation"){
+		return(c(paste(TCGAfilename[TCGAfilename$study==study,]$directory, 
+			         TCGAfilename[TCGAfilename$study==study,]$pt, sep="/"),
+				 paste(TCGAfilename[TCGAfilename$study==study,]$directory, 
+			         TCGAfilename[TCGAfilename$study==study,]$rad, sep="/"),
+				 paste(TCGAfilename[TCGAfilename$study==study,]$directory, 
+			         TCGAfilename[TCGAfilename$study==study,]$omf, sep="/")))
+	}
 }
 #--------------------------------------------------------------------------------
 loadData <- function(uri, columns){
@@ -107,7 +115,7 @@ ptNumMapUpdate <- function(df){
 
 studies <- TCGAfilename$study 
 
-#----------------------     DOB functions Start Here      --------------------------
+#----------------------     DOB functions Start Here      ------------------------
 if(DOB){
 	DOB.unique.request <- function(study_name){
 	  uri <- rawTablesRequest(study_name, "DOB")
@@ -310,7 +318,7 @@ if(DRUG){
 
 		df$start[which(is.na(df$drugStart))] <- NA
 		df$end[which(is.na(df$drugEnd))] <- NA
-		df[which(is.na(df$dxyear)), c(14, 15)] <- NA
+		df[which(is.na(df$dxyear)), c("drugStart","drugEnd")] <- NA
 	   
 	    df$start <- df$dxyear + as.integer(df$drugStart)
 	    df$end <- df$dxyear + as.integer(df$drugEnd)	
@@ -319,7 +327,7 @@ if(DRUG){
 	}	
 	#--------------------------------------------------------------------------------
 	Drug.mapping.agent <- function(df){
-		tbl.drug$agent <- drug_ref[match(tbl.drug$agent,drug_ref$COMMON.NAMES),]$STANDARDIZED.NAMES	
+		df$agent <- drug_ref[match(df$agent,drug_ref$COMMON.NAMES),]$STANDARDIZED.NAMES	
 		return(df)
 	}	
 	#--------------------------------------------------------------------------------
@@ -392,8 +400,161 @@ if(DRUG){
 	#--------------------------------------------------------------------------------
 	#----------------------     Drug functions End Here      --------------------
 }
+#----------------------   Radiation functions Start Here   ------------------------
+if(RAD){
+	Rad.unique.request <- function(study_name){
+	  	uri <- rawTablesRequest(study_name, "Radiation")
+		tbl.pt <- loadData(uri[1], 
+			              list(
+						     'bcr_patient_barcode' = list(name = "PatientID", data = "tcgaId"),
+						     'initial_pathologic_dx_year' = list(name = "dxyear", data = "tcgaDate")
+						   ))
+		tbl.rad <- loadData(uri[2], 
+			              list(
+						     'bcr_patient_barcode' = list(name = "PatientID", data = "tcgaId"),
+						     'radiation_therapy_started_days_to' = list(name = "radStart", data = "character"),
+						     'radiation_therapy_ended_days_to' = list(name = "radEnd", data = "character"),
+						     'radiation_therapy_type' = list(name = "radType", data = "upperCharacter"),
+						     'radiation_type_other' = list(name = "radTypeOther", data = "upperCharacter"),
+						     'therapy_regimen' = list(name = "intent", data = "upperCharacter"),
+						     'radiation_therapy_site' = list(name = "target", data = "upperCharacter"),
+						     'radiation_total_dose' = list(name = "totalDose", data = "upperCharacter"),
+						     'radiation_adjuvant_units' = list(name = "totalDoseUnits", data = "upperCharacter"),
+						     'radiation_adjuvant_fractions_total' = list(name = "NumFractions", data = "character")
+						   ))
+		tbl.omf <- loadData(uri[3], 
+			              list(
+						     'bcr_patient_barcode' = list(name = "PatientID", data = "tcgaId"),
+						     'radiation_tx_extent' = list(name = "target", data = "upperCharacter"),
+						     'rad_tx_to_site_of_primary_tumor' = list(name = "targetAddition", data = "character"),
+						     'days_to_radiation_therapy_start' = list(name = "radStart", data = "character")
+						   ))
+
+	    # reorganize three tbls 
+	    tbl.rad <- rbind.fill(tbl.rad, tbl.omf)
+	    data.Rad <- merge(tbl.rad, tbl.pt, by = "PatientID", all.x = T)
+	    data.Rad$start <- rep(NA,nrow(data.Rad))
+	    data.Rad$end <- rep(NA,nrow(data.Rad))
+    
+	  	
+	  	df <- data.Rad
+	  	unique.radStart <- unique(df$radStart)
+	  	unique.radEnd <- unique(df$radEnd)
+		unique.radType <- unique(df$radType)
+		unique.radTypeOther <- unique(df$radTypeOther)
+		unique.intent <- unique(df$intent)
+		unique.target <- unique(df$target)
+		unique.totalDose <- unique(df$totalDose)
+		unique.totalDoseUnits <- unique(df$totalDoseUnits)
+		unique.NumFractions <- unique(df$NumFractions)
+	  	result = list(unique.radStart=unique.radStart, 
+					  unique.radEnd=unique.radEnd, 
+	  				  unique.radType=unique.radType,
+	  				  unique.radTypeOther=unique.radTypeOther, 
+	  				  unique.intent=unique.intent,
+	  				  unique.target=unique.target,
+	  				  unique.totalDose=unique.totalDose,
+	  				  unique.totalDoseUnits=unique.totalDoseUnits,
+	  				  unique.NumFractions=unique.NumFractions)
+	  	print(study_name)
+	  	return(result)
+	}
+	#--------------------------------------------------------------------------------
+	Rad.unique.aggregate <- function(res1, res2){
+		res = list(unique.radStart=unique(c(res1$unique.radStart, res2$unique.radStart)),
+			       unique.radEnd=unique(c(res1$unique.radEnd, res2$uunique.radEnd)),
+				   unique.radType=unique(c(res1$unique.radType, res2$unique.radType)),
+				   unique.radTypeOther=unique(c(res1$unique.radTypeOther, res2$unique.radTypeOther)),
+				   unique.intent=unique(c(res1$unique.intent, res2$unique.intent)),
+				   unique.target=unique(c(res1$unique.target, res2$unique.target)),
+				   unique.totalDose=unique(c(res1$unique.totalDose, res2$unique.totalDose)),
+				   unique.totalDoseUnits=unique(c(res1$unique.totalDoseUnits, res2$unique.totalDoseUnits)),
+				   unique.NumFractions=unique(c(res1$unique.NumFractions, res2$unique.NumFractions)))
+	    return(res)
+	}
+	#--------------------------------------------------------------------------------
+	Rad.unique.values <- Reduce(Rad.unique.aggregate, lapply(studies, Rad.unique.request))
+	Rad.mapping.date <- function(df){
+		df$radStart[which(df$radStart %in% c("[Not Available]","[Pending]"))] <- NA
+		df$radEnd[which(df$radEnd == "[Not Available]")] <- NA
+
+		df$start[which(is.na(df$radStart))] <- NA
+		df$end[which(is.na(df$radEnd))] <- NA
+		df[which(is.na(df$dxyear)), c("radStart","radEnd")] <- NA
+	   
+	    df$start <- df$dxyear + as.integer(df$radStart)
+	    df$end <- df$dxyear + as.integer(df$radEnd)	
+			
+		return(df)
+	}	
+	#--------------------------------------------------------------------------------
+	Rad.mapping.radType <- function(df){
+		from <- Rad.unique.values$unique.radType
+		to 	 <- from 
+		to[match(c("[NOT AVAILABLE]","[NOT APPLICABLE]","[UNKNOWN]"), to)] <- NA
+		df$radType <- mapvalues(df$radType, from = from, to = to, warn_missing = F)
+
+		from <- Rad.unique.values$unique.radTypeOther
+		to 	 <- from 
+		to[match(c("[NOT AVAILABLE]","[UNKNOWN]", "[NOT APPLICABLE]"), to)] <- NA
+		df$radTypeOther <- mapvalues(df$radTypeOther, from = from, to = to, warn_missing = F)
+
+		tmpRadType <-rad_ref[match(df$radType,rad_ref$COMMON.RADTYPE),]$STANDARDIZED.RADTYPE
+		tmpRadTypeOther <-rad_ref[match(df$radTypeOther,rad_ref$COMMON.OTHERRADTYPE),]$STANDARDIZED.OTHERRADTYPE
+		tmpRadType[which(tmpRadType == "OTHER: SPECIFY IN NOTES")] <- tmpRadTypeOther[which(tmpRadType == "OTHER: SPECIFY IN NOTES")]
 
 
+		df$radType <- tmpRadType
+		return(df)
+	}	
+	#--------------------------------------------------------------------------------
+	Rad.mapping.intent <- function(df){
+		from <- Rad.unique.values$unique.intent
+		to 	 <- from 
+		to[match("[NOT AVAILABLE]", to)] <- NA
+		df$intent <- mapvalues(df$intent, from = from, to = to, warn_missing = F)
+		return(df)
+	}
+	#--------------------------------------------------------------------------------
+	Rad.mapping.target <- function(df){
+		from <- Rad.unique.values$unique.target
+		to 	 <- from 
+		to[match(c("[NOT AVAILABLE]","[UNKNOWN]", "[DISCREPANCY]"), to)] <- NA
+		df$units <- mapvalues(df$units, from = from, to = to, warn_missing = F)
+		return(df)
+	}	
+	#--------------------------------------------------------------------------------
+	Rad.mapping.totalDose <- function(df){
+		from <- Rad.unique.values$unique.totalDose
+		to 	 <- from 
+		to[match("[NOT AVAILABLE]", to)] <- NA
+
+		#******need to strip 'CGY' and re-assign it to totalDoseUnit
+
+		df$totalDose <- mapvalues(df$totalDose, from = from, to = to, warn_missing = F)
+		return(df)
+	}	
+	#--------------------------------------------------------------------------------
+	Rad.mapping.totalDoseUnits <- function(df){
+		from <- Drug.unique.values$unique.totalDoseUnits
+		to 	 <- from 
+		to[match("[NOT AVAILABLE]", to)] <- NA
+		df$totalDoseUnits <- mapvalues(df$totalDoseUnits, from = from, 
+							to = to, warn_missing = F)
+		return(df)
+	}	
+	#--------------------------------------------------------------------------------
+	Rad.mapping.cycle <- function(df){
+		from <- Drug.unique.values$unique.cycle
+		to 	 <- from 
+		to[match("[NOT AVAILABLE]", to)] <- NA
+		df$cycle <- mapvalues(df$cycle, from = from, 
+							to = to, warn_missing = F)
+		return(df)
+	}	
+	#--------------------------------------------------------------------------------
+	#----------------------    Radiation functions End Here      --------------------
+}
 
 
 ################################################     Step 4: Generate Result    ##################################################
@@ -526,7 +687,67 @@ create.all.Chemo.records <- function(study_name){
 }
 lapply(studies, create.all.Chemo.records)
 #--------------------------------------------------------------------------------------------------------------------------------
+create.all.Rad.records <- function(study_name){
+	uri <- rawTablesRequest(study_name, "Radiation")
+	tbl.pt <- loadData(uri[1], 
+		              list(
+					     'bcr_patient_barcode' = list(name = "PatientID", data = "tcgaId"),
+					     'initial_pathologic_dx_year' = list(name = "dxyear", data = "tcgaDate")
+					   ))
+	tbl.rad <- loadData(uri[2], 
+		              list(
+					     'bcr_patient_barcode' = list(name = "PatientID", data = "tcgaId"),
+					     'radiation_therapy_started_days_to' = list(name = "radStart", data = "character"),
+					     'radiation_therapy_ended_days_to' = list(name = "radEnd", data = "character"),
+					     'radiation_therapy_type' = list(name = "radType", data = "upperCharacter"),
+					     'therapy_regimen' = list(name = "intent", data = "upperCharacter"),
+					     'radiation_type_other' = list(name = "radTypeOther", data = "upperCharacter"),
+					     'radiation_therapy_site' = list(name = "target", data = "upperCharacter"),
+					     'radiation_total_dose' = list(name = "totalDose", data = "upperCharacter"),
+					     'radiation_adjuvant_units' = list(name = "totalDoseUnits", data = "upperCharacter"),
+					     'radiation_adjuvant_fractions_total' = list(name = "NumFractions", data = "character")
+					   ))
+	tbl.omf <- loadData(uri[3], 
+		              list(
+					     'bcr_patient_barcode' = list(name = "PatientID", data = "tcgaId"),
+					     'radiation_tx_extent' = list(name = "target", data = "upperCharacter"),
+					     'rad_tx_to_site_of_primary_tumor' = list(name = "targetAddition", data = "character"),
+					     'days_to_radiation_therapy_start' = list(name = "radStart", data = "character")
+					   ))
 
+    # reorganize three tbls 
+    tbl.rad <- rbind.fill(tbl.rad, tbl.omf)
+    data.Rad <- merge(tbl.rad, tbl.pt, by = "PatientID", all.x = T)
+    data.Rad$start <- rep(NA,nrow(data.Rad))
+    data.Rad$end <- rep(NA,nrow(data.Rad))
+    
+    # mapping
+    data.Rad  <- Rad.mapping.date(data.Rad)
+    data.Rad  <- Rad.mapping.radType(data.Rad)
+    data.Rad  <- Rad.mapping.intent(data.Rad)
+    data.Rad  <- Rad.mapping.target(data.Rad)
+
+
+    # result
+    ptNumMap <- ptNumMapUpdate(tbl.pt)
+    result <- apply(data.Rad, 1, function(x){
+    				PatientID = getElement(x, "PatientID")
+    				PtNum = ptNumMap[ptNumMap$PatientID == PatientID,]$PatientNumber
+    				date = c(getElement(x, "start"), getElement(x, "end"))
+    				therapyType = getElement(x, "therapyType")
+    				intent = getElement(x, "intent")
+    				totalDose = getElement(x, "totalDose")
+    				totalDoseUnits = getElement(x, "totalDoseUnits")
+    				numFractions = getElement(x, "numFractions")
+    				return(list(PatientID=PatientID, PtNum=PtNum, study=study_name, Name="Radiation", 
+    				 			Fields=list(date=date, therapyType=therapyType, intent=intent, 
+    				 						target=target, totalDose=totalDose, totalDoseUnits=totalDoseUnits, 
+    				 						numFractions=NumFractions)))
+    				})
+	print(c(study_name, dim(data.Rad), length(result)))
+}
+lapply(studies, create.all.Chemo.records)
+#--------------------------------------------------------------------------------------------------------------------------------
 
 
 
