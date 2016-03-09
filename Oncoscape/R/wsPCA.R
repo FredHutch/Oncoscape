@@ -3,6 +3,7 @@
 addRMessageHandler("echo", "ws.pcaEchoHandler")
 addRMessageHandler("createPCA", "ws.createPCA")
 addRMessageHandler("calculatePCA", "ws.calculatePCA")
+addRMessageHandler("requestDataTableMeta", "ws.requestDataTableMeta")
 #----------------------------------------------------------------------------------------------------
 ws.pcaEchoHandler <- function(ws, msg)
 {
@@ -93,7 +94,8 @@ ws.calculatePCA <- function(ws, msg)
    
    payload <- list(scores=mtx.loadings, ids=ids, maxValue=max.value,
                    importance.PC1=importance.PC1,
-                   importance.PC2=importance.PC2)
+                   importance.PC2=importance.PC2, geneSetName=genes)
+   printf("***** within ws.calculatePCA payload.geneSetName is %s ", payload$geneSetName)
 
 
    json <- jsonlite::toJSON(list(cmd=msg$callback, callback="", status="success", payload=payload),

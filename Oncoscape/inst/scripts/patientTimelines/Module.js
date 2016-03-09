@@ -790,13 +790,7 @@ var TimeLineModule = (function () {
     		calcEvents = ptList[id].calcEvents;
     		for(var j=0;j<calcEvents.length; j++){
             	if(calcEvents[j].name == OrderBy){
-					var eventValue =  calcEvents[j].value;
-					if(OrderBy == "Survival"){
-//						if(ptList[id]. == ){
-//							eventValue = 1/eventValue
-//						}
-					}
-					ptList[id].orderVal = eventValue
+					ptList[id].orderVal = calcEvents[j].value;
             		break; 
             	}
             }    

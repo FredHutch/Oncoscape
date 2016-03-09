@@ -21,8 +21,8 @@
    <link   rel="stylesheet" type="text/css"
            href="http://ajax.googleapis.com/ajax/libs/jqueryui/1.8.7/themes/smoothness/jquery-ui.css">
 
-   <!-- script src="http://oncoscape.sttrcancer.org/oncoscape/js/cytoscape-2.3.10.min.js"></script -->
-   <script src="http://oncoscape.sttrcancer.org/oncoscape/js/cytoscape-2.4.4.min.js"></script>
+   <!-- script src="http://oncoscape.sttrcancer.org/oncoscape/js/cytoscape-2.4.4.min.js"></script-->
+   <script src="http://oncoscape.sttrcancer.org/oncoscape/js/cytoscape-2.5.1.min.js"></script>
 
    <script src="http://oncoscape.sttrcancer.org/oncoscape/js/jquery.cytoscape.js-panzoom.js"></script>
    <link   href="http://oncoscape.sttrcancer.org/oncoscape/css/jquery.cytoscape.js-panzoom.css" 
@@ -114,6 +114,8 @@ th,td {
    font-size:10pt !important;
    }
 
+.ui-dialog .ui-dialog-titlebar-close span{ margin:0 }
+
 .SelectionMenu{
 color: rgb(0, 0, 0); 
 background-color: rgb(255, 255, 255);
@@ -145,7 +147,7 @@ var HubModule = (function () {
   var onDocumentReadyFunctions = [];
   var socketURI = window.location.href.replace("http://", "ws://");
   var socket;
-
+  
   var  messagingRestrictedToLogin = false;
 
   var modules = {};
@@ -206,7 +208,7 @@ function setupSocket(socket)
         } // socket.onmessage, got_packet
 
      socket.onclose = function(){
-        console.log("socket closing");
+        alert("Web socket connection to server has closed");
         } // socket.onclose
      } // try
   catch(exception) {
@@ -323,7 +325,7 @@ function dispatchMessage(msg)
 {
    var cmd = msg.cmd;
    var status = msg.status;
-   console.log("====== Mondule.hub dispatchMessage '" + cmd + "' [" + Date() + "]" );
+   console.log("====== Module.hub dispatchMessage '" + cmd + "' [" + Date() + "]" );
 
    var dispatchKeys = Object.keys(dispatchOptions);
    var cmdIndex = dispatchKeys.indexOf(cmd);
@@ -408,6 +410,37 @@ function configureSendSelectionMenu(menuSelector, excludedModules, changeFunctio
 
 } // createSendSelectionMenu
 //--------------------------------------------------------------------------------------------
+// from http://stackoverflow.com/questions/4068373/center-a-popup-window-on-screen
+function openCenteredBrowserWindow(url, title, w, h, replaceAnyExistingPopup) {
+      // Fixes dual-screen position                       Most browsers      Firefox
+    var dualScreenLeft = window.screenLeft != undefined ? window.screenLeft : screen.left;
+    var dualScreenTop = window.screenTop != undefined ? window.screenTop : screen.top;
+    width = window.innerWidth ? window.innerWidth : document.documentElement.clientWidth ? document.documentElement.clientWidth : screen.width;
+    height = window.innerHeight ? window.innerHeight : document.documentElement.clientHeight ? document.documentElement.clientHeight : screen.height;
+
+    var left = ((width / 2) - (w / 2)) + dualScreenLeft;
+    var top = ((height / 2) - (h / 2)) + dualScreenTop;
+    var options = 'scrollbars=yes, width=' + w + ', height=' + h + ', top=' + top + ', left=' + left;
+
+    var newWindow;
+
+      // warning, a bug: when multiple popup windows are created, they
+      // all have the same content -- not what we want.  fix this
+      // by severing their relationship, and/or switching to jQuery dialog
+
+    if(replaceAnyExistingPopup)
+      newWindow = window.open(url, title, options);
+    else // leave any existing popup windows untouched
+      newWindow = window.open(url, "_blank", options);
+
+    if (window.focus) {
+       newWindow.focus();
+       }
+       
+    return newWindow;
+
+} // openCenteredBrowserWindow
+//--------------------------------------------------------------------------------------------
 function disableButton(button)
 {
    button.prop("disabled", true);
@@ -433,11 +466,11 @@ function disableAllTabsExcept(tabIDstring)
   return allDivIDs;  //returns divIDs that have been disabled
   
 } // disableTab
-
 //--------------------------------------------------------------------------------------------
 function disableTab(tabIDstring)
 {
   $( "#oncoscapeTabs" ).tabs( "disable", "#" + tabIDstring  )
+
 } // disableTab
 //--------------------------------------------------------------------------------------------
 function enableTab(tabIDstring)
@@ -460,7 +493,8 @@ function raiseTab(tabIDString)
      var selectionString = '#oncoscapeTabs a[href="#' + tabIDString + '"]';
      var tabIndex = $(selectionString).parent().index ();
      if(tabIndex < 0) throw "Module.hub does not recognize tabIDString '" + tabIDString + "'";
-     tabsWidget.tabs( "option", "active", tabIndex);
+     console.log("Module.hub:raiseTab for '" + tabIDString + "' (" + tabIndex + ") set to active'");
+     setTimeout(function(){tabsWidget.tabs( "option", "active", tabIndex);}, 0);
      } // if tabs exist
 
 } // raiseTab
@@ -612,6 +646,16 @@ function start()
 
 }  // start
 //----------------------------------------------------------------------------------------------------
+function logEventOnServer(moduleOfOrigin, eventName, eventStatus, comment)
+{
+   console.log("about to logEvent: " + eventName);
+   payload= {eventName: eventName, eventStatus: eventStatus, 
+             moduleOfOrigin: moduleOfOrigin, comment: comment};
+
+   hub.send(JSON.stringify({cmd: "logEvent", callback: "", status: "request", payload: payload}));
+
+} // logEventOnServer
+//----------------------------------------------------------------------------------------------------
 function test_intersectionOfArrays()
 {
    console.log("---  test_intersectionOfArrays");
@@ -670,6 +714,7 @@ function standAloneTest()
      getSocketConnectedFunctions: getSocketConnectedFunctions,
      addOnDocumentReadyFunction: addOnDocumentReadyFunction,
      getOnDocumentReadyFunctions: getOnDocumentReadyFunctions,
+     openCenteredBrowserWindow: openCenteredBrowserWindow,
      runningInNode: runningInNode,
      initializeWebSocket: initializeWebSocket,
      getSocket: getSocket,
@@ -678,6 +723,7 @@ function standAloneTest()
      getDispatchOptions: getDispatchOptions,
      dispatchMessage: dispatchMessage,
      configureSendSelectionMenu: configureSendSelectionMenu,
+     openCenteredBrowserWindow: openCenteredBrowserWindow,
      enableButton: enableButton,
      disableButton: disableButton,
      enableTab: enableTab,
@@ -697,7 +743,8 @@ function standAloneTest()
      showTab: showTab,
      addTab: addTab,
      sat: standAloneTest,
-     start: start
+     start: start,
+     logEventOnServer: logEventOnServer
      });
 
 }); // HubModule
@@ -706,6 +753,140 @@ function standAloneTest()
 
 var hub = HubModule();
 hub.start();
+// testManager/Module.js
+//----------------------------------------------------------------------------------------------------
+var moduleTests = [];
+//----------------------------------------------------------------------------------------------------
+var TestManagerModule = (function () {
+
+   var loopStatusObserver = null;
+
+   var loopStatusDiv = "#testManagerLoopStatusDiv";
+
+//----------------------------------------------------------------------------------------------------
+function initializeModule()
+{
+  console.log("--- entering Module.testManager.initializeModule");
+  
+  hub.addMessageHandler("testManagerAssessUserIdForTesting", assessUserIdForTesting);
+
+  if(hub.socketConnected())
+     runAutomatedTestsIfAppropriate();
+  else
+     hub.addSocketConnectedFunction(runAutomatedTestsIfAppropriate);
+    
+} // initializeModule
+//----------------------------------------------------------------------------------------------------
+// query the oncoscape server for user id.  the callback then makes a local (that is,
+// Module-specific) decision to run this module's automated tests based upon that id
+function runAutomatedTestsIfAppropriate()
+{
+   var msg = {cmd: "getUserInfo",  callback: "testManagerAssessUserIdForTesting", status: "request", payload: ""};
+   hub.send(JSON.stringify(msg));
+
+} // runAutomatedTestsIfAppropriate
+//----------------------------------------------------------------------------------------------------
+function assessUserIdForTesting(msg)
+{
+   console.log("---- Module.testManager, payload: ");
+   console.log(JSON.stringify(msg.payload));
+   
+   var userID = msg.payload.userID;
+   userID = userID.toLowerCase();
+
+   var datasetNames = msg.payload.datasets;
+   if(typeof(datasetNames) === "string")
+      datasetNames = [datasetNames];
+
+     // currently restricted to just one module:
+     // mutation observer pacing not yet worked out with multiple modules tested successively
+     
+   console.log("testManager/Module.js assessUserIdForTesting: " + userID);
+   if(userID.indexOf("autotest") === 0){
+      console.log("testManager/Module.js running tests for user " + userID);
+      var start = userID.indexOf(".");
+      var end = userID.indexOf("@");
+      var reps = 1;
+      if(start > 0 && end > 0)
+        reps = parseInt(userID.slice(start+1, end));
+      var exitOnCompletion = false;
+      if(userID.indexOf("exitoncompletion") > 0)
+          exitOnCompletion = true;
+
+      console.log("runTests: " + JSON.stringify(datasetNames));
+      console.log("reps: " + reps);
+      console.log("exitOnCompletion: " + exitOnCompletion);
+      //runTests(datasetNames, reps, exitOnCompletion);
+
+        // the individual modules should not exitOnCompletion
+      var modulesExitOnCompletion = false;
+      for(var i=0; i < moduleTests.length; i++){
+         console.log("about to run <module>Tester.run(), loop " + i);
+         moduleTests[0].run(datasetNames, reps, exitOnCompletion);
+         } // var i
+       
+      //if(exitOnCompletion){
+      //   var payload = {errorCount: Object.keys(sessionStorage).length,
+      //                  errors: JSON.stringify(sessionStorage)};
+      //   var exitMsg = {cmd: "exitAfterTesting", callback: "", status: "request", payload: payload};
+      //   console.log("about to send exitAfterTesting msg to server");
+      //   hub.send(JSON.stringify(exitMsg));
+      //   } // if exitOnCompletion
+      } // if userID == autotest
+
+} // assessUserIdForTesting
+//----------------------------------------------------------------------------------------------------
+function runTests(datasetNames, reps, exitOnCompletion)
+{
+
+   var config = {attributes: true, childList: true, characterData: true};
+   var target =  document.querySelector(loopStatusDiv);
+
+   var testIndex = -1;
+
+   var onMutation = function(mutations){
+      mutation = mutations[0];
+      loopStatusObserver.disconnect();
+      loopStatusObserver = null;
+      var id = mutation.target.id;
+      var msg = $(loopStatusDiv).text();
+      console.log("test status changed, text: " + msg);
+      testIndex++;
+      if(testIndex < moduleTests.length){
+         console.log("about to test module " + testIndex);
+	       loopStatusObserver = new MutationObserver(onMutation);
+         loopStatusObserver.observe(target, config);
+         var moduleExitOnCompletion = false;
+         moduleTests[testIndex].run(datasetNames, reps, moduleExitOnCompletion);
+	    }else{
+         console.log("mutation observer function detected end of moduleTests array");
+         if(exitOnCompletion){
+            var payload = {errorCount: Object.keys(sessionStorage).length,
+	                   errors: JSON.stringify(sessionStorage)};
+            var exitMsg = {cmd: "exitAfterTesting", callback: "", status: "request", payload: payload};
+            console.log("about to send exitAfterTesting msg to server");
+            hub.send(JSON.stringify(exitMsg));
+	       } // if exitOnCompletion
+	    } // else: datasets exhaused
+    }; // onMutation function
+
+   loopStatusObserver = new MutationObserver(onMutation);
+   loopStatusObserver.observe(target, config);
+
+   $(loopStatusDiv).text("start testing");   // mutate the target
+
+} // runTests
+//----------------------------------------------------------------------------------------------------
+
+  return({
+     init: initializeModule,
+     run: runTests
+     });
+
+});  // TestManagerMdoule
+//----------------------------------------------------------------------------------------------------
+testManager = TestManagerModule();
+hub.addOnDocumentReadyFunction(testManager.init);
 hub.addOnDocumentReadyFunction(function() {
     console.log("====== tabapps document ready");
     window.tabsAppRunning = true
@@ -725,10 +906,13 @@ hub.addOnDocumentReadyFunction(function() {
                } // if
             //console.log(" ==== tab.activate, possible cyjs resize and fit");
             if(typeof(cwMarkers) != "undefined") {
-               console.log("adjusting cwMarkers");
-               cwMarkers.resize(); 
-               cwMarkers.fit(50);
-               //console.log("done adjusting cwMarkers");
+              console.log("adjusting cwMarkers? " + cwMarkers.width() + " * " + cwMarkers.height());
+               if(cwMarkers.width() > 0){
+                  cwMarkers.resize(); 
+                  console.log("after resize");
+                  cwMarkers.fit(50);
+                  console.log("done adjusting cwMarkers");
+		  }
                }
             if(typeof(cyGbm) != "undefined") {
                //console.log("adjusting cwGbm");
@@ -752,7 +936,6 @@ hub.addOnDocumentReadyFunction(function() {
 
 
 
-
 //----------------------------------------------------------------------------------------------------
 var DataSummaryModule = (function () {
 
@@ -760,7 +943,7 @@ var DataSummaryModule = (function () {
 
   var outputDiv;
   var dataSetNamesOutputDiv;
-  var thisModulesName = "datasets";
+  var thisModulesName = "Datasets";
   var thisModulesOutermostDiv = "datasetsDiv";
 
   var tableElement;
@@ -857,8 +1040,16 @@ function selectManifest(event)
 {
    selectedDataSet = datasetMenu.val();
    console.log("dataset '" + selectedDataSet + "'");
+   $("#datasetsManifestTable").css("display", "none");
 
    if(selectedDataSet === ""){
+<<<<<<< HEAD
+      $("#datasetInstructions").css("display", "block");
+      hub.disableButton(useThisDatasetButton);
+      }
+    else{
+      $("#datasetInstructions").css("display", "none");
+=======
       $("#datasetInstructions").css("display", "block")
       $("#datasetsManifestTable").css("display", "none")
       hub.disableButton(useThisDatasetButton);
@@ -866,6 +1057,7 @@ function selectManifest(event)
     else{
       $("#datasetInstructions").css("display", "none")
       $("#datasetsManifestTable").css("display", "block")      
+>>>>>>> 718ca855b3d1b294378d93894c2833c8266fec9d
       requestDataSetSummary(selectedDataSet);
     }
 
@@ -919,6 +1111,8 @@ function requestDataSetSummary(dataSetName)
 //----------------------------------------------------------------------------------------------------
 function displayDataManifest(msg)
 {
+   $("#datasetsManifestTable").css("display", "block");
+
    var payload = msg.payload;
    var tblColumnNames = payload.colnames;
 
@@ -977,7 +1171,15 @@ function displayDataManifest(msg)
 function specifyCurrentDataset()
 {
    console.log("Module.datasets 'Use Dataset' button clicked, specifyCurrentDataset: " + selectedDataSet);
-
+ 
+<<<<<<< HEAD
+   hub.disableAllTabsExcept([thisModulesOutermostDiv, "userDataStoreDiv", "ericTestDiv", "DashboardDiv"]);
+   $("#loadingDatasetMessage").css("display", "inline");
+=======
+   hub.disableAllTabsExcept([thisModulesOutermostDiv, "userDataStoreDiv", "ericTestDiv"])
+	$("#loadingDatasetMessage").css("display", "inline")
+>>>>>>> 718ca855b3d1b294378d93894c2833c8266fec9d
+	
    var msg = {cmd: "specifyCurrentDataset",  callback: "datasetSpecified", 
               status: "request", payload: selectedDataSet};
 
@@ -987,6 +1189,7 @@ function specifyCurrentDataset()
 //----------------------------------------------------------------------------------------------------
 function datasetSpecified(msg)
 {
+	$("#loadingDatasetMessage").css("display", "none")
    console.log("--- Module.datasets:  datasetSpecified");
 
 } // datasetSpecified
@@ -1132,6 +1335,9 @@ function initializeUI ()
 
    $(window).resize(handleWindowResize);
    handleWindowResize();
+   
+   hub.disableTab(thisModulesOutermostDiv);
+
 
 } // initializeUI
 //--------------------------------------------------------------------------------------------
@@ -1141,6 +1347,10 @@ function addGeneSetNamesToMenu (geneSetNames)
    if(geneSetNames.length === 0) {
       return;
       }
+   
+  if(typeof geneSetNames == "string") 
+   	 geneSetNames = [geneSetNames]; 
+
       
    for(var i=0; i < geneSetNames.length; i++){
       optionMarkup = "<option>" + geneSetNames[i] + "</option>";
@@ -1162,6 +1372,10 @@ function handleAgeAtDxAndSurvivalRanges(msg)
 {
    console.log("=== Module.plsr, handleAgeAtDxAndSurvivalRanges");
 
+   if(msg.status != "success"){
+		//error message should be issued 
+		return;
+	}
    ageAtDxMin = Math.floor(msg.payload.AgeDx[0]/365.24);
    ageAtDxMax = Math.floor(msg.payload.AgeDx[4]/365.24);
    survivalMin = Math.floor(msg.payload.Survival[0]/365.24);
@@ -1218,7 +1432,8 @@ function requestPLSRByOnsetAndSurvival()
   msg.json = JSON.stringify(msg);
 
   hub.send(msg.json);
-
+  $("#plsrInstructions").css("display", "none");
+  $("#plsrDisplay").css("display", "block");
 }  // requestPLSRByOnsetAndSurvival
 //--------------------------------------------------------------------------------------------------
 function setupSliders()
@@ -1534,6 +1749,8 @@ function handleGeneSetNames(msg)
    newNames = msg.payload;
    addGeneSetNamesToMenu(newNames);
    hub.enableButton(calculateButton);
+   hub.enableTab(thisModulesOutermostDiv);
+
    postStatus("plsr ui now configured");
 
 } // handleGeneSetNames
@@ -1576,7 +1793,8 @@ function datasetSpecified(msg)
       hub.disableButton(calculateButton);
       return;
       }
-   
+   d3plsrDisplay.select("#plsrSVG").remove();  // so that old layouts aren't mistaken for new dataset
+      
    createPlsrObjectOnServer(dataPackageName, matrixName);
 
 } // datasetSpecified
@@ -1652,152 +1870,314 @@ return{
 plsr = PLSRModule();
 plsr.init();
 
-//----------------------------------------------------------------------------------------------------
-// observers used in QUnit testing
+// 15:15
+// plsr/Test.js
+//------------------------------------------------------------------------------------------------------------------------
 
-var PlsrTestModule = (function (){
+var plsrTestModule = (function () {
 
-   var plsrStatusObserver = null;
+       // for observing relatively small scale status changes: i.e., network loaded and displayed
+       // the div watched here is in widget.html
 
-//--------------------------------------------------------------------------------------------
-runTests = function()
+    var plsrStatusObserver = null;
+    var testStatusObserver = null;   // modified at the end of each dataset test
+
+    var minorStatusDiv = "#plsrStatusDiv";
+    var majorStatusDiv = "#plsrTestStatusDiv";
+
+    
+
+       // to detect when the full test of a dataset is complete, so that the next dataset can be tested
+       // the div watched here is in test.html
+
+
+//------------------------------------------------------------------------------------------------------------------------
+function runTests(datasetNames, reps, exitOnCompletion)
 {
-   console.log("starting PlsrTestModule runTests");
-   testLoadDataSetAndConfigure();
-
-}; // runTests
-//--------------------------------------------------------------------------------------------
-function testLoadDataSetAndConfigure()
-{
-   var testTitle = "testLoadDataSetConfigure";
-   console.log(testTitle);
+     // run through <reps> repetitions of the test
+     // condition the next test upon the completion of the preceeding one,
+     // which is detected by a change to the majorStatusDiv
+     // minorStatusDiv is used to gate successive tests applied -within-
+     // a dataset
      
-      // when our module receives the resulting 'datasetSpecified' msg, which includes 
-      // the dataset's manifest in its payload, it requests patient ageAtDz and
-      // survival mins and maxes and sets up sliders in the ui.  the 
-      // geneset pulldown menu is also populated, and a default value selected
-      // no user selection (of points in the display) is possible, so the
-      // clear selection button should not yet be active.
-      // check all these things, then testCalculateAndDisplayPLSR.
+      
+   console.log("===================================== Test.plsr: runTests");
+   console.log("Test.plsr: runTests: " + JSON.stringify(datasetNames));
+   console.log("reps: " + reps);
+   console.log("exitOnCompletion: " + exitOnCompletion);
+   
+   
+   var datasetIndex = -1;
 
+   var config = {attributes: true, childList: true, characterData: true};
+   var target =  document.querySelector(majorStatusDiv);
+
+      // define a function to be called whenever the testStatusDiv changes,
+      // which is our signal that the next test is ready to run.
+      // the first test is kicked off when we -- after setting up and
+      // configuring the observer -- manually (see below: "start testing")
+      // change the target which the observer watches.
+      // there may be a better way, but for now we delete and recreate
+      // the observer at the end of each test.
+      // note also that the next dataset is determined inside this function
+      // and that the function refers to itself.
+
+   var onMutation = function(mutations){
+      mutation = mutations[0];
+      testStatusObserver.disconnect();
+      testStatusObserver = null;
+      var id = mutation.target.id;
+      var msg = $(majorStatusDiv).text();
+      console.log("test status changed, text: " + msg);
+      datasetIndex++;
+      if(datasetIndex < (datasetNames.length * reps)){
+         console.log("about to test dataset " + datasetNames[datasetIndex]);      
+         testStatusObserver = new MutationObserver(onMutation);
+         testStatusObserver.observe(target, config);
+         if(datasetIndex < (datasetNames.length * reps))
+            testLoadDatasetplsr(datasetNames[datasetIndex % datasetNames.length]);
+         }
+      else{
+         console.log("mutation observer function detected end of datasets");
+         if(exitOnCompletion){
+            var payload = {errorCount: Object.keys(sessionStorage).length,
+                           errors: JSON.stringify(sessionStorage)};
+            var exitMsg = {cmd: "exitAfterTesting", callback: "", status: "request", payload: payload};
+            console.log("about to send exitAfterTesting msg to server");
+            hub.send(JSON.stringify(exitMsg));
+            } // if exitOnCompletion
+         } // else: datasets exhaused
+      };
+
+   testStatusObserver = new MutationObserver(onMutation);
+   testStatusObserver.observe(target, config);
+
+   $(majorStatusDiv).text("start testing");
+
+} // runTests
+//------------------------------------------------------------------------------------------------------------------------
+function testLoadDatasetplsr(dataSetName)
+{
+   var testTitle = "testLoadDatasetplsr";
+   console.log(testTitle);
+  
    if(plsrStatusObserver === null){
       plsrStatusObserver = new MutationObserver(function(mutations) {
-        console.log("in testLoadDataSet observer");
-        hub.raiseTab("plsrDiv");
+        //hub.raiseTab("plsrDiv");
         mutation = mutations[0];
         plsrStatusObserver.disconnect();
         plsrStatusObserver = null;
         var id = mutation.target.id;
         var msg = $("#plsrStatusDiv").text();
-        QUnit.test("plsr dataset loaded", function(assert) {
-          assert.equal($("#plsrAgeAtDxMinSliderReadout").text(), "45");
-          assert.equal($("#plsrAgeAtDxMaxSliderReadout").text(), "66");
-          assert.equal($("#plsrSurvivalMinSliderReadout").text(), "3");
-          assert.equal($("#plsrSurvivalMaxSliderReadout").text(), "7");
-          assert.equal($("#plsrGeneSetSelector").val(), "random.40");
-          assert.equal($("#plsrClearSelectionButton").prop("disabled"), true);
-          testCalculateAndDisplayPLSR();
-          });
+        QUnit.test('choose dataset for plsr: '+ dataSetName, function(assert) {
+          hub.raiseTab("datasetsDiv");
+          console.log("*****before change datasetname.");
+          $("#datasetMenu").val(dataSetName);
+          $("#datasetMenu").trigger("change");
+          assert.equal($("#datasetMenu").val(), dataSetName);
+          console.log("*****change dataSetName.");
+          hub.raiseTab("plsrDiv");
+          var genesetList = $("#plsrGeneSetSelector option").map(function(opt){return this.value;});
+          console.log("***** genesetList: ", genesetList);
+          //aseert.equals(document.getElementById("plsrInstructions").style.display, "block");
+          //markEndOfTestingDataSet();
+          testCalculate(genesetList);
+        });
+      }); // new MutationObserver
+    } // if null mutation observer
+    
+   var config = {attributes: true, childList: true, characterData: true};
+   var target = document.querySelector(minorStatusDiv);
+   plsrStatusObserver.observe(target, config);
+
+   var msg = {cmd: "specifyCurrentDataset", callback: "datasetSpecified", status: "request", payload:  dataSetName};
+   console.log("about to send specifyCurrentDataset msg to server: " + dataSetName);
+   hub.send(JSON.stringify(msg));
+
+} // testLoadDataset
+//----------------------------------------------------------------------------------------------------
+function testCalculate(genesetList)
+{
+   hub.raiseTab("plsrDiv");
+   console.log("starting testCalculate");
+   var genesetLength = genesetList.length;
+   console.log("******testCalculate - Current geneset length is:", genesetLength);
+   genesetIndex = hub.getRandomInt(0, $("#plsrGeneSetSelector option").length - 1);
+   geneset = genesetList[genesetIndex];     
+   
+
+   if(plsrStatusObserver === null){
+      plsrStatusObserver = new MutationObserver(function(mutations) {
+        //hub.raiseTab("plsrDiv");
+        mutation = mutations[0];
+        plsrStatusObserver.disconnect();
+        plsrStatusObserver = null;
+        var id = mutation.target.id;
+        var msg = $("#plsrStatusDiv").text();
+        // enable the calculate button, change its color, then click
+        
+        QUnit.test('testplsrCalculate', function(assert){
+          //plsrMsg = plsr.ModuleMsg();
+          //console.log("*****testCalculate plsrMsg.geneSet ",plsrMsg.geneSet);
+          console.log("*****testCalculate geneset: ",geneset);
+          //assert.equal(plsrMsg.geneSet, geneset);
+          $("#plsrCalculateButton").prop("disabled", false);
+          $("#plsrCalculateButton").css({"background-color": "red", "color": "green"});
+          assert.equal($("#plsrCalculateButton").css('color'), "rgb(0, 128, 0)");
+          //$("#plsrGeneSetSelector").val(geneset);
+          //$("#plsrGeneSetSelector").trigger("change");
+          // check if the "Calculate" is clicked
+          $("#plsrDisplay").show();
+          markEndOfTestingDataSet(); 
+          //testContentsOfplsrPlot();
+        });  
+      }); // new MutationObserver
+    } // if null mutation observer    
+   var config = {attributes: true, childList: true, characterData: true};
+   var target = document.querySelector(minorStatusDiv);
+   plsrStatusObserver.observe(target, config);
+   var ageAtDxMinThreshold = Number($("#plsrAgeAtDxMinSliderReadout").val()) * 365.24;
+   var ageAtDxMaxThreshold = Number($("#plsrAgeAtDxMaxSliderReadout").val()) * 365.24;
+   var survivalMinThreshold = Number($("#plsrSurvivalMinSliderReadout").val()) * 365.24; 
+   var survivalMaxThreshold = Number($("#plsrSurvivalMaxSliderReadout").val()) * 365.24;
+   factor1 = {name: "AgeDx", 
+             low: ageAtDxMinThreshold, 
+             high: ageAtDxMaxThreshold};
+
+   factor2 = {name: "Survival", 
+             low: survivalMinThreshold,
+             high: survivalMaxThreshold};
+  
+   var payload = {genes: geneset, source: "plsr/Test.js::testCalculate",
+                  factorCount: 2, factors: [factor1, factor2]};
+   msg = {cmd: "calculatePLSR", callback: "handlePlsrResults", status: "request", payload: payload};
+   console.log("***** msg is: ", msg);
+
+   hub.send(JSON.stringify(msg));
+
+} // testCalculate
+//----------------------------------------------------------------------------------------------------
+function testContentsOfplsrPlot()
+{
+   console.log("--- testContentsOfplsrPlot");
+   var plsrMsg = plsr.ModuleMsg();
+    QUnit.test('testplsrContents', function(assert) { 
+      assert.equal($("circle").length, plsrMsg.selectedIDs.length);
+      var circleIndex = hub.getRandomInt(0, plsrMsg.selectedIDs.length - 1);
+      var cir_random = $("circle")[circleIndex];
+      var xPos = Number(cir_random.getAttribute("cx"));
+      var yPos =  Number(cir_random.getAttribute("cy"));
+      var radius = Number(cir_random.getAttribute("r"));
+      console.log("*****testContentsOfplsrPlot coordinates" + xPos + "  " + yPos + "  " + radius);
+      // get score for this circle, maybe check tooltip name too
+      assert.equal(xPos, plsrMsg.xScale(plsrMsg.plsrScores[circleIndex][0]));
+      assert.equal(yPos, plsrMsg.yScale(plsrMsg.plsrScores[circleIndex][1]));
+      assert.equal(radius, 3);
+      markEndOfTestingDataSet(); 
+      //testSendIDs(); 
+   });
+
+} // testContentsOfplsrPlot
+//----------------------------------------------------------------------------------------------------
+function testSendIDs() {
+   console.log("entering Test.plsr:testSendGoodIDs");
+
+   var title = "testSendIDs";
+   console.log(title);
+      // first test is to clear any existing selection, then send 10 node
+      // ids (simple name strings) taken from the network itself.
+      // these nodes are sent to the network using hub.send
+      // we then check to see that these 10 nodes are selected in cyjs
+   //var ids = plsrMsg.selectedIDs.splice(-1, 1);
+   var ids;
+   var maxNodes = 200;
+   var plsrMsg = plsr.ModuleMsg();
+   if(plsrMsg.selectedIDs.length <= maxNodes){
+      ids = plsrMsg.selectedIDs.slice(0, plsrMsg.selectedIDs.length);
+   }else{
+      ids = plsrMsg.selectedIDs.slice(0, maxNodes);
+   }
+   //console.log("*****testSendIDs number of original global circles appeared: " + $("circle").length + "number of original global value stored: " + plsrMsg.selectedIDs.length);  
+   //console.log("*****testSendIDs number of ids to be sent: " + ids.length);  
+   if(plsrStatusObserver === null){
+      plsrStatusObserver = new MutationObserver(function(mutations) {
+        mutation = mutations[0];
+        plsrStatusObserver.disconnect();
+        plsrStatusObserver = null;
+        var id = mutation.target.id;
+        var statusMsg = $(minorStatusDiv).text();
+        QUnit.test(title, function(assert) {
+           plsrMsg = plsr.ModuleMsg();
+           console.log("-- in QUnit.test for testSendIDs " + ids.length + "  statusMsg: " + statusMsg);
+           //TCGAgbm is using mtx.mrna.ueArray, sampleID duplicates: "TCGA.06.0145.01.1" "TCGA.06.0145.01.2" "TCGA.06.0145.01.3"
+                          //"TCGA.06.0137.01.1" "TCGA.06.0137.01.2" "TCGA.06.0145.01.4"
+                          //"TCGA.06.0137.01.3" "TCGA.06.0145.01.5" "TCGA.06.0138.01.1"
+                          //"TCGA.06.0156.01.1" "TCGA.06.0148.01.1" "TCGA.06.0148.01.2"
+                          //"TCGA.06.0211.01.1" "TCGA.06.0148.01.3" "TCGA.06.0176.01.1"
+                          //"TCGA.06.0154.01.1" "TCGA.06.0156.01.2" "TCGA.06.0208.01.1"
+                          //"TCGA.06.0216.01.1"
+           //DEMOdz: mtx.mrna.bc, sampleID duplicates: "TCGA.06.0747" "TCGA.06.0749"
+           //TCGAbrain: mtx.mrna.bc, no sampleID duplicates
+           //All sample IDs will be returned, so there might be duplicate points drawn representing samples for a given patient.
+           assert.ok($("circle").length >= ids.length);
+           //console.log("*****all ids sent length:", ids.length);
+           //console.log("*****all ids received length:", plsrMsg.selectedIDs.length);
+           //console.log("*****unique ids sent length:", $.unique(ids).length);
+           //console.log("*****unique ids received length:", $.unique(plsrMsg.selectedIDs).length);
+           assert.equal($.unique(ids).length, $.unique(plsrMsg.selectedIDs).length);
+           testSendIDstoHighlight();
+           });
         }); // new MutationObserver
       } // if null mutation observer
 
    var config = {attributes: true, childList: true, characterData: true};
-   var target = document.querySelector("#plsrStatusDiv");
+   var target = document.querySelector(minorStatusDiv);
    plsrStatusObserver.observe(target, config);
 
-     // we could use the datasets tab menu to select the dataset, then click the button.
-     // easier and quite adequate for our purposes here, however, is to simply send out the message which
-     // these ui actions create
-
-   var msg = {cmd: "specifyCurrentDataset", callback: "datasetSpecified", status: "request", payload: "DEMOdz"};
+   console.log("testSendIDs, sending " + JSON.stringify(ids));
+   var payload = {value: $.unique(ids), count: $.unique(ids).length, source: "plsr/Test.js::testSendIDs"};
+   var msg = {cmd: "sendSelectionTo_plsr", callback: "", status: "request", payload:  payload};
+   
    hub.send(JSON.stringify(msg));
 
-} // testLoadDataSetAndConfigure
+} // testSendIDs
 //------------------------------------------------------------------------------------------------------------------------
-testCalculateAndDisplayPLSR = function()
+function markEndOfTestingDataSet()
 {
-  var testTitle = "testCalculateAndDisplayPLSR";
-  console.log(testTitle);
-
-     // use default settings of the two sliders
-
-  $("#plsrCalculateButton").trigger("click");
- 
-  if(plsrStatusObserver === null){
-     plsrStatusObserver = new MutationObserver(function(mutations) {
-        mutation = mutations[0];
-        plsrStatusObserver.disconnect();
-        plsrStatusObserver = null;
-        var id = mutation.target.id;
-        var msg = $("#plsrStatusDiv").text();
-        QUnit.test("plsr loaded", function(assert) {
-           var c0 = $("circle")[0];
-           var geneName = c0.innerHTML;
-           assert.ok(geneName == "PRRX1");
-           var xPos = Number(c0.getAttribute("cx"));
-           var yPos =  Number(c0.getAttribute("cy"));
-           var radius = Number(c0.getAttribute("r"));
-           assert.ok(xPos > 0);
-           assert.ok(yPos > 0);
-           assert.ok(radius > 0);
-           var axisLines = $(".line");
-          assert.equal(axisLines.length, 4);
-          for(var i=0; i < 4; i++){
-             var x1 = Number($(".line")[i].getAttribute("x1"));
-             var x2 = Number($(".line")[i].getAttribute("x2"));
-             var y1 = Number($(".line")[i].getAttribute("y1"));
-             var y2 = Number($(".line")[i].getAttribute("y2"));
-             var axisLength = Math.sqrt(Math.pow(x2-x1,2) + Math.pow(y2-y1,2));
-             console.log("extent for axis " + i + ": " + axisLength);
-             assert.ok(axisLength > 10);
-             } // for i
-           }); // QUnit.test
-         }); // new MutationObserver
-      } // if null mutation observer
-
-   var config = {attributes: true, childList: true, characterData: true};
-   var target = document.querySelector("#plsrStatusDiv");
-   plsrStatusObserver.observe(target, config);
-
-}; // testCalculateAndDisplayPLSR
-//-------------------------------------------------------------------------------------------
-showTests = function()
-{
-   $("#qunit").css({"display": "block"});
-
-}; // showTests
+  console.log("end of testing dataset");
+  $(majorStatusDiv).text("dataset complete");
+  $("#testManagerLoopStatusDiv").text("Test.plsr, datasets complete");
+  
+} // markEndOfTestingDataSet
 //------------------------------------------------------------------------------------------------------------------------
-hideTests = function()
+function initialize()
 {
-   $("#qunit").css({"display": "none"});
+   console.log("--- initializing plsr/Test.js");
 
-}; // hide
+} // initialize
 //------------------------------------------------------------------------------------------------------------------------
 return{
-   run: runTests,
-   show: showTests,
-   hide: hideTests
-   }; // PlsrTestModule return value
+   init: initialize,
+   run: runTests
+   }; // module return value
 
-//----------------------------------------------------------------------------------------------------
-}); // PlsrTestModule
-
-
-plsrTest = PlsrTestModule();
+//------------------------------------------------------------------------------------------------------------------------
+}); // plsrTestModule
+plsrTester = plsrTestModule();
+moduleTests.push(plsrTester);
 
 
 </script>
 
 <body>
 
-  <div id="qunit" style="display:none"></div>
-  <div id="qunit-fixture"></div>
-
 <div id="oncoscapeTabs">
    <ul>
      <li><a href="#datasetsDiv">Datasets</a></li>
-     <li><a href="#plsrDiv">PLSR</a></li>
+     <li><a href="#plsrDiv">plsr</a></li>
+     <li><a href="#plsrTestDiv">Tests</a></li>
    </ul>
+
 <style>
 </style>
 
@@ -1809,7 +2189,7 @@ plsrTest = PlsrTestModule();
      <button id="selectDatasetButton">Use Dataset</button>
 	 <span id="loadingDatasetMessage" style="display:none; margin-left:10px">Loading Dataset...</span>
      <select type="button" id="datasetsSendSelectionsMenu" style="float:right; margin:15px; display: none"></select>
-    <div id="oncoscapeLogo" style="float:right; margin-right:0.5em">	<img width="175" src="http://oncoscape.sttrcancer.org/oncoscape/images/oncoscape_logo_TM.png" alt="Oncoscape"/></div>
+
   </div>
 
    <div id="dataSetNamesOutputDiv" style="margin: 20px;"></div>
@@ -1948,10 +2328,21 @@ background:#ABD3E8;
          <select class="SelectionMenu" id="plsrSendSelectionsMenu" type="button" style="margin-top: 7px;"></select>
       </div>
   </div>
- 
-  <div id="plsrDisplay" style="margin:0 auto"></div>
+  <div id="plsrInstructions">
+    <p>Please adjust the sliders specifying Age at Diagnosis and Survival ranges, select the desired gene set from dropdown menu, then click 'Calculate' to display the PLSR result.</p>
+  </div>
+  <div id="plsrDisplay" style="margin:0 auto; display: none"></div>
 
 </div>
+
+<div id="plsrTestDiv">
+  <div id="plsrTestStatusDiv"        style="display:none"></div>
+  <div id="plsrStatusDiv" style="display:none"></div>
+  <div id="qunit" style="display:block"></div>
+  <div id="qunit-fixture"></div>
+</div>
+
+
 
 </div>
 

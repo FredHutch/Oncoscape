@@ -26,4 +26,12 @@ test:
 	- kill `ps aux | grep runBlankTabTest.R | egrep -v grep | awk '{print $$2}'`
 	nohup R --vanilla -f runBlankTabTest.R &
 
+check:
+	jshint Module.js
+	jshint Test.js
+	R CMD INSTALL ../../..
+	m4 index.pre > index.html
+	R -f runOncoprint.R  autotest.10@nowhere.org.exitOnCompletion "DEMOdz;TCGAgbm;TCGAbrain"
+
+
 

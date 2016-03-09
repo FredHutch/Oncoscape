@@ -108,23 +108,23 @@ function iterateOverDatasets(datasetNames, reps, exitOnCompletion)
       console.log("---- testing datasetIndex " + datasetIndex);
       if(datasetIndex < (datasetNames.length * reps)){
          console.log("about to test dataset " + datasetNames[datasetIndex]);      
-	 testStatusObserver = new MutationObserver(onMutation);
+   testStatusObserver = new MutationObserver(onMutation);
          testStatusObserver.observe(target, config);
          if(datasetIndex < (datasetNames.length * reps)){
-	    var datasetName = datasetNames[datasetIndex % datasetNames.length];
+      var datasetName = datasetNames[datasetIndex % datasetNames.length];
             testDisplayManifest(datasetName);
-	    } // if not done yet
-	 }
+      } // if not done yet
+   }
       else{
          console.log("mutation observer function detected end of datasets");
          if(exitOnCompletion){
             var payload = {errorCount: Object.keys(sessionStorage).length,
-	                   errors: JSON.stringify(sessionStorage)};
+                     errors: JSON.stringify(sessionStorage)};
             var exitMsg = {cmd: "exitAfterTesting", callback: "", status: "request", payload: payload};
             console.log("about to send exitAfterTesting msg to server");
             hub.send(JSON.stringify(exitMsg));
-	    } // if exitOnCompletion
-	 } // else: datasets exhaused
+      } // if exitOnCompletion
+   } // else: datasets exhaused
       };
 
    testStatusObserver = new MutationObserver(onMutation);
@@ -194,4 +194,3 @@ console.log("creaing datasetsTester");
 datasetsTester = DatasetsTestModule();
 console.log("pushing datasetsTester");
 moduleTests.push(datasetsTester);
-
