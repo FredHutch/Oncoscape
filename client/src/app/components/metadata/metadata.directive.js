@@ -27,7 +27,7 @@
             vm.colnames = [];
             vm.rows = [];
             vm.search = "";
-            vm.toggleFilter = function(){
+            vm.toggleFilter = function() {
                 angular.element(".container-filters").toggleClass("container-filters-collapsed");
                 angular.element(".container-filter-toggle").toggleClass("container-filter-toggle-collapsed");
             }
@@ -37,18 +37,18 @@
 
             // Load Datasets
             osApi.setBusy(true);
-            osApi.getDataManifest(vm.dataset).then(function(response){
-                vm.colnames= response.payload.colnames;
+            osApi.getDataManifest(vm.dataset).then(function(response) {
+                vm.colnames = response.payload.colnames;
                 vm.rows = response.payload.mtx;
-                $timeout(function(){
+                $timeout(function() {
                     dtTable = angular.element('#metadata-datatable').dataTable({
-                        "paging":   false
+                        "paging": false
                     });
-                    $scope.$watch('vm.search', function(){
+                    $scope.$watch('vm.search', function() {
                         dtTable.api().search(vm.search).draw();
                     });
                     osApi.setBusy(false);
-                },0,false);
+                }, 0, false);
             });
         }
     }

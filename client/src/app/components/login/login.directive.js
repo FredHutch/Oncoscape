@@ -12,7 +12,6 @@
             restrict: 'E',
             templateUrl: 'app/components/login/login.html',
             replace: true,
-            scope: {},
             controller: LoginController,
             controllerAs: 'vm',
             bindToController: true
@@ -28,10 +27,10 @@
             vm.hasError = false;
 
             vm.login = function() {
-                osApi.login(vm.user).then(function(){
-                    if (vm.user.authenticated){
+                osApi.login(vm.user).then(function() {
+                    if (vm.user.authenticated) {
                         $state.go("datasource");
-                    }else{
+                    } else {
                         vm.hasError = true;
                     }
                 });

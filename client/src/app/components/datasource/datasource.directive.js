@@ -22,13 +22,15 @@
         function DatasourceController(osApi, $state) {
             var vm = this;
             vm.datasets = [];
-            vm.explore = function(tool, datasource){
-                $state.go(tool, {datasource:datasource});
+            vm.explore = function(tool, datasource) {
+                $state.go(tool, {
+                    datasource: datasource
+                });
             };
 
             // Load Datasets
             osApi.setBusy(true);
-            osApi.getDataSetNames().then(function(response){
+            osApi.getDataSetNames().then(function(response) {
                 vm.datasets = response.payload.datasets;
                 osApi.setBusy(false);
             });

@@ -2,18 +2,18 @@
 	<h2>Patient History ({{vm.datasource}})</h2>
     <div class="row">
         <div class="col-xs-3" style="padding-right:20px;">
-            <label>Age At Death</label>
+            <label>Age At diagnosis</label>
             <div range-slider 
-                min="vm.deathMinValue" model-min="vm.deathMinFilter" 
-                max="vm.deathMaxValue" model-max="vm.deathMaxFilter"
+                min="vm.diagnosisMinValue" model-min="vm.diagnosisMin" 
+                max="vm.diagnosisMaxValue" model-max="vm.diagnosisMax"
                 show-values="true" attach-handle-values="true"
                 on-handle-up="vm.applyFilter()"></div>
         </div>
         <div class="col-xs-3" style="padding-right:20px;">
             <label>Survival</label>
             <div range-slider 
-                min="vm.survivalMinValue" model-min="vm.survivalMinFilter" 
-                max="vm.survivalMaxValue" model-max="vm.survivalMaxFilter" 
+                min="vm.survivalMinValue" model-min="vm.survivalMin" 
+                max="vm.survivalMaxValue" model-max="vm.survivalMax" 
                 show-values="true" attach-handle-values="true"
                 on-handle-up="vm.applyFilter()"></div>
         </div>

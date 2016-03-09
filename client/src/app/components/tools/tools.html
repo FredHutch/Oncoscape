@@ -1,34 +1,17 @@
 <section class="datasource">
 	<div class="container">
 		<div class="row">
-			<h2>Tools</h2>
+			<h2>Tools ({{vm.datasource}})</h2>
 			<p>Sed ut perspiciatis unde omnis iste natus error sit voluptatem accusantium doloremque laudantium, totam rem aperiam, eaque ipsa quae ab illo inventore veritatis et quasi architecto beatae vitae dicta sunt explicabo. Nemo enim ipsam voluptatem quia voluptas sit aspernatur aut odit aut fugit, sed quia consequuntur magni dolores eos qui ratione voluptatem sequi nesciunt. </p>
 		</div>
 		<div class="row">
 			<ul>
-				<li ng-repeat="tool in vm.tools">
-					<img src="/assets/images/datasets/{{tool.img}}">
+				<li ng-repeat="tool in vm.tools" class="col-sm-6">
+					<img ng-src="/assets/images/datasets/{{tool.img}}">
 					<h2>{{tool.name}}</h2>
-					<p>Lorem ipsum dolor sit amet, cras eu mollis vivamus, ad sollicitudin rhoncus dui proin. Dolor elit ut condimentum luctus ipsam, suspendisse auctor, bibendum cubilia tellus ultrices pellentesque dictumst, egestas lectus in mattis mi class ac. Etiam odio leo vestibulum id, dui pede faucibus cras orci sit primis, massa lacus consectetuer urna pulvinar fusce. </p>
-					<a ng-click="vm.explore(tool.route, 'DEMOdz')">Demo</a>
-					&nbsp;|&nbsp;
-					<a ng-click="vm.explore(tool.route, 'TCGAbrain')">Brain</a>
-					&nbsp;|&nbsp;
-					<a ng-click="vm.explore(tool.route, 'TCGAbrca')">Brca</a>
-					&nbsp;|&nbsp;
-					<a ng-click="vm.explore(tool.route, 'TCGAcoadread')">Coadread</a>
-					&nbsp;|&nbsp;
-					<a ng-click="vm.explore(tool.route, 'TCGAgbm')">Gbm</a>
-					&nbsp;|&nbsp;
-					<a ng-click="vm.explore(tool.route, 'TCGAhnsc')">Hnsc</a>
-					&nbsp;|&nbsp;
-					<a ng-click="vm.explore(tool.route, 'TCGAluad')">Luad</a>
-					&nbsp;|&nbsp;
-					<a ng-click="vm.explore(tool.route, 'TCGAlung')">Lung</a>
-					&nbsp;|&nbsp;
-					<a ng-click="vm.explore(tool.route, 'TCGAlusc')">Lusc</a>
-					&nbsp;|&nbsp;
-					<a ng-click="vm.explore(tool.route, 'TCGAprad')">Prad</a>
+					<p>Lorem ipsum dolor sit amet, cras eu mollis vivamus, ad sollicitudin rhoncus dui proin.  </p>
+					<a href="" ng-click="vm.explore(tool.route, vm.datasource)">Explore</a>
+					
 				</li>
 			</ul>
 		</div>

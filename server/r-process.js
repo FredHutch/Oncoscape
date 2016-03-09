@@ -6,7 +6,8 @@
 *	Today the currancy of these transactions is the Chinook Messaging structure
 *
 */
-var rstats  = require('rstats');
+var rstats  = require('./rstats/build/Release/R.node');
+// node-gyp configure build https://github.com/ijsf/node-Rstats/tree/0918c18a9b6a865aced557ce2d9c1d26ea155126
 var r = new rstats.session();
 r.parseEvalQ("library('OncoDev15')");
 r.parseEvalQ("o15 <- OncoDev15('DEMOdz;TCGAgbm;TCGAlgg;TCGAbrain;TCGAbrca;TCGAprad;TCGAlusc;TCGAluad;TCGAlung;TCGAhnsc;TCGAcoadread')");

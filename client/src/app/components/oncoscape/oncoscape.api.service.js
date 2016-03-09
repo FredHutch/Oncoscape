@@ -13,10 +13,10 @@
         this.setBusyMessage = setBusyMessage;
         this.login = login;
         this.setDataset = setDataset;
-        this.showFilter = function(){
+        this.showFilter = function() {
             angular.element("#filter-dropdown").slideDown();
         }
-        this.hideFilter = function(){
+        this.hideFilter = function() {
             angular.element("#filter-dropdown").slideUp();
         }
 
@@ -56,53 +56,77 @@
             var req = {
                 method: 'POST',
                 url: 'http://localhost/login/',
-                data: {username:user.name, password:user.password, domain:user.domain.name}
+                data: {
+                    username: user.name,
+                    password: user.password,
+                    domain: user.domain.name
+                }
             };
-            return $http(req).then(function(res){
-                if (res.data.success){
+            return $http(req).then(function(res) {
+                if (res.data.success) {
                     user.authenticated = true;
                     user.token = res.data.token;
-                }else{
+                } else {
                     user.authenticated = false;
                     user.token = null;
                 }
             });
         }
-        
-        
-        function setBusy(value){
 
-            if (value){
+
+        function setBusy(value) {
+
+            if (value) {
                 angular.element(".loader-modal").show();
-            }else{
+            } else {
                 angular.element(".loader-modal").hide();
             }
             return setBusyMessage;
         }
-        function setBusyMessage(){
+
+        function setBusyMessage() {
             //console.log(value);
         }
 
         function getDomains() {
-            return [
-                {"name": "Guest"},
-                {"name": "FHCRC"},
-                {"name": "SCCA"}
-            ];
+            return [{
+                "name": "Guest"
+            }, {
+                "name": "FHCRC"
+            }, {
+                "name": "SCCA"
+            }];
         }
 
-        function setDataset(dataPackage){
-            return osSocket.request({cmd: "specifyCurrentDataset", payload: dataPackage });
-                //.then(function(){ });
+        function setDataset(dataPackage) {
+            return osSocket.request({
+                cmd: "specifyCurrentDataset",
+                payload: dataPackage
+            });
+            //.then(function(){ });
         }
+
         function getDataSetNames() {
-            return osSocket.request({cmd: "getDataSetNames"});
+            return osSocket.request({
+                cmd: "getDataSetNames"
+            });
         }
+
         function getDataManifest(dataPackage) {
-            return osSocket.request({cmd: "getDataManifest", payload:dataPackage});
+            return osSocket.request({
+                cmd: "getDataManifest",
+                payload: dataPackage
+            });
         }
+
         function getPatientHistoryTable(dataPackage) {
-            return osSocket.request({cmd: "getPatientHistoryTable", payload:{datasetName: dataPackage, durationFormat: "byYear"}});
+            return osSocket.request({
+                cmd: "getPatientHistoryTable",
+                payload: {
+                    datasetName: dataPackage,
+                    durationFormat: "byYear"
+                }
+            });
         }
 
         function getPatientHistoryDxAndSurvivalMinMax() {}
@@ -110,20 +134,30 @@
         function getSampleDataFrame() {}
 
         function getGeneSetNames() {
-            return osSocket.request({cmd:"getGeneSetNames"});
+            return osSocket.request({
+                cmd: "getGeneSetNames"
+            });
         }
 
         function getSampleCategorizationNames() {
-            return osSocket.request({cmd:'getSampleCategorizationNames'});
+            return osSocket.request({
+                cmd: 'getSampleCategorizationNames'
+            });
         }
 
         function getSampleCategorization(names) {
-            return osSocket.request({cmd:'getSampleCategorization', payload:names });
+            return osSocket.request({
+                cmd: 'getSampleCategorization',
+                payload: names
+            });
         }
 
         function getMarkersNetwork(payload) {
             // Payload is return From Set DataSource
-            return osSocket.request({cmd:"getMarkersNetwork", payload:payload})
+            return osSocket.request({
+                cmd: "getMarkersNetwork",
+                payload: payload
+            })
         }
 
         function getDrugGeneInteractions() {}
@@ -136,63 +170,110 @@
 
         function getPCA(dataPackage, matrixName) {
             var payload = {
-                dataPackage: dataPackage, 
+                dataPackage: dataPackage,
                 matrixName: matrixName
             };
-            return osSocket.request({cmd: "createPCA", payload: payload});
+            return osSocket.request({
+                cmd: "createPCA",
+                payload: payload
+            });
         }
 
         function getCalculatedPCA(geneSet) {
-            var payload = {genes: geneSet};
-            return osSocket.request({cmd: "calculatePCA", payload: payload});
+            var payload = {
+                genes: geneSet
+            };
+            return osSocket.request({
+                cmd: "calculatePCA",
+                payload: payload
+            });
         }
 
         function getPLSR(dataPackage, matrixName) {
             var payload = {
-                dataPackage: dataPackage, 
+                dataPackage: dataPackage,
                 matrixName: matrixName
             };
-            return osSocket.request({cmd: "createPLSR", payload: payload});
+            return osSocket.request({
+                cmd: "createPLSR",
+                payload: payload
+            });
         }
 
         function getCalculatedPLSR(geneSet, factors) {
             var payload = {
-                genes: geneSet, 
-                factorCount: factors.length, 
+                genes: geneSet,
+                factorCount: factors.length,
                 factors: factors
             };
-            return osSocket.request({cmd: "calculatePLSR", payload: payload});
+            return osSocket.request({
+                cmd: "calculatePLSR",
+                payload: payload
+            });
         }
 
         function getSummarizedPLSRPatientAttributes(attrs) {
-            attrs = attrs || ['AgeDx','Survival'];
-            return osSocket.request({cmd:'summarizePLSRPatientAttributes', payload: attrs});
+            attrs = attrs || ['AgeDx', 'Survival'];
+            return osSocket.request({
+                cmd: 'summarizePLSRPatientAttributes',
+                payload: attrs
+            });
         }
 
         function getCalculatedSurvivalCurves() {}
 
         function getTimelines() {
-            return osSocket.request({cmd: "createTimelines"});
+            return osSocket.request({
+                cmd: "createTimelines"
+            });
         }
 
         function getCalculatedTimelines() {}
 
         // GBM
-        function getModuleModificationDate(){
-            return osSocket.request({cmd: "getModuleModificationDate", payload: 'gbmPathways'});
+        function getModuleModificationDate() {
+            return osSocket.request({
+                cmd: "getModuleModificationDate",
+                payload: 'gbmPathways'
+            });
         }
-        function getPathway(){
-            return osSocket.request({cmd: "getPathway", payload:'g.gbmPathways.json'});
+
+        function getPathway() {
+            return osSocket.request({
+                cmd: "getPathway",
+                payload: 'g.gbmPathways.json'
+            });
         }
-        function getMrnaData(entities, features){
-            return osSocket.request({cmd:"get_mRNA_data",payload:{entities: entities, features: features}});
+
+        function getMrnaData(entities, features) {
+            return osSocket.request({
+                cmd: "get_mRNA_data",
+                payload: {
+                    entities: entities,
+                    features: features
+                }
+            });
         }
-        function getCnvData(entities, features){
-            return osSocket.request({cmd:"get_cnv_data",payload:{entities: entities, features: features}});
+
+        function getCnvData(entities, features) {
+            return osSocket.request({
+                cmd: "get_cnv_data",
+                payload: {
+                    entities: entities,
+                    features: features
+                }
+            });
         }
-        function getMutationData(entities, features){
-             return osSocket.request({cmd:"get_mutation_data",payload:{entities: entities, features: features}});
+
+        function getMutationData(entities, features) {
+            return osSocket.request({
+                cmd: "get_mutation_data",
+                payload: {
+                    entities: entities,
+                    features: features
+                }
+            });
         }
-       
+
     }
 })();

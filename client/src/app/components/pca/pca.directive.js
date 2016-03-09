@@ -26,7 +26,7 @@
             vm.datasource = $stateParams.datasource || "DEMOdz";
             vm.geneSets = [];
             vm.geneSet = null;
-            vm.toggleFilter = function(){
+            vm.toggleFilter = function() {
                 angular.element(".container-filters").toggleClass("container-filters-collapsed");
                 angular.element(".container-filter-toggle").toggleClass("container-filter-toggle-collapsed");
             }
@@ -43,9 +43,11 @@
             osApi.setBusy(true)("Loading Dataset");
             osApi.setDataset(vm.datasource).then(function(response) {
 
-                var mtx = response.payload.rownames.filter(function(v){return v.indexOf("mtx.mrna")>=0});
+                var mtx = response.payload.rownames.filter(function(v) {
+                    return v.indexOf("mtx.mrna") >= 0
+                });
 
-                mtx = mtx[mtx.length-1].replace(".RData","");
+                mtx = mtx[mtx.length - 1].replace(".RData", "");
                 osApi.setBusyMessage("Creating PCA Matrix");
                 osApi.getPCA(vm.datasource, mtx).then(function() {
                     osApi.setBusyMessage("Loading Gene Sets");
@@ -80,13 +82,21 @@
                 var height = elChart.height();
 
                 var max, min;
-                max = d3.max(dataset, function(d) { return +d[0]; });
-                min = d3.min(dataset, function(d) { return +d[0]; });
-                var xMax = ((Math.abs(max)>Math.abs(min)) ? max : min) * 1.2;
-                max = d3.max(dataset, function(d) { return +d[1]; });
-                min = d3.min(dataset, function(d) { return +d[1]; });
-                var yMax = ((Math.abs(max)>Math.abs(min)) ? max : min) * 1.2;
-                
+                max = d3.max(dataset, function(d) {
+                    return +d[0];
+                });
+                min = d3.min(dataset, function(d) {
+                    return +d[0];
+                });
+                var xMax = ((Math.abs(max) > Math.abs(min)) ? max : min) * 1.2;
+                max = d3.max(dataset, function(d) {
+                    return +d[1];
+                });
+                min = d3.min(dataset, function(d) {
+                    return +d[1];
+                });
+                var yMax = ((Math.abs(max) > Math.abs(min)) ? max : min) * 1.2;
+
                 var xScale = d3.scale.linear()
                     .domain([-xMax, xMax])
                     .range([0, width]);
@@ -109,32 +119,40 @@
                     .attr("width", width)
                     .attr("height", height);
 
-                
-                var circles = d3Chart.selectAll("circle").data(dataset, function(d) { return d; })
-                    circles.enter()
-                        .append("circle")
-                        .attr("cx",width*.5)
-                        .attr("cy",height*.5)
-                        .attr("r", function() { return 3; })
-                        .style("fill-opacity", "0")
-                        .transition()
-                            .duration(750)
-                            .delay(function(d, i) {
-                                return i / 300 * 500; 
-                            })
-                            .attr("cx", function(d) { return xScale(d[0]); })
-                            .attr("cy", function(d) { return yScale(d[1]); })
-                            .style("fill-opacity", 1)
-                    circles.exit()
-                        .transition()
-                            .duration(600)
-                            .delay(function(d, i) {
-                                return i / 300 * 500; 
-                            })
-                            .attr("cx",width*.5)
-                            .attr("cy",height*.5)
-                            .style("fill-opacity", "0")
-                            .remove();
+
+                var circles = d3Chart.selectAll("circle").data(dataset, function(d) {
+                    return d;
+                })
+                circles.enter()
+                    .append("circle")
+                    .attr("cx", width * .5)
+                    .attr("cy", height * .5)
+                    .attr("r", function() {
+                        return 3;
+                    })
+                    .style("fill-opacity", "0")
+                    .transition()
+                    .duration(750)
+                    .delay(function(d, i) {
+                        return i / 300 * 500;
+                    })
+                    .attr("cx", function(d) {
+                        return xScale(d[0]);
+                    })
+                    .attr("cy", function(d) {
+                        return yScale(d[1]);
+                    })
+                    .style("fill-opacity", 1)
+                circles.exit()
+                    .transition()
+                    .duration(600)
+                    .delay(function(d, i) {
+                        return i / 300 * 500;
+                    })
+                    .attr("cx", width * .5)
+                    .attr("cy", height * .5)
+                    .style("fill-opacity", "0")
+                    .remove();
 
 
                 d3xAxis
@@ -153,7 +171,7 @@
                     .attr("dy", ".71em")
                     .text("PC2");
 
-          
+
             };
         }
     }

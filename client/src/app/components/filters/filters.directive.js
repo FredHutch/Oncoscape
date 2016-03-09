@@ -25,19 +25,20 @@
             // View Model
             var vm = this;
             vm.datasource = $stateParams.datasource || "DEMOdz";
-            osState.filterChange.add(function(){
-                osApi.showFilter();
-                update(root);
-            });
-            vm.close = function(){
+
+
+            vm.close = function() {
                 osApi.hideFilter();
             }
+            osState.filters.onChange.add(function(){
+                osApi.showFilter();
+                root.children = osState.filters.get();
+                update(root);
+                debugger;
+            });
 
-            var data = osState.getFilters();
 
-            // Elements
-            // var elChart = angular.element("#filters-chart");
-
+          
             // Size
             var margin = {
                 top: 20,
@@ -61,11 +62,10 @@
                 .attr("width", width + margin.right + margin.left)
                 .attr("height", height + margin.top + margin.bottom)
                 .append("g")
-                .attr("transform", "translate(" + ((1000/2)-100) + "," + margin.top + ")");
+                .attr("transform", "translate(" + ((1000 / 2) - 100) + "," + margin.top + ")");
 
-            var root = data;
+            var root = {"name":"ROOT"};
             update(root);
-
             function update(root) {
 
                 // Compute the new tree layout.
@@ -89,8 +89,8 @@
                     .attr("transform", function(d) {
                         return "translate(" + d.y + "," + d.x + ")";
                     })
-                    .on("click", function(){
-                        
+                    .on("click", function(e) {
+                        osState.filters.select(e);
                     });
 
                 nodeEnter.append("circle")
@@ -111,6 +111,7 @@
                     .attr("d", diagonal);
 
             }
+            
         }
     }
 })();

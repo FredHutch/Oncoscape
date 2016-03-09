@@ -11,9 +11,7 @@
         var directive = {
             restrict: 'E',
             templateUrl: 'app/components/header/header.html',
-            scope: {
-
-            },
+            scope: {},
             controller: HeaderController,
             controllerAs: 'vm',
             bindToController: true
@@ -22,9 +20,20 @@
         return directive;
 
         /** @ngInject */
-        function HeaderController(osApi) {
+        function HeaderController(osApi, osState, $stateParams, $state) {
+
+
             var vm = this;
-            vm.cohortClick = function(){
+            vm.datasource = $stateParams.datasource || "DEMOdz";
+
+            vm.toolsClick = function(){
+            
+                $state.go("tools", {
+                    datasource: vm.datasource
+                });
+            };
+            
+            vm.cohortClick = function() {
                 osApi.showFilter();
             };
         }

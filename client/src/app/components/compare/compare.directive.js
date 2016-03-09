@@ -11,9 +11,6 @@
         var directive = {
             restrict: 'E',
             templateUrl: 'app/components/compare/compare.html',
-            scope: {
-
-            },
             controller: CompareController,
             controllerAs: 'vm',
             bindToController: true
@@ -26,5 +23,5 @@
             //var vm = this;
         }
     }
-    
+
 })();
