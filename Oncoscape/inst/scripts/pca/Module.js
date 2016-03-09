@@ -405,19 +405,12 @@ function pcaPlot (msg)
       pcaScores = msg.payload.scores;
       var geneSet = msg.payload.geneSetName;
       currentIdentifiers = msg.payload.ids;
-      console.log("*****pcaPlot received msg.payload: ", msg.payload);
-      console.log("*****pcaPlot received currentIdentifier length: ", currentIdentifiers.length);
-      console.log("*****pcaPlot received pcaScores length: ", pcaScores.length);
-      console.log("*****pcaPlot geneSet length: ", geneSet.length);
       //capture message and store to a global variable for testing purpose
       pcaMsg = {selectedIDs:currentIdentifiers, pcaScores:pcaScores, geneSet:geneSet};
       pcaMsg.selectedIDs = currentIdentifiers;
       pcaMsg.pcaScores = pcaScores;
       pcaMsg.geneSet = geneSet;
       //for(var i = 0; i < pcaMsg.selectedIDs.length; i++) { pcaMsg.selectedIDs[i] = pcaMsg.selectedIDs[i].slice(0, 12);}
-      console.log("*****pcaPlot selectedIDs length", pcaMsg.selectedIDs.length);
-      console.log("*****pcaPlot pcaScore length", pcaMsg.pcaScores.length);
-      console.log("*****pcaPlot geneSet length", pcaMsg.geneSet.length);
       d3PcaScatterPlot(pcaScores);
 
       var pcaData = msg.payload.importance;
@@ -772,12 +765,8 @@ function pcaObjectCreated(msg)
 
    if(msg.status == "response"){
       requestGeneSetNames();
-<<<<<<< HEAD
       requestExpressionDataSetNames();
    }else{
-=======
-    }else
->>>>>>> origin/develop
       alert("PCA module failed to create PCA object on server");
    }
 
@@ -818,7 +807,7 @@ function demoPcaCalculateAndDraw(msg)
 
 } // demoPcaCalculateAndDraw
 //----------------------------------------------------------------------------------------------------
-<<<<<<< HEAD
+
 function runTests()
 {
   // the test does not currently depend upon any other tabs, but we want to add some
@@ -839,8 +828,6 @@ function runTests()
 } // runTests
 //--------------------------------------------------------------------------------------------
 
-=======
->>>>>>> origin/develop
 // query the oncoscape server for user id.  the callback then makes a local (that is,
 // Module-specific) decision to run this module's automated tests based upon that id
 //
@@ -882,11 +869,8 @@ function initializeModule()
    hub.addMessageHandler("pcaHandleExpressionDataSetNames", handleExpressionDataSetNames);
    hub.addMessageHandler("pcaPlot", pcaPlot);
    hub.addMessageHandler("demoPcaCalculateAndDraw", demoPcaCalculateAndDraw);
-<<<<<<< HEAD
    hub.addMessageHandler("pcaAssessUserIdForTesting", assessUserIdForTesting);
-=======
-   //hub.addMessageHandler("pcaAssessUserIdForTesting", assessUserIdForTesting);
->>>>>>> origin/develop
+
    //hub.addSocketConnectedFunction(runAutomatedTestsIfAppropriate);
 
    //hub.addMessageHandler("handlePatientClassification", handlePatientClassification)

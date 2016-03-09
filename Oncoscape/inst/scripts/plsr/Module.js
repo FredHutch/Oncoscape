@@ -107,11 +107,7 @@ function addGeneSetNamesToMenu (geneSetNames)
       }
    
   if(typeof geneSetNames == "string") 
-<<<<<<< HEAD
    	 geneSetNames = [geneSetNames];
-=======
-     geneSetNames = [geneSetNames]; 
->>>>>>> origin/develop
 
       
    for(var i=0; i < geneSetNames.length; i++){
