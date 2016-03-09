@@ -10,8 +10,8 @@ options(stringsAsFactors=FALSE)
 #http://oncoscape-static.s3-website-us-west-2.amazonaws.com/
 
 #--------------------------------- make plot data -----------------------------#
-diseaseAbbr <-c("BRCA", "LUNG", "LUAD","PRAD","LGG","GBM","LGG.GBM")
-diseaseDataP <- c("TCGAbrca", "TCGAlung","TCGAluad","TCGAprad","TCGAlgg","TCGAgbm","TCGAbrain")
+diseaseAbbr <-c("BRCA", "LUNG", "LUAD","PRAD","LGG","GBM","LGG.GBM", "PAAD")
+diseaseDataP <- c("TCGAbrca", "TCGAlung","TCGAluad","TCGAprad","TCGAlgg","TCGAgbm","TCGAbrain", "TCGApaad")
 
 #----------------------------------------------------------------------------------------------------
 create.and.display <- function(includeUnpositionedSamples=TRUE)
