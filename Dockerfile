@@ -10,19 +10,13 @@ RUN apt-key adv --keyserver keyserver.ubuntu.com --recv-keys 51716619E084DAB9
 # Update the system and install packages
 RUN apt-get -y -qq update && apt-get -y -qq install \
 	r-base=3.2.3* \
-	vim \
 	make \
-	m4 \
 	gcc \
 	g++ \
 	libxml2 \
-	libxml2-dev \
-	python-pip \
-	nano
+	libxml2-dev
 
-RUN curl -sL https://deb.nodesource.com/setup_0.12 | bash -
-
-RUN apt-get -y -qq update && apt-get -y -qq install nodejs
+RUN curl -sL https://deb.nodesource.com/setup_5.x | bash -
 
 # Create the sttrweb user and data directory
 RUN useradd -u 7534 -m -d /home/sttrweb -c "sttr web application" sttrweb && \
@@ -41,7 +35,6 @@ RUN make install
 # Install Node Server + Modules
 ADD server /home/sttrweb/Oncoscape/server
 WORKDIR /home/sttrweb/Oncoscape/server
-RUN rm -fR /home/sttrweb/Oncoscape/server/node_modules
 
 RUN npm install
 
