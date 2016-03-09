@@ -352,7 +352,7 @@ setMethod("getSampleCategorizationNames", "SttrDataPackageClass",
 setMethod("getSampleCategorization", "SttrDataPackageClass",
 
   function (obj, categorizationName) {
-     if(!categorizationName %in% getSampleCategorizationNames(obj)){
+     if( !categorizationName %in% getSampleCategorizationNames(obj)){
         message("Error in getSampleCategorization: no categorization named '%s'", categorizationName)
         return(NA)
         }

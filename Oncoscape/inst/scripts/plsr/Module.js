@@ -44,6 +44,8 @@ var PLSRModule = (function () {
  
   var expressionDataSetName = "";
   var currentExpressionDataSet;
+  var plsrMsg = {}; 
+
 //--------------------------------------------------------------------------------------------
 function initializeUI () 
 {
@@ -129,13 +131,20 @@ function handleAgeAtDxAndSurvivalRanges(msg)
    console.log("=== Module.plsr, handleAgeAtDxAndSurvivalRanges");
 
    if(msg.status != "success"){
-		//error message should be issued 
-		return;
-	}
+    //error message should be issued 
+    return;
+  }
    ageAtDxMin = Math.floor(msg.payload.AgeDx[0]/365.24);
    ageAtDxMax = Math.floor(msg.payload.AgeDx[4]/365.24);
    survivalMin = Math.floor(msg.payload.Survival[0]/365.24);
    survivalMax = Math.floor(msg.payload.Survival[4]/365.24);
+   console.log("***** ageAtDxMin: ", ageAtDxMin);
+
+   plsrMsg.ageAtDxMin = msg.payload.AgeDx[0];
+   plsrMsg.ageAtDxMax = msg.payload.AgeDx[4];
+   plsrMsg.survivalMin = msg.payload.Survival[0];
+   plsrMsg.survivalMax = msg.payload.Survival[4];
+  
 
    //ageAtDxMin = Math.floor(msg.payload.AgeDx[0])-1;
    //ageAtDxMax = Math.floor(msg.payload.AgeDx[4])+1;
@@ -267,9 +276,15 @@ function handlePlsrResults (msg)
    vectorNames = payload.vectorNames;
    geneLoadings = payload.loadings;
    geneNames = payload.loadingNames;
-
+   console.log("****** handlePlsrResults vectors: ", vectors);
+   console.log("****** handlePlsrResults vectorNames: ", vectorNames);
+   console.log("****** geneLoadings: ", geneLoadings);
+   console.log("****** geneNames: ", geneNames);
    currentAbsoluteMaxValue = absMaxValue; // most recent max value, used for scaling
-
+   plsrMsg.genes = geneLoadings;
+   plsrMsg.geneNames = geneNames;
+   plsrMsg.vectors = vectors;
+   plsrMsg.vectorNames = vectorNames;
    svg = d3PlsrScatterPlot(geneLoadings, geneNames, vectors, vectorNames, absMaxValue);
    postStatus("scatterplot complete");
 
@@ -324,6 +339,9 @@ function d3PlsrScatterPlot(genes, geneNames, vectors, vectorNames, absMaxValue)
    var yScale = d3.scale.linear()
                   .domain([negAbsMaxValue, absMaxValue])
                   .range([height - padding, padding]); // note inversion 
+   
+   plsrMsg.xScale = xScale;
+   plsrMsg.yScale = yScale; 
 
    var xAxis = d3.svg.axis()
                  .scale(xScale)
@@ -455,7 +473,12 @@ function selectPoints(ids, clearIDs)
      .duration(500);
 
   hub.enableButton(clearSelectionButton);
-
+  //pcaMsg.highlightIndex = highlightIndex;
+   setTimeout(function(){
+            console.log("***** Module.js within selectPoints before qunit");
+            console.log("***** Date time: ", Date());
+            postStatus("selectPoints are highlighted"); 
+   }, 6000);
 } // selectPoints
 //----------------------------------------------------------------------------------------------------
 function clearSelection()
@@ -701,8 +724,13 @@ function initializeModule()
 
 } // initializeModule
 //--------------------------------------------------------------------------------------------
+function ModuleMsg(){
+  return plsrMsg;
+}
+//----------------------------------------------------------------------------------------------------
 return{
    init: initializeModule,
+   ModuleMsg: ModuleMsg
    };
 
 }); // PLSRModule
