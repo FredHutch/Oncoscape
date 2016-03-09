@@ -1067,49 +1067,70 @@ function doSearch(e)
 function displayMarkersNetwork(msg)
 {
    console.log("--- Module.markers: displayMarkersNetwork");
-
+	var messageText = "Loading Network...(may take 10-20 seconds)"
+    var el = document.getElementById("loadingDatasetMessage");
+	el.innerHTML = messageText;
+		
    hub.logEventOnServer(thisModulesName, "display markers network", "data received", "");
-
+  
    if(msg.status == "success"){
-         console.log("nchar(network): " + msg.payload.length);
          var json = JSON.parse(msg.payload);
-             cwMarkers.remove(cwMarkers.edges());
+
+   window.setTimeout(function(){
+         console.log("nchar(network): " + msg.payload.length);
+         cwMarkers.batch(function(){
+           cwMarkers.remove(cwMarkers.edges());
            cwMarkers.remove(cwMarkers.nodes());
            console.log(" after JSON.parse, json.length: " + json.length);
            console.log("  about to add json.elements");
            cwMarkers.add(json.elements);
-           cwMarkers.style(json.style);
-           cwMarkers.edges().hide();
-         cwMarkers.filter("edge[edgeType='chromosome']").style({"curve-style": "bezier"});
-         cwMarkers.filter("edge[edgeType='chromosome']").show();
-         cwMarkers.nodes().unselect();
            // map current node degree into a node attribute of that name
-         cwMarkers.nodes().map(function(node){node.data({degree: node.degree(), trueWidth: node.width(), trueHeight: node.height()});});
-   
-         var edgeTypes = hub.uniqueElementsOfArray(cwMarkers.edges().map(function(edge){
-                                  return(edge.data("edgeType"));}
-                                  ));
-         updateEdgeSelectionWidget(edgeTypes);  // preserve only known edgeTypes
-         cwMarkers.fit(20);
-         
-      var defaultLayout = JSON.stringify(cwMarkers.nodes().map(function(n){
-                                         return({id:n.id(), position:n.position()});}));
-      localStorage.markersDefault = defaultLayout;
-      defaultPatientNodeColor = cwMarkers.nodes("[nodeType='patient']").style("background-color");
+       }) 
+      
+   }, 100);	
 
-      hub.logEventOnServer(thisModulesName, "display markers network", "complete", "");
+	window.setTimeout(function(){
+		messageText ="Mapping Edges..."
+		el.innerHTML = messageText;
 
-        //postStatus("markers network displayed");  // deferred; set when the category menu is configured
+		  cwMarkers.batch(function(){
+			   cwMarkers.style(json.style);
+			   cwMarkers.edges().hide();
+			   cwMarkers.nodes().unselect();
+		  })
+        
+        cwMarkers.nodes().map(function(node){node.data({degree: node.degree(), trueWidth: node.width(), trueHeight: node.height()});});
+        cwMarkers.filter("edge[edgeType='chromosome']").style({"curve-style": "bezier"});
+        cwMarkers.filter("edge[edgeType='chromosome']").show();
 
-      hub.logEventOnServer(thisModulesName, "getSampleCategorizationNames", "request", "");
+		  var edgeTypes = hub.uniqueElementsOfArray(cwMarkers.edges().map(function(edge){
+									  return(edge.data("edgeType"));}
+									  ));
+			 updateEdgeSelectionWidget(edgeTypes);  // preserve only known edgeTypes
+		  var defaultLayout = JSON.stringify(cwMarkers.nodes().map(function(n){
+											 return({id:n.id(), position:n.position()});}));
+		  localStorage.markersDefault = defaultLayout;
+		  defaultPatientNodeColor = cwMarkers.nodes("[nodeType='patient']").style("background-color");
 
-      var msg2 = {cmd: "getSampleCategorizationNames", callback: "configureSampleCategorizationMenu",
+		  hub.logEventOnServer(thisModulesName, "display markers network", "complete", "");
+
+			//postStatus("markers network displayed");  // deferred; set when the category menu is configured
+
+		  hub.logEventOnServer(thisModulesName, "getSampleCategorizationNames", "request", "");
+
+		 cwMarkers.resize();
+		 cwMarkers.fit(50);
+
+     var msg2 = {cmd: "getSampleCategorizationNames", callback: "configureSampleCategorizationMenu",
                   status: "request", payload: ""};
       hub.send(JSON.stringify(msg2));
+
+    }, 100);	
       }
    else{
      console.log("displayMarkersNetwork error: " + msg.payload);
      }
+
 
 } // displayMarkersNetwork
 //----------------------------------------------------------------------------------------------------

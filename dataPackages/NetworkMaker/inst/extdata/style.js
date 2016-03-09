@@ -2,61 +2,49 @@ vizmap =  [
     {selector:"node", css: {
         "text-valign":"center",
         "text-halign":"center",
-        "background-color":"rgb(250, 250, 250)",
-        "border-color": "black",
-        "border-with": "1px",
+        "background-color":"rgb(192, 192, 192)",
         "shape": "ellipse",
         "width": 100,
         "height": 100,
-        content: "data(id)",
         "width":"mapData(degree,  0.0, 150.0, 30.0, 160.0)",
         "height":"mapData(degree, 0.0, 150.0, 30.0, 160.0)"
         }},
         
     {selector:"node:selected", css: {
-        "text-valign":"center",
-        "text-halign":"center",
-        "background-color":"rgb(250, 250, 250)",
         "border-width": "5px",
-         content: "data(id)"
+         "content": "data(id)"
 
         }},
         
     {selector: 'node[nodeType="patient"]', css:{
-        "content":"data(label)",
-        "border-color": "black",
-        "border-width": "3px",
         "font-size" : 8,
-        "background-color": "rgb(250, 250, 250)",
-        "shape" : "ellipse",
-        content: "data(id)"
+        "content": "data(id)"
 
         }},
            
     {selector: 'node[nodeType="gene"]', css:{
-        "shape"  : "ellipse",
         "font-size": 8,
-        content: "data(id)",
+        "content": "data(id)",
         "border-color": "blue",
         "border-width": "1px"}},
 
 
-   {"selector":"node[nodeType='centromere']", style:
+   {selector:"node[nodeType='centromere']", style:
       {"shape": "roundrectangle",
        "width": "180px", 
        "height": "80px",
-       "content": "data(id)",
+       "background-color":"rgb(250, 250, 250)",
        "border-color": "green",
        "border-width": 1,
        "font-size": "56px"
        }},
 
-   {"selector":"node[nodeType='telomere']", style:
+   {selector:"node[nodeType='telomere']", style:
       {"shape":"octagon",
        "border-color": "black",
        "background-color": "lightgray",
        "border-width": 1,
-       content: "",
+       "content": "",
        "width": 10,
        "height": 10
        }},
@@ -74,22 +62,13 @@ vizmap =  [
     {selector:"node[nodeType='gene fusion']:selected",css: {
        "border-width": "8px"}},
 
-    {selector: 'node[nodeType="drug"]', css:{
-        "content":"data(label)",
-        "shape"  : "rectangle",
-        "width"   : "mapData(degree, 0.0, 20.0, 40.0, 200.0)",
-        "height"  : "mapData(degree, 0.0, 20.0, 40.0, 200.0)",
-        "font-size": 30,
-        "border-color": "red",
-        "border-width": "1px"}},
-
     {selector:"node[nodeType='gene']:selected",css: {
        "border-width": "8px"}},
 
     {selector:"node[nodeType='patient']:selected",css: {
        "border-width": "8px"}},
 
-    {"selector":"edge[edgeType='chromosome']",
+    {selector:"edge[edgeType='chromosome']",
        "style":{"line-color":"rgb(0,0,128)",
        "line-style":"solid",
        "width":"1px",

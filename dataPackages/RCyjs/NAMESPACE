@@ -1,0 +1,129 @@
+exportClasses(RCyjsClass)
+
+exportMethods(
+   setGraph,
+   addGraph,
+   httpAddGraph,
+   httpSetStyle,
+
+   getNodeCount,
+   getEdgeCount,
+    
+   getNodes,
+
+   setNodeAttributes,
+    
+   setDefaultNodeSize,
+   setDefaultNodeWidth,
+   setDefaultNodeHeight,
+   setDefaultNodeColor,
+   setDefaultNodeShape,
+   setDefaultNodeFontColor,
+   setDefaultNodeFontSize,
+   setDefaultNodeBorderWidth,
+   setDefaultNodeBorderColor,
+
+   setDefaultEdgeFontSize,
+
+   setDefaultEdgeTargetArrowShape,
+   setDefaultEdgeColor,
+   setDefaultEdgeTargetArrowColor,
+   setDefaultEdgeFontSize,
+   setDefaultEdgeWidth,
+   setDefaultEdgeLineColor,
+   setDefaultEdgeFont,
+   setDefaultEdgeFontWeight,
+   setDefaultEdgeTextOpacity,
+   setDefaultEdgeLineStyle,
+   setDefaultEdgeOpacity,
+   setDefaultEdgeSourceArrowColor,
+   setDefaultEdgeSourceArrowShape,
+
+   getSelectedNodes,
+   setNodeLabelRule,
+   setNodeLabelAlignment,
+   setNodeSizeRule,
+   setNodeColorRule,
+   setNodeShapeRule,
+    
+   setEdgeStyle,
+   setEdgeColorRule,
+   setEdgeWidthRule,
+   setEdgeTargetArrowShapeRule,
+   setEdgeTargetArrowColorRule,
+   setEdgeSourceArrowShapeRule,
+   setEdgeSourceArrowColorRule,
+    
+   setEdgeSourceArrowColorRule,
+   setEdgeTargetArrowColorRule,
+   setGraph,
+   setNodeAttributes,
+   setNodeColorRule,
+   setNodeLabelRule,
+   setNodeShapeRule,
+   setNodeSizeRule,
+   setZoom,
+
+    
+   redraw,
+   layoutStrategies,
+   layout,
+   layoutSelectionInGrid,
+   layoutSelectionInGridInferAnchor,
+   getPosition,
+   setPosition,
+   getLayout,
+   saveLayout,
+   restoreLayout,
+   getJSON,
+   fit,
+   fitContent,
+   fitSelectedContent,
+   vAlign,
+   hAlign,
+   selectNodes,
+   invertNodeSelection,
+   hideSelectedNodes,
+   deleteSelectedNodes,
+   hideAllEdges,
+   showAllEdges,
+   hideEdges,
+   showEdges,
+   clearSelection,
+   getZoom,
+   setZoom,
+   setBackgroundColor,
+   sfn
+   )
+
+export(
+   RCyjs,
+   simpleDemoGraph,
+   createTestGraph,
+   biocGraphToCytoscapeJSON,
+   noa,
+   eda,
+   noaNames,
+   edaNames
+   )
+
+
+importClassesFrom(methods, character, integer)
+
+import(BiocGenerics)
+import(graph)
+importFrom(jsonlite,fromJSON)
+importFrom(methods, new)
+import(BrowserViz)
+import(httpuv)
+import(Rcpp)
+importFrom(igraph,graph.attributes)
+importFrom(igraph,V)
+importFrom(igraph,"V<-")
+importFrom(igraph,list.vertex.attributes)
+importFrom(igraph,vertex.attributes)
+importFrom(igraph,get.edgelist)
+importFrom(igraph,ecount)
+importFrom(igraph,edge.attributes)
+importFrom(igraph,list.edge.attributes)
+

@@ -1,17 +1,27 @@
 library(NetworkMaker)
 library(SttrDataPackage)
 library(TCGAbrca)
+install.packages("/Volumes/homes/Lisa/oncoscape/OncoGit/Oncoscape/dataPackages/RCyjs", type="source", repos=NULL)
 
 printf = function (...) print (noquote (sprintf (...)))
 options(stringsAsFactors=FALSE)
 
 dz <- TCGAbrca() 
 netMaker <- NetworkMaker(dz)
+
+browserFile = "/Library/Frameworks/R.framework/Versions/3.2/Resources/library/RCyjs/scripts/rcyjs.html"
+#http://oncoscape-static.s3-website-us-west-2.amazonaws.com/
+
+
 #----------------------------------------------------------------------------------------------------
 create.and.display <- function()
 {
    load(system.file(package="NetworkMaker", "extdata", "genesets.RData"))
    goi <- sort(unique(genesets$tcga.GBM.classifiers, genesets$marker.genes.545))
+<<<<<<< Updated upstream
+=======
+#	goi <- getAlteredGeneNames(netMaker)
+>>>>>>> Stashed changes
    gistic.scores <-c(-2, 2)
    
    calculateSampleSimilarityMatrix(netMaker, genes=goi, copyNumberValues=gistic.scores)
@@ -36,13 +46,20 @@ create.and.display <- function()
    g.cn <- getCopyNumberGraph(netMaker, goi, gistic.scores)
    httpAddGraph(rcy, g.cn)
    hideAllEdges(rcy)
+<<<<<<< Updated upstream
+=======
+
+#   g.splice <- getSplicingGraph(netMaker, goi)
+#   httpAddGraph(rcy, g.splice)
+#   hideAllEdges(rcy)
+>>>>>>> Stashed changes
    showEdges(rcy, "chromosome")
    fit(rcy)
    httpSetStyle(rcy, system.file(package="NetworkMaker", "extdata", "style.js")) 
    # temporary fix, accomodating orphan genes (not mapped to chromosomes):
 
-   unpositioned.nodes <- names(which(!noa(g, "positioned")))
-   selectNodes(rcy, unpositioned.nodes)
+#   unpositioned.nodes <- names(which(!noa(g, "positioned")))
+#   selectNodes(rcy, unpositioned.nodes)
    layoutSelectionInGrid(rcy, x=-2000, y=3300, w=1400, h=400)
    fit(rcy)
 

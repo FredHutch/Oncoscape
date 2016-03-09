@@ -19,6 +19,8 @@ R --vanilla CMD INSTALL --no-test-load --no-lock TCGAhnsc
 R --vanilla CMD INSTALL --no-test-load --no-lock TCGAcoad
 R --vanilla CMD INSTALL --no-test-load --no-lock TCGAread
 R --vanilla CMD INSTALL --no-test-load --no-lock TCGAcoadread
+R --vanilla CMD INSTALL --no-test-load --no-lock TCGApaad
+R --vanilla CMD INSTALL --no-test-load --no-lock NetworkMaker
 
 cd ../analysisPackages
 R  --vanilla CMD INSTALL --no-test-load --no-lock PCA

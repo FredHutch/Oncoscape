@@ -104,6 +104,8 @@ function selectManifest(event)
    selectedDataSet = datasetMenu.val();
    console.log("dataset '" + selectedDataSet + "'");
    $("#datasetsManifestTable").css("display", "none");
+   $("#loadingDatasetMessage").text("Loading Datasets...")
+
    $("#loadingDatasetMessage").css("display", "inline");
 
    if(selectedDataSet === ""){
