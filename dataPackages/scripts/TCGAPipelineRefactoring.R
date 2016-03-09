@@ -21,9 +21,7 @@ if(!interactive()){
     i<- which(TCGAfilename$study == study)
     directory <- TCGAfilename[i,"directory"]
     stopifnot(file.exists(directory))
-    #loadRawFiles()
   }
-  #source(paste(directory,TCGAfilename[i,"test"],sep="/"), local=TRUE)
 }
 ##################################################################################
 ########################         Refactoring         #############################
@@ -53,8 +51,16 @@ setAs("character","upperCharacter", function(from){
 #--------------------------------------------------------------------------------
 rawTablesRequest <- function(study, table){
 	if(table == "DOB" || table == "Diagnosis"){
-		return(paste(TCGAfilename[TCGAfilename$study==study,2], 
-			         TCGAfilename[TCGAfilename$study==study,3], sep="/"))
+		return(paste(TCGAfilename[TCGAfilename$study==study,]$directory, 
+			         TCGAfilename[TCGAfilename$study==study,]$pt, sep="/"))
+	}
+	if(table == "Drug"){
+		return(c(paste(TCGAfilename[TCGAfilename$study==study,]$directory, 
+			         TCGAfilename[TCGAfilename$study==study,]$pt, sep="/"),
+				 paste(TCGAfilename[TCGAfilename$study==study,]$directory, 
+			         TCGAfilename[TCGAfilename$study==study,]$drug, sep="/"),
+				 paste(TCGAfilename[TCGAfilename$study==study,]$directory, 
+			         TCGAfilename[TCGAfilename$study==study,]$omf, sep="/")))
 	}
 }
 #--------------------------------------------------------------------------------
@@ -91,53 +97,307 @@ loadData <- function(uri, columns){
 				  )
 }
 #--------------------------------------------------------------------------------
-ptNumMapUpdate <- function(){
-	return(data.frame(PatientID=data.DOB$PatientID, 
-		              PatientNumber=(seq(1:length(data.DOB$PatientID)))))
+ptNumMapUpdate <- function(df){
+	return(data.frame(PatientID=df$PatientID, 
+		              PatientNumber=(seq(1:length(df$PatientID)))))
 }
 #--------------------------------------------------------------------------------
-########################     Step 2: Get Unique Values  ##########################
+
+###################     Step 2: Get Unique Values & Mapping  ####################
+
 studies <- TCGAfilename$study 
-DOB.unique.Ethnicity = c()
-DOB.unique.Race = c()
 
-DOB.unique.request <- function(study_name){
-  uri <- rawTablesRequest(study_name, "DOB")
-  df  <- loadData(uri, 
-               list(
-                    'bcr_patient_barcode' = list(name = "PatientID", data = "tcgaId"),
-                    'gender' = list(name = "gender", data = "upperCharacter"),
-                    'ethnicity' = list(name = "ethnicity", data ="upperCharacter"),
-                    'race' = list(name = "race", data = "upperCharacter"),
-                    'initial_pathologic_dx_year' = list(name = "dxyear", data = "tcgaDate")
-                ))
-  unique.ethnicity <- unique(df$ethnicity)
-  DOB.unique.Ethnicity <- unique(c(DOB.unique.Ethnicity, unique.ethnicity))
-  unique.race <- unique(df$race)
-  DOB.unique.Race <- unique(c(DOB.unique.Race, unique.race))
+#----------------------     DOB functions Start Here      --------------------------
+if(DOB){
+	DOB.unique.request <- function(study_name){
+	  uri <- rawTablesRequest(study_name, "DOB")
+	  df  <- loadData(uri, 
+	               list(
+	                    'bcr_patient_barcode' = list(name = "PatientID", data = "tcgaId"),
+	                    'gender' = list(name = "gender", data = "upperCharacter"),
+	                    'ethnicity' = list(name = "ethnicity", data ="upperCharacter"),
+	                    'race' = list(name = "race", data = "upperCharacter"),
+	                    'initial_pathologic_dx_year' = list(name = "dxyear", data = "tcgaDate")
+	                ))
+	  unique.ethnicity <- unique(df$ethnicity)
+	  unique.race <- unique(df$race)
+	  result = list(unique.ethnicity=unique.ethnicity, unique.race=unique.race)
+	  return(result)
+	}
+	#--------------------------------------------------------------------------------
+	res_list. = lapply(studies, DOB.unique.request)
+
+	DOB.unique.aggregate <- function(res1, res2){
+		res = list(unique.ethnicity=unique(c(res1$unique.ethnicity,res2$unique.ethnicity)),
+				   unique.race=unique(c(res1$unique.race, res2$unique.race)))
+	    return(res)
+	}
+	#--------------------------------------------------------------------------------
+	DOB.unique.values <- Reduce(DOB.unique.aggregate, lapply(studies, DOB.unique.request))
+	DOB.unique.race <- DOB.unique.values$unique.race
+	DOB.unique.ethnicity <- DOB.unique.values$unique.ethnicity
+	#[1] "WHITE"                            "BLACK OR AFRICAN AMERICAN"       
+	#[3] "ASIAN"                            "[NOT AVAILABLE]"                 
+	#[5] "AMERICAN INDIAN OR ALASKA NATIVE" "[NOT EVALUATED]"                 
+	#[7] "[UNKNOWN]"   
+
+	#[1] "NOT HISPANIC OR LATINO" "HISPANIC OR LATINO"     "[NOT AVAILABLE]"       
+	#[4] "[NOT EVALUATED]"        "[UNKNOWN]"   
+	#-------------------
+	DOB.mapping.race <- function(df){
+		from <- DOB.unique.race
+		to 	 <- from 
+		to[match(c("[UNKNOWN]","[NOT AVAILABLE]","[NOT EVALUATED]"), to)] <- NA
+		df$race <- mapvalues(df$race, from = from, to = to, warn_missing = T)
+		return(df)
+	}	
+	#--------------------------------------------------------------------------------
+	DOB.mapping.ethnicity <- function(df){
+		from <- DOB.unique.ethnicity 
+		to 	 <- from 
+		to[match(c("[NOT EVALUATED]","[NOT AVAILABLE]","[UNKNOWN]"), to)] <- NA
+		df$ethnicity <- mapvalues(df$ethnicity, from = from, to = to, warn_missing = T)
+		return(df)
+	}
+	#----------------------     DOB functions End Here      --------------------------
+}
+#----------------------   Diagnosis functions Start Here   -----------------------
+if(DIAGNOSIS){
+	Diagnosis.unique.request <- function(study_name){
+	  uri <- rawTablesRequest(study_name, "Diagnosis")
+	  df  <- loadData(uri, 
+	               list(
+					     'bcr_patient_barcode' = list(name = "PatientID", data = "tcgaId"),
+					     'tumor_tissue_site' = list(name = "disease", data ="upperCharacter"),
+					     'tissue_source_site' = list(name = "tissueSourceSiteCode", data = "upperCharacter"),
+					     'initial_pathologic_dx_year' = list(name = "dxyear", data = "tcgaDate")
+					   ))
+	  unique.disease <- unique(df$disease)
+	  unique.tissueSourceSiteCode <- unique(df$tissueSourceSiteCode)
+	  result = list(unique.disease=unique.disease, 
+	  				unique.tissueSourceSiteCode=unique.tissueSourceSiteCode)
+	  return(result)
+	}
+	#--------------------------------------------------------------------------------
+	Diagnosis.unique.aggregate <- function(res1, res2){
+		res = list(unique.disease=unique(c(res1$unique.disease ,res2$unique.disease )),
+				   unique.tissueSourceSiteCode=unique(c(res1$unique.tissueSourceSiteCode, 
+				   	res2$unique.tissueSourceSiteCode)))
+	    return(res)
+	}
+	#--------------------------------------------------------------------------------
+	Diagnosis.unique.values <- Reduce(Diagnosis.unique.aggregate, lapply(studies, Diagnosis.unique.request))
+	#[1] "BREAST"                 "COLON"                  "[NOT AVAILABLE]"       
+	#[4] "BRAIN"                  "HEAD AND NECK"          "CENTRAL NERVOUS SYSTEM"
+	#[7] "LUNG"                   "PROSTATE"               "RECTUM"   
+	#[1] "3C" "4H" "5L" "5T" "A1" "A2" "A7" "A8" "AC" "AN" "AO" "AQ" "AR" "B6" "BH"
+	# [16] "C8" "D8" "E2" "E9" "EW" "GI" "GM" "HN" "JL" "LD" "LL" "LQ" "MS" "OK" "OL"
+	# [31] "PE" "PL" "S3" "UL" "UU" "W8" "WT" "XX" "Z7" "3L" "4N" "4T" "A6" "AA" "AD"
+	# [46] "AM" "AU" "AY" "AZ" "CA" "CK" "CM" "D5" "DM" "F4" "G4" "NH" "QG" "QL" "RU"
+	# [61] "WS" "02" "06" "12" "14" "16" "15" "19" "26" "28" "32" "41" "76" "81" "87"
+	# [76] "74" "27" "OX" "RR" "4W" "08" "4P" "BA" "BB" "C9" "CN" "CQ" "CR" "CV" "CX"
+	# [91] "D6" "DQ" "F7" "H7" "HD" "HL" "IQ" "KU" "MT" "MZ" "P3" "QK" "RS" "T2" "T3"
+	#[106] "TN" "UF" "UP" "WA" "CS" "DU" "FG" "E1" "EZ" "HT" "HW" "FN" "IK" "DB" "P5"
+	#[121] "DH" "QH" "KT" "R8" "S9" "TM" "VW" "F6" "VM" "VV" "W9" "WH" "WY" "05" "35"
+	#[136] "38" "44" "49" "4B" "50" "53" "55" "62" "64" "67" "69" "71" "73" "75" "78"
+	#[151] "80" "83" "86" "91" "93" "95" "97" "99" "J2" "L4" "L9" "MN" "MP" "NJ" "S2"
+	#[166] "18" "21" "22" "33" "34" "37" "39" "43" "46" "51" "52" "56" "58" "60" "63"
+	#[181] "66" "68" "6A" "70" "77" "79" "85" "90" "92" "94" "96" "98" "J1" "L3" "LA"
+	#[196] "MF" "NC" "NK" "O2" "XC" "2A" "4L" "CH" "EJ" "FC" "G9" "H9" "HC" "HI" "J4"
+	#[211] "J9" "KC" "KK" "M7" "MG" "QU" "SU" "TK" "TP" "V1" "VN" "VP" "WW" "X4" "XA"
+	#[226] "XJ" "XK" "XQ" "Y6" "YJ" "YL" "ZG" "AF" "AG" "AH" "BM" "CI" "CL" "DC" "DT"
+	#[241] "DY" "EF" "EI" "F5" "G5"
+	#-------------------
+	Diagnosis.mapping.disease <- function(df){
+		from <- Diagnosis.unique.values$unique.disease
+		to 	 <- from 
+		to[match("[NOT AVAILABLE]", to)] <- NA
+		df$disease <- mapvalues(df$disease, from = from, to = to, warn_missing = T)
+		return(df)
+	}	
+	#--------------------------------------------------------------------------------
+	Diagnosis.mapping.tissueSourceSiteCode <- function(df){
+		from <- Diagnosis.unique.values$unique.tissueSourceSiteCode
+		to 	 <- from 
+		to[match("[NOT AVAILABLE]", to)] <- NA
+		df$tissueSourceSiteCode <- mapvalues(df$tissueSourceSiteCode, from = from, 
+								  			 to = to, warn_missing = T)
+		return(df)
+	}
+	#----------------------     Diagnosis functions End Here      --------------------	
+}
+#----------------------   Drug functions Start Here   ----------------------------
+if(DRUG){
+	Drug.unique.request <- function(study_name){
+	  	uri <- rawTablesRequest(study_name, "Drug")
+		tbl.pt <- loadData(uri[1], 
+			              list(
+						     'bcr_patient_barcode' = list(name = "PatientID", data = "tcgaId"),
+						     'initial_pathologic_dx_year' = list(name = "dxyear", data = "tcgaDate")
+						   ))
+		tbl.drug <- loadData(uri[2], 
+			              list(
+						     'bcr_patient_barcode' = list(name = "PatientID", data = "tcgaId"),
+						     'pharmaceutical_tx_started_days_to' = list(name = "drugStart", data = "character"),
+						     'pharmaceutical_tx_ended_days_to' = list(name = "drugEnd", data = "character"),
+						     'pharmaceutical_therapy_drug_name' = list(name = "agent", data = "upperCharacter"),
+						     'pharmaceutical_therapy_type' = list(name = "therapyType", data = "upperCharacter"),
+						     'therapy_regimen' = list(name = "intent", data = "upperCharacter"),
+						     'prescribed_dose' = list(name = "dose", data = "upperCharacter"),
+						     'total_dose' = list(name = "totalDose", data = "upperCharacter"),
+						     'pharmaceutical_tx_dose_units' = list(name = "units", data = "upperCharacter"),
+						     'pharmaceutical_tx_total_dose_units' = list(name = "totalDoseUnits", data = "upperCharacter"),
+						     'route_of_administration' = list(name = "route", data = "upperCharacter"),
+						     'pharma_adjuvant_cycles_count' = list(name = "cycle", data = "upperCharacter")
+						   ))
+		tbl.omf <- loadData(uri[3], 
+			              list(
+						     'bcr_patient_barcode' = list(name = "PatientID", data = "tcgaId"),
+						     'drug_name' = list(name = "agent", data = "upperCharacter"),
+						     'days_to_drug_therapy_start' = list(name = "drugStart", data = "character"),
+						     'malignancy_type' = list(name = "intent", data = "upperCharacter")
+						   ))
+
+	    # reorganize three tbls 
+	    tbl.drug <- rbind.fill(tbl.drug, tbl.omf)
+	    data.Chemo <- merge(tbl.drug, tbl.pt, by = "PatientID", all.x = T)
+	    data.Chemo$start <- rep(NA,nrow(data.Chemo))
+	    data.Chemo$end <- rep(NA,nrow(data.Chemo))
+	  	
+	  	df <- data.Chemo
+	  	unique.drugStart <- unique(df$drugStart)
+	  	unique.drugEnd <- unique(df$drugEnd)
+		unique.therapyType <- unique(df$therapyType)
+		unique.intent <- unique(df$intent)
+		unique.dose <- unique(df$dose)
+		unique.units <- unique(df$units)
+		unique.totalDose <- unique(df$totalDose)
+		unique.totalDoseUnits <- unique(df$totalDoseUnits)
+		unique.route <- unique(df$route)
+		unique.cycle <- unique(df$cycle)
+	  	result = list(unique.drugStart=unique.drugStart, 
+					  unique.drugEnd=unique.drugEnd, 
+	  				  unique.therapyType=unique.therapyType, 
+	  				  unique.intent=unique.intent,
+	  				  unique.dose=unique.dose,
+	  				  unique.units=unique.units,
+	  				  unique.totalDose=unique.totalDose,
+	  				  unique.totalDoseUnits=unique.totalDoseUnits,
+	  				  unique.route=unique.route,
+	  				  unique.cycle=unique.cycle)
+	  	print(study_name)
+	  	return(result)
+	}
+	#--------------------------------------------------------------------------------
+	Drug.unique.aggregate <- function(res1, res2){
+		res = list(unique.drugStart=unique(c(res1$unique.drugStart, res2$unique.drugStart)),
+			       unique.drugEnd=unique(c(res1$unique.drugEnd, res2$unique.drugEnd)),
+				   unique.therapyType=unique(c(res1$unique.therapyType, res2$unique.therapyType)),
+				   unique.intent=unique(c(res1$unique.intent, res2$unique.intent)),
+				   unique.dose=unique(c(res1$unique.dose, res2$unique.dose)),
+				   unique.units=unique(c(res1$unique.units, res2$unique.units)),
+				   unique.totalDose=unique(c(res1$unique.totalDose, res2$unique.totalDose)),
+				   unique.totalDoseUnits=unique(c(res1$unique.totalDoseUnits, res2$unique.totalDoseUnits)),
+				   unique.route=unique(c(res1$unique.route, res2$unique.route)),
+				   unique.cycle=unique(c(res1$unique.cycle, res2$unique.cycle)))
+	    return(res)
+	}
+	#--------------------------------------------------------------------------------
+	Drug.unique.values <- Reduce(Drug.unique.aggregate, lapply(studies, Drug.unique.request))
+	Drug.mapping.date <- function(df){
+		df$drugStart[which(df$drugStart %in% c("[Not Available]","[Pending]"))] <- NA
+		df$drugEnd[which(df$drugEnd == "[Not Available]")] <- NA
+
+		df$start[which(is.na(df$drugStart))] <- NA
+		df$end[which(is.na(df$drugEnd))] <- NA
+		df[which(is.na(df$dxyear)), c(14, 15)] <- NA
+	   
+	    df$start <- df$dxyear + as.integer(df$drugStart)
+	    df$end <- df$dxyear + as.integer(df$drugEnd)	
+			
+		return(df)
+	}	
+	#--------------------------------------------------------------------------------
+	Drug.mapping.agent <- function(df){
+		tbl.drug$agent <- drug_ref[match(tbl.drug$agent,drug_ref$COMMON.NAMES),]$STANDARDIZED.NAMES	
+		return(df)
+	}	
+	#--------------------------------------------------------------------------------
+	Drug.mapping.therapyType <- function(df){
+		from <- Drug.unique.values$unique.therapyType
+		to 	 <- from 
+		to[match(c("[NOT AVAILABLE]","[DISCREPANCY]"), to)] <- NA
+		df$therapyType <- mapvalues(df$therapyType, from = from, to = to, warn_missing = F)
+		return(df)
+	}	
+	#--------------------------------------------------------------------------------
+	Drug.mapping.intent <- function(df){
+		from <- Drug.unique.values$unique.intent
+		to 	 <- from 
+		to[match("[NOT AVAILABLE]", to)] <- NA
+		df$intent <- mapvalues(df$intent, from = from, to = to, warn_missing = F)
+		return(df)
+	}
+	#--------------------------------------------------------------------------------
+	Drug.mapping.dose <- function(df){
+		from <- Drug.unique.values$unique.dose
+		to 	 <- from 
+		to[match(c("[NOT AVAILABLE]","[UNKNOWN]"), to)] <- NA
+		df$dose <- mapvalues(df$dose, from = from, to = to, warn_missing = F)
+		return(df)
+	}	
+	#--------------------------------------------------------------------------------
+	Drug.mapping.units <- function(df){
+		from <- Drug.unique.values$unique.units
+		to 	 <- from 
+		to[match("[NOT AVAILABLE]", to)] <- NA
+		df$units <- mapvalues(df$units, from = from, to = to, warn_missing = F)
+		return(df)
+	}	
+	#--------------------------------------------------------------------------------
+	Drug.mapping.totalDose <- function(df){
+		from <- Drug.unique.values$unique.totalDose
+		to 	 <- from 
+		to[match("[NOT AVAILABLE]", to)] <- NA
+		df$totalDose <- mapvalues(df$totalDose, from = from, to = to, warn_missing = F)
+		return(df)
+	}	
+	#--------------------------------------------------------------------------------
+	Drug.mapping.totalDoseUnits <- function(df){
+		from <- Drug.unique.values$unique.totalDoseUnits
+		to 	 <- from 
+		to[match("[NOT AVAILABLE]", to)] <- NA
+		df$totalDoseUnits <- mapvalues(df$totalDoseUnits, from = from, 
+							to = to, warn_missing = F)
+		return(df)
+	}	
+	#--------------------------------------------------------------------------------
+	Drug.mapping.route <- function(df){
+		from <- Drug.unique.values$unique.route
+		to 	 <- from 
+		to[match("[NOT AVAILABLE]", to)] <- NA
+		df$route <- mapvalues(df$route, from = from, 
+							to = to, warn_missing = F)
+		return(df)
+	}	
+	#--------------------------------------------------------------------------------
+	Drug.mapping.cycle <- function(df){
+		from <- Drug.unique.values$unique.cycle
+		to 	 <- from 
+		to[match("[NOT AVAILABLE]", to)] <- NA
+		df$cycle <- mapvalues(df$cycle, from = from, 
+							to = to, warn_missing = F)
+		return(df)
+	}	
+	#--------------------------------------------------------------------------------
+	#----------------------     Drug functions End Here      --------------------
 }
 
 
-Reduce(generateFromList, studies)
 
-
-################################################     Step 3: Mapping Values       ################################################
-DOB.mapping.ERace <- function(df){
-	df$race <- mapvalues(df$race, from = c("[Not Available]","ASIAN", "BLACK OR AFRICAN AMERICAN", "WHITE"), 
-					to = c(NA,"ASIAN", "BLACK OR AFRICAN AMERICAN", "WHITE"), warn_missing = T)
-	return(df)
-}	
-#--------------------------------------------------------------------------------
-DOB.mapping.Ethnicity <- function(df){
-	df$ethnicity <- mapvalues(df$ethnicity, from = c("[Not Available]","HISPANIC OR LATINO", "NOT HISPANIC OR LATINO"), 
-							to = c(NA, "HISPANIC OR LATINO", "NOT HISPANIC OR LATINO"), warn_missing = T)
-	return(df)
-}
-#--------------------------------------------------------------------------------	
 
 ################################################     Step 4: Generate Result    ##################################################
 create.all.DOB.records <- function(study_name){
-	#study <- "TCGAgbm"
 	uri <- rawTablesRequest(study_name, "DOB")
 	data.DOB <- loadData(uri, 
 	             list(
@@ -148,9 +408,9 @@ create.all.DOB.records <- function(study_name){
 				    'initial_pathologic_dx_year' = list(name = "dxyear", data = "tcgaDate")
 				  )
 		)
-    data.DOB <- DOB.mapping.Ethnicity(data.DOB)
-    data.DOB <- DOB.mapping.Race(data.DOB)
-    ptNumMap <- ptNumMapUpdate()
+    data.DOB <- DOB.mapping.ethnicity(data.DOB)
+    data.DOB <- DOB.mapping.race(data.DOB)
+    ptNumMap <- ptNumMapUpdate(data.DOB)
     result <- apply(data.DOB, 1, function(x){
     				PatientID = getElement(x, "PatientID")
     				PtNum = ptNumMap[ptNumMap$PatientID == PatientID,]$PatientNumber
@@ -167,7 +427,6 @@ create.all.DOB.records <- function(study_name){
 lapply(studies, create.all.DOB.records)
 #--------------------------------------------------------------------------------------------------------------------------------
 create.all.Diagnosis.records <- function(study_name){
-	#study <- "TCGAgbm"
 	uri <- rawTablesRequest(study_name, "Diagnosis")
 	data.Diagnosis <- loadData(uri, 
 		              list(
@@ -176,7 +435,9 @@ create.all.Diagnosis.records <- function(study_name){
 					     'tissue_source_site' = list(name = "tissueSourceSiteCode", data = "upperCharacter"),
 					     'initial_pathologic_dx_year' = list(name = "dxyear", data = "tcgaDate")
 					   ))
-    ptNumMap <- ptNumMapUpdate()
+	data.Diagnosis <- Diagnosis.mapping.disease(data.Diagnosis)
+    data.Diagnosis <- Diagnosis.mapping.tissueSourceSiteCode(data.Diagnosis)
+    ptNumMap <- ptNumMapUpdate(data.Diagnosis)
     result <- apply(data.Diagnosis, 1, function(x){
     				PatientID = getElement(x, "PatientID")
     				PtNum = ptNumMap[ptNumMap$PatientID == PatientID,]$PatientNumber
@@ -191,6 +452,107 @@ create.all.Diagnosis.records <- function(study_name){
 }
 lapply(studies, create.all.Diagnosis.records)
 #--------------------------------------------------------------------------------------------------------------------------------
+create.all.Chemo.records <- function(study_name){
+	uri <- rawTablesRequest(study_name, "Drug")
+	tbl.pt <- loadData(uri[1], 
+		              list(
+					     'bcr_patient_barcode' = list(name = "PatientID", data = "tcgaId"),
+					     'initial_pathologic_dx_year' = list(name = "dxyear", data = "tcgaDate")
+					   ))
+	tbl.drug <- loadData(uri[2], 
+		              list(
+					     'bcr_patient_barcode' = list(name = "PatientID", data = "tcgaId"),
+					     'pharmaceutical_tx_started_days_to' = list(name = "drugStart", data = "character"),
+					     'pharmaceutical_tx_ended_days_to' = list(name = "drugEnd", data = "character"),
+					     'pharmaceutical_therapy_drug_name' = list(name = "agent", data = "upperCharacter"),
+					     'pharmaceutical_therapy_type' = list(name = "therapyType", data = "upperCharacter"),
+					     'therapy_regimen' = list(name = "intent", data = "upperCharacter"),
+					     'prescribed_dose' = list(name = "dose", data = "upperCharacter"),
+					     'total_dose' = list(name = "totalDose", data = "upperCharacter"),
+					     'pharmaceutical_tx_dose_units' = list(name = "units", data = "upperCharacter"),
+					     'pharmaceutical_tx_total_dose_units' = list(name = "totalDoseUnits", data = "upperCharacter"),
+					     'route_of_administration' = list(name = "route", data = "upperCharacter"),
+					     'pharma_adjuvant_cycles_count' = list(name = "cycle", data = "upperCharacter")
+					   ))
+	tbl.omf <- loadData(uri[3], 
+		              list(
+					     'bcr_patient_barcode' = list(name = "PatientID", data = "tcgaId"),
+					     'drug_name' = list(name = "agent", data = "upperCharacter"),
+					     'days_to_drug_therapy_start' = list(name = "drugStart", data = "character"),
+					     'malignancy_type' = list(name = "intent", data = "upperCharacter")
+					   ))
+
+    # reorganize three tbls 
+    tbl.drug <- rbind.fill(tbl.drug, tbl.omf)
+    data.Chemo <- merge(tbl.drug, tbl.pt, by = "PatientID", all.x = T)
+    data.Chemo$start <- rep(NA,nrow(data.Chemo))
+    data.Chemo$end <- rep(NA,nrow(data.Chemo))
+    
+    # mapping
+    data.Chemo <- Drug.mapping.date(data.Chemo)
+	data.Chemo <- Drug.mapping.agent(data.Chemo)
+    data.Chemo <- Drug.mapping.therapyType(data.Chemo)
+    data.Chemo <- Drug.mapping.intent(data.Chemo)
+    data.Chemo <- Drug.mapping.dose(data.Chemo)
+    data.Chemo <- Drug.mapping.units(data.Chemo)
+    data.Chemo <- Drug.mapping.totalDose(data.Chemo)
+    data.Chemo <- Drug.mapping.totalDoseUnits(data.Chemo)
+    data.Chemo <- Drug.mapping.route(data.Chemo)
+    data.Chemo <- Drug.mapping.cycle(data.Chemo)
+   
+
+    # result
+    ptNumMap <- ptNumMapUpdate(tbl.pt)
+    result <- apply(data.Chemo, 1, function(x){
+    				PatientID = getElement(x, "PatientID")
+    				PtNum = ptNumMap[ptNumMap$PatientID == PatientID,]$PatientNumber
+    				date = c(getElement(x, "start"), getElement(x, "end"))
+    				agent = getElement(x, "agent")
+    				therapyType = getElement(x, "therapyType")
+    				intent = getElement(x, "intent")
+    				dose = getElement(x, "dose")
+    				units = getElement(x, "units")
+    				totalDose = getElement(x, "totalDose")
+    				totalDoseUnits = getElement(x, "totalDoseUnits")
+    				route = getElement(x, "route")
+    				cycle  = getElement(x, "cycle")
+    				return(list(PatientID=PatientID, PtNum=PtNum, study=study_name, Name="Diagnosis", 
+    				 			Fields=list(date=date, agent=agent, therapyType=therapyType, intent=intent,
+    				 				        dose=dose, units=units, totalDose=totalDose, totalDoseUnits=totalDoseUnits,
+    				 				        route=route,cycle=cycle)))
+    				})
+	#return(result)
+	print(c(study_name, dim(data.Chemo), length(result)))
+}
+lapply(studies, create.all.Chemo.records)
+#--------------------------------------------------------------------------------------------------------------------------------
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 #################################################    Step 5: Unit Test   #########################################################
 # use Filter function, index 479 is a good option
