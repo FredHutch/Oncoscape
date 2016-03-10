@@ -19,10 +19,11 @@
         return directive;
 
         /** @ngInject */
-        function DatasourceController(osApi, $state) {
+        function DatasourceController(osApi, $state, osState) {
             var vm = this;
             vm.datasets = [];
             vm.explore = function(tool, datasource) {
+                osState.setDatasource(datasource);
                 $state.go(tool, {
                     datasource: datasource
                 });

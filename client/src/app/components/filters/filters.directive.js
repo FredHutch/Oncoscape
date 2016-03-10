@@ -25,20 +25,16 @@
             // View Model
             var vm = this;
             vm.datasource = $stateParams.datasource || "DEMOdz";
-
-
+            if (osState.patientFilters.get()==null) osState.patientFilters.set(vm.datasource);
             vm.close = function() {
                 osApi.hideFilter();
-            }
-            osState.filters.onChange.add(function(){
+            };
+
+            osState.patientFilters.onChange.add(function(){
                 osApi.showFilter();
-                root.children = osState.filters.get();
-                update(root);
-                debugger;
+                update(osState.patientFilters.get());
             });
 
-
-          
             // Size
             var margin = {
                 top: 20,
@@ -63,18 +59,17 @@
                 .attr("height", height + margin.top + margin.bottom)
                 .append("g")
                 .attr("transform", "translate(" + ((1000 / 2) - 100) + "," + margin.top + ")");
-
-            var root = {"name":"ROOT"};
-            update(root);
+                
+            
+            update(osState.patientFilters.get());
             function update(root) {
-
                 // Compute the new tree layout.
                 var nodes = tree.nodes(root).reverse(),
                     links = tree.links(nodes);
 
                 // Normalize for fixed-depth.
                 nodes.forEach(function(d) {
-                    d.y = d.depth * 80;
+                    d.y = d.depth * 150;
                 });
 
                 // Declare the nodes…
@@ -90,13 +85,31 @@
                         return "translate(" + d.y + "," + d.x + ")";
                     })
                     .on("click", function(e) {
-                        osState.filters.select(e);
+                        osState.patientFilters.select(e);
                     });
 
                 nodeEnter.append("circle")
                     .attr("r", function(d) {
-                        return (d.parent == "null") ? 35 : 15;
+                        return (d.parent == null) ? 50 : 35;
                     })
+                   
+
+                nodeEnter.append("text")
+                    .attr("x", function(d){ return 0})
+                    .attr("y", function(d){ return 30 })
+
+                    .text(function(d){ return d.name; })
+                    .attr("text-anchor", "middle")
+                    .attr("font-size", "20px")
+                     .attr("fill", "#59a5fb");
+
+                nodeEnter.append("image")
+                      .attr("xlink:href", function(d) { return './assets/images/datasets/'+d.icon+'.png'; })
+                      .attr("x", function(d) { return (d.parent == null) ? -50 : -35; })
+                      .attr("y", function(d) { return (d.parent == null) ? -50 : -35; })
+                      .attr("width", function(d) { return (d.parent == null) ? 100 : 70; })
+                      .attr("height", function(d) { return (d.parent == null) ? 100 : 70; })
+                      .style("display", function(d) { return d.icon == null ? "none" : null; });
 
                 // Declare the links…
                 var link = svg.selectAll("path.link")

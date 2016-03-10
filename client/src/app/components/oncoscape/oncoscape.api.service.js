@@ -6,7 +6,7 @@
         .service('osApi', oncoscape);
 
     /** @ngInject */
-    function oncoscape(osSocket, osState, $http) {
+    function oncoscape(osSocket, $http) {
 
         // Functions to move during refactor
         this.setBusy = setBusy;
@@ -55,7 +55,7 @@
         function login(user) {
             var req = {
                 method: 'POST',
-                url: 'http://localhost/login/',
+                url: '/login/',
                 data: {
                     username: user.name,
                     password: user.password,

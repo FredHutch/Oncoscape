@@ -10,28 +10,22 @@ RUN apt-key adv --keyserver keyserver.ubuntu.com --recv-keys 51716619E084DAB9
 # Update the system and install packages
 RUN apt-get -y -qq update && apt-get -y -qq install \
 	r-base=3.2.3* \
-	vim \
 	make \
-	m4 \
 	gcc \
 	g++ \
 	libxml2 \
 	libxml2-dev \
-	python-pip \
-	nano
+	python-pip
 
-RUN curl -sL https://deb.nodesource.com/setup_0.12 | bash -
-
-RUN apt-get -y -qq update && apt-get -y -qq install nodejs
+# Install latest version of Node 5.x
+RUN curl -sL https://deb.nodesource.com/setup_5.x | bash -
+RUN apt-get -y install nodejs
 
 # Create the sttrweb user and data directory
 RUN useradd -u 7534 -m -d /home/sttrweb -c "sttr web application" sttrweb && \
 	mkdir /home/sttrweb/data && \
 	mkdir /home/sttrweb/Oncoscape && \
 	mkdir /home/sttrweb/rlib 
-
-# Set environment variable for Oncoscape data location
-ENV ONCOSCAPE_USER_DATA_STORE file:///home/sttrweb/data
 
 # Install R Modules
 ADD r_modules /home/sttrweb/Oncoscape/r_modules
@@ -41,10 +35,14 @@ RUN make install
 # Install Node Server + Modules
 ADD server /home/sttrweb/Oncoscape/server
 WORKDIR /home/sttrweb/Oncoscape/server
-RUN rm -fR /home/sttrweb/Oncoscape/server/node_modules
-
 RUN npm install
+
+# Install Rstats
+WORKDIR /home/sttrweb/Oncoscape/server/rstats
+RUN npm install -g node-gyp && node-gyp configure build 
 
 EXPOSE  80
 
+# Switch to the server directory and start it up
+WORKDIR /home/sttrweb/Oncoscape/server
 CMD ["node", "start.js"]

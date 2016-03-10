@@ -114,7 +114,7 @@
       </button>
     </li>
   </ul>
-  <ul class="legand" ng-if="vm.patient" style="width:250px;">
+  <ul class="legand" ng-if="vm.patient">
     <li><hr></li>
     <li style="padding:5px;font-weight:600;">Patient Information</li>
     <li>PID: {{vm.patient[0]}}</li>
@@ -128,5 +128,4 @@
     <li style="padding:5px;font-weight:600;">Genes ({{vm.patientChromosomes.length}})</li>
     <li><span ng-repeat="item in vm.patientChromosomes">{{item}} | </span></li>
   </ul>
-  <dl>
 </div>

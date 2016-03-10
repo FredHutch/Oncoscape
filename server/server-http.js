@@ -15,6 +15,7 @@ exports.start = function(config){
   var cookieParser = require('cookie-parser')
   var auth = require('./auth-module.js');
   var uuid = require('node-uuid');
+  var pdf = require('pdfkit');
 
   // Construct Http Server With Body Parsing Capabilities
   var server = express();

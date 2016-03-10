@@ -245,8 +245,7 @@
                                 vm.patient = vm.patientChromosomes = null;
                             });
                             e.cyTarget.style({
-                                'height': '30px',
-                                'width': '30px',
+                             
                                 'font-size': '0px'
                             });
                             e.cyTarget.neighborhood('node').style({
@@ -294,8 +293,6 @@
                                 vm.patient = vm.patientChromosomes = null;
                             });
                             e.cyTarget.style({
-                                'height': '30px',
-                                'width': '30px',
                                 'font-size': '0px'
                             });
                             e.cyTarget.neighborhood('node').neighborhood('edge').style({

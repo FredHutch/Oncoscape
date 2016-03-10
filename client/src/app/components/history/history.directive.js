@@ -21,13 +21,12 @@
         /** @ngInject */
         function HistoryController(osApi, osState, $state, $timeout, $scope, $stateParams) {
 
-            osState.filters.onSelect.add(function(){
-                $timeout(function(){
-                });
-            });
+            var rawData;
+
             // View Model
             var vm = this;
             vm.datasource = $stateParams.datasource || "DEMOdz";
+            if (osState.patientFilters.get()==null) osState.patientFilters.set(vm.datasource);
             vm.colnames = [];
             vm.rows = [];
             vm.diagnosisMin = vm.diagnosisMinValue = 1;
@@ -51,35 +50,51 @@
                         diagnosis <= vm.diagnosisMax &&
                         survival >= vm.survivalMin &&
                         survival <= vm.survivalMax);
-
                 }];
                 dtTable.api().draw();
             };
 
             vm.cohort;
             vm.createCohort = function() {
-                osState.filters.add({
+                osState.patientFilters.add({
+                    icon: 'history',
                     name: vm.cohort,
-                    vs:{
-                        diagnosisMin: vm.diagnosisMin,
-                        diagnosisMax: vm.diagnosisMax,
-                        survivalMin: vm.survivalMin,
-                        survivalMax: vm.survivalMax,
-                        search: vm.search
-                    },
-                    fn:function(data){
-                        var survival = parseFloat(data[3]);
-                        var diagnosis = parseFloat(data[4]);
-                        return (
-                            diagnosis>=this.diagnosisMin &&
-                            diagnosis<=this.diagnosisMax &&
-                            survival>=this.survivalMin &&
-                            survival<=this.survivalMax
-                            );
-                        // Need to incorporate Search
-                    }
+                    ids: dtTable._('tr', {"filter":"applied"}).map(function(data) { return data[0]; })
                 });
             };
+
+            osState.patientFilters.onSelect.add(filterData);
+
+            function filterData(zf){
+
+                var data;
+                if (zf.depth===0){
+                    data = rawData.tbl;
+                }else{
+                    var ids = zf.ids;
+                    var len = ids.length;
+                    data = rawData.tbl.filter( 
+                        function(value) { 
+                            var val = value[0];
+                            for (var i=0; i<len; i++){
+                                if (val === ids[i]) return true;
+                            }
+                            return false;
+                        }
+                    );
+                }
+
+                var d = data.map(function(d){ return d[4]; });
+                var s = data.map(function(d){ return d[3]; });
+                vm.diagnosisMin = vm.diagnosisMinValue = Math.floor(Math.min.apply(null, d));
+                vm.diagnosisMax = vm.diagnosisMaxValue = Math.ceil(Math.max.apply(null, d));
+                vm.survivalMin = vm.survivalMinValue = Math.floor(Math.min.apply(null, s));
+                vm.survivalMax = vm.survivalMaxValue = Math.floor(Math.max.apply(null, s));
+                dtTable.fnClearTable();
+                dtTable.fnAddData(data);
+            }
+
+
             // Elements
             var dtTable;
 
@@ -87,8 +102,10 @@
             osApi.setBusy(true);
             osApi.setDataset(vm.datasource).then(function() {
                 osApi.getPatientHistoryTable(vm.datasource).then(function(response) {
-                    vm.colnames = response.payload.colnames;
-                    vm.rows = response.payload.tbl;
+                    rawData = response.payload;
+                    vm.colnames = rawData.colnames;
+                    vm.rows = rawData.tbl;
+                    // filterData( osState.patientFilters.get() );
                     $timeout(function() {
                         dtTable = angular.element('#history-datatable').dataTable({
                             "scrollY": "70vh",

@@ -45,7 +45,7 @@
             }, {
                 name: 'MetaData',
                 route: 'metadata',
-                img: 'MetaData.png'
+                img: 'metadata.png'
             }, {
                 name: 'Timelines (Beta)',
                 route: 'timelines',
