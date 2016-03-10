@@ -41,6 +41,7 @@ var PCAModule = (function () {
   var sendSelectionsMenuTitle = "Send selection...";
   var selectionDestinationsOfferedHere = ["PCA", "PCA (highlight)"];
 
+
   var currentExpressionDataSet;
   var pcaMsg; 
   var highlightIndex = [];
@@ -820,7 +821,6 @@ function runTests()
 
 } // runTests
 //--------------------------------------------------------------------------------------------
-
 // query the oncoscape server for user id.  the callback then makes a local (that is,
 // Module-specific) decision to run this module's automated tests based upon that id
 //

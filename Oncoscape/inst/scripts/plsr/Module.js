@@ -44,8 +44,8 @@ var PLSRModule = (function () {
  
   var expressionDataSetName = "";
   var currentExpressionDataSet;
-
   var plsrMsg = {}; 
+
 //--------------------------------------------------------------------------------------------
 function initializeUI () 
 {
