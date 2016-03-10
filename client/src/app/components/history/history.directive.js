@@ -27,6 +27,7 @@
             var vm = this;
             vm.datasource = $stateParams.datasource || "DEMOdz";
             if (osState.patientFilters.get()==null) osState.patientFilters.set(vm.datasource);
+            vm.filter = osState.patientFilters.selected();
             vm.colnames = [];
             vm.rows = [];
             vm.diagnosisMin = vm.diagnosisMinValue = 1;
@@ -61,12 +62,15 @@
                     name: vm.cohort,
                     ids: dtTable._('tr', {"filter":"applied"}).map(function(data) { return data[0]; })
                 });
+                vm.cohort = "";
             };
 
             osState.patientFilters.onSelect.add(filterData);
 
             function filterData(zf){
-
+                $timeout(function() {
+                    vm.filter = osState.patientFilters.selected();
+                })
                 var data;
                 if (zf.depth===0){
                     data = rawData.tbl;

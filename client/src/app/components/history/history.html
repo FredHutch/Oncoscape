@@ -1,5 +1,6 @@
 <section class="history container container-filters">
-	<h2>Patient History ({{vm.datasource}})</h2>
+	<h2>Patient History // {{vm.datasource}} <span
+        ng-if="vm.datasource!=vm.filter.name">// {{vm.filter.name}}</span></h2>
     <div class="row">
         <div class="col-xs-3" style="padding-right:20px;">
             <label>Age At diagnosis</label>

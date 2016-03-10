@@ -7,7 +7,7 @@
 	width:100%;
 	.filters-tree{
 		background-color:rgba(0,0,0,.9);
-		min-height:250px;
+		min-height:50vh;
 		
 		padding:0px 100px;
 	}
@@ -18,14 +18,14 @@
 
 .node circle {
   fill: #fff;
-  stroke: steelblue;
-  stroke-width: 3px;
+  
 }
 
 .node text { font: 12px sans-serif; }
 
 .link {
-  fill: none;
-  stroke: #ccc;
-  stroke-width: 2px;
+	fill: none;
+	stroke: #59a5fb;
+	stroke-width: 2px;
+
 }

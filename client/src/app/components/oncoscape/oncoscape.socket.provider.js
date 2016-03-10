@@ -6,7 +6,7 @@
         .factory('osSocket', oncoscape);
 
     /** @ngInject */
-    function oncoscape(SockJS, $rootScope, $q, $log, domain) {
+    function oncoscape(SockJS, $rootScope, $q, $log, $location) {
        
         // Object To Store Call Back Promises
         var callbacks = {};
@@ -19,10 +19,13 @@
         }
 
         // Create Sock JS Instace
-        var socket = new SockJS('http://'+domain+'/oncoscape', '', {
-            'debug': true,
-            'devel': true
-        });
+        var socket = new SockJS(
+            $location.protocol()+"://"+$location.host()+":"+ (($location.port()=="3002") ? 80 : $location.port()) +'/oncoscape','',
+            {
+                'debug': false,
+                'devel': false
+            }
+        );
 
         // Handle Messages From Socket & Resolve Promise
         socket.onmessage = function(event) {

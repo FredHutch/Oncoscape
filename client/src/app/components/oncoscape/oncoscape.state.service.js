@@ -24,17 +24,17 @@
 		this.patientFilters = filter();
 		this.geneFilters = filter();
 		
-
-
-		
 		function filter(){
 			var _root = null
 			var _filter = null;
 
 			var add = function(filter){
+				filter.parent = _filter.name;
 				_filter.children = _filter.children || [];
 				_filter.children.push(filter);
+				_filter.selected = false;
 				_filter = filter;
+				_filter.selected = true;
 				onChange.dispatch(_filter);
 				onSelect.dispatch(_filter);
 			};
@@ -45,11 +45,15 @@
 				
 			};
 			var select = function(filter){
-				_filter = (filter.parent) ? filter : null;
+				_filter.selected = false;
+				_filter = filter;
+				_filter.selected = true;
 				onSelect.dispatch(filter);
 			}
 			var set = function(datasource){
 				_root = _filter = {
+					selected: true,
+					parent: "null",
 					icon: datasource,
 					name: datasource,
 					ids: [],
@@ -60,7 +64,9 @@
 			var get = function(){
 				return _root;
 			}
-
+			var selected = function(){
+				return _filter;
+			}
 			// Events
 			var onChange = new signals.Signal(); // Fired When Data Changes
 			var onSelect = new signals.Signal(); // Fired When Selection changes
@@ -73,6 +79,7 @@
 				select: select,
 				onChange: onChange,
 				onSelect: onSelect,
+				selected: selected,
 				get: get,
 				set: set
 			};
