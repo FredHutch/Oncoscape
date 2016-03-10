@@ -201,12 +201,12 @@ function requestExpressionDataSetNames()
 {
    console.log("=== requestExpressionDataNames");
 
-   callback = "pcaHandleExpressionDataSetNames"
+   callback = "pcaHandleExpressionDataSetNames";
 
    msg = {cmd:"getExpressionDataSetNames",
           callback: callback,
           status:"request",
-          payload:""}
+          payload:""};
 
    hub.send(JSON.stringify(msg));
 
@@ -265,7 +265,7 @@ function addExpressionDataSetNamesToMenu (expressionDataSetNames)
       for(var j=0; j<expManifest[i].length; j++){
           singleRecord = '<td><a href="#">' + expManifest[i][j] + '</a></td>';
           $("#pcaExpMani" + i).append(singleRecord);
-          console.log("***** single Records in pca", singleRecord);
+          //console.log("***** single Records in pca", singleRecord);
         } // for j
       } // for i
     $(".pcaExpMenu .pcaExpClickable td").click(updateExpressionData);
@@ -535,7 +535,7 @@ function clearSelection()
 function calculate()
 {
    var currentGeneSet = geneSetMenu.val();
-   var payload = {genes: currentGeneSet, expressionDataSet: currentExpressionDataSet}
+   var payload = {genes: currentGeneSet, expressionDataSet: currentExpressionDataSet};
 
    if(currentPatientIDs !== null)
        payload.samples = currentPatientIDs;

@@ -1157,7 +1157,8 @@ def test_pcaCalculate():
   payload = result["payload"]
   keys = payload.keys()
   keys.sort()
-  assert(keys == ['ids', 'importance.PC1', 'importance.PC2', 'maxValue', 'scores'])
+  print keys
+  assert(keys == ['geneSetName', 'ids', 'importance.PC1', 'importance.PC2', 'maxValue', 'scores'])
   
   ids = payload["ids"]
   assert(len(ids) == 64)
