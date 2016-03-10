@@ -45,4 +45,5 @@ EXPOSE  80
 
 # Switch to the server directory and start it up
 WORKDIR /home/sttrweb/Oncoscape/server
+
 CMD ["node", "start.js"]
