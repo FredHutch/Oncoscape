@@ -193,21 +193,18 @@ function addGeneSetNamesToMenu (geneSetNames)
   postStatus("addGeneSetNamesToMenu: complete");
   hub.enableTab(thisModulesOutermostDiv);
 
-
-
 } // addGeneSetNamesToMenu
 //----------------------------------------------------------------------------------------------------
-//---
 function requestExpressionDataSetNames()
 {
    console.log("=== requestExpressionDataNames");
 
-   callback = "pcaHandleExpressionDataSetNames"
+   callback = "pcaHandleExpressionDataSetNames";
 
    msg = {cmd:"getExpressionDataSetNames",
           callback: callback,
           status:"request",
-          payload:""}
+          payload:""};
 
    hub.send(JSON.stringify(msg));
 
@@ -216,7 +213,6 @@ function requestExpressionDataSetNames()
 function updateExpressionData()
 {
   currentExpressionDataSet = $(this).siblings("td").andSelf("td").eq(0).text();
-  console.log("***** currentExpressionDataSet is ", currentExpressionDataSet);
   var changedText = currentExpressionDataSet + " Click to change";
   $(".pcaExpMenu a").eq(0).text(changedText);
 } // updateExpressionData
@@ -227,7 +223,6 @@ function handleExpressionDataSetNames(msg)
    $(".pcaExpMenu .dropdown table").empty();
    $(".pcaExpMenu a").eq(0).text("Choose Expression Data");
    expManifest = msg.payload.mtx;
-   console.log("***** after grabbing manifest matrix: ", expManifest);
    var expNames = [];
    for(var i=0; i < expManifest.length; i++){
      expNames.push(expManifest[i][0]);
@@ -240,8 +235,6 @@ function handleExpressionDataSetNames(msg)
                          "</th>";
       $("#pcaExpManiCols").append(singleRecord);
    }
-   console.log("***** expression dataset Names are: ", expNames);
-   //addExpressionDataSetNamesToMenu(expNames);
    addExpressionDataSetNamesToMenu(expManifest);
 } // handleExpressionDataSetNames
 //----------------------------------------------------------------------------------------------------
@@ -266,7 +259,6 @@ function addExpressionDataSetNamesToMenu (expressionDataSetNames)
       for(var j=0; j<expManifest[i].length; j++){
           singleRecord = '<td><a href="#">' + expManifest[i][j] + '</a></td>';
           $("#pcaExpMani" + i).append(singleRecord);
-          console.log("***** single Records in pca", singleRecord);
         } // for j
       } // for i
     $(".pcaExpMenu .pcaExpClickable td").click(updateExpressionData);
@@ -410,6 +402,7 @@ function pcaPlot (msg)
       pcaMsg.selectedIDs = currentIdentifiers;
       pcaMsg.pcaScores = pcaScores;
       pcaMsg.geneSet = geneSet;
+
       //for(var i = 0; i < pcaMsg.selectedIDs.length; i++) { pcaMsg.selectedIDs[i] = pcaMsg.selectedIDs[i].slice(0, 12);}
       d3PcaScatterPlot(pcaScores);
 
@@ -529,7 +522,7 @@ function clearSelection()
 function calculate()
 {
    var currentGeneSet = geneSetMenu.val();
-   var payload = {genes: currentGeneSet, expressionDataSet: currentExpressionDataSet}
+   var payload = {genes: currentGeneSet, expressionDataSet: currentExpressionDataSet};
 
    if(currentPatientIDs !== null)
        payload.samples = currentPatientIDs;
@@ -550,7 +543,6 @@ function handlePatientIDs(msg)
      var currentGeneSet = geneSetMenu.val();
      var selectedPatientIdentifiers = msg.payload.value;
      currentPatientIDs = msg.payload.value;
-     console.log("*****handlePatientIDs received patientID length: ", currentPatientIDs.length);
      var payload = {samples: currentPatientIDs, genes: currentGeneSet};
      msg = {cmd: "calculatePCA", callback: "pcaPlot", status: "request", payload: payload};
      hub.enableButton(useAllSamplesInCurrentDatasetButton);
@@ -738,10 +730,11 @@ function datasetSpecified(msg)
       hub.disableButton(calculatePcaButton);
       return;
       }
-
+   currentExpressionDataSet = matrixName;
+   console.log("***** currentExpressionDataSet is ", currentExpressionDataSet);
    console.log("== calling createPcaObjectOnServer");
    createPcaObjectOnServer(dataPackageName, matrixName);
-
+   
    d3pcaDisplay.select("#pcaSVG").remove();  // so that old layouts aren't mistaken for new dataset
 
 } // datasetSpecified
