@@ -2,8 +2,8 @@ The following instructions describe how to install and run Oncoscape with the ne
 
 1. [System Requirements](#1-system-requirements)
 2. [Installing Oncoscape](#2-installing-oncoscape)
-4. [Running Oncoscape](#4-running-oncoscape)
-5. [Running and Developing Oncoscape with Docker](#5-running-and-developing-oncoscape-with-docker)
+3. [Running Oncoscape](#3-running-oncoscape)
+4. [Running and Developing Oncoscape with Docker](#4-running-and-developing-oncoscape-with-docker)
 
 
 ## 1. System Requirements
