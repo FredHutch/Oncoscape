@@ -298,7 +298,7 @@ if(DRUG){
 				   unique.route=unique(c(res1$unique.route, res2$unique.route)),
 				   unique.cycle=unique(c(res1$unique.cycle, res2$unique.cycle)))
 	    return(res)
-	}
+	}q
 	#--------------------------------------------------------------------------------
 	Drug.unique.values <- Reduce(Drug.unique.aggregate, lapply(studies, Drug.unique.request))
 	Drug.mapping.date <- function(df){
@@ -615,6 +615,18 @@ if(STATUS){
 	}
 	#--------------------------------------------------------------------------------
 	Status.unique.values <- Reduce(Status.unique.aggregate, lapply(studies, Status.unique.request))
+	Status.mapping.date.preCheck <- function(df){
+		
+		if(length(which(df$lastContact > df$deathDate))){
+			lastContactGreaterThanDeath  = paste(df[which(df$lastContact > df$deathDate),]$PatientID)
+			warning("last contact occured after death: ", lastContactGreaterThanDeath)
+		}
+        df[which(!(is.na(df$lastContact))),]$date <- df[which(!(is.na(df$lastContact))),]$lastContact
+        df[which(!(is.na(df$deathDate))),]$date <- df[which(!(is.na(df$deathDate))),]$deathDate
+
+		return(df)
+	}	
+	#--------------------------------------------------------------------------------
 	Status.mapping.date <- function(df){
 		from <- Status.unique.values$unique.lastContact
 		to 	 <- from 
@@ -626,8 +638,12 @@ if(STATUS){
 		to[match(c("[NOT AVAILABLE]","[Discrepancy]", "[Not Applicable]"), to)] <- NA
 		df$deathDate <- mapvalues(df$deathDate, from = from, to = to, warn_missing = T)
 		
+
 		return(df)
 	}	
+
+	}
+
 	#--------------------------------------------------------------------------------
 	Status.mapping.vital <- function(df){
 		from <- Status.unique.values$unique.vital
@@ -984,6 +1000,7 @@ lapply(studies, create.all.Chemo.records)
 #--------------------------------------------------------------------------------------------------------------------------------
 create.all.Rad.records <- function(study_name){
 	uri <- rawTablesRequest(study_name, "Radiation")
+	rm(list=ls(pattern="tbl"))
 	tbl.pt <- loadData(uri[1], 
 		              list(
 					     'bcr_patient_barcode' = list(name = "PatientID", data = "tcgaId"),
@@ -1050,22 +1067,33 @@ lapply(studies, create.all.Rad.records)
 #--------------------------------------------------------------------------------------------------------------------------------
 create.all.Status.records <- function(study_name){
 	uri <- rawTablesRequest(study_name, "Status")
+	rm(list=ls(pattern="tbl"))
 	tbl.pt <- loadData(uri[1], 
 		              list(
 					     'bcr_patient_barcode' = list(name = "PatientID", data = "tcgaId"),
 					     'initial_pathologic_dx_year' = list(name = "dxyear", data = "tcgaDate"),
 					     'vital_status' = list(name = "vital", data = "upperCharacter"),
 					     'tumor_status' = list(name = "tumorStatus", data = "upperCharacter"),
+
 					     'last_contact_days_to' = list(name = "lastContact", data = "character"),
 					     'death_days_to' = list(name = "deathDate", data = "character")
+
+					     'last_contact_days_to' = list(name = "lastContact", data = "upperCharacter"),
+					     'death_days_to' = list(name = "deathDate", data = "upperCharacter")
+
 					   ))
 	tbl.f1 <- loadData(uri[2], 
 		              list(
 					     'bcr_patient_barcode' = list(name = "PatientID", data = "tcgaId"),
 					     'vital_status' = list(name = "vital", data = "upperCharacter"),
 					     'tumor_status' = list(name = "tumorStatus", data = "upperCharacter"),
+
 					     'last_contact_days_to' = list(name = "lastContact", data = "character"),
 					     'death_days_to' = list(name = "deathDate", data = "character")
+
+					     'last_contact_days_to' = list(name = "lastContact", data = "upperCharacter"),
+					     'death_days_to' = list(name = "deathDate", data = "upperCharacter")
+
 					   ))
 
 	if(!is.na(uri[3])) {
@@ -1074,8 +1102,13 @@ create.all.Status.records <- function(study_name){
 					     'bcr_patient_barcode' = list(name = "PatientID", data = "tcgaId"),
 					     'vital_status' = list(name = "vital", data = "upperCharacter"),
 					     'tumor_status' = list(name = "tumorStatus", data = "upperCharacter"),
+
 					     'last_contact_days_to' = list(name = "lastContact", data = "character"),
 					     'death_days_to' = list(name = "deathDate", data = "character")
+
+					     'last_contact_days_to' = list(name = "lastContact", data = "upperCharacter"),
+					     'death_days_to' = list(name = "deathDate", data = "upperCharacter")
+
 					   ))
 	}
 	if(!is.na(uri[4])) {
@@ -1084,8 +1117,13 @@ create.all.Status.records <- function(study_name){
 					     'bcr_patient_barcode' = list(name = "PatientID", data = "tcgaId"),
 					     'vital_status' = list(name = "vital", data = "upperCharacter"),
 					     'tumor_status' = list(name = "tumorStatus", data = "upperCharacter"),
+
 					     'last_contact_days_to' = list(name = "lastContact", data = "character"),
 					     'death_days_to' = list(name = "deathDate", data = "character")
+
+					     'last_contact_days_to' = list(name = "lastContact", data = "upperCharacter"),
+					     'death_days_to' = list(name = "deathDate", data = "upperCharacter")
+
 					   ))
 	}
 
@@ -1093,16 +1131,62 @@ create.all.Status.records <- function(study_name){
 	if(exists("tbl.f2")) tbl.f <- rbind.fill(tbl.f, tbl.f2)
 	if(exists("tbl.f3")) tbl.f <- rbind.fill(tbl.f, tbl.f3)
 
-	data.Status <- Status.mapping.vital(tbl.f)
-	data.Status <- Status.mapping.tumorStatus(data.Status)
-	data.Status <- Status.mapping.date(data.Status)
+	data.Status <- tbl.f
+	
+	data.Status <- Status.mapping.date.preCheck(data.Status)
 
 	#more computation to determin the date, the vital status and the tumor status...
+
 	#need group function by patient and determin.
 	
+
+	data.Status <- data.Status[,c("PatientID", "vital", "tumorStatus", "date")]
+	data.Status <- data.Status[-which(duplicated(data.Status)),]
+	
+################# double check if the aggregate lose any information, doesn't handle NA ########################
+################# So no mapping at this stage to preserve the value in the field ###############################
+	# only grab the most recent record from each patient
+	recentDatetbl <- aggregate(date ~ PatientID, data.Status, function(x){max(x)})
+    # use merge() to grab the matching fields
+    data.Status <- merge(recentDatetbl, data.Status)
+
+    # double-entry records are found using this method: need clean up 
+    dupPatients <- data.Status[which(duplicated(data.Status$PatientID)),]$PatientID
+
+    #   14 duplicated in the data.Status, dim(data.Status) is 1102, 4; unique PatientID is 1088
+    #   1102 - 1088 = 14, those 14 have double entries... 
+							# TCGA.A2.A04Q 2385 ALIVE  TUMOR FREE, <NA>
+							# TCGA.AN.A041    7 ALIVE  TUMOR FREE, <NA>
+							#		.		.		.			.
+							#		.		.		.			.
+							#		.		.		.			.
+							#466  TCGA.AR.A5QQ  322  DEAD  TUMOR FREE, WITH TUMOR
+							#		.		.		.			.
+							#		.		.		.			.
+
+ 	# seperate the data.Status into two sections: with no double-entry and double-entry 
+	noDubData  <- data.Status[-which(data.Status$PatientID %in% dupPatients), ] # temporarily remove the double-entry records
+	dubRecrods <- data.Status[which(data.Status$PatientID %in% dupPatients), ]
+	dubRecrodsCollapsedToSingle <- aggregate(tumorStatus ~ PatientID + date + vital, dubRecrods, function(x){return(paste(x))})
+    # combine the them back 
+	data.Status <- rbind(noDubData, dubRecrodsCollapsedToSingle)
+
+
+	# in TCGAhnsc, TCGAluad, TCGAlusc have less patients...
+	StatusMissingPT <- tbl.pt$PatientID[which(!(tbl.pt$PatientID %in% data.Status$PatientID))]
+
+
+	#data.Status <- Status.mapping.vital(data.Status)
+	#data.Status <- Status.mapping.tumorStatus(data.Status)
+	#data.Status <- Status.mapping.date(data.Status)
+
+	print(study_name)
+	print(dim(data.Status))
+
 }
 return()
 lapply(studies, create.all.Status.records)
+
 #--------------------------------------------------------------------------------------------------------------------------
 create.all.Encounter.records <- function(study_name){
   uri <- rawTablesRequest(study_name, "Encounter")
@@ -1496,3 +1580,9 @@ names(id.map) <- fixed.ids
 ProcessedData <- run(RawTables, tcga.ids)
 runTests()
 saveRData(ProcessedData)
+
+#--------------------------------------------------------------------------------------------------------------------------------
+return()
+
+
+
