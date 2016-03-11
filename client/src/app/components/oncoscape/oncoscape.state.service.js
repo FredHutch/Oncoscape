@@ -29,7 +29,6 @@
 			var _filter = null;
 
 			var add = function(filter){
-				filter.parent = _filter.name;
 				_filter.children = _filter.children || [];
 				_filter.children.push(filter);
 				_filter.selected = false;
@@ -53,7 +52,7 @@
 			var set = function(datasource){
 				_root = _filter = {
 					selected: true,
-					parent: "null",
+					parent: null,
 					icon: datasource,
 					name: datasource,
 					ids: [],

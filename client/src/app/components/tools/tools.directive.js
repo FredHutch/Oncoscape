@@ -47,11 +47,7 @@
                 route: 'metadata',
                 img: 'metadata.png'
             }, {
-                name: 'Timelines (Beta)',
-                route: 'timelines',
-                img: 'tool.png'
-            }, {
-                name: 'Survival (Coming Soon)',
+                name: 'Timelines',
                 route: 'timelines',
                 img: 'tool.png'
             }];
