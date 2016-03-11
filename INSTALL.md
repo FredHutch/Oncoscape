@@ -17,14 +17,13 @@ The following instructions describe how to install and run Oncoscape with the ne
 
 Before you can successfully install Oncoscape on a Linux system you will need to satisfy the following dependencies:
 
-- R (version 3.2.1+)
+- R (version 3.2.2+)
 - gcc
 - g++
 - make
-- m4
-- Python 2.7
-- Python websocket-client module
-- libxml2 & libxml2-dev
+- nodejs 5.x
+- node
+- node-gyp
 - git
 
 On Ubuntu 14.04 these dependencies can be installed as follows:
@@ -39,21 +38,21 @@ sudo apt-key adv --keyserver keyserver.ubuntu.com --recv-keys 51716619E084DAB9
 # Update the system and install packages
 sudo apt-get -y update && apt-get -y install \
 	r-base=3.2.2* \
-	vim \
+	r-recommended=3.2.2-1trusty0* \
 	make \
-	git \
-	m4 \
 	gcc \
 	g++ \
-	libxml2 \
-	libxml2-dev \
-	python-pip
-        
-# Install the websocket-client with pip
-sudo pip install websocket-client 
+	git
+	
+# Install latest version of Node 5.x
+RUN curl -sL https://deb.nodesource.com/setup_5.x | bash -
+RUN apt-get -y install nodejs
+
+# Install node-gyp
+RUN npm install -g node-gyp
 ```
 
-After installing all the dependencies above on your Linux system, you are ready to build and test the Oncoscape application.
+After installing all the dependencies above on your Linux system, you are ready to build the Oncoscape application.
 
 ### Mac OS X System Requirements and Dependencies
 
@@ -63,11 +62,10 @@ After installing all the dependencies above on your Linux system, you are ready 
 
 Before you can successfully install Oncoscape on a Mac OS X system, you will need to satisfy the following dependencies:
 
-- R (version 3.2.1+)
-- Xcode command-line tools (provides git/m4/make,etc...)
-- Python websocket-client module
+- R (version 3.2.2+)
+- Xcode command-line tools (provides make,etc...)
 
-To install the R head over the the CRAN site (https://cran.r-project.org/mirrors.html), pick a mirror site closest to you then download the latest version of R (currently 3.2.2) for Mac OS X and install it. If you are already running the Brew package manager, you can alternatively install R as follows:
+To install the R head over the the CRAN site (https://cran.r-project.org/mirrors.html), pick a mirror site closest to you then download the latest version of R (currently 3.2.3) for Mac OS X and install it. If you are already running the Brew package manager, you can alternatively install R as follows:
 
 ```bash
 brew install r
@@ -81,14 +79,7 @@ make
 
 If the Xcode command-line tools are not already installed a dialog will pop up asking if you'd like to install them. Click on the "install" button in this dialog to install the required tools. NOTE: you can install the entire Xcode IDE if you like by clicking "get Xcode" button rather than "install" but only the command-line tools are required to run and develop Oncoscape.
 
-If you are using the default version of Python 2.7 that ships with Mac OS X, it's missing the 'pip' utility required to install the websocket-client module. The following will install both pip and the required python module: 
-
-```bash
-sudo easy_install pip
-sudo pip install websocket-client
-```
-
-After installing the above dependencies on your Mac OS X system, you are ready to build and test the Oncoscape application.
+After installing the above dependencies on your Mac OS X system, you are ready to build the Oncoscape application.
 
 
 ### Windows System Requirements and Dependencies 
@@ -99,28 +90,18 @@ After installing the above dependencies on your Mac OS X system, you are ready t
 
 Before you can successfully install Oncoscape on a Mac OS X system you will need to satisfy the following dependencies:
 
-- R (version 3.2.1+)
-- Cygwin (provides unix tools required by Oncoscape, including git)
-- Python 2.7
-- Python websocket-client module
+- R (version 3.2.2+)
+- Cygwin (for make and git)
 
-To install the R head over to the CRAN site (https://cran.r-project.org/mirrors.html), pick a mirror site closest to you then download the latest version of R (currently 3.2.2) for Windows and install it. After it's installed make sure that you add the R binaries to your system path (control panel -> system -> advanced system settings -> environment variables -> system variables). If you accepted the defaults, the R binaries will be located at *"C:\Program Files\R\bin"*.
+To install the R head over to the CRAN site (https://cran.r-project.org/mirrors.html), pick a mirror site closest to you then download the latest version of R (currently 3.2.3) for Windows and install it. After it's installed make sure that you add the R binaries to your system path (control panel -> system -> advanced system settings -> environment variables -> system variables). If you accepted the defaults, the R binaries will be located at *"C:\Program Files\R\bin"*.
 
 Next you'll need to install Cygwin. Go to http://cygwin.com/install.html and download the Cygwin installer "setup-x86_64.exe". Next open a command-line window and change the directory to where the Cygwin installer was downloaded and enter the following command:
 
 ```
-setup-x86_64.exe -q -P make,m4,bash,git
+setup-x86_64.exe -q -P make,bash,git
 ```
 
 The above command should bring up the Cygwin installer dialog. Select a mirror closest to you and click "next" until the installation is complete. There should be no need to adjust the package selection as the command-line options provided to the installer will select everything we need. After the installation is complete, adjust your Windows system path to include the Cygwin binaries (*"C:\cygwin64\bin" by default*).
-
-Next install Python 2.7 by navigating to https://www.python.org/downloads/ and downloading the Python 2.7.10 installer for Windows. Install Python accepting the defaults. This should have installed Python to *C:\Python27*. Next edit your Windows system path to include both *"C:\Python27"* and *"C:\Python27\Scripts"* ensuring that they are listed before Cygwin in the path.
-
-Finally install the Python websocket-client module via pip with the following command:
-
-```
-pip install websocket-client
-```
 
 ***Note:*** after adjusting the system path and defining new system environment variables on Windows, you'll need to exit the console (cmd.exe) and open it again before the updated path and new environment variables will take effect.
 
@@ -137,10 +118,10 @@ cd /<path>
 git clone https://github.com/FredHutch/Oncoscape.git
 ```
 
-After the git clone is complete, switch to the directory where Oncoscape was downloaded and build it with the "sudo make install" command as shown below:
+After the git clone is complete, switch to the r_modules sub directory where Oncoscape was downloaded and build it with the "sudo make install" command as shown below:
 
 ```bash
-cd /<path>/Oncoscape
+cd /<path>/Oncoscape/r_modules
 sudo make install
 ```
 
