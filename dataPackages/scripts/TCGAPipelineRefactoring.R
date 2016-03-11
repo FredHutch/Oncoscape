@@ -30,6 +30,7 @@ if(!interactive()){
 
 
 ########################   Step 1: Set Classes for the fields    #################
+
 setClass("tcgaId");
 setAs("character","tcgaId", function(from) {
   as.character(str_replace_all(from,"-","." )) 
@@ -161,7 +162,7 @@ if(DOB){
 		from <- DOB.unique.values$unique.race
 		to 	 <- from 
 		to[match(c("[UNKNOWN]","[NOT AVAILABLE]","[NOT EVALUATED]"), to)] <- NA
-		df$race <- mapvalues(df$race, from = from, to = to, warn_missing = T)
+		df$race <- mapvalues(df$race, from = from, to = to, warn_missing = F)
 		return(df)
 	}	
 	#--------------------------------------------------------------------------------
@@ -169,7 +170,7 @@ if(DOB){
 		from <- DOB.unique.values$unique.ethnicity 
 		to 	 <- from 
 		to[match(c("[NOT EVALUATED]","[NOT AVAILABLE]","[UNKNOWN]"), to)] <- NA
-		df$ethnicity <- mapvalues(df$ethnicity, from = from, to = to, warn_missing = T)
+		df$ethnicity <- mapvalues(df$ethnicity, from = from, to = to, warn_missing = F)
 		return(df)
 	}	
 } # End of DOB Native Functions
@@ -204,7 +205,7 @@ if(DIAGNOSIS){
 		from <- Diagnosis.unique.values$unique.disease
 		to 	 <- from 
 		to[match("[NOT AVAILABLE]", to)] <- NA
-		df$disease <- mapvalues(df$disease, from = from, to = to, warn_missing = T)
+		df$disease <- mapvalues(df$disease, from = from, to = to, warn_missing = F)
 		return(df)
 	}	
 	#--------------------------------------------------------------------------------
@@ -213,7 +214,7 @@ if(DIAGNOSIS){
 		to 	 <- from 
 		to[match("[NOT AVAILABLE]", to)] <- NA
 		df$tissueSourceSiteCode <- mapvalues(df$tissueSourceSiteCode, from = from, 
-								  			 to = to, warn_missing = T)
+								  			 to = to, warn_missing = F)
 		return(df)
 	}
 } # End of Diagnosis Native Functions
@@ -553,16 +554,16 @@ if(STATUS){
 						     'initial_pathologic_dx_year' = list(name = "dxyear", data = "tcgaDate"),
 						     'vital_status' = list(name = "vital", data = "upperCharacter"),
 						     'tumor_status' = list(name = "tumorStatus", data = "upperCharacter"),
-						     'last_contact_days_to' = list(name = "lastContact", data = "character"),
-						     'death_days_to' = list(name = "deathDate", data = "character")
+						     'last_contact_days_to' = list(name = "lastContact", data = "upperCharacter"),
+						     'death_days_to' = list(name = "deathDate", data = "upperCharacter")
 						   ))
 		tbl.f1 <- loadData(uri[2], 
 			              list(
 						     'bcr_patient_barcode' = list(name = "PatientID", data = "tcgaId"),
 						     'vital_status' = list(name = "vital", data = "upperCharacter"),
 						     'tumor_status' = list(name = "tumorStatus", data = "upperCharacter"),
-						     'last_contact_days_to' = list(name = "lastContact", data = "character"),
-						     'death_days_to' = list(name = "deathDate", data = "character")
+						     'last_contact_days_to' = list(name = "lastContact", data = "upperCharacter"),
+						     'death_days_to' = list(name = "deathDate", data = "upperCharacter")
 						   ))
 
 		if(!is.na(uri[3])) {
@@ -571,8 +572,8 @@ if(STATUS){
 						     'bcr_patient_barcode' = list(name = "PatientID", data = "tcgaId"),
 						     'vital_status' = list(name = "vital", data = "upperCharacter"),
 						     'tumor_status' = list(name = "tumorStatus", data = "upperCharacter"),
-						     'last_contact_days_to' = list(name = "lastContact", data = "character"),
-						     'death_days_to' = list(name = "deathDate", data = "character")
+						     'last_contact_days_to' = list(name = "lastContact", data = "upperCharacter"),
+						     'death_days_to' = list(name = "deathDate", data = "upperCharacter")
 						   ))
 		}
 		if(!is.na(uri[4])) {
@@ -581,8 +582,8 @@ if(STATUS){
 						     'bcr_patient_barcode' = list(name = "PatientID", data = "tcgaId"),
 						     'vital_status' = list(name = "vital", data = "upperCharacter"),
 						     'tumor_status' = list(name = "tumorStatus", data = "upperCharacter"),
-						     'last_contact_days_to' = list(name = "lastContact", data = "character"),
-						     'death_days_to' = list(name = "deathDate", data = "character")
+						     'last_contact_days_to' = list(name = "lastContact", data = "upperCharacter"),
+						     'death_days_to' = list(name = "deathDate", data = "upperCharacter")
 						   ))
 		}
 
@@ -612,14 +613,21 @@ if(STATUS){
 	Status.mapping.date <- function(df){
 		from <- Status.unique.values$unique.lastContact
 		to 	 <- from 
-		to[match(c("[NOT AVAILABLE]","[Discrepancy]", "[Completed]"), to)] <- NA
-		df$lastContact <- mapvalues(df$lastContact, from = from, to = to, warn_missing = T)
+		to[match(c("[NOT AVAILABLE]","[DISCREPANCY]", "[COMPLETED]"), to)] <- NA
+		df$lastContact <- mapvalues(df$lastContact, from = from, to = to, warn_missing = F)
 		
 		from <- Status.unique.values$unique.deathDate
 		to 	 <- from 
-		to[match(c("[NOT AVAILABLE]","[Discrepancy]", "[Not Applicable]"), to)] <- NA
-		df$deathDate <- mapvalues(df$deathDate, from = from, to = to, warn_missing = T)
+		to[match(c("[NOT AVAILABLE]","[DISCREPANCY]", "[NOT APPLICABLE]"), to)] <- NA
+		df$deathDate <- mapvalues(df$deathDate, from = from, to = to, warn_missing = F)
 		
+		if(length(which(df$lastContact > df$deathDate))){
+			lastContactGreaterThanDeath  = df[which(df$lastContact > df$deathDate),]$PatientID
+			warning("last contact occured after death: ", lastContactGreaterThanDeath)
+		}
+        df[which(!(is.na(df$lastContact))),]$date <- df[which(!(is.na(df$lastContact))),]$lastContact
+        df[which(!(is.na(df$deathDate))),]$date <- df[which(!(is.na(df$deathDate))),]$deathDate
+
 		return(df)
 	}	
 	#--------------------------------------------------------------------------------
@@ -627,7 +635,7 @@ if(STATUS){
 		from <- Status.unique.values$unique.vital
 		to 	 <- from 
 		to[match("[NOT AVAILABLE]", to)] <- NA
-		df$vital <- mapvalues(df$vital, from = from, to = to, warn_missing = T)
+		df$vital <- mapvalues(df$vital, from = from, to = to, warn_missing = F)
 		return(df)
 	}	
 	#--------------------------------------------------------------------------------
@@ -635,7 +643,7 @@ if(STATUS){
 		from <- Status.unique.values$unique.tumorStatus 
 		to 	 <- from 
 		to[match(c("[NOT AVAILABLE]","[UNKNOWN]"), to)] <- NA
-		df$tumorStatus <- mapvalues(df$tumorStatus, from = from, to = to, warn_missing = T)
+		df$tumorStatus <- mapvalues(df$tumorStatus, from = from, to = to, warn_missing = F)
 		return(df)
 	}
 } # End of Status Native Functions
@@ -846,17 +854,17 @@ create.all.Status.records <- function(study_name){
 					     'initial_pathologic_dx_year' = list(name = "dxyear", data = "tcgaDate"),
 					     'vital_status' = list(name = "vital", data = "upperCharacter"),
 					     'tumor_status' = list(name = "tumorStatus", data = "upperCharacter"),
-					     'last_contact_days_to' = list(name = "lastContact", data = "character"),
-					     'death_days_to' = list(name = "deathDate", data = "character")
-					   ))
+					     'last_contact_days_to' = list(name = "lastContact", data = "upperCharacter"),
+						  'death_days_to' = list(name = "deathDate", data = "upperCharacter")
+						))
 	tbl.f1 <- loadData(uri[2], 
 		              list(
 					     'bcr_patient_barcode' = list(name = "PatientID", data = "tcgaId"),
 					     'vital_status' = list(name = "vital", data = "upperCharacter"),
 					     'tumor_status' = list(name = "tumorStatus", data = "upperCharacter"),
-					     'last_contact_days_to' = list(name = "lastContact", data = "character"),
-					     'death_days_to' = list(name = "deathDate", data = "character")
-					   ))
+					      'last_contact_days_to' = list(name = "lastContact", data = "upperCharacter"),
+						  'death_days_to' = list(name = "deathDate", data = "upperCharacter")
+						))
 
 	if(!is.na(uri[3])) {
 		tbl.f2 <- loadData(uri[3], 
@@ -864,9 +872,9 @@ create.all.Status.records <- function(study_name){
 					     'bcr_patient_barcode' = list(name = "PatientID", data = "tcgaId"),
 					     'vital_status' = list(name = "vital", data = "upperCharacter"),
 					     'tumor_status' = list(name = "tumorStatus", data = "upperCharacter"),
-					     'last_contact_days_to' = list(name = "lastContact", data = "character"),
-					     'death_days_to' = list(name = "deathDate", data = "character")
-					   ))
+					     'last_contact_days_to' = list(name = "lastContact", data = "upperCharacter"),
+						  'death_days_to' = list(name = "deathDate", data = "upperCharacter")
+						))
 	}
 	if(!is.na(uri[4])) {
 		tbl.f2 <- loadData(uri[4], 
@@ -874,14 +882,15 @@ create.all.Status.records <- function(study_name){
 					     'bcr_patient_barcode' = list(name = "PatientID", data = "tcgaId"),
 					     'vital_status' = list(name = "vital", data = "upperCharacter"),
 					     'tumor_status' = list(name = "tumorStatus", data = "upperCharacter"),
-					     'last_contact_days_to' = list(name = "lastContact", data = "character"),
-					     'death_days_to' = list(name = "deathDate", data = "character")
-					   ))
+					     'last_contact_days_to' = list(name = "lastContact", data = "upperCharacter"),
+						  'death_days_to' = list(name = "deathDate", data = "upperCharacter")
+						))
 	}
 
 	tbl.f <- rbind.fill(tbl.pt, tbl.f1)
 	if(exists("tbl.f2")) tbl.f <- rbind.fill(tbl.f, tbl.f2)
 	if(exists("tbl.f3")) tbl.f <- rbind.fill(tbl.f, tbl.f3)
+	tbl.f$date <- rep(NA, nrow(tbl.f))
 
 	data.Status <- Status.mapping.vital(tbl.f)
 	data.Status <- Status.mapping.tumorStatus(data.Status)
@@ -889,9 +898,15 @@ create.all.Status.records <- function(study_name){
 
 	#more computation to determin the date, the vital status and the tumor status...
 	#need group function by patient and determin.
+	data.Status <- data.Status[,c("PatientID", "vital", "tumorStatus", "date")]
+	data.Status <- data.Status[-which(duplicated(data.Status)),]
+	max <- aggregate(cbind(date, vital, tumorStatus) ~ PatientID, data.Status, 
+					 function(x){max(x)})
 	
+    newData <- merge(max, data.Status)
+	print(study_name)
+	print(dim(newData))
 }
-return()
 lapply(studies, create.all.Status.records)
 #--------------------------------------------------------------------------------------------------------------------------------
 
