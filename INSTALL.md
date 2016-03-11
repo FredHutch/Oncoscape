@@ -2,7 +2,6 @@ The following instructions describe how to install and run Oncoscape with the ne
 
 1. [System Requirements](#1-system-requirements)
 2. [Installing Oncoscape](#2-installing-oncoscape)
-3. [Oncoscape Configuration](#3-oncoscape-configuration)
 4. [Running Oncoscape](#4-running-oncoscape)
 5. [Running and Developing Oncoscape with Docker](#5-running-and-developing-oncoscape-with-docker)
 
@@ -22,7 +21,6 @@ Before you can successfully install Oncoscape on a Linux system you will need to
 - g++
 - make
 - nodejs 5.x
-- node
 - node-gyp
 - git
 
@@ -63,7 +61,9 @@ After installing all the dependencies above on your Linux system, you are ready 
 Before you can successfully install Oncoscape on a Mac OS X system, you will need to satisfy the following dependencies:
 
 - R (version 3.2.2+)
-- Xcode command-line tools (provides make,etc...)
+- Xcode command-line tools (provides make, git, etc...)
+- nodejs 5.x
+- node-gyp
 
 To install the R head over the the CRAN site (https://cran.r-project.org/mirrors.html), pick a mirror site closest to you then download the latest version of R (currently 3.2.3) for Mac OS X and install it. If you are already running the Brew package manager, you can alternatively install R as follows:
 
@@ -91,7 +91,9 @@ After installing the above dependencies on your Mac OS X system, you are ready t
 Before you can successfully install Oncoscape on a Mac OS X system you will need to satisfy the following dependencies:
 
 - R (version 3.2.2+)
-- Cygwin (for make and git)
+- Cygwin (for make, bash and git)
+- nodejs
+- node-gyp
 
 To install the R head over to the CRAN site (https://cran.r-project.org/mirrors.html), pick a mirror site closest to you then download the latest version of R (currently 3.2.3) for Windows and install it. After it's installed make sure that you add the R binaries to your system path (control panel -> system -> advanced system settings -> environment variables -> system variables). If you accepted the defaults, the R binaries will be located at *"C:\Program Files\R\bin"*.
 
@@ -118,42 +120,30 @@ cd /<path>
 git clone https://github.com/FredHutch/Oncoscape.git
 ```
 
-After the git clone is complete, switch to the r_modules sub directory where Oncoscape was downloaded and build it with the "sudo make install" command as shown below:
+After the git clone is complete, switch to the r_modules sub directory where Oncoscape was downloaded and build them with the "sudo make install" command as shown below:
 
 ```bash
 cd /<path>/Oncoscape/r_modules
 sudo make install
 ```
 
-The build process will take just a few minutes to complete on a Mac OS X system but will take several minutes on a Linux system as the R modules will be compiled from source.
+The module build process will take just a few minutes to complete on a Mac OS X system but will take several minutes on a Linux system as the R modules will be compiled from source.
 
-The above install method will install R packages in the systems default system-wide path. If you'd rather build and install the R packages in a alternate location (such as your home folder), first set the "R_LIBS" environment variable to the desired path and execute "make installLocal" as shown in the example below:
+Next you'll need to install the required node modules by running the "npm install" command in the 'server' directory as shown below:
 
-```bash
-export R_LIBS=/<path>/rlibs
-make installLocal
+```
+cd /<path>/Oncoscape/server
+npm install
 ```
 
-If you chose to build and install the R libraries in an alternate location (as above example), you'll need to make sure that the R_LIBS environment variable is set before each time Oncoscape is run. One way to accomplish this is to add the following line to your ~/.bash_profile replacing '/home/myhome/rlibs' with the path used for the alternate R library path: 
+After the node modules are installed, you'll need to install the rstats library with node-gyp as folllows:
 
-```bash
-export R_LIBS=/home/myhome/rlibs
+```
+cd /<path>/Oncoscape/rstats
+node-gyp configure build 
 ```
 
-After the application has been successfully built and installed, you should test it to ensure that everything is working as expected. This can be accomplished by running the provided 'test' make target. Before running the test suite (or running the Oncoscape app itself), you'll need to create a directory to store user data and export it as follows (replace "\<path\>" with the actual path): 
-
-```bash
-sudo mkdir /<path>/userdata
-export ONCOSCAPE_USER_DATA_STORE=file:///<path>/userdata
-```
-With the user data store directory in place and environment variable exported, the test suite can be executed with the following command:
-
-```bash
-sudo make test
-```
-
-If all tests passed (you should see "OK:  all python websocket json tests passed") you are ready to proceed to running Oncoscape.
-
+You are now ready to run Oncoscape.
 
 ### Windows Install Instructions
 
@@ -171,97 +161,32 @@ cd C:\<path>\Oncoscape
 make install
 ```
 
-The above install method will install R packages in the default system-wide path. If you'd rather build and install the R packages in a alternate location (such as your home folder), first create a direcotry to hold the packages, then set the "R_LIBS" Windows System environment variable to point at the target folder, then execute the following command:
+## 3. Running Oncoscape
+
+### Running Oncoscape on Linux and Mac OS X
+
+After you've installed all required dependencies and installed Oncoscape as described above, you are now ready to run Oncoscape. You can run Oncoscape by executing the following commands:
 
 ```
-cd C:\<path>\Oncoscape
-make installLocal
+cd /<path>/Oncoscape
+node start.js
 ```
 
-After the Oncoscape has been successfully built and installed, you should test it to ensure that everything is working as expected. This can be accomplished by running the provided 'test' make target. Before running the test suite (or running the Oncoscape app itself), you'll need to create a directory to store user data and create a new Windows System environment variable named "ONCOSCAPE_USER_DATA_STORE" with a value of file://c:\\\\path\\\\userdata" (replacing the "path" and "userdata" with the correct path and target directory on your system.
+After the Oncoscape application has started, open a web browser and navigate to http://localhost to access Oncoscape. If you are running Oncoscape on a remote server, you'll need open a web browser and navigate to the Oncoscape application replacing "yourservername.com" with the name of the server where Oncoscape is running.
 
-With the userdata directory in place and the environment variable set, the test suite can be executed with the following command:
-
-```
-make test
-```
-
-If all tests passed (you should see "OK:  all python websocket json tests passed") you are ready to proceed to running Oncoscape.
-
-***NOTE:*** There is currently an issue (#99) that prevents the test suite from running successfully on Windows. If your test run fails and issue #99 is still open, you won't be able to complete the tests, but Oncoscape should still run.  
-
-## 3. Oncoscape Configuration
-
-The default Oncoscape configuration file is located at 'Oncoscape/inst/scripts/apps/oncoscape/runOncoscapeApp-7777.R' 
-
-Edit this file to meet your specific needs, such as the TCP port you want the server to listen on and what datasets you want to load on startup. By default when you run Oncoscape it will automatically open a web browser and navigate to the Oncoscape application. If you are running Oncoscape on a remote server rather than your local workstation, this won't work and you'll need to manually navigate to the server address and configured oncoscape port.
-
-To change the port while Onoscape listens, modify the "port" variable. To modify the datasets that are loaded on startup, modify the "current.datasets" variable. Below in an example configuration:
-
-```R
-library(OncoDev14)
-sessionInfo()
-scriptDir <- "apps/oncoscape"
-stopifnot(nchar(Sys.getenv("ONCOSCAPE_USER_DATA_STORE")) > 0)
-userID <- "test@nowhere.org"
-current.datasets <- c("TCGAgbm;TCGAbrain")
-port <- 7777
-onco <- OncoDev14(port=port, scriptDir=scriptDir, userID=userID, datasetNames=current.datasets)
-if(Sys.info()[["nodename"]] != "yourservername") 
-   browseURL(sprintf("http://localhost:%d", port))
-run(onco)
-```
-
-## 4. Running Oncoscape
-
-### Running a Global Installation on Linux and Mac OS X
-
-If you performed a system-wide install of the Oncoscape R libraries (make install), the following command will kill any current running Oncoscape instances and launch Oncoscape as defined in the configuration file:
-
-```bash
-make oncoApp7777
-```
-
-### Running a Local Installation on Linux and Mac OS X
-
-If you installed the Oncoscape R packages in a defined location (make installLocal), the following command will kill any current running Oncoscape instances and launch Oncoscape as defined in the configuration file:
-
-```bash
-make oncoAppLocal7777
-```
-
-After the Oncoscape application has started, a web browser should open and automatically navigate to the Oncoscape application. If you are running Oncoscape on a remote server, you'll need open a web browser and navigate to the Oncoscape application. Example URL if using the default port:
-
-> http://yourservername.com:7777
-
-After launching Oncoscape, it takes about 15 seconds before it starts listening for connections, so be patient.
+> http://yourservername.com
 
 
-### Running a Global Installation on Windows
+### Running Oncoscape on Windows
 
-If you performed a system-wide install of the Oncoscape R libraries (make install) the following command will launch Oncoscape as defined in the configuration file:
+After you've installed all required dependencies and installed Oncoscape as described above, you are now ready to run Oncoscape. You can run Oncoscape by executing the following commands:
 
 ```
-make oncoWin
+cd /<path>/Oncoscape
+node start.js
 ```
 
-### Running a Local Installation on Windows
-
-If you installed the Oncoscape R packages in a defined location (make installLocal) the following command will launch Oncoscape as defined in the configuration file:
-
-```
-make oncoWinLocal
-```
-
-After the Oncoscape application has started, a web browser should open and automatically navigate to the Oncoscape application. If you are running Oncoscape on a remote server, you'll need open a web browser and navigate to the Oncoscape application. Example URL if using the default port:
-
-> http://yourservername.com:7777
-
-After launching Oncoscape, it takes about 15 seconds before it starts listening for connections, so be patient.
-
-***Note:*** When Oncoscape is run under Windows (via either 'make oncoWin' or make 'oncoWinLocal'), Oncoscape will run in the foreground of the command-line console. If you wish to stop Oncoscape, hit "CTRL-C" to kill it.
-
-## 5. Running and Developing Oncoscape with Docker
+## 4. Running and Developing Oncoscape with Docker
 
 Oncoscape is currently available as a Docker container on Docker Hub at:
 	
