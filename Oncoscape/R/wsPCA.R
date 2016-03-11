@@ -86,13 +86,13 @@ ws.calculatePCA <- function(ws, msg)
      # fashion a 3-column data.frame nicely suited to use with d3: gene, PC1, PC2
      # add two more scalar field: pc1.varianceAccountedFor, pc2.varianceAccounted for
    
-   mtx.loadings <- as.matrix(x$scores[, 1:2])
-   ids <- x$loadings$id
-   max.value <- max(abs(c(x$loadings[,1], x$loadings[,2])))
+   mtx.scores <- as.matrix(x$scores[, 1:2])
+   ids <- x$sampleIDs
+   max.value <- max(abs(c(x$scores[,1], x$scores[,2])))
    importance.PC1 = x$importance["Proportion of Variance", "PC1"]
    importance.PC2 = x$importance["Proportion of Variance", "PC2"]
    
-   payload <- list(scores=mtx.loadings, ids=ids, maxValue=max.value,
+   payload <- list(scores=mtx.scores, ids=ids, maxValue=max.value,
                    importance.PC1=importance.PC1,
                    importance.PC2=importance.PC2, geneSetName=genes)
 

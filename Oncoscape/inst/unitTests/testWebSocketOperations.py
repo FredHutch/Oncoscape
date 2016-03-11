@@ -1163,12 +1163,11 @@ def test_pcaCalculate():
   assert(keys == ['geneSetName', 'ids', 'importance.PC1', 'importance.PC2', 'maxValue', 'scores'])
   
   ids = payload["ids"]
-  print ids
-  assert(len(ids) == 64)
-  assert(ids[1:5] == ['EED', 'EEF2', 'EFEMP2', 'EGFR'])
-  assert(payload["maxValue"] == 0.2665)
-  assert(payload["importance.PC1"] == 0.3218)
-  assert(payload["importance.PC2"] == 0.1625)
+  assert(len(ids) == 20)
+  assert(ids.index('TCGA.02.0021') >= 0)
+  assert(payload["maxValue"] > 0 )
+  assert(payload["importance.PC1"] > 0.0)
+  assert(payload["importance.PC2"] > 0.0)
 
 #------------------------------------------------------------------------------------------------------------------------
 def test_pcaTestCalculateOnGeneSubset():
@@ -1192,11 +1191,11 @@ def test_pcaTestCalculateOnGeneSubset():
   #assert(keys == ['ids', 'importance.PC1', 'importance.PC2', 'loadings', 'maxValue'])
   
   ids = payload["ids"]
-  assert(len(ids) == len(goi))
-  assert(ids == goi)
-  assert(payload["maxValue"] == 0.5088)
-  assert(payload["importance.PC1"] == 0.3296)
-  assert(payload["importance.PC2"] == 0.2460)
+  assert(len(ids) == 20)
+  assert(ids.index('TCGA.02.0014') >= 0)
+  assert(payload["maxValue"]  > 0)
+  assert(payload["importance.PC1"] > 0.0)
+  assert(payload["importance.PC2"] > 0.0)
 #----------------------------------------------------------------------------------------------------
 def test_pcaTestCalculateOnSampleSubset():
 
@@ -1219,11 +1218,11 @@ def test_pcaTestCalculateOnSampleSubset():
   #assert(keys == ['ids', 'importance.PC1', 'importance.PC2', 'loadings', 'maxValue'])
   
   ids = payload["ids"]
-  assert(len(ids) == 64)
+  assert(len(ids) == 5)
   
-  assert(payload["maxValue"] == 0.2530)
-  assert(payload["importance.PC1"] == 0.5064)
-  assert(payload["importance.PC2"] == 0.2279)
+  assert(payload["maxValue"] > 0 )
+  assert(payload["importance.PC1"] > 0.0)
+  assert(payload["importance.PC2"] > 0.0)
 
 #----------------------------------------------------------------------------------------------------
 def test_pcaTestCalculateOnGeneAndSampleSubsets():
@@ -1249,11 +1248,11 @@ def test_pcaTestCalculateOnGeneAndSampleSubsets():
   #assert(keys == ['ids', 'importance.PC1', 'importance.PC2', 'loadings', 'maxValue'])
   
   ids = payload["ids"]
-  assert(ids == goi)
+  assert(ids == soi)
   
-  assert(payload["maxValue"] == 0.5445)
-  assert(payload["importance.PC1"] == 0.5075)
-  assert(payload["importance.PC2"] == 0.2802)
+  assert(payload["maxValue"] > 0)
+  assert(payload["importance.PC1"] > 0.0)
+  assert(payload["importance.PC2"] > 0.0)
 
 #----------------------------------------------------------------------------------------------------
 def test_plsr():

@@ -70,14 +70,7 @@ function initializeUI ()
    geneSetMenu = $("#plsrGeneSetSelector");
    expressionDataSetMenu = $("#plsrExpressionDataSetSelector");
    
-   $(".plsrExpMenu").click(
-   	 function(){
-     	 $(".plsrExpMenu .dropdown").slideToggle();
-   	 },
-   	 function(){
-     	 $(".plsrExpMenu .dropdown").slideToggle();
-   	 }
-   );
+   $(".plsrExpMenu").click(	 function(){$(".plsrExpMenu .dropdown").slideToggle();	 }   );
 
    $("#plsrExpressionDataSetSelector .flexcontainer").width($(window).width()/1.2);
    clearSelectionButton = $("#plsrClearSelectionButton");
@@ -178,7 +171,7 @@ function updateExpressionData()
   console.log("***** within updateExpressionData");
   currentExpressionDataSet = $(this).siblings("td").andSelf("td").eq(0).text();
 	console.log("***** currentExpressionDataSet is ", currentExpressionDataSet);
-  var changedText = currentExpressionDataSet + " Click to change";
+  var changedText = currentExpressionDataSet;
   $(".plsrExpMenu a").eq(0).text(changedText);
 }
 //--------------------------------------------------------------------------------------------------
@@ -603,12 +596,17 @@ function handleExpressionDataSetNames(msg)
     for(var i=0; i<expManifest.length; i++){
       $(".plsrExpMenu .dropdown table").append("<tr class='plsrExpClickable' id='plsrExpMani" + i + "'></tr>");
       for(var j=0; j<expManifest[i].length; j++){
-          singleRecord = '<td><a href="#">' + expManifest[i][j] + '</a></td>';
+          singleRecord = '<td><a href="#" style="text-decoration:none">' + expManifest[i][j] + '</a></td>';
           $("#plsrExpMani" + i).append(singleRecord);
           console.log("***** single Records in plsr", singleRecord);
         } // for j
       } // for i
     $(".plsrExpMenu .plsrExpClickable td").click(updateExpressionData);
+
+// default: pre-select first dataset
+    $("tr#plsrExpMani0 td")[0].click()
+    $(".plsrExpMenu").click()
+
   
    postStatus("addExpressionDataSetNamesToMenu: complete");
    hub.enableTab(thisModulesOutermostDiv);

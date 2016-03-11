@@ -61,7 +61,7 @@ function initializeUI ()
 
   calculatePcaButton = $("#pcaCalculateButton");
   calculatePcaButton.button();
-  $("#pcaDisplay").css("display", "none");
+  $("#pcaOutputDiv").css("display", "none");
   calculatePcaButton.click(calculate);
   useAllSamplesInCurrentDatasetButton = $("#pcaUseAllSamplesButton");
   useAllSamplesInCurrentDatasetButton.button();
@@ -69,16 +69,8 @@ function initializeUI ()
   hub.disableButton(useAllSamplesInCurrentDatasetButton);
 
   expressionDataSetMenu = $("#pcaExpressionDataSetSelector");
-  expressionDataSetMenu = $("#pcaExpressionDataSetSelector");
    
-   $(".pcaExpMenu").click(
-      function(){
-        $(".pcaExpMenu .dropdown").slideToggle();
-      },
-      function(){
-        $(".pcaExpMenu .dropdown").slideToggle();
-      }
-   );
+   $(".pcaExpMenu").click( function(){  $(".pcaExpMenu .dropdown").slideToggle();}   );
 
    $("#pcaExpressionDataSetSelector .flexcontainer").width($(window).width()/1.2);
 
@@ -214,7 +206,7 @@ function requestExpressionDataSetNames()
 function updateExpressionData()
 {
   currentExpressionDataSet = $(this).siblings("td").andSelf("td").eq(0).text();
-  var changedText = currentExpressionDataSet + " Click to change";
+  var changedText = currentExpressionDataSet;
   $(".pcaExpMenu a").eq(0).text(changedText);
 } // updateExpressionData
 //----------------------------------------------------------------------------------------------------
@@ -258,11 +250,15 @@ function addExpressionDataSetNamesToMenu (expressionDataSetNames)
     for(var i=0; i<expManifest.length; i++){
       $(".pcaExpMenu .dropdown table").append("<tr class='pcaExpClickable' id='pcaExpMani" + i + "'></tr>");
       for(var j=0; j<expManifest[i].length; j++){
-          singleRecord = '<td><a href="#">' + expManifest[i][j] + '</a></td>';
+          singleRecord = '<td><a href="#" style="text-decoration:none">' + expManifest[i][j] + '</a></td>';
           $("#pcaExpMani" + i).append(singleRecord);
         } // for j
       } // for i
     $(".pcaExpMenu .pcaExpClickable td").click(updateExpressionData);
+
+// default: pre-select first dataset
+    $("tr#pcaExpMani0 td")[0].click()
+    $(".pcaExpMenu").click()
   
    postStatus("addExpressionDataSetNamesToMenu: complete");
    hub.enableTab(thisModulesOutermostDiv);
@@ -438,12 +434,7 @@ function highlightPatientIDs(msg)
    hub.raiseTab(thisModulesOutermostDiv);
 
    var candidates = msg.payload.value;
-   //var testing = msg.payload.testing;
    //pcaMsg.selectedIDs = candidates;
-   console.log("=== Module.pca, highlightPatientIDs, candidates:");
-   //console.log(JSON.stringify(candidates));
-   console.log("=== Module.pca, highlightPatientIDs, currentIdentifiers:");
-   //console.log(JSON.stringify(currentIdentifiers));
      // with currentIdentifiers (local shorter sample IDs) first, they
      // are returned:
      //   hub.intersectionOfArrays(currentIdentifiers, candidates)  ->    
@@ -533,7 +524,7 @@ function calculate()
    msg = {cmd: "calculatePCA", callback: "pcaPlot", status: "request", payload: payload};
    hub.send(JSON.stringify(msg));
    $("#pcaInstructions").css("display", "none");
-   $("#pcaDisplay").css("display", "block");
+   $("#pcaOutputDiv").css("display", "block");
 } // calculate
 //----------------------------------------------------------------------------------------------------
 function handlePatientIDs(msg)
@@ -544,10 +535,15 @@ function handlePatientIDs(msg)
      var currentGeneSet = geneSetMenu.val();
      var selectedPatientIdentifiers = msg.payload.value;
      currentPatientIDs = msg.payload.value;
-     var payload = {samples: currentPatientIDs, genes: currentGeneSet};
+     var payload = {samples: currentPatientIDs, genes: currentGeneSet,  expressionDataSet: currentExpressionDataSet};
+
      msg = {cmd: "calculatePCA", callback: "pcaPlot", status: "request", payload: payload};
-     hub.enableButton(useAllSamplesInCurrentDatasetButton);
      hub.send(JSON.stringify(msg));
+
+     hub.enableButton(useAllSamplesInCurrentDatasetButton);
+     $("#pcaInstructions").css("display", "none");
+     $("#pcaOutputDiv").css("display", "block");
+
      }
    else{
      alert("Module.pca handlePatientIDs error: " + JSON.stringify(msg));
@@ -737,6 +733,8 @@ function datasetSpecified(msg)
    createPcaObjectOnServer(dataPackageName, matrixName);
    
    d3pcaDisplay.select("#pcaSVG").remove();  // so that old layouts aren't mistaken for new dataset
+   $("#pcaInstructions").css("display", "block");
+   $("#pcaOutputDiv").css("display", "none");
 
 } // datasetSpecified
 //--------------------------------------------------------------------------------------------
