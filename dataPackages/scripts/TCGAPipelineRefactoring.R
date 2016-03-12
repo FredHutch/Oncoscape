@@ -5,8 +5,8 @@ library(R.utils)
 library(stringr)
 library(plyr)
 
-stopifnot(file.exists("TCGA_Reference_Filenames.txt")) 
-TCGAfilename<-read.table("TCGA_Reference_Filenames.txt", sep="\t", header=TRUE)
+stopifnot(file.exists("TCGA_Reference_Filenames_gh.txt")) 
+TCGAfilename<-read.table("TCGA_Reference_Filenames_gh.txt", sep="\t", header=TRUE)
 ##===load drug reference table ===
 drug_ref <- read.table("drug_names_10272015.txt", sep="\t", header=TRUE)
 rad_ref <- read.table("rad_ref_02232016.txt", sep="\t", header=TRUE)
@@ -1216,9 +1216,14 @@ create.all.Encounter.records <- function(study_name){
                                'ecog_score' = list(name = "ECOG", data = "upperCharacter")
                              ))
   
-
-  data.Encounter <- merge(tbl.f1, tbl.pt, by = "PatientID", all.x = T)
-
+  data.Encounter <- rbind.fill(tbl.pt, tbl.f1)
+  
+  encounterColNames <- c("PatientID", "encType", "KPS", "ECOG", "height", "weight", "prefev1.ratio", "prefev1.percent", "postfev1.ratio", "postfev1.percent", "carbon.monoxide.diffusion")
+  m <- matrix(nrow=nrow(data.Encounter), ncol=length(encounterColNames))
+  df <- as.data.frame(m)
+  colnames(df) <- encounterColNames[(which(!(encounterColNames) %in% colnames(data.Encounter)))]
+  data.Encounter<- cbind(data.Encounter, df) 
+  
   # mapping
   data.Encounter <- Encounter.mapping.encType(data.Encounter)
   data.Encounter <- Encounter.mapping.KPS(data.Encounter)
