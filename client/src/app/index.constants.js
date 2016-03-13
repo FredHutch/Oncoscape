@@ -4,6 +4,7 @@
 
     angular
         .module('oncoscape')
+        .constant('moment', moment)
         .constant('d3', d3)
         .constant('cytoscape', cytoscape)
         .constant('signals', signals)

@@ -33,8 +33,11 @@
                 });
             };
             
+            var showing = false;
             vm.cohortClick = function() {
-                osApi.showFilter();
+                if (showing) osApi.hideFilter();
+                else osApi.showFilter();
+                showing = !showing;
             };
         }
     }

@@ -1,0 +1,41 @@
+include(../m4-workarounds.txt)
+include(../index.common)
+include(../common.css)
+include(src/css/oncoprint.css)
+<link rel="stylesheet" type="text/css" href="http://cdn.jsdelivr.net/qtip2/2.2.1/jquery.qtip.min.css">
+<script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/d3/3.5.5/d3.js"></script>
+<script type="text/javascript" src="http://cdn.jsdelivr.net/qtip2/2.2.1/jquery.qtip.min.js"></script>
+<script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/underscore.js/1.8.3/underscore.js"></script>
+<script>
+include(../hub/Module.js);
+var hub = HubModule();
+hub.start();
+include(../testManager/Module.js)
+include(../tabsApp/code.js)
+include(../datasets/Module.js)
+include(../oncoprint/Module.js)
+include(../oncoprint/Test.js)
+</script>
+<body>
+<div id="oncoscapeTabs">
+   <ul>
+     <li><a href="#datasetsDiv">Datasets</a></li>
+     <li><a href="#oncoprintDiv">Oncoprint</a></li>
+     <li><a href="#oncoprintTestDiv">Tests</a></li>
+   </ul>
+
+include(../datasets/widget.html)
+include(../oncoprint/widget.html)
+include(../oncoprint/test.html)
+<script>
+include(src/js/events.js);
+include(src/js/utils.js);
+include(src/js/defaults.js);
+include(src/js/RuleSet.js);
+include(src/js/OncoprintRenderer.js);
+include(src/js/OncoprintSVGRenderer.js);
+include(src/js/oncoprint.js);
+</script>
+</body>
+
+</html>

@@ -94,3 +94,6 @@ oncoWinLocal:
 
 oncoDocker:
 	(cd Oncoscape/inst/scripts/apps/oncoscape/; make runDocker;)
+
+oncoDockerMnP:
+	(cd Oncoscape/inst/scripts/markersAndSamples/; make runDocker;)

@@ -1,0 +1,29 @@
+include(../m4-workarounds.txt)
+include(../index.common)
+include(../common.css)
+
+<script>
+
+include(../hub/Module.js)
+var hub = HubModule();
+hub.start();
+
+include(../tabsApp/code.js)
+include(../datasets/Module.js)
+include(../markersAndSamples/Module.js)
+
+</script>
+
+<body>
+
+<div id="oncoscapeTabs">
+   <ul>
+     <li><a href="#markersAndPatientsDiv">Markers</a></li>
+   </ul>
+
+include(../datasets/widget.html)
+include(../markersAndSamples/widget.html)
+</div>
+
+</body>
+</html>

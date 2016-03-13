@@ -27,6 +27,10 @@
                 route: 'markers',
                 img: 'markers.png'
             }, {
+                name: 'Timelines',
+                route: 'timelines',
+                img: 'timelines.png'
+            }, {
                 name: 'Pathways',
                 route: 'pathways',
                 img: 'pathways.png'
@@ -39,6 +43,10 @@
                 route: 'pca',
                 img: 'pca.png'
             }, {
+                name: 'Survival',
+                route: 'pca',
+                img: 'tool.png'
+            }, {
                 name: 'Patient History',
                 route: 'history',
                 img: 'history.png'
@@ -46,10 +54,6 @@
                 name: 'MetaData',
                 route: 'metadata',
                 img: 'metadata.png'
-            }, {
-                name: 'Timelines',
-                route: 'timelines',
-                img: 'tool.png'
             }];
             vm.explore = function(tool, datasource) {
                 $state.go(tool, {

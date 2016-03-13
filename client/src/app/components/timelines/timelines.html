@@ -1,55 +1,65 @@
 <section class="timelines container container-filters">
-	<h2>Timelines ({{vm.datasource}})</h2>
-	<div class="row">
-        <div class="col-xs-4" style="padding-right:20px;">
-            <label>Search</label>
-            <input type="text" class="ngrs-range-slider" style="width:100%"
-                ng-model="vm.search">
+<h2>Timelines ({{vm.datasource}})</h2>
+<div class="row">
+    <div class="col-xs-3" style="padding-right:20px;">
+        <label>Feature</label>
+        <div class="dropdown bs-dropdown">
+            <button class="btn btn-default dropdown-toggle" type="button" id="dropdownMenu1" data-toggle="dropdown" aria-haspopup="true" aria-expanded="true">
+                {{vm.feature.name}}
+                <span class="caret"></span>
+            </button>
+            <ul class="dropdown-menu" aria-labelledby="dropdownMenu1" style="width:100%">
+                <li ng-repeat="item in vm.features" ng-click="vm.feature=item">{{item.name}}</li>
+            </ul>
         </div>
-  </div>
+    </div>
+    <div class="col-xs-3" style="padding-right:20px;">
+        <label>Timeline</label>
+        <div class="dropdown bs-dropdown">
+            <button class="btn btn-default dropdown-toggle" type="button" id="dropdownMenu1" data-toggle="dropdown" aria-haspopup="true" aria-expanded="true">
+                {{vm.eventType.name}}
+                <span class="caret"></span>
+            </button>
+            <ul class="dropdown-menu" aria-labelledby="dropdownMenu1" style="width:100%">
+            
+                <li ng-repeat="item in vm.eventTypes" ng-click="vm.eventTypeClick(item)">{{item.name}}</li>
+            
+            </ul>
+        </div>
+    </div>
+    <div class="col-xs-3" style="padding-right:20px;">
+        <label>Sort</label>
+        <div class="dropdown bs-dropdown">
+            <button class="btn btn-default dropdown-toggle" type="button" id="dropdownMenu1" data-toggle="dropdown" aria-haspopup="true" aria-expanded="true">
+                {{vm.sort.name}}
+                <span class="caret"></span>
+            </button>
+            <ul class="dropdown-menu" aria-labelledby="dropdownMenu1" style="width:100%">
+            
+                <li ng-repeat="item in vm.features" ng-click="vm.sortClick(item)">{{item.name}}</li>
+            
+            </ul>
+        </div>
+    </div>
+    <div class="col-xs-3">
+        <label>Create Cohort</label>
+        <div class="input-group">
+          <input type="text" class="form-control" placeholder="Cohort Name" style="height:29px;"
+            ng-model="vm.cohort">
+          <span class="input-group-btn">
+            <button class="btn btn-primary" type="button"
+                style="height:29px;"
+                ng-click="vm.createCohort()">Go!</button>
+          </span>
+        </div>
+    </div>
+</div>
 </section>
+
 <section class="container-filter-toggle">
   <img src="/assets/images/arrow_down.png" ng-click="vm.toggleFilter()">
 </section>
-<section id="timelines-chart" class="timelines container-fluid container-content">
+<section id="timelines-chart" class="timelines container-fluid container-content"
+style="padding:20px;">
 </section>
 
-<!-- Legand -->
-<section class="markers container-legand">
-  <ul class="legand ">
-    <li style="padding:5px;font-weight:600;">Events</li>
-
-    <li style="border:0px solid green; border-left-width:10px; padding-left:10px;margin-bottom:1px;">
-        Birth
-    </li>
-    <li style="border:0px solid red; border-left-width:10px; padding-left:10px;margin-bottom:1px;">
-        Encounter
-    </li>
-    <li style="border:0px solid #38347B; border-left-width:10px; padding-left:10px;margin-bottom:1px;">
-        Diagnosis
-    </li>
-    <li style="border:0px solid #056ce1; border-left-width:10px; padding-left:10px;margin-bottom:1px;">
-        Procedure
-    </li>
-    <li style="border:0px solid #056ce1; border-left-width:10px; padding-left:10px;margin-bottom:1px;">
-        Pathology
-    </li>
-    <li style="border:0px solid #056ce1; border-left-width:10px; padding-left:10px;margin-bottom:1px;">
-        Radiation
-    </li>
-    <li style="border:0px solid #056ce1; border-left-width:10px; padding-left:10px;margin-bottom:1px;">
-        Drug
-    </li>
-     <li style="border:0px solid #056ce1; border-left-width:10px; padding-left:10px;margin-bottom:1px;">
-        Progression
-    </li>
-    <li style="border:0px solid #056ce1; border-left-width:10px; padding-left:10px;margin-bottom:1px;">
-        Status
-    </li>
-    <li style="border:0px solid #056ce1; border-left-width:10px; padding-left:10px;margin-bottom:1px;">
-        Absent
-    </li>
-    
-    
-  </ul>
-</section>

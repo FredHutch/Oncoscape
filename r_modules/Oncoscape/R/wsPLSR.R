@@ -36,7 +36,7 @@ createPLSR <- function(msg)
    
    response <- plsrDataSummary(myplsr)
    return.msg <- list(cmd=msg$callback, callback="", status="response", payload=response)
-      
+   
    printf("createPLSR about to send msg: %s", return.msg$cmd)
    
    toJSON(return.msg);
@@ -63,7 +63,9 @@ calculate_plsr <- function(msg)
    printf("genes for calculatePLSR after possible lookup(%d)", length(genes))
    print(genes)
    factors.df <- msg$payload$factors
+   print("*****after factors.df assignment")
    print(factors.df)
+   print("*****before nrow factors.df")
    factors <- vector("list", nrow(factors.df))
    for(r in 1:nrow(factors.df)){
       factors[[r]] <- as.list(factors.df[r,])
@@ -73,9 +75,6 @@ calculate_plsr <- function(msg)
    
    #factors <- apply(factors.df, 1, as.list)
    #names(factors) <- NULL
-   #if(!dir.exists("~/tmp"))
-   #	   dir.create("~/tmp")
-
    #save(factors.df, factors, file="~/tmp/factors.bug.RData")
    printf("--- factors after apply on factors.df");
    print(factors)
@@ -122,7 +121,7 @@ summarizePLSRPatientAttributes <- function(msg)
    summary <- summarizeNumericPatientAttributes(myplsr, attributes)
    print("------------ summary returned");
    print(summary)
-	status <- "success"
+   status <- "success"
    payload <- summary
 
    return.msg <- list(cmd=msg$callback, callback="", status=status, payload=payload)

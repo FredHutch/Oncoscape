@@ -1,0 +1,108 @@
+<style>
+ul.UserDocs {
+    list-style-type: circle;
+}
+
+</style>
+
+<div id="DashboardDiv" class="container">
+   <a href="https://github.com/FredHutch/Oncoscape" target="_blank" ><img style="position: absolute; top: 0; right: 0; border: 0;" 
+   src="https://camo.githubusercontent.com/a6677b08c955af8400f44c6298f40e7d19cc5b2d/68747470733a2f2f73332e616d617a6f6e6177732e636f6d2f6769746875622f726962626f6e732f666f726b6d655f72696768745f677261795f3664366436642e706e67"
+    alt="Fork me on GitHub" data-canonical-src="https://s3.amazonaws.com/github/ribbons/forkme_right_gray_6d6d6d.png"></a>
+<!--    	<span id="InfoLogo_pathways" style="float:right">
+          <img height="50" src="http://oncoscape-static.s3-website-us-west-2.amazonaws.com/images/oncoscape_thumb.png"
+          alt="Info" data-canonical-src="http://oncoscape-static.s3-website-us-west-2.amazonaws.com/images/oncoscape_thumb.png/images/oncoscape_thumb.png">
+        </span>
+-->
+
+   <div align="center" class="jumbotron"> 
+       <div id="oncoscapeLogo" >	<img width="375" src="http://oncoscape-static.s3-website-us-west-2.amazonaws.com/images/oncoscape_logo_FINAL.png" alt="Oncoscape"/></div>
+
+       <span> (version 1.4.93, December 10th, 2015)<br></span>
+       <p> <font color="red">This website is undergoing frequent modification.  <br> User beware!</font></p>
+   </div>   
+ 
+   <center><p> Oncoscape works best with the latest Chrome browser, and a high resolution screen. </p></center>
+
+       
+	 <div id="DashboardAccordion">
+		<h3 class="panel-title" style="margin-bottom:0px">
+			<a class="collapsed" data-toggle="collapse" data-parent="#DashboardAccordion" href="#collapse1" aria-expanded="true" aria-controls="collapse1">
+			  Available Data 
+			</a>
+		</h3>
+		<div id="collapse1">
+		   <div id="AvailableDataAccordian">     
+		   <h3 class="panel-title" style="margin-bottom:0px">
+			<a data-toggle="collapse" data-parent="#collapse1" href="#collapse11" aria-expanded="true" aria-controls="collapse11">
+			  TCGA: The Cancer Genome Atlas
+			</a>
+		  </h3>
+		  <div id="TCGAdataInfo" class="panel-body"></div>
+  
+		  <h3 class="panel-title" style="margin-bottom:0px">
+			<a data-toggle="collapse" data-parent="#collapse1" href="#collapse22" aria-expanded="true" aria-controls="collapse22">
+			  Restricted Data
+			</a>
+		  </h3>
+		   <div id="collapse22" class="panel-collapse collapse" role="tabpanel" aria-labelledby="heading22">
+			  <div id="UWMSCCAdataInfo" class="panel-body"> </div>      
+		   </div>
+		</div>
+	 </div>
+ 
+		<h3 class="panel-title" style="margin-bottom:0px">
+			<a class="collapsed " data-toggle="collapse" data-parent="#DashboardAccordion" href="#collapse2" aria-expanded="true" aria-controls="collapse2">
+			  Table of Contents
+			</a>
+		 </h3>
+		<div id="collapse2" class="panel-collapse collapse" role="tabpanel" aria-labelledby="heading2">
+		  <div id="TableContentsDiv" class="panel-body"></div>
+		</div>
+  
+		<h3 class="panel-title" style="margin-bottom:0px">
+			<a  class="collapsed " data-toggle="collapse" data-parent="#DashboardAccordion" href="#collapse3" aria-expanded="true" aria-controls="collapse3">
+			  Features To Come...
+			</a>
+		  </h3>
+		<div id="collapse3" class="panel-collapse collapse" role="tabpanel" aria-labelledby="heading3">
+		  <ul id="FeaturesToCome">
+				  <li> Saved Selections </li>
+				  <li> Interactive Kaplan Meier Plots </li>
+				  <li> Expression subtyping tool </li>
+				  <li> Expression correlation to TCGA samples using MDS </li>
+				  <li> Tool to find TCGA samples with similar mutational profiles </li>
+				  <li> Expression clustering and heatmaps </li>
+				  <li> Gene set enrichment analysis for user-selected groups </li>
+				  <li> Differential expression analysis for user-selected groups </li>
+				  <li> Hallmarks of Cancer </li>
+			   </ul>
+		  </div>
+  
+		<h3 class="panel-title" style="margin-bottom:0px">
+			<a class="collapsed " data-toggle="collapse" data-parent="#DashboardAccordion" href="#collapse4" aria-expanded="false" aria-controls="collapse4">
+			  About Oncoscape
+			</a>
+		  </h3>
+		<div id="collapse4" class="panel-collapse collapse" role="tabpanel" aria-labelledby="heading4">
+		  <div  id="AboutOncoscapeDiv" class="panel-body"></div>
+		</div>
+  
+		<h3 class="panel-title" style="margin-bottom:0px">
+			<a class="collapsed " data-toggle="collapse" data-parent="#DashboardAccordion" href="#collapse5" aria-expanded="false" aria-controls="collapse5">
+			  Terms Of Use
+			</a>
+		  </h3>
+		<div id="collapse5" class="panel-collapse collapse" role="tabpanel" aria-labelledby="heading5">
+		  <div  id="LegalNotice" class="panel-body">
+			<p>
+				Oncoscape source code is freely available via <a href="http://github.com/FredHutch/oncoscape" name='newWindow'>GitHub</a> under the minimally restrictive <a href="http://opensource.org/licenses/MIT" name='newWindow'>MIT open source license</a>.
+				Access to data in Oncoscape is restricted to the same conditions of use as specified in the original data source.
+				<br/>By using this site, you agree to follow and be bound by the <a href="http://www.fredhutch.org/en/util/terms-privacy.html" name='newWindow'>terms of use and privacy policy</a>. If you do not agree with any of the terms, please do not use this site.
+				</p>
+		  </div>
+		</div>
+	</div>
+		
+ 
+ </div>
