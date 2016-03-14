@@ -35,7 +35,6 @@
                 osApi.getPatientHistoryTable(vm.datasource).then(function(response) {
                     var ids = response.payload.tbl.map( function (d) { return d[0]; });
                     osApi.getCalculatedSurvivalCurves(ids, "").then(function(r){
-                        
                         document.getElementById("survival-img").src = r.payload;
                         osApi.setBusy(false);
                     });

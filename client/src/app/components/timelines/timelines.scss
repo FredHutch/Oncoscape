@@ -2,3 +2,17 @@
 .timelines{
 	
 }
+
+.timeline-events{
+	list-style-type: none;
+	display: inline-block;
+	padding-left:0px;
+	li{
+		display: inline-block;
+		padding-left:3px;
+		padding-right:20px;
+		border:solid 0px #FF0000;
+		border-left-width: 3px;
+	}
+	
+}

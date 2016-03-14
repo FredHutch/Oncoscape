@@ -14,16 +14,14 @@
         </div>
     </div>
     <div class="col-xs-3" style="padding-right:20px;">
-        <label>Timeline</label>
+        <label>Events</label>
         <div class="dropdown bs-dropdown">
             <button class="btn btn-default dropdown-toggle" type="button" id="dropdownMenu1" data-toggle="dropdown" aria-haspopup="true" aria-expanded="true">
                 {{vm.eventType.name}}
                 <span class="caret"></span>
             </button>
             <ul class="dropdown-menu" aria-labelledby="dropdownMenu1" style="width:100%">
-            
                 <li ng-repeat="item in vm.eventTypes" ng-click="vm.eventTypeClick(item)">{{item.name}}</li>
-            
             </ul>
         </div>
     </div>
@@ -35,9 +33,7 @@
                 <span class="caret"></span>
             </button>
             <ul class="dropdown-menu" aria-labelledby="dropdownMenu1" style="width:100%">
-            
                 <li ng-repeat="item in vm.features" ng-click="vm.sortClick(item)">{{item.name}}</li>
-            
             </ul>
         </div>
     </div>
@@ -59,7 +55,16 @@
 <section class="container-filter-toggle">
   <img src="/assets/images/arrow_down.png" ng-click="vm.toggleFilter()">
 </section>
-<section id="timelines-chart" class="timelines container-fluid container-content"
-style="padding:20px;">
+
+<section class="timelines container-fluid container-content" style="position:relative;padding-top:25px;">
+<h5 class="timelines-lbl-feature" 
+    style="padding-left:50px;position:absolute;top:20px;">
+    <span class="glyphicon glyphicon-align-left" style="color:rgb(89, 165, 251);"></span> {{vm.feature.name}}</h5>
+<h5 
+    style="padding-left:50px;position:absolute;"
+    class="timelines-lbl-events"><ul class="timeline-events"><li ng-repeat="item in vm.eventTypes" ng-click="vm.eventTypeClick(item)">{{item.name}}</li></ul>
+</h5>
+<div id="timelines-chart" style="height:80vh;"></div>
+
 </section>
 

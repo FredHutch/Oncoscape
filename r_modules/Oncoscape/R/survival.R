@@ -46,6 +46,7 @@ survivalCurveByAttribute <- function(tbl, samples, attribute="Survival", filenam
 
    df <- data.frame(group=groups, time=times, status=status.int, stringsAsFactors=FALSE)
    fit <- survfit(Surv(time, status)~group, data=df)
+   
    mainTitle <- sprintf ("Kaplan-Meier Survival");
    if(!is.na(title))
        mainTitle <- sprintf("%s (%s)", mainTitle, title)
