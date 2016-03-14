@@ -1067,7 +1067,7 @@ function doSearch(e)
 function displayMarkersNetwork(msg)
 {
    console.log("--- Module.markers: displayMarkersNetwork");
-	var messageText = "Loading Network...(may take 10-20 seconds)"
+	var messageText = "Loading Network...(may take 10-20 seconds)"; 
     var el = document.getElementById("loadingDatasetMessage");
 	el.innerHTML = messageText;
 		
@@ -1085,19 +1085,19 @@ function displayMarkersNetwork(msg)
            console.log("  about to add json.elements");
            cwMarkers.add(json.elements);
            // map current node degree into a node attribute of that name
-       }) 
+       });
       
    }, 100);	
 
 	window.setTimeout(function(){
-		messageText ="Mapping Edges..."
+		messageText ="Mapping Edges...";
 		el.innerHTML = messageText;
 
 		  cwMarkers.batch(function(){
 			   cwMarkers.style(json.style);
 			   cwMarkers.edges().hide();
 			   cwMarkers.nodes().unselect();
-		  })
+		  });
         
         cwMarkers.nodes().map(function(node){node.data({degree: node.degree(), trueWidth: node.width(), trueHeight: node.height()});});
         cwMarkers.filter("edge[edgeType='chromosome']").style({"curve-style": "bezier"});

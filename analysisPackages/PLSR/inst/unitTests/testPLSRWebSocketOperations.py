@@ -77,7 +77,7 @@ def testCalculateSmallOneFactor():
     
   factor = {"name": "AgeDx", "low": 12000, "high": 2800}
   
-  payload = {"genes": genesOfInterest, "factorCount": 1, "factors": [factor]};
+  payload = {"genes": genesOfInterest, "expressionDataSet": "mtx.mrna.ueArray", "factorCount": 1, "factors": [factor]};
   
   msg = dumps({"cmd": "calculatePLSR", "status":"request", 
                "callback":"handlePlsrResult", "payload": payload})
@@ -112,7 +112,7 @@ def testCalculateSmallTwoFactors():
   factor1 = {"name": "AgeDx", "low": 12000, "high": 2800}
   factor2 = {"name": "Survival", "low": 20, "high": 3000}
   
-  payload = {"genes": genesOfInterest, "factorCount": 2, "factors": [factor1, factor2]};
+  payload = {"genes": genesOfInterest, "expressionDataSet": "mtx.mrna.ueArray", "factorCount": 2, "factors": [factor1, factor2]};
   
   msg = dumps({"cmd": "calculatePLSR", "status":"request", 
                "callback":"handlePlsrResult", "payload": payload})
