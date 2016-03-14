@@ -5,8 +5,8 @@ library(R.utils)
 library(stringr)
 library(plyr)
 
-stopifnot(file.exists("TCGA_Reference_Filenames_gh.txt")) 
-TCGAfilename<-read.table("TCGA_Reference_Filenames_gh.txt", sep="\t", header=TRUE)
+stopifnot(file.exists("TCGA_Reference_Filenames.txt")) 
+TCGAfilename<-read.table("TCGA_Reference_Filenames.txt", sep="\t", header=TRUE)
 ##===load drug reference table ===
 drug_ref <- read.table("drug_names_10272015.txt", sep="\t", header=TRUE)
 rad_ref <- read.table("rad_ref_02232016.txt", sep="\t", header=TRUE)
@@ -561,22 +561,23 @@ if(RAD){
 if(STATUS){
 	Status.unique.request <- function(study_name){
 	  	uri <- rawTablesRequest(study_name, "Status")
+	  	rm(list=ls(pattern="tbl"))
 		tbl.pt <- loadData(uri[1], 
 			              list(
 						     'bcr_patient_barcode' = list(name = "PatientID", data = "tcgaId"),
 						     'initial_pathologic_dx_year' = list(name = "dxyear", data = "tcgaDate"),
 						     'vital_status' = list(name = "vital", data = "upperCharacter"),
 						     'tumor_status' = list(name = "tumorStatus", data = "upperCharacter"),
-						     'last_contact_days_to' = list(name = "lastContact", data = "character"),
-						     'death_days_to' = list(name = "deathDate", data = "character")
+						     'last_contact_days_to' = list(name = "lastContact", data = "upperCharacter"),
+						     'death_days_to' = list(name = "deathDate", data = "upperCharacter")
 						   ))
 		tbl.f1 <- loadData(uri[2], 
 			              list(
 						     'bcr_patient_barcode' = list(name = "PatientID", data = "tcgaId"),
 						     'vital_status' = list(name = "vital", data = "upperCharacter"),
 						     'tumor_status' = list(name = "tumorStatus", data = "upperCharacter"),
-						     'last_contact_days_to' = list(name = "lastContact", data = "character"),
-						     'death_days_to' = list(name = "deathDate", data = "character")
+						     'last_contact_days_to' = list(name = "lastContact", data = "upperCharacter"),
+						     'death_days_to' = list(name = "deathDate", data = "upperCharacter")
 						   ))
 
 		if(!is.na(uri[3])) {
@@ -585,8 +586,8 @@ if(STATUS){
 						     'bcr_patient_barcode' = list(name = "PatientID", data = "tcgaId"),
 						     'vital_status' = list(name = "vital", data = "upperCharacter"),
 						     'tumor_status' = list(name = "tumorStatus", data = "upperCharacter"),
-						     'last_contact_days_to' = list(name = "lastContact", data = "character"),
-						     'death_days_to' = list(name = "deathDate", data = "character")
+						     'last_contact_days_to' = list(name = "lastContact", data = "upperCharacter"),
+						     'death_days_to' = list(name = "deathDate", data = "upperCharacter")
 						   ))
 		}
 		if(!is.na(uri[4])) {
@@ -595,8 +596,8 @@ if(STATUS){
 						     'bcr_patient_barcode' = list(name = "PatientID", data = "tcgaId"),
 						     'vital_status' = list(name = "vital", data = "upperCharacter"),
 						     'tumor_status' = list(name = "tumorStatus", data = "upperCharacter"),
-						     'last_contact_days_to' = list(name = "lastContact", data = "character"),
-						     'death_days_to' = list(name = "deathDate", data = "character")
+						     'last_contact_days_to' = list(name = "lastContact", data = "upperCharacter"),
+						     'death_days_to' = list(name = "deathDate", data = "upperCharacter")
 						   ))
 		}
 
@@ -623,7 +624,22 @@ if(STATUS){
 	}
 	#--------------------------------------------------------------------------------
 	Status.unique.values <- Reduce(Status.unique.aggregate, lapply(studies, Status.unique.request))
-	Status.mapping.date.preCheck <- function(df){
+	Status.mapping.date <- function(df){
+		from <- Status.unique.values$unique.lastContact
+		to 	 <- from 
+		to[match(c("[NOT AVAILABLE]","[DISCREPANCY]", "[COMPLETED]"), to)] <- NA
+		df$lastContact <- mapvalues(df$lastContact, from = from, to = to, warn_missing = F)
+		
+		from <- Status.unique.values$unique.deathDate
+		to 	 <- from 
+		to[match(c("[NOT AVAILABLE]","[DISCREPANCY]", "[NOT APPLICABLE]"), to)] <- NA
+		df$deathDate <- mapvalues(df$deathDate, from = from, to = to, warn_missing = F)
+		
+
+		return(df)
+	}	
+	#--------------------------------------------------------------------------------
+	Status.mapping.date.Check <- function(df){
 		
 		if(length(which(df$lastContact > df$deathDate))){
 			lastContactGreaterThanDeath  = paste(df[which(df$lastContact > df$deathDate),]$PatientID)
@@ -635,18 +651,8 @@ if(STATUS){
 		return(df)
 	}	
 	#--------------------------------------------------------------------------------
-	Status.mapping.date <- function(df){
-		from <- Status.unique.values$unique.lastContact
-		to 	 <- from 
-		to[match(c("[NOT AVAILABLE]","[Discrepancy]", "[Completed]"), to)] <- NA
-		df$lastContact <- mapvalues(df$lastContact, from = from, to = to, warn_missing = F)
-		
-		from <- Status.unique.values$unique.deathDate
-		to 	 <- from 
-		to[match(c("[NOT AVAILABLE]","[Discrepancy]", "[Not Applicable]"), to)] <- NA
-		df$deathDate <- mapvalues(df$deathDate, from = from, to = to, warn_missing = F)
-		
-
+	Status.mapping.date.Calculation <- function(df){
+		df$date <- df$dxyear + as.integer(df$date)
 		return(df)
 	}	
 	#--------------------------------------------------------------------------------
@@ -1079,10 +1085,6 @@ create.all.Status.records <- function(study_name){
 					     'initial_pathologic_dx_year' = list(name = "dxyear", data = "tcgaDate"),
 					     'vital_status' = list(name = "vital", data = "upperCharacter"),
 					     'tumor_status' = list(name = "tumorStatus", data = "upperCharacter"),
-
-					     'last_contact_days_to' = list(name = "lastContact", data = "character"),
-					     'death_days_to' = list(name = "deathDate", data = "character")
-
 					     'last_contact_days_to' = list(name = "lastContact", data = "upperCharacter"),
 					     'death_days_to' = list(name = "deathDate", data = "upperCharacter")
 
@@ -1092,13 +1094,8 @@ create.all.Status.records <- function(study_name){
 					     'bcr_patient_barcode' = list(name = "PatientID", data = "tcgaId"),
 					     'vital_status' = list(name = "vital", data = "upperCharacter"),
 					     'tumor_status' = list(name = "tumorStatus", data = "upperCharacter"),
-
-					     'last_contact_days_to' = list(name = "lastContact", data = "character"),
-					     'death_days_to' = list(name = "deathDate", data = "character")
-
 					     'last_contact_days_to' = list(name = "lastContact", data = "upperCharacter"),
 					     'death_days_to' = list(name = "deathDate", data = "upperCharacter")
-
 					   ))
 
 	if(!is.na(uri[3])) {
@@ -1107,13 +1104,8 @@ create.all.Status.records <- function(study_name){
 					     'bcr_patient_barcode' = list(name = "PatientID", data = "tcgaId"),
 					     'vital_status' = list(name = "vital", data = "upperCharacter"),
 					     'tumor_status' = list(name = "tumorStatus", data = "upperCharacter"),
-
-					     'last_contact_days_to' = list(name = "lastContact", data = "character"),
-					     'death_days_to' = list(name = "deathDate", data = "character")
-
 					     'last_contact_days_to' = list(name = "lastContact", data = "upperCharacter"),
 					     'death_days_to' = list(name = "deathDate", data = "upperCharacter")
-
 					   ))
 	}
 	if(!is.na(uri[4])) {
@@ -1122,72 +1114,58 @@ create.all.Status.records <- function(study_name){
 					     'bcr_patient_barcode' = list(name = "PatientID", data = "tcgaId"),
 					     'vital_status' = list(name = "vital", data = "upperCharacter"),
 					     'tumor_status' = list(name = "tumorStatus", data = "upperCharacter"),
-
-					     'last_contact_days_to' = list(name = "lastContact", data = "character"),
-					     'death_days_to' = list(name = "deathDate", data = "character")
-
 					     'last_contact_days_to' = list(name = "lastContact", data = "upperCharacter"),
 					     'death_days_to' = list(name = "deathDate", data = "upperCharacter")
-
 					   ))
 	}
 
-	tbl.f <- rbind.fill(tbl.pt, tbl.f1)
+	tbl.f <- rbind.fill(tbl.pt[,c("PatientID","vital","tumorStatus","lastContact","deathDate")], tbl.f1)
 	if(exists("tbl.f2")) tbl.f <- rbind.fill(tbl.f, tbl.f2)
 	if(exists("tbl.f3")) tbl.f <- rbind.fill(tbl.f, tbl.f3)
 
 	data.Status <- tbl.f
-	
-	data.Status <- Status.mapping.date.preCheck(data.Status)
-
-	#more computation to determin the date, the vital status and the tumor status...
-
-	#need group function by patient and determin.
-	
-
-	data.Status <- data.Status[,c("PatientID", "vital", "tumorStatus", "date")]
+	data.Status$date <- rep(NA, nrow(data.Status))
+	data.Status <- Status.mapping.date(data.Status)
+	data.Status <- Status.mapping.date.Check(data.Status)
+	data.Status <- Status.mapping.vital(data.Status)
+	data.Status <- Status.mapping.tumorStatus(data.Status)
+	DX <- tbl.pt[,c("PatientID", "dxyear")]	
+	data.Status <- merge(data.Status, DX)
+	data.Status <- data.Status[,c("PatientID", "vital", "tumorStatus", "dxyear", "date")]
 	data.Status <- data.Status[-which(duplicated(data.Status)),]
-	
-################# double check if the aggregate lose any information, doesn't handle NA ########################
-################# So no mapping at this stage to preserve the value in the field ###############################
-	# only grab the most recent record from each patient
+
+	#more computation to determine the most recent contacted/death date, then find the matching vital & tumorStatus
+	#need group function by patient and determin.
 	recentDatetbl <- aggregate(date ~ PatientID, data.Status, function(x){max(x)})
-    # use merge() to grab the matching fields
-    data.Status <- merge(recentDatetbl, data.Status)
+	
 
-    # double-entry records are found using this method: need clean up 
-    dupPatients <- data.Status[which(duplicated(data.Status$PatientID)),]$PatientID
+ 	recentTbl <- c()
 
-    #   14 duplicated in the data.Status, dim(data.Status) is 1102, 4; unique PatientID is 1088
-    #   1102 - 1088 = 14, those 14 have double entries... 
-							# TCGA.A2.A04Q 2385 ALIVE  TUMOR FREE, <NA>
-							# TCGA.AN.A041    7 ALIVE  TUMOR FREE, <NA>
-							#		.		.		.			.
-							#		.		.		.			.
-							#		.		.		.			.
-							#466  TCGA.AR.A5QQ  322  DEAD  TUMOR FREE, WITH TUMOR
-							#		.		.		.			.
-							#		.		.		.			.
+ 	for(i in 1:nrow(tbl.pt)){
+ 		tmpDF <- subset(data.Status, PatientID == tbl.pt$PatientID[i], select = c(PatientID, vital, tumorStatus, dxyear, as.integer(date)))
+ 		tmpDF <- tmpDF[order(as.integer(tmpDF$date), decreasing=TRUE, na.last=TRUE),]
+ 		if(nrow(tmpDF[which(tmpDF$date == tmpDF[1,]$date), ]) > 1){
+ 			tmpDup <- tmpDF[which(tmpDF$date == tmpDF[1,]$date), ]
+ 			tmpDF[1, "vital"] 		= 	ifelse(any(duplicated(tmpDup[,"vital"])), tmpDup[1, "vital"], paste(tmpDup[, "vital"]))
+			tmpDF[1, "tumorStatus"] = 	ifelse(any(duplicated(tmpDup[,"tumorStatus"])), tmpDup[1, "tumorStatus"], paste(tmpDup[, "tumorStatus"], collapse=";"))
+ 		}
+		recentTbl <- rbind.fill(recentTbl, tmpDF[1,])
+ 	}
 
- 	# seperate the data.Status into two sections: with no double-entry and double-entry 
-	noDubData  <- data.Status[-which(data.Status$PatientID %in% dupPatients), ] # temporarily remove the double-entry records
-	dubRecrods <- data.Status[which(data.Status$PatientID %in% dupPatients), ]
-	dubRecrodsCollapsedToSingle <- aggregate(tumorStatus ~ PatientID + date + vital, dubRecrods, function(x){return(paste(x))})
-    # combine the them back 
-	data.Status <- rbind(noDubData, dubRecrodsCollapsedToSingle)
+ 	data.Status <- Status.mapping.date.Calculation(recentTbl)
 
+ 	ptNumMap <- ptNumMapUpdate(tbl.pt)
 
-	# in TCGAhnsc, TCGAluad, TCGAlusc have less patients...
-	StatusMissingPT <- tbl.pt$PatientID[which(!(tbl.pt$PatientID %in% data.Status$PatientID))]
-
-
-	#data.Status <- Status.mapping.vital(data.Status)
-	#data.Status <- Status.mapping.tumorStatus(data.Status)
-	#data.Status <- Status.mapping.date(data.Status)
-
-	print(study_name)
-	print(dim(data.Status))
-
+    result <- apply(data.Status, 1, function(x){
+    				PatientID = getElement(x, "PatientID")
+    				PtNum = ptNumMap[ptNumMap$PatientID == PatientID,]$PatientNumber
+    				date = getElement(x, "date")
+    				vital = getElement(x, "vital")
+    				tumorStatus = getElement(x, "tumorStatus")
+    				return(list(PatientID=PatientID, PtNum=PtNum, study=study_name, Name="Status", 
+    				 			Fields=list(date=date, vital=vital, tumorStatus=tumorStatus)))
+    				})
+	print(c(study_name, dim(data.Status), length(result)))
 }
 lapply(studies, create.all.Status.records)
 
