@@ -763,8 +763,26 @@ if(PROGRESSION){
 		to[match(c("[NOT AVAILABLE]","[UNKNOWN]"), to)] <- NA
 		df$newTumor <- mapvalues(df$newTumor, from = from, to = to, warn_missing = F)
 		return(df)
-	}	
+	}
 	#--------------------------------------------------------------------------------
+	Progression.mapping.newTumorNaRM <- function(df){
+		rmList <- apply(df, 1, function(x){
+					pt = getElement(x, "PatientID")
+					newTumorType = getElement(x, "newTumor")
+					newTumorDateVal = getElement(x, "newTumorDate")
+					tmp <- subset(df, PatientID == pt & newTumorDate == newTumorDateVal)
+					if(nrow(tmp) > 1 && any(is.na(tmp$newTumor))){
+						return(which(df$PatientID == pt & df$newTumorDate == newTumorDateVal & is.na(df$newTumor)))
+					}
+				})
+		if(is.null(rmList)){
+			return(df)
+		}else{
+			print(unlist(rmList))
+			df <- df[-(unlist(rmList)),]
+		}
+	}
+	#--------------------------------------------------------------------------------	
 	Progression.mapping.newTumorDate <- function(df){
 		from <- Progression.unique.values$unique.newTumorDate 
 		to 	 <- from 
@@ -772,6 +790,12 @@ if(PROGRESSION){
 		df$newTumorDate <- mapvalues(df$newTumorDate, from = from, to = to, warn_missing = F)
 		return(df)
 	}
+	#--------------------------------------------------------------------------------
+	Progression.mapping.date.Calculation <- function(df){
+		df$newTumorDate <- df$dxyear + as.integer(df$newTumorDate)
+		return(df)
+	}	
+	
 } # End of Progression Native Functions
 #----------------------   Encounter functions Start Here   ------------------------
 #----------------------   brca, hnsc, prad DO NOT HAVE ENCOUNTER RECORDS! ------------------------
@@ -1309,8 +1333,6 @@ create.all.Progression.records <- function(study_name){
 					   ))
 	}
 	
-
-
 	tbl.f <- tbl.nte
 	if(exists("tbl.f1")) tbl.f <- rbind.fill(tbl.f, tbl.f1)
 	if(exists("tbl.f2")) tbl.f <- rbind.fill(tbl.f, tbl.f2)
@@ -1320,24 +1342,30 @@ create.all.Progression.records <- function(study_name){
 	data.Progression <- Progression.mapping.newTumorDate(data.Progression)
 	data.Progression <- data.Progression[-which(duplicated(data.Progression)), ]
 	data.Progression$Number <- rep(NA, nrow(data.Progression))
+	data.Progression <- Progression.mapping.newTumorNaRM(data.Progression)
+
 	uniquePt.Progression <- unique(data.Progression$PatientID)
 
-	for(i in 1:length(uniquePt.PatientID){
+
+	#proLen = c()
+	for(i in 1:length(uniquePt.Progression)){
 		tmpDF <- subset(data.Progression, PatientID == uniquePt.Progression[i])
 		tmpDF <- tmpDF[order(as.integer(tmpDF$newTumorDate), na.last=T, decreasing=F), ]
-	})
+		tmpDF$Number <- seq(1:nrow(tmpDF))
+		tmpDF$Number[is.na(tmpDF$newTumorDate)] <- NA
+	}
 
-
+	data.Progression <- Progression.mapping.date.Calculation(data.Progression)
  	ptNumMap <- ptNumMapUpdate(tbl.pt)
 
-    result <- apply(data.Status, 1, function(x){
+    result <- apply(data.Progression, 1, function(x){
     				PatientID = getElement(x, "PatientID")
     				PtNum = ptNumMap[ptNumMap$PatientID == PatientID,]$PatientNumber
-    				date = getElement(x, "date")
-    				vital = getElement(x, "vital")
-    				tumorStatus = getElement(x, "tumorStatus")
+    				date = getElement(x, "newTumorDate")
+    				event = getElement(x, "newTumor")
+    				number = getElement(x, "Number")
     				return(list(PatientID=PatientID, PtNum=PtNum, study=study_name, Name="Progression", 
-    				 			Fields=list(date=date, vital=vital, tumorStatus=tumorStatus)))
+    				 			Fields=list(date=date, event=event, number=number)))
     				})
 	print(c(study_name, dim(data.Progression), length(result)))
 }
