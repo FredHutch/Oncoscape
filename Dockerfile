@@ -11,7 +11,8 @@ RUN apt-key adv --keyserver keyserver.ubuntu.com --recv-keys 51716619E084DAB9
 # Update the system and install packages
 RUN apt-get -y -qq update && apt-get -y -qq install \
 	r-base=3.2.2* \
-	r-recommended=3.2.2-1trusty0* \	vim \
+	r-recommended=3.2.2-1trusty0* \
+	vim \
 	make \
 	m4 \
 	gcc \
