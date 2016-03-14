@@ -164,7 +164,7 @@ DRUG <- T
 RAD <- T
 STATUS <- T
 ENCOUNTER <- T
-
+PROGRESSION <- T
 #----------------------     DOB functions Start Here      -----------------------
 if(DOB){
 	DOB.unique.request <- function(study_name){
@@ -773,7 +773,6 @@ if(PROGRESSION){
 		return(df)
 	}
 } # End of Progression Native Functions
-
 #----------------------   Encounter functions Start Here   ------------------------
 #----------------------   brca, hnsc, prad DO NOT HAVE ENCOUNTER RECORDS! ------------------------
 if(ENCOUNTER){
@@ -1323,6 +1322,10 @@ create.all.Progression.records <- function(study_name){
 	data.Progression$Number <- rep(NA, nrow(data.Progression))
 	uniquePt.Progression <- unique(data.Progression$PatientID)
 
+	for(i in 1:length(uniquePt.PatientID){
+		tmpDF <- subset(data.Progression, PatientID == uniquePt.Progression[i])
+		tmpDF <- tmpDF[order(as.integer(tmpDF$newTumorDate), na.last=T, decreasing=F), ]
+	})
 
 
  	ptNumMap <- ptNumMapUpdate(tbl.pt)
