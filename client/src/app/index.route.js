@@ -54,6 +54,10 @@
                 url: '/timelines/{datasource}',
                 template: '<os-timelines>'
             })
+            .state('survival', {
+                url: '/survival/{datasource}',
+                template: '<os-survival>'
+            })
             .state('compare', {
                 url: '/compare/{datasource}',
                 template: '<os-compare>'

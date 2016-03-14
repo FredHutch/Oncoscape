@@ -35,6 +35,7 @@
                 delete callbacks[data.cmd];
                 callback.resolve(data);
             } else {
+
                 $log.error("Unhandled message: %o", data);
             }
         };

@@ -26,13 +26,12 @@ calculateSurvivalCurves <- function(msg)
 
    p = paste("data:image/jpg;base64,\n", p, sep="")
 
-   return.cmd <- msg$callback
-
-   return.msg <- toJSON(list(cmd=return.cmd, status="success", payload=p))
-
-   return.msg
-
    file.remove(temp.file)
+   toJSON(list(cmd=msg$callback, status="success", payload=p))
+
+   
+
+   
 
 } # calculateSurvivalCurves
 #-------------------------------------------------------------------------------

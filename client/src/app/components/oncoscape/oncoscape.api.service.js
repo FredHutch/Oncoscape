@@ -162,7 +162,12 @@
 
         function getDrugGeneInteractions() {}
 
-        function getCanonicalizePatientIDsInDataset() {}
+        function getCanonicalizePatientIDsInDataset(patientIds) {
+            return osSocket.request({
+                cmd: "getCanonicalizePatientIDsInDataset",
+                payload: patientIds
+            });
+        }
 
         function getGeneSetGenes() {}
 
@@ -220,7 +225,15 @@
             });
         }
 
-        function getCalculatedSurvivalCurves() {}
+        function getCalculatedSurvivalCurves(patientIds, title) {
+            return osSocket.request({
+                cmd: "calculateSurvivalCurves",
+                payload: {
+                    sampleIDs: patientIds,
+                    title: title
+                }
+            });
+        }
 
         function getTimelines() {
             return osSocket.request({

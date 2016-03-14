@@ -184,8 +184,6 @@ var cells = rows.selectAll("rect")
             'x': function(d) { return Math.round(timelineScale(d.start)) + thirdWidth;},
         });
 
-   
-
     cells
         .exit()
         .attr('class', 'exit')
