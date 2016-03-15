@@ -32,6 +32,7 @@ var PLSRModule = (function () {
   var currentlySelectedRegion;
   var thisModuleName = "PLSR";
   var geneSetMenu;
+  var expressionDataSetMenu;
 
   var thisModulesName = "PLSR";
   var thisModulesOutermostDiv = "plsrDiv";
@@ -42,6 +43,8 @@ var PLSRModule = (function () {
   var selectionDestinationsOfferedHere = ["PLSR (highlight)"];
  
   var expressionDataSetName = "";
+  var currentExpressionDataSet;
+  var plsrMsg = {}; 
 
 //--------------------------------------------------------------------------------------------
 function initializeUI () 
@@ -65,7 +68,11 @@ function initializeUI ()
    hub.disableButton(calculateButton);
 
    geneSetMenu = $("#plsrGeneSetSelector");
+   expressionDataSetMenu = $("#plsrExpressionDataSetSelector");
+   
+   $(".plsrExpMenu").click(	 function(){$(".plsrExpMenu .dropdown").slideToggle();	 }   );
 
+   $("#plsrExpressionDataSetSelector .flexcontainer").width($(window).width()/1.2);
    clearSelectionButton = $("#plsrClearSelectionButton");
    clearSelectionButton.button();
    clearSelectionButton.click(clearSelection);
@@ -75,18 +82,14 @@ function initializeUI ()
                                                         selectionDestinationsOfferedHere,
                                                         sendSelections,
                                                         sendSelectionsMenuTitle);
-   //hub.disableButton(sendSelectionMenu);
    
-   //setupSliders();
-
    testResultsOutputDiv = $("#plsrTestingOutputDiv");
 
    $(window).resize(handleWindowResize);
    handleWindowResize();
    
    hub.disableTab(thisModulesOutermostDiv);
-
-
+   
 } // initializeUI
 //--------------------------------------------------------------------------------------------
 function addGeneSetNamesToMenu (geneSetNames)
@@ -97,7 +100,7 @@ function addGeneSetNamesToMenu (geneSetNames)
       }
    
   if(typeof geneSetNames == "string") 
-   	 geneSetNames = [geneSetNames] 
+   	 geneSetNames = [geneSetNames];
 
       
    for(var i=0; i < geneSetNames.length; i++){
@@ -121,13 +124,20 @@ function handleAgeAtDxAndSurvivalRanges(msg)
    console.log("=== Module.plsr, handleAgeAtDxAndSurvivalRanges");
 
    if(msg.status != "success"){
-		//error message should be issued 
-		return;
-	}
+    //error message should be issued 
+    return;
+  }
    ageAtDxMin = Math.floor(msg.payload.AgeDx[0]/365.24);
    ageAtDxMax = Math.floor(msg.payload.AgeDx[4]/365.24);
    survivalMin = Math.floor(msg.payload.Survival[0]/365.24);
    survivalMax = Math.floor(msg.payload.Survival[4]/365.24);
+   console.log("***** ageAtDxMin: ", ageAtDxMin);
+
+   plsrMsg.ageAtDxMin = msg.payload.AgeDx[0];
+   plsrMsg.ageAtDxMax = msg.payload.AgeDx[4];
+   plsrMsg.survivalMin = msg.payload.Survival[0];
+   plsrMsg.survivalMax = msg.payload.Survival[4];
+  
 
    //ageAtDxMin = Math.floor(msg.payload.AgeDx[0])-1;
    //ageAtDxMax = Math.floor(msg.payload.AgeDx[4])+1;
@@ -137,6 +147,7 @@ function handleAgeAtDxAndSurvivalRanges(msg)
 
      // now that sliders are set up, setup the geneSetName selector
    requestGeneSetNames();
+   requestExpressionDataSetNames();
 
 } // handleAgeAtDxAndSurvivalRanges 
 //--------------------------------------------------------------------------------------------------
@@ -155,6 +166,15 @@ function sendSelections()
 
 } // sendSelections
 //--------------------------------------------------------------------------------------------------
+function updateExpressionData()
+{
+  console.log("***** within updateExpressionData");
+  currentExpressionDataSet = $(this).siblings("td").andSelf("td").eq(0).text();
+	console.log("***** currentExpressionDataSet is ", currentExpressionDataSet);
+  var changedText = currentExpressionDataSet;
+  $(".plsrExpMenu a").eq(0).text(changedText);
+}
+//--------------------------------------------------------------------------------------------------
 function requestPLSRByOnsetAndSurvival()
 {
   ageAtDxMinThreshold = Number(ageAtDxMinSliderReadout.val()) * 365.24;
@@ -163,7 +183,7 @@ function requestPLSRByOnsetAndSurvival()
   survivalMaxThreshold = Number(survivalMaxSliderReadout.val()) * 365.24;
 
   var currentGeneSetName = geneSetMenu.val();
-
+  
   factor1 = {name: "AgeDx", 
              low: ageAtDxMinThreshold, 
              high: ageAtDxMaxThreshold};
@@ -173,9 +193,10 @@ function requestPLSRByOnsetAndSurvival()
              high: survivalMaxThreshold};
   
   payload = {genes: currentGeneSetName, 
+             expressionDataSet: currentExpressionDataSet,
              factorCount: 2, 
              factors: [factor1, factor2]};
-  
+  console.log("***** requestPLSRByOnsetAndSurvival payload: ", payload);
   msg = {cmd: "calculatePLSR", callback: "handlePlsrResults", status: "request", payload: payload};
   msg.json = JSON.stringify(msg);
 
@@ -248,9 +269,15 @@ function handlePlsrResults (msg)
    vectorNames = payload.vectorNames;
    geneLoadings = payload.loadings;
    geneNames = payload.loadingNames;
-
+   console.log("****** handlePlsrResults vectors: ", vectors);
+   console.log("****** handlePlsrResults vectorNames: ", vectorNames);
+   console.log("****** geneLoadings: ", geneLoadings);
+   console.log("****** geneNames: ", geneNames);
    currentAbsoluteMaxValue = absMaxValue; // most recent max value, used for scaling
-
+   plsrMsg.genes = geneLoadings;
+   plsrMsg.geneNames = geneNames;
+   plsrMsg.vectors = vectors;
+   plsrMsg.vectorNames = vectorNames;
    svg = d3PlsrScatterPlot(geneLoadings, geneNames, vectors, vectorNames, absMaxValue);
    postStatus("scatterplot complete");
 
@@ -305,6 +332,9 @@ function d3PlsrScatterPlot(genes, geneNames, vectors, vectorNames, absMaxValue)
    var yScale = d3.scale.linear()
                   .domain([negAbsMaxValue, absMaxValue])
                   .range([height - padding, padding]); // note inversion 
+   
+   plsrMsg.xScale = xScale;
+   plsrMsg.yScale = yScale; 
 
    var xAxis = d3.svg.axis()
                  .scale(xScale)
@@ -436,7 +466,12 @@ function selectPoints(ids, clearIDs)
      .duration(500);
 
   hub.enableButton(clearSelectionButton);
-
+  //pcaMsg.highlightIndex = highlightIndex;
+   setTimeout(function(){
+            console.log("***** Module.js within selectPoints before qunit");
+            console.log("***** Date time: ", Date());
+            postStatus("selectPoints are highlighted"); 
+   }, 6000);
 } // selectPoints
 //----------------------------------------------------------------------------------------------------
 function clearSelection()
@@ -452,7 +487,6 @@ function clearSelection()
 
 } // clearSelection
 //----------------------------------------------------------------------------------------------------
-
 function highlightGenes(msg)
 {
    hub.raiseTab(thisModulesOutermostDiv);
@@ -503,6 +537,83 @@ function handleGeneSetNames(msg)
 
 } // handleGeneSetNames
 //--------------------------------------------------------------------------------------------
+function requestExpressionDataSetNames()
+{
+   console.log("=== requestExpressionDataNames");
+
+   callback = "plsrHandleExpressionDataSetNames";
+
+   msg = {cmd:"getExpressionDataSetNames",
+          callback: callback,
+          status:"request",
+          payload:""};
+
+   hub.send(JSON.stringify(msg));
+
+} // requestExpressionDataSetNames
+//----------------------------------------------------------------------------------------------------
+function handleExpressionDataSetNames(msg)
+{
+   console.log("=== handleExpressionDataSetNames");
+   $(".plsrExpMenu .dropdown table").empty();
+   $(".plsrExpMenu a").eq(0).text("Choose Expression Data");
+   expManifest = msg.payload.mtx;
+   console.log("***** after grabbing manifest matrix: ", expManifest);
+   var expNames = [];
+   for(var i=0; i < expManifest.length; i++){
+     expNames.push(expManifest[i][0]);
+   }
+
+   expManifestCols = msg.payload.colnames;
+   $(".plsrExpMenu .dropdown table").append("<tr id='plsrExpManiCols'></tr>");
+   for(i=0; i<expManifestCols.length; i++){
+      var singleRecord = "<th class='strong'>" + expManifestCols[i]+
+                         "</th>";
+      $("#plsrExpManiCols").append(singleRecord);
+   }
+   console.log("***** expression dataset Names are: ", expNames);
+   //addExpressionDataSetNamesToMenu(expNames);
+   addExpressionDataSetNamesToMenu(expManifest);
+
+} // handleExpressionDataSetNames
+ //----------------------------------------------------------------------------------------------------
+ function addExpressionDataSetNamesToMenu (expManifest)
+ {
+    console.log("Module.plsr:addExpressionDataSetNamesToMenu");
+ 
+    //expressionDataSetMenu.empty();
+ 
+    if(expManifest.length === 0) {
+      postStatus("addExpressionDataSetNamesToMenu: expManifest.length == 0");
+      return;
+      }
+     
+    if(typeof expManifest === "string") 
+      expressionDataSetNames = [expManifest][0]; 
+    
+    var singleRecord;
+       
+    for(var i=0; i<expManifest.length; i++){
+      $(".plsrExpMenu .dropdown table").append("<tr class='plsrExpClickable' id='plsrExpMani" + i + "'></tr>");
+      for(var j=0; j<expManifest[i].length; j++){
+          singleRecord = '<td><a href="#" style="text-decoration:none">' + expManifest[i][j] + '</a></td>';
+          $("#plsrExpMani" + i).append(singleRecord);
+          console.log("***** single Records in plsr", singleRecord);
+        } // for j
+      } // for i
+    $(".plsrExpMenu .plsrExpClickable td").click(updateExpressionData);
+
+// default: pre-select first dataset
+    $("tr#plsrExpMani0 td")[0].click()
+    $(".plsrExpMenu").click()
+
+  
+   postStatus("addExpressionDataSetNamesToMenu: complete");
+   hub.enableTab(thisModulesOutermostDiv);
+
+ 
+ } // addExpressionDataSetNamesToMenu
+//----------------------------------------------------------------------------------------------------
 // when a dataset is specified, this module 
 //  1) extracts the name of the dataset from the payload of the incoming msg
 //  2) (for now) extracts the name of the matrices, from the manifest (also in the payload
@@ -538,6 +649,7 @@ function datasetSpecified(msg)
       matrixName = hits[lastHit].replace(".RData", "");
       }
    else{
+      alert("No mtx.mrna in dataset '" + dataPackageName + "'");    
       hub.disableButton(calculateButton);
       return;
       }
@@ -573,7 +685,7 @@ function requestSliderRanges(msg)
 //--------------------------------------------------------------------------------------------
 // query the oncoscape server for user id.  the callback then makes a local (that is,
 // Module-specific) decision to run this module's automated tests based upon that id
-function runAutomatedTestsIfAppropriate()
+/*function runAutomatedTestsIfAppropriate()
 {
    var msg = {cmd: "getUserId",  callback: "plsrAssessUserIdForTesting",
               status: "request", payload: ""};
@@ -592,25 +704,31 @@ function assessUserIdForTesting(msg)
       plsrTester.run();
       } // if autoTest
 
-} // assessUserIdForTesting
+} // assessUserIdForTesting*/
 //----------------------------------------------------------------------------------------------------
 function initializeModule()
 {
    hub.addOnDocumentReadyFunction(initializeUI);
    hub.registerSelectionDestination(selectionDestinationsOfferedHere, thisModulesOutermostDiv);
+   hub.addMessageHandler("plsrHandleExpressionDataSetNames", handleExpressionDataSetNames);
    hub.addMessageHandler("plsrHandleGeneSetNames", handleGeneSetNames);
    hub.addMessageHandler("handlePlsrResults", handlePlsrResults);
    hub.addMessageHandler("handleAgeAtDxAndSurvivalRanges", handleAgeAtDxAndSurvivalRanges);
    hub.addMessageHandler("datasetSpecified", datasetSpecified);
    hub.addMessageHandler("sendSelectionTo_PLSR (highlight)", highlightGenes);
    hub.addMessageHandler("plsrObjectCreated", requestSliderRanges);
-   hub.addMessageHandler("plsrAssessUserIdForTesting", assessUserIdForTesting);
-   hub.addSocketConnectedFunction(runAutomatedTestsIfAppropriate);
+   //hub.addMessageHandler("plsrAssessUserIdForTesting", assessUserIdForTesting);
+   //hub.addSocketConnectedFunction(runAutomatedTestsIfAppropriate);
 
 } // initializeModule
 //--------------------------------------------------------------------------------------------
+function ModuleMsg(){
+  return plsrMsg;
+}
+//----------------------------------------------------------------------------------------------------
 return{
    init: initializeModule,
+   ModuleMsg: ModuleMsg
    };
 
 }); // PLSRModule

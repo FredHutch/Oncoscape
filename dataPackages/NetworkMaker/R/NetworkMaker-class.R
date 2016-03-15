@@ -18,11 +18,13 @@ setGeneric('usePrecalculatedSampleSimilarityMatrix',  signature='obj', function(
                                                                 standardGeneric('usePrecalculatedSampleSimilarityMatrix'))
 setGeneric('getSimilarityMatrix',        signature='obj', function(obj) standardGeneric('getSimilarityMatrix'))
 setGeneric('buildChromosomalTable',      signature='obj', function(obj, genes) standardGeneric('buildChromosomalTable'))
+setGeneric('getAlteredGeneNames',        signature='obj', function(obj) standardGeneric('getAlteredGeneNames'))
 setGeneric('getChromosomalInfo',         signature='obj', function(obj) standardGeneric('getChromosomalInfo'))
-setGeneric('getSamplesGraph',            signature='obj', function(obj) standardGeneric('getSamplesGraph'))
+setGeneric('getSamplesGraph',            signature='obj', function(obj, includeUnpositionedSamples) standardGeneric('getSamplesGraph'))
 setGeneric('getChromosomeGraph',         signature='obj', function(obj, genes) standardGeneric('getChromosomeGraph'))
-setGeneric('getMutationGraph',           signature='obj', function(obj, genes) standardGeneric('getMutationGraph'))
-setGeneric('getCopyNumberGraph',         signature='obj', function(obj, genes, included.scores=c(-2, 2)) standardGeneric('getCopyNumberGraph'))
+setGeneric('getMutationGraph',           signature='obj', function(obj, genes, patients) standardGeneric('getMutationGraph'))
+setGeneric('getSplicingGraph',           signature='obj', function(obj, genes) standardGeneric('getSplicingGraph'))
+setGeneric('getCopyNumberGraph',         signature='obj', function(obj, genes, patients, included.scores=c(-2, 2)) standardGeneric('getCopyNumberGraph'))
 setGeneric('getSimilarityScreenCoordinates', signature='obj', function(obj, xOrigin=0, yOrigin=0, xMax=2000, yMax=5000)
                                                                 standardGeneric('getSimilarityScreenCoordinates'))
 setGeneric('getChromosomeScreenCoordinates',  signature='obj', function(obj, xOrigin=1000, yOrigin=0, yMax=2000,
@@ -36,6 +38,7 @@ NetworkMaker <- function(dataPackage, samples=NA, genes=NA, verbose=FALSE)
   stopifnot("mtx.cn"  %in% names(matrices(dataPackage)))
   mtx.mut <- matrices(dataPackage)[["mtx.mut"]]
   mtx.cn <- matrices(dataPackage)[["mtx.cn"]]
+#  mtx.splice <- matrices(dataPackage)[["mtx.splice"]]
   all.known.samples <- .allKnownSampleIDsCanonicalized(dataPackage)
 
   if(!all(is.na(samples))){
@@ -99,6 +102,25 @@ setMethod("usePrecalculatedSampleSimilarityMatrix", "NetworkMaker",
 
 #----------------------------------------------------------------------------------------------------
 # samples and genes args are only for testing; in normal operation the full lists from
+setMethod("calcSimilarity", "NetworkMaker",
+ function(obj, indicatorMatrix) {
+	similarity=NULL
+	maxI <- dim(indicatorMatrix)[2]
+	for (i in 1:maxI) {
+		innerProd <- indicatorMatrix[,i] %*% indicatorMatrix[,-i]
+		innerProd[maxI] <- NA
+		if (i<maxI) {
+			innerProd[(i+1):maxI] <- innerProd[i:(maxI-1)]
+		}
+		innerProd[i] <- 1
+		similarity <- cbind(similarity, innerProd)
+	}
+	rownames(similarity) <- colnames(indicatorMatrix)
+	colnames(similarity) <- colnames(indicatorMatrix)
+	return(similarity)
+}
+
+
 setMethod("calculateSampleSimilarityMatrix", "NetworkMaker",
 
   function (obj, samples=NA, genes=NA, copyNumberValues=c(-2, 2)) {
@@ -168,7 +190,7 @@ setMethod("getSimilarityMatrix", "NetworkMaker",
 #----------------------------------------------------------------------------------------------------
 setMethod("getSamplesGraph", "NetworkMaker",
 
-  function(obj){
+  function(obj, includeUnpositionedSamples=TRUE){
 
     stopifnot("similarityMatrix" %in% ls(obj@state))
     tbl.pos <- obj@state[["similarityMatrix"]]
@@ -180,19 +202,27 @@ setMethod("getSamplesGraph", "NetworkMaker",
       # and position them as the map maker sees fit.
 
     positioned.samples <- rownames(tbl.pos)
+    positioned.patients <- canonicalizePatientIDs(obj@pkg,positioned.samples)
 
-    cn.samples <- canonicalizePatientIDs(obj@pkg, rownames(obj@mtx.cn))
-    mut.samples <- canonicalizePatientIDs(obj@pkg, rownames(obj@mtx.mut))
-    patient.samples <- rownames(getPatientTable(obj@pkg))
+    cn.patients<- canonicalizePatientIDs(obj@pkg, rownames(obj@mtx.cn))
+    mut.patients <- canonicalizePatientIDs(obj@pkg, rownames(obj@mtx.mut))
+#   splice.patients <- canonicalizePatientIDs(obj@pkg, rownames(obj@mtx.splice))
+    patient.ids <- rownames(getPatientTable(obj@pkg))
 
-    unpositioned.cn.samples <- setdiff(cn.samples, positioned.samples)
-    unpositioned.mut.samples <- setdiff(mut.samples, positioned.samples)
-    unpositioned.pt.samples <- setdiff(patient.samples, positioned.samples)
-    
-    unpositioned.samples <- unique(c(unpositioned.cn.samples, unpositioned.mut.samples,
-                                     unpositioned.pt.samples))
+	all.nodes <- positioned.patients
+	if(includeUnpositionedSamples){
+		unpositioned.cn.patients     <- setdiff(cn.patients, positioned.patients)
+		unpositioned.mut.patients    <- setdiff(mut.patients, positioned.patients)
+	#   unpositioned.splice.patients <- setdiff(splice.patients, positioned.patients)
+		unpositioned.pt.patients     <- setdiff(patient.ids, positioned.patients)
+	
+		unpositioned.patients <- unique(c(unpositioned.cn.patients, unpositioned.mut.patients,
+	#                                     unpositioned.splice.patients,unpositioned.pt.patients))
+										 unpositioned.pt.patients))
+                                     
+    	all.nodes <- c(positioned.patients, unpositioned.patients)
+    }
 
-    all.nodes <- c(positioned.samples, unpositioned.samples)
     g <- graphNEL(nodes=all.nodes, edgemode="directed")
      # change nodeType to "sample" later, updating all networks at once, and the markers/Test.js
     nodeDataDefaults(g, attr="nodeType") <- "patient"   
@@ -206,9 +236,9 @@ setMethod("getSamplesGraph", "NetworkMaker",
     edgeDataDefaults(g, attr="subType") <- "unassigned"
 
     nodeData(g, all.nodes, "id") <- all.nodes
-    nodeData(g, positioned.samples, "x") <- tbl.pos$x
-    nodeData(g, positioned.samples, "y") <- tbl.pos$y
-    nodeData(g, positioned.samples, "positioned") <- TRUE
+    nodeData(g, positioned.patients, "x") <- tbl.pos$x
+    nodeData(g, positioned.patients, "y") <- tbl.pos$y
+    nodeData(g, positioned.patients, "positioned") <- TRUE
     return(g)
     })
 
@@ -271,13 +301,17 @@ setMethod("getChromosomeGraph", "NetworkMaker",
 #----------------------------------------------------------------------------------------------------
 setMethod("getMutationGraph", "NetworkMaker",
 
-  function(obj, genes){
+  function(obj, genes=NA, patients=NA){
 
     mut <- obj@mtx.mut
     samples <- rownames(mut)
+    if(!is.na(patients)){ samples <- samples[match(patients, canonicalizePatientIDs(obj@pkg, samples))]; samples <- samples[!is.na(samples)] }
+    stopifnot(samples > 0)
+
+    if(is.na(genes)) genes <- colnames(mut)
     goi <- intersect(genes, colnames(mut))
     stopifnot(goi > 0)
-    mut <- mut[, goi]
+    mut <- mut[samples, goi]
 
        # standardize the matrix to zeroes and ones, providing painless search
        # for non-null (not missing) values
@@ -313,13 +347,17 @@ setMethod("getMutationGraph", "NetworkMaker",
 #----------------------------------------------------------------------------------------------------
 setMethod("getCopyNumberGraph", "NetworkMaker",
 
-  function(obj, genes, included.scores=c(-2, 2)){
+  function(obj, genes=NA, patients=NA, included.scores=c(-2, 2)){
 
     cn <- obj@mtx.cn
     samples <- rownames(cn)
+    if(!is.na(patients)){ samples <- samples[match(patients, canonicalizePatientIDs(obj@pkg, samples))]; samples <- samples[!is.na(samples)] }
+    stopifnot(samples > 0)
+
+    if(is.na(genes)) genes <- colnames(cn)
     goi <- intersect(genes, colnames(cn))
     stopifnot(goi > 0)
-    cn <- cn[, goi]
+    cn <- cn[samples, goi]
 
         # create an edge table for the copy number (gistic) scores explicitly
         # included by method argument
@@ -398,7 +436,7 @@ setMethod("getSimilarityScreenCoordinates", "NetworkMaker",
 
      tbl.pos$x <- x
      tbl.pos$y <- -y   # screen coordinates have origin at top left corner.  "normal" is lower left
-     tbl.pos$id <- rownames(tbl.pos)
+     tbl.pos$id <- canonicalizePatientIDs(obj@pkg, rownames(tbl.pos))
      tbl.pos
      })
 
@@ -517,6 +555,22 @@ setMethod("getChromosomalInfo", "NetworkMaker",
       obj@state[["chromosomalCoordinates"]]
   })
 
+#----------------------------------------------------------------------------------------------------
+setMethod("getAlteredGeneNames", "NetworkMaker",
+   function(obj){
+   mut    <- obj@mtx.mut
+   cn    <- obj@mtx.cn
+#   splice <- obj@mtx.splice
+   
+   
+   genes.mut <- apply(mut, 2, function(gene){ any(gene != "")})
+   genes.cn <- apply(cn, 2, function(gene){ any(gene != "")})
+#   genes.splice <- apply(splice, 2, function(gene){ any(gene != "")})
+   
+#   unique(c(colnames(splice)[genes.splice], colnames(mut)[genes.mut],colnames(cn)[genes.cn]))
+   unique( c(colnames(mut)[genes.mut],colnames(cn)[genes.cn]))
+   })
+    
 #----------------------------------------------------------------------------------------------------
 .extractChromArmFromCytoband <- function(bands)
 {

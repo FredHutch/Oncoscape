@@ -14,4 +14,4 @@ mtx.mrna_Seq.RData	mtx.mrna_Seq	matrix	mRNA expression	ratios	991	20444	patient	
 genesets.RData	genesets	list	geneset	NA	3	NA	gene	NA	NA	NA	marker.genes.545, tcga.GBM.classifiers, tcga.pancan.mutated
 gbmPathways.json.RData	g.gbmPathways.json	character	network	GBM-related Pathways	156	203	nodes	edges	NA	NA	manual curation by Hamid Bolouri
 egfr.json.RData	g.egfr.json	character	network	egfr signaling	32	14	nodes	edges	NA	NA	manual curation
-markers.json.RData	g.markers.json	character	network	markers & samples	1926	25264	nodes	edges	NA	NA	TCGA
+markers.json.RData	g.markers.json	character	network	markers & samples	1680	23659	nodes	edges	NA	NA	TCGA

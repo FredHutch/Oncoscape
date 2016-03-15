@@ -1,0 +1,12 @@
+exportClasses(TCGApaadClass)
+
+export(
+   TCGApaad
+   )
+
+exportMethods(
+   )
+
+importClassesFrom(methods, character, integer)
+importFrom(methods, new)
+

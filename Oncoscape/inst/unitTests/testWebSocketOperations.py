@@ -31,11 +31,11 @@ def runTests():
   test_getMarkersNetwork()
   test_getPathway();
 
-  #test_pca()  # contains 3 more granular tests
+  test_pca()  # contains 3 more granular tests
   test_plsr()  # contains 3 more granular tests
 
   test_eventLogging()
-
+  test_oncoprint()
   print "OK:  all python websocket json tests passed"
 
 #----------------------------------------------------------------------------------------------------
@@ -1119,6 +1119,9 @@ def test_pca():
 
   test_pcaCreateWithDataSet()
   test_pcaCalculate()
+  test_pcaTestCalculateOnGeneSubset()
+  test_pcaTestCalculateOnSampleSubset()
+  test_pcaTestCalculateOnGeneAndSampleSubsets()
 
 #------------------------------------------------------------------------------------------------------------------------
 def test_pcaCreateWithDataSet():
@@ -1143,29 +1146,115 @@ def test_pcaCalculate():
   "calculates pca on DEMOdz, the full mrna matrix, using pca object created above"
 
   print "--- test_pcaCalculate"
-
+  payload = {"expressionDataSet": "mtx.mrna.ueArray"};
   msg = dumps({"cmd": "calculatePCA", "status":"request", 
-              "callback":"handlePcaResult", "payload": ""})
+              "callback":"handlePcaResult", "payload": payload})
   ws.send(msg)
   result = loads(ws.recv())
   assert(result["cmd"] == "handlePcaResult")
   assert(result["status"] == "success")
   
   payload = result["payload"]
+  print "*****"
+  print payload
   keys = payload.keys()
   keys.sort()
-  assert(keys == ['ids', 'importance.PC1', 'importance.PC2', 'maxValue', 'scores'])
+  print keys
+  assert(keys == ['geneSetName', 'ids', 'importance.PC1', 'importance.PC2', 'maxValue', 'scores'])
   
   ids = payload["ids"]
-  assert(len(ids) >= 20)
-  assert(ids.index('TCGA.02.0003.01') >= 0)
-  
-  assert(payload["maxValue"] > 10)
-  
+  assert(len(ids) == 20)
+  assert(ids.index('TCGA.02.0021') >= 0)
+  assert(payload["maxValue"] > 0 )
   assert(payload["importance.PC1"] > 0.0)
   assert(payload["importance.PC2"] > 0.0)
 
 #------------------------------------------------------------------------------------------------------------------------
+def test_pcaTestCalculateOnGeneSubset():
+
+  "calculates pca on DEMOdz, a mrna matrix subsetted by a list of genes, using pca object created above"
+
+  print "---***** test_pcaTestCalculateOnGeneSubset"
+
+  goi =  ["EDIL3", "EED", "EEF2", "EFEMP2", "EGFR", "EHD2", "EIF4A2", "ELAVL1", "ELAVL2", "ELF4"];
+  payload = {"genes": goi, "expressionDataSet":"mtx.mrna.ueArray"}
+  msg = dumps({"cmd": "calculatePCA", "status":"request", 
+              "callback":"handlePcaResult", "payload": payload})
+  ws.send(msg)
+  
+  result = loads(ws.recv())
+  assert(result["cmd"] == "handlePcaResult")
+  assert(result["status"] == "success")
+  payload = result["payload"]
+  keys = payload.keys()
+  keys.sort()
+  #assert(keys == ['ids', 'importance.PC1', 'importance.PC2', 'loadings', 'maxValue'])
+  
+  ids = payload["ids"]
+  assert(len(ids) == 20)
+  assert(ids.index('TCGA.02.0014') >= 0)
+  assert(payload["maxValue"]  > 0)
+  assert(payload["importance.PC1"] > 0.0)
+  assert(payload["importance.PC2"] > 0.0)
+#----------------------------------------------------------------------------------------------------
+def test_pcaTestCalculateOnSampleSubset():
+
+  "calculates pca on DEMOdz, a mrna matrix subsetted by a list of genes, using pca object created above"
+
+  print "---***** test_pcaTestCalculateOnSampleSubset"
+
+  soi = ["TCGA.02.0014", "TCGA.02.0021", "TCGA.02.0028", "TCGA.02.0033", "TCGA.02.0037"]
+  payload = {"samples": soi, "expressionDataSet":"mtx.mrna.ueArray"}
+  msg = dumps({"cmd": "calculatePCA", "status":"request", 
+              "callback":"handlePcaResult", "payload": payload})
+  ws.send(msg)
+  
+  result = loads(ws.recv())
+  assert(result["cmd"] == "handlePcaResult")
+  assert(result["status"] == "success")
+  payload = result["payload"]
+  keys = payload.keys()
+  keys.sort()
+  #assert(keys == ['ids', 'importance.PC1', 'importance.PC2', 'loadings', 'maxValue'])
+  
+  ids = payload["ids"]
+  assert(len(ids) == 5)
+  
+  assert(payload["maxValue"] > 0 )
+  assert(payload["importance.PC1"] > 0.0)
+  assert(payload["importance.PC2"] > 0.0)
+
+#----------------------------------------------------------------------------------------------------
+def test_pcaTestCalculateOnGeneAndSampleSubsets():
+
+  "calculates pca on DEMOdz, a mrna matrix subsetted by a list of genes, using pca object created above"
+
+  print "---***** test_pcaTestCalculateOnGeneAndSampleSubsets"
+
+  goi = ["EDIL3", "EED", "EEF2", "EFEMP2", "EGFR", "EHD2", "EIF4A2", "ELAVL1", "ELAVL2", "ELF4"]
+  soi = ["TCGA.02.0014", "TCGA.02.0021", "TCGA.02.0028", "TCGA.02.0033", "TCGA.02.0037"]
+  payload = {"genes": goi, "samples": soi, "expressionDataSet":"mtx.mrna.ueArray"}
+  
+  msg = dumps({"cmd": "calculatePCA", "status":"request", 
+              "callback":"handlePcaResult", "payload": payload})
+  ws.send(msg)
+  
+  result = loads(ws.recv())
+  assert(result["cmd"] == "handlePcaResult")
+  assert(result["status"] == "success")
+  payload = result["payload"]
+  keys = payload.keys()
+  keys.sort()
+  #assert(keys == ['ids', 'importance.PC1', 'importance.PC2', 'loadings', 'maxValue'])
+  
+  ids = payload["ids"]
+  assert(ids == soi)
+  
+  assert(payload["maxValue"] > 0)
+  assert(payload["importance.PC1"] > 0.0)
+  assert(payload["importance.PC2"] > 0.0)
+
+#----------------------------------------------------------------------------------------------------
 def test_plsr():
 
   print "--- test_plsr"
@@ -1189,10 +1278,11 @@ def test_plsr():
 
 
   test_plsrCreateWithDataSet()
+  test_plsrExpressionUpdateDuringSwitchingDataSet()
   test_plsrSummarizePLSRPatientAttributes()
   test_plsrCalculateSmallOneFactor()
   test_plsrCalculateSmallTwoFactors()
-  testManyGenesTwoFactors()
+  test_plsrManyGenesTwoFactors()
 
 #------------------------------------------------------------------------------------------------------------------------
 def test_plsrCreateWithDataSet():
@@ -1212,6 +1302,65 @@ def test_plsrCreateWithDataSet():
   result = loads(ws.recv())
   payload = result["payload"];
   assert(payload.find("PLSR package, matrices:") >= 0)
+
+#------------------------------------------------------------------------------------------------------------------------
+def test_plsrExpressionUpdateDuringSwitchingDataSet():
+
+  "sends dataset as a named string, gets back the list of exprssionDataSet"
+
+  print "--- test_plsrExpressionUpdateDuringSwitchingDataSet()"
+
+    # two mRNA expression matrices in DEMOdz: 
+    #   "mtx.mrna.ueArray" "mtx.mrna.bc"
+
+  # change dataset to DEMOdz
+  payload = {"dataPackage": "DEMOdz"}
+
+  msg = dumps({"cmd": "getExpressionDataSetNames", "status":"request", 
+               "callback":"", "payload": payload})
+ 
+  ws.send(msg)
+  result = loads(ws.recv())
+  payload = result["payload"];
+  print "***** within plsr expression update function, after getExpressionDataSetNames"
+  print payload["mtx"]
+  assert(len(payload["mtx"]) == 2)
+  assert(payload["mtx"][0][0] == "mtx.mrna.ueArray")
+  assert(len(payload["mtx"][0]) == 11)
+
+  # update DataSet
+  
+  msg = dumps({"cmd": "specifyCurrentDataset", "status": "request", "callback":"datasetSpecified", "payload": "TCGAgbm"})
+  ws.send(msg)
+  result = loads(ws.recv())
+
+  payload = {"dataPackage": "TCGAgbm"}
+
+  msg = dumps({"cmd": "getExpressionDataSetNames", "status":"request", 
+               "callback":"", "payload": payload})
+ 
+  ws.send(msg)
+  result = loads(ws.recv())
+  payload = result["payload"];
+  print "***** within plsr expression update function, after getExpressionDataSetNames"
+  print payload["mtx"]
+  assert(len(payload["mtx"]) == 2)
+  assert(payload["mtx"][0][0] == "mtx.mrna")
+  assert(len(payload["mtx"][0]) == 11)
+
+  # switch back to DEMOdz for the remaining tests
+  msg = dumps({"cmd": "specifyCurrentDataset", "status": "request", "callback":"datasetSpecified", "payload": "DEMOdz"})
+  ws.send(msg)
+  result = loads(ws.recv())
+  print "***** after testing the expression data update, re-specify the dataset back to DEMOdz"
+  payload = result["payload"]
+  assert(payload.keys() == ['datasetName', 'mtx', 'rownames', 'colnames'])
+  print payload["datasetName"]
+
+  payload = {"dataPackage": "DEMOdz", "matrixName": "mtx.mrna.ueArray"}
+
+  msg = dumps({"cmd": "createPLSR", "status":"request", 
+               "callback":"PLSRcreatedHandler", "payload": payload})
 
 #------------------------------------------------------------------------------------------------------------------------
 def test_plsrSummarizePLSRPatientAttributes():
@@ -1248,7 +1397,7 @@ def test_plsrCalculateSmallOneFactor():
       
   factor = {"name": "AgeDx", "low": 12000, "high": 2800}
     
-  payload = {"genes": genesOfInterest, "factorCount": 1, "factors": [factor]};
+  payload = {"genes": genesOfInterest, "expressionDataSet": "mtx.mrna.ueArray", "factorCount": 1, "factors": [factor]};
     
   msg = dumps({"cmd": "calculatePLSR", "status":"request", 
                  "callback":"handlePlsrResult", "payload": payload})
@@ -1283,7 +1432,7 @@ def test_plsrCalculateSmallTwoFactors():
   factor1 = {"name": "AgeDx", "low": 12000, "high": 2800}
   factor2 = {"name": "Survival", "low": 20, "high": 3000}
   
-  payload = {"genes": genesOfInterest, "factorCount": 2, "factors": [factor1, factor2]};
+  payload = {"genes": genesOfInterest,  "expressionDataSet": "mtx.mrna.ueArray","factorCount": 2, "factors": [factor1, factor2]};
   
   msg = dumps({"cmd": "calculatePLSR", "status":"request", 
                "callback":"handlePlsrResult", "payload": payload})
@@ -1308,6 +1457,62 @@ def test_plsrCalculateSmallTwoFactors():
   assert(maxValue == 0.7946)
 
 #------------------------------------------------------------------------------------------------------------------------
+def test_oncoprint():
+
+  print "--- test_oncoprint"
+  test_oncoprintCalculate()
+  test_oncoprintOneGeneOnePatient()
+  test_oncoprintPureGenes()
+#------------------------------------------------------------------------------------------------------------------------ 
+def test_oncoprintCalculate():
+  print "--- test_oncoprintCalculate"
+  string = ["PTEN","EGFR","TCGA.02.0047","TCGA.02.0055",
+    "TCGA.02.2483","TCGA.02.2485","TCGA.02.2486","TCGA.06.0125" ,"TCGA.06.0129" ,"TCGA.06.0130"]
+  ds = "DEMOdz"
+  payload_mode = "wsTesting"
+  payload = {"sampleIDs": string, "ds":ds, "testing":payload_mode}
+  print payload
+  msg = dumps({"cmd": "oncoprint_data_selection", "status":"request", 
+               "callback":"", "payload": payload})
+  ws.send(msg)
+  result = loads(ws.recv())
+  assert(result["status"] == "success")
+  assert(result["cmd"] == "")
+  payload = loads(result["payload"]);
+  assert(payload[1] == ["PTEN", "EGFR"])
+#------------------------------------------------------------------------------------------------------------------------   
+def test_oncoprintOneGeneOnePatient():
+  print "--- test_oncoprintOneGeneOnePatient"
+  string = ["EGFR","TCGA.06.0125"]
+  ds = "DEMOdz"
+  payload_mode = "wsTesting"
+  payload = {"sampleIDs": string, "ds":ds, "testing":payload_mode}
+  print payload
+  msg = dumps({"cmd": "oncoprint_data_selection", "status":"request", 
+               "callback":"", "payload": payload})
+  ws.send(msg)
+  result = loads(ws.recv())
+  payload = loads(result["payload"]);
+  assert(loads(payload[0])[0]["cna"] == "AMPLIFIED")
+  assert(result["status"] == "success")
+  assert(result["cmd"] == "")
+#------------------------------------------------------------------------------------------------------------------------
+def test_oncoprintPureGenes():
+  print "--- test_oncoprintPureGenes"
+  string = ["EGFR","PTEN"]
+  ds = "DEMOdz"
+  payload_mode = "wsTesting"
+  payload = {"sampleIDs": string, "ds":ds, "testing":payload_mode}
+  print payload
+  msg = dumps({"cmd": "oncoprint_data_selection", "status":"request", 
+               "callback":"", "payload": payload})
+  ws.send(msg)
+  result = loads(ws.recv())
+  payload = loads(result["payload"]);
+  assert(payload == "It seems you only selected either patients or genes, please re-select to include both information")
+  assert(result["status"] == "error")
+  assert(result["cmd"] == "")
+#----------------------------------------------------------------------------------------------------
 # i developed this test (pshannon, 25 sep 2015) to probe a very confusing bug, which turned out to
 # be caused a problem in wsPLSR.calculate_plsr:
 #    factors.df <- msg$payload$factors
@@ -1321,7 +1526,7 @@ def test_plsrCalculateSmallTwoFactors():
 #     } # for r
 #
 #
-def testManyGenesTwoFactors():
+def test_plsrManyGenesTwoFactors():
 
   "calculates plsr on DEMOdz, with two patient groups, low and high AgeDx (age at diagnosis), many genes"
 
@@ -1337,7 +1542,7 @@ def testManyGenesTwoFactors():
   factor1 = {"name": "AgeDx", "low": 16435.80, "high": 24105.84}
   factor2 = {"name": "Survival", "low": 1096.72, "high": 2556.68}
   
-  payload = {"genes": genesOfInterest, "factorCount": 2, "factors": [factor1, factor2]};
+  payload = {"genes": genesOfInterest,  "expressionDataSet": "mtx.mrna.ueArray","factorCount": 2, "factors": [factor1, factor2]};
   
   msg = dumps({"cmd": "calculatePLSR", "status":"request", 
                "callback":"handlePlsrResult", "payload": payload})
