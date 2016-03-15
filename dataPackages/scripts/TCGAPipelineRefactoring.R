@@ -5,8 +5,8 @@ library(R.utils)
 library(stringr)
 library(plyr)
 
-stopifnot(file.exists("TCGA_Reference_Filenames_gh.txt")) 
-TCGAfilename<-read.table("TCGA_Reference_Filenames_gh.txt", sep="\t", header=TRUE)
+stopifnot(file.exists("TCGA_Reference_Filenames.txt")) 
+TCGAfilename<-read.table("TCGA_Reference_Filenames.txt", sep="\t", header=TRUE)
 ##===load drug reference table ===
 drug_ref <- read.table("drug_names_10272015.txt", sep="\t", header=TRUE)
 rad_ref <- read.table("rad_ref_02232016.txt", sep="\t", header=TRUE)
@@ -30,6 +30,7 @@ if(!interactive()){
 
 
 ########################   Step 1: Set Classes for the fields    #################
+
 setClass("tcgaId");
 setAs("character","tcgaId", function(from) {
   as.character(str_replace_all(from,"-","." )) 
@@ -87,6 +88,7 @@ rawTablesRequest <- function(study, table){
 				 		paste(TCGAfilename[TCGAfilename$study==study,]$directory, 
 			         	TCGAfilename[TCGAfilename$study==study,]$f3, sep="/"))))
 	}
+<<<<<<< HEAD
   if(table == "Encounter"){
     return(c(paste(TCGAfilename[TCGAfilename$study==study,]$directory, 
                    TCGAfilename[TCGAfilename$study==study,]$pt, sep="/"),
@@ -112,6 +114,36 @@ rawTablesRequest <- function(study, table){
                     paste(TCGAfilename[TCGAfilename$study==study,]$directory, 
                           TCGAfilename[TCGAfilename$study==study,]$nte_f1, sep="/"))))
   }
+=======
+	if(table == "Progression"){
+		return(c(paste(TCGAfilename[TCGAfilename$study==study,]$directory, 
+			         TCGAfilename[TCGAfilename$study==study,]$pt, sep="/"),
+
+				 ifelse(is.na(TCGAfilename[TCGAfilename$study==study,]$f1), 
+				 		NA,
+				 		paste(TCGAfilename[TCGAfilename$study==study,]$directory, 
+			         	TCGAfilename[TCGAfilename$study==study,]$f1, sep="/")),
+				 ifelse(is.na(TCGAfilename[TCGAfilename$study==study,]$f2), 
+				 		NA,
+				 		paste(TCGAfilename[TCGAfilename$study==study,]$directory, 
+			         	TCGAfilename[TCGAfilename$study==study,]$f2, sep="/")),
+				 ifelse(is.na(TCGAfilename[TCGAfilename$study==study,]$nte), 
+				 		NA,
+				 		paste(TCGAfilename[TCGAfilename$study==study,]$directory, 
+			         	TCGAfilename[TCGAfilename$study==study,]$nte, sep="/")),
+				 ifelse(is.na(TCGAfilename[TCGAfilename$study==study,]$nte_f1), 
+				 		NA,
+				 		paste(TCGAfilename[TCGAfilename$study==study,]$directory, 
+			         	TCGAfilename[TCGAfilename$study==study,]$nte_f1, sep="/"))))
+	}
+	if(table == "Encounter"){
+	    return(c(paste(TCGAfilename[TCGAfilename$study==study,]$directory, 
+	                   TCGAfilename[TCGAfilename$study==study,]$pt, sep="/"),
+	             paste(TCGAfilename[TCGAfilename$study==study,]$directory, 
+	                   TCGAfilename[TCGAfilename$study==study,]$f1, sep="/")))
+	}
+}
+>>>>>>> 3863899aa3db25b0f9956f8227747d322ddf0792
 #--------------------------------------------------------------------------------
 loadData <- function(uri, columns){
   
@@ -154,6 +186,13 @@ ptNumMapUpdate <- function(df){
 
 ###################     Step 2: Get Unique Values & Mapping  ####################
 studies <- TCGAfilename$study 
+DOB <- T
+DIAGNOSIS <- T
+DRUG <- T
+RAD <- T
+STATUS <- T
+ENCOUNTER <- T
+PROGRESSION <- T
 #----------------------     DOB functions Start Here      -----------------------
 if(DOB){
 	DOB.unique.request <- function(study_name){
@@ -185,7 +224,7 @@ if(DOB){
 		from <- DOB.unique.values$unique.race
 		to 	 <- from 
 		to[match(c("[UNKNOWN]","[NOT AVAILABLE]","[NOT EVALUATED]"), to)] <- NA
-		df$race <- mapvalues(df$race, from = from, to = to, warn_missing = T)
+		df$race <- mapvalues(df$race, from = from, to = to, warn_missing = F)
 		return(df)
 	}	
 	#--------------------------------------------------------------------------------
@@ -193,7 +232,7 @@ if(DOB){
 		from <- DOB.unique.values$unique.ethnicity 
 		to 	 <- from 
 		to[match(c("[NOT EVALUATED]","[NOT AVAILABLE]","[UNKNOWN]"), to)] <- NA
-		df$ethnicity <- mapvalues(df$ethnicity, from = from, to = to, warn_missing = T)
+		df$ethnicity <- mapvalues(df$ethnicity, from = from, to = to, warn_missing = F)
 		return(df)
 	}	
 } # End of DOB Native Functions
@@ -228,7 +267,7 @@ if(DIAGNOSIS){
 		from <- Diagnosis.unique.values$unique.disease
 		to 	 <- from 
 		to[match("[NOT AVAILABLE]", to)] <- NA
-		df$disease <- mapvalues(df$disease, from = from, to = to, warn_missing = T)
+		df$disease <- mapvalues(df$disease, from = from, to = to, warn_missing = F)
 		return(df)
 	}	
 	#--------------------------------------------------------------------------------
@@ -237,7 +276,7 @@ if(DIAGNOSIS){
 		to 	 <- from 
 		to[match("[NOT AVAILABLE]", to)] <- NA
 		df$tissueSourceSiteCode <- mapvalues(df$tissueSourceSiteCode, from = from, 
-								  			 to = to, warn_missing = T)
+								  			 to = to, warn_missing = F)
 		return(df)
 	}
 } # End of Diagnosis Native Functions
@@ -316,7 +355,7 @@ if(DRUG){
 				   unique.route=unique(c(res1$unique.route, res2$unique.route)),
 				   unique.cycle=unique(c(res1$unique.cycle, res2$unique.cycle)))
 	    return(res)
-	}q
+	}
 	#--------------------------------------------------------------------------------
 	Drug.unique.values <- Reduce(Drug.unique.aggregate, lapply(studies, Drug.unique.request))
 	Drug.mapping.date <- function(df){
@@ -564,29 +603,28 @@ if(RAD){
 							to = to, warn_missing = F)
 		return(df)
 	}	
-	#--------------------------------------------------------------------------------
-	#----------------------    Radiation functions End Here      --------------------
 } # End of Radition Native Functions
 #----------------------     Status functions Start Here      --------------------
 if(STATUS){
 	Status.unique.request <- function(study_name){
 	  	uri <- rawTablesRequest(study_name, "Status")
+	  	rm(list=ls(pattern="tbl"))
 		tbl.pt <- loadData(uri[1], 
 			              list(
 						     'bcr_patient_barcode' = list(name = "PatientID", data = "tcgaId"),
 						     'initial_pathologic_dx_year' = list(name = "dxyear", data = "tcgaDate"),
 						     'vital_status' = list(name = "vital", data = "upperCharacter"),
 						     'tumor_status' = list(name = "tumorStatus", data = "upperCharacter"),
-						     'last_contact_days_to' = list(name = "lastContact", data = "character"),
-						     'death_days_to' = list(name = "deathDate", data = "character")
+						     'last_contact_days_to' = list(name = "lastContact", data = "upperCharacter"),
+						     'death_days_to' = list(name = "deathDate", data = "upperCharacter")
 						   ))
 		tbl.f1 <- loadData(uri[2], 
 			              list(
 						     'bcr_patient_barcode' = list(name = "PatientID", data = "tcgaId"),
 						     'vital_status' = list(name = "vital", data = "upperCharacter"),
 						     'tumor_status' = list(name = "tumorStatus", data = "upperCharacter"),
-						     'last_contact_days_to' = list(name = "lastContact", data = "character"),
-						     'death_days_to' = list(name = "deathDate", data = "character")
+						     'last_contact_days_to' = list(name = "lastContact", data = "upperCharacter"),
+						     'death_days_to' = list(name = "deathDate", data = "upperCharacter")
 						   ))
 
 		if(!is.na(uri[3])) {
@@ -595,8 +633,8 @@ if(STATUS){
 						     'bcr_patient_barcode' = list(name = "PatientID", data = "tcgaId"),
 						     'vital_status' = list(name = "vital", data = "upperCharacter"),
 						     'tumor_status' = list(name = "tumorStatus", data = "upperCharacter"),
-						     'last_contact_days_to' = list(name = "lastContact", data = "character"),
-						     'death_days_to' = list(name = "deathDate", data = "character")
+						     'last_contact_days_to' = list(name = "lastContact", data = "upperCharacter"),
+						     'death_days_to' = list(name = "deathDate", data = "upperCharacter")
 						   ))
 		}
 		if(!is.na(uri[4])) {
@@ -605,8 +643,8 @@ if(STATUS){
 						     'bcr_patient_barcode' = list(name = "PatientID", data = "tcgaId"),
 						     'vital_status' = list(name = "vital", data = "upperCharacter"),
 						     'tumor_status' = list(name = "tumorStatus", data = "upperCharacter"),
-						     'last_contact_days_to' = list(name = "lastContact", data = "character"),
-						     'death_days_to' = list(name = "deathDate", data = "character")
+						     'last_contact_days_to' = list(name = "lastContact", data = "upperCharacter"),
+						     'death_days_to' = list(name = "deathDate", data = "upperCharacter")
 						   ))
 		}
 
@@ -633,7 +671,22 @@ if(STATUS){
 	}
 	#--------------------------------------------------------------------------------
 	Status.unique.values <- Reduce(Status.unique.aggregate, lapply(studies, Status.unique.request))
-	Status.mapping.date.preCheck <- function(df){
+	Status.mapping.date <- function(df){
+		from <- Status.unique.values$unique.lastContact
+		to 	 <- from 
+		to[match(c("[NOT AVAILABLE]","[DISCREPANCY]", "[COMPLETED]"), to)] <- NA
+		df$lastContact <- mapvalues(df$lastContact, from = from, to = to, warn_missing = F)
+		
+		from <- Status.unique.values$unique.deathDate
+		to 	 <- from 
+		to[match(c("[NOT AVAILABLE]","[DISCREPANCY]", "[NOT APPLICABLE]"), to)] <- NA
+		df$deathDate <- mapvalues(df$deathDate, from = from, to = to, warn_missing = F)
+		
+
+		return(df)
+	}	
+	#--------------------------------------------------------------------------------
+	Status.mapping.date.Check <- function(df){
 		
 		if(length(which(df$lastContact > df$deathDate))){
 			lastContactGreaterThanDeath  = paste(df[which(df$lastContact > df$deathDate),]$PatientID)
@@ -645,29 +698,16 @@ if(STATUS){
 		return(df)
 	}	
 	#--------------------------------------------------------------------------------
-	Status.mapping.date <- function(df){
-		from <- Status.unique.values$unique.lastContact
-		to 	 <- from 
-		to[match(c("[NOT AVAILABLE]","[Discrepancy]", "[Completed]"), to)] <- NA
-		df$lastContact <- mapvalues(df$lastContact, from = from, to = to, warn_missing = T)
-		
-		from <- Status.unique.values$unique.deathDate
-		to 	 <- from 
-		to[match(c("[NOT AVAILABLE]","[Discrepancy]", "[Not Applicable]"), to)] <- NA
-		df$deathDate <- mapvalues(df$deathDate, from = from, to = to, warn_missing = T)
-		
-
+	Status.mapping.date.Calculation <- function(df){
+		df$date <- df$dxyear + as.integer(df$date)
 		return(df)
 	}	
-
-	}
-
 	#--------------------------------------------------------------------------------
 	Status.mapping.vital <- function(df){
 		from <- Status.unique.values$unique.vital
 		to 	 <- from 
 		to[match("[NOT AVAILABLE]", to)] <- NA
-		df$vital <- mapvalues(df$vital, from = from, to = to, warn_missing = T)
+		df$vital <- mapvalues(df$vital, from = from, to = to, warn_missing = F)
 		return(df)
 	}	
 	#--------------------------------------------------------------------------------
@@ -675,14 +715,113 @@ if(STATUS){
 		from <- Status.unique.values$unique.tumorStatus 
 		to 	 <- from 
 		to[match(c("[NOT AVAILABLE]","[UNKNOWN]"), to)] <- NA
-		df$tumorStatus <- mapvalues(df$tumorStatus, from = from, to = to, warn_missing = T)
+		df$tumorStatus <- mapvalues(df$tumorStatus, from = from, to = to, warn_missing = F)
 		return(df)
 	}
 } # End of Status Native Functions
 #----------------------   Progression functions Start Here   --------------------
+if(PROGRESSION){
+	Progression.unique.request <- function(study_name){
+	  	uri <- rawTablesRequest(study_name, "Progression")
+	  	rm(list=ls(pattern="tbl"))
+	  	tbl.pt <- loadData(uri[1], 
+			              list(
+						     'bcr_patient_barcode' = list(name = "PatientID", data = "tcgaId"),
+						     'initial_pathologic_dx_year' = list(name = "dxyear", data = "tcgaDate")
+						   ))
+		tbl.f1 <- loadData(uri[2], 
+			              list(
+						     'bcr_patient_barcode' = list(name = "PatientID", data = "tcgaId"),
+						     'new_tumor_event_dx_days_to' = list(name = "newTumorDate", data = "upperCharacter"),
+						     'new_neoplasm_event_type' = list(name = "newTumor", data = "upperCharacter"),
+						     'new_tumor_event_type' = list(name = "newTumor", data = "upperCharacter")
+						   ))
+		if(!is.na(uri[3])){
+			tbl.f2 <- loadData(uri[3], 
+			              list(
+						     'bcr_patient_barcode' = list(name = "PatientID", data = "tcgaId"),
+						     'new_tumor_event_dx_days_to' = list(name = "newTumorDate", data = "upperCharacter"),
+						     'new_neoplasm_event_type' = list(name = "newTumor", data = "upperCharacter"),
+						     'new_tumor_event_type' = list(name = "newTumor", data = "upperCharacter")
+						   ))
+		}
+		if(!is.na(uri[4])){
+			tbl.nte <- loadData(uri[4], 
+				              list(
+							     'bcr_patient_barcode' = list(name = "PatientID", data = "tcgaId"),
+							     'new_tumor_event_dx_days_to' = list(name = "newTumorDate", data = "upperCharacter"),
+							     'new_neoplasm_event_type' = list(name = "newTumor", data = "upperCharacter"),
+							     'new_tumor_event_type' = list(name = "newTumor", data = "upperCharacter")
+							   ))
+		}
+		if(!is.na(uri[5])){
+			tbl.nte_f1 <- loadData(uri[5], 
+			              list(
+						     'bcr_patient_barcode' = list(name = "PatientID", data = "tcgaId"),
+						     'new_tumor_event_dx_days_to' = list(name = "newTumorDate", data = "upperCharacter"),
+						     'new_neoplasm_event_type' = list(name = "newTumor", data = "upperCharacter"),
+						     'new_tumor_event_type' = list(name = "newTumor", data = "upperCharacter")
+						   ))
+		}
+		
+		tbl.f <- tbl.nte
+		if(exists("tbl.f1")) tbl.f <- rbind.fill(tbl.f, tbl.f1)
+		if(exists("tbl.f2")) tbl.f <- rbind.fill(tbl.f, tbl.f2)
+		if(exists("tbl.nte_f1")) tbl.f <- rbind.fill(tbl.f, tbl.nte_f1)
+		df <- merge(tbl.f, tbl.pt)
 
-#----------------------   Progression functions End Here   --------------------
-
+		unique.newTumor <- unique(df$newTumor)
+		unique.newTumorDate <- unique(df$newTumorDate)
+	   	result = list(unique.newTumor=unique.newTumor, unique.newTumorDate=unique.newTumorDate)
+	  	return(result)
+	}
+	#--------------------------------------------------------------------------------
+	Progression.unique.aggregate <- function(res1, res2){
+		res = list(unique.newTumor=unique(c(res1$unique.newTumor,res2$unique.newTumor)),
+				   unique.newTumorDate=unique(c(res1$unique.newTumorDate, res2$unique.newTumorDate)))
+	    return(res)
+	}
+	#--------------------------------------------------------------------------------
+	Progression.unique.values <- Reduce(Progression.unique.aggregate, lapply(studies, Progression.unique.request))
+	Progression.mapping.newTumor <- function(df){
+		from <- Progression.unique.values$unique.newTumor
+		to 	 <- from 
+		to[match(c("[NOT AVAILABLE]","[UNKNOWN]"), to)] <- NA
+		df$newTumor <- mapvalues(df$newTumor, from = from, to = to, warn_missing = F)
+		return(df)
+	}
+	#--------------------------------------------------------------------------------
+	Progression.mapping.newTumorNaRM <- function(df){
+		rmList <- apply(df, 1, function(x){
+					pt = getElement(x, "PatientID")
+					newTumorType = getElement(x, "newTumor")
+					newTumorDateVal = getElement(x, "newTumorDate")
+					tmp <- subset(df, PatientID == pt & newTumorDate == newTumorDateVal)
+					if(nrow(tmp) > 1 && any(is.na(tmp$newTumor))){
+						return(which(df$PatientID == pt & df$newTumorDate == newTumorDateVal & is.na(df$newTumor)))
+					}
+				})
+		if(is.null(rmList)){
+			return(df)
+		}else{
+			print(unlist(rmList))
+			df <- df[-(unlist(rmList)),]
+		}
+	}
+	#--------------------------------------------------------------------------------	
+	Progression.mapping.newTumorDate <- function(df){
+		from <- Progression.unique.values$unique.newTumorDate 
+		to 	 <- from 
+		to[match(c("[NOT AVAILABLE]","[NOT APPLICABLE]"), to)] <- NA
+		df$newTumorDate <- mapvalues(df$newTumorDate, from = from, to = to, warn_missing = F)
+		return(df)
+	}
+	#--------------------------------------------------------------------------------
+	Progression.mapping.date.Calculation <- function(df){
+		df$newTumorDate <- df$dxyear + as.integer(df$newTumorDate)
+		return(df)
+	}		
+} # End of Progression Native Functions
 #----------------------   Encounter functions Start Here   ------------------------
 #----------------------   brca, hnsc, prad DO NOT HAVE ENCOUNTER RECORDS! ------------------------
 if(ENCOUNTER){
@@ -743,12 +882,15 @@ if(ENCOUNTER){
                   unique.postfev1.ratio=unique.postfev1.ratio,
                   unique.postfev1.percent=unique.postfev1.percent,
                   unique.carbon.monoxide.diffusion=unique.carbon.monoxide.diffusion)
-    print(study_name)
+    #print(study_name)
     return(result)
   }
   #--------------------------------------------------------------------------------
+<<<<<<< HEAD
   res_list. = lapply(studies, Encounter.unique.request) 
   
+=======
+>>>>>>> 3863899aa3db25b0f9956f8227747d322ddf0792
   Encounter.unique.aggregate <- function(res1, res2){
     res = list(unique.encType=unique(c(res1$unique.encType,res2$unique.encType)),
                unique.KPS=unique(c(res1$unique.KPS, res2$unique.KPS)),
@@ -800,24 +942,24 @@ if(ENCOUNTER){
   Encounter.mapping.encType <- function(df){
     from <- Encounter.unique.encType
     to 	 <- from 
-    to[match(c("[UNKNOWN]","[NOT AVAILABLE]","[NOT EVALUATED]","Uknown","[Discrepancy]","Other"), to)] <- NA
-    df$encType <- mapvalues(df$encType, from = from, to = to, warn_missing = T)
+    to[match(c("[UNKNOWN]","[NOT AVAILABLE]","[NOT EVALUATED]","UKNOWN","[DISCREPANCY]","OTHER"), to)] <- NA
+    df$encType <- mapvalues(df$encType, from = from, to = to, warn_missing = F)
     return(df)
   }	
   #--------------------------------------------------------------------------------
   Encounter.mapping.KPS<- function(df){
     from <- Encounter.unique.KPS
     to 	 <- from 
-    to[match(c("[NOT EVALUATED]","[NOT AVAILABLE]","[UNKNOWN]","Uknown"), to)] <- NA
-    df$KPS <- mapvalues(df$KPS, from = from, to = to, warn_missing = T)
+    to[match(c("[NOT EVALUATED]","[NOT AVAILABLE]","[UNKNOWN]","UNKNOWN"), to)] <- NA
+    df$KPS <- mapvalues(df$KPS, from = from, to = to, warn_missing = F)
     return(df)
   }
   #--------------------------------------------------------------------------------
   Encounter.mapping.ECOG<- function(df){
     from <- Encounter.unique.ECOG
     to 	 <- from 
-    to[match(c("[NOT EVALUATED]","[NOT AVAILABLE]","[UNKNOWN]","Uknown"), to)] <- NA
-    df$ECOG <- mapvalues(df$ECOG, from = from, to = to, warn_missing = T)
+    to[match(c("[NOT EVALUATED]","[NOT AVAILABLE]","[UNKNOWN]","UNKNOWN"), to)] <- NA
+    df$ECOG <- mapvalues(df$ECOG, from = from, to = to, warn_missing = F)
     return(df)
   }
   #--------------------------------------------------------------------------------
@@ -826,7 +968,7 @@ if(ENCOUNTER){
     from <- Encounter.unique.height
     to 	 <- from 
     to[match("[NOT AVAILABLE]", to)] <- NA
-    df$height <- mapvalues(df$height, from = from, to = to, warn_missing = T)
+    df$height <- mapvalues(df$height, from = from, to = to, warn_missing = F)
     return(df)
   }
   #--------------------------------------------------------------------------------
@@ -835,7 +977,7 @@ if(ENCOUNTER){
     from <- Encounter.unique.weight
     to 	 <- from 
     to[match("[NOT AVAILABLE]", to)] <- NA
-    df$weight <- mapvalues(df$weight, from = from, to = to, warn_missing = T)
+    df$weight <- mapvalues(df$weight, from = from, to = to, warn_missing = F)
     return(df)
   } 
   #--------------------------------------------------------------------------------
@@ -844,7 +986,7 @@ if(ENCOUNTER){
     from <- Encounter.unique.prefev1.ratio
     to 	 <- from 
     to[match("[NOT AVAILABLE]", to)] <- NA
-    df$prefev1.ratio <- mapvalues(df$prefev1.ratio, from = from, to = to, warn_missing = T)
+    df$prefev1.ratio <- mapvalues(df$prefev1.ratio, from = from, to = to, warn_missing = F)
     return(df)
   } 
   #--------------------------------------------------------------------------------
@@ -853,7 +995,7 @@ if(ENCOUNTER){
     from <- Encounter.unique.prefev1.percent
     to 	 <- from 
     to[match("[NOT AVAILABLE]", to)] <- NA
-    df$prefev1.percent <- mapvalues(df$prefev1.percent, from = from, to = to, warn_missing = T)
+    df$prefev1.percent <- mapvalues(df$prefev1.percent, from = from, to = to, warn_missing = F)
     return(df)
   } 
   #--------------------------------------------------------------------------------
@@ -862,7 +1004,7 @@ if(ENCOUNTER){
     from <- Encounter.unique.postfev1.ratio
     to 	 <- from 
     to[match("[NOT AVAILABLE]", to)] <- NA
-    df$postfev1.ratio  <- mapvalues(df$postfev1.ratio, from = from, to = to, warn_missing = T)
+    df$postfev1.ratio  <- mapvalues(df$postfev1.ratio, from = from, to = to, warn_missing = F)
     return(df)
   } 
   #--------------------------------------------------------------------------------
@@ -871,7 +1013,7 @@ if(ENCOUNTER){
     from <- Encounter.unique.postfev1.percent
     to 	 <- from 
     to[match("[NOT AVAILABLE]", to)] <- NA
-    df$postfev1.percent  <- mapvalues(df$postfev1.percent, from = from, to = to, warn_missing = T)
+    df$postfev1.percent  <- mapvalues(df$postfev1.percent, from = from, to = to, warn_missing = F)
     return(df)
   } 
   #--------------------------------------------------------------------------------
@@ -880,7 +1022,7 @@ if(ENCOUNTER){
     from <- Encounter.unique.carbon.monoxide.diffusion
     to 	 <- from 
     to[match("[NOT AVAILABLE]", to)] <- NA
-    df$carbon.monoxide.diffusion  <- mapvalues(df$carbon.monoxide.diffusion, from = from, to = to, warn_missing = T)
+    df$carbon.monoxide.diffusion  <- mapvalues(df$carbon.monoxide.diffusion, from = from, to = to, warn_missing = F)
     return(df)
   } 
   #----------------------     Encounter functions End Here      --------------------------
@@ -1153,10 +1295,6 @@ create.all.Status.records <- function(study_name){
 					     'initial_pathologic_dx_year' = list(name = "dxyear", data = "tcgaDate"),
 					     'vital_status' = list(name = "vital", data = "upperCharacter"),
 					     'tumor_status' = list(name = "tumorStatus", data = "upperCharacter"),
-
-					     'last_contact_days_to' = list(name = "lastContact", data = "character"),
-					     'death_days_to' = list(name = "deathDate", data = "character")
-
 					     'last_contact_days_to' = list(name = "lastContact", data = "upperCharacter"),
 					     'death_days_to' = list(name = "deathDate", data = "upperCharacter")
 
@@ -1166,13 +1304,8 @@ create.all.Status.records <- function(study_name){
 					     'bcr_patient_barcode' = list(name = "PatientID", data = "tcgaId"),
 					     'vital_status' = list(name = "vital", data = "upperCharacter"),
 					     'tumor_status' = list(name = "tumorStatus", data = "upperCharacter"),
-
-					     'last_contact_days_to' = list(name = "lastContact", data = "character"),
-					     'death_days_to' = list(name = "deathDate", data = "character")
-
 					     'last_contact_days_to' = list(name = "lastContact", data = "upperCharacter"),
 					     'death_days_to' = list(name = "deathDate", data = "upperCharacter")
-
 					   ))
 
 	if(!is.na(uri[3])) {
@@ -1181,94 +1314,156 @@ create.all.Status.records <- function(study_name){
 					     'bcr_patient_barcode' = list(name = "PatientID", data = "tcgaId"),
 					     'vital_status' = list(name = "vital", data = "upperCharacter"),
 					     'tumor_status' = list(name = "tumorStatus", data = "upperCharacter"),
-
-					     'last_contact_days_to' = list(name = "lastContact", data = "character"),
-					     'death_days_to' = list(name = "deathDate", data = "character")
-
 					     'last_contact_days_to' = list(name = "lastContact", data = "upperCharacter"),
 					     'death_days_to' = list(name = "deathDate", data = "upperCharacter")
-
 					   ))
 	}
 	if(!is.na(uri[4])) {
-		tbl.f2 <- loadData(uri[4], 
+		tbl.f3 <- loadData(uri[4], 
 		              list(
 					     'bcr_patient_barcode' = list(name = "PatientID", data = "tcgaId"),
 					     'vital_status' = list(name = "vital", data = "upperCharacter"),
 					     'tumor_status' = list(name = "tumorStatus", data = "upperCharacter"),
-
-					     'last_contact_days_to' = list(name = "lastContact", data = "character"),
-					     'death_days_to' = list(name = "deathDate", data = "character")
-
 					     'last_contact_days_to' = list(name = "lastContact", data = "upperCharacter"),
 					     'death_days_to' = list(name = "deathDate", data = "upperCharacter")
-
 					   ))
 	}
 
-	tbl.f <- rbind.fill(tbl.pt, tbl.f1)
+	tbl.f <- rbind.fill(tbl.pt[,c("PatientID","vital","tumorStatus","lastContact","deathDate")], tbl.f1)
 	if(exists("tbl.f2")) tbl.f <- rbind.fill(tbl.f, tbl.f2)
 	if(exists("tbl.f3")) tbl.f <- rbind.fill(tbl.f, tbl.f3)
 
 	data.Status <- tbl.f
-	
-	data.Status <- Status.mapping.date.preCheck(data.Status)
-
-	#more computation to determin the date, the vital status and the tumor status...
-
-	#need group function by patient and determin.
-	
-
-	data.Status <- data.Status[,c("PatientID", "vital", "tumorStatus", "date")]
+	data.Status$date <- rep(NA, nrow(data.Status))
+	data.Status <- Status.mapping.date(data.Status)
+	data.Status <- Status.mapping.date.Check(data.Status)
+	data.Status <- Status.mapping.vital(data.Status)
+	data.Status <- Status.mapping.tumorStatus(data.Status)
+	DX <- tbl.pt[,c("PatientID", "dxyear")]	
+	data.Status <- merge(data.Status, DX)
+	data.Status <- data.Status[,c("PatientID", "vital", "tumorStatus", "dxyear", "date")]
 	data.Status <- data.Status[-which(duplicated(data.Status)),]
-	
-################# double check if the aggregate lose any information, doesn't handle NA ########################
-################# So no mapping at this stage to preserve the value in the field ###############################
-	# only grab the most recent record from each patient
+
+	#more computation to determine the most recent contacted/death date, then find the matching vital & tumorStatus
+	#need group function by patient and determin.
 	recentDatetbl <- aggregate(date ~ PatientID, data.Status, function(x){max(x)})
-    # use merge() to grab the matching fields
-    data.Status <- merge(recentDatetbl, data.Status)
+	
 
-    # double-entry records are found using this method: need clean up 
-    dupPatients <- data.Status[which(duplicated(data.Status$PatientID)),]$PatientID
+ 	recentTbl <- c()
 
-    #   14 duplicated in the data.Status, dim(data.Status) is 1102, 4; unique PatientID is 1088
-    #   1102 - 1088 = 14, those 14 have double entries... 
-							# TCGA.A2.A04Q 2385 ALIVE  TUMOR FREE, <NA>
-							# TCGA.AN.A041    7 ALIVE  TUMOR FREE, <NA>
-							#		.		.		.			.
-							#		.		.		.			.
-							#		.		.		.			.
-							#466  TCGA.AR.A5QQ  322  DEAD  TUMOR FREE, WITH TUMOR
-							#		.		.		.			.
-							#		.		.		.			.
+ 	for(i in 1:nrow(tbl.pt)){
+ 		tmpDF <- subset(data.Status, PatientID == tbl.pt$PatientID[i], select = c(PatientID, vital, tumorStatus, dxyear, as.integer(date)))
+ 		tmpDF <- tmpDF[order(as.integer(tmpDF$date), decreasing=TRUE, na.last=TRUE),]
+ 		if(nrow(tmpDF[which(tmpDF$date == tmpDF[1,]$date), ]) > 1){
+ 			tmpDup <- tmpDF[which(tmpDF$date == tmpDF[1,]$date), ]
+ 			tmpDF[1, "vital"] 		= 	ifelse(any(duplicated(tmpDup[,"vital"])), tmpDup[1, "vital"], paste(tmpDup[, "vital"]))
+			tmpDF[1, "tumorStatus"] = 	ifelse(any(duplicated(tmpDup[,"tumorStatus"])), tmpDup[1, "tumorStatus"], paste(tmpDup[, "tumorStatus"], collapse=";"))
+ 		}
+		recentTbl <- rbind.fill(recentTbl, tmpDF[1,])
+ 	}
 
- 	# seperate the data.Status into two sections: with no double-entry and double-entry 
-	noDubData  <- data.Status[-which(data.Status$PatientID %in% dupPatients), ] # temporarily remove the double-entry records
-	dubRecrods <- data.Status[which(data.Status$PatientID %in% dupPatients), ]
-	dubRecrodsCollapsedToSingle <- aggregate(tumorStatus ~ PatientID + date + vital, dubRecrods, function(x){return(paste(x))})
-    # combine the them back 
-	data.Status <- rbind(noDubData, dubRecrodsCollapsedToSingle)
+ 	data.Status <- Status.mapping.date.Calculation(recentTbl)
 
+ 	ptNumMap <- ptNumMapUpdate(tbl.pt)
 
-	# in TCGAhnsc, TCGAluad, TCGAlusc have less patients...
-	StatusMissingPT <- tbl.pt$PatientID[which(!(tbl.pt$PatientID %in% data.Status$PatientID))]
-
-
-	#data.Status <- Status.mapping.vital(data.Status)
-	#data.Status <- Status.mapping.tumorStatus(data.Status)
-	#data.Status <- Status.mapping.date(data.Status)
-
-	print(study_name)
-	print(dim(data.Status))
-
+    result <- apply(data.Status, 1, function(x){
+    				PatientID = getElement(x, "PatientID")
+    				PtNum = ptNumMap[ptNumMap$PatientID == PatientID,]$PatientNumber
+    				date = getElement(x, "date")
+    				vital = getElement(x, "vital")
+    				tumorStatus = getElement(x, "tumorStatus")
+    				return(list(PatientID=PatientID, PtNum=PtNum, study=study_name, Name="Status", 
+    				 			Fields=list(date=date, vital=vital, tumorStatus=tumorStatus)))
+    				})
+	print(c(study_name, dim(data.Status), length(result)))
 }
-return()
 lapply(studies, create.all.Status.records)
+#--------------------------------------------------------------------------------------------------------------------------
+create.all.Progression.records <- function(study_name){
+	uri <- rawTablesRequest(study_name, "Progression")
+  	rm(list=ls(pattern="tbl"))
+  	tbl.pt <- loadData(uri[1], 
+		              list(
+					     'bcr_patient_barcode' = list(name = "PatientID", data = "tcgaId"),
+					     'initial_pathologic_dx_year' = list(name = "dxyear", data = "tcgaDate")
+					   ))
+	tbl.f1 <- loadData(uri[2], 
+		              list(
+					     'bcr_patient_barcode' = list(name = "PatientID", data = "tcgaId"),
+					     'new_tumor_event_dx_days_to' = list(name = "newTumorDate", data = "upperCharacter"),
+					     'new_neoplasm_event_type' = list(name = "newTumor", data = "upperCharacter"),
+					     'new_tumor_event_type' = list(name = "newTumor", data = "upperCharacter")
+					   ))
+	if(!is.na(uri[3])){
+		tbl.f2 <- loadData(uri[3], 
+		              list(
+					     'bcr_patient_barcode' = list(name = "PatientID", data = "tcgaId"),
+					     'new_tumor_event_dx_days_to' = list(name = "newTumorDate", data = "upperCharacter"),
+					     'new_neoplasm_event_type' = list(name = "newTumor", data = "upperCharacter"),
+					     'new_tumor_event_type' = list(name = "newTumor", data = "upperCharacter")
+					   ))
+	}
+	if(!is.na(uri[4])){
+		tbl.nte <- loadData(uri[4], 
+			              list(
+						     'bcr_patient_barcode' = list(name = "PatientID", data = "tcgaId"),
+						     'new_tumor_event_dx_days_to' = list(name = "newTumorDate", data = "upperCharacter"),
+						     'new_neoplasm_event_type' = list(name = "newTumor", data = "upperCharacter"),
+						     'new_tumor_event_type' = list(name = "newTumor", data = "upperCharacter")
+						   ))
+	}
+	if(!is.na(uri[5])){
+		tbl.nte_f1 <- loadData(uri[5], 
+		              list(
+					     'bcr_patient_barcode' = list(name = "PatientID", data = "tcgaId"),
+					     'new_tumor_event_dx_days_to' = list(name = "newTumorDate", data = "upperCharacter"),
+					     'new_neoplasm_event_type' = list(name = "newTumor", data = "upperCharacter"),
+					     'new_tumor_event_type' = list(name = "newTumor", data = "upperCharacter")
+					   ))
+	}
+	
+	tbl.f <- tbl.nte
+	if(exists("tbl.f1")) tbl.f <- rbind.fill(tbl.f, tbl.f1)
+	if(exists("tbl.f2")) tbl.f <- rbind.fill(tbl.f, tbl.f2)
+	if(exists("tbl.nte_f1")) tbl.f <- rbind.fill(tbl.f, tbl.nte_f1)
+	data.Progression <- merge(tbl.f, tbl.pt)
+	data.Progression <- Progression.mapping.newTumor(data.Progression)
+	data.Progression <- Progression.mapping.newTumorDate(data.Progression)
+	data.Progression <- data.Progression[-which(duplicated(data.Progression)), ]
+	data.Progression$Number <- rep(NA, nrow(data.Progression))
+	data.Progression <- Progression.mapping.newTumorNaRM(data.Progression)
 
+	uniquePt.Progression <- unique(data.Progression$PatientID)
+
+	df <- data.frame()
+	for(i in 1:length(uniquePt.Progression)){
+		tmpDF <- subset(data.Progression, PatientID == uniquePt.Progression[i])
+		tmpDF <- tmpDF[order(as.integer(tmpDF$newTumorDate), na.last=T, decreasing=F), ]
+		tmpDF$Number <- seq(1:nrow(tmpDF))
+		tmpDF$Number[which(is.na(tmpDF$newTumorDate))] <- NA
+		df <- rbind.fill(tmpDF, df)
+	}
+
+	data.Progression <- df
+	data.Progression <- Progression.mapping.date.Calculation(data.Progression)
+ 	ptNumMap <- ptNumMapUpdate(tbl.pt)
+
+    result <- apply(data.Progression, 1, function(x){
+    				PatientID = getElement(x, "PatientID")
+    				PtNum = ptNumMap[ptNumMap$PatientID == PatientID,]$PatientNumber
+    				date = getElement(x, "newTumorDate")
+    				event = getElement(x, "newTumor")
+    				number = getElement(x, "Number")
+    				return(list(PatientID=PatientID, PtNum=PtNum, study=study_name, Name="Progression", 
+    				 			Fields=list(date=date, event=event, number=number)))
+    				})
+	print(c(study_name, dim(data.Progression), length(result)))
+}
+lapply(studies, create.all.Progression.records)
 #--------------------------------------------------------------------------------------------------------------------------
 create.all.Encounter.records <- function(study_name){
   uri <- rawTablesRequest(study_name, "Encounter")
+  rm(list=ls(pattern="tbl"))
   #(tbl.pt 'encType','karnofsky_score','ECOG only in gbm,lgg,luad,lusc)
   tbl.pt <- loadData(uri[1],  
                      list(
@@ -1298,7 +1493,7 @@ create.all.Encounter.records <- function(study_name){
   data.Encounter <- rbind.fill(tbl.pt, tbl.f1)
   
   encounterColNames <- c("PatientID", "encType", "KPS", "ECOG", "height", "weight", "prefev1.ratio", "prefev1.percent", "postfev1.ratio", "postfev1.percent", "carbon.monoxide.diffusion")
-  m <- matrix(nrow=nrow(data.Encounter), ncol=length(encounterColNames))
+  m <- matrix(nrow=nrow(data.Encounter), ncol=length(which(!(encounterColNames) %in% colnames(data.Encounter))))
   df <- as.data.frame(m)
   colnames(df) <- encounterColNames[(which(!(encounterColNames) %in% colnames(data.Encounter)))]
   data.Encounter<- cbind(data.Encounter, df) 
@@ -1319,24 +1514,24 @@ create.all.Encounter.records <- function(study_name){
   # result
   ptNumMap <- ptNumMapUpdate(tbl.pt)
   result <- apply(data.Encounter, 1, function(x){
-    PatientID = getElement(x, "PatientID")
-    PtNum = ptNumMap[ptNumMap$PatientID == PatientID,]$PatientNumber
-    encType = getElement(x, "encType")
-    KPS = getElement(x, "KPS")
-    ECOG = getElement(x, "ECOG")
-    height = getElement(x, "height")
-    weight = getElement(x, "weight")
-    prefev1.ratio = getElement(x, "prefev1.ratio")
-    prefev1.percent = getElement(x, "prefev1.percent")
-    postfev1.ratio = getElement(x, "postfev1.ratio")
-    postfev1.percent  = getElement(x, "postfev1.percent")
-    carbon.monoxide.diffusion  = getElement(x, "carbon.monoxide.diffusion")
-    return(list(PatientID=PatientID, PtNum=PtNum, study=study_name, Name="Encounter", 
-                Fields=list(encType=encType, KPS=KPS, ECOG=ECOG, height=height,
-                            weight=weight, prefev1.ratio=prefev1.ratio, prefev1.percent=prefev1.percent, postfev1.ratio=postfev1.ratio,
-                            postfev1.percent=postfev1.percent,carbon.monoxide.diffusion=carbon.monoxide.diffusion)))
+	    PatientID = getElement(x, "PatientID")
+	    PtNum = ptNumMap[ptNumMap$PatientID == PatientID,]$PatientNumber
+	    encType = getElement(x, "encType")
+	    KPS = getElement(x, "KPS")
+	    ECOG = getElement(x, "ECOG")
+	    height = getElement(x, "height")
+	    weight = getElement(x, "weight")
+	    prefev1.ratio = getElement(x, "prefev1.ratio")
+	    prefev1.percent = getElement(x, "prefev1.percent")
+	    postfev1.ratio = getElement(x, "postfev1.ratio")
+	    postfev1.percent  = getElement(x, "postfev1.percent")
+	    carbon.monoxide.diffusion  = getElement(x, "carbon.monoxide.diffusion")
+	    return(list(PatientID=PatientID, PtNum=PtNum, study=study_name, Name="Encounter", 
+	                Fields=list(encType=encType, KPS=KPS, ECOG=ECOG, height=height,
+	                            weight=weight, prefev1.ratio=prefev1.ratio, prefev1.percent=prefev1.percent, postfev1.ratio=postfev1.ratio,
+	                            postfev1.percent=postfev1.percent,carbon.monoxide.diffusion=carbon.monoxide.diffusion)))
   })
-  return(result)
+  #return(result)
   print(c(study_name, dim(data.Encounter), length(result)))
 }
 lapply(studies, create.all.Encounter.records) #studies
@@ -1346,6 +1541,7 @@ lapply(studies, create.all.Encounter.records) #studies
 # use Filter function, index 479 is a good option
 
 
+<<<<<<< HEAD
 #----------------------------------------------------------------------------------------------------
 run <- function(RawTables, tcga.ids)
 {
@@ -1667,3 +1863,5 @@ return()
 
 
 
+=======
+>>>>>>> 3863899aa3db25b0f9956f8227747d322ddf0792
