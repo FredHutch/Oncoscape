@@ -736,8 +736,6 @@ if(PROGRESSION){
 						   ))
 		}
 		
-
-
 		tbl.f <- tbl.nte
 		if(exists("tbl.f1")) tbl.f <- rbind.fill(tbl.f, tbl.f1)
 		if(exists("tbl.f2")) tbl.f <- rbind.fill(tbl.f, tbl.f2)
@@ -794,8 +792,7 @@ if(PROGRESSION){
 	Progression.mapping.date.Calculation <- function(df){
 		df$newTumorDate <- df$dxyear + as.integer(df$newTumorDate)
 		return(df)
-	}	
-	
+	}		
 } # End of Progression Native Functions
 #----------------------   Encounter functions Start Here   ------------------------
 #----------------------   brca, hnsc, prad DO NOT HAVE ENCOUNTER RECORDS! ------------------------
@@ -860,8 +857,6 @@ if(ENCOUNTER){
     return(result)
   }
   #--------------------------------------------------------------------------------
-  res_list. = lapply(studies, Encounter.unique.request)
-  
   Encounter.unique.aggregate <- function(res1, res2){
     res = list(unique.encType=unique(c(res1$unique.encType,res2$unique.encType)),
                unique.KPS=unique(c(res1$unique.KPS, res2$unique.KPS)),
@@ -1346,15 +1341,16 @@ create.all.Progression.records <- function(study_name){
 
 	uniquePt.Progression <- unique(data.Progression$PatientID)
 
-
-	#proLen = c()
+	df <- data.frame()
 	for(i in 1:length(uniquePt.Progression)){
 		tmpDF <- subset(data.Progression, PatientID == uniquePt.Progression[i])
 		tmpDF <- tmpDF[order(as.integer(tmpDF$newTumorDate), na.last=T, decreasing=F), ]
 		tmpDF$Number <- seq(1:nrow(tmpDF))
-		tmpDF$Number[is.na(tmpDF$newTumorDate)] <- NA
+		tmpDF$Number[which(is.na(tmpDF$newTumorDate))] <- NA
+		df <- rbind.fill(tmpDF, df)
 	}
 
+	data.Progression <- df
 	data.Progression <- Progression.mapping.date.Calculation(data.Progression)
  	ptNumMap <- ptNumMapUpdate(tbl.pt)
 
