@@ -7,6 +7,8 @@ addRMessageHandler("getPatientHistoryDxAndSurvivalMinMax", "getPatientHistoryDxA
 addRMessageHandler("getSampleDataFrame", "getSampleDataFrame")
 addRMessageHandler("getGeneSetNames",    "wsGetGeneSetNames")
 addRMessageHandler("getGeneSetGenes",    "wsGetGeneSetGenes")
+addRMessageHandler("getExpressionDataSetNames",    "wsGetExpressionDataSetNames")
+addRMessageHandler("getExpressionDataSetExpression",    "wsGetExpressionDataSetExpression")
 addRMessageHandler("getSampleCategorizationNames", "wsGetSampleCategorizationNames")
 addRMessageHandler("getSampleCategorization",      "wsGetSampleCategorization")
 addRMessageHandler("getMarkersNetwork", "getMarkersAndSamplesNetwork")
@@ -287,6 +289,50 @@ wsGetGeneSetGenes <- function(ws, msg)
   ws$send(toJSON(return.msg))
 
 } # wsGetGeneSetGenes
+#----------------------------------------------------------------------------------------------------
+wsGetExpressionDataSetNames <- function(ws, msg)
+{
+  datasetName <- state[["currentDatasetName"]]
+  dataset <- datasets[[datasetName]]
+
+  #payload <- getExpressionDataSetNames(dataset)
+  expressionDataSetNames <- SttrDataPackage:::getExpressionDataSetNames(dataset)
+  printf("***** expressionDataSetNames are %s ", expressionDataSetNames)
+  tbl <- manifest(datasets[[datasetName]])
+
+    # the first two columns, "variable" and "class" are not so relevant for the oncoscape display
+  #tbl <- tbl[, -c(1,2)]
+    # make some column names more friendly
+  column.titles <- colnames(tbl)
+  column.titles <- sub("entity.count", "rows", column.titles)
+  column.titles <- sub("feature.count", "cols", column.titles)
+  column.titles <- sub("entity.", "row ", column.titles)
+  column.titles <- sub("feature.", "column ", column.titles, fixed=TRUE)
+  #tbl <- tbl[paste(expressionDataSetNames, ".RData",sep=""),]
+  tbl <- tbl[expressionDataSetNames,]
+  #printf("***** after subset with expressionDataSetNames tbl becomes %s: ", tbl)
+  matrix <- as.matrix(tbl)
+  colnames(matrix) <- NULL
+  payload = list(datasetName=datasetName, colnames=column.titles, rownames=rownames(tbl), mtx=matrix)
+  
+  return.msg <- list(cmd=msg$callback, status="success", callback="", payload=payload)
+
+  ws$send(toJSON(return.msg))
+
+} # wsGetExpressionDataSetNames
+#----------------------------------------------------------------------------------------------------
+wsGetExpressionDataSetExpression <- function(ws, msg)
+{
+  datasetName <- state[["currentDatasetName"]]
+  dataset <- datasets[[datasetName]]
+  expressionDataSetName <- msg$payload
+  stopifnot(expressionDataSetName %in% getExpressionDataSetNames(dataset))
+
+  payload <- getExpressionDataSetExpression(dataset, expressionDataSetName)
+  return.msg <- list(cmd=msg$callback, status="success", callback="", payload=payload)
+  ws$send(toJSON(return.msg))
+
+} # wsGetExpressionDataSetExpression
 #----------------------------------------------------------------------------------------------------
 wsGetSampleCategorizationNames <- function(ws, msg)
 {

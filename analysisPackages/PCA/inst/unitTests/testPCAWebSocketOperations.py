@@ -65,9 +65,9 @@ def testCalculate():
   "calculates pca on DEMOdz, the full mrna matrix, using pca object created above"
 
   print "--- testCalculate"
-
+  payload = {"expressionDataSet":"mtx.mrna.ueArray"}
   msg = dumps({"cmd": "calculatePCA", "status":"request", 
-              "callback":"handlePcaResult", "payload": ""})
+              "callback":"handlePcaResult", "payload": payload})
   ws.send(msg)
   result = loads(ws.recv())
   assert(result["cmd"][0] == "handlePcaResult")
@@ -95,7 +95,7 @@ def testCalculateOnGeneSubset():
   print "--- testCalculateOnGeneSubset"
 
   goi =  ["EDIL3", "EED", "EEF2", "EFEMP2", "EGFR", "EHD2", "EIF4A2", "ELAVL1", "ELAVL2", "ELF4"];
-  payload = {"genes": goi}
+  payload = {"genes": goi, "expressionDataSet":"mtx.mrna.ueArray"}
   msg = dumps({"cmd": "calculatePCA", "status":"request", 
               "callback":"handlePcaResult", "payload": payload})
   ws.send(msg)
@@ -111,7 +111,7 @@ def testCalculateOnGeneSubset():
   ids = payload["ids"]
   assert(len(ids) == len(goi))
   assert(ids == goi)
-
+  
   assert(payload["maxValue"][0] == 0.5088)
   assert(payload["importance.PC1"][0] == 0.3296)
   assert(payload["importance.PC2"][0] == 0.2460)
@@ -124,7 +124,7 @@ def testCalculateOnSampleSubset():
   print "--- testCalculateOnSampleSubset"
 
   soi = ["TCGA.02.0014", "TCGA.02.0021", "TCGA.02.0028", "TCGA.02.0033", "TCGA.02.0037"]
-  payload = {"samples": soi}
+  payload = {"samples": soi, "expressionDataSet":"mtx.mrna.ueArray"}
   msg = dumps({"cmd": "calculatePCA", "status":"request", 
               "callback":"handlePcaResult", "payload": payload})
   ws.send(msg)
@@ -153,7 +153,7 @@ def testCalculateOnGeneAndSampleSubsets():
 
   goi = ["EDIL3", "EED", "EEF2", "EFEMP2", "EGFR", "EHD2", "EIF4A2", "ELAVL1", "ELAVL2", "ELF4"]
   soi = ["TCGA.02.0014", "TCGA.02.0021", "TCGA.02.0028", "TCGA.02.0033", "TCGA.02.0037"]
-  payload = {"genes": goi, "samples": soi}
+  payload = {"genes": goi, "samples": soi, "expressionDataSet":"mtx.mrna.ueArray"}
   
   msg = dumps({"cmd": "calculatePCA", "status":"request", 
               "callback":"handlePcaResult", "payload": payload})
@@ -169,7 +169,7 @@ def testCalculateOnGeneAndSampleSubsets():
   
   ids = payload["ids"]
   assert(ids == goi)
-  
+
   assert(payload["maxValue"][0] == 0.5445)
   assert(payload["importance.PC1"][0] == 0.5075)
   assert(payload["importance.PC2"][0] == 0.2802)

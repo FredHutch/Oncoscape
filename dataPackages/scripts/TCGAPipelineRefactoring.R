@@ -5,8 +5,8 @@ library(R.utils)
 library(stringr)
 library(plyr)
 
-stopifnot(file.exists("TCGA_Reference_Filenames_gh.txt")) 
-TCGAfilename<-read.table("TCGA_Reference_Filenames_gh.txt", sep="\t", header=TRUE)
+stopifnot(file.exists("TCGA_Reference_Filenames.txt")) 
+TCGAfilename<-read.table("TCGA_Reference_Filenames.txt", sep="\t", header=TRUE)
 ##===load drug reference table ===
 drug_ref <- read.table("drug_names_10272015.txt", sep="\t", header=TRUE)
 rad_ref <- read.table("rad_ref_02232016.txt", sep="\t", header=TRUE)
@@ -1079,8 +1079,21 @@ if(PROCEDURE){
                          ))
     }
 
+  	if(!is.na(uri[5])) {
+    	tbl.pt <- loadData(uri[5], 
+                           list(
+                             'bcr_patient_barcode' = list(name = "PatientID", data = "tcgaId"),
+                             'initial_pathologic_dx_year' = list(name = "dxyear", data = "tcgaDate"),
+                             'laterality'  = list(name = "side", data = "upperCharacter"), #(only in lgg, hnsc, pProcedure)
+                             'tumor_site' = list(name = "site", data = "upperCharacter"),  #(only in lgg)
+                             'supratentorial_localization'= list(name = "local", data = "upperCharacter") #(only in lgg)
+                           ))
+   	}
+
+
       
     data.Procedure <- rbind.fill(tbl.nte, tbl.omf)
+
       if(exists("tbl.f1")) data.Procedure <- rbind.fill(data.Procedure, tbl.f1)
       if(exists("tbl.nte_f1")) data.Procedure <- rbind.fill(data.Procedure, tbl.nte_f1)
       if(exists("tbl.pt")) data.Procedure <- rbind.fill(data.Procedure, tbl.pt)
@@ -1117,9 +1130,46 @@ if(PROCEDURE){
                     unique.surgical_resection_date=unique.surgical_resection_date,
                     unique.other_malignancy_side=unique.other_malignancy_side,
                     unique.surgery_name=unique.surgery_name)
+
+	if(exists("tbl.f1")) data.Procedure <- rbind.fill(data.Procedure, tbl.f1)
+	if(exists("tbl.nte_f1")) data.Procedure <- rbind.fill(data.Procedure, tbl.nte_f1)
+	if(exists("tbl.pt")) data.Procedure <- rbind.fill(data.Procedure, tbl.pt)
+	  
+	#some of these columns are in multipe tables but listed below is only unique column names 
+	df <- data.Procedure
+	unique.initial_pathologic_dx_year <- unique(df$initial_pathologic_dx_year)
+	unique.side<- unique(df$laterality)
+	unique.site <- unique(df$site)
+	unique.local <- unique(df$local)
+	unique.date_loco<- unique(df$date_loco)
+	unique.date_met <- unique(df$date_met )
+	unique.new_tumor_event_surgery<- unique(df$new_tumor_event_surgery)
+	unique.days_to_new_tumor_event_additional_surgery_procedure<- unique(df$days_to_new_tumor_event_additional_surgery_procedure)
+	unique.new_neoplasm_event_type <- unique(df$new_neoplasm_event_type)
+	unique.new_tumor_event_type <- unique(df$new_tumor_event_type)
+	unique.new_tumor_event_additional_surgery_procedure<- unique(df$new_tumor_event_additional_surgery_procedure)
+	unique.days_to_surgical_resection <- unique(df$days_to_surgical_resection)
+	unique.other_malignancy_side<- unique(df$other_malignancy_laterality)
+	unique.surgery_type <- unique(df$surgery_type)
+	  
+    result = list(unique.initial_pathologic_dx_year=unique.initial_pathologic_dx_year, 
+                unique.laterality=unique.laterality,
+                unique.site=unique.site,
+                unique.local=unique.local,
+                unique.new_tumor_event_surgery_days_to_loco=unique.new_tumor_event_surgery_days_to_loco,
+                unique.date_met =unique.date_met,
+                unique.new_tumor_event_surgery=unique.new_tumor_event_surgery,
+                unique.days_to_new_tumor_event_additional_surgery_procedure=unique.days_to_new_tumor_event_additional_surgery_procedure,
+                unique.new_neoplasm_event_type=unique.new_neoplasm_event_type,
+                unique.new_tumor_event_type=unique.new_tumor_event_type,
+                unique.new_tumor_event_additional_surgery_procedure=unique.new_tumor_event_additional_surgery_procedure,
+                unique.days_to_surgical_resection=unique.days_to_surgical_resection,
+                unique.other_malignancy_laterality=unique.other_malignancy_laterality,
+                unique.surgery_type=unique.surgery_type)
+
       
-      print(study_name)
-      return(result)
+     print(study_name)
+    return(result)
   }
   #--------------------------------------------------------------------------------------------------------------------
   res_list. = lapply(studies, Procedure.unique.request) 
@@ -1192,14 +1242,6 @@ if(PROCEDURE){
     return(df)
   }	
   #--------------------------------------------------------------------------------
-  
-  
-  
-  
-  
-  
-  }
-      
 ################################################     Step 4: Generate Result    ##################################################
 create.all.DOB.records <- function(study_name){
 	uri <- rawTablesRequest(study_name, "DOB")
@@ -1648,6 +1690,7 @@ create.all.Encounter.records <- function(study_name){
 }
 lapply(studies, create.all.Encounter.records)
 #--------------------------------------------------------------------------------------------------------------------------
+
 create.all.Procedure.records <- function(study_name){
     uri <- rawTablesRequest(study_name, "Procedure")
     tbl.nte <- loadData(uri[1], 
@@ -2071,4 +2114,8 @@ runTests()
 saveRData(ProcessedData)
 
 #--------------------------------------------------------------------------------------------------------------------------------
+
+#################################################    Step 5: Unit Test   #########################################################
+# use Filter function, index 479 is a good option
+
 return()

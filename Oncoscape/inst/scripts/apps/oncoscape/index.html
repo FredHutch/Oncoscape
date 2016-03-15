@@ -1027,7 +1027,7 @@ function selectManifest(event)
    selectedDataSet = datasetMenu.val();
    console.log("dataset '" + selectedDataSet + "'");
    $("#datasetsManifestTable").css("display", "none");
-   $("#loadingDatasetMessage").text("Loading Datasets...")
+   $("#loadingDatasetMessage").text("Loading Datasets...");
 
    $("#loadingDatasetMessage").css("display", "inline");
 
@@ -3560,7 +3560,7 @@ function doSearch(e)
 function displayMarkersNetwork(msg)
 {
    console.log("--- Module.markers: displayMarkersNetwork");
-	var messageText = "Loading Network...(may take 10-20 seconds)"
+	var messageText = "Loading Network...(may take 10-20 seconds)"; 
     var el = document.getElementById("loadingDatasetMessage");
 	el.innerHTML = messageText;
 		
@@ -3578,19 +3578,19 @@ function displayMarkersNetwork(msg)
            console.log("  about to add json.elements");
            cwMarkers.add(json.elements);
            // map current node degree into a node attribute of that name
-       }) 
+       });
       
    }, 100);	
 
 	window.setTimeout(function(){
-		messageText ="Mapping Edges..."
+		messageText ="Mapping Edges...";
 		el.innerHTML = messageText;
 
 		  cwMarkers.batch(function(){
 			   cwMarkers.style(json.style);
 			   cwMarkers.edges().hide();
 			   cwMarkers.nodes().unselect();
-		  })
+		  });
         
         cwMarkers.nodes().map(function(node){node.data({degree: node.degree(), trueWidth: node.width(), trueHeight: node.height()});});
         cwMarkers.filter("edge[edgeType='chromosome']").style({"curve-style": "bezier"});
@@ -4964,6 +4964,7 @@ var PCAModule = (function () {
   var testResultsOutputDiv;
 
   var patientMenu;
+
   var pcaSendSelectionMenu;
 
   var thisModulesName = "PCA";
@@ -4973,11 +4974,15 @@ var PCAModule = (function () {
   var calculatePcaButton;
   var useAllSamplesInCurrentDatasetButton;
   var geneSetMenu;
+  var expressionDataSetMenu;
   var currentIdentifiers = [];
   var infoMenu;
 
   var sendSelectionsMenuTitle = "Send selection...";
   var selectionDestinationsOfferedHere = ["PCA", "PCA (highlight)"];
+
+
+  var currentExpressionDataSet;
   var pcaMsg; 
   var highlightIndex = [];
 //----------------------------------------------------------------------------------------------------
@@ -4996,12 +5001,18 @@ function initializeUI ()
 
   calculatePcaButton = $("#pcaCalculateButton");
   calculatePcaButton.button();
-  $("#pcaDisplay").css("display", "none");
+  $("#pcaOutputDiv").css("display", "none");
   calculatePcaButton.click(calculate);
   useAllSamplesInCurrentDatasetButton = $("#pcaUseAllSamplesButton");
   useAllSamplesInCurrentDatasetButton.button();
   useAllSamplesInCurrentDatasetButton.click(useAllSamplesInCurrentDataset);
   hub.disableButton(useAllSamplesInCurrentDatasetButton);
+
+  expressionDataSetMenu = $("#pcaExpressionDataSetSelector");
+   
+   $(".pcaExpMenu").click( function(){  $(".pcaExpMenu .dropdown").slideToggle();}   );
+
+   $("#pcaExpressionDataSetSelector .flexcontainer").width($(window).width()/1.2);
 
   geneSetMenu = $("#pcaGeneSetSelector");
   geneSetMenu.change(function(){
@@ -5115,9 +5126,84 @@ function addGeneSetNamesToMenu (geneSetNames)
   postStatus("addGeneSetNamesToMenu: complete");
   hub.enableTab(thisModulesOutermostDiv);
 
-
-
 } // addGeneSetNamesToMenu
+//----------------------------------------------------------------------------------------------------
+function requestExpressionDataSetNames()
+{
+   console.log("=== requestExpressionDataNames");
+
+   callback = "pcaHandleExpressionDataSetNames";
+
+   msg = {cmd:"getExpressionDataSetNames",
+          callback: callback,
+          status:"request",
+          payload:""};
+
+   hub.send(JSON.stringify(msg));
+
+} // requestExpressionDataSetNames
+//----------------------------------------------------------------------------------------------------
+function updateExpressionData()
+{
+  currentExpressionDataSet = $(this).siblings("td").andSelf("td").eq(0).text();
+  var changedText = currentExpressionDataSet;
+  $(".pcaExpMenu a").eq(0).text(changedText);
+} // updateExpressionData
+//----------------------------------------------------------------------------------------------------
+function handleExpressionDataSetNames(msg)
+{
+   console.log("=== handleExpressionDataSetNames");
+   $(".pcaExpMenu .dropdown table").empty();
+   $(".pcaExpMenu a").eq(0).text("Choose Expression Data");
+   expManifest = msg.payload.mtx;
+   var expNames = [];
+   for(var i=0; i < expManifest.length; i++){
+     expNames.push(expManifest[i][0]);
+   }
+
+   expManifestCols = msg.payload.colnames;
+   $(".pcaExpMenu .dropdown table").append("<tr id='pcaExpManiCols'></tr>");
+   for(i=0; i<expManifestCols.length; i++){
+      var singleRecord = "<th class='strong'>" + expManifestCols[i]+
+                         "</th>";
+      $("#pcaExpManiCols").append(singleRecord);
+   }
+   addExpressionDataSetNamesToMenu(expManifest);
+} // handleExpressionDataSetNames
+//----------------------------------------------------------------------------------------------------
+function addExpressionDataSetNamesToMenu (expressionDataSetNames)
+{
+   console.log("Module.pca:addExpressionDataSetNamesToMenu");
+ 
+    //expressionDataSetMenu.empty();
+ 
+    if(expManifest.length === 0) {
+      postStatus("addExpressionDataSetNamesToMenu: expManifest.length == 0");
+      return;
+      }
+     
+    if(typeof expManifest === "string") 
+      expressionDataSetNames = [expManifest][0]; 
+    
+    var singleRecord;
+       
+    for(var i=0; i<expManifest.length; i++){
+      $(".pcaExpMenu .dropdown table").append("<tr class='pcaExpClickable' id='pcaExpMani" + i + "'></tr>");
+      for(var j=0; j<expManifest[i].length; j++){
+          singleRecord = '<td><a href="#" style="text-decoration:none">' + expManifest[i][j] + '</a></td>';
+          $("#pcaExpMani" + i).append(singleRecord);
+        } // for j
+      } // for i
+    $(".pcaExpMenu .pcaExpClickable td").click(updateExpressionData);
+
+// default: pre-select first dataset
+    $("tr#pcaExpMani0 td")[0].click()
+    $(".pcaExpMenu").click()
+  
+   postStatus("addExpressionDataSetNamesToMenu: complete");
+   hub.enableTab(thisModulesOutermostDiv);
+
+} // addExpressionDataSetNamesToMenu
 //----------------------------------------------------------------------------------------------------
 function useAllSamplesInCurrentDataset()
 {
@@ -5248,19 +5334,13 @@ function pcaPlot (msg)
       pcaScores = msg.payload.scores;
       var geneSet = msg.payload.geneSetName;
       currentIdentifiers = msg.payload.ids;
-      console.log("*****pcaPlot received msg.payload: ", msg.payload);
-      console.log("*****pcaPlot received currentIdentifier length: ", currentIdentifiers.length);
-      console.log("*****pcaPlot received pcaScores length: ", pcaScores.length);
-      console.log("*****pcaPlot geneSet length: ", geneSet.length);
       //capture message and store to a global variable for testing purpose
       pcaMsg = {selectedIDs:currentIdentifiers, pcaScores:pcaScores, geneSet:geneSet};
       pcaMsg.selectedIDs = currentIdentifiers;
       pcaMsg.pcaScores = pcaScores;
       pcaMsg.geneSet = geneSet;
+
       //for(var i = 0; i < pcaMsg.selectedIDs.length; i++) { pcaMsg.selectedIDs[i] = pcaMsg.selectedIDs[i].slice(0, 12);}
-      console.log("*****pcaPlot selectedIDs length", pcaMsg.selectedIDs.length);
-      console.log("*****pcaPlot pcaScore length", pcaMsg.pcaScores.length);
-      console.log("*****pcaPlot geneSet length", pcaMsg.geneSet.length);
       d3PcaScatterPlot(pcaScores);
 
       var pcaData = msg.payload.importance;
@@ -5294,12 +5374,7 @@ function highlightPatientIDs(msg)
    hub.raiseTab(thisModulesOutermostDiv);
 
    var candidates = msg.payload.value;
-   //var testing = msg.payload.testing;
    //pcaMsg.selectedIDs = candidates;
-   console.log("=== Module.pca, highlightPatientIDs, candidates:");
-   //console.log(JSON.stringify(candidates));
-   console.log("=== Module.pca, highlightPatientIDs, currentIdentifiers:");
-   //console.log(JSON.stringify(currentIdentifiers));
      // with currentIdentifiers (local shorter sample IDs) first, they
      // are returned:
      //   hub.intersectionOfArrays(currentIdentifiers, candidates)  ->    
@@ -5379,7 +5454,7 @@ function clearSelection()
 function calculate()
 {
    var currentGeneSet = geneSetMenu.val();
-   var payload = {genes: currentGeneSet};
+   var payload = {genes: currentGeneSet, expressionDataSet: currentExpressionDataSet};
 
    if(currentPatientIDs !== null)
        payload.samples = currentPatientIDs;
@@ -5389,7 +5464,7 @@ function calculate()
    msg = {cmd: "calculatePCA", callback: "pcaPlot", status: "request", payload: payload};
    hub.send(JSON.stringify(msg));
    $("#pcaInstructions").css("display", "none");
-   $("#pcaDisplay").css("display", "block");
+   $("#pcaOutputDiv").css("display", "block");
 } // calculate
 //----------------------------------------------------------------------------------------------------
 function handlePatientIDs(msg)
@@ -5400,11 +5475,15 @@ function handlePatientIDs(msg)
      var currentGeneSet = geneSetMenu.val();
      var selectedPatientIdentifiers = msg.payload.value;
      currentPatientIDs = msg.payload.value;
-     console.log("*****handlePatientIDs received patientID length: ", currentPatientIDs.length);
-     var payload = {samples: currentPatientIDs, genes: currentGeneSet};
+     var payload = {samples: currentPatientIDs, genes: currentGeneSet,  expressionDataSet: currentExpressionDataSet};
+
      msg = {cmd: "calculatePCA", callback: "pcaPlot", status: "request", payload: payload};
-     hub.enableButton(useAllSamplesInCurrentDatasetButton);
      hub.send(JSON.stringify(msg));
+
+     hub.enableButton(useAllSamplesInCurrentDatasetButton);
+     $("#pcaInstructions").css("display", "none");
+     $("#pcaOutputDiv").css("display", "block");
+
      }
    else{
      alert("Module.pca handlePatientIDs error: " + JSON.stringify(msg));
@@ -5582,17 +5661,20 @@ function datasetSpecified(msg)
         // TODO: this needs to be a user menu selection (29 jun 2015)
       var lastHit = hits.length - 1;
       matrixName = hits[lastHit].replace(".RData", "");
-      }
-   else{
+      //matrixName = expressionDataSetMenu.val();
+    }else{
       alert("No mtx.mrna in dataset '" + dataPackageName + "'");
       hub.disableButton(calculatePcaButton);
       return;
       }
-
+   currentExpressionDataSet = matrixName;
+   console.log("***** currentExpressionDataSet is ", currentExpressionDataSet);
    console.log("== calling createPcaObjectOnServer");
    createPcaObjectOnServer(dataPackageName, matrixName);
-
+   
    d3pcaDisplay.select("#pcaSVG").remove();  // so that old layouts aren't mistaken for new dataset
+   $("#pcaInstructions").css("display", "block");
+   $("#pcaOutputDiv").css("display", "none");
 
 } // datasetSpecified
 //--------------------------------------------------------------------------------------------
@@ -5615,8 +5697,10 @@ function pcaObjectCreated(msg)
 
    if(msg.status == "response"){
       requestGeneSetNames();
-    }else
+      requestExpressionDataSetNames();
+   }else{
       alert("PCA module failed to create PCA object on server");
+   }
 
 } // pcaObjectCreated
 //--------------------------------------------------------------------------------------------
@@ -5655,6 +5739,26 @@ function demoPcaCalculateAndDraw(msg)
 
 } // demoPcaCalculateAndDraw
 //----------------------------------------------------------------------------------------------------
+
+function runTests()
+{
+  // the test does not currently depend upon any other tabs, but we want to add some
+  // real world complexity to the situation, so we use tabs, including cpa (of course)
+  // and the usual introcutory "Datasets" tab.  make sure it is there.
+  // tests depend upon the presence of 2 tabs in addition to the present one.
+
+  var datasetsTabPresent = $("#datasetsDiv").length > 0;
+
+  if(!datasetsTabPresent){
+     alert("Datasets tab needed for QUnit testing");
+     return;
+     } // check for other needed tabs
+
+   testResultsOutputDiv.css({display: "block"});
+   testLoadDataset();
+
+} // runTests
+//--------------------------------------------------------------------------------------------
 // query the oncoscape server for user id.  the callback then makes a local (that is,
 // Module-specific) decision to run this module's automated tests based upon that id
 //
@@ -5672,7 +5776,7 @@ function assessUserIdForTesting(msg)
    var userID = msg.payload;
 
    if(userID.indexOf("autoTest") === 0){
-      console.log("plsr/Module.js running tests for user " + userID);
+      console.log("pca/Module.js running tests for user " + userID);
       for(var i=0; i < 3; i++)
           runTests();
       } // if autoTest
@@ -5693,9 +5797,11 @@ function initializeModule()
    hub.addMessageHandler("sendSelectionTo_PCA (highlight)", highlightPatientIDs);
    hub.addMessageHandler("pcaObjectCreated", pcaObjectCreated);
    hub.addMessageHandler("pcaHandleGeneSetNames", handleGeneSetNames);
+   hub.addMessageHandler("pcaHandleExpressionDataSetNames", handleExpressionDataSetNames);
    hub.addMessageHandler("pcaPlot", pcaPlot);
    hub.addMessageHandler("demoPcaCalculateAndDraw", demoPcaCalculateAndDraw);
-   //hub.addMessageHandler("pcaAssessUserIdForTesting", assessUserIdForTesting);
+   hub.addMessageHandler("pcaAssessUserIdForTesting", assessUserIdForTesting);
+
    //hub.addSocketConnectedFunction(runAutomatedTestsIfAppropriate);
 
    //hub.addMessageHandler("handlePatientClassification", handlePatientClassification)
@@ -5748,6 +5854,7 @@ var PLSRModule = (function () {
   var currentlySelectedRegion;
   var thisModuleName = "PLSR";
   var geneSetMenu;
+  var expressionDataSetMenu;
 
   var thisModulesName = "PLSR";
   var thisModulesOutermostDiv = "plsrDiv";
@@ -5758,6 +5865,7 @@ var PLSRModule = (function () {
   var selectionDestinationsOfferedHere = ["PLSR (highlight)"];
  
   var expressionDataSetName = "";
+  var currentExpressionDataSet;
   var plsrMsg = {}; 
 
 //--------------------------------------------------------------------------------------------
@@ -5782,7 +5890,11 @@ function initializeUI ()
    hub.disableButton(calculateButton);
 
    geneSetMenu = $("#plsrGeneSetSelector");
+   expressionDataSetMenu = $("#plsrExpressionDataSetSelector");
+   
+   $(".plsrExpMenu").click(	 function(){$(".plsrExpMenu .dropdown").slideToggle();	 }   );
 
+   $("#plsrExpressionDataSetSelector .flexcontainer").width($(window).width()/1.2);
    clearSelectionButton = $("#plsrClearSelectionButton");
    clearSelectionButton.button();
    clearSelectionButton.click(clearSelection);
@@ -5792,18 +5904,14 @@ function initializeUI ()
                                                         selectionDestinationsOfferedHere,
                                                         sendSelections,
                                                         sendSelectionsMenuTitle);
-   //hub.disableButton(sendSelectionMenu);
    
-   //setupSliders();
-
    testResultsOutputDiv = $("#plsrTestingOutputDiv");
 
    $(window).resize(handleWindowResize);
    handleWindowResize();
    
    hub.disableTab(thisModulesOutermostDiv);
-
-
+   
 } // initializeUI
 //--------------------------------------------------------------------------------------------
 function addGeneSetNamesToMenu (geneSetNames)
@@ -5814,7 +5922,7 @@ function addGeneSetNamesToMenu (geneSetNames)
       }
    
   if(typeof geneSetNames == "string") 
-     geneSetNames = [geneSetNames]; 
+   	 geneSetNames = [geneSetNames];
 
       
    for(var i=0; i < geneSetNames.length; i++){
@@ -5861,6 +5969,7 @@ function handleAgeAtDxAndSurvivalRanges(msg)
 
      // now that sliders are set up, setup the geneSetName selector
    requestGeneSetNames();
+   requestExpressionDataSetNames();
 
 } // handleAgeAtDxAndSurvivalRanges 
 //--------------------------------------------------------------------------------------------------
@@ -5879,6 +5988,15 @@ function sendSelections()
 
 } // sendSelections
 //--------------------------------------------------------------------------------------------------
+function updateExpressionData()
+{
+  console.log("***** within updateExpressionData");
+  currentExpressionDataSet = $(this).siblings("td").andSelf("td").eq(0).text();
+	console.log("***** currentExpressionDataSet is ", currentExpressionDataSet);
+  var changedText = currentExpressionDataSet;
+  $(".plsrExpMenu a").eq(0).text(changedText);
+}
+//--------------------------------------------------------------------------------------------------
 function requestPLSRByOnsetAndSurvival()
 {
   ageAtDxMinThreshold = Number(ageAtDxMinSliderReadout.val()) * 365.24;
@@ -5887,7 +6005,7 @@ function requestPLSRByOnsetAndSurvival()
   survivalMaxThreshold = Number(survivalMaxSliderReadout.val()) * 365.24;
 
   var currentGeneSetName = geneSetMenu.val();
-
+  
   factor1 = {name: "AgeDx", 
              low: ageAtDxMinThreshold, 
              high: ageAtDxMaxThreshold};
@@ -5897,9 +6015,10 @@ function requestPLSRByOnsetAndSurvival()
              high: survivalMaxThreshold};
   
   payload = {genes: currentGeneSetName, 
+             expressionDataSet: currentExpressionDataSet,
              factorCount: 2, 
              factors: [factor1, factor2]};
-  
+  console.log("***** requestPLSRByOnsetAndSurvival payload: ", payload);
   msg = {cmd: "calculatePLSR", callback: "handlePlsrResults", status: "request", payload: payload};
   msg.json = JSON.stringify(msg);
 
@@ -6190,7 +6309,6 @@ function clearSelection()
 
 } // clearSelection
 //----------------------------------------------------------------------------------------------------
-
 function highlightGenes(msg)
 {
    hub.raiseTab(thisModulesOutermostDiv);
@@ -6241,6 +6359,83 @@ function handleGeneSetNames(msg)
 
 } // handleGeneSetNames
 //--------------------------------------------------------------------------------------------
+function requestExpressionDataSetNames()
+{
+   console.log("=== requestExpressionDataNames");
+
+   callback = "plsrHandleExpressionDataSetNames";
+
+   msg = {cmd:"getExpressionDataSetNames",
+          callback: callback,
+          status:"request",
+          payload:""};
+
+   hub.send(JSON.stringify(msg));
+
+} // requestExpressionDataSetNames
+//----------------------------------------------------------------------------------------------------
+function handleExpressionDataSetNames(msg)
+{
+   console.log("=== handleExpressionDataSetNames");
+   $(".plsrExpMenu .dropdown table").empty();
+   $(".plsrExpMenu a").eq(0).text("Choose Expression Data");
+   expManifest = msg.payload.mtx;
+   console.log("***** after grabbing manifest matrix: ", expManifest);
+   var expNames = [];
+   for(var i=0; i < expManifest.length; i++){
+     expNames.push(expManifest[i][0]);
+   }
+
+   expManifestCols = msg.payload.colnames;
+   $(".plsrExpMenu .dropdown table").append("<tr id='plsrExpManiCols'></tr>");
+   for(i=0; i<expManifestCols.length; i++){
+      var singleRecord = "<th class='strong'>" + expManifestCols[i]+
+                         "</th>";
+      $("#plsrExpManiCols").append(singleRecord);
+   }
+   console.log("***** expression dataset Names are: ", expNames);
+   //addExpressionDataSetNamesToMenu(expNames);
+   addExpressionDataSetNamesToMenu(expManifest);
+
+} // handleExpressionDataSetNames
+ //----------------------------------------------------------------------------------------------------
+ function addExpressionDataSetNamesToMenu (expManifest)
+ {
+    console.log("Module.plsr:addExpressionDataSetNamesToMenu");
+ 
+    //expressionDataSetMenu.empty();
+ 
+    if(expManifest.length === 0) {
+      postStatus("addExpressionDataSetNamesToMenu: expManifest.length == 0");
+      return;
+      }
+     
+    if(typeof expManifest === "string") 
+      expressionDataSetNames = [expManifest][0]; 
+    
+    var singleRecord;
+       
+    for(var i=0; i<expManifest.length; i++){
+      $(".plsrExpMenu .dropdown table").append("<tr class='plsrExpClickable' id='plsrExpMani" + i + "'></tr>");
+      for(var j=0; j<expManifest[i].length; j++){
+          singleRecord = '<td><a href="#" style="text-decoration:none">' + expManifest[i][j] + '</a></td>';
+          $("#plsrExpMani" + i).append(singleRecord);
+          console.log("***** single Records in plsr", singleRecord);
+        } // for j
+      } // for i
+    $(".plsrExpMenu .plsrExpClickable td").click(updateExpressionData);
+
+// default: pre-select first dataset
+    $("tr#plsrExpMani0 td")[0].click()
+    $(".plsrExpMenu").click()
+
+  
+   postStatus("addExpressionDataSetNamesToMenu: complete");
+   hub.enableTab(thisModulesOutermostDiv);
+
+ 
+ } // addExpressionDataSetNamesToMenu
+//----------------------------------------------------------------------------------------------------
 // when a dataset is specified, this module 
 //  1) extracts the name of the dataset from the payload of the incoming msg
 //  2) (for now) extracts the name of the matrices, from the manifest (also in the payload
@@ -6276,6 +6471,7 @@ function datasetSpecified(msg)
       matrixName = hits[lastHit].replace(".RData", "");
       }
    else{
+      alert("No mtx.mrna in dataset '" + dataPackageName + "'");    
       hub.disableButton(calculateButton);
       return;
       }
@@ -6311,7 +6507,7 @@ function requestSliderRanges(msg)
 //--------------------------------------------------------------------------------------------
 // query the oncoscape server for user id.  the callback then makes a local (that is,
 // Module-specific) decision to run this module's automated tests based upon that id
-function runAutomatedTestsIfAppropriate()
+/*function runAutomatedTestsIfAppropriate()
 {
    var msg = {cmd: "getUserId",  callback: "plsrAssessUserIdForTesting",
               status: "request", payload: ""};
@@ -6330,20 +6526,21 @@ function assessUserIdForTesting(msg)
       plsrTester.run();
       } // if autoTest
 
-} // assessUserIdForTesting
+} // assessUserIdForTesting*/
 //----------------------------------------------------------------------------------------------------
 function initializeModule()
 {
    hub.addOnDocumentReadyFunction(initializeUI);
    hub.registerSelectionDestination(selectionDestinationsOfferedHere, thisModulesOutermostDiv);
+   hub.addMessageHandler("plsrHandleExpressionDataSetNames", handleExpressionDataSetNames);
    hub.addMessageHandler("plsrHandleGeneSetNames", handleGeneSetNames);
    hub.addMessageHandler("handlePlsrResults", handlePlsrResults);
    hub.addMessageHandler("handleAgeAtDxAndSurvivalRanges", handleAgeAtDxAndSurvivalRanges);
    hub.addMessageHandler("datasetSpecified", datasetSpecified);
    hub.addMessageHandler("sendSelectionTo_PLSR (highlight)", highlightGenes);
    hub.addMessageHandler("plsrObjectCreated", requestSliderRanges);
-   hub.addMessageHandler("plsrAssessUserIdForTesting", assessUserIdForTesting);
-   hub.addSocketConnectedFunction(runAutomatedTestsIfAppropriate);
+   //hub.addMessageHandler("plsrAssessUserIdForTesting", assessUserIdForTesting);
+   //hub.addSocketConnectedFunction(runAutomatedTestsIfAppropriate);
 
 } // initializeModule
 //--------------------------------------------------------------------------------------------
@@ -6952,7 +7149,7 @@ ul.UserDocs {
    <div align="center" class="jumbotron"> 
        <div id="oncoscapeLogo" >	<img width="375" src="http://oncoscape-static.s3-website-us-west-2.amazonaws.com/images/oncoscape_logo_FINAL.png" alt="Oncoscape"/></div>
 
-       <span> (version 1.4.93, December 10th, 2015)<br></span>
+       <span> (version 1.4.94, March 10th, 2016)<br></span>
        <p> <font color="red">This website is undergoing frequent modification.  <br> User beware!</font></p>
    </div>   
  
@@ -7564,21 +7761,83 @@ color: #808080;
  cursor: pointer;
 }
 
+.pcaExpMenu {
+    list-style:none;
+    padding:0px 10px 0px 10px;
+    float:left;
+    display:block;
+    text-align:center;
+    position:relative;
+    margin:3px 0px 0;
+    border:none;
+    margin-top: 0px !important;
+}
+
+.pcaExpMenu .dropdown {
+    margin:-1px auto  0 200px;
+    float:left;
+    position:absolute;
+    text-align:left;
+    padding:10px 5px 10px 5px;
+    border:1px solid #dedede;
+    background:#fff;
+    z-index:999;
+    display:none;
+}
+
+.pcaExpMenu p {
+    text-align:left;
+}
+
+.pcaExpMenu .dropdown table{
+    border-collapse: collapse;
+}
+
+.strong {
+    font-weight:bold;
+}
+
+.pcaExpMenu button{
+    height: 31px;
+    color: rgb(128, 128, 128);
+    background-color: lightgray;
+    border: 1px solid #d3d3d3;
+    background: #CBCBCB;
+    display: inline-block;
+    position: relative;
+    padding: 0;
+    margin-right: .1em;
+    text-decoration: none !important;
+    cursor: pointer;
+    text-align: center;
+    zoom: 1;
+    overflow: visible;
+}
 
 </style>
 
 <div id="pcaDiv" class="container-fluid">
    <div id="pcaStatusDiv" style="display:none"></div>
    <div id="pcaControlsDiv">
-       <button id="pcaClearSelectionButton" style="margin-bottom: 5px;">Clear Selection</button>
-       <select class="SelectionMenu" id="pcaGeneSetSelector" style="margin-bottom: 5px;"></select>
-       <button id="pcaCalculateButton" style="margin-bottom: 5px;">Calculate</button>
-       <button id="pcaUseAllSamplesButton" style="margin-bottom: 5px;">Use All Samples in Current Dataset</button>
-       <select class= "SelectionMenu" type="button" id="pcaSendSelectionsMenu" style="float:right; margin-right:15px"></select>
+    	  <span style="float:left">
+	       <button id="pcaClearSelectionButton" style="margin-bottom: 5px;">Clear Selection</button>
+    	  </span>
+	      <span class="pcaExpMenu" id="pcaExpressionDataSetSelector" style="height:20px; margin-top:15px; margin-left:3px;">
+            <button class="ui-button ui-widget ui-state-default ui-corner-all ui-button-text-only"><a href="#">Choose Expression Data</a></button>
+            <div class="dropdown">
+                <table class="dropdownTable"></table>
+             </div>   
+          </span>
+		<span style="float:left">
+		   <select class="SelectionMenu" id="pcaGeneSetSelector" style="margin-bottom: 5px;"></select>
+		   <button id="pcaCalculateButton" style="margin-bottom: 5px;">Calculate</button>
+		   <button id="pcaUseAllSamplesButton" style="margin-bottom: 5px;">Use All Samples in Current Dataset</button>
+       </span>
+        <select class= "SelectionMenu" type="button" id="pcaSendSelectionsMenu" style="float:right; margin-right:15px"></select>
    </div>
 
-   <div id="pcaInstructions">Please select a gene set from the above menu and click the 'Calculate' button.</div>
-   <div id="pcaOutputDiv">
+   <div id="pcaInstructions" style="clear:both">Please select an expression data set and a gene set from the above menus and click the 'Calculate' button.</div>
+   <div id="pcaOutputDiv"  style="clear:both">
       <div id="pcaDisplay"></div>
       <div id="pcaLegend"></div>
       <div id="pcaTextDisplayDiv"></div>
@@ -7657,9 +7916,10 @@ color: #808080;
   }
 
 
-#plsrButtonDiv {
+#plsrButtonDiv{
    padding-botton: 30px;
    }
+
 #plsrAgeAtDxSlider .ui-widget-header { border: 1px solid #fff; background: #fff; }
 #plsrAgeAtDxSlider {  background: #E8E8E8; }
 #plsrSurvivalSlider .ui-widget-header { border: 1px solid #fff; background: #fff; }
@@ -7668,12 +7928,64 @@ color: #808080;
 #plsrAgeAtDxSlider {
 background:#ABD3E8;
 }
+
 #plsrSurvivalSlider {
 background:#ABD3E8;
 }
 
-</style>
+.plsrExpMenu {
+    list-style:none;
+    padding:0px 10px 0px 10px;
+    float:left;
+    display:block;
+    text-align:center;
+    position:relative;
+    margin:3px 0px 0;
+    border:none;
+    margin-top: 0px !important;
+}
 
+.plsrExpMenu .dropdown {
+    margin:-1px auto  0 -500px;
+    float:left;
+    position:absolute;
+    text-align:left;
+    padding:10px 5px 10px 5px;
+    border:1px solid #dedede;
+    background:#fff;
+    z-index:999;
+    display:none;
+}
+
+.plsrExpMenu p {
+    text-align:left;
+}
+
+.plsrExpMenu .dropdown table{
+    border-collapse: collapse;
+}
+
+.strong {
+    font-weight:bold;
+}
+
+.plsrExpMenu button{
+    height: 50px;
+    color: rgb(128, 128, 128);
+    background-color: lightgray;
+    border: 1px solid #d3d3d3;
+    background: #CBCBCB;
+    display: inline-block;
+    position: relative;
+    padding: 0;
+    margin-right: .1em;
+    text-decoration: none !important;
+    cursor: pointer;
+    text-align: center;
+    zoom: 1;
+    overflow: visible;
+}
+</style>
 
 <div id="plsrDiv" style="padding:0px; padding-top: 5px;">
    <div id="plsrStatusDiv" style="display:none"></div>
@@ -7707,15 +8019,24 @@ background:#ABD3E8;
 
        <div id="plsrCalculateButtonDiv" class="flex-container" style="margin-right: auto; margin-top:15px;">
           <button id="plsrClearSelectionButton" style="height:50px;">Clear<br>Selection</button>
-          <button id="plsrCalculateButton" style="height:50px;">Calculate</button>
+          
+          <div class="plsrExpMenu" id="plsrExpressionDataSetSelector" style="height:20px; margin-top:15px; margin-left:3px;">
+            <button class="ui-button ui-widget ui-state-default ui-corner-all ui-button-text-only"><a href="#">Choose Expression Data</a></button>
+            <div class="dropdown">
+                <table class="dropdownTable"></table>
+             </div>   
+          </div>
+
           <select class="SelectionMenu" id="plsrGeneSetSelector" style="height:20px; margin-top:15px; margin-left:3px;" class="navbar-form selectpicker" ></select>
+          <button id="plsrCalculateButton" style="height:50px;">Calculate</button>
+          
        </div>
       <div id="plsrSendSelectionsMenuDiv" style="margin-right:10px; margin-top: 25px;">
          <select class="SelectionMenu" id="plsrSendSelectionsMenu" type="button" style="margin-top: 7px;"></select>
       </div>
   </div>
   <div id="plsrInstructions">
-    <p>Please adjust the sliders specifying Age at Diagnosis and Survival ranges, select the desired gene set from dropdown menu, then click 'Calculate' to display the PLSR result.</p>
+    <p>Please adjust the sliders specifying Age at Diagnosis and Survival ranges, select the desired expression dataset and gene set from dropdown menu, then click 'Calculate' to display the PLSR result.</p>
   </div>
   <div id="plsrDisplay" style="margin:0 auto; display: none"></div>
 
