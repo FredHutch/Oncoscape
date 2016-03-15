@@ -5,11 +5,7 @@ Version: 0.99.11
 Date: 2015-12-14
 Author: Paul Shannon
 Maintainer: Paul Shannon <pshannon@fredhutch.org>
-<<<<<<< HEAD:r_modules/dataPackages/NetworkMaker/DESCRIPTION
 Depends: R (>= 3.2.2), SttrDataPackage, PatientHistory, RCyjs (>= 1.1.33)
-=======
-Depends: R (>= 3.2.1), SttrDataPackage, PatientHistory, RCyjs
->>>>>>> ae59845bfcccb430e4981f1a0e7f84fd035a3def:dataPackages/NetworkMaker/DESCRIPTION
 Imports: methods, BiocGenerics, org.Hs.eg.db, TxDb.Hsapiens.UCSC.hg19.knownGene, GWASTools
 Suggests: RUnit
 Description: Construct a "genes and samples" network from clinical and molecular data

@@ -9,14 +9,8 @@ RUN apt-key adv --keyserver keyserver.ubuntu.com --recv-keys 51716619E084DAB9
 
 # Update the system and install packages
 RUN apt-get -y -qq update && apt-get -y -qq install \
-<<<<<<< HEAD
-
 	r-base=3.2.2* \
     r-recommended=3.2.2-1trusty0* \
-=======
-        r-base=3.2.2* \
-        r-recommended=3.2.2-1trusty0* \
->>>>>>> f8569841395b0de355cf53c3a50312de0bdb5325
 	make \
 	gcc \
 	g++ \

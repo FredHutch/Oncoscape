@@ -49,7 +49,7 @@
                 var svgHeight = $("#timelines-chart").height();
                 var rowHeight = 0;
                 var svg = d3.select('#timelines-chart').append("svg")
-                    .attr("width", svgWidth)
+                    .attr("width", "100%")
                     .attr("height", svgHeight);
                         
 
@@ -60,15 +60,10 @@
                     rowHeight = Math.floor(svgHeight / patients.length);
                     if (rowHeight<0) rowHeight = 2;
                     if (rowHeight>25) rowHeight = 25;
-                    /* $(".timelines-lbl-feature").css({
-                        'position':'absolute',
-                        'left':'150px',
-                        'top':'90px'
-                    });
-                    */
+                
                     $(".timelines-lbl-events").css({
                         
-                        'top' : ((patients.length * rowHeight)+ 100) + 'px'
+                        'top' : ((patients.length * rowHeight) + 100) + 'px'
                      });
 
                     svg.selectAll("rect.lines")

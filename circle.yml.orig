@@ -9,14 +9,8 @@ dependencies:
 
 test:
   override:
-<<<<<<< HEAD
-    - docker run -d -p 80:7777 --name oncoscape-$CIRCLE_SHA1 fredhutch/oncoscape:$CIRCLE_SHA1; sleep 120
-    - curl --retry 10 --retry-delay 10 -v http://localhost:80
-    - sudo lxc-attach -n "$(docker inspect --format '{{.Id}}' oncoscape-$CIRCLE_SHA1)" -- bash -c "export ONCOSCAPE_USER_DATA_STORE=file:///home/sttrweb/data; cd /home/sttrweb/Oncoscape && make citest"
-=======
     - docker run -d -p 80:80 --name oncoscape-$CIRCLE_SHA1 fredhutch/oncoscape:$CIRCLE_SHA1; sleep 120
     - curl --retry 10 --retry-delay 10 -v http://localhost:80
->>>>>>> f8569841395b0de355cf53c3a50312de0bdb5325
 
 deployment:
   master: 

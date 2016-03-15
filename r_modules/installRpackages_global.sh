@@ -25,18 +25,12 @@ R --vanilla CMD INSTALL --no-test-load --no-lock TCGApaad
 R --vanilla CMD INSTALL --no-test-load --no-lock NetworkMaker
 
 cd ../analysisPackages
-<<<<<<< HEAD:r_modules/installRpackages_global.sh
 R --vanilla CMD INSTALL --no-test-load --no-lock PCA
 R --vanilla CMD INSTALL --no-test-load --no-lock PLSR
 
 cd ../RInside
 R --vanilla CMD INSTALL --no-test-load --no-lock .
 
-=======
-R  --vanilla CMD INSTALL --no-test-load --no-lock PCA
-R  --vanilla CMD INSTALL --no-test-load --no-lock PLSR
- 
->>>>>>> ae59845bfcccb430e4981f1a0e7f84fd035a3def:installRpackages_global.sh
 cd ../Oncoscape
 R  --vanilla CMD INSTALL --no-test-load --no-lock .
 

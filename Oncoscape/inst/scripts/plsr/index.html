@@ -1043,13 +1043,6 @@ function selectManifest(event)
    $("#datasetsManifestTable").css("display", "none");
 
    if(selectedDataSet === ""){
-<<<<<<< HEAD
-      $("#datasetInstructions").css("display", "block");
-      hub.disableButton(useThisDatasetButton);
-      }
-    else{
-      $("#datasetInstructions").css("display", "none");
-=======
       $("#datasetInstructions").css("display", "block")
       $("#datasetsManifestTable").css("display", "none")
       hub.disableButton(useThisDatasetButton);
@@ -1057,7 +1050,6 @@ function selectManifest(event)
     else{
       $("#datasetInstructions").css("display", "none")
       $("#datasetsManifestTable").css("display", "block")      
->>>>>>> 718ca855b3d1b294378d93894c2833c8266fec9d
       requestDataSetSummary(selectedDataSet);
     }
 
@@ -1172,13 +1164,9 @@ function specifyCurrentDataset()
 {
    console.log("Module.datasets 'Use Dataset' button clicked, specifyCurrentDataset: " + selectedDataSet);
  
-<<<<<<< HEAD
-   hub.disableAllTabsExcept([thisModulesOutermostDiv, "userDataStoreDiv", "ericTestDiv", "DashboardDiv"]);
-   $("#loadingDatasetMessage").css("display", "inline");
-=======
+
    hub.disableAllTabsExcept([thisModulesOutermostDiv, "userDataStoreDiv", "ericTestDiv"])
 	$("#loadingDatasetMessage").css("display", "inline")
->>>>>>> 718ca855b3d1b294378d93894c2833c8266fec9d
 	
    var msg = {cmd: "specifyCurrentDataset",  callback: "datasetSpecified", 
               status: "request", payload: selectedDataSet};
