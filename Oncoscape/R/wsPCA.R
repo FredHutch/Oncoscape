@@ -34,7 +34,7 @@ ws.createPCA <- function(ws, msg)
    eval(parse(text=cmd))
    state[["mypca"]] <- mypca
    printf("ws.createPCA just executed '%s'", cmd)
-   printf("resulting mypca object:");
+   printf("resulting mypca object:")
    print(pcaDataSummary(mypca))
    
    response <- pcaDataSummary(mypca)
@@ -72,24 +72,29 @@ ws.calculatePCA <- function(ws, msg)
    samples <- NA
    if("samples" %in% names(msg$payload))
       samples <- msg$payload$samples;
+  
+   currentDataSetName <- state[["currentDatasetName"]]
+   ds <- datasets[[currentDataSetName]]
+   matrixName = msg$payload$expressionDataSet
+   cmd <- sprintf("mypca <- PCA(ds, '%s')", matrixName)
+   printf("*****cmd is: %s", cmd)
+   eval(parse(text=cmd))
+   state[["mypca"]] <- mypca
 
 
-   mypca <- state[["mypca"]]
-   
    x <- calculate(mypca, genes, samples)
      # fashion a 3-column data.frame nicely suited to use with d3: gene, PC1, PC2
      # add two more scalar field: pc1.varianceAccountedFor, pc2.varianceAccounted for
    
-   mtx.loadings <- as.matrix(x$scores[, 1:2])
-   ids = x$sampleIDs;
+   mtx.scores <- as.matrix(x$scores[, 1:2])
+   ids <- x$sampleIDs
    max.value <- max(abs(c(x$scores[,1], x$scores[,2])))
    importance.PC1 = x$importance["Proportion of Variance", "PC1"]
    importance.PC2 = x$importance["Proportion of Variance", "PC2"]
    
-   payload <- list(scores=mtx.loadings, ids=ids, maxValue=max.value,
+   payload <- list(scores=mtx.scores, ids=ids, maxValue=max.value,
                    importance.PC1=importance.PC1,
                    importance.PC2=importance.PC2, geneSetName=genes)
-   printf("***** within ws.calculatePCA payload.geneSetName is %s ", payload$geneSetName)
 
 
    json <- jsonlite::toJSON(list(cmd=msg$callback, callback="", status="success", payload=payload),

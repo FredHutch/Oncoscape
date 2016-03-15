@@ -210,8 +210,15 @@ ws.calculatePCA <- function(ws, msg)
 
    samples <- NA
    if("samples" %in% names(msg$payload))
-      samples <- msg$payload$samples;
-
+      samples <- msg$payload$samples
+   if(exists("ds") == FALSE) {
+      datasetName <- "DEMOdz"
+      eval(parse(text=sprintf("ds <- %s()", datasetName)))
+   }
+   matrixName = msg$payload$expressionDataSet
+   cmd <- sprintf("mypca <- PCA(ds, '%s')", matrixName);
+   printf("*****cmd is: %s", cmd)
+   eval(parse(text=cmd))
 
    x <- calculate(mypca, genes, samples)
      # fashion a 3-column data.frame nicely suited to use with d3: gene, PC1, PC2
