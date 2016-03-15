@@ -824,8 +824,7 @@ if(PROGRESSION){
 	}		
 } # End of Progression Native Functions
 #----------------------   Encounter functions Start Here   ------------------------
-#----------------------   brca, hnsc, prad DO NOT HAVE ENCOUNTER RECORDS! ------------------------
-if(ENCOUNTER){
+if(ENCOUNTER){ # brca, hnsc, prad DO NOT HAVE ENCOUNTER RECORDS!
   Encounter.unique.request <- function(study_name){   
     uri <- rawTablesRequest(study_name, "Encounter")
     #(tbl.pt 'encType','karnofsky_score','ECOG only in gbm,lgg,luad,lusc)
@@ -1025,8 +1024,8 @@ if(ENCOUNTER){
     return(df)
   } 
   #----------------------     Encounter functions End Here      --------------------------
-}
-#----------------------     Procedure functions End Here      --------------------------
+} # Encounter functions End Here 
+#----------------------Procedure functions Start Here     --------------------------
 if(PROCEDURE){
   Procedure.unique.request <- function(study_name){
     uri <- rawTablesRequest(study_name, "Procedure")
@@ -1241,8 +1240,9 @@ if(PROCEDURE){
     df$site<- mapvalues(df$new_tumor_event_surgery, from = from, to = to, warn_missing = T)
     return(df)
   }	
-  #--------------------------------------------------------------------------------
-################################################     Step 4: Generate Result    ##################################################
+#----------------------     Procedure functions End Here      --------------------------
+} #Procedure functions End Here
+  ################################################     Step 4: Generate Result    ##################################################
 create.all.DOB.records <- function(study_name){
 	uri <- rawTablesRequest(study_name, "DOB")
 	data.DOB <- loadData(uri, 
@@ -1690,7 +1690,6 @@ create.all.Encounter.records <- function(study_name){
 }
 lapply(studies, create.all.Encounter.records)
 #--------------------------------------------------------------------------------------------------------------------------
-
 create.all.Procedure.records <- function(study_name){
     uri <- rawTablesRequest(study_name, "Procedure")
     tbl.nte <- loadData(uri[1], 
