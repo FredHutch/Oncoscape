@@ -93,7 +93,25 @@ rawTablesRequest <- function(study, table){
              paste(TCGAfilename[TCGAfilename$study==study,]$directory, 
                    TCGAfilename[TCGAfilename$study==study,]$f1, sep="/")))
   }
-}
+
+  if(table == "Procedure"){
+    return(c(paste(TCGAfilename[TCGAfilename$study==study,]$directory, 
+                   TCGAfilename[TCGAfilename$study==study,]$nte, sep="/"),
+             paste(TCGAfilename[TCGAfilename$study==study,]$directory, 
+                   TCGAfilename[TCGAfilename$study==study,]$omf, sep="/"),
+             ifelse(is.na(TCGAfilename[TCGAfilename$study==study,]$pt), 
+                    NA,
+                    paste(TCGAfilename[TCGAfilename$study==study,]$directory, 
+                          TCGAfilename[TCGAfilename$study==study,]$pt, sep="/")),
+             ifelse(is.na(TCGAfilename[TCGAfilename$study==study,]$f1), 
+                    NA,
+                    paste(TCGAfilename[TCGAfilename$study==study,]$directory, 
+                          TCGAfilename[TCGAfilename$study==study,]$f1, sep="/")),
+             ifelse(is.na(TCGAfilename[TCGAfilename$study==study,]$nte_f1), 
+                    NA,
+                    paste(TCGAfilename[TCGAfilename$study==study,]$directory, 
+                          TCGAfilename[TCGAfilename$study==study,]$nte_f1, sep="/"))))
+  }
 #--------------------------------------------------------------------------------
 loadData <- function(uri, columns){
   
@@ -668,7 +686,7 @@ if(STATUS){
 #----------------------   Encounter functions Start Here   ------------------------
 #----------------------   brca, hnsc, prad DO NOT HAVE ENCOUNTER RECORDS! ------------------------
 if(ENCOUNTER){
-  Encounter.unique.request <- function(study_name){
+  Encounter.unique.request <- function(study_name){   
     uri <- rawTablesRequest(study_name, "Encounter")
     #(tbl.pt 'encType','karnofsky_score','ECOG only in gbm,lgg,luad,lusc)
     tbl.pt <- loadData(uri[1],  
@@ -697,8 +715,9 @@ if(ENCOUNTER){
                                ))
     
     # reorganize two tbls 
-    data.Encounter <- merge(tbl.f1, tbl.pt, by = "PatientID", all.x = T)
-
+    data.Encounter <- rbind.fill(tbl.pt, tbl.f1)
+    #colnames(data.Encounter)
+    
     df <- data.Encounter
     unique.encType<- unique(df$encType)
     unique.KPS <- unique(df$KPS)
@@ -728,7 +747,7 @@ if(ENCOUNTER){
     return(result)
   }
   #--------------------------------------------------------------------------------
-  res_list. = lapply(studies, Encounter.unique.request)
+  res_list. = lapply(studies, Encounter.unique.request) 
   
   Encounter.unique.aggregate <- function(res1, res2){
     res = list(unique.encType=unique(c(res1$unique.encType,res2$unique.encType)),
@@ -746,7 +765,7 @@ if(ENCOUNTER){
     return(res)
   }
   #-------------------------------------------------------------------------------------------------------------------------
-  Encounter.unique.values <- Reduce(Encounter.unique.aggregate, lapply(studies, Encounter.unique.request))
+  Encounter.unique.values <- Reduce(Encounter.unique.aggregate, lapply(studies,Encounter.unique.request))
   Encounter.unique.encType <- Encounter.unique.values$unique.encType
   #[1] "[NOT AVAILABLE]"      "PRE-OPERATIVE"         "PRE-ADJUVANT THERAPY"  "POST-ADJUVANT THERAPY"
   #[5] "OTHER"                "[NOT EVALUATED]"       "ADJUVANT THERAPY"      "[DISCREPANCY]" 
@@ -867,7 +886,67 @@ if(ENCOUNTER){
   #----------------------     Encounter functions End Here      --------------------------
 }
 
+#----------------------     Procedure functions End Here      --------------------------
+if(PROCEDURE){
+  Procedure.unique.request <- function(study_name){
+    uri <- rawTablesRequest(study_name, "Procedure")
+    tbl.nte <- loadData(uri[1], 
+                       list(
+                         'days_to_new_tumor_event_additional_surgery_procedure' = list(name = "PatientID", data = "tcgaId"),
+                         '' = list(name = "", data = "tcgaDate"),
+                         '' = list(name = "", data = "upperCharacter"),
+                         '' = list(name = "", data = "upperCharacter"),
+                         '' = list(name = "", data = "character"),
+                         '' = list(name = "", data = "character")
+                       ))
+    tbl.omf <- loadData(uri[2], 
+                       list(
+                         'bcr_patient_barcode' = list(name = "PatientID", data = "tcgaId"),
+                         '' = list(name = "", data = "upperCharacter"),
+                         '' = list(name = "", data = "upperCharacter"),
+                         '' = list(name = "", data = "character"),
+                         '' = list(name = "", data = "character")
+                       ))
+    
+    if(!is.na(uri[3])) {
+      tbl.f1 <- loadData(uri[3], 
+                         list(
+                           'bcr_patient_barcode' = list(name = "PatientID", data = "tcgaId"),
+                           '' = list(name = "", data = "upperCharacter"),
+                           '' = list(name = "", data = "upperCharacter"),
+                           '' = list(name = "", data = "character"),
+                           '' = list(name = "", data = "character")
+                         ))
+    }
+    if(!is.na(uri[4])) {
+      tbl.nte_f1 <- loadData(uri[4], 
+                         list(
+                           'bcr_patient_barcode' = list(name = "PatientID", data = "tcgaId"),
+                           '' = list(name = "", data = "upperCharacter"),
+                           '' = list(name = "", data = "upperCharacter"),
+                           '' = list(name = "", data = "character"),
+                           '' = list(name = "", data = "character")
+                         ))
+    }
+      if(!is.na(uri[5])) {
+        tbl.pt <- loadData(uri[5], 
+                               list(
+                                 'bcr_patient_barcode' = list(name = "PatientID", data = "tcgaId"),
+                                 '' = list(name = "", data = "upperCharacter"),
+                                 '' = list(name = "", data = "upperCharacter"),
+                                 '' = list(name = "", data = "character"),
+                                 '' = list(name = "", data = "character")
+                               ))
+       }
 
+      
+      tbl.f <- rbind.fill(tbl.nte, tbl.omf)
+      
+      if(exists("tbl.f2")) tbl.f <- rbind.fill(tbl.f, tbl.f2)
+      if(exists("tbl.f3")) tbl.f <- rbind.fill(tbl.f, tbl.f3)
+      
+      
+      
 ################################################     Step 4: Generate Result    ##################################################
 create.all.DOB.records <- function(study_name){
 	uri <- rawTablesRequest(study_name, "DOB")
@@ -1260,7 +1339,7 @@ create.all.Encounter.records <- function(study_name){
   return(result)
   print(c(study_name, dim(data.Encounter), length(result)))
 }
-lapply(studies, create.all.Encounter.records)
+lapply(studies, create.all.Encounter.records) #studies
 
 
 #################################################    Step 5: Unit Test   #########################################################
@@ -1349,9 +1428,6 @@ parseEvents <- function(patient.ids=NA)
   
 } # parseEvents
 #----------------------------------------------------------------------------------------------------
-
-
-
 createPatientList <- function(Allevents=NA){
   
   if(all(is.na(Allevents)))
