@@ -670,9 +670,9 @@ test_create.status.record <- function()
     checkTrue(is.list(x))
     checkEquals(names(x), c("PatientID", "PtNum", "study", "Name", "Fields"))
     checkEquals(names(x$Fields), c("date", "status", "tumorStatus"))
-    checkEquals(x, list(PatientID="TCGA.3C.AAAU", PtNum=1, study=study, Name="Status", Fields=list(date="04/25/2014", status="Alive", tumorStatus="with tumor")))
-	x <- create.status.record("TCGA-GM-A2DO")
-    checkEquals(x, list(PatientID="TCGA.GM.A2DO", PtNum=1000, study=study, Name="Status", Fields=list(date="06/12/2010", status="Alive", tumorStatus="tumor free")))
+    checkEquals(x, list(PatientID="TCGA.3C.AAAU", PtNum=1, study=study, Name="Status", Fields=list(date="10/03/2014", status="Alive", tumorStatus="with tumor")))
+	  x <- create.status.record("TCGA-GM-A2DO")
+    checkEquals(x, list(PatientID="TCGA.GM.A2DO", PtNum=1000, study=study, Name="Status", Fields=list(date="02/09/2013", status="Alive", tumorStatus="tumor free")))
 
 } # test_create.status.record
 #------------------------------------------------------------------------------------------------------------------------
