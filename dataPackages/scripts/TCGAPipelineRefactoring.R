@@ -18,8 +18,7 @@ if(!interactive()){
   print(paste("Creating Processed data for", study))
 }else{
   for(study in TCGAfilename$study){
-    i<- which(TCGAfilename$study == study)
-    directory <- TCGAfilename[i,"directory"]
+    directory <- TCGAfilename[which(TCGAfilename$study == study), "directory"]
     stopifnot(file.exists(directory))
   }
 }
@@ -134,6 +133,36 @@ rawTablesRequest <- function(study, table){
 				 		paste(TCGAfilename[TCGAfilename$study==study,]$directory, 
 			         	TCGAfilename[TCGAfilename$study==study,]$nte_f1, sep="/"))))
 	}
+
+	if(table == "Absent"){
+		return(c(paste(TCGAfilename[TCGAfilename$study==study,]$directory, 
+			         TCGAfilename[TCGAfilename$study==study,]$pt, sep="/"),
+
+				 ifelse(is.na(TCGAfilename[TCGAfilename$study==study,]$omf), 
+				 		NA,
+				 		paste(TCGAfilename[TCGAfilename$study==study,]$directory, 
+			         	TCGAfilename[TCGAfilename$study==study,]$omf, sep="/")),
+				 ifelse(is.na(TCGAfilename[TCGAfilename$study==study,]$nte), 
+				 		NA,
+				 		paste(TCGAfilename[TCGAfilename$study==study,]$directory, 
+			         	TCGAfilename[TCGAfilename$study==study,]$nte, sep="/")),
+				 ifelse(is.na(TCGAfilename[TCGAfilename$study==study,]$f1), 
+				 		NA,
+				 		paste(TCGAfilename[TCGAfilename$study==study,]$directory, 
+			         	TCGAfilename[TCGAfilename$study==study,]$f1, sep="/")),
+				 ifelse(is.na(TCGAfilename[TCGAfilename$study==study,]$f2), 
+				 		NA,
+				 		paste(TCGAfilename[TCGAfilename$study==study,]$directory, 
+			         	TCGAfilename[TCGAfilename$study==study,]$f2, sep="/")),
+				 ifelse(is.na(TCGAfilename[TCGAfilename$study==study,]$f3), 
+				 		NA,
+				 		paste(TCGAfilename[TCGAfilename$study==study,]$directory, 
+			         	TCGAfilename[TCGAfilename$study==study,]$f3, sep="/")),
+				 ifelse(is.na(TCGAfilename[TCGAfilename$study==study,]$nte_f1), 
+				 		NA,
+				 		paste(TCGAfilename[TCGAfilename$study==study,]$directory, 
+			         	TCGAfilename[TCGAfilename$study==study,]$nte_f1, sep="/"))))
+	}
 	if(table == "Encounter"){
 	    return(c(paste(TCGAfilename[TCGAfilename$study==study,]$directory, 
 	                   TCGAfilename[TCGAfilename$study==study,]$pt, sep="/"),
@@ -141,7 +170,6 @@ rawTablesRequest <- function(study, table){
 	                   TCGAfilename[TCGAfilename$study==study,]$f1, sep="/")))
 	}
 }
-
 #--------------------------------------------------------------------------------
 loadData <- function(uri, columns){
   
@@ -1793,6 +1821,114 @@ create.Progression.records <- function(study_name,  ptID){
 }
 lapply(studies, create.Progression.records)
 #--------------------------------------------------------------------------------------------------------------------------
+create.Absent.records <- function(study_name,  ptID){
+	uri <- rawTablesRequest(study_name, "Absent")
+  	rm(list=ls(pattern="tbl"))
+  	tbl.pt <- loadData(uri[1], 
+		              list(
+					     'bcr_patient_barcode' = list(name = "PatientID", data = "tcgaId"),
+					     'initial_pathologic_dx_year' = list(name = "dxyear", data = "tcgaDate"),
+					   	 'pulmonary_function_test_indicator' = list(name = "pulInd", data = "upperCharacter")
+					   ))
+    if(!is.na(uri[2])){
+		tbl.omf <- loadData(uri[2], 
+		              list(
+					     'bcr_patient_barcode' = list(name = "PatientID", data = "tcgaId"),
+					     'days_to_other_malignancy_dx' = list(name = "omfdx", data = "character"),
+					     'radiation_tx_indicator' = list(name = "radInd", data = "upperCharacter"),
+					     'drug_tx_indicator' = list(name = "drugInd", data = "upperCharacter")
+					   ))
+    }
+    if(!is.na(uri[3])){
+		tbl.nte <- loadData(uri[3], 
+		              list(
+					     'bcr_patient_barcode' = list(name = "PatientID", data = "tcgaId"),
+					     'days_to_new_tumor_event_after_initial_treatment' = list(name = "omfdx", data = "character"),
+					     'new_tumor_event_dx_days_to'  = list(name = "omfdx", data = "character"),
+					     'additional_radiation_therapy' = list(name = "radInd", data = "upperCharacter"),
+					     'new_tumor_event_radiation_tx' = list(name = "radInd", data = "upperCharacter"),
+					     'additional_pharmaceutical_therapy' = list(name = "drugInd", data = "upperCharacter"),
+					     'new_tumor_event_pharmaceutical_tx' = list(name = "drugInd", data = "upperCharacter")
+					   ))
+    }
+    if(!is.na(uri[4])){
+		tbl.f1 <- loadData(uri[4], 
+		              list(
+					     'bcr_patient_barcode' = list(name = "PatientID", data = "tcgaId"),
+					     'new_tumor_event_dx_days_to' = list(name = "omfdx", data = "character"),
+					     'new_tumor_event_radiation_tx' = list(name = "radInd", data = "upperCharacter"),
+					     'new_tumor_event_pharmaceutical_tx' = list(name = "drugInd", data = "upperCharacter")
+					   ))
+    }
+    if(!is.na(uri[5])){
+    	tbl.f2 <- loadData(uri[5], 
+		              list(
+					     'bcr_patient_barcode' = list(name = "PatientID", data = "tcgaId"),
+					     'new_tumor_event_dx_days_to' = list(name = "omfdx", data = "character"),
+					     'new_tumor_event_radiation_tx' = list(name = "radInd", data = "upperCharacter"),
+					     'new_tumor_event_pharmaceutical_tx' = list(name = "drugInd", data = "upperCharacter")
+					   ))
+    }
+    if(!is.na(uri[6])){
+    	tbl.f3 <- loadData(uri[6], 
+		              list(
+					     'bcr_patient_barcode' = list(name = "PatientID", data = "tcgaId"),
+					     'new_tumor_event_dx_days_to' = list(name = "omfdx", data = "character"),
+					     'new_tumor_event_radiation_tx' = list(name = "radInd", data = "upperCharacter"),
+					     'new_tumor_event_pharmaceutical_tx' = list(name = "drugInd", data = "upperCharacter")
+					   ))
+    }
+    if(!is.na(uri[7])){
+    	tbl.nte_f1 <- loadData(uri[7], 
+		              list(
+					     'bcr_patient_barcode' = list(name = "PatientID", data = "tcgaId"),
+					     'days_to_new_tumor_event_after_initial_treatment' = list(name = "omfdx", data = "character"),
+					     'new_tumor_event_dx_days_to'  = list(name = "omfdx", data = "character"),
+					     'additional_radiation_therapy' = list(name = "radInd", data = "upperCharacter"),
+					     'new_tumor_event_radiation_tx' = list(name = "radInd", data = "upperCharacter"),
+					     'additional_pharmaceutical_therapy' = list(name = "drugInd", data = "upperCharacter"),
+					     'new_tumor_event_pharmaceutical_tx' = list(name = "drugInd", data = "upperCharacter")
+					   ))
+    }
+    	
+    if(!("pulInd" %in%  colnames(tbl.pt))) tbl.pt$pulInd = rep(NA, nrow(tbl.pt))
+    tbl <- rbind.fill(tbl.pt[,c("PatientID", "pulInd")], tbl.omf)
+    if(exists("tbl.nte")) tbl <- rbind.fill(tbl, tbl.nte)
+    if(exists("tbl.f1")) tbl <- rbind.fill(tbl, tbl.f1)
+    if(exists("tbl.f2")) tbl <- rbind.fill(tbl, tbl.f2)
+    if(exists("tbl.f3")) tbl <- rbind.fill(tbl, tbl.f3)
+    if(exists("tbl.nte_f1")) tbl <- rbind.fill(tbl, tbl.nte_f1)
+
+ 	ptNumMap <- ptNumMapUpdate(tbl.pt)
+ 	if(missing(ptID)){
+ 		result <- apply(data.Progression, 1, function(x){
+    				PatientID = getElement(x, "PatientID")
+    				PtNum = ptNumMap[ptNumMap$PatientID == PatientID,]$PatientNumber
+    				date = getElement(x, "newTumorDate")
+    				event = getElement(x, "newTumor")
+    				number = getElement(x, "Number")
+    				return(list(PatientID=PatientID, PtNum=PtNum, study=study_name, Name="Progression", 
+    				 			Fields=list(date=date, event=event, number=number)))
+    				})
+		print(c(study_name, dim(data.Progression), length(result)))
+ 	}else{
+ 		print(ptID)
+ 		subSet.data.Progression <- subset(data.Progression, PatientID==ptID)
+ 		result <- apply(subSet.data.Progression, 1, function(x){
+    				PatientID = getElement(x, "PatientID")
+    				PtNum = ptNumMap[ptNumMap$PatientID == PatientID,]$PatientNumber
+    				date = getElement(x, "date")
+    				event = getElement(x, "newTumor")
+    				number = getElement(x, "Number")
+    				return(list(PatientID=PatientID, PtNum=PtNum, study=study_name, Name="Progression", 
+    				 			Fields=list(date=date, event=event, number=number)))
+    				})
+		print(result)
+ 	}	   
+}
+lapply(studies, create.Absent.records)
+#--------------------------------------------------------------------------------------------------------------------------
+
 create.all.Encounter.records <- function(study_name){
   uri <- rawTablesRequest(study_name, "Encounter")
   #rm(list=ls(pattern="tbl"))
