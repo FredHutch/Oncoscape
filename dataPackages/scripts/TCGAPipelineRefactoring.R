@@ -134,14 +134,13 @@ rawTablesRequest <- function(study, table){
 				 		paste(TCGAfilename[TCGAfilename$study==study,]$directory, 
 			         	TCGAfilename[TCGAfilename$study==study,]$nte_f1, sep="/"))))
 	}
-	if(table == "Encounter"){
-	    return(c(paste(TCGAfilename[TCGAfilename$study==study,]$directory, 
-	                   TCGAfilename[TCGAfilename$study==study,]$pt, sep="/"),
-	             paste(TCGAfilename[TCGAfilename$study==study,]$directory, 
-	                   TCGAfilename[TCGAfilename$study==study,]$f1, sep="/")))
-	}
+  if(table == "Pathology"){
+    return(c(paste(TCGAfilename[TCGAfilename$study==study,]$directory, 
+                   TCGAfilename[TCGAfilename$study==study,]$pt, sep="/"),
+             paste(TCGAfilename[TCGAfilename$study==study,]$directory, 
+                   TCGAfilename[TCGAfilename$study==study,]$omf, sep="/")))
+  }
 }
-
 #--------------------------------------------------------------------------------
 loadData <- function(uri, columns){
   
@@ -181,7 +180,6 @@ ptNumMapUpdate <- function(df){
 		              PatientNumber=(seq(1:length(df$PatientID)))))
 }
 #--------------------------------------------------------------------------------
-
 ###################     Step 2: Get Unique Values & Mapping  ####################
 studies <- TCGAfilename$study 
 DOB <- T
@@ -192,6 +190,7 @@ STATUS <- T
 ENCOUNTER <- T
 PROGRESSION <- T
 PROCEDURE <- T
+PATHOLOGY <- T
 #----------------------     DOB functions Start Here      -----------------------
 if(DOB){
 	DOB.unique.request <- function(study_name){
@@ -1312,7 +1311,118 @@ if(PROCEDURE){
     return(df)
   }	
 } #Procedure functions End Here
+#----------------------Pathology functions Start Here     --------------------------
+if(PATHOLOGY){
+  Pathology.unique.request <- function(study_name){
+    uri <- rawTablesRequest(study_name, "Pathology")
+    tbl.pt <- loadData(uri[1], 
+                       list(
+                         'bcr_patient_barcode' = list(name = "PatientID", data = "tcgaId"),
+                         'initial_pathologic_dx_year' = list(name = "dxyear", data = "tcgaDate"), #date
+                         'days_to_initial_pathologic_diagnosis'  = list(name = "pathology.offset", data = "upperCharacter"), #date
+                         'tumor_tissue_site' = list(name = "pathDisease", data = "upperCharacter"),  
+                         'histological_type'= list(name = "pathHistology", data = "upperCharacter"), 
+                         'prospective_collection'= list(name = "prospective", data = "upperCharacter"),
+                         'retrospective_collection'= list(name = "retrospective", data = "upperCharacter"), 
+                         'method_initial_path_dx' = list(name = "pathMethod", data = "upperCharacter"),
+                         'ajcc_tumor_pathologic_pt' = list(name = "T.Stage", data = "upperCharacter"),
+                         'ajcc_nodes_pathologic_pn' = list(name = "N.Stage", data = "upperCharacter"),
+                         'ajcc_metastasis_pathologic_pm' = list(name = "M.Stage", data = "upperCharacter"),
+                         'ajcc_staging_edition' = list(name = "staging.System", data = "upperCharacter"),
+                         'tumor_grade' = list(name = "grade", data = "upperCharacter")
+                          ))
+    tbl.omf <- loadData(uri[2], 
+                        list(
+                          'bcr_patient_barcode' = list(name = "PatientID", data = "tcgaId"),
+                          'other_malignancy_anatomic_site' = list(name = "disease", data = "upperCharacter"), 
+                          'days_to_other_malignancy_dx' = list(name = "omfOffset", data = "upperCharacter"), #date
+                          'other_malignancy_histological_type' = list(name = "histology", data = "upperCharacter"),
+                          'other_malignancy_histological_type_text' = list(name = "histology_text", data = "upperCharacter")
+                           ))
+  # reorganize two tbls 
+  data.Pathology <- rbind.fill(tbl.pt, tbl.omf)
+  #colnames(data.Pathology)
+  
+  df <- data.Pathology
+  unique.pathDisease<- unique(df$pathDisease)
+  unique.pathHistology <- unique(df$pathHistology)
+  unique.prospective <- unique(df$prospective)
+  unique.retrospective <- unique(df$retrospective)
+  unique.pathMethod <- unique(df$pathMethod)
+  unique.T.Stage <- unique(df$T.Stage)
+  unique.N.Stage <- unique(df$N.Stage)
+  unique.M.Stage<- unique(df$M.Stage)
+  unique.staging.System <- unique(df$staging.System)
+  unique.grade<- unique(df$grade)
+  unique.disease<- unique(df$disease)
+  unique.histology<- unique(df$histology)
+  unique.histology_text<- unique(df$histology_text)
+  #skipped dates for now
+  
+   result = list(unique.pathDisease=unique.pathDisease, 
+                 unique.pathHistology=unique.pathHistology,
+                 unique.prospective=unique.prospective,
+                 unique.retrospective=unique.retrospective,
+                 unique.pathMethod=unique.pathMethod,
+                 unique.T.Stage=unique.T.Stage,
+                 unique.N.Stage=unique.N.Stage,
+                 unique.M.Stage=unique.M.Stage,
+                 unique.staging.System=unique.staging.System)
+                 unique.grade=unique.grade
+                 unique.disease=unique.disease
+                 unique.histology=unique.histology
+                 unique.histology_text=unique.histology_text
+   print(study_name)
+  return(result)
+}
+#--------------------------------------------------------------------------------
+res_list. = lapply(studies, Pathology.unique.request) 
 
+Pathology.unique.aggregate <- function(res1, res2){
+  res = list(unique.pathDisease=unique(c(res1$unique.pathDisease,res2$unique.pathDisease)),
+             unique.pathHistology=unique(c(res1$unique.pathHistology, res2$unique.pathHistology)),
+             unique.prospective=unique(c(res1$unique.prospective, res2$unique.prospective)),
+             unique.retrospective=unique(c(res1$unique.retrospective, res2$unique.retrospective)),
+             unique.pathMethod=unique(c(res1$unique.pathMethod, res2$unique.pathMethod)),
+             unique.T.Stage=unique(c(res1$unique.T.Stage, res2$unique.T.Stage)),
+             unique.N.Stage=unique(c(res1$unique.N.Stage, res2$unique.N.Stage)),
+             unique.M.Stage=unique(c(res1$unique.M.Stage, res2$unique.M.Stage)),
+             unique.staging.System=unique(c(res1$unique.staging.System, res2$unique.staging.System)),
+             unique.grade=unique(c(res1$unique.grade, res2$unique.grade)),
+             unique.disease=unique(c(res1$unique.disease, res2$unique.disease)),
+             unique.histology=unique(c(res1$unique.histology, res2$unique.histology)),
+             unique.histology_text=unique(c(res1$unique.histology_text, res2$unique.histology_text)))
+  return(res)
+}
+#-------------------------------------------------------------------------------------------------------------------------
+  Pathology.unique.values <- Reduce(Pathology.unique.aggregate, lapply(studies,Pathology.unique.request))
+  
+Pathology.unique.pathDisease <- Pathology.unique.values$unique.pathDisease
+  Pathology.unique.pathHistology <- Pathology.unique.values$unique.pathHistology
+  Pathology.unique.prospective <- Pathology.unique.values$unique.prospective
+  Pathology.unique.retrospective <- Pathology.unique.values$unique.retrospective
+  Pathology.unique.pathMethod <- Pathology.unique.values$unique.pathMethod
+  Pathology.unique.T.Stage <- Pathology.unique.values$unique.T.Stage
+  Pathology.unique.N.Stage <- Pathology.unique.values$unique.N.Stage
+  Pathology.unique.N.Stage <- Pathology.unique.values$unique.N.Stage
+  Pathology.unique.M.Stage <- Pathology.unique.values$unique.M.Stage
+  Pathology.unique.staging.System <- Pathology.unique.values$unique.staging.System
+  Pathology.unique.grade <- Pathology.unique.values$unique.grade
+  Pathology.unique.disease <- Pathology.unique.values$unique.disease
+  Pathology.unique.histology <- Pathology.unique.values$unique.histology
+  Pathology.unique.histology_text <- Pathology.unique.values$unique.histology_text
+  
+#------------------------------------------------------------------------------------------------------------------------------------------
+  Procedure.mapping.pathDisease<- function(df){
+    from <- Procedure.unique.pathDisease
+    to 	 <- from 
+    to[match(c("[UNKNOWN]","[NOT AVAILABLE]","[NOT EVALUATED]","Uknown","[Discrepancy]","Other","NOT LISTED IN MEDICAL RECORD","[NOT APPLICABLE]","[PENDING]","[COMPLETED]"), to)] <- NA
+    df$pathDisease <- mapvalues(df$pathDisease, from = from, to = to, warn_missing = T)
+    return(df)
+  }	
+#------------------------------------------------------------------------------------------------------------------------------------------
+
+  } #Pathology functions End Here 
 ################################################     Step 4: Generate Result    ##################################################
 create.DOB.records <- function(study_name, ptID){
 	uri <- rawTablesRequest(study_name, "DOB")
@@ -1978,5 +2088,6 @@ create.all.Procedure.records <- function(study_name){
   }
 lapply(studies, create.all.Procedure.records) 
 #--------------------------------------------------------------------------------------------------------------------------  
-
+create.all.Pathology.records <- function(study_name){   }
+lapply(studies, create.all.Pathology.records) 
 #################################################    Step 5: Unit Test   #########################################################
