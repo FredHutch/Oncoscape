@@ -1488,7 +1488,7 @@ if(PATHOLOGY){
                        list(
                          'bcr_patient_barcode' = list(name = "PatientID", data = "tcgaId"),
                          'initial_pathologic_dx_year' = list(name = "dxyear", data = "tcgaDate"), #date
-                         'days_to_initial_pathologic_diagnosis'  = list(name = "pathology.offset", data = "upperCharacter"), #date
+                         'days_to_initial_pathologic_diagnosis'  = list(name = "pathology.offset", data = "integer"), #date
                          'tumor_tissue_site' = list(name = "pathDisease", data = "upperCharacter"),  
                          'histological_type'= list(name = "pathHistology", data = "upperCharacter"), 
                          'prospective_collection'= list(name = "prospective", data = "upperCharacter"),
@@ -1571,25 +1571,137 @@ Pathology.unique.aggregate <- function(res1, res2){
   Pathology.unique.pathMethod <- Pathology.unique.values$unique.pathMethod
   Pathology.unique.T.Stage <- Pathology.unique.values$unique.T.Stage
   Pathology.unique.N.Stage <- Pathology.unique.values$unique.N.Stage
-  Pathology.unique.N.Stage <- Pathology.unique.values$unique.N.Stage
   Pathology.unique.M.Stage <- Pathology.unique.values$unique.M.Stage
   Pathology.unique.staging.System <- Pathology.unique.values$unique.staging.System
   Pathology.unique.grade <- Pathology.unique.values$unique.grade
   Pathology.unique.disease <- Pathology.unique.values$unique.disease
   Pathology.unique.histology <- Pathology.unique.values$unique.histology
   Pathology.unique.histology_text <- Pathology.unique.values$unique.histology_text
-  
 #------------------------------------------------------------------------------------------------------------------------------------------
-  Procedure.mapping.pathDisease<- function(df){
-    from <- Procedure.unique.pathDisease
+  Pathology.mapping.date.Calculation <- function(df){
+    df$date <- format(as.Date(df$dxyear, "%m/%d/%Y") + as.integer(df$date), "%m/%d/%Y")
+    return(df)
+  }	
+  #------------------------------------------------------------------------------------------------------------------------------------------
+  Pathology.mapping.pathDisease<- function(df){
+    from <- Pathology.unique.pathDisease
     to 	 <- from 
     to[match(c("[UNKNOWN]","[NOT AVAILABLE]","[NOT EVALUATED]","Uknown","[Discrepancy]","Other","NOT LISTED IN MEDICAL RECORD","[NOT APPLICABLE]","[PENDING]","[COMPLETED]"), to)] <- NA
     df$pathDisease <- mapvalues(df$pathDisease, from = from, to = to, warn_missing = T)
     return(df)
   }	
 #------------------------------------------------------------------------------------------------------------------------------------------
-
-  } #Pathology functions End Here 
+  Pathology.mapping.pathHistology<- function(df){
+    from <- Pathology.unique.pathHistology
+    to 	 <- from 
+    to[match(c("[UNKNOWN]","[NOT AVAILABLE]","[NOT EVALUATED]","Uknown","[Discrepancy]","Other","NOT LISTED IN MEDICAL RECORD","[NOT APPLICABLE]","[PENDING]","[COMPLETED]"), to)] <- NA
+    df$pathHistology <- mapvalues(df$pathHistology, from = from, to = to, warn_missing = T)
+    return(df)
+  }	
+#------------------------------------------------------------------------------------------------------------------------------------------
+  Pathology.mapping.retrospective<- function(df){
+    from <- Pathology.unique.retrospective
+    to 	 <- from 
+    to[match(c("[UNKNOWN]","[NOT AVAILABLE]","[NOT EVALUATED]","Uknown","[Discrepancy]","Other","NOT LISTED IN MEDICAL RECORD","[NOT APPLICABLE]","[PENDING]","[COMPLETED]"), to)] <- NA
+    df$retrospective <- mapvalues(df$retrospective, from = from, to = to, warn_missing = T)
+    return(df)
+  }	  
+#------------------------------------------------------------------------------------------------------------------------------------------
+  Pathology.mapping.prospective<- function(df){
+    from <- Pathology.unique.prospective
+    to 	 <- from 
+    to[match(c("[UNKNOWN]","[NOT AVAILABLE]","[NOT EVALUATED]","Uknown","[Discrepancy]","Other","NOT LISTED IN MEDICAL RECORD","[NOT APPLICABLE]","[PENDING]","[COMPLETED]"), to)] <- NA
+    df$prospective <- mapvalues(df$prospective, from = from, to = to, warn_missing = T)
+    return(df)
+  }	  
+#------------------------------------------------------------------------------------------------------------------------------------------
+  Pathology.mapping.pathMethod<- function(df){
+    from <- Pathology.unique.pathMethod
+    to 	 <- from 
+    to[match(c("[UNKNOWN]","[NOT AVAILABLE]","[NOT EVALUATED]","Uknown","[Discrepancy]","Other","NOT LISTED IN MEDICAL RECORD","[NOT APPLICABLE]","[PENDING]","[COMPLETED]"), to)] <- NA
+    df$pathMethod <- mapvalues(df$pathMethod, from = from, to = to, warn_missing = T)
+    return(df)
+  }	  
+#------------------------------------------------------------------------------------------------------------------------------------------
+  Pathology.mapping.T.Stage<- function(df){
+    from <- Pathology.unique.T.Stage
+    to 	 <- from 
+    to[match(c("[UNKNOWN]","[NOT AVAILABLE]","[NOT EVALUATED]","Uknown","[Discrepancy]","Other","NOT LISTED IN MEDICAL RECORD","[NOT APPLICABLE]","[PENDING]","[COMPLETED]"), to)] <- NA
+    df$T.Stage <- mapvalues(df$T.Stage, from = from, to = to, warn_missing = T)
+    return(df)
+  }	  
+#------------------------------------------------------------------------------------------------------------------------------------------
+  Pathology.mapping.N.Stage<- function(df){
+    from <- Pathology.unique.N.Stage
+    to 	 <- from 
+    to[match(c("[UNKNOWN]","[NOT AVAILABLE]","[NOT EVALUATED]","Uknown","[Discrepancy]","Other","NOT LISTED IN MEDICAL RECORD","[NOT APPLICABLE]","[PENDING]","[COMPLETED]"), to)] <- NA
+    df$N.Stage <- mapvalues(df$N.Stage, from = from, to = to, warn_missing = T)
+    return(df)
+  }	  
+#------------------------------------------------------------------------------------------------------------------------------------------
+  Pathology.mapping.M.Stage<- function(df){
+    from <- Pathology.unique.M.Stage
+    to 	 <- from 
+    to[match(c("[UNKNOWN]","[NOT AVAILABLE]","[NOT EVALUATED]","Uknown","[Discrepancy]","Other","NOT LISTED IN MEDICAL RECORD","[NOT APPLICABLE]","[PENDING]","[COMPLETED]"), to)] <- NA
+    df$M.Stage <- mapvalues(df$M.Stage, from = from, to = to, warn_missing = T)
+    return(df)
+  }	
+#------------------------------------------------------------------------------------------------------------------------------------------
+  Pathology.mapping.staging.System<- function(df){
+    from <- Pathology.unique.staging.System
+    to 	 <- from 
+    to[match(c("[UNKNOWN]","[NOT AVAILABLE]","[NOT EVALUATED]","Uknown","[Discrepancy]","Other","NOT LISTED IN MEDICAL RECORD","[NOT APPLICABLE]","[PENDING]","[COMPLETED]"), to)] <- NA
+    df$staging.System <- mapvalues(df$staging.System, from = from, to = to, warn_missing = T)
+    return(df)
+  }	 
+#------------------------------------------------------------------------------------------------------------------------------------------
+  Pathology.mapping.grade<- function(df){
+    from <- Pathology.unique.grade
+    to 	 <- from 
+    to[match(c("[UNKNOWN]","[NOT AVAILABLE]","[NOT EVALUATED]","Uknown","[Discrepancy]","Other","NOT LISTED IN MEDICAL RECORD","[NOT APPLICABLE]","[PENDING]","[COMPLETED]"), to)] <- NA
+    df$grade <- mapvalues(df$grade, from = from, to = to, warn_missing = T)
+    return(df)
+  }	 
+#------------------------------------------------------------------------------------------------------------------------------------------
+  Pathology.mapping.disease<- function(df){
+    from <- Pathology.unique.disease
+    to 	 <- from 
+    to[match(c("[UNKNOWN]","[NOT AVAILABLE]","[NOT EVALUATED]","Uknown","[Discrepancy]","Other","NOT LISTED IN MEDICAL RECORD","[NOT APPLICABLE]","[PENDING]","[COMPLETED]"), to)] <- NA
+    df$disease <- mapvalues(df$disease, from = from, to = to, warn_missing = T)
+    return(df)
+  }	  
+#------------------------------------------------------------------------------------------------------------------------------------------
+  Pathology.mapping.histology<- function(df){
+    from <- Pathology.unique.histology
+    to 	 <- from 
+    to[match(c("[UNKNOWN]","[NOT AVAILABLE]","[NOT EVALUATED]","Uknown","[Discrepancy]","Other","NOT LISTED IN MEDICAL RECORD","[NOT APPLICABLE]","[PENDING]","[COMPLETED]"), to)] <- NA
+    df$histology <- mapvalues(df$histology, from = from, to = to, warn_missing = T)
+    return(df)
+  }	
+#------------------------------------------------------------------------------------------------------------------------------------------
+  Pathology.mapping.histology_text <- function(df){
+    from <- Pathology.unique.histology_text 
+    to 	 <- from 
+    to[match(c("[UNKNOWN]","[NOT AVAILABLE]","[NOT EVALUATED]","Uknown","[Discrepancy]","Other","NOT LISTED IN MEDICAL RECORD","[NOT APPLICABLE]","[PENDING]","[COMPLETED]"), to)] <- NA
+    df$histology_text  <- mapvalues(df$histology_text , from = from, to = to, warn_missing = T)
+    return(df)
+  }	
+#-mapping dates---------------------------------------------------------------------------------------------------------------------------
+  #work on this tomorrow and check Procedure dates too! 
+  
+  Pathology.mapping.pathology.offset <- function(df){
+    from <- Pathology.unique.pathology.offset 
+    to 	 <- from 
+    to[match(c("[UNKNOWN]","[NOT AVAILABLE]","[NOT EVALUATED]","Uknown","[Discrepancy]","Other","NOT LISTED IN MEDICAL RECORD","[NOT APPLICABLE]","[PENDING]","[COMPLETED]"), to)] <- NA
+    df$pathology.offset  <- mapvalues(df$pathology.offset , from = from, to = to, warn_missing = T)
+    
+    return(df)
+  }	
+  
+  
+  
+  
+} #Pathology functions End Here 
 ################################################     Step 4: Generate Result    ##################################################
 create.DOB.records <- function(study_name, ptID){
 	uri <- rawTablesRequest(study_name, "DOB")
@@ -2414,6 +2526,82 @@ create.all.Procedure.records <- function(study_name){
   }
 lapply(studies, create.all.Procedure.records) 
 #--------------------------------------------------------------------------------------------------------------------------  
-create.all.Pathology.records <- function(study_name){   }
+create.all.Pathology.records <- function(study_name){   
+  uri <- rawTablesRequest(study_name, "Pathology")
+  tbl.pt <- loadData(uri[1], 
+                     list(
+                       'bcr_patient_barcode' = list(name = "PatientID", data = "tcgaId"),
+                       'initial_pathologic_dx_year' = list(name = "dxyear", data = "tcgaDate"), #date
+                       'days_to_initial_pathologic_diagnosis'  = list(name = "pathology.offset", data = "upperCharacter"), #date
+                       'tumor_tissue_site' = list(name = "pathDisease", data = "upperCharacter"),  
+                       'histological_type'= list(name = "pathHistology", data = "upperCharacter"), 
+                       'prospective_collection'= list(name = "prospective", data = "upperCharacter"),
+                       'retrospective_collection'= list(name = "retrospective", data = "upperCharacter"), 
+                       'method_initial_path_dx' = list(name = "pathMethod", data = "upperCharacter"),
+                       'ajcc_tumor_pathologic_pt' = list(name = "T.Stage", data = "upperCharacter"),
+                       'ajcc_nodes_pathologic_pn' = list(name = "N.Stage", data = "upperCharacter"),
+                       'ajcc_metastasis_pathologic_pm' = list(name = "M.Stage", data = "upperCharacter"),
+                       'ajcc_staging_edition' = list(name = "staging.System", data = "upperCharacter"),
+                       'tumor_grade' = list(name = "grade", data = "upperCharacter")
+                     ))
+  tbl.omf <- loadData(uri[2], 
+                      list(
+                        'bcr_patient_barcode' = list(name = "PatientID", data = "tcgaId"),
+                        'other_malignancy_anatomic_site' = list(name = "disease", data = "upperCharacter"), 
+                        'days_to_other_malignancy_dx' = list(name = "omfOffset", data = "upperCharacter"), #date
+                        'other_malignancy_histological_type' = list(name = "histology", data = "upperCharacter"),
+                        'other_malignancy_histological_type_text' = list(name = "histology_text", data = "upperCharacter")
+                      ))
+  # reorganize two tbls 
+  data.Pathology <- rbind.fill(tbl.pt, tbl.omf)
+  #colnames(data.Pathology)
+
+  #create columns for column that are not captured
+  PathologyColNames <- c("PatientID", "dxyear", "pathDisease", "pathHistology", "prospective", "retrospective", "pathMethod", "T.Stage", "N.Stage", "M.Stage","staging.System","grade","disease","histology","histology_text")
+  m <- matrix(nrow=nrow(data.Pathology), ncol=length(which(!(PathologyColNames) %in% colnames(data.Pathology))))
+  df <- as.data.frame(m)
+  colnames(df) <- PathologyColNames[(which(!(PathologyColNames) %in% colnames(data.Pathology)))]
+  data.Pathology<- cbind(data.Pathology, df) 
+
+  # mapping
+  data.Pathology <- Pathology.mapping.pathDisease(data.Pathology)
+  data.Pathology <- Pathology.mapping.pathHistology(data.Pathology)
+  data.Pathology <- Pathology.mapping.prospective(data.Pathology)
+  data.Pathology <- Pathology.mapping.retrospective(data.Pathology)
+  data.Pathology <- Pathology.mapping.pathMethod(data.Pathology)
+  data.Pathology <- Pathology.mapping.T.Stage(data.Pathology)
+  data.Pathology <- Pathology.mapping.N.Stage(data.Pathology)
+  data.Pathology <- Pathology.mapping.M.Stage(data.Pathology)
+  data.Pathology <- Pathology.mapping.staging.System(data.Pathology)
+  data.Pathology <- Pathology.mapping.grade(data.Pathology)
+  data.Pathology <- Pathology.mapping.disease(data.Pathology)
+  data.Pathology <- Pathology.mapping.histology(data.Pathology)
+  data.Pathology <- Pathology.mapping.histology_text(data.Pathology)
+
+  # result
+  ptNumMap <- ptNumMapUpdate(tbl.pt)
+  result <- apply(data.Pathology, 1, function(x){
+    PatientID = getElement(x, "PatientID")
+    PtNum = ptNumMap[ptNumMap$PatientID == PatientID,]$PatientNumber
+    pathDisease = getElement(x, "pathDisease")
+    pathHistology = getElement(x, "pathHistology")
+    prospective = getElement(x, "prospective")
+    retrospective = getElement(x, "retrospective")
+    pathMethod = getElement(x, "pathMethod")
+    T.Stage = getElement(x, "T.Stage")
+    N.Stage = getElement(x, "N.Stage")
+    M.Stage = getElement(x, "M.Stage")
+    staging.System  = getElement(x, "staging.System")
+    grade  = getElement(x, "grade")
+    disease  = getElement(x, "disease")
+    histology  = getElement(x, "histology")
+    histology_text = getElement(x, "histology_text") 
+    
+    return(list(PatientID=PatientID, PtNum=PtNum, study=study_name, Name="Pathology", 
+                Fields=list(pathDisease=pathDisease,pathHistology=pathHistology,prospective=prospective,retrospective=retrospective,pathMethod=pathMethod,T.Stage=T.Stage,N.Stage=N.Stage,M.Stage=M.Stage,staging.System=staging.System,grade=grade,disease=disease, histology=histology,histology_text=histology_text)))
+  })
+  return(result)
+  print(c(study_name, dim(data.Pathology), length(result)))
+}
 lapply(studies, create.all.Pathology.records) 
 #################################################    Step 5: Unit Test   #########################################################
