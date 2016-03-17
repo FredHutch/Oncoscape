@@ -1550,6 +1550,8 @@ Pathology.unique.pathDisease <- Pathology.unique.values$unique.pathDisease
     return(df)
   }	
 #-mapping dates---------------------------------------------------------------------------------------------------------------------------
+  #work on this tomorrow and check Procedure dates too! 
+  
   Pathology.mapping.pathology.offset <- function(df){
     from <- Pathology.unique.pathology.offset 
     to 	 <- from 
