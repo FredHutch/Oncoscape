@@ -6,6 +6,7 @@
 
 *.sh  text eol=lf
 *.R   text eol=lf
+*.html   text eol=lf
 
 # Files that are truly binary
 
