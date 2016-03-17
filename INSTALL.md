@@ -5,7 +5,6 @@ The following instructions describe how to install and run Oncoscape with the ne
 3. [Running Oncoscape](#3-running-oncoscape)
 4. [Running and Developing Oncoscape with Docker](#4-running-and-developing-oncoscape-with-docker)
 
-
 ## 1. System Requirements
 
 ### Linux System Requirements and Dependencies
@@ -20,7 +19,7 @@ Before you can successfully install Oncoscape on a Linux system you will need to
 - gcc
 - g++
 - make
-- nodejs 5.x
+- nodejs 4.4+
 - node-gyp
 - git
 
@@ -47,7 +46,7 @@ RUN curl -sL https://deb.nodesource.com/setup_5.x | bash -
 RUN apt-get -y install nodejs
 
 # Install node-gyp
-RUN npm install -g node-gyp
+npm install -g node-gyp
 ```
 
 After installing all the dependencies above on your Linux system, you are ready to build the Oncoscape application.
@@ -62,10 +61,10 @@ Before you can successfully install Oncoscape on a Mac OS X system, you will nee
 
 - R (version 3.2.2+)
 - Xcode command-line tools (provides make, git, etc...)
-- nodejs 5.x
+- nodejs 4.4+
 - node-gyp
 
-To install the R head over the the CRAN site (https://cran.r-project.org/mirrors.html), pick a mirror site closest to you then download the latest version of R (currently 3.2.3) for Mac OS X and install it. If you are already running the Brew package manager, you can alternatively install R as follows:
+To install the R head over the the CRAN site (https://cran.r-project.org/mirrors.html), pick a mirror site closest to you then download the latest version of R (currently 3.2.3) for Mac OS X and install it. If you are already running the Homebrew package manager, you can alternatively install R as follows:
 
 ```bash
 brew install r
@@ -78,6 +77,18 @@ make
 ```
 
 If the Xcode command-line tools are not already installed a dialog will pop up asking if you'd like to install them. Click on the "install" button in this dialog to install the required tools. NOTE: you can install the entire Xcode IDE if you like by clicking "get Xcode" button rather than "install" but only the command-line tools are required to run and develop Oncoscape.
+
+To install the latest version of Node.js, visit https://nodejs.org/en/download/ and download the latest Mac OSX node package. After the download is complete, double click on the node-*.pkg and install node on your system. If you are already running the Homebrew package manager, you can alternatively install Node.js as follows:
+
+```bash
+brew install node
+```
+
+Finally you'll need to install node-gyp. Node-gyp is a tool for compiling native add-on modules for Node.js and is required for the "rstats" add-on that is used interface node with R. To install node-gyp, run the following command:
+
+```bash
+npm install -g node-gyp
+```
 
 After installing the above dependencies on your Mac OS X system, you are ready to build the Oncoscape application.
 
@@ -106,6 +117,14 @@ setup-x86_64.exe -q -P make,bash,git
 The above command should bring up the Cygwin installer dialog. Select a mirror closest to you and click "next" until the installation is complete. There should be no need to adjust the package selection as the command-line options provided to the installer will select everything we need. After the installation is complete, adjust your Windows system path to include the Cygwin binaries (*"C:\cygwin64\bin" by default*).
 
 ***Note:*** after adjusting the system path and defining new system environment variables on Windows, you'll need to exit the console (cmd.exe) and open it again before the updated path and new environment variables will take effect.
+
+To install the latest version of Node.js, visit https://nodejs.org/en/download/ and download the latest Windows node package. After the download is complete, double click on the node-*.msi and install node on your system. 
+
+Finally you'll need to install node-gyp. Node-gyp is a tool for compiling native add-on modules for Node.js and is required for the "rstats" add-on that is used interface node with R. To install node-gyp, run the following command:
+
+```bash
+npm install -g node-gyp
+```
 
 After installing the above dependencies on your Windows system, you are ready to install the Oncoscape application.
 
@@ -136,7 +155,7 @@ cd /<path>/Oncoscape/server
 npm install
 ```
 
-After the node modules are installed, you'll need to install the rstats library with node-gyp as folllows:
+After the node modules are installed, you'll need to install the rstats library with node-gyp as follows:
 
 ```
 cd /<path>/Oncoscape/rstats
@@ -150,15 +169,29 @@ You are now ready to run Oncoscape.
 The first thing that you'll need to do is download the Oncoscape application from GitHub and place it in the location you wish it to live. Open a console session (cmd.exe not PowerShell) and run the commands below, replacing \<path\> with the location you wish to install Oncoscape:
 
 ```
-cd C:\<path>
+cd c:\<path>
 git clone https://github.com/FredHutch/Oncoscape.git
 ```
 
-After the git clone is complete, switch to the directory where Oncoscape was downloaded and build it with the "make install" command as shown below:
+After the git clone is complete, switch to the r_modules sub directory where Oncoscape was downloaded and build them with the "make install" command as shown below:
 
 ```
-cd C:\<path>\Oncoscape
+cd c:\<path>\Oncoscape
 make install
+```
+
+Next you'll need to install the required node modules by running the "npm install" command in the 'server' directory as shown below:
+
+```
+cd c:\<path>/Oncoscape/server
+npm install
+```
+
+After the node modules are installed, you'll need to install the rstats library with node-gyp as follows:
+
+```
+cd c:\<path>\Oncoscape/rstats
+node-gyp configure build 
 ```
 
 ## 3. Running Oncoscape
@@ -172,19 +205,18 @@ cd /<path>/Oncoscape
 node start.js
 ```
 
-After the Oncoscape application has started, open a web browser and navigate to http://localhost to access Oncoscape. If you are running Oncoscape on a remote server, you'll need open a web browser and navigate to the Oncoscape application replacing "yourservername.com" with the name of the server where Oncoscape is running.
-
-> http://yourservername.com
-
-
 ### Running Oncoscape on Windows
 
 After you've installed all required dependencies and installed Oncoscape as described above, you are now ready to run Oncoscape. You can run Oncoscape by executing the following commands:
 
 ```
-cd /<path>/Oncoscape
+cd c:\<path>\Oncoscape
 node start.js
 ```
+
+After the Oncoscape application has started, open a web browser and navigate to http://localhost to access Oncoscape. If you are running Oncoscape on a remote server, you'll need open a web browser and navigate to the Oncoscape application replacing "yourservername.com" with the name of the server where Oncoscape is running.
+
+> http://yourservername.com
 
 ## 4. Running and Developing Oncoscape with Docker
 
