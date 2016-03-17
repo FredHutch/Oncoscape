@@ -8,7 +8,7 @@ Oncoscape is a web application that hosts an integrated suite of analysis tools 
 
 --**_Intro and Demo and videos coming soon_**
 
-See our [website](http://oncoscape.sttrcancer.org) to start analyzing [The Cancer Genome Atlas (TCGA)](http://cancergenome.nih.gov/abouttcga) data using tools hosted by [STTR](http://sttrcancer.org) at [Fred Hutch](http://www.fredhutch.org) or follow the [Installation instructions](INSTALL.md) to install and run Oncoscape on your own machine.  Contribution from external developers is not only welcome, but encouraged; please see our [contributing guidelines](CONTRIBUTING.md) for details.
+See [Oncoscape website](http://oncoscape.sttrcancer.org) to start analyzing [The Cancer Genome Atlas (TCGA)](http://cancergenome.nih.gov/abouttcga) data using tools hosted by [STTR](http://sttrcancer.org) at [Fred Hutch](http://www.fredhutch.org). If you would like to contribute to build a richer and better instance, please refer to [wiki](https://github.com/FredHutch/Oncoscape/wiki).
 
 ## Version: oncoDev14 (Release)		
 Last Modified 8/20/15		
@@ -37,29 +37,12 @@ TCGA.
 * dataPackages     - clinical and molecular data files and API		
 * analysisPackages - computational methods that execute on passed data		
 * Optional:		
-  * Rlibs			 - local installation folder for running compiled packages		
-
-## Install		
-
-Oncoscape can be installed within a local Rlibs folder or within the native R application.		
-Read [INSTALL.md](INSTALL.md) for instructions.		
-
-## Configure		
-
-Oncoscape requires several R dependencies, which can easily be obtained using Bioconductor's		
-biocLite source repository.  Data and analysis packages can be installed independently, 		
-but should reside in the same installation directory as Oncoscape.  Note that the 		
-PatientHistory and SttrDataPackage are required base classes of the data packages.  		
-
-## Documentation		
-
-Documentation for each module and dataset can be found within the respective R package.  		
-An overview of how to contribute new modules is under development.  For comments, questions or suggestions, please contact us through the outlets listed below.		
-
+  * Rlibs			 - local installation folder for running compiled packages
+ 
 ## Update		
 
 OncoDev14 (v1.4.60) was built and tested under R version >=3.2.1		
-The [latest release](http://oncoscape.sttrcancer.org) of Oncoscape is maintained under the 'master' branch of our GitHub repository, while the [beta version](http://oncotest1.sttrcancer.org) includes upcoming enhancements maintained under the 'develop' branch.
+The [latest release](http://oncoscape.sttrcancer.org) of Oncoscape is maintained under the 'master' branch of our GitHub repository, while the [beta version](http://dev.oncoscape.sttrcancer.io/) includes upcoming enhancements maintained under the 'develop' branch.
 
 ## Authors		
 
