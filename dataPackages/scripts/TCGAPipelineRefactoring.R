@@ -1019,85 +1019,83 @@ if(ABSENT){
 	#--------------------------------------------------------------------------------	
 } # End of Progression Native Functions
 #----------------------   Encounter functions Start Here   ------------------------
-if(ENCOUNTER){ # brca, hnsc, prad DO NOT HAVE ENCOUNTER RECORDS!
+if(ENCOUNTER){ 
+  # brca, hnsc, prad DO NOT HAVE ENCOUNTER RECORDS!
   Encounter.unique.request <- function(study_name){   
-    uri <- rawTablesRequest(study_name, "Encounter")
-    #(tbl.pt 'encType','karnofsky_score','ECOG only in gbm,lgg,luad,lusc)
-    tbl.pt <- loadData(uri[1],  
-                       list(
-                         'bcr_patient_barcode' = list(name = "PatientID", data = "tcgaId"),
-                         'performance_status_timing' = list(name = "encType", data = "upperCharacter"),
-                         'karnofsky_score'= list(name = "KPS", data = "upperCharacter"),
-                         'ecog_score' = list(name = "ECOG", data = "upperCharacter"),
-                         #coad/read only
-                         'height_cm_at_diagnosis' = list(name = "height", data = "upperCharacter"),
-                         'weight_kg_at_diagnosis' = list(name = "weight", data = "upperCharacter"),
-                         #lung only
-                         'fev1_fvc_ratio_prebroncholiator'= list(name = "prefev1.ratio", data = "upperCharacter"),
-                         'fev1_percent_ref_prebroncholiator'= list(name = "prefev1.percent", data = "upperCharacter"),
-                         'fev1_fvc_ratio_postbroncholiator'= list(name = "postfev1.ratio", data = "upperCharacter"),
-                         'fev1_percent_ref_postbroncholiator'= list(name = "postfev1.percent", data = "upperCharacter"),
-                         'carbon_monoxide_diffusion_dlco'= list(name = "carbon.monoxide.diffusion", data = "upperCharacter")
-                       ))
-    #(tbl.f1'encType','karnofsky_score','ECOG only in gbm,lgg,luad,lusc)
-    tbl.f1 <- loadData(uri[2], 
-                               list(
-                                 'bcr_patient_barcode' = list(name = "PatientID", data = "tcgaId"),
-                                 'performance_status_timing' = list(name = "encType", data = "upperCharacter"),
-                                 'karnofsky_score'= list(name = "KPS", data = "upperCharacter"),
-                                 'ecog_score' = list(name = "ECOG", data = "upperCharacter")
-                               ))
-    
-    # reorganize two tbls 
-    data.Encounter <- rbind.fill(tbl.pt, tbl.f1)
-    #colnames(data.Encounter)
-    
-    df <- data.Encounter
-    unique.encType<- unique(df$encType)
-    unique.KPS <- unique(df$KPS)
-    unique.ECOG <- unique(df$ECOG)
-    #coad/read only
-    unique.height <- unique(df$height)
-    unique.weight <- unique(df$weight)
-    #lung only
-    unique.prefev1.ratio <- unique(df$prefev1.ratio)
-    unique.prefev1.percent <- unique(df$prefev1.percent)
-    unique.postfev1.ratio<- unique(df$postfev1.ratio)
-    unique.postfev1.percent <- unique(df$postfev1.percent)
-    unique.carbon.monoxide.diffusion<- unique(df$carbon.monoxide.diffusion)
-    
-    
-    result = list(unique.encType=unique.encType, 
-                  unique.KPS=unique.KPS,
-                  unique.ECOG=unique.ECOG,
-                  unique.height=unique.height,
-                  unique.weight=unique.weight,
-                  unique.prefev1.ratio=unique.prefev1.ratio,
-                  unique.prefev1.percent=unique.prefev1.percent,
-                  unique.postfev1.ratio=unique.postfev1.ratio,
-                  unique.postfev1.percent=unique.postfev1.percent,
-                  unique.carbon.monoxide.diffusion=unique.carbon.monoxide.diffusion)
-    print(study_name)
-    return(result)
+	    uri <- rawTablesRequest(study_name, "Encounter")
+	    #(tbl.pt 'encType','karnofsky_score','ECOG only in gbm,lgg,luad,lusc)
+	    tbl.pt <- loadData(uri[1],  
+	                       list(
+	                         'bcr_patient_barcode' = list(name = "PatientID", data = "tcgaId"),
+	                         'performance_status_timing' = list(name = "encType", data = "upperCharacter"),
+	                         'karnofsky_score'= list(name = "KPS", data = "upperCharacter"),
+	                         'ecog_score' = list(name = "ECOG", data = "upperCharacter"),
+	                         #coad/read only
+	                         'height_cm_at_diagnosis' = list(name = "height", data = "upperCharacter"),
+	                         'weight_kg_at_diagnosis' = list(name = "weight", data = "upperCharacter"),
+	                         #lung only
+	                         'fev1_fvc_ratio_prebroncholiator'= list(name = "prefev1.ratio", data = "upperCharacter"),
+	                         'fev1_percent_ref_prebroncholiator'= list(name = "prefev1.percent", data = "upperCharacter"),
+	                         'fev1_fvc_ratio_postbroncholiator'= list(name = "postfev1.ratio", data = "upperCharacter"),
+	                         'fev1_percent_ref_postbroncholiator'= list(name = "postfev1.percent", data = "upperCharacter"),
+	                         'carbon_monoxide_diffusion_dlco'= list(name = "carbon.monoxide.diffusion", data = "upperCharacter")
+	                       ))
+	    #(tbl.f1'encType','karnofsky_score','ECOG only in gbm,lgg,luad,lusc)
+	    tbl.f1 <- loadData(uri[2], 
+	                               list(
+	                                 'bcr_patient_barcode' = list(name = "PatientID", data = "tcgaId"),
+	                                 'performance_status_timing' = list(name = "encType", data = "upperCharacter"),
+	                                 'karnofsky_score'= list(name = "KPS", data = "upperCharacter"),
+	                                 'ecog_score' = list(name = "ECOG", data = "upperCharacter")
+	                               ))
+	    
+	    # reorganize two tbls 
+	    data.Encounter <- rbind.fill(tbl.pt, tbl.f1)
+	    #colnames(data.Encounter)
+	    
+	    df <- data.Encounter
+	    unique.encType<- unique(df$encType)
+	    unique.KPS <- unique(df$KPS)
+	    unique.ECOG <- unique(df$ECOG)
+	    #coad/read only
+	    unique.height <- unique(df$height)
+	    unique.weight <- unique(df$weight)
+	    #lung only
+	    unique.prefev1.ratio <- unique(df$prefev1.ratio)
+	    unique.prefev1.percent <- unique(df$prefev1.percent)
+	    unique.postfev1.ratio<- unique(df$postfev1.ratio)
+	    unique.postfev1.percent <- unique(df$postfev1.percent)
+	    unique.carbon.monoxide.diffusion<- unique(df$carbon.monoxide.diffusion)
+	    
+	    
+	    result = list(unique.encType=unique.encType, 
+	                  unique.KPS=unique.KPS,
+	                  unique.ECOG=unique.ECOG,
+	                  unique.height=unique.height,
+	                  unique.weight=unique.weight,
+	                  unique.prefev1.ratio=unique.prefev1.ratio,
+	                  unique.prefev1.percent=unique.prefev1.percent,
+	                  unique.postfev1.ratio=unique.postfev1.ratio,
+	                  unique.postfev1.percent=unique.postfev1.percent,
+	                  unique.carbon.monoxide.diffusion=unique.carbon.monoxide.diffusion)
+	    print(study_name)
+	    return(result)
   }
   #--------------------------------------------------------------------------------
-  res_list. = lapply(studies, Encounter.unique.request) 
-  
-
   Encounter.unique.aggregate <- function(res1, res2){
-    res = list(unique.encType=unique(c(res1$unique.encType,res2$unique.encType)),
-               unique.KPS=unique(c(res1$unique.KPS, res2$unique.KPS)),
-               unique.ECOG=unique(c(res1$unique.ECOG, res2$unique.ECOG)),
-               #coad/read only
-               unique.height=unique(c(res1$unique.height, res2$unique.height)),
-               unique.weight=unique(c(res1$unique.weight, res2$unique.weight)),
-               #lung only
-               unique.prefev1.ratio=unique(c(res1$unique.prefev1.ratio, res2$unique.prefev1.ratio)),
-               unique.prefev1.percent=unique(c(res1$unique.prefev1.percent, res2$unique.prefev1.percent)),
-               unique.postfev1.ratio=unique(c(res1$unique.postfev1.ratio, res2$unique.postfev1.ratio)),
-               unique.postfev1.percent=unique(c(res1$unique.postfev1.percent, res2$unique.postfev1.percent)),
-               unique.carbon.monoxide.diffusion=unique(c(res1$unique.carbon.monoxide.diffusion, res2$unique.carbon.monoxide.diffusion)))
-    return(res)
+	    res = list(unique.encType=unique(c(res1$unique.encType,res2$unique.encType)),
+	               unique.KPS=unique(c(res1$unique.KPS, res2$unique.KPS)),
+	               unique.ECOG=unique(c(res1$unique.ECOG, res2$unique.ECOG)),
+	               #coad/read only
+	               unique.height=unique(c(res1$unique.height, res2$unique.height)),
+	               unique.weight=unique(c(res1$unique.weight, res2$unique.weight)),
+	               #lung only
+	               unique.prefev1.ratio=unique(c(res1$unique.prefev1.ratio, res2$unique.prefev1.ratio)),
+	               unique.prefev1.percent=unique(c(res1$unique.prefev1.percent, res2$unique.prefev1.percent)),
+	               unique.postfev1.ratio=unique(c(res1$unique.postfev1.ratio, res2$unique.postfev1.ratio)),
+	               unique.postfev1.percent=unique(c(res1$unique.postfev1.percent, res2$unique.postfev1.percent)),
+	               unique.carbon.monoxide.diffusion=unique(c(res1$unique.carbon.monoxide.diffusion, res2$unique.carbon.monoxide.diffusion)))
+	    return(res)
   }
   #-------------------------------------------------------------------------------------------------------------------------
   Encounter.unique.values <- Reduce(Encounter.unique.aggregate, lapply(studies,Encounter.unique.request))
@@ -1133,90 +1131,90 @@ if(ENCOUNTER){ # brca, hnsc, prad DO NOT HAVE ENCOUNTER RECORDS!
   #[1] "[Not Available]"
   #-------------------------------------------------------------------------------------------------------------------------
   Encounter.mapping.encType <- function(df){
-    from <- Encounter.unique.encType
-    to 	 <- from 
-    to[match(c("[UNKNOWN]","[NOT AVAILABLE]","[NOT EVALUATED]","UKNOWN","[DISCREPANCY]","OTHER"), to)] <- NA
-    df$encType <- mapvalues(df$encType, from = from, to = to, warn_missing = F)
-    return(df)
+	    from <- Encounter.unique.encType
+	    to 	 <- from 
+	    to[match(c("[UNKNOWN]","[NOT AVAILABLE]","[NOT EVALUATED]","UKNOWN","[DISCREPANCY]","OTHER"), to)] <- NA
+	    df$encType <- mapvalues(df$encType, from = from, to = to, warn_missing = F)
+	    return(df)
   }	
   #--------------------------------------------------------------------------------
   Encounter.mapping.KPS<- function(df){
-    from <- Encounter.unique.KPS
-    to 	 <- from 
-    to[match(c("[NOT EVALUATED]","[NOT AVAILABLE]","[UNKNOWN]","UNKNOWN"), to)] <- NA
-    df$KPS <- mapvalues(df$KPS, from = from, to = to, warn_missing = F)
-    return(df)
+	    from <- Encounter.unique.KPS
+	    to 	 <- from 
+	    to[match(c("[NOT EVALUATED]","[NOT AVAILABLE]","[UNKNOWN]","UNKNOWN"), to)] <- NA
+	    df$KPS <- mapvalues(df$KPS, from = from, to = to, warn_missing = F)
+	    return(df)
   }
   #--------------------------------------------------------------------------------
   Encounter.mapping.ECOG<- function(df){
-    from <- Encounter.unique.ECOG
-    to 	 <- from 
-    to[match(c("[NOT EVALUATED]","[NOT AVAILABLE]","[UNKNOWN]","UNKNOWN"), to)] <- NA
-    df$ECOG <- mapvalues(df$ECOG, from = from, to = to, warn_missing = F)
-    return(df)
+	    from <- Encounter.unique.ECOG
+	    to 	 <- from 
+	    to[match(c("[NOT EVALUATED]","[NOT AVAILABLE]","[UNKNOWN]","UNKNOWN"), to)] <- NA
+	    df$ECOG <- mapvalues(df$ECOG, from = from, to = to, warn_missing = F)
+	    return(df)
   }
   #--------------------------------------------------------------------------------
   #only coad/read
   Encounter.mapping.height<- function(df){
-    from <- Encounter.unique.height
-    to 	 <- from 
-    to[match("[NOT AVAILABLE]", to)] <- NA
-    df$height <- mapvalues(df$height, from = from, to = to, warn_missing = F)
-    return(df)
+	    from <- Encounter.unique.height
+	    to 	 <- from 
+	    to[match("[NOT AVAILABLE]", to)] <- NA
+	    df$height <- mapvalues(df$height, from = from, to = to, warn_missing = F)
+	    return(df)
   }
   #--------------------------------------------------------------------------------
   #only coad/read
   Encounter.mapping.weight<- function(df){
-    from <- Encounter.unique.weight
-    to 	 <- from 
-    to[match("[NOT AVAILABLE]", to)] <- NA
-    df$weight <- mapvalues(df$weight, from = from, to = to, warn_missing = F)
-    return(df)
+	    from <- Encounter.unique.weight
+	    to 	 <- from 
+	    to[match("[NOT AVAILABLE]", to)] <- NA
+	    df$weight <- mapvalues(df$weight, from = from, to = to, warn_missing = F)
+	    return(df)
   } 
   #--------------------------------------------------------------------------------
   #lung only
   Encounter.mapping.prefev1.ratio<- function(df){
-    from <- Encounter.unique.prefev1.ratio
-    to 	 <- from 
-    to[match("[NOT AVAILABLE]", to)] <- NA
-    df$prefev1.ratio <- mapvalues(df$prefev1.ratio, from = from, to = to, warn_missing = F)
-    return(df)
+	    from <- Encounter.unique.prefev1.ratio
+	    to 	 <- from 
+	    to[match("[NOT AVAILABLE]", to)] <- NA
+	    df$prefev1.ratio <- mapvalues(df$prefev1.ratio, from = from, to = to, warn_missing = F)
+	    return(df)
   } 
   #--------------------------------------------------------------------------------
   #lung only
   Encounter.mapping.prefev1.percent<- function(df){
-    from <- Encounter.unique.prefev1.percent
-    to 	 <- from 
-    to[match("[NOT AVAILABLE]", to)] <- NA
-    df$prefev1.percent <- mapvalues(df$prefev1.percent, from = from, to = to, warn_missing = F)
-    return(df)
+	    from <- Encounter.unique.prefev1.percent
+	    to 	 <- from 
+	    to[match("[NOT AVAILABLE]", to)] <- NA
+	    df$prefev1.percent <- mapvalues(df$prefev1.percent, from = from, to = to, warn_missing = F)
+	    return(df)
   } 
   #--------------------------------------------------------------------------------
   #lung only
   Encounter.mapping.postfev1.ratio <- function(df){
-    from <- Encounter.unique.postfev1.ratio
-    to 	 <- from 
-    to[match("[NOT AVAILABLE]", to)] <- NA
-    df$postfev1.ratio  <- mapvalues(df$postfev1.ratio, from = from, to = to, warn_missing = F)
-    return(df)
+	    from <- Encounter.unique.postfev1.ratio
+	    to 	 <- from 
+	    to[match("[NOT AVAILABLE]", to)] <- NA
+	    df$postfev1.ratio  <- mapvalues(df$postfev1.ratio, from = from, to = to, warn_missing = F)
+	    return(df)
   } 
   #--------------------------------------------------------------------------------
   #lung only
   Encounter.mapping.postfev1.percent <- function(df){
-    from <- Encounter.unique.postfev1.percent
-    to 	 <- from 
-    to[match("[NOT AVAILABLE]", to)] <- NA
-    df$postfev1.percent  <- mapvalues(df$postfev1.percent, from = from, to = to, warn_missing = F)
-    return(df)
+	    from <- Encounter.unique.postfev1.percent
+	    to 	 <- from 
+	    to[match("[NOT AVAILABLE]", to)] <- NA
+	    df$postfev1.percent  <- mapvalues(df$postfev1.percent, from = from, to = to, warn_missing = F)
+	    return(df)
   } 
   #--------------------------------------------------------------------------------
   #lung only
   Encounter.mapping.carbon.monoxide.diffusion <- function(df){
-    from <- Encounter.unique.carbon.monoxide.diffusion
-    to 	 <- from 
-    to[match("[NOT AVAILABLE]", to)] <- NA
-    df$carbon.monoxide.diffusion  <- mapvalues(df$carbon.monoxide.diffusion, from = from, to = to, warn_missing = F)
-    return(df)
+	    from <- Encounter.unique.carbon.monoxide.diffusion
+	    to 	 <- from 
+	    to[match("[NOT AVAILABLE]", to)] <- NA
+	    df$carbon.monoxide.diffusion  <- mapvalues(df$carbon.monoxide.diffusion, from = from, to = to, warn_missing = F)
+	    return(df)
   } 
   #----------------------     Encounter functions End Here      --------------------------
 } # Encounter functions End Here 
@@ -2326,8 +2324,28 @@ create.Tests.records <- function(study_name,  ptID){
 					   	 'loci_abnormal_count' = list(name = "testRes2", data = "upperCharacter"),
 					   	 'mismatch_rep_proteins_tested_by_ihc' = list(name = "testRes", data = "upperCharacter"),
 					   	 'mismatch_rep_proteins_loss_ihc' = list(name = "testRes2", data = "upperCharacter"),
-					   	 ''
-
+					   	 'hpv_status_p16' = list(name = "testRes", data = "upperCharacter"),
+					   	 'hpv_status_ish' = list(name = "testRes", data = "upperCharacter"),
+					   	 'psa_most_recent_results' = list(name = "testRes", data = "upperCharacter"),
+					   	 'bone_scan_results' = list(name = "testRes", data = "upperCharacter"),
+					   	 'ct_scan_ab_pelvis_results' = list(name = "testRes", data = "upperCharacter"),
+					   	 'mri_results' = list(name = "testRes", data = "upperCharacter"),
+					   	 'her2_copy_number' = list(name = "testRes", data = "upperCharacter"),
+					   	 'her2_fish_method' = list(name = "testRes2", data = "upperCharacter"),
+					   	 'her2_fish_status' = list(name = "testRes3", data = "upperCharacter"),
+					   	 'her2_ihc_percent_positive' = list(name = "testRes4", data = "upperCharacter"),
+					   	 'her2_ihc_score' = list(name = "testRes4", data = "upperCharacter"),
+					   	 'her2_positivity_method_text' = list(name = "testRes5", data = "upperCharacter"),
+					   	 'her2_positivity_scale_other' = list(name = "testRes6", data = "upperCharacter"),
+					   	 'her2_status_by_ihc' = list(name = "testRes7", data = "upperCharacter"),
+					   	 'nte_her2_fish_define_method' = list(name = "testRes8", data = "upperCharacter"),
+					   	 'nte_her2_fish_status' = list(name = "testRes9", data = "upperCharacter"),
+					   	 'nte_her2_positivity_ihc_score' = list(name = "testRes10", data = "upperCharacter"),
+					   	 'nte_her2_positivity_method' = list(name = "testRes11", data = "upperCharacter"),
+					   	 'nte_her2_positivity_other_scale' = list(name = "testRes12", data = "upperCharacter"),
+					   	 'nte_her2_signal_number' = list(name = "testRes13", data = "upperCharacter"),
+					   	 'nte_her2_status' = list(name = "testRes14", data = "upperCharacter"),
+					   	 'nte_her2_status_ihc__positive' = list(name = "testRes15", data = "upperCharacter")
 					   ))
   	if(!is.an(uri[2])){
   		tbl.f1 <- loadData(uri[2], 
