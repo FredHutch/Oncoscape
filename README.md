@@ -8,7 +8,7 @@ Oncoscape is a web application that hosts an integrated suite of analysis tools 
 
 --**_Intro and Demo and videos coming soon_**
 
-See [Oncoscape website](http://oncoscape.sttrcancer.org) to start analyzing [The Cancer Genome Atlas (TCGA)](http://cancergenome.nih.gov/abouttcga) data using tools hosted by [STTR](http://sttrcancer.org) at [Fred Hutch](http://www.fredhutch.org). If you would like to contribute to build a richer and better instance, please refer to [wiki](https://github.com/FredHutch/Oncoscape/wiki).
+See [Oncoscape website](http://oncoscape.sttrcancer.org) to start analyzing [The Cancer Genome Atlas (TCGA)](http://cancergenome.nih.gov/abouttcga) data using tools hosted by [STTR](http://sttrcancer.org) at [Fred Hutch](http://www.fredhutch.org). If you would like to update the code or contribute with new features, please read [wiki](https://github.com/FredHutch/Oncoscape/wiki).
 
 ## Version: oncoDev14 (Release)		
 Last Modified 8/20/15		
