@@ -1,0 +1,17 @@
+# Set the default behavior, in case people don't have core.autocrlf set
+
+* text=auto
+
+# Text files that must have LF on checkout
+
+*.sh  text eol=lf
+*.R   text eol=lf
+*.html   text eol=lf
+
+# Files that are truly binary
+
+*.RData binary
+*.pdf   binary
+*.png   binary
+*.gif   binary
+*.jpg   binary
