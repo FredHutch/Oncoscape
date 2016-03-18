@@ -27,6 +27,9 @@ setGeneric('getPatientList',  signature='obj', function (obj) standardGeneric ('
 setGeneric('getPatientTable', signature='obj', function (obj, patient.ids=NA, selectCols=NA) standardGeneric ('getPatientTable'))
 setGeneric('getGeneSetNames', signature='obj', function (obj) standardGeneric ('getGeneSetNames'))
 setGeneric('getGeneSetGenes', signature='obj', function (obj, geneSetName) standardGeneric ('getGeneSetGenes'))
+setGeneric('getExpressionDataSetNames', signature='obj', function (obj) standardGeneric ('getExpressionDataSetNames'))
+setGeneric('getExpressionDataSetExpression', signature='obj', function (obj, expressionDataSetName) standardGeneric ('getExpressionDataSetExpression'))
+
 setGeneric('getSampleCategorizationNames',
                               signature='obj', function(obj) standardGeneric('getSampleCategorizationNames'))
 setGeneric('getSampleCategorization',
@@ -322,6 +325,22 @@ setMethod("getGeneSetGenes", "SttrDataPackageClass",
      return(obj@genesets[[geneSetName]])
      })
 
+#----------------------------------------------------------------------------------------------------
+setMethod("getExpressionDataSetNames", "SttrDataPackageClass",
+
+  function (obj) {
+     rownames(obj@manifest)[grep("mrna",rownames(obj@manifest))]
+  })
+#----------------------------------------------------------------------------------------------------
+setMethod("getExpressionDataSetExpression", "SttrDataPackageClass",
+
+  function (obj, expressionDataSetName) {
+     if(!expressionDataSetName %in% getExpressionDataSetNames(obj)){
+        message("Error in getExpressionDataSetExpression: no Expression DataSet named '%s'", expressionDataSetName)
+        return(NA)
+        }
+     return(obj@matrices[[expressionDataSetName]])
+     })
 #----------------------------------------------------------------------------------------------------
 setMethod("getSampleCategorizationNames", "SttrDataPackageClass",
 

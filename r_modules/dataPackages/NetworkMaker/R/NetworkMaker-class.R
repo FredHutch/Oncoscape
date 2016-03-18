@@ -102,6 +102,25 @@ setMethod("usePrecalculatedSampleSimilarityMatrix", "NetworkMaker",
 
 #----------------------------------------------------------------------------------------------------
 # samples and genes args are only for testing; in normal operation the full lists from
+setMethod("calcSimilarity", "NetworkMaker",
+ function(obj, indicatorMatrix) {
+	similarity=NULL
+	maxI <- dim(indicatorMatrix)[2]
+	for (i in 1:maxI) {
+		innerProd <- indicatorMatrix[,i] %*% indicatorMatrix[,-i]
+		innerProd[maxI] <- NA
+		if (i<maxI) {
+			innerProd[(i+1):maxI] <- innerProd[i:(maxI-1)]
+		}
+		innerProd[i] <- 1
+		similarity <- cbind(similarity, innerProd)
+	}
+	rownames(similarity) <- colnames(indicatorMatrix)
+	colnames(similarity) <- colnames(indicatorMatrix)
+	return(similarity)
+}
+
+
 setMethod("calculateSampleSimilarityMatrix", "NetworkMaker",
 
   function (obj, samples=NA, genes=NA, copyNumberValues=c(-2, 2)) {
