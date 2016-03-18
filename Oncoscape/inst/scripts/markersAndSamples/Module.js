@@ -1058,29 +1058,6 @@ function displayMarkersNetwork(msg)
            console.log(" after JSON.parse, json.length: " + json.length);
            console.log("  about to add json.elements");
            cwMarkers.add(json.elements);
-<<<<<<< HEAD
-           cwMarkers.style(json.style);
-           cwMarkers.edges().hide();
-         cwMarkers.filter("edge[edgeType='chromosome']").style({"curve-style": "bezier"});
-         cwMarkers.filter("edge[edgeType='chromosome']").show();
-         cwMarkers.nodes().unselect();
-           // map current node degree into a node attribute of that name, 
-           // save the initial width and height to restore values after zooming.
-         cwMarkers.nodes().map(function(node){node.data({degree: node.degree(), 
-                                                         trueWidth: node.width(), 
-                                                         trueHeight: node.height()});});
-   
-         var edgeTypes = hub.uniqueElementsOfArray(cwMarkers.edges().map(function(edge){
-                                  return(edge.data("edgeType"));}
-                                  ));
-         updateEdgeSelectionWidget(edgeTypes);  // preserve only known edgeTypes
-         cwMarkers.fit(20);
-         
-      var defaultLayout = JSON.stringify(cwMarkers.nodes().map(function(n){
-                                         return({id:n.id(), position:n.position()});}));
-      localStorage.markersDefault = defaultLayout;
-      defaultPatientNodeColor = cwMarkers.nodes("[nodeType='patient']").style("background-color");
-=======
            // map current node degree into a node attribute of that name
        });
       
@@ -1108,7 +1085,6 @@ function displayMarkersNetwork(msg)
 											 return({id:n.id(), position:n.position()});}));
 		  localStorage.markersDefault = defaultLayout;
 		  defaultPatientNodeColor = cwMarkers.nodes("[nodeType='patient']").style("background-color");
->>>>>>> develop
 
 		  hub.logEventOnServer(thisModulesName, "display markers network", "complete", "");
 
