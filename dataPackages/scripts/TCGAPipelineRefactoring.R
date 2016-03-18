@@ -6,7 +6,7 @@ library(stringr)
 library(plyr)
 
 stopifnot(file.exists("TCGA_Reference_Filenames.txt")) 
-TCGAfilename<-read.table("TCGA_Reference_Filenames.txt", sep="\t", header=TRUE)
+TCGAfilename<-read.table("TCGA_Reference_Filenamesu.txt", sep="\t", header=TRUE)
 ##===load drug reference table ===
 drug_ref <- read.table("drug_names_10272015.txt", sep="\t", header=TRUE)
 rad_ref <- read.table("rad_ref_02232016.txt", sep="\t", header=TRUE)
@@ -1285,7 +1285,7 @@ if(PROCEDURE){
       #data.Procedure <- rbind.fill(data.Procedure, tbl.pt[,-match("dxyear", colnames(tbl.pt))])
       #data.Procedure <- merge(data.Procedure, tbl.pt[,c("PatientID", "dxyear")])
       #data.Procedure <- data.Procedure[-which(duplicated(data.Procedure)), ]
-      colnames(data.Procedure)  
+      #colnames(data.Procedure)  
     
       data.Procedure <- rbind.fill(tbl.nte, tbl.omf)
       if(exists("tbl.f1")) data.Procedure <- rbind.fill(data.Procedure, tbl.f1)
@@ -2455,7 +2455,15 @@ create.all.Encounter.records <- function(study_name){
                              ))
   
   data.Encounter <- rbind.fill(tbl.pt, tbl.f1)
-  data.Encounter <- data.Encounter[-which(duplicated(data.Encounter)), ]
+  #data.Encounter <- data.Encounter[-which(duplicated(data.Encounter)), ]
+  
+
+  #data.Encounter  <- merge(tbl.f1, tbl.pt[,c("PatientID")])
+  if(any(duplicated(data.Encounter))){
+    data.Encounter <- data.Encounter[-which(duplicated(data.Encounter)), ]
+  }
+  
+
 
   #create columns for column that are not captured
   encounterColNames <- c("PatientID", "encType", "KPS", "ECOG", "height", "weight", "prefev1.ratio", "prefev1.percent", "postfev1.ratio", "postfev1.percent", "carbon.monoxide.diffusion")
