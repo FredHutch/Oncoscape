@@ -29,7 +29,7 @@ Oncoscape's design encourages custom deployments focused on any clinical/molecul
 data set. Oncoscape, here at GitHub, ships with patient and molecular data from the 		
 TCGA. 
 
-If you would like to update the code or contribute with new features, please read [wiki](https://github.com/FredHutch/Oncoscape/wiki).
+If you would like to update the code or contribute with new features, please read [wiki contribution](https://github.com/FredHutch/Oncoscape/wiki/Contribution).
 
 ## Contact		
 
