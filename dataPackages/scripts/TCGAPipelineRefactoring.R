@@ -1022,6 +1022,7 @@ if(ABSENT){
 if(ENCOUNTER){ # brca, hnsc, prad DO NOT HAVE ENCOUNTER RECORDS!
   Encounter.unique.request <- function(study_name){   
     uri <- rawTablesRequest(study_name, "Encounter")
+    rm(list=ls(pattern="tbl"))
     #(tbl.pt 'encType','karnofsky_score','ECOG only in gbm,lgg,luad,lusc)
     tbl.pt <- loadData(uri[1],  
                        list(
@@ -1050,8 +1051,8 @@ if(ENCOUNTER){ # brca, hnsc, prad DO NOT HAVE ENCOUNTER RECORDS!
     
     # reorganize two tbls 
     data.Encounter <- rbind.fill(tbl.pt, tbl.f1)
-    data.Encounter <- data.Encounter[-which(duplicated(data.Encounter)), ]
-    #colnames(data.Encounter)
+    #data.Encounter <- data.Encounter[-which(duplicated(data.Encounter)), ]
+     #colnames(data.Encounter)
     
     df <- data.Encounter
     unique.encType<- unique(df$encType)
@@ -1082,7 +1083,7 @@ if(ENCOUNTER){ # brca, hnsc, prad DO NOT HAVE ENCOUNTER RECORDS!
     return(result)
   }
   #--------------------------------------------------------------------------------
-  res_list. = lapply(studies, Encounter.unique.request) 
+  #res_list. = lapply(studies, Encounter.unique.request) 
   
 
   Encounter.unique.aggregate <- function(res1, res2){
@@ -1220,8 +1221,8 @@ if(ENCOUNTER){ # brca, hnsc, prad DO NOT HAVE ENCOUNTER RECORDS!
     return(df)
   } 
   #----------------------     Encounter functions End Here      --------------------------
-} # Encounter functions End Here 
-#----------------------Procedure functions Start Here     --------------------------
+} # End of Encounter Native Functions
+#----------------------   Procedure functions Start Here   --------------------------
 if(PROCEDURE){
   Procedure.unique.request <- function(study_name){
     uri <- rawTablesRequest(study_name, "Procedure")
@@ -1264,7 +1265,7 @@ if(PROCEDURE){
                            'new_tumor_event_surgery_days_to_met'= list(name = "date_met", data = "upperCharacter"), #(only in lgg,hnsc,luad,lusc)
                            'new_tumor_event_surgery' = list(name = "new_tumor_event_surgery", data = "upperCharacter") #(In lgg,luad,lusc but not being collected...)
                          ))
-    }
+    					}
     if(!is.na(uri[5])) {
       tbl.nte_f1 <- loadData(uri[5], 
                          list(
@@ -1275,7 +1276,7 @@ if(PROCEDURE){
                            'new_tumor_event_type'  = list(name = "new_tumor_site", data = "upperCharacter"), #(only in hnsc, brca)
                            'new_tumor_event_additional_surgery_procedure'  = list(name = "new_tumor_event_additional_surgery_procedure", data = "upperCharacter") #(hnsc)
                          ))
-    }
+    					}
 
     #data.Procedure <- rbind.fill(tbl.nte, tbl.omf)
 
@@ -1380,7 +1381,7 @@ if(PROCEDURE){
     to[match(c("[UNKNOWN]","[NOT AVAILABLE]","[NOT EVALUATED]","Uknown","[Discrepancy]","Other","NOT LISTED IN MEDICAL RECORD","[NOT APPLICABLE]","[PENDING]"  ), to)] <- NA
     df$side <- mapvalues(df$side, from = from, to = to, warn_missing = T)
     return(df)
-  }	
+  	}	
   #------------------------------------------------------------------------------------------------------------------------------------------
   Procedure.mapping.site<- function(df){
     from <- Procedure.unique.site
@@ -1388,7 +1389,7 @@ if(PROCEDURE){
     to[match(c("[UNKNOWN]","[NOT AVAILABLE]","[NOT EVALUATED]","Uknown","[Discrepancy]","Other","NOT LISTED IN MEDICAL RECORD","[NOT APPLICABLE]","[PENDING]"  ), to)] <- NA
     df$site<- mapvalues(df$site, from = from, to = to, warn_missing = T)
     return(df)
-  }	
+  	}	
   #------------------------------------------------------------------------------------------------------------------------------------------
   Procedure.mapping.local<- function(df){
     from <- Procedure.unique.local
@@ -1396,7 +1397,7 @@ if(PROCEDURE){
     to[match(c("[UNKNOWN]","[NOT AVAILABLE]","[NOT EVALUATED]","Uknown","[Discrepancy]","Other","NOT LISTED IN MEDICAL RECORD","[NOT APPLICABLE]","[PENDING]"  ), to)] <- NA
     df$site<- mapvalues(df$local, from = from, to = to, warn_missing = T)
     return(df)
-  }	
+  	}	
   #------------------------------------------------------------------------------------------------------------------------------------------
   Procedure.mapping.new_tumor_event_surgery<- function(df){
     from <- Procedure.unique.new_tumor_event_surgery
@@ -1404,7 +1405,7 @@ if(PROCEDURE){
     to[match(c("[UNKNOWN]","[NOT AVAILABLE]","[NOT EVALUATED]","Uknown","[Discrepancy]","Other","NOT LISTED IN MEDICAL RECORD","[NOT APPLICABLE]","[PENDING]"  ), to)] <- NA
     df$new_tumor_event_surgery<- mapvalues(df$new_tumor_event_surgery, from = from, to = to, warn_missing = T)
     return(df)
-  }	
+  	}	
   #------------------------------------------------------------------------------------------------------------------------------------------
   Procedure.mapping.new_neoplasm_site<- function(df){
     from <- Procedure.unique.new_neoplasm_site
@@ -1412,7 +1413,7 @@ if(PROCEDURE){
     to[match(c("[UNKNOWN]","[NOT AVAILABLE]","[NOT EVALUATED]","Uknown","[Discrepancy]","Other","NOT LISTED IN MEDICAL RECORD","[NOT APPLICABLE]","[PENDING]"  ), to)] <- NA
     df$new_neoplasm_site<- mapvalues(df$new_neoplasm_site, from = from, to = to, warn_missing = T)
     return(df)
-  }	
+  	}	
   #------------------------------------------------------------------------------------------------------------------------------------------
   Procedure.mapping.new_tumor_site<- function(df){
     from <- Procedure.unique.new_tumor_site
@@ -1420,7 +1421,7 @@ if(PROCEDURE){
     to[match(c("[UNKNOWN]","[NOT AVAILABLE]","[NOT EVALUATED]","Uknown","[Discrepancy]","Other","NOT LISTED IN MEDICAL RECORD","[NOT APPLICABLE]","[PENDING]"  ), to)] <- NA
     df$new_tumor_site<- mapvalues(df$new_tumor_site, from = from, to = to, warn_missing = T)
     return(df)
-  }	 
+  	}	 
   #------------------------------------------------------------------------------------------------------------------------------------------
   Procedure.mapping.new_tumor_event_additional_surgery_procedure<- function(df){
     from <- Procedure.unique.new_tumor_event_additional_surgery_procedure
@@ -1428,7 +1429,7 @@ if(PROCEDURE){
     to[match(c("[UNKNOWN]","[NOT AVAILABLE]","[NOT EVALUATED]","Uknown","[Discrepancy]","Other","NOT LISTED IN MEDICAL RECORD","[NOT APPLICABLE]","[PENDING]"  ), to)] <- NA
     df$new_tumor_event_additional_surgery_procedure<- mapvalues(df$new_tumor_event_additional_surgery_procedure, from = from, to = to, warn_missing = T)
     return(df)
-  }	
+  	}	
   #-----------------------------------------------------------------------------------------------------------------------------------------
   Procedure.mapping.other_malignancy_side<- function(df){
     from <- Procedure.unique.other_malignancy_side
@@ -1436,7 +1437,7 @@ if(PROCEDURE){
     to[match(c("[UNKNOWN]","[NOT AVAILABLE]","[NOT EVALUATED]","Uknown","[Discrepancy]","Other","NOT LISTED IN MEDICAL RECORD","[NOT APPLICABLE]","[PENDING]"  ), to)] <- NA
     df$other_malignancy_side<- mapvalues(df$other_malignancy_side, from = from, to = to, warn_missing = T)
     return(df)
-  }	
+  	}	
   #------------------------------------------------------------------------------------------------------------------------------------------
   Procedure.mapping.surgery_name<- function(df){
     from <- Procedure.unique.surgery_name
@@ -1444,7 +1445,7 @@ if(PROCEDURE){
     to[match(c("[UNKNOWN]","[NOT AVAILABLE]","[NOT EVALUATED]","Uknown","[Discrepancy]","Other","NOT LISTED IN MEDICAL RECORD","[NOT APPLICABLE]","[PENDING]"  ), to)] <- NA
     df$surgery_name<- mapvalues(df$surgery_name, from = from, to = to, warn_missing = T)
     return(df)
-  }	
+  	}	
   #------------------------------------------------------------------------------------------------------------------------------------------
   Procedure.mapping.surgical_procedure_first<- function(df){
     from <- Procedure.unique.surgical_procedure_first
@@ -1452,7 +1453,7 @@ if(PROCEDURE){
     to[match(c("[UNKNOWN]","[NOT AVAILABLE]","[NOT EVALUATED]","Uknown","[Discrepancy]","Other","NOT LISTED IN MEDICAL RECORD","[NOT APPLICABLE]","[PENDING]"  ), to)] <- NA
     df$surgical_procedure_first<- mapvalues(df$surgical_procedure_first, from = from, to = to, warn_missing = T)
     return(df)
-  }	
+  	}	
   #------------------------------------------------------------------------------------------------------------------------------------------
   Procedure.mapping.first_surgical_procedure_other<- function(df){
     from <- Procedure.unique.first_surgical_procedure_other
@@ -1460,20 +1461,20 @@ if(PROCEDURE){
     to[match(c("[UNKNOWN]","[NOT AVAILABLE]","[NOT EVALUATED]","Uknown","[Discrepancy]","Other","NOT LISTED IN MEDICAL RECORD","[NOT APPLICABLE]","[PENDING]"  ), to)] <- NA
     df$first_surgical_procedure_other<- mapvalues(df$first_surgical_procedure_other, from = from, to = to, warn_missing = T)
     return(df)
-  }	
-#---mapping date fields----------------------------------------------------------------------------------------------------------------------
+  	}	
+  #-------------------------------------------------------------------------------------------------------------------------
   Procedure.mapping.date_loco <- function(df){
     from <- Procedure.unique.date_loco
     to 	 <- from 
     to[match(c("[UNKNOWN]","[NOT AVAILABLE]","[NOT EVALUATED]","Uknown","[Discrepancy]","Other","NOT LISTED IN MEDICAL RECORD","[NOT APPLICABLE]","[PENDING]"  ), to)] <- NA
     df$date_loco <- mapvalues(df$date_loco, from = from, to = to, warn_missing = T)
     return(df)
-  }	
+  	}	
 
   Procedure.mapping.date.Calculation_date_loco <- function(df){
     df$date_loco <- format(as.Date(df$dxyear,"%m/%d/%Y") + as.integer(df$date_loco), "%m/%d/%Y")
     return(df)
-  }	   
+  	}	   
   #------------------------------------------------------------------------------------------------------------------------------------------
   Procedure.mapping.date_met <- function(df){
     from <- Procedure.unique.date_met
@@ -1481,39 +1482,36 @@ if(PROCEDURE){
     to[match(c("[UNKNOWN]","[NOT AVAILABLE]","[NOT EVALUATED]","Uknown","[Discrepancy]","Other","NOT LISTED IN MEDICAL RECORD","[NOT APPLICABLE]","[PENDING]"  ), to)] <- NA
     df$date_met <- mapvalues(df$date_met, from = from, to = to, warn_missing = T)
     return(df)
-  }	
- 
-  Procedure.mapping.date.Calculation_date_met <- function(df){
+  	}	
+ Procedure.mapping.date.Calculation_date_met <- function(df){
     df$date_met <- format(as.Date(df$dxyear,"%m/%d/%Y") + as.integer(df$date_met), "%m/%d/%Y")
     return(df)
-  }	   
-#----------------------------------------------------------------------------------------------------------------------------------------
-  Procedure.mapping.date_additional_surgery_procedure  <- function(df){
-    from <- Procedure.unique.date_additional_surgery_procedure
+  	}	   
+
+  Procedure.mapping.date_additional_surgery_procedure <- function(df){
+    from <- Procedure.unique.additional_surgery_procedure
     to 	 <- from 
     to[match(c("[UNKNOWN]","[NOT AVAILABLE]","[NOT EVALUATED]","Uknown","[Discrepancy]","Other","NOT LISTED IN MEDICAL RECORD","[NOT APPLICABLE]","[PENDING]"  ), to)] <- NA
-    df$date_additional_surgery_procedure <- mapvalues(df$date_additional_surgery_procedure, from = from, to = to, warn_missing = T)
+    df$additional_surgery_procedure <- mapvalues(df$additional_surgery_procedure, from = from, to = to, warn_missing = T)
     return(df)
-  }	
-  
-  Procedure.mapping.date_additional_surgery_procedure <- function(df){
-    df$date_additional_surgery_procedure <- format(as.Date(df$dxyear,"%m/%d/%Y") + as.integer(df$date_additional_surgery_procedure), "%m/%d/%Y")
+  	}	
+ Procedure.mapping.date_additional_surgery_procedure  <- function(df){
+    df$additional_surgery_procedure <- format(as.Date(df$dxyear,"%m/%d/%Y") + as.integer(df$additional_surgery_procedure), "%m/%d/%Y")
     return(df)
-  }	
-  #------------------------------------------------------------------------------------------------------------------------------------------
-  Procedure.mapping.surgical_resection_date <- function(df){
+  	}	 
+  Procedure.mapping.date.surgical_resection_date <- function(df){
     from <- Procedure.unique.surgical_resection_date
     to 	 <- from 
     to[match(c("[UNKNOWN]","[NOT AVAILABLE]","[NOT EVALUATED]","Uknown","[Discrepancy]","Other","NOT LISTED IN MEDICAL RECORD","[NOT APPLICABLE]","[PENDING]"  ), to)] <- NA
     df$surgical_resection_date <- mapvalues(df$surgical_resection_date, from = from, to = to, warn_missing = T)
     return(df)
-  }	
-  Procedure.mapping.date.surgical_resection_date <- function(df){
+  	}	
+ Procedure.mapping.date.surgical_resection_date  <- function(df){
     df$surgical_resection_date <- format(as.Date(df$dxyear,"%m/%d/%Y") + as.integer(df$surgical_resection_date), "%m/%d/%Y")
     return(df)
-  } 
-}  #Procedure functions End Here
-#----------------------Pathology functions Start Here     --------------------------
+  	}	
+}  # End of Procedure Native Functions
+#----------------------   Pathology functions Start Here   --------------------------
 if(PATHOLOGY){
   Pathology.unique.request <- function(study_name){
 		uri <- rawTablesRequest(study_name, "Pathology")
@@ -1543,15 +1541,19 @@ if(PATHOLOGY){
 		         'other_malignancy_histological_type_text' = list(name = "histology_text", data = "upperCharacter")
 		          ))
 		# reorganize two tbls 
-		data.Pathology <- rbind.fill(tbl.pt, tbl.omf)
-		data.Pathology <- data.Pathology[-which(duplicated(data.Pathology)), ]
-		
-		colnames(data.Pathology)
+		data.Pathology <- rbind.fill(tbl.pt[,-match("dxyear", colnames(tbl.pt))], tbl.omf)
+		data.Pathology <- merge(data.Pathology, tbl.pt[,c("PatientID", "dxyear")])
+		if(any(duplicated(data.Pathology))){
+		  data.Pathology <- data.Pathology[-which(duplicated(data.Pathology)), ]
+		}
+		#colnames(data.Pathology)
+		#data.Pathology <- rbind.fill(tbl.pt, tbl.omf)
+		#data.Pathology <- data.Pathology[-which(duplicated(data.Pathology)), ]
 
 		df <- data.Pathology
 		unique.dxyear <- unique(df$dxyear)
 		unique.pathDisease<- unique(df$pathDisease)
-  	unique.pathHistology <- unique(df$pathHistology)
+  		unique.pathHistology <- unique(df$pathHistology)
 		unique.prospective <- unique(df$prospective)
 		unique.retrospective <- unique(df$retrospective)
 		unique.pathMethod <- unique(df$pathMethod)
@@ -1630,7 +1632,7 @@ if(PATHOLOGY){
 	    to[match(c("[UNKNOWN]","[NOT AVAILABLE]","[NOT EVALUATED]","Uknown","[Discrepancy]","Other","NOT LISTED IN MEDICAL RECORD","[NOT APPLICABLE]","[PENDING]","[COMPLETED]"), to)] <- NA
 	    df$pathDisease <- mapvalues(df$pathDisease, from = from, to = to, warn_missing = T)
 	    return(df)
-	  }	
+	}		 
   #------------------------------------------------------------------------------------------------------------------------------------------
   Pathology.mapping.pathHistology<- function(df){
 	    from <- Pathology.unique.pathHistology
@@ -1638,7 +1640,7 @@ if(PATHOLOGY){
 	    to[match(c("[UNKNOWN]","[NOT AVAILABLE]","[NOT EVALUATED]","Uknown","[Discrepancy]","Other","NOT LISTED IN MEDICAL RECORD","[NOT APPLICABLE]","[PENDING]","[COMPLETED]"), to)] <- NA
 	    df$pathHistology <- mapvalues(df$pathHistology, from = from, to = to, warn_missing = T)
 	    return(df)
-	  }	
+	}	
   #------------------------------------------------------------------------------------------------------------------------------------------
   Pathology.mapping.retrospective<- function(df){
 	    from <- Pathology.unique.retrospective
@@ -1646,7 +1648,7 @@ if(PATHOLOGY){
 	    to[match(c("[UNKNOWN]","[NOT AVAILABLE]","[NOT EVALUATED]","Uknown","[Discrepancy]","Other","NOT LISTED IN MEDICAL RECORD","[NOT APPLICABLE]","[PENDING]","[COMPLETED]"), to)] <- NA
 	    df$retrospective <- mapvalues(df$retrospective, from = from, to = to, warn_missing = T)
 	    return(df)
-	  }	  
+	}	  
   #------------------------------------------------------------------------------------------------------------------------------------------
   Pathology.mapping.prospective<- function(df){
 	    from <- Pathology.unique.prospective
@@ -1654,7 +1656,7 @@ if(PATHOLOGY){
 	    to[match(c("[UNKNOWN]","[NOT AVAILABLE]","[NOT EVALUATED]","Uknown","[Discrepancy]","Other","NOT LISTED IN MEDICAL RECORD","[NOT APPLICABLE]","[PENDING]","[COMPLETED]"), to)] <- NA
 	    df$prospective <- mapvalues(df$prospective, from = from, to = to, warn_missing = T)
 	    return(df)
-	  }	  
+	}	  
   #------------------------------------------------------------------------------------------------------------------------------------------
   Pathology.mapping.pathMethod<- function(df){
 	    from <- Pathology.unique.pathMethod
@@ -1662,7 +1664,7 @@ if(PATHOLOGY){
 	    to[match(c("[UNKNOWN]","[NOT AVAILABLE]","[NOT EVALUATED]","Uknown","[Discrepancy]","Other","NOT LISTED IN MEDICAL RECORD","[NOT APPLICABLE]","[PENDING]","[COMPLETED]"), to)] <- NA
 	    df$pathMethod <- mapvalues(df$pathMethod, from = from, to = to, warn_missing = T)
 	    return(df)
-	  }	  
+	}	  
   #------------------------------------------------------------------------------------------------------------------------------------------
   Pathology.mapping.T.Stage<- function(df){
 	    from <- Pathology.unique.T.Stage
@@ -1670,7 +1672,7 @@ if(PATHOLOGY){
 	    to[match(c("[UNKNOWN]","[NOT AVAILABLE]","[NOT EVALUATED]","Uknown","[Discrepancy]","Other","NOT LISTED IN MEDICAL RECORD","[NOT APPLICABLE]","[PENDING]","[COMPLETED]"), to)] <- NA
 	    df$T.Stage <- mapvalues(df$T.Stage, from = from, to = to, warn_missing = T)
 	    return(df)
-	  }	  
+	}	  
   #------------------------------------------------------------------------------------------------------------------------------------------
   Pathology.mapping.N.Stage<- function(df){
 	    from <- Pathology.unique.N.Stage
@@ -1678,7 +1680,7 @@ if(PATHOLOGY){
 	    to[match(c("[UNKNOWN]","[NOT AVAILABLE]","[NOT EVALUATED]","Uknown","[Discrepancy]","Other","NOT LISTED IN MEDICAL RECORD","[NOT APPLICABLE]","[PENDING]","[COMPLETED]"), to)] <- NA
 	    df$N.Stage <- mapvalues(df$N.Stage, from = from, to = to, warn_missing = T)
 	    return(df)
-	  }	  
+	}	  
   #------------------------------------------------------------------------------------------------------------------------------------------
   Pathology.mapping.M.Stage<- function(df){
 	    from <- Pathology.unique.M.Stage
@@ -1686,7 +1688,7 @@ if(PATHOLOGY){
 	    to[match(c("[UNKNOWN]","[NOT AVAILABLE]","[NOT EVALUATED]","Uknown","[Discrepancy]","Other","NOT LISTED IN MEDICAL RECORD","[NOT APPLICABLE]","[PENDING]","[COMPLETED]"), to)] <- NA
 	    df$M.Stage <- mapvalues(df$M.Stage, from = from, to = to, warn_missing = T)
 	    return(df)
-	  }	
+	}	
   #------------------------------------------------------------------------------------------------------------------------------------------
   Pathology.mapping.staging.System<- function(df){
 	    from <- Pathology.unique.staging.System
@@ -1694,7 +1696,7 @@ if(PATHOLOGY){
 	    to[match(c("[UNKNOWN]","[NOT AVAILABLE]","[NOT EVALUATED]","Uknown","[Discrepancy]","Other","NOT LISTED IN MEDICAL RECORD","[NOT APPLICABLE]","[PENDING]","[COMPLETED]"), to)] <- NA
 	    df$staging.System <- mapvalues(df$staging.System, from = from, to = to, warn_missing = T)
 	    return(df)
-	  }	 
+	}	 
   #------------------------------------------------------------------------------------------------------------------------------------------
   Pathology.mapping.grade<- function(df){
 	    from <- Pathology.unique.grade
@@ -1702,7 +1704,7 @@ if(PATHOLOGY){
 	    to[match(c("[UNKNOWN]","[NOT AVAILABLE]","[NOT EVALUATED]","Uknown","[Discrepancy]","Other","NOT LISTED IN MEDICAL RECORD","[NOT APPLICABLE]","[PENDING]","[COMPLETED]"), to)] <- NA
 	    df$grade <- mapvalues(df$grade, from = from, to = to, warn_missing = T)
 	    return(df)
-	  }	 
+	}	 
   #------------------------------------------------------------------------------------------------------------------------------------------
   Pathology.mapping.disease<- function(df){
 	    from <- Pathology.unique.disease
@@ -1710,7 +1712,7 @@ if(PATHOLOGY){
 	    to[match(c("[UNKNOWN]","[NOT AVAILABLE]","[NOT EVALUATED]","Uknown","[Discrepancy]","Other","NOT LISTED IN MEDICAL RECORD","[NOT APPLICABLE]","[PENDING]","[COMPLETED]"), to)] <- NA
 	    df$disease <- mapvalues(df$disease, from = from, to = to, warn_missing = T)
 	    return(df)
-	  }	  
+	}	  
   #------------------------------------------------------------------------------------------------------------------------------------------
   Pathology.mapping.histology<- function(df){
 	    from <- Pathology.unique.histology
@@ -1718,7 +1720,7 @@ if(PATHOLOGY){
 	    to[match(c("[UNKNOWN]","[NOT AVAILABLE]","[NOT EVALUATED]","Uknown","[Discrepancy]","Other","NOT LISTED IN MEDICAL RECORD","[NOT APPLICABLE]","[PENDING]","[COMPLETED]"), to)] <- NA
 	    df$histology <- mapvalues(df$histology, from = from, to = to, warn_missing = T)
 	    return(df)
-	  }	
+	}	
   #------------------------------------------------------------------------------------------------------------------------------------------
   Pathology.mapping.histology_text <- function(df){
 	    from <- Pathology.unique.histology_text 
@@ -1726,36 +1728,32 @@ if(PATHOLOGY){
 	    to[match(c("[UNKNOWN]","[NOT AVAILABLE]","[NOT EVALUATED]","Uknown","[Discrepancy]","Other","NOT LISTED IN MEDICAL RECORD","[NOT APPLICABLE]","[PENDING]","[COMPLETED]"), to)] <- NA
 	    df$histology_text  <- mapvalues(df$histology_text , from = from, to = to, warn_missing = T)
 	    return(df)
-	  }	
-#-mapping dates---------------------------------------------------------------------------------------------------------------------------
-  
+	}	
+  #------------------------------------------------------------------------------------------------------------------------------------------
   Pathology.mapping.pathology.offset <- function(df){
 	    from <- Pathology.unique.pathology.offset 
 	    to 	 <- from 
 	    to[match(c("[UNKNOWN]","[NOT AVAILABLE]","[NOT EVALUATED]","Uknown","[Discrepancy]","Other","NOT LISTED IN MEDICAL RECORD","[NOT APPLICABLE]","[PENDING]","[COMPLETED]"), to)] <- NA
 	    df$pathology.offset  <- mapvalues(df$pathology.offset , from = from, to = to, warn_missing = T)
 	    return(df)
-	  }	 
-
+	}	 
   Pathology.mapping.date_calculation.pathology.offset <- function(df){
-    df$pathology.offset <- format(as.Date(df$dxyear,"%m/%d/%Y") + as.integer(df$pathology.offset), "%m/%d/%Y")
-    return(df)
-  }	
-#---------------------------------------------------------------------------------------------------------------------------------------   
+    	df$pathology.offset <- format(as.Date(df$dxyear,"%m/%d/%Y") + as.integer(df$pathology.offset), "%m/%d/%Y")
+    	return(df)
+  	}	
+  #------------------------------------------------------------------------------------------------------------------------------------------
   Pathology.mapping.omfOffset <- function(df){
-  from <- Pathology.unique.omfOffset
-  to 	 <- from 
-  to[match(c("[UNKNOWN]","[NOT AVAILABLE]","[NOT EVALUATED]","Uknown","[Discrepancy]","Other","NOT LISTED IN MEDICAL RECORD","[NOT APPLICABLE]","[PENDING]","[COMPLETED]"), to)] <- NA
-  df$omfOffset <- mapvalues(df$omfOffset , from = from, to = to, warn_missing = T)
-  return(df)
-}	 
-
-Pathology.mapping.date_calculation.omfOffset <- function(df){
-  df$omfOffset <- format(as.Date(df$dxyear,"%m/%d/%Y") + as.integer(df$omfOffset), "%m/%d/%Y")
-  return(df)
-}	
-#---------------------------------------------------------------------------------------------------------------------------------------     
-  } #Pathology functions End Here 
+  		from <- Pathology.unique.omfOffset
+  		to 	 <- from 
+  		to[match(c("[UNKNOWN]","[NOT AVAILABLE]","[NOT EVALUATED]","Uknown","[Discrepancy]","Other","NOT LISTED IN MEDICAL RECORD","[NOT APPLICABLE]","[PENDING]","[COMPLETED]"), to)] <- NA
+  		df$omfOffset <- mapvalues(df$omfOffset , from = from, to = to, warn_missing = T)
+  		return(df)
+	}	 
+  Pathology.mapping.date_calculation.omfOffset <- function(df){
+  		df$omfOffset <- format(as.Date(df$dxyear,"%m/%d/%Y") + as.integer(df$omfOffset), "%m/%d/%Y")
+  		return(df)
+	}	  
+} # End of Pathology Native Functions
 ################################################     Step 4: Generate Result    ##################################################
 create.DOB.records <- function(study_name, ptID){
 	uri <- rawTablesRequest(study_name, "DOB")
@@ -2429,7 +2427,7 @@ lapply(studies, create.Tests.records)
 #--------------------------------------------------------------------------------------------------------------------------
 create.all.Encounter.records <- function(study_name){
   uri <- rawTablesRequest(study_name, "Encounter")
-  #rm(list=ls(pattern="tbl"))
+  rm(list=ls(pattern="tbl"))
   #(tbl.pt 'encType','karnofsky_score','ECOG only in gbm,lgg,luad,lusc)
   tbl.pt <- loadData(uri[1],  
                      list(
@@ -2457,7 +2455,8 @@ create.all.Encounter.records <- function(study_name){
                              ))
   
   data.Encounter <- rbind.fill(tbl.pt, tbl.f1)
-  
+  data.Encounter <- data.Encounter[-which(duplicated(data.Encounter)), ]
+
   #create columns for column that are not captured
   encounterColNames <- c("PatientID", "encType", "KPS", "ECOG", "height", "weight", "prefev1.ratio", "prefev1.percent", "postfev1.ratio", "postfev1.percent", "carbon.monoxide.diffusion")
   m <- matrix(nrow=nrow(data.Encounter), ncol=length(which(!(encounterColNames) %in% colnames(data.Encounter))))
@@ -2621,9 +2620,10 @@ create.all.Procedure.records <- function(study_name){
     return(result)
     print(c(study_name, dim(data.Procedure), length(result)))
   }
+}
 lapply(studies, create.all.Procedure.records) 
 #--------------------------------------------------------------------------------------------------------------------------  
-create.all.Pathology.records <- function(study_name){   
+create.all.Pathology.records <- function(study_name){
   uri <- rawTablesRequest(study_name, "Pathology")
   rm(list=ls(pattern="tbl"))
   tbl.pt <- loadData(uri[1], 
@@ -2681,13 +2681,9 @@ create.all.Pathology.records <- function(study_name){
   data.Pathology <- Pathology.mapping.histology_text(data.Pathology)
   data.Pathology <- Pathology.mapping.date_calculation.pathology.offset(data.Pathology)
   data.Pathology <- Pathology.mapping.date_calculation.omfOffset(data.Pathology)
-# result
   
   ptNumMap <- ptNumMapUpdate(tbl.pt)
-  
-  
-  
-  
+ 
   result <- apply(data.Pathology, 1, function(x){
     PatientID = getElement(x, "PatientID")
     PtNum = ptNumMap[ptNumMap$PatientID == PatientID,]$PatientNumber
