@@ -21,7 +21,9 @@ browser and R (primarily) on the backend server. It is an R package, though the
 immediate web-facing http server, currently written in R, will likely change over time 		
 to a more traditional architecture.		
 
-The goal of Oncoscape is to provide browser-based, user-friendly data exploration tools 		
+## The goal of Oncoscape 
+
+is to provide browser-based, user-friendly data exploration tools 		
 for rich clinical and molecular cancer data, supported by statistically powerful analysis.		
 R is very well-suited to handling data, and performing analysis. JavaScript in the 		
 browser provides a rich and nimble user experience.  Data & methods are sent and received		
@@ -32,23 +34,7 @@ Oncoscape's design encourages custom deployments focused on any clinical/molecul
 data set. Oncoscape, here at GitHub, ships with patient and molecular data from the 		
 TCGA. 		
 
-##	Main Components:		
-* oncoDev14        - main oncoscape code with all tabs/submodules		
-* dataPackages     - clinical and molecular data files and API		
-* analysisPackages - computational methods that execute on passed data		
-* Optional:		
-  * Rlibs			 - local installation folder for running compiled packages
- 
-## Update		
 
-OncoDev14 (v1.4.60) was built and tested under R version >=3.2.1		
-The [latest release](http://oncoscape.sttrcancer.org) of Oncoscape is maintained under the 'master' branch of our GitHub repository, while the [beta version](http://dev.oncoscape.sttrcancer.io/) includes upcoming enhancements maintained under the 'develop' branch.
-
-## Authors		
-
-The code base for Oncoscape was written by Paul Shannon, Lisa McFerrin, Hamid Bolouri, and		
-Jenny Zhang under the direction of the STTR at Fred Hutch.		
-	
 ## Contact		
 
 To report any bugs, submit patches, or request new features, please log an issue [in our issue tracker](https://github.com/FredHutch/Oncoscape/issues/new).  For direct inquiries, please send an email to contact@oncoscape.org.
