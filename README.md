@@ -14,7 +14,7 @@ auspices of the Solid Tumor Translational Research initiative.
 Oncoscape is as an SPA -- a single page web application -- using JavaScript in the 		
 browser and R (primarily) on the backend server. It is an R package, though the 		
 immediate web-facing http server, currently written in R, will likely change over time 		
-to a more traditional architecture. 		
+to a more traditional architecture. For more detailed information, please see [wiki](https://github.com/FredHutch/Oncoscape/wiki).		
 
 ## The Goal 
 
