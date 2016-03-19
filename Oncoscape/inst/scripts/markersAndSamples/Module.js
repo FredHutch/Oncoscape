@@ -441,8 +441,11 @@ function defaultStyle()
 //
 function subSelectNodes()
 {
-  var selectedPatientNodes = cwMarkers.nodes("node[nodeType='patient']:selected");
-  var categories = jQuery.unique(selectedPatientNodes.map(function(e){return e.data("category");}));
+  
+  var selectedPatientNodes = cwMarkers.nodes("node[nodeType= 'patient']:selected");
+  var categories = jQuery.unique(
+  	selectedPatientNodes.map(function(e){
+  		return e.data("category");}));
 
   var colors = jQuery.unique(selectedPatientNodes.map(function(node){return (node.style("background-color"));}));
 
@@ -605,6 +608,7 @@ function applyTumorCategorization(msg)
         var indexInTable = tumorsInTable.indexOf(nodeID);
         if(indexInTable >= 0){
            var cluster = tbl[indexInTable][0];
+           var color = tbl[indexInTable][1];
            node.data({category: cluster});
            }
         else{
