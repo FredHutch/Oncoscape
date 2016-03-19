@@ -5,8 +5,8 @@ library(R.utils)
 library(stringr)
 library(plyr)
 
-stopifnot(file.exists("TCGA_Reference_Filenames.txt")) 
-TCGAfilename<-read.table("TCGA_Reference_Filenamesu.txt", sep="\t", header=TRUE)
+stopifnot(file.exists("TCGA_Reference_Filenames_gh.txt")) 
+TCGAfilename<-read.table("TCGA_Reference_Filenames_gh.txt", sep="\t", header=TRUE)
 ##===load drug reference table ===
 drug_ref <- read.table("drug_names_10272015.txt", sep="\t", header=TRUE)
 rad_ref <- read.table("rad_ref_02232016.txt", sep="\t", header=TRUE)
@@ -1048,7 +1048,8 @@ if(ENCOUNTER){
 	                                 'ecog_score' = list(name = "ECOG", data = "upperCharacter")
 	                               ))
 	    
-	    # reorganize two tbls 
+	    # reorganize two tbls
+
 	    data.Encounter <- rbind.fill(tbl.pt, tbl.f1)
 	    #colnames(data.Encounter)
 	    
@@ -1273,22 +1274,16 @@ if(PROCEDURE){
                          ))
     					}
 
-    #data.Procedure <- rbind.fill(tbl.nte, tbl.omf)
-
-      #if(exists("tbl.f1")) data.Procedure <- rbind.fill(data.Procedure, tbl.f1)
-      #if(exists("tbl.nte_f1")) data.Procedure <- rbind.fill(data.Procedure, tbl.nte_f1)
-      #data.Procedure <- rbind.fill(data.Procedure, tbl.pt[,-match("dxyear", colnames(tbl.pt))])
-      #data.Procedure <- merge(data.Procedure, tbl.pt[,c("PatientID", "dxyear")])
-      #data.Procedure <- data.Procedure[-which(duplicated(data.Procedure)), ]
-      #colnames(data.Procedure)  
     
-      data.Procedure <- rbind.fill(tbl.nte, tbl.omf)
-      if(exists("tbl.f1")) data.Procedure <- rbind.fill(data.Procedure, tbl.f1)
-      if(exists("tbl.nte_f1")) data.Procedure <- rbind.fill(data.Procedure, tbl.nte_f1)
-      data.Procedure <- merge(data.Procedure, tbl.pt)
-      data.Procedure <- data.Procedure[-which(duplicated(data.Procedure)), ]
-      #colnames(data.Procedure)  
-      
+      	data.Procedure <- rbind.fill(tbl.omf, tbl.nte)
+    	data.Procedure <- rbind.fill(data.Procedure, tbl.f1)      
+      	if(exists("tbl.nte_f1")) data.Procedure <- rbind.fill(data.Procedure, tbl.nte_f1)      	
+      	data.Procedure <- rbind.fill(tbl.pt[,-match("dxyear", colnames(tbl.pt))], data.Procedure)	
+		data.Procedure <- merge(data.Procedure, tbl.pt[,c("PatientID", "dxyear")])	
+		if(any(duplicated(data.Procedure))){
+		  data.Procedure <- data.Procedure[-which(duplicated(data.Procedure)), ]
+		}
+		colnames(data.Procedure)
       
       #some of these columns are in multipe tables but listed below is only unique column names 
       df <- data.Procedure
@@ -1484,14 +1479,14 @@ if(PROCEDURE){
   	}	   
 
   Procedure.mapping.date_additional_surgery_procedure <- function(df){
-    from <- Procedure.unique.additional_surgery_procedure
+    from <- Procedure.unique.date_additional_surgery_procedure
     to 	 <- from 
     to[match(c("[UNKNOWN]","[NOT AVAILABLE]","[NOT EVALUATED]","Uknown","[Discrepancy]","Other","NOT LISTED IN MEDICAL RECORD","[NOT APPLICABLE]","[PENDING]"  ), to)] <- NA
-    df$additional_surgery_procedure <- mapvalues(df$additional_surgery_procedure, from = from, to = to, warn_missing = T)
+    df$date_additional_surgery_procedure <- mapvalues(df$date_additional_surgery_procedure, from = from, to = to, warn_missing = T)
     return(df)
   	}	
  Procedure.mapping.date_additional_surgery_procedure  <- function(df){
-    df$additional_surgery_procedure <- format(as.Date(df$dxyear,"%m/%d/%Y") + as.integer(df$additional_surgery_procedure), "%m/%d/%Y")
+    df$date_additional_surgery_procedure <- format(as.Date(df$dxyear,"%m/%d/%Y") + as.integer(df$date_additional_surgery_procedure), "%m/%d/%Y")
     return(df)
   	}	 
   Procedure.mapping.date.surgical_resection_date <- function(df){
@@ -2469,24 +2464,19 @@ create.all.Encounter.records <- function(study_name){
                                'ecog_score' = list(name = "ECOG", data = "upperCharacter")
                              ))
   
+  #brca, prad, hnsc do not have any Encounter records!
   data.Encounter <- rbind.fill(tbl.pt, tbl.f1)
-  #data.Encounter <- data.Encounter[-which(duplicated(data.Encounter)), ]
   
-
-  #data.Encounter  <- merge(tbl.f1, tbl.pt[,c("PatientID")])
-  if(any(duplicated(data.Encounter))){
-    data.Encounter <- data.Encounter[-which(duplicated(data.Encounter)), ]
-  }
   
-
-
   #create columns for column that are not captured
   encounterColNames <- c("PatientID", "encType", "KPS", "ECOG", "height", "weight", "prefev1.ratio", "prefev1.percent", "postfev1.ratio", "postfev1.percent", "carbon.monoxide.diffusion")
+  
   m <- matrix(nrow=nrow(data.Encounter), ncol=length(which(!(encounterColNames) %in% colnames(data.Encounter))))
   df <- as.data.frame(m)
   colnames(df) <- encounterColNames[(which(!(encounterColNames) %in% colnames(data.Encounter)))]
   data.Encounter<- cbind(data.Encounter, df) 
   
+
   # mapping
   data.Encounter <- Encounter.mapping.encType(data.Encounter)
   data.Encounter <- Encounter.mapping.KPS(data.Encounter)
@@ -2579,30 +2569,27 @@ create.all.Procedure.records <- function(study_name){
                              ))
     }
     
-    #data.Procedure <- rbind.fill(tbl.nte, tbl.omf)
-    #if(exists("tbl.f1")) data.Procedure <- rbind.fill(data.Procedure, tbl.f1)
-    #if(exists("tbl.nte_f1")) data.Procedure <- rbind.fill(data.Procedure, tbl.nte_f1)
-    #if(exists("tbl.pt")) data.Procedure <- rbind.fill(data.Procedure, tbl.pt[,-match("dxyear", colnames(tbl.pt))])
-    #data.Procedure <- merge(data.Procedure, tbl.pt[,c("PatientID", "dxyear")])
-    #data.Procedure <- data.Procedure[-which(duplicated(data.Procedure)), ]
-     
-    
-    data.Procedure <- rbind.fill(tbl.nte, tbl.omf)
-    if(exists("tbl.f1")) data.Procedure <- rbind.fill(data.Procedure, tbl.f1)
-    if(exists("tbl.nte_f1")) data.Procedure <- rbind.fill(data.Procedure, tbl.nte_f1)
-    data.Procedure <- merge(data.Procedure, tbl.pt)
-    data.Procedure <- data.Procedure[-which(duplicated(data.Procedure)), ]
-    #colnames(data.Procedure)  
+      	data.Procedure <- rbind.fill(tbl.omf, tbl.nte)
+    	data.Procedure <- rbind.fill(data.Procedure, tbl.f1)      
+      	if(exists("tbl.nte_f1")) data.Procedure <- rbind.fill(data.Procedure, tbl.nte_f1)      	
+      	data.Procedure <- rbind.fill(tbl.pt[,-match("dxyear", colnames(tbl.pt))], data.Procedure)	
+		data.Procedure <- merge(data.Procedure, tbl.pt[,c("PatientID", "dxyear")])	
+		if(any(duplicated(data.Procedure))){
+		  data.Procedure <- data.Procedure[-which(duplicated(data.Procedure)), ]
+		}
+		colnames(data.Procedure)
+
 
     #create columns for column that are not captured
     procedureColNames <- c("PatientID", "date_loco", "date_met", "new_tumor_event_surgery", "date_additional_surgery_procedure", 
     					  "new_neoplasm_site", "new_tumor_site", "new_tumor_event_additional_surgery_procedure", "surgical_resection_date", 
     					  "other_malignancy_side", "surgery_name","dxyear","side","site","local","surgical_procedure_first","first_surgical_procedure_other")
+    
     m <- matrix(nrow=nrow(data.Procedure), ncol=length(which(!(procedureColNames) %in% colnames(data.Procedure))))
     df <- as.data.frame(m)
     colnames(df) <- procedureColNames[(which(!(procedureColNames) %in% colnames(data.Procedure)))]
     data.Procedure<- cbind(data.Procedure, df) 
-    colnames(data.Procedure) 
+    #colnames(data.Procedure) 
 
     # mapping
     data.Procedure <- Procedure.mapping.date.Calculation_date_loco(data.Procedure)
@@ -2622,24 +2609,24 @@ create.all.Procedure.records <- function(study_name){
     # result
     ptNumMap <- ptNumMapUpdate(tbl.pt)
     result <- apply(data.Procedure, 1, function(x){
-      PatientID = getElement(x, "PatientID")
-      PtNum = ptNumMap[ptNumMap$PatientID == PatientID,]$PatientNumber
-      date_loco = getElement(x, "date_loco")
-      date_met = getElement(x, "date_met")
-      new_tumor_event_surgery = getElement(x, "new_tumor_event_surgery")
-      date_additional_surgery_procedure = getElement(x, "date_additional_surgery_procedure")
-      new_neoplasm_site = getElement(x, "new_neoplasm_site")
-      new_tumor_site = getElement(x, "new_tumor_site")
-      new_tumor_event_additional_surgery_procedure = getElement(x, "new_tumor_event_additional_surgery_procedure")
-      surgical_resection_date = getElement(x, "surgical_resection_date")
-      other_malignancy_side  = getElement(x, "other_malignancy_side")
-      surgery_name  = getElement(x, "surgery_name")
-      side  = getElement(x, "side")
-      site  = getElement(x, "site")
-      surgical_procedure_first = getElement(x, "surgical_procedure_first") 
-      first_surgical_procedure_other = getElement(x, "first_surgical_procedure_other") 
-      return(list(PatientID=PatientID, PtNum=PtNum, study=study_name, Name="Procedure", 
-                  Fields=list(date_loco=date_loco,date_met=date_met,new_tumor_event_surgery=new_tumor_event_surgery,date_additional_surgery_procedure=date_additional_surgery_procedure,new_neoplasm_site=new_neoplasm_site,new_tumor_site=new_tumor_site,new_tumor_event_additional_surgery_procedure=new_tumor_event_additional_surgery_procedure,surgical_resection_date=surgical_resection_date,other_malignancy_side=other_malignancy_side,surgery_name=surgery_name,side=side, site=site,surgical_procedure_first=surgical_procedure_first,first_surgical_procedure_other=first_surgical_procedure_other)))
+      			PatientID = getElement(x, "PatientID")
+      			PtNum = ptNumMap[ptNumMap$PatientID == PatientID,]$PatientNumber
+      			date_loco = getElement(x, "date_loco")
+      			date_met = getElement(x, "date_met")
+      			new_tumor_event_surgery = getElement(x, "new_tumor_event_surgery")
+      			date_additional_surgery_procedure = getElement(x, "date_additional_surgery_procedure")
+      			new_neoplasm_site = getElement(x, "new_neoplasm_site")
+      			new_tumor_site = getElement(x, "new_tumor_site")
+      			new_tumor_event_additional_surgery_procedure = getElement(x, "new_tumor_event_additional_surgery_procedure")
+      			surgical_resection_date = getElement(x, "surgical_resection_date")
+      			other_malignancy_side  = getElement(x, "other_malignancy_side")
+      			surgery_name  = getElement(x, "surgery_name")
+      			side  = getElement(x, "side")
+      			site  = getElement(x, "site")
+      			surgical_procedure_first = getElement(x, "surgical_procedure_first") 
+      			first_surgical_procedure_other = getElement(x, "first_surgical_procedure_other") 
+      			return(list(PatientID=PatientID, PtNum=PtNum, study=study_name, Name="Procedure", 
+                  			Fields=list(date_loco=date_loco,date_met=date_met,new_tumor_event_surgery=new_tumor_event_surgery,date_additional_surgery_procedure=date_additional_surgery_procedure,new_neoplasm_site=new_neoplasm_site,new_tumor_site=new_tumor_site,new_tumor_event_additional_surgery_procedure=new_tumor_event_additional_surgery_procedure,surgical_resection_date=surgical_resection_date,other_malignancy_side=other_malignancy_side,surgery_name=surgery_name,side=side, site=site,surgical_procedure_first=surgical_procedure_first,first_surgical_procedure_other=first_surgical_procedure_other)))
     })
     return(result)
     print(c(study_name, dim(data.Procedure), length(result)))
