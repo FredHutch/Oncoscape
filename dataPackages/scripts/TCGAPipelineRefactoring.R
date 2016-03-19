@@ -896,144 +896,7 @@ if(PROGRESSION){
 		return(df)
 	}		
 } # End of Progression Native Functions
-#----------------------   Progression functions Start Here   --------------------
-if(ABSENT){
-	Absent.unique.request <- function(study_name){
-		uri <- rawTablesRequest(study_name, "Absent")
-	  	rm(list=ls(pattern="tbl"))
-	  	tbl.pt <- loadData(uri[1], 
-			              list(
-						     'bcr_patient_barcode' = list(name = "PatientID", data = "tcgaId"),
-						     'initial_pathologic_dx_year' = list(name = "dxyear", data = "tcgaDate"),
-						   	 'pulmonary_function_test_indicator' = list(name = "pulInd", data = "upperCharacter")
-						   ))
-	    if(!is.na(uri[2])){
-			tbl.omf <- loadData(uri[2], 
-			              list(
-						     'bcr_patient_barcode' = list(name = "PatientID", data = "tcgaId"),
-						     'days_to_other_malignancy_dx' = list(name = "omfdx", data = "upperCharacter"),
-						     'radiation_tx_indicator' = list(name = "radInd", data = "upperCharacter"),
-						     'drug_tx_indicator' = list(name = "drugInd", data = "upperCharacter")
-						   ))
-	    }
-	    if(!is.na(uri[3])){
-			tbl.nte <- loadData(uri[3], 
-			              list(
-						     'bcr_patient_barcode' = list(name = "PatientID", data = "tcgaId"),
-						     'days_to_new_tumor_event_after_initial_treatment' = list(name = "omfdx", data = "upperCharacter"),
-						     'new_tumor_event_dx_days_to'  = list(name = "omfdx", data = "upperCharacter"),
-						     'additional_radiation_therapy' = list(name = "radInd", data = "upperCharacter"),
-						     'new_tumor_event_radiation_tx' = list(name = "radInd", data = "upperCharacter"),
-						     'additional_pharmaceutical_therapy' = list(name = "drugInd", data = "upperCharacter"),
-						     'new_tumor_event_pharmaceutical_tx' = list(name = "drugInd", data = "upperCharacter")
-						   ))
-	    }
-	    if(!is.na(uri[4])){
-			tbl.f1 <- loadData(uri[4], 
-			              list(
-						     'bcr_patient_barcode' = list(name = "PatientID", data = "tcgaId"),
-						     'new_tumor_event_dx_days_to' = list(name = "omfdx", data = "upperCharacter"),
-						     'new_tumor_event_radiation_tx' = list(name = "radInd", data = "upperCharacter"),
-						     'new_tumor_event_pharmaceutical_tx' = list(name = "drugInd", data = "upperCharacter")
-						   ))
-	    }
-	    if(!is.na(uri[5])){
-	    	tbl.f2 <- loadData(uri[5], 
-			              list(
-						     'bcr_patient_barcode' = list(name = "PatientID", data = "tcgaId"),
-						     'new_tumor_event_dx_days_to' = list(name = "omfdx", data = "upperCharacter"),
-						     'new_tumor_event_radiation_tx' = list(name = "radInd", data = "upperCharacter"),
-						     'new_tumor_event_pharmaceutical_tx' = list(name = "drugInd", data = "upperCharacter")
-						   ))
-	    }
-	    if(!is.na(uri[6])){
-	    	tbl.f3 <- loadData(uri[6], 
-			              list(
-						     'bcr_patient_barcode' = list(name = "PatientID", data = "tcgaId"),
-						     'new_tumor_event_dx_days_to' = list(name = "omfdx", data = "upperCharacter"),
-						     'new_tumor_event_radiation_tx' = list(name = "radInd", data = "upperCharacter"),
-						     'new_tumor_event_pharmaceutical_tx' = list(name = "drugInd", data = "upperCharacter")
-						   ))
-	    }
-	    if(!is.na(uri[7])){
-	    	tbl.nte_f1 <- loadData(uri[7], 
-			              list(
-						     'bcr_patient_barcode' = list(name = "PatientID", data = "tcgaId"),
-						     'days_to_new_tumor_event_after_initial_treatment' = list(name = "omfdx", data = "upperCharacter"),
-						     'new_tumor_event_dx_days_to'  = list(name = "omfdx", data = "upperCharacter"),
-						     'additional_radiation_therapy' = list(name = "radInd", data = "upperCharacter"),
-						     'new_tumor_event_radiation_tx' = list(name = "radInd", data = "upperCharacter"),
-						     'additional_pharmaceutical_therapy' = list(name = "drugInd", data = "upperCharacter"),
-						     'new_tumor_event_pharmaceutical_tx' = list(name = "drugInd", data = "upperCharacter")
-						   ))
-	    }
-	    	
-	    if(!("pulInd" %in%  colnames(tbl.pt))) tbl.pt$pulInd = rep(NA, nrow(tbl.pt))
-	    tbl <- rbind.fill(tbl.pt[,c("PatientID", "pulInd")], tbl.omf)
-	    if(exists("tbl.nte")) tbl <- rbind.fill(tbl, tbl.nte)
-	    if(exists("tbl.f1")) tbl <- rbind.fill(tbl, tbl.f1)
-	    if(exists("tbl.f2")) tbl <- rbind.fill(tbl, tbl.f2)
-	    if(exists("tbl.f3")) tbl <- rbind.fill(tbl, tbl.f3)
-	    if(exists("tbl.nte_f1")) tbl <- rbind.fill(tbl, tbl.nte_f1)
-	    df <- merge(tbl.pt[,c("PatientID", "dxyear"),], tbl)
-	   
-		unique.omfdx <- unique(df$omfdx)
-		unique.radInd <- unique(df$radInd)
-		unique.drugInd <- unique(df$drugInd)
-		unique.pulInd <- unique(df$pulInd)
-	   	result = list(unique.omfdx=unique.omfdx, unique.radInd=unique.radInd,
-	   		   		  unique.drugInd=unique.drugInd, unique.pulInd=unique.pulInd)
-	  	return(result)
-	}
-	#--------------------------------------------------------------------------------
-	Absent.unique.aggregate <- function(res1, res2){
-		res = list(unique.omfdx=unique(c(res1$unique.omfdx,res2$unique.omfdx)),
-				   unique.radInd=unique(c(res1$unique.radInd, res2$unique.radInd)),
-				   unique.drugInd=unique(c(res1$unique.drugInd, res2$unique.drugInd)),
-				   unique.pulInd=unique(c(res1$unique.pulInd, res2$unique.pulInd)))
-	    return(res)
-	}
-	#--------------------------------------------------------------------------------
-	Absent.unique.values <- Reduce(Absent.unique.aggregate, lapply(studies, Absent.unique.request))
-	Absent.mapping.omfdx <- function(df){
-		from <- Absent.unique.values$unique.omfdx
-		to 	 <- from 
-		to[match(c("[NOT AVAILABLE]","[NOT APPLICABLE]","[PENDING]"), to)] <- NA
-		df$omfdx <- mapvalues(df$omfdx, from = from, to = to, warn_missing = F)
-		return(df)
-	}
-	#--------------------------------------------------------------------------------
-	Absent.mapping.omfdx.Calculation <- function(df){
-		df$date <- format(as.Date(df$dxyear,"%m/%d/%Y") + as.integer(df$omfdx), "%m/%d/%Y")
-		return(df)
-	}
-	#--------------------------------------------------------------------------------
-	Absent.mapping.radInd <- function(df){
-		from <- Absent.unique.values$unique.radInd
-		to 	 <- from 
-		to[match(c("[NOT AVAILABLE]","[UNKNOWN]"), to)] <- NA
-		df$radInd <- mapvalues(df$radInd, from = from, to = to, warn_missing = F)
-		return(df)
-	}
-	#--------------------------------------------------------------------------------
-	Absent.mapping.drugInd <- function(df){
-		from <- Absent.unique.values$unique.drugInd
-		to 	 <- from 
-		to[match(c("[NOT AVAILABLE]","[UNKNOWN]"), to)] <- NA
-		df$drugInd <- mapvalues(df$drugInd, from = from, to = to, warn_missing = F)
-		return(df)
-	}
-	#--------------------------------------------------------------------------------
-	Absent.mapping.pulInd <- function(df){
-		from <- Absent.unique.values$unique.pulInd
-		to 	 <- from 
-		to[match("[NOT AVAILABLE]", to)] <- NA
-		df$pulInd <- mapvalues(df$pulInd, from = from, to = to, warn_missing = F)
-		return(df)
-	}
-	#--------------------------------------------------------------------------------	
-} # End of Progression Native Functions
-#----------------------   Encounter functions Start Here   ------------------------
+#----------------------   Encounter functions Start Here   ----------------------
 if(ENCOUNTER){ 
   # brca, hnsc, prad DO NOT HAVE ENCOUNTER RECORDS!
   Encounter.unique.request <- function(study_name){   
@@ -1233,7 +1096,7 @@ if(ENCOUNTER){
   } 
   #----------------------     Encounter functions End Here      --------------------------
 } # End of Encounter Native Functions
-#----------------------   Procedure functions Start Here   --------------------------
+#----------------------   Procedure functions Start Here   ----------------------
 if(PROCEDURE){
   Procedure.unique.request <- function(study_name){
     uri <- rawTablesRequest(study_name, "Procedure")
@@ -1522,7 +1385,7 @@ if(PROCEDURE){
     return(df)
   	}	
 }  # End of Procedure Native Functions
-#----------------------   Pathology functions Start Here   --------------------------
+#----------------------   Pathology functions Start Here   ----------------------
 if(PATHOLOGY){
   Pathology.unique.request <- function(study_name){
 		uri <- rawTablesRequest(study_name, "Pathology")
@@ -1765,7 +1628,144 @@ if(PATHOLOGY){
   		return(df)
 	}	  
 } # End of Pathology Native Functions
-################################################     Step 4: Generate Result    ##################################################
+#----------------------   Absent functions Start Here   -------------------------
+if(ABSENT){
+	Absent.unique.request <- function(study_name){
+		uri <- rawTablesRequest(study_name, "Absent")
+	  	rm(list=ls(pattern="tbl"))
+	  	tbl.pt <- loadData(uri[1], 
+			              list(
+						     'bcr_patient_barcode' = list(name = "PatientID", data = "tcgaId"),
+						     'initial_pathologic_dx_year' = list(name = "dxyear", data = "tcgaDate"),
+						   	 'pulmonary_function_test_indicator' = list(name = "pulInd", data = "upperCharacter")
+						   ))
+	    if(!is.na(uri[2])){
+			tbl.omf <- loadData(uri[2], 
+			              list(
+						     'bcr_patient_barcode' = list(name = "PatientID", data = "tcgaId"),
+						     'days_to_other_malignancy_dx' = list(name = "omfdx", data = "upperCharacter"),
+						     'radiation_tx_indicator' = list(name = "radInd", data = "upperCharacter"),
+						     'drug_tx_indicator' = list(name = "drugInd", data = "upperCharacter")
+						   ))
+	    }
+	    if(!is.na(uri[3])){
+			tbl.nte <- loadData(uri[3], 
+			              list(
+						     'bcr_patient_barcode' = list(name = "PatientID", data = "tcgaId"),
+						     'days_to_new_tumor_event_after_initial_treatment' = list(name = "omfdx", data = "upperCharacter"),
+						     'new_tumor_event_dx_days_to'  = list(name = "omfdx", data = "upperCharacter"),
+						     'additional_radiation_therapy' = list(name = "radInd", data = "upperCharacter"),
+						     'new_tumor_event_radiation_tx' = list(name = "radInd", data = "upperCharacter"),
+						     'additional_pharmaceutical_therapy' = list(name = "drugInd", data = "upperCharacter"),
+						     'new_tumor_event_pharmaceutical_tx' = list(name = "drugInd", data = "upperCharacter")
+						   ))
+	    }
+	    if(!is.na(uri[4])){
+			tbl.f1 <- loadData(uri[4], 
+			              list(
+						     'bcr_patient_barcode' = list(name = "PatientID", data = "tcgaId"),
+						     'new_tumor_event_dx_days_to' = list(name = "omfdx", data = "upperCharacter"),
+						     'new_tumor_event_radiation_tx' = list(name = "radInd", data = "upperCharacter"),
+						     'new_tumor_event_pharmaceutical_tx' = list(name = "drugInd", data = "upperCharacter")
+						   ))
+	    }
+	    if(!is.na(uri[5])){
+	    	tbl.f2 <- loadData(uri[5], 
+			              list(
+						     'bcr_patient_barcode' = list(name = "PatientID", data = "tcgaId"),
+						     'new_tumor_event_dx_days_to' = list(name = "omfdx", data = "upperCharacter"),
+						     'new_tumor_event_radiation_tx' = list(name = "radInd", data = "upperCharacter"),
+						     'new_tumor_event_pharmaceutical_tx' = list(name = "drugInd", data = "upperCharacter")
+						   ))
+	    }
+	    if(!is.na(uri[6])){
+	    	tbl.f3 <- loadData(uri[6], 
+			              list(
+						     'bcr_patient_barcode' = list(name = "PatientID", data = "tcgaId"),
+						     'new_tumor_event_dx_days_to' = list(name = "omfdx", data = "upperCharacter"),
+						     'new_tumor_event_radiation_tx' = list(name = "radInd", data = "upperCharacter"),
+						     'new_tumor_event_pharmaceutical_tx' = list(name = "drugInd", data = "upperCharacter")
+						   ))
+	    }
+	    if(!is.na(uri[7])){
+	    	tbl.nte_f1 <- loadData(uri[7], 
+			              list(
+						     'bcr_patient_barcode' = list(name = "PatientID", data = "tcgaId"),
+						     'days_to_new_tumor_event_after_initial_treatment' = list(name = "omfdx", data = "upperCharacter"),
+						     'new_tumor_event_dx_days_to'  = list(name = "omfdx", data = "upperCharacter"),
+						     'additional_radiation_therapy' = list(name = "radInd", data = "upperCharacter"),
+						     'new_tumor_event_radiation_tx' = list(name = "radInd", data = "upperCharacter"),
+						     'additional_pharmaceutical_therapy' = list(name = "drugInd", data = "upperCharacter"),
+						     'new_tumor_event_pharmaceutical_tx' = list(name = "drugInd", data = "upperCharacter")
+						   ))
+	    }
+	    	
+	    if(!("pulInd" %in%  colnames(tbl.pt))) tbl.pt$pulInd = rep(NA, nrow(tbl.pt))
+	    tbl <- rbind.fill(tbl.pt[,c("PatientID", "pulInd")], tbl.omf)
+	    if(exists("tbl.nte")) tbl <- rbind.fill(tbl, tbl.nte)
+	    if(exists("tbl.f1")) tbl <- rbind.fill(tbl, tbl.f1)
+	    if(exists("tbl.f2")) tbl <- rbind.fill(tbl, tbl.f2)
+	    if(exists("tbl.f3")) tbl <- rbind.fill(tbl, tbl.f3)
+	    if(exists("tbl.nte_f1")) tbl <- rbind.fill(tbl, tbl.nte_f1)
+	    df <- merge(tbl.pt[,c("PatientID", "dxyear"),], tbl)
+	   
+		unique.omfdx <- unique(df$omfdx)
+		unique.radInd <- unique(df$radInd)
+		unique.drugInd <- unique(df$drugInd)
+		unique.pulInd <- unique(df$pulInd)
+	   	result = list(unique.omfdx=unique.omfdx, unique.radInd=unique.radInd,
+	   		   		  unique.drugInd=unique.drugInd, unique.pulInd=unique.pulInd)
+	  	return(result)
+	}
+	#--------------------------------------------------------------------------------
+	Absent.unique.aggregate <- function(res1, res2){
+		res = list(unique.omfdx=unique(c(res1$unique.omfdx,res2$unique.omfdx)),
+				   unique.radInd=unique(c(res1$unique.radInd, res2$unique.radInd)),
+				   unique.drugInd=unique(c(res1$unique.drugInd, res2$unique.drugInd)),
+				   unique.pulInd=unique(c(res1$unique.pulInd, res2$unique.pulInd)))
+	    return(res)
+	}
+	#--------------------------------------------------------------------------------
+	Absent.unique.values <- Reduce(Absent.unique.aggregate, lapply(studies, Absent.unique.request))
+	Absent.mapping.omfdx <- function(df){
+		from <- Absent.unique.values$unique.omfdx
+		to 	 <- from 
+		to[match(c("[NOT AVAILABLE]","[NOT APPLICABLE]","[PENDING]"), to)] <- NA
+		df$omfdx <- mapvalues(df$omfdx, from = from, to = to, warn_missing = F)
+		return(df)
+	}
+	#--------------------------------------------------------------------------------
+	Absent.mapping.omfdx.Calculation <- function(df){
+		df$date <- format(as.Date(df$dxyear,"%m/%d/%Y") + as.integer(df$omfdx), "%m/%d/%Y")
+		return(df)
+	}
+	#--------------------------------------------------------------------------------
+	Absent.mapping.radInd <- function(df){
+		from <- Absent.unique.values$unique.radInd
+		to 	 <- from 
+		to[match(c("[NOT AVAILABLE]","[UNKNOWN]"), to)] <- NA
+		df$radInd <- mapvalues(df$radInd, from = from, to = to, warn_missing = F)
+		return(df)
+	}
+	#--------------------------------------------------------------------------------
+	Absent.mapping.drugInd <- function(df){
+		from <- Absent.unique.values$unique.drugInd
+		to 	 <- from 
+		to[match(c("[NOT AVAILABLE]","[UNKNOWN]"), to)] <- NA
+		df$drugInd <- mapvalues(df$drugInd, from = from, to = to, warn_missing = F)
+		return(df)
+	}
+	#--------------------------------------------------------------------------------
+	Absent.mapping.pulInd <- function(df){
+		from <- Absent.unique.values$unique.pulInd
+		to 	 <- from 
+		to[match("[NOT AVAILABLE]", to)] <- NA
+		df$pulInd <- mapvalues(df$pulInd, from = from, to = to, warn_missing = F)
+		return(df)
+	}
+	#--------------------------------------------------------------------------------	
+} # End of Progression Native Functions
+################################################     Step 4: Generate Result    ###########################################
 create.DOB.records <- function(study_name, ptID){
 	uri <- rawTablesRequest(study_name, "DOB")
 	data.DOB <- loadData(uri, 
@@ -3195,4 +3195,4 @@ create.all.Pathology.records <- function(study_name){
   print(c(study_name, dim(data.Pathology), length(result)))
 }
 lapply(studies, create.all.Pathology.records) 
-#################################################    Step 5: Unit Test   #########################################################
+#################################################    Step 5: Unit Test   ##################################################
