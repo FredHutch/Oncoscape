@@ -6,7 +6,7 @@ library(stringr)
 library(plyr)
 
 stopifnot(file.exists("TCGA_Reference_Filenames.txt")) 
-TCGAfilename<-read.table("TCGA_Reference_Filenamesu.txt", sep="\t", header=TRUE)
+TCGAfilename<-read.table("TCGA_Reference_Filenames.txt", sep="\t", header=TRUE)
 ##===load drug reference table ===
 drug_ref <- read.table("drug_names_10272015.txt", sep="\t", header=TRUE)
 rad_ref <- read.table("rad_ref_02232016.txt", sep="\t", header=TRUE)
@@ -165,7 +165,23 @@ rawTablesRequest <- function(study, table){
 				 ifelse(is.na(TCGAfilename[TCGAfilename$study==study,]$f1), 
 				 		NA,
 				 		paste(TCGAfilename[TCGAfilename$study==study,]$directory, 
-			         	TCGAfilename[TCGAfilename$study==study,]$f1, sep="/"))))
+			         	TCGAfilename[TCGAfilename$study==study,]$f1, sep="/")),
+				 ifelse(is.na(TCGAfilename[TCGAfilename$study==study,]$f2), 
+				 		NA,
+				 		paste(TCGAfilename[TCGAfilename$study==study,]$directory, 
+			         	TCGAfilename[TCGAfilename$study==study,]$f2, sep="/")),
+				 ifelse(is.na(TCGAfilename[TCGAfilename$study==study,]$f3), 
+				 		NA,
+				 		paste(TCGAfilename[TCGAfilename$study==study,]$directory, 
+			         	TCGAfilename[TCGAfilename$study==study,]$f3, sep="/")),
+				 ifelse(is.na(TCGAfilename[TCGAfilename$study==study,]$nte), 
+				 		NA,
+				 		paste(TCGAfilename[TCGAfilename$study==study,]$directory, 
+			         	TCGAfilename[TCGAfilename$study==study,]$nte, sep="/")),
+				 ifelse(is.na(TCGAfilename[TCGAfilename$study==study,]$nte_f1), 
+				 		NA,
+				 		paste(TCGAfilename[TCGAfilename$study==study,]$directory, 
+			         	TCGAfilename[TCGAfilename$study==study,]$nte_f1, sep="/"))))
 	}
 	if(table == "Pathology"){
 		return(c(paste(TCGAfilename[TCGAfilename$study==study,]$directory, 
@@ -1374,7 +1390,7 @@ if(PROCEDURE){
     from <- Procedure.unique.side
     to 	 <- from 
     to[match(c("[UNKNOWN]","[NOT AVAILABLE]","[NOT EVALUATED]","Uknown","[Discrepancy]","Other","NOT LISTED IN MEDICAL RECORD","[NOT APPLICABLE]","[PENDING]"  ), to)] <- NA
-    df$side <- mapvalues(df$side, from = from, to = to, warn_missing = T)
+    df$side <- mapvalues(df$side, from = from, to = to, warn_missing = F)
     return(df)
   	}	
   #------------------------------------------------------------------------------------------------------------------------------------------
@@ -1382,7 +1398,7 @@ if(PROCEDURE){
     from <- Procedure.unique.site
     to 	 <- from 
     to[match(c("[UNKNOWN]","[NOT AVAILABLE]","[NOT EVALUATED]","Uknown","[Discrepancy]","Other","NOT LISTED IN MEDICAL RECORD","[NOT APPLICABLE]","[PENDING]"  ), to)] <- NA
-    df$site<- mapvalues(df$site, from = from, to = to, warn_missing = T)
+    df$site<- mapvalues(df$site, from = from, to = to, warn_missing = F)
     return(df)
   	}	
   #------------------------------------------------------------------------------------------------------------------------------------------
@@ -1390,7 +1406,7 @@ if(PROCEDURE){
     from <- Procedure.unique.local
     to 	 <- from 
     to[match(c("[UNKNOWN]","[NOT AVAILABLE]","[NOT EVALUATED]","Uknown","[Discrepancy]","Other","NOT LISTED IN MEDICAL RECORD","[NOT APPLICABLE]","[PENDING]"  ), to)] <- NA
-    df$site<- mapvalues(df$local, from = from, to = to, warn_missing = T)
+    df$site<- mapvalues(df$local, from = from, to = to, warn_missing = F)
     return(df)
   	}	
   #------------------------------------------------------------------------------------------------------------------------------------------
@@ -1398,7 +1414,7 @@ if(PROCEDURE){
     from <- Procedure.unique.new_tumor_event_surgery
     to 	 <- from 
     to[match(c("[UNKNOWN]","[NOT AVAILABLE]","[NOT EVALUATED]","Uknown","[Discrepancy]","Other","NOT LISTED IN MEDICAL RECORD","[NOT APPLICABLE]","[PENDING]"  ), to)] <- NA
-    df$new_tumor_event_surgery<- mapvalues(df$new_tumor_event_surgery, from = from, to = to, warn_missing = T)
+    df$new_tumor_event_surgery<- mapvalues(df$new_tumor_event_surgery, from = from, to = to, warn_missing = F)
     return(df)
   	}	
   #------------------------------------------------------------------------------------------------------------------------------------------
@@ -1406,7 +1422,7 @@ if(PROCEDURE){
     from <- Procedure.unique.new_neoplasm_site
     to 	 <- from 
     to[match(c("[UNKNOWN]","[NOT AVAILABLE]","[NOT EVALUATED]","Uknown","[Discrepancy]","Other","NOT LISTED IN MEDICAL RECORD","[NOT APPLICABLE]","[PENDING]"  ), to)] <- NA
-    df$new_neoplasm_site<- mapvalues(df$new_neoplasm_site, from = from, to = to, warn_missing = T)
+    df$new_neoplasm_site<- mapvalues(df$new_neoplasm_site, from = from, to = to, warn_missing = F)
     return(df)
   	}	
   #------------------------------------------------------------------------------------------------------------------------------------------
@@ -1414,7 +1430,7 @@ if(PROCEDURE){
     from <- Procedure.unique.new_tumor_site
     to 	 <- from 
     to[match(c("[UNKNOWN]","[NOT AVAILABLE]","[NOT EVALUATED]","Uknown","[Discrepancy]","Other","NOT LISTED IN MEDICAL RECORD","[NOT APPLICABLE]","[PENDING]"  ), to)] <- NA
-    df$new_tumor_site<- mapvalues(df$new_tumor_site, from = from, to = to, warn_missing = T)
+    df$new_tumor_site<- mapvalues(df$new_tumor_site, from = from, to = to, warn_missing = F)
     return(df)
   	}	 
   #------------------------------------------------------------------------------------------------------------------------------------------
@@ -1422,7 +1438,7 @@ if(PROCEDURE){
     from <- Procedure.unique.new_tumor_event_additional_surgery_procedure
     to 	 <- from 
     to[match(c("[UNKNOWN]","[NOT AVAILABLE]","[NOT EVALUATED]","Uknown","[Discrepancy]","Other","NOT LISTED IN MEDICAL RECORD","[NOT APPLICABLE]","[PENDING]"  ), to)] <- NA
-    df$new_tumor_event_additional_surgery_procedure<- mapvalues(df$new_tumor_event_additional_surgery_procedure, from = from, to = to, warn_missing = T)
+    df$new_tumor_event_additional_surgery_procedure<- mapvalues(df$new_tumor_event_additional_surgery_procedure, from = from, to = to, warn_missing = F)
     return(df)
   	}	
   #-----------------------------------------------------------------------------------------------------------------------------------------
@@ -1430,7 +1446,7 @@ if(PROCEDURE){
     from <- Procedure.unique.other_malignancy_side
     to 	 <- from 
     to[match(c("[UNKNOWN]","[NOT AVAILABLE]","[NOT EVALUATED]","Uknown","[Discrepancy]","Other","NOT LISTED IN MEDICAL RECORD","[NOT APPLICABLE]","[PENDING]"  ), to)] <- NA
-    df$other_malignancy_side<- mapvalues(df$other_malignancy_side, from = from, to = to, warn_missing = T)
+    df$other_malignancy_side<- mapvalues(df$other_malignancy_side, from = from, to = to, warn_missing = F)
     return(df)
   	}	
   #------------------------------------------------------------------------------------------------------------------------------------------
@@ -1438,7 +1454,7 @@ if(PROCEDURE){
     from <- Procedure.unique.surgery_name
     to 	 <- from 
     to[match(c("[UNKNOWN]","[NOT AVAILABLE]","[NOT EVALUATED]","Uknown","[Discrepancy]","Other","NOT LISTED IN MEDICAL RECORD","[NOT APPLICABLE]","[PENDING]"  ), to)] <- NA
-    df$surgery_name<- mapvalues(df$surgery_name, from = from, to = to, warn_missing = T)
+    df$surgery_name<- mapvalues(df$surgery_name, from = from, to = to, warn_missing = F)
     return(df)
   	}	
   #------------------------------------------------------------------------------------------------------------------------------------------
@@ -1446,7 +1462,7 @@ if(PROCEDURE){
     from <- Procedure.unique.surgical_procedure_first
     to 	 <- from 
     to[match(c("[UNKNOWN]","[NOT AVAILABLE]","[NOT EVALUATED]","Uknown","[Discrepancy]","Other","NOT LISTED IN MEDICAL RECORD","[NOT APPLICABLE]","[PENDING]"  ), to)] <- NA
-    df$surgical_procedure_first<- mapvalues(df$surgical_procedure_first, from = from, to = to, warn_missing = T)
+    df$surgical_procedure_first<- mapvalues(df$surgical_procedure_first, from = from, to = to, warn_missing = F)
     return(df)
   	}	
   #------------------------------------------------------------------------------------------------------------------------------------------
@@ -1454,7 +1470,7 @@ if(PROCEDURE){
     from <- Procedure.unique.first_surgical_procedure_other
     to 	 <- from 
     to[match(c("[UNKNOWN]","[NOT AVAILABLE]","[NOT EVALUATED]","Uknown","[Discrepancy]","Other","NOT LISTED IN MEDICAL RECORD","[NOT APPLICABLE]","[PENDING]"  ), to)] <- NA
-    df$first_surgical_procedure_other<- mapvalues(df$first_surgical_procedure_other, from = from, to = to, warn_missing = T)
+    df$first_surgical_procedure_other<- mapvalues(df$first_surgical_procedure_other, from = from, to = to, warn_missing = F)
     return(df)
   	}	
   #-------------------------------------------------------------------------------------------------------------------------
@@ -1462,7 +1478,7 @@ if(PROCEDURE){
     from <- Procedure.unique.date_loco
     to 	 <- from 
     to[match(c("[UNKNOWN]","[NOT AVAILABLE]","[NOT EVALUATED]","Uknown","[Discrepancy]","Other","NOT LISTED IN MEDICAL RECORD","[NOT APPLICABLE]","[PENDING]"  ), to)] <- NA
-    df$date_loco <- mapvalues(df$date_loco, from = from, to = to, warn_missing = T)
+    df$date_loco <- mapvalues(df$date_loco, from = from, to = to, warn_missing = F)
     return(df)
   	}	
 
@@ -1475,7 +1491,7 @@ if(PROCEDURE){
     from <- Procedure.unique.date_met
     to 	 <- from 
     to[match(c("[UNKNOWN]","[NOT AVAILABLE]","[NOT EVALUATED]","Uknown","[Discrepancy]","Other","NOT LISTED IN MEDICAL RECORD","[NOT APPLICABLE]","[PENDING]"  ), to)] <- NA
-    df$date_met <- mapvalues(df$date_met, from = from, to = to, warn_missing = T)
+    df$date_met <- mapvalues(df$date_met, from = from, to = to, warn_missing = F)
     return(df)
   	}	
  Procedure.mapping.date.Calculation_date_met <- function(df){
@@ -1487,7 +1503,7 @@ if(PROCEDURE){
     from <- Procedure.unique.additional_surgery_procedure
     to 	 <- from 
     to[match(c("[UNKNOWN]","[NOT AVAILABLE]","[NOT EVALUATED]","Uknown","[Discrepancy]","Other","NOT LISTED IN MEDICAL RECORD","[NOT APPLICABLE]","[PENDING]"  ), to)] <- NA
-    df$additional_surgery_procedure <- mapvalues(df$additional_surgery_procedure, from = from, to = to, warn_missing = T)
+    df$additional_surgery_procedure <- mapvalues(df$additional_surgery_procedure, from = from, to = to, warn_missing = F)
     return(df)
   	}	
  Procedure.mapping.date_additional_surgery_procedure  <- function(df){
@@ -1498,7 +1514,7 @@ if(PROCEDURE){
     from <- Procedure.unique.surgical_resection_date
     to 	 <- from 
     to[match(c("[UNKNOWN]","[NOT AVAILABLE]","[NOT EVALUATED]","Uknown","[Discrepancy]","Other","NOT LISTED IN MEDICAL RECORD","[NOT APPLICABLE]","[PENDING]"  ), to)] <- NA
-    df$surgical_resection_date <- mapvalues(df$surgical_resection_date, from = from, to = to, warn_missing = T)
+    df$surgical_resection_date <- mapvalues(df$surgical_resection_date, from = from, to = to, warn_missing = F)
     return(df)
   	}	
  Procedure.mapping.date.surgical_resection_date  <- function(df){
@@ -1625,7 +1641,7 @@ if(PATHOLOGY){
 	    from <- Pathology.unique.pathDisease
 	    to 	 <- from 
 	    to[match(c("[UNKNOWN]","[NOT AVAILABLE]","[NOT EVALUATED]","Uknown","[Discrepancy]","Other","NOT LISTED IN MEDICAL RECORD","[NOT APPLICABLE]","[PENDING]","[COMPLETED]"), to)] <- NA
-	    df$pathDisease <- mapvalues(df$pathDisease, from = from, to = to, warn_missing = T)
+	    df$pathDisease <- mapvalues(df$pathDisease, from = from, to = to, warn_missing = F)
 	    return(df)
 	}		 
   #------------------------------------------------------------------------------------------------------------------------------------------
@@ -1633,7 +1649,7 @@ if(PATHOLOGY){
 	    from <- Pathology.unique.pathHistology
 	    to 	 <- from 
 	    to[match(c("[UNKNOWN]","[NOT AVAILABLE]","[NOT EVALUATED]","Uknown","[Discrepancy]","Other","NOT LISTED IN MEDICAL RECORD","[NOT APPLICABLE]","[PENDING]","[COMPLETED]"), to)] <- NA
-	    df$pathHistology <- mapvalues(df$pathHistology, from = from, to = to, warn_missing = T)
+	    df$pathHistology <- mapvalues(df$pathHistology, from = from, to = to, warn_missing = F)
 	    return(df)
 	}	
   #------------------------------------------------------------------------------------------------------------------------------------------
@@ -1641,7 +1657,7 @@ if(PATHOLOGY){
 	    from <- Pathology.unique.retrospective
 	    to 	 <- from 
 	    to[match(c("[UNKNOWN]","[NOT AVAILABLE]","[NOT EVALUATED]","Uknown","[Discrepancy]","Other","NOT LISTED IN MEDICAL RECORD","[NOT APPLICABLE]","[PENDING]","[COMPLETED]"), to)] <- NA
-	    df$retrospective <- mapvalues(df$retrospective, from = from, to = to, warn_missing = T)
+	    df$retrospective <- mapvalues(df$retrospective, from = from, to = to, warn_missing = F)
 	    return(df)
 	}	  
   #------------------------------------------------------------------------------------------------------------------------------------------
@@ -1649,7 +1665,7 @@ if(PATHOLOGY){
 	    from <- Pathology.unique.prospective
 	    to 	 <- from 
 	    to[match(c("[UNKNOWN]","[NOT AVAILABLE]","[NOT EVALUATED]","Uknown","[Discrepancy]","Other","NOT LISTED IN MEDICAL RECORD","[NOT APPLICABLE]","[PENDING]","[COMPLETED]"), to)] <- NA
-	    df$prospective <- mapvalues(df$prospective, from = from, to = to, warn_missing = T)
+	    df$prospective <- mapvalues(df$prospective, from = from, to = to, warn_missing = F)
 	    return(df)
 	}	  
   #------------------------------------------------------------------------------------------------------------------------------------------
@@ -1657,7 +1673,7 @@ if(PATHOLOGY){
 	    from <- Pathology.unique.pathMethod
 	    to 	 <- from 
 	    to[match(c("[UNKNOWN]","[NOT AVAILABLE]","[NOT EVALUATED]","Uknown","[Discrepancy]","Other","NOT LISTED IN MEDICAL RECORD","[NOT APPLICABLE]","[PENDING]","[COMPLETED]"), to)] <- NA
-	    df$pathMethod <- mapvalues(df$pathMethod, from = from, to = to, warn_missing = T)
+	    df$pathMethod <- mapvalues(df$pathMethod, from = from, to = to, warn_missing = F)
 	    return(df)
 	}	  
   #------------------------------------------------------------------------------------------------------------------------------------------
@@ -1665,7 +1681,7 @@ if(PATHOLOGY){
 	    from <- Pathology.unique.T.Stage
 	    to 	 <- from 
 	    to[match(c("[UNKNOWN]","[NOT AVAILABLE]","[NOT EVALUATED]","Uknown","[Discrepancy]","Other","NOT LISTED IN MEDICAL RECORD","[NOT APPLICABLE]","[PENDING]","[COMPLETED]"), to)] <- NA
-	    df$T.Stage <- mapvalues(df$T.Stage, from = from, to = to, warn_missing = T)
+	    df$T.Stage <- mapvalues(df$T.Stage, from = from, to = to, warn_missing = F)
 	    return(df)
 	}	  
   #------------------------------------------------------------------------------------------------------------------------------------------
@@ -1673,7 +1689,7 @@ if(PATHOLOGY){
 	    from <- Pathology.unique.N.Stage
 	    to 	 <- from 
 	    to[match(c("[UNKNOWN]","[NOT AVAILABLE]","[NOT EVALUATED]","Uknown","[Discrepancy]","Other","NOT LISTED IN MEDICAL RECORD","[NOT APPLICABLE]","[PENDING]","[COMPLETED]"), to)] <- NA
-	    df$N.Stage <- mapvalues(df$N.Stage, from = from, to = to, warn_missing = T)
+	    df$N.Stage <- mapvalues(df$N.Stage, from = from, to = to, warn_missing = F)
 	    return(df)
 	}	  
   #------------------------------------------------------------------------------------------------------------------------------------------
@@ -1681,7 +1697,7 @@ if(PATHOLOGY){
 	    from <- Pathology.unique.M.Stage
 	    to 	 <- from 
 	    to[match(c("[UNKNOWN]","[NOT AVAILABLE]","[NOT EVALUATED]","Uknown","[Discrepancy]","Other","NOT LISTED IN MEDICAL RECORD","[NOT APPLICABLE]","[PENDING]","[COMPLETED]"), to)] <- NA
-	    df$M.Stage <- mapvalues(df$M.Stage, from = from, to = to, warn_missing = T)
+	    df$M.Stage <- mapvalues(df$M.Stage, from = from, to = to, warn_missing = F)
 	    return(df)
 	}	
   #------------------------------------------------------------------------------------------------------------------------------------------
@@ -1689,7 +1705,7 @@ if(PATHOLOGY){
 	    from <- Pathology.unique.staging.System
 	    to 	 <- from 
 	    to[match(c("[UNKNOWN]","[NOT AVAILABLE]","[NOT EVALUATED]","Uknown","[Discrepancy]","Other","NOT LISTED IN MEDICAL RECORD","[NOT APPLICABLE]","[PENDING]","[COMPLETED]"), to)] <- NA
-	    df$staging.System <- mapvalues(df$staging.System, from = from, to = to, warn_missing = T)
+	    df$staging.System <- mapvalues(df$staging.System, from = from, to = to, warn_missing = F)
 	    return(df)
 	}	 
   #------------------------------------------------------------------------------------------------------------------------------------------
@@ -1697,7 +1713,7 @@ if(PATHOLOGY){
 	    from <- Pathology.unique.grade
 	    to 	 <- from 
 	    to[match(c("[UNKNOWN]","[NOT AVAILABLE]","[NOT EVALUATED]","Uknown","[Discrepancy]","Other","NOT LISTED IN MEDICAL RECORD","[NOT APPLICABLE]","[PENDING]","[COMPLETED]"), to)] <- NA
-	    df$grade <- mapvalues(df$grade, from = from, to = to, warn_missing = T)
+	    df$grade <- mapvalues(df$grade, from = from, to = to, warn_missing = F)
 	    return(df)
 	}	 
   #------------------------------------------------------------------------------------------------------------------------------------------
@@ -1705,7 +1721,7 @@ if(PATHOLOGY){
 	    from <- Pathology.unique.disease
 	    to 	 <- from 
 	    to[match(c("[UNKNOWN]","[NOT AVAILABLE]","[NOT EVALUATED]","Uknown","[Discrepancy]","Other","NOT LISTED IN MEDICAL RECORD","[NOT APPLICABLE]","[PENDING]","[COMPLETED]"), to)] <- NA
-	    df$disease <- mapvalues(df$disease, from = from, to = to, warn_missing = T)
+	    df$disease <- mapvalues(df$disease, from = from, to = to, warn_missing = F)
 	    return(df)
 	}	  
   #------------------------------------------------------------------------------------------------------------------------------------------
@@ -1713,7 +1729,7 @@ if(PATHOLOGY){
 	    from <- Pathology.unique.histology
 	    to 	 <- from 
 	    to[match(c("[UNKNOWN]","[NOT AVAILABLE]","[NOT EVALUATED]","Uknown","[Discrepancy]","Other","NOT LISTED IN MEDICAL RECORD","[NOT APPLICABLE]","[PENDING]","[COMPLETED]"), to)] <- NA
-	    df$histology <- mapvalues(df$histology, from = from, to = to, warn_missing = T)
+	    df$histology <- mapvalues(df$histology, from = from, to = to, warn_missing = F)
 	    return(df)
 	}	
   #------------------------------------------------------------------------------------------------------------------------------------------
@@ -1721,7 +1737,7 @@ if(PATHOLOGY){
 	    from <- Pathology.unique.histology_text 
 	    to 	 <- from 
 	    to[match(c("[UNKNOWN]","[NOT AVAILABLE]","[NOT EVALUATED]","Uknown","[Discrepancy]","Other","NOT LISTED IN MEDICAL RECORD","[NOT APPLICABLE]","[PENDING]","[COMPLETED]"), to)] <- NA
-	    df$histology_text  <- mapvalues(df$histology_text , from = from, to = to, warn_missing = T)
+	    df$histology_text  <- mapvalues(df$histology_text , from = from, to = to, warn_missing = F)
 	    return(df)
 	}	
   #------------------------------------------------------------------------------------------------------------------------------------------
@@ -1729,7 +1745,7 @@ if(PATHOLOGY){
 	    from <- Pathology.unique.pathology.offset 
 	    to 	 <- from 
 	    to[match(c("[UNKNOWN]","[NOT AVAILABLE]","[NOT EVALUATED]","Uknown","[Discrepancy]","Other","NOT LISTED IN MEDICAL RECORD","[NOT APPLICABLE]","[PENDING]","[COMPLETED]"), to)] <- NA
-	    df$pathology.offset  <- mapvalues(df$pathology.offset , from = from, to = to, warn_missing = T)
+	    df$pathology.offset  <- mapvalues(df$pathology.offset , from = from, to = to, warn_missing = F)
 	    return(df)
 	}	 
   Pathology.mapping.date_calculation.pathology.offset <- function(df){
@@ -1741,7 +1757,7 @@ if(PATHOLOGY){
   		from <- Pathology.unique.omfOffset
   		to 	 <- from 
   		to[match(c("[UNKNOWN]","[NOT AVAILABLE]","[NOT EVALUATED]","Uknown","[Discrepancy]","Other","NOT LISTED IN MEDICAL RECORD","[NOT APPLICABLE]","[PENDING]","[COMPLETED]"), to)] <- NA
-  		df$omfOffset <- mapvalues(df$omfOffset , from = from, to = to, warn_missing = T)
+  		df$omfOffset <- mapvalues(df$omfOffset , from = from, to = to, warn_missing = F)
   		return(df)
 	}	 
   Pathology.mapping.date_calculation.omfOffset <- function(df){
@@ -1798,7 +1814,7 @@ create.DOB.records <- function(study_name, ptID){
 	}	
 }
 lapply(studies, create.DOB.records)
-#--------------------------------------------------------------------------------------------------------------------------------
+#--------------------------------------------------------------------------------------------------------------------------
 create.Diagnosis.records <- function(study_name, ptID){
 	uri <- rawTablesRequest(study_name, "Diagnosis")
 	data.Diagnosis <- loadData(uri, 
@@ -1838,7 +1854,7 @@ create.Diagnosis.records <- function(study_name, ptID){
     }    
 }
 lapply(studies, create.Diagnosis.records)
-#--------------------------------------------------------------------------------------------------------------------------------
+#--------------------------------------------------------------------------------------------------------------------------
 create.Chemo.records <- function(study_name,  ptID){
 	uri <- rawTablesRequest(study_name, "Drug")
 	tbl.pt <- loadData(uri[1], 
@@ -1935,7 +1951,7 @@ create.Chemo.records <- function(study_name,  ptID){
     }	    
 }
 lapply(studies, create.Chemo.records)
-#--------------------------------------------------------------------------------------------------------------------------------
+#--------------------------------------------------------------------------------------------------------------------------
 create.Rad.records <- function(study_name,  ptID){
 	uri <- rawTablesRequest(study_name, "Radiation")
 	rm(list=ls(pattern="tbl"))
@@ -2022,7 +2038,7 @@ create.Rad.records <- function(study_name,  ptID){
     }	
 }
 lapply(studies, create.Rad.records)
-#--------------------------------------------------------------------------------------------------------------------------------
+#--------------------------------------------------------------------------------------------------------------------------
 create.Status.records <- function(study_name,  ptID){
 	uri <- rawTablesRequest(study_name, "Status")
 	rm(list=ls(pattern="tbl"))
@@ -2352,91 +2368,525 @@ create.Tests.records <- function(study_name,  ptID){
 		               list(
 					     'bcr_patient_barcode' = list(name = "PatientID", data = "tcgaId"),
 					     'initial_pathologic_dx_year' = list(name = "dxyear", data = "tcgaDate"),
-					   	 'days_to_psa_most_recent' = list(name = "testDate", data = "upperCharacter"),
-					   	 'days_to_bone_scan' = list(name = "testDate", data = "upperCharacter"),
-					   	 'days_to_ct_scan_ab_pelvis' = list(name = "testDate", data = "upperCharacter"),
-					   	 'days_to_mri' = list(name = "testDate", data = "upperCharacter"),
-					   	 'IHC' = list(name = "testTypd", data = "upperCharacter"),
-					   	 'kras_mutation_found' = list(name = "testInd", data = "upperCharacter"),
-					   	 'kras_mutation_identified_type' = list(name = "testRes", data = "upperCharacter"),
-					   	 'egfr_mutation_status' = list(name = "testRes", data = "upperCharacter"),
-					   	 'egfr_mutation_identified_type' = list(name = "testInd", data = "upperCharacter"),
-					   	 'pulmonary_function_test_indicator' = list(name = "testInd", data = "upperCharacter"),
-					   	 'eml4_alk_translocation_status' = list(name = "testInd", data = "upperCharacter"),
-					   	 'eml4_alk_translocation_variant' = list(name = "testRes", data = "upperCharacter"),
-					   	 'kras_mutation_found' = list(name = "testInd", data = "upperCharacter"),
-					   	 'kras_mutation_identified_type' = list(name = "testRes", data = "upperCharacter"),
-					   	 'kras_mutation_codon' = list(name = "testRes2", data = "upperCharacter"),
-					   	 'braf_gene_analysis_indicator' = list(name = "testInd", data = "upperCharacter"),
-					   	 'braf_gene_analysis_result' = list(name = "testRes", data = "upperCharacter"),
-					   	 'cea_level_pretreatment' = list(name = "testRes", data = "upperCharacter"),
-					   	 'loci_tested_count' = list(name = "testRes", data = "upperCharacter"),
-					   	 'loci_abnormal_count' = list(name = "testRes2", data = "upperCharacter"),
-					   	 'mismatch_rep_proteins_tested_by_ihc' = list(name = "testRes", data = "upperCharacter"),
-					   	 'mismatch_rep_proteins_loss_ihc' = list(name = "testRes2", data = "upperCharacter"),
-					   	 'hpv_status_p16' = list(name = "testRes", data = "upperCharacter"),
-					   	 'hpv_status_ish' = list(name = "testRes", data = "upperCharacter"),
-					   	 'psa_most_recent_results' = list(name = "testRes", data = "upperCharacter"),
-					   	 'bone_scan_results' = list(name = "testRes", data = "upperCharacter"),
-					   	 'ct_scan_ab_pelvis_results' = list(name = "testRes", data = "upperCharacter"),
-					   	 'mri_results' = list(name = "testRes", data = "upperCharacter"),
-					   	 'her2_copy_number' = list(name = "testRes", data = "upperCharacter"),
-					   	 'her2_fish_method' = list(name = "testRes2", data = "upperCharacter"),
-					   	 'her2_fish_status' = list(name = "testRes3", data = "upperCharacter"),
-					   	 'her2_ihc_percent_positive' = list(name = "testRes4", data = "upperCharacter"),
-					   	 'her2_ihc_score' = list(name = "testRes4", data = "upperCharacter"),
-					   	 'her2_positivity_method_text' = list(name = "testRes5", data = "upperCharacter"),
-					   	 'her2_positivity_scale_other' = list(name = "testRes6", data = "upperCharacter"),
-					   	 'her2_status_by_ihc' = list(name = "testRes7", data = "upperCharacter"),
-					   	 'nte_her2_fish_define_method' = list(name = "testRes8", data = "upperCharacter"),
-					   	 'nte_her2_fish_status' = list(name = "testRes9", data = "upperCharacter"),
-					   	 'nte_her2_positivity_ihc_score' = list(name = "testRes10", data = "upperCharacter"),
-					   	 'nte_her2_positivity_method' = list(name = "testRes11", data = "upperCharacter"),
-					   	 'nte_her2_positivity_other_scale' = list(name = "testRes12", data = "upperCharacter"),
-					   	 'nte_her2_signal_number' = list(name = "testRes13", data = "upperCharacter"),
-					   	 'nte_her2_status' = list(name = "testRes14", data = "upperCharacter"),
-					   	 'nte_her2_status_ihc__positive' = list(name = "testRes15", data = "upperCharacter")
+					   	 'days_to_psa_most_recent' = list(name = "psaDate", data = "upperCharacter"),
+					   	 'days_to_bone_scan' = list(name = "boneScanDate", data = "upperCharacter"),
+					   	 'days_to_ct_scan_ab_pelvis' = list(name = "ctAbPelDate", data = "upperCharacter"),
+					   	 'days_to_mri' = list(name = "mriDate", data = "upperCharacter"),
+					   	 'idh1_mutation_test_method' =  list(name = "idh1Method", data = "upperCharacter"),
+					   	 'idh1_mutation_found' = list(name = "idh1Found", data = "upperCharacter"),
+					   	 'IHC' = list(name = "ihc", data = "upperCharacter"),
+					   	 'kras_mutation_found' = list(name = "krasInd", data = "upperCharacter"),
+					   	 'kras_mutation_identified_type' = list(name = "krasType", data = "upperCharacter"),
+					   	 'egfr_mutation_status' = list(name = "egfrStatus", data = "upperCharacter"),
+					   	 'egfr_mutation_identified_type' = list(name = "egfrType", data = "upperCharacter"),
+					   	 'pulmonary_function_test_indicator' = list(name = "pulInd", data = "upperCharacter"),
+					   	 'eml4_alk_translocation_status' = list(name = "elm4AlkStatus", data = "upperCharacter"),
+					   	 'eml4_alk_translocation_variant' = list(name = "elm4AlkVar", data = "upperCharacter"),
+					   	 'kras_mutation_codon' = list(name = "krasCodon", data = "upperCharacter"),
+					   	 'braf_gene_analysis_indicator' = list(name = "brafInd", data = "upperCharacter"),
+					   	 'braf_gene_analysis_result' = list(name = "brafRes", data = "upperCharacter"),
+					   	 'cea_level_pretreatment' = list(name = "ceaTx", data = "upperCharacter"),
+					   	 'loci_tested_count' = list(name = "lociTestCount", data = "upperCharacter"),
+					   	 'loci_abnormal_count' = list(name = "lociAbnormalCount", data = "upperCharacter"),
+					   	 'mismatch_rep_proteins_tested_by_ihc' = list(name = "mismatchProteinTestIhc", data = "upperCharacter"),
+					   	 'mismatch_rep_proteins_loss_ihc' = list(name = "mismatchProteinLossIhc", data = "upperCharacter"),
+					   	 'hpv_status_p16' = list(name = "hpvP16", data = "upperCharacter"),
+					   	 'hpv_status_ish' = list(name = "hpvIsh", data = "upperCharacter"),
+					   	 'psa_most_recent_results' = list(name = "psaRes", data = "upperCharacter"),
+					   	 'bone_scan_results' = list(name = "boneScaneRes", data = "upperCharacter"),
+					   	 'ct_scan_ab_pelvis_results' = list(name = "ctAbPelRes", data = "upperCharacter"),
+					   	 'mri_results' = list(name = "mriRes", data = "upperCharacter"),
+					   	 'her2_copy_number' = list(name = "her2CNV", data = "upperCharacter"),
+					   	 'her2_fish_method' = list(name = "her2FishMethod", data = "upperCharacter"),
+					   	 'her2_fish_status' = list(name = "her2FishStatus", data = "upperCharacter"),
+					   	 'her2_ihc_percent_positive' = list(name = "her2IhcPercentagePos", data = "upperCharacter"),
+					   	 'her2_ihc_score' = list(name = "her2IhcScore", data = "upperCharacter"),
+					   	 'her2_positivity_method_text' = list(name = "her2PosMethod", data = "upperCharacter"),
+					   	 'her2_positivity_scale_other' = list(name = "her2PosScaleOther", data = "upperCharacter"),
+					   	 'her2_status_by_ihc' = list(name = "her2StatusIhc", data = "upperCharacter"),
+					   	 'nte_her2_fish_define_method' = list(name = "nteHer2FishMethod", data = "upperCharacter"),
+					   	 'nte_her2_fish_status' = list(name = "nteHer2FishStatus", data = "upperCharacter"),
+					   	 'nte_her2_positivity_ihc_score' = list(name = "nteHer2PosIhcScore", data = "upperCharacter"),
+					   	 'nte_her2_positivity_method' = list(name = "nteHer2PosMethod", data = "upperCharacter"),
+					   	 'nte_her2_positivity_other_scale' = list(name = "nteHer2PosOtherScale", data = "upperCharacter"),
+					   	 'nte_her2_signal_number' = list(name = "nteHer2SignalNum", data = "upperCharacter"),
+					   	 'nte_her2_status' = list(name = "nteHer2Status", data = "upperCharacter"),
+					   	 'nte_her2_status_ihc_positive' = list(name = "nteHer2StatusIhcPos", data = "upperCharacter"),
+					   	 'nte_er_ihc_intensity_score' = list(name = "nteEstroIhcScore", data = "upperCharacter"),
+					   	 'nte_er_positivity_define_method' = list(name = "nteEstroPosMethod", data = "upperCharacter"),
+					   	 'nte_er_positivity_other_scale' = list(name = "nteEstroPosOtherScale", data = "upperCharacter"),
+					   	 'nte_er_status' = list(name = "nteEstroStatus", data = "upperCharacter"),
+					   	 'nte_er_status_ihc_positive' = list(name = "nteEstroStatusIhcPos", data = "upperCharacter"),
+					   	 'nte_pr_ihc_intensity_score' = list(name = "nteProgIhcScore", data = "upperCharacter"),
+					   	 'nte_pr_positivity_define_method' = list(name = "nteProgPosMethod", data = "upperCharacter"),
+					   	 'nte_pr_positivity_other_scale' = list(name = "nteProgPosOtherScale", data = "upperCharacter"),
+					   	 'nte_pr_status_by_ihc' = list(name = "nteProgStatusIhc", data = "upperCharacter"),
+					   	 'nte_pr_status_ihc_positive' = list(name = "nteProgStatusIhcPos", data = "upperCharacter"),
+					   	 'pr_positivity_define_method' = list(name = "ProgPosMethod", data = "upperCharacter"), 
+					   	 'pr_positivity_ihc_intensity_score' = list(name = "ProgPosIhcScore", data = "upperCharacter"),
+					   	 'pr_positivity_scale_other' = list(name = "ProgPosScaleOther", data = "upperCharacter"),
+					   	 'pr_positivity_scale_used' = list(name = "ProgPosScaleUsed", data = "upperCharacter"),
+					   	 'pr_status_by_ihc' = list(name = "ProgStatusIhc", data = "upperCharacter"),
+					   	 'pr_status_ihc_percent_positiv' = list(name = "ProgStatusIhcPercentagePos", data = "upperCharacter"),
+					   	 'her2_and_cent17_cells_count' = list(name = "her2Cent17CellsCount", data = "upperCharacter"),
+					   	 'her2_and_cent17_scale_other' = list(name = "her2Cent17ScaleOther", data = "upperCharacter"),
+					   	 'her2_cent17_counted_cells_count' = list(name = "her2Cent17CountedCellsCount", data = "upperCharacter"),
+					   	 'her2_cent17_ratio' = list(name = "her2Cent17Ratio", data = "upperCharacter"),
+					   	 'nte_cent_17_her2_ratio' = list(name = "nteCent17Her2Ratio", data = "upperCharacter"),
+					   	 'nte_cent_17_signal_number' = list(name = "nteCent17SignalNum", data = "upperCharacter"),
+					   	 'nte_cent17_her2_other_scale' = list(name = "nteCent17Her2OtherScale", data = "upperCharacter")
 					   ))
-  	if(!is.an(uri[2])){
+  	if(!is.na(uri[2])){
   		tbl.f1 <- loadData(uri[2], 
 		               list(
 					     'bcr_patient_barcode' = list(name = "PatientID", data = "tcgaId"),
-					     'initial_pathologic_dx_year' = list(name = "dxyear", data = "tcgaDate"),
-					   	 'days_to_psa_most_recent' = list(name = "testDate", data = "upperCharacter"),
-					   	 'days_to_bone_scan' = list(name = "testDate", data = "upperCharacter"),
-					   	 'days_to_ct_scan_ab_pelvis' = list(name = "testDate", data = "upperCharacter"),
-					   	 'days_to_mri' = list(name = "testDate", data = "upperCharacter")
+					     'days_to_psa_most_recent' = list(name = "psaDate", data = "upperCharacter"),
+					   	 'days_to_bone_scan' = list(name = "boneScanDate", data = "upperCharacter"),
+					   	 'days_to_ct_scan_ab_pelvis' = list(name = "ctAbPelDate", data = "upperCharacter"),
+					   	 'days_to_mri' = list(name = "mriDate", data = "upperCharacter"),
+					   	 'idh1_mutation_test_method' = list(name = "idh1Method", data = "upperCharacter"),
+					   	 'idh1_mutation_found' = list(name = "idh1Found", data = "upperCharacter"),
+					   	 'IHC' = list(name = "ihc", data = "upperCharacter"),
+					   	 'kras_mutation_found' = list(name = "krasInd", data = "upperCharacter"),
+					   	 'kras_mutation_identified_type' = list(name = "krasType", data = "upperCharacter"),
+					   	 'egfr_mutation_status' = list(name = "egfrStatus", data = "upperCharacter"),
+					   	 'egfr_mutation_identified_type' = list(name = "egfrType", data = "upperCharacter"),
+					   	 'pulmonary_function_test_indicator' = list(name = "pulInd", data = "upperCharacter"),
+					   	 'eml4_alk_translocation_status' = list(name = "elm4AlkStatus", data = "upperCharacter"),
+					   	 'eml4_alk_translocation_variant' = list(name = "elm4AlkVar", data = "upperCharacter"),
+					   	 'kras_mutation_codon' = list(name = "krasCodon", data = "upperCharacter"),
+					   	 'braf_gene_analysis_indicator' = list(name = "brafInd", data = "upperCharacter"),
+					   	 'braf_gene_analysis_result' = list(name = "brafRes", data = "upperCharacter"),
+					   	 'cea_level_pretreatment' = list(name = "ceaTx", data = "upperCharacter"),
+					   	 'loci_tested_count' = list(name = "lociTestCount", data = "upperCharacter"),
+					   	 'loci_abnormal_count' = list(name = "lociAbnormalCount", data = "upperCharacter"),
+					   	 'mismatch_rep_proteins_tested_by_ihc' = list(name = "mismatchProteinTestIhc", data = "upperCharacter"),
+					   	 'mismatch_rep_proteins_loss_ihc' = list(name = "mismatchProteinLossIhc", data = "upperCharacter"),
+					   	 'hpv_status_p16' = list(name = "hpvP16", data = "upperCharacter"),
+					   	 'hpv_status_ish' = list(name = "hpvIsh", data = "upperCharacter"),
+					   	 'psa_most_recent_results' = list(name = "psaRes", data = "upperCharacter"),
+					   	 'bone_scan_results' = list(name = "boneScaneRes", data = "upperCharacter"),
+					   	 'ct_scan_ab_pelvis_results' = list(name = "ctAbPelRes", data = "upperCharacter"),
+					   	 'mri_results' = list(name = "mriRes", data = "upperCharacter"),
+					   	 'her2_copy_number' = list(name = "her2CNV", data = "upperCharacter"),
+					   	 'her2_fish_method' = list(name = "her2FishMethod", data = "upperCharacter"),
+					   	 'her2_fish_status' = list(name = "her2FishStatus", data = "upperCharacter"),
+					   	 'her2_ihc_percent_positive' = list(name = "her2IhcPercentagePos", data = "upperCharacter"),
+					   	 'her2_ihc_score' = list(name = "her2IhcScore", data = "upperCharacter"),
+					   	 'her2_positivity_method_text' = list(name = "her2PosMethod", data = "upperCharacter"),
+					   	 'her2_positivity_scale_other' = list(name = "her2PosScaleOther", data = "upperCharacter"),
+					   	 'her2_status_by_ihc' = list(name = "her2StatusIhc", data = "upperCharacter"),
+					   	 'nte_her2_fish_define_method' = list(name = "nteHer2FishMethod", data = "upperCharacter"),
+					   	 'nte_her2_fish_status' = list(name = "nteHer2FishStatus", data = "upperCharacter"),
+					   	 'nte_her2_positivity_ihc_score' = list(name = "nteHer2PosIhcScore", data = "upperCharacter"),
+					   	 'nte_her2_positivity_method' = list(name = "nteHer2PosMethod", data = "upperCharacter"),
+					   	 'nte_her2_positivity_other_scale' = list(name = "nteHer2PosOtherScale", data = "upperCharacter"),
+					   	 'nte_her2_signal_number' = list(name = "nteHer2SignalNum", data = "upperCharacter"),
+					   	 'nte_her2_status' = list(name = "nteHer2Status", data = "upperCharacter"),
+					   	 'nte_her2_status_ihc_positive' = list(name = "nteHer2StatusIhcPos", data = "upperCharacter"),
+					   	 'nte_er_ihc_intensity_score' = list(name = "nteEstroIhcScore", data = "upperCharacter"),
+					   	 'nte_er_positivity_define_method' = list(name = "nteEstroPosMethod", data = "upperCharacter"),
+					   	 'nte_er_positivity_other_scale' = list(name = "nteEstroPosOtherScale", data = "upperCharacter"),
+					   	 'nte_er_status' = list(name = "nteEstroStatus", data = "upperCharacter"),
+					   	 'nte_er_status_ihc_positive' = list(name = "nteEstroStatusIhcPos", data = "upperCharacter"),
+					   	 'nte_pr_ihc_intensity_score' = list(name = "nteProgIhcScore", data = "upperCharacter"),
+					   	 'nte_pr_positivity_define_method' = list(name = "nteProgPosMethod", data = "upperCharacter"),
+					   	 'nte_pr_positivity_other_scale' = list(name = "nteProgPosOtherScale", data = "upperCharacter"),
+					   	 'nte_pr_status_by_ihc' = list(name = "nteProgStatusIhc", data = "upperCharacter"),
+					   	 'nte_pr_status_ihc_positive' = list(name = "nteProgStatusIhcPos", data = "upperCharacter"),
+					   	 'pr_positivity_define_method' = list(name = "ProgPosMethod", data = "upperCharacter"), 
+					   	 'pr_positivity_ihc_intensity_score' = list(name = "ProgPosIhcScore", data = "upperCharacter"),
+					   	 'pr_positivity_scale_other' = list(name = "ProgPosScaleOther", data = "upperCharacter"),
+					   	 'pr_positivity_scale_used' = list(name = "ProgPosScaleUsed", data = "upperCharacter"),
+					   	 'pr_status_by_ihc' = list(name = "ProgStatusIhc", data = "upperCharacter"),
+					   	 'pr_status_ihc_percent_positiv' = list(name = "ProgStatusIhcPercentagePos", data = "upperCharacter"),
+					   	 'her2_and_cent17_cells_count' = list(name = "her2Cent17CellsCount", data = "upperCharacter"),
+					   	 'her2_and_cent17_scale_other' = list(name = "her2Cent17ScaleOther", data = "upperCharacter"),
+					   	 'her2_cent17_counted_cells_count' = list(name = "her2Cent17CountedCellsCount", data = "upperCharacter"),
+					   	 'her2_cent17_ratio' = list(name = "her2Cent17Ratio", data = "upperCharacter"),
+					   	 'nte_cent_17_her2_ratio' = list(name = "nteCent17Her2Ratio", data = "upperCharacter"),
+					   	 'nte_cent_17_signal_number' = list(name = "nteCent17SignalNum", data = "upperCharacter"),
+					   	 'nte_cent17_her2_other_scale' = list(name = "nteCent17Her2OtherScale", data = "upperCharacter")
 					   ))
   	}
-  	 
- 	ptNumMap <- ptNumMapUpdate(tbl.pt)
- 	if(missing(ptID)){
- 		result <- apply(data.Tests, 1, function(x){
-    				PatientID = getElement(x, "PatientID")
-    				PtNum = ptNumMap[ptNumMap$PatientID == PatientID,]$PatientNumber
-    				date = getElement(x, "date")
-    				rad = getElement(x, "radInd")
-    				drug = getElement(x, "drugInd")
-    				pul = getElement(x, "pulInd")
-    				return(list(PatientID=PatientID, PtNum=PtNum, study=study_name, Name="Tests", 
-    				 			Fields=list(date=date, Radiation=rad, Drug=drug, Pulmonary=pul)))
-    				})
-		print(c(study_name, dim(data.Tests), length(result)))
- 	}else{
- 		print(ptID)
- 		subSet.data.Tests <- subset(data.Tests, PatientID==ptID)
- 		result <- apply(subSet.data.Tests, 1, function(x){
-    				PatientID = getElement(x, "PatientID")
-    				PtNum = ptNumMap[ptNumMap$PatientID == PatientID,]$PatientNumber
-    				date = getElement(x, "date")
-    				rad = getElement(x, "radInd")
-    				drug = getElement(x, "drugInd")
-    				pul = getElement(x, "pulInd")
-    				return(list(PatientID=PatientID, PtNum=PtNum, study=study_name, Name="Tests", 
-    				 			Fields=list(date=date, Radiation=rad, Drug=drug, Pulmonary=pul)))
-    				})
-		print(result)
- 	}	   
+  	if(!is.na(uri[3])){
+  		tbl.f2 <- loadData(uri[3], 
+		               list(
+					     'bcr_patient_barcode' = list(name = "PatientID", data = "tcgaId"),
+					     'days_to_psa_most_recent' = list(name = "psaDate", data = "upperCharacter"),
+					   	 'days_to_bone_scan' = list(name = "boneScanDate", data = "upperCharacter"),
+					   	 'days_to_ct_scan_ab_pelvis' = list(name = "ctAbPelDate", data = "upperCharacter"),
+					   	 'days_to_mri' = list(name = "mriDate", data = "upperCharacter"),
+					   	 'idh1_mutation_test_method' = list(name = "idh1Method", data = "upperCharacter"),
+					   	 'idh1_mutation_found' = list(name = "idh1Found", data = "upperCharacter"),
+					   	 'IHC' = list(name = "ihc", data = "upperCharacter"),
+					   	 'kras_mutation_found' = list(name = "krasInd", data = "upperCharacter"),
+					   	 'kras_mutation_identified_type' = list(name = "krasType", data = "upperCharacter"),
+					   	 'egfr_mutation_status' = list(name = "egfrStatus", data = "upperCharacter"),
+					   	 'egfr_mutation_identified_type' = list(name = "egfrType", data = "upperCharacter"),
+					   	 'pulmonary_function_test_indicator' = list(name = "pulInd", data = "upperCharacter"),
+					   	 'eml4_alk_translocation_status' = list(name = "elm4AlkStatus", data = "upperCharacter"),
+					   	 'eml4_alk_translocation_variant' = list(name = "elm4AlkVar", data = "upperCharacter"),
+					   	 'kras_mutation_codon' = list(name = "krasCodon", data = "upperCharacter"),
+					   	 'braf_gene_analysis_indicator' = list(name = "brafInd", data = "upperCharacter"),
+					   	 'braf_gene_analysis_result' = list(name = "brafRes", data = "upperCharacter"),
+					   	 'cea_level_pretreatment' = list(name = "ceaTx", data = "upperCharacter"),
+					   	 'loci_tested_count' = list(name = "lociTestCount", data = "upperCharacter"),
+					   	 'loci_abnormal_count' = list(name = "lociAbnormalCount", data = "upperCharacter"),
+					   	 'mismatch_rep_proteins_tested_by_ihc' = list(name = "mismatchProteinTestIhc", data = "upperCharacter"),
+					   	 'mismatch_rep_proteins_loss_ihc' = list(name = "mismatchProteinLossIhc", data = "upperCharacter"),
+					   	 'hpv_status_p16' = list(name = "hpvP16", data = "upperCharacter"),
+					   	 'hpv_status_ish' = list(name = "hpvIsh", data = "upperCharacter"),
+					   	 'psa_most_recent_results' = list(name = "psaRes", data = "upperCharacter"),
+					   	 'bone_scan_results' = list(name = "boneScaneRes", data = "upperCharacter"),
+					   	 'ct_scan_ab_pelvis_results' = list(name = "ctAbPelRes", data = "upperCharacter"),
+					   	 'mri_results' = list(name = "mriRes", data = "upperCharacter"),
+					   	 'her2_copy_number' = list(name = "her2CNV", data = "upperCharacter"),
+					   	 'her2_fish_method' = list(name = "her2FishMethod", data = "upperCharacter"),
+					   	 'her2_fish_status' = list(name = "her2FishStatus", data = "upperCharacter"),
+					   	 'her2_ihc_percent_positive' = list(name = "her2IhcPercentagePos", data = "upperCharacter"),
+					   	 'her2_ihc_score' = list(name = "her2IhcScore", data = "upperCharacter"),
+					   	 'her2_positivity_method_text' = list(name = "her2PosMethod", data = "upperCharacter"),
+					   	 'her2_positivity_scale_other' = list(name = "her2PosScaleOther", data = "upperCharacter"),
+					   	 'her2_status_by_ihc' = list(name = "her2StatusIhc", data = "upperCharacter"),
+					   	 'nte_her2_fish_define_method' = list(name = "nteHer2FishMethod", data = "upperCharacter"),
+					   	 'nte_her2_fish_status' = list(name = "nteHer2FishStatus", data = "upperCharacter"),
+					   	 'nte_her2_positivity_ihc_score' = list(name = "nteHer2PosIhcScore", data = "upperCharacter"),
+					   	 'nte_her2_positivity_method' = list(name = "nteHer2PosMethod", data = "upperCharacter"),
+					   	 'nte_her2_positivity_other_scale' = list(name = "nteHer2PosOtherScale", data = "upperCharacter"),
+					   	 'nte_her2_signal_number' = list(name = "nteHer2SignalNum", data = "upperCharacter"),
+					   	 'nte_her2_status' = list(name = "nteHer2Status", data = "upperCharacter"),
+					   	 'nte_her2_status_ihc_positive' = list(name = "nteHer2StatusIhcPos", data = "upperCharacter"),
+					   	 'nte_er_ihc_intensity_score' = list(name = "nteEstroIhcScore", data = "upperCharacter"),
+					   	 'nte_er_positivity_define_method' = list(name = "nteEstroPosMethod", data = "upperCharacter"),
+					   	 'nte_er_positivity_other_scale' = list(name = "nteEstroPosOtherScale", data = "upperCharacter"),
+					   	 'nte_er_status' = list(name = "nteEstroStatus", data = "upperCharacter"),
+					   	 'nte_er_status_ihc_positive' = list(name = "nteEstroStatusIhcPos", data = "upperCharacter"),
+					   	 'nte_pr_ihc_intensity_score' = list(name = "nteProgIhcScore", data = "upperCharacter"),
+					   	 'nte_pr_positivity_define_method' = list(name = "nteProgPosMethod", data = "upperCharacter"),
+					   	 'nte_pr_positivity_other_scale' = list(name = "nteProgPosOtherScale", data = "upperCharacter"),
+					   	 'nte_pr_status_by_ihc' = list(name = "nteProgStatusIhc", data = "upperCharacter"),
+					   	 'nte_pr_status_ihc_positive' = list(name = "nteProgStatusIhcPos", data = "upperCharacter"),
+					   	 'pr_positivity_define_method' = list(name = "ProgPosMethod", data = "upperCharacter"), 
+					   	 'pr_positivity_ihc_intensity_score' = list(name = "ProgPosIhcScore", data = "upperCharacter"),
+					   	 'pr_positivity_scale_other' = list(name = "ProgPosScaleOther", data = "upperCharacter"),
+					   	 'pr_positivity_scale_used' = list(name = "ProgPosScaleUsed", data = "upperCharacter"),
+					   	 'pr_status_by_ihc' = list(name = "ProgStatusIhc", data = "upperCharacter"),
+					   	 'pr_status_ihc_percent_positiv' = list(name = "ProgStatusIhcPercentagePos", data = "upperCharacter"),
+					   	 'her2_and_cent17_cells_count' = list(name = "her2Cent17CellsCount", data = "upperCharacter"),
+					   	 'her2_and_cent17_scale_other' = list(name = "her2Cent17ScaleOther", data = "upperCharacter"),
+					   	 'her2_cent17_counted_cells_count' = list(name = "her2Cent17CountedCellsCount", data = "upperCharacter"),
+					   	 'her2_cent17_ratio' = list(name = "her2Cent17Ratio", data = "upperCharacter"),
+					   	 'nte_cent_17_her2_ratio' = list(name = "nteCent17Her2Ratio", data = "upperCharacter"),
+					   	 'nte_cent_17_signal_number' = list(name = "nteCent17SignalNum", data = "upperCharacter"),
+					   	 'nte_cent17_her2_other_scale' = list(name = "nteCent17Her2OtherScale", data = "upperCharacter")
+					   ))
+  	}
+  	if(!is.na(uri[4])){
+  		tbl.f3 <- loadData(uri[4], 
+		               list(
+					     'bcr_patient_barcode' = list(name = "PatientID", data = "tcgaId"),
+					     'days_to_psa_most_recent' = list(name = "psaDate", data = "upperCharacter"),
+					   	 'days_to_bone_scan' = list(name = "boneScanDate", data = "upperCharacter"),
+					   	 'days_to_ct_scan_ab_pelvis' = list(name = "ctAbPelDate", data = "upperCharacter"),
+					   	 'days_to_mri' = list(name = "mriDate", data = "upperCharacter"),
+					   	 'idh1_mutation_test_method' = list(name = "idh1Method", data = "upperCharacter"),
+					   	 'idh1_mutation_found' = list(name = "idh1Found", data = "upperCharacter"),
+					   	 'IHC' = list(name = "ihc", data = "upperCharacter"),
+					   	 'kras_mutation_found' = list(name = "krasInd", data = "upperCharacter"),
+					   	 'kras_mutation_identified_type' = list(name = "krasType", data = "upperCharacter"),
+					   	 'egfr_mutation_status' = list(name = "egfrStatus", data = "upperCharacter"),
+					   	 'egfr_mutation_identified_type' = list(name = "egfrType", data = "upperCharacter"),
+					   	 'pulmonary_function_test_indicator' = list(name = "pulInd", data = "upperCharacter"),
+					   	 'eml4_alk_translocation_status' = list(name = "elm4AlkStatus", data = "upperCharacter"),
+					   	 'eml4_alk_translocation_variant' = list(name = "elm4AlkVar", data = "upperCharacter"),
+					   	 'kras_mutation_codon' = list(name = "krasCodon", data = "upperCharacter"),
+					   	 'braf_gene_analysis_indicator' = list(name = "brafInd", data = "upperCharacter"),
+					   	 'braf_gene_analysis_result' = list(name = "brafRes", data = "upperCharacter"),
+					   	 'cea_level_pretreatment' = list(name = "ceaTx", data = "upperCharacter"),
+					   	 'loci_tested_count' = list(name = "lociTestCount", data = "upperCharacter"),
+					   	 'loci_abnormal_count' = list(name = "lociAbnormalCount", data = "upperCharacter"),
+					   	 'mismatch_rep_proteins_tested_by_ihc' = list(name = "mismatchProteinTestIhc", data = "upperCharacter"),
+					   	 'mismatch_rep_proteins_loss_ihc' = list(name = "mismatchProteinLossIhc", data = "upperCharacter"),
+					   	 'hpv_status_p16' = list(name = "hpvP16", data = "upperCharacter"),
+					   	 'hpv_status_ish' = list(name = "hpvIsh", data = "upperCharacter"),
+					   	 'psa_most_recent_results' = list(name = "psaRes", data = "upperCharacter"),
+					   	 'bone_scan_results' = list(name = "boneScaneRes", data = "upperCharacter"),
+					   	 'ct_scan_ab_pelvis_results' = list(name = "ctAbPelRes", data = "upperCharacter"),
+					   	 'mri_results' = list(name = "mriRes", data = "upperCharacter"),
+					   	 'her2_copy_number' = list(name = "her2CNV", data = "upperCharacter"),
+					   	 'her2_fish_method' = list(name = "her2FishMethod", data = "upperCharacter"),
+					   	 'her2_fish_status' = list(name = "her2FishStatus", data = "upperCharacter"),
+					   	 'her2_ihc_percent_positive' = list(name = "her2IhcPercentagePos", data = "upperCharacter"),
+					   	 'her2_ihc_score' = list(name = "her2IhcScore", data = "upperCharacter"),
+					   	 'her2_positivity_method_text' = list(name = "her2PosMethod", data = "upperCharacter"),
+					   	 'her2_positivity_scale_other' = list(name = "her2PosScaleOther", data = "upperCharacter"),
+					   	 'her2_status_by_ihc' = list(name = "her2StatusIhc", data = "upperCharacter"),
+					   	 'nte_her2_fish_define_method' = list(name = "nteHer2FishMethod", data = "upperCharacter"),
+					   	 'nte_her2_fish_status' = list(name = "nteHer2FishStatus", data = "upperCharacter"),
+					   	 'nte_her2_positivity_ihc_score' = list(name = "nteHer2PosIhcScore", data = "upperCharacter"),
+					   	 'nte_her2_positivity_method' = list(name = "nteHer2PosMethod", data = "upperCharacter"),
+					   	 'nte_her2_positivity_other_scale' = list(name = "nteHer2PosOtherScale", data = "upperCharacter"),
+					   	 'nte_her2_signal_number' = list(name = "nteHer2SignalNum", data = "upperCharacter"),
+					   	 'nte_her2_status' = list(name = "nteHer2Status", data = "upperCharacter"),
+					   	 'nte_her2_status_ihc_positive' = list(name = "nteHer2StatusIhcPos", data = "upperCharacter"),
+					   	 'nte_er_ihc_intensity_score' = list(name = "nteEstroIhcScore", data = "upperCharacter"),
+					   	 'nte_er_positivity_define_method' = list(name = "nteEstroPosMethod", data = "upperCharacter"),
+					   	 'nte_er_positivity_other_scale' = list(name = "nteEstroPosOtherScale", data = "upperCharacter"),
+					   	 'nte_er_status' = list(name = "nteEstroStatus", data = "upperCharacter"),
+					   	 'nte_er_status_ihc_positive' = list(name = "nteEstroStatusIhcPos", data = "upperCharacter"),
+					   	 'nte_pr_ihc_intensity_score' = list(name = "nteProgIhcScore", data = "upperCharacter"),
+					   	 'nte_pr_positivity_define_method' = list(name = "nteProgPosMethod", data = "upperCharacter"),
+					   	 'nte_pr_positivity_other_scale' = list(name = "nteProgPosOtherScale", data = "upperCharacter"),
+					   	 'nte_pr_status_by_ihc' = list(name = "nteProgStatusIhc", data = "upperCharacter"),
+					   	 'nte_pr_status_ihc_positive' = list(name = "nteProgStatusIhcPos", data = "upperCharacter"),
+					   	 'pr_positivity_define_method' = list(name = "ProgPosMethod", data = "upperCharacter"), 
+					   	 'pr_positivity_ihc_intensity_score' = list(name = "ProgPosIhcScore", data = "upperCharacter"),
+					   	 'pr_positivity_scale_other' = list(name = "ProgPosScaleOther", data = "upperCharacter"),
+					   	 'pr_positivity_scale_used' = list(name = "ProgPosScaleUsed", data = "upperCharacter"),
+					   	 'pr_status_by_ihc' = list(name = "ProgStatusIhc", data = "upperCharacter"),
+					   	 'pr_status_ihc_percent_positiv' = list(name = "ProgStatusIhcPercentagePos", data = "upperCharacter"),
+					   	 'her2_and_cent17_cells_count' = list(name = "her2Cent17CellsCount", data = "upperCharacter"),
+					   	 'her2_and_cent17_scale_other' = list(name = "her2Cent17ScaleOther", data = "upperCharacter"),
+					   	 'her2_cent17_counted_cells_count' = list(name = "her2Cent17CountedCellsCount", data = "upperCharacter"),
+					   	 'her2_cent17_ratio' = list(name = "her2Cent17Ratio", data = "upperCharacter"),
+					   	 'nte_cent_17_her2_ratio' = list(name = "nteCent17Her2Ratio", data = "upperCharacter"),
+					   	 'nte_cent_17_signal_number' = list(name = "nteCent17SignalNum", data = "upperCharacter"),
+					   	 'nte_cent17_her2_other_scale' = list(name = "nteCent17Her2OtherScale", data = "upperCharacter")
+					   ))
+  	}
+  	if(!is.na(uri[5])){
+  		tbl.nte <- loadData(uri[5], 
+		               list(
+					     'bcr_patient_barcode' = list(name = "PatientID", data = "tcgaId"),
+					     'days_to_psa_most_recent' = list(name = "psaDate", data = "upperCharacter"),
+					   	 'days_to_bone_scan' = list(name = "boneScanDate", data = "upperCharacter"),
+					   	 'days_to_ct_scan_ab_pelvis' = list(name = "ctAbPelDate", data = "upperCharacter"),
+					   	 'days_to_mri' = list(name = "mriDate", data = "upperCharacter"),
+					   	 'idh1_mutation_test_method' = list(name = "idh1Method", data = "upperCharacter"),
+					   	 'idh1_mutation_found' = list(name = "idh1Found", data = "upperCharacter"),
+					   	 'IHC' = list(name = "ihc", data = "upperCharacter"),
+					   	 'kras_mutation_found' = list(name = "krasInd", data = "upperCharacter"),
+					   	 'kras_mutation_identified_type' = list(name = "krasType", data = "upperCharacter"),
+					   	 'egfr_mutation_status' = list(name = "egfrStatus", data = "upperCharacter"),
+					   	 'egfr_mutation_identified_type' = list(name = "egfrType", data = "upperCharacter"),
+					   	 'pulmonary_function_test_indicator' = list(name = "pulInd", data = "upperCharacter"),
+					   	 'eml4_alk_translocation_status' = list(name = "elm4AlkStatus", data = "upperCharacter"),
+					   	 'eml4_alk_translocation_variant' = list(name = "elm4AlkVar", data = "upperCharacter"),
+					   	 'kras_mutation_codon' = list(name = "krasCodon", data = "upperCharacter"),
+					   	 'braf_gene_analysis_indicator' = list(name = "brafInd", data = "upperCharacter"),
+					   	 'braf_gene_analysis_result' = list(name = "brafRes", data = "upperCharacter"),
+					   	 'cea_level_pretreatment' = list(name = "ceaTx", data = "upperCharacter"),
+					   	 'loci_tested_count' = list(name = "lociTestCount", data = "upperCharacter"),
+					   	 'loci_abnormal_count' = list(name = "lociAbnormalCount", data = "upperCharacter"),
+					   	 'mismatch_rep_proteins_tested_by_ihc' = list(name = "mismatchProteinTestIhc", data = "upperCharacter"),
+					   	 'mismatch_rep_proteins_loss_ihc' = list(name = "mismatchProteinLossIhc", data = "upperCharacter"),
+					   	 'hpv_status_p16' = list(name = "hpvP16", data = "upperCharacter"),
+					   	 'hpv_status_ish' = list(name = "hpvIsh", data = "upperCharacter"),
+					   	 'psa_most_recent_results' = list(name = "psaRes", data = "upperCharacter"),
+					   	 'bone_scan_results' = list(name = "boneScaneRes", data = "upperCharacter"),
+					   	 'ct_scan_ab_pelvis_results' = list(name = "ctAbPelRes", data = "upperCharacter"),
+					   	 'mri_results' = list(name = "mriRes", data = "upperCharacter"),
+					   	 'her2_copy_number' = list(name = "her2CNV", data = "upperCharacter"),
+					   	 'her2_fish_method' = list(name = "her2FishMethod", data = "upperCharacter"),
+					   	 'her2_fish_status' = list(name = "her2FishStatus", data = "upperCharacter"),
+					   	 'her2_ihc_percent_positive' = list(name = "her2IhcPercentagePos", data = "upperCharacter"),
+					   	 'her2_ihc_score' = list(name = "her2IhcScore", data = "upperCharacter"),
+					   	 'her2_positivity_method_text' = list(name = "her2PosMethod", data = "upperCharacter"),
+					   	 'her2_positivity_scale_other' = list(name = "her2PosScaleOther", data = "upperCharacter"),
+					   	 'her2_status_by_ihc' = list(name = "her2StatusIhc", data = "upperCharacter"),
+					   	 'nte_her2_fish_define_method' = list(name = "nteHer2FishMethod", data = "upperCharacter"),
+					   	 'nte_her2_fish_status' = list(name = "nteHer2FishStatus", data = "upperCharacter"),
+					   	 'nte_her2_positivity_ihc_score' = list(name = "nteHer2PosIhcScore", data = "upperCharacter"),
+					   	 'nte_her2_positivity_method' = list(name = "nteHer2PosMethod", data = "upperCharacter"),
+					   	 'nte_her2_positivity_other_scale' = list(name = "nteHer2PosOtherScale", data = "upperCharacter"),
+					   	 'nte_her2_signal_number' = list(name = "nteHer2SignalNum", data = "upperCharacter"),
+					   	 'nte_her2_status' = list(name = "nteHer2Status", data = "upperCharacter"),
+					   	 'nte_her2_status_ihc_positive' = list(name = "nteHer2StatusIhcPos", data = "upperCharacter"),
+					   	 'nte_er_ihc_intensity_score' = list(name = "nteEstroIhcScore", data = "upperCharacter"),
+					   	 'nte_er_positivity_define_method' = list(name = "nteEstroPosMethod", data = "upperCharacter"),
+					   	 'nte_er_positivity_other_scale' = list(name = "nteEstroPosOtherScale", data = "upperCharacter"),
+					   	 'nte_er_status' = list(name = "nteEstroStatus", data = "upperCharacter"),
+					   	 'nte_er_status_ihc_positive' = list(name = "nteEstroStatusIhcPos", data = "upperCharacter"),
+					   	 'nte_pr_ihc_intensity_score' = list(name = "nteProgIhcScore", data = "upperCharacter"),
+					   	 'nte_pr_positivity_define_method' = list(name = "nteProgPosMethod", data = "upperCharacter"),
+					   	 'nte_pr_positivity_other_scale' = list(name = "nteProgPosOtherScale", data = "upperCharacter"),
+					   	 'nte_pr_status_by_ihc' = list(name = "nteProgStatusIhc", data = "upperCharacter"),
+					   	 'nte_pr_status_ihc_positive' = list(name = "nteProgStatusIhcPos", data = "upperCharacter"),
+					   	 'pr_positivity_define_method' = list(name = "ProgPosMethod", data = "upperCharacter"), 
+					   	 'pr_positivity_ihc_intensity_score' = list(name = "ProgPosIhcScore", data = "upperCharacter"),
+					   	 'pr_positivity_scale_other' = list(name = "ProgPosScaleOther", data = "upperCharacter"),
+					   	 'pr_positivity_scale_used' = list(name = "ProgPosScaleUsed", data = "upperCharacter"),
+					   	 'pr_status_by_ihc' = list(name = "ProgStatusIhc", data = "upperCharacter"),
+					   	 'pr_status_ihc_percent_positiv' = list(name = "ProgStatusIhcPercentagePos", data = "upperCharacter"),
+					   	 'her2_and_cent17_cells_count' = list(name = "her2Cent17CellsCount", data = "upperCharacter"),
+					   	 'her2_and_cent17_scale_other' = list(name = "her2Cent17ScaleOther", data = "upperCharacter"),
+					   	 'her2_cent17_counted_cells_count' = list(name = "her2Cent17CountedCellsCount", data = "upperCharacter"),
+					   	 'her2_cent17_ratio' = list(name = "her2Cent17Ratio", data = "upperCharacter"),
+					   	 'nte_cent_17_her2_ratio' = list(name = "nteCent17Her2Ratio", data = "upperCharacter"),
+					   	 'nte_cent_17_signal_number' = list(name = "nteCent17SignalNum", data = "upperCharacter"),
+					   	 'nte_cent17_her2_other_scale' = list(name = "nteCent17Her2OtherScale", data = "upperCharacter")
+					   ))
+  	}
+  	if(!is.na(uri[6])){
+  		tbl.nte_f1 <- loadData(uri[6], 
+		               list(
+					     'bcr_patient_barcode' = list(name = "PatientID", data = "tcgaId"),
+					     'days_to_psa_most_recent' = list(name = "psaDate", data = "upperCharacter"),
+					   	 'days_to_bone_scan' = list(name = "boneScanDate", data = "upperCharacter"),
+					   	 'days_to_ct_scan_ab_pelvis' = list(name = "ctAbPelDate", data = "upperCharacter"),
+					   	 'days_to_mri' = list(name = "mriDate", data = "upperCharacter"),
+					   	 'idh1_mutation_test_method' = list(name = "idh1Method", data = "upperCharacter"),
+					   	 'idh1_mutation_found' = list(name = "idh1Found", data = "upperCharacter"),
+					   	 'IHC' = list(name = "ihc", data = "upperCharacter"),
+					   	 'kras_mutation_found' = list(name = "krasInd", data = "upperCharacter"),
+					   	 'kras_mutation_identified_type' = list(name = "krasType", data = "upperCharacter"),
+					   	 'egfr_mutation_status' = list(name = "egfrStatus", data = "upperCharacter"),
+					   	 'egfr_mutation_identified_type' = list(name = "egfrType", data = "upperCharacter"),
+					   	 'pulmonary_function_test_indicator' = list(name = "pulInd", data = "upperCharacter"),
+					   	 'eml4_alk_translocation_status' = list(name = "elm4AlkStatus", data = "upperCharacter"),
+					   	 'eml4_alk_translocation_variant' = list(name = "elm4AlkVar", data = "upperCharacter"),
+					   	 'kras_mutation_codon' = list(name = "krasCodon", data = "upperCharacter"),
+					   	 'braf_gene_analysis_indicator' = list(name = "brafInd", data = "upperCharacter"),
+					   	 'braf_gene_analysis_result' = list(name = "brafRes", data = "upperCharacter"),
+					   	 'cea_level_pretreatment' = list(name = "ceaTx", data = "upperCharacter"),
+					   	 'loci_tested_count' = list(name = "lociTestCount", data = "upperCharacter"),
+					   	 'loci_abnormal_count' = list(name = "lociAbnormalCount", data = "upperCharacter"),
+					   	 'mismatch_rep_proteins_tested_by_ihc' = list(name = "mismatchProteinTestIhc", data = "upperCharacter"),
+					   	 'mismatch_rep_proteins_loss_ihc' = list(name = "mismatchProteinLossIhc", data = "upperCharacter"),
+					   	 'hpv_status_p16' = list(name = "hpvP16", data = "upperCharacter"),
+					   	 'hpv_status_ish' = list(name = "hpvIsh", data = "upperCharacter"),
+					   	 'psa_most_recent_results' = list(name = "psaRes", data = "upperCharacter"),
+					   	 'bone_scan_results' = list(name = "boneScaneRes", data = "upperCharacter"),
+					   	 'ct_scan_ab_pelvis_results' = list(name = "ctAbPelRes", data = "upperCharacter"),
+					   	 'mri_results' = list(name = "mriRes", data = "upperCharacter"),
+					   	 'her2_copy_number' = list(name = "her2CNV", data = "upperCharacter"),
+					   	 'her2_fish_method' = list(name = "her2FishMethod", data = "upperCharacter"),
+					   	 'her2_fish_status' = list(name = "her2FishStatus", data = "upperCharacter"),
+					   	 'her2_ihc_percent_positive' = list(name = "her2IhcPercentagePos", data = "upperCharacter"),
+					   	 'her2_ihc_score' = list(name = "her2IhcScore", data = "upperCharacter"),
+					   	 'her2_positivity_method_text' = list(name = "her2PosMethod", data = "upperCharacter"),
+					   	 'her2_positivity_scale_other' = list(name = "her2PosScaleOther", data = "upperCharacter"),
+					   	 'her2_status_by_ihc' = list(name = "her2StatusIhc", data = "upperCharacter"),
+					   	 'nte_her2_fish_define_method' = list(name = "nteHer2FishMethod", data = "upperCharacter"),
+					   	 'nte_her2_fish_status' = list(name = "nteHer2FishStatus", data = "upperCharacter"),
+					   	 'nte_her2_positivity_ihc_score' = list(name = "nteHer2PosIhcScore", data = "upperCharacter"),
+					   	 'nte_her2_positivity_method' = list(name = "nteHer2PosMethod", data = "upperCharacter"),
+					   	 'nte_her2_positivity_other_scale' = list(name = "nteHer2PosOtherScale", data = "upperCharacter"),
+					   	 'nte_her2_signal_number' = list(name = "nteHer2SignalNum", data = "upperCharacter"),
+					   	 'nte_her2_status' = list(name = "nteHer2Status", data = "upperCharacter"),
+					   	 'nte_her2_status_ihc_positive' = list(name = "nteHer2StatusIhcPos", data = "upperCharacter"),
+					   	 'nte_er_ihc_intensity_score' = list(name = "nteEstroIhcScore", data = "upperCharacter"),
+					   	 'nte_er_positivity_define_method' = list(name = "nteEstroPosMethod", data = "upperCharacter"),
+					   	 'nte_er_positivity_other_scale' = list(name = "nteEstroPosOtherScale", data = "upperCharacter"),
+					   	 'nte_er_status' = list(name = "nteEstroStatus", data = "upperCharacter"),
+					   	 'nte_er_status_ihc_positive' = list(name = "nteEstroStatusIhcPos", data = "upperCharacter"),
+					   	 'nte_pr_ihc_intensity_score' = list(name = "nteProgIhcScore", data = "upperCharacter"),
+					   	 'nte_pr_positivity_define_method' = list(name = "nteProgPosMethod", data = "upperCharacter"),
+					   	 'nte_pr_positivity_other_scale' = list(name = "nteProgPosOtherScale", data = "upperCharacter"),
+					   	 'nte_pr_status_by_ihc' = list(name = "nteProgStatusIhc", data = "upperCharacter"),
+					   	 'nte_pr_status_ihc_positive' = list(name = "nteProgStatusIhcPos", data = "upperCharacter"),
+					   	 'pr_positivity_define_method' = list(name = "ProgPosMethod", data = "upperCharacter"), 
+					   	 'pr_positivity_ihc_intensity_score' = list(name = "ProgPosIhcScore", data = "upperCharacter"),
+					   	 'pr_positivity_scale_other' = list(name = "ProgPosScaleOther", data = "upperCharacter"),
+					   	 'pr_positivity_scale_used' = list(name = "ProgPosScaleUsed", data = "upperCharacter"),
+					   	 'pr_status_by_ihc' = list(name = "ProgStatusIhc", data = "upperCharacter"),
+					   	 'pr_status_ihc_percent_positiv' = list(name = "ProgStatusIhcPercentagePos", data = "upperCharacter"),
+					   	 'her2_and_cent17_cells_count' = list(name = "her2Cent17CellsCount", data = "upperCharacter"),
+					   	 'her2_and_cent17_scale_other' = list(name = "her2Cent17ScaleOther", data = "upperCharacter"),
+					   	 'her2_cent17_counted_cells_count' = list(name = "her2Cent17CountedCellsCount", data = "upperCharacter"),
+					   	 'her2_cent17_ratio' = list(name = "her2Cent17Ratio", data = "upperCharacter"),
+					   	 'nte_cent_17_her2_ratio' = list(name = "nteCent17Her2Ratio", data = "upperCharacter"),
+					   	 'nte_cent_17_signal_number' = list(name = "nteCent17SignalNum", data = "upperCharacter"),
+					   	 'nte_cent17_her2_other_scale' = list(name = "nteCent17Her2OtherScale", data = "upperCharacter")
+					   ))
+  	}
+
+  	tbl <- list()
+  	if(length(tbl.pt) > 2){
+  		tbl <- tbl.pt[,-match("dxyear", colnames(tbl.pt))]
+  	}
+  	if(exists("tbl.f1") && length(tbl.f1) > 1) tbl <- rbind.fill(tbl, tbl.f1)
+  	if(exists("tbl.f2") && length(tbl.f2) > 1) tbl <- rbind.fill(tbl, tbl.f2)
+  	if(exists("tbl.f3") && length(tbl.f3) > 1) tbl <- rbind.fill(tbl, tbl.f3)
+  	if(exists("tbl.nte") && length(tbl.nte) > 1) tbl <- rbind.fill(tbl, tbl.nte)
+  	if(exists("tbl.nte_f1") && length(tbl.nte_f1) > 1) tbl <- rbind.fill(tbl, tbl.nte_f1)
+    if(length(tbl) == 0){
+    	print(c(study_name, length(tbl)))
+    	return(tbl)
+    }else{
+    	testNames <- c("KRAS", "EGFR", "Pulmonary_function", "IDH1", "EML4_ALK", "BRAF", "CEA", "LOCI", "MISMATCHED_PROTEIN",
+  					"HPV_P16", "HPV_ISH", "PSA", "BONE_SCAN", "CT_SCAN_AB_PELVIS", "MRI", "HER2", "ESTROGEN", 
+  					"PROGESTERONE_RECEPTOR", "CENTROMERE_17")
+
+	    searchKeyWords <- c("kras", "egfr", "pul", "idh1", "elm4Alk", "braf", "cea", "loci", "mismatchProtein", 
+	    					"hvpP16", "hpvIsh", "psa", "boneScan", "ctAbPel", "mri", "her2", "estro", "prog", "cent17")
+
+
+	    m <- matrix(nrow=nrow(tbl), ncol=3)
+	    df <- as.data.frame(m)
+	    colnames(df) <- c("Date", "Test", "Result")
+	    data.Tests <- cbind(PatientID=tbl$PatientID, df)
+	    
+	    for(i in 1:length(searchKeyWords)){
+	    	if(length(grep(searchKeyWords[i],colnames(tbl), ignore.case=T))>0){
+		    		# construct structure of restul data.frame
+		    		tmp.Tests <- list()
+			    	tmp.Tests$PatientID <- tbl$PatientID
+			    	tmp.Tests$Test <- rep(searchKeyWords[i], nrow(tbl))
+
+					oneTest <- tbl[,colnames(tbl)[grep(searchKeyWords[i],colnames(tbl), ignore.case=T)]]
+					# compile Result field
+					rs <- c()
+					if(length(grep(searchKeyWords[i],colnames(tbl), ignore.case=T)) == 1){ 
+						prefix <- colnames(tbl)[grep(searchKeyWords[i],colnames(tbl), ignore.case=T)]
+						rs <- paste(prefix, oneTest, sep=":")
+					}else{
+						for(j in 1:length(colnames(oneTest))) {
+							rs <- paste(rs, paste(colnames(oneTest)[j], oneTest[,j], sep=":"))
+						}
+					}
+					
+					tmp.Tests$Result <- rs
+			    	
+					# get test dates
+					ifelse(paste(searchKeyWords[i], "Date", sep="") %in% colnames(oneTest),
+						   tmp.Tests$Date <- oneTest[,paste(searchKeyWords[i],"Date",sep="")],
+						   tmp.Tests$Date <- rep(NA, nrow(tbl)))
+		    		
+			    	data.Tests <- rbind.fill(data.Tests, as.data.frame(tmp.Tests))
+		    	}
+	    	}
+		    data.Tests  <- merge(tbl.pt[, c("PatientID", "dxyear")], data.Tests)
+
+
+		 	ptNumMap <- ptNumMapUpdate(tbl.pt)
+		 	if(missing(ptID)){
+		 		result <- apply(data.Tests, 1, function(x){
+		    				PatientID = getElement(x, "PatientID")
+		    				PtNum = ptNumMap[ptNumMap$PatientID == PatientID,]$PatientNumber
+		    				date = getElement(x, "Date")
+		    				test = getElement(x, "Test")
+		    				result = getElement(x, "Result")
+		    				return(list(PatientID=PatientID, PtNum=PtNum, study=study_name, Name="Tests", 
+		    				 			Fields=list(date=date, test=test, result=result)))
+		    				})
+				print(c(study_name, dim(data.Tests), length(result)))
+		 	}else{
+		 		print(ptID)
+		 		subSet.data.Tests <- subset(data.Tests, PatientID==ptID)
+		 		result <- apply(subSet.data.Tests, 1, function(x){
+		    				PatientID = getElement(x, "PatientID")
+		    				PtNum = ptNumMap[ptNumMap$PatientID == PatientID,]$PatientNumber
+		    				date = getElement(x, "Date")
+		    				test = getElement(x, "Test")
+		    				result = getElement(x, "Result")
+		    				return(list(PatientID=PatientID, PtNum=PtNum, study=study_name, Name="Tests", 
+		    				 			Fields=list(date=date, test=test, result=result)))
+		    				})
+				print(result)
+		 	}	   
+    } 	
 }
 lapply(studies, create.Tests.records)
 #--------------------------------------------------------------------------------------------------------------------------
@@ -2741,7 +3191,7 @@ create.all.Pathology.records <- function(study_name){
                             pathology.offset=pathology.offset,
                             omfOffset=omfOffset)))
   })
-  return(result)
+  #return(result)
   print(c(study_name, dim(data.Pathology), length(result)))
 }
 lapply(studies, create.all.Pathology.records) 
