@@ -1357,15 +1357,11 @@ if(PROCEDURE){
     return(df)
   	}	   
 	#------------------------------------------------------------------------------------------------------------------------------------------
-  Procedure.mapping.date_additional_surgery_procedure <- function(df){
+ Procedure.mapping.date_additional_surgery_procedure <- function(df){
     from <- Procedure.unique.date_additional_surgery_procedure
     to 	 <- from 
     to[match(c("[UNKNOWN]","[NOT AVAILABLE]","[NOT EVALUATED]","Uknown","[Discrepancy]","Other","NOT LISTED IN MEDICAL RECORD","[NOT APPLICABLE]","[PENDING]"  ), to)] <- NA
-<<<<<<< HEAD
     df$additional_surgery_procedure <- mapvalues(df$additional_surgery_procedure, from = from, to = to, warn_missing = F)
-=======
-    df$date_additional_surgery_procedure <- mapvalues(df$date_additional_surgery_procedure, from = from, to = to, warn_missing = T)
->>>>>>> 1fcd41b049411ab5df0680bec2579e6a5118a780
     return(df)
   	}	
  Procedure.mapping.Calculation.date_additional_surgery_procedure  <- function(df){
