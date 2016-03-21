@@ -40,7 +40,7 @@
                 var axisTimeline = svgChart.append("g").style(axisStyle)
                     .attr({
                         "class":"axisTimeline axis",
-                        "transform": "translate(50, 0)"//"+(49+(patients.length*rowHeight))+")"                                
+                        "transform": "translate(50, 0)"
                     }).call(d3.svg.axis().scale(d3.scale.linear().domain([0, 1]).range([0, svgWidth])).orient('bottom'));
 
                 // Main Draw Function
@@ -67,9 +67,13 @@
                     }, align);
 
                     // Draw Graphs
-                    drawBackground(patients, feature, events, sort, align, 1);
-                    drawFeature(patients, feature, events, sort, align, 1);
-                    drawTimeline(patients, feature, events, sort, align, 1);
+                    var rowHeight = Math.floor( (svgHeight-100) / patients.length);
+                    if (rowHeight<1) rowHeight = 1;
+                    if (rowHeight>20) rowHeight = 20;
+                    
+                    drawBackground(patients, feature, events, sort, align, rowHeight);
+                    drawFeature(patients, feature, events, sort, align, rowHeight);
+                    drawTimeline(patients, feature, events, sort, align, rowHeight);
                 };
 
 
@@ -109,7 +113,7 @@
                     svgFeatures
                         .enter()
                         .append("rect")
-                        .style( {"fill": "#b2e3fe"})
+                        .style( {"fill": "#9AD6F1"})
                         .attr({
                             "transform": function(d, i) {return "translate(50," + ((i * rowHeight)+50) + ")";},
                             "class": "feature",
@@ -122,16 +126,11 @@
 
                     // Remove
                     svgFeatures.exit()
-                      .attr('class', 'feature')
-                      .transition()
-                      .delay(200)
-                      .duration(500)
-                      .style('opacity', 0.0)
                       .remove();
                 };
 
                 var drawBackground = function(patients, features, events, sort, align, rowHeight){
-
+                    $(".timelines-lbl-events").css({"top": (rowHeight * patients.length) + 100 });
                     // Data Bind
                     var svgFeatures = svgChart.selectAll("rect.lines")
                         .data(patients);
@@ -140,7 +139,7 @@
                     svgFeatures
                         .enter()
                         .append("rect")
-                        .style({'fill':'#e9e9e9'})
+                        .style({'fill':'#EFEFEF'})
                         .attr({
                                 'width' : svgWidth,
                                 'height' : rowHeight-1,
@@ -254,8 +253,12 @@
             vm.align;
 
             // Static Model
-            var patients;
+            var rawdata;
+            var pfApi = osApi.getPatientFilterApi();
+            pfApi.init(vm.datasource);
+            pfApi.onSelect.add(draw);
 
+            // Event Handlers
             vm.eventClick = function(eventType) {
                 eventType.selected = !eventType.selected;
                 draw();
@@ -265,9 +268,10 @@
                 angular.element(".container-filter-toggle").toggleClass("container-filter-toggle-collapsed");
             };
 
-            // Refresh
-            var draw = function(){
-                chart.draw(patients, vm.feature, vm.events, vm.sort, vm.align);
+            // Global Refresh Function
+            function draw(){ 
+                var data = pfApi.filter(rawdata, function(p){ return p.id });
+                chart.draw(data, vm.feature, vm.events, vm.sort, vm.align);
             };
 
             // Elements
@@ -276,8 +280,8 @@
                 osApi.getTimelines().then(function(response) {
 
                     // Clean Data + Set Default VM
-                    patients = processPatientData(response.payload.pts);
-                    vm.features =  processFeatureData(patients);
+                    rawdata = processPatientData(response.payload.pts);
+                    vm.features =  processFeatureData(rawdata);
                     vm.feature = vm.features[0];
                     vm.sort = vm.features[0]
                     vm.events = processEventData(response.payload.eventTypes);
@@ -289,6 +293,7 @@
                 });
             });
 
+            // Color Mapping
             var color = function(d){
                 var status = d.name;
                 var rv = 
@@ -306,6 +311,7 @@
                     return rv;
             };   
 
+            // Data Clean Up Functions
             var processEventData = function(events){
                 return Object.keys(events).map(function(v) {
                         var rv =  { "name": v, "selected": true };
@@ -313,13 +319,11 @@
                         return rv;
                 });
             }
-
             var processFeatureData = function(patients){
                 return patients[0].calcEvents.map(function(d, i) {
                     return { "name": d.name, "index": i }
                 });
             }
-
             var processPatientData = function(patients){
 
                  // Load & Normalize Data (Should be done on server)

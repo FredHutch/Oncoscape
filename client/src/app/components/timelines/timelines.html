@@ -2,19 +2,7 @@
 <h2>Timelines ({{vm.datasource}})</h2>
 <div class="row">
     <div class="col-xs-2" style="padding-right:20px;">
-        <label>Feature</label>
-        <div class="dropdown bs-dropdown">
-            <button class="btn btn-default dropdown-toggle" type="button" id="dropdownMenu1" data-toggle="dropdown" aria-haspopup="true" aria-expanded="true">
-                {{vm.feature.name}}
-                <span class="caret"></span>
-            </button>
-            <ul class="dropdown-menu" aria-labelledby="dropdownMenu1" style="width:100%">
-                <li ng-repeat="item in vm.features" ng-click="vm.feature=item">{{item.name}}</li>
-            </ul>
-        </div>
-    </div>
-    <div class="col-xs-2" style="padding-right:20px;">
-        <label>Events</label>
+        <label>Event Visibility</label>
         <div class="dropdown bs-dropdown">
             <button class="btn btn-default dropdown-toggle" type="button" id="dropdownMenu1" data-toggle="dropdown" aria-haspopup="true" aria-expanded="true">
                 Select Events
@@ -28,27 +16,9 @@
             </ul>
         </div>
     </div>
+  
     <div class="col-xs-2" style="padding-right:20px;">
-        <label>Sort</label>
-        <div class="dropdown bs-dropdown">
-            <button class="btn btn-default dropdown-toggle" type="button" id="dropdownMenu1" data-toggle="dropdown" aria-haspopup="true" aria-expanded="true">
-                {{vm.sort.name}}
-                <span class="caret"></span>
-            </button>
-
-            <ul class="dropdown-menu" aria-labelledby="dropdownMenu1" style="width:100%">
-                <li style="padding:5px;font-weight:600;">Feature:</li>
-                <li ng-repeat="item in vm.features" ng-click="vm.sort = item">{{item.name}}</li>   
-                <!--
-                <li><hr></li>
-                <li style="padding:5px;font-weight:600;">Event:</li>
-                <li ng-repeat="item in vm.eventTypes" ng-click="vm.sortClick(item)">{{item.name}}</li>
-                -->
-            </ul>
-        </div>
-    </div>
-    <div class="col-xs-2" style="padding-right:20px;">
-        <label>Align</label>
+        <label>Event Alignment</label>
         <div class="dropdown bs-dropdown">
             <button class="btn btn-default dropdown-toggle" type="button" id="dropdownMenu1" data-toggle="dropdown" aria-haspopup="true" aria-expanded="true">
                 {{vm.align.name}}
@@ -58,8 +28,37 @@
                 <li ng-repeat="item in vm.events" ng-click="vm.align = item">{{item.name}}</li>
             </ul>
         </div>
+    </div>
+       <div class="col-xs-2" style="padding-right:20px;">
+        <label>Feature To Compare</label>
+        <div class="dropdown bs-dropdown">
+            <button class="btn btn-default dropdown-toggle" type="button" id="dropdownMenu1" data-toggle="dropdown" aria-haspopup="true" aria-expanded="true">
+                {{vm.feature.name}}
+                <span class="caret"></span>
+            </button>
+            <ul class="dropdown-menu" aria-labelledby="dropdownMenu1" style="width:100%">
+                <li ng-repeat="item in vm.features" ng-click="vm.feature=item">{{item.name}}</li>
+            </ul>
+        </div>
     </div>    
-    <div class="col-xs-2">
+      <div class="col-xs-2" style="padding-right:20px;">
+        <label>Sort Patients By</label>
+        <div class="dropdown bs-dropdown">
+            <button class="btn btn-default dropdown-toggle" type="button" id="dropdownMenu1" data-toggle="dropdown" aria-haspopup="true" aria-expanded="true">
+                {{vm.sort.name}}
+                <span class="caret"></span>
+            </button>
+
+            <ul class="dropdown-menu" aria-labelledby="dropdownMenu1" style="width:100%">
+                <!-- <li style="padding:5px;font-weight:600;">Feature:</li> -->
+                <li ng-repeat="item in vm.features" ng-click="vm.sort = item">{{item.name}}</li>   
+                <!-- <li><hr></li>
+                <li style="padding:5px;font-weight:600;">Event:</li>
+                <li ng-repeat="item in vm.eventTypes" ng-click="vm.sortClick(item)">{{item.name}}</li> -->
+            </ul>
+        </div>
+    </div>
+    <div class="col-xs-2 col-xs-push-2">
         <label>Create Cohort</label>
         <div class="input-group">
           <input type="text" class="form-control" placeholder="Cohort Name" style="height:29px;"

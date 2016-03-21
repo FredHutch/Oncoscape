@@ -31,6 +31,12 @@
                 angular.element(".container-filter-toggle").toggleClass("container-filter-toggle-collapsed");
             }
 
+            // Filters
+            var rawData;
+            var pfApi = osApi.getPatientFilterApi();
+            pfApi.init(vm.datasource);
+            pfApi.onSelect.add(draw);
+
             // Elements
             var elChart = angular.element("#pca-chart");
             var d3Chart = d3.select("#pca-chart")
@@ -42,14 +48,13 @@
             // Initalizae
             osApi.setBusy(true)("Loading Dataset");
             osApi.setDataset(vm.datasource).then(function(response) {
-
                 var mtx = response.payload.rownames.filter(function(v) {
                     return v.indexOf("mtx.mrna") >= 0
                 });
 
                 mtx = mtx[mtx.length - 1].replace(".RData", "");
                 osApi.setBusyMessage("Creating PCA Matrix");
-                osApi.getPCA(vm.datasource, mtx).then(function() {
+                osApi.getPCA(vm.datasource, mtx).then(function(response) {
                     osApi.setBusyMessage("Loading Gene Sets");
                     osApi.getGeneSetNames().then(function(response) {
 
@@ -71,13 +76,23 @@
                     var payload = response.payload;
                     vm.pc1 = response.payload["importance.PC1"];
                     vm.pc2 = response.payload["importance.PC2"];
-                    draw(payload.scores)
+                    var scores = payload.scores;
+                    var ids = payload.ids;
+                    rawData = scores.map(function(d, i){
+                        d.id = ids[i];
+                        return d;
+                    }, payload.ids);
+                    draw()
                     osApi.setBusy(false);
                 });
             };
 
             // Render
-            var draw = function(dataset) {
+            function draw() {
+                
+                var dataset = pfApi.filter(rawData, function(p){ return p.id });
+
+
                 var width = elChart.width();
                 var height = elChart.height();
 
@@ -118,7 +133,6 @@
                 d3Chart
                     .attr("width", width)
                     .attr("height", height);
-
 
                 var circles = d3Chart.selectAll("circle").data(dataset, function(d) {
                     return d;

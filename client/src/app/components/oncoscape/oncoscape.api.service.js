@@ -8,50 +8,18 @@
     /** @ngInject */
     function oncoscape(osSocket, $http) {
 
-        // Functions to move during refactor
-        this.setBusy = setBusy;
-        this.setBusyMessage = setBusyMessage;
-        this.login = login;
-        this.setDataset = setDataset;
-        this.showFilter = function() {
-            angular.element("#filter-dropdown").slideDown();
+    
+
+/*** User Functions ***/
+        function getUser(){
+            return {
+                "name":"",
+                "password":"",
+                "domain":{"name":"Guest"},
+                "authenticated":false,
+                "token": null
+            }
         }
-        this.hideFilter = function() {
-            angular.element("#filter-dropdown").slideUp();
-        }
-
-        // Valid functions
-        this.getDomains = getDomains;
-        this.getDataSetNames = getDataSetNames;
-        this.getDataManifest = getDataManifest;
-        this.getPatientHistoryTable = getPatientHistoryTable;
-        this.getPatientHistoryDxAndSurvivalMinMax = getPatientHistoryDxAndSurvivalMinMax;
-        this.getSampleDataFrame = getSampleDataFrame;
-        this.getGeneSetNames = getGeneSetNames;
-        this.getSampleCategorizationNames = getSampleCategorizationNames;
-        this.getSampleCategorization = getSampleCategorization;
-        this.getMarkersNetwork = getMarkersNetwork;
-        this.getPathway = getPathway;
-        this.getDrugGeneInteractions = getDrugGeneInteractions;
-        this.getCanonicalizePatientIDsInDataset = getCanonicalizePatientIDsInDataset;
-        this.getGeneSetGenes = getGeneSetGenes;
-        this.getOncoprintDataSelection = getOncoprintDataSelection;
-        this.getPCA = getPCA;
-        this.getCalculatedPCA = getCalculatedPCA;
-        this.getPLSR = getPLSR;
-        this.getCalculatedPLSR = getCalculatedPLSR;
-        this.getSummarizedPLSRPatientAttributes = getSummarizedPLSRPatientAttributes;
-        this.getCalculatedSurvivalCurves = getCalculatedSurvivalCurves;
-        this.getTimelines = getTimelines;
-        this.getCalculatedTimelines = getCalculatedTimelines;
-        this.getMrnaData = getMrnaData;
-        this.getCnvData = getCnvData;
-        this.getMutationData = getMutationData;
-        this.getModuleModificationDate = getModuleModificationDate;
-
-
-
-
         function login(user) {
             var req = {
                 method: 'POST',
@@ -68,26 +36,10 @@
                     user.token = res.data.token;
                 } else {
                     user.authenticated = false;
-                    user.token = null;
+                    user.token =null;
                 }
             });
         }
-
-
-        function setBusy(value) {
-
-            if (value) {
-                angular.element(".loader-modal").show();
-            } else {
-                angular.element(".loader-modal").hide();
-            }
-            return setBusyMessage;
-        }
-
-        function setBusyMessage() {
-            //console.log(value);
-        }
-
         function getDomains() {
             return [{
                 "name": "Guest"
@@ -98,27 +50,48 @@
             }];
         }
 
+
+
+/*** UI Functions ***/
+        function setBusy(value) {
+            if (value) {
+                angular.element(".loader-modal").show();
+            } else {
+                angular.element(".loader-modal").hide();
+            }
+            return setBusyMessage;
+        }
+        function setBusyMessage() {
+            //console.log(value);
+        }
+        function showFilter() {
+            angular.element("#filter-dropdown").slideDown();
+        }
+        function hideFilter() {
+            angular.element("#filter-dropdown").slideUp();
+        }
+
+        
+
+
+/*** R Service Calls ***/
         function setDataset(dataPackage) {
             return osSocket.request({
                 cmd: "specifyCurrentDataset",
                 payload: dataPackage
             });
-            //.then(function(){ });
         }
-
         function getDataSetNames() {
             return osSocket.request({
                 cmd: "getDataSetNames"
             });
         }
-
         function getDataManifest(dataPackage) {
             return osSocket.request({
                 cmd: "getDataManifest",
                 payload: dataPackage
             });
         }
-
         function getPatientHistoryTable(dataPackage) {
             return osSocket.request({
                 cmd: "getPatientHistoryTable",
@@ -128,30 +101,24 @@
                 }
             });
         }
-
         function getPatientHistoryDxAndSurvivalMinMax() {}
-
         function getSampleDataFrame() {}
-
         function getGeneSetNames() {
             return osSocket.request({
                 cmd: "getGeneSetNames"
             });
         }
-
         function getSampleCategorizationNames() {
             return osSocket.request({
                 cmd: 'getSampleCategorizationNames'
             });
         }
-
         function getSampleCategorization(names) {
             return osSocket.request({
                 cmd: 'getSampleCategorization',
                 payload: names
             });
         }
-
         function getMarkersNetwork(payload) {
             // Payload is return From Set DataSource
             return osSocket.request({
@@ -159,20 +126,15 @@
                 payload: payload
             })
         }
-
         function getDrugGeneInteractions() {}
-
         function getCanonicalizePatientIDsInDataset(patientIds) {
             return osSocket.request({
                 cmd: "getCanonicalizePatientIDsInDataset",
                 payload: patientIds
             });
         }
-
         function getGeneSetGenes() {}
-
         function getOncoprintDataSelection() {}
-
         function getPCA(dataPackage, matrixName) {
             var payload = {
                 dataPackage: dataPackage,
@@ -183,7 +145,6 @@
                 payload: payload
             });
         }
-
         function getCalculatedPCA(geneSet) {
             var payload = {
                 genes: geneSet
@@ -193,7 +154,6 @@
                 payload: payload
             });
         }
-
         function getPLSR(dataPackage, matrixName) {
             var payload = {
                 dataPackage: dataPackage,
@@ -204,7 +164,6 @@
                 payload: payload
             });
         }
-
         function getCalculatedPLSR(geneSet, factors) {
             var payload = {
                 genes: geneSet,
@@ -216,7 +175,6 @@
                 payload: payload
             });
         }
-
         function getSummarizedPLSRPatientAttributes(attrs) {
             attrs = attrs || ['AgeDx', 'Survival'];
             return osSocket.request({
@@ -224,7 +182,6 @@
                 payload: attrs
             });
         }
-
         function getCalculatedSurvivalCurves(patientIds, title) {
             return osSocket.request({
                 cmd: "calculateSurvivalCurves",
@@ -234,30 +191,24 @@
                 }
             });
         }
-
         function getTimelines() {
             return osSocket.request({
                 cmd: "createTimelines"
             });
         }
-
         function getCalculatedTimelines() {}
-
-        // GBM
         function getModuleModificationDate() {
             return osSocket.request({
                 cmd: "getModuleModificationDate",
                 payload: 'gbmPathways'
             });
         }
-
         function getPathway() {
             return osSocket.request({
                 cmd: "getPathway",
                 payload: 'g.gbmPathways.json'
             });
         }
-
         function getMrnaData(entities, features) {
             return osSocket.request({
                 cmd: "get_mRNA_data",
@@ -267,7 +218,6 @@
                 }
             });
         }
-
         function getCnvData(entities, features) {
             return osSocket.request({
                 cmd: "get_cnv_data",
@@ -277,7 +227,6 @@
                 }
             });
         }
-
         function getMutationData(entities, features) {
             return osSocket.request({
                 cmd: "get_mutation_data",
@@ -288,5 +237,135 @@
             });
         }
 
+/*** Filter Functions ***/
+        var _patientFilterApi = filter();
+        //function setPatientFilter(name){ _patientFilters.set(name); }
+        function getPatientFilterApi() { return _patientFilterApi; }
+
+        function filter(){
+
+            var _dataSource = null;
+            var _filterTree = null;
+            var _filter = null;
+            var _serialize = function (o){
+                var sb = "{";
+                sb += '"name":"'+o.name+'"';
+                sb += ',"ids":';
+                sb += (typeof(o.ids)=="string") ? '"*"' : '["'+o.ids.join('","')+'"]';
+                if (o.hasOwnProperty("children")){
+                    sb += ',"children":[';
+                    for (var i=0; i<o.children.length; i++){
+                        if (i>0) sb += ",";
+                        sb += _serialize(o.children[i]);
+                    }
+                    sb += ']';
+                }
+                sb += "}";
+                return sb;
+            };
+
+            function init(dataSource){
+                if (_dataSource==dataSource) return;
+                _dataSource = dataSource;
+                 _filterTree = JSON.parse(localStorage.getItem(dataSource));
+                if (!_filterTree) _filterTree = {name:dataSource, ids:'*' };
+                _filter = _filterTree;
+            }
+            function delFilter(filter){}
+            function addFilter(name, ids){
+                var filter = {
+                    name:name,
+                    ids:ids
+                };
+                if (!_filter.hasOwnProperty("children")) _filter.children = [];
+                _filter.children.push(filter);
+                _filter = filter;
+                onChange.dispatch(_filterTree);
+                onSelect.dispatch(_filter);
+                localStorage.setItem(_dataSource, _serialize(_filterTree));
+            }
+            function getActiveFilter(){
+                return _filter;
+            }
+
+            function setActiveFilter(filter){
+                _filter = filter;
+                onSelect.dispatch(_filter);
+            }
+
+            function getFilterTree(){
+                return _filterTree;
+            }
+
+            function filter(data, idFn){
+                if (_filter.ids=="*") return data;
+
+                return data.filter(function(p){
+                    for (var i=0; i<_filter.ids.length; i++){
+                        if (idFn(p) == _filter.ids[i]) return true;
+                    }
+                    return false;
+                });
+            }
+
+            // Events
+            var onChange = new signals.Signal(); // Fired When Data Changes
+            var onSelect = new signals.Signal(); // Fired When Selection changes
+
+            return {
+                init : init,
+                filter : filter,
+                getActiveFilter : getActiveFilter,
+                setActiveFilter : setActiveFilter,
+                addFilter: addFilter,
+                delFilter: delFilter,
+                getFilterTree : getFilterTree,
+                onChange : onChange,
+                onSelect : onSelect
+            };
+                
+        };
+  
+        return {
+            getPatientFilterApi: getPatientFilterApi,
+            showFilter: showFilter,
+            hideFilter: hideFilter,
+            setBusy: setBusy,
+            setBusyMessage: setBusyMessage,
+            login: login,
+            getUser: getUser,
+            setDataset: setDataset,
+            getDomains: getDomains,
+            getDataSetNames: getDataSetNames,
+            getDataManifest: getDataManifest,
+            getPatientHistoryTable: getPatientHistoryTable,
+            getPatientHistoryDxAndSurvivalMinMax: getPatientHistoryDxAndSurvivalMinMax,
+            getSampleDataFrame: getSampleDataFrame,
+            getGeneSetNames: getGeneSetNames,
+            getSampleCategorizationNames: getSampleCategorizationNames,
+            getSampleCategorization: getSampleCategorization,
+            getMarkersNetwork: getMarkersNetwork,
+            getPathway: getPathway,
+            getDrugGeneInteractions: getDrugGeneInteractions,
+            getCanonicalizePatientIDsInDataset: getCanonicalizePatientIDsInDataset,
+            getGeneSetGenes: getGeneSetGenes,
+            getOncoprintDataSelection: getOncoprintDataSelection,
+            getPCA: getPCA,
+            getCalculatedPCA: getCalculatedPCA,
+            getPLSR: getPLSR,
+            getCalculatedPLSR: getCalculatedPLSR,
+            getSummarizedPLSRPatientAttributes: getSummarizedPLSRPatientAttributes,
+            getCalculatedSurvivalCurves: getCalculatedSurvivalCurves,
+            getTimelines: getTimelines,
+            getCalculatedTimelines: getCalculatedTimelines,
+            getMrnaData: getMrnaData,
+            getCnvData: getCnvData,
+            getMutationData: getMutationData,
+            getModuleModificationDate: getModuleModificationDate
+        }
+
     }
 })();
+
+
+

@@ -5,6 +5,7 @@
         .module('oncoscape')
         .directive('osLogin', login);
 
+
     /** @ngInject */
     function login() {
 
@@ -20,10 +21,11 @@
         return directive;
 
         /** @ngInject */
-        function LoginController(osApi, osState, $state) {
+        function LoginController(osApi, $state) {
+            
             var vm = this;
             vm.domains = osApi.getDomains();
-            vm.user = osState.getUser();
+            vm.user = osApi.getUser();
             vm.hasError = false;
 
             vm.login = function() {

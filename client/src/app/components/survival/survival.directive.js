@@ -19,27 +19,36 @@
         return directive;
 
         /** @ngInject */
-        function SurvivalController(osApi, osState, $state, $timeout, $scope, $stateParams) {
-
-            var rawData;
+        function SurvivalController(osApi, $state, $timeout, $scope, $stateParams) {
 
             // View Model
             var vm = this;
             vm.datasource = $stateParams.datasource || "DEMOdz";
-            if (osState.patientFilters.get()==null) osState.patientFilters.set(vm.datasource);
-      
+            
+            // Filter
+            var rawData;
+            var pfApi = osApi.getPatientFilterApi();
+            pfApi.init(vm.datasource);
+            pfApi.onSelect.add(draw);
 
             // Load Datasets
             osApi.setBusy(true);
             osApi.setDataset(vm.datasource).then(function() {
                 osApi.getPatientHistoryTable(vm.datasource).then(function(response) {
-                    var ids = response.payload.tbl.map( function (d) { return d[0]; });
-                    osApi.getCalculatedSurvivalCurves(ids, "").then(function(r){
-                        document.getElementById("survival-img").src = r.payload;
-                        osApi.setBusy(false);
-                    });
+                    rawData = response.payload.tbl.map( function (d) { return d[0]; });
+                    draw();
                 });
             });
+
+            // Draw
+            function draw(){
+                osApi.setBusy(true);
+                var ids = pfApi.filter(rawData, function(p){ return p; });
+                osApi.getCalculatedSurvivalCurves(ids, "").then(function(r){
+                        document.getElementById("survival-img").src = r.payload;
+                        osApi.setBusy(false);
+                });
+            }
         }
     }
 })();

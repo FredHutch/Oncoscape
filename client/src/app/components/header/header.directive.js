@@ -20,7 +20,7 @@
         return directive;
 
         /** @ngInject */
-        function HeaderController(osApi, osState, $stateParams, $state) {
+        function HeaderController(osApi, $stateParams, $state) {
 
 
             var vm = this;

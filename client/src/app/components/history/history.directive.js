@@ -19,22 +19,25 @@
         return directive;
 
         /** @ngInject */
-        function HistoryController(osApi, osState, $state, $timeout, $scope, $stateParams) {
-
-            var rawData;
+        function HistoryController(osApi, $state, $timeout, $scope, $stateParams) {
 
             // View Model
             var vm = this;
             vm.datasource = $stateParams.datasource || "DEMOdz";
-            if (osState.patientFilters.get()==null) osState.patientFilters.set(vm.datasource);
-            vm.filter = osState.patientFilters.selected();
+            vm.filter;
             vm.colnames = [];
-            vm.rows = [];
             vm.diagnosisMin = vm.diagnosisMinValue = 1;
             vm.diagnosisMax = vm.diagnosisMaxValue = 99;
             vm.survivalMin = vm.survivalMinValue = 0;
             vm.survivalMax = vm.survivalMaxValue = 10;
             vm.search = "";
+
+            var rawData;
+            var pfApi = osApi.getPatientFilterApi();
+            pfApi.init(vm.datasource);
+            pfApi.onSelect.add(draw);
+
+
 
             vm.toggleFilter = function() {
                 angular.element(".container-filters").toggleClass("container-filters-collapsed");
@@ -57,47 +60,25 @@
 
             vm.cohort;
             vm.createCohort = function() {
-                osState.patientFilters.add({
-                    icon: 'history',
-                    name: vm.cohort,
-                    ids: dtTable._('tr', {"filter":"applied"}).map(function(data) { return data[0]; })
-                });
+                pfApi.addFilter(vm.cohort, dtTable._('tr', {"filter":"applied"}).map(function(data) { return data[0]; }) );
                 vm.cohort = "";
             };
 
-            osState.patientFilters.onSelect.add(filterData);
-
-            function filterData(zf){
-                $timeout(function() {
-                    vm.filter = osState.patientFilters.selected();
-                })
-                var data;
-                if (zf.depth===0){
-                    data = rawData.tbl;
-                }else{
-                    var ids = zf.ids;
-                    var len = ids.length;
-                    data = rawData.tbl.filter( 
-                        function(value) { 
-                            var val = value[0];
-                            for (var i=0; i<len; i++){
-                                if (val === ids[i]) return true;
-                            }
-                            return false;
-                        }
-                    );
-                }
-
+            function draw(){
+                dtTable.fnClearTable();
+                var data = pfApi.filter(rawData.tbl, function(p){ return p[0] });
+                if (data.length==0) return;
                 var d = data.map(function(d){ return d[4]; });
                 var s = data.map(function(d){ return d[3]; });
-                vm.diagnosisMin = vm.diagnosisMinValue = Math.floor(Math.min.apply(null, d));
-                vm.diagnosisMax = vm.diagnosisMaxValue = Math.ceil(Math.max.apply(null, d));
-                vm.survivalMin = vm.survivalMinValue = Math.floor(Math.min.apply(null, s));
-                vm.survivalMax = vm.survivalMaxValue = Math.floor(Math.max.apply(null, s));
-                dtTable.fnClearTable();
+                $timeout(function() {
+                    vm.filter = pfApi.getActiveFilter().name;
+                    vm.diagnosisMin = vm.diagnosisMinValue = Math.floor(Math.min.apply(null, d));
+                    vm.diagnosisMax = vm.diagnosisMaxValue = Math.ceil(Math.max.apply(null, d));
+                    vm.survivalMin = vm.survivalMinValue = Math.floor(Math.min.apply(null, s));
+                    vm.survivalMax = vm.survivalMaxValue = Math.floor(Math.max.apply(null, s));
+                });
                 dtTable.fnAddData(data);
             }
-
 
             // Elements
             var dtTable;
@@ -108,8 +89,6 @@
                 osApi.getPatientHistoryTable(vm.datasource).then(function(response) {
                     rawData = response.payload;
                     vm.colnames = rawData.colnames;
-                    vm.rows = rawData.tbl;
-                    // filterData( osState.patientFilters.get() );
                     $timeout(function() {
                         dtTable = angular.element('#history-datatable').dataTable({
                             "scrollY": "70vh",
@@ -118,6 +97,7 @@
                         $scope.$watch('vm.search', function() {
                             dtTable.api().search(vm.search).draw();
                         });
+                        draw();
                         osApi.setBusy(false);
                     }, 0, false);
                 });

@@ -1,6 +1,6 @@
 (function() {
     'use strict';
-
+    
     angular
         .module('oncoscape')
         .directive('osDatasource', datasource);
@@ -19,11 +19,10 @@
         return directive;
 
         /** @ngInject */
-        function DatasourceController(osApi, $state, osState) {
+        function DatasourceController(osApi, $state) {
             var vm = this;
             vm.datasets = [];
             vm.explore = function(tool, datasource) {
-                osState.setDatasource(datasource);
                 $state.go(tool, {
                     datasource: datasource
                 });
