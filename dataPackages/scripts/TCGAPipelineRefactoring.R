@@ -1477,7 +1477,7 @@ if(PROCEDURE){
     df$date_met <- format(as.Date(df$dxyear,"%m/%d/%Y") + as.integer(df$date_met), "%m/%d/%Y")
     return(df)
   	}	   
-
+	#------------------------------------------------------------------------------------------------------------------------------------------
   Procedure.mapping.date_additional_surgery_procedure <- function(df){
     from <- Procedure.unique.date_additional_surgery_procedure
     to 	 <- from 
@@ -1485,10 +1485,11 @@ if(PROCEDURE){
     df$date_additional_surgery_procedure <- mapvalues(df$date_additional_surgery_procedure, from = from, to = to, warn_missing = T)
     return(df)
   	}	
- Procedure.mapping.date_additional_surgery_procedure  <- function(df){
+ Procedure.mapping.Calculation.date_additional_surgery_procedure  <- function(df){
     df$date_additional_surgery_procedure <- format(as.Date(df$dxyear,"%m/%d/%Y") + as.integer(df$date_additional_surgery_procedure), "%m/%d/%Y")
     return(df)
   	}	 
+  #------------------------------------------------------------------------------------------------------------------------------------------
   Procedure.mapping.date.surgical_resection_date <- function(df){
     from <- Procedure.unique.surgical_resection_date
     to 	 <- from 
@@ -1496,7 +1497,7 @@ if(PROCEDURE){
     df$surgical_resection_date <- mapvalues(df$surgical_resection_date, from = from, to = to, warn_missing = T)
     return(df)
   	}	
- Procedure.mapping.date.surgical_resection_date  <- function(df){
+ Procedure.mapping.Calculation.date.surgical_resection_date  <- function(df){
     df$surgical_resection_date <- format(as.Date(df$dxyear,"%m/%d/%Y") + as.integer(df$surgical_resection_date), "%m/%d/%Y")
     return(df)
   	}	
@@ -2595,17 +2596,18 @@ create.all.Procedure.records <- function(study_name){
     data.Procedure <- Procedure.mapping.date.Calculation_date_loco(data.Procedure)
     data.Procedure <- Procedure.mapping.date.Calculation_date_met(data.Procedure)
     data.Procedure <- Procedure.mapping.new_tumor_event_surgery(data.Procedure)
-    data.Procedure <- Procedure.mapping.date_additional_surgery_procedure(data.Procedure)
+    data.Procedure <- Procedure.mapping.Calculation.date_additional_surgery_procedure (data.Procedure)
     data.Procedure <- Procedure.mapping.new_neoplasm_site(data.Procedure)
     data.Procedure <- Procedure.mapping.new_tumor_site(data.Procedure)
     data.Procedure <- Procedure.mapping.new_tumor_event_additional_surgery_procedure(data.Procedure)
-    data.Procedure <- Procedure.mapping.date.surgical_resection_date(data.Procedure)
+    data.Procedure <- Procedure.mapping.Calculation.date.surgical_resection_date(data.Procedure)
     data.Procedure <- Procedure.mapping.other_malignancy_side(data.Procedure)
     data.Procedure <- Procedure.mapping.surgery_name(data.Procedure)
     data.Procedure <- Procedure.mapping.side(data.Procedure)
     data.Procedure <- Procedure.mapping.site(data.Procedure)
     data.Procedure <- Procedure.mapping.surgical_procedure_first(data.Procedure)
     data.Procedure <- Procedure.mapping.first_surgical_procedure_other(data.Procedure)
+
     # result
     ptNumMap <- ptNumMapUpdate(tbl.pt)
     result <- apply(data.Procedure, 1, function(x){
