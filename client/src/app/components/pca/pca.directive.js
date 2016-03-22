@@ -37,13 +37,26 @@
             pfApi.init(vm.datasource);
             pfApi.onSelect.add(draw);
 
+            vm.cohort;
+            vm.createCohort = function() {
+                pfApi.addFilter(vm.cohort, d3.selectAll(".pca-node-selected")[0].map(function(data) { return data.__data__.id }) );
+                vm.cohort = "";
+            };
+
+
             // Elements
             var elChart = angular.element("#pca-chart");
             var d3Chart = d3.select("#pca-chart")
                 .append("svg")
                 .attr("id", "chart");
+
             var d3xAxis = d3Chart.append("g");
             var d3yAxis = d3Chart.append("g");
+            
+            var d3Tooltip = d3.select("body")
+                .append("div")
+                .attr("class", "tooltip")
+
 
             // Initalizae
             osApi.setBusy(true)("Loading Dataset");
@@ -90,27 +103,26 @@
             // Render
             function draw() {
                 
-                var dataset = pfApi.filter(rawData, function(p){ return p.id });
-
+                var dataset = rawData;
 
                 var width = elChart.width();
                 var height = elChart.height();
 
                 var max, min;
-                max = d3.max(dataset, function(d) {
+                max = Math.abs(d3.max(dataset, function(d) {
                     return +d[0];
-                });
-                min = d3.min(dataset, function(d) {
+                }));
+                min = Math.abs(d3.min(dataset, function(d) {
                     return +d[0];
-                });
-                var xMax = ((Math.abs(max) > Math.abs(min)) ? max : min) * 1.2;
-                max = d3.max(dataset, function(d) {
+                }));
+                var xMax = ((max > min) ? max : min) * 1.2;
+                max = Math.abs(d3.max(dataset, function(d) {
                     return +d[1];
-                });
-                min = d3.min(dataset, function(d) {
+                }));
+                min = Math.abs(d3.min(dataset, function(d) {
                     return +d[1];
-                });
-                var yMax = ((Math.abs(max) > Math.abs(min)) ? max : min) * 1.2;
+                }));
+                var yMax = ((max > min) ? max : min) * 1.2;
 
                 var xScale = d3.scale.linear()
                     .domain([-xMax, xMax])
@@ -130,6 +142,24 @@
                     .orient("left")
                     .ticks(5);
 
+                // Brush
+                var brush = d3.svg.brush()
+                   .x(xScale)
+                   .y(yScale)
+                   .on("brushend", function(){
+                        var bv = brush.extent();
+                        d3Chart.selectAll("circle")
+                            .classed("pca-node-selected", function(d){
+                                return (d[0] > bv[0][0] && d[0] < bv[1][0] && d[1] > bv[0][1] && d[1] < bv[1][1]);                                
+                            });
+                        d3.select(this).transition().duration(300)
+                            .call( brush.extent([[0,0],[0,0]]) );
+                   });
+
+                d3Chart.call(brush);
+
+                dataset = pfApi.filter(rawData, function(p){ return p.id });
+                
                 d3Chart
                     .attr("width", width)
                     .attr("height", height);
@@ -139,12 +169,26 @@
                 })
                 circles.enter()
                     .append("circle")
+                    .attr("class","pca-node")
                     .attr("cx", width * .5)
                     .attr("cy", height * .5)
                     .attr("r", function() {
                         return 3;
                     })
                     .style("fill-opacity", "0")
+                    .on("mouseover", function(d) {
+                        d3Tooltip.transition()        
+                            .duration(200)      
+                            .style("opacity", 1);      
+                        d3Tooltip.html(d.id)  
+                            .style("left", (d3.event.pageX+10) + "px")     
+                            .style("top", (d3.event.pageY-5) + "px");    
+                    })                  
+                    .on("mouseout", function(){
+                        d3Tooltip.transition()      
+                            .duration(500)      
+                            .style("opacity", 0);   
+                    })
                     .transition()
                     .duration(750)
                     .delay(function(d, i) {
@@ -157,6 +201,8 @@
                         return yScale(d[1]);
                     })
                     .style("fill-opacity", 1)
+                    
+
                 circles.exit()
                     .transition()
                     .duration(600)

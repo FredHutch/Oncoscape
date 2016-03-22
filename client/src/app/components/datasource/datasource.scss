@@ -2,27 +2,25 @@
 .datasource{
   ul{
   	list-style: none;
-    padding:0px;
     margin:0px;
+    padding:0px;
+    margin-top:20px;
   }
   li{
-  	height: 145px;
-    padding-right:100px;
-    margin-bottom:20px;
+    padding-bottom: 30px;
   }
-  img{
-  	width: 125px;
+  .datasource-img{
+  	width: 80px;
   	height: auto;
   	float:left;
-  	margin-right:30px;
-    margin-top:10px;
-    margin-bottom:10px;
     box-shadow: 3px 3px 10px #888888;
     border-radius:50%;
+    margin-right:20px;
   }
-  h2{
-  	padding-top: 0px;
-    margin-top:20px;
-    margin-bottom: 0px;
+  @media (min-width: 992px) { 
+    .datasource-img{
+      width: 100px;
+    }
   }
+
 }

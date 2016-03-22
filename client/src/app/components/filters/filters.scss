@@ -7,8 +7,7 @@
 	width:100%;
 	.filters-tree{
 		background-color:rgba(0,0,0,.9);
-		min-height:90vh;
-		
+		min-height:90vh;	
 		padding:0px 100px;
 	}
 	.close{
@@ -16,9 +15,18 @@
 	}
 }
 
-.node circle {
-  fill: #fff;
-  
+.filter-node{
+	fill:#FFF;
+	stroke-width: 3px;
+	stroke-opacity: 1;
+	stroke: rgb(89, 165, 251);
+	cursor: hand;
+}
+.filter-node:hover{
+	 stroke: #FFF;
+	// stroke-width: 10px;
+	// stroke-opacity: .5;
+	fill: rgb(89, 165, 251);
 }
 
 .node text { font: 12px sans-serif; }

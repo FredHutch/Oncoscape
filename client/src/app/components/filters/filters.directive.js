@@ -75,7 +75,7 @@
                     .attr("width", width)
                     .attr("height", height)
                     .append("g")
-                    .attr("transform", "translate(40,0)");
+                    .attr("transform", "translate(100,0)");
 
 
                 var update = function(){
@@ -99,13 +99,17 @@
                         return "translate(" + d.y + "," + d.x + ")";
                       })
                       ng.append("circle")
-                          .attr("r", 5);   
+                          .attr("class", "filter-node")
+                          .attr("r", 10);   
                       ng.append("text")
-                          .attr("dx", function(d) { return d.children ? -8 : 8; })
-                          .attr("dy", 3)
+                          //.attr("dx", function(d) { return d.children ? -15 : 15; })
+                          .attr("dy", 30)
                           .style("fill", "#FFF")
-                          .style("text-anchor", function(d) { return d.children ? "end" : "start";})
+                          .style("text-anchor", "middle") //function(d) { return d.children ? "end" : "start";})
                           .text(function(d) { return d.name; });
+                    ng.on('mouseover', function(d,i){
+                        
+                    })
                       ng.on('click', function(d,i){
                         pfApi.setActiveFilter(d);
                         osApi.hideFilter();

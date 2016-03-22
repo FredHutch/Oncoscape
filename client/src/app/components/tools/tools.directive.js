@@ -26,7 +26,7 @@
                 name: 'Markers + Patients',
                 route: 'markers',
                 img: 'markers.png',
-                copy: 'Link copy number variation and mutation data to patients grouped by GBM classification: mesenchymal, classical, neural, proneural, and G-CIMP'
+                copy: 'Link copy number variation and mutation data to patients.'
             }, {
                 name: 'Timelines',
                 route: 'timelines',
@@ -36,14 +36,14 @@
                 name: 'Pathways',
                 route: 'pathways',
                 img: 'pathways.png',
-                copy: 'Map patient specific expression levels on a hand curated network of genes associated with GBM. Click on edges to view the abstracts defining the relationship.'
+                copy: 'Map patient specific expression levels on a hand curated network of genes.'
             }, {
-                name: 'Partial Least Squares Regression (PLSR)',
+                name: 'PLSR',
                 route: 'plsr',
                 img: 'plsr.png',
                 copy: 'Use linear regression to correlate genes with clinical features using RNA expression.'
             }, {
-                name: 'Principal Components Analysis (PCA)',
+                name: 'PCA',
                 route: 'pca',
                 img: 'pca.png',
                 copy: 'Two dimensional view of per sample expression data.'

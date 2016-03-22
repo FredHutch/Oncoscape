@@ -3,10 +3,13 @@
  *  The list of variables are listed here bower_components/bootstrap-sass/assets/stylesheets/bootstrap/_variables.scss
  */
 $navbar-inverse-link-color: #59a5fb;
+$navbar-height: 70px;
+$navbar-inverse-bg: #000;
 $icon-font-path: "../../bower_components/bootstrap-sass/assets/fonts/bootstrap/";
 $brand-primary:         darken(#59a5fb, 6.5%) !default; // #337ab7
-$font-family-sans-serif: "proxima-nova-n3","proxima-nova",sans-serif;
-$font-family-serif: "proxima-nova-n3","proxima-nova",sans-serif;
+$font-family-sans-serif: 'Lato', sans-serif;
+$font-family-serif: 'Lato', sans-serif;
+$font-size-base: 14px;
 $headings-font-weight:    300 !default;
 /**
  *  Do not remove the comments below. It's the markers used by wiredep to inject
@@ -14,22 +17,32 @@ $headings-font-weight:    300 !default;
  */
 // bower:scss
 // endbower
-
-.navbar-inverse{
-	background-color: #000 !important;
-	border:none !important;
+body{
+	padding-top: 70px; // Navigation
 }
+.container-fluid{
+	padding-left: 20px;
+	padding-right: 20px;
+}
+
+/* Small devices (tablets, 768px and up) */
+@media (min-width: 768px) {  }
+
+/* Medium devices (desktops, 992px and up) */
+@media (min-width: 992px) { 
+	.container-fluid{
+		padding-left:70px;
+		padding-right:70px;
+	}
+}
+
+/* Large devices (large desktops, 1200px and up) */
+@media (min-width: 1200px) {  
+}
+
+
 .sro{	// Screen Readers Only
 	display:none !important;
-}
-
-body{
-	padding-top:70px;
-	// -webkit-font-smoothing: antialiased !important;
-}
-//TODO: Move Into Range Slider
-h2{
-	margin-bottom:20px;
 }
 .nav-divider{
     background-image: url(/assets/images/texture.png);
@@ -65,6 +78,12 @@ h2{
 		}
 	}
 }
+
+
+
+
+
+
 .container-main{
 	position:absolute;
 	left:0px;

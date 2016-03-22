@@ -65,10 +65,13 @@
             //console.log(value);
         }
         function showFilter() {
-            angular.element("#filter-dropdown").slideDown();
+            angular.element("#filter-dropdown").slideToggle();
         }
         function hideFilter() {
-            angular.element("#filter-dropdown").slideUp();
+            angular.element("#filter-dropdown").slideToggle();
+        }
+        function toggleFilter(){
+            angular.element("#filter-dropdown").slideToggle();
         }
 
         
@@ -330,6 +333,7 @@
             getPatientFilterApi: getPatientFilterApi,
             showFilter: showFilter,
             hideFilter: hideFilter,
+            toggleFilter: toggleFilter,
             setBusy: setBusy,
             setBusyMessage: setBusyMessage,
             login: login,
