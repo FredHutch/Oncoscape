@@ -3804,11 +3804,10 @@ create.STUDY.records <- function(study_name){
     events <- append(events, status.events)
     events <- append(events, progression.events)
     events <- append(events, radiation.events)
-    #events <- append(events, procedure.events)
+    events <- append(events, procedure.events)
     events <- append(events, encounter.events)
     #events <- append(events, pathology.events)
     events <- append(events, absent.events)
-    #events <- append(events, background.events)
     events <- append(events, tests.events)
     print(table(unlist(lapply(events, function(e) e["Name"]))))
     events
@@ -3824,7 +3823,7 @@ lusc <- create.STUDY.records(studies[7])
 prad <- create.STUDY.records(studies[8])
 read <- create.STUDY.records(studies[9])	
 
-
+# run through all studies by Feature
 lapply(studies, create.DOB.records)
 lapply(studies, create.Diagnosis.records)
 lapply(studies, create.Chemo.records)
@@ -3834,4 +3833,161 @@ lapply(studies, create.Progression.records)
 lapply(studies, create.Absent.records)
 lapply(studies, create.Encounter.records)
 lapply(studies, create.Procedure.records)
-lapply(studies, create.Pathology.records)  
+lapply(studies, create.Pathology.records) 
+
+###########################################    Step 6: UnitTests By Feature  ###############################################
+test_create.DOB.records <- function(study_name)
+{
+  print("--- test_create.DOB.record")
+  if(study_name == "TCGAbrca"){
+		x <- create.DOB.records(study_name, "TCGA.A1.A0SI")[[1]]
+		checkTrue(is.list(x))
+		checkEquals(names(x), c("PatientID", "PtNum","study", "Name", "Fields"))
+		checkEquals(names(x$Fields), c("date", "gender", "race", "ethnicity"))
+		checkEquals(x, list(PatientID="TCGA.A1.A0SI", PtNum=15, study="TCGAbrca", Name="Birth", Fields=list(date="04/19/1954", gender="FEMALE", race="WHITE", ethnicity= "NOT HISPANIC OR LATINO")))
+		x <- create.DOB.records(study_name, "TCGA.A2.A259")[[1]]
+		checkEquals(x, list(PatientID="TCGA.A2.A259", PtNum=100, study="TCGAbrca", Name="Birth", Fields=list(date="09/24/1936", gender="FEMALE", race="BLACK OR AFRICAN AMERICAN", ethnicity= "NOT HISPANIC OR LATINO")))
+		x <- create.DOB.records(study_name, "TCGA.HN.A2NL")[[1]]
+		checkEquals(x, list(PatientID="TCGA.HN.A2NL", PtNum=1009, study="TCGAbrca", Name="Birth", Fields=list(date=as.character(NA), gender="FEMALE", race=as.character(NA), ethnicity=as.character(NA))))
+  	}
+  if(study_name == "TCGAcoad"){
+		x <- create.DOB.records(study_name, "TCGA.A6.2682")[[1]]
+		checkTrue(is.list(x))
+		checkEquals(names(x), c("PatientID", "PtNum","study", "Name", "Fields"))
+		checkEquals(names(x$Fields), c("date", "gender", "race", "ethnicity"))
+		checkEquals(x, list(PatientID="TCGA.A6.2682", PtNum=15, study="TCGAcoad", Name="Birth", Fields=list(date="09/08/1938", gender="MALE", race="WHITE", ethnicity="NOT HISPANIC OR LATINO")))
+		x <- create.DOB.records(study_name, "TCGA.A6.2680")[[1]]
+		checkEquals(x, list(PatientID="TCGA.A6.2680", PtNum=13, study="TCGAcoad", Name="Birth", Fields=list(date="05/11/1936", gender="FEMALE", race="BLACK OR AFRICAN AMERICAN", ethnicity="NOT HISPANIC OR LATINO")))
+  	}
+  if(study_name == "TCGAgbm"){
+		x <- create.DOB.records(study_name, "TCGA.02.0037")[[1]]
+		checkTrue(is.list(x))
+		checkEquals(names(x), c("PatientID", "PtNum","study", "Name", "Fields"))
+		checkEquals(names(x$Fields), c("date", "gender", "race", "ethnicity"))
+		checkEquals(x, list(PatientID="TCGA.02.0037", PtNum=15, study="TCGAgbm", Name="Birth", Fields=list(date="11/27/1929", gender="FEMALE", race="WHITE", ethnicity="NOT HISPANIC OR LATINO")))
+		x <- create.DOB.records(study_name, "TCGA.02.0033")[[1]]
+		checkEquals(x, list(PatientID="TCGA.02.0033", PtNum=13, study="TCGAgbm", Name="Birth", Fields=list(date="01/20/1948", gender="MALE", race="WHITE", ethnicity=as.character(NA))))
+  	}
+  if(study_name == "TCGAhnsc"){
+		x <- create.DOB.records(study_name, "TCGA.BA.5559")[[1]]
+		checkTrue(is.list(x))
+		checkEquals(names(x), c("PatientID", "PtNum","study", "Name", "Fields"))
+		checkEquals(names(x$Fields), c("date", "gender", "race", "ethnicity"))
+		checkEquals(x, list(PatientID="TCGA.BA.5559", PtNum=15, study="TCGAhnsc", Name="Birth", Fields=list(date="01/13/1934", gender="MALE", race="WHITE", ethnicity="NOT HISPANIC OR LATINO")))
+		x <- create.DOB.records(study_name, "TCGA.CN.6017")[[1]]
+		checkEquals(x, list(PatientID="TCGA.CN.6017", PtNum=100, study="TCGAhnsc", Name="Birth", Fields=list(date="04/07/1954", gender="MALE", race="WHITE", ethnicity="NOT HISPANIC OR LATINO")))
+  	}
+  if(study_name == "TCGAlgg"){
+		x <- create.DOB.records(study_name, "TCGA.CS.6290")[[1]]
+		checkTrue(is.list(x))
+		checkEquals(names(x), c("PatientID", "PtNum", "study", "Name", "Fields"))
+		checkEquals(names(x$Fields), c("date", "gender", "race", "ethnicity"))
+		checkEquals(x, list(PatientID="TCGA.CS.6290", PtNum=1, study="TCGAlgg", Name="Birth", Fields=list(date="01/23/1977", gender="MALE", race=as.character(NA), ethnicity=as.character(NA))))
+		x <- create.DOB.records(study_name, "TCGA.W9.A837")[[1]]
+		checkEquals(x, list(PatientID="TCGA.W9.A837", PtNum=425, study="TCGAlgg", Name="Birth", Fields=list(date=as.character(NA), gender="MALE", race="WHITE", ethnicity="NOT HISPANIC OR LATINO")))
+  	}
+  if(study_name == "TCGAluad"){
+		x <- create.DOB.records(study_name, "TCGA.05.4405")[[1]]
+		checkTrue(is.list(x))
+		checkEquals(names(x), c("PatientID", "PtNum","study", "Name", "Fields"))
+		checkEquals(names(x$Fields), c("date", "gender", "race", "ethnicity"))
+		checkEquals(x, list(PatientID="TCGA.05.4405", PtNum=15, study="TCGAluad", Name="Birth", Fields=list(date="06/03/1931", gender="FEMALE", race=as.character(NA), ethnicity=as.character(NA))))
+		x <- create.DOB.records(study_name, "TCGA.49.4486")[[1]]
+		checkEquals(x, list(PatientID="TCGA.49.4486", PtNum=100, study="TCGAluad", Name="Birth", Fields=list(date="09/06/1919", gender="MALE", race="WHITE", ethnicity="NOT HISPANIC OR LATINO")))
+	}
+  if(study_name == "TCGAlusc"){
+		x <- create.DOB.records(study_name, "TCGA.18.4086")[[1]]
+		checkTrue(is.list(x))
+		checkEquals(names(x), c("PatientID", "PtNum","study", "Name", "Fields"))
+		checkEquals(names(x$Fields), c("date", "gender", "race", "ethnicity"))
+		checkEquals(x, list(PatientID="TCGA.18.4086", PtNum=15, study="TCGAlusc", Name="Birth", Fields=list(date="01/12/1944", gender="MALE", race=as.character(NA), ethnicity=as.character(NA))))
+		x <- create.DOB.records(study_name, "TCGA.34.5231")[[1]]
+		checkEquals(x, list(PatientID="TCGA.34.5231", PtNum=100, study="TCGAlusc", Name="Birth", Fields=list(date="05/19/1933", gender="MALE", race="WHITE", ethnicity="NOT HISPANIC OR LATINO")))
+		x <- create.DOB.records(study_name, "TCGA.63.A5MR")[[1]] #race == "[Not Evaluated]", diagnosis.year == "[Not Available]"
+		checkEquals(x, list(PatientID="TCGA.63.A5MR", PtNum=269, study="TCGAlusc", Name="Birth", Fields=list(date=as.character(NA), gender="FEMALE", race=as.character(NA), ethnicity=as.character(NA))))
+	}
+  if(study_name == "TCGAprad"){
+		x <- create.DOB.records(study_name, "TCGA.CH.5740")[[1]]
+		checkTrue(is.list(x))
+		checkEquals(names(x), c("PatientID", "PtNum","study", "Name", "Fields"))
+		checkEquals(names(x$Fields), c("date", "gender", "race", "ethnicity"))
+		checkEquals(x, list(PatientID="TCGA.CH.5740", PtNum=15, study="TCGAprad", Name="Birth", Fields=list(date="11/02/1951", gender="MALE", race="WHITE", ethnicity= "NOT HISPANIC OR LATINO")))
+		x <- create.DOB.records(study_name, "TCGA.EJ.7789")[[1]]
+		checkEquals(x, list(PatientID="TCGA.EJ.7789", PtNum=100, study="TCGAprad", Name="Birth", Fields=list(date="12/31/1944", gender="MALE", race="BLACK OR AFRICAN AMERICAN", ethnicity="NOT HISPANIC OR LATINO")))
+		x <- create.DOB.records(study_name, "TCGA.V1.A8MF")[[1]]
+		checkEquals(x, list(PatientID="TCGA.V1.A8MF", PtNum=367, study="TCGAprad", Name="Birth", Fields=list(date=as.character(NA), gender="MALE", race=as.character(NA), ethnicity=as.character(NA))))
+	}
+  if(study_name == "TCGAread"){
+		x <- create.DOB.records(study_name, "TCGA.AF.6672")[[1]]
+		checkTrue(is.list(x))
+		checkEquals(names(x), c("PatientID", "PtNum","study", "Name", "Fields"))
+		checkEquals(names(x$Fields), c("date", "gender", "race", "ethnicity"))
+		checkEquals(x, list(PatientID="TCGA.AF.6672", PtNum=15, study="TCGAread", Name="Birth", Fields=list(date="04/17/1967", gender="MALE", race="WHITE", ethnicity="NOT HISPANIC OR LATINO")))
+		x <- create.DOB.records(study_name, "TCGA.AF.6136")[[1]]
+		checkEquals(x, list(PatientID="TCGA.AF.6136", PtNum=13, study="TCGAread", Name="Birth", Fields=list(date="06/23/1938", gender="FEMALE", race="WHITE", ethnicity="NOT HISPANIC OR LATINO")))
+	}
+}
+lapply(studies, test_create.DOB.records)
+#--------------------------------------------------------------------------------------------------------------------------  
+test_create.Diagnosis.records <- function(study_name)
+{
+  print("--- test_create.Diagnosis.record")
+  if(study_name == "TCGAbrca"){
+		x <- create.Diagnosis.records(study_name, "TCGA.3C.AAAU")
+		checkEquals(names(x[[1]]), c("PatientID", "PtNum", "study", "Name", "Fields"))
+		checkEquals(names(x[[1]]$Fields), c("date", "disease", "siteCode"))
+		checkEquals(x[[1]], list(PatientID="TCGA.3C.AAAU", PtNum=1, study="TCGAbrca", Name="Diagnosis", Fields=list(date="01/01/2004", disease="BREAST", siteCode="3C")))
+   	}
+  if(study_name == "TCGAcoad"){
+		x <- create.Diagnosis.records(study_name, "TCGA.3L.AA1B")
+		checkEquals(names(x[[1]]), c("PatientID", "PtNum", "study", "Name", "Fields"))
+		checkEquals(names(x[[1]]$Fields), c("date", "disease", "siteCode"))
+		checkEquals(x[[1]], list(PatientID="TCGA.3L.AA1B", PtNum=1, study="TCGAcoad", Name="Diagnosis", Fields=list(date="01/01/2013", disease="COLON", siteCode="3L")))
+	}
+  if(study_name == "TCGAgbm"){
+		x <- create.Diagnosis.records(study_name, "TCGA.02.0001")
+		checkEquals(names(x[[1]]), c("PatientID", "PtNum", "study", "Name", "Fields"))
+		checkEquals(names(x[[1]]$Fields), c("date", "disease", "siteCode"))
+		checkEquals(x[[1]], list(PatientID="TCGA.02.0001", PtNum=1, study="TCGAgbm", Name="Diagnosis", Fields=list(date="01/01/2002", disease="BRAIN", siteCode="02")))
+	}
+  if(study_name == "TCGAhnsc"){
+		x <- create.Diagnosis.records(study_name,  "TCGA.4P.AA8J")
+		checkEquals(names(x[[1]]), c("PatientID", "PtNum", "study", "Name", "Fields"))
+		checkEquals(names(x[[1]]$Fields), c("date", "disease", "siteCode"))
+		checkEquals(x[[1]], list(PatientID="TCGA.4P.AA8J", PtNum=1, study="TCGAhnsc", Name="Diagnosis", Fields=list(date="01/01/2013", disease="HEAD AND NECK", siteCode="4P")))
+ 	}
+  if(study_name == "TCGAlgg"){
+		x <- create.Diagnosis.records(study_name,  "TCGA.CS.6290")
+		checkEquals(names(x[[1]]), c("PatientID", "PtNum", "study", "Name", "Fields"))
+		checkEquals(names(x[[1]]$Fields), c("date", "disease", "siteCode"))
+		checkEquals(x[[1]], list(PatientID="TCGA.CS.6290", PtNum=1, study=study_name, Name="Diagnosis", Fields=list(date="01/01/2009", disease="CENTRAL NERVOUS SYSTEM", siteCode="CS")))
+    }
+  if(study_name == "TCGAluad"){
+		x <- create.Diagnosis.records(study_name,  "TCGA.05.4244")
+		checkEquals(names(x[[1]]), c("PatientID", "PtNum", "study", "Name", "Fields"))
+		checkEquals(names(x[[1]]$Fields), c("date", "disease", "siteCode"))
+		checkEquals(x[[1]], list(PatientID="TCGA.05.4244", PtNum=1, study=study_name, Name="Diagnosis", Fields=list(date="01/01/2009", disease="LUNG", siteCode="05")))
+	}
+  if(study_name == "TCGAlusc"){
+		x <- create.Diagnosis.records(study_name,  "TCGA.18.3406")
+		checkEquals(names(x[[1]]), c("PatientID", "PtNum", "study", "Name", "Fields"))
+		checkEquals(names(x[[1]]$Fields), c("date", "disease", "siteCode"))
+		checkEquals(x[[1]], list(PatientID="TCGA.18.3406", PtNum=1, study=study_name, Name="Diagnosis", Fields=list(date= "01/01/2003", disease="LUNG", siteCode="18")))
+		x <- create.Diagnosis.records(study_name,  "TCGA.63.A5MI") #diagnosis. year == "[Not Available]"
+		checkEquals(x[[1]], list(PatientID="TCGA.63.A5MI", PtNum=263, study=study_name, Name="Diagnosis", Fields=list(date=as.character(NA), disease="LUNG", siteCode="63")))
+	}
+  if(study_name == "TCGAprad"){
+		x <- create.Diagnosis.records(study_name,  "TCGA.2A.A8VL")
+		checkEquals(names(x[[1]]), c("PatientID", "PtNum", "study", "Name", "Fields"))
+		checkEquals(names(x[[1]]$Fields), c("date", "disease", "siteCode"))
+		checkEquals(x[[1]], list(PatientID="TCGA.2A.A8VL", PtNum=1, study="TCGAprad", Name="Diagnosis", Fields=list(date="01/01/2010", disease="PROSTATE", siteCode="2A")))
+	}
+  if(study_name == "TCGAread"){
+		x <- create.Diagnosis.records(study_name,  "TCGA.AF.2687")
+		checkEquals(names(x[[1]]), c("PatientID", "PtNum", "study", "Name", "Fields"))
+		checkEquals(names(x[[1]]$Fields), c("date", "disease", "siteCode"))
+		checkEquals(x[[1]], list(PatientID= "TCGA.AF.2687", PtNum=1, study=study, Name="Diagnosis", Fields=list(date="01/01/2009", disease="RECTUM", siteCode= "AF")))
+	}
+}
+lapply(studies, test_create.Diagnosis.records)
+#-------------------------------------------------------------------------------------------------------------------------- 
