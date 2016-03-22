@@ -1764,7 +1764,7 @@ if(ABSENT){
 	}
 	#--------------------------------------------------------------------------------	
 } # End of Absent Native Functions
-#----------------------   Tests functions Start Here   -------------------------
+#----------------------   Tests functions Start Here   --------------------------
 if(TESTS){
 	Tests.unique.request <- function(study_name){
 		uri <- rawTablesRequest(study_name, "Tests")
@@ -2295,7 +2295,6 @@ create.DOB.records <- function(study_name, ptID){
 		 print(result)
 	}	
 }
-lapply(studies, create.DOB.records)
 #--------------------------------------------------------------------------------------------------------------------------
 create.Diagnosis.records <- function(study_name, ptID){
 	uri <- rawTablesRequest(study_name, "Diagnosis")
@@ -2336,7 +2335,6 @@ create.Diagnosis.records <- function(study_name, ptID){
 		print(result)
     }    
 }
-lapply(studies, create.Diagnosis.records)
 #--------------------------------------------------------------------------------------------------------------------------
 create.Chemo.records <- function(study_name,  ptID){
 	uri <- rawTablesRequest(study_name, "Drug")
@@ -2434,7 +2432,6 @@ create.Chemo.records <- function(study_name,  ptID){
 		print(result)
     }	    
 }
-lapply(studies, create.Chemo.records)
 #--------------------------------------------------------------------------------------------------------------------------
 create.Rad.records <- function(study_name,  ptID){
 	uri <- rawTablesRequest(study_name, "Radiation")
@@ -2522,7 +2519,6 @@ create.Rad.records <- function(study_name,  ptID){
 		print(result)
     }	
 }
-lapply(studies, create.Rad.records)
 #--------------------------------------------------------------------------------------------------------------------------
 create.Status.records <- function(study_name,  ptID){
 	uri <- rawTablesRequest(study_name, "Status")
@@ -2630,7 +2626,6 @@ create.Status.records <- function(study_name,  ptID){
 		print(result)
  	}
 }
-lapply(studies, create.Status.records)
 #--------------------------------------------------------------------------------------------------------------------------
 create.Progression.records <- function(study_name,  ptID){
 	uri <- rawTablesRequest(study_name, "Progression")
@@ -2728,7 +2723,6 @@ create.Progression.records <- function(study_name,  ptID){
 		print(result)
  	}	   
 }
-lapply(studies, create.Progression.records)
 #--------------------------------------------------------------------------------------------------------------------------
 create.Absent.records <- function(study_name,  ptID){
 	uri <- rawTablesRequest(study_name, "Absent")
@@ -2847,7 +2841,6 @@ create.Absent.records <- function(study_name,  ptID){
 		print(result)
  	}	   
 }
-lapply(studies, create.Absent.records)
 #--------------------------------------------------------------------------------------------------------------------------
 create.Tests.records <- function(study_name,  ptID){
 	uri <- rawTablesRequest(study_name, "Tests")
@@ -3398,7 +3391,6 @@ create.Tests.records <- function(study_name,  ptID){
 		 	}	   
     } 	
 }
-lapply(studies, create.Tests.records)
 #--------------------------------------------------------------------------------------------------------------------------
 create.Encounter.records <- function(study_name,  ptID){
   uri <- rawTablesRequest(study_name, "Encounter")
@@ -3502,7 +3494,6 @@ create.Encounter.records <- function(study_name,  ptID){
 		print(result)
   }	
 }
-lapply(studies, create.Encounter.records)
 #--------------------------------------------------------------------------------------------------------------------------
 create.Procedure.records <- function(study_name,  ptID){
     uri <- rawTablesRequest(study_name, "Procedure")
@@ -3656,7 +3647,6 @@ create.Procedure.records <- function(study_name,  ptID){
 			print(result)
 		}
 }    
-lapply(studies, create.Procedure.records) 
 #--------------------------------------------------------------------------------------------------------------------------  
 create.Pathology.records <- function(study_name,  ptID){
   uri <- rawTablesRequest(study_name, "Pathology")
@@ -3794,10 +3784,8 @@ create.Pathology.records <- function(study_name,  ptID){
 							                            omfOffset=omfOffset)))
 							  })
 				print(result)
-	    }
-  
+	    }  
 }
-lapply(studies, create.Pathology.records) 
 ######################################    Step 5: Generate Result By Organ Site   #########################################
 create.STUDY.records <- function(study_name){
 	dob.events <- create.DOB.records(study_name)
@@ -3825,7 +3813,6 @@ create.STUDY.records <- function(study_name){
     events <- append(events, tests.events)
     print(table(unlist(lapply(events, function(e) e["Name"]))))
     events
-
 }
 
 brca <- create.STUDY.records(studies[1])
@@ -3838,3 +3825,14 @@ lusc <- create.STUDY.records(studies[7])
 prad <- create.STUDY.records(studies[8])
 read <- create.STUDY.records(studies[9])	
 
+
+lapply(studies, create.DOB.records)
+lapply(studies, create.Diagnosis.records)
+lapply(studies, create.Chemo.records)
+lapply(studies, create.Rad.records)
+lapply(studies, create.Status.records)
+lapply(studies, create.Progression.records)
+lapply(studies, create.Absent.records)
+lapply(studies, create.Encounter.records)
+lapply(studies, create.Procedure.records)
+lapply(studies, create.Pathology.records)  
