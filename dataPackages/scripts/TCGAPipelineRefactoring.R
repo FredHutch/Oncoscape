@@ -2275,6 +2275,7 @@ create.DOB.records <- function(study_name, ptID){
     				 			Fields=list(date=date, gender=gender, race=race, ethnicity=ethnicity)))	
     				})
     	print(c(study_name, dim(data.DOB), length(result)))
+    	return(result)
 	}else{
 		print(ptID)
 		subSet.data.DOB <- subset(data.DOB, PatientID==ptID)
@@ -2316,6 +2317,7 @@ create.Diagnosis.records <- function(study_name, ptID){
     				 			Fields=list(date=date, disease=disease, siteCode=siteCode)))
     				})
 		print(c(study_name, dim(data.Diagnosis), length(result)))
+		return(result)
     }else{
     	print(ptID)
 		subSet.data.Diagnosis <- subset(data.Diagnosis, PatientID==ptID)
@@ -2404,6 +2406,7 @@ create.Chemo.records <- function(study_name,  ptID){
     				 				        route=route,cycle=cycle)))
     				})
 		print(c(study_name, dim(data.Chemo), length(result)))
+		return(result)
     }else{
     	print(ptID)
 		subSet.data.Chemo <- subset(data.Chemo, PatientID==ptID)
@@ -2494,6 +2497,7 @@ create.Rad.records <- function(study_name,  ptID){
     				 						numFractions=numFractions)))
     				})
 		print(c(study_name, dim(data.Rad), length(result)))
+		return(result)
     }else{
     	print(ptID)
 		subSet.data.Rad <- subset(data.Rad, PatientID==ptID)
@@ -2607,6 +2611,7 @@ create.Status.records <- function(study_name,  ptID){
     				 			Fields=list(date=date, vital=vital, tumorStatus=tumorStatus)))
     				})
 		print(c(study_name, dim(data.Status), length(result)))
+		return(result)
  	}else{
  		print(ptID)
 		subSet.data.Status <- subset(data.Status, PatientID==ptID)
@@ -2704,6 +2709,7 @@ create.Progression.records <- function(study_name,  ptID){
     				 			Fields=list(date=date, event=event, number=number)))
     				})
 		print(c(study_name, dim(data.Progression), length(result)))
+		return(result)
  	}else{
  		print(ptID)
  		subSet.data.Progression <- subset(data.Progression, PatientID==ptID)
@@ -2821,6 +2827,7 @@ create.Absent.records <- function(study_name,  ptID){
     				 			Fields=list(date=date, Radiation=rad, Drug=drug, Pulmonary=pul)))
     				})
 		print(c(study_name, dim(data.Absent), length(result)))
+		return(result)
  	}else{
  		print(ptID)
  		subSet.data.Absent <- subset(data.Absent, PatientID==ptID)
@@ -3319,11 +3326,12 @@ create.Tests.records <- function(study_name,  ptID){
 
 					oneTest <- tbl[,colnames(tbl)[grep(searchKeyWords[i],colnames(tbl), ignore.case=T)]]
 					# compile Result field
-					rs <- rep("", nrow(oneTest))
+					rs <- c()
 					if(length(grep(searchKeyWords[i],colnames(tbl), ignore.case=T)) == 1){ 
 						prefix <- colnames(tbl)[grep(searchKeyWords[i],colnames(tbl), ignore.case=T)]
 						rs <- paste(prefix, oneTest, sep=":")
 					}else{
+						rs <- rep("", nrow(oneTest))
 						for(j in 1:length(colnames(oneTest))) {
 							#rs <- paste(rs, paste(colnames(oneTest)[j], na.omit(oneTest[,j]), sep=":"))
 							nonNAPos <- which(!(is.na(oneTest[, j])))
@@ -3345,11 +3353,19 @@ create.Tests.records <- function(study_name,  ptID){
     	}
 	    data.Tests  <- merge(tbl.pt[, c("PatientID", "dxyear")], data.Tests)
 	    data.Tests  <- Tests.mapping.date.Calculation(data.Tests)
-	    data.Tests <- data.Tests[-which(duplicated(data.Tests)),]
-	    data.Tests <- data.Tests[-which(is.na(data.Tests$Test)),] 
-	    data.Tests <- data.Tests[-which(data.Tests$Result == ""),]
-	    data.Tests$Result <- str_replace_all(data.Tests$Result,"^/","")
+	    if(length(which(duplicated(data.Tests))) > 0 ){
+	    	data.Tests <- data.Tests[-which(duplicated(data.Tests)),]
+	    }
+	    if(length(which(is.na(data.Tests$Test))) > 0 ){
+	    	data.Tests <- data.Tests[-which(is.na(data.Tests$Test)),] 
+	    }
+	    if(length(which(data.Tests$Result == "")) > 0 ){
+	    	data.Tests <- data.Tests[-which(data.Tests$Result == ""),]
+	    }
 	    
+	    
+	    data.Tests$Result <- str_replace_all(data.Tests$Result,"^/","")
+
 	 	ptNumMap <- ptNumMapUpdate(tbl.pt)
 	 	if(missing(ptID)){
 	 		result <- apply(data.Tests, 1, function(x){
@@ -3362,6 +3378,7 @@ create.Tests.records <- function(study_name,  ptID){
 	    				 			Fields=list(date=date, test=test, result=result)))
 	    				})
 			print(c(study_name, dim(data.Tests), length(result)))
+			return(result)
 	 	}else{
 	 		print(ptID)
 	 		subSet.data.Tests <- subset(data.Tests, PatientID==ptID)
@@ -3380,7 +3397,7 @@ create.Tests.records <- function(study_name,  ptID){
 }
 lapply(studies, create.Tests.records)
 #--------------------------------------------------------------------------------------------------------------------------
-create.all.Encounter.records <- function(study_name){
+create.Encounter.records <- function(study_name,  ptID){
   uri <- rawTablesRequest(study_name, "Encounter")
   rm(list=ls(pattern="tbl"))
   #(tbl.pt 'encType','karnofsky_score','ECOG only in gbm,lgg,luad,lusc)
@@ -3437,30 +3454,54 @@ create.all.Encounter.records <- function(study_name){
   
   # result
   ptNumMap <- ptNumMapUpdate(tbl.pt)
-  result <- apply(data.Encounter, 1, function(x){
-	    PatientID = getElement(x, "PatientID")
-	    PtNum = ptNumMap[ptNumMap$PatientID == PatientID,]$PatientNumber
-	    encType = getElement(x, "encType")
-	    KPS = getElement(x, "KPS")
-	    ECOG = getElement(x, "ECOG")
-	    height = getElement(x, "height")
-	    weight = getElement(x, "weight")
-	    prefev1.ratio = getElement(x, "prefev1.ratio")
-	    prefev1.percent = getElement(x, "prefev1.percent")
-	    postfev1.ratio = getElement(x, "postfev1.ratio")
-	    postfev1.percent  = getElement(x, "postfev1.percent")
-	    carbon.monoxide.diffusion  = getElement(x, "carbon.monoxide.diffusion")
-	    return(list(PatientID=PatientID, PtNum=PtNum, study=study_name, Name="Encounter", 
-	                Fields=list(encType=encType, KPS=KPS, ECOG=ECOG, height=height,
-	                            weight=weight, prefev1.ratio=prefev1.ratio, prefev1.percent=prefev1.percent, postfev1.ratio=postfev1.ratio,
-	                            postfev1.percent=postfev1.percent,carbon.monoxide.diffusion=carbon.monoxide.diffusion)))
-  })
-  #return(result)
-  print(c(study_name, dim(data.Encounter), length(result)))
+  if(missing(ptID)){
+	  result <- apply(data.Encounter, 1, function(x){
+		    PatientID = getElement(x, "PatientID")
+		    PtNum = ptNumMap[ptNumMap$PatientID == PatientID,]$PatientNumber
+		    encType = getElement(x, "encType")
+		    KPS = getElement(x, "KPS")
+		    ECOG = getElement(x, "ECOG")
+		    height = getElement(x, "height")
+		    weight = getElement(x, "weight")
+		    prefev1.ratio = getElement(x, "prefev1.ratio")
+		    prefev1.percent = getElement(x, "prefev1.percent")
+		    postfev1.ratio = getElement(x, "postfev1.ratio")
+		    postfev1.percent  = getElement(x, "postfev1.percent")
+		    carbon.monoxide.diffusion  = getElement(x, "carbon.monoxide.diffusion")
+		    return(list(PatientID=PatientID, PtNum=PtNum, study=study_name, Name="Encounter", 
+		                Fields=list(encType=encType, KPS=KPS, ECOG=ECOG, height=height,
+		                            weight=weight, prefev1.ratio=prefev1.ratio, prefev1.percent=prefev1.percent, postfev1.ratio=postfev1.ratio,
+		                            postfev1.percent=postfev1.percent,carbon.monoxide.diffusion=carbon.monoxide.diffusion)))
+		    })
+  			print(c(study_name, dim(data.Encounter), length(result)))
+  			return(result)
+  }else{
+		print(ptID)
+			subSet.data.Encounter <- subset(data.Encounter, PatientID==ptID)
+			result <- apply(subSet.data.Encounter, 1, function(x){
+					PatientID = getElement(x, "PatientID")
+				    PtNum = ptNumMap[ptNumMap$PatientID == PatientID,]$PatientNumber
+				    encType = getElement(x, "encType")
+				    KPS = getElement(x, "KPS")
+				    ECOG = getElement(x, "ECOG")
+				    height = getElement(x, "height")
+				    weight = getElement(x, "weight")
+				    prefev1.ratio = getElement(x, "prefev1.ratio")
+				    prefev1.percent = getElement(x, "prefev1.percent")
+				    postfev1.ratio = getElement(x, "postfev1.ratio")
+				    postfev1.percent  = getElement(x, "postfev1.percent")
+				    carbon.monoxide.diffusion  = getElement(x, "carbon.monoxide.diffusion")
+				    return(list(PatientID=PatientID, PtNum=PtNum, study=study_name, Name="Encounter", 
+				                Fields=list(encType=encType, KPS=KPS, ECOG=ECOG, height=height,
+				                            weight=weight, prefev1.ratio=prefev1.ratio, prefev1.percent=prefev1.percent, postfev1.ratio=postfev1.ratio,
+				                            postfev1.percent=postfev1.percent,carbon.monoxide.diffusion=carbon.monoxide.diffusion)))
+				    })
+		print(result)
+  }	
 }
-lapply(studies, create.all.Encounter.records)
+lapply(studies, create.Encounter.records)
 #--------------------------------------------------------------------------------------------------------------------------
-create.all.Procedure.records <- function(study_name){
+create.Procedure.records <- function(study_name,  ptID){
     uri <- rawTablesRequest(study_name, "Procedure")
     rm(list=ls(pattern="tbl"))
     tbl.nte <- loadData(uri[1], 
@@ -3554,32 +3595,58 @@ create.all.Procedure.records <- function(study_name){
 
     # result
     ptNumMap <- ptNumMapUpdate(tbl.pt)
-    result <- apply(data.Procedure, 1, function(x){
-      			PatientID = getElement(x, "PatientID")
-      			PtNum = ptNumMap[ptNumMap$PatientID == PatientID,]$PatientNumber
-      			date_loco = getElement(x, "date_loco")
-      			date_met = getElement(x, "date_met")
-      			new_tumor_event_surgery = getElement(x, "new_tumor_event_surgery")
-      			date_additional_surgery_procedure = getElement(x, "date_additional_surgery_procedure")
-      			new_neoplasm_site = getElement(x, "new_neoplasm_site")
-      			new_tumor_site = getElement(x, "new_tumor_site")
-      			new_tumor_event_additional_surgery_procedure = getElement(x, "new_tumor_event_additional_surgery_procedure")
-      			surgical_resection_date = getElement(x, "surgical_resection_date")
-      			other_malignancy_side  = getElement(x, "other_malignancy_side")
-      			surgery_name  = getElement(x, "surgery_name")
-      			side  = getElement(x, "side")
-      			site  = getElement(x, "site")
-      			surgical_procedure_first = getElement(x, "surgical_procedure_first") 
-      			first_surgical_procedure_other = getElement(x, "first_surgical_procedure_other") 
-      			return(list(PatientID=PatientID, PtNum=PtNum, study=study_name, Name="Procedure", 
-                  			Fields=list(date_loco=date_loco,date_met=date_met,new_tumor_event_surgery=new_tumor_event_surgery,date_additional_surgery_procedure=date_additional_surgery_procedure,new_neoplasm_site=new_neoplasm_site,new_tumor_site=new_tumor_site,new_tumor_event_additional_surgery_procedure=new_tumor_event_additional_surgery_procedure,surgical_resection_date=surgical_resection_date,other_malignancy_side=other_malignancy_side,surgery_name=surgery_name,side=side, site=site,surgical_procedure_first=surgical_procedure_first,first_surgical_procedure_other=first_surgical_procedure_other)))
-    })
-    return(result)
-    print(c(study_name, dim(data.Procedure), length(result)))
-}
-lapply(studies, create.all.Procedure.records) 
+    if(missing(ptID)){
+		    result <- apply(data.Procedure, 1, function(x){
+		      			PatientID = getElement(x, "PatientID")
+		      			PtNum = ptNumMap[ptNumMap$PatientID == PatientID,]$PatientNumber
+		      			date_loco = getElement(x, "date_loco")
+		      			date_met = getElement(x, "date_met")
+		      			new_tumor_event_surgery = getElement(x, "new_tumor_event_surgery")
+		      			date_additional_surgery_procedure = getElement(x, "date_additional_surgery_procedure")
+		      			new_neoplasm_site = getElement(x, "new_neoplasm_site")
+		      			new_tumor_site = getElement(x, "new_tumor_site")
+		      			new_tumor_event_additional_surgery_procedure = getElement(x, "new_tumor_event_additional_surgery_procedure")
+		      			surgical_resection_date = getElement(x, "surgical_resection_date")
+		      			other_malignancy_side  = getElement(x, "other_malignancy_side")
+		      			surgery_name  = getElement(x, "surgery_name")
+		      			side  = getElement(x, "side")
+		      			site  = getElement(x, "site")
+		      			surgical_procedure_first = getElement(x, "surgical_procedure_first") 
+		      			first_surgical_procedure_other = getElement(x, "first_surgical_procedure_other") 
+		      			return(list(PatientID=PatientID, PtNum=PtNum, study=study_name, Name="Procedure", 
+		                  			Fields=list(date_loco=date_loco,date_met=date_met,new_tumor_event_surgery=new_tumor_event_surgery,date_additional_surgery_procedure=date_additional_surgery_procedure,new_neoplasm_site=new_neoplasm_site,new_tumor_site=new_tumor_site,new_tumor_event_additional_surgery_procedure=new_tumor_event_additional_surgery_procedure,surgical_resection_date=surgical_resection_date,other_malignancy_side=other_malignancy_side,surgery_name=surgery_name,side=side, site=site,surgical_procedure_first=surgical_procedure_first,first_surgical_procedure_other=first_surgical_procedure_other)))
+		    })
+		    print(c(study_name, dim(data.Procedure), length(result)))
+		    return(result)	
+		}else{
+				print(ptID)
+				subSet.data.Procedure <- subset(data.Procedure, PatientID==ptID)
+				result <- apply(subSet.data.Encounter, 1, function(x){
+						PatientID = getElement(x, "PatientID")
+		      			PtNum = ptNumMap[ptNumMap$PatientID == PatientID,]$PatientNumber
+		      			date_loco = getElement(x, "date_loco")
+		      			date_met = getElement(x, "date_met")
+		      			new_tumor_event_surgery = getElement(x, "new_tumor_event_surgery")
+		      			date_additional_surgery_procedure = getElement(x, "date_additional_surgery_procedure")
+		      			new_neoplasm_site = getElement(x, "new_neoplasm_site")
+		      			new_tumor_site = getElement(x, "new_tumor_site")
+		      			new_tumor_event_additional_surgery_procedure = getElement(x, "new_tumor_event_additional_surgery_procedure")
+		      			surgical_resection_date = getElement(x, "surgical_resection_date")
+		      			other_malignancy_side  = getElement(x, "other_malignancy_side")
+		      			surgery_name  = getElement(x, "surgery_name")
+		      			side  = getElement(x, "side")
+		      			site  = getElement(x, "site")
+		      			surgical_procedure_first = getElement(x, "surgical_procedure_first") 
+		      			first_surgical_procedure_other = getElement(x, "first_surgical_procedure_other") 
+		      			return(list(PatientID=PatientID, PtNum=PtNum, study=study_name, Name="Procedure", 
+		                  			Fields=list(date_loco=date_loco,date_met=date_met,new_tumor_event_surgery=new_tumor_event_surgery,date_additional_surgery_procedure=date_additional_surgery_procedure,new_neoplasm_site=new_neoplasm_site,new_tumor_site=new_tumor_site,new_tumor_event_additional_surgery_procedure=new_tumor_event_additional_surgery_procedure,surgical_resection_date=surgical_resection_date,other_malignancy_side=other_malignancy_side,surgery_name=surgery_name,side=side, site=site,surgical_procedure_first=surgical_procedure_first,first_surgical_procedure_other=first_surgical_procedure_other)))
+			    		})
+			print(result)
+		}
+}    
+lapply(studies, create.Procedure.records) 
 #--------------------------------------------------------------------------------------------------------------------------  
-create.all.Pathology.records <- function(study_name){
+create.Pathology.records <- function(study_name,  ptID){
   uri <- rawTablesRequest(study_name, "Pathology")
   rm(list=ls(pattern="tbl"))
   tbl.pt <- loadData(uri[1], 
@@ -3639,43 +3706,123 @@ create.all.Pathology.records <- function(study_name){
   data.Pathology <- Pathology.mapping.date_calculation.omfOffset(data.Pathology)
   
   ptNumMap <- ptNumMapUpdate(tbl.pt)
- 
-  result <- apply(data.Pathology, 1, function(x){
-    PatientID = getElement(x, "PatientID")
-    PtNum = ptNumMap[ptNumMap$PatientID == PatientID,]$PatientNumber
-    pathDisease = getElement(x, "pathDisease")
-    pathHistology = getElement(x, "pathHistology")
-    prospective = getElement(x, "prospective")
-    retrospective = getElement(x, "retrospective")
-    pathMethod = getElement(x, "pathMethod")
-    T.Stage = getElement(x, "T.Stage")
-    N.Stage = getElement(x, "N.Stage")
-    M.Stage = getElement(x, "M.Stage")
-    staging.System  = getElement(x, "staging.System")
-    grade  = getElement(x, "grade")
-    disease  = getElement(x, "disease")
-    histology  = getElement(x, "histology")
-    histology_text = getElement(x, "histology_text") 
-    pathology.offset = getElement(x,"pathology.offset")
-    omfOffset = getElement(x, "omfOffset")
-    return(list(PatientID=PatientID, PtNum=PtNum, study=study_name, Name="Pathology", 
-                Fields=list(pathDisease=pathDisease,
-                            pathHistology=pathHistology,
-                            prospective=prospective,
-                            retrospective=retrospective,
-                            pathMethod=pathMethod,
-                            T.Stage=T.Stage,
-                            N.Stage=N.Stage,
-                            M.Stage=M.Stage,
-                            staging.System=staging.System,
-                            grade=grade,disease=disease, 
-                            histology=histology,
-                            histology_text=histology_text,
-                            pathology.offset=pathology.offset,
-                            omfOffset=omfOffset)))
-  })
-  #return(result)
-  print(c(study_name, dim(data.Pathology), length(result)))
+  if(missing(ptID)){
+	  	result <- apply(data.Pathology, 1, function(x){
+		    PatientID = getElement(x, "PatientID")
+		    PtNum = ptNumMap[ptNumMap$PatientID == PatientID,]$PatientNumber
+		    pathDisease = getElement(x, "pathDisease")
+		    pathHistology = getElement(x, "pathHistology")
+		    prospective = getElement(x, "prospective")
+		    retrospective = getElement(x, "retrospective")
+		    pathMethod = getElement(x, "pathMethod")
+		    T.Stage = getElement(x, "T.Stage")
+		    N.Stage = getElement(x, "N.Stage")
+		    M.Stage = getElement(x, "M.Stage")
+		    staging.System  = getElement(x, "staging.System")
+		    grade  = getElement(x, "grade")
+		    disease  = getElement(x, "disease")
+		    histology  = getElement(x, "histology")
+		    histology_text = getElement(x, "histology_text") 
+		    pathology.offset = getElement(x,"pathology.offset")
+		    omfOffset = getElement(x, "omfOffset")
+		    return(list(PatientID=PatientID, PtNum=PtNum, study=study_name, Name="Pathology", 
+		                Fields=list(pathDisease=pathDisease,
+		                            pathHistology=pathHistology,
+		                            prospective=prospective,
+		                            retrospective=retrospective,
+		                            pathMethod=pathMethod,
+		                            T.Stage=T.Stage,
+		                            N.Stage=N.Stage,
+		                            M.Stage=M.Stage,
+		                            staging.System=staging.System,
+		                            grade=grade,disease=disease, 
+		                            histology=histology,
+		                            histology_text=histology_text,
+		                            pathology.offset=pathology.offset,
+		                            omfOffset=omfOffset)))
+		  })
+		  #return(result)
+		  print(c(study_name, dim(data.Pathology), length(result)))
+		  return(result)
+		  }else{
+		  		print(ptID)
+				subSet.data.Pathology <- subset(data.Pathology, PatientID==ptID)
+		  		result <- apply(data.Pathology, 1, function(x){
+							    PatientID = getElement(x, "PatientID")
+							    PtNum = ptNumMap[ptNumMap$PatientID == PatientID,]$PatientNumber
+							    pathDisease = getElement(x, "pathDisease")
+							    pathHistology = getElement(x, "pathHistology")
+							    prospective = getElement(x, "prospective")
+							    retrospective = getElement(x, "retrospective")
+							    pathMethod = getElement(x, "pathMethod")
+							    T.Stage = getElement(x, "T.Stage")
+							    N.Stage = getElement(x, "N.Stage")
+							    M.Stage = getElement(x, "M.Stage")
+							    staging.System  = getElement(x, "staging.System")
+							    grade  = getElement(x, "grade")
+							    disease  = getElement(x, "disease")
+							    histology  = getElement(x, "histology")
+							    histology_text = getElement(x, "histology_text") 
+							    pathology.offset = getElement(x,"pathology.offset")
+							    omfOffset = getElement(x, "omfOffset")
+							    return(list(PatientID=PatientID, PtNum=PtNum, study=study_name, Name="Pathology", 
+							                Fields=list(pathDisease=pathDisease,
+							                            pathHistology=pathHistology,
+							                            prospective=prospective,
+							                            retrospective=retrospective,
+							                            pathMethod=pathMethod,
+							                            T.Stage=T.Stage,
+							                            N.Stage=N.Stage,
+							                            M.Stage=M.Stage,
+							                            staging.System=staging.System,
+							                            grade=grade,disease=disease, 
+							                            histology=histology,
+							                            histology_text=histology_text,
+							                            pathology.offset=pathology.offset,
+							                            omfOffset=omfOffset)))
+							  })
+				print(result)
+	    }
+  
 }
-lapply(studies, create.all.Pathology.records) 
-#################################################    Step 5: Unit Test   ##################################################
+lapply(studies, create.Pathology.records) 
+######################################    Step 5: Generate Result By Organ Site   #########################################
+create.STUDY.records <- function(study_name){
+	dob.events <- create.DOB.records(study_name)
+	diagnosis.events <- create.Diagnosis.records(study_name)
+	chemo.events <- create.Chemo.records(study_name)
+	radiation.events <- create.Rad.records(study_name)
+	status.events <- create.Status.records(study_name)
+	progression.events <- create.Progression.records(study_name)
+	absent.events <- create.Absent.records(study_name)
+	tests.events <- create.Tests.records(study_name)
+	encounter.events <- create.Encounter.records(study_name)
+	#procedure.events <- create.Procedure.records(study_name)
+	#pathology.events <- create.Pathology.records(study_name)
+
+	events <- append(dob.events, chemo.events)
+    events <- append(events, diagnosis.events)
+    events <- append(events, status.events)
+    events <- append(events, progression.events)
+    events <- append(events, radiation.events)
+    #events <- append(events, procedure.events)
+    events <- append(events, encounter.events)
+    #events <- append(events, pathology.events)
+    events <- append(events, absent.events)
+    #events <- append(events, background.events)
+    events <- append(events, tests.events)
+    print(table(unlist(lapply(events, function(e) e["Name"]))))
+    events
+
+}
+
+brca <- create.STUDY.records(studies[1])
+coad <- create.STUDY.records(studies[2])
+gbm  <- create.STUDY.records(studies[3])
+hnsc <- create.STUDY.records(studies[4])
+lgg  <- create.STUDY.records(studies[5])
+luad <- create.STUDY.records(studies[6])
+lusc <- create.STUDY.records(studies[7])
+prad <- create.STUDY.records(studies[8])
+read <- create.STUDY.records(studies[9])	
+
