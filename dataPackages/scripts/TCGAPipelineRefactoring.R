@@ -1099,10 +1099,10 @@ if(ENCOUNTER){
 } # End of Encounter Native Functions
 #----------------------   Procedure functions Start Here   ----------------------
 if(PROCEDURE){
-  Procedure.unique.request <- function(study_name){
+  	Procedure.unique.request <- function(study_name){
     uri <- rawTablesRequest(study_name, "Procedure")
     rm(list=ls(pattern="tbl"))
-    tbl.nte <- loadData(uri[1], 
+    tbl.nte <- loadData(uri[1],
                        list(
                          'bcr_patient_barcode' = list(name = "PatientID", data = "tcgaId"),
                          'new_tumor_event_surgery_days_to_loco' = list(name = "date_loco", data = "upperCharacter"), #(only in lgg,luad,lusc)
@@ -1112,16 +1112,15 @@ if(PROCEDURE){
                          'new_neoplasm_event_type'  = list(name = "new_neoplasm_site", data = "upperCharacter"), #(only in gbm, coad, read)
                          'new_tumor_event_type'  = list(name = "new_tumor_site", data = "upperCharacter"), #(only in hnsc, pProcedure, luad, lusc)
                          'new_tumor_event_additional_surgery_procedure'  = list(name = "new_tumor_event_additional_surgery_procedure", data = "upperCharacter") #(gbm,coad,read but not being collected...)
-                       ))
-    tbl.omf <- loadData(uri[2], 
+                        ))
+    tbl.omf <- loadData(uri[2],
                        list(
                          'bcr_patient_barcode' = list(name = "PatientID", data = "tcgaId"),
                          'days_to_surgical_resection' = list(name = "surgical_resection_date", data = "upperCharacter"), #(gbm,lgg,hnsc,brca,pProcedure,luad,lusc,coad,read)
                          'other_malignancy_laterality' = list(name = "other_malignancy_side", data = "upperCharacter"), #(brca)
                          'surgery_type' = list(name = "surgery_name", data = "upperCharacter") #(gbm,lgg,hnsc,brca,pProcedure,lusc,luad,coad,read) 
-                       ))
-    
-      tbl.pt <- loadData(uri[3], 
+                        ))
+    tbl.pt <- loadData(uri[3], 
                          list(
                            'bcr_patient_barcode' = list(name = "PatientID", data = "tcgaId"),
                            'initial_pathologic_dx_year' = list(name = "dxyear", data = "tcgaDate"),
@@ -1130,19 +1129,25 @@ if(PROCEDURE){
                            'supratentorial_localization'= list(name = "local", data = "upperCharacter"), #(only in lgg)
                            'surgical_procedure_first'= list(name = "surgical_procedure_first", data = "upperCharacter"), #only in brca
                            'first_surgical_procedure_other'= list(name = "first_surgical_procedure_other", data = "upperCharacter") #only in brca
-                           ))
-
-    if(!is.na(uri[4])) {
-      tbl.f1 <- loadData(uri[4], 
+                        ))
+    tbl.f1 <- loadData(uri[4], 
                          list(
                            'bcr_patient_barcode' = list(name = "PatientID", data = "tcgaId"),
                            'new_tumor_event_surgery_days_to_loco' = list(name = "date_loco", data = "upperCharacter"), #(only in lgg,hnsc,luad,lusc)
                            'new_tumor_event_surgery_days_to_met'= list(name = "date_met", data = "upperCharacter"), #(only in lgg,hnsc,luad,lusc)
                            'new_tumor_event_surgery' = list(name = "new_tumor_event_surgery", data = "upperCharacter") #(In lgg,luad,lusc but not being collected...)
+                        ))
+ 
+  	if(!is.na(uri[5])) {
+      tbl.f2 <- loadData(uri[5], 
+                         list(
+                           'bcr_patient_barcode' = list(name = "PatientID", data = "tcgaId"),
+                           'new_tumor_event_surgery' = list(name = "new_tumor_event_surgery", data = "upperCharacter") #(only in brca)
                          ))
-    					}
-    if(!is.na(uri[5])) {
-      tbl.nte_f1 <- loadData(uri[5], 
+    }
+    
+    if(!is.na(uri[6])) {
+      tbl.nte_f1 <- loadData(uri[6], 
                          list(
                            'bcr_patient_barcode' = list(name = "PatientID", data = "tcgaId"),
                            'new_tumor_event_surgery' = list(name = "new_tumor_event_surgery", data = "upperCharacter"), #(used to build hnsc tables but is also a column in brca that is not being collected)
@@ -1151,237 +1156,232 @@ if(PROCEDURE){
                            'new_tumor_event_type'  = list(name = "new_tumor_site", data = "upperCharacter"), #(only in hnsc, brca)
                            'new_tumor_event_additional_surgery_procedure'  = list(name = "new_tumor_event_additional_surgery_procedure", data = "upperCharacter") #(hnsc)
                          ))
-    					}
+    }
+	
+	data.Procedure <- rbind.fill(tbl.nte, tbl.omf)
+  	data.Procedure <- rbind.fill(data.Procedure, tbl.f1)
+  	data.Procedure <- rbind.fill(data.Procedure, tbl.pt)
+  	if(exists("tbl.f2"))  data.Procedure <- rbind.fill(data.Procedure, tbl.f2)
+  	if(exists("tbl.nte_f1")) data.Procedure <- rbind.fill(data.Procedure, tbl.nte_f1)  	
 
-    
-      	data.Procedure <- rbind.fill(tbl.omf, tbl.nte)
-    	data.Procedure <- rbind.fill(data.Procedure, tbl.f1)      
-      	if(exists("tbl.nte_f1")) data.Procedure <- rbind.fill(data.Procedure, tbl.nte_f1)      	
-      	data.Procedure <- rbind.fill(tbl.pt[,-match("dxyear", colnames(tbl.pt))], data.Procedure)	
-		data.Procedure <- merge(data.Procedure, tbl.pt[,c("PatientID", "dxyear")])	
-		if(any(duplicated(data.Procedure))){
-		  data.Procedure <- data.Procedure[-which(duplicated(data.Procedure)), ]
-		}
-		colnames(data.Procedure)
+    #data.Procedure <- rbind.fill(tbl.omf, tbl.nte)
+    #data.Procedure <- rbind.fill(data.Procedure, tbl.f1)      
+    #if(exists("tbl.nte_f1")) data.Procedure <- rbind.fill(data.Procedure, tbl.nte_f1) 
+    #if(exists("tbl.f2")) data.Procedure <- rbind.fill(data.Procedure, tbl.f2) 
+    #data.Procedure <- rbind.fill(tbl.pt[,-match("dxyear", colnames(tbl.pt))], data.Procedure)	
+	#data.Procedure <- merge(data.Procedure, tbl.pt[,c("PatientID", "dxyear")])
       
-      #some of these columns are in multipe tables but listed below is only unique column names 
-      df <- data.Procedure
-      unique.dxyear<- unique(df$dxyear)
-      unique.side<- unique(df$side)
-      unique.site <- unique(df$site)
-      unique.local <- unique(df$local)
-      unique.surgical_procedure_first <- unique(df$surgical_procedure_first)
-      unique.first_surgical_procedure_other <- unique(df$first_surgical_procedure_other)
-      unique.date_loco<- unique(df$date_loco)
-      unique.date_met <- unique(df$date_met )
-      unique.new_tumor_event_surgery<- unique(df$new_tumor_event_surgery)
-      unique.date_additional_surgery_procedure<- unique(df$date_additional_surgery_procedure)
-      unique.new_neoplasm_site <- unique(df$new_neoplasm_site)
-      unique.new_tumor_site<- unique(df$new_tumor_site)
-      unique.new_tumor_event_additional_surgery_procedure<- unique(df$new_tumor_event_additional_surgery_procedure)
-      unique.surgical_resection_date <- unique(df$surgical_resection_date)
-      unique.other_malignancy_side<- unique(df$other_malignancy_side)
-      unique.surgery_name <- unique(df$surgery_name)
-      
-      result = list(unique.dxyear=unique.dxyear, 
-                    unique.side=unique.side,
-                    unique.site=unique.site,
-                    unique.local=unique.local,
-                    unique.surgical_procedure_first=unique.surgical_procedure_first,
-                    unique.first_surgical_procedure_other=unique.first_surgical_procedure_other,
-                    unique.date_loco=unique.date_loco,
-                    unique.date_met =unique.date_met,
-                    unique.new_tumor_event_surgery=unique.new_tumor_event_surgery,
-                    unique.date_additional_surgery_procedure=unique.date_additional_surgery_procedure,
-                    unique.new_neoplasm_site=unique.new_neoplasm_site,
-                    unique.new_tumor_site=unique.new_tumor_site,
-                    unique.new_tumor_event_additional_surgery_procedure=unique.new_tumor_event_additional_surgery_procedure,
-                    unique.surgical_resection_date=unique.surgical_resection_date,
-                    unique.other_malignancy_side=unique.other_malignancy_side,
-                    unique.surgery_name=unique.surgery_name)
-     print(study_name)
-    return(result)
-  }
+ 	df <- data.Procedure
+  	unique.dxyear<- unique(df$dxyear)
+  	unique.side<- unique(df$side)
+  	unique.site <- unique(df$site)
+  	unique.local <- unique(df$local)
+  	unique.surgical_procedure_first <- unique(df$surgical_procedure_first)
+  	unique.first_surgical_procedure_other <- unique(df$first_surgical_procedure_other)
+	unique.date_loco<- unique(df$date_loco)
+	unique.date_met <- unique(df$date_met )
+	unique.new_tumor_event_surgery<- unique(df$new_tumor_event_surgery)
+	unique.date_additional_surgery_procedure<- unique(df$date_additional_surgery_procedure)
+	unique.new_neoplasm_site <- unique(df$new_neoplasm_site)
+	unique.new_tumor_site<- unique(df$new_tumor_site)
+	unique.new_tumor_event_additional_surgery_procedure<- unique(df$new_tumor_event_additional_surgery_procedure)
+	unique.surgical_resection_date <- unique(df$surgical_resection_date)
+	unique.other_malignancy_side<- unique(df$other_malignancy_side)
+	unique.surgery_name <- unique(df$surgery_name)
+	  
+	result = list(unique.dxyear=unique.dxyear, 
+                unique.side=unique.side,
+                unique.site=unique.site,
+                unique.local=unique.local,
+                unique.surgical_procedure_first=unique.surgical_procedure_first,
+                unique.first_surgical_procedure_other=unique.first_surgical_procedure_other,
+                unique.date_loco=unique.date_loco,
+                unique.date_met =unique.date_met,
+                unique.new_tumor_event_surgery=unique.new_tumor_event_surgery,
+                unique.date_additional_surgery_procedure=unique.date_additional_surgery_procedure,
+                unique.new_neoplasm_site=unique.new_neoplasm_site,
+                unique.new_tumor_site=unique.new_tumor_site,
+                unique.new_tumor_event_additional_surgery_procedure=unique.new_tumor_event_additional_surgery_procedure,
+                unique.surgical_resection_date=unique.surgical_resection_date,
+                unique.other_malignancy_side=unique.other_malignancy_side,
+                unique.surgery_name=unique.surgery_name)
+ 	print(study_name)
+	return(result)
+	}
   #--------------------------------------------------------------------------------------------------------------------
-  
   Procedure.unique.aggregate <- function(res1, res2){
-    
-    res = list(unique.dxyear=unique(c(res1$unique.dxyear, res2$unique.dxyear)),
-               unique.side=unique(c(res1$unique.side, res2$unique.side)),
-               unique.site=unique(c(res1$unique.site, res2$unique.site)),
-               unique.local=unique(c(res1$unique.local, res2$unique.local)),
-               unique.unique.surgical_procedure_first=unique(c(res1$unique.surgical_procedure_first, res2$unique.surgical_procedure_first)),
-               unique.first_surgical_procedure_other=unique(c(res1$unique.first_surgical_procedure_other, res2$unique.first_surgical_procedure_other)),
-               unique.date_loco=unique(c(res1$unique.date_loco, res2$unique.date_loco)),
-               unique.date_met=unique(c(res1$unique.date_met, res2$unique.date_met)),
-               unique.new_tumor_event_surgery=unique(c(res1$unique.new_tumor_event_surgery, res2$unique.new_tumor_event_surgery)),
-               unique.date_additional_surgery_procedure=unique(c(res1$unique.date_additional_surgery_procedure, res2$unique.date_additional_surgery_procedure)),
-               unique.new_neoplasm_site=unique(c(res1$unique.new_neoplasm_site, res2$unique.new_neoplasm_site)),
-               unique.new_tumor_site=unique(c(res1$unique.new_tumor_site, res2$unique.new_tumor_site)),
-               unique.new_tumor_event_additional_surgery_procedure=unique(c(res1$unique.new_tumor_event_additional_surgery_procedure, res2$unique.new_tumor_event_additional_surgery_procedure)),
-               unique.surgical_resection_date=unique(c(res1$unique.surgical_resection_date, res2$unique.surgical_resection_date)),
-               unique.other_malignancy_side=unique(c(res1$unique.other_malignancy_side, res2$unique.other_malignancy_side)),
-               unique.surgery_name=unique(c(res1$unique.surgery_name, res2$unique.surgery_name)))
-    return(res)
-  }
+    	res = list(unique.dxyear=unique(c(res1$unique.dxyear, res2$unique.dxyear)),
+	               unique.side=unique(c(res1$unique.side, res2$unique.side)),
+	               unique.site=unique(c(res1$unique.site, res2$unique.site)),
+	               unique.local=unique(c(res1$unique.local, res2$unique.local)),
+	               unique.unique.surgical_procedure_first=unique(c(res1$unique.surgical_procedure_first, res2$unique.surgical_procedure_first)),
+	               unique.first_surgical_procedure_other=unique(c(res1$unique.first_surgical_procedure_other, res2$unique.first_surgical_procedure_other)),
+	               unique.date_loco=unique(c(res1$unique.date_loco, res2$unique.date_loco)),
+	               unique.date_met=unique(c(res1$unique.date_met, res2$unique.date_met)),
+	               unique.new_tumor_event_surgery=unique(c(res1$unique.new_tumor_event_surgery, res2$unique.new_tumor_event_surgery)),
+	               unique.date_additional_surgery_procedure=unique(c(res1$unique.date_additional_surgery_procedure, res2$unique.date_additional_surgery_procedure)),
+	               unique.new_neoplasm_site=unique(c(res1$unique.new_neoplasm_site, res2$unique.new_neoplasm_site)),
+	               unique.new_tumor_site=unique(c(res1$unique.new_tumor_site, res2$unique.new_tumor_site)),
+	               unique.new_tumor_event_additional_surgery_procedure=unique(c(res1$unique.new_tumor_event_additional_surgery_procedure, res2$unique.new_tumor_event_additional_surgery_procedure)),
+	               unique.surgical_resection_date=unique(c(res1$unique.surgical_resection_date, res2$unique.surgical_resection_date)),
+	               unique.other_malignancy_side=unique(c(res1$unique.other_malignancy_side, res2$unique.other_malignancy_side)),
+	               unique.surgery_name=unique(c(res1$unique.surgery_name, res2$unique.surgery_name)))
+    	return(res)
+	}
   #--------------------------------------------------------------------------------
-  
-  Procedure.unique.values <- Reduce(Procedure.unique.aggregate, lapply(studies, Procedure.unique.request))
-    
-  Procedure.unique.side <- Procedure.unique.values$unique.side
-  Procedure.unique.site <- Procedure.unique.values$unique.site
-  Procedure.unique.local <- Procedure.unique.values$unique.local
-  Procedure.unique.surgical_procedure_first <- Procedure.unique.values$unique.surgical_procedure_first
-  Procedure.unique.first_surgical_procedure_other <- Procedure.unique.values$unique.first_surgical_procedure_other
-  Procedure.unique.date_loco <- Procedure.unique.values$unique.date_loco 
-  Procedure.unique.date_met <- Procedure.unique.values$unique.date_met 
-  Procedure.unique.new_tumor_event_surgery <- Procedure.unique.values$unique.new_tumor_event_surgery
-  Procedure.unique.date_additional_surgery_procedure  <- Procedure.unique.values$unique.date_additional_surgery_procedure 
-  Procedure.unique.new_neoplasm_site  <- Procedure.unique.values$unique.new_neoplasm_site
-  Procedure.unique.new_tumor_site   <- Procedure.unique.values$unique.new_tumor_site
-  Procedure.unique.new_tumor_event_additional_surgery_procedure   <- Procedure.unique.values$unique.new_tumor_event_additional_surgery_procedure
-  Procedure.unique.surgical_resection_date   <- Procedure.unique.values$unique.surgical_resection_date 
-  Procedure.unique.other_malignancy_side  <- Procedure.unique.values$unique.other_malignancy_side
-  Procedure.unique.surgery_name   <- Procedure.unique.values$unique.surgery_name
+	Procedure.unique.values <- Reduce(Procedure.unique.aggregate, lapply(studies, Procedure.unique.request))
+	    
+	Procedure.unique.side <- Procedure.unique.values$unique.side
+	Procedure.unique.site <- Procedure.unique.values$unique.site
+	Procedure.unique.local <- Procedure.unique.values$unique.local
+	Procedure.unique.surgical_procedure_first <- Procedure.unique.values$unique.surgical_procedure_first
+	Procedure.unique.first_surgical_procedure_other <- Procedure.unique.values$unique.first_surgical_procedure_other
+	Procedure.unique.date_loco <- Procedure.unique.values$unique.date_loco 
+	Procedure.unique.date_met <- Procedure.unique.values$unique.date_met 
+	Procedure.unique.new_tumor_event_surgery <- Procedure.unique.values$unique.new_tumor_event_surgery
+	Procedure.unique.date_additional_surgery_procedure  <- Procedure.unique.values$unique.date_additional_surgery_procedure 
+	Procedure.unique.new_neoplasm_site  <- Procedure.unique.values$unique.new_neoplasm_site
+	Procedure.unique.new_tumor_site   <- Procedure.unique.values$unique.new_tumor_site
+	Procedure.unique.new_tumor_event_additional_surgery_procedure   <- Procedure.unique.values$unique.new_tumor_event_additional_surgery_procedure
+	Procedure.unique.surgical_resection_date   <- Procedure.unique.values$unique.surgical_resection_date 
+	Procedure.unique.other_malignancy_side  <- Procedure.unique.values$unique.other_malignancy_side
+	Procedure.unique.surgery_name   <- Procedure.unique.values$unique.surgery_name
   #------------------------------------------------------------------------------------------------------------------------------------------------------------
   Procedure.mapping.side<- function(df){
-    from <- Procedure.unique.side
-    to 	 <- from 
-    to[match(c("[UNKNOWN]","[NOT AVAILABLE]","[NOT EVALUATED]","Uknown","[Discrepancy]","Other","NOT LISTED IN MEDICAL RECORD","[NOT APPLICABLE]","[PENDING]"  ), to)] <- NA
-    df$side <- mapvalues(df$side, from = from, to = to, warn_missing = F)
-    return(df)
+    	from <- Procedure.unique.side
+    	to 	 <- from 
+    	to[match(c("[UNKNOWN]","[NOT AVAILABLE]","[NOT EVALUATED]","Uknown","[Discrepancy]","Other","NOT LISTED IN MEDICAL RECORD","[NOT APPLICABLE]","[PENDING]"  ), to)] <- NA
+    	df$side <- mapvalues(df$side, from = from, to = to, warn_missing = F)
+    	return(df)
   	}	
   #------------------------------------------------------------------------------------------------------------------------------------------
   Procedure.mapping.site<- function(df){
-    from <- Procedure.unique.site
-    to 	 <- from 
-    to[match(c("[UNKNOWN]","[NOT AVAILABLE]","[NOT EVALUATED]","Uknown","[Discrepancy]","Other","NOT LISTED IN MEDICAL RECORD","[NOT APPLICABLE]","[PENDING]"  ), to)] <- NA
-    df$site<- mapvalues(df$site, from = from, to = to, warn_missing = F)
-    return(df)
+	    from <- Procedure.unique.site
+	    to 	 <- from 
+	    to[match(c("[UNKNOWN]","[NOT AVAILABLE]","[NOT EVALUATED]","Uknown","[Discrepancy]","Other","NOT LISTED IN MEDICAL RECORD","[NOT APPLICABLE]","[PENDING]"  ), to)] <- NA
+	    df$site<- mapvalues(df$site, from = from, to = to, warn_missing = F)
+	    return(df)
   	}	
   #------------------------------------------------------------------------------------------------------------------------------------------
   Procedure.mapping.local<- function(df){
-    from <- Procedure.unique.local
-    to 	 <- from 
-    to[match(c("[UNKNOWN]","[NOT AVAILABLE]","[NOT EVALUATED]","Uknown","[Discrepancy]","Other","NOT LISTED IN MEDICAL RECORD","[NOT APPLICABLE]","[PENDING]"  ), to)] <- NA
-    df$site<- mapvalues(df$local, from = from, to = to, warn_missing = F)
-    return(df)
+	    from <- Procedure.unique.local
+	    to 	 <- from 
+	    to[match(c("[UNKNOWN]","[NOT AVAILABLE]","[NOT EVALUATED]","Uknown","[Discrepancy]","Other","NOT LISTED IN MEDICAL RECORD","[NOT APPLICABLE]","[PENDING]"  ), to)] <- NA
+	    df$site<- mapvalues(df$local, from = from, to = to, warn_missing = F)
+	    return(df)
   	}	
   #------------------------------------------------------------------------------------------------------------------------------------------
   Procedure.mapping.new_tumor_event_surgery<- function(df){
-    from <- Procedure.unique.new_tumor_event_surgery
-    to 	 <- from 
-    to[match(c("[UNKNOWN]","[NOT AVAILABLE]","[NOT EVALUATED]","Uknown","[Discrepancy]","Other","NOT LISTED IN MEDICAL RECORD","[NOT APPLICABLE]","[PENDING]"  ), to)] <- NA
-    df$new_tumor_event_surgery<- mapvalues(df$new_tumor_event_surgery, from = from, to = to, warn_missing = F)
-    return(df)
+	    from <- Procedure.unique.new_tumor_event_surgery
+	    to 	 <- from 
+	    to[match(c("[UNKNOWN]","[NOT AVAILABLE]","[NOT EVALUATED]","Uknown","[Discrepancy]","Other","NOT LISTED IN MEDICAL RECORD","[NOT APPLICABLE]","[PENDING]"  ), to)] <- NA
+	    df$new_tumor_event_surgery<- mapvalues(df$new_tumor_event_surgery, from = from, to = to, warn_missing = F)
+	    return(df)
   	}	
   #------------------------------------------------------------------------------------------------------------------------------------------
   Procedure.mapping.new_neoplasm_site<- function(df){
-    from <- Procedure.unique.new_neoplasm_site
-    to 	 <- from 
-    to[match(c("[UNKNOWN]","[NOT AVAILABLE]","[NOT EVALUATED]","Uknown","[Discrepancy]","Other","NOT LISTED IN MEDICAL RECORD","[NOT APPLICABLE]","[PENDING]"  ), to)] <- NA
-    df$new_neoplasm_site<- mapvalues(df$new_neoplasm_site, from = from, to = to, warn_missing = F)
-    return(df)
+	    from <- Procedure.unique.new_neoplasm_site
+	    to 	 <- from 
+	    to[match(c("[UNKNOWN]","[NOT AVAILABLE]","[NOT EVALUATED]","Uknown","[Discrepancy]","Other","NOT LISTED IN MEDICAL RECORD","[NOT APPLICABLE]","[PENDING]"  ), to)] <- NA
+	    df$new_neoplasm_site<- mapvalues(df$new_neoplasm_site, from = from, to = to, warn_missing = F)
+	    return(df)
   	}	
   #------------------------------------------------------------------------------------------------------------------------------------------
   Procedure.mapping.new_tumor_site<- function(df){
-    from <- Procedure.unique.new_tumor_site
-    to 	 <- from 
-    to[match(c("[UNKNOWN]","[NOT AVAILABLE]","[NOT EVALUATED]","Uknown","[Discrepancy]","Other","NOT LISTED IN MEDICAL RECORD","[NOT APPLICABLE]","[PENDING]"  ), to)] <- NA
-    df$new_tumor_site<- mapvalues(df$new_tumor_site, from = from, to = to, warn_missing = F)
-    return(df)
+	    from <- Procedure.unique.new_tumor_site
+	    to 	 <- from 
+	    to[match(c("[UNKNOWN]","[NOT AVAILABLE]","[NOT EVALUATED]","Uknown","[Discrepancy]","Other","NOT LISTED IN MEDICAL RECORD","[NOT APPLICABLE]","[PENDING]"  ), to)] <- NA
+	    df$new_tumor_site<- mapvalues(df$new_tumor_site, from = from, to = to, warn_missing = F)
+	    return(df)
   	}	 
   #------------------------------------------------------------------------------------------------------------------------------------------
   Procedure.mapping.new_tumor_event_additional_surgery_procedure<- function(df){
-    from <- Procedure.unique.new_tumor_event_additional_surgery_procedure
-    to 	 <- from 
-    to[match(c("[UNKNOWN]","[NOT AVAILABLE]","[NOT EVALUATED]","Uknown","[Discrepancy]","Other","NOT LISTED IN MEDICAL RECORD","[NOT APPLICABLE]","[PENDING]"  ), to)] <- NA
-    df$new_tumor_event_additional_surgery_procedure<- mapvalues(df$new_tumor_event_additional_surgery_procedure, from = from, to = to, warn_missing = F)
-    return(df)
+	    from <- Procedure.unique.new_tumor_event_additional_surgery_procedure
+	    to 	 <- from 
+	    to[match(c("[UNKNOWN]","[NOT AVAILABLE]","[NOT EVALUATED]","Uknown","[Discrepancy]","Other","NOT LISTED IN MEDICAL RECORD","[NOT APPLICABLE]","[PENDING]"  ), to)] <- NA
+	    df$new_tumor_event_additional_surgery_procedure<- mapvalues(df$new_tumor_event_additional_surgery_procedure, from = from, to = to, warn_missing = F)
+	    return(df)
   	}	
   #-----------------------------------------------------------------------------------------------------------------------------------------
   Procedure.mapping.other_malignancy_side<- function(df){
-    from <- Procedure.unique.other_malignancy_side
-    to 	 <- from 
-    to[match(c("[UNKNOWN]","[NOT AVAILABLE]","[NOT EVALUATED]","Uknown","[Discrepancy]","Other","NOT LISTED IN MEDICAL RECORD","[NOT APPLICABLE]","[PENDING]"  ), to)] <- NA
-    df$other_malignancy_side<- mapvalues(df$other_malignancy_side, from = from, to = to, warn_missing = F)
-    return(df)
+	    from <- Procedure.unique.other_malignancy_side
+	    to 	 <- from 
+	    to[match(c("[UNKNOWN]","[NOT AVAILABLE]","[NOT EVALUATED]","Uknown","[Discrepancy]","Other","NOT LISTED IN MEDICAL RECORD","[NOT APPLICABLE]","[PENDING]"  ), to)] <- NA
+	    df$other_malignancy_side<- mapvalues(df$other_malignancy_side, from = from, to = to, warn_missing = F)
+	    return(df)
   	}	
   #------------------------------------------------------------------------------------------------------------------------------------------
   Procedure.mapping.surgery_name<- function(df){
-    from <- Procedure.unique.surgery_name
-    to 	 <- from 
-    to[match(c("[UNKNOWN]","[NOT AVAILABLE]","[NOT EVALUATED]","Uknown","[Discrepancy]","Other","NOT LISTED IN MEDICAL RECORD","[NOT APPLICABLE]","[PENDING]"  ), to)] <- NA
-    df$surgery_name<- mapvalues(df$surgery_name, from = from, to = to, warn_missing = F)
-    return(df)
+	    from <- Procedure.unique.surgery_name
+	    to 	 <- from 
+	    to[match(c("[UNKNOWN]","[NOT AVAILABLE]","[NOT EVALUATED]","Uknown","[Discrepancy]","Other","NOT LISTED IN MEDICAL RECORD","[NOT APPLICABLE]","[PENDING]"  ), to)] <- NA
+	    df$surgery_name<- mapvalues(df$surgery_name, from = from, to = to, warn_missing = F)
+	    return(df)
   	}	
   #------------------------------------------------------------------------------------------------------------------------------------------
   Procedure.mapping.surgical_procedure_first<- function(df){
-    from <- Procedure.unique.surgical_procedure_first
-    to 	 <- from 
-    to[match(c("[UNKNOWN]","[NOT AVAILABLE]","[NOT EVALUATED]","Uknown","[Discrepancy]","Other","NOT LISTED IN MEDICAL RECORD","[NOT APPLICABLE]","[PENDING]"  ), to)] <- NA
-    df$surgical_procedure_first<- mapvalues(df$surgical_procedure_first, from = from, to = to, warn_missing = F)
-    return(df)
+	    from <- Procedure.unique.surgical_procedure_first
+	    to 	 <- from 
+	    to[match(c("[UNKNOWN]","[NOT AVAILABLE]","[NOT EVALUATED]","Uknown","[Discrepancy]","Other","NOT LISTED IN MEDICAL RECORD","[NOT APPLICABLE]","[PENDING]"  ), to)] <- NA
+	    df$surgical_procedure_first<- mapvalues(df$surgical_procedure_first, from = from, to = to, warn_missing = F)
+	    return(df)
   	}	
   #------------------------------------------------------------------------------------------------------------------------------------------
   Procedure.mapping.first_surgical_procedure_other<- function(df){
-    from <- Procedure.unique.first_surgical_procedure_other
-    to 	 <- from 
-    to[match(c("[UNKNOWN]","[NOT AVAILABLE]","[NOT EVALUATED]","Uknown","[Discrepancy]","Other","NOT LISTED IN MEDICAL RECORD","[NOT APPLICABLE]","[PENDING]"  ), to)] <- NA
-    df$first_surgical_procedure_other<- mapvalues(df$first_surgical_procedure_other, from = from, to = to, warn_missing = F)
-    return(df)
+	    from <- Procedure.unique.first_surgical_procedure_other
+	    to 	 <- from 
+	    to[match(c("[UNKNOWN]","[NOT AVAILABLE]","[NOT EVALUATED]","Uknown","[Discrepancy]","Other","NOT LISTED IN MEDICAL RECORD","[NOT APPLICABLE]","[PENDING]"  ), to)] <- NA
+	    df$first_surgical_procedure_other<- mapvalues(df$first_surgical_procedure_other, from = from, to = to, warn_missing = F)
+	    return(df)
   	}	
   #-------------------------------------------------------------------------------------------------------------------------
   Procedure.mapping.date_loco <- function(df){
-    from <- Procedure.unique.date_loco
-    to 	 <- from 
-    to[match(c("[UNKNOWN]","[NOT AVAILABLE]","[NOT EVALUATED]","Uknown","[Discrepancy]","Other","NOT LISTED IN MEDICAL RECORD","[NOT APPLICABLE]","[PENDING]"  ), to)] <- NA
-    df$date_loco <- mapvalues(df$date_loco, from = from, to = to, warn_missing = F)
-    return(df)
+	    from <- Procedure.unique.date_loco
+	    to 	 <- from 
+	    to[match(c("[UNKNOWN]","[NOT AVAILABLE]","[NOT EVALUATED]","Uknown","[Discrepancy]","Other","NOT LISTED IN MEDICAL RECORD","[NOT APPLICABLE]","[PENDING]"  ), to)] <- NA
+	    df$date_loco <- mapvalues(df$date_loco, from = from, to = to, warn_missing = F)
+	    return(df)
   	}	
 
   Procedure.mapping.date.Calculation_date_loco <- function(df){
-    df$date_loco <- format(as.Date(df$dxyear,"%m/%d/%Y") + as.integer(df$date_loco), "%m/%d/%Y")
-    return(df)
+	    df$date_loco <- format(as.Date(df$dxyear,"%m/%d/%Y") + as.integer(df$date_loco), "%m/%d/%Y")
+	    return(df)
   	}	   
   #------------------------------------------------------------------------------------------------------------------------------------------
   Procedure.mapping.date_met <- function(df){
-    from <- Procedure.unique.date_met
-    to 	 <- from 
-    to[match(c("[UNKNOWN]","[NOT AVAILABLE]","[NOT EVALUATED]","Uknown","[Discrepancy]","Other","NOT LISTED IN MEDICAL RECORD","[NOT APPLICABLE]","[PENDING]"  ), to)] <- NA
-    df$date_met <- mapvalues(df$date_met, from = from, to = to, warn_missing = F)
-    return(df)
+	    from <- Procedure.unique.date_met
+	    to 	 <- from 
+	    to[match(c("[UNKNOWN]","[NOT AVAILABLE]","[NOT EVALUATED]","Uknown","[Discrepancy]","Other","NOT LISTED IN MEDICAL RECORD","[NOT APPLICABLE]","[PENDING]"  ), to)] <- NA
+	    df$date_met <- mapvalues(df$date_met, from = from, to = to, warn_missing = F)
+	    return(df)
   	}	
  Procedure.mapping.date.Calculation_date_met <- function(df){
-    df$date_met <- format(as.Date(df$dxyear,"%m/%d/%Y") + as.integer(df$date_met), "%m/%d/%Y")
-    return(df)
+	    df$date_met <- format(as.Date(df$dxyear,"%m/%d/%Y") + as.integer(df$date_met), "%m/%d/%Y")
+	    return(df)
   	}	   
-
-  Procedure.mapping.date_additional_surgery_procedure <- function(df){
-    from <- Procedure.unique.date_additional_surgery_procedure
-    to 	 <- from 
-    to[match(c("[UNKNOWN]","[NOT AVAILABLE]","[NOT EVALUATED]","Uknown","[Discrepancy]","Other","NOT LISTED IN MEDICAL RECORD","[NOT APPLICABLE]","[PENDING]"  ), to)] <- NA
-<<<<<<< HEAD
-    df$additional_surgery_procedure <- mapvalues(df$additional_surgery_procedure, from = from, to = to, warn_missing = F)
-=======
-    df$date_additional_surgery_procedure <- mapvalues(df$date_additional_surgery_procedure, from = from, to = to, warn_missing = T)
->>>>>>> 1fcd41b049411ab5df0680bec2579e6a5118a780
-    return(df)
+	#------------------------------------------------------------------------------------------------------------------------------------------
+ Procedure.mapping.date_additional_surgery_procedure <- function(df){
+	    from <- Procedure.unique.date_additional_surgery_procedure
+	    to 	 <- from 
+	    to[match(c("[UNKNOWN]","[NOT AVAILABLE]","[NOT EVALUATED]","Uknown","[Discrepancy]","Other","NOT LISTED IN MEDICAL RECORD","[NOT APPLICABLE]","[PENDING]"  ), to)] <- NA
+	    df$additional_surgery_procedure <- mapvalues(df$additional_surgery_procedure, from = from, to = to, warn_missing = F)
+	    return(df)
   	}	
- Procedure.mapping.date_additional_surgery_procedure  <- function(df){
-    df$date_additional_surgery_procedure <- format(as.Date(df$dxyear,"%m/%d/%Y") + as.integer(df$date_additional_surgery_procedure), "%m/%d/%Y")
-    return(df)
+ Procedure.mapping.Calculation.date_additional_surgery_procedure  <- function(df){
+	    df$date_additional_surgery_procedure <- format(as.Date(df$dxyear,"%m/%d/%Y") + as.integer(df$date_additional_surgery_procedure), "%m/%d/%Y")
+	    return(df)
   	}	 
+  #------------------------------------------------------------------------------------------------------------------------------------------
   Procedure.mapping.date.surgical_resection_date <- function(df){
-    from <- Procedure.unique.surgical_resection_date
-    to 	 <- from 
-    to[match(c("[UNKNOWN]","[NOT AVAILABLE]","[NOT EVALUATED]","Uknown","[Discrepancy]","Other","NOT LISTED IN MEDICAL RECORD","[NOT APPLICABLE]","[PENDING]"  ), to)] <- NA
-    df$surgical_resection_date <- mapvalues(df$surgical_resection_date, from = from, to = to, warn_missing = F)
-    return(df)
+	    from <- Procedure.unique.surgical_resection_date
+	    to 	 <- from 
+	    to[match(c("[UNKNOWN]","[NOT AVAILABLE]","[NOT EVALUATED]","Uknown","[Discrepancy]","Other","NOT LISTED IN MEDICAL RECORD","[NOT APPLICABLE]","[PENDING]"  ), to)] <- NA
+	    df$surgical_resection_date <- mapvalues(df$surgical_resection_date, from = from, to = to, warn_missing = F)
+	    return(df)
   	}	
- Procedure.mapping.date.surgical_resection_date  <- function(df){
-    df$surgical_resection_date <- format(as.Date(df$dxyear,"%m/%d/%Y") + as.integer(df$surgical_resection_date), "%m/%d/%Y")
-    return(df)
+  Procedure.mapping.Calculation.date.surgical_resection_date  <- function(df){
+	    df$surgical_resection_date <- format(as.Date(df$dxyear,"%m/%d/%Y") + as.integer(df$surgical_resection_date), "%m/%d/%Y")
+	    return(df)
   	}	
 }  # End of Procedure Native Functions
 #----------------------   Pathology functions Start Here   ----------------------
@@ -1763,7 +1763,489 @@ if(ABSENT){
 		return(df)
 	}
 	#--------------------------------------------------------------------------------	
-} # End of Progression Native Functions
+} # End of Absent Native Functions
+#----------------------   Tests functions Start Here   -------------------------
+if(TESTS){
+	Tests.unique.request <- function(study_name){
+		uri <- rawTablesRequest(study_name, "Tests")
+	  	rm(list=ls(pattern="tbl"))
+	  	tbl.pt <- loadData(uri[1], 
+			               list(
+						     'bcr_patient_barcode' = list(name = "PatientID", data = "tcgaId"),
+						     'initial_pathologic_dx_year' = list(name = "dxyear", data = "tcgaDate"),
+						   	 'days_to_psa_most_recent' = list(name = "psaDate", data = "upperCharacter"),
+						   	 'days_to_bone_scan' = list(name = "boneScanDate", data = "upperCharacter"),
+						   	 'days_to_ct_scan_ab_pelvis' = list(name = "ctAbPelDate", data = "upperCharacter"),
+						   	 'days_to_mri' = list(name = "mriDate", data = "upperCharacter"),
+						   	 'idh1_mutation_test_method' =  list(name = "idh1Method", data = "upperCharacter"),
+						   	 'idh1_mutation_found' = list(name = "idh1Found", data = "upperCharacter"),
+						   	 'IHC' = list(name = "ihc", data = "upperCharacter"),
+						   	 'kras_mutation_found' = list(name = "krasInd", data = "upperCharacter"),
+						   	 'kras_mutation_identified_type' = list(name = "krasType", data = "upperCharacter"),
+						   	 'egfr_mutation_status' = list(name = "egfrStatus", data = "upperCharacter"),
+						   	 'egfr_mutation_identified_type' = list(name = "egfrType", data = "upperCharacter"),
+						   	 'pulmonary_function_test_indicator' = list(name = "pulInd", data = "upperCharacter"),
+						   	 'eml4_alk_translocation_status' = list(name = "elm4AlkStatus", data = "upperCharacter"),
+						   	 'eml4_alk_translocation_variant' = list(name = "elm4AlkVar", data = "upperCharacter"),
+						   	 'kras_mutation_codon' = list(name = "krasCodon", data = "upperCharacter"),
+						   	 'braf_gene_analysis_indicator' = list(name = "brafInd", data = "upperCharacter"),
+						   	 'braf_gene_analysis_result' = list(name = "brafRes", data = "upperCharacter"),
+						   	 'cea_level_pretreatment' = list(name = "ceaTx", data = "upperCharacter"),
+						   	 'loci_tested_count' = list(name = "lociTestCount", data = "upperCharacter"),
+						   	 'loci_abnormal_count' = list(name = "lociAbnormalCount", data = "upperCharacter"),
+						   	 'mismatch_rep_proteins_tested_by_ihc' = list(name = "mismatchProteinTestIhc", data = "upperCharacter"),
+						   	 'mismatch_rep_proteins_loss_ihc' = list(name = "mismatchProteinLossIhc", data = "upperCharacter"),
+						   	 'hpv_status_p16' = list(name = "hpvP16", data = "upperCharacter"),
+						   	 'hpv_status_ish' = list(name = "hpvIsh", data = "upperCharacter"),
+						   	 'psa_most_recent_results' = list(name = "psaRes", data = "upperCharacter"),
+						   	 'bone_scan_results' = list(name = "boneScaneRes", data = "upperCharacter"),
+						   	 'ct_scan_ab_pelvis_results' = list(name = "ctAbPelRes", data = "upperCharacter"),
+						   	 'mri_results' = list(name = "mriRes", data = "upperCharacter"),
+						   	 'her2_copy_number' = list(name = "her2CNV", data = "upperCharacter"),
+						   	 'her2_fish_method' = list(name = "her2FishMethod", data = "upperCharacter"),
+						   	 'her2_fish_status' = list(name = "her2FishStatus", data = "upperCharacter"),
+						   	 'her2_ihc_percent_positive' = list(name = "her2IhcPercentagePos", data = "upperCharacter"),
+						   	 'her2_ihc_score' = list(name = "her2IhcScore", data = "upperCharacter"),
+						   	 'her2_positivity_method_text' = list(name = "her2PosMethod", data = "upperCharacter"),
+						   	 'her2_positivity_scale_other' = list(name = "her2PosScaleOther", data = "upperCharacter"),
+						   	 'her2_status_by_ihc' = list(name = "her2StatusIhc", data = "upperCharacter"),
+						   	 'nte_her2_fish_define_method' = list(name = "nteHer2FishMethod", data = "upperCharacter"),
+						   	 'nte_her2_fish_status' = list(name = "nteHer2FishStatus", data = "upperCharacter"),
+						   	 'nte_her2_positivity_ihc_score' = list(name = "nteHer2PosIhcScore", data = "upperCharacter"),
+						   	 'nte_her2_positivity_method' = list(name = "nteHer2PosMethod", data = "upperCharacter"),
+						   	 'nte_her2_positivity_other_scale' = list(name = "nteHer2PosOtherScale", data = "upperCharacter"),
+						   	 'nte_her2_signal_number' = list(name = "nteHer2SignalNum", data = "upperCharacter"),
+						   	 'nte_her2_status' = list(name = "nteHer2Status", data = "upperCharacter"),
+						   	 'nte_her2_status_ihc_positive' = list(name = "nteHer2StatusIhcPos", data = "upperCharacter"),
+						   	 'nte_er_ihc_intensity_score' = list(name = "nteEstroIhcScore", data = "upperCharacter"),
+						   	 'nte_er_positivity_define_method' = list(name = "nteEstroPosMethod", data = "upperCharacter"),
+						   	 'nte_er_positivity_other_scale' = list(name = "nteEstroPosOtherScale", data = "upperCharacter"),
+						   	 'nte_er_status' = list(name = "nteEstroStatus", data = "upperCharacter"),
+						   	 'nte_er_status_ihc_positive' = list(name = "nteEstroStatusIhcPos", data = "upperCharacter"),
+						   	 'nte_pr_ihc_intensity_score' = list(name = "nteProgIhcScore", data = "upperCharacter"),
+						   	 'nte_pr_positivity_define_method' = list(name = "nteProgPosMethod", data = "upperCharacter"),
+						   	 'nte_pr_positivity_other_scale' = list(name = "nteProgPosOtherScale", data = "upperCharacter"),
+						   	 'nte_pr_status_by_ihc' = list(name = "nteProgStatusIhc", data = "upperCharacter"),
+						   	 'nte_pr_status_ihc_positive' = list(name = "nteProgStatusIhcPos", data = "upperCharacter"),
+						   	 'pr_positivity_define_method' = list(name = "ProgPosMethod", data = "upperCharacter"), 
+						   	 'pr_positivity_ihc_intensity_score' = list(name = "ProgPosIhcScore", data = "upperCharacter"),
+						   	 'pr_positivity_scale_other' = list(name = "ProgPosScaleOther", data = "upperCharacter"),
+						   	 'pr_positivity_scale_used' = list(name = "ProgPosScaleUsed", data = "upperCharacter"),
+						   	 'pr_status_by_ihc' = list(name = "ProgStatusIhc", data = "upperCharacter"),
+						   	 'pr_status_ihc_percent_positiv' = list(name = "ProgStatusIhcPercentagePos", data = "upperCharacter"),
+						   	 'her2_and_cent17_cells_count' = list(name = "her2Cent17CellsCount", data = "upperCharacter"),
+						   	 'her2_and_cent17_scale_other' = list(name = "her2Cent17ScaleOther", data = "upperCharacter"),
+						   	 'her2_cent17_counted_cells_count' = list(name = "her2Cent17CountedCellsCount", data = "upperCharacter"),
+						   	 'her2_cent17_ratio' = list(name = "her2Cent17Ratio", data = "upperCharacter"),
+						   	 'nte_cent_17_her2_ratio' = list(name = "nteCent17Her2Ratio", data = "upperCharacter"),
+						   	 'nte_cent_17_signal_number' = list(name = "nteCent17SignalNum", data = "upperCharacter"),
+						   	 'nte_cent17_her2_other_scale' = list(name = "nteCent17Her2OtherScale", data = "upperCharacter")
+						   ))
+	  	if(!is.na(uri[2])){
+	  		tbl.f1 <- loadData(uri[2], 
+			               list(
+						     'bcr_patient_barcode' = list(name = "PatientID", data = "tcgaId"),
+						     'days_to_psa_most_recent' = list(name = "psaDate", data = "upperCharacter"),
+						   	 'days_to_bone_scan' = list(name = "boneScanDate", data = "upperCharacter"),
+						   	 'days_to_ct_scan_ab_pelvis' = list(name = "ctAbPelDate", data = "upperCharacter"),
+						   	 'days_to_mri' = list(name = "mriDate", data = "upperCharacter"),
+						   	 'idh1_mutation_test_method' = list(name = "idh1Method", data = "upperCharacter"),
+						   	 'idh1_mutation_found' = list(name = "idh1Found", data = "upperCharacter"),
+						   	 'IHC' = list(name = "ihc", data = "upperCharacter"),
+						   	 'kras_mutation_found' = list(name = "krasInd", data = "upperCharacter"),
+						   	 'kras_mutation_identified_type' = list(name = "krasType", data = "upperCharacter"),
+						   	 'egfr_mutation_status' = list(name = "egfrStatus", data = "upperCharacter"),
+						   	 'egfr_mutation_identified_type' = list(name = "egfrType", data = "upperCharacter"),
+						   	 'pulmonary_function_test_indicator' = list(name = "pulInd", data = "upperCharacter"),
+						   	 'eml4_alk_translocation_status' = list(name = "elm4AlkStatus", data = "upperCharacter"),
+						   	 'eml4_alk_translocation_variant' = list(name = "elm4AlkVar", data = "upperCharacter"),
+						   	 'kras_mutation_codon' = list(name = "krasCodon", data = "upperCharacter"),
+						   	 'braf_gene_analysis_indicator' = list(name = "brafInd", data = "upperCharacter"),
+						   	 'braf_gene_analysis_result' = list(name = "brafRes", data = "upperCharacter"),
+						   	 'cea_level_pretreatment' = list(name = "ceaTx", data = "upperCharacter"),
+						   	 'loci_tested_count' = list(name = "lociTestCount", data = "upperCharacter"),
+						   	 'loci_abnormal_count' = list(name = "lociAbnormalCount", data = "upperCharacter"),
+						   	 'mismatch_rep_proteins_tested_by_ihc' = list(name = "mismatchProteinTestIhc", data = "upperCharacter"),
+						   	 'mismatch_rep_proteins_loss_ihc' = list(name = "mismatchProteinLossIhc", data = "upperCharacter"),
+						   	 'hpv_status_p16' = list(name = "hpvP16", data = "upperCharacter"),
+						   	 'hpv_status_ish' = list(name = "hpvIsh", data = "upperCharacter"),
+						   	 'psa_most_recent_results' = list(name = "psaRes", data = "upperCharacter"),
+						   	 'bone_scan_results' = list(name = "boneScaneRes", data = "upperCharacter"),
+						   	 'ct_scan_ab_pelvis_results' = list(name = "ctAbPelRes", data = "upperCharacter"),
+						   	 'mri_results' = list(name = "mriRes", data = "upperCharacter"),
+						   	 'her2_copy_number' = list(name = "her2CNV", data = "upperCharacter"),
+						   	 'her2_fish_method' = list(name = "her2FishMethod", data = "upperCharacter"),
+						   	 'her2_fish_status' = list(name = "her2FishStatus", data = "upperCharacter"),
+						   	 'her2_ihc_percent_positive' = list(name = "her2IhcPercentagePos", data = "upperCharacter"),
+						   	 'her2_ihc_score' = list(name = "her2IhcScore", data = "upperCharacter"),
+						   	 'her2_positivity_method_text' = list(name = "her2PosMethod", data = "upperCharacter"),
+						   	 'her2_positivity_scale_other' = list(name = "her2PosScaleOther", data = "upperCharacter"),
+						   	 'her2_status_by_ihc' = list(name = "her2StatusIhc", data = "upperCharacter"),
+						   	 'nte_her2_fish_define_method' = list(name = "nteHer2FishMethod", data = "upperCharacter"),
+						   	 'nte_her2_fish_status' = list(name = "nteHer2FishStatus", data = "upperCharacter"),
+						   	 'nte_her2_positivity_ihc_score' = list(name = "nteHer2PosIhcScore", data = "upperCharacter"),
+						   	 'nte_her2_positivity_method' = list(name = "nteHer2PosMethod", data = "upperCharacter"),
+						   	 'nte_her2_positivity_other_scale' = list(name = "nteHer2PosOtherScale", data = "upperCharacter"),
+						   	 'nte_her2_signal_number' = list(name = "nteHer2SignalNum", data = "upperCharacter"),
+						   	 'nte_her2_status' = list(name = "nteHer2Status", data = "upperCharacter"),
+						   	 'nte_her2_status_ihc_positive' = list(name = "nteHer2StatusIhcPos", data = "upperCharacter"),
+						   	 'nte_er_ihc_intensity_score' = list(name = "nteEstroIhcScore", data = "upperCharacter"),
+						   	 'nte_er_positivity_define_method' = list(name = "nteEstroPosMethod", data = "upperCharacter"),
+						   	 'nte_er_positivity_other_scale' = list(name = "nteEstroPosOtherScale", data = "upperCharacter"),
+						   	 'nte_er_status' = list(name = "nteEstroStatus", data = "upperCharacter"),
+						   	 'nte_er_status_ihc_positive' = list(name = "nteEstroStatusIhcPos", data = "upperCharacter"),
+						   	 'nte_pr_ihc_intensity_score' = list(name = "nteProgIhcScore", data = "upperCharacter"),
+						   	 'nte_pr_positivity_define_method' = list(name = "nteProgPosMethod", data = "upperCharacter"),
+						   	 'nte_pr_positivity_other_scale' = list(name = "nteProgPosOtherScale", data = "upperCharacter"),
+						   	 'nte_pr_status_by_ihc' = list(name = "nteProgStatusIhc", data = "upperCharacter"),
+						   	 'nte_pr_status_ihc_positive' = list(name = "nteProgStatusIhcPos", data = "upperCharacter"),
+						   	 'pr_positivity_define_method' = list(name = "ProgPosMethod", data = "upperCharacter"), 
+						   	 'pr_positivity_ihc_intensity_score' = list(name = "ProgPosIhcScore", data = "upperCharacter"),
+						   	 'pr_positivity_scale_other' = list(name = "ProgPosScaleOther", data = "upperCharacter"),
+						   	 'pr_positivity_scale_used' = list(name = "ProgPosScaleUsed", data = "upperCharacter"),
+						   	 'pr_status_by_ihc' = list(name = "ProgStatusIhc", data = "upperCharacter"),
+						   	 'pr_status_ihc_percent_positiv' = list(name = "ProgStatusIhcPercentagePos", data = "upperCharacter"),
+						   	 'her2_and_cent17_cells_count' = list(name = "her2Cent17CellsCount", data = "upperCharacter"),
+						   	 'her2_and_cent17_scale_other' = list(name = "her2Cent17ScaleOther", data = "upperCharacter"),
+						   	 'her2_cent17_counted_cells_count' = list(name = "her2Cent17CountedCellsCount", data = "upperCharacter"),
+						   	 'her2_cent17_ratio' = list(name = "her2Cent17Ratio", data = "upperCharacter"),
+						   	 'nte_cent_17_her2_ratio' = list(name = "nteCent17Her2Ratio", data = "upperCharacter"),
+						   	 'nte_cent_17_signal_number' = list(name = "nteCent17SignalNum", data = "upperCharacter"),
+						   	 'nte_cent17_her2_other_scale' = list(name = "nteCent17Her2OtherScale", data = "upperCharacter")
+						   ))
+	  	}
+	  	if(!is.na(uri[3])){
+	  		tbl.f2 <- loadData(uri[3], 
+			               list(
+						     'bcr_patient_barcode' = list(name = "PatientID", data = "tcgaId"),
+						     'days_to_psa_most_recent' = list(name = "psaDate", data = "upperCharacter"),
+						   	 'days_to_bone_scan' = list(name = "boneScanDate", data = "upperCharacter"),
+						   	 'days_to_ct_scan_ab_pelvis' = list(name = "ctAbPelDate", data = "upperCharacter"),
+						   	 'days_to_mri' = list(name = "mriDate", data = "upperCharacter"),
+						   	 'idh1_mutation_test_method' = list(name = "idh1Method", data = "upperCharacter"),
+						   	 'idh1_mutation_found' = list(name = "idh1Found", data = "upperCharacter"),
+						   	 'IHC' = list(name = "ihc", data = "upperCharacter"),
+						   	 'kras_mutation_found' = list(name = "krasInd", data = "upperCharacter"),
+						   	 'kras_mutation_identified_type' = list(name = "krasType", data = "upperCharacter"),
+						   	 'egfr_mutation_status' = list(name = "egfrStatus", data = "upperCharacter"),
+						   	 'egfr_mutation_identified_type' = list(name = "egfrType", data = "upperCharacter"),
+						   	 'pulmonary_function_test_indicator' = list(name = "pulInd", data = "upperCharacter"),
+						   	 'eml4_alk_translocation_status' = list(name = "elm4AlkStatus", data = "upperCharacter"),
+						   	 'eml4_alk_translocation_variant' = list(name = "elm4AlkVar", data = "upperCharacter"),
+						   	 'kras_mutation_codon' = list(name = "krasCodon", data = "upperCharacter"),
+						   	 'braf_gene_analysis_indicator' = list(name = "brafInd", data = "upperCharacter"),
+						   	 'braf_gene_analysis_result' = list(name = "brafRes", data = "upperCharacter"),
+						   	 'cea_level_pretreatment' = list(name = "ceaTx", data = "upperCharacter"),
+						   	 'loci_tested_count' = list(name = "lociTestCount", data = "upperCharacter"),
+						   	 'loci_abnormal_count' = list(name = "lociAbnormalCount", data = "upperCharacter"),
+						   	 'mismatch_rep_proteins_tested_by_ihc' = list(name = "mismatchProteinTestIhc", data = "upperCharacter"),
+						   	 'mismatch_rep_proteins_loss_ihc' = list(name = "mismatchProteinLossIhc", data = "upperCharacter"),
+						   	 'hpv_status_p16' = list(name = "hpvP16", data = "upperCharacter"),
+						   	 'hpv_status_ish' = list(name = "hpvIsh", data = "upperCharacter"),
+						   	 'psa_most_recent_results' = list(name = "psaRes", data = "upperCharacter"),
+						   	 'bone_scan_results' = list(name = "boneScaneRes", data = "upperCharacter"),
+						   	 'ct_scan_ab_pelvis_results' = list(name = "ctAbPelRes", data = "upperCharacter"),
+						   	 'mri_results' = list(name = "mriRes", data = "upperCharacter"),
+						   	 'her2_copy_number' = list(name = "her2CNV", data = "upperCharacter"),
+						   	 'her2_fish_method' = list(name = "her2FishMethod", data = "upperCharacter"),
+						   	 'her2_fish_status' = list(name = "her2FishStatus", data = "upperCharacter"),
+						   	 'her2_ihc_percent_positive' = list(name = "her2IhcPercentagePos", data = "upperCharacter"),
+						   	 'her2_ihc_score' = list(name = "her2IhcScore", data = "upperCharacter"),
+						   	 'her2_positivity_method_text' = list(name = "her2PosMethod", data = "upperCharacter"),
+						   	 'her2_positivity_scale_other' = list(name = "her2PosScaleOther", data = "upperCharacter"),
+						   	 'her2_status_by_ihc' = list(name = "her2StatusIhc", data = "upperCharacter"),
+						   	 'nte_her2_fish_define_method' = list(name = "nteHer2FishMethod", data = "upperCharacter"),
+						   	 'nte_her2_fish_status' = list(name = "nteHer2FishStatus", data = "upperCharacter"),
+						   	 'nte_her2_positivity_ihc_score' = list(name = "nteHer2PosIhcScore", data = "upperCharacter"),
+						   	 'nte_her2_positivity_method' = list(name = "nteHer2PosMethod", data = "upperCharacter"),
+						   	 'nte_her2_positivity_other_scale' = list(name = "nteHer2PosOtherScale", data = "upperCharacter"),
+						   	 'nte_her2_signal_number' = list(name = "nteHer2SignalNum", data = "upperCharacter"),
+						   	 'nte_her2_status' = list(name = "nteHer2Status", data = "upperCharacter"),
+						   	 'nte_her2_status_ihc_positive' = list(name = "nteHer2StatusIhcPos", data = "upperCharacter"),
+						   	 'nte_er_ihc_intensity_score' = list(name = "nteEstroIhcScore", data = "upperCharacter"),
+						   	 'nte_er_positivity_define_method' = list(name = "nteEstroPosMethod", data = "upperCharacter"),
+						   	 'nte_er_positivity_other_scale' = list(name = "nteEstroPosOtherScale", data = "upperCharacter"),
+						   	 'nte_er_status' = list(name = "nteEstroStatus", data = "upperCharacter"),
+						   	 'nte_er_status_ihc_positive' = list(name = "nteEstroStatusIhcPos", data = "upperCharacter"),
+						   	 'nte_pr_ihc_intensity_score' = list(name = "nteProgIhcScore", data = "upperCharacter"),
+						   	 'nte_pr_positivity_define_method' = list(name = "nteProgPosMethod", data = "upperCharacter"),
+						   	 'nte_pr_positivity_other_scale' = list(name = "nteProgPosOtherScale", data = "upperCharacter"),
+						   	 'nte_pr_status_by_ihc' = list(name = "nteProgStatusIhc", data = "upperCharacter"),
+						   	 'nte_pr_status_ihc_positive' = list(name = "nteProgStatusIhcPos", data = "upperCharacter"),
+						   	 'pr_positivity_define_method' = list(name = "ProgPosMethod", data = "upperCharacter"), 
+						   	 'pr_positivity_ihc_intensity_score' = list(name = "ProgPosIhcScore", data = "upperCharacter"),
+						   	 'pr_positivity_scale_other' = list(name = "ProgPosScaleOther", data = "upperCharacter"),
+						   	 'pr_positivity_scale_used' = list(name = "ProgPosScaleUsed", data = "upperCharacter"),
+						   	 'pr_status_by_ihc' = list(name = "ProgStatusIhc", data = "upperCharacter"),
+						   	 'pr_status_ihc_percent_positiv' = list(name = "ProgStatusIhcPercentagePos", data = "upperCharacter"),
+						   	 'her2_and_cent17_cells_count' = list(name = "her2Cent17CellsCount", data = "upperCharacter"),
+						   	 'her2_and_cent17_scale_other' = list(name = "her2Cent17ScaleOther", data = "upperCharacter"),
+						   	 'her2_cent17_counted_cells_count' = list(name = "her2Cent17CountedCellsCount", data = "upperCharacter"),
+						   	 'her2_cent17_ratio' = list(name = "her2Cent17Ratio", data = "upperCharacter"),
+						   	 'nte_cent_17_her2_ratio' = list(name = "nteCent17Her2Ratio", data = "upperCharacter"),
+						   	 'nte_cent_17_signal_number' = list(name = "nteCent17SignalNum", data = "upperCharacter"),
+						   	 'nte_cent17_her2_other_scale' = list(name = "nteCent17Her2OtherScale", data = "upperCharacter")
+						   ))
+	  	}
+	  	if(!is.na(uri[4])){
+	  		tbl.f3 <- loadData(uri[4], 
+			               list(
+						     'bcr_patient_barcode' = list(name = "PatientID", data = "tcgaId"),
+						     'days_to_psa_most_recent' = list(name = "psaDate", data = "upperCharacter"),
+						   	 'days_to_bone_scan' = list(name = "boneScanDate", data = "upperCharacter"),
+						   	 'days_to_ct_scan_ab_pelvis' = list(name = "ctAbPelDate", data = "upperCharacter"),
+						   	 'days_to_mri' = list(name = "mriDate", data = "upperCharacter"),
+						   	 'idh1_mutation_test_method' = list(name = "idh1Method", data = "upperCharacter"),
+						   	 'idh1_mutation_found' = list(name = "idh1Found", data = "upperCharacter"),
+						   	 'IHC' = list(name = "ihc", data = "upperCharacter"),
+						   	 'kras_mutation_found' = list(name = "krasInd", data = "upperCharacter"),
+						   	 'kras_mutation_identified_type' = list(name = "krasType", data = "upperCharacter"),
+						   	 'egfr_mutation_status' = list(name = "egfrStatus", data = "upperCharacter"),
+						   	 'egfr_mutation_identified_type' = list(name = "egfrType", data = "upperCharacter"),
+						   	 'pulmonary_function_test_indicator' = list(name = "pulInd", data = "upperCharacter"),
+						   	 'eml4_alk_translocation_status' = list(name = "elm4AlkStatus", data = "upperCharacter"),
+						   	 'eml4_alk_translocation_variant' = list(name = "elm4AlkVar", data = "upperCharacter"),
+						   	 'kras_mutation_codon' = list(name = "krasCodon", data = "upperCharacter"),
+						   	 'braf_gene_analysis_indicator' = list(name = "brafInd", data = "upperCharacter"),
+						   	 'braf_gene_analysis_result' = list(name = "brafRes", data = "upperCharacter"),
+						   	 'cea_level_pretreatment' = list(name = "ceaTx", data = "upperCharacter"),
+						   	 'loci_tested_count' = list(name = "lociTestCount", data = "upperCharacter"),
+						   	 'loci_abnormal_count' = list(name = "lociAbnormalCount", data = "upperCharacter"),
+						   	 'mismatch_rep_proteins_tested_by_ihc' = list(name = "mismatchProteinTestIhc", data = "upperCharacter"),
+						   	 'mismatch_rep_proteins_loss_ihc' = list(name = "mismatchProteinLossIhc", data = "upperCharacter"),
+						   	 'hpv_status_p16' = list(name = "hpvP16", data = "upperCharacter"),
+						   	 'hpv_status_ish' = list(name = "hpvIsh", data = "upperCharacter"),
+						   	 'psa_most_recent_results' = list(name = "psaRes", data = "upperCharacter"),
+						   	 'bone_scan_results' = list(name = "boneScaneRes", data = "upperCharacter"),
+						   	 'ct_scan_ab_pelvis_results' = list(name = "ctAbPelRes", data = "upperCharacter"),
+						   	 'mri_results' = list(name = "mriRes", data = "upperCharacter"),
+						   	 'her2_copy_number' = list(name = "her2CNV", data = "upperCharacter"),
+						   	 'her2_fish_method' = list(name = "her2FishMethod", data = "upperCharacter"),
+						   	 'her2_fish_status' = list(name = "her2FishStatus", data = "upperCharacter"),
+						   	 'her2_ihc_percent_positive' = list(name = "her2IhcPercentagePos", data = "upperCharacter"),
+						   	 'her2_ihc_score' = list(name = "her2IhcScore", data = "upperCharacter"),
+						   	 'her2_positivity_method_text' = list(name = "her2PosMethod", data = "upperCharacter"),
+						   	 'her2_positivity_scale_other' = list(name = "her2PosScaleOther", data = "upperCharacter"),
+						   	 'her2_status_by_ihc' = list(name = "her2StatusIhc", data = "upperCharacter"),
+						   	 'nte_her2_fish_define_method' = list(name = "nteHer2FishMethod", data = "upperCharacter"),
+						   	 'nte_her2_fish_status' = list(name = "nteHer2FishStatus", data = "upperCharacter"),
+						   	 'nte_her2_positivity_ihc_score' = list(name = "nteHer2PosIhcScore", data = "upperCharacter"),
+						   	 'nte_her2_positivity_method' = list(name = "nteHer2PosMethod", data = "upperCharacter"),
+						   	 'nte_her2_positivity_other_scale' = list(name = "nteHer2PosOtherScale", data = "upperCharacter"),
+						   	 'nte_her2_signal_number' = list(name = "nteHer2SignalNum", data = "upperCharacter"),
+						   	 'nte_her2_status' = list(name = "nteHer2Status", data = "upperCharacter"),
+						   	 'nte_her2_status_ihc_positive' = list(name = "nteHer2StatusIhcPos", data = "upperCharacter"),
+						   	 'nte_er_ihc_intensity_score' = list(name = "nteEstroIhcScore", data = "upperCharacter"),
+						   	 'nte_er_positivity_define_method' = list(name = "nteEstroPosMethod", data = "upperCharacter"),
+						   	 'nte_er_positivity_other_scale' = list(name = "nteEstroPosOtherScale", data = "upperCharacter"),
+						   	 'nte_er_status' = list(name = "nteEstroStatus", data = "upperCharacter"),
+						   	 'nte_er_status_ihc_positive' = list(name = "nteEstroStatusIhcPos", data = "upperCharacter"),
+						   	 'nte_pr_ihc_intensity_score' = list(name = "nteProgIhcScore", data = "upperCharacter"),
+						   	 'nte_pr_positivity_define_method' = list(name = "nteProgPosMethod", data = "upperCharacter"),
+						   	 'nte_pr_positivity_other_scale' = list(name = "nteProgPosOtherScale", data = "upperCharacter"),
+						   	 'nte_pr_status_by_ihc' = list(name = "nteProgStatusIhc", data = "upperCharacter"),
+						   	 'nte_pr_status_ihc_positive' = list(name = "nteProgStatusIhcPos", data = "upperCharacter"),
+						   	 'pr_positivity_define_method' = list(name = "ProgPosMethod", data = "upperCharacter"), 
+						   	 'pr_positivity_ihc_intensity_score' = list(name = "ProgPosIhcScore", data = "upperCharacter"),
+						   	 'pr_positivity_scale_other' = list(name = "ProgPosScaleOther", data = "upperCharacter"),
+						   	 'pr_positivity_scale_used' = list(name = "ProgPosScaleUsed", data = "upperCharacter"),
+						   	 'pr_status_by_ihc' = list(name = "ProgStatusIhc", data = "upperCharacter"),
+						   	 'pr_status_ihc_percent_positiv' = list(name = "ProgStatusIhcPercentagePos", data = "upperCharacter"),
+						   	 'her2_and_cent17_cells_count' = list(name = "her2Cent17CellsCount", data = "upperCharacter"),
+						   	 'her2_and_cent17_scale_other' = list(name = "her2Cent17ScaleOther", data = "upperCharacter"),
+						   	 'her2_cent17_counted_cells_count' = list(name = "her2Cent17CountedCellsCount", data = "upperCharacter"),
+						   	 'her2_cent17_ratio' = list(name = "her2Cent17Ratio", data = "upperCharacter"),
+						   	 'nte_cent_17_her2_ratio' = list(name = "nteCent17Her2Ratio", data = "upperCharacter"),
+						   	 'nte_cent_17_signal_number' = list(name = "nteCent17SignalNum", data = "upperCharacter"),
+						   	 'nte_cent17_her2_other_scale' = list(name = "nteCent17Her2OtherScale", data = "upperCharacter")
+						   ))
+	  	}
+	  	if(!is.na(uri[5])){
+	  		tbl.nte <- loadData(uri[5], 
+			               list(
+						     'bcr_patient_barcode' = list(name = "PatientID", data = "tcgaId"),
+						     'days_to_psa_most_recent' = list(name = "psaDate", data = "upperCharacter"),
+						   	 'days_to_bone_scan' = list(name = "boneScanDate", data = "upperCharacter"),
+						   	 'days_to_ct_scan_ab_pelvis' = list(name = "ctAbPelDate", data = "upperCharacter"),
+						   	 'days_to_mri' = list(name = "mriDate", data = "upperCharacter"),
+						   	 'idh1_mutation_test_method' = list(name = "idh1Method", data = "upperCharacter"),
+						   	 'idh1_mutation_found' = list(name = "idh1Found", data = "upperCharacter"),
+						   	 'IHC' = list(name = "ihc", data = "upperCharacter"),
+						   	 'kras_mutation_found' = list(name = "krasInd", data = "upperCharacter"),
+						   	 'kras_mutation_identified_type' = list(name = "krasType", data = "upperCharacter"),
+						   	 'egfr_mutation_status' = list(name = "egfrStatus", data = "upperCharacter"),
+						   	 'egfr_mutation_identified_type' = list(name = "egfrType", data = "upperCharacter"),
+						   	 'pulmonary_function_test_indicator' = list(name = "pulInd", data = "upperCharacter"),
+						   	 'eml4_alk_translocation_status' = list(name = "elm4AlkStatus", data = "upperCharacter"),
+						   	 'eml4_alk_translocation_variant' = list(name = "elm4AlkVar", data = "upperCharacter"),
+						   	 'kras_mutation_codon' = list(name = "krasCodon", data = "upperCharacter"),
+						   	 'braf_gene_analysis_indicator' = list(name = "brafInd", data = "upperCharacter"),
+						   	 'braf_gene_analysis_result' = list(name = "brafRes", data = "upperCharacter"),
+						   	 'cea_level_pretreatment' = list(name = "ceaTx", data = "upperCharacter"),
+						   	 'loci_tested_count' = list(name = "lociTestCount", data = "upperCharacter"),
+						   	 'loci_abnormal_count' = list(name = "lociAbnormalCount", data = "upperCharacter"),
+						   	 'mismatch_rep_proteins_tested_by_ihc' = list(name = "mismatchProteinTestIhc", data = "upperCharacter"),
+						   	 'mismatch_rep_proteins_loss_ihc' = list(name = "mismatchProteinLossIhc", data = "upperCharacter"),
+						   	 'hpv_status_p16' = list(name = "hpvP16", data = "upperCharacter"),
+						   	 'hpv_status_ish' = list(name = "hpvIsh", data = "upperCharacter"),
+						   	 'psa_most_recent_results' = list(name = "psaRes", data = "upperCharacter"),
+						   	 'bone_scan_results' = list(name = "boneScaneRes", data = "upperCharacter"),
+						   	 'ct_scan_ab_pelvis_results' = list(name = "ctAbPelRes", data = "upperCharacter"),
+						   	 'mri_results' = list(name = "mriRes", data = "upperCharacter"),
+						   	 'her2_copy_number' = list(name = "her2CNV", data = "upperCharacter"),
+						   	 'her2_fish_method' = list(name = "her2FishMethod", data = "upperCharacter"),
+						   	 'her2_fish_status' = list(name = "her2FishStatus", data = "upperCharacter"),
+						   	 'her2_ihc_percent_positive' = list(name = "her2IhcPercentagePos", data = "upperCharacter"),
+						   	 'her2_ihc_score' = list(name = "her2IhcScore", data = "upperCharacter"),
+						   	 'her2_positivity_method_text' = list(name = "her2PosMethod", data = "upperCharacter"),
+						   	 'her2_positivity_scale_other' = list(name = "her2PosScaleOther", data = "upperCharacter"),
+						   	 'her2_status_by_ihc' = list(name = "her2StatusIhc", data = "upperCharacter"),
+						   	 'nte_her2_fish_define_method' = list(name = "nteHer2FishMethod", data = "upperCharacter"),
+						   	 'nte_her2_fish_status' = list(name = "nteHer2FishStatus", data = "upperCharacter"),
+						   	 'nte_her2_positivity_ihc_score' = list(name = "nteHer2PosIhcScore", data = "upperCharacter"),
+						   	 'nte_her2_positivity_method' = list(name = "nteHer2PosMethod", data = "upperCharacter"),
+						   	 'nte_her2_positivity_other_scale' = list(name = "nteHer2PosOtherScale", data = "upperCharacter"),
+						   	 'nte_her2_signal_number' = list(name = "nteHer2SignalNum", data = "upperCharacter"),
+						   	 'nte_her2_status' = list(name = "nteHer2Status", data = "upperCharacter"),
+						   	 'nte_her2_status_ihc_positive' = list(name = "nteHer2StatusIhcPos", data = "upperCharacter"),
+						   	 'nte_er_ihc_intensity_score' = list(name = "nteEstroIhcScore", data = "upperCharacter"),
+						   	 'nte_er_positivity_define_method' = list(name = "nteEstroPosMethod", data = "upperCharacter"),
+						   	 'nte_er_positivity_other_scale' = list(name = "nteEstroPosOtherScale", data = "upperCharacter"),
+						   	 'nte_er_status' = list(name = "nteEstroStatus", data = "upperCharacter"),
+						   	 'nte_er_status_ihc_positive' = list(name = "nteEstroStatusIhcPos", data = "upperCharacter"),
+						   	 'nte_pr_ihc_intensity_score' = list(name = "nteProgIhcScore", data = "upperCharacter"),
+						   	 'nte_pr_positivity_define_method' = list(name = "nteProgPosMethod", data = "upperCharacter"),
+						   	 'nte_pr_positivity_other_scale' = list(name = "nteProgPosOtherScale", data = "upperCharacter"),
+						   	 'nte_pr_status_by_ihc' = list(name = "nteProgStatusIhc", data = "upperCharacter"),
+						   	 'nte_pr_status_ihc_positive' = list(name = "nteProgStatusIhcPos", data = "upperCharacter"),
+						   	 'pr_positivity_define_method' = list(name = "ProgPosMethod", data = "upperCharacter"), 
+						   	 'pr_positivity_ihc_intensity_score' = list(name = "ProgPosIhcScore", data = "upperCharacter"),
+						   	 'pr_positivity_scale_other' = list(name = "ProgPosScaleOther", data = "upperCharacter"),
+						   	 'pr_positivity_scale_used' = list(name = "ProgPosScaleUsed", data = "upperCharacter"),
+						   	 'pr_status_by_ihc' = list(name = "ProgStatusIhc", data = "upperCharacter"),
+						   	 'pr_status_ihc_percent_positiv' = list(name = "ProgStatusIhcPercentagePos", data = "upperCharacter"),
+						   	 'her2_and_cent17_cells_count' = list(name = "her2Cent17CellsCount", data = "upperCharacter"),
+						   	 'her2_and_cent17_scale_other' = list(name = "her2Cent17ScaleOther", data = "upperCharacter"),
+						   	 'her2_cent17_counted_cells_count' = list(name = "her2Cent17CountedCellsCount", data = "upperCharacter"),
+						   	 'her2_cent17_ratio' = list(name = "her2Cent17Ratio", data = "upperCharacter"),
+						   	 'nte_cent_17_her2_ratio' = list(name = "nteCent17Her2Ratio", data = "upperCharacter"),
+						   	 'nte_cent_17_signal_number' = list(name = "nteCent17SignalNum", data = "upperCharacter"),
+						   	 'nte_cent17_her2_other_scale' = list(name = "nteCent17Her2OtherScale", data = "upperCharacter")
+						   ))
+	  	}
+	  	if(!is.na(uri[6])){
+	  		tbl.nte_f1 <- loadData(uri[6], 
+			               list(
+						     'bcr_patient_barcode' = list(name = "PatientID", data = "tcgaId"),
+						     'days_to_psa_most_recent' = list(name = "psaDate", data = "upperCharacter"),
+						   	 'days_to_bone_scan' = list(name = "boneScanDate", data = "upperCharacter"),
+						   	 'days_to_ct_scan_ab_pelvis' = list(name = "ctAbPelDate", data = "upperCharacter"),
+						   	 'days_to_mri' = list(name = "mriDate", data = "upperCharacter"),
+						   	 'idh1_mutation_test_method' = list(name = "idh1Method", data = "upperCharacter"),
+						   	 'idh1_mutation_found' = list(name = "idh1Found", data = "upperCharacter"),
+						   	 'IHC' = list(name = "ihc", data = "upperCharacter"),
+						   	 'kras_mutation_found' = list(name = "krasInd", data = "upperCharacter"),
+						   	 'kras_mutation_identified_type' = list(name = "krasType", data = "upperCharacter"),
+						   	 'egfr_mutation_status' = list(name = "egfrStatus", data = "upperCharacter"),
+						   	 'egfr_mutation_identified_type' = list(name = "egfrType", data = "upperCharacter"),
+						   	 'pulmonary_function_test_indicator' = list(name = "pulInd", data = "upperCharacter"),
+						   	 'eml4_alk_translocation_status' = list(name = "elm4AlkStatus", data = "upperCharacter"),
+						   	 'eml4_alk_translocation_variant' = list(name = "elm4AlkVar", data = "upperCharacter"),
+						   	 'kras_mutation_codon' = list(name = "krasCodon", data = "upperCharacter"),
+						   	 'braf_gene_analysis_indicator' = list(name = "brafInd", data = "upperCharacter"),
+						   	 'braf_gene_analysis_result' = list(name = "brafRes", data = "upperCharacter"),
+						   	 'cea_level_pretreatment' = list(name = "ceaTx", data = "upperCharacter"),
+						   	 'loci_tested_count' = list(name = "lociTestCount", data = "upperCharacter"),
+						   	 'loci_abnormal_count' = list(name = "lociAbnormalCount", data = "upperCharacter"),
+						   	 'mismatch_rep_proteins_tested_by_ihc' = list(name = "mismatchProteinTestIhc", data = "upperCharacter"),
+						   	 'mismatch_rep_proteins_loss_ihc' = list(name = "mismatchProteinLossIhc", data = "upperCharacter"),
+						   	 'hpv_status_p16' = list(name = "hpvP16", data = "upperCharacter"),
+						   	 'hpv_status_ish' = list(name = "hpvIsh", data = "upperCharacter"),
+						   	 'psa_most_recent_results' = list(name = "psaRes", data = "upperCharacter"),
+						   	 'bone_scan_results' = list(name = "boneScaneRes", data = "upperCharacter"),
+						   	 'ct_scan_ab_pelvis_results' = list(name = "ctAbPelRes", data = "upperCharacter"),
+						   	 'mri_results' = list(name = "mriRes", data = "upperCharacter"),
+						   	 'her2_copy_number' = list(name = "her2CNV", data = "upperCharacter"),
+						   	 'her2_fish_method' = list(name = "her2FishMethod", data = "upperCharacter"),
+						   	 'her2_fish_status' = list(name = "her2FishStatus", data = "upperCharacter"),
+						   	 'her2_ihc_percent_positive' = list(name = "her2IhcPercentagePos", data = "upperCharacter"),
+						   	 'her2_ihc_score' = list(name = "her2IhcScore", data = "upperCharacter"),
+						   	 'her2_positivity_method_text' = list(name = "her2PosMethod", data = "upperCharacter"),
+						   	 'her2_positivity_scale_other' = list(name = "her2PosScaleOther", data = "upperCharacter"),
+						   	 'her2_status_by_ihc' = list(name = "her2StatusIhc", data = "upperCharacter"),
+						   	 'nte_her2_fish_define_method' = list(name = "nteHer2FishMethod", data = "upperCharacter"),
+						   	 'nte_her2_fish_status' = list(name = "nteHer2FishStatus", data = "upperCharacter"),
+						   	 'nte_her2_positivity_ihc_score' = list(name = "nteHer2PosIhcScore", data = "upperCharacter"),
+						   	 'nte_her2_positivity_method' = list(name = "nteHer2PosMethod", data = "upperCharacter"),
+						   	 'nte_her2_positivity_other_scale' = list(name = "nteHer2PosOtherScale", data = "upperCharacter"),
+						   	 'nte_her2_signal_number' = list(name = "nteHer2SignalNum", data = "upperCharacter"),
+						   	 'nte_her2_status' = list(name = "nteHer2Status", data = "upperCharacter"),
+						   	 'nte_her2_status_ihc_positive' = list(name = "nteHer2StatusIhcPos", data = "upperCharacter"),
+						   	 'nte_er_ihc_intensity_score' = list(name = "nteEstroIhcScore", data = "upperCharacter"),
+						   	 'nte_er_positivity_define_method' = list(name = "nteEstroPosMethod", data = "upperCharacter"),
+						   	 'nte_er_positivity_other_scale' = list(name = "nteEstroPosOtherScale", data = "upperCharacter"),
+						   	 'nte_er_status' = list(name = "nteEstroStatus", data = "upperCharacter"),
+						   	 'nte_er_status_ihc_positive' = list(name = "nteEstroStatusIhcPos", data = "upperCharacter"),
+						   	 'nte_pr_ihc_intensity_score' = list(name = "nteProgIhcScore", data = "upperCharacter"),
+						   	 'nte_pr_positivity_define_method' = list(name = "nteProgPosMethod", data = "upperCharacter"),
+						   	 'nte_pr_positivity_other_scale' = list(name = "nteProgPosOtherScale", data = "upperCharacter"),
+						   	 'nte_pr_status_by_ihc' = list(name = "nteProgStatusIhc", data = "upperCharacter"),
+						   	 'nte_pr_status_ihc_positive' = list(name = "nteProgStatusIhcPos", data = "upperCharacter"),
+						   	 'pr_positivity_define_method' = list(name = "ProgPosMethod", data = "upperCharacter"), 
+						   	 'pr_positivity_ihc_intensity_score' = list(name = "ProgPosIhcScore", data = "upperCharacter"),
+						   	 'pr_positivity_scale_other' = list(name = "ProgPosScaleOther", data = "upperCharacter"),
+						   	 'pr_positivity_scale_used' = list(name = "ProgPosScaleUsed", data = "upperCharacter"),
+						   	 'pr_status_by_ihc' = list(name = "ProgStatusIhc", data = "upperCharacter"),
+						   	 'pr_status_ihc_percent_positiv' = list(name = "ProgStatusIhcPercentagePos", data = "upperCharacter"),
+						   	 'her2_and_cent17_cells_count' = list(name = "her2Cent17CellsCount", data = "upperCharacter"),
+						   	 'her2_and_cent17_scale_other' = list(name = "her2Cent17ScaleOther", data = "upperCharacter"),
+						   	 'her2_cent17_counted_cells_count' = list(name = "her2Cent17CountedCellsCount", data = "upperCharacter"),
+						   	 'her2_cent17_ratio' = list(name = "her2Cent17Ratio", data = "upperCharacter"),
+						   	 'nte_cent_17_her2_ratio' = list(name = "nteCent17Her2Ratio", data = "upperCharacter"),
+						   	 'nte_cent_17_signal_number' = list(name = "nteCent17SignalNum", data = "upperCharacter"),
+						   	 'nte_cent17_her2_other_scale' = list(name = "nteCent17Her2OtherScale", data = "upperCharacter")
+						   ))
+	  	}
+
+	  	tbl <- list()
+	  	if(length(tbl.pt) > 2){
+	  		tbl <- tbl.pt[,-match("dxyear", colnames(tbl.pt))]
+	  	}
+	  	if(exists("tbl.f1") && length(tbl.f1) > 1) tbl <- rbind.fill(tbl, tbl.f1)
+	  	if(exists("tbl.f2") && length(tbl.f2) > 1) tbl <- rbind.fill(tbl, tbl.f2)
+	  	if(exists("tbl.f3") && length(tbl.f3) > 1) tbl <- rbind.fill(tbl, tbl.f3)
+	  	if(exists("tbl.nte") && length(tbl.nte) > 1) tbl <- rbind.fill(tbl, tbl.nte)
+	  	if(exists("tbl.nte_f1") && length(tbl.nte_f1) > 1) tbl <- rbind.fill(tbl, tbl.nte_f1)
+	    if(length(tbl) == 0){
+	    	print(c(study_name, length(tbl)))
+	    	return(tbl)
+	    }else{	
+			unique.Result <- unique(unlist(tbl[,-1]))
+		   	result = list(unique.Result=unique.Result)
+		  	return(result)
+		}
+	}
+	#--------------------------------------------------------------------------------
+	Tests.unique.aggregate <- function(res1, res2){
+		res = list(unique.Result=unique(c(res1$unique.Result,res2$unique.Result)))
+	    return(res)
+	}
+	#--------------------------------------------------------------------------------
+	Tests.unique.values <- Reduce(Tests.unique.aggregate, lapply(studies, Tests.unique.request))
+	Tests.mapping.testResult <- function(vec){
+		from <- Tests.unique.values$unique.Result
+		to 	 <- from 
+		to[match(c("[NOT AVAILABLE]","[NOT EVALUATED]","[UNKNOWN]"), to)] <- NA
+		vec <- mapvalues(vec, from = from, to = to, warn_missing = F)
+		return(vec)
+	}
+	#--------------------------------------------------------------------------------
+	Tests.mapping.date.Calculation <- function(df){
+		df$Date <- format(as.Date(df$dxyear,"%m/%d/%Y") + as.integer(df$Date), "%m/%d/%Y")
+		return(df)
+	}
+	#--------------------------------------------------------------------------------	
+} # End of Absent Native Functions
 ################################################     Step 4: Generate Result    ###########################################
 create.DOB.records <- function(study_name, ptID){
 	uri <- rawTablesRequest(study_name, "DOB")
@@ -1796,6 +2278,7 @@ create.DOB.records <- function(study_name, ptID){
     				 			Fields=list(date=date, gender=gender, race=race, ethnicity=ethnicity)))	
     				})
     	print(c(study_name, dim(data.DOB), length(result)))
+    	return(result)
 	}else{
 		print(ptID)
 		subSet.data.DOB <- subset(data.DOB, PatientID==ptID)
@@ -1837,6 +2320,7 @@ create.Diagnosis.records <- function(study_name, ptID){
     				 			Fields=list(date=date, disease=disease, siteCode=siteCode)))
     				})
 		print(c(study_name, dim(data.Diagnosis), length(result)))
+		return(result)
     }else{
     	print(ptID)
 		subSet.data.Diagnosis <- subset(data.Diagnosis, PatientID==ptID)
@@ -1925,6 +2409,7 @@ create.Chemo.records <- function(study_name,  ptID){
     				 				        route=route,cycle=cycle)))
     				})
 		print(c(study_name, dim(data.Chemo), length(result)))
+		return(result)
     }else{
     	print(ptID)
 		subSet.data.Chemo <- subset(data.Chemo, PatientID==ptID)
@@ -2015,6 +2500,7 @@ create.Rad.records <- function(study_name,  ptID){
     				 						numFractions=numFractions)))
     				})
 		print(c(study_name, dim(data.Rad), length(result)))
+		return(result)
     }else{
     	print(ptID)
 		subSet.data.Rad <- subset(data.Rad, PatientID==ptID)
@@ -2128,6 +2614,7 @@ create.Status.records <- function(study_name,  ptID){
     				 			Fields=list(date=date, vital=vital, tumorStatus=tumorStatus)))
     				})
 		print(c(study_name, dim(data.Status), length(result)))
+		return(result)
  	}else{
  		print(ptID)
 		subSet.data.Status <- subset(data.Status, PatientID==ptID)
@@ -2225,6 +2712,7 @@ create.Progression.records <- function(study_name,  ptID){
     				 			Fields=list(date=date, event=event, number=number)))
     				})
 		print(c(study_name, dim(data.Progression), length(result)))
+		return(result)
  	}else{
  		print(ptID)
  		subSet.data.Progression <- subset(data.Progression, PatientID==ptID)
@@ -2342,6 +2830,7 @@ create.Absent.records <- function(study_name,  ptID){
     				 			Fields=list(date=date, Radiation=rad, Drug=drug, Pulmonary=pul)))
     				})
 		print(c(study_name, dim(data.Absent), length(result)))
+		return(result)
  	}else{
  		print(ptID)
  		subSet.data.Absent <- subset(data.Absent, PatientID==ptID)
@@ -2822,11 +3311,15 @@ create.Tests.records <- function(study_name,  ptID){
 	    					"hvpP16", "hpvIsh", "psa", "boneScan", "ctAbPel", "mri", "her2", "estro", "prog", "cent17")
 
 
+	    tbl <- apply(tbl, 2, Tests.mapping.testResult)
+	    tbl <- as.data.frame(tbl)
+
 	    m <- matrix(nrow=nrow(tbl), ncol=3)
 	    df <- as.data.frame(m)
 	    colnames(df) <- c("Date", "Test", "Result")
 	    data.Tests <- cbind(PatientID=tbl$PatientID, df)
-	    
+	   
+
 	    for(i in 1:length(searchKeyWords)){
 	    	if(length(grep(searchKeyWords[i],colnames(tbl), ignore.case=T))>0){
 		    		# construct structure of restul data.frame
@@ -2841,8 +3334,13 @@ create.Tests.records <- function(study_name,  ptID){
 						prefix <- colnames(tbl)[grep(searchKeyWords[i],colnames(tbl), ignore.case=T)]
 						rs <- paste(prefix, oneTest, sep=":")
 					}else{
+						rs <- rep("", nrow(oneTest))
 						for(j in 1:length(colnames(oneTest))) {
-							rs <- paste(rs, paste(colnames(oneTest)[j], oneTest[,j], sep=":"))
+							#rs <- paste(rs, paste(colnames(oneTest)[j], na.omit(oneTest[,j]), sep=":"))
+							nonNAPos <- which(!(is.na(oneTest[, j])))
+							tmpRs <- rep("", nrow(oneTest))
+							tmpRs[nonNAPos] <- paste(colnames(oneTest)[j], oneTest[,j][nonNAPos], sep=":")
+							rs[nonNAPos] <- paste(rs[nonNAPos], tmpRs[nonNAPos], sep="/")
 						}
 					}
 					
@@ -2854,42 +3352,55 @@ create.Tests.records <- function(study_name,  ptID){
 						   tmp.Tests$Date <- rep(NA, nrow(tbl)))
 		    		
 			    	data.Tests <- rbind.fill(data.Tests, as.data.frame(tmp.Tests))
-		    	}
 	    	}
-		    data.Tests  <- merge(tbl.pt[, c("PatientID", "dxyear")], data.Tests)
+    	}
+	    data.Tests  <- merge(tbl.pt[, c("PatientID", "dxyear")], data.Tests)
+	    data.Tests  <- Tests.mapping.date.Calculation(data.Tests)
+	    if(length(which(duplicated(data.Tests))) > 0 ){
+	    	data.Tests <- data.Tests[-which(duplicated(data.Tests)),]
+	    }
+	    if(length(which(is.na(data.Tests$Test))) > 0 ){
+	    	data.Tests <- data.Tests[-which(is.na(data.Tests$Test)),] 
+	    }
+	    if(length(which(data.Tests$Result == "")) > 0 ){
+	    	data.Tests <- data.Tests[-which(data.Tests$Result == ""),]
+	    }
+	    
+	    
+	    data.Tests$Result <- str_replace_all(data.Tests$Result,"^/","")
 
-
-		 	ptNumMap <- ptNumMapUpdate(tbl.pt)
-		 	if(missing(ptID)){
-		 		result <- apply(data.Tests, 1, function(x){
-		    				PatientID = getElement(x, "PatientID")
-		    				PtNum = ptNumMap[ptNumMap$PatientID == PatientID,]$PatientNumber
-		    				date = getElement(x, "Date")
-		    				test = getElement(x, "Test")
-		    				result = getElement(x, "Result")
-		    				return(list(PatientID=PatientID, PtNum=PtNum, study=study_name, Name="Tests", 
-		    				 			Fields=list(date=date, test=test, result=result)))
-		    				})
-				print(c(study_name, dim(data.Tests), length(result)))
-		 	}else{
-		 		print(ptID)
-		 		subSet.data.Tests <- subset(data.Tests, PatientID==ptID)
-		 		result <- apply(subSet.data.Tests, 1, function(x){
-		    				PatientID = getElement(x, "PatientID")
-		    				PtNum = ptNumMap[ptNumMap$PatientID == PatientID,]$PatientNumber
-		    				date = getElement(x, "Date")
-		    				test = getElement(x, "Test")
-		    				result = getElement(x, "Result")
-		    				return(list(PatientID=PatientID, PtNum=PtNum, study=study_name, Name="Tests", 
-		    				 			Fields=list(date=date, test=test, result=result)))
-		    				})
+	 	ptNumMap <- ptNumMapUpdate(tbl.pt)
+	 	if(missing(ptID)){
+	 		result <- apply(data.Tests, 1, function(x){
+	    				PatientID = getElement(x, "PatientID")
+	    				PtNum = ptNumMap[ptNumMap$PatientID == PatientID,]$PatientNumber
+	    				date = getElement(x, "Date")
+	    				test = getElement(x, "Test")
+	    				result = getElement(x, "Result")
+	    				return(list(PatientID=PatientID, PtNum=PtNum, study=study_name, Name="Tests", 
+	    				 			Fields=list(date=date, test=test, result=result)))
+	    				})
+			print(c(study_name, dim(data.Tests), length(result)))
+			return(result)
+	 	}else{
+	 		print(ptID)
+	 		subSet.data.Tests <- subset(data.Tests, PatientID==ptID)
+	 		result <- apply(subSet.data.Tests, 1, function(x){
+	    				PatientID = getElement(x, "PatientID")
+	    				PtNum = ptNumMap[ptNumMap$PatientID == PatientID,]$PatientNumber
+	    				date = getElement(x, "Date")
+	    				test = getElement(x, "Test")
+	    				result = getElement(x, "Result")
+	    				return(list(PatientID=PatientID, PtNum=PtNum, study=study_name, Name="Tests", 
+	    				 			Fields=list(date=date, test=test, result=result)))
+	    				})
 				print(result)
 		 	}	   
     } 	
 }
 lapply(studies, create.Tests.records)
 #--------------------------------------------------------------------------------------------------------------------------
-create.all.Encounter.records <- function(study_name){
+create.Encounter.records <- function(study_name,  ptID){
   uri <- rawTablesRequest(study_name, "Encounter")
   rm(list=ls(pattern="tbl"))
   #(tbl.pt 'encType','karnofsky_score','ECOG only in gbm,lgg,luad,lusc)
@@ -2946,30 +3457,54 @@ create.all.Encounter.records <- function(study_name){
   
   # result
   ptNumMap <- ptNumMapUpdate(tbl.pt)
-  result <- apply(data.Encounter, 1, function(x){
-	    PatientID = getElement(x, "PatientID")
-	    PtNum = ptNumMap[ptNumMap$PatientID == PatientID,]$PatientNumber
-	    encType = getElement(x, "encType")
-	    KPS = getElement(x, "KPS")
-	    ECOG = getElement(x, "ECOG")
-	    height = getElement(x, "height")
-	    weight = getElement(x, "weight")
-	    prefev1.ratio = getElement(x, "prefev1.ratio")
-	    prefev1.percent = getElement(x, "prefev1.percent")
-	    postfev1.ratio = getElement(x, "postfev1.ratio")
-	    postfev1.percent  = getElement(x, "postfev1.percent")
-	    carbon.monoxide.diffusion  = getElement(x, "carbon.monoxide.diffusion")
-	    return(list(PatientID=PatientID, PtNum=PtNum, study=study_name, Name="Encounter", 
-	                Fields=list(encType=encType, KPS=KPS, ECOG=ECOG, height=height,
-	                            weight=weight, prefev1.ratio=prefev1.ratio, prefev1.percent=prefev1.percent, postfev1.ratio=postfev1.ratio,
-	                            postfev1.percent=postfev1.percent,carbon.monoxide.diffusion=carbon.monoxide.diffusion)))
-  })
-  #return(result)
-  print(c(study_name, dim(data.Encounter), length(result)))
+  if(missing(ptID)){
+	  result <- apply(data.Encounter, 1, function(x){
+		    PatientID = getElement(x, "PatientID")
+		    PtNum = ptNumMap[ptNumMap$PatientID == PatientID,]$PatientNumber
+		    encType = getElement(x, "encType")
+		    KPS = getElement(x, "KPS")
+		    ECOG = getElement(x, "ECOG")
+		    height = getElement(x, "height")
+		    weight = getElement(x, "weight")
+		    prefev1.ratio = getElement(x, "prefev1.ratio")
+		    prefev1.percent = getElement(x, "prefev1.percent")
+		    postfev1.ratio = getElement(x, "postfev1.ratio")
+		    postfev1.percent  = getElement(x, "postfev1.percent")
+		    carbon.monoxide.diffusion  = getElement(x, "carbon.monoxide.diffusion")
+		    return(list(PatientID=PatientID, PtNum=PtNum, study=study_name, Name="Encounter", 
+		                Fields=list(encType=encType, KPS=KPS, ECOG=ECOG, height=height,
+		                            weight=weight, prefev1.ratio=prefev1.ratio, prefev1.percent=prefev1.percent, postfev1.ratio=postfev1.ratio,
+		                            postfev1.percent=postfev1.percent,carbon.monoxide.diffusion=carbon.monoxide.diffusion)))
+		    })
+  			print(c(study_name, dim(data.Encounter), length(result)))
+  			return(result)
+  }else{
+		print(ptID)
+			subSet.data.Encounter <- subset(data.Encounter, PatientID==ptID)
+			result <- apply(subSet.data.Encounter, 1, function(x){
+					PatientID = getElement(x, "PatientID")
+				    PtNum = ptNumMap[ptNumMap$PatientID == PatientID,]$PatientNumber
+				    encType = getElement(x, "encType")
+				    KPS = getElement(x, "KPS")
+				    ECOG = getElement(x, "ECOG")
+				    height = getElement(x, "height")
+				    weight = getElement(x, "weight")
+				    prefev1.ratio = getElement(x, "prefev1.ratio")
+				    prefev1.percent = getElement(x, "prefev1.percent")
+				    postfev1.ratio = getElement(x, "postfev1.ratio")
+				    postfev1.percent  = getElement(x, "postfev1.percent")
+				    carbon.monoxide.diffusion  = getElement(x, "carbon.monoxide.diffusion")
+				    return(list(PatientID=PatientID, PtNum=PtNum, study=study_name, Name="Encounter", 
+				                Fields=list(encType=encType, KPS=KPS, ECOG=ECOG, height=height,
+				                            weight=weight, prefev1.ratio=prefev1.ratio, prefev1.percent=prefev1.percent, postfev1.ratio=postfev1.ratio,
+				                            postfev1.percent=postfev1.percent,carbon.monoxide.diffusion=carbon.monoxide.diffusion)))
+				    })
+		print(result)
+  }	
 }
-lapply(studies, create.all.Encounter.records)
+lapply(studies, create.Encounter.records)
 #--------------------------------------------------------------------------------------------------------------------------
-create.all.Procedure.records <- function(study_name){
+create.Procedure.records <- function(study_name,  ptID){
     uri <- rawTablesRequest(study_name, "Procedure")
     rm(list=ls(pattern="tbl"))
     tbl.nte <- loadData(uri[1], 
@@ -3022,16 +3557,25 @@ create.all.Procedure.records <- function(study_name){
                                'new_tumor_event_additional_surgery_procedure'  = list(name = "new_tumor_event_additional_surgery_procedure", data = "upperCharacter") #(hnsc)
                              ))
     }
-    
-      	data.Procedure <- rbind.fill(tbl.omf, tbl.nte)
-    	data.Procedure <- rbind.fill(data.Procedure, tbl.f1)      
-      	if(exists("tbl.nte_f1")) data.Procedure <- rbind.fill(data.Procedure, tbl.nte_f1)      	
-      	data.Procedure <- rbind.fill(tbl.pt[,-match("dxyear", colnames(tbl.pt))], data.Procedure)	
-		data.Procedure <- merge(data.Procedure, tbl.pt[,c("PatientID", "dxyear")])	
-		if(any(duplicated(data.Procedure))){
-		  data.Procedure <- data.Procedure[-which(duplicated(data.Procedure)), ]
-		}
-		colnames(data.Procedure)
+
+
+
+ 	data.Procedure <- rbind.fill(tbl.pt[,c("PatientID","dxyear")], tbl.omf)
+    data.Procedure <- rbind.fill(data.Procedure, tbl.nte)
+    data.Procedure <- rbind.fill(data.Procedure, tbl.f1)
+    if(exists("tbl.f2")) data.Procedure <- rbind.fill(data.Procedure, tbl.f2)  
+    if(exists("tbl.nte_f1")) data.Procedure <- rbind.fill(data.Procedure, tbl.nte_f1)
+    data.Procedure <- merge(tbl.pt[,c("PatientID", "dxyear"),], data.Procedure)
+
+    #data.Procedure <- rbind.fill(tbl.omf, tbl.nte)
+    #data.Procedure <- rbind.fill(data.Procedure, tbl.f1)      
+    #if(exists("tbl.nte_f1")) data.Procedure <- rbind.fill(data.Procedure, tbl.nte_f1)      	
+    #data.Procedure <- rbind.fill(tbl.pt[,-match("dxyear", colnames(tbl.pt))], data.Procedure)	
+	#data.Procedure <- merge(data.Procedure, tbl.pt[,c("PatientID", "dxyear")])	
+	#if(any(duplicated(data.Procedure))){
+		  #data.Procedure <- data.Procedure[-which(duplicated(data.Procedure)), ]
+	#}
+	#colnames(data.Procedure)
 
 
     #create columns for column that are not captured
@@ -3049,45 +3593,72 @@ create.all.Procedure.records <- function(study_name){
     data.Procedure <- Procedure.mapping.date.Calculation_date_loco(data.Procedure)
     data.Procedure <- Procedure.mapping.date.Calculation_date_met(data.Procedure)
     data.Procedure <- Procedure.mapping.new_tumor_event_surgery(data.Procedure)
-    data.Procedure <- Procedure.mapping.date_additional_surgery_procedure(data.Procedure)
+    data.Procedure <- Procedure.mapping.Calculation.date_additional_surgery_procedure (data.Procedure)
     data.Procedure <- Procedure.mapping.new_neoplasm_site(data.Procedure)
     data.Procedure <- Procedure.mapping.new_tumor_site(data.Procedure)
     data.Procedure <- Procedure.mapping.new_tumor_event_additional_surgery_procedure(data.Procedure)
-    data.Procedure <- Procedure.mapping.date.surgical_resection_date(data.Procedure)
+    data.Procedure <- Procedure.mapping.Calculation.date.surgical_resection_date(data.Procedure)
     data.Procedure <- Procedure.mapping.other_malignancy_side(data.Procedure)
     data.Procedure <- Procedure.mapping.surgery_name(data.Procedure)
     data.Procedure <- Procedure.mapping.side(data.Procedure)
     data.Procedure <- Procedure.mapping.site(data.Procedure)
     data.Procedure <- Procedure.mapping.surgical_procedure_first(data.Procedure)
     data.Procedure <- Procedure.mapping.first_surgical_procedure_other(data.Procedure)
+
     # result
     ptNumMap <- ptNumMapUpdate(tbl.pt)
-    result <- apply(data.Procedure, 1, function(x){
-      			PatientID = getElement(x, "PatientID")
-      			PtNum = ptNumMap[ptNumMap$PatientID == PatientID,]$PatientNumber
-      			date_loco = getElement(x, "date_loco")
-      			date_met = getElement(x, "date_met")
-      			new_tumor_event_surgery = getElement(x, "new_tumor_event_surgery")
-      			date_additional_surgery_procedure = getElement(x, "date_additional_surgery_procedure")
-      			new_neoplasm_site = getElement(x, "new_neoplasm_site")
-      			new_tumor_site = getElement(x, "new_tumor_site")
-      			new_tumor_event_additional_surgery_procedure = getElement(x, "new_tumor_event_additional_surgery_procedure")
-      			surgical_resection_date = getElement(x, "surgical_resection_date")
-      			other_malignancy_side  = getElement(x, "other_malignancy_side")
-      			surgery_name  = getElement(x, "surgery_name")
-      			side  = getElement(x, "side")
-      			site  = getElement(x, "site")
-      			surgical_procedure_first = getElement(x, "surgical_procedure_first") 
-      			first_surgical_procedure_other = getElement(x, "first_surgical_procedure_other") 
-      			return(list(PatientID=PatientID, PtNum=PtNum, study=study_name, Name="Procedure", 
-                  			Fields=list(date_loco=date_loco,date_met=date_met,new_tumor_event_surgery=new_tumor_event_surgery,date_additional_surgery_procedure=date_additional_surgery_procedure,new_neoplasm_site=new_neoplasm_site,new_tumor_site=new_tumor_site,new_tumor_event_additional_surgery_procedure=new_tumor_event_additional_surgery_procedure,surgical_resection_date=surgical_resection_date,other_malignancy_side=other_malignancy_side,surgery_name=surgery_name,side=side, site=site,surgical_procedure_first=surgical_procedure_first,first_surgical_procedure_other=first_surgical_procedure_other)))
-    })
-    return(result)
-    print(c(study_name, dim(data.Procedure), length(result)))
-}
-lapply(studies, create.all.Procedure.records) 
+    if(missing(ptID)){
+		    result <- apply(data.Procedure, 1, function(x){
+		      			PatientID = getElement(x, "PatientID")
+		      			PtNum = ptNumMap[ptNumMap$PatientID == PatientID,]$PatientNumber
+		      			date_loco = getElement(x, "date_loco")
+		      			date_met = getElement(x, "date_met")
+		      			new_tumor_event_surgery = getElement(x, "new_tumor_event_surgery")
+		      			date_additional_surgery_procedure = getElement(x, "date_additional_surgery_procedure")
+		      			new_neoplasm_site = getElement(x, "new_neoplasm_site")
+		      			new_tumor_site = getElement(x, "new_tumor_site")
+		      			new_tumor_event_additional_surgery_procedure = getElement(x, "new_tumor_event_additional_surgery_procedure")
+		      			surgical_resection_date = getElement(x, "surgical_resection_date")
+		      			other_malignancy_side  = getElement(x, "other_malignancy_side")
+		      			surgery_name  = getElement(x, "surgery_name")
+		      			side  = getElement(x, "side")
+		      			site  = getElement(x, "site")
+		      			surgical_procedure_first = getElement(x, "surgical_procedure_first") 
+		      			first_surgical_procedure_other = getElement(x, "first_surgical_procedure_other") 
+		      			return(list(PatientID=PatientID, PtNum=PtNum, study=study_name, Name="Procedure", 
+		                  			Fields=list(date_loco=date_loco,date_met=date_met,new_tumor_event_surgery=new_tumor_event_surgery,date_additional_surgery_procedure=date_additional_surgery_procedure,new_neoplasm_site=new_neoplasm_site,new_tumor_site=new_tumor_site,new_tumor_event_additional_surgery_procedure=new_tumor_event_additional_surgery_procedure,surgical_resection_date=surgical_resection_date,other_malignancy_side=other_malignancy_side,surgery_name=surgery_name,side=side, site=site,surgical_procedure_first=surgical_procedure_first,first_surgical_procedure_other=first_surgical_procedure_other)))
+		    })
+		    print(c(study_name, dim(data.Procedure), length(result)))
+		    return(result)	
+		}else{
+				print(ptID)
+				subSet.data.Procedure <- subset(data.Procedure, PatientID==ptID)
+				result <- apply(subSet.data.Encounter, 1, function(x){
+						PatientID = getElement(x, "PatientID")
+		      			PtNum = ptNumMap[ptNumMap$PatientID == PatientID,]$PatientNumber
+		      			date_loco = getElement(x, "date_loco")
+		      			date_met = getElement(x, "date_met")
+		      			new_tumor_event_surgery = getElement(x, "new_tumor_event_surgery")
+		      			date_additional_surgery_procedure = getElement(x, "date_additional_surgery_procedure")
+		      			new_neoplasm_site = getElement(x, "new_neoplasm_site")
+		      			new_tumor_site = getElement(x, "new_tumor_site")
+		      			new_tumor_event_additional_surgery_procedure = getElement(x, "new_tumor_event_additional_surgery_procedure")
+		      			surgical_resection_date = getElement(x, "surgical_resection_date")
+		      			other_malignancy_side  = getElement(x, "other_malignancy_side")
+		      			surgery_name  = getElement(x, "surgery_name")
+		      			side  = getElement(x, "side")
+		      			site  = getElement(x, "site")
+		      			surgical_procedure_first = getElement(x, "surgical_procedure_first") 
+		      			first_surgical_procedure_other = getElement(x, "first_surgical_procedure_other") 
+		      			return(list(PatientID=PatientID, PtNum=PtNum, study=study_name, Name="Procedure", 
+		                  			Fields=list(date_loco=date_loco,date_met=date_met,new_tumor_event_surgery=new_tumor_event_surgery,date_additional_surgery_procedure=date_additional_surgery_procedure,new_neoplasm_site=new_neoplasm_site,new_tumor_site=new_tumor_site,new_tumor_event_additional_surgery_procedure=new_tumor_event_additional_surgery_procedure,surgical_resection_date=surgical_resection_date,other_malignancy_side=other_malignancy_side,surgery_name=surgery_name,side=side, site=site,surgical_procedure_first=surgical_procedure_first,first_surgical_procedure_other=first_surgical_procedure_other)))
+			    		})
+			print(result)
+		}
+}    
+lapply(studies, create.Procedure.records) 
 #--------------------------------------------------------------------------------------------------------------------------  
-create.all.Pathology.records <- function(study_name){
+create.Pathology.records <- function(study_name,  ptID){
   uri <- rawTablesRequest(study_name, "Pathology")
   rm(list=ls(pattern="tbl"))
   tbl.pt <- loadData(uri[1], 
@@ -3147,43 +3718,123 @@ create.all.Pathology.records <- function(study_name){
   data.Pathology <- Pathology.mapping.date_calculation.omfOffset(data.Pathology)
   
   ptNumMap <- ptNumMapUpdate(tbl.pt)
- 
-  result <- apply(data.Pathology, 1, function(x){
-    PatientID = getElement(x, "PatientID")
-    PtNum = ptNumMap[ptNumMap$PatientID == PatientID,]$PatientNumber
-    pathDisease = getElement(x, "pathDisease")
-    pathHistology = getElement(x, "pathHistology")
-    prospective = getElement(x, "prospective")
-    retrospective = getElement(x, "retrospective")
-    pathMethod = getElement(x, "pathMethod")
-    T.Stage = getElement(x, "T.Stage")
-    N.Stage = getElement(x, "N.Stage")
-    M.Stage = getElement(x, "M.Stage")
-    staging.System  = getElement(x, "staging.System")
-    grade  = getElement(x, "grade")
-    disease  = getElement(x, "disease")
-    histology  = getElement(x, "histology")
-    histology_text = getElement(x, "histology_text") 
-    pathology.offset = getElement(x,"pathology.offset")
-    omfOffset = getElement(x, "omfOffset")
-    return(list(PatientID=PatientID, PtNum=PtNum, study=study_name, Name="Pathology", 
-                Fields=list(pathDisease=pathDisease,
-                            pathHistology=pathHistology,
-                            prospective=prospective,
-                            retrospective=retrospective,
-                            pathMethod=pathMethod,
-                            T.Stage=T.Stage,
-                            N.Stage=N.Stage,
-                            M.Stage=M.Stage,
-                            staging.System=staging.System,
-                            grade=grade,disease=disease, 
-                            histology=histology,
-                            histology_text=histology_text,
-                            pathology.offset=pathology.offset,
-                            omfOffset=omfOffset)))
-  })
-  #return(result)
-  print(c(study_name, dim(data.Pathology), length(result)))
+  if(missing(ptID)){
+	  	result <- apply(data.Pathology, 1, function(x){
+		    PatientID = getElement(x, "PatientID")
+		    PtNum = ptNumMap[ptNumMap$PatientID == PatientID,]$PatientNumber
+		    pathDisease = getElement(x, "pathDisease")
+		    pathHistology = getElement(x, "pathHistology")
+		    prospective = getElement(x, "prospective")
+		    retrospective = getElement(x, "retrospective")
+		    pathMethod = getElement(x, "pathMethod")
+		    T.Stage = getElement(x, "T.Stage")
+		    N.Stage = getElement(x, "N.Stage")
+		    M.Stage = getElement(x, "M.Stage")
+		    staging.System  = getElement(x, "staging.System")
+		    grade  = getElement(x, "grade")
+		    disease  = getElement(x, "disease")
+		    histology  = getElement(x, "histology")
+		    histology_text = getElement(x, "histology_text") 
+		    pathology.offset = getElement(x,"pathology.offset")
+		    omfOffset = getElement(x, "omfOffset")
+		    return(list(PatientID=PatientID, PtNum=PtNum, study=study_name, Name="Pathology", 
+		                Fields=list(pathDisease=pathDisease,
+		                            pathHistology=pathHistology,
+		                            prospective=prospective,
+		                            retrospective=retrospective,
+		                            pathMethod=pathMethod,
+		                            T.Stage=T.Stage,
+		                            N.Stage=N.Stage,
+		                            M.Stage=M.Stage,
+		                            staging.System=staging.System,
+		                            grade=grade,disease=disease, 
+		                            histology=histology,
+		                            histology_text=histology_text,
+		                            pathology.offset=pathology.offset,
+		                            omfOffset=omfOffset)))
+		  })
+		  #return(result)
+		  print(c(study_name, dim(data.Pathology), length(result)))
+		  return(result)
+		  }else{
+		  		print(ptID)
+				subSet.data.Pathology <- subset(data.Pathology, PatientID==ptID)
+		  		result <- apply(data.Pathology, 1, function(x){
+							    PatientID = getElement(x, "PatientID")
+							    PtNum = ptNumMap[ptNumMap$PatientID == PatientID,]$PatientNumber
+							    pathDisease = getElement(x, "pathDisease")
+							    pathHistology = getElement(x, "pathHistology")
+							    prospective = getElement(x, "prospective")
+							    retrospective = getElement(x, "retrospective")
+							    pathMethod = getElement(x, "pathMethod")
+							    T.Stage = getElement(x, "T.Stage")
+							    N.Stage = getElement(x, "N.Stage")
+							    M.Stage = getElement(x, "M.Stage")
+							    staging.System  = getElement(x, "staging.System")
+							    grade  = getElement(x, "grade")
+							    disease  = getElement(x, "disease")
+							    histology  = getElement(x, "histology")
+							    histology_text = getElement(x, "histology_text") 
+							    pathology.offset = getElement(x,"pathology.offset")
+							    omfOffset = getElement(x, "omfOffset")
+							    return(list(PatientID=PatientID, PtNum=PtNum, study=study_name, Name="Pathology", 
+							                Fields=list(pathDisease=pathDisease,
+							                            pathHistology=pathHistology,
+							                            prospective=prospective,
+							                            retrospective=retrospective,
+							                            pathMethod=pathMethod,
+							                            T.Stage=T.Stage,
+							                            N.Stage=N.Stage,
+							                            M.Stage=M.Stage,
+							                            staging.System=staging.System,
+							                            grade=grade,disease=disease, 
+							                            histology=histology,
+							                            histology_text=histology_text,
+							                            pathology.offset=pathology.offset,
+							                            omfOffset=omfOffset)))
+							  })
+				print(result)
+	    }
+  
 }
-lapply(studies, create.all.Pathology.records) 
-#################################################    Step 5: Unit Test   ##################################################
+lapply(studies, create.Pathology.records) 
+######################################    Step 5: Generate Result By Organ Site   #########################################
+create.STUDY.records <- function(study_name){
+	dob.events <- create.DOB.records(study_name)
+	diagnosis.events <- create.Diagnosis.records(study_name)
+	chemo.events <- create.Chemo.records(study_name)
+	radiation.events <- create.Rad.records(study_name)
+	status.events <- create.Status.records(study_name)
+	progression.events <- create.Progression.records(study_name)
+	absent.events <- create.Absent.records(study_name)
+	tests.events <- create.Tests.records(study_name)
+	encounter.events <- create.Encounter.records(study_name)
+	#procedure.events <- create.Procedure.records(study_name)
+	#pathology.events <- create.Pathology.records(study_name)
+
+	events <- append(dob.events, chemo.events)
+    events <- append(events, diagnosis.events)
+    events <- append(events, status.events)
+    events <- append(events, progression.events)
+    events <- append(events, radiation.events)
+    #events <- append(events, procedure.events)
+    events <- append(events, encounter.events)
+    #events <- append(events, pathology.events)
+    events <- append(events, absent.events)
+    #events <- append(events, background.events)
+    events <- append(events, tests.events)
+    print(table(unlist(lapply(events, function(e) e["Name"]))))
+    events
+
+}
+
+brca <- create.STUDY.records(studies[1])
+coad <- create.STUDY.records(studies[2])
+gbm  <- create.STUDY.records(studies[3])
+hnsc <- create.STUDY.records(studies[4])
+lgg  <- create.STUDY.records(studies[5])
+luad <- create.STUDY.records(studies[6])
+lusc <- create.STUDY.records(studies[7])
+prad <- create.STUDY.records(studies[8])
+read <- create.STUDY.records(studies[9])	
+
