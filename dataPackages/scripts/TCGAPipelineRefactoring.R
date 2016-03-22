@@ -5,8 +5,8 @@ library(R.utils)
 library(stringr)
 library(plyr)
 
-stopifnot(file.exists("TCGA_Reference_Filenames.txt")) 
-TCGAfilename<-read.table("TCGA_Reference_Filenames.txt", sep="\t", header=TRUE)
+stopifnot(file.exists("TCGA_Reference_Filenames_gh.txt")) 
+TCGAfilename<-read.table("TCGA_Reference_Filenames_gh.txt", sep="\t", header=TRUE)
 ##===load drug reference table ===
 drug_ref <- read.table("drug_names_10272015.txt", sep="\t", header=TRUE)
 rad_ref <- read.table("rad_ref_02232016.txt", sep="\t", header=TRUE)
@@ -1159,10 +1159,10 @@ if(PROCEDURE){
     }
 	
 	data.Procedure <- rbind.fill(tbl.nte, tbl.omf)
-  	data.Procedure <- rbind.fill(data.Procedure, tbl.f1)
-  	data.Procedure <- rbind.fill(data.Procedure, tbl.pt)
-  	if(exists("tbl.f2"))  data.Procedure <- rbind.fill(data.Procedure, tbl.f2)
-  	if(exists("tbl.nte_f1")) data.Procedure <- rbind.fill(data.Procedure, tbl.nte_f1)  	
+	data.Procedure <- rbind.fill(data.Procedure, tbl.f1)
+	if(exists("tbl.f2"))  data.Procedure <- rbind.fill(data.Procedure, tbl.f2)
+	if(exists("tbl.nte_f1")) data.Procedure <- rbind.fill(data.Procedure, tbl.nte_f1)  
+	data.Procedure <- merge(data.Procedure, tbl.pt, by="PatientID") 	
 
     #data.Procedure <- rbind.fill(tbl.omf, tbl.nte)
     #data.Procedure <- rbind.fill(data.Procedure, tbl.f1)      
@@ -3551,12 +3551,11 @@ create.Procedure.records <- function(study_name,  ptID){
 
 
 
- 	data.Procedure <- rbind.fill(tbl.pt[,c("PatientID","dxyear")], tbl.omf)
-    data.Procedure <- rbind.fill(data.Procedure, tbl.nte)
-    data.Procedure <- rbind.fill(data.Procedure, tbl.f1)
-    if(exists("tbl.f2")) data.Procedure <- rbind.fill(data.Procedure, tbl.f2)  
-    if(exists("tbl.nte_f1")) data.Procedure <- rbind.fill(data.Procedure, tbl.nte_f1)
-    data.Procedure <- merge(tbl.pt[,c("PatientID", "dxyear"),], data.Procedure)
+ 	data.Procedure <- rbind.fill(tbl.nte, tbl.omf)
+	data.Procedure <- rbind.fill(data.Procedure, tbl.f1)
+	if(exists("tbl.f2"))  data.Procedure <- rbind.fill(data.Procedure, tbl.f2)
+	if(exists("tbl.nte_f1")) data.Procedure <- rbind.fill(data.Procedure, tbl.nte_f1)  
+	data.Procedure <- merge(data.Procedure, tbl.pt, by="PatientID") 
 
     #data.Procedure <- rbind.fill(tbl.omf, tbl.nte)
     #data.Procedure <- rbind.fill(data.Procedure, tbl.f1)      
@@ -3797,7 +3796,7 @@ create.STUDY.records <- function(study_name){
 	absent.events <- create.Absent.records(study_name)
 	tests.events <- create.Tests.records(study_name)
 	encounter.events <- create.Encounter.records(study_name)
-	#procedure.events <- create.Procedure.records(study_name)
+	procedure.events <- create.Procedure.records(study_name)
 	#pathology.events <- create.Pathology.records(study_name)
 
 	events <- append(dob.events, chemo.events)
