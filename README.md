@@ -8,26 +8,15 @@ Oncoscape is a [web application](http://oncoscape.sttrcancer.org) that hosts an 
 
 --**_Intro and Demo and videos coming soon_**
 
-Oncoscape is developed at the Fred Hutchinson Cancer Research Center under the 
-auspices of the Solid Tumor Translational Research initiative. 		
+Oncoscape is developed at the Fred Hutchinson Cancer Research Center under the auspices of the Solid Tumor Translational Research initiative. 		
 
-Oncoscape is as an SPA -- a single page web application -- using JavaScript in the 		
-browser and R (primarily) on the backend server. It is an R package, though the 		
-immediate web-facing http server, currently written in R, will likely change over time 		
-to a more traditional architecture. For more detailed information, please see [wiki](https://github.com/FredHutch/Oncoscape/wiki).		
+Oncoscape is as an SPA -- a single page web application -- using JavaScript in the browser and R (primarily) on the backend server. It is an R package, though the immediate web-facing http server, currently written in R, will likely change over time to a more traditional architecture. For more detailed information, please see [wiki](https://github.com/FredHutch/Oncoscape/wiki).		
 
 ## The Goal 
 
-Oncoscape is to provide browser-based, user-friendly data exploration tools 		
-for rich clinical and molecular cancer data, supported by statistically powerful analysis.		
-R is very well-suited to handling data, and performing analysis. JavaScript in the 		
-browser provides a rich and nimble user experience.  Data & methods are sent and received		
-through websockets using the chinook protocol (https://github.com/oncoscape/chinook) for		
-message passing.		
+Oncoscape is to provide browser-based, user-friendly data exploration tools for rich clinical and molecular cancer data, supported by statistically powerful analysis. R is very well-suited to handling data, and performing analysis. JavaScript in the browser provides a rich and nimble user experience.  Data & methods are sent and received through websockets using the chinook protocol (https://github.com/oncoscape/chinook) for message passing.		
 
-Oncoscape's design encourages custom deployments focused on any clinical/molecular 		
-data set. Oncoscape, here at GitHub, ships with patient and molecular data from the 		
-TCGA. 
+Oncoscape's design encourages custom deployments focused on any clinical/molecular data set. Oncoscape, here at GitHub, ships with patient and molecular data from the TCGA. 
 
 If you would like to update the code or contribute with new features, please read [wiki contribution](https://github.com/FredHutch/Oncoscape/wiki/Contribution).
 
