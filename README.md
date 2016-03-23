@@ -1,4 +1,5 @@
-[<img src="http://oncoscape-static.s3-website-us-west-2.amazonaws.com/images/oncoscape_logo_FINAL.png">](http://oncoscape.sttrcancer.org)
+[<img src="http://oncoscape-static.s3-website-us-west-2.amazonaws.com/images/oncoscape_logo_FINAL.png" target="_blank">](http://oncoscape.sttrcancer.org)
+
 [![Circle CI](https://circleci.com/gh/FredHutch/Oncoscape/tree/develop.svg?style=shield&circle-token=:circle-token)](https://circleci.com/gh/FredHutch/Oncoscape/tree/develop)
 
 [![Join the chat at https://gitter.im/FredHutch/Oncoscape](https://badges.gitter.im/FredHutch/Oncoscape.svg)](https://gitter.im/FredHutch/Oncoscape?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge&utm_content=badge)
