@@ -1,7 +1,6 @@
 
-http://oncoscape-static.s3-website-us-west-2.amazonaws.com/images/oncoscape_logo_FINAL.png
-
 # Oncoscape
+![alt text][Oncoscape log](http://oncoscape-static.s3-website-us-west-2.amazonaws.com/images/oncoscape_logo_FINAL.png)
 
 [![Circle CI](https://circleci.com/gh/FredHutch/Oncoscape/tree/develop.svg?style=shield&circle-token=:circle-token)](https://circleci.com/gh/FredHutch/Oncoscape/tree/develop)
 
