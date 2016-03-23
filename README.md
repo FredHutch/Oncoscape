@@ -1,4 +1,4 @@
-[<img src="https://github.com/FredHutch/Oncoscape/blob/newReadme/img/STTR%20Cancer%20Binder_spine_horizontal.pdf">](http://www.sttrcancer.org/en.html)
+[<img src="img/STTR%20Cancer%20Binder_spine_horizontal.pdf">](http://www.sttrcancer.org/en.html)
 
 [<img src="http://oncoscape-static.s3-website-us-west-2.amazonaws.com/images/oncoscape_logo_FINAL.png">](http://oncoscape.sttrcancer.org)
 
