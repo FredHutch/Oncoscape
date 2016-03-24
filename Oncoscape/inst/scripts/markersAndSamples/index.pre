@@ -8,6 +8,7 @@ include(../hub/Module.js)
 var hub = HubModule();
 hub.start();
 
+include(../testManager/Module.js)
 include(../tabsApp/code.js)
 include(../datasets/Module.js)
 include(../markersAndSamples/Module.js)

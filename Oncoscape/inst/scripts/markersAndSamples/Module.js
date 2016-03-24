@@ -441,8 +441,8 @@ function defaultStyle()
 //
 function subSelectNodes()
 {
-  
-  var selectedPatientNodes = cwMarkers.nodes("node[nodeType= 'patient']:selected");
+//  var selectedPatientNodes = cwMarkers.nodes("node[nodeType='patient']:selected");  comment necessary to handle quotation issue
+  var selectedPatientNodes = cwMarkers.nodes("node[nodeType='patient']:selected");
   var categories = jQuery.unique(
   	selectedPatientNodes.map(function(e){
   		return e.data("category");}));
