@@ -5,8 +5,8 @@ library(R.utils)
 library(stringr)
 library(plyr)
 
-stopifnot(file.exists("TCGA_Reference_Filenames_gh.txt")) 
-TCGAfilename<-read.table("TCGA_Reference_Filenames_gh.txt", sep="\t", header=TRUE)
+stopifnot(file.exists("TCGA_Reference_Filenames.txt")) 
+TCGAfilename<-read.table("TCGA_Reference_Filenames.txt", sep="\t", header=TRUE)
 ##===load drug reference table ===
 drug_ref <- read.table("drug_names_10272015.txt", sep="\t", header=TRUE)
 rad_ref <- read.table("rad_ref_02232016.txt", sep="\t", header=TRUE)
@@ -480,6 +480,7 @@ if(DRUG){
 		to 	 <- from 
 		to[match("[NOT AVAILABLE]", to)] <- NA
 		df$units <- mapvalues(df$units, from = from, to = to, warn_missing = F)
+		df$units[which(is.na(df$dose))] <- NA
 		return(df)
 	}	
 	#--------------------------------------------------------------------------------
@@ -497,6 +498,7 @@ if(DRUG){
 		to[match("[NOT AVAILABLE]", to)] <- NA
 		df$totalDoseUnits <- mapvalues(df$totalDoseUnits, from = from, 
 							to = to, warn_missing = F)
+		df$totalDoseUnits[which(is.na(df$totalDose))] <- NA
 		return(df)
 	}	
 	#--------------------------------------------------------------------------------
@@ -2389,7 +2391,9 @@ create.Chemo.records <- function(study_name,  ptID){
     data.Chemo <- Drug.mapping.totalDoseUnits(data.Chemo)
     data.Chemo <- Drug.mapping.route(data.Chemo)
     data.Chemo <- Drug.mapping.cycle(data.Chemo)
-   
+    if(length(which(duplicated(data.Chemo))) > 0){
+    	data.Chemo <- data.Chemo[-which(duplicated(data.Chemo)), ]
+    }
 
     # result
     ptNumMap <- ptNumMapUpdate(tbl.pt)
@@ -4000,4 +4004,270 @@ test_create.Diagnosis.records <- function(study_name)
 	}
 }
 lapply(studies, test_create.Diagnosis.records)
+#-------------------------------------------------------------------------------------------------------------------------- 
+test_create.Chemo.records <- function(study_name)
+{
+  print("--- test_create.Chemo.record")
+  if(study_name == "TCGAbrca"){
+		x <- create.Chemo.records(study_name, "TCGA.3C.AAAU")
+		checkTrue(is.list(x))
+		checkEquals(length(x), 1)
+		checkEquals(names(x[[1]]), c("PatientID", "PtNum", "study", "Name", "Fields"))
+		checkEquals(names(x[[1]][["Fields"]]), c("date", "agent", "therapyType", "intent", 
+						"dose", "units", "totalDose", "totalDoseUnits", "route", "cycle"))
+		checkEquals(x[[1]], list(PatientID="TCGA.3C.AAAU", PtNum=1, study="TCGAbrca", Name="Drug", 
+						Fields=list(date=c("01/02/2009",NA), agent="GOSERELIN",therapyType="CHEMOTHERAPY",  
+							       intent=as.character(NA), dose=as.character(NA), units=as.character(NA), 
+							       totalDose=as.character(NA), totalDoseUnits=as.character(NA), route=as.character(NA), 
+							       cycle=as.character(NA))))
+
+		x <- create.Chemo.records(study_name, "TCGA.C8.A8HR") # recurrence
+		checkTrue(is.list(x))
+		checkEquals(length(x), 3)
+		checkEquals(names(x[[1]]), c("PatientID", "PtNum", "study", "Name", "Fields"))
+		checkEquals(x[[3]], list(PatientID="TCGA.C8.A8HR", PtNum=711, study="TCGAbrca", Name="Drug", 
+						Fields=list(date=c("02/13/2013", "08/26/2013"), agent="FLUOROURACIL", therapyType="CHEMOTHERAPY",  
+									intent=as.character(NA), dose=as.character(NA), units=as.character(NA), totalDose=as.character(NA), 
+									totalDoseUnits=as.character(NA), route=as.character(NA), cycle=as.character(NA))))
+      	}
+  if(study_name == "TCGAcoad"){
+		x <- create.Chemo.records(study_name, "TCGA.A6.2671")
+		checkTrue(is.list(x))
+		checkEquals(length(x), 22)
+		checkEquals(names(x[[1]]), c("PatientID", "PtNum", "study", "Name", "Fields"))
+		checkEquals(names(x[[16]][["Fields"]]), c("date", "agent", "therapyType", "intent", 
+						"dose", "units", "totalDose", "totalDoseUnits", "route", "cycle"))
+		checkEquals(x[[15]], list(PatientID="TCGA.A6.2671", PtNum=5, study="TCGAcoad", Name="Drug", 
+						Fields=list(date=c("07/06/2010","01/10/2011"), agent="BEVACIZUMAB",therapyType="TARGETED MOLECULAR THERAPY",  
+							       intent="PROGRESSION", dose="300-325", units="MG", 
+							       totalDose="3775", totalDoseUnits="MG", route="INTRAVENOUS (IV)", 
+							       cycle="12")))
+
+		x <- create.Chemo.records(study_name, "TCGA.A6.A565")  #no start date
+		checkEquals(length(x), 3)
+		checkEquals(x[[1]], list(PatientID="TCGA.A6.A565", PtNum=51, study="TCGAcoad", Name="Drug", 
+						Fields=list(date=c(as.character(NA), as.character(NA)), agent="FLUOROURACIL", therapyType="CHEMOTHERAPY", 
+							        intent=as.character(NA) , dose=as.character(NA), units=as.character(NA), 
+							        totalDose=as.character(NA), totalDoseUnits=as.character(NA), route=as.character(NA), 
+							        cycle=as.character(NA))))
+
+		x <- create.Chemo.records(study_name, "TCGA.AA.3516") # omf chemo
+		checkEquals(length(x), 1)
+		checkEquals(x[[1]], list(PatientID="TCGA.AA.3516", PtNum=68, study="TCGAcoad", Name="Drug", 
+							Fields=list(date=c(as.character(NA), as.character(NA)),agent=as.character(NA),  
+										therapyType=as.character(NA), intent="PRIOR MALIGNANCY", dose=as.character(NA), 
+										units=as.character(NA), totalDose=as.character(NA), totalDoseUnits=as.character(NA), 
+										route=as.character(NA), cycle=as.character(NA))))
+
+		}
+  if(study_name == "TCGAgbm"){
+		x <- create.Chemo.records(study_name, "TCGA.02.0001")
+		checkTrue(is.list(x))
+		checkEquals(length(x), 4)
+		checkEquals(names(x[[1]]), c("PatientID", "PtNum", "study", "Name", "Fields"))
+		checkEquals(names(x[[1]][["Fields"]]), c("date", "agent", "therapyType", "intent", 
+						"dose", "units", "totalDose", "totalDoseUnits", "route", "cycle"))
+		checkEquals(x[[1]], list(PatientID="TCGA.02.0001", PtNum=1, study=study_name, Name="Drug", 
+							Fields=list(date=c("04/03/2002", "10/06/2002"),  agent="CELEBREX", therapyType="CHEMOTHERAPY", 
+										intent="ADJUVANT"  , dose=as.character(NA), units=as.character(NA) , totalDose="400", totalDoseUnits="MG", 
+										route=as.character(NA), cycle="4")))
+		checkEquals(x[[2]], list(PatientID="TCGA.02.0001", PtNum=1, study=study_name, Name="Drug", 
+							Fields=list(date=c("04/03/2002", "10/06/2002"),  agent="CRA", therapyType="CHEMOTHERAPY", 
+										intent="ADJUVANT"  , dose=as.character(NA), units=as.character(NA), totalDose="75",  
+										totalDoseUnits="MG/M2", route=as.character(NA), cycle="4")))
+		checkEquals(x[[3]], list(PatientID="TCGA.02.0001", PtNum=1, study=study_name, Name="Drug", 
+							Fields=list(date=c(as.character(NA), as.character(NA)), agent="CRA", therapyType="CHEMOTHERAPY",  
+										intent="RECURRENCE", dose=as.character(NA), units=as.character(NA) , totalDose=as.character(NA),  
+										totalDoseUnits=as.character(NA) , route="ORAL", cycle=as.character(NA))))
+		checkEquals(x[[4]], list(PatientID="TCGA.02.0001", PtNum=1, study=study_name, Name="Drug", 
+							Fields=list(date=c(as.character(NA), as.character(NA)),  agent="CELEBREX", therapyType="CHEMOTHERAPY", 
+										intent="RECURRENCE", dose=as.character(NA), units=as.character(NA), totalDose=as.character(NA),  
+										totalDoseUnits=as.character(NA) , route="ORAL", cycle=as.character(NA))))
+
+		x <- create.Chemo.records(study_name, "TCGA.76.4928")  #no start date
+		checkEquals(length(x), 1)
+		checkEquals(x[[1]], list(PatientID="TCGA.76.4928", PtNum=559, study=study_name, Name="Drug", 
+							Fields=list(date=c(as.character(NA), "03/12/2005"),  agent="TEMOZOLOMIDE", therapyType="CHEMOTHERAPY", 
+										intent="ADJUVANT"  , dose=as.character(NA), units=as.character(NA), totalDose=as.character(NA),  
+										totalDoseUnits=as.character(NA) , route="ORAL", cycle="01")))
+		x <- create.Chemo.records(study_name, "TCGA.02.0014")  # no end date
+		checkEquals(length(x), 2)
+		checkEquals(x[[2]], list(PatientID="TCGA.02.0014", PtNum=8, study=study_name, Name="Drug", 
+							Fields=list(date=c(as.character(NA), as.character(NA)),  agent="TEMOZOLOMIDE", therapyType="CHEMOTHERAPY",
+										intent="RECURRENCE" , dose=as.character(NA), units=as.character(NA), totalDose=as.character(NA),  
+										totalDoseUnits=as.character(NA) , route="ORAL", cycle=as.character(NA))))
+		x <- create.Chemo.records(study_name, "TCGA.06.0209")  # omf chemo
+		checkEquals(length(x), 1)
+		checkEquals(x[[1]], list(PatientID="TCGA.06.0209", PtNum=372, study=study_name, Name="Drug", 
+							Fields=list(date=c(as.character(NA), as.character(NA)),  agent=as.character(NA), therapyType=as.character(NA),
+										intent="PRIOR MALIGNANCY", dose=as.character(NA), units=as.character(NA), totalDose=as.character(NA),  
+										totalDoseUnits=as.character(NA) , route=as.character(NA), cycle=as.character(NA))))
+      	}
+  if(study_name == "TCGAhnsc"){
+		x <- create.Chemo.records(study_name, "TCGA.BA.4075")
+		checkTrue(is.list(x))
+		checkEquals(length(x), 3)
+		checkEquals(names(x[[1]]), c("PatientID", "PtNum", "study", "Name", "Fields"))
+		checkEquals(names(x[[1]][["Fields"]]), c("date", "agent", "therapyType", "intent", 
+						"dose", "units", "totalDose", "totalDoseUnits", "route", "cycle"))
+		checkEquals(x[[1]], list(PatientID="TCGA.BA.4075", PtNum=3, study=study_name, Name="Drug", 
+						Fields=list(date=c("09/21/2004","10/19/2004"), agent="CARBOPLATIN", therapyType="CHEMOTHERAPY", 
+									intent="PALLIATIVE"  , dose="2", units="AUC",totalDose=as.character(NA),  
+									totalDoseUnits=as.character(NA) , route=as.character(NA), cycle=as.character(NA))))
+		checkEquals(x[[2]], list(PatientID="TCGA.BA.4075", PtNum=3, study=study_name, Name="Drug", 
+						Fields=list(date=c("09/21/2004","10/19/2004"), agent="PACLITAXEL",therapyType="CHEMOTHERAPY", 
+									intent="PALLIATIVE"  , dose="45", units="MG/M2",totalDose=as.character(NA),  
+									totalDoseUnits=as.character(NA) , route=as.character(NA), cycle=as.character(NA))))
+		x <- create.Chemo.records(study_name, "TCGA.CR.6474")  #no start date
+		checkEquals(length(x), 1)
+		checkEquals(x[[1]], list(PatientID="TCGA.CR.6474", PtNum=185, study=study_name, Name="Drug", 
+						Fields=list(date=c(as.character(NA),as.character(NA)), agent=as.character(NA), therapyType="CHEMOTHERAPY", 
+									intent="PALLIATIVE", dose=as.character(NA), units=as.character(NA), totalDose=as.character(NA),  
+									totalDoseUnits=as.character(NA), route=as.character(NA), cycle=as.character(NA))))
+		x <- create.Chemo.records(study_name, "TCGA.KU.A6H8") # no end date
+		checkEquals(length(x), 3)
+		checkEquals(x[[3]], list(PatientID="TCGA.KU.A6H8", PtNum=452, study=study_name, Name="Drug", 
+						Fields=list(date=c("07/30/2013", NA), agent="CARBOPLATIN", therapyType="CHEMOTHERAPY", 
+							 		intent=as.character(NA),dose=as.character(NA), units=as.character(NA), totalDose=as.character(NA),  
+									totalDoseUnits=as.character(NA) , route=as.character(NA), cycle=as.character(NA))))
+		x <- create.Chemo.records(study_name, "TCGA.CV.5430") # recurrence
+		checkEquals(length(x), 3)
+		checkEquals(x[[3]], list(PatientID="TCGA.CV.5430", PtNum=229, study=study_name, Name="Drug", 
+						Fields=list(date=c("06/30/2003","08/30/2003"),agent="IRINOTECAN", therapyType="CHEMOTHERAPY", 
+									intent="RECURRENCE",dose=as.character(NA), units=as.character(NA), totalDose=as.character(NA),  
+									totalDoseUnits=as.character(NA), route="INTRAVENOUS (IV)", cycle="4")))
+		x <- create.Chemo.records(study_name, "TCGA.BA.4075") # omf chemo
+		checkEquals(length(x),3)
+		checkEquals(x[[1]], list(PatientID="TCGA.BA.4075", PtNum=3, study=study_name, Name="Drug", 
+						Fields=list(date=c("09/21/2004", "10/19/2004"), agent="CARBOPLATIN", therapyType="CHEMOTHERAPY", 
+								intent="PALLIATIVE" , dose="2", units="AUC", totalDose=as.character(NA), totalDoseUnits=as.character(NA), 
+								route=as.character(NA), cycle=as.character(NA))))
+		}
+  if(study_name == "TCGAlgg"){
+		x <- create.Chemo.records(study_name, "TCGA.CS.6290")
+		checkTrue(is.list(x))
+		checkEquals(length(x), 1)
+		checkEquals(names(x[[1]]), c("PatientID", "PtNum", "study", "Name", "Fields"))
+		checkEquals(names(x[[1]][["Fields"]]), c("date", "agent", "therapyType", "intent", 
+						"dose", "units", "totalDose", "totalDoseUnits", "route", "cycle"))
+		checkEquals(x[[1]], list(PatientID="TCGA.CS.6290", PtNum=1, study=study_name, Name="Drug", 
+						Fields=list(date=c(as.character(NA),"05/20/2010"),  agent="TEMOZOLOMIDE", therapyType="CHEMOTHERAPY", 
+									intent="ADJUVANT"  , dose="400", units="MG", totalDose=as.character(NA), totalDoseUnits= as.character(NA), 
+									route="ORAL", cycle="12")))
+
+		x <- create.Chemo.records(study_name, "TCGA.DU.6402")
+		checkEquals(length(x), 1)
+		checkEquals(x[[1]], list(PatientID="TCGA.DU.6402", PtNum=20, study=study_name, Name="Drug", 
+						Fields=list(date=c("04/28/1998", "05/03/1998"), agent="TEMOZOLOMIDE", therapyType="CHEMOTHERAPY", 
+									intent="PROGRESSION"  , dose="100", units="MG/M2", totalDose="200", 
+									totalDoseUnits="MG", route="ORAL", cycle="01")))
+
+		}
+  if(study_name == "TCGAluad"){
+		x <- create.Chemo.records(study_name, "TCGA.75.7030")
+		checkTrue(is.list(x))
+		checkEquals(length(x), 2)
+		checkEquals(names(x[[1]]), c("PatientID", "PtNum", "study", "Name", "Fields"))
+		checkEquals(names(x[[1]][["Fields"]]), c("date", "agent", "therapyType", "intent", 
+						"dose", "units", "totalDose", "totalDoseUnits", "route", "cycle"))
+		checkEquals(x[[2]], list(PatientID="TCGA.75.7030", PtNum=336, study=study_name, Name="Drug", 
+						Fields=list(date=c(as.character(NA),as.character(NA)), agent="VINORELBINE",  therapyType="CHEMOTHERAPY", 
+									intent="ADJUVANT", dose="46", units="MG/DAY", totalDose="552", totalDoseUnits="MG", 
+									route="INTRAVENOUS (IV)", cycle="4")))
+		checkEquals(x[[1]], list(PatientID="TCGA.75.7030", PtNum=336, study=study_name, Name="Drug",
+						 Fields=list(date=c(as.character(NA),as.character(NA)), agent="CISPLATIN", therapyType="CHEMOTHERAPY", 
+						             intent="ADJUVANT"  , dose="92", units="MG/DAY", totalDose="736",  totalDoseUnits="MG", route="INTRAVENOUS (IV)", cycle="4")))
+
+
+		x <- create.Chemo.records(study_name, "TCGA.95.7039") #no start date
+		checkEquals(length(x), 1)
+		checkEquals(x[[1]], list(PatientID="TCGA.95.7039", PtNum=432, study=study_name, Name="Drug", 
+						Fields=list(date=c(as.character(NA),as.character(NA)), agent=as.character(NA), therapyType=as.character(NA), 
+									intent=as.character(NA) , dose=as.character(NA), units=as.character(NA), totalDose=as.character(NA), 
+									totalDoseUnits=as.character(NA), route=as.character(NA), cycle=as.character(NA))))
+		x <- create.Chemo.records(study_name, "TCGA.05.4424")  # no end date
+		checkEquals(length(x), 1)
+		checkEquals(x[[1]], list(PatientID="TCGA.05.4424", PtNum=22, study=study_name, Name="Drug", 
+						Fields=list(date=c("11/30/2009", NA), agent="ERLOTINI", therapyType="IMMUNOTHERAPY", 
+									intent=as.character(NA) , dose=as.character(NA), units=as.character(NA), totalDose=as.character(NA), 
+									totalDoseUnits=as.character(NA), route=as.character(NA), cycle=as.character(NA))))
+		x <- create.Chemo.records(study_name, "TCGA.38.7271") # recurrence
+		checkEquals(length(x), 4)
+		checkEquals(x[[1]], list(PatientID="TCGA.38.7271", PtNum=49, study=study_name, Name="Drug", 
+						Fields=list(date=c( "07/29/2007", "07/29/2007"),  agent="CARBOPLATIN", therapyType="CHEMOTHERAPY",
+									intent="PALLIATIVE", dose=as.character(NA), units=as.character(NA), totalDose="798", totalDoseUnits="MG", 
+									route="INTRAVENOUS (IV)", cycle="1")))
+		x <- create.Chemo.records(study_name, "TCGA.05.4245") # omf chemo
+		checkEquals(x[[1]], list(PatientID="TCGA.05.4245", PtNum=2, study=study_name, Name="Drug", 
+						Fields=list(date=c(as.character(NA),as.character(NA)), agent=as.character(NA), therapyType=as.character(NA), 
+									intent="PRIOR MALIGNANCY" ,dose=as.character(NA), units=as.character(NA), totalDose=as.character(NA), 
+									totalDoseUnits=as.character(NA), route=as.character(NA), cycle=as.character(NA))))
+		}
+  if(study_name == "TCGAlusc"){
+		x <- create.Chemo.records(study_name, "TCGA.18.3412")
+		checkTrue(is.list(x))
+		checkEquals(length(x), 3)
+		checkEquals(names(x[[1]]), c("PatientID", "PtNum", "study", "Name", "Fields"))
+		checkEquals(names(x[[1]][["Fields"]]), c("date", "agent", "therapyType", "intent", 
+						"dose", "units", "totalDose", "totalDoseUnits", "route", "cycle"))
+		checkEquals(x[[3]], list(PatientID="TCGA.18.3412", PtNum=7, study=study_name, Name="Drug", 
+					Fields=list(date=c("02/25/2005","04/28/2005"), agent="VINORELBINE", therapyType="CHEMOTHERAPY", 
+								intent=as.character(NA) , dose=as.character(NA), units=as.character(NA), totalDose=as.character(NA), 
+								totalDoseUnits=as.character(NA), route=as.character(NA), cycle=as.character(NA))))
+		x <- create.Chemo.records(study_name, "TCGA.NC.A5HT") #no start date
+		checkEquals(length(x), 4)
+		checkEquals(x[[3]], list(PatientID="TCGA.NC.A5HT", PtNum=483, study=study_name, Name="Drug", 
+					Fields=list(date=c("08/01/2013", "11/08/2013"), agent="CARBOPLATIN", therapyType="CHEMOTHERAPY", 
+								intent=as.character(NA) , dose=as.character(NA), units=as.character(NA), totalDose=as.character(NA), 
+								totalDoseUnits=as.character(NA), route=as.character(NA), cycle=as.character(NA))))
+      	}
+  if(study_name == "TCGAprad"){
+		x <- create.Chemo.records(study_name, "TCGA.V1.A8MU")
+		checkTrue(is.list(x))
+		checkEquals(length(x), 1)
+		checkEquals(names(x[[1]]), c("PatientID", "PtNum", "study", "Name", "Fields"))
+		checkEquals(names(x[[1]][["Fields"]]), c("date", "agent", "therapyType", "intent", 
+						"dose", "units", "totalDose", "totalDoseUnits", "route", "cycle"))
+		checkEquals(x[[1]], list(PatientID="TCGA.V1.A8MU", PtNum=373, study=study_name, Name="Drug", 
+						Fields=list(date=c(as.character(NA),as.character(NA)), agent= "LHRH AGONIST", therapyType="HORMONE THERAPY",
+								intent=as.character(NA) , dose=as.character(NA), units=as.character(NA), totalDose=as.character(NA), 
+								totalDoseUnits=as.character(NA), route=as.character(NA), cycle=as.character(NA))))
+    
+      	}
+  if(study_name == "TCGAread"){
+		x <- create.Chemo.records(study_name, "TCGA.AF.A56N")
+		checkTrue(is.list(x))
+		checkEquals(length(x), 2)
+		checkEquals(names(x[[1]]), c("PatientID", "PtNum", "study", "Name", "Fields"))
+		checkEquals(names(x[[1]][["Fields"]]), c("date", "agent", "therapyType", "intent", 
+						"dose", "units", "totalDose", "totalDoseUnits", "route", "cycle"))
+		checkEquals(x[[1]], list(PatientID= "TCGA.AF.A56N", PtNum=18, study=study_name, Name="Drug", 
+						Fields=list(date=c("06/08/2012", "12/13/2012"), agent="XELODA", therapyType="CHEMOTHERAPY", 
+								intent=as.character(NA) , dose=as.character(NA), units=as.character(NA), totalDose=as.character(NA), 
+								totalDoseUnits=as.character(NA), route=as.character(NA), cycle=as.character(NA))))
+    
+
+		x <- create.Chemo.records(study_name, "TCGA.AG.3999")  #no start date
+		checkEquals(length(x), 1)
+		checkEquals(x[[1]], list(PatientID="TCGA.AG.3999", PtNum=67, study=study_name, Name="Drug", 
+						Fields=list(date=c(as.character(NA),as.character(NA)), agent=as.character(NA), therapyType="CHEMOTHERAPY", 
+									intent=as.character(NA) , dose=as.character(NA), units=as.character(NA), totalDose=as.character(NA), 
+									totalDoseUnits=as.character(NA), route=as.character(NA), cycle=as.character(NA))))
+		x <- create.Chemo.records(study_name, "TCGA.DC.6156")  # no end date
+		checkEquals(length(x), 9)
+		checkEquals(x[[7]], list(PatientID="TCGA.DC.6156", PtNum=122, study=study_name, Name="Drug", 
+						Fields=list(date=c("01/01/2011", as.character(NA)), agent="LEUCOVORIN", therapyType="CHEMOTHERAPY", 
+									intent="PALLIATIVE", dose="100", units="MG", totalDose="740", 
+									totalDoseUnits="MG", route="INTRAVENOUS (IV)", cycle="8")))
+
+		x <- create.Chemo.records(study_name, "TCGA.AF.3913")   # omf chemo
+		checkEquals(length(x), 3)
+		checkEquals(x[[1]], list(PatientID= "TCGA.AF.3913", PtNum=9, study=study_name, Name="Drug",
+						Fields=list(date=c( "08/20/2009", "11/10/2009"), agent="OXALIPLATIN", therapyType="CHEMOTHERAPY",   
+									intent="PALLIATIVE", dose=as.character(NA), units=as.character(NA), totalDose=as.character(NA), 
+									totalDoseUnits=as.character(NA), route="INTRAVENOUS (IV)", cycle="3")))
+   
+      	}
+}
+lapply(studies, test_create.Chemo.records)
 #-------------------------------------------------------------------------------------------------------------------------- 
