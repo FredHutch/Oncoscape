@@ -1,0 +1,70 @@
+#!/bin/bash
+set -e
+
+OS=$(uname -s)
+
+if [ "$OS" = "Darwin" ] ; then
+    # install R
+    R_BIN=$(which r)
+    if [ -z "$R_BIN" ] ; then
+        wget http://cran.fhcrc.org/bin/macosx/R-3.2.3.pkg
+        sudo /usr/sbin/installer -pkg R-3.2.3.pkg -target /
+    fi
+
+    # install pip
+    PIP_BIN=$(which pip)
+    if [ -z "$PIP_BIN" ] ; then
+        sudo easy_install pip
+    fi
+elif [ "$OS" = "Linux" ] ; then
+    # figure out what we're running on
+    DISTRO=$(lsb_release -i -s)
+    CODENAME=$(lsb_release -c -s)
+
+    # figure out what APT repo to use
+    if [ "$DISTRO" = "Ubuntu" ] ; then
+        REPO="http://cran.fhcrc.org/bin/linux/ubuntu ${CODENAME}/"
+    elif [ "$DISTRO" = "Debian" ] ; then
+        if [ "$CODENAME" = "sid" ] ; then
+            # sid already has this
+            REPO="none"
+        else
+            REPO="http://cran.fhcrc.org/bin/linux/debian ${CODENAME}-cran3/"
+        fi
+    else
+        echo "Sorry, I don't know how to bootstrap for $DISTRO"
+        exit 1
+    fi
+
+    # if we have an apt repo, add it and its key to sources.list
+    if [ "$REPO" != "none" ] ; then
+        sudo echo "deb http://cran.fhcrc.org/bin/linux/$DISTRO trusty/" > /etc/apt/sources.list.d/cran.fhcrc.org.list
+
+        # Add the package verification key
+        sudo apt-key adv --keyserver keyserver.ubuntu.com --recv-keys 51716619E084DAB9
+    fi
+
+    # Update the system and install packages
+    sudo apt-get -y update && apt-get -y install \
+        r-base=3.2.2* \
+        vim \
+        make \
+        git \
+        m4 \
+        gcc \
+        g++ \
+        libxml2 \
+        libxml2-dev \
+        python-pip
+else
+    echo "Sorry, I don't know how to bootstrap for $OS"
+    exit 1
+fi
+
+# install the websocket client
+if ! python -c "import websocket" ; then
+    sudo pip install websocket-client
+fi
+
+echo "All prerequisites should be installed!"
+exit 0
