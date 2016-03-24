@@ -40,7 +40,6 @@ body{
 @media (min-width: 1200px) {  
 }
 
-
 .sro{	// Screen Readers Only
 	display:none !important;
 }
@@ -49,7 +48,7 @@ body{
     background-size:cover;
     box-shadow: 3px 3px 10px #888888;
     margin-bottom:10px;
-    height:3px;
+    height:5px;
     width: 100%;
 }
 
@@ -114,7 +113,7 @@ body{
 	border:0px solid #DDD;
 	border-bottom-width:1px;
 	outline: none !important;
-	
+	z-index: 9999;
 	img{
 		position:relative;
 		top:3px;

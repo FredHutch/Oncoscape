@@ -1,36 +1,56 @@
 // Namespace
-.markers{
-	.filter-list{
-		li{
-			padding:0px;
-			margin:0px;
-
-		}
-	}
-	.filter-button{
-		border:solid 0px #CCC;
-		border-left-width:10px;
-		border-radius:0px;
-		margin-top:1px;
+.markers-chart{
 		width: 100%;
-		text-align: left;
+		height: 80vh;
+}
+.legend{
+	position:absolute;
+	left:0px;
+	top:153px;
+	background-color:rgba(255,255,255,.7);
+	max-width:20%;
+	display: inline-block;
+	z-index:998;
+	ul{
+		list-style-type: none;
+		margin:20px;
+		padding:0px;
 	}
-	.legand > li{
-		list-style: none;
-		list-style-type:none;
-		text-overflow: ellipsis;
+}
+.legend-right{
+	left:auto;
+	right:0px;
+}
+.legend-section{
+	font-weight: bold;
+}
+.filter-list{
+	li{
+		padding:0px;
+		margin:0px;
+
 	}
-	.circle{
+}
+.filter-button{
+	border:solid 0px #CCC;
+	border-left-width:10px;
+	border-radius:0px;
+	margin-top:1px;
+	width: 100%;
+	text-align: left;
+}
+.circle{
 		border-radius: 50%;
 		width: 15px;
 		height: 15px;
-		margin-right:5px;
-		margin-top:0px;
+		margin-right:10px;
+		margin-top:2px;
 		padding-top:0px;
 		display: inline-block;
 		background-color: #59a5fb;
+		position:relative;
+		top:2px;
 	}
-
 	.blue{
 		background-color: blue;
 	}
@@ -70,5 +90,7 @@
 	.purple{
 		background-color: purple;
 	}
-
-}
+	.gene{
+		background-color: #FFF;
+		border:solid 3px rgb(56, 52,123);
+	}

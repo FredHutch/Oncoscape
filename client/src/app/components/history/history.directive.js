@@ -66,7 +66,7 @@
 
             function draw(){
                 dtTable.fnClearTable();
-                var data = pfApi.filter(rawData.tbl, function(p){ return p[0] });
+                 var data = pfApi.filter(rawData.tbl, function(p){ return p[0] });
                 if (data.length==0) return;
                 var d = data.map(function(d){ return d[4]; });
                 var s = data.map(function(d){ return d[3]; });

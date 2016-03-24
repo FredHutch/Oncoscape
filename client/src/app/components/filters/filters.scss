@@ -15,23 +15,23 @@
 	}
 }
 
-.filter-node{
+.filter-node-circle{
 	fill:#FFF;
 	stroke-width: 3px;
 	stroke-opacity: 1;
 	stroke: rgb(89, 165, 251);
-	cursor: hand;
+	cursor: pointer;
 }
-.filter-node:hover{
+.filter-node-circle:hover{
 	 stroke: #FFF;
-	// stroke-width: 10px;
-	// stroke-opacity: .5;
+	 //stroke-width: 10px;
+	 //stroke-opacity: .5;
 	fill: rgb(89, 165, 251);
 }
 
 .node text { font: 12px sans-serif; }
 
-.link {
+.filter-link {
 	fill: none;
 	stroke: #59a5fb;
 	stroke-width: 2px;

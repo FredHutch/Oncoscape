@@ -1,54 +1,50 @@
 <section class="pathways container container-filters">
-	<h2>Pathways &mdash; {{vm.datasource}}</h2>
-	<div class="row">
+    <h2>Pathways &mdash; {{vm.datasource}}</h2>
+    <div class="row">
         <div class="col-xs-3" style="padding-right:20px;">
             <label>Search</label>
-            <input type="text" class="ngrs-range-slider" style="width:100%"
-                ng-model="vm.search">
+            <input type="text" class="ngrs-range-slider" style="width:100%" ng-model="vm.search">
         </div>
-  </div>
+    </div>
 </section>
 <section class="container-filter-toggle">
-  <img src="/assets/images/arrow_down.png" ng-click="vm.toggleFilter()">
+    <img src="/assets/images/arrow_down.png" ng-click="vm.toggleFilter()">
 </section>
 <section id="gbm-chart" class="gbm container-fluid container-content">
 </section>
-
 <div class="modal fade pathways" id="gbm-webpage" tabindex="-1" role="dialog" aria-labelledby="myModalLabel">
-  <div class="modal-dialog" role="document">
-    <div class="modal-content">
-      <div class="modal-header">
-        <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
-        <h4 class="modal-title" id="myModalLabel">{{vm.tip}}</h4>
-      </div>
-      
-		<iframe class="modal-iframe" ng-src="{{vm.frame}}" />
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+                <h4 class="modal-title" id="myModalLabel">{{vm.tip}}</h4>
+            </div>
+            <iframe class="modal-iframe" ng-src="{{vm.frame}}" />
+        </div>
     </div>
-  </div>
 </div>
-
 <!-- Legand -->
 <section class="markers container-legand">
-  <ul class="legand ">
-    <li style="padding:5px;font-weight:600;">Legend</li>
-
-    <li style="border:0px solid green; border-left-width:10px; padding-left:10px;margin-bottom:1px;">
-        Activation
-    </li>
-    <li style="border:0px solid red; border-left-width:10px; padding-left:10px;margin-bottom:1px;">
-        Inhibition
-    </li>
-    <li style="border:0px solid #38347B; border-left-width:10px; padding-left:10px;margin-bottom:1px;">
-        Modification
-    </li>
-    <li style="border:0px solid #056ce1; border-left-width:10px; padding-left:10px;margin-bottom:1px;">
-        Genes
-    </li>
-  </ul>
-  
-  <ul class="legand" ng-if="vm.tip">
-    <li><hr></li>
-    <li style="padding:5px;font-weight:600;">Tip</li>
-    <li>View {{vm.tip}}</li>
-  </ul>
+    <ul class="legand ">
+        <li style="padding:5px;font-weight:600;">Legend</li>
+        <li style="border:0px solid green; border-left-width:10px; padding-left:10px;margin-bottom:1px;">
+            Activation
+        </li>
+        <li style="border:0px solid red; border-left-width:10px; padding-left:10px;margin-bottom:1px;">
+            Inhibition
+        </li>
+        <li style="border:0px solid #38347B; border-left-width:10px; padding-left:10px;margin-bottom:1px;">
+            Modification
+        </li>
+        <li style="border:0px solid #056ce1; border-left-width:10px; padding-left:10px;margin-bottom:1px;">
+            Genes
+        </li>
+    </ul>
+    <ul class="legand" ng-if="vm.tip">
+        <li>
+            <hr>
+        </li>
+        <li style="padding:5px;font-weight:600;">Tip</li>
+        <li>View {{vm.tip}}</li>
+    </ul>
 </section>

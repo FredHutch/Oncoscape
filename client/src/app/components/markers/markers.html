@@ -1,9 +1,8 @@
-<section class="markers container container-filters">
+<section class="markers container-fluid container-filters">
 	<h2>Markers + Patients ({{vm.datasource}})</h2>
-
 	<div class="row">
         <div class="col-xs-2" style="padding-right:20px;">
-            <label>Interactive Mode</label>
+            <label>Edge Options</label>
             <div class="dropdown bs-dropdown">
               <button class="btn btn-default dropdown-toggle" type="button" id="dropdownMenu1" data-toggle="dropdown" aria-haspopup="true" aria-expanded="true">
                 {{vm.optInteractiveMode.name}}
@@ -92,9 +91,50 @@
 <section class="container-filter-toggle">
   <img src="/assets/images/arrow_down.png" ng-click="vm.toggleFilter()">
 </section>
-<section id="markers-chart" class="markers container-fluid container-content">
-</section>
 
+<!-- Legend -->
+<div class="legend">
+  <ul>
+    <li class="legend-section">Node Colors</li>
+    <li ng-repeat="item in vm.legandNodes">
+      <div class="circle {{item.color}}"></div>{{item.name}}
+    </li>
+    <li>
+      <div class="circle gene"></div>Gene
+    </li>
+    <li><hr></li>
+    <li class="legend-section">Edge Colors</li>
+    <li ng-repeat="item in vm.optEdgeColors">
+      <button class="btn btn-default filter-button {{item.class}}"
+      ng-click="item.fn(item); $event.stopPropagation();">
+            {{item.name}} ({{item.state}})
+      </button>
+    </li>
+  </ul>
+</div>
+<div class="legend legend-right" ng-show="vm.patient">
+  <ul> 
+    <li class="legend-section">Patient Information</li>
+    <li>PID: {{vm.patient[0]}}</li>
+    <li>SID: {{vm.patient[1]}}</li>
+    <li>GENDER: {{vm.patient[2]}}</li>
+    <li>STATUS: {{vm.patient[6]}}</li>
+    <li>DIAGNOSED: {{vm.patient[4]}} years old</li>
+    <li>SURVIVED: {{vm.patient[3]}} years</li>
+    <li>PROGRESSION: {{vm.patient[5]}}</li>
+    <li><hr></li>
+    <li class="legend-section">Genes ({{vm.patientChromosomes.length}})</li>
+    <li><span ng-repeat="item in vm.patientChromosomes">{{item}} | </span></li>
+  </ul>
+</div>
+
+<!-- Chart -->
+<section id="markers-chart" class="markers-chart">
+</section>
+<!--
+class="markers container-fluid container-content"
+-->
+<!--
 <div class="modal fade pathways" id="gbm-webpage" tabindex="-1" role="dialog" aria-labelledby="myModalLabel">
   <div class="modal-dialog" role="document">
     <div class="modal-content">
@@ -107,35 +147,6 @@
     </div>
   </div>
 </div>
+-->
 
-<!-- Legand -->
-<div class="markers container-legand">
-  <ul class="legand ">
-    <li style="padding:5px;font-weight:600;">Node Colors</li>
-    <li ng-repeat="item in vm.legandNodes">
-      <div class="circle {{item.color}}"></div>{{item.name}}
-    </li>
-    <li><hr></li>
-    <li style="padding:5px;font-weight:600;">Edge Colors</li>
-    <li ng-repeat="item in vm.optEdgeColors">
-      <button class="btn btn-default filter-button {{item.class}}"
-      ng-click="item.fn(item); $event.stopPropagation();">
-            {{item.name}} ({{item.state}})
-      </button>
-    </li>
-  </ul>
-  <ul class="legand" ng-if="vm.patient">
-    <li><hr></li>
-    <li style="padding:5px;font-weight:600;">Patient Information</li>
-    <li>PID: {{vm.patient[0]}}</li>
-    <li>SID: {{vm.patient[1]}}</li>
-    <li>GENDER: {{vm.patient[2]}}</li>
-    <li>STATUS: {{vm.patient[6]}}</li>
-    <li>DIAGNOSED: {{vm.patient[4]}} years old</li>
-    <li>SURVIVED: {{vm.patient[3]}} years</li>
-    <li>PROGRESSION: {{vm.patient[5]}}</li>
-    <li><hr></li>
-    <li style="padding:5px;font-weight:600;">Genes ({{vm.patientChromosomes.length}})</li>
-    <li><span ng-repeat="item in vm.patientChromosomes">{{item}} | </span></li>
-  </ul>
-</div>
+
