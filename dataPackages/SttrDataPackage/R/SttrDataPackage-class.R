@@ -1,4 +1,86 @@
 #----------------------------------------------------------------------------------------------------
+# Some proposals for the evolution of this package:  Paul Shannon (12 nov 2015)
+#
+# 1) the 'matrices' method has the wrong focus, being much too heavyweight.  To make
+#    this vivid by simple example:  matrices are stored and returned as a named list;
+#    in order to get those names, the entire list is returned, and then the names are
+#    extracted off the list.  R uses copy-on-write semantics, so that actual expense
+#    in time and memory of the current design is bearable.  But with indirect data storage
+#    lying just ahead, we should be ready to get the semantics of these methods more sensible.
+#
+#       a) add a matrixNames method
+#       b) add a dataframeNames method (though we may have no data.frames yet)
+#       c) add a matrix(name) accessor   (but on this, see the next point, #2)
+#
+# 2) Another sense in which "give me all the arrays" (written by me...) is a heavy hammer and ill-advised,
+#    is the absence of matrix (or data.frame) slicing.  We have the convention that
+#    rows are "entities" and columns are "features"; the currently disabled getData (see generic below)
+#    accepts these as optional arguments.  Therefore
+#
+#           dz <- DEMOdz()
+#           stopfinot ("mtx.mut" %in% matrixNames(dz))
+#
+#       d)  m <- getData(dz, "mtx.mut", myTumors, myGenes)
+# 
+#    or, achieving the semantics of proposal 1c above:
+#
+#       e) m <- getData(dz, "mtx.mut")
+# 
+#    I will suggest a further optional arg on this method in point 4 below, after laying some more groundwork.
+#
+# 3) We have a convention for missing data which is not obvious to everyone - and which I regularly forget.
+#    Therefore we should add this inexpensive method
+#
+#       f) getMissingDataToken(SttrDataPackage)
+#
+#  which would presumably return NA.  R handles the varieties of NA as you would hope, so NA_character_,
+#  NA_integer_, NA_real_, can all be treated as NA, but e.g., matrix base types are preserved.   Any
+#  value in a matrix or data.frame other than NA can then be reliably interpreted as an actual measurement.
+#
+# 4) Proposed:  an optional  "fill" argument to the getData method.  Imagine this use case:  for a
+#    given tumor site, we want to get the full mutation matrix and the full copy number matrix.
+#    We wish the resulting matrices to have the same dimension with NA used for fill.  We use the
+#    currently unimplemented but previously functioning "entities" and "features" methods:
+#  
+#        all.tumors <- sort(unique(c(entities(dz, "mtx.mut"), entities(dz, "mtx.cn"))))
+#        genes.of.interest <- getGeneSetGenes(dz, "sangerCancerGeneCensus")  # some work needed here
+#        mtx.muts <- getData(dz, "mtx.mut", all.tumors, genes.of.interest, fill=TRUE)
+#        mtx.cns <- getData(dz, "mtx.cn", all.tumors, genes.of.interest, fill=TRUE)
+#
+#   then this will be TRUE:
+#
+#       dim(mtx.muts) == dim(mtx.cns)   # with lots of "missing value" NAs, expecially in mtx.muts
+#
+#   When fill=FALSE (the default) then very differently dimensioned matrices will often be returned.
+#   This capability is easily written and tested.  We should provide it (once!) in the base class so that
+#   derived classes and all of Oncocscape can use it whenever it is needed.
+#
+# 5) Indirect data.  Though currently moribund, the svn repo has a rough implementation of
+#    iDEMOdz, which is derived from the SttrDataPackage base class, and thus shares its API,
+#    but in which the actual data is obtained from a MySQL database.   Any SttrDataPackage client
+#    code can switch to this kind of SttrDataPackage implementation, changing only one bit of code, calling
+#
+#       credentials <- list(user="pshannon", password="fubar")
+#       dz <- iDEMOdz(credentials)
+#
+#    In the iDEMOdz proof-of-concept demo (which has unit tests) the credentials passed to the
+#    constructor are simple-minded.  We anticipate a variety of credentialing schemes, so
+#    an abstract base class "Crededentials" and a factory method to produce a concrete
+#    class appropriate to the current security model will be useful.   Null credentials will
+#    suffice for public data.  Arbitrarily complex credentials can be implemented on the same model.
+#
+#    The factory method design pattern also applies to the construction of all SttrDataPackages, for example:
+#
+#      dz <- constructDataPackage(signature="UWbladder", credentials=mySuperSecureCredentials)
+#
+#    This simple indirect data model makes no assumption about the underlying storage.  Any kind
+#    of storage can be used, from RSQLite, to PostgreSQL, SQL Server, and any imaginable cloud technology.
+#    The kind of storage used will be the choice of the implementer.  Furthermore, multiple
+#    storage strategies can be used and offered for the SAME data:
+# 
+#    dz <- constructDataPackage("TCGAbrain", myCredentials, storage=(direct|cloud|HutchSQLServer))
+#
+#----------------------------------------------------------------------------------------------------
 printf = function (...) print (noquote (sprintf (...)))
 options(stringsAsFactors = FALSE)
 #----------------------------------------------------------------------------------------------------
@@ -38,6 +120,7 @@ setGeneric('networks',        signature='obj', function (obj) standardGeneric ('
 setGeneric('canonicalizePatientIDs',   signature='obj', function (obj, patient.ids=NA, ...) standardGeneric ('canonicalizePatientIDs'))
 
 #setGeneric("features",    signature="obj", function (obj, signature) standardGeneric ("features"))
+#setGeneric("entities",    signature="obj", function (obj, signature) standardGeneric ("entities"))
 #setGeneric("getData",     signature="obj", function (obj, signature, entities=NA, features=NA) standardGeneric ("getData"))
 #setGeneric("getAverage",  signature="obj", function (obj, signature, rowsOrColumns, entities=NA, features=NA) standardGeneric("getAverage"))
 #setGeneric("dimensions",  signature="obj", function (obj) signature, standardGeneric("dimensions"))
