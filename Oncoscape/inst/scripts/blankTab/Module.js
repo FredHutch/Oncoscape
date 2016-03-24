@@ -75,6 +75,7 @@ function sendSelections(event)
 //--------------------------------------------------------------------------------------------
 function handleSelections(msg)
 {
+   hub.enableTab(thisModulesOutermostDiv);
    hub.raiseTab(thisModulesOutermostDiv);
    var msgAsString = JSON.stringify(msg.payload);
    
@@ -217,6 +218,7 @@ function initializeModule()
    hub.addMessageHandler("sendSelectionTo_blankTab", handleSelections);
    hub.addMessageHandler("blankTabAssessUserIdForTesting", assessUserIdForTesting)
    hub.addSocketConnectedFunction(runAutomatedTestsIfAppropriate);
+   hub.enableTab(thisModulesOutermostDiv);
 
 } // initializeModule
 //----------------------------------------------------------------------------------------------------

@@ -1,0 +1,9 @@
+#!/bin/bash
+set -e
+set -x
+
+ONCOSCAPE_ROOT=$(cd "$(dirname $0)/.." && pwd)
+export ONCOSCAPE_USER_DATA_STORE="file:///${ONCOSCAPE_ROOT}/userdata"
+export R_LIBS="${ONCOSCAPE_ROOT}/rlibs"
+
+cd $ONCOSCAPE_ROOT && sudo make test

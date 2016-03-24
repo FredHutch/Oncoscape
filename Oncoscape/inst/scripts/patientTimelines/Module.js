@@ -262,14 +262,14 @@ var TimeLineModule = (function () {
 		  return;
 		  }
    
-	   createTimelinesObjectOnServer(dataPackageName, dataName);
+	   createTimelinesObjectOnServer();
 
 	} // datasetSpecified
 //--------------------------------------------------------------------------------------------
-	function createTimelinesObjectOnServer(dataPackageName, dataName)
+	function createTimelinesObjectOnServer()
 	{
-	  console.log("create Timelines on server " + dataPackageName + ": " + dataName);
-	  payload = {dataPackage: dataPackageName, dataName: dataName};
+	  console.log("create Timelines on server ");
+	  payload = "";
 	  msg = {cmd: "createTimelines", callback: "DisplayPatientTimeLine", status: "request", payload: payload};
 	  msg.json = JSON.stringify(msg);
 	  hub.send(msg.json);
@@ -298,7 +298,7 @@ var TimeLineModule = (function () {
           
           if(msg.status == "request"){
              var patientIDs = msg.payload.value;
-             msg = {cmd: "getPatientIDsFromDataset", callback: "TimelinesHandlePatientIDs", status: "request", 
+             msg = {cmd: "canonicalizePatientIDsInDataset", callback: "TimelinesHandlePatientIDs", status: "request", 
                     payload: patientIDs};
              hub.send(JSON.stringify(msg));
           }

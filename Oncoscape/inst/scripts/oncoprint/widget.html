@@ -22,10 +22,13 @@ include(../../oncoprint/src/js/oncoprint.js);
    }
 </style>
 <div id = 'oncoprintDiv'>
+<div id="oncoprintInstructions" style="display: block">Please select and send up to 350 genes and patients from another tab, such as Markers &amp Patients, to populate the display.</div>
 <div id="oncoprintControlsDiv">  
-	<select type="button" id="oncoprintSendSelectionsMenu" style="float:right; margin:15px"></select>
+<!--	<select type="button" id="oncoprintSendSelectionsMenu" style="float:right; margin:15px"></select>  -->
 	<div id='onc'></div>
     <button id='toggle_whitespace' >Toggle Whitespace</button>
     <button id='reduce_cell_width'>Reduce Cell Width</button>
 </div>
+<div id="errorMessage1"></div>
+<div id="errorMessage2"></div>
 </div>

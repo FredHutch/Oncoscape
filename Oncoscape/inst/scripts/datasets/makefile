@@ -1,19 +1,20 @@
-devel:
-#	jshint Module.js
+default:
+	jshint Module.js
+	R -f runDatasets.R
+
+test:
+	jshint Module.js
+	jshint Test.js
 	m4 index.pre > index.html
 	R CMD INSTALL ../../..
-	R -f runDevel.R
+	#R -f runDatasets.R  autotest.2@nowhere.org.exitOnCompletion "DEMOdz"
+	#R -f runDatasets.R  autotest.1@nowhere.org.exitOnCompletion "DEMOdz;TCGAgbm"
+	#R -f runDatasets.R  autotest.3@nowhere.org.exitOnCompletion "DEMOdz;TCGAgbm;TCGAbrain"
+	R -f runDatasets.R  autotest.5@nowhere.org.exitOnCompletion "DEMOdz;TCGAgbm;TCGAlgg;TCGAbrain;TCGAbrca;TCGAprad;TCGAlusc;TCGAluad;TCGAlung;TCGAhnsc;TCGAcoadread"
 
-tabs:
-#	jshint Module.js
-	m4 indexTabs.pre > index.html
-	R CMD install  ../../..
-	R -f runDevel.R
-
-release:
+check:
+	jshint Module.js
+	jshint Test.js
 	m4 index.pre > index.html
-	R CMD install ../../..
-	R -f run.R
-
-
-
+	R CMD INSTALL ../../..
+	R -f runDatasets.R  autotest.5@nowhere.org.exitOnCompletion "DEMOdz;TCGAgbm;TCGAlgg;TCGAbrain;TCGAbrca;TCGAprad;TCGAlusc;TCGAluad;TCGAlung;TCGAhnsc;TCGAcoadread"

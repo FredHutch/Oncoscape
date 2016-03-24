@@ -17,10 +17,21 @@ TCGAhnsc <- function()
                                  matrices=data$matrices,
                                  data.frames=data$data.frames,
                                  history=data$history,
-                                 manifest=data$manifest))
+                                 manifest=data$manifest,
+                                 genesets=data$genesets,
+                                 networks = data$networks,
+                                 sampleCategorizations=data$sampleCategorizations
+))
 
   obj
 
 } # TCGAhnsc constructor
 
+#----------------------------------------------------------------------------------------------------
+setMethod('canonicalizePatientIDs', 'TCGAhnscClass',
+  function (obj, patient.ids) {
+  	 
+     ptIDs =  gsub("(^TCGA\\.\\w\\w\\.\\w\\w\\w\\w).*","\\1", patient.ids)
+     ptIDs
+     })
 #----------------------------------------------------------------------------------------------------

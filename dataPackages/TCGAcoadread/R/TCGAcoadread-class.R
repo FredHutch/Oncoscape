@@ -12,16 +12,26 @@ TCGAcoadread <- function()
   dir <- system.file(package="TCGAcoadread", "extdata")
   stopifnot(file.exists(dir))
   data <- SttrDataPackage:::.loadFiles(dir)
-
+ 
   obj <- .TCGAcoadread(SttrDataPackage(name="TCGAcoadread",
                                   matrices=data$matrices,
                                   data.frames=data$data.frames,
                                   history=data$history,
                                   manifest=data$manifest,
-                                  genesets=data$genesets))
+                                 genesets=data$genesets,
+                                 networks = data$networks,
+                                 sampleCategorizations=data$sampleCategorizations
+))
 
   obj
 
 } # TCGAcoadread constructor
 
+#----------------------------------------------------------------------------------------------------
+setMethod('canonicalizePatientIDs', 'TCGAcoadreadClass',
+  function (obj, patient.ids) {
+     
+     ptIDs =  gsub("(^TCGA\\.\\w\\w\\.\\w\\w\\w\\w).*","\\1", patient.ids)
+     ptIDs
+     })
 #----------------------------------------------------------------------------------------------------

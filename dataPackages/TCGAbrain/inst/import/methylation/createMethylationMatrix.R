@@ -20,6 +20,7 @@ HugoGenes <- unique(c(genes.gbm, genes.lgg))
 checkEquals(length(HugoGenes), ncol(tbl.TCGAgbm))
 checkEquals(length(HugoGenes), ncol(tbl.TCGAlgg))
 
+tbl.TCGAlgg <- tbl.TCGAlgg[, colnames(tbl.TCGAgbm)]
 mtx.meth <- rbind(tbl.TCGAgbm, tbl.TCGAlgg)
 
 checkEquals(nrow(mtx.meth), nrow(tbl.TCGAgbm) + nrow(tbl.TCGAlgg) )

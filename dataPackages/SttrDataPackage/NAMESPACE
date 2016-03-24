@@ -13,8 +13,10 @@ exportMethods (
   getPatientTable,
   getGeneSetNames,
   getGeneSetGenes,
+  getExpressionDataSetNames,
+  getExpressionDataSetExpression,
   networks,
-  getPatientIDs,
+  canonicalizePatientIDs,
   getSampleCategorizationNames,
   getSampleCategorization
   )

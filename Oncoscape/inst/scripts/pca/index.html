@@ -2,11 +2,14 @@
 
 
 
+
 <!DOCTYPE html> 
 <html>
 
 <head>
    <meta charset="UTF-8">
+   <meta property="og:title" content="Oncoscape" />
+
    <title> OncoDev 1.4</title>
 
    <script src="http://code.jquery.com/qunit/qunit-1.18.0.js"></script>
@@ -18,7 +21,9 @@
    <link   rel="stylesheet" type="text/css"
            href="http://ajax.googleapis.com/ajax/libs/jqueryui/1.8.7/themes/smoothness/jquery-ui.css">
 
-   <script src="http://oncoscape.sttrcancer.org/oncoscape/js/cytoscape-2.3.10.min.js"></script>
+   <!-- script src="http://oncoscape.sttrcancer.org/oncoscape/js/cytoscape-2.4.4.min.js"></script-->
+   <script src="http://oncoscape.sttrcancer.org/oncoscape/js/cytoscape-2.5.1.min.js"></script>
+
    <script src="http://oncoscape.sttrcancer.org/oncoscape/js/jquery.cytoscape.js-panzoom.js"></script>
    <link   href="http://oncoscape.sttrcancer.org/oncoscape/css/jquery.cytoscape.js-panzoom.css" 
            rel="stylesheet" 
@@ -31,10 +36,18 @@
    <link   rel="stylesheet" type="text/css"
            href="http://oncoscape.sttrcancer.org/oncoscape/css/jquery.dataTables-1.10.5.min.css">
 
+   <script src="http://cdn.datatables.net/colvis/1.1.0/js/dataTable.colVis.js"></script>
+
+   <link   rel="stylesheet" type="text/css"
+           href="http://cdn.datatables.net/colvis/1.1.0/css/dataTables.colVis.css">
+
    <script src="http://oncoscape.sttrcancer.org/oncoscape/js/jquery.multi-select.js" type="text/javascript"></script>
    <link href="http://oncoscape.sttrcancer.org/oncoscape/css/multi-select.css" media="screen" rel="stylesheet" type="text/css">
    <script src="http://oncoscape.sttrcancer.org/oncoscape/js/chosen.jquery.min.js" type="text/javascript"></script>
    <link href="http://oncoscape.sttrcancer.org/oncoscape/css/chosen.min.css" media="screen" rel="stylesheet" type="text/css">
+
+    <link rel="SHORTCUT ICON" type="image/x-icon" href="http://oncoscape.sttrcancer.org/oncoscape/images/favicon.ico"/>
+    <link rel="ICON" type="image/x-icon" href="http://oncoscape.sttrcancer.org/oncoscape/images/favicon.ico"/>
 
 
 <script> 
@@ -51,6 +64,25 @@
 //--------------------------------------------------------------------------------------------------
 </script> 
 
+<script>
+navigator.sayswho= (function(){
+    var ua= navigator.userAgent, tem,
+    M= ua.match(/(opera|chrome|safari|firefox|msie|trident(?=\/))\/?\s*(\d+)/i) || [];
+    if(/trident/i.test(M[1])){
+        tem=  /\brv[ :]+(\d+)/g.exec(ua) || [];
+        return 'IE '+(tem[1] || '');
+    }
+    if(M[1]!== 'Chrome'){
+       alert("Oncoscape is currently developed and tested under Chrome.  For best results, please use Chrome version 45.0 and later.")
+        tem= ua.match(/\b(OPR|Edge)\/(\d+)/);
+        if(tem!= null) return tem.slice(1).join(' ').replace('OPR', 'Opera');
+    }
+    M= M[2]? [M[1], M[2]]: [navigator.appName, navigator.appVersion, '-?'];
+    if((tem= ua.match(/version\/(\d+)/i))!= null) M.splice(1, 1, tem[1]);
+    return M.join(' ');
+})();
+</script>
+
 </head>
 
 <style>
@@ -66,7 +98,6 @@
    }
 
 th,td {
-   white-space: nowrap;
    font-size:12px;
    }
 
@@ -83,11 +114,19 @@ th,td {
    font-size:10pt !important;
    }
 
+.ui-dialog .ui-dialog-titlebar-close span{ margin:0 }
+
+.SelectionMenu{
+color: rgb(0, 0, 0); 
+background-color: rgb(255, 255, 255);
+}
 
 </style>
 
 
+
 <script>
+
 //----------------------------------------------------------------------------------------------------
 // These javascript functions and variables are arranged into a simple module so that
 // implementation details are kept private from the public API other oncoscape 
@@ -106,11 +145,30 @@ var HubModule = (function () {
   var socketIsConnected = false;
   var socketConnectedFunctions = [];
   var onDocumentReadyFunctions = [];
-
   var socketURI = window.location.href.replace("http://", "ws://");
-
   var socket;
+  
+  var  messagingRestrictedToLogin = false;
 
+  var modules = {};
+//----------------------------------------------------------------------------------------------------
+function registerModule(name, moduleObject)
+{
+   modules[name] = moduleObject;
+
+} // registerModule
+//----------------------------------------------------------------------------------------------------
+function getModuleNames()
+{
+   return(Object.getOwnPropertyNames(modules));
+
+} // getModuleNames
+//----------------------------------------------------------------------------------------------------
+function getModules()
+{
+   return modules;
+
+} // getModules
 //----------------------------------------------------------------------------------------------------
 // TODO: add 3rd argument: acceptsIncomingMessages
 //       datasets, for instance, seems to have no need for incoming json/websocket messages
@@ -145,13 +203,12 @@ function setupSocket(socket)
         } // socked.onopen
 
      socket.onmessage = function got_packet(msg) {
-        //console.log("=== Hub, socket.onmessage");
         var msg = JSON.parse(msg.data)
         dispatchMessage(msg)
         } // socket.onmessage, got_packet
 
      socket.onclose = function(){
-        console.log("socket closing");
+        alert("Web socket connection to server has closed");
         } // socket.onclose
      } // try
   catch(exception) {
@@ -192,8 +249,20 @@ function getOnDocumentReadyFunctions()
 
 } // getOnDocumentReadyFunctions
 //----------------------------------------------------------------------------------------------------
+// the nginx proxy server, used by fhcrc IT for the publicly-visible version of Oncoscape
+// times out web sockets at 90 seconds.
+// this function, when called more often that that, will keep the websocket open.
+keepAlive = function()
+{   
+    //console.log("keep alive"); 
+    msg = {cmd: "keepAlive", callback: "", status:"request", payload:""}
+    socket.send(JSON.stringify(msg));
+
+} // keepAlive
+//--------------------------------------------------------------------------------------------------
 function runOnDocumentReadyFunctions()
 {
+  setInterval(keepAlive, 10000);  // 10 seconds
   var funcs = getOnDocumentReadyFunctions()
   console.log("==== Module.hub: " + funcs.length + " onDocumentReadyFunctions");
 
@@ -256,7 +325,7 @@ function dispatchMessage(msg)
 {
    var cmd = msg.cmd;
    var status = msg.status;
-   //console.log("=============== dispatching '" + cmd + "'");
+   console.log("====== Module.hub dispatchMessage '" + cmd + "' [" + Date() + "]" );
 
    var dispatchKeys = Object.keys(dispatchOptions);
    var cmdIndex = dispatchKeys.indexOf(cmd);
@@ -280,9 +349,20 @@ function dispatchMessage(msg)
 
 }  // dispatchMessage
 //----------------------------------------------------------------------------------------------------
+function restrictMessagingToLogin(newState)
+{
+   messagingRestrictedToLogin = newState;
+
+} // restrictMessagingToLogin
+//----------------------------------------------------------------------------------------------------
 function send(msg)
 {
    var cmd = JSON.parse(msg).cmd;
+   if(messagingRestrictedToLogin && cmd === "checkPassword"){
+      console.log("hub.send drops non-login msg");
+      return;
+      }
+
    var browserLocalCommand = Object.keys(dispatchOptions).indexOf(cmd) >= 0;
    var mode = "server";
    if(browserLocalCommand)
@@ -330,6 +410,37 @@ function configureSendSelectionMenu(menuSelector, excludedModules, changeFunctio
 
 } // createSendSelectionMenu
 //--------------------------------------------------------------------------------------------
+// from http://stackoverflow.com/questions/4068373/center-a-popup-window-on-screen
+function openCenteredBrowserWindow(url, title, w, h, replaceAnyExistingPopup) {
+      // Fixes dual-screen position                       Most browsers      Firefox
+    var dualScreenLeft = window.screenLeft != undefined ? window.screenLeft : screen.left;
+    var dualScreenTop = window.screenTop != undefined ? window.screenTop : screen.top;
+    width = window.innerWidth ? window.innerWidth : document.documentElement.clientWidth ? document.documentElement.clientWidth : screen.width;
+    height = window.innerHeight ? window.innerHeight : document.documentElement.clientHeight ? document.documentElement.clientHeight : screen.height;
+
+    var left = ((width / 2) - (w / 2)) + dualScreenLeft;
+    var top = ((height / 2) - (h / 2)) + dualScreenTop;
+    var options = 'scrollbars=yes, width=' + w + ', height=' + h + ', top=' + top + ', left=' + left;
+
+    var newWindow;
+
+      // warning, a bug: when multiple popup windows are created, they
+      // all have the same content -- not what we want.  fix this
+      // by severing their relationship, and/or switching to jQuery dialog
+
+    if(replaceAnyExistingPopup)
+      newWindow = window.open(url, title, options);
+    else // leave any existing popup windows untouched
+      newWindow = window.open(url, "_blank", options);
+
+    if (window.focus) {
+       newWindow.focus();
+       }
+       
+    return newWindow;
+
+} // openCenteredBrowserWindow
+//--------------------------------------------------------------------------------------------
 function disableButton(button)
 {
    button.prop("disabled", true);
@@ -345,6 +456,29 @@ function enableButton(button)
 
 } // enableButton
 //--------------------------------------------------------------------------------------------
+function disableAllTabsExcept(tabIDstring)
+{
+  if(typeof tabIDstring == "string") tabIDstring = [tabIDstring]
+  var allDivIDs = getTabDivIDs()
+  allDivIDs = allDivIDs.filter(function(i, id){ return(tabIDstring.indexOf(id) == -1) })
+  for(var i=0;i<allDivIDs.length; i++){  	disableTab(allDivIDs[i]) }
+  
+  return allDivIDs;  //returns divIDs that have been disabled
+  
+} // disableTab
+//--------------------------------------------------------------------------------------------
+function disableTab(tabIDstring)
+{
+  $( "#oncoscapeTabs" ).tabs( "disable", "#" + tabIDstring  )
+
+} // disableTab
+//--------------------------------------------------------------------------------------------
+function enableTab(tabIDstring)
+{
+  $( "#oncoscapeTabs" ).tabs( "enable", "#" + tabIDstring   )
+} // enableTab
+
+//--------------------------------------------------------------------------------------------
 // if jQuery-style tabs are in use with Oncoscape, this function raised the named tab to the
 // the front (visible) position in the tabset
 // the argument, "tabIDString" is the tab id used in the module's widget.html, reproduced exactly
@@ -359,10 +493,73 @@ function raiseTab(tabIDString)
      var selectionString = '#oncoscapeTabs a[href="#' + tabIDString + '"]';
      var tabIndex = $(selectionString).parent().index ();
      if(tabIndex < 0) throw "Module.hub does not recognize tabIDString '" + tabIDString + "'";
-     tabsWidget.tabs( "option", "active", tabIndex);
+     console.log("Module.hub:raiseTab for '" + tabIDString + "' (" + tabIndex + ") set to active'");
+     setTimeout(function(){tabsWidget.tabs( "option", "active", tabIndex);}, 0);
      } // if tabs exist
 
 } // raiseTab
+//----------------------------------------------------------------------------------------------------
+// each of our tabs is a div, nested directly within $("oncoscapeTabs").  
+// this function returns an array of each of the div ids
+function getTabNames()
+{
+  var tabNames = $("#oncoscapeTabs").children()[0].textContent.trim().split("\n")
+  for (i=0;i< tabNames.length; i++){ tabNames[i] = tabNames[i].trim()}
+  tabNames =tabNames.filter(function(name){return name != ""})
+
+	return tabNames;
+
+} // getTabDivIDs
+//----------------------------------------------------------------------------------------------------
+// each of our tabs has a title within the $("oncoscapeTabs") nav bar
+// this function returns an array of each tab Title
+function getTabDivIDs()
+{
+   return ($("#oncoscapeTabs").children("div").map(function(index,dom){return dom.id}));
+
+} // getTabDivIDs
+//----------------------------------------------------------------------------------------------------
+// e.g., hub.hideTab("Login", "#loginDiv");
+function hideTab(tabTitle, tabDivIDstring)
+{
+  $(".ui-tabs-nav li:contains('" + tabTitle + "')").hide()
+  $(tabDivIDstring).hide();
+
+} // hideTab
+//----------------------------------------------------------------------------------------------------
+// e.g., hub.hideTabNav("Login");
+function hideTabNav(tabTitle)
+{
+  $(".ui-tabs-nav li:contains('" + tabTitle + "')").hide()
+
+} // hideTab
+//----------------------------------------------------------------------------------------------------
+function hideAllTabsButOne(tabTitle, tabDivIDstring)
+{
+  var divIDs = getTabDivIDs();
+  
+  $(".ui-tabs-nav li:contains('" + tabTitle + "')").hide()
+  $(tabDivIDstring).hide();
+
+} // hideAllTabsButOne
+//----------------------------------------------------------------------------------------------------
+function showTab(tabTitle, tabDivIDstring)
+{
+  $(".ui-tabs-nav li:contains('" + tabTitle + "')").show()
+  $(tabDivIDstring).show();
+
+} // showTab
+//----------------------------------------------------------------------------------------------------
+function addTab(tabTitle, tabDivIDstring,  content)
+{
+  var tabs = $("#oncoscapeTabs").tabs()
+  var listItem = "<li><a href='#" + tabDivIDstring + "}'>" + tabTitle + "</a>";
+
+  tabs.find(".ui-tabs-nav").append(listItem);
+  tabs.append("<div id='" + tabDivIDstring + "'><p>" + content + "</p></div>");
+  tabs.tabs("refresh");
+
+} // addTab
 //----------------------------------------------------------------------------------------------------
 function getRandomFloat (min, max)
 {
@@ -445,8 +642,19 @@ function start()
   setupGlobalExceptionHandler();
   initializeWebSocket();
   $(document).ready(runOnDocumentReadyFunctions);
+  QUnit.config.altertitle = false;
 
 }  // start
+//----------------------------------------------------------------------------------------------------
+function logEventOnServer(moduleOfOrigin, eventName, eventStatus, comment)
+{
+   console.log("about to logEvent: " + eventName);
+   payload= {eventName: eventName, eventStatus: eventStatus, 
+             moduleOfOrigin: moduleOfOrigin, comment: comment};
+
+   hub.send(JSON.stringify({cmd: "logEvent", callback: "", status: "request", payload: payload}));
+
+} // logEventOnServer
 //----------------------------------------------------------------------------------------------------
 function test_intersectionOfArrays()
 {
@@ -496,6 +704,9 @@ function standAloneTest()
 
   return({
      getName: function() {return(name)},
+     restrictMessagingToLogin: restrictMessagingToLogin,
+     registerModule: registerModule,
+     getModules: getModules,
      registerSelectionDestination: registerSelectionDestination,
      getRegisteredSelectionDestinations: getRegisteredSelectionDestinations,
      socketConnected: socketConnected,
@@ -511,17 +722,28 @@ function standAloneTest()
      getDispatchOptions: getDispatchOptions,
      dispatchMessage: dispatchMessage,
      configureSendSelectionMenu: configureSendSelectionMenu,
+     openCenteredBrowserWindow: openCenteredBrowserWindow,
      enableButton: enableButton,
      disableButton: disableButton,
+     enableTab: enableTab,
+     disableTab: disableTab,
+     disableAllTabsExcept: disableAllTabsExcept,
      getRandomInt: getRandomInt,
      getRandomFloat: getRandomFloat,
      intersectionOfArrays: intersectionOfArrays,
      uniqueElementsOfArray: uniqueElementsOfArray,
      send: send,
      setTitle: setTitle,
+     getTabDivIDs: getTabDivIDs,
+     getTabNames: getTabNames,
      raiseTab: raiseTab,
+     hideTab: hideTab,
+     hideTabNav: hideTabNav,
+     showTab: showTab,
+     addTab: addTab,
      sat: standAloneTest,
-     start: start
+     start: start,
+     logEventOnServer: logEventOnServer
      });
 
 }); // HubModule
@@ -529,8 +751,492 @@ function standAloneTest()
 
 
 var hub = HubModule();
+hub.start();
+
+// testManager/Module.js
+//----------------------------------------------------------------------------------------------------
+var moduleTests = [];
+//----------------------------------------------------------------------------------------------------
+var TestManagerModule = (function () {
+
+   var loopStatusObserver = null;
+
+   var loopStatusDiv = "#testManagerLoopStatusDiv";
+
+//----------------------------------------------------------------------------------------------------
+function initializeModule()
+{
+  console.log("--- entering Module.testManager.initializeModule");
+  
+  hub.addMessageHandler("testManagerAssessUserIdForTesting", assessUserIdForTesting);
+
+  if(hub.socketConnected())
+     runAutomatedTestsIfAppropriate();
+  else
+     hub.addSocketConnectedFunction(runAutomatedTestsIfAppropriate);
+    
+} // initializeModule
+//----------------------------------------------------------------------------------------------------
+// query the oncoscape server for user id.  the callback then makes a local (that is,
+// Module-specific) decision to run this module's automated tests based upon that id
+function runAutomatedTestsIfAppropriate()
+{
+   var msg = {cmd: "getUserInfo",  callback: "testManagerAssessUserIdForTesting", status: "request", payload: ""};
+   hub.send(JSON.stringify(msg));
+
+} // runAutomatedTestsIfAppropriate
+//----------------------------------------------------------------------------------------------------
+function assessUserIdForTesting(msg)
+{
+   console.log("---- Module.testManager, payload: ");
+   console.log(JSON.stringify(msg.payload));
+   
+   var userID = msg.payload.userID;
+   userID = userID.toLowerCase();
+
+   var datasetNames = msg.payload.datasets;
+   if(typeof(datasetNames) === "string")
+      datasetNames = [datasetNames];
+
+     // currently restricted to just one module:
+     // mutation observer pacing not yet worked out with multiple modules tested successively
+     
+   console.log("testManager/Module.js assessUserIdForTesting: " + userID);
+   if(userID.indexOf("autotest") === 0){
+      console.log("testManager/Module.js running tests for user " + userID);
+      var start = userID.indexOf(".");
+      var end = userID.indexOf("@");
+      var reps = 1;
+      if(start > 0 && end > 0)
+        reps = parseInt(userID.slice(start+1, end));
+      var exitOnCompletion = false;
+      if(userID.indexOf("exitoncompletion") > 0)
+          exitOnCompletion = true;
+
+      console.log("runTests: " + JSON.stringify(datasetNames));
+      console.log("reps: " + reps);
+      console.log("exitOnCompletion: " + exitOnCompletion);
+      //runTests(datasetNames, reps, exitOnCompletion);
+
+        // the individual modules should not exitOnCompletion
+      var modulesExitOnCompletion = false;
+      for(var i=0; i < moduleTests.length; i++){
+         console.log("about to run <module>Tester.run(), loop " + i);
+         moduleTests[0].run(datasetNames, reps, exitOnCompletion);
+         } // var i
+       
+      //if(exitOnCompletion){
+      //   var payload = {errorCount: Object.keys(sessionStorage).length,
+      //                  errors: JSON.stringify(sessionStorage)};
+      //   var exitMsg = {cmd: "exitAfterTesting", callback: "", status: "request", payload: payload};
+      //   console.log("about to send exitAfterTesting msg to server");
+      //   hub.send(JSON.stringify(exitMsg));
+      //   } // if exitOnCompletion
+      } // if userID == autotest
+
+} // assessUserIdForTesting
+//----------------------------------------------------------------------------------------------------
+function runTests(datasetNames, reps, exitOnCompletion)
+{
+
+   var config = {attributes: true, childList: true, characterData: true};
+   var target =  document.querySelector(loopStatusDiv);
+
+   var testIndex = -1;
+
+   var onMutation = function(mutations){
+      mutation = mutations[0];
+      loopStatusObserver.disconnect();
+      loopStatusObserver = null;
+      var id = mutation.target.id;
+      var msg = $(loopStatusDiv).text();
+      console.log("test status changed, text: " + msg);
+      testIndex++;
+      if(testIndex < moduleTests.length){
+         console.log("about to test module " + testIndex);
+	       loopStatusObserver = new MutationObserver(onMutation);
+         loopStatusObserver.observe(target, config);
+         var moduleExitOnCompletion = false;
+         moduleTests[testIndex].run(datasetNames, reps, moduleExitOnCompletion);
+	    }else{
+         console.log("mutation observer function detected end of moduleTests array");
+         if(exitOnCompletion){
+            var payload = {errorCount: Object.keys(sessionStorage).length,
+	                   errors: JSON.stringify(sessionStorage)};
+            var exitMsg = {cmd: "exitAfterTesting", callback: "", status: "request", payload: payload};
+            console.log("about to send exitAfterTesting msg to server");
+            hub.send(JSON.stringify(exitMsg));
+	       } // if exitOnCompletion
+	    } // else: datasets exhaused
+    }; // onMutation function
+
+   loopStatusObserver = new MutationObserver(onMutation);
+   loopStatusObserver.observe(target, config);
+
+   $(loopStatusDiv).text("start testing");   // mutate the target
+
+} // runTests
 //----------------------------------------------------------------------------------------------------
 
+  return({
+     init: initializeModule,
+     run: runTests
+     });
+
+});  // TestManagerMdoule
+//----------------------------------------------------------------------------------------------------
+testManager = TestManagerModule();
+hub.addOnDocumentReadyFunction(testManager.init);
+hub.addOnDocumentReadyFunction(function() {
+    console.log("====== tabapps document ready");
+    window.tabsAppRunning = true
+    $("#oncoscapeTabs").tabs({
+         // todo: distinguish between tabs, only do needed resets
+       activate: function(event, ui) {
+            console.log(" tabsApp/code.js:activate");
+            var tableRef = $("#historyTable").dataTable();
+            var tableRef2 = $("#userDataStoreTable").dataTable();
+            if (tableRef.length > 0) {
+               console.log("   adjusting patient history table");
+               tableRef.fnAdjustColumnSizing();
+               } // if
+            if (tableRef2.length > 0) {
+               console.log("   skipping! - adjusting user data store table");
+               tableRef2.fnAdjustColumnSizing();
+               } // if
+            //console.log(" ==== tab.activate, possible cyjs resize and fit");
+            if(typeof(cwMarkers) != "undefined") {
+              console.log("adjusting cwMarkers? " + cwMarkers.width() + " * " + cwMarkers.height());
+               if(cwMarkers.width() > 0){
+                  cwMarkers.resize(); 
+                  console.log("after resize");
+                  cwMarkers.fit(50);
+                  console.log("done adjusting cwMarkers");
+		  }
+               }
+            if(typeof(cyGbm) != "undefined") {
+               //console.log("adjusting cwGbm");
+               cyGbm.resize();
+               cyGbm.fit(50);
+               //console.log("done adjusting cwGbm");
+               }
+            if(typeof(cwAngio) != "undefined") {
+               //console.log("adjusting cwAngio");
+               cwAngio.resize();
+               cwAngio.fit(50);
+               //console.log("done adjusting cwGbm");
+               }
+            if(typeof(cyPathway) != "undefined") {
+               cyPathway.resize();
+               cyPathway.fit(50);
+               }
+            } // activate
+        }); // tabs
+    });  // ready
+
+
+
+//----------------------------------------------------------------------------------------------------
+var DataSummaryModule = (function () {
+
+  var dataSummaryDiv;
+
+  var outputDiv;
+  var dataSetNamesOutputDiv;
+  var thisModulesName = "Datasets";
+  var thisModulesOutermostDiv = "datasetsDiv";
+
+  var tableElement;
+  var tableRef;
+  var datasetMenu;
+  var selectedDataSet;
+  var useThisDatasetButton;
+
+  var sendSelectionsMenu;
+  var sendSelectionsMenuTitle = "Send selection...";
+  var passwordProtected = false;
+
+//----------------------------------------------------------------------------------------------------
+function initializeUI()
+{
+  sendSelectionsMenu = hub.configureSendSelectionMenu("#datasetsSendSelectionsMenu", 
+                                                      [thisModulesName], sendSelections,
+                                                       sendSelectionsMenuTitle);
+
+  hub.disableButton(sendSelectionsMenu);
+
+  $(window).resize(handleWindowResize);
+  datasetMenu = $("#datasetMenu");
+  datasetMenu.change(selectManifest);
+
+  dataSetNamesOutputDiv = $("#dataSetNamesOutputDiv");
+  dataSummaryDiv = $("#dataSummaryOutputDiv");
+
+  useThisDatasetButton = $("#selectDatasetButton");
+  useThisDatasetButton.button();
+  hub.disableButton(useThisDatasetButton);
+  useThisDatasetButton.click(specifyCurrentDataset);
+
+  outputDiv = $("#dataSummaryOutputDiv");
+  tableElement = $("#datasetsManifestTable");
+      
+    // if no login tab is present, then allow unrestricted choice of datasets.
+    // if it IS present, then that tab will control this.
+
+  var loginRequired = $("#loginDiv").length === 1;
+  console.log("loginRequired? " + loginRequired);
+
+  if(!loginRequired){
+    console.log(" enabling datasetMenu");
+    hub.enableButton($("#datasetMenu"));
+    }
+  else{
+    console.log(" disabling datasetMenu");
+    hub.disableButton($("#datasetMenu"));
+    }
+
+   if(hub.socketConnected())
+      populateDataSetMenu();
+   else
+     hub.addSocketConnectedFunction(populateDataSetMenu);
+
+} // initializeUI
+//----------------------------------------------------------------------------------------------------
+function postStatus(msg)
+{
+   $("#datasetsStatusDiv").text(msg);   // todo: this is obsolete
+   $("#datasetsMinorStatusDiv").text(msg);
+   
+} // postStatus
+//----------------------------------------------------------------------------------------------------
+function handleWindowResize()
+{
+  $("#"+thisModulesOutermostDiv).width($(window).width() * 0.95);
+//  $("#"+thisModulesOutermostDiv).height($(window).height() * 0.95);
+
+//  console.log("  div: " + outputDiv.width());
+//  console.log("  tbl before: " + tableElement.width());
+//  tableElement.width($(window).width() * 0.50);
+//  console.log("  tbl after: " + tableElement.width());
+
+} // handleWindowResize
+//----------------------------------------------------------------------------------------------------
+function sendSelections(event)
+{
+   var destination = sendSelectionsMenu.val();
+   console.log("send selections to " + destination);
+   sendSelectionsMenu.val(sendSelectionsMenuTitle);
+
+   var cmd = "sendSelectionTo_" + destination;
+   payload = "dummy payload";
+   var newMsg = {cmd: cmd,  callback: "", status: "request", payload: payload};
+
+   sendSelectionsMenu.val(sendSelectionsMenuTitle);
+
+   hub.send(JSON.stringify(newMsg));
+
+} // sendSelections
+//----------------------------------------------------------------------------------------------------
+function selectManifest(event)
+{
+   selectedDataSet = datasetMenu.val();
+   console.log("dataset '" + selectedDataSet + "'");
+   $("#datasetsManifestTable").css("display", "none");
+   $("#loadingDatasetMessage").css("display", "inline");
+
+   if(selectedDataSet === ""){
+      $("#datasetInstructions").css("display", "block");
+      hub.disableButton(useThisDatasetButton);
+      }
+    else{
+      $("#datasetInstructions").css("display", "none");
+      requestDataSetSummary(selectedDataSet);
+    }
+
+} // selectManifest
+//----------------------------------------------------------------------------------------------------
+function populateDataSetMenu()
+{
+   console.log("Module.datasets, entering populateDataSetMenu");
+
+   console.log("      socket connected? " + hub.socketConnected());
+   console.log("=== datasetMenu ready, now issuing populateDataSetMenu request to server");
+   var msg = {cmd: "getDataSetNames",  callback: "handleDataSetNames", status: "request", payload: ""};
+   hub.send(JSON.stringify(msg));
+
+} // populateDataSetMenu
+//----------------------------------------------------------------------------------------------------
+function handleDataSetNames(msg)
+{
+   console.log("=== handleDataSetNames");
+   
+   var dataSetNames = msg.payload.datasets;
+   console.log("dataSetNames length: " + dataSetNames.length);
+   console.log("dataSetNames: " + JSON.stringify(dataSetNames));
+
+   var passwordProtected = msg.payload.passwordProtected;
+
+   if(!Array.isArray(dataSetNames))
+      dataSetNames = [dataSetNames];
+
+   for(var i=0; i < dataSetNames.length; i++){
+      var s = dataSetNames[i];
+      datasetMenu.append("<option value='" + s + "'>" + s + "</option>");
+      }
+
+  $("#datasetsMinorStatusDiv").text("datasetMenu loaded");
+
+} // handleDataSetNames
+//----------------------------------------------------------------------------------------------------
+function requestDataSetSummary(dataSetName)
+{
+   console.log("=== requestDataSetSummary");
+
+   var msg = {cmd: "getDataManifest",  callback: "displayDataManifest", status: "request", 
+              payload: dataSetName};
+   hub.logEventOnServer(thisModulesName, "datasets requestDataSummary", "request", dataSetName);
+
+   hub.send(JSON.stringify(msg));
+
+} // requestDataSetSummary
+//----------------------------------------------------------------------------------------------------
+function displayDataManifest(msg)
+{
+   $("#datasetsManifestTable").css("display", "block");
+   $("#loadingDatasetMessage").css("display", "none");
+
+   var payload = msg.payload;
+   var tblColumnNames = payload.colnames;
+
+   var columnTitles = [];
+     // convert simple strings to array of objects, each an sTitle
+   for(var i=0; i < tblColumnNames.length; i++){
+      columnTitles.push({sTitle: tblColumnNames[i]});
+      }
+     
+   if(typeof(tableRef) != "undefined"){
+      tableRef.destroy();
+      tableElement.empty();
+      }
+
+
+   $(tableElement).ready(function() {
+      tableRef = tableElement.DataTable({
+        //sDom: 't',
+        aoColumns: columnTitles,
+        //scrollX: true,
+        bPaginate: false,
+        bFilter: false, 
+        bAutoWidth: true,
+        bSort: false,
+        bInfo: false
+        }); // dataTable
+
+     tableRef = $("#datasetsManifestTable").DataTable();
+
+     tableRef.rows.add(payload.mtx).draw();
+     // tableRef.fnAddData(payload.mtx);
+
+     $('#datasetsManifestTable tbody').on( 'click', 'tr', function (){ 
+         console.log("=== click");
+         var category = $('td', this).eq(0).text();
+         var subcategory = $('td', this).eq(1).text();
+         if($(this).hasClass("selected")){
+            $(this).removeClass('selected');
+            hub.disableButton(sendSelectionsMenu);
+            }
+         else{
+            tableRef.$('tr.selected').removeClass('selected');
+            $(this).addClass('selected');
+            hub.enableButton(sendSelectionsMenu);
+            console.log("selected " + category + ", " + subcategory);
+            }
+         });
+
+     handleWindowResize();
+     hub.enableButton(useThisDatasetButton);
+     postStatus("manifest table displayed");
+     hub.logEventOnServer(thisModulesName, "datasets requestDataSummary", "complete", "");
+     }); // tableElement.ready
+
+} // displayDataManifest
+//----------------------------------------------------------------------------------------------------
+function specifyCurrentDataset()
+{
+   console.log("Module.datasets 'Use Dataset' button clicked, specifyCurrentDataset: " + selectedDataSet);
+ 
+   hub.disableAllTabsExcept([thisModulesOutermostDiv, "userDataStoreDiv", "ericTestDiv", "DashboardDiv"]);
+	
+   var msg = {cmd: "specifyCurrentDataset",  callback: "datasetSpecified", 
+              status: "request", payload: selectedDataSet};
+
+   hub.send(JSON.stringify(msg));
+
+} // specifyCurrentDataset
+//----------------------------------------------------------------------------------------------------
+function datasetSpecified(msg)
+{
+   console.log("--- Module.datasets:  datasetSpecified");
+
+} // datasetSpecified
+//----------------------------------------------------------------------------------------------------
+function test(dataSetName)
+{
+   console.log("Module.datasets test, on datasetName: '" + dataSetName + "'");
+
+   QUnit.test("choose dataset '" + dataSetName + "'", function(assert) {
+      hub.raiseTab("datasetsDiv");
+      var desiredDataset = dataSetName;
+      var dzNames = $("#datasetMenu option").map(function(opt){return this.value;});
+
+      if($.inArray(desiredDataset, dzNames) < 0){
+         alert("cannot run tests:  " + desiredDataset + " dataset not loaded");
+         return;
+         }
+
+      $("#datasetMenu").val(desiredDataset);
+      $("#datasetMenu").trigger("change");
+
+      var done1 = assert.async();
+      var done2 = assert.async();
+      var done3 = assert.async();
+      assert.expect(3);
+
+      setTimeout(function(){
+         assert.equal($("#datasetMenu").val(), desiredDataset);  done1();
+         assert.ok($("#datasetsManifestTable tr").length >= 10); done2();
+         assert.equal($("#datasetsManifestTable tbody tr").eq(0).find("td").eq(0).text(), 
+                      "mRNA expression"); done3();
+         //testLoadPatientHistoryTable();
+         }, 5000);
+      });
+
+
+} // test
+//----------------------------------------------------------------------------------------------------
+function moduleInit()
+{
+  hub.addOnDocumentReadyFunction(initializeUI);
+  //hub.addSocketConnectedFunction(populateDataSetMenu);
+  hub.addMessageHandler("handleDataSetNames", handleDataSetNames);
+  hub.addMessageHandler("displayDataManifest", displayDataManifest);
+  hub.addMessageHandler("datasetSpecified", datasetSpecified);
+
+} // moduleInit
+//----------------------------------------------------------------------------------------------------
+return{
+   init: moduleInit,
+   test: test
+   }; // DataSummaryModule return value
+
+//----------------------------------------------------------------------------------------------------
+}); // DataSummaryModule
+
+var dataSummaryModule = DataSummaryModule();
+dataSummaryModule.init();
+hub.registerModule("Datasets", dataSummaryModule);
+
+//----------------------------------------------------------------------------------------------------
 
 var PCAModule = (function () {
 
@@ -556,9 +1262,6 @@ var PCAModule = (function () {
   var testResultsOutputDiv;
 
   var patientMenu;
-
-
-
   var pcaSendSelectionMenu;
 
   var thisModulesName = "PCA";
@@ -573,7 +1276,8 @@ var PCAModule = (function () {
 
   var sendSelectionsMenuTitle = "Send selection...";
   var selectionDestinationsOfferedHere = ["PCA", "PCA (highlight)"];
-
+  var pcaMsg; 
+  var highlightIndex = [];
 //----------------------------------------------------------------------------------------------------
 function initializeUI ()
 {
@@ -590,8 +1294,8 @@ function initializeUI ()
 
   calculatePcaButton = $("#pcaCalculateButton");
   calculatePcaButton.button();
+  $("#pcaDisplay").css("display", "none");
   calculatePcaButton.click(calculate);
-
   useAllSamplesInCurrentDatasetButton = $("#pcaUseAllSamplesButton");
   useAllSamplesInCurrentDatasetButton.button();
   useAllSamplesInCurrentDatasetButton.click(useAllSamplesInCurrentDataset);
@@ -609,12 +1313,16 @@ function initializeUI ()
   pcaSendSelectionMenu = hub.configureSendSelectionMenu("#pcaSendSelectionsMenu", 
                                                         selectionDestinationsOfferedHere, sendSelections,
                                                         sendSelectionsMenuTitle);
+/// BUG FIX NECESSARY:		
+//  $("#pcaSendSelectionsMenu").css("display", "none")                                                     
+///
+  hub.disableTab(thisModulesOutermostDiv);
  
-}; // initializeUI
+} // initializeUI
 //----------------------------------------------------------------------------------------------------
 function showLegend(){
 
-  var text = $("#PCALegend").html()
+  var text = $("#PCALegend").html();
   var title = "PCA Legend";
   $("<div>").html(text).dialog({title: title, width:600, height:600});
 
@@ -636,7 +1344,7 @@ function handlePatientClassification (msg)
       console.log("got classification, length " + patientClassification.length);
       }
    else{
-     alert("error!" + msg.payload)
+     alert("error!" + msg.payload);
      }
 
    //drawLegend()
@@ -647,16 +1355,31 @@ function requestGeneSetNames()
 {
    console.log("=== requestGeneSetNames");
 
-   callback = "pcaHandleGeneSetNames"
+   callback = "pcaHandleGeneSetNames";
 
    msg = {cmd:"getGeneSetNames",
           callback: callback,
           status:"request",
-          payload:""}
+          payload:""};
 
    hub.send(JSON.stringify(msg));
 
 } // requestGeneSetNames
+//----------------------------------------------------------------------------------------------------
+function requestSampleNames()
+{
+   console.log("=== requestSampleNames");
+
+   callback = " ";
+
+   msg = {cmd:"canonicalizePatientIDsInDataset",
+          callback:callback ,
+          status:"request",
+          payload:""};
+
+   hub.send(JSON.stringify(msg));
+
+} // requestSampleNames
 //----------------------------------------------------------------------------------------------------
 function handleGeneSetNames(msg)
 {
@@ -669,15 +1392,28 @@ function handleGeneSetNames(msg)
 //----------------------------------------------------------------------------------------------------
 function addGeneSetNamesToMenu (geneSetNames)
 {
+   console.log("Module.pca:addGetSetNamesToMenu");
+
    geneSetMenu.empty();
-   if(geneSetNames.length == 0) {
+
+   if(geneSetNames.length === 0) {
+     postStatus("addGeneSetNamesToMenu: geneSetNames.length == 0");
      return;
      }
+    
+   if(typeof geneSetNames == "string") 
+   	 geneSetNames = [geneSetNames]; 
+ 
       
    for(var i=0; i < geneSetNames.length; i++){
      optionMarkup = "<option>" + geneSetNames[i] + "</option>";
      geneSetMenu.append(optionMarkup);
      } // for i
+
+  postStatus("addGeneSetNamesToMenu: complete");
+  hub.enableTab(thisModulesOutermostDiv);
+
+
 
 } // addGeneSetNamesToMenu
 //----------------------------------------------------------------------------------------------------
@@ -690,10 +1426,10 @@ function useAllSamplesInCurrentDataset()
 //----------------------------------------------------------------------------------------------------
 function changePCAids(msg)
 {
-   patientIDs = []
+   patientIDs = [];
    selections = msg.payload;
-   d3.values(selections).forEach(function(d){ d.patientIDs.forEach(function(id){patientIDs.push(id)})})
-   sendSelectionToModule("PCA", patientIDs)
+   d3.values(selections).forEach(function(d){ d.patientIDs.forEach(function(id){patientIDs.push(id);});});
+   sendSelectionToModule("PCA", patientIDs);
 
 } // changePCAids
 //----------------------------------------------------------------------------------------------------
@@ -703,7 +1439,7 @@ function drawLegend ()
      return;
 
   for(var i=0; i<patientClassification.length; i++){
-    if(patientClassification[i].gbmDzSubType[0] == null | patientClassification[i].gbmDzSubType[0] == ""){
+    if(patientClassification[i].gbmDzSubType[0] === null | patientClassification[i].gbmDzSubType[0] === ""){
       patientClassification[i].gbmDzSubType[0]= "undefined";
       } // if
     } // for i
@@ -712,7 +1448,7 @@ function drawLegend ()
                           .key(function(d) { return d.gbmDzSubType[0]; })
                           .map(patientClassification, d3.map);
 
-  var LegendLabels = d3.values(classifications.keys())
+  var LegendLabels = d3.values(classifications.keys());
  
   var Legendsvg = d3.select("#pcaLegend").append("svg")
                       .attr("id", "pcaLegendSVG")
@@ -731,14 +1467,14 @@ function drawLegend ()
                          .data(LegendLabels)
                          .enter().append("g")
                          .attr("transform", function(d, i) { 
-                             return "translate(" + i*TextOffSet(d) + ",0)" 
+                             return "translate(" + i*TextOffSet(d) + ",0)"; 
                              });
 
     var text = legend.append("text")
                       .attr("y", 10)
                       .attr("x", 0)
                       .style("font-size", 12)
-                      .text(function(d) { return d})
+                      .text(function(d) { return d;})
                       .attr("transform", function(d, i) { 
                           return "translate(" + 15 + ",0)";
                            });
@@ -747,8 +1483,8 @@ function drawLegend ()
           .attr("cx", 0)
           .attr("cy", 5)
           .attr("r", function(d) { return 6;})
-          .style("fill", function(d)   { if(d=="undefined") return "white"; return classifications.get(d)[0].color[0]})
-          .style("stroke", function(d) { if(d=="undefined") return "black"; return classifications.get(d)[0].color[0]})
+          .style("fill", function(d)   { if(d=="undefined") return "white"; return classifications.get(d)[0].color[0];})
+          .style("stroke", function(d) { if(d=="undefined") return "black"; return classifications.get(d)[0].color[0];});
  
 } // drawLegend
 //----------------------------------------------------------------------------------------------------
@@ -789,7 +1525,7 @@ function sendSelections(event)
 {
   var destination = pcaSendSelectionMenu.val();
 
-  var selectedIDs = pointsInBrushedRegion()
+  var selectedIDs = pointsInBrushedRegion();
        
    if(selectedIDs.length > 0){
       var cmd = "sendSelectionTo_" + destination;
@@ -808,39 +1544,60 @@ function pcaPlot (msg)
 {
    if(msg.status == "success"){
       pcaScores = msg.payload.scores;
-      currentIdentifiers = msg.payload.ids
-     
+      var geneSet = msg.payload.geneSetName;
+      currentIdentifiers = msg.payload.ids;
+      console.log("*****pcaPlot received msg.payload: ", msg.payload);
+      console.log("*****pcaPlot received currentIdentifier length: ", currentIdentifiers.length);
+      console.log("*****pcaPlot received pcaScores length: ", pcaScores.length);
+      console.log("*****pcaPlot geneSet length: ", geneSet.length);
+      //capture message and store to a global variable for testing purpose
+      pcaMsg = {selectedIDs:currentIdentifiers, pcaScores:pcaScores, geneSet:geneSet};
+      pcaMsg.selectedIDs = currentIdentifiers;
+      pcaMsg.pcaScores = pcaScores;
+      pcaMsg.geneSet = geneSet;
+      //for(var i = 0; i < pcaMsg.selectedIDs.length; i++) { pcaMsg.selectedIDs[i] = pcaMsg.selectedIDs[i].slice(0, 12);}
+      console.log("*****pcaPlot selectedIDs length", pcaMsg.selectedIDs.length);
+      console.log("*****pcaPlot pcaScore length", pcaMsg.pcaScores.length);
+      console.log("*****pcaPlot geneSet length", pcaMsg.geneSet.length);
       d3PcaScatterPlot(pcaScores);
 
-      var pcaData = msg.payload.importance
+      var pcaData = msg.payload.importance;
       var PC1var = 100 * msg.payload["importance.PC1"];
       var PC2var = 100 * msg.payload["importance.PC2"];
-      var pcaText = $("#pcaTextDisplayDiv").html("")
-      pcaText.append("Proportion of Variance: ")
-      pcaText.append("PC1: "+PC1var.toFixed(2) + "%, PC2: "+PC2var.toFixed(2)+"%")
+      var pcaText = $("#pcaTextDisplayDiv").html("");
+      pcaText.append("Proportion of Variance: ");
+      pcaText.append("PC1: "+PC1var.toFixed(2) + "%, PC2: "+PC2var.toFixed(2)+"%");
         
       //if(!firstTime){  // first call comes at startup.  do not want to raise tab then.
       hub.raiseTab(thisModulesOutermostDiv);
+      postStatus("pcaPlot: success");
       //  }
       }// if success
     else{
       errorMessage = msg.payload;
       $("<div/>").html(errorMessage).dialog({title: "pcaPlot error", width:600, height:300});
+      postStatus("pcaPlot: error");
       }
      firstTime = false;
-     };
+}
+//----------------------------------------------------------------------------------------------------
+function postStatus(msg)
+{
+  $("#pcaStatusDiv").text(msg);
 
+} // postStatus
 //----------------------------------------------------------------------------------------------------
 function highlightPatientIDs(msg)
 {
    hub.raiseTab(thisModulesOutermostDiv);
 
    var candidates = msg.payload.value;
+   //var testing = msg.payload.testing;
+   //pcaMsg.selectedIDs = candidates;
    console.log("=== Module.pca, highlightPatientIDs, candidates:");
-   console.log(JSON.stringify(candidates));
+   //console.log(JSON.stringify(candidates));
    console.log("=== Module.pca, highlightPatientIDs, currentIdentifiers:");
-   console.log(JSON.stringify(currentIdentifiers));
-
+   //console.log(JSON.stringify(currentIdentifiers));
      // with currentIdentifiers (local shorter sample IDs) first, they
      // are returned:
      //   hub.intersectionOfArrays(currentIdentifiers, candidates)  ->    
@@ -848,13 +1605,18 @@ function highlightPatientIDs(msg)
      // rather than
      //    hub.intersectionOfArrays(candidates, currentIdentifiers) ->  
      //      ["TCGA.02.0114.01", "TCGA.12.1088.01"]
-
+   if(currentIdentifiers.length === 0){
+     title = "PCA plot not calculated";
+     errorMessage = "Please calculate PCA plot before sending identifiers for highlighting.";
+     $('<div />').html(errorMessage).dialog({title: title, width:600, height:300});
+     return; 
+   }
    var intersection = hub.intersectionOfArrays(candidates, currentIdentifiers);
    // debugger;
    console.log("=== Module.pca, highlightPatientIDs, intersection:");
    console.log(JSON.stringify(intersection));
 
-   if(intersection.length == 0){
+   if(intersection.length === 0){
      count = candidates.length;
      errorMessage = "None of the incoming ids were recognized: ";
      for(var i=0; i < count; i++){
@@ -862,33 +1624,43 @@ function highlightPatientIDs(msg)
        }
      title = "Unrecognized Identifiers";
      $('<div />').html(errorMessage).dialog({title: title, width:600, height:300});
+     postStatus("intersection.length === 0");
      } // if intersection
-   else
+   else{
      selectPoints(intersection, true);
-
+     //postStatus("intersection.length !== 0");
+   }
 } // highlightPatientIDs
 //----------------------------------------------------------------------------------------------------
 function selectPoints(ids, clearIDs)
 {
    console.log("=== module.pca: selectPoints");
-   console.log("    incoming ids count: " + ids.length)
+   console.log("    incoming ids count: " + ids.length);
    //console.log(ids);
-
-   d3.selectAll("circle")
-     .filter(function(d, i){
-        //console.log("examining currentIdentifier " + i + ": " + currentIdentifiers[i]);
-        if(typeof(d) == "undefined")
+   
+   if(true){
+     d3.selectAll("circle")
+       .filter(function(d, i){
+         //console.log("examining currentIdentifier " + i + ": " + currentIdentifiers[i]);
+         if(typeof(d) == "undefined")
            return(false);
-        match = ids.indexOf(currentIdentifiers[i]);
-        //console.log("match: " + match);
-        return (match >= 0);
-        }) // filter
-     .classed("highlighted", true)
-     .transition()
-     .attr("r", 7)
-     .duration(500);
-
-} // selectPoints
+         match = ids.indexOf(currentIdentifiers[i]);
+         //highlightIndex.push(match);
+         //console.log("match: " + match);
+         return (match >= 0);
+       }) // filter
+       .classed("highlighted", true)
+       .transition()
+       .attr("r", 7)
+       .duration(500);
+   }
+   //pcaMsg.highlightIndex = highlightIndex;
+   setTimeout(function(){
+            console.log("*****Module.js within selectPoints before qunit");
+            console.log("***** Date time: ", Date());
+            postStatus("selectPoints are highlighted"); 
+   }, 5000);
+ } // selectPoints
 //----------------------------------------------------------------------------------------------------
 function clearSelection()
 {
@@ -908,11 +1680,14 @@ function calculate()
    var payload = {genes: currentGeneSet};
 
    if(currentPatientIDs !== null)
-       payload["samples"] = currentPatientIDs;
+       payload.samples = currentPatientIDs;
+       //payload["samples"] = currentPatientIDs;
+
 
    msg = {cmd: "calculatePCA", callback: "pcaPlot", status: "request", payload: payload};
    hub.send(JSON.stringify(msg));
-
+   $("#pcaInstructions").css("display", "none");
+   $("#pcaDisplay").css("display", "block");
 } // calculate
 //----------------------------------------------------------------------------------------------------
 function handlePatientIDs(msg)
@@ -923,6 +1698,7 @@ function handlePatientIDs(msg)
      var currentGeneSet = geneSetMenu.val();
      var selectedPatientIdentifiers = msg.payload.value;
      currentPatientIDs = msg.payload.value;
+     console.log("*****handlePatientIDs received patientID length: ", currentPatientIDs.length);
      var payload = {samples: currentPatientIDs, genes: currentGeneSet};
      msg = {cmd: "calculatePCA", callback: "pcaPlot", status: "request", payload: payload};
      hub.enableButton(useAllSamplesInCurrentDatasetButton);
@@ -947,11 +1723,11 @@ function d3PlotBrushReader ()
 
   console.log("width: " + width);
   if(width > 0.001 &   pointsInBrushedRegion().length > 0){
-    console.log("enabling pcaSendSelectionMenu")
+    console.log("enabling pcaSendSelectionMenu");
     pcaSendSelectionMenu.prop("disabled",false);
     }
   else{
-    console.log("disabling pcaSendSelectionMenu")
+    console.log("disabling pcaSendSelectionMenu");
     pcaSendSelectionMenu.prop("disabled",true);
     }
 
@@ -979,7 +1755,6 @@ function chooseColor(d)
 //----------------------------------------------------------------------------------------------------
 function d3PcaScatterPlot(dataset)
 {
-   //pcaSendSelectionMenu.prop("disabled",true);
    var padding = 50;
    var width = $("#pcaDisplay").width();
    var height = $("#pcaDisplay").height();
@@ -992,10 +1767,10 @@ function d3PcaScatterPlot(dataset)
        // todo:  after finding min and max, determine largest of each axis in abs value
        // todo:  then find next larger even number, use that throughout
      
-   xMax = xMax * 1.1
-   xMin = xMin * 1.1
-   yMax = yMax * 1.1
-   yMin = yMin * 1.1
+   xMax = xMax * 1.1;
+   xMin = xMin * 1.1;
+   yMax = yMax * 1.1;
+   yMin = yMin * 1.1;
 
      //console.log("xMax: " + xMax);   console.log("xMin: " + xMin);
      //console.log("yMax: " + yMax);   console.log("yMin: " + yMin);
@@ -1009,7 +1784,8 @@ function d3PcaScatterPlot(dataset)
    var yScale = d3.scale.linear()
                   .domain([yMin, yMax])
                   .range([height - padding, padding]); // note inversion 
-
+  pcaMsg.xScale = xScale;
+  pcaMsg.yScale = yScale; 
    var xTranslationForYAxis = xScale(0);
    var yTranslationForXAxis = yScale(0);
 
@@ -1058,8 +1834,7 @@ function d3PcaScatterPlot(dataset)
       .attr("dy", ".71em")
       .style("font-size", 14)
       .style("text-anchor", "end") //start, middle
-      .text("PC2");
-            
+      .text("PC2");       
    var circle = svg.append("g").selectAll("circle")
                    .data(dataset)
                    .enter()
@@ -1068,12 +1843,12 @@ function d3PcaScatterPlot(dataset)
                    .attr("cy", function(d,i) {return yScale(d[1]);})
                    .attr("r", function(d) { return 3;})
                    .style("fill", function(d) {
-                        var color = chooseColor(d[0])
-                        if(color == "") return "white"
+                        var color = chooseColor(d[0]);
+                        if(color === "") return "white";
                         return color;})
                    .style("stroke", function(d) {
-                        var color = chooseColor(d[0])
-                        if(color == "") return "black"
+                        var color = chooseColor(d[0]);
+                        if(color === "") return "black";
                         return color;})
                    .on("mouseover", function(d,i){
                          tooltip.text(currentIdentifiers[i]);
@@ -1082,8 +1857,6 @@ function d3PcaScatterPlot(dataset)
                    .on("mousemove", function(){return tooltip.style("top",
                            (d3.event.pageY-10)+"px").style("left",(d3.event.pageX+10)+"px");})
                    .on("mouseout", function(){return tooltip.style("visibility", "hidden");});
-      
- 
 } // d3PcaScatterPlot
 //----------------------------------------------------------------------------------------------------
 function datasetSpecified(msg)
@@ -1099,7 +1872,6 @@ function datasetSpecified(msg)
    hits = hits.filter(function(n){ return (n !== undefined); });
 
    var matrixName = null;
-
    if(hits.length > 0){
         // for now always grab the first (last!) hit, remove the trailing .RData
         // the PCA constructor wants both dataPacakgeName & a matrix name
@@ -1111,12 +1883,14 @@ function datasetSpecified(msg)
       }
    else{
       alert("No mtx.mrna in dataset '" + dataPackageName + "'");
-      hub.disableButton(calculateButton);
+      hub.disableButton(calculatePcaButton);
       return;
       }
 
    console.log("== calling createPcaObjectOnServer");
    createPcaObjectOnServer(dataPackageName, matrixName);
+
+   d3pcaDisplay.select("#pcaSVG").remove();  // so that old layouts aren't mistaken for new dataset
 
 } // datasetSpecified
 //--------------------------------------------------------------------------------------------
@@ -1137,9 +1911,9 @@ function pcaObjectCreated(msg)
    console.log("=== pcaObjectCreated");
    console.log(msg);
 
-   if(msg.status == "response")
+   if(msg.status == "response"){
       requestGeneSetNames();
-   else
+    }else
       alert("PCA module failed to create PCA object on server");
 
 } // pcaObjectCreated
@@ -1150,7 +1924,7 @@ demoPCAHighlight = function ()
    ids = ["TCGA.06.0192", "TCGA.12.0775", "TCGA.14.0789"];
    selectPoints(ids, true);
 
-} // demoHighlight
+}; // demoHighlight
 //----------------------------------------------------------------------------------------------------
 demo = function ()
 {
@@ -1159,28 +1933,8 @@ demo = function ()
 
   hub.send(JSON.stringify(msg));
 
-} // demo
+}; // demo
 //----------------------------------------------------------------------------------------------------
-//function requestGeneSetNames()
-//{
-//   callback = "pcaHandleGeneSetNames";
-//
-//   msg = {cmd:"getGeneSetNames",
-//          callback: callback,
-//          status:"request",
-//          payload:""};
-//
-//   hub.send(JSON.stringify(msg));
-//
-//} // requestGeneSetNames
-////--------------------------------------------------------------------------------------------
-//function handleGeneSetNames(msg)
-//{
-//   newNames = msg.payload;
-//   addGeneSetNamesToMenu(newNames);
-//
-//} // handleGeneSetNames
-//--------------------------------------------------------------------------------------------
 function demoPcaCalculateAndDraw(msg)
 {
   if(msg.status != "success"){
@@ -1189,7 +1943,7 @@ function demoPcaCalculateAndDraw(msg)
      }
 
   var currentGeneSet = geneSetMenu.val();
-  if(currentGeneSet == null)
+  if(currentGeneSet === null)
       currentGeneSet = "tcga.GBM.classifiers";
 
   console.log("demoPCA, currentGeneSet: " + currentGeneSet);
@@ -1198,110 +1952,6 @@ function demoPcaCalculateAndDraw(msg)
   hub.send(JSON.stringify(msg));
 
 } // demoPcaCalculateAndDraw
-//----------------------------------------------------------------------------------------------------
-function runTests()
-{
-  // the test does not currently depend upon any other tabs, but we want to add some
-  // real world complexity to the situation, so we use tabs, including cpa (of course)
-  // and the usual introcutory "Datasets" tab.  make sure it is there.
-  // tests depend upon the presence of 2 tabs in addition to the present one.
-
-  var datasetsTabPresent = $("#datasetsDiv").length > 0;
-
-  if(!datasetsTabPresent){
-     alert("Datasets tab needed for QUnit testing");
-     return;
-     } // check for other needed tabs
-
-   testResultsOutputDiv.css({display: "block"});
-   testLoadDataset();
-
-} // runTests
-//--------------------------------------------------------------------------------------------
-function testLoadDataset()
-{
-   QUnit.test('choose DEMOdz dataset', function(assert) {
-      hub.raiseTab("datasetsDiv");
-      var desiredDataset = "DEMOdz";
-      var dzNames = $("#datasetMenu option").map(function(opt){return this.value;});
-
-      if($.inArray(desiredDataset, dzNames) < 0){
-         alert("cannot run tests:  " + desiredDataset + " dataset not loaded");
-         return;
-         }
-
-      $("#datasetMenu").val(desiredDataset);
-      $("#datasetMenu").trigger("change");
-
-      var done1 = assert.async();
-      var done2 = assert.async();
-      var done3 = assert.async();
-      assert.expect(3);
-
-      setTimeout(function(){
-         assert.equal($("#datasetMenu").val(), desiredDataset);  done1();
-         assert.ok($("#datasetsManifestTable tr").length >= 10); done2();
-         assert.equal($("#datasetsManifestTable tbody tr").eq(0).find("td").eq(0).text(), 
-                      "mRNA expression"); done3();
-         $("#selectDatasetButton").click();
-         hub.raiseTab(thisModulesOutermostDiv);
-         testCalculate();
-         }, 5000);
-      });
-
-} // testLoadDataset
-//----------------------------------------------------------------------------------------------------
-function testCalculate()
-{
-   hub.raiseTab(thisModulesOutermostDiv);
-   console.log("starting testCalculate");
-
-     // enable the calculate button
-     // change its color
-     // wait 6 seconds to be sure slider mins and maxes and geneset are all in place
-     // then click the calculate button
-   QUnit.test('testPcaCalculate', function(assert) {
-      $("#pcaCalculateButton").prop("disabled", false);
-      $("#pcaCalculateButton").css({"background-color": "red", "color": "green"});
-      assert.expect(0);   // tests (assertions) in next function, testContentsOfPcaPlot
-      setTimeout(function(){
-         $("#pcaCalculateButton").click();
-         testContentsOfPcaPlot();
-         }, 6000);
-      });
-
-} // testCalculate
-//----------------------------------------------------------------------------------------------------
-function testContentsOfPcaPlot()
-{
-   console.log("--- testContentsOfPcaPlot");
-
-      // wait 5 seconds
-      // make sure there are the right number of circles
-      // check the coordinates of two, selected arbitrarily
-   QUnit.test('testPcaContents', function(assert) {
-      assert.expect(5);
-      var done1 = assert.async();
-      var done2 = assert.async();
-      var done3 = assert.async();
-      var done4 = assert.async();
-      var done5 = assert.async();
-      setTimeout(function(){
-         assert.equal($("circle").length, 40); done1();
-         var c0 = $("circle")[0];
-         var xPos = Number(c0.getAttribute("cx"));
-         var yPos =  Number(c0.getAttribute("cy"));
-         var radius = Number(c0.getAttribute("r"));
-         console.log(xPos + "  " + yPos + "  " + radius);
-         assert.equal(c0.innerHTML, "PRRX1"); done2();
-         assert.ok(xPos > 0); done3();
-         assert.ok(yPos > 0); done4();
-         assert.equal(radius, 3); done5();
-         }, 5000);
-      });
-
-
-} // testContentsOfPcaPlot
 //----------------------------------------------------------------------------------------------------
 // query the oncoscape server for user id.  the callback then makes a local (that is,
 // Module-specific) decision to run this module's automated tests based upon that id
@@ -1313,7 +1963,7 @@ function runAutomatedTestsIfAppropriate()
 
    hub.send(JSON.stringify(msg));
 
-} // runAutomatedTestsIfAppropriate
+} // runAutomatedTestsIfAppropriate 
 //----------------------------------------------------------------------------------------------------
 function assessUserIdForTesting(msg)
 {
@@ -1327,19 +1977,24 @@ function assessUserIdForTesting(msg)
 
 } // assessUserIdForTesting
 //----------------------------------------------------------------------------------------------------
+function ModuleMsg(){
+  console.log("***** in ModuleMsg, pcaMsg.selectedID.length is ", pcaMsg.selectedIDs.length);
+  return pcaMsg;
+}
+//----------------------------------------------------------------------------------------------------
 function initializeModule()
 {
    hub.addOnDocumentReadyFunction(initializeUI);
    hub.registerSelectionDestination(selectionDestinationsOfferedHere, thisModulesOutermostDiv);
    hub.addMessageHandler("datasetSpecified", datasetSpecified);
    hub.addMessageHandler("sendSelectionTo_PCA", handlePatientIDs);
-   hub.addMessageHandler("sendSelectionTo_PCA (highlight)", highlightPatientIDs)
+   hub.addMessageHandler("sendSelectionTo_PCA (highlight)", highlightPatientIDs);
    hub.addMessageHandler("pcaObjectCreated", pcaObjectCreated);
    hub.addMessageHandler("pcaHandleGeneSetNames", handleGeneSetNames);
    hub.addMessageHandler("pcaPlot", pcaPlot);
    hub.addMessageHandler("demoPcaCalculateAndDraw", demoPcaCalculateAndDraw);
-   hub.addMessageHandler("pcaAssessUserIdForTesting", assessUserIdForTesting);
-   hub.addSocketConnectedFunction(runAutomatedTestsIfAppropriate);
+   //hub.addMessageHandler("pcaAssessUserIdForTesting", assessUserIdForTesting);
+   //hub.addSocketConnectedFunction(runAutomatedTestsIfAppropriate);
 
    //hub.addMessageHandler("handlePatientClassification", handlePatientClassification)
    // hub.addSocketConnectedFunction(getPatientClassification);
@@ -1348,7 +2003,8 @@ function initializeModule()
 //----------------------------------------------------------------------------------------------------
 return{
   init: initializeModule,
-  demo: demo
+  demo: demo,
+  ModuleMsg: ModuleMsg
   };
     
 }); // PCAModule
@@ -1356,10 +2012,378 @@ return{
 pca = PCAModule();
 pca.init();
 
+// pca/Test.js
+//------------------------------------------------------------------------------------------------------------------------
 
-hub.start();
+var pcaTestModule = (function () {
+
+       // for observing relatively small scale status changes: i.e., network loaded and displayed
+       // the div watched here is in widget.html
+
+    var pcaStatusObserver = null;
+    var testStatusObserver = null;   // modified at the end of each dataset test
+
+    var minorStatusDiv = "#pcaStatusDiv";
+    var majorStatusDiv = "#pcaTestStatusDiv";
+
+    
+
+       // to detect when the full test of a dataset is complete, so that the next dataset can be tested
+       // the div watched here is in test.html
+
+
+//------------------------------------------------------------------------------------------------------------------------
+function runTests(datasetNames, reps, exitOnCompletion)
+{
+     // run through <reps> repetitions of the test
+     // condition the next test upon the completion of the preceeding one,
+     // which is detected by a change to the majorStatusDiv
+     // minorStatusDiv is used to gate successive tests applied -within-
+     // a dataset
+     
+      
+   console.log("===================================== Test.pca: runTests");
+   console.log("Test.pca: runTests: " + JSON.stringify(datasetNames));
+   console.log("reps: " + reps);
+   console.log("exitOnCompletion: " + exitOnCompletion);
+   
+   
+   var datasetIndex = -1;
+
+   var config = {attributes: true, childList: true, characterData: true};
+   var target =  document.querySelector(majorStatusDiv);
+
+      // define a function to be called whenever the testStatusDiv changes,
+      // which is our signal that the next test is ready to run.
+      // the first test is kicked off when we -- after setting up and
+      // configuring the observer -- manually (see below: "start testing")
+      // change the target which the observer watches.
+      // there may be a better way, but for now we delete and recreate
+      // the observer at the end of each test.
+      // note also that the next dataset is determined inside this function
+      // and that the function refers to itself.
+
+   var onMutation = function(mutations){
+      mutation = mutations[0];
+      testStatusObserver.disconnect();
+      testStatusObserver = null;
+      var id = mutation.target.id;
+      var msg = $(majorStatusDiv).text();
+      console.log("test status changed, text: " + msg);
+      datasetIndex++;
+      if(datasetIndex < (datasetNames.length * reps)){
+         console.log("about to test dataset " + datasetNames[datasetIndex]);      
+         testStatusObserver = new MutationObserver(onMutation);
+         testStatusObserver.observe(target, config);
+         if(datasetIndex < (datasetNames.length * reps))
+            testLoadDatasetPCA(datasetNames[datasetIndex % datasetNames.length]);
+         }
+      else{
+         console.log("mutation observer function detected end of datasets");
+         if(exitOnCompletion){
+            var payload = {errorCount: Object.keys(sessionStorage).length,
+                           errors: JSON.stringify(sessionStorage)};
+            var exitMsg = {cmd: "exitAfterTesting", callback: "", status: "request", payload: payload};
+            console.log("about to send exitAfterTesting msg to server");
+            hub.send(JSON.stringify(exitMsg));
+            } // if exitOnCompletion
+         } // else: datasets exhaused
+      };
+
+   testStatusObserver = new MutationObserver(onMutation);
+   testStatusObserver.observe(target, config);
+
+   $(majorStatusDiv).text("start testing");
+
+} // runTests
+//------------------------------------------------------------------------------------------------------------------------
+function testLoadDatasetPCA(dataSetName)
+{
+   var testTitle = "testLoadDatasetPCA";
+   console.log(testTitle);
+  
+   if(pcaStatusObserver === null){
+      pcaStatusObserver = new MutationObserver(function(mutations) {
+        //hub.raiseTab("pcaDiv");
+        mutation = mutations[0];
+        pcaStatusObserver.disconnect();
+        pcaStatusObserver = null;
+        var id = mutation.target.id;
+        var msg = $("#pcaStatusDiv").text();
+        QUnit.test('choose dataset for pca: '+ dataSetName, function(assert) {
+          hub.raiseTab("datasetsDiv");
+          $("#datasetMenu").val(dataSetName);
+          $("#datasetMenu").trigger("change");
+          assert.equal($("#datasetMenu").val(), dataSetName);
+          hub.raiseTab("pcaDiv");
+          var genesetList = $("#pcaGeneSetSelector option").map(function(opt){return this.value;});
+          testCalculate(genesetList);
+        });
+      }); // new MutationObserver
+    } // if null mutation observer
+    
+   var config = {attributes: true, childList: true, characterData: true};
+   var target = document.querySelector(minorStatusDiv);
+   pcaStatusObserver.observe(target, config);
+
+   var msg = {cmd: "specifyCurrentDataset", callback: "datasetSpecified", status: "request", payload:  dataSetName};
+   console.log("about to send specifyCurrentDataset msg to server: " + dataSetName);
+   hub.send(JSON.stringify(msg));
+
+} // testLoadDataset
+//----------------------------------------------------------------------------------------------------
+function testCalculate(genesetList)
+{
+   hub.raiseTab("pcaDiv");
+   console.log("starting testCalculate");
+   var genesetLength = genesetList.length;
+   console.log("******testCalculate - Current geneset length is:", genesetLength);
+   genesetIndex = hub.getRandomInt(0, $("#pcaGeneSetSelector option").length - 1);
+   geneset = genesetList[genesetIndex];     
+   
+
+   if(pcaStatusObserver === null){
+      pcaStatusObserver = new MutationObserver(function(mutations) {
+        //hub.raiseTab("pcaDiv");
+        mutation = mutations[0];
+        pcaStatusObserver.disconnect();
+        pcaStatusObserver = null;
+        var id = mutation.target.id;
+        var msg = $("#pcaStatusDiv").text();
+        // enable the calculate button, change its color, then click
+        
+        QUnit.test('testPcaCalculate', function(assert){
+          pcaMsg = pca.ModuleMsg();
+          console.log("*****testCalculate pcaMsg.geneSet ",pcaMsg.geneSet);
+          console.log("*****testCalculate geneset: ",geneset);
+          assert.equal(pcaMsg.geneSet, geneset);
+          $("#pcaCalculateButton").prop("disabled", false);
+          $("#pcaCalculateButton").css({"background-color": "red", "color": "green"});
+          assert.equal($("#pcaCalculateButton").css('color'), "rgb(0, 128, 0)");
+          //$("#pcaGeneSetSelector").val(geneset);
+          //$("#pcaGeneSetSelector").trigger("change");
+          // check if the "Calculate" is clicked
+          $("#pcaDisplay").show();
+          
+          testContentsOfPcaPlot();
+        });  
+      }); // new MutationObserver
+    } // if null mutation observer    
+   var config = {attributes: true, childList: true, characterData: true};
+   var target = document.querySelector(minorStatusDiv);
+   pcaStatusObserver.observe(target, config);
+   
+   
+   var payload = {genes: geneset, source: "pca/Test.js::testCalculate"};
+   msg = {cmd: "calculatePCA", callback: "pcaPlot", status: "request", payload: payload};
+   hub.send(JSON.stringify(msg));
+
+} // testCalculate
+//----------------------------------------------------------------------------------------------------
+function testContentsOfPcaPlot()
+{
+   console.log("--- testContentsOfPcaPlot");
+   var pcaMsg = pca.ModuleMsg();
+    QUnit.test('testPcaContents', function(assert) { 
+      assert.equal($("circle").length, pcaMsg.selectedIDs.length);
+      var circleIndex = hub.getRandomInt(0, pcaMsg.selectedIDs.length - 1);
+      var cir_random = $("circle")[circleIndex];
+      var xPos = Number(cir_random.getAttribute("cx"));
+      var yPos =  Number(cir_random.getAttribute("cy"));
+      var radius = Number(cir_random.getAttribute("r"));
+      console.log("*****testContentsOfPcaPlot coordinates" + xPos + "  " + yPos + "  " + radius);
+      // get score for this circle, maybe check tooltip name too
+      assert.equal(xPos, pcaMsg.xScale(pcaMsg.pcaScores[circleIndex][0]));
+      assert.equal(yPos, pcaMsg.yScale(pcaMsg.pcaScores[circleIndex][1]));
+      assert.equal(radius, 3);
+      testSendIDs(); 
+   });
+
+} // testContentsOfPcaPlot
+//----------------------------------------------------------------------------------------------------
+function testSendIDs() {
+   console.log("entering Test.pca:testSendGoodIDs");
+
+   var title = "testSendIDs";
+   console.log(title);
+      // first test is to clear any existing selection, then send 10 node
+      // ids (simple name strings) taken from the network itself.
+      // these nodes are sent to the network using hub.send
+      // we then check to see that these 10 nodes are selected in cyjs
+   //var ids = pcaMsg.selectedIDs.splice(-1, 1);
+   var ids;
+   var maxNodes = 200;
+   var pcaMsg = pca.ModuleMsg();
+   if(pcaMsg.selectedIDs.length <= maxNodes){
+      ids = pcaMsg.selectedIDs.slice(0, pcaMsg.selectedIDs.length);
+   }else{
+      ids = pcaMsg.selectedIDs.slice(0, maxNodes);
+   }
+   //console.log("*****testSendIDs number of original global circles appeared: " + $("circle").length + "number of original global value stored: " + pcaMsg.selectedIDs.length);  
+   //console.log("*****testSendIDs number of ids to be sent: " + ids.length);  
+   if(pcaStatusObserver === null){
+      pcaStatusObserver = new MutationObserver(function(mutations) {
+        mutation = mutations[0];
+        pcaStatusObserver.disconnect();
+        pcaStatusObserver = null;
+        var id = mutation.target.id;
+        var statusMsg = $(minorStatusDiv).text();
+        QUnit.test(title, function(assert) {
+           pcaMsg = pca.ModuleMsg();
+           console.log("-- in QUnit.test for testSendIDs " + ids.length + "  statusMsg: " + statusMsg);
+           //TCGAgbm is using mtx.mrna.ueArray, sampleID duplicates: "TCGA.06.0145.01.1" "TCGA.06.0145.01.2" "TCGA.06.0145.01.3"
+ 													//"TCGA.06.0137.01.1" "TCGA.06.0137.01.2" "TCGA.06.0145.01.4"
+ 													//"TCGA.06.0137.01.3" "TCGA.06.0145.01.5" "TCGA.06.0138.01.1"
+													//"TCGA.06.0156.01.1" "TCGA.06.0148.01.1" "TCGA.06.0148.01.2"
+													//"TCGA.06.0211.01.1" "TCGA.06.0148.01.3" "TCGA.06.0176.01.1"
+													//"TCGA.06.0154.01.1" "TCGA.06.0156.01.2" "TCGA.06.0208.01.1"
+													//"TCGA.06.0216.01.1"
+           //DEMOdz: mtx.mrna.bc, sampleID duplicates: "TCGA.06.0747" "TCGA.06.0749"
+           //TCGAbrain: mtx.mrna.bc, no sampleID duplicates
+           //All sample IDs will be returned, so there might be duplicate points drawn representing samples for a given patient.
+
+           console.log("***** testSendIDs, circle length is:", $("circle").length);
+           console.log("***** testSendIDs, ids length is: ", ids.length);
+           console.log("***** testSendIDs, pcaMsg.selectIDs length is: ", pcaMsg.selectedIDs.length);
+           //console.log("***** testSendIDs, unique(ids).length is: ", $.unique(ids).length);
+           //console.log("***** testSendIDs, $.unique(pcaMsg.selectedIDs).length is: ", $.unique(pcaMsg.selectedIDs).length);
+           assert.ok($("circle").length >= ids.length, "circle length is greater or equal to original ID list.");
+           //assert.equal($.unique(ids).length, $.unique(pcaMsg.selectedIDs).length, "checking unique ID length.");
+           //assert.equal(ids.length, pcaMsg.selectedIDs.length, "checking total ID length.");
+           console.log("***** t2");
+           testSendIDstoHighlight();
+           });
+        }); // new MutationObserver
+      } // if null mutation observer
+
+   var config = {attributes: true, childList: true, characterData: true};
+   var target = document.querySelector(minorStatusDiv);
+   pcaStatusObserver.observe(target, config);
+
+   //console.log("testSendIDs, sending " + JSON.stringify(ids));
+   //var payload = {value: $.unique(ids), count: $.unique(ids).length, source: "pca/Test.js::testSendIDs"};
+   var payload = {value: ids, count: ids.length, source: "pca/Test.js::testSendIDs"};
+   var msg = {cmd: "sendSelectionTo_PCA", callback: "", status: "request", payload:  payload};
+   console.log("***** t1");
+   hub.send(JSON.stringify(msg));
+
+} // testSendIDs
+//----------------------------------------------------------------------------------------------------
+function testSendIDstoHighlight() {
+   console.log("entering Test.pca:testSendIDstoHighlight");
+
+   var title = "testSendIDstoHighlight";
+   console.log(title);
+   //sending all the ids to highligh
+   var pcaMsg = pca.ModuleMsg();
+   var ids = pcaMsg.selectedIDs;
+   console.log("***** right into testSendIDstoHighlight, pcaMsg.selectedID length is ", pcaMsg.selectedIDs.length);
+   if(pcaStatusObserver === null){
+	 pcaStatusObserver = new MutationObserver(function(mutations) {
+	    mutation = mutations[0];
+	    pcaStatusObserver.disconnect();
+	    pcaStatusObserver = null;
+	    var id = mutation.target.id;
+	    var statusMsg = $(minorStatusDiv).text();
+      //var pcaMsg = pca.ModuleMsg();
+      //highlightIndex = pcaMsg.highlightIndex;
+	    QUnit.test(title, function(assert) {
+	       console.log("-- in QUnit.test for testSendIDstoHighlight " + ids.length + "  statusMsg: " + statusMsg);
+	       console.log("*****testSendIDstoHighlight circles number appear: ", $("circle").length);
+	       assert.equal($("circle").length, ids.length, "ids length equals circle length now.");
+	       var randomIndex = hub.getRandomInt(0, ids.length - 1);
+         var Highlighted = d3.selectAll(".highlighted")[0].length;
+         console.log("*****testSendIDstoHighlight number of Highlighted:", Highlighted);
+	       var cir_random = $("circle")[randomIndex];
+	       var xPos = Number(cir_random.getAttribute("cx"));
+	       var yPos =  Number(cir_random.getAttribute("cy"));
+	       var radius = Number(cir_random.getAttribute("r"));
+	       console.log("*****testContentsOfPcaPlot randomIndex:" + randomIndex + "coordinates" + xPos + "  " + yPos + "  " + radius);
+	       // get score for this circle, maybe check tooltip name too
+         assert.equal(Highlighted, ids.length, "Sent ID length equals the highlighted length.");
+	       assert.equal(xPos, pcaMsg.xScale(pcaMsg.pcaScores[randomIndex][0]), "random highlight x-axis agrees.");
+	       assert.equal(yPos, pcaMsg.yScale(pcaMsg.pcaScores[randomIndex][1]), "random highligh y-axis agrees.");
+         console.log("*****before radius comparison");
+	       assert.equal(radius, 7, "highlighted radius is checked.");
+         console.log("***** t4");
+	       markEndOfTestingDataSet(); 
+	       });
+	   }); // new MutationObserver
+	} // if null mutation observer
+
+   var config = {attributes: true, childList: true, characterData: true};
+   var target = document.querySelector(minorStatusDiv);
+   pcaStatusObserver.observe(target, config);
+
+   console.log("testSendIDstoHighlight, sending " + JSON.stringify(ids));
+   var count = ids.length;
+   var payload = {value: ids, count: count , source: "pca/Test.js::testSendIDstoHighlight"};
+   var msg = {cmd: "sendSelectionTo_PCA (highlight)", callback: "", status: "request", payload:  payload};
+   console.log("***** t3");
+   
+   hub.send(JSON.stringify(msg));
+
+} // testSendIDstoHighlight
+//------------------------------------------------------------------------------------------------------------------------
+function markEndOfTestingDataSet()
+{
+  console.log("end of testing dataset");
+  $(majorStatusDiv).text("dataset complete");
+  $("#testManagerLoopStatusDiv").text("Test.pca, datasets complete");
+  
+} // markEndOfTestingDataSet
+//------------------------------------------------------------------------------------------------------------------------
+function initialize()
+{
+   console.log("--- initializing pca/Test.js");
+
+} // initialize
+//------------------------------------------------------------------------------------------------------------------------
+return{
+   init: initialize,
+   run: runTests
+   }; // module return value
+
+//------------------------------------------------------------------------------------------------------------------------
+}); // pcaTestModule
+pcaTester = pcaTestModule();
+moduleTests.push(pcaTester);
+
+
+
 </script>
+
 <body>
+
+<div id="oncoscapeTabs">
+   <ul>
+     <li><a href="#datasetsDiv">Datasets</a></li>
+     <li><a href="#pcaDiv">pca</a></li>
+     <li><a href="#pcaTestDiv">Tests</a></li>
+   </ul>
+
+<style>
+</style>
+
+<div id="datasetsDiv" style="height:auto">
+  <div id="datasetsStatusDiv" style="display:none"></div>
+  <div id="dataSummaryControlsDiv">
+     <span id="selectDataSetMenuLabel" style="margin-left: 20px;">Available Datasets</span>
+     <select type="button" id="datasetMenu" style="margin: 5px;"><option> </option></select>
+     <button id="selectDatasetButton">Use Dataset</button>
+	 <span id="loadingDatasetMessage" style="display:none; margin-left:10px">Loading Dataset...</span>
+     <select type="button" id="datasetsSendSelectionsMenu" style="float:right; margin:15px; display: none"></select>
+
+  </div>
+
+   <div id="dataSetNamesOutputDiv" style="margin: 20px;"></div>
+
+   <div id="dataSummaryOutputDiv" style="margin: 20px;overflow-x:auto">
+      <div id="datasetInstructions">Please select a dataset from the above menu.</div>
+      <table id="datasetsManifestTable" class="display" cellpadding="0" cellspacing="0" style="margin:0px; width:auto; display:none; border:none"></table>
+   </div>
+</div>
+
 <style>
 
 .domain { 
@@ -1425,26 +2449,32 @@ color: #808080;
 </style>
 
 <div id="pcaDiv" class="container-fluid">
-
+   <div id="pcaStatusDiv" style="display:none"></div>
    <div id="pcaControlsDiv">
        <button id="pcaClearSelectionButton" style="margin-bottom: 5px;">Clear Selection</button>
-       <select id="pcaGeneSetSelector" style="margin-bottom: 5px;"></select>
+       <select class="SelectionMenu" id="pcaGeneSetSelector" style="margin-bottom: 5px;"></select>
        <button id="pcaCalculateButton" style="margin-bottom: 5px;">Calculate</button>
        <button id="pcaUseAllSamplesButton" style="margin-bottom: 5px;">Use All Samples in Current Dataset</button>
-       <select type="button" id="pcaSendSelectionsMenu" style="float:right; margin-right:15px"></select>
+       <select class= "SelectionMenu" type="button" id="pcaSendSelectionsMenu" style="float:right; margin-right:15px"></select>
    </div>
 
-  <div id="pcaTestingOutputDiv" style="display: none">
-     <div id="qunit"></div>
-     <div id="qunit-fixture"></div>
-  </div>
-
-
+   <div id="pcaInstructions">Please select a gene set from the above menu and click the 'Calculate' button.</div>
    <div id="pcaOutputDiv">
       <div id="pcaDisplay"></div>
       <div id="pcaLegend"></div>
       <div id="pcaTextDisplayDiv"></div>
    </div>
+
+</div>
+
+<div id="pcaTestDiv">
+  <div id="pcaTestStatusDiv"        style="display:none"></div>
+  <div id="pcaStatusDiv" style="display:none"></div>
+  <div id="qunit" style="display:block"></div>
+  <div id="qunit-fixture"></div>
+</div>
+
+
 
 </div>
 

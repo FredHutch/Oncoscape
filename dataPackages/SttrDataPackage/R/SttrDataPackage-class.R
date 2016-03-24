@@ -27,12 +27,15 @@ setGeneric('getPatientList',  signature='obj', function (obj) standardGeneric ('
 setGeneric('getPatientTable', signature='obj', function (obj, patient.ids=NA, selectCols=NA) standardGeneric ('getPatientTable'))
 setGeneric('getGeneSetNames', signature='obj', function (obj) standardGeneric ('getGeneSetNames'))
 setGeneric('getGeneSetGenes', signature='obj', function (obj, geneSetName) standardGeneric ('getGeneSetGenes'))
+setGeneric('getExpressionDataSetNames', signature='obj', function (obj) standardGeneric ('getExpressionDataSetNames'))
+setGeneric('getExpressionDataSetExpression', signature='obj', function (obj, expressionDataSetName) standardGeneric ('getExpressionDataSetExpression'))
+
 setGeneric('getSampleCategorizationNames',
                               signature='obj', function(obj) standardGeneric('getSampleCategorizationNames'))
 setGeneric('getSampleCategorization',
                               signature='obj', function(obj, categorizationName) standardGeneric('getSampleCategorization'))
 setGeneric('networks',        signature='obj', function (obj) standardGeneric ('networks'))
-setGeneric('getPatientIDs',   signature='obj', function (obj, patient.ids=NA, ...) standardGeneric ('getPatientIDs'))
+setGeneric('canonicalizePatientIDs',   signature='obj', function (obj, patient.ids=NA, ...) standardGeneric ('canonicalizePatientIDs'))
 
 #setGeneric("features",    signature="obj", function (obj, signature) standardGeneric ("features"))
 #setGeneric("getData",     signature="obj", function (obj, signature, entities=NA, features=NA) standardGeneric ("getData"))
@@ -189,7 +192,6 @@ setMethod("getPatientTable", "SttrDataPackageClass",
          if(variable.name == "ptList")         clinical <- PatientHistory::setpatientList(clinical, historyList)
          if(variable.name == "catList")  clinical <- PatientHistory::seteventTypeList(clinical, historyList)
 
-#         history <- PatientHistory(historyList)
          }
       else if(class == "list" & category=="geneset") {
          eval(parse(text=sprintf("genesets <- %s", variable.name)))
@@ -204,6 +206,10 @@ setMethod("getPatientTable", "SttrDataPackageClass",
          eval(parse(text=sprintf("sampleCategorizations[[%d]] <- %s", sampleCategorizations.found, variable.name)))
          names(sampleCategorizations)[sampleCategorizations.found] <- variable.name
          }
+      else if(class == "data.frame" & category=="history") {
+		 eval(parse(text=sprintf("tbl.ptHistory <- %s", variable.name)))
+		 clinical <- PatientHistory::setTable(clinical, tbl.ptHistory)
+		 }
       else if(class == "data.frame") {
          data.frames.found <- data.frames.found + 1
          eval(parse(text=sprintf("data.frames[[%d]] <- %s", data.frames.found, variable.name)))
@@ -320,6 +326,22 @@ setMethod("getGeneSetGenes", "SttrDataPackageClass",
      })
 
 #----------------------------------------------------------------------------------------------------
+setMethod("getExpressionDataSetNames", "SttrDataPackageClass",
+
+  function (obj) {
+     rownames(obj@manifest)[grep("mrna",rownames(obj@manifest))]
+  })
+#----------------------------------------------------------------------------------------------------
+setMethod("getExpressionDataSetExpression", "SttrDataPackageClass",
+
+  function (obj, expressionDataSetName) {
+     if(!expressionDataSetName %in% getExpressionDataSetNames(obj)){
+        message("Error in getExpressionDataSetExpression: no Expression DataSet named '%s'", expressionDataSetName)
+        return(NA)
+        }
+     return(obj@matrices[[expressionDataSetName]])
+     })
+#----------------------------------------------------------------------------------------------------
 setMethod("getSampleCategorizationNames", "SttrDataPackageClass",
 
   function (obj) {
@@ -330,7 +352,7 @@ setMethod("getSampleCategorizationNames", "SttrDataPackageClass",
 setMethod("getSampleCategorization", "SttrDataPackageClass",
 
   function (obj, categorizationName) {
-     if(!categorizationName %in% getSampleCategorizationNames(obj)){
+     if( !categorizationName %in% getSampleCategorizationNames(obj)){
         message("Error in getSampleCategorization: no categorization named '%s'", categorizationName)
         return(NA)
         }

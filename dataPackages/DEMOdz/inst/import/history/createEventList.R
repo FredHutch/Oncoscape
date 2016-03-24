@@ -110,6 +110,12 @@ run <- function()
  	  names(history) <- paste("event", 1:length(history), sep="")
    ptList <- createPatientList(history)
    catList <- createEventTypeList(history)
+   tbl.ptHistory <- createPatientTable(history)
+
+    print(paste("history ", length(history)))
+    print(paste("ptList ", length(ptList)))
+    print(paste("catList ", length(catList)))
+    print(paste("tbl.ptHistory ", dim(tbl.ptHistory)))
   
    checkEquals(length(history), 201)
    checkEquals(as.list(table(unlist(lapply(history, function(e) e["Name"])))), list(`Absent`=9, `Birth`=20, `Diagnosis`=20,`Drug`=41,`Encounter`=39, `Pathology`=20, `Procedure`=5, `Progression`=12,  `Radiation`=15, `Status`=20))
@@ -121,6 +127,8 @@ run <- function()
    save(history, file=serialized.file.name)
    save(ptList, file="../../extdata/ptHistory.RData")
    save(catList, file="../../extdata/historyTypes.RData")
+   save(tbl.ptHistory, file="../../extdata/tbl.ptHistory.RData")
+
 } # run
 #------------------------------------------------------------------------------------------------------------------------
 parseEvents = function(patient.ids=NA)
@@ -861,7 +869,7 @@ create.Radiation.record <- function(patient.id)
                         PtNum=patient.number,
                         study=study,
                         Name=name,
-                        Fields = list(date=date, therapyType=therapyType, intent=NA, target=target, 
+                        Fields = list(date=omf.date, therapyType=therapyType, intent=NA, target=target,
                                       totalDose=NA, totalDoseUnits=NA, numFractions=NA))
    
        good.records.found <- good.records.found + 1
@@ -1469,7 +1477,7 @@ createPatientList <- function(Allevents=NA){
 
 		calcEvents <- rbind(AgeDx, Survival, Dx2Prog, ProgDeath)
 
-    	orderedEvents <- orderedEvents[order(orderedEvents$date),]
+    	if(nrow(orderedEvents)>0) orderedEvents <- orderedEvents[order(orderedEvents$date),]
     	list(dateEvents = orderedEvents, noDateEvents=noDateEvents, calcEvents = calcEvents)
     })
        
@@ -1523,6 +1531,120 @@ createEventTypeList <- function(Allevents=NA){
     names(categoryList) <- catNames
 	categoryList
 }
+#----------------------------------------------------------------------------------------------------
+createPatientTable <- function(events=NA){
+
+    if(all(is.na(events)))
+       return(data.frame())
+
+    list.events <- events
+
+    ptIDs = unique(gsub("(\\w+\\.\\w+\\.\\w+).*", "\\1" , unlist(lapply(list.events, function(e) e$PatientID))))
+
+     table <- data.frame(ptID=ptIDs, ptNum=NA, study=NA)
+    rownames(table) <- ptIDs
+    
+    new.list <-lapply(list.events, function(event){  # remove "Fields" label and use value of 'Name' for unique headers
+      id <- gsub("(\\w+\\.\\w+\\.\\w+).*", "\\1" , event$PatientID)
+      a<- list(ptID=id, ptNum=event$PtNum, study=event$study)
+      #if(length(event$Fields) != length(unlist(event$Fields))
+      a[[event$Name]]<- as.list(unlist(event$Fields))  # for fields with multiple elements, e.g. date c(start, end) -> date1 date2
+      a
+    })
+    
+    for(event in new.list){
+     if(is.na(table[event$ptID,"ptNum"])){                        # new pt now stored
+       table[event$ptID, "ptNum"] <- event$ptNum 
+       table[event$ptID, "study"] <- event$study 
+     }  
+     new.event<- data.frame(event[4], stringsAsFactors=F)
+     if(all(colnames(new.event) %in% colnames(table))){           # not new event type overall
+        if(all(is.na(table[event$ptID, colnames(new.event)]))) {  # fields not yet defined for this patient
+          table[event$ptID, colnames(new.event)] <- unlist(new.event)
+        } else{                                                   # iterate until new column label available
+          
+          count =2
+          add.columns = paste(colnames(new.event), count, sep=".")
+          while(all(add.columns %in% colnames(table)) && any(!is.na(table[event$ptID, add.columns]))) {
+            count = count + 1;
+            add.columns = paste(colnames(new.event), count, sep=".")
+          }
+          if(!all(add.columns %in% colnames(table))) table[, add.columns] <- NA
+          table[event$ptID, add.columns] <- unlist(new.event)
+        }
+     } else{                                                     # create/add new set of event names
+       table[, colnames(new.event)] <- NA
+       table[event$ptID, colnames(new.event)] <- unlist(new.event)
+     }
+    }
+    table$ptNum <- as.numeric(table$ptNum)
+    
+    table <- addCalculatedEvents(table)
+    table
+
+} # createTable
+#----------------------------------------------------------------------------------------------------
+addCalculatedEvents <- function(table= data.frame()){
+
+     if(all(dim(table) == c(0,0))) return(table)
+
+    if(all(c("Diagnosis.date","Status.date") %in% colnames(table)))
+       table[ ,"Survival"] <- as.numeric(apply(table, 1, function(row){getDateDifference(row["Diagnosis.date"],row["Status.date"]) }) )
+    if(all(c("Birth.date", "Diagnosis.date") %in% colnames(table)))
+       table[ ,"AgeDx"] <- as.numeric(apply(table, 1, function(row){getDateDifference(row["Birth.date"], row["Diagnosis.date"]) }) )
+    if(all(c("Diagnosis.date","Progression.date") %in% colnames(table))){
+       allProgressionCols <- which(grepl("Progression.date", colnames(table)))
+       table[ ,"TimeFirstProgression"] <- as.numeric(
+           apply(table, 1, function(row){getDateDifference(row["Diagnosis.date"], row[allProgressionCols]) }))
+    }
+    
+    table
+}
+#----------------------------------------------------------------------------------------------------
+getDateDifference <- function(date1, date2, instance1=1, instance2=1){
+   ## returns a single date difference for date2 - date1 by creating orded dates by first, second, ..,  or linked date pairs 
+   ## instance  = 1, 2, ..., last, linked
+
+   stopifnot(grepl("\\d+",instance1) | instance1 %in% c("last", "linked"))
+   stopifnot(grepl("\\d+",instance2) | instance2 %in% c("last", "linked"))
+         
+   if(grepl("last", instance1)) instance1 = length(date1)
+   if(grepl("last", instance2)) instance2 = length(date2)
+
+   stopifnot(is.numeric(instance1) | is.numeric(instance2))
+     # need at least one instance to define relationship 
+
+   if(is.numeric(instance1)) stopifnot(instance1 <= length(date1))
+   if(is.numeric(instance2)) stopifnot(instance2 <= length(date2))
+
+   if(instance1 == "linked") stopifnot(length(date1) == length(date2))
+   if(instance2 == "linked") stopifnot(length(date1) == length(date2))
+     # for linked dates, lengths must be equal for matching
+
+   #stopifnot( all(sapply(date1, isValidDate)))
+   #stopifnot( all(sapply(date2, isValidDate)))
+
+   date1 <- as.Date(as.character(date1), format="%m/%d/%Y")
+   date2 <- as.Date(as.character(date2), format="%m/%d/%Y")
+
+   if(is.numeric(instance1) & instance2 == "linked"){
+     first.date  = date1[order(date1)][instance1]  # NAs ordered at end
+     second.date = date2[order(date1)][instance1]
+   } else if(is.numeric(instance2) & instance1 == "linked"){
+     first.date = date1[order(date2)][instance2]
+     second.date  = date2[order(date2)][instance2]
+   } else if(is.numeric(instance1) & is.numeric(instance2)){
+     first.date  = date1[order(date1)][instance1]
+     second.date = date2[order(date2)][instance2]
+   } 
+   
+   stopifnot(exists("first.date") & exists("second.date"))
+
+   datediff = second.date - first.date
+   
+   as.numeric(datediff)   # will return NA if either value is NA
+}
+
 
 #---------------------------------------------------------------------------------------------------
 runTests()

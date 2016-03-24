@@ -18,10 +18,20 @@ TCGAcoad <- function()
                                   data.frames=data$data.frames,
                                   history=data$history,
                                   manifest=data$manifest,
-                                  genesets=data$genesets))
+                                 genesets=data$genesets,
+                                 networks = data$networks,
+                                 sampleCategorizations=data$sampleCategorizations
+))
 
   obj
 
 } # TCGAcoad constructor
 
+#----------------------------------------------------------------------------------------------------
+setMethod('canonicalizePatientIDs', 'TCGAcoadClass',
+  function (obj, patient.ids) {
+     
+     ptIDs =  gsub("(^TCGA\\.\\w\\w\\.\\w\\w\\w\\w).*","\\1", patient.ids)
+     ptIDs
+     })
 #----------------------------------------------------------------------------------------------------

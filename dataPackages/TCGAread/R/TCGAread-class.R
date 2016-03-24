@@ -18,10 +18,20 @@ TCGAread <- function()
                                   data.frames=data$data.frames,
                                   history=data$history,
                                   manifest=data$manifest,
-                                  genesets=data$genesets))
+                                 genesets=data$genesets,
+                                 networks = data$networks,
+                                 sampleCategorizations=data$sampleCategorizations
+))
 
   obj
 
 } # TCGAread constructor
 
+#----------------------------------------------------------------------------------------------------
+setMethod('canonicalizePatientIDs', 'TCGAreadClass',
+  function (obj, patient.ids) {
+     
+     ptIDs =  gsub("(^TCGA\\.\\w\\w\\.\\w\\w\\w\\w).*","\\1", patient.ids)
+     ptIDs
+     })
 #----------------------------------------------------------------------------------------------------

@@ -18,7 +18,7 @@ function initializeUI()
    survivalCurveDiv = $("#survivalCurveDiv");
    survivalImageArea = $("#survivalImageArea");
    statusDiv = $("#survivalStatusDiv");
-
+   $("#survivalCurveDiv").css("display", "none");
    $(window).resize(handleWindowResize);
    handleWindowResize();
    hub.disableTab(thisModulesOutermostDiv);
@@ -61,7 +61,7 @@ function handleWindowResize()
     	  ids = [ids];
 
 	   console.log("Survival module, " + msg.cmd + " count: " + count);
-       msg = {cmd: "getPatientIDsFromDataset", callback: "survivalHandlePatientIDs", status: "request", 
+       msg = {cmd: "canonicalizePatientIDsInDataset", callback: "survivalHandlePatientIDs", status: "request", 
                     payload: ids};
              hub.send(JSON.stringify(msg));
      } // handlePatientIDs
@@ -71,6 +71,9 @@ function analyzeSelectedTissues(patientIDs, title)
 {
    console.log("Survival module, hub.send 'calculateSurvivalCurves' for %d patientIDs",
                patientIDs.length);
+
+   $("#survivalInstructions").css("display", "none");
+   $("#survivalCurveDiv").css("display", "block");
 
    var payload = {sampleIDs: patientIDs, title: title};
    var msg = {cmd:"calculateSurvivalCurves", callback: "displaySurvivalCurves", status: "request", 

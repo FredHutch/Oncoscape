@@ -90,7 +90,8 @@ tbl.nte <- read.table("clinical_nte_gbm.txt", quote="", sep="\t", header=TRUE, a
 tbl.nte <- tbl.nte[3:nrow(tbl.nte),]
 tbl.omf <- read.table("clinical_omf_v4.0_gbm.txt", quote="", sep="\t", header=TRUE, as.is=TRUE)
 tbl.omf <- tbl.omf[3:nrow(tbl.omf),]
-
+load("../../omf.histology.RData")
+tbl.omf.histology <- subset(omf.histology, diseaseType==study)
 setwd(currDir)
 
 #------------------------------------------------------------------------------------------------------------------------
@@ -116,8 +117,13 @@ run <- function()
  	  names(history) <- paste("event", 1:length(history), sep="")
    ptList <- createPatientList(history)
    catList <- createEventTypeList(history)
+   tbl.ptHistory <- createPatientTable(history)
 
- 
+    print(paste("history ", length(history)))
+    print(paste("ptList ", length(ptList)))
+    print(paste("catList ", length(catList)))
+    print(paste("tbl.ptHistory ", dim(tbl.ptHistory)))
+
    checkEquals(length(history), 7644)
    checkEquals(as.list(table(unlist(lapply(history, function(e) e["Name"])))), list(`Absent`=328,`Background`=592, `Birth`=592, `Diagnosis`=592,`Drug`=1467,`Encounter`=1227, `Pathology`=594, `Procedure`=142, `Progression`=388,  `Radiation`=538, `Status`=592, `Tests`=592))
       #omf: other malignancy form for 2 patients gives extra pathologies
@@ -127,6 +133,7 @@ run <- function()
    save(history, file=serialized.file.name)
    save(ptList, file="../../extdata/ptHistory.RData")
    save(catList, file="../../extdata/historyTypes.RData")
+   save(tbl.ptHistory, file="../../extdata/tbl.ptHistory.RData")
 
 } # run
 #------------------------------------------------------------------------------------------------------------------------
@@ -540,19 +547,12 @@ create.Diagnosis.record <- function(patient.id)
    
    disease <- tbl.pt.row$tumor_tissue_site
    tissueSourceSiteCode <- tbl.pt.row$tissue_source_site
-   pathMethod <-tbl.pt.row$method_initial_path_dx
-    	    	
-     if(pathMethod == "Cytology (e.g. Peritoneal or pleural fluid)") pathMethod = "Cytology"
-     if(pathMethod == "Fine needle aspiration biopsy") pathMethod = "Aspirate"
-     if(pathMethod == "Core needle biopsy") pathMethod = "Core Biopsy"
-     if(pathMethod == "Other method, specify:") pathMethod = "Other"   	    
-     if(pathMethod == "Unknown") pathMethod = NA
 
    new.event <- list(PatientID=patient.id,
                      PtNum=patient.number,
                      study=study,
                      Name=name,
-                     Fields = list(date=diagnosis.date, disease=disease, siteCode=tissueSourceSiteCode, method=pathMethod))
+                     Fields = list(date=diagnosis.date, disease=disease, siteCode=tissueSourceSiteCode))
    
     good.records.found <- good.records.found + 1
     result[[good.records.found]] <- new.event
@@ -567,8 +567,8 @@ test_create.Diagnosis.record <- function()
  
    x <- create.Diagnosis.record(tcga.ids[1])
     checkEquals(names(x[[1]]), c("PatientID", "PtNum", "study", "Name", "Fields"))
-    checkEquals(names(x[[1]]$Fields), c("date", "disease", "siteCode", "method"))
-    checkEquals(x[[1]], list(PatientID="TCGA.02.0001", PtNum=1, study=study, Name="Diagnosis", Fields=list(date="01/01/2002", disease="Brain", siteCode="02", method="Tumor resection")))
+    checkEquals(names(x[[1]]$Fields), c("date", "disease", "siteCode"))
+    checkEquals(x[[1]], list(PatientID="TCGA.02.0001", PtNum=1, study=study, Name="Diagnosis", Fields=list(date="01/01/2002", disease="Brain", siteCode="02")))
 
 } # test_create.Diagnosis.record
 #------------------------------------------------------------------------------------------------------------------------
@@ -1235,36 +1235,51 @@ create.Pathology.record <- function(patient.id)
       if(collection == "YES"){ collection = "prospective"
       } else if( tbl.pathSub$retrospective_collection  == "YES"){ collection = "retrospective"
       } else { collection = NA }	
- 
+      
+      pathMethod <-tbl.pathSub$method_initial_path_dx[pathEvent]
+            
+      if(pathMethod == "Cytology (e.g. Peritoneal or pleural fluid)") pathMethod = "Cytology"
+      if(pathMethod == "Fine needle aspiration biopsy") pathMethod = "Aspirate"
+      if(pathMethod == "Core needle biopsy") pathMethod = "Core Biopsy"
+      if(pathMethod == "Other method, specify:") pathMethod = "Other"        
+      if(pathMethod == "Unknown" | pathMethod == "[Not Available]") pathMethod = NA
+
       new.event <- list(PatientID=patient.id,
                         PtNum=patient.number,
                         study=study,
                         Name=name,
-                        Fields = list(date=date, disease=pathDisease, histology=pathHistology,bucket="High Grade Glioma", collection=collection, grade="G4"))
+                        Fields = list(date=date, disease=pathDisease, histology=pathHistology,histology.category="High Grade Glioma", collection=collection, grade="G4", method=pathMethod))
       good.records.found <- good.records.found + 1
       result[[good.records.found]] <- new.event
       }} # for pathEvent
       
      if(nrow(tbl.omfSub)>0){
-     for(omfEvent in 1:nrow(tbl.omfSub)){
-      disease <- tbl.omfSub$other_malignancy_anatomic_site[omfEvent]
-      omfOffset = tbl.omfSub$days_to_other_malignancy_dx[omfEvent]
-      histology <- tbl.omfSub$other_malignancy_histological_type[omfEvent]
+	     for(omfEvent in 1:nrow(tbl.omfSub)){
+	      disease <- tbl.omfSub$other_malignancy_anatomic_site[omfEvent]
+	      omfOffset = tbl.omfSub$days_to_other_malignancy_dx[omfEvent]
+	      histology <- tbl.omfSub$other_malignancy_histological_type[omfEvent]
+	      histology_text <- tbl.omfSub$other_malignancy_histological_type_text[omfEvent]
+	      if(histology_text != "[Not Applicable]"){
+	   	  	 histology <- paste(histology, histology_text, sep=":")
+	  	  }
+	      histology.category = tbl.omf.histology[tbl.omf.histology$omf.histology==histology, 4]
+	      if(histology.category == "[Not Available]") histology.category = NA
 
-      if(disease   == "[Not Available]") disease = NA
-      if(histology == "[Not Available]") histology = NA
-      if(omfOffset == "[Not Available]"){ omf.date = NA
-      }else{  omf.date = reformatDate(as.Date(diagnosis.date, "%m/%d/%Y") + as.integer(omfOffset))      }
-      
-       new.event <- list(PatientID=patient.id,
-                        PtNum=patient.number,
-                        study=study,
-                        Name=name,
-                        Fields = list(date=omf.date, disease=disease, histology=histology, bucket="High Grade Glioma",collection=NA, grade="G4"))
-   
-       good.records.found <- good.records.found + 1
-       result[[good.records.found]] <- new.event
-     } }
+	      if(disease   == "[Not Available]") disease = NA
+	      if(histology == "[Not Available]") histology = NA
+	      if(omfOffset == "[Not Available]"){ omf.date = NA
+	      }else{  omf.date = reformatDate(as.Date(diagnosis.date, "%m/%d/%Y") + as.integer(omfOffset))      }
+	      
+	       new.event <- list(PatientID=patient.id,
+	                        PtNum=patient.number,
+	                        study=study,
+	                        Name=name,
+	                        Fields = list(date=omf.date, disease=disease, histology=histology, histology.category=histology.category, collection=NA, grade="G4", method=NA))
+	   
+	       good.records.found <- good.records.found + 1
+	       result[[good.records.found]] <- new.event
+	     } 
+	 }
 
 
    result[1:good.records.found]
@@ -1277,12 +1292,12 @@ test_create.Pathology.record <- function()
     x <- create.Pathology.record(tcga.ids[1])
     checkTrue(is.list(x))
     checkEquals(names(x[[1]]), c("PatientID", "PtNum", "study", "Name", "Fields"))
-    checkEquals(names(x[[1]][["Fields"]]), c("date", "disease", "histology","bucket","collection", "grade"))
-    checkEquals(x[[1]], list(PatientID="TCGA.02.0001", PtNum=1, study=study, Name="Pathology", Fields=list(date="01/01/2002", disease="Brain", histology="Untreated primary (de novo) GBM", bucket="High Grade Glioma", collection=NA, grade="G4")))
+    checkEquals(names(x[[1]][["Fields"]]), c("date", "disease", "histology","histology.category","collection", "grade", "method"))
+    checkEquals(x[[1]], list(PatientID="TCGA.02.0001", PtNum=1, study=study, Name="Pathology", Fields=list(date="01/01/2002", disease="Brain", histology="Untreated primary (de novo) GBM", histology.category="High Grade Glioma", collection=NA, grade="G4", method="Tumor resection")))
     
     x <- create.Pathology.record("TCGA-06-0209") #has omf
-    checkEquals(x[[1]], list(PatientID="TCGA.06.0209", PtNum=372, study=study, Name="Pathology",Fields=list(date="01/01/1997", disease="Brain", histology="Untreated primary (de novo) GBM", bucket="High Grade Glioma",collection=NA, grade="G4")))
-    checkEquals(x[[2]], list(PatientID="TCGA.06.0209", PtNum=372, study=study, Name="Pathology",Fields=list(date=NA, disease="Prostate", histology="Adenocarcinoma, Not Otherwise Specified",bucket="High Grade Glioma",  collection=NA, grade="G4")))
+    checkEquals(x[[1]], list(PatientID="TCGA.06.0209", PtNum=372, study=study, Name="Pathology",Fields=list(date="01/01/1997", disease="Brain", histology="Untreated primary (de novo) GBM", histology.category="High Grade Glioma",collection=NA, grade="G4", method="Tumor resection")))
+    checkEquals(x[[2]], list(PatientID="TCGA.06.0209", PtNum=372, study=study, Name="Pathology",Fields=list(date=NA, disease="Prostate", histology="Adenocarcinoma, Not Otherwise Specified",histology.category="Adenocarcinoma",  collection=NA, grade="G4", method=NA)))
 
 
 } # test_create.Pathology.record
@@ -1465,7 +1480,9 @@ create.Background.record <- function(patient.id)
     his_lgg          <- tbl.pt.Sub$history_lgg_dx_of_brain_tissue
     his_om           <- tbl.pt.Sub$history_other_malignancy
     First_Tx_Outcome <- tbl.pt.Sub$treatment_outcome_first_course
-    
+    neoadjuvant.treatment <- tbl.pt.Sub$history_neoadjuvant_treatment
+
+    if(neoadjuvant.treatment == "[Not Available]") neoadjuvant.treatment <- NA
     if(his_lgg == "[Not Available]"){ his_lgg = NA
     }else{ if (his_lgg == "NO") NO = c(NO,"history of low grade")
         else YES = c(YES, "history of low grade")
@@ -1483,7 +1500,7 @@ create.Background.record <- function(patient.id)
     }else{
         First_Tx_Outcome = tolower(First_Tx_Outcome)
     }
-    return(list(PatientID=patient.id, PtNum=patient.number, study=study, Name=name, Fields = list(History = History, Symptoms=NA, First.Symptom=NA, First.Symptom.Duration=NA, Food.Allergy=NA,Animal.Allergy=NA, Age.First.Allergy=NA, First.Treatment.Outcome=First_Tx_Outcome)))
+    return(list(PatientID=patient.id, PtNum=patient.number, study=study, Name=name, Fields = list(History = History, neoadjuvant.treatment=neoadjuvant.treatment, Symptoms=NA, First.Symptom=NA, First.Symptom.Duration=NA, Food.Allergy=NA,Animal.Allergy=NA, Age.First.Allergy=NA, First.Treatment.Outcome=First_Tx_Outcome)))
 } #create.Background.record
 #---------------------------------------------------------------------------------------------------
 test_create.Background.record <- function()
@@ -1491,12 +1508,12 @@ test_create.Background.record <- function()
     x <- create.Background.record("TCGA-02-0001")
     checkTrue(is.list(x))
     checkEquals(names(x), c("PatientID", "PtNum", "study", "Name", "Fields"))
-    checkEquals(names(x[["Fields"]]), c("History","Symptoms","First.Symptom","First.Symptom.Duration","Food.Allergy","Animal.Allergy","Age.First.Allergy","First.Treatment.Outcome"))
-    checkEquals(x, list(PatientID="TCGA.02.0001", PtNum=1, study=study, Name="Background", Fields=list(History=list(YES=NA,NO=c("history of low grade")),Symptoms=NA, First.Symptom=NA, First.Symptom.Duration=NA, Food.Allergy=NA,Animal.Allergy=NA, Age.First.Allergy=NA, First.Treatment.Outcome=NA)))
+    checkEquals(names(x[["Fields"]]), c("History","neoadjuvant.treatment","Symptoms","First.Symptom","First.Symptom.Duration","Food.Allergy","Animal.Allergy","Age.First.Allergy","First.Treatment.Outcome"))
+    checkEquals(x, list(PatientID="TCGA.02.0001", PtNum=1, study=study, Name="Background", Fields=list(History=list(YES=NA,NO=c("history of low grade")),neoadjuvant.treatment="Yes", Symptoms=NA, First.Symptom=NA, First.Symptom.Duration=NA, Food.Allergy=NA,Animal.Allergy=NA, Age.First.Allergy=NA, First.Treatment.Outcome=NA)))
     
     x <- create.Background.record("TCGA-06-0160") # treatment_outment_first_course == "[discrepancy]"
     checkEquals(x, list(PatientID="TCGA.06.0160", PtNum=351, study=study, Name="Background",
-    Fields=list(History=list(YES="history of other malignancy", NO= c("history of low grade")),Symptoms=NA, First.Symptom=NA, First.Symptom.Duration=NA, Food.Allergy=NA,Animal.Allergy=NA, Age.First.Allergy=NA,First.Treatment.Outcome="[discrepancy]")))
+    Fields=list(History=list(YES="history of other malignancy", NO= c("history of low grade")),neoadjuvant.treatment="No",Symptoms=NA, First.Symptom=NA, First.Symptom.Duration=NA, Food.Allergy=NA,Animal.Allergy=NA, Age.First.Allergy=NA,First.Treatment.Outcome="[discrepancy]")))
     
     
 } #test_create.Background.record
@@ -1542,10 +1559,14 @@ createPatientList <- function(Allevents=NA){
 #		 printf("Birth: %s Death: %s Diagnosis %s Progression %s", birth, death, diagnosis, progression)
 	    OneDay = 1000 *60 * 60*24;
 
-		AgeDx   <- data.frame(name="Age at Diagnosis", value =NA, units="Years"); 
-		Survival  <- data.frame(name="Survival", value =NA, units="Years");
-		Dx2Prog <- data.frame(name="Diagnosis to Progression", value =NA,units="Months");
-		ProgDeath <- data.frame(name="Progression to Status", value =NA, units="Months"); 
+		#AgeDx   <- data.frame(name="Age at Diagnosis", value =NA, units="Years", eventIDs =c()); 
+		#Survival  <- data.frame(name="Survival", value =NA, units="Years", eventIDs =c());
+		#Dx2Prog <- data.frame(name="Diagnosis to Progression", value =NA,units="Months", eventIDs =c());
+		#ProgDeath <- data.frame(name="Progression to Status", value =NA, units="Months", eventIDs =c()); 
+    AgeDx   <- data.frame(name="Age at Diagnosis", value =NA, units="Years"); 
+    Survival  <- data.frame(name="Survival", value =NA, units="Years");
+    Dx2Prog <- data.frame(name="Diagnosis to Progression", value =NA,units="Months");
+    ProgDeath <- data.frame(name="Progression to Status", value =NA, units="Months"); 
     	if(class(birth) == "Date" && class(diagnosis) == "Date") AgeDx$value = as.numeric(diagnosis - birth)/365.25
     	if(class(death) == "Date" && class(diagnosis) == "Date") Survival$value = as.numeric(death - diagnosis)/365.25
     	if(class(progression) == "Date" && class(diagnosis) == "Date") Dx2Prog$value = as.numeric(progression - diagnosis)/30.425
@@ -1553,7 +1574,7 @@ createPatientList <- function(Allevents=NA){
 
 		calcEvents <- rbind(AgeDx, Survival, Dx2Prog, ProgDeath)
 
-    	orderedEvents <- orderedEvents[order(orderedEvents$date),]
+    	if(nrow(orderedEvents)>0) orderedEvents <- orderedEvents[order(orderedEvents$date),]
     	list(dateEvents = orderedEvents, noDateEvents=noDateEvents, calcEvents = calcEvents)
     })
        
@@ -1609,6 +1630,120 @@ createEventTypeList <- function(Allevents=NA){
 }
 
 #----------------------------------------------------------------------------------------------------
+createPatientTable <- function(events=NA){
 
+    if(all(is.na(events)))
+       return(data.frame())
+
+    list.events <- events
+
+    ptIDs = unique(gsub("(\\w+\\.\\w+\\.\\w+).*", "\\1" , unlist(lapply(list.events, function(e) e$PatientID))))
+
+     table <- data.frame(ptID=ptIDs, ptNum=NA, study=NA)
+    rownames(table) <- ptIDs
+    
+    new.list <-lapply(list.events, function(event){  # remove "Fields" label and use value of 'Name' for unique headers
+      id <- gsub("(\\w+\\.\\w+\\.\\w+).*", "\\1" , event$PatientID)
+      a<- list(ptID=id, ptNum=event$PtNum, study=event$study)
+      #if(length(event$Fields) != length(unlist(event$Fields))
+      a[[event$Name]]<- as.list(unlist(event$Fields))  # for fields with multiple elements, e.g. date c(start, end) -> date1 date2
+      a
+    })
+    
+    for(event in new.list){
+     if(is.na(table[event$ptID,"ptNum"])){                        # new pt now stored
+       table[event$ptID, "ptNum"] <- event$ptNum 
+       table[event$ptID, "study"] <- event$study 
+     }  
+     new.event<- data.frame(event[4], stringsAsFactors=F)
+     if(all(colnames(new.event) %in% colnames(table))){           # not new event type overall
+        if(all(is.na(table[event$ptID, colnames(new.event)]))) {  # fields not yet defined for this patient
+          table[event$ptID, colnames(new.event)] <- unlist(new.event)
+        } else{                                                   # iterate until new column label available
+          
+          count =2
+          add.columns = paste(colnames(new.event), count, sep=".")
+          while(all(add.columns %in% colnames(table)) && any(!is.na(table[event$ptID, add.columns]))) {
+            count = count + 1;
+            add.columns = paste(colnames(new.event), count, sep=".")
+          }
+          if(!all(add.columns %in% colnames(table))) table[, add.columns] <- NA
+          table[event$ptID, add.columns] <- unlist(new.event)
+        }
+     } else{                                                     # create/add new set of event names
+       table[, colnames(new.event)] <- NA
+       table[event$ptID, colnames(new.event)] <- unlist(new.event)
+     }
+    }
+    table$ptNum <- as.numeric(table$ptNum)
+    
+    table <- addCalculatedEvents(table)
+    table
+
+} # createTable
+#----------------------------------------------------------------------------------------------------
+addCalculatedEvents <- function(table= data.frame()){
+
+     if(all(dim(table) == c(0,0))) return(table)
+
+    if(all(c("Diagnosis.date","Status.date") %in% colnames(table)))
+       table[ ,"Survival"] <- as.numeric(apply(table, 1, function(row){getDateDifference(row["Diagnosis.date"],row["Status.date"]) }) )
+    if(all(c("Birth.date", "Diagnosis.date") %in% colnames(table)))
+       table[ ,"AgeDx"] <- as.numeric(apply(table, 1, function(row){getDateDifference(row["Birth.date"], row["Diagnosis.date"]) }) )
+    if(all(c("Diagnosis.date","Progression.date") %in% colnames(table))){
+       allProgressionCols <- which(grepl("Progression.date", colnames(table)))
+       table[ ,"TimeFirstProgression"] <- as.numeric(
+           apply(table, 1, function(row){getDateDifference(row["Diagnosis.date"], row[allProgressionCols]) }))
+    }
+    
+    table
+}
+#----------------------------------------------------------------------------------------------------
+getDateDifference <- function(date1, date2, instance1=1, instance2=1){
+   ## returns a single date difference for date2 - date1 by creating orded dates by first, second, ..,  or linked date pairs 
+   ## instance  = 1, 2, ..., last, linked
+
+   stopifnot(grepl("\\d+",instance1) | instance1 %in% c("last", "linked"))
+   stopifnot(grepl("\\d+",instance2) | instance2 %in% c("last", "linked"))
+         
+   if(grepl("last", instance1)) instance1 = length(date1)
+   if(grepl("last", instance2)) instance2 = length(date2)
+
+   stopifnot(is.numeric(instance1) | is.numeric(instance2))
+     # need at least one instance to define relationship 
+
+   if(is.numeric(instance1)) stopifnot(instance1 <= length(date1))
+   if(is.numeric(instance2)) stopifnot(instance2 <= length(date2))
+
+   if(instance1 == "linked") stopifnot(length(date1) == length(date2))
+   if(instance2 == "linked") stopifnot(length(date1) == length(date2))
+     # for linked dates, lengths must be equal for matching
+
+   #stopifnot( all(sapply(date1, isValidDate)))
+   #stopifnot( all(sapply(date2, isValidDate)))
+
+   date1 <- as.Date(as.character(date1), format="%m/%d/%Y")
+   date2 <- as.Date(as.character(date2), format="%m/%d/%Y")
+
+   if(is.numeric(instance1) & instance2 == "linked"){
+     first.date  = date1[order(date1)][instance1]  # NAs ordered at end
+     second.date = date2[order(date1)][instance1]
+   } else if(is.numeric(instance2) & instance1 == "linked"){
+     first.date = date1[order(date2)][instance2]
+     second.date  = date2[order(date2)][instance2]
+   } else if(is.numeric(instance1) & is.numeric(instance2)){
+     first.date  = date1[order(date1)][instance1]
+     second.date = date2[order(date2)][instance2]
+   } 
+   
+   stopifnot(exists("first.date") & exists("second.date"))
+
+   datediff = second.date - first.date
+   
+   as.numeric(datediff)   # will return NA if either value is NA
+}
+
+
+#---------------------------------------------------------------------------------------------------
 runTests()
 run()

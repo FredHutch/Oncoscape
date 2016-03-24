@@ -7,12 +7,14 @@ addRMessageHandler("getPatientHistoryDxAndSurvivalMinMax", "getPatientHistoryDxA
 addRMessageHandler("getSampleDataFrame", "getSampleDataFrame")
 addRMessageHandler("getGeneSetNames",    "wsGetGeneSetNames")
 addRMessageHandler("getGeneSetGenes",    "wsGetGeneSetGenes")
+addRMessageHandler("getExpressionDataSetNames",    "wsGetExpressionDataSetNames")
+addRMessageHandler("getExpressionDataSetExpression",    "wsGetExpressionDataSetExpression")
 addRMessageHandler("getSampleCategorizationNames", "wsGetSampleCategorizationNames")
 addRMessageHandler("getSampleCategorization",      "wsGetSampleCategorization")
 addRMessageHandler("getMarkersNetwork", "getMarkersAndSamplesNetwork")
 addRMessageHandler("getPathway",        "getPathway")
 addRMessageHandler("getDrugGeneInteractions", "getDrugGeneInteractions")
-addRMessageHandler("getPatientIDsFromDataset",    "getPatientIDsFromDataset")
+addRMessageHandler("canonicalizePatientIDsInDataset",    "canonicalizePatientIDsInDataset")
 
 #----------------------------------------------------------------------------------------------------
 # this file provides the standard oncoscape websocket json interface to SttrDataSet objects
@@ -47,6 +49,29 @@ getAllDataSetNames <- function(ws, msg)
 
 } # getAllDataSetNames
 #----------------------------------------------------------------------------------------------------
+.loadDataset <- function(datasetName)
+{
+  available.datasets <- ls(datasets)
+  printf("wsDatasets.R, specifyCurrentDataset, available: %s",
+         paste(available.datasets, collapse=";"));
+  
+  stopifnot(datasetName %in% available.datasets);
+  printf("calling library %s", datasetName);
+   printf("what is in state: %s", paste(ls(state), collapse=";"));
+ library(datasetName, character.only=TRUE)
+
+  constructionNeeded <- !datasetName %in% ls(state)
+  printf("%s construction needed? %s", datasetName, constructionNeeded);
+  if(constructionNeeded){
+     printf("wsDatasets.specifyCurrentDataset creating and storing a new %s object", datasetName);
+     eval(parse(text=sprintf("ds <- %s()", datasetName)))
+     datasets[[datasetName]] <- ds
+	 state[[datasetName]] <- datasetName;
+
+     } # creating and storing new instance
+
+} # .loadDataset
+#----------------------------------------------------------------------------------------------------
 specifyCurrentDataset <- function(ws, msg)
 {
   available.datasets <- ls(datasets)
@@ -54,19 +79,9 @@ specifyCurrentDataset <- function(ws, msg)
          paste(available.datasets, collapse=";"));
   
   dataset <- msg$payload
+  .loadDataset(dataset)
 
-  stopifnot(dataset %in% available.datasets);
-  state[["currentDatasetName"]] <- dataset;
-  require(dataset, character.only=TRUE)
-
-  constructionNeeded <- !dataset %in% ls(state)
-  printf("%s construction needed? %s", dataset, constructionNeeded);
-  if(constructionNeeded){
-     printf("wsDatasets.specifyCurrentDataset creating and storing a new %s object", dataset);
-     eval(parse(text=sprintf("ds <- %s()", dataset)))
-     state[[dataset]] <- ds
-     } # creating and storing new instance
-
+  state[["currentDatasetName"]] <- dataset;  
   payload <- getDataManifestAsJSON(dataset)
   return.msg <- list(cmd=msg$callback, status="success", callback="",
                      payload=payload)
@@ -79,6 +94,9 @@ specifyCurrentDataset <- function(ws, msg)
 # the three fields: datasetName, colnamaes, matrix
 getDataManifestAsJSON <-function(datasetName)
 {
+  printf("wsDatasets.R, getDataManifestAsJSON, datasetName: %s", datasetName)
+  printf("wsDatasets.R, getDataManifestAsJSON, datasets: %s", ls(datasets))
+  
   tbl <- manifest(datasets[[datasetName]])
 
     # the first two columns, "variable" and "class" are not so relevant for the oncoscape display
@@ -101,6 +119,9 @@ getDataManifest <- function(ws, msg)
 {
   datasetName <- msg$payload;
 
+  if(datasetName %in% ls(datasets) && !datasetName %in% ls(state)){
+     .loadDataset(datasetName)
+  }
   if(!datasetName %in% ls(datasets)){
      return.msg <- list(cmd=msg$callback, status="error", callback="",
                         payload=sprintf("unknown dataset '%s'", datasetName))
@@ -269,6 +290,50 @@ wsGetGeneSetGenes <- function(ws, msg)
 
 } # wsGetGeneSetGenes
 #----------------------------------------------------------------------------------------------------
+wsGetExpressionDataSetNames <- function(ws, msg)
+{
+  datasetName <- state[["currentDatasetName"]]
+  dataset <- datasets[[datasetName]]
+
+  #payload <- getExpressionDataSetNames(dataset)
+  expressionDataSetNames <- SttrDataPackage:::getExpressionDataSetNames(dataset)
+  printf("***** expressionDataSetNames are %s ", expressionDataSetNames)
+  tbl <- manifest(datasets[[datasetName]])
+
+    # the first two columns, "variable" and "class" are not so relevant for the oncoscape display
+  #tbl <- tbl[, -c(1,2)]
+    # make some column names more friendly
+  column.titles <- colnames(tbl)
+  column.titles <- sub("entity.count", "rows", column.titles)
+  column.titles <- sub("feature.count", "cols", column.titles)
+  column.titles <- sub("entity.", "row ", column.titles)
+  column.titles <- sub("feature.", "column ", column.titles, fixed=TRUE)
+  #tbl <- tbl[paste(expressionDataSetNames, ".RData",sep=""),]
+  tbl <- tbl[expressionDataSetNames,]
+  #printf("***** after subset with expressionDataSetNames tbl becomes %s: ", tbl)
+  matrix <- as.matrix(tbl)
+  colnames(matrix) <- NULL
+  payload = list(datasetName=datasetName, colnames=column.titles, rownames=rownames(tbl), mtx=matrix)
+  
+  return.msg <- list(cmd=msg$callback, status="success", callback="", payload=payload)
+
+  ws$send(toJSON(return.msg))
+
+} # wsGetExpressionDataSetNames
+#----------------------------------------------------------------------------------------------------
+wsGetExpressionDataSetExpression <- function(ws, msg)
+{
+  datasetName <- state[["currentDatasetName"]]
+  dataset <- datasets[[datasetName]]
+  expressionDataSetName <- msg$payload
+  stopifnot(expressionDataSetName %in% getExpressionDataSetNames(dataset))
+
+  payload <- getExpressionDataSetExpression(dataset, expressionDataSetName)
+  return.msg <- list(cmd=msg$callback, status="success", callback="", payload=payload)
+  ws$send(toJSON(return.msg))
+
+} # wsGetExpressionDataSetExpression
+#----------------------------------------------------------------------------------------------------
 wsGetSampleCategorizationNames <- function(ws, msg)
 {
   datasetName <- state[["currentDatasetName"]]
@@ -299,11 +364,20 @@ getMarkersAndSamplesNetwork <- function(ws, msg)
 {
   datasetName <- state[["currentDatasetName"]]
   dataset <- datasets[[datasetName]]
+  markerName = "g.markers.json"
 
-  payload <- networks(dataset)$g.markers.json
-  printf("wsDatasets.getMarkersAndSamplesNetwork, size: %d", nchar(payload));
-  return.msg <- list(cmd=msg$callback, status="success", callback="", payload=payload)
+  if(markerName %in% names(networks(dataset))){
+	  payload <- networks(dataset)[[markerName]]
+	  printf("wsDatasets.getMarkersAndSamplesNetwork, size: %d", nchar(payload));
+	  return.msg <- list(cmd=msg$callback, status="success", callback="", payload=payload)
+	  ws$send(toJSON(return.msg))
+	  return()
+  }
+  printf("wsDatasets.getMarkersAndSamplesNetwork, %s not in %s", markerName, datasetName);
+  payload <- paste("error: wsDatasets.getMarkersAndSamplesNetwork, ",markerName, " not in ", datasetName, sep="")
+  return.msg <- list(cmd=msg$callback, status="error", callback="", payload=payload)
   ws$send(toJSON(return.msg))
+  
 
 } # getMarkersAndSamplesNetwork
 #----------------------------------------------------------------------------------------------------
@@ -314,12 +388,18 @@ getPathway <- function(ws, msg)
   pathwayName <- msg$payload
   printf("available: %s", paste(names(networks(dataset)), collapse=", "));
   printf("wsDatasets.getPathway ASKED for pathway '%s'", pathwayName);
-  # stopifnot(pathwayName %in% names(networks(dataset)))
+  if(pathwayName %in% names(networks(dataset))){
+	  payload <- networks(dataset)[[pathwayName]];
+	  printf("wsDatasets.getPathway, size: %d", nchar(payload));
+	  return.msg <- list(cmd=msg$callback, status="success", callback="", payload=payload)
+	  ws$send(toJSON(return.msg))
+	  return()
+  }
+	  printf("wsDatasets.getPathway, %s not in %s", pathwayName, datasetName);
+	  payload <- paste("error: wsDatasets.getPathway, ",pathwayName, " not in ", datasetName, sep="")
+	  return.msg <- list(cmd=msg$callback, status="error", callback="", payload=payload)
+  	  ws$send(toJSON(return.msg))
   
-  payload <- networks(dataset)[[pathwayName]];
-  printf("wsDatasets.getPathway, size: %d", nchar(payload));
-  return.msg <- list(cmd=msg$callback, status="success", callback="", payload=payload)
-  ws$send(toJSON(return.msg))
 
 } # getPathway
 #----------------------------------------------------------------------------------------------------
@@ -346,7 +426,7 @@ getDrugGeneInteractions <- function(ws, msg)
 
 } # getDrugGeneInteractions
 #----------------------------------------------------------------------------------------------------
-getPatientIDsFromDataset <- function(ws, msg)
+canonicalizePatientIDsInDataset <- function(ws, msg)
 {
 
   datasetName <- state[["currentDatasetName"]]
@@ -357,7 +437,7 @@ getPatientIDsFromDataset <- function(ws, msg)
   sampleIDs <- msg$payload
   printf("-- looking up %d IDs", length(sampleIDs))
 
-  ptIDs <- getPatientIDs(dataset, sampleIDs)
+  ptIDs <- canonicalizePatientIDs(dataset, sampleIDs)
 
   printf("-- found %d IDs", length(ptIDs))
  

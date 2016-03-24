@@ -18,7 +18,7 @@ runTests <- function()
   testMutation()
   testMethylation()#
   testProteinAbundance() 
-
+  testCanonicalizePatientIDs()
     # the following tests address the -use- of this class by client code
 
   testMatrixAndDataframeAccessors()
@@ -35,15 +35,20 @@ testManifest <- function()
    checkTrue(file.exists(file))
    
    tbl <- read.table(file, sep="\t", as.is=TRUE)
-   checkEquals(dim(tbl), c(9, 11))
+   checkEquals(ncol(tbl), 11)
+   checkTrue(nrow(tbl) >= 7)
+
    checkEquals(colnames(tbl), c("variable", "class", "category", "subcategory",
                                 "entity.count", "feature.count", "entity.type",
                                 "feature.type", "minValue", "maxValue", "provenance"))
  
-   checkEquals(tbl$category, c("copy number", "history", "mutations", "protein abundance","methylation","methylation", "mRNA expression", "mRNA expression", "mRNA expression"))
-   checkEquals(rownames(tbl), c("mtx.cn.RData", "history.RData", "mtx.mut.RData", "mtx.prot.RData", "mtx.methHM450.RData", "mtx.methHM27.RData", "mtx.mrna_Agi.RData", "mtx.mrna_U133.RData", "mtx.mrna_Seq.RData"))
-   checkEquals(sort(tbl$class), c("list","matrix", "matrix","matrix", "matrix", "matrix", "matrix", "matrix", "matrix"))
-
+   expected.categories <- c("copy number", "history", "mRNA expression", "mutations",
+                               "protein abundance")
+   
+   checkTrue(all(expected.categories %in% tbl$category))
+   expected.rownames <- c("mtx.cn.RData", "events.RData","ptHistory.RData","historyTypes.RData", "tbl.ptHistory.RData", "mtx.mrna_Agi.RData", "mtx.mut.RData",
+                                "mtx.prot.RData")
+   checkTrue(all(expected.rownames %in% rownames(tbl)))
    for(i in 1:nrow(tbl)){
       file.name <- rownames(tbl)[i]
       full.name <- file.path(dir, file.name)
@@ -74,7 +79,6 @@ testManifest <- function()
          checkEqualsNumeric(max(x, na.rm=T), maxValue, tolerance=10e-5)
          }
       provenance <- tbl$provenance[i];
-      checkEquals(provenance, "tcga")
       } # for i
 
    TRUE
@@ -132,21 +136,21 @@ testExpression <- function()
     checkTrue(file.exists(file))
 
     load(file)
-    checkTrue(exists("mtx.mrna"))
-    checkTrue(is(mtx.mrna, "matrix"))
-    checkEquals(class(mtx.mrna[1,1]), "numeric")
+    checkTrue(exists("mtx.mrna_Seq"))
+    checkTrue(is(mtx.mrna_Seq, "matrix"))
+    checkEquals(class(mtx.mrna_Seq[1,1]), "numeric")
 
-    checkEquals(dim(mtx.mrna), c(501,20444))
+    checkEquals(dim(mtx.mrna_Seq), c(501,20444))
 
     # a reasonable range of expression log2 ratios
-    checkEquals(fivenum(mtx.mrna), c(-4.6334 ,  -0.5717 ,-0.2179, 0.2601,22958.0168))
+    checkEquals(fivenum(mtx.mrna_Seq), c(-4.6334 ,  -0.5717 ,-0.2179, 0.2601,22958.0168))
 
     # all colnames should be recognzied gene symbols.  no isoform suffixes yet
-    #   checkTrue(all(colnames(mtx.mrna) %in% keys(org.Hs.egSYMBOL2EG)))
+    #   checkTrue(all(colnames(mtx.mrna_Seq) %in% keys(org.Hs.egSYMBOL2EG)))
 
     # all rownames should follow "TCGA.02.0014" format.  no multiply-sampled suffixes yet
     regex <- "^TCGA\\.\\w\\w\\.\\w\\w\\w\\w\\.[0-9][0-9]$"
-    checkEquals(length(grep(regex, rownames(mtx.mrna))), nrow(mtx.mrna))
+    checkEquals(length(grep(regex, rownames(mtx.mrna_Seq))), nrow(mtx.mrna_Seq))
 
 
 
@@ -291,10 +295,10 @@ testConstructor <- function()
    print("--- testConstructor")
 
    dp <- TCGAlusc();
-   checkEquals(dim(manifest(dp)), c(9, 11))
-   checkEquals(length(matrices(dp)), 8)
-   checkEquals(names(matrices(dp)), c("mtx.cn", "mtx.mut", "mtx.prot", "mtx.meth", "mtx.meth","mtx.mrna","mtx.mrna","mtx.mrna"))
-   checkEquals(eventCount(history(dp)), 5235)
+   checkEquals(ncol(manifest(dp)), 11)
+   checkTrue(nrow(manifest(dp)) >= 7)
+   checkTrue(length(matrices(dp)) >= 5)
+   checkTrue(eventCount(history(dp)) > 5000)
    
 } # testConstructor
 #--------------------------------------------------------------------------------
@@ -317,7 +321,7 @@ testHistoryList <- function()
    ptHistory <- history(dp)
    checkTrue(is(ptHistory, "PatientHistoryClass"))
 
-   events <- getList(ptHistory)
+   events <- geteventList(ptHistory)
    checkEquals(length(events), 5235)
     
    event.counts <- as.list(table(unlist(lapply(events,
@@ -337,7 +341,7 @@ testHistoryTable <- function()
 
    events <- getTable(ptHistory)
    checkEquals(class(events),"data.frame")
-   checkEquals(dim(events), c(495, 347))
+   checkEquals(dim(events), c(495, 350))
    checkEquals(colnames(events)[1:10], 
            c("ptID", "ptNum", "study", "Birth.date", "Birth.gender", "Birth.race", "Birth.ethnicity",
              "Drug.date1", "Drug.date2", "Drug.therapyType"))
@@ -347,3 +351,16 @@ testHistoryTable <- function()
 
 } # testHistoryList
 #----------------------------------------------------------------------------------------------------
+testCanonicalizePatientIDs <- function()
+{
+   print("--- testCanonicalizePatientIDs")
+   dp <- TCGAlusc()
+   IDs <- names(getPatientList(dp))
+   ptIDs <- canonicalizePatientIDs(dp, IDs)
+   
+   checkTrue(all(grepl("^TCGA\\.\\w\\w\\.\\w\\w\\w\\w$", ptIDs)))
+
+}
+#----------------------------------------------------------------------------------------------------
+if(!interactive())
+   runTests()

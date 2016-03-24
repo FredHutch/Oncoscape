@@ -85,6 +85,8 @@ function initializeUI ()
    $(".chosen-select").chosen();
    $(window).resize(handleWindowResize);
 
+   hub.enableTab(thisModulesOutermostDiv)
+
  } // initializeUI
 //----------------------------------------------------------------------------------------------------
 function sendSelections(event)

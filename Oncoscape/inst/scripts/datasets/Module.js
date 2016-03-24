@@ -66,8 +66,9 @@ function initializeUI()
 //----------------------------------------------------------------------------------------------------
 function postStatus(msg)
 {
-   $("#datasetsStatusDiv").text(msg);
-
+   $("#datasetsStatusDiv").text(msg);   // todo: this is obsolete
+   $("#datasetsMinorStatusDiv").text(msg);
+   
 } // postStatus
 //----------------------------------------------------------------------------------------------------
 function handleWindowResize()
@@ -102,15 +103,17 @@ function selectManifest(event)
 {
    selectedDataSet = datasetMenu.val();
    console.log("dataset '" + selectedDataSet + "'");
+   $("#datasetsManifestTable").css("display", "none");
+   $("#loadingDatasetMessage").text("Loading Datasets...");
+
+   $("#loadingDatasetMessage").css("display", "inline");
 
    if(selectedDataSet === ""){
-      $("#datasetInstructions").css("display", "block")
-      $("#datasetsManifestTable").css("display", "none")
+      $("#datasetInstructions").css("display", "block");
       hub.disableButton(useThisDatasetButton);
       }
     else{
-      $("#datasetInstructions").css("display", "none")
-      $("#datasetsManifestTable").css("display", "block")      
+      $("#datasetInstructions").css("display", "none");
       requestDataSetSummary(selectedDataSet);
     }
 
@@ -145,9 +148,7 @@ function handleDataSetNames(msg)
       datasetMenu.append("<option value='" + s + "'>" + s + "</option>");
       }
 
-  //if(passwordProtected)
-  //   hub.disableButton($("#datasetMenu"));
-
+  $("#datasetsMinorStatusDiv").text("datasetMenu loaded");
 
 } // handleDataSetNames
 //----------------------------------------------------------------------------------------------------
@@ -157,6 +158,7 @@ function requestDataSetSummary(dataSetName)
 
    var msg = {cmd: "getDataManifest",  callback: "displayDataManifest", status: "request", 
               payload: dataSetName};
+   hub.logEventOnServer(thisModulesName, "datasets requestDataSummary", "request", dataSetName);
 
    hub.send(JSON.stringify(msg));
 
@@ -164,6 +166,9 @@ function requestDataSetSummary(dataSetName)
 //----------------------------------------------------------------------------------------------------
 function displayDataManifest(msg)
 {
+   $("#datasetsManifestTable").css("display", "block");
+   $("#loadingDatasetMessage").css("display", "none");
+
    var payload = msg.payload;
    var tblColumnNames = payload.colnames;
 
@@ -215,6 +220,7 @@ function displayDataManifest(msg)
      handleWindowResize();
      hub.enableButton(useThisDatasetButton);
      postStatus("manifest table displayed");
+     hub.logEventOnServer(thisModulesName, "datasets requestDataSummary", "complete", "");
      }); // tableElement.ready
 
 } // displayDataManifest
@@ -223,9 +229,8 @@ function specifyCurrentDataset()
 {
    console.log("Module.datasets 'Use Dataset' button clicked, specifyCurrentDataset: " + selectedDataSet);
  
-   hub.disableAllTabsExcept([thisModulesOutermostDiv, "userDataStoreDiv", "ericTestDiv"])
-	$("#loadingDatasetMessage").css("display", "inline")
-	
+   hub.disableAllTabsExcept([thisModulesOutermostDiv, "userDataStoreDiv", "ericTestDiv", "DashboardDiv"]);
+  
    var msg = {cmd: "specifyCurrentDataset",  callback: "datasetSpecified", 
               status: "request", payload: selectedDataSet};
 
@@ -235,7 +240,6 @@ function specifyCurrentDataset()
 //----------------------------------------------------------------------------------------------------
 function datasetSpecified(msg)
 {
-	$("#loadingDatasetMessage").css("display", "none")
    console.log("--- Module.datasets:  datasetSpecified");
 
 } // datasetSpecified
@@ -247,14 +251,14 @@ function test(dataSetName)
    QUnit.test("choose dataset '" + dataSetName + "'", function(assert) {
       hub.raiseTab("datasetsDiv");
       var desiredDataset = dataSetName;
-      var dzNames = $("#datasetMenu option").map(function(opt){return this.value})
+      var dzNames = $("#datasetMenu option").map(function(opt){return this.value;});
 
       if($.inArray(desiredDataset, dzNames) < 0){
          alert("cannot run tests:  " + desiredDataset + " dataset not loaded");
          return;
          }
 
-      $("#datasetMenu").val(desiredDataset)
+      $("#datasetMenu").val(desiredDataset);
       $("#datasetMenu").trigger("change");
 
       var done1 = assert.async();

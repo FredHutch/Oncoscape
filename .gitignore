@@ -3,6 +3,11 @@
 *.log
 *.out
 nohup.out
+dataPackages/RawData
+Oncoscape/inst/unitTests/test_OncoDev14_BenchMark*
+Oncoscape/inst/scripts/markersAndSamples/log.*
+Oncoscape/inst/scripts/datasets/log.*
+Oncoscape/inst/scripts/apps/oncoscape/nohup.out
 
 # Packages #
 ############
@@ -25,5 +30,6 @@ index.html
 
 # Installation files #
 ######################
-.setupR
+.setupR*
 Rlibs
+.Rhistory

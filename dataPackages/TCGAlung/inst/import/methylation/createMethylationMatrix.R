@@ -20,6 +20,8 @@ HugoGenes <- unique(c(genes.luad, genes.lusc))
 checkEquals(length(HugoGenes), ncol(tbl.TCGAluad))
 checkEquals(length(HugoGenes), ncol(tbl.TCGAlusc))
 
+tbl.TCGAluad <- tbl.TCGAluad[, colnames(tbl.TCGAlusc)]
+
 mtx.meth <- rbind(tbl.TCGAluad, tbl.TCGAlusc)
 
 checkEquals(nrow(mtx.meth), nrow(tbl.TCGAluad) + nrow(tbl.TCGAlusc) )
@@ -47,6 +49,8 @@ if(length(Addgene)>0) tbl.TCGAluad <- cbind(tbl.TCGAluad, matrix(NA, nrow=nrow(t
 HugoGenes <- unique(c(genes.luad, genes.lusc))
 checkEquals(length(HugoGenes), ncol(tbl.TCGAluad))
 checkEquals(length(HugoGenes), ncol(tbl.TCGAlusc))
+
+tbl.TCGAluad <- tbl.TCGAluad[, colnames(tbl.TCGAlusc)]
 
 mtx.meth <- rbind(tbl.TCGAluad, tbl.TCGAlusc)
 
