@@ -33,7 +33,7 @@ test_smallExpressionSet <- function()
 {
    print("--- test_smallExpressionSet");
    ds <- DEMOdz()
-   mtx <- matrices(ds)$mtx.mrna
+   mtx <- matrices(ds)$mtx.mrna.ueArray
    checkEquals(dim(mtx), c(20,64))
    checkEqualsNumeric(fivenum(mtx),
                       c(-4.09886792, -0.74699972, -0.01280164, 0.71880694, 5.87099417),

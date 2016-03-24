@@ -1,10 +1,13 @@
 library(OncoDev14)
 scriptDir <- "pca"
-userID <- "autoTest@nowhere.org"
-#current.datasets <- "DEMOdz;TCGAgbm"
-current.datasets <- "DEMOdz"
-port <- 7501
+userID <- "test@nowhere.org"
+#current.datasets <- "DEMOdz;UWlung"
+#current.datasets <- "DEMOdz"
+current.datasets <- "DEMOdz;TCGAgbm;TCGAbrain"
+port <- 7568
+
 onco <- OncoDev14(port=port, scriptDir=scriptDir, userID=userID, datasetNames=current.datasets)
+browseURL(sprintf("http://localhost:%d", port))
 if(Sys.info()[["nodename"]] != "lopez") 
-   browseURL(sprintf("http://localhost:%d", port))
-run(onco)
+   run(onco)
+

@@ -7,25 +7,25 @@ include(../common.css)
 include(../hub/Module.js)
 var hub = HubModule();
 hub.start();
+include(../testManager/Module.js)
 include(../tabsApp/code.js)
-
 include(../datasets/Module.js)
 include(../plsr/Module.js)
-include(../plsr/Test.js)
+
 </script>
 
 <body>
 
-  <div id="qunit" style="display:none"></div>
-  <div id="qunit-fixture"></div>
-
 <div id="oncoscapeTabs">
    <ul>
      <li><a href="#datasetsDiv">Datasets</a></li>
-     <li><a href="#plsrDiv">PLSR</a></li>
+     <li><a href="#plsrDiv">plsr</a></li>
+     <li><a href="#plsrTestDiv">Tests</a></li>
    </ul>
+
 include(../datasets/widget.html)
 include(../plsr/widget.html)
+include(../plsr/test.html)
 </div>
 
 </body>
