@@ -45,11 +45,10 @@ createPLSR <- function(msg)
 #----------------------------------------------------------------------------------------------------
 calculate_plsr <- function(msg)
 {
-   printf("=== calculate_plsr");
+    printf("=== calculate_plsr");
    print(msg)
    genes <- msg$payload$genes
    printf("gene count for calculatePLSR (%d)", length(genes))
-   
    #print(genes)
       # an artful(?) dodge:  if this is a list of genes, then they are literal genes
       # if just one, then it must be a geneSetName, and we must retrieve the genes
@@ -64,9 +63,7 @@ calculate_plsr <- function(msg)
    printf("genes for calculatePLSR after possible lookup(%d)", length(genes))
    print(genes)
    factors.df <- msg$payload$factors
-   print("*****after factors.df assignment")
    print(factors.df)
-   print("*****before nrow factors.df")
    factors <- vector("list", nrow(factors.df))
    for(r in 1:nrow(factors.df)){
       factors[[r]] <- as.list(factors.df[r,])
@@ -76,6 +73,9 @@ calculate_plsr <- function(msg)
    
    #factors <- apply(factors.df, 1, as.list)
    #names(factors) <- NULL
+   #if(!dir.exists("~/tmp"))
+   #     dir.create("~/tmp")
+
    #save(factors.df, factors, file="~/tmp/factors.bug.RData")
    printf("--- factors after apply on factors.df");
    print(factors)
@@ -87,15 +87,7 @@ calculate_plsr <- function(msg)
    printf("--- genes: %d", length(genes))
 
    print("------------ myplsr before calculate")
-   currentDataSetName <- state[["currentDatasetName"]]
-   ds <- datasets[[currentDataSetName]];
-   matrixName = msg$payload$expressionDataSet
-   printf("expression data for calculatePLSR (%s)", matrixName)
-   cmd <- sprintf("myplsr <- PLSR(ds, '%s')", matrixName);
-   printf("createPLSR about to eval cmd: %s", cmd)
-   eval(parse(text=cmd))
-   state[["myplsr"]] <- myplsr
-
+   myplsr <- state[["myplsr"]]
    printf("class(myplsr): %s", class(myplsr))
           
    print(showMethods("calculatePLSR"))
