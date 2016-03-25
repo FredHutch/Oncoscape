@@ -106,7 +106,7 @@
     <li class="legend-section">Edge Colors</li>
     <li ng-repeat="item in vm.optEdgeColors">
       <button class="btn btn-default filter-button {{item.class}}"
-      ng-click="item.fn(item); $event.stopPropagation();">
+      ng-click="item.fn(item); $event.stopPropagation();" style="font-weight: 100">
             {{item.name}} ({{item.state}})
       </button>
     </li>

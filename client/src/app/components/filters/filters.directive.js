@@ -116,6 +116,7 @@
 
 
                 var transitionToCluster = function(){
+                    console.log("Cluster");
                     var data = pfApi.getFilterTree();
                     var nodes = cluster.nodes(data);
                     var links = cluster.links(nodes);
@@ -157,6 +158,19 @@
                         .on('click', function(d,i){
                             pfApi.setActiveFilter(d);
                             osApi.hideFilter();
+                        })
+                        .on("mouseover", function(d,i) {
+                            d3.select(this).transition()
+                                .ease("elastic")
+                                .duration("500")
+                                .attr("r", 15);
+                        })
+                        .on("mouseout", function(d,i) {
+                            d3.select(this).transition()
+                                .ease("quad")
+                                .delay("100")
+                                .duration("200")
+                                .attr("r", 10);
                         });
                         
 
@@ -184,7 +198,7 @@
                 }
 
                 var transitionToTree = function(){
-                    console.log("TREE");
+                    console.log("Tree");
                     var data = pfApi.getFilterTree();
                     var nodes = tree.nodes(data);
                     var links = tree.links(nodes);
@@ -226,6 +240,19 @@
                         .on('click', function(d,i){
                             pfApi.setActiveFilter(d);
                             osApi.hideFilter();
+                        })
+                        .on("mouseover", function(d,i) {
+                            d3.select(this).transition()
+                                .ease("elastic")
+                                .duration("500")
+                                .attr("r", 15);
+                        })
+                        .on("mouseout", function(d,i) {
+                            d3.select(this).transition()
+                                .ease("quad")
+                                .delay("100")
+                                .duration("200")
+                                .attr("r", 10);
                         });
                         
 
@@ -252,145 +279,6 @@
                 }
 
               transitionToCluster();
-
-                // var update = function(){
-                //     var data = pfApi.getFilterTree();
-                //     var nodes = cluster.nodes(data);
-                //     var links = cluster.links(nodes);
-
-                //     link = svg.selectAll(".link").data(links);
-                //     link.enter()
-   //                      .append("path")
- //                        .attr("class", "link")
-//                         .style("stroke", "#59a5fb")
-                //         .attr("d", diagonal);
-
-                //     link.exit().remove();
-
-                //     node = svg.selectAll(".node").data(nodes)
-                //     var ng = node.enter()
-                //       .append("g")
-                //       .attr("class", "node")
-                //       .attr("transform", function(d) {
-                //         return "translate(" + d.y + "," + d.x + ")";
-                //       })
-                //       ng.append("circle")
-                //           .attr("class", "filter-node")
-                //           .attr("r", 10);   
-                //       ng.append("text")
-                //           //.attr("dx", function(d) { return d.children ? -15 : 15; })
-                //           .attr("dy", 30)
-                //           .style("fill", "#FFF")
-                //           .style("text-anchor", "middle") //function(d) { return d.children ? "end" : "start";})
-                //           .text(function(d) { return d.name; });
-                //     ng.on('mouseover', function(d,i){
-                        
-                //     })
-                //       ng.on('click', function(d,i){
-                //         pfApi.setActiveFilter(d);
-                //         osApi.hideFilter();
-                //       });
-                //     node.exit().remove();
-                // };
-        
-                // root = pfApi.getFilterTree();
-                // update();
-    
-
-                
-
-                /*
-                function transitionToRadialTree() {
-                    var data = pfApi.getFilterTree();
-                    var nodes = radialTree.nodes(data), 
-                        links = radialTree.links(nodes);
-                    svg.transition().duration(duration)
-                        .attr("transform", "translate(" + (width / 2) + "," +
-                            (height / 2) + ")");
-                    link.data(links)
-                        .transition()
-                        .duration(duration)
-                        .style("stroke", "#fc8d62")
-                        .attr("d", radialDiagonal);
-                    node.data(nodes)
-                        .transition()
-                        .duration(duration)
-                        .attr("transform", function(d) {
-                            return "rotate(" + (d.x - 90) + ")translate(" + d.y + ")";
-                        })
-
-
-                };
-                function transitionToRadialCluster() {
-                    var data = pfApi.getFilterTree();
-                    var nodes = radialCluster.nodes(data),
-                        links = radialCluster.links(nodes);
-                    svg.transition().duration(duration)
-                        .attr("transform", "translate(" + (width / 2) + "," +
-                            (height / 2) + ")");
-                    link.data(links)
-                        .transition()
-                        .duration(duration)
-                        .style("stroke", "#66c2a5")
-                        .attr("d", radialDiagonal);
-                    node.data(nodes)
-                        .transition()
-                        .duration(duration)
-                        .attr("transform", function(d) {
-                            return "rotate(" + (d.x - 90) + ")translate(" + d.y + ")";
-                        })
-                };
-                function transitionToTree() {
-                    var data = pfApi.getFilterTree();
-                    var nodes = tree.nodes(data),
-                        links = tree.links(nodes);
-                    svg.transition().duration(duration)
-                        .attr("transform", "translate(40,0)");
-                    link.data(links)
-                        .transition()
-                        .duration(duration)
-                        .style("stroke", "#e78ac3")
-                        .attr("d", diagonal); 
-                    node.data(nodes)
-                        .transition()
-                        .duration(duration)
-                        .attr("transform", function(d) {
-                            return "translate(" + d.y + "," + d.x + ")";
-                        })
-                };
-                function transitionToCluster() {
-
-                    var data = pfApi.getFilterTree();
-                    var collection;
-
-                    var nodes = cluster.nodes(data),
-                        links = cluster.links(nodes);
-
-                    svg.transition().duration(duration)
-                        .attr("transform", "translate(40,0)");
-
-                    collection = link.data(links);
-                    collection
-                        .transition()
-                        .duration(duration)
-                        .style("stroke", "#8da0cb")
-                        .attr("d", diagonal);
-                    collection
-                      .exit()
-                      .remove();
-                    collection = node.data(nodes);
-                    collection
-                        .transition()
-                        .duration(duration)
-                        .attr("transform", function(d) {
-                            return "translate(" + d.y + "," + d.x + ")";
-                        });
-                    collection
-                      .exit()
-                      .remove();
-                };
-                */
-
                 return {
                     setDisplay: setDisplay,
                     draw: draw

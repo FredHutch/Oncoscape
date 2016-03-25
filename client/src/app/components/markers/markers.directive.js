@@ -137,6 +137,7 @@
                                 fit: true
                             }
                         });
+
                         draw();
 
                         // Opt Edge Colors
@@ -320,8 +321,54 @@
                         // Hide All Edges
                         chart.$('edge[edgeType!="chromosome"]').style({ display: 'none' });
                     }
-                }, {
-                    name: 'One Degree (Rollover)',
+                },{
+                    name: 'Show One Degree When Selected',
+                    register: function(){
+                        cyChart.$('node[nodeType="patient"]:selected').forEach(function(e) {
+                            e.neighborhood('edge').style({ 'display': 'element', 'line-style': 'solid' });
+                        });
+                        cyChart.on('select', 'node', function(e){
+                            behaviors.showDegreeOne(e);
+                        });
+                        cyChart.on('unselect','node',function(e){
+                            behaviors.hideDegreeOne(e);
+                        });
+                    },
+                    unregister: function(){
+                        cyChart.$('node[nodeType="patient"]:selected').forEach(function(e) {
+                            e.neighborhood('edge').style({ 'display': 'none' });
+                        });
+                        cyChart.off('select', 'node');
+                        cyChart.off('unselect', 'node');
+                    }
+
+                },{
+                    name: 'Show Two Degree When Selected',
+                    register: function(){
+                        cyChart.$('node[nodeType="patient"]:selected').forEach(function(e) {
+                            e.neighborhood('edge').style({ 'display': 'element', 'line-style': 'solid' });
+                            e.neighborhood('node')
+                                .neighborhood('edge').style({ 'line-style': 'dashed', 'display': 'element' });
+                        });
+                        cyChart.on('select', 'node', function(e){
+                            behaviors.showDegreeTwo(e);
+                        });
+                        cyChart.on('unselect','node',function(e){
+                            behaviors.hideDegreeTwo(e);
+                        });
+                    },
+                    unregister: function(){
+                        cyChart.$('node[nodeType="patient"]:selected').forEach(function(e) {
+                            e.neighborhood('edge').style({ 'display': 'none'});
+                            e.neighborhood('node')
+                                .neighborhood('edge').style({ 'display': 'none' });
+                        });
+                        cyChart.off('select', 'node');
+                        cyChart.off('unselect', 'node');
+                    }
+
+                },{
+                    name: 'Show One Degree On Rollover',
                     register: function() {
                         events.click(function(e) {
                             behaviors
@@ -347,7 +394,7 @@
                         events.removeAll();
                     }
                 }, {
-                    name: 'Two Degrees (Rollover)',
+                    name: 'Show Two Degrees On Rollover',
                     register: function() {
                         events.click(function(e) {
                             behaviors
@@ -679,7 +726,7 @@
                     'background-color': color.red,
                     'width': '100px',
                     'height': '100px',
-                    'shape': 'diamond'
+                    'shape': 'triangle'
                 }
             }];
         }

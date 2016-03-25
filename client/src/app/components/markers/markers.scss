@@ -3,27 +3,6 @@
 		width: 100%;
 		height: 80vh;
 }
-.legend{
-	position:absolute;
-	left:0px;
-	top:153px;
-	background-color:rgba(255,255,255,.7);
-	max-width:20%;
-	display: inline-block;
-	z-index:998;
-	ul{
-		list-style-type: none;
-		margin:20px;
-		padding:0px;
-	}
-}
-.legend-right{
-	left:auto;
-	right:0px;
-}
-.legend-section{
-	font-weight: bold;
-}
 .filter-list{
 	li{
 		padding:0px;
