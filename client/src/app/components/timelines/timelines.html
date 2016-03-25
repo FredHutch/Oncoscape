@@ -1,7 +1,7 @@
 <section class="timelines container container-filters">
-<h2>Timelines ({{vm.datasource}})</h2>
+<h2>Timelines &mdash; {{vm.datasource}}</h2>
 <div class="row">
-    <div class="col-xs-2" style="padding-right:20px;">
+    <div class="col-xs-3" style="padding-right:20px;">
         <label>Event Visibility</label>
         <div class="dropdown bs-dropdown">
             <button class="btn btn-default dropdown-toggle" type="button" id="dropdownMenu1" data-toggle="dropdown" aria-haspopup="true" aria-expanded="true">
@@ -17,7 +17,7 @@
         </div>
     </div>
   
-    <div class="col-xs-2" style="padding-right:20px;">
+    <div class="col-xs-3" style="padding-right:20px;">
         <label>Event Alignment</label>
         <div class="dropdown bs-dropdown">
             <button class="btn btn-default dropdown-toggle" type="button" id="dropdownMenu1" data-toggle="dropdown" aria-haspopup="true" aria-expanded="true">
@@ -29,7 +29,7 @@
             </ul>
         </div>
     </div>
-       <div class="col-xs-2" style="padding-right:20px;">
+       <div class="col-xs-3" style="padding-right:20px;">
         <label>Feature To Compare</label>
         <div class="dropdown bs-dropdown">
             <button class="btn btn-default dropdown-toggle" type="button" id="dropdownMenu1" data-toggle="dropdown" aria-haspopup="true" aria-expanded="true">
@@ -41,7 +41,7 @@
             </ul>
         </div>
     </div>    
-      <div class="col-xs-2" style="padding-right:20px;">
+      <div class="col-xs-3" style="padding-right:20px;">
         <label>Sort Patients By</label>
         <div class="dropdown bs-dropdown">
             <button class="btn btn-default dropdown-toggle" type="button" id="dropdownMenu1" data-toggle="dropdown" aria-haspopup="true" aria-expanded="true">
@@ -58,18 +58,7 @@
             </ul>
         </div>
     </div>
-    <div class="col-xs-2 col-xs-push-2">
-        <label>Create Cohort</label>
-        <div class="input-group">
-          <input type="text" class="form-control" placeholder="Cohort Name" style="height:29px;"
-            ng-model="vm.cohort">
-          <span class="input-group-btn">
-            <button class="btn btn-primary" type="button"
-                style="height:29px;"
-                ng-click="vm.createCohort()">Go!</button>
-          </span>
-        </div>
-    </div>
+    
 </div>
 </section>
 

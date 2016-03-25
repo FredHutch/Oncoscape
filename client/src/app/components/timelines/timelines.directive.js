@@ -78,6 +78,15 @@
 
 
                 var drawFeature = function(patients, feature, events, sort, align, rowHeight){
+                    
+                    if (feature.index==-1){
+                        var svgFeatures = svgChart.selectAll("rect.feature")
+                        .data([]);
+                        svgFeatures.exit()
+                        .remove();
+                        return;
+                    }
+                    
 
                     // Retrieve Min + Max Values
                     var minmax = [ 0,
@@ -249,6 +258,7 @@
             vm.features;
             vm.feature;
             vm.events;
+            vm.sorts;
             vm.sort;
             vm.align;
 
@@ -281,9 +291,13 @@
 
                     // Clean Data + Set Default VM
                     rawdata = processPatientData(response.payload.pts);
-                    vm.features =  processFeatureData(rawdata);
+                    vm.sorts = processFeatureData(rawdata);
+                    vm.sort = vm.sorts[0];
+                    var features = processFeatureData(rawdata);
+                    features.unshift({index:-1, name:'None'});
+                    vm.features =  features;
                     vm.feature = vm.features[0];
-                    vm.sort = vm.features[0]
+                    
                     vm.events = processEventData(response.payload.eventTypes);
                     vm.align = vm.events[0];
 
