@@ -53,6 +53,8 @@
                 vm.cohort = "";
             };
 
+
+
             // Elements
             var elChart = angular.element("#markers-chart");
             var cyChart;
@@ -62,6 +64,7 @@
             var pfApi = osApi.getPatientFilterApi();
             pfApi.init(vm.datasource);
             pfApi.onSelect.add(draw);
+
 
  
             var removedPatients;
@@ -113,7 +116,7 @@
                                 })
                             .map(function(value){
                                 value.locked = true;
-                                value.selectable = false;
+                                value.selectable = true;
                                 value.grabbable = false;
                                 return value;
                             });
@@ -146,6 +149,35 @@
                         vm.optNodeColors = optNodeColorsFactory(cyChart, vm, osApi);
                         vm.optInteractiveModes = optInteractiveModesFactory(cyChart, vm, $scope);
                         vm.optInteractiveMode = vm.optInteractiveModes[0];
+
+                        // Register Search Listeners
+                        $scope.$watch("vm.searchGene", function(e){
+                            if (angular.isUndefined(vm.searchGene)) return;
+                            var selected = cyChart.nodes('node[nodeType="gene"]')
+                            .forEach(function(ele){
+                                if (vm.searchGene=="") { ele.deselect(); return; }
+                                if (ele.data().name.toLowerCase().indexOf(vm.searchGene.toLowerCase())==0){
+                                    ele.select()
+                                }else{
+                                    ele.deselect();
+                                }
+
+                            });
+                        });
+
+                        $scope.$watch("vm.searchPatient", function(){
+                            if (angular.isUndefined(vm.searchPatient)) return;
+                            var selected = cyChart.nodes('node[nodeType="patient"]')
+                            .forEach(function(ele){
+                                if (vm.searchPatient=="") { ele.deselect(); return; }
+                                if (ele.data().id.toLowerCase().indexOf(vm.searchPatient.toLowerCase())==0){
+                                    ele.select()
+                                }else{
+                                    ele.deselect();
+                                }
+
+                            });
+                        });
 
                         osApi.setBusy(false);
                     });
@@ -322,7 +354,7 @@
                         chart.$('edge[edgeType!="chromosome"]').style({ display: 'none' });
                     }
                 },{
-                    name: 'Show One Degree When Selected',
+                    name: '1° When Selected',
                     register: function(){
                         cyChart.$('node[nodeType="patient"]:selected').forEach(function(e) {
                             e.neighborhood('edge').style({ 'display': 'element', 'line-style': 'solid' });
@@ -343,7 +375,7 @@
                     }
 
                 },{
-                    name: 'Show Two Degree When Selected',
+                    name: '2° When Selected',
                     register: function(){
                         cyChart.$('node[nodeType="patient"]:selected').forEach(function(e) {
                             e.neighborhood('edge').style({ 'display': 'element', 'line-style': 'solid' });
@@ -368,7 +400,7 @@
                     }
 
                 },{
-                    name: 'Show One Degree On Rollover',
+                    name: '1° On Rollover',
                     register: function() {
                         events.click(function(e) {
                             behaviors
@@ -394,7 +426,7 @@
                         events.removeAll();
                     }
                 }, {
-                    name: 'Show Two Degrees On Rollover',
+                    name: '2° On Rollover',
                     register: function() {
                         events.click(function(e) {
                             behaviors
@@ -704,6 +736,16 @@
                     'background-color': color.white,
                     'height': 'mapData(degree, 0, 50, 10.0, 80.0)',
                     'width': 'mapData(degree, 0, 50, 10.0, 80.0)'
+                }
+            }, {
+                selector: 'node[nodeType="gene"]:selected',
+                style: {
+                    'border-color': color.red,
+                    'border-width': '3px',
+                    'background-color': color.white,
+                    'width': '100px',
+                    'height': '100px',
+                    'shape': 'triangle'
                 }
             }, {
                 selector: 'node[nodeType="centromere"]',

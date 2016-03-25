@@ -19,7 +19,13 @@ $headings-font-weight:    300 !default;
 // endbower
 body{
 	padding-top: 70px; // Navigation
-	font-weight:100;
+	font-weight:300;
+}
+label{
+	font-weight: 300;
+}
+button{
+	font-weight: 300;
 }
 .container-fluid{
 	padding-left: 20px;
@@ -67,6 +73,10 @@ body{
 		text-align: left;
 		height: 28px;
 		line-height: 14px;
+		overflow: hidden;
+    	text-overflow: ellipsis;
+    	font-weight: 300;
+    	margin-right:50px;
 		.caret{
 			float:right;
 			margin-top:5px;
@@ -166,7 +176,7 @@ body{
 		list-style-type: none;
 		margin:20px;
 		padding:0px;
-		font-weight:100;
+		font-weight:300;
 	}
 }
 .legend-right{
