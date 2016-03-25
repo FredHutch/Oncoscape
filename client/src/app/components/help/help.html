@@ -1,0 +1,43 @@
+<section class="tools container">
+    <div class="row">
+        <div class="col-sm-8 col-md-6">
+            <br />
+            <br /><br />
+            
+        </div>
+    </div>
+    <div class="row" >
+    
+        <div class="col-xs-12 col-md-7">
+        <h2 style="margin:0px;margin-bottom: 20px;">Now Playing &mdash; Lorum Ipsum</h2>
+            <div style="background-color:#000;text-align: center;">
+                <video width="640" height="360" controls style="background-color: #000;max-width: 100%;">
+                </video>
+            </div>
+            <h2>Video Title</h2>
+            <p>Transcription At vero eos et accusamus et iusto odio dignissimos ducimus qui blanditiis praesentium voluptatum deleniti atque corrupti quos dolores et quas molestias excepturi sint occaecati cupiditate non provident, similique sunt in culpa qui officia deserunt mollitia animi, id est laborum et dolorum fuga. Et harum quidem rerum facilis est et expedita distinctio. Nam libero tempore, cum soluta nobis est eligendi optio cumque nihil impedit quo minus id quod maxime placeat facere possimus, omnis voluptas assumenda est, omnis dolor repellendus. Temporibus autem quibusdam et aut officiis debitis aut rerum necessitatibus saepe eveniet ut et voluptates repudiandae sint et molestiae non recusandae. Itaque earum rerum hic tenetur a sapiente delectus, ut aut reiciendis voluptatibus maiores alias consequatur aut perferendis doloribus asperiores repellat</p>
+        </div>
+        <div class="col-xs-12 col-md-5" style="padding-left: 40px;">
+            <h2 style="margin:0px;">Oncoscape Videos</h2>
+            <ul>
+            <li ng-repeat="video in vm.videos" style="clear: both;">
+                <div style="width:30%;height:90px;background-color:#EEE;display:inline-block;float:left;margin-bottom: 20px;text-align: center;">
+                    <span class="glyphicon glyphicon-play-circle" style="font-size: 30px;padding-top:30px; color:#FFF"></span>
+                </div>
+                <div style="width:69%;display: inline-block;float:left;padding-left: 10px;">
+                
+                    <h3 class="tools-lbl" style="margin:0px;">{{video.name}}</h3>
+                    <p>{{video.desc}}</p>
+
+                    <a href="" ng-click="vm.explore(tool.route, vm.datasource)">Watch Video</a>
+                </div>
+                
+            </li>
+        </ul>
+        </div>
+    
+    
+        
+     
+    </div>
+</section>

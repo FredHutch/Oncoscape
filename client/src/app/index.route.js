@@ -14,9 +14,9 @@
                 url: '/',
                 template: '<os-landing>'
             })
-            .state('login', {
-                url: '/login',
-                template: '<os-login>'
+            .state('help', {
+                url: '/help',
+                template: '<os-help>'
             })
             .state('datasource', {
                 url: '/datasource',
