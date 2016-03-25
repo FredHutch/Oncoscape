@@ -8,10 +8,12 @@ include(../hub/Module.js)
 var hub = HubModule();
 hub.start();
 
+include(../testManager/Module.js)
 include(../tabsApp/code.js)
 include(../datasets/Module.js)
 include(../markersAndSamples/Module.js)
 include(../markersAndSamples/Test.js)
+include(../blankTab/Module.js)
 
 </script>
 
@@ -22,11 +24,13 @@ include(../markersAndSamples/Test.js)
      <li><a href="#datasetsDiv">Datasets</a></li>
      <li><a href="#markersAndPatientsDiv">Markers</a></li>
      <li><a href="#markersTestDiv">Tests</a></li>
+     <li><a href="#blankTabDiv">Blank Tab</a></li>
    </ul>
 
 include(../datasets/widget.html)
 include(../markersAndSamples/widget.html)
 include(../markersAndSamples/test.html)
+include(../blankTab/widget.html)
 </div>
 
 </body>
