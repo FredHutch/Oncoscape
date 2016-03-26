@@ -1109,17 +1109,17 @@ if(PROCEDURE){
 	                         'bcr_patient_barcode' = list(name = "PatientID", data = "tcgaId"),
 	                         'new_tumor_event_surgery_days_to_loco' = list(name = "date", data = "upperCharacter"), #(only in lgg,luad,lusc)
 	                         'new_tumor_event_surgery_days_to_met'= list(name = "date", data = "upperCharacter"), #(only in lgg,luad,lusc)
-	                         'new_tumor_event_surgery' = list(name = "new_tumor_event_surgery", data = "upperCharacter"), #(in brca,hnsc but not being collected...)
+	                         #'new_tumor_event_surgery' = list(name = "new_tumor_event_surgery", data = "upperCharacter"), #(in brca,hnsc but not being collected...)
 	                         'days_to_new_tumor_event_additional_surgery_procedure'  = list(name = "date", data = "upperCharacter"), #(only in gbm,coad,read)
 	                         'new_neoplasm_event_type'  = list(name = "site", data = "upperCharacter"), #(only in gbm, coad, read)
-	                         'new_tumor_event_type'  = list(name = "site", data = "upperCharacter"), #(only in hnsc, prad, luad, lusc)
-	                         'new_tumor_event_additional_surgery_procedure'  = list(name = "new_tumor_event_additional_surgery_procedure", data = "upperCharacter") #(gbm,coad,read but not being collected...)
+	                         'new_tumor_event_type'  = list(name = "site", data = "upperCharacter") #(only in hnsc, prad, luad, lusc)
+	                         #'new_tumor_event_additional_surgery_procedure'  = list(name = "new_tumor_event_additional_surgery_procedure", data = "upperCharacter") #(gbm,coad,read but not being collected...)
 	                        ))
 	    tbl.omf <- loadData(uri[2],
 	                       list(
 	                         'bcr_patient_barcode' = list(name = "PatientID", data = "tcgaId"),
 	                         'days_to_surgical_resection' = list(name = "date", data = "upperCharacter"), #(gbm,lgg,hnsc,brca,prad,luad,lusc,coad,read)
-	                         'other_malignancy_laterality' = list(name = "other_malignancy_side", data = "upperCharacter"), #(brca)
+	                         'other_malignancy_laterality' = list(name = "side", data = "upperCharacter"), #(brca)
 	                         'surgery_type' = list(name = "surgery_name", data = "upperCharacter") #(gbm,lgg,hnsc,brca,pProcedure,lusc,luad,coad,read) 
 	                        ))
 	    tbl.pt <- loadData(uri[3], 
@@ -1128,37 +1128,36 @@ if(PROCEDURE){
 	                           'initial_pathologic_dx_year' = list(name = "dxyear", data = "tcgaDate"),
 	                           'laterality'  = list(name = "side", data = "upperCharacter"), #(only in lgg, hnsc, prad)
 	                           'tumor_site' = list(name = "site", data = "upperCharacter"),  #(only in lgg)
-	                           'supratentorial_localization'= list(name = "local", data = "upperCharacter"), #(only in lgg)
-	                           'surgical_procedure_first'= list(name = "surgical_procedure_first", data = "upperCharacter"), #only in brca
-	                           'first_surgical_procedure_other'= list(name = "first_surgical_procedure_other", data = "upperCharacter") #only in brca
+	                           'supratentorial_localization'= list(name = "site", data = "upperCharacter"), #(only in lgg)
+	                           'surgical_procedure_first'= list(name = "surgery_name", data = "upperCharacter"), #only in brca
+	                           'first_surgical_procedure_other'= list(name = "surgery_name", data = "upperCharacter") #only in brca
 	                        ))
 	    tbl.f1 <- loadData(uri[4], 
 	                         list(
 	                           'bcr_patient_barcode' = list(name = "PatientID", data = "tcgaId"),
 	                           'new_tumor_event_surgery_days_to_loco' = list(name = "date", data = "upperCharacter"), #(only in lgg,hnsc,luad,lusc)
-	                           'new_tumor_event_surgery_days_to_met'= list(name = "date", data = "upperCharacter"), #(only in lgg,hnsc,luad,lusc)
-	                           'new_tumor_event_surgery' = list(name = "new_tumor_event_surgery", data = "upperCharacter") #(In lgg,luad,lusc but not being collected...)
+	                           'new_tumor_event_surgery_days_to_met'= list(name = "date", data = "upperCharacter") #(only in lgg,hnsc,luad,lusc)
+	                           #'new_tumor_event_surgery' = list(name = "new_tumor_event_surgery", data = "upperCharacter") #(In lgg,luad,lusc but not being collected...)
 	                        ))
 	 
-	  	if(!is.na(uri[5])) {
-	      tbl.f2 <- loadData(uri[5], 
-	                         list(
-	                           'bcr_patient_barcode' = list(name = "PatientID", data = "tcgaId"),
-	                           'new_tumor_event_surgery' = list(name = "new_tumor_event_surgery", data = "upperCharacter") #(only in brca)
-	                         ))
-	    }
+	  							#f2
+	                           #'bcr_patient_barcode' = list(name = "PatientID", data = "tcgaId"),
+	                           #'new_tumor_event_surgery' = list(name = "new_tumor_event_surgery", data = "upperCharacter") #(only in brca)
+	                      
+	 
 	    
-	    if(!is.na(uri[6])) {
-	      tbl.nte_f1 <- loadData(uri[6], 
+	    if(!is.na(uri[5])) {
+	      tbl.nte_f1 <- loadData(uri[5], 
 	                         list(
 	                           'bcr_patient_barcode' = list(name = "PatientID", data = "tcgaId"),
-	                           'new_tumor_event_surgery' = list(name = "new_tumor_event_surgery", data = "upperCharacter"), #(used to build hnsc tables but is also a column in brca that is not being collected)
+	                           #'new_tumor_event_surgery' = list(name = "new_tumor_event_surgery", data = "upperCharacter"), #(used to build hnsc tables but is also a column in brca that is not being collected)
 	                           'days_to_new_tumor_event_additional_surgery_procedure'  = list(name = "date", data = "upperCharacter"), #(only in gbm,hnsc,coad,read)
 	                           'new_neoplasm_event_type'  = list(name = "site", data = "upperCharacter"), #(only in gbm, coad, read)
-	                           'new_tumor_event_type'  = list(name = "site", data = "upperCharacter"), #(only in hnsc, brca)
-	                           'new_tumor_event_additional_surgery_procedure'  = list(name = "new_tumor_event_additional_surgery_procedure", data = "upperCharacter") #(hnsc)
+	                           'new_tumor_event_type'  = list(name = "site", data = "upperCharacter") #(only in hnsc, brca)
+	                           #'new_tumor_event_additional_surgery_procedure'  = list(name = "new_tumor_event_additional_surgery_procedure", data = "upperCharacter") #(hnsc)
 	                         ))
 	    }
+	
 		
 		data.Procedure <- data.frame()
 		if(ncol(tbl.pt) > 2){
@@ -1174,7 +1173,7 @@ if(PROCEDURE){
 			data.Procedure <- rbind.fill(tbl.f1, data.Procedure)
 		}
 	 	
-		if(exists("tbl.f2"))  data.Procedure <- rbind.fill(data.Procedure, tbl.f2)
+		#if(exists("tbl.f2"))  data.Procedure <- rbind.fill(data.Procedure, tbl.f2)
 		if(exists("tbl.nte_f1")) data.Procedure <- rbind.fill(data.Procedure, tbl.nte_f1)  
 		
 		data.Procedure <- merge(data.Procedure, tbl.pt[, c("PatientID", "dxyear")]) 
@@ -1183,26 +1182,15 @@ if(PROCEDURE){
 	  	unique.dxyear<- unique(df$dxyear)
 	  	unique.side<- unique(df$side)
 	  	unique.site <- unique(df$site)
-	  	unique.local <- unique(df$local)
-	  	unique.surgical_procedure_first <- unique(df$surgical_procedure_first)
-	  	unique.first_surgical_procedure_other <- unique(df$first_surgical_procedure_other)
+	  	unique.surgery_name <- unique(df$surgery_name)	  	
 		unique.date<- unique(df$date)
-		unique.new_tumor_event_surgery<- unique(df$new_tumor_event_surgery)	
-		unique.new_tumor_event_additional_surgery_procedure<- unique(df$new_tumor_event_additional_surgery_procedure)
-		unique.other_malignancy_side<- unique(df$other_malignancy_side)
-		unique.surgery_name <- unique(df$surgery_name)
 		  
 		result = list(unique.dxyear=unique.dxyear, 
 	                unique.side=unique.side,
 	                unique.site=unique.site,
-	                unique.local=unique.local,
-	                unique.surgical_procedure_first=unique.surgical_procedure_first,
-	                unique.first_surgical_procedure_other=unique.first_surgical_procedure_other,
-	                unique.date=unique.date,
-	                unique.new_tumor_event_surgery=unique.new_tumor_event_surgery,
-	                unique.new_tumor_event_additional_surgery_procedure=unique.new_tumor_event_additional_surgery_procedure,
-	                unique.other_malignancy_side=unique.other_malignancy_side,
-	                unique.surgery_name=unique.surgery_name)
+	                unique.surgery_name=unique.surgery_name,
+	                unique.date=unique.date)
+
 	 	print(study_name)
 		return(result)
 	}
@@ -1211,31 +1199,18 @@ if(PROCEDURE){
     	res = list(unique.dxyear=unique(c(res1$unique.dxyear, res2$unique.dxyear)),
 	               unique.side=unique(c(res1$unique.side, res2$unique.side)),
 	               unique.site=unique(c(res1$unique.site, res2$unique.site)),
-	               unique.local=unique(c(res1$unique.local, res2$unique.local)),
-	               unique.unique.surgical_procedure_first=unique(c(res1$unique.surgical_procedure_first, res2$unique.surgical_procedure_first)),
-	               unique.first_surgical_procedure_other=unique(c(res1$unique.first_surgical_procedure_other, res2$unique.first_surgical_procedure_other)),
-	               unique.new_tumor_event_surgery=unique(c(res1$unique.new_tumor_event_surgery, res2$unique.new_tumor_event_surgery)),
-	               unique.date=unique(c(res1$unique.date, res2$unique.date)),
-	               unique.new_tumor_event_additional_surgery_procedure=unique(c(res1$unique.new_tumor_event_additional_surgery_procedure, res2$unique.new_tumor_event_additional_surgery_procedure)),
-	               unique.other_malignancy_side=unique(c(res1$unique.other_malignancy_side, res2$unique.other_malignancy_side)),
-	               unique.surgery_name=unique(c(res1$unique.surgery_name, res2$unique.surgery_name)))
+	               unique.surgery_name=unique(c(res1$unique.surgery_name, res2$unique.surgery_name)),       	               
+	               unique.date=unique(c(res1$unique.date, res2$unique.date)))	              
     	return(res)
 	}
   #--------------------------------------------------------------------------------
-	Procedure.unique.values <- Reduce(Procedure.unique.aggregate, lapply(studies, Procedure.unique.request))
-	    
+	Procedure.unique.values <- Reduce(Procedure.unique.aggregate, lapply(studies, Procedure.unique.request))	    
 	Procedure.unique.side <- Procedure.unique.values$unique.side
 	Procedure.unique.site <- Procedure.unique.values$unique.site
-	Procedure.unique.local <- Procedure.unique.values$unique.local
-	Procedure.unique.surgical_procedure_first <- Procedure.unique.values$unique.surgical_procedure_first
-	Procedure.unique.first_surgical_procedure_other <- Procedure.unique.values$unique.first_surgical_procedure_other
+	Procedure.unique.surgery_name <- Procedure.unique.values$unique.surgery_name
 	Procedure.unique.date <- Procedure.unique.values$unique.date 
-	Procedure.unique.new_tumor_event_surgery <- Procedure.unique.values$unique.new_tumor_event_surgery
-	Procedure.unique.new_tumor_event_additional_surgery_procedure   <- Procedure.unique.values$unique.new_tumor_event_additional_surgery_procedure
-	Procedure.unique.other_malignancy_side  <- Procedure.unique.values$unique.other_malignancy_side
-	Procedure.unique.surgery_name   <- Procedure.unique.values$unique.surgery_name
   #------------------------------------------------------------------------------------------------------------------------------------------------------------
-  Procedure.mapping.side<- function(df){
+  	Procedure.mapping.side<- function(df){
     	from <- Procedure.unique.side
     	to 	 <- from 
     	to[match(c("[UNKNOWN]","[NOT AVAILABLE]","[NOT EVALUATED]","Uknown","[Discrepancy]","Other","NOT LISTED IN MEDICAL RECORD","[NOT APPLICABLE]","[PENDING]"  ), to)] <- NA
@@ -1243,78 +1218,31 @@ if(PROCEDURE){
     	return(df)
   	}	
   #------------------------------------------------------------------------------------------------------------------------------------------
-  Procedure.mapping.site<- function(df){
+  	Procedure.mapping.site<- function(df){
 	    from <- Procedure.unique.site
 	    to 	 <- from 
 	    to[match(c("[UNKNOWN]","[NOT AVAILABLE]","[NOT EVALUATED]","Uknown","[Discrepancy]","Other","NOT LISTED IN MEDICAL RECORD","[NOT APPLICABLE]","[PENDING]"  ), to)] <- NA
 	    df$site<- mapvalues(df$site, from = from, to = to, warn_missing = F)
 	    return(df)
   	}	
-  #------------------------------------------------------------------------------------------------------------------------------------------
-  Procedure.mapping.local<- function(df){
-	    from <- Procedure.unique.local
-	    to 	 <- from 
-	    to[match(c("[UNKNOWN]","[NOT AVAILABLE]","[NOT EVALUATED]","Uknown","[Discrepancy]","Other","NOT LISTED IN MEDICAL RECORD","[NOT APPLICABLE]","[PENDING]"  ), to)] <- NA
-	    df$site<- mapvalues(df$local, from = from, to = to, warn_missing = F)
-	    return(df)
-  	}	
-  #------------------------------------------------------------------------------------------------------------------------------------------
-  Procedure.mapping.new_tumor_event_surgery<- function(df){
-	    from <- Procedure.unique.new_tumor_event_surgery
-	    to 	 <- from 
-	    to[match(c("[UNKNOWN]","[NOT AVAILABLE]","[NOT EVALUATED]","Uknown","[Discrepancy]","Other","NOT LISTED IN MEDICAL RECORD","[NOT APPLICABLE]","[PENDING]"  ), to)] <- NA
-	    df$new_tumor_event_surgery<- mapvalues(df$new_tumor_event_surgery, from = from, to = to, warn_missing = F)
-	    return(df)
-  	}	
-  #------------------------------------------------------------------------------------------------------------------------------------------
-  Procedure.mapping.new_tumor_event_additional_surgery_procedure<- function(df){
-	    from <- Procedure.unique.new_tumor_event_additional_surgery_procedure
-	    to 	 <- from 
-	    to[match(c("[UNKNOWN]","[NOT AVAILABLE]","[NOT EVALUATED]","Uknown","[Discrepancy]","Other","NOT LISTED IN MEDICAL RECORD","[NOT APPLICABLE]","[PENDING]"  ), to)] <- NA
-	    df$new_tumor_event_additional_surgery_procedure<- mapvalues(df$new_tumor_event_additional_surgery_procedure, from = from, to = to, warn_missing = F)
-	    return(df)
-  	}	
   #-----------------------------------------------------------------------------------------------------------------------------------------
-  Procedure.mapping.other_malignancy_side<- function(df){
-	    from <- Procedure.unique.other_malignancy_side
-	    to 	 <- from 
-	    to[match(c("[UNKNOWN]","[NOT AVAILABLE]","[NOT EVALUATED]","Uknown","[Discrepancy]","Other","NOT LISTED IN MEDICAL RECORD","[NOT APPLICABLE]","[PENDING]"  ), to)] <- NA
-	    df$other_malignancy_side<- mapvalues(df$other_malignancy_side, from = from, to = to, warn_missing = F)
-	    return(df)
-  	}	
-  #------------------------------------------------------------------------------------------------------------------------------------------
-  Procedure.mapping.surgery_name<- function(df){
+  	Procedure.mapping.surgery_name<- function(df){
 	    from <- Procedure.unique.surgery_name
 	    to 	 <- from 
 	    to[match(c("[UNKNOWN]","[NOT AVAILABLE]","[NOT EVALUATED]","Uknown","[Discrepancy]","Other","NOT LISTED IN MEDICAL RECORD","[NOT APPLICABLE]","[PENDING]"  ), to)] <- NA
 	    df$surgery_name<- mapvalues(df$surgery_name, from = from, to = to, warn_missing = F)
 	    return(df)
   	}	
-  #------------------------------------------------------------------------------------------------------------------------------------------
-  Procedure.mapping.surgical_procedure_first<- function(df){
-	    from <- Procedure.unique.surgical_procedure_first
-	    to 	 <- from 
-	    to[match(c("[UNKNOWN]","[NOT AVAILABLE]","[NOT EVALUATED]","Uknown","[Discrepancy]","Other","NOT LISTED IN MEDICAL RECORD","[NOT APPLICABLE]","[PENDING]"  ), to)] <- NA
-	    df$surgical_procedure_first<- mapvalues(df$surgical_procedure_first, from = from, to = to, warn_missing = F)
-	    return(df)
-  	}	
-  #------------------------------------------------------------------------------------------------------------------------------------------
-  Procedure.mapping.first_surgical_procedure_other<- function(df){
-	    from <- Procedure.unique.first_surgical_procedure_other
-	    to 	 <- from 
-	    to[match(c("[UNKNOWN]","[NOT AVAILABLE]","[NOT EVALUATED]","Uknown","[Discrepancy]","Other","NOT LISTED IN MEDICAL RECORD","[NOT APPLICABLE]","[PENDING]"  ), to)] <- NA
-	    df$first_surgical_procedure_other<- mapvalues(df$first_surgical_procedure_other, from = from, to = to, warn_missing = F)
-	    return(df)
-  	}	
+
   #-------------------------------------------------------------------------------------------------------------------------
- Procedure.mapping.date <- function(df){
+ 	Procedure.mapping.date <- function(df){
 	    from <- Procedure.unique.date
 	    to 	 <- from 
 	    to[match(c("[UNKNOWN]","[NOT AVAILABLE]","[NOT EVALUATED]","Uknown","[Discrepancy]","Other","NOT LISTED IN MEDICAL RECORD","[NOT APPLICABLE]","[PENDING]"  ), to)] <- NA
-	    df$additional_surgery_procedure <- mapvalues(df$additional_surgery_procedure, from = from, to = to, warn_missing = F)
+	    df$date <- mapvalues(df$date, from = from, to = to, warn_missing = F)
 	    return(df)
   	}	
- Procedure.mapping.Calculation.date  <- function(df){
+ 	Procedure.mapping.Calculation.date  <- function(df){
 	    df$date <- format(as.Date(df$dxyear,"%m/%d/%Y") + as.integer(df$date), "%m/%d/%Y")
 	    return(df)
   	}	 
@@ -1329,11 +1257,11 @@ if(PATHOLOGY){
 		       list(
 		         'bcr_patient_barcode' = list(name = "PatientID", data = "tcgaId"),
 		         'initial_pathologic_dx_year' = list(name = "dxyear", data = "tcgaDate"), 
-		         'days_to_initial_pathologic_diagnosis'  = list(name = "pathology.offset", data = "upperCharacter"), #date
+		         'days_to_initial_pathologic_diagnosis'  = list(name = "date", data = "upperCharacter"), #date
 		         'tumor_tissue_site' = list(name = "pathDisease", data = "upperCharacter"),  
 		         'histological_type'= list(name = "pathHistology", data = "upperCharacter"), 
-		         'prospective_collection'= list(name = "prospective", data = "upperCharacter"),
-		         'retrospective_collection'= list(name = "retrospective", data = "upperCharacter"), 
+		         'prospective_collection'= list(name = "collection", data = "upperCharacter"),
+		         'retrospective_collection'= list(name = "collection", data = "upperCharacter"), 
 		         'method_initial_path_dx' = list(name = "pathMethod", data = "upperCharacter"),
 		         'ajcc_tumor_pathologic_pt' = list(name = "T.Stage", data = "upperCharacter"),
 		         'ajcc_nodes_pathologic_pn' = list(name = "N.Stage", data = "upperCharacter"),
@@ -1344,10 +1272,10 @@ if(PATHOLOGY){
 		tbl.omf <- loadData(uri[2], 
 		       list(
 		         'bcr_patient_barcode' = list(name = "PatientID", data = "tcgaId"),
-		         'other_malignancy_anatomic_site' = list(name = "disease", data = "upperCharacter"), 
-		         'days_to_other_malignancy_dx' = list(name = "omfOffset", data = "upperCharacter"), #date
-		         'other_malignancy_histological_type' = list(name = "histology", data = "upperCharacter"),
-		         'other_malignancy_histological_type_text' = list(name = "histology_text", data = "upperCharacter")
+		         'other_malignancy_anatomic_site' = list(name = "pathDisease", data = "upperCharacter"), 
+		         'days_to_other_malignancy_dx' = list(name = "date", data = "upperCharacter"), #date
+		         'other_malignancy_histological_type' = list(name = "pathHistology", data = "upperCharacter"),
+		         'other_malignancy_histological_type_text' = list(name = "pathHistology", data = "upperCharacter")
 		          ))
 		# reorganize two tbls 
 		data.Pathology <- rbind.fill(tbl.pt[,-match("dxyear", colnames(tbl.pt))], tbl.omf)
@@ -1363,57 +1291,42 @@ if(PATHOLOGY){
 		unique.dxyear <- unique(df$dxyear)
 		unique.pathDisease<- unique(df$pathDisease)
   		unique.pathHistology <- unique(df$pathHistology)
-		unique.prospective <- unique(df$prospective)
-		unique.retrospective <- unique(df$retrospective)
+		unique.collection <- unique(df$collection)
 		unique.pathMethod <- unique(df$pathMethod)
 		unique.T.Stage <- unique(df$T.Stage)
 		unique.N.Stage <- unique(df$N.Stage)
 		unique.M.Stage<- unique(df$M.Stage)
 		unique.staging.System <- unique(df$staging.System)
-		unique.grade<- unique(df$grade)
-		unique.disease<- unique(df$disease)
-		unique.histology<- unique(df$histology)
-		unique.histology_text<- unique(df$histology_text)
-		unique.pathology.offset<- unique(df$pathology.offset)
-		unique.omfOffset<- unique(df$omfOffset)
+		unique.grade<- unique(df$grade)		
+		unique.date<- unique(df$date)
    	   
 		 result = list(unique.dxyear=unique.dxyear,
-		             unique.pathDisease=unique.pathDisease, 
-                 unique.pathHistology=unique.pathHistology,
-                 unique.prospective=unique.prospective,
-                 unique.retrospective=unique.retrospective,
-                 unique.pathMethod=unique.pathMethod,
-                 unique.T.Stage=unique.T.Stage,
-                 unique.N.Stage=unique.N.Stage,
-                 unique.M.Stage=unique.M.Stage,
-                 unique.staging.System=unique.staging.System)
-                 unique.grade=unique.grade
-                 unique.disease=unique.disease
-                 unique.histology=unique.histology
-                 unique.histology_text=unique.histology_text
-                 unique.pathology.offset=unique.pathology.offset
-                 unique.omfOffset=unique.omfOffset
+		               unique.pathDisease=unique.pathDisease, 
+                 	   unique.pathHistology=unique.pathHistology,
+                 	   unique.collection=unique.collection,
+                 	   unique.pathMethod=unique.pathMethod,
+                 	   unique.T.Stage=unique.T.Stage,
+                       unique.N.Stage=unique.N.Stage,
+                 	   unique.M.Stage=unique.M.Stage,
+                       unique.staging.System=unique.staging.System,
+                       unique.grade=unique.grade,
+                       unique.histology_text=unique.date)           
                print(study_name)
-  		return(result)
+  			return(result)
   }
   #--------------------------------------------------------------------------------
   Pathology.unique.aggregate <- function(res1, res2){
 	  res = list(unique.dxyear=unique(c(res1$unique.dxyear, res2$unique.dxyear)),
 	             unique.pathDisease=unique(c(res1$unique.pathDisease,res2$unique.pathDisease)),
 	             unique.pathHistology=unique(c(res1$unique.pathHistology, res2$unique.pathHistology)),
-	             unique.prospective=unique(c(res1$unique.prospective, res2$unique.prospective)),
-	             unique.retrospective=unique(c(res1$unique.retrospective, res2$unique.retrospective)),
+	             unique.collection=unique(c(res1$unique.collection, res2$unique.collection)),
 	             unique.pathMethod=unique(c(res1$unique.pathMethod, res2$unique.pathMethod)),
 	             unique.T.Stage=unique(c(res1$unique.T.Stage, res2$unique.T.Stage)),
 	             unique.N.Stage=unique(c(res1$unique.N.Stage, res2$unique.N.Stage)),
 	             unique.M.Stage=unique(c(res1$unique.M.Stage, res2$unique.M.Stage)),
 	             unique.staging.System=unique(c(res1$unique.staging.System, res2$unique.staging.System)),
-	             unique.grade=unique(c(res1$unique.grade, res2$unique.grade)),
-	             unique.disease=unique(c(res1$unique.disease, res2$unique.disease)),
-	             unique.histology=unique(c(res1$unique.histology, res2$unique.histology)),
-	             unique.histology_text=unique(c(res1$unique.histology_text, res2$unique.histology_text)),
-	             unique.pathology.offset=unique(c(res1$unique.pathology.offset, res2$unique.pathology.offset)),
-	             unique.omfOffset=unique(c(res1$unique.omfOffset, res2$unique.omfOffset)))
+	             unique.grade=unique(c(res1$unique.grade, res2$unique.grade)))
+
 	  return(res)
   }
   #-------------------------------------------------------------------------------------------------------------------------
@@ -1421,19 +1334,14 @@ if(PATHOLOGY){
 
   Pathology.unique.pathDisease <- Pathology.unique.values$unique.pathDisease
   Pathology.unique.pathHistology <- Pathology.unique.values$unique.pathHistology
-  Pathology.unique.prospective <- Pathology.unique.values$unique.prospective
-  Pathology.unique.retrospective <- Pathology.unique.values$unique.retrospective
+  Pathology.unique.collection <- Pathology.unique.values$unique.collection
   Pathology.unique.pathMethod <- Pathology.unique.values$unique.pathMethod
   Pathology.unique.T.Stage <- Pathology.unique.values$unique.T.Stage
   Pathology.unique.N.Stage <- Pathology.unique.values$unique.N.Stage
   Pathology.unique.M.Stage <- Pathology.unique.values$unique.M.Stage
   Pathology.unique.staging.System <- Pathology.unique.values$unique.staging.System
   Pathology.unique.grade <- Pathology.unique.values$unique.grade
-  Pathology.unique.disease <- Pathology.unique.values$unique.disease
-  Pathology.unique.histology <- Pathology.unique.values$unique.histology
-  Pathology.unique.histology_text <- Pathology.unique.values$unique.histology_text
-  Pathology.unique.pathology.offset <- Pathology.unique.values$unique.pathology.offset
-  Pathology.unique.omfOffset <- Pathology.unique.values$unique.omfOffset
+  
   #-----------------------------------------------------------------------------------------------------------------------------------------
   Pathology.mapping.pathDisease<- function(df){
 	    from <- Pathology.unique.pathDisease
@@ -1449,21 +1357,13 @@ if(PATHOLOGY){
 	    to[match(c("[UNKNOWN]","[NOT AVAILABLE]","[NOT EVALUATED]","Uknown","[Discrepancy]","Other","NOT LISTED IN MEDICAL RECORD","[NOT APPLICABLE]","[PENDING]","[COMPLETED]"), to)] <- NA
 	    df$pathHistology <- mapvalues(df$pathHistology, from = from, to = to, warn_missing = F)
 	    return(df)
-	}	
+	}		  
   #------------------------------------------------------------------------------------------------------------------------------------------
-  Pathology.mapping.retrospective<- function(df){
-	    from <- Pathology.unique.retrospective
+  Pathology.mapping.collection<- function(df){
+	    from <- Pathology.unique.collection
 	    to 	 <- from 
 	    to[match(c("[UNKNOWN]","[NOT AVAILABLE]","[NOT EVALUATED]","Uknown","[Discrepancy]","Other","NOT LISTED IN MEDICAL RECORD","[NOT APPLICABLE]","[PENDING]","[COMPLETED]"), to)] <- NA
-	    df$retrospective <- mapvalues(df$retrospective, from = from, to = to, warn_missing = F)
-	    return(df)
-	}	  
-  #------------------------------------------------------------------------------------------------------------------------------------------
-  Pathology.mapping.prospective<- function(df){
-	    from <- Pathology.unique.prospective
-	    to 	 <- from 
-	    to[match(c("[UNKNOWN]","[NOT AVAILABLE]","[NOT EVALUATED]","Uknown","[Discrepancy]","Other","NOT LISTED IN MEDICAL RECORD","[NOT APPLICABLE]","[PENDING]","[COMPLETED]"), to)] <- NA
-	    df$prospective <- mapvalues(df$prospective, from = from, to = to, warn_missing = F)
+	    df$collection <- mapvalues(df$collection, from = from, to = to, warn_missing = F)
 	    return(df)
 	}	  
   #------------------------------------------------------------------------------------------------------------------------------------------
@@ -1515,53 +1415,17 @@ if(PATHOLOGY){
 	    return(df)
 	}	 
   #------------------------------------------------------------------------------------------------------------------------------------------
-  Pathology.mapping.disease<- function(df){
-	    from <- Pathology.unique.disease
+  Pathology.mapping.date <- function(df){
+	    from <- Pathology.unique.date
 	    to 	 <- from 
 	    to[match(c("[UNKNOWN]","[NOT AVAILABLE]","[NOT EVALUATED]","Uknown","[Discrepancy]","Other","NOT LISTED IN MEDICAL RECORD","[NOT APPLICABLE]","[PENDING]","[COMPLETED]"), to)] <- NA
-	    df$disease <- mapvalues(df$disease, from = from, to = to, warn_missing = F)
-	    return(df)
-	}	  
-  #------------------------------------------------------------------------------------------------------------------------------------------
-  Pathology.mapping.histology<- function(df){
-	    from <- Pathology.unique.histology
-	    to 	 <- from 
-	    to[match(c("[UNKNOWN]","[NOT AVAILABLE]","[NOT EVALUATED]","Uknown","[Discrepancy]","Other","NOT LISTED IN MEDICAL RECORD","[NOT APPLICABLE]","[PENDING]","[COMPLETED]"), to)] <- NA
-	    df$histology <- mapvalues(df$histology, from = from, to = to, warn_missing = F)
-	    return(df)
-	}	
-  #------------------------------------------------------------------------------------------------------------------------------------------
-  Pathology.mapping.histology_text <- function(df){
-	    from <- Pathology.unique.histology_text 
-	    to 	 <- from 
-	    to[match(c("[UNKNOWN]","[NOT AVAILABLE]","[NOT EVALUATED]","Uknown","[Discrepancy]","Other","NOT LISTED IN MEDICAL RECORD","[NOT APPLICABLE]","[PENDING]","[COMPLETED]"), to)] <- NA
-	    df$histology_text  <- mapvalues(df$histology_text , from = from, to = to, warn_missing = F)
-	    return(df)
-	}	
-  #------------------------------------------------------------------------------------------------------------------------------------------
-  Pathology.mapping.pathology.offset <- function(df){
-	    from <- Pathology.unique.pathology.offset 
-	    to 	 <- from 
-	    to[match(c("[UNKNOWN]","[NOT AVAILABLE]","[NOT EVALUATED]","Uknown","[Discrepancy]","Other","NOT LISTED IN MEDICAL RECORD","[NOT APPLICABLE]","[PENDING]","[COMPLETED]"), to)] <- NA
-	    df$pathology.offset  <- mapvalues(df$pathology.offset , from = from, to = to, warn_missing = F)
+	    df$date  <- mapvalues(df$date , from = from, to = to, warn_missing = F)
 	    return(df)
 	}	 
-  Pathology.mapping.date_calculation.pathology.offset <- function(df){
-    	df$pathology.offset <- format(as.Date(df$dxyear,"%m/%d/%Y") + as.integer(df$pathology.offset), "%m/%d/%Y")
+  Pathology.mapping.Calculation.date <- function(df){
+    	df$date <- format(as.Date(df$dxyear,"%m/%d/%Y") + as.integer(df$date), "%m/%d/%Y")
     	return(df)
   	}	
-  #------------------------------------------------------------------------------------------------------------------------------------------
-  Pathology.mapping.omfOffset <- function(df){
-  		from <- Pathology.unique.omfOffset
-  		to 	 <- from 
-  		to[match(c("[UNKNOWN]","[NOT AVAILABLE]","[NOT EVALUATED]","Uknown","[Discrepancy]","Other","NOT LISTED IN MEDICAL RECORD","[NOT APPLICABLE]","[PENDING]","[COMPLETED]"), to)] <- NA
-  		df$omfOffset <- mapvalues(df$omfOffset , from = from, to = to, warn_missing = F)
-  		return(df)
-	}	 
-  Pathology.mapping.date_calculation.omfOffset <- function(df){
-  		df$omfOffset <- format(as.Date(df$dxyear,"%m/%d/%Y") + as.integer(df$omfOffset), "%m/%d/%Y")
-  		return(df)
-	}	  
 } # End of Pathology Native Functions
 #----------------------   Absent functions Start Here   -------------------------
 if(ABSENT){
@@ -3438,56 +3302,57 @@ create.Encounter.records <- function(study_name,  ptID){
 create.Procedure.records <- function(study_name,  ptID){
     uri <- rawTablesRequest(study_name, "Procedure")
     rm(list=ls(pattern="tbl"))
-    tbl.nte <- loadData(uri[1], 
-                        list(
-                          'bcr_patient_barcode' = list(name = "PatientID", data = "tcgaId"),
-                          'new_tumor_event_surgery_days_to_loco' = list(name = "date", data = "upperCharacter"), #(only in lgg,luad,lusc)
-                          'new_tumor_event_surgery_days_to_met'= list(name = "date", data = "upperCharacter"), #(only in lgg,luad,lusc)
-                          'new_tumor_event_surgery' = list(name = "new_tumor_event_surgery", data = "upperCharacter"), #(in brca,hnsc but not being collected...)
-                          'days_to_new_tumor_event_additional_surgery_procedure'  = list(name = "date", data = "upperCharacter"), #(only in gbm,coad,read)
-                          'new_neoplasm_event_type'  = list(name = "site", data = "upperCharacter"), #(only in gbm, coad, read)
-                          'new_tumor_event_type'  = list(name = "site", data = "upperCharacter"), #(only in hnsc, pProcedure, luad, lusc)
-                          'new_tumor_event_additional_surgery_procedure'  = list(name = "new_tumor_event_additional_surgery_procedure", data = "upperCharacter") #(gbm,coad,read but not being collected...)
-                        ))
-    tbl.omf <- loadData(uri[2], 
-                        list(
-                          'bcr_patient_barcode' = list(name = "PatientID", data = "tcgaId"),
-                          'days_to_surgical_resection' = list(name = "date", data = "upperCharacter"), #(gbm,lgg,hnsc,brca,pProcedure,luad,lusc,coad,read)
-                          'other_malignancy_laterality' = list(name = "other_malignancy_side", data = "upperCharacter"), #(brca)
-                          'surgery_type' = list(name = "surgery_name", data = "upperCharacter") #(gbm,lgg,hnsc,brca,pProcedure,lusc,luad,coad,read) 
-                        ))  
-    tbl.pt <- loadData(uri[3], 
-                       list(
-                         'bcr_patient_barcode' = list(name = "PatientID", data = "tcgaId"),
-                         'initial_pathologic_dx_year' = list(name = "dxyear", data = "tcgaDate"),
-                         'laterality'  = list(name = "side", data = "upperCharacter"), #(only in lgg, hnsc, pProcedure)
-                         'tumor_site' = list(name = "site", data = "upperCharacter"),  #(only in lgg)
-                         'supratentorial_localization'= list(name = "local", data = "upperCharacter"),#(only in lgg)
-                         'surgical_procedure_first'= list(name = "surgical_procedure_first", data = "upperCharacter"), #only in brca
-                         'first_surgical_procedure_other'= list(name = "first_surgical_procedure_other", data = "upperCharacter")
-                       ))
-                      
-    
-    if(!is.na(uri[4])) {
-      tbl.f1 <- loadData(uri[4], 
-                         list(
-                           'bcr_patient_barcode' = list(name = "PatientID", data = "tcgaId"),
-                           'new_tumor_event_surgery_days_to_loco' = list(name = "date", data = "upperCharacter"), #(only in lgg,hnsc,luad,lusc)
-                           'new_tumor_event_surgery_days_to_met'= list(name = "date", data = "upperCharacter"), #(only in lgg,hnsc,luad,lusc)
-                           'new_tumor_event_surgery' = list(name = "new_tumor_event_surgery", data = "upperCharacter") #(In lgg,luad,lusc) but not being collected...)
-                         ))
-    }
-    if(!is.na(uri[5])) {
-      tbl.nte_f1 <- loadData(uri[5], 
-                             list(
-                               'bcr_patient_barcode' = list(name = "PatientID", data = "tcgaId"),
-                               'new_tumor_event_surgery' = list(name = "new_tumor_event_surgery", data = "upperCharacter"), #(used to build hnsc tables but is also a column in brca that is not being collected)
-                               'days_to_new_tumor_event_additional_surgery_procedure'  = list(name = "date", data = "upperCharacter"), #(only in gbm,hnsc,coad,read)
-                               'new_neoplasm_event_type'  = list(name = "site", data = "upperCharacter"), #(only in gbm, coad, read)
-                               'new_tumor_event_type'  = list(name = "site", data = "upperCharacter"), #(only in hnsc, brca)
-                               'new_tumor_event_additional_surgery_procedure'  = list(name = "new_tumor_event_additional_surgery_procedure", data = "upperCharacter") #(hnsc)
-                             ))
-    }
+     tbl.nte <- loadData(uri[1],
+	                       list(
+	                         'bcr_patient_barcode' = list(name = "PatientID", data = "tcgaId"),
+	                         'new_tumor_event_surgery_days_to_loco' = list(name = "date", data = "upperCharacter"), #(only in lgg,luad,lusc)
+	                         'new_tumor_event_surgery_days_to_met'= list(name = "date", data = "upperCharacter"), #(only in lgg,luad,lusc)
+	                         #'new_tumor_event_surgery' = list(name = "new_tumor_event_surgery", data = "upperCharacter"), #(in brca,hnsc but not being collected...)
+	                         'days_to_new_tumor_event_additional_surgery_procedure'  = list(name = "date", data = "upperCharacter"), #(only in gbm,coad,read)
+	                         'new_neoplasm_event_type'  = list(name = "site", data = "upperCharacter"), #(only in gbm, coad, read)
+	                         'new_tumor_event_type'  = list(name = "site", data = "upperCharacter") #(only in hnsc, prad, luad, lusc)
+	                         #'new_tumor_event_additional_surgery_procedure'  = list(name = "new_tumor_event_additional_surgery_procedure", data = "upperCharacter") #(gbm,coad,read but not being collected...)
+	                        ))
+	    tbl.omf <- loadData(uri[2],
+	                       list(
+	                         'bcr_patient_barcode' = list(name = "PatientID", data = "tcgaId"),
+	                         'days_to_surgical_resection' = list(name = "date", data = "upperCharacter"), #(gbm,lgg,hnsc,brca,prad,luad,lusc,coad,read)
+	                         'other_malignancy_laterality' = list(name = "side", data = "upperCharacter"), #(brca)
+	                         'surgery_type' = list(name = "surgery_name", data = "upperCharacter") #(gbm,lgg,hnsc,brca,pProcedure,lusc,luad,coad,read) 
+	                        ))
+	    tbl.pt <- loadData(uri[3], 
+	                         list(
+	                           'bcr_patient_barcode' = list(name = "PatientID", data = "tcgaId"),
+	                           'initial_pathologic_dx_year' = list(name = "dxyear", data = "tcgaDate"),
+	                           'laterality'  = list(name = "side", data = "upperCharacter"), #(only in lgg, hnsc, prad)
+	                           'tumor_site' = list(name = "site", data = "upperCharacter"),  #(only in lgg)
+	                           'supratentorial_localization'= list(name = "site", data = "upperCharacter"), #(only in lgg)
+	                           'surgical_procedure_first'= list(name = "surgery_name", data = "upperCharacter"), #only in brca
+	                           'first_surgical_procedure_other'= list(name = "surgery_name", data = "upperCharacter") #only in brca
+	                        ))
+	    tbl.f1 <- loadData(uri[4], 
+	                         list(
+	                           'bcr_patient_barcode' = list(name = "PatientID", data = "tcgaId"),
+	                           'new_tumor_event_surgery_days_to_loco' = list(name = "date", data = "upperCharacter"), #(only in lgg,hnsc,luad,lusc)
+	                           'new_tumor_event_surgery_days_to_met'= list(name = "date", data = "upperCharacter") #(only in lgg,hnsc,luad,lusc)
+	                           #'new_tumor_event_surgery' = list(name = "new_tumor_event_surgery", data = "upperCharacter") #(In lgg,luad,lusc but not being collected...)
+	                        ))
+	 
+	  						#f2
+	                           #'bcr_patient_barcode' = list(name = "PatientID", data = "tcgaId"),
+	                           #'new_tumor_event_surgery' = list(name = "new_tumor_event_surgery", data = "upperCharacter") #(only in brca)
+	                           
+	    if(!is.na(uri[5])) {
+	      tbl.nte_f1 <- loadData(uri[5], 
+	                         list(
+	                           'bcr_patient_barcode' = list(name = "PatientID", data = "tcgaId"),
+	                           #'new_tumor_event_surgery' = list(name = "new_tumor_event_surgery", data = "upperCharacter"), #(used to build hnsc tables but is also a column in brca that is not being collected)
+	                           'days_to_new_tumor_event_additional_surgery_procedure'  = list(name = "date", data = "upperCharacter"), #(only in gbm,hnsc,coad,read)
+	                           'new_neoplasm_event_type'  = list(name = "site", data = "upperCharacter"), #(only in gbm, coad, read)
+	                           'new_tumor_event_type'  = list(name = "site", data = "upperCharacter") #(only in hnsc, brca)
+	                           #'new_tumor_event_additional_surgery_procedure'  = list(name = "new_tumor_event_additional_surgery_procedure", data = "upperCharacter") #(hnsc)
+	                         ))
+	    }
 
     data.Procedure <- data.frame()
 	if(ncol(tbl.pt) > 2){
@@ -3502,17 +3367,12 @@ create.Procedure.records <- function(study_name,  ptID){
 	if(ncol(tbl.f1) > 1){
 		data.Procedure <- rbind.fill(tbl.f1, data.Procedure)
 	}
- 	
-	if(exists("tbl.f2"))  data.Procedure <- rbind.fill(data.Procedure, tbl.f2)
+ 	#if(exists("tbl.f2"))  data.Procedure <- rbind.fill(data.Procedure, tbl.f2)
 	if(exists("tbl.nte_f1")) data.Procedure <- rbind.fill(data.Procedure, tbl.nte_f1)  
-	
 	data.Procedure <- merge(data.Procedure, tbl.pt[, c("PatientID", "dxyear")]) 
-	      
-
+	  
     #create columns for column that are not captured
-    procedureColNames <- c("PatientID", "date", "new_tumor_event_surgery",  
-    					  "new_tumor_event_additional_surgery_procedure",  
-    					  "other_malignancy_side", "surgery_name","dxyear","side","site","local","surgical_procedure_first","first_surgical_procedure_other")
+    procedureColNames <- c("PatientID", "date","surgery_name","dxyear","side","site","service","location")
     
     m <- matrix(nrow=nrow(data.Procedure), ncol=length(which(!(procedureColNames) %in% colnames(data.Procedure))))
     df <- as.data.frame(m)
@@ -3521,15 +3381,10 @@ create.Procedure.records <- function(study_name,  ptID){
     #colnames(data.Procedure) 
 
     # mapping
-    data.Procedure <- Procedure.mapping.new_tumor_event_surgery(data.Procedure)
-    data.Procedure <- Procedure.mapping.Calculation.date (data.Procedure)
-    data.Procedure <- Procedure.mapping.new_tumor_event_additional_surgery_procedure(data.Procedure)
-    data.Procedure <- Procedure.mapping.other_malignancy_side(data.Procedure)
+    data.Procedure <- Procedure.mapping.Calculation.date(data.Procedure)
+    data.Procedure <- Procedure.mapping.site(data.Procedure)
     data.Procedure <- Procedure.mapping.surgery_name(data.Procedure)
     data.Procedure <- Procedure.mapping.side(data.Procedure)
-    data.Procedure <- Procedure.mapping.site(data.Procedure)
-    data.Procedure <- Procedure.mapping.surgical_procedure_first(data.Procedure)
-    data.Procedure <- Procedure.mapping.first_surgical_procedure_other(data.Procedure)
 
     # result
     ptNumMap <- ptNumMapUpdate(tbl.pt)
@@ -3537,17 +3392,14 @@ create.Procedure.records <- function(study_name,  ptID){
 		    result <- apply(data.Procedure, 1, function(x){
 		      			PatientID = getElement(x, "PatientID")
 		      			PtNum = ptNumMap[ptNumMap$PatientID == PatientID,]$PatientNumber
-		      			new_tumor_event_surgery = getElement(x, "new_tumor_event_surgery")
 		      			date = getElement(x, "date")
-		      			new_tumor_event_additional_surgery_procedure = getElement(x, "new_tumor_event_additional_surgery_procedure")
-		      			other_malignancy_side  = getElement(x, "other_malignancy_side")
-		      			surgery_name  = getElement(x, "surgery_name")
-		      			side  = getElement(x, "side")
 		      			site  = getElement(x, "site")
-		      			surgical_procedure_first = getElement(x, "surgical_procedure_first") 
-		      			first_surgical_procedure_other = getElement(x, "first_surgical_procedure_other") 
+		      			name  = getElement(x, "surgery_name")
+		      			side  = getElement(x, "side")
+		      			service  = getElement(x, "service")
+		      			location  = getElement(x, "location")
 		      			return(list(PatientID=PatientID, PtNum=PtNum, study=study_name, Name="Procedure", 
-		                  			Fields=list(date=date,new_tumor_event_surgery=new_tumor_event_surgery,new_tumor_event_additional_surgery_procedure=new_tumor_event_additional_surgery_procedure,other_malignancy_side=other_malignancy_side,surgery_name=surgery_name,side=side, site=site,surgical_procedure_first=surgical_procedure_first,first_surgical_procedure_other=first_surgical_procedure_other)))
+		                  			Fields=list(date=date,name=name,side=side, site=site,service=NA,location=NA)))
 		    })
 		    print(c(study_name, dim(data.Procedure), length(result)))
 		    return(result)	
@@ -3557,21 +3409,18 @@ create.Procedure.records <- function(study_name,  ptID){
 				result <- apply(subSet.data.Encounter, 1, function(x){
 						PatientID = getElement(x, "PatientID")
 		      			PtNum = ptNumMap[ptNumMap$PatientID == PatientID,]$PatientNumber
-		      			new_tumor_event_surgery = getElement(x, "new_tumor_event_surgery")
-		      			date = getElement(x, "date")
-		      			new_tumor_event_additional_surgery_procedure = getElement(x, "new_tumor_event_additional_surgery_procedure")
-		      			other_malignancy_side  = getElement(x, "other_malignancy_side")
-		      			surgery_name  = getElement(x, "surgery_name")
-		      			side  = getElement(x, "side")
+		      			date = getElement(x, "date")	
 		      			site  = getElement(x, "site")
-		      			surgical_procedure_first = getElement(x, "surgical_procedure_first") 
-		      			first_surgical_procedure_other = getElement(x, "first_surgical_procedure_other") 
+		      			name  = getElement(x, "surgery_name")
+		      			side  = getElement(x, "side")
+		      			service  = getElement(x, "service")
+		      			location  = getElement(x, "location")
 		      			return(list(PatientID=PatientID, PtNum=PtNum, study=study_name, Name="Procedure", 
-		                  			Fields=list(date=date,new_tumor_event_surgery=new_tumor_event_surgery,site=site,new_tumor_event_additional_surgery_procedure=new_tumor_event_additional_surgery_procedure,other_malignancy_side=other_malignancy_side,surgery_name=surgery_name,side=side,surgical_procedure_first=surgical_procedure_first,first_surgical_procedure_other=first_surgical_procedure_other)))
+		                  			Fields=list(date=date,name=name,side=side, site=site,service=NA,location=NA)))
 			    		})
 			print(result)
 		}
-}    
+}
 #--------------------------------------------------------------------------------------------------------------------------  
 create.Pathology.records <- function(study_name,  ptID){
   uri <- rawTablesRequest(study_name, "Pathology")
@@ -3580,11 +3429,11 @@ create.Pathology.records <- function(study_name,  ptID){
                      list(
                        'bcr_patient_barcode' = list(name = "PatientID", data = "tcgaId"),
                        'initial_pathologic_dx_year' = list(name = "dxyear", data = "tcgaDate"), 
-                       'days_to_initial_pathologic_diagnosis'  = list(name = "pathology.offset", data = "upperCharacter"), 
+                       'days_to_initial_pathologic_diagnosis'  = list(name = "date", data = "upperCharacter"), 
                        'tumor_tissue_site' = list(name = "pathDisease", data = "upperCharacter"),  
                        'histological_type'= list(name = "pathHistology", data = "upperCharacter"), 
-                       'prospective_collection'= list(name = "prospective", data = "upperCharacter"),
-                       'retrospective_collection'= list(name = "retrospective", data = "upperCharacter"), 
+                       'prospective_collection'= list(name = "collection", data = "upperCharacter"),
+                       'retrospective_collection'= list(name = "collection", data = "upperCharacter"), 
                        'method_initial_path_dx' = list(name = "pathMethod", data = "upperCharacter"),
                        'ajcc_tumor_pathologic_pt' = list(name = "T.Stage", data = "upperCharacter"),
                        'ajcc_nodes_pathologic_pn' = list(name = "N.Stage", data = "upperCharacter"),
@@ -3595,10 +3444,10 @@ create.Pathology.records <- function(study_name,  ptID){
   tbl.omf <- loadData(uri[2], 
                       list(
                         'bcr_patient_barcode' = list(name = "PatientID", data = "tcgaId"),
-                        'other_malignancy_anatomic_site' = list(name = "disease", data = "upperCharacter"), 
-                        'days_to_other_malignancy_dx' = list(name = "omfOffset", data = "upperCharacter"),
-                        'other_malignancy_histological_type' = list(name = "histology", data = "upperCharacter"),
-                        'other_malignancy_histological_type_text' = list(name = "histology_text", data = "upperCharacter")
+                        'other_malignancy_anatomic_site' = list(name = "pathDisease", data = "upperCharacter"), 
+                        'days_to_other_malignancy_dx' = list(name = "date", data = "upperCharacter"),
+                        'other_malignancy_histological_type' = list(name = "pathHistology", data = "upperCharacter"),
+                        'other_malignancy_histological_type_text' = list(name = "pathHistology", data = "upperCharacter")
                       ))
   # reorganize two tbls 
   data.Pathology <- rbind.fill(tbl.pt[,-match("dxyear", colnames(tbl.pt))], tbl.omf)
@@ -3609,7 +3458,7 @@ create.Pathology.records <- function(study_name,  ptID){
   #colnames(data.Pathology)
 
   #create columns for column that are not captured
-  PathologyColNames <- c("PatientID", "dxyear", "pathDisease", "pathHistology", "prospective", "retrospective", "pathMethod", "T.Stage", "N.Stage", "M.Stage","staging.System","grade","disease","histology","histology_text","pathology.offset","omfOffset")
+  PathologyColNames <- c("PatientID", "dxyear", "pathDisease", "pathHistology", "collection", "pathMethod", "T.Stage", "N.Stage", "M.Stage","staging.System","grade","date")
   m <- matrix(nrow=nrow(data.Pathology), ncol=length(which(!(PathologyColNames) %in% colnames(data.Pathology))))
   df <- as.data.frame(m)
   colnames(df) <- PathologyColNames[(which(!(PathologyColNames) %in% colnames(data.Pathology)))]
@@ -3618,19 +3467,15 @@ create.Pathology.records <- function(study_name,  ptID){
   # mapping
   data.Pathology <- Pathology.mapping.pathDisease(data.Pathology)
   data.Pathology <- Pathology.mapping.pathHistology(data.Pathology)
-  data.Pathology <- Pathology.mapping.prospective(data.Pathology)
-  data.Pathology <- Pathology.mapping.retrospective(data.Pathology)
+  data.Pathology <- Pathology.mapping.collection(data.Pathology)
   data.Pathology <- Pathology.mapping.pathMethod(data.Pathology)
   data.Pathology <- Pathology.mapping.T.Stage(data.Pathology)
   data.Pathology <- Pathology.mapping.N.Stage(data.Pathology)
   data.Pathology <- Pathology.mapping.M.Stage(data.Pathology)
   data.Pathology <- Pathology.mapping.staging.System(data.Pathology)
   data.Pathology <- Pathology.mapping.grade(data.Pathology)
-  data.Pathology <- Pathology.mapping.disease(data.Pathology)
-  data.Pathology <- Pathology.mapping.histology(data.Pathology)
-  data.Pathology <- Pathology.mapping.histology_text(data.Pathology)
-  data.Pathology <- Pathology.mapping.date_calculation.pathology.offset(data.Pathology)
-  data.Pathology <- Pathology.mapping.date_calculation.omfOffset(data.Pathology)
+  data.Pathology <- Pathology.mapping.Calculation.date(data.Pathology)
+  
   
   ptNumMap <- ptNumMapUpdate(tbl.pt)
   if(missing(ptID)){
@@ -3639,34 +3484,25 @@ create.Pathology.records <- function(study_name,  ptID){
 		    PtNum = ptNumMap[ptNumMap$PatientID == PatientID,]$PatientNumber
 		    pathDisease = getElement(x, "pathDisease")
 		    pathHistology = getElement(x, "pathHistology")
-		    prospective = getElement(x, "prospective")
-		    retrospective = getElement(x, "retrospective")
+		    collection = getElement(x, "collection")
 		    pathMethod = getElement(x, "pathMethod")
 		    T.Stage = getElement(x, "T.Stage")
 		    N.Stage = getElement(x, "N.Stage")
 		    M.Stage = getElement(x, "M.Stage")
 		    staging.System  = getElement(x, "staging.System")
 		    grade  = getElement(x, "grade")
-		    disease  = getElement(x, "disease")
-		    histology  = getElement(x, "histology")
-		    histology_text = getElement(x, "histology_text") 
-		    pathology.offset = getElement(x,"pathology.offset")
-		    omfOffset = getElement(x, "omfOffset")
+		    date  = getElement(x, "date")
 		    return(list(PatientID=PatientID, PtNum=PtNum, study=study_name, Name="Pathology", 
 		                Fields=list(pathDisease=pathDisease,
 		                            pathHistology=pathHistology,
-		                            prospective=prospective,
-		                            retrospective=retrospective,
+		                            collection=collection,
 		                            pathMethod=pathMethod,
 		                            T.Stage=T.Stage,
 		                            N.Stage=N.Stage,
 		                            M.Stage=M.Stage,
 		                            staging.System=staging.System,
-		                            grade=grade,disease=disease, 
-		                            histology=histology,
-		                            histology_text=histology_text,
-		                            pathology.offset=pathology.offset,
-		                            omfOffset=omfOffset)))
+		                            grade=grade,
+		                            date=date)))
 		  })
 		  #return(result)
 		  print(c(study_name, dim(data.Pathology), length(result)))
@@ -3676,37 +3512,29 @@ create.Pathology.records <- function(study_name,  ptID){
 				subSet.data.Pathology <- subset(data.Pathology, PatientID==ptID)
 		  		result <- apply(data.Pathology, 1, function(x){
 							    PatientID = getElement(x, "PatientID")
-							    PtNum = ptNumMap[ptNumMap$PatientID == PatientID,]$PatientNumber
-							    pathDisease = getElement(x, "pathDisease")
-							    pathHistology = getElement(x, "pathHistology")
-							    prospective = getElement(x, "prospective")
-							    retrospective = getElement(x, "retrospective")
-							    pathMethod = getElement(x, "pathMethod")
-							    T.Stage = getElement(x, "T.Stage")
-							    N.Stage = getElement(x, "N.Stage")
-							    M.Stage = getElement(x, "M.Stage")
-							    staging.System  = getElement(x, "staging.System")
-							    grade  = getElement(x, "grade")
-							    disease  = getElement(x, "disease")
-							    histology  = getElement(x, "histology")
-							    histology_text = getElement(x, "histology_text") 
-							    pathology.offset = getElement(x,"pathology.offset")
-							    omfOffset = getElement(x, "omfOffset")
+		    PtNum = ptNumMap[ptNumMap$PatientID == PatientID,]$PatientNumber
+		    pathDisease = getElement(x, "pathDisease")
+		    pathHistology = getElement(x, "pathHistology")
+		    collection = getElement(x, "collection")
+		    pathMethod = getElement(x, "pathMethod")
+		    T.Stage = getElement(x, "T.Stage")
+		    N.Stage = getElement(x, "N.Stage")
+		    M.Stage = getElement(x, "M.Stage")
+		    staging.System  = getElement(x, "staging.System")
+		    grade  = getElement(x, "grade")
+		    date  = getElement(x, "date")
 							    return(list(PatientID=PatientID, PtNum=PtNum, study=study_name, Name="Pathology", 
-							                Fields=list(pathDisease=pathDisease,
-							                            pathHistology=pathHistology,
-							                            prospective=prospective,
-							                            retrospective=retrospective,
-							                            pathMethod=pathMethod,
-							                            T.Stage=T.Stage,
-							                            N.Stage=N.Stage,
-							                            M.Stage=M.Stage,
-							                            staging.System=staging.System,
-							                            grade=grade,disease=disease, 
-							                            histology=histology,
-							                            histology_text=histology_text,
-							                            pathology.offset=pathology.offset,
-							                            omfOffset=omfOffset)))
+		                Fields=list(pathDisease=pathDisease,
+		                            pathHistology=pathHistology,
+		                            collection=collection,
+		                            pathMethod=pathMethod,
+		                            T.Stage=T.Stage,
+		                            N.Stage=N.Stage,
+		                            M.Stage=M.Stage,
+		                            staging.System=staging.System,
+		                            grade=grade,
+		                            disease=disease, 
+		                            date=date)))
 							  })
 				print(result)
 	    }  
