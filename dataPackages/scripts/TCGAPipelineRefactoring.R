@@ -564,6 +564,7 @@ if(RAD){
 		unique.radTypeOther <- unique(df$radTypeOther)
 		unique.intent <- unique(df$intent)
 		unique.target <- unique(df$target)
+		unique.targetAddition <- unique(df$targetAddition)
 		unique.totalDose <- unique(df$totalDose)
 		unique.totalDoseUnits <- unique(df$totalDoseUnits)
 		unique.numFractions <- unique(df$numFractions)
@@ -573,6 +574,7 @@ if(RAD){
 	  				  unique.radTypeOther=unique.radTypeOther, 
 	  				  unique.intent=unique.intent,
 	  				  unique.target=unique.target,
+	  				  unique.targetAddition=unique.targetAddition,
 	  				  unique.totalDose=unique.totalDose,
 	  				  unique.totalDoseUnits=unique.totalDoseUnits,
 	  				  unique.numFractions=unique.numFractions)
@@ -587,6 +589,7 @@ if(RAD){
 				   unique.radTypeOther=unique(c(res1$unique.radTypeOther, res2$unique.radTypeOther)),
 				   unique.intent=unique(c(res1$unique.intent, res2$unique.intent)),
 				   unique.target=unique(c(res1$unique.target, res2$unique.target)),
+				   unique.targetAddition=unique(c(res1$unique.targetAddition, res2$unique.targetAddition)),
 				   unique.totalDose=unique(c(res1$unique.totalDose, res2$unique.totalDose)),
 				   unique.totalDoseUnits=unique(c(res1$unique.totalDoseUnits, res2$unique.totalDoseUnits)),
 				   unique.numFractions=unique(c(res1$unique.numFractions, res2$unique.numFractions)))
@@ -641,6 +644,13 @@ if(RAD){
 		to 	 <- from 
 		to[match(c("[NOT AVAILABLE]", "[UNKNOWN]", "[DISCREPANCY]"), to)] <- NA
 		df$target <- mapvalues(df$target, from = from, to = to, warn_missing = F)
+		from <- Rad.unique.values$unique.targetAddition
+		to 	 <- from 
+		to[match(c("[NOT AVAILABLE]", "[UNKNOWN]"), to)] <- NA
+		df$targetAddition <- mapvalues(df$targetAddition, from = from, to = to, warn_missing = F)
+		updatePos <- which(!is.na(df$targetAddition))
+		df$target[updatePos] <- paste(df$target[updatePos], ", AT PRIMARY TUMOR SITE: ", df$targetAddition[updatePos], sep="")
+
 		return(df)
 	}	
 	#--------------------------------------------------------------------------------
@@ -654,10 +664,10 @@ if(RAD){
 		df$totalDoseUnits[grep("CGY", df$totalDose)] <- "CGY"
 		df$totalDose[grep("CGY", df$totalDose)] <- str_extract(df$totalDose[grep("CGY", df$totalDose)],"[0-9,]+")
 		
-		df$totalDose[which(df$totalDoseUnits == "CGY")] <- 
-					as.integer(df$totalDose[which(df$totalDoseUnits == "CGY")]) * 100
+		df$totalDose[which(df$totalDoseUnits == "GY")] <- 
+					as.integer(df$totalDose[which(df$totalDoseUnits == "GY")]) * 100
 
-		df$totalDoseUnits[which(df$totalDoseUnits == "CGY")] <- "GY"
+		df$totalDoseUnits[which(df$totalDoseUnits == "GY")] <- "CGY"
 		return(df)
 	}	
 	#--------------------------------------------------------------------------------
@@ -2430,7 +2440,7 @@ create.Rad.records <- function(study_name,  ptID){
     				totalDoseUnits = getElement(x, "totalDoseUnits")
     				numFractions = getElement(x, "numFractions")
     				return(list(PatientID=PatientID, PtNum=PtNum, study=study_name, Name="Radiation", 
-    				 			Fields=list(date=date, radType=radType, intent=intent, 
+    				 			Fields=list(date=date, therapyType=radType, intent=intent, 
     				 						target=target, totalDose=totalDose, totalDoseUnits=totalDoseUnits, 
     				 						numFractions=numFractions)))
     				})
@@ -2450,7 +2460,7 @@ create.Rad.records <- function(study_name,  ptID){
     				totalDoseUnits = getElement(x, "totalDoseUnits")
     				numFractions = getElement(x, "numFractions")
     				return(list(PatientID=PatientID, PtNum=PtNum, study=study_name, Name="Radiation", 
-    				 			Fields=list(date=date, radType=radType, intent=intent, 
+    				 			Fields=list(date=date, therapyType=radType, intent=intent, 
     				 						target=target, totalDose=totalDose, totalDoseUnits=totalDoseUnits, 
     				 						numFractions=numFractions)))
     				})
@@ -4184,6 +4194,187 @@ test_create.Chemo.records <- function(study_name)
 }
 lapply(studies, test_create.Chemo.records)
 #-------------------------------------------------------------------------------------------------------------------------- 
+test_create.Rad.records <- function(study_name)
+{
+  print("--- test_create.Rad.record")
+  if(study_name == "TCGAbrca"){
+		x <- create.Rad.records(study_name, "TCGA.HN.A2OB")
+		checkTrue(is.list(x)) 
+		checkEquals(x[[1]], list(PatientID="TCGA.HN.A2OB", PtNum=1010, study=study_name, Name="Radiation", 
+							Fields=list(date=c(as.character(NA),as.character(NA)), therapyType="EXTERNAL", 
+							intent=as.character(NA), target="PRIMARY TUMOR FIELD", totalDose="5000", 
+							totalDoseUnits="CGY", numFractions="25")))
+
+		x <- create.Rad.records(study_name, "TCGA.D8.A1JG") # TotalDose = "42.5 + 10" 
+		checkEquals(x[[1]], list(PatientID="TCGA.D8.A1JG", PtNum=730, study=study_name, Name="Radiation", 
+							Fields=list(date=c( "05/12/2010", "06/06/2010"), therapyType="EXTERNAL BEAM", 
+							intent="ADJUVANT", target="PRIMARY TUMOR FIELD", totalDose="42.5+10", totalDoseUnits="CGY", numFractions="21")))
+
+		x <- create.Rad.records(study_name, "TCGA.BH.A0AU")# radType == "[Unknown]"
+		checkEquals(x[[1]], list(PatientID="TCGA.BH.A0AU", PtNum=513, study=study_name, Name="Radiation", 
+							Fields=list(date=c( "03/06/2008", as.character(NA)), therapyType=as.character(NA), 
+							intent=as.character(NA), target=as.character(NA), totalDose=as.character(NA), totalDoseUnits=as.character(NA), 
+							numFractions=as.character(NA))))
+	}
+  if(study_name == "TCGAcoad"){
+		x <- create.Rad.records(study_name, "TCGA.AA.3713")
+		checkTrue(is.list(x))
+		checkEquals(names(x[[1]]), c("PatientID", "PtNum", "study", "Name", "Fields"))
+		checkEquals(x[[1]], list(PatientID="TCGA.AA.3713", PtNum=123, study=study_name, Name="Radiation", 
+							Fields=list(date=c("10/03/2005","11/03/2005"), therapyType="EXTERNAL", 
+							intent=as.character(NA), target="PRIMARY TUMOR FIELD", totalDose="5000", 
+							totalDoseUnits="CGY", numFractions=as.character(NA))))
+
+		x <- create.Rad.records(study_name, "TCGA.AD.6901")  #no units
+		checkEquals(x[[1]], list(PatientID="TCGA.AD.6901", PtNum=237, study=study_name, Name="Radiation", 
+							Fields=list(date=c("05/03/2012", "05/18/2012"), therapyType="EXTERNAL", 
+							intent=as.character(NA), target= "DISTANT RECURRENCE", totalDose=as.character(NA), 
+							totalDoseUnits=as.character(NA), numFractions=as.character(NA))))
+
+		x <- create.Rad.records(study_name, "TCGA.DM.A285") #tbl.omf
+		checkEquals(x[[1]], list(PatientID="TCGA.DM.A285", PtNum=385, study=study_name, Name="Radiation", 
+							Fields=list(date=c(as.character(NA),as.character(NA)), therapyType=as.character(NA), intent=as.character(NA), 
+							target="LOCOREGIONAL, AT PRIMARY TUMOR SITE: NO", totalDose=as.character(NA), 
+							totalDoseUnits=as.character(NA), numFractions=as.character(NA))))
+	}
+  if(study_name == "TCGAgbm"){
+		x <- create.Rad.records(study_name, "TCGA.02.0001")
+		checkTrue(is.list(x))
+		checkEquals(names(x[[1]]), c("PatientID", "PtNum", "study", "Name", "Fields"))
+		checkEquals(x[[1]], list(PatientID="TCGA.02.0001", PtNum=1, study=study_name, Name="Radiation", 
+							Fields=list(date=c("02/19/2002", "03/22/2002"), therapyType="EXTERNAL BEAM", 
+							intent="ADJUVANT", target="PRIMARY TUMOR FIELD", totalDose="4500", totalDoseUnits="CGY", numFractions="20")))
+
+		x <- create.Rad.records(study_name, "TCGA.06.0152")  #no start date
+		checkEquals(x[[1]], list(PatientID="TCGA.06.0152", PtNum=513, study=study_name, Name="Radiation", 
+							Fields=list(date=c(as.character(NA), "05/04/1995"), therapyType="EXTERNAL BEAM",
+						    intent="ADJUVANT", target="PRIMARY TUMOR FIELD", totalDose=as.character(NA), 
+						    totalDoseUnits=as.character(NA), numFractions=as.character(NA))))
+		x <- create.Rad.records(study_name, "TCGA.32.4213") # mCi
+		checkEquals(x[[1]], list(PatientID="TCGA.32.4213", PtNum=504, study=study_name, Name="Radiation", 
+							Fields=list(date=c("01/25/2009", "03/09/2009"), therapyType="EXTERNAL BEAM",
+						    intent="ADJUVANT", target="PRIMARY TUMOR FIELD", totalDose="6000", totalDoseUnits="CGY", numFractions="30")))
+		checkEquals(x[[2]], list(PatientID="TCGA.32.4213", PtNum=504, study=study_name, Name="Radiation", 
+							Fields=list(date=c("12/18/2009", "12/18/2009"), therapyType="RADIOISOTOPES", 
+							intent="PROGRESSION", target="LOCAL RECURRENCE", totalDose="71", totalDoseUnits="MCI", numFractions="1")))
+
+		x <- create.Rad.records(study_name, "TCGA.32.2494") #no units
+		checkEquals(x[[1]], list(PatientID="TCGA.32.2494", PtNum=498, study=study_name, Name="Radiation", 
+							Fields=list(date=c("01/22/2008", "03/03/2008"), therapyType="EXTERNAL BEAM", 
+							intent="ADJUVANT", target="PRIMARY TUMOR FIELD", totalDose="6000", totalDoseUnits="CGY", numFractions="30")))
+		checkEquals(x[[3]], list(PatientID="TCGA.32.2494", PtNum=498, study=study_name, Name="Radiation", 
+							Fields=list(date=c("01/22/2008", "03/03/2008"), therapyType="RADIOISOTOPES", 
+							intent="ADJUVANT", target=as.character(NA), totalDose="354", totalDoseUnits=as.character(NA), numFractions="30")))
+		checkEquals(x[[2]], list(PatientID="TCGA.32.2494", PtNum=498, study=study_name, Name="Radiation", 
+							Fields=list(date=c("05/16/2009", "06/02/2009"), therapyType="EXTERNAL BEAM", 
+							intent="PROGRESSION", target="LOCAL RECURRENCE", totalDose="3900", totalDoseUnits="CGY", numFractions="12")))
+		x <- create.Rad.records(study_name, "TCGA.4W.AA9S")  #55Gy
+		checkEquals(x[[1]], list(PatientID="TCGA.4W.AA9S", PtNum=385, study=study_name, Name="Radiation", 
+							Fields=list(date=c("02/26/2013", "04/16/2013"), therapyType="EXTERNAL", 
+							intent=as.character(NA), target="PRIMARY TUMOR FIELD", totalDose="5500", totalDoseUnits="CGY", numFractions="25")))
+	}
+  if(study_name == "TCGAhnsc"){
+		x <- create.Rad.records(study_name, "TCGA.CX.7082")
+		checkTrue(is.list(x))
+		checkEquals(x[[1]], list(PatientID="TCGA.CX.7082", PtNum=364, study=study_name, Name="Radiation", 
+							Fields=list(date=c(as.character(NA), as.character(NA)), therapyType=as.character(NA), intent=as.character(NA), 
+							target="LOCOREGIONAL, AT PRIMARY TUMOR SITE: NO", totalDose=as.character(NA), 
+							totalDoseUnits=as.character(NA), numFractions=as.character(NA))))
+		
+		x <- create.Rad.records(study_name, "TCGA.BA.5153")  # rad two records
+		checkEquals(x[[1]], list(PatientID="TCGA.BA.5153", PtNum=10, study=study_name, Name="Radiation", 
+							Fields=list(date=c("02/11/2005", "04/02/2005"), therapyType=as.character(NA), 
+							intent="ADJUVANT", target="PRIMARY TUMOR FIELD", totalDose=as.character(NA), 
+							totalDoseUnits=as.character(NA), numFractions=as.character(NA))))
+		checkEquals(x[[2]], list(PatientID="TCGA.BA.5153", PtNum=10, study=study_name, Name="Radiation", 
+							Fields=list(date=c(as.character(NA), as.character(NA)), therapyType=as.character(NA), 
+							intent="PALLIATIVE", target="DISTANT RECURRENCE", totalDose=as.character(NA), 
+							totalDoseUnits=as.character(NA), numFractions=as.character(NA))))
+
+		x <- create.Rad.records(study_name, "TCGA.CV.A6JN")  # omf two records
+		checkEquals(x[[2]], list(PatientID="TCGA.CV.A6JN", PtNum=355, study=study_name, Name="Radiation", 
+							Fields=list(date=c("02/09/2011", "03/19/2011"), therapyType="EXTERNAL", intent=as.character(NA), 
+							target="PRIMARY TUMOR FIELD", totalDose="6000", totalDoseUnits="CGY", numFractions="30")))
+		checkEquals(x[[1]], list(PatientID="TCGA.CV.A6JN", PtNum=355, study=study_name, Name="Radiation", 
+							Fields=list(date=c("02/09/2011", "03/19/2011"), therapyType="EXTERNAL", intent=as.character(NA), 
+							target="REGIONAL SITE", totalDose="5700", totalDoseUnits="CGY", numFractions="30")))
+	}
+  if(study_name == "TCGAlgg"){
+		x <- create.Rad.records(study_name, "TCGA.CS.6290")
+		checkTrue(is.list(x))
+		checkEquals(length(x), 1)
+		checkEquals(names(x[[1]]), c("PatientID", "PtNum","study", "Name", "Fields"))
+		checkEquals(x[[1]], list(PatientID="TCGA.CS.6290", PtNum=1, study=study_name, Name="Radiation", 
+							Fields=list(date=c(as.character(NA), "04/26/2009"), therapyType="EXTERNAL BEAM", intent="ADJUVANT", 
+							target="PRIMARY TUMOR FIELD", totalDose=as.character(NA), totalDoseUnits=as.character(NA), 
+							numFractions=as.character(NA))))
+		x <- create.Rad.records(study_name, "TCGA.FG.A4MY")
+		checkEquals(x[[1]], list(PatientID="TCGA.FG.A4MY", PtNum=200, study=study_name, Name="Radiation", 
+							Fields=list(date=c("02/06/2012", "03/18/2012"), therapyType="EXTERNAL", intent=as.character(NA), 
+							target="PRIMARY TUMOR FIELD", totalDose="5700", totalDoseUnits="CGY", numFractions="30")))
+		x <- create.Rad.records(study_name, "TCGA.HT.A619")
+		checkEquals(x[[1]], list(PatientID="TCGA.HT.A619", PtNum=260, study=study_name, Name="Radiation", 
+							Fields=list(date=c("08/19/2001", as.character(NA)), therapyType=as.character(NA), intent=as.character(NA), 
+							target="LOCOREGIONAL, AT PRIMARY TUMOR SITE: YES", totalDose=as.character(NA), 
+							totalDoseUnits=as.character(NA), numFractions=as.character(NA))))
+	}
+  if(study_name == "TCGAluad"){
+		x <- create.Rad.records(study_name, "TCGA.05.4382")
+		checkTrue(is.list(x))
+		checkEquals(length(x), 2)
+		checkEquals(x[[1]], list(PatientID="TCGA.05.4382", PtNum=5, study=study_name, Name="Radiation", 
+							Fields=list(date=c("01/01/2010", "01/29/2010"), therapyType="EXTERNAL", intent=as.character(NA), 
+							target="DISTANT RECURRENCE", totalDose=as.character(NA), totalDoseUnits=as.character(NA), numFractions=as.character(NA))))
+		x <- create.Rad.records(study_name, "TCGA.44.7669")  # cCi
+		checkEquals(x[[1]], list(PatientID="TCGA.44.7669", PtNum=86, study=study_name, Name="Radiation", 
+							Fields=list(date=c( "04/20/2011", "04/20/2011"), therapyType="CYBER KNIFE", 
+							intent="PROGRESSION", target="DISTANT SITE", totalDose="2000", totalDoseUnits="CGY", numFractions="1")))
+		checkEquals(x[[2]], list(PatientID="TCGA.44.7669", PtNum=86, study=study_name, Name="Radiation", 
+							Fields=list(date=c("06/11/2011", "06/17/2011"), therapyType="EXTERNAL BEAM", 
+							intent="PALLIATIVE", target="DISTANT RECURRENCE", totalDose="2000", totalDoseUnits="CGY", numFractions="5")))
+		x <- create.Rad.records(study_name, "TCGA.49.AAR4")  #in totalDosage is 4,500 cGy
+		checkEquals(x[[1]], list(PatientID="TCGA.49.AAR4", PtNum=122, study=study_name, Name="Radiation", 
+							Fields=list(date=c( "04/29/2006", "06/03/2006"), therapyType="EXTERNAL", intent=as.character(NA), 
+							target="PRIMARY TUMOR FIELD", totalDose="4,500", totalDoseUnits="CGY", numFractions=as.character(NA))))
+	}
+  if(study_name == "TCGAlusc"){
+		x <- create.Rad.records(study_name, "TCGA.18.3407")
+	    checkTrue(is.list(x))
+	    checkEquals(x[[1]], list(PatientID="TCGA.18.3407", PtNum=2, study=study_name, Name="Radiation", 
+	    					Fields=list(date=c(as.character(NA),as.character(NA)), therapyType=as.character(NA), intent=as.character(NA), 
+	    					target="LOCOREGIONAL", totalDose=as.character(NA), totalDoseUnits=as.character(NA), numFractions=as.character(NA))))
+   		x <- create.Rad.records(study_name, "TCGA.46.6026")  # tbl.rad has both dates
+   		checkEquals(x[[1]], list(PatientID="TCGA.46.6026", PtNum=170, study=study_name, Name="Radiation", 
+   							Fields=list(date=c("03/05/2010", "04/20/2010"), therapyType="EXTERNAL BEAM", 
+   							intent="ADJUVANT", target="PRIMARY TUMOR FIELD", totalDose="6,120", totalDoseUnits="CGY", numFractions="34")))
+	}
+  if(study_name == "TCGAprad"){
+		x <- create.Rad.records(study_name, "TCGA.EJ.5524")
+	    checkTrue(is.list(x))
+   		checkEquals(x[[1]], list(PatientID="TCGA.EJ.5524", PtNum=70, study=study_name, Name="Radiation", 
+   							Fields=list(date=c("04/23/2010","04/23/2010"), therapyType=as.character(NA), intent=as.character(NA), 
+   							target="LOCAL RECURRENCE", totalDose=as.character(NA), totalDoseUnits=as.character(NA), 
+   							numFractions=as.character(NA)))) 
+    }
+  if(study_name == "TCGAread"){
+		x <- create.Rad.records(study_name, "TCGA.G5.6233")
+		checkTrue(is.list(x))
+  	    checkEquals(names(x[[1]]), c("PatientID", "PtNum", "study", "Name", "Fields"))
+        checkEquals(x[[1]], list(PatientID="TCGA.G5.6233", PtNum=168, study=study_name, Name="Radiation", 
+        					Fields=list(date=c(as.character(NA),as.character(NA)), therapyType=as.character(NA), intent=as.character(NA), 
+        					target="LOCOREGIONAL, AT PRIMARY TUMOR SITE: NO", totalDose=as.character(NA), 
+        					totalDoseUnits=as.character(NA), numFractions=as.character(NA))))
+		x <- create.Rad.records(study_name, "TCGA.AF.2692")  #no start date
+		checkEquals(x[[1]], list(PatientID="TCGA.AF.2692", PtNum=5, study=study_name, Name="Radiation", 
+							Fields=list(date=c("02/23/2010", "03/12/2010"), therapyType="EXTERNAL BEAM", 
+							intent= "PALLIATIVE", target="DISTANT SITE", totalDose="3500", totalDoseUnits="CGY", numFractions="14")))
+		checkEquals(x[[2]], list(PatientID="TCGA.AF.2692", PtNum=5, study=study_name, Name="Radiation", 
+							Fields=list(date=c("12/17/2009", "01/21/2010"), therapyType="EXTERNAL BEAM", 
+							intent= "RECURRENCE", target="PRIMARY TUMOR FIELD", totalDose="5000", totalDoseUnits="CGY", numFractions="25")))
+   }
+}
+lapply(studies, test_create.Rad.records)
+#-------------------------------------------------------------------------------------------------------------------------- 
 test_create.Encounter.records <- function(study_name)
 {
   print("--- test_create.Encounter.record")
@@ -4282,3 +4473,11 @@ test_create.Pathology.records <- function(study_name)
       	}
 }
 lapply(studies, test_create.Pathology.records)
+
+
+
+
+
+
+
+
