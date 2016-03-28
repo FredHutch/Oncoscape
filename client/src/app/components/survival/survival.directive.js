@@ -45,7 +45,7 @@
                 osApi.setBusy(true);
                 var ids = pfApi.filter(rawData, function(p){ return p; });
                 osApi.getCalculatedSurvivalCurves(ids, "").then(function(r){
-                        document.getElementById("survival-img").src = r.payload;
+                        angular.element("#survival-img").attr('src',r.payload);
                         osApi.setBusy(false);
                 });
             }

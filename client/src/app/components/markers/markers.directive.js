@@ -65,7 +65,6 @@
             pfApi.init(vm.datasource);
             pfApi.onSelect.add(draw);
 
-
  
             var removedPatients;
             function draw(o){
@@ -135,11 +134,11 @@
                             container: elChart,
                             elements: rawData,
                             style: styles,
-                            // hideEdgesOnViewport: true,
-                            // hideLabelsOnViewport: true,
-                            // textureOnViewport: true,
-                            // motionBlur: true,
-                            minZoom: 0.02,
+                            hideEdgesOnViewport: true,
+                            hideLabelsOnViewport: true,
+                            textureOnViewport: true,
+                            motionBlur: true,
+                            minZoom: 0.1,
                             maxZoom: 10,
                             layout: {
                                 name: "preset",
@@ -147,6 +146,8 @@
                             }
                         });
 
+                        cyChart.nodes().map(function(node){node.data({degree: node.degree(), baseWidth: node.width(), baseHeight: node.height(), zoomed:false });});
+                            
                         draw();
 
                         // Opt Edge Colors
@@ -155,11 +156,12 @@
                         vm.optNodeColors = optNodeColorsFactory(cyChart, vm, osApi);
                         vm.optInteractiveModes = optInteractiveModesFactory(cyChart, vm, $scope);
                         vm.optInteractiveMode = vm.optInteractiveModes[0];
+                        optZoomResizeFactory(cyChart);
 
                         // Register Search Listeners
-                        $scope.$watch("vm.searchGene", function(e){
+                        $scope.$watch("vm.searchGene", function(){
                             if (angular.isUndefined(vm.searchGene)) return;
-                            var selected = cyChart.nodes('node[nodeType="gene"]')
+                            cyChart.nodes('node[nodeType="gene"]')
                             .forEach(function(ele){
                                 if (vm.searchGene=="") { ele.deselect(); return; }
                                 if (ele.data().name.toLowerCase().indexOf(vm.searchGene.toLowerCase())==0){
@@ -173,7 +175,7 @@
 
                         $scope.$watch("vm.searchPatient", function(){
                             if (angular.isUndefined(vm.searchPatient)) return;
-                            var selected = cyChart.nodes('node[nodeType="patient"]')
+                            cyChart.nodes('node[nodeType="patient"]')
                             .forEach(function(ele){
                                 if (vm.searchPatient=="") { ele.deselect(); return; }
                                 if (ele.data().id.toLowerCase().indexOf(vm.searchPatient.toLowerCase())==0){
@@ -189,6 +191,57 @@
                     });
                 });
             });
+
+
+            // Zoom Resize
+            var optZoomResizeFactory = function(){
+
+                // chart.on('pan', function(){
+                //     console.log("---Pan");
+                // })
+                // chart.on('layoutstop', function(){
+                //     console.log("------Layout");
+                // })
+                // chart.on('layout', function(){
+                //     console.log("LAYOOUT");
+                // })
+                // chart.onRender(function(e){
+                //     console.log("RENDER");
+                // });
+
+// .on('pan', function(e){
+//                         console.log("PAN");
+//                     })
+//                     .on('zoom', function(e){
+//                         console.log("ZOOM");
+//                     })
+//                     .on('layoutstop', function(e){
+//                         console.log("!!!!!!!!!LAYOUT STOP");
+//                     })
+                    // .on('zoom', function(e){
+                    //     var zoom = Math.max(11 - Math.round(convertValueToRange(e.cy.zoom(), .1, 10, 1, 10)),1) / 10;
+                    //     if (_zoom == zoom) return;
+                        
+                    //     chart.batch(function(){
+                    //         chart.nodes().map(function(node){
+                    //             node.style({
+                    //                 width: (node.data("baseWidth") * zoom),
+                    //                 height: (node.data("baseHeight") * zoom)
+                    //             })
+                    //         });
+                    //     });
+                        
+
+                    // });
+                    // var _zoom = 1;
+                    // function convertValueToRange(value, inputLower, inputHigher, outputLower, outputHigher){
+                    //     return (value-inputLower) * (outputHigher - outputLower) / (inputHigher - inputLower) + outputLower;
+                    // }
+            }
+
+
+
+
 
             // Interactive Mode Options
             var optInteractiveModesFactory = function(chart, vm) {
@@ -239,44 +292,8 @@
                     .on('mouseover', 'node[nodeType="gene"]', events.geneOver.dispatch)
                     .on('mouseover', 'node[nodeType="patient"]', events.patientOver.dispatch)
                     .on('mouseout', 'node[nodeType="gene"]', events.geneOut.dispatch)
-                    .on('mouseout', 'node[nodeType="patient"]', events.patientOut.dispatch)
-                    /*
-                    .on('zoom', function(e){
-                        console.log(e.cy.zoom());
-                        if (e.cy.zoom()>2){
-                            if (zoomlevel==2) return;
-                            zoomlevel = 2;
-                            console.log("!!!!");
-                            cyChart.batch(function(){
-                                cyChart.$('node').style(
-                                    { 
-                                        'height': 'mapData(degree, 0, 50, 10.0, 50.0)',
-                                        'width': 'mapData(degree, 0, 50, 10.0, 50.0)'
-                                    }
-                                );
-                            })
-                            
-                        }else{
-                            if (zoomlevel==1) return;
-                            zoomlevel = 1;
-                            console.log("!x!x!x!");
-                            cyChart.batch(function(){
-                                cyChart.$('node').style(
-                                    { 
-                                        'height': 'mapData(degree, 0, 50, 20.0, 100.0)',
-                                        'width': 'mapData(degree, 0, 50, 20.0, 100.0)'
-                                    }
-                                    );
-                            });
-                        }
-                        
-                    })
-                var zoomlevel = 1;
-                */
+                    .on('mouseout', 'node[nodeType="patient"]', events.patientOut.dispatch);
 
-
-                    // 'height': 'mapData(degree, 0, 50, 10.0, 80.0)',
-                    // 'width': 'mapData(degree, 0, 50, 10.0, 80.0)'
 
                 var behaviors = {
                     showPatientInfo: function(e){
@@ -289,7 +306,7 @@
                         }
                         return this;
                     },
-                    hidePatientInfo: function(e){
+                    hidePatientInfo: function(){
                         $scope.$apply(function() {
                             vm.patient = vm.patientChromosomes = null;
                         });
@@ -443,7 +460,7 @@
                     }
 
                 },{
-                    name: '1° On Rollover',
+                    name: '1° On Mouse Over',
                     register: function() {
                         events.click(function(e) {
                             behaviors
@@ -469,7 +486,7 @@
                         events.removeAll();
                     }
                 }, {
-                    name: '2° On Rollover',
+                    name: '2° On Mouse Over',
                     register: function() {
                         events.click(function(e) {
                             behaviors
@@ -790,6 +807,7 @@
                 selector: 'node[nodeType="centromere"]',
                 style:{
                     'font-size': '24px',
+                    'min-zoomed-font-size': '12px',
                     'text-halign': 'center',
                     'text-valign': 'center',
                     'background-color': color.white,

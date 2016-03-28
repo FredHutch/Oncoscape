@@ -19,7 +19,7 @@
         return directive;
 
         /** @ngInject */
-        function HelpController(osApi, $state, $stateParams) {
+        function HelpController() {
             var vm = this;
            vm.videos = [
                {

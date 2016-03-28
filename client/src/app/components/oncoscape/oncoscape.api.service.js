@@ -6,9 +6,9 @@
         .service('osApi', oncoscape);
 
     /** @ngInject */
-    function oncoscape(osSocket, $http) {
+    function oncoscape(osSocket, $http, signals) {
 
-    /*** User Api ***/
+        /*** User Api ***/
         function userApi(){
 
             // Events
@@ -71,8 +71,7 @@
                 onLogin: onLogin,
                 onLogout: onLogout
             }
-        };
-
+        }
         var _userApi = userApi();
         function getUserApi() { return _userApi; }
 
@@ -103,7 +102,7 @@
         
 
 
-/*** R Service Calls ***/
+        /*** R Service Calls ***/
         function setDataset(dataPackage) {
             return osSocket.request({
                 cmd: "specifyCurrentDataset",
@@ -266,11 +265,9 @@
             });
         }
 
-/*** Filter Functions ***/
+        /*** Filter Api ***/
         var _patientFilterApi = filter();
-        //function setPatientFilter(name){ _patientFilters.set(name); }
         function getPatientFilterApi() { return _patientFilterApi; }
-
         function filter(){
 
             var _dataSource = null;
@@ -296,11 +293,11 @@
             function init(dataSource){
                 if (_dataSource==dataSource) return;
                 _dataSource = dataSource;
-                 _filterTree = JSON.parse(localStorage.getItem(dataSource));
+                 _filterTree = angular.fromJson(localStorage.getItem(dataSource));
                 if (!_filterTree) _filterTree = {name:dataSource, ids:'*' };
                 _filter = _filterTree;
             }
-            function delFilter(filter){}
+            function delFilter(){}
             function addFilter(name, ids){
                 var filter = {
                     name:name,
@@ -337,7 +334,6 @@
                 });
             }
 
-
             // Events
             var onChange = new signals.Signal(); // Fired When Data Changes
             var onSelect = new signals.Signal(); // Fired When Selection changes
@@ -354,7 +350,7 @@
                 onSelect : onSelect
             };
                 
-        };
+        }
   
         return {
             getPatientFilterApi: getPatientFilterApi,

@@ -35,12 +35,11 @@
 
 
                 // Size
-                var width, height, diameter;
+                var width, height;
                 width = height = Math.min($window.innerWidth, $window.innerHeight) - 200;
-                var diameter = Math.round(width * .7);
 
                 // Data
-                var root, link, node;
+                var link, node;
 
                 // Animation Length
                 var duration = 2000;
@@ -56,22 +55,6 @@
                         return [d.y, d.x];
                     });
 
-                var radialTree = d3.layout.tree()
-                    .size([360, diameter / 2])
-                    .separation(function(a, b) {
-                        return (a.parent == b.parent ? 1 : 2) / a.depth;
-                    });
-
-                var radialCluster = d3.layout.cluster()
-                    .size([360, diameter / 2])
-                    .separation(function(a, b) {
-                        return (a.parent == b.parent ? 1 : 2) / a.depth;
-                    });
-
-                var radialDiagonal = d3.svg.diagonal.radial()
-                    .projection(function(d) {
-                        return [d.y, d.x / 180 * Math.PI];
-                    });
 
                 var svg = d3.select("#filters-chart").append("svg")
                     .attr("width", width)
@@ -81,16 +64,8 @@
 
 
                 // LAYOUT OPTIONS + ACCESSOR
-                var _display;
                 function setDisplay(val) {
-                    _display = val;
                     switch (val) {
-                        case "RadialTree":
-                            transitionToRadialTree();
-                            break;
-                        case "RadialCluster":
-                            transitionToRadialCluster();
-                            break;
                         case "Cluster":
                             transitionToCluster();
                             break;
@@ -104,19 +79,9 @@
                     transitionToTree();
                 }
 
-                var transitionToRadialTree = function(){
-                   
-
-                }
-
-                var transitionToRadialCluster = function(){
-
-                }
-
 
 
                 var transitionToCluster = function(){
-                    console.log("Cluster");
                     var data = pfApi.getFilterTree();
                     var nodes = cluster.nodes(data);
                     var links = cluster.links(nodes);
@@ -155,17 +120,17 @@
                     ng.append("circle")
                         .attr("class","filter-node-circle")
                         .attr("r", 10)
-                        .on('click', function(d,i){
+                        .on('click', function(d){
                             pfApi.setActiveFilter(d);
                             osApi.hideFilter();
                         })
-                        .on("mouseover", function(d,i) {
+                        .on("mouseover", function() {
                             d3.select(this).transition()
                                 .ease("elastic")
                                 .duration("500")
                                 .attr("r", 15);
                         })
-                        .on("mouseout", function(d,i) {
+                        .on("mouseout", function() {
                             d3.select(this).transition()
                                 .ease("quad")
                                 .delay("100")
@@ -198,7 +163,6 @@
                 }
 
                 var transitionToTree = function(){
-                    console.log("Tree");
                     var data = pfApi.getFilterTree();
                     var nodes = tree.nodes(data);
                     var links = tree.links(nodes);
@@ -237,17 +201,17 @@
                     ng.append("circle")
                         .attr("class","filter-node-circle")
                         .attr("r", 10)
-                        .on('click', function(d,i){
+                        .on('click', function(d){
                             pfApi.setActiveFilter(d);
                             osApi.hideFilter();
                         })
-                        .on("mouseover", function(d,i) {
+                        .on("mouseover", function() {
                             d3.select(this).transition()
                                 .ease("elastic")
                                 .duration("500")
                                 .attr("r", 15);
                         })
-                        .on("mouseout", function(d,i) {
+                        .on("mouseout", function() {
                             d3.select(this).transition()
                                 .ease("quad")
                                 .delay("100")

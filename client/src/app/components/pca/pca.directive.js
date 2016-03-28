@@ -67,7 +67,7 @@
 
                 mtx = mtx[mtx.length - 1].replace(".RData", "");
                 osApi.setBusyMessage("Creating PCA Matrix");
-                osApi.getPCA(vm.datasource, mtx).then(function(response) {
+                osApi.getPCA(vm.datasource, mtx).then(function() {
                     osApi.setBusyMessage("Loading Gene Sets");
                     osApi.getGeneSetNames().then(function(response) {
 
@@ -230,9 +230,7 @@
                     .attr("y", 10)
                     .attr("dy", ".71em")
                     .text("PC2");
-
-
-            };
+            }
         }
     }
 })();

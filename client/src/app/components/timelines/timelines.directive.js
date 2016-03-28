@@ -19,12 +19,12 @@
         return directive;
 
         /** @ngInject */
-        function TimelinesController(osApi, $state, $scope, $stateParams, $window, moment) {
+        function TimelinesController(osApi, $state, $scope, $stateParams, $window, moment, d3) {
 
             var chart =(function(){
 
                 // SVG Elements + Attributes
-                var svgEl = $("#timelines-chart");
+                var svgEl = angular.element("#timelines-chart");
                 var svgWidth = svgEl.width()-100;
                 var svgHeight = svgEl.height();
                 var svgChart = d3.select('#timelines-chart').append("svg").attr("width", "100%").attr("height", svgHeight);
@@ -32,12 +32,12 @@
 
                 // Axis Elements + Style
                 var axisStyle = {'shape-rendering': 'crispEdges','stroke': 'none'};
-                var axisFeature = svgChart.append("g").style(axisStyle)
+                svgChart.append("g").style(axisStyle)
                     .attr({
                         "class":"axisFeature axis",
-                        "transform": "translate(50, 49)",
+                        "transform": "translate(50, 49)"
                     }).call(d3.svg.axis().scale(d3.scale.linear().domain([0, 1]).range([0, svgWidth])).orient('top'));
-                var axisTimeline = svgChart.append("g").style(axisStyle)
+                svgChart.append("g").style(axisStyle)
                     .attr({
                         "class":"axisTimeline axis",
                         "transform": "translate(50, 0)"
@@ -83,9 +83,9 @@
 
 
                 var drawFeature = function(patients, feature, events, sort, align, rowHeight){
-                    
+                    var svgFeatures;
                     if (feature.index==-1){
-                        var svgFeatures = svgChart.selectAll("rect.feature")
+                        svgFeatures = svgChart.selectAll("rect.feature")
                         .data([]);
                         svgFeatures.exit()
                         .remove();
@@ -109,7 +109,7 @@
                         d3.svg.axis().scale(scale).orient('top'));
                     
                     // Data Bind
-                    var svgFeatures = barsFeature.selectAll("rect.feature")
+                    svgFeatures = barsFeature.selectAll("rect.feature")
                         .data(patients);
 
                     // Update
@@ -144,7 +144,7 @@
                 };
 
                 var drawBackground = function(patients, features, events, sort, align, rowHeight){
-                    $(".timelines-lbl-events").css({"top": (rowHeight * patients.length) + 100 });
+                    angular.element(".timelines-lbl-events").css({"top": (rowHeight * patients.length) + 100 });
                     
                     // Data Bind
                     var svgFeatures = barBackground.selectAll("rect.lines")
@@ -231,7 +231,7 @@
 
                     // Data Bind Event
                     var cells = rows.selectAll("rect.timeline")
-                        .data( function(d, i) { return filterDateEvents(d.dateEvents); });
+                        .data( function(d) { return filterDateEvents(d.dateEvents); });
 
                     cells.enter()
                         .append("rect")
@@ -288,7 +288,7 @@
             function draw(){ 
                 var data = pfApi.filter(rawdata, function(p){ return p.id });
                 chart.draw(data, vm.feature, vm.events, vm.sort, vm.align);
-            };
+            }
 
             // Elements
             osApi.setBusy(true)("Loading Dataset");
