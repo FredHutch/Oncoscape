@@ -5,8 +5,8 @@ library(R.utils)
 library(stringr)
 library(plyr)
 
-stopifnot(file.exists("TCGA_Reference_Filenames.txt")) 
-TCGAfilename<-read.table("TCGA_Reference_Filenames.txt", sep="\t", header=TRUE)
+stopifnot(file.exists("TCGA_Reference_Filenames_gh.txt")) 
+TCGAfilename<-read.table("TCGA_Reference_Filenames_gh.txt", sep="\t", header=TRUE)
 ##===load drug reference table ===
 drug_ref <- read.table("drug_names_10272015.txt", sep="\t", header=TRUE)
 rad_ref <- read.table("rad_ref_02232016.txt", sep="\t", header=TRUE)
@@ -3225,18 +3225,18 @@ create.Encounter.records <- function(study_name,  ptID){
                      ))
   #(tbl.f1'encType','karnofsky_score','ECOG only in gbm,lgg,luad,lusc)
   tbl.f1 <- loadData(uri[2], 
-                             list(
-                               'bcr_patient_barcode' = list(name = "PatientID", data = "tcgaId"),
-                               'performance_status_timing' = list(name = "encType", data = "upperCharacter"),
-                               'karnofsky_score'= list(name = "KPS", data = "upperCharacter"),
-                               'ecog_score' = list(name = "ECOG", data = "upperCharacter")
+                     list(
+                       'bcr_patient_barcode' = list(name = "PatientID", data = "tcgaId"),
+                       'performance_status_timing' = list(name = "encType", data = "upperCharacter"),
+                       'karnofsky_score'= list(name = "KPS", data = "upperCharacter"),
+                       'ecog_score' = list(name = "ECOG", data = "upperCharacter")
                              ))
   
   #brca, prad, hnsc do not have any Encounter records!
   data.Encounter <- rbind.fill(tbl.pt, tbl.f1)
   
   if(ncol(data.Encounter) == 1){
-	  return(print(c(study_name, ncol(data.Encounter), "Result is empty.")))
+	  return(print(c(study_name, ncol(data.Encounter), "Result is empty")))
   }else{
 	  #create columns for column that are not captured
 	  encounterColNames <- c("PatientID", "encType", "KPS", "ECOG", "height", "weight", "prefev1.ratio", "prefev1.percent", "postfev1.ratio", "postfev1.percent", "carbon.monoxide.diffusion")
@@ -4205,33 +4205,108 @@ lapply(studies, test_create.Rad.records)
 #-------------------------------------------------------------------------------------------------------------------------- 
 test_create.Encounter.records <- function(study_name)
 {
-  print("--- test_create.Encounter.record")
   if(study_name == "TCGAbrca"){
-		
+	print("--- TCGAbrca_test_create.Encounter.records")
+	x <- create.Encounter.records(study_name, "TCGA.3C.AAAU")
+    #checkTrue(is.list(x))
+    #checkEquals(names(x[[1]]), c("PatientID", "PtNum", "study", "Name", "Fields"))
+    #checkEquals(names(x[[1]]$Fields), c("encType", "KPS", "ECOG",height","weight","prefev1.ratio", "prefev1.percent", "postfev1.ratio", "postfev1.percent", "carbon.monoxide.diffusion"))
+    #checkEquals(x[[1]], list(PatientID="TCGA.3C.AAAU", PtNum=1, study="TCGAbrca", Name="Encounter", Fields=list(encType=NA, KPS=NA, ECOG=NA,date=as.character(NA), height=NA, weight=NA, 
+    	                     #prefev1.ratio=NA, prefev1.percent=NA, postfev1.ratio=NA,postfev1.percent=NA,carbon.monoxide.diffusion=NA)))
       	}
   if(study_name == "TCGAcoad"){
-		
+	print("--- TCGAcoad_test_create.Encounter.records")
+    x <- create.Encounter.records(study_name, "TCGA.3L.AA1B")
+    checkTrue(is.list(x))
+    checkEquals(names(x[[1]]), c("PatientID", "PtNum", "study", "Name", "Fields"))
+    checkEquals(names(x[[1]]$Fields), c("encType", "KPS", "ECOG", "height","weight","prefev1.ratio", "prefev1.percent", "postfev1.ratio", "postfev1.percent", "carbon.monoxide.diffusion"))
+    checkEquals(x[[1]], list(PatientID="TCGA.3L.AA1B", PtNum=1, study="TCGAcoad", Name="Encounter", Fields=list(encType=as.character(NA), KPS=as.character(NA), ECOG=as.character(NA), height="173",weight="63.3",
+    	                     prefev1.ratio=as.character(NA), prefev1.percent=as.character(NA), postfev1.ratio=as.character(NA),postfev1.percent=as.character(NA),carbon.monoxide.diffusion=as.character(NA))))
+    x <- create.Encounter.records(study_name, "TCGA.AA.3970")
+    checkEquals(x[[1]], list(PatientID="TCGA.AA.3970", PtNum=171, study="TCGAcoad", Name="Encounter", Fields=list(encType=as.character(NA), KPS=as.character(NA), ECOG=as.character(NA),height=as.character(NA),weight=as.character(NA),
+    	                     prefev1.ratio=as.character(NA), prefev1.percent=as.character(NA), postfev1.ratio=as.character(NA),postfev1.percent=as.character(NA),carbon.monoxide.diffusion=as.character(NA))))
 		}
   if(study_name == "TCGAgbm"){
-											
+	print("--- TCGAgbm_test_create.Encounter.records")
+    x <- create.Encounter.records(study_name, "TCGA.02.0001")
+    checkTrue(is.list(x))
+    checkEquals(names(x[[1]]), c("PatientID", "PtNum", "study", "Name", "Fields"))
+    checkEquals(names(x[[1]]$Fields), c("encType", "KPS", "ECOG", "height", "weight","prefev1.ratio", "prefev1.percent", "postfev1.ratio", "postfev1.percent", "carbon.monoxide.diffusion"))
+    checkEquals(x[[1]], list(PatientID="TCGA.02.0001", PtNum=1, study="TCGAgbm", Name="Encounter", Fields=list(encType=as.character(NA), KPS="80", ECOG=as.character(NA),height=as.character(NA),weight=as.character(NA),
+    	                     prefev1.ratio=as.character(NA), prefev1.percent=as.character(NA), postfev1.ratio=as.character(NA),postfev1.percent=as.character(NA),carbon.monoxide.diffusion=as.character(NA))))
+    x <- create.Encounter.records(study_name, "TCGA.06.0875") 
+    checkEquals(x[[1]], list(PatientID="TCGA.06.0875", PtNum=26, study="TCGAgbm", Name="Encounter", Fields=list(encType="PRE-OPERATIVE", KPS="80", ECOG=as.character(NA),height=as.character(NA),weight=as.character(NA),
+    	                     prefev1.ratio=as.character(NA), prefev1.percent=as.character(NA), postfev1.ratio=as.character(NA),postfev1.percent=as.character(NA),carbon.monoxide.diffusion=as.character(NA))))								
       	}
   if(study_name == "TCGAhnsc"){
-		
+	print("--- TCGAhnsc_test_create.Encounter.records")
+	x <- create.Encounter.records(study_name, "TCGA.4P.AA8J")
+    #checkTrue(is.list(x))
+    #checkEquals(names(x[[1]]$Fields), c("PatientID", "PtNum", "study", "Name", "Fields"))
+    #checkEquals(names(x[[1]][["Fields"]]), c("encType", "KPS", "ECOG", ,"height","weight","prefev1.ratio", "prefev1.percent", "postfev1.ratio", "postfev1.percent", "carbon.monoxide.diffusion"))
+    #checkEquals(x[[1]], list(PatientID="TCGA.4P.AA8J", PtNum=1, study="TCGAhnsc", Name="Encounter", Fields=list(encType=as.character(NA), KPS=as.character(NA), ECOG=as.character(NA), height=as.character(NA), weight=as.character(NA), 
+    	                     #prefev1.ratio=as.character(NA), prefev1.percent=as.character(NA), postfev1.ratio=as.character(NA),postfev1.percent=as.character(NA),carbon.monoxide.diffusion=as.character(NA))))   
 		}
   if(study_name == "TCGAlgg"){
-		
+	print("--- TCGAlgg_test_create.Encounter.records")
+    x <- create.Encounter.records(study_name, "TCGA.CS.6290")
+    checkTrue(is.list(x))
+    checkEquals(names(x[[1]]), c("PatientID", "PtNum", "study", "Name", "Fields")) 
+    checkEquals(names(x[[1]]$Fields), c("encType", "KPS", "ECOG","height","weight","prefev1.ratio", "prefev1.percent", "postfev1.ratio", "postfev1.percent", "carbon.monoxide.diffusion"))
+    checkEquals(x[[1]], list(PatientID="TCGA.CS.6290", PtNum=1, study="TCGAlgg",  Name="Encounter", Fields=list(encType="PRE-OPERATIVE", KPS="90", ECOG="1", height=as.character(NA), weight=as.character(NA), 
+    	                     prefev1.ratio=as.character(NA), prefev1.percent=as.character(NA), postfev1.ratio=as.character(NA),postfev1.percent=as.character(NA),carbon.monoxide.diffusion=as.character(NA))))
+    checkEquals(x[[2]], list(PatientID="TCGA.CS.6290", PtNum=1, study="TCGAlgg", Name="Encounter", Fields=list(encType=as.character(NA), KPS=as.character(NA), ECOG=as.character(NA),height=as.character(NA), weight=as.character(NA), 
+    	                     prefev1.ratio=as.character(NA), prefev1.percent=as.character(NA), postfev1.ratio=as.character(NA),postfev1.percent=as.character(NA),carbon.monoxide.diffusion=as.character(NA))))
+    x <- create.Encounter.records(study_name,"TCGA.FG.6691") 
+    checkEquals(x[[1]], list(PatientID="TCGA.FG.6691", PtNum=49, study="TCGAlgg", Name="Encounter", Fields=list(encType="PRE-OPERATIVE", KPS="100", ECOG=as.character(NA),height=as.character(NA), weight=as.character(NA), 
+    	                     prefev1.ratio=as.character(NA), prefev1.percent=as.character(NA), postfev1.ratio=as.character(NA),postfev1.percent=as.character(NA),carbon.monoxide.diffusion=as.character(NA))))
+    checkEquals(x[[2]], list(PatientID="TCGA.FG.6691", PtNum=49, study="TCGAlgg", Name="Encounter", Fields=list(encType="PREOPERATIVE", KPS="90", ECOG=as.character(NA),height=as.character(NA), weight=as.character(NA), 
+    	                     prefev1.ratio=as.character(NA), prefev1.percent=as.character(NA), postfev1.ratio=as.character(NA),postfev1.percent=as.character(NA),carbon.monoxide.diffusion=as.character(NA))))
+    checkEquals(x[[3]], list(PatientID="TCGA.FG.6691", PtNum=49, study="TCGAlgg", Name="Encounter", Fields=list(encType="ADJUVANT THERAPY", KPS="80", ECOG=as.character(NA),height=as.character(NA), weight=as.character(NA), 
+    	                     prefev1.ratio=as.character(NA), prefev1.percent=as.character(NA), postfev1.ratio=as.character(NA),postfev1.percent=as.character(NA),carbon.monoxide.diffusion=as.character(NA))))
+    checkEquals(x[[4]], list(PatientID="TCGA.FG.6691", PtNum=49, study="TCGAlgg", Name="Encounter", Fields=list(encType=as.character(NA), KPS=as.character(NA), ECOG=as.character(NA),height=as.character(NA), weight=as.character(NA), 
+    	                     prefev1.ratio=as.character(NA), prefev1.percent=as.character(NA), postfev1.ratio=as.character(NA),postfev1.percent=as.character(NA),carbon.monoxide.diffusion=as.character(NA))))
 		}
   if(study_name == "TCGAluad"){
-		
+	print("--- TCGAluad_test_create.Encounter.records")
+    x <- create.Encounter.records(study_name, "TCGA.05.4244")
+    checkTrue(is.list(x))
+    checkEquals(names(x[[1]]), c("PatientID", "PtNum", "study", "Name", "Fields")) 
+    checkEquals(names(x[[1]]$Fields), c("encType", "KPS", "ECOG","height","weight","prefev1.ratio", "prefev1.percent", "postfev1.ratio", "postfev1.percent", "carbon.monoxide.diffusion"))
+    checkEquals(x[[1]], list(PatientID="TCGA.05.4244", PtNum=1, study="TCGAluad", Name="Encounter", Fields=list(encType=as.character(NA), KPS=as.character(NA), ECOG=as.character(NA),height=as.character(NA), weight=as.character(NA), 
+    	                     prefev1.ratio=as.character(NA), prefev1.percent=as.character(NA), postfev1.ratio=as.character(NA),postfev1.percent=as.character(NA),carbon.monoxide.diffusion=as.character(NA))))
 		}
   if(study_name == "TCGAlusc"){
-		
+	print("--- TCGAlusc_test_create.Encounter.records")
+    x <- create.Encounter.records(study_name, "TCGA.18.3406")
+    checkTrue(is.list(x))
+    checkEquals(names(x[[1]]), c("PatientID", "PtNum", "study", "Name", "Fields"))
+    checkEquals(names(x[[1]]$Fields), c("encType", "KPS", "ECOG","height","weight","prefev1.ratio", "prefev1.percent", "postfev1.ratio", "postfev1.percent", "carbon.monoxide.diffusion"))
+    checkEquals(x[[1]], list(PatientID="TCGA.18.3406", PtNum=1, study="TCGAlusc", Name="Encounter", Fields=list(encType=as.character(NA), KPS="0", ECOG=as.character(NA), height=as.character(NA), weight=as.character(NA), 
+    	                     prefev1.ratio=as.character(NA), prefev1.percent=as.character(NA), postfev1.ratio=as.character(NA),postfev1.percent=as.character(NA),carbon.monoxide.diffusion=as.character(NA))))
       	}
   if(study_name == "TCGAprad"){
+    print("--- TCGAprad_test_create.Encounter.records")
+    x <- create.Encounter.records(study_name, "TCGA.2A.A8VL")
+    print(x)
+    #checkTrue(is.list(x))
+    #checkEquals(names(x[[1]]$Fields), c("PatientID", "PtNum", "study", "Name", "Fields"))
+    #checkEquals(names(x[[1]][["Fields"]]), c("encType", "KPS", "ECOG", ,"height","weight","prefev1.ratio", "prefev1.percent", "postfev1.ratio", "postfev1.percent", "carbon.monoxide.diffusion"))
+    #checkEquals(x[[1]], list(PatientID="TCGA.2A.A8VL", PtNum=1, study="TCGAprad", Name="Encounter", Fields=list(encType=as.character(NA), KPS=as.character(NA), ECOG=as.character(NA), height=as.character(NA), weight=as.character(NA), 
+    						 #prefev1.ratio=as.character(NA), prefev1.percent=as.character(NA), postfev1.ratio=as.character(NA),postfev1.percent=as.character(NA),carbon.monoxide.diffusion=as.character(NA))))   
     
       	}
   if(study_name == "TCGAread"){
-		
+	print("--- TCGAread_test_create.Encounter.records")
+    x <- create.Encounter.records(study_name, "TCGA.AF.2687")
+    checkTrue(is.list(x))
+    checkEquals(names(x[[1]]), c("PatientID", "PtNum", "study", "Name", "Fields")) 
+    checkEquals(names(x[[1]]$Fields), c("encType", "KPS", "ECOG","height","weight","prefev1.ratio", "prefev1.percent", "postfev1.ratio", "postfev1.percent", "carbon.monoxide.diffusion"))
+    checkEquals(x[[1]], list(PatientID="TCGA.AF.2687", PtNum=1, study="TCGAread", Name="Encounter", Fields=list(encType=as.character(NA), KPS=as.character(NA), ECOG=as.character(NA), height="163",weight="68.2",
+    						prefev1.ratio=as.character(NA), prefev1.percent=as.character(NA), postfev1.ratio=as.character(NA),postfev1.percent=as.character(NA),carbon.monoxide.diffusion=as.character(NA))))
+    x <- create.Encounter.records(study_name,"TCGA.F5.6814")
+    checkEquals(x[[1]], list(PatientID="TCGA.F5.6814", PtNum=164, study="TCGAread", Name="Encounter", Fields=list(encType=as.character(NA), KPS=as.character(NA), ECOG=as.character(NA), height="175",weight="61",
+    						prefev1.ratio=as.character(NA), prefev1.percent=as.character(NA), postfev1.ratio=as.character(NA),postfev1.percent=as.character(NA),carbon.monoxide.diffusion=as.character(NA))))
       	}
 }
 lapply(studies, test_create.Encounter.records)
