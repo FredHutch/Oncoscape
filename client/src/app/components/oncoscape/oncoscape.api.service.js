@@ -8,47 +8,73 @@
     /** @ngInject */
     function oncoscape(osSocket, $http) {
 
-    
+    /*** User Api ***/
+        function userApi(){
 
-/*** User Functions ***/
-        function getUser(){
-            return {
+            // Events
+            var onLogin = new signals.Signal(); // Fired When Data Changes
+            var onLogout = new signals.Signal(); // Fired When Selection changes
+
+            var _user = {
                 "name":"",
                 "password":"",
                 "domain":{"name":"Guest"},
                 "authenticated":false,
-                "token": null
-            }
-        }
-        function login(user) {
-            var req = {
-                method: 'POST',
-                url: '/login/',
-                data: {
-                    username: user.name,
-                    password: user.password,
-                    domain: user.domain.name
-                }
+                "token": null 
             };
-            return $http(req).then(function(res) {
-                if (res.data.success) {
-                    user.authenticated = true;
-                    user.token = res.data.token;
-                } else {
-                    user.authenticated = false;
-                    user.token =null;
+            var _domains = [
+                { "name": "Guest" },
+                { "name": "FHCRC" },
+                { "name": "SCCA" }
+            ];
+            var logout = function(){
+                _user.name = "";
+                _user.password = "";
+                _user.domain = {"name":"Guest"};
+                _user.authenticated = false;
+                _user.token = null 
+                onLogout.dispatch();
+            }
+            var login = function(user){
+                _user = user;
+                if (user.domain.name=="Guest"){
+                    _user.authenticated = true;
+                    _user.token = "Guest";
+                    onLogin.dispatch(_user);
+                    return;
                 }
-            });
-        }
-        function getDomains() {
-            return [{
-                "name": "Guest"
-            }, {
-                "name": "FHCRC"
-            }, {
-                "name": "SCCA"
-            }];
-        }
+                var req = {
+                    method: 'POST',
+                    url: '/login/',
+                    data: {
+                        username: _user.name,
+                        password: _user.password,
+                        domain: _user.domain.name
+                    }
+                };
+                return $http(req).then(function(res) {
+                    if (res.data.success) {
+                        _user.authenticated = true;
+                        _user.token = res.data.token;
+                        onLogin.dispatch(_user);
+                    } else {
+                        _user.authenticated = false;
+                        _user.token =null;
+                    }
+                });
+            }
+            return {
+                getDomains: function(){ return _domains; },
+                getUser: function() { return _user; },
+                login: login,
+                logout: logout,
+                onLogin: onLogin,
+                onLogout: onLogout
+            }
+        };
+
+        var _userApi = userApi();
+        function getUserApi() { return _userApi; }
 
 
 
@@ -332,15 +358,13 @@
   
         return {
             getPatientFilterApi: getPatientFilterApi,
+            getUserApi: getUserApi,
             showFilter: showFilter,
             hideFilter: hideFilter,
             toggleFilter: toggleFilter,
             setBusy: setBusy,
             setBusyMessage: setBusyMessage,
-            login: login,
-            getUser: getUser,
             setDataset: setDataset,
-            getDomains: getDomains,
             getDataSetNames: getDataSetNames,
             getDataManifest: getDataManifest,
             getPatientHistoryTable: getPatientHistoryTable,

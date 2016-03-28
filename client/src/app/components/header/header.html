@@ -11,7 +11,7 @@
         <img alt="Brand" src="/assets/images/logo.png" style="max-height:50px;">
       </a>
     </div>
-    <div class="collapse navbar-collapse" id="bs-example-navbar-collapse-1">
+    <div class="collapse navbar-collapse" id="bs-example-navbar-collapse-1" ng-if="vm.showMenu">
       <ul class="nav navbar-nav navbar-right">
         <li>
           <a href="#datasource"><span class="glyphicon glyphicon-th"></span>Data Sources</a>
@@ -26,7 +26,7 @@
           <a href="#help"><span class="glyphicon glyphicon-question-sign"></span>Help</a>
         </li>
         <li>
-          <a href="#"><span class="glyphicon glyphicon-user"></span>Logout</a>
+          <a href="" ng-click="vm.logoutClick()"><span class="glyphicon glyphicon-user"></span>Logout</a>
         </li>
         
        <!--

@@ -6,17 +6,26 @@
         .run(runBlock);
 
     /** @ngInject */
-    function runBlock($log, $rootScope) {
+    function runBlock($rootScope, $state, osApi) {
+
+        var user = osApi.getUserApi().getUser();
 
         // Actions To Take On State Change
-        $rootScope.$on('$stateChangeStart', function() {
+        $rootScope.$on('$stateChangeStart', function(event, toState) {
 
             // Reset DataTable Custom Filters
             angular.element.fn.DataTable.ext.search = [];
 
+            if (toState.authenticate && !user.authenticated) {
+                $state.transitionTo("landing");
+                event.preventDefault();
+            }
+
+            
+
+
         });
 
-        $log.debug('runBlock end');
     }
 
 })();

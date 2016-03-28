@@ -135,6 +135,12 @@
                             container: elChart,
                             elements: rawData,
                             style: styles,
+                            // hideEdgesOnViewport: true,
+                            // hideLabelsOnViewport: true,
+                            // textureOnViewport: true,
+                            // motionBlur: true,
+                            minZoom: 0.02,
+                            maxZoom: 10,
                             layout: {
                                 name: "preset",
                                 fit: true
@@ -233,7 +239,44 @@
                     .on('mouseover', 'node[nodeType="gene"]', events.geneOver.dispatch)
                     .on('mouseover', 'node[nodeType="patient"]', events.patientOver.dispatch)
                     .on('mouseout', 'node[nodeType="gene"]', events.geneOut.dispatch)
-                    .on('mouseout', 'node[nodeType="patient"]', events.patientOut.dispatch);
+                    .on('mouseout', 'node[nodeType="patient"]', events.patientOut.dispatch)
+                    /*
+                    .on('zoom', function(e){
+                        console.log(e.cy.zoom());
+                        if (e.cy.zoom()>2){
+                            if (zoomlevel==2) return;
+                            zoomlevel = 2;
+                            console.log("!!!!");
+                            cyChart.batch(function(){
+                                cyChart.$('node').style(
+                                    { 
+                                        'height': 'mapData(degree, 0, 50, 10.0, 50.0)',
+                                        'width': 'mapData(degree, 0, 50, 10.0, 50.0)'
+                                    }
+                                );
+                            })
+                            
+                        }else{
+                            if (zoomlevel==1) return;
+                            zoomlevel = 1;
+                            console.log("!x!x!x!");
+                            cyChart.batch(function(){
+                                cyChart.$('node').style(
+                                    { 
+                                        'height': 'mapData(degree, 0, 50, 20.0, 100.0)',
+                                        'width': 'mapData(degree, 0, 50, 20.0, 100.0)'
+                                    }
+                                    );
+                            });
+                        }
+                        
+                    })
+                var zoomlevel = 1;
+                */
+
+
+                    // 'height': 'mapData(degree, 0, 50, 10.0, 80.0)',
+                    // 'width': 'mapData(degree, 0, 50, 10.0, 80.0)'
 
                 var behaviors = {
                     showPatientInfo: function(e){
@@ -253,7 +296,7 @@
                         return this;
                     },
                     showNodeLabel: function(e){
-                        e.cyTarget.style({ 'font-size': '100px' });
+                        e.cyTarget.style({ 'font-size': '50px' });
                         return this;
                     },
                     hideNodeLabel: function(e){
@@ -261,7 +304,7 @@
                         return this;
                     },
                     showNeighborLabel: function(e){
-                        e.cyTarget.neighborhood('node').style({'font-size': '70px'});
+                        e.cyTarget.neighborhood('node').style({'font-size': '50px'});
                         return this;
                     },
                     hideNeighborLabel: function(e){
@@ -313,12 +356,12 @@
                         events.over(function(e) {
                             behaviors
                                 .showPatientInfo(e)
-                                .showNodeLabel(e)
+                                //.showNodeLabel(e)
                         });
                         events.out(function(e) {
                             behaviors
                                 .hidePatientInfo(e)
-                                .hideNodeLabel(e)
+                                //.hideNodeLabel(e)
                         });
                     },
                     unregister: function() {
@@ -334,14 +377,14 @@
                         events.over(function(e) {
                             behaviors
                                 .showPatientInfo(e)
-                                .showNodeLabel(e)
-                                .showNeighborLabel(e);
+                                //.showNodeLabel(e)
+                                //.showNeighborLabel(e);
                         });
                         events.out(function(e) {
                             behaviors
                                 .hidePatientInfo(e)
-                                .hideNodeLabel(e)
-                                .hideNeighborLabel(e);
+                                //.hideNodeLabel(e)
+                                //.hideNeighborLabel(e);
                         });
 
                         // Show all Edges
@@ -409,16 +452,16 @@
                         events.over(function(e) {
                             behaviors
                                 .showPatientInfo(e)
-                                .showNodeLabel(e)
-                                .showNeighborLabel(e)
+                                //.showNodeLabel(e)
+                                //.showNeighborLabel(e)
                                 .showDegreeOne(e)
                             
                         });
                         events.out(function(e) {
                             behaviors
                                 .hidePatientInfo(e)
-                                .hideNodeLabel(e)
-                                .hideNeighborLabel(e)
+                                //.hideNodeLabel(e)
+                                //.hideNeighborLabel(e)
                                 .hideDegreeOne(e)
                         });
                     },
@@ -435,15 +478,15 @@
                         events.over(function(e) {
                             behaviors
                                 .showPatientInfo(e)
-                                .showNodeLabel(e)
-                                .showNeighborLabel(e)
+                                //.showNodeLabel(e)
+                                //.showNeighborLabel(e)
                                 .showDegreeTwo(e)
                         });
                         events.out(function(e) {
                             behaviors
                                 .hidePatientInfo(e)
-                                .hideNodeLabel(e)
-                                .hideNeighborLabel(e)
+                                //.hideNodeLabel(e)
+                                //.hideNeighborLabel(e)
                                 .hideDegreeTwo(e)                           
                         });
                     },
@@ -702,11 +745,11 @@
                     'height': "20px",
                     'width': "20px",
                     'label': " data(id)",
-                    'text-halign': "right",
-                    'text-valign': "center",
-                    'text-background-color': color.white,
-                    'text-background-opacity': '.8',
-                    'text-background-shape': 'roundrectangle',
+                    'text-halign': 'center',
+                    'text-valign': 'center',
+                    //'text-background-color': color.white,
+                    //'text-background-opacity': '.8',
+                    //'text-background-shape': 'roundrectangle',
                     'font-size': '0px'
                 }
             }, 
@@ -741,11 +784,7 @@
                 selector: 'node[nodeType="gene"]:selected',
                 style: {
                     'border-color': color.red,
-                    'border-width': '3px',
-                    'background-color': color.white,
-                    'width': '100px',
-                    'height': '100px',
-                    'shape': 'triangle'
+                    'border-width': '6px'
                 }
             }, {
                 selector: 'node[nodeType="centromere"]',
@@ -765,10 +804,8 @@
             }, {
                 selector: 'node[nodeType="patient"]:selected',
                 style: {
-                    'background-color': color.red,
-                    'width': '100px',
-                    'height': '100px',
-                    'shape': 'triangle'
+                    'border-color': color.red,
+                    'border-width': '6px'
                 }
             }];
         }

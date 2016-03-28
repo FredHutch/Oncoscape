@@ -23,19 +23,27 @@
         /** @ngInject */
         function LoginController(osApi, $state) {
             
+            var userApi = osApi.getUserApi();
+
             var vm = this;
-            vm.domains = osApi.getDomains();
-            vm.user = osApi.getUser();
+            vm.domains = userApi.getDomains();
+            vm.user = userApi.getUser();
             vm.hasError = false;
 
             vm.login = function() {
-                osApi.login(vm.user).then(function() {
-                    if (vm.user.authenticated) {
-                        $state.go("datasource");
-                    } else {
-                        vm.hasError = true;
-                    }
-                });
+                var promise = userApi.login(vm.user);
+                if (angular.isDefined(promise)){
+                    promise.then(function() {
+                        if (vm.user.authenticated) {
+                            $state.go("datasource");
+                        } else {
+                            vm.hasError = true;
+                        }
+                    });
+                }else{
+                    $state.go("datasource");
+                }
+                
             }
         }
     }

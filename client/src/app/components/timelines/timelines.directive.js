@@ -43,6 +43,11 @@
                         "transform": "translate(50, 0)"
                     }).call(d3.svg.axis().scale(d3.scale.linear().domain([0, 1]).range([0, svgWidth])).orient('bottom'));
 
+                var barBackground = svgChart.append("g");
+                var barsFeature = svgChart.append("g");
+                var barsTimeline = svgChart.append("g");
+
+
                 // Main Draw Function
                 var draw = function(patientsX, feature, events, sort, align){
                     
@@ -104,7 +109,7 @@
                         d3.svg.axis().scale(scale).orient('top'));
                     
                     // Data Bind
-                    var svgFeatures = svgChart.selectAll("rect.feature")
+                    var svgFeatures = barsFeature.selectAll("rect.feature")
                         .data(patients);
 
                     // Update
@@ -140,8 +145,9 @@
 
                 var drawBackground = function(patients, features, events, sort, align, rowHeight){
                     $(".timelines-lbl-events").css({"top": (rowHeight * patients.length) + 100 });
+                    
                     // Data Bind
-                    var svgFeatures = svgChart.selectAll("rect.lines")
+                    var svgFeatures = barBackground.selectAll("rect.lines")
                         .data(patients);
 
                     // Create
@@ -210,7 +216,7 @@
                         );
                       
                     // Data Bind Patient
-                    var rows = svgChart.selectAll("g.timeline")
+                    var rows = barsTimeline.selectAll("g.timeline")
                         .data( patients );
 
                     rows.enter().append("g")

@@ -12,55 +12,68 @@
         $stateProvider
             .state('landing', {
                 url: '/',
-                template: '<os-landing>'
+                template: '<os-landing>',
+                authenticate: false
             })
             .state('help', {
                 url: '/help',
-                template: '<os-help>'
+                template: '<os-help>',
+                authenticate: false
             })
             .state('datasource', {
                 url: '/datasource',
-                template: '<os-datasource>'
+                template: '<os-datasource>',
+                authenticate: true
             })
             .state('tools', {
                 url: '/tools/{datasource}',
-                template: '<os-tools>'
+                template: '<os-tools>',
+                authenticate: true
             })
             .state('metadata', {
                 url: '/metadata/{datasource}',
-                template: '<os-metadata>'
+                template: '<os-metadata>',
+                authenticate: true
             })
             .state('history', {
                 url: '/history/{datasource}',
-                template: '<os-history>'
+                template: '<os-history>',
+                authenticate: true
             })
             .state('plsr', {
                 url: '/plsr/{datasource}',
-                template: '<os-plsr>'
+                template: '<os-plsr>',
+                authenticate: true
             })
             .state('pca', {
                 url: '/pca/{datasource}',
-                template: '<os-pca>'
+                template: '<os-pca>',
+                authenticate: true
             })
             .state('markers', {
                 url: '/markers/{datasource}',
-                template: '<os-markers>'
+                template: '<os-markers>',
+                authenticate: true
             })
             .state('pathways', {
                 url: '/pathways/{datasource}',
-                template: '<os-pathways>'
+                template: '<os-pathways>',
+                authenticate: true
             })
             .state('timelines', {
                 url: '/timelines/{datasource}',
-                template: '<os-timelines>'
+                template: '<os-timelines>',
+                authenticate: true
             })
             .state('survival', {
                 url: '/survival/{datasource}',
-                template: '<os-survival>'
+                template: '<os-survival>',
+                authenticate: true
             })
             .state('compare', {
                 url: '/compare/{datasource}',
-                template: '<os-compare>'
+                template: '<os-compare>',
+                authenticate: true
             });
 
         $urlRouterProvider.otherwise('/');
