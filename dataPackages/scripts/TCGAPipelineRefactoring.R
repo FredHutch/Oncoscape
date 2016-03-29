@@ -774,47 +774,6 @@ if(STATUS){
 		return(df)
 	}	
 	#--------------------------------------------------------------------------------
-	Status.mapping.date.Check <- function(df){
-		
-		if(length(which(as.integer(df$lastContact) > as.integer(df$deathDate)))) {
-			lastContactGreaterThanDeath  = paste(df[which(df$lastContact > df$deathDate),]$PatientID)
-			warning("last contact occured after death: ", lastContactGreaterThanDeath)
-		}
-		unique.patients <- unique(df$PatientID)
-		lastContactVector <- lapply(unique.patients, function(p){
-								ptDF <- df[df$PatientID==p,]
-								lastContactDate <- max(as.integer(ptDF$lastContact), na.rm=FALSE)
-								lastContactVector <- ptDF[ptDF$lastContact==lastContactDate, 
-														  c("tumorStatus", "vital","lastContact")]
-								return(lastContactVector)
-								})
-		deathVector <- lapply(unique.patients, function(p){
-								ptDF <- df[df$PatientID==p,]
-								deathDate <- max(as.integer(ptDF$deathDate), na.rm=FALSE)
-								deathVector <- ptDF[ptDF$deathDate==deathDate, 
-														  c("tumorStatus", "vital","deathDate")]
-								return(deathVector)
-								})
-		lastContactDF <- ldply(lastContactVector, data.frame)
-		deathDF<- ldply(deathVector, data.frame)
-		capturedDates <- deathDF$deathDate
-		capturedDates[which(is.na(capturedDates))] <- lastContactDF[which(is.na(capturedDates)),]$lastContact
-		capturedVital <- deathDF$vital
-		capturedVital[which(is.na(capturedDates))] <- lastContactDF[which(is.na(capturedDates)),]$vital
-		capturedTumorStatus <- deathDF$tumorStatus
-		capturedTumorStatus[which(is.na(capturedDates))] <- lastContactDF[which(is.na(capturedDates)),]$tumorStatus
-		datesDF <- as.data.frame(cbind(unique.patients, capturedVital, capturedTumorStatus, capturedDates))				 
-        df[which(!(is.na(df$lastContact))),]$date <- df[which(!(is.na(df$lastContact))),]$lastContact
-        df[which(!(is.na(df$deathDate))),]$date <- df[which(!(is.na(df$deathDate))),]$deathDate
-
-		return(df)
-	}	
-	#--------------------------------------------------------------------------------
-	Status.mapping.date.Calculation <- function(df){
-		df$date <- format(as.Date(df$dxyear, "%m/%d/%Y") + as.integer(df$date), "%m/%d/%Y")
-		return(df)
-	}	
-	#--------------------------------------------------------------------------------
 	Status.mapping.vital <- function(df){
 		from <- Status.unique.values$unique.vital
 		to 	 <- from 
@@ -830,6 +789,42 @@ if(STATUS){
 		df$tumorStatus <- mapvalues(df$tumorStatus, from = from, to = to, warn_missing = F)
 		return(df)
 	}
+	#--------------------------------------------------------------------------------
+	Status.mapping.date.Filter <- function(df){
+		
+		if(length(which(as.integer(df$lastContact) > as.integer(df$deathDate)))) {
+			lastContactGreaterThanDeath  = paste(df[which(df$lastContact > df$deathDate),]$PatientID)
+			warning("last contact occured after death: ", lastContactGreaterThanDeath)
+		}
+		
+        df[which(!(is.na(df$lastContact))),]$date <- df[which(!(is.na(df$lastContact))),]$lastContact
+        df[which(!(is.na(df$deathDate))),]$date <- df[which(!(is.na(df$deathDate))),]$deathDate
+        unique.patients <- unique(df$PatientID)
+		capturedRecords <- lapply(unique.patients, function(p){
+								ptDF <- df[df$PatientID==p,]
+								lastContactDate <- max(as.integer(ptDF$date), na.rm=FALSE)
+								capturedRecord <- ptDF[ptDF$date==lastContactDate, 
+													  c("PatientID", "tumorStatus", "vital","date")]
+								if(nrow(capturedRecord) > 1){
+									if(any(duplicated(capturedRecord))){
+										capturedRecord <- capturedRecord[-which(duplicated(capturedRecord)),]
+									}
+									if(nrow(capturedRecord) > 1){
+										capturedRecord$tumorStatus = paste(unique(capturedRecord$tumorStatus), collapse="/")
+										capturedRecord[1,]$vital = paste(unique(capturedRecord$vital), collapse="/")
+										capturedRecord <- capturedRecord[1,]
+									}
+								}			  
+								return(capturedRecord)
+								})
+		filteredDF <- ldply(capturedRecords, data.frame)		
+		return(filteredDF)
+	}	
+	#--------------------------------------------------------------------------------
+	Status.mapping.date.Calculation <- function(df){
+		df$date <- format(as.Date(df$dxyear, "%m/%d/%Y") + as.integer(df$date), "%m/%d/%Y")
+		return(df)
+	}	
 } # End of Status Native Functions
 #----------------------   Progression functions Start Here   --------------------
 if(PROGRESSION){
@@ -2408,33 +2403,35 @@ create.Status.records <- function(study_name,  ptID){
 	data.Status <- tbl.f[-which(duplicated(tbl.f)),]
 	data.Status$date <- rep(NA, nrow(data.Status))
 	data.Status <- Status.mapping.date(data.Status)
-	data.Status <- Status.mapping.date.Check(data.Status)
 	data.Status <- Status.mapping.vital(data.Status)
 	data.Status <- Status.mapping.tumorStatus(data.Status)
+	data.Status <- Status.mapping.date.Filter(data.Status)
+	
 	DX <- tbl.pt[,c("PatientID", "dxyear")]	
 	data.Status <- merge(data.Status, DX)
-	data.Status <- data.Status[,c("PatientID", "vital", "tumorStatus", "dxyear", "date")]
-	data.Status <- data.Status[-which(duplicated(data.Status)),]
-
+	data.Status <- Status.mapping.date.Calculation(data.Status)
+	
 	#more computation to determine the most recent contacted/death date, then find the matching vital & tumorStatus
 	#need group function by patient and determin.
 	#recentDatetbl <- aggregate(date ~ PatientID, data.Status, function(x){max(x)})
 	
+ 
+	if(FALSE){
+	 		recentTbl <- c()
 
- 	recentTbl <- c()
-
- 	for(i in 1:nrow(tbl.pt)){
- 		tmpDF <- subset(data.Status, PatientID == tbl.pt$PatientID[i], select = c(PatientID, vital, tumorStatus, dxyear, as.integer(date)))
- 		tmpDF <- tmpDF[order(as.integer(tmpDF$date), decreasing=TRUE, na.last=TRUE),]
- 		if(nrow(tmpDF[which(tmpDF$date == tmpDF[1,]$date), ]) > 1){
- 			tmpDup <- tmpDF[which(tmpDF$date == tmpDF[1,]$date), ]
- 			tmpDF[1, "vital"] 		= 	ifelse(any(duplicated(tmpDup[,"vital"])), tmpDup[1, "vital"], paste(tmpDup[, "vital"]))
-			tmpDF[1, "tumorStatus"] = 	ifelse(any(duplicated(tmpDup[,"tumorStatus"])), tmpDup[1, "tumorStatus"], paste(tmpDup[, "tumorStatus"], collapse=";"))
- 		}
-		recentTbl <- rbind.fill(recentTbl, tmpDF[1,])
- 	}
-
- 	data.Status <- Status.mapping.date.Calculation(recentTbl)
+		 	for(i in 1:nrow(tbl.pt)){
+		 		tmpDF <- subset(data.Status, PatientID == tbl.pt$PatientID[i], select = c(PatientID, vital, tumorStatus, dxyear, as.integer(date)))
+		 		tmpDF <- tmpDF[order(as.integer(tmpDF$date), decreasing=TRUE, na.last=TRUE),]
+		 		if(nrow(tmpDF[which(tmpDF$date == tmpDF[1,]$date), ]) > 1){
+		 			tmpDup <- tmpDF[which(tmpDF$date == tmpDF[1,]$date), ]
+		 			tmpDF[1, "vital"] 		= 	ifelse(any(duplicated(tmpDup[,"vital"])), tmpDup[1, "vital"], paste(tmpDup[, "vital"]))
+					tmpDF[1, "tumorStatus"] = 	ifelse(any(duplicated(tmpDup[,"tumorStatus"])), tmpDup[1, "tumorStatus"], paste(tmpDup[, "tumorStatus"], collapse=";"))
+		 		}
+				recentTbl <- rbind.fill(recentTbl, tmpDF[1,])
+		 	}
+    	    data.Status <- Status.mapping.date.Calculation(recentTbl)
+        }
+ 	
 
  	ptNumMap <- ptNumMapUpdate(tbl.pt)
  	if(missing(ptID)){
