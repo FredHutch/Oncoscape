@@ -134,12 +134,12 @@
                             container: elChart,
                             elements: rawData,
                             style: styles,
-                            hideEdgesOnViewport: true,
+                            hideEdgesOnViewport: false,
                             hideLabelsOnViewport: true,
-                            textureOnViewport: true,
+                            textureOnViewport: false,
                             motionBlur: true,
                             minZoom: 0.1,
-                            maxZoom: 10,
+                            maxZoom: 20,
                             layout: {
                                 name: "preset",
                                 fit: true
@@ -200,82 +200,37 @@
                 var _zoomlevel = 0;
                 var _timeout;
                 chart.on('pan', function(e){
-                    //console.log(e.cy.zoom())
+
+                    var zoom = e.cy.zoom();
                     var zoomlevel = 
-                        (e.cy.zoom()>2) ? 2 :
-                        (e.cy.zoom()>.5) ? 1 :
-                        0;
+                        (zoom>19) ? .0000005 :
+                        (zoom>15) ? .000005 :
+                        (zoom>9 ) ? .00005 :
+                        (zoom>8 ) ? .0005 :
+                        (zoom>6 ) ? .005 :
+                        (zoom>4 ) ? .02 : 
+                        (zoom>2 ) ? .1 :
+                        (zoom>.5) ? .3 :
+                        (zoom>.3) ? .5 :
+                        1;
 
-                if (_zoomlevel==zoomlevel) return;
-                _zoomlevel = zoomlevel;
-                    
-                // Delay Call To Resize Nodes.  The User Could Still Be Zooming
-                if (angular.isDefined(_timeout)) $timeout.cancel(_timeout);
-                _timeout = $timeout( function(chart, zoomlevel){
-                    console.log("!!!");
-                    chart.startBatch();
-                    chart.nodes().style(
-                        {
-                            "width":function(){return zoomlevel*10},
-                            "height":function(){return zoomlevel*10}
+                    if (_zoomlevel==zoomlevel) return;
+                    _zoomlevel = zoomlevel;
+                        
+                    // Delay Call To Resize Nodes.  The User Could Still Be Zooming
+                    if (angular.isDefined(_timeout)) $timeout.cancel(_timeout);
+                    _timeout = $timeout( function(chart, zoomlevel){
 
-                        });
-                    // .map(function(node){
-                    //     var size = node.data("baseWidth") * zoomlevel;
-                    //     node.style({'border-width': size});
-                    // });
-                    chart.endBatch();
-                    
-                    // chart.batch(function(){
-                    //     console.log("!!");
-                    //         chart.nodes()
-                    //         //  chart.nodes().map(function(node){
-                    //         //     node.style({
+                        var degmap = {};
+                        var nodes = chart.nodes();
+                        for (var i=0; i<nodes.length; i++){
+                            degmap[nodes[i].id()] = { degree:nodes[i].degree() * zoomlevel };
+                        }
+                        chart.batchData(degmap);
 
-                    //         //         width: (node.data("baseWidth") * zoom),
-                    //         //         height: (node.data("baseHeight") * zoom)
-                    //         //     })
-                    //         // });
-                    // });
-
-                }, 500, false, chart, zoomlevel);
-                
-
-
-                    
+                    }, 100, false, chart, zoomlevel);                    
                     
                 })
-                // chart.on('layoutstop', function(){
-                //     console.log("------Layout");
-                // })
-                // chart.on('layout', function(){
-                //     console.log("LAYOOUT");
-                // })
-                // chart.onRender(function(e){
-                //     console.log("RENDER");
-                // });
-
-// .on('pan', function(e){
-//                         console.log("PAN");
-//                     })
-//                     .on('zoom', function(e){
-//                         console.log("ZOOM");
-//                     })
-//                     .on('layoutstop', function(e){
-//                         console.log("!!!!!!!!!LAYOUT STOP");
-//                     })
-                    // .on('zoom', function(e){
-                    //     var zoom = Math.max(11 - Math.round(convertValueToRange(e.cy.zoom(), .1, 10, 1, 10)),1) / 10;
-                    //     if (_zoom == zoom) return;
-                        
-                         
-                        
-
-                    // });
-                    // var _zoom = 1;
-                    // function convertValueToRange(value, inputLower, inputHigher, outputLower, outputHigher){
-                    //     return (value-inputLower) * (outputHigher - outputLower) / (inputHigher - inputLower) + outputLower;
-                    // }
             }
 
 
@@ -665,7 +620,7 @@
                             el.css("border-color", edgeColor.color);
                             chart.$('edge[edgeType="' + edgeColor.name + '"]').style({
                                 'line-color': edgeColor.color,
-                                'width': '5px'
+                                'width': '2px'
                             });
                             break;
                         case 'Hidden':
@@ -673,7 +628,7 @@
                             el.css("border-color", color.gray);
                             chart.$('edge[edgeType="' + edgeColor.name + '"]').style({
                                 'line-color': '#CCC',
-                                'width': '5px'
+                                'width': '2px'
                             });
                             break;
                         default:
@@ -722,7 +677,7 @@
                         angular.element("." + item.class).css("border-color", item.color);
                         chart.$('edge[edgeType="' + item.name + '"]').style({
                             'line-color': item.color,
-                            'width': '5px'
+                            'width': '2px'
                         });
                     });
                 });
@@ -813,8 +768,8 @@
                 selector: 'node[nodeType="patient"]',
                 style: {
                     'background-color': color.blue,
-                    'height': 'mapData(degree, 0, 50, 20.0, 100.0)',
-                    'width': 'mapData(degree, 0, 50, 20.0, 100.0)'
+                    'height': 'mapData(degree, 0, 50, 3.0, 100.0)',
+                    'width': 'mapData(degree, 0, 50, 3.0, 100.0)'
                 }
             }, {
                 selector: 'edge',
@@ -830,11 +785,11 @@
             }, {
                 selector: 'node[nodeType="gene"]',
                 style: {
-                    'border-color': color.purple,
-                    'border-width': '3px',
                     'background-color': color.white,
-                    'height': 'mapData(degree, 0, 50, 10.0, 80.0)',
-                    'width': 'mapData(degree, 0, 50, 10.0, 80.0)'
+                    'border-color': color.purple,
+                    'border-width': 'mapData(degree, 0, 50, 1.0, 3.0)',
+                    'height': 'mapData(degree, 0, 50, 1.0, 100.0)',
+                    'width': 'mapData(degree, 0, 50, 1.0, 100.0)'
                 }
             }, {
                 selector: 'node[nodeType="gene"]:selected',
@@ -862,7 +817,7 @@
                 selector: 'node[nodeType="patient"]:selected',
                 style: {
                     'border-color': color.red,
-                    'border-width': '6px'
+                    'border-width': 'mapData(degree, 0, 50, 1.0, 3.0)',
                 }
             }];
         }
