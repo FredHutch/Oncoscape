@@ -1,6 +1,6 @@
 [<img src="img/STTR%20Cancer%20Binder_spine_horizontal.png">](http://www.sttrcancer.org/en.html)
 
-[<img src="https://github.com/FredHutch/Oncoscape/blob/newReadme/img/oncoscape_bigger.png" width="1000">](http://oncoscape.sttrcancer.org)
+[<img src="https://github.com/FredHutch/Oncoscape/blob/newReadme/img/oncoscape_bigger2.png" width="1000">](http://oncoscape.sttrcancer.org)
 
 [![Circle CI](https://circleci.com/gh/FredHutch/Oncoscape/tree/develop.svg?style=shield&circle-token=:circle-token)](https://circleci.com/gh/FredHutch/Oncoscape/tree/develop)
 
@@ -16,11 +16,29 @@ Oncoscape is as an SPA -- a single page web application -- using JavaScript in t
 
 ## The Goal 
 
-Oncoscape is to provide browser-based, user-friendly data exploration tools for rich clinical and molecular cancer data, supported by statistically powerful analysis. R is very well-suited to handling data, and performing analysis. JavaScript in the browser provides a rich and nimble user experience.  Data & methods are sent and received through websockets using the chinook protocol (https://github.com/oncoscape/chinook) for message passing.		
+The ultimate goal is to connect the entire pipeline of cancer research, from molecular data and research experiments to clinical and patient data. By giving clinicians and researchers direct access to the data and methods through an online portal, more time is spent answering biological questions than formatting files and installing disparate software packages.
 
 Oncoscape's design encourages custom deployments focused on any clinical/molecular data set. Oncoscape, here at GitHub, ships with patient and molecular data from the TCGA. 
 
 If you would like to update the code or contribute with new features, please read [wiki contribution](https://github.com/FredHutch/Oncoscape/wiki/Contribution).
+
+## Signature Features
+
+##### Web accessible & Intuitive Interface
+
+Physicians/Researchers can interact with data without requiring computational support
+
+##### Integrated, Iterative Analyses
+
+Test conditional hypotheses by refining selections and sharing results
+
+##### Flexible, Approachable Software Design
+
+Encourage third party contribution and collaborative growth
+
+##### Github
+
+Open source, population to grow into what we need, 11 million users
 
 ## Contact		
 
