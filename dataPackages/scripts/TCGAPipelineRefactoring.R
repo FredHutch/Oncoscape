@@ -5,8 +5,8 @@ library(R.utils)
 library(stringr)
 library(plyr)
 
-stopifnot(file.exists("TCGA_Reference_Filenames_gh.txt")) 
-TCGAfilename<-read.table("TCGA_Reference_Filenames_gh.txt", sep="\t", header=TRUE)
+stopifnot(file.exists("TCGA_Reference_Filenames.txt")) 
+TCGAfilename<-read.table("TCGA_Reference_Filenames.txt", sep="\t", header=TRUE)
 ##===load drug reference table ===
 drug_ref <- read.table("drug_names_10272015.txt", sep="\t", header=TRUE)
 rad_ref <- read.table("rad_ref_02232016.txt", sep="\t", header=TRUE)
@@ -1223,7 +1223,7 @@ if(PROCEDURE){
   	Procedure.mapping.side<- function(df){
     	from <- Procedure.unique.side
     	to 	 <- from 
-    	to[match(c("[UNKNOWN]","[NOT AVAILABLE]","[NOT EVALUATED]","Uknown","[Discrepancy]","Other","NOT LISTED IN MEDICAL RECORD","[NOT APPLICABLE]","[PENDING]"  ), to)] <- NA
+    	to[match(c("[UNKNOWN]","[NOT AVAILABLE]","[NOT EVALUATED]","Uknown","[Discrepancy]","Other","NOT LISTED IN MEDICAL RECORD","[NOT APPLICABLE]","[PENDING]","OTHER"), to)] <- NA
     	df$side <- mapvalues(df$side, from = from, to = to, warn_missing = F)
     	return(df)
   	}	
@@ -1231,7 +1231,7 @@ if(PROCEDURE){
   	Procedure.mapping.site<- function(df){
 	    from <- Procedure.unique.site
 	    to 	 <- from 
-	    to[match(c("[UNKNOWN]","[NOT AVAILABLE]","[NOT EVALUATED]","Uknown","[Discrepancy]","Other","NOT LISTED IN MEDICAL RECORD","[NOT APPLICABLE]","[PENDING]"  ), to)] <- NA
+	    to[match(c("[UNKNOWN]","[NOT AVAILABLE]","[NOT EVALUATED]","Uknown","[Discrepancy]","Other","NOT LISTED IN MEDICAL RECORD","[NOT APPLICABLE]","[PENDING]","OTHER"), to)] <- NA
 	    df$site<- mapvalues(df$site, from = from, to = to, warn_missing = F)
 	    return(df)
   	}	
@@ -1239,7 +1239,7 @@ if(PROCEDURE){
   	Procedure.mapping.surgery_name<- function(df){
 	    from <- Procedure.unique.surgery_name
 	    to 	 <- from 
-	    to[match(c("[UNKNOWN]","[NOT AVAILABLE]","[NOT EVALUATED]","Uknown","[Discrepancy]","Other","NOT LISTED IN MEDICAL RECORD","[NOT APPLICABLE]","[PENDING]"  ), to)] <- NA
+	    to[match(c("[UNKNOWN]","[NOT AVAILABLE]","[NOT EVALUATED]","Uknown","[Discrepancy]","Other","NOT LISTED IN MEDICAL RECORD","[NOT APPLICABLE]","[PENDING]","OTHER"), to)] <- NA
 	    df$surgery_name<- mapvalues(df$surgery_name, from = from, to = to, warn_missing = F)
 	    return(df)
   	}	
@@ -1248,7 +1248,7 @@ if(PROCEDURE){
  	Procedure.mapping.date <- function(df){
 	    from <- Procedure.unique.date
 	    to 	 <- from 
-	    to[match(c("[UNKNOWN]","[NOT AVAILABLE]","[NOT EVALUATED]","Uknown","[Discrepancy]","Other","NOT LISTED IN MEDICAL RECORD","[NOT APPLICABLE]","[PENDING]"  ), to)] <- NA
+	    to[match(c("[UNKNOWN]","[NOT AVAILABLE]","[NOT EVALUATED]","Uknown","[Discrepancy]","Other","NOT LISTED IN MEDICAL RECORD","[NOT APPLICABLE]","[PENDING]","OTHER"), to)] <- NA
 	    df$date <- mapvalues(df$date, from = from, to = to, warn_missing = F)
 	    return(df)
   	}	
@@ -3382,7 +3382,7 @@ create.Procedure.records <- function(study_name,  ptID){
 	data.Procedure <- merge(data.Procedure, tbl.pt[, c("PatientID", "dxyear")]) 
 	  
     #create columns for column that are not captured
-    procedureColNames <- c("PatientID", "date","surgery_name","dxyear","side","site","service","location")
+    procedureColNames <- c("date","surgery_name","side","site")
     
     m <- matrix(nrow=nrow(data.Procedure), ncol=length(which(!(procedureColNames) %in% colnames(data.Procedure))))
     df <- as.data.frame(m)
@@ -3406,27 +3406,23 @@ create.Procedure.records <- function(study_name,  ptID){
 		      			site  = getElement(x, "site")
 		      			name  = getElement(x, "surgery_name")
 		      			side  = getElement(x, "side")
-		      			service  = getElement(x, "service")
-		      			location  = getElement(x, "location")
 		      			return(list(PatientID=PatientID, PtNum=PtNum, study=study_name, Name="Procedure", 
-		                  			Fields=list(date=date,name=name,side=side, site=site,service=NA,location=NA)))
+		                  			Fields=list(date=date,name=name,site=site,side=side)))
 		    })
 		    print(c(study_name, dim(data.Procedure), length(result)))
 		    return(result)	
 		}else{
 				print(ptID)
 				subSet.data.Procedure <- subset(data.Procedure, PatientID==ptID)
-				result <- apply(subSet.data.Encounter, 1, function(x){
+				result <- apply(subSet.data.Procedure, 1, function(x){
 						PatientID = getElement(x, "PatientID")
 		      			PtNum = ptNumMap[ptNumMap$PatientID == PatientID,]$PatientNumber
 		      			date = getElement(x, "date")	
 		      			site  = getElement(x, "site")
 		      			name  = getElement(x, "surgery_name")
 		      			side  = getElement(x, "side")
-		      			service  = getElement(x, "service")
-		      			location  = getElement(x, "location")
 		      			return(list(PatientID=PatientID, PtNum=PtNum, study=study_name, Name="Procedure", 
-		                  			Fields=list(date=date,name=name,side=side, site=site,service=NA,location=NA)))
+		                  			Fields=list(date=date,name=name,site=site,side=side)))
 			    		})
 			print(result)
 		}
@@ -4206,7 +4202,7 @@ lapply(studies, test_create.Rad.records)
 test_create.Encounter.records <- function(study_name)
 {
   if(study_name == "TCGAbrca"){
-	print("--- TCGAbrca_test_create.Encounter.records")
+		print("--- TCGAbrca_test_create.Encounter.records")
 	x <- create.Encounter.records(study_name, "TCGA.3C.AAAU")
     #checkTrue(is.list(x))
     #checkEquals(names(x[[1]]), c("PatientID", "PtNum", "study", "Name", "Fields"))
@@ -4215,7 +4211,7 @@ test_create.Encounter.records <- function(study_name)
     	                     #prefev1.ratio=NA, prefev1.percent=NA, postfev1.ratio=NA,postfev1.percent=NA,carbon.monoxide.diffusion=NA)))
       	}
   if(study_name == "TCGAcoad"){
-	print("--- TCGAcoad_test_create.Encounter.records")
+		print("--- TCGAcoad_test_create.Encounter.records")
     x <- create.Encounter.records(study_name, "TCGA.3L.AA1B")
     checkTrue(is.list(x))
     checkEquals(names(x[[1]]), c("PatientID", "PtNum", "study", "Name", "Fields"))
@@ -4227,7 +4223,7 @@ test_create.Encounter.records <- function(study_name)
     	                     prefev1.ratio=as.character(NA), prefev1.percent=as.character(NA), postfev1.ratio=as.character(NA),postfev1.percent=as.character(NA),carbon.monoxide.diffusion=as.character(NA))))
 		}
   if(study_name == "TCGAgbm"){
-	print("--- TCGAgbm_test_create.Encounter.records")
+		print("--- TCGAgbm_test_create.Encounter.records")
     x <- create.Encounter.records(study_name, "TCGA.02.0001")
     checkTrue(is.list(x))
     checkEquals(names(x[[1]]), c("PatientID", "PtNum", "study", "Name", "Fields"))
@@ -4239,7 +4235,7 @@ test_create.Encounter.records <- function(study_name)
     	                     prefev1.ratio=as.character(NA), prefev1.percent=as.character(NA), postfev1.ratio=as.character(NA),postfev1.percent=as.character(NA),carbon.monoxide.diffusion=as.character(NA))))								
       	}
   if(study_name == "TCGAhnsc"){
-	print("--- TCGAhnsc_test_create.Encounter.records")
+		print("--- TCGAhnsc_test_create.Encounter.records")
 	x <- create.Encounter.records(study_name, "TCGA.4P.AA8J")
     #checkTrue(is.list(x))
     #checkEquals(names(x[[1]]$Fields), c("PatientID", "PtNum", "study", "Name", "Fields"))
@@ -4248,7 +4244,7 @@ test_create.Encounter.records <- function(study_name)
     	                     #prefev1.ratio=as.character(NA), prefev1.percent=as.character(NA), postfev1.ratio=as.character(NA),postfev1.percent=as.character(NA),carbon.monoxide.diffusion=as.character(NA))))   
 		}
   if(study_name == "TCGAlgg"){
-	print("--- TCGAlgg_test_create.Encounter.records")
+		print("--- TCGAlgg_test_create.Encounter.records")
     x <- create.Encounter.records(study_name, "TCGA.CS.6290")
     checkTrue(is.list(x))
     checkEquals(names(x[[1]]), c("PatientID", "PtNum", "study", "Name", "Fields")) 
@@ -4268,7 +4264,7 @@ test_create.Encounter.records <- function(study_name)
     	                     prefev1.ratio=as.character(NA), prefev1.percent=as.character(NA), postfev1.ratio=as.character(NA),postfev1.percent=as.character(NA),carbon.monoxide.diffusion=as.character(NA))))
 		}
   if(study_name == "TCGAluad"){
-	print("--- TCGAluad_test_create.Encounter.records")
+		print("--- TCGAluad_test_create.Encounter.records")
     x <- create.Encounter.records(study_name, "TCGA.05.4244")
     checkTrue(is.list(x))
     checkEquals(names(x[[1]]), c("PatientID", "PtNum", "study", "Name", "Fields")) 
@@ -4277,7 +4273,7 @@ test_create.Encounter.records <- function(study_name)
     	                     prefev1.ratio=as.character(NA), prefev1.percent=as.character(NA), postfev1.ratio=as.character(NA),postfev1.percent=as.character(NA),carbon.monoxide.diffusion=as.character(NA))))
 		}
   if(study_name == "TCGAlusc"){
-	print("--- TCGAlusc_test_create.Encounter.records")
+		print("--- TCGAlusc_test_create.Encounter.records")
     x <- create.Encounter.records(study_name, "TCGA.18.3406")
     checkTrue(is.list(x))
     checkEquals(names(x[[1]]), c("PatientID", "PtNum", "study", "Name", "Fields"))
@@ -4286,7 +4282,7 @@ test_create.Encounter.records <- function(study_name)
     	                     prefev1.ratio=as.character(NA), prefev1.percent=as.character(NA), postfev1.ratio=as.character(NA),postfev1.percent=as.character(NA),carbon.monoxide.diffusion=as.character(NA))))
       	}
   if(study_name == "TCGAprad"){
-    print("--- TCGAprad_test_create.Encounter.records")
+    	print("--- TCGAprad_test_create.Encounter.records")
     x <- create.Encounter.records(study_name, "TCGA.2A.A8VL")
     print(x)
     #checkTrue(is.list(x))
@@ -4297,7 +4293,7 @@ test_create.Encounter.records <- function(study_name)
     
       	}
   if(study_name == "TCGAread"){
-	print("--- TCGAread_test_create.Encounter.records")
+		print("--- TCGAread_test_create.Encounter.records")
     x <- create.Encounter.records(study_name, "TCGA.AF.2687")
     checkTrue(is.list(x))
     checkEquals(names(x[[1]]), c("PatientID", "PtNum", "study", "Name", "Fields")) 
@@ -4313,18 +4309,70 @@ lapply(studies, test_create.Encounter.records)
 #-------------------------------------------------------------------------------------------------------------------------- 
 test_create.Procedure.records <- function(study_name)
 {
-  print("--- test_create.Encounter.record")
   if(study_name == "TCGAbrca"){
-		
+		print("--- TCGAbrca_test_create.Procedure.records")
+    x <- create.Procedure.records(study_name, "TCGA.3C.AAAU")
+    checkTrue(is.list(x))
+    checkEquals(names(x[[1]]), c("PatientID", "PtNum", "study", "Name", "Fields"))
+    checkEquals(names(x[[1]]$Fields), c("date","name","site","side"))
+    checkEquals(x[[1]], list(PatientID="TCGA.3C.AAAU", PtNum=1, study="TCGAbrca", Name="Procedure", Fields=list(date=as.character(NA), name=as.character(NA),site="DISTANT METASTASIS",side=as.character(NA)))) 
+    checkEquals(x[[2]], list(PatientID="TCGA.3C.AAAU", PtNum=1, study="TCGAbrca", Name="Procedure", Fields=list(date=as.character(NA), name="MODIFIED RADICAL MASTECTOMY",site=as.character(NA), side=as.character(NA)))) 
+    x <- create.Procedure.records(study_name,"TCGA.Z7.A8R5")
+    checkTrue(is.list(x))
+    checkEquals(x[[1]], list(PatientID="TCGA.Z7.A8R5", PtNum=1087, study="TCGAbrca", Name="Procedure", Fields=list(date=as.character(NA), name=as.character(NA),site="LOCOREGIONAL RECURRENCE",side=as.character(NA))))
+    checkEquals(x[[2]], list(PatientID="TCGA.Z7.A8R5", PtNum=1087, study="TCGAbrca", Name="Procedure", Fields=list(date="01/02/1996", name="GROSS TOTAL RESECTION",site=as.character(NA),side=as.character(NA))))
+    checkEquals(x[[3]], list(PatientID="TCGA.Z7.A8R5", PtNum=1087, study="TCGAbrca", Name="Procedure", Fields=list(date=as.character(NA), name=as.character(NA),site="LOCOREGIONAL RECURRENCE",side=as.character(NA))))
+ 	checkEquals(x[[4]], list(PatientID="TCGA.Z7.A8R5", PtNum=1087, study="TCGAbrca", Name="Procedure", Fields=list(date=as.character(NA), name=as.character(NA),site=as.character(NA),side=as.character(NA))))
+    x <- create.Procedure.records(study_name,"TCGA.A7.A13G")
+    checkTrue(is.list(x))
+    checkEquals(x[[1]], list(PatientID="TCGA.A7.A13G", PtNum=137, study="TCGAbrca", Name="Procedure", Fields=list(date=as.character(NA), name="SIMPLE MASTECTOMY",site=as.character(NA),side=as.character(NA))))
+    checkEquals(x[[2]], list(PatientID="TCGA.A7.A13G", PtNum=137, study="TCGAbrca", Name="Procedure", Fields=list(date="04/28/1999", name=as.character(NA),site=as.character(NA),side="LEFT")))
+    checkEquals(x[[3]], list(PatientID="TCGA.A7.A13G", PtNum=137, study="TCGAbrca", Name="Procedure", Fields=list(date="01/03/2006", name=as.character(NA),site=as.character(NA),side="LEFT")))   
+    checkEquals(x[[4]], list(PatientID="TCGA.A7.A13G", PtNum=137, study="TCGAbrca", Name="Procedure", Fields=list(date=as.character(NA), name=as.character(NA),site="NEW PRIMARY TUMOR",side=as.character(NA))))
       	}
   if(study_name == "TCGAcoad"){
-		
+		print("--- TCGAcoad_test_create.Procedure.records")
+    x <- create.Procedure.records(study_name, "TCGA.AD.6895")
+    checkTrue(is.list(x))
+    checkEquals(names(x[[1]]), c("PatientID", "PtNum", "study", "Name", "Fields"))
+    checkEquals(names(x[[1]]$Fields), c("date","name","site","side"))
+    checkEquals(x[[1]], list(PatientID="TCGA.AD.6895", PtNum=235, study="TCGAcoad", Name="Procedure", Fields=list(date="01/15/2011", name=as.character(NA),site=as.character(NA),side=as.character(NA)))) 
+    x <- create.Procedure.records(study_name,"TCGA.A6.A567") 
+    checkEquals(x[[1]], list(PatientID="TCGA.A6.A567", PtNum=53, study="TCGAcoad", Name="Procedure", Fields=list(date="11/17/2008", name=as.character(NA), site="METASTATIC", side=as.character(NA))))
+    checkEquals(x[[2]], list(PatientID="TCGA.A6.A567", PtNum=53, study="TCGAcoad", Name="Procedure", Fields=list(date="02/11/2010", name=as.character(NA), site="METASTATIC", side=as.character(NA))))
 		}
   if(study_name == "TCGAgbm"){
-											
+		print("--- TCGAgbm_test_create.Procedure.records")
+   	checkEquals(names(x[[1]]), c("PatientID", "PtNum", "study", "Name", "Fields"))
+    checkEquals(names(x[[1]][["Fields"]]), c("date", "name", "site", "side"))
+    x <- create.Procedure.records(study_name, "TCGA.06.1806")
+    checkEquals(x[[1]], list(PatientID="TCGA.06.1806", PtNum=91, study="TCGAgbm", Name="Procedure", Fields=list(date=as.character(NA),name=as.character(NA), site="PROGRESSION OF DISEASE", side=as.character(NA))))
+    checkEquals(x[[2]], list(PatientID="TCGA.06.1806", PtNum=91, study="TCGAgbm", Name="Procedure", Fields=list(date=as.character(NA),name=as.character(NA), site="RECURRENCE", side=as.character(NA))))
+    checkEquals(x[[3]], list(PatientID="TCGA.06.1806", PtNum=91, study="TCGAgbm", Name="Procedure", Fields=list(date="09/28/2009",name=as.character(NA), site="LOCOREGIONAL DISEASE", side=as.character(NA))))
+    x <- create.Procedure.records(study_name,"TCGA.19.5958") 
+    checkEquals(x[[1]], list(PatientID="TCGA.19.5958", PtNum=76, study="TCGAgbm", Name="Procedure", Fields=list(date=as.character(NA),name=as.character(NA), site="RECURRENCE", side=as.character(NA))))
+    checkEquals(x[[2]], list(PatientID="TCGA.19.5958", PtNum=76, study="TCGAgbm", Name="Procedure", Fields=list(date="12/24/2010",name=as.character(NA), site="LOCOREGIONAL DISEASE", side=as.character(NA))))									
       	}
   if(study_name == "TCGAhnsc"){
-		
+		print("--- TCGAhnsc_test_create.Procedure.records")
+    #CHECK THIS PATIENT!
+    #x <- create.Procedure.records(study_name,"TCGA.BA.5149") 
+    #checkEquals(names(x[[1]]), c("PatientID", "PtNum", "study", "Name", "Fields"))
+  	#checkEquals(names(x[[1]]$Fields), c("date","name","site","side"))
+    #checkTrue(is.list(x))
+    #checkEquals(x[[1]], list(PatientID="TCGA.BA.5149", PtNum=7, study="TCGAhnsc", Name="Procedure", Fields=list(date="02/14/2011",name=NA, site="METASTASIS", side=as.character(NA))))
+ 
+    #x <- create.Procedure.records(study_name,"TCGA.BA.A4IF") 
+    #checkEquals(x[[1]], list(PatientID="TCGA.BA.A4IF", PtNum=23, study="TCGAhnsc", Name="Procedure", Fields=list(date= "04/08/2012", name=as.character(NA), site=as.character(NA), side=as.character(NA))))
+    
+    x <- create.Procedure.records(study_name,"TCGA.CN.6997") 
+    checkEquals(x[[2]], list(PatientID="TCGA.CN.6997", PtNum=114, study="TCGAhnsc", Name="Procedure", Fields=list(date= "01/22/2011",  name="TOTAL LARYNGECTOMY PARTIAL PHARYNGECTOMY L THYROID LOBECTOMY BILATERAL SELECTIVE NECK DISSECTION L CENTRAL COMPARTMENT NECK DISSECTION", site=as.character(NA), side=as.character(NA))))
+    #[1],[3].[4]= NA
+    x <- create.Procedure.records(study_name,"TCGA.CQ.7063") 
+    checkEquals(x[[1]], list(PatientID="TCGA.CQ.7063", PtNum=157, study="TCGAhnsc", Name="Procedure", Fields=list(date= "03/05/2008",  name="RIGHT PARTIAL GLOSSECTOMY", site=as.character(NA), side="RIGHT")))
+    checkEquals(x[[2]], list(PatientID="TCGA.CQ.7063", PtNum=157, study="TCGAhnsc", Name="Procedure", Fields=list(date= "05/14/2001",  name="LEFT PARTIAL GLOSSECTOMY", site=as.character(NA), side="LEFT")))
+    checkEquals(x[[3]], list(PatientID="TCGA.CQ.7063", PtNum=157, study="TCGAhnsc", Name="Procedure", Fields=list(date= "05/05/2011",  name=as.character(NA), site="LOCOREGIONAL DISEASE", side=as.character(NA))))
+	checkEquals(x[[4]], list(PatientID="TCGA.CQ.7063", PtNum=157, study="TCGAhnsc", Name="Procedure", Fields=list(date=as.character(NA),  name=as.character(NA), site=as.character(NA), side="RIGHT")))
 		}
   if(study_name == "TCGAlgg"){
 		
