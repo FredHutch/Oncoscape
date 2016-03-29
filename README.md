@@ -24,21 +24,21 @@ If you would like to update the code or contribute with new features, please rea
 
 ## Signature Features
 
-###### Web accessible & Intuitive Interface
+##### Web accessible & Intuitive Interface
 
-*Physicians/Researchers can interact with data without requiring computational support*
+Physicians/Researchers can interact with data without requiring computational support
 
-###### Integrated, Iterative Analyses
+##### Integrated, Iterative Analyses
 
-*Test conditional hypotheses by refining selections and sharing results*
+Test conditional hypotheses by refining selections and sharing results
 
-###### Flexible, Approachable Software Design
+##### Flexible, Approachable Software Design
 
-*Encourage third party contribution and collaborative growth*
+Encourage third party contribution and collaborative growth
 
-###### Github
+##### Github
 
-*Open source, population to grow into what we need, 11 million users*
+Open source, population to grow into what we need, 11 million users
 
 ## Contact		
 
