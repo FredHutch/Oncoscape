@@ -2,8 +2,6 @@
 # run with . ./setupLocalR.sh to prevent forking a subshell
 Rscript installBioconductorPackages.R
 
-
-
 cd dataPackages
 R --vanilla CMD INSTALL --no-test-load --no-lock PatientHistory
 R --vanilla CMD INSTALL --no-test-load --no-lock SttrDataPackage
@@ -27,9 +25,6 @@ R --vanilla CMD INSTALL --no-test-load --no-lock NetworkMaker
 cd ../analysisPackages
 R --vanilla CMD INSTALL --no-test-load --no-lock PCA
 R --vanilla CMD INSTALL --no-test-load --no-lock PLSR
-
-cd ../RInside
-R --vanilla CMD INSTALL --no-test-load --no-lock .
 
 cd ../Oncoscape
 R  --vanilla CMD INSTALL --no-test-load --no-lock .

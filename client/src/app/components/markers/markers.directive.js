@@ -194,11 +194,27 @@
 
 
             // Zoom Resize
-            var optZoomResizeFactory = function(){
+            
+            var optZoomResizeFactory = function(chart){
 
-                // chart.on('pan', function(){
-                //     console.log("---Pan");
-                // })
+                var _zoomlevel = 0;
+                chart.on('pan', function(e){
+                    //console.log(e.cy.zoom())
+                    var zoomlevel = 
+                        (e.cy.zoom()>2) ? 2 :
+                        (e.cy.zoom()>.5) ? 1 :
+                        0;
+
+                if (_zoomlevel==zoomlevel) return;
+                _zoomlevel = zoomlevel;
+                    
+
+                console.log("ZOOM");
+
+
+                    
+                    
+                })
                 // chart.on('layoutstop', function(){
                 //     console.log("------Layout");
                 // })
