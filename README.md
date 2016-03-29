@@ -14,7 +14,7 @@ Oncoscape is developed at the Fred Hutchinson Cancer Research Center under the a
 
 Oncoscape is as an SPA -- a single page web application -- using JavaScript in the browser and R (primarily) on the backend server. It is an R package, though the immediate web-facing http server, currently written in R, will likely change over time to a more traditional architecture. For more detailed information, please see [wiki](https://github.com/FredHutch/Oncoscape/wiki).		
 
-## The Goal <img src="https://github.com/FredHutch/Oncoscape/blob/newReadme/img/signature.png" width="40">
+## The Goal [<img src="https://github.com/FredHutch/Oncoscape/blob/newReadme/img/signature.png" width="40">](https://github.com/FredHutch/Oncoscape/wiki)
 
 The ultimate goal is to connect the entire pipeline of cancer research, from molecular data and research experiments to clinical and patient data. By giving clinicians and researchers direct access to the data and methods through an online portal, more time is spent answering biological questions than formatting files and installing disparate software packages.
 
@@ -22,7 +22,7 @@ Oncoscape's design encourages custom deployments focused on any clinical/molecul
 
 If you would like to update the code or contribute with new features, please read [wiki contribution](https://github.com/FredHutch/Oncoscape/wiki/Contribution).
 
-## Signature Features <img src="https://github.com/FredHutch/Oncoscape/blob/newReadme/img/signature.png" width="40">
+## Signature Features [<img src="https://github.com/FredHutch/Oncoscape/blob/newReadme/img/signature.png" width="40">](https://github.com/FredHutch/Oncoscape/wiki)
 
   + Web accessible & Intuitive Interface
     - Physicians/Researchers can interact with data without requiring computational support
