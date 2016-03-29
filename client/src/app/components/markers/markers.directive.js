@@ -198,6 +198,7 @@
             var optZoomResizeFactory = function(chart){
 
                 var _zoomlevel = 0;
+                var _timeout;
                 chart.on('pan', function(e){
                     //console.log(e.cy.zoom())
                     var zoomlevel = 
@@ -208,8 +209,37 @@
                 if (_zoomlevel==zoomlevel) return;
                 _zoomlevel = zoomlevel;
                     
+                // Delay Call To Resize Nodes.  The User Could Still Be Zooming
+                if (angular.isDefined(_timeout)) $timeout.cancel(_timeout);
+                _timeout = $timeout( function(chart, zoomlevel){
+                    console.log("!!!");
+                    chart.startBatch();
+                    chart.nodes().style(
+                        {
+                            "width":function(){return zoomlevel*10},
+                            "height":function(){return zoomlevel*10}
 
-                console.log("ZOOM");
+                        });
+                    // .map(function(node){
+                    //     var size = node.data("baseWidth") * zoomlevel;
+                    //     node.style({'border-width': size});
+                    // });
+                    chart.endBatch();
+                    
+                    // chart.batch(function(){
+                    //     console.log("!!");
+                    //         chart.nodes()
+                    //         //  chart.nodes().map(function(node){
+                    //         //     node.style({
+
+                    //         //         width: (node.data("baseWidth") * zoom),
+                    //         //         height: (node.data("baseHeight") * zoom)
+                    //         //     })
+                    //         // });
+                    // });
+
+                }, 500, false, chart, zoomlevel);
+                
 
 
                     
@@ -238,14 +268,7 @@
                     //     var zoom = Math.max(11 - Math.round(convertValueToRange(e.cy.zoom(), .1, 10, 1, 10)),1) / 10;
                     //     if (_zoom == zoom) return;
                         
-                    //     chart.batch(function(){
-                    //         chart.nodes().map(function(node){
-                    //             node.style({
-                    //                 width: (node.data("baseWidth") * zoom),
-                    //                 height: (node.data("baseHeight") * zoom)
-                    //             })
-                    //         });
-                    //     });
+                         
                         
 
                     // });
