@@ -1,6 +1,6 @@
 [<img src="img/STTR%20Cancer%20Binder_spine_horizontal.png">](http://www.sttrcancer.org/en.html)
 
-[<img src="http://oncoscape-static.s3-website-us-west-2.amazonaws.com/images/oncoscape_logo_FINAL.png">](http://oncoscape.sttrcancer.org)
+[<img src="https://github.com/FredHutch/Oncoscape/blob/newReadme/img/oncoscape_bigger.png">](http://oncoscape.sttrcancer.org)
 
 [![Circle CI](https://circleci.com/gh/FredHutch/Oncoscape/tree/develop.svg?style=shield&circle-token=:circle-token)](https://circleci.com/gh/FredHutch/Oncoscape/tree/develop)
 
