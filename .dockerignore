@@ -1,1 +1,9 @@
 server/node_modules/*
+.git
+client
+README.md
+INSTALL.md
+DOCKER.md
+CONTRIBUTING.md
+cheatsheet.md
+LICENSE
