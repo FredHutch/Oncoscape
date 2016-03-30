@@ -1,10 +1,11 @@
+[![Circle CI](https://circleci.com/gh/FredHutch/Oncoscape/tree/develop.svg?style=shield&circle-token=:circle-token)](https://circleci.com/gh/FredHutch/Oncoscape/tree/develop)
+[![Join the chat at https://gitter.im/FredHutch/Oncoscape](https://badges.gitter.im/FredHutch/Oncoscape.svg)](https://gitter.im/FredHutch/Oncoscape?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge&utm_content=badge)
+
 [<img src="img/STTR%20Cancer%20Binder_spine_horizontal.png">](http://www.sttrcancer.org/en.html)
 
 [<img src="https://github.com/FredHutch/Oncoscape/blob/newReadme/img/oncoscape_bigger2.png" width="1000">](http://oncoscape.sttrcancer.org)
 
-[![Circle CI](https://circleci.com/gh/FredHutch/Oncoscape/tree/develop.svg?style=shield&circle-token=:circle-token)](https://circleci.com/gh/FredHutch/Oncoscape/tree/develop)
-
-[![Join the chat at https://gitter.im/FredHutch/Oncoscape](https://badges.gitter.im/FredHutch/Oncoscape.svg)](https://gitter.im/FredHutch/Oncoscape?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge&utm_content=badge)
+--
 
 Oncoscape is a [web application](http://oncoscape.sttrcancer.org) that hosts an integrated suite of analysis tools for users to explore hypotheses related to molecular and clinical data in order to better understand cancer biology and treatment options.
 
