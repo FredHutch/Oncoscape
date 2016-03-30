@@ -4624,7 +4624,7 @@ test_create.Tests.records <- function(study_name)
 		checkTrue(is.list(x))
 		checkEquals(names(x[[1]]), c("PatientID", "PtNum", "study", "Name", "Fields"))
 	    checkEquals(names(x[[1]][["Fields"]]), c("date", "Test", "Result"))
-	    checkEquals(length(x),7)
+	    checkEquals(length(x),9)
 	    checkEquals(x[[1]], list(PatientID="TCGA.A2.A0YC", PtNum=80, study=study_name, Name="Tests", 
 	    					Fields=list(date=as.character(NA), Test="prog",Result="ProgStatusIhc:POSITIVE")))
 	    checkEquals(x[[2]], list(PatientID="TCGA.A2.A0YC", PtNum=80, study=study_name, Name="Tests", 
