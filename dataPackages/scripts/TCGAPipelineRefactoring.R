@@ -5,8 +5,8 @@ library(R.utils)
 library(stringr)
 library(plyr)
 
-stopifnot(file.exists("TCGA_Reference_Filenames.txt")) 
-TCGAfilename<-read.table("TCGA_Reference_Filenames.txt", sep="\t", header=TRUE)
+stopifnot(file.exists("TCGA_Reference_Filenames_gh.txt")) 
+TCGAfilename<-read.table("TCGA_Reference_Filenames_gh.txt", sep="\t", header=TRUE)
 ##===load drug reference table ===
 drug_ref <- read.table("drug_names_10272015.txt", sep="\t", header=TRUE)
 rad_ref <- read.table("rad_ref_02232016.txt", sep="\t", header=TRUE)
@@ -1138,8 +1138,8 @@ if(PROCEDURE){
 	    tbl.nte <- loadData(uri[1],
 	                       list(
 	                         'bcr_patient_barcode' = list(name = "PatientID", data = "tcgaId"),
-	                         'new_tumor_event_surgery_days_to_loco' = list(name = "date", data = "upperCharacter"), #(only in lgg,luad,lusc)
-	                         'new_tumor_event_surgery_days_to_met'= list(name = "date", data = "upperCharacter"), #(only in lgg,luad,lusc)
+	                         'new_tumor_event_surgery_days_to_loco' = list(name = "date_loco", data = "upperCharacter"), #(only in lgg,luad,lusc)
+	                         'new_tumor_event_surgery_days_to_met'= list(name = "date_met", data = "upperCharacter"), #(only in lgg,luad,lusc)
 	                         #'new_tumor_event_surgery' = list(name = "new_tumor_event_surgery", data = "upperCharacter"), #(in brca,hnsc but not being collected...)
 	                         'days_to_new_tumor_event_additional_surgery_procedure'  = list(name = "date", data = "upperCharacter"), #(only in gbm,coad,read)
 	                         'new_neoplasm_event_type'  = list(name = "site", data = "upperCharacter"), #(only in gbm, coad, read)
@@ -1166,16 +1166,14 @@ if(PROCEDURE){
 	    tbl.f1 <- loadData(uri[4], 
 	                         list(
 	                           'bcr_patient_barcode' = list(name = "PatientID", data = "tcgaId"),
-	                           'new_tumor_event_surgery_days_to_loco' = list(name = "date", data = "upperCharacter"), #(only in lgg,hnsc,luad,lusc)
-	                           'new_tumor_event_surgery_days_to_met'= list(name = "date", data = "upperCharacter") #(only in lgg,hnsc,luad,lusc)
+	                           'new_tumor_event_surgery_days_to_loco' = list(name = "date_loco", data = "upperCharacter"), #(only in lgg,hnsc,luad,lusc)
+	                           'new_tumor_event_surgery_days_to_met'= list(name = "date_met", data = "upperCharacter") #(only in lgg,hnsc,luad,lusc)
 	                           #'new_tumor_event_surgery' = list(name = "new_tumor_event_surgery", data = "upperCharacter") #(In lgg,luad,lusc but not being collected...)
 	                        ))
 	 
 	  							#f2
 	                           #'bcr_patient_barcode' = list(name = "PatientID", data = "tcgaId"),
 	                           #'new_tumor_event_surgery' = list(name = "new_tumor_event_surgery", data = "upperCharacter") #(only in brca)
-	                      
-	 
 	    
 	    if(!is.na(uri[5])) {
 	      tbl.nte_f1 <- loadData(uri[5], 
@@ -1215,13 +1213,16 @@ if(PROCEDURE){
 	  	unique.site <- unique(df$site)
 	  	unique.surgery_name <- unique(df$surgery_name)	  	
 		unique.date<- unique(df$date)
-		  
+		unique.date_loco<- unique(df$date_loco)  
+		unique.date_met<- unique(df$date_met)
+
 		result = list(unique.dxyear=unique.dxyear, 
 	                unique.side=unique.side,
 	                unique.site=unique.site,
 	                unique.surgery_name=unique.surgery_name,
-	                unique.date=unique.date)
-
+	                unique.date=unique.date,
+					unique.date_loco=unique.date_loco,
+					unique.date_met=unique.date_met)
 	 	print(study_name)
 		return(result)
 	}
@@ -1231,7 +1232,10 @@ if(PROCEDURE){
 	               unique.side=unique(c(res1$unique.side, res2$unique.side)),
 	               unique.site=unique(c(res1$unique.site, res2$unique.site)),
 	               unique.surgery_name=unique(c(res1$unique.surgery_name, res2$unique.surgery_name)),       	               
-	               unique.date=unique(c(res1$unique.date, res2$unique.date)))	              
+	               unique.date=unique(c(res1$unique.date, res2$unique.date)),              
+    			   unique.date_loco=unique(c(res1$unique.date_loco, res2$unique.date_loco)),
+    			   unique.date_met=unique(c(res1$unique.date_met, res2$unique.date_met)))
+
     	return(res)
 	}
   #--------------------------------------------------------------------------------
@@ -1240,6 +1244,8 @@ if(PROCEDURE){
 	Procedure.unique.site <- Procedure.unique.values$unique.site
 	Procedure.unique.surgery_name <- Procedure.unique.values$unique.surgery_name
 	Procedure.unique.date <- Procedure.unique.values$unique.date 
+  	Procedure.unique.date_loco <- Procedure.unique.values$unique.date_loco
+	Procedure.unique.date_met <- Procedure.unique.values$unique.date_met 
   #------------------------------------------------------------------------------------------------------------------------------------------------------------
   	Procedure.mapping.side<- function(df){
     	from <- Procedure.unique.side
@@ -1264,7 +1270,6 @@ if(PROCEDURE){
 	    df$surgery_name<- mapvalues(df$surgery_name, from = from, to = to, warn_missing = F)
 	    return(df)
   	}	
-
   #-------------------------------------------------------------------------------------------------------------------------
  	Procedure.mapping.date <- function(df){
 	    from <- Procedure.unique.date
@@ -1273,10 +1278,33 @@ if(PROCEDURE){
 	    df$date <- mapvalues(df$date, from = from, to = to, warn_missing = F)
 	    return(df)
   	}	
+ 		Procedure.mapping.date_loco <- function(df){
+	    from <- Procedure.unique.date_loco
+	    to 	 <- from 
+	    to[match(c("[UNKNOWN]","[NOT AVAILABLE]","[NOT EVALUATED]","Uknown","[Discrepancy]","Other","NOT LISTED IN MEDICAL RECORD","[NOT APPLICABLE]","[PENDING]","OTHER"), to)] <- NA
+	    df$date_loco <- mapvalues(df$date_loco, from = from, to = to, warn_missing = F)
+	    return(df)
+  	}	
+		Procedure.mapping.date_met <- function(df){
+	    from <- Procedure.unique.date_met
+	    to 	 <- from 
+	    to[match(c("[UNKNOWN]","[NOT AVAILABLE]","[NOT EVALUATED]","Uknown","[Discrepancy]","Other","NOT LISTED IN MEDICAL RECORD","[NOT APPLICABLE]","[PENDING]","OTHER"), to)] <- NA
+	    df$date_met <- mapvalues(df$date_met, from = from, to = to, warn_missing = F)
+	    return(df)
+  	}
+ #------------------------------------------------------------------------------------------------------------------------------------------
  	Procedure.mapping.Calculation.date  <- function(df){
 	    df$date <- format(as.Date(df$dxyear,"%m/%d/%Y") + as.integer(df$date), "%m/%d/%Y")
 	    return(df)
   	}	 
+  	Procedure.mapping.Calculation.date_loco  <- function(df){
+	    df$date_loco <- format(as.Date(df$dxyear,"%m/%d/%Y") + as.integer(df$date_loco), "%m/%d/%Y")
+	    return(df)
+  	}
+	Procedure.mapping.Calculation.date_met  <- function(df){
+	    df$date_met <- format(as.Date(df$dxyear,"%m/%d/%Y") + as.integer(df$date_met), "%m/%d/%Y")
+	    return(df)
+  	}
   #------------------------------------------------------------------------------------------------------------------------------------------
 }  # End of Procedure Native Functions
 #----------------------   Pathology functions Start Here   ----------------------
@@ -3338,8 +3366,8 @@ create.Procedure.records <- function(study_name,  ptID){
      tbl.nte <- loadData(uri[1],
 	                       list(
 	                         'bcr_patient_barcode' = list(name = "PatientID", data = "tcgaId"),
-	                         'new_tumor_event_surgery_days_to_loco' = list(name = "date", data = "upperCharacter"), #(only in lgg,luad,lusc)
-	                         'new_tumor_event_surgery_days_to_met'= list(name = "date", data = "upperCharacter"), #(only in lgg,luad,lusc)
+	                         'new_tumor_event_surgery_days_to_loco' = list(name = "date_loco", data = "upperCharacter"), #(only in lgg,luad,lusc)
+	                         'new_tumor_event_surgery_days_to_met'= list(name = "date_met", data = "upperCharacter"), #(only in lgg,luad,lusc)
 	                         #'new_tumor_event_surgery' = list(name = "new_tumor_event_surgery", data = "upperCharacter"), #(in brca,hnsc but not being collected...)
 	                         'days_to_new_tumor_event_additional_surgery_procedure'  = list(name = "date", data = "upperCharacter"), #(only in gbm,coad,read)
 	                         'new_neoplasm_event_type'  = list(name = "site", data = "upperCharacter"), #(only in gbm, coad, read)
@@ -3366,8 +3394,8 @@ create.Procedure.records <- function(study_name,  ptID){
 	    tbl.f1 <- loadData(uri[4], 
 	                         list(
 	                           'bcr_patient_barcode' = list(name = "PatientID", data = "tcgaId"),
-	                           'new_tumor_event_surgery_days_to_loco' = list(name = "date", data = "upperCharacter"), #(only in lgg,hnsc,luad,lusc)
-	                           'new_tumor_event_surgery_days_to_met'= list(name = "date", data = "upperCharacter") #(only in lgg,hnsc,luad,lusc)
+	                           'new_tumor_event_surgery_days_to_loco' = list(name = "date_loco", data = "upperCharacter"), #(only in lgg,hnsc,luad,lusc)
+	                           'new_tumor_event_surgery_days_to_met'= list(name = "date_met", data = "upperCharacter") #(only in lgg,hnsc,luad,lusc)
 	                           #'new_tumor_event_surgery' = list(name = "new_tumor_event_surgery", data = "upperCharacter") #(In lgg,luad,lusc but not being collected...)
 	                        ))
 	 
@@ -3405,7 +3433,7 @@ create.Procedure.records <- function(study_name,  ptID){
 	data.Procedure <- merge(data.Procedure, tbl.pt[, c("PatientID", "dxyear")]) 
 	  
     #create columns for column that are not captured
-    procedureColNames <- c("date","surgery_name","side","site")
+    procedureColNames <- c("date","surgery_name","side","site", "date_loco","date_met")
     
     m <- matrix(nrow=nrow(data.Procedure), ncol=length(which(!(procedureColNames) %in% colnames(data.Procedure))))
     df <- as.data.frame(m)
@@ -3415,6 +3443,8 @@ create.Procedure.records <- function(study_name,  ptID){
 
     # mapping
     data.Procedure <- Procedure.mapping.Calculation.date(data.Procedure)
+    data.Procedure <- Procedure.mapping.Calculation.date_loco(data.Procedure)
+    data.Procedure <- Procedure.mapping.Calculation.date_met(data.Procedure)
     data.Procedure <- Procedure.mapping.site(data.Procedure)
     data.Procedure <- Procedure.mapping.surgery_name(data.Procedure)
     data.Procedure <- Procedure.mapping.side(data.Procedure)
@@ -3426,11 +3456,13 @@ create.Procedure.records <- function(study_name,  ptID){
 		      			PatientID = getElement(x, "PatientID")
 		      			PtNum = ptNumMap[ptNumMap$PatientID == PatientID,]$PatientNumber
 		      			date = getElement(x, "date")
+		      			date_loco = getElement(x, "date_loco")
+						date_met = getElement(x, "date_met")
 		      			site  = getElement(x, "site")
 		      			name  = getElement(x, "surgery_name")
 		      			side  = getElement(x, "side")
 		      			return(list(PatientID=PatientID, PtNum=PtNum, study=study_name, Name="Procedure", 
-		                  			Fields=list(date=date,name=name,site=site,side=side)))
+		                  			Fields=list(date=date,date_loco=date_loco,date_met=date_met,name=name,site=site,side=side)))
 		    })
 		    print(c(study_name, dim(data.Procedure), length(result)))
 		    return(result)	
@@ -3441,11 +3473,13 @@ create.Procedure.records <- function(study_name,  ptID){
 						PatientID = getElement(x, "PatientID")
 		      			PtNum = ptNumMap[ptNumMap$PatientID == PatientID,]$PatientNumber
 		      			date = getElement(x, "date")	
+		      			date_loco = getElement(x, "date_loco")
+						date_met = getElement(x, "date_met")
 		      			site  = getElement(x, "site")
 		      			name  = getElement(x, "surgery_name")
 		      			side  = getElement(x, "side")
 		      			return(list(PatientID=PatientID, PtNum=PtNum, study=study_name, Name="Procedure", 
-		                  			Fields=list(date=date,name=name,site=site,side=side)))
+		                  			Fields=list(date=date,date_loco=date_loco,date_met=date_met,name=name,site=site,side=side)))
 			    		})
 			print(result)
 		}
@@ -4519,12 +4553,12 @@ test_create.Procedure.records <- function(study_name)
 	print("--- TCGAhnsc_test_create.Procedure.records")
     #CHECK THIS PATIENT!
     x <- create.Procedure.records(study_name,"TCGA.BA.5149") 
-    #checkEquals(names(x[[1]]), c("PatientID", "PtNum", "study", "Name", "Fields"))
-  	#checkEquals(names(x[[1]]$Fields), c("date","name","site","side"))
-    #checkTrue(is.list(x))
+    checkEquals(names(x[[1]]), c("PatientID", "PtNum", "study", "Name", "Fields"))
+  	checkEquals(names(x[[1]]$Fields), c("date","name","site","side"))
+    checkTrue(is.list(x))
     #checkEquals(x[[1]], list(PatientID="TCGA.BA.5149", PtNum=7, study="TCGAhnsc", Name="Procedure", Fields=list(date="02/14/2011",name=NA, site="METASTASIS", side=as.character(NA))))
  
-    #x <- create.Procedure.records(study_name,"TCGA.BA.A4IF") 
+    x <- create.Procedure.records(study_name,"TCGA.BA.A4IF") 
     #checkEquals(x[[1]], list(PatientID="TCGA.BA.A4IF", PtNum=23, study="TCGAhnsc", Name="Procedure", Fields=list(date= "04/08/2012", name=as.character(NA), site=as.character(NA), side=as.character(NA))))
     
     x <- create.Procedure.records(study_name,"TCGA.CN.6997") 
@@ -4539,13 +4573,14 @@ test_create.Procedure.records <- function(study_name)
   if(study_name == "TCGAlgg"){
 	print("--- TCGAlgg_test_create.Procedure.records")
     #CHECK!! 
-    #x <- create.Procedure.records(study_name, "TCGA.CS.6290")
+    x <- create.Procedure.records(study_name, "TCGA.CS.6290")
     #checkEquals(names(x[[1]]), c("PatientID", "PtNum","study", "Name", "Fields"))
     #checkEquals(names(x[[1]]$Fields), c("date","name","site","side"))
     #checkTrue(is.list(x))
     #checkEquals(x[[1]], list(PatientID="TCGA.CS.6290", PtNum=1, study="TCGAlgg", Name="Procedure", Fields=list(date=as.character(NA),  name=as.character(NA), site="SUPRATENTORIAL, TEMPORAL LOBE: CEREBRAL CORTEX", side="LEFT")))
     
-    #x <- create.Procedure.records(study_name, "TCGA.HT.8564")
+    #CORRECT old script forced LOCOREGIONAL if there was a date
+    x <- create.Procedure.records(study_name, "TCGA.HT.8564")
     #checkEquals(x[[1]], list(PatientID="TCGA.HT.8564", PtNum=188, study="TCGAlgg", Name="Procedure", Fields=list(date=as.character(NA), name=as.character(NA), site="SUPRATENTORIAL, TEMPORAL LOBE", side="LEFT")))
     #checkEquals(x[[2]], list(PatientID="TCGA.HT.8564", PtNum=188, study="TCGAlgg", Name="Procedure", Fields=list(date="04/30/2012", name=as.character(NA), site="LOCOREGIONAL", side=as.character(NA))))
 		}
@@ -4557,7 +4592,7 @@ test_create.Procedure.records <- function(study_name)
     checkEquals(names(x[[1]]$Fields), c("date","name","site","side"))
     checkEquals(x[[2]], list(PatientID="TCGA.05.4245", PtNum=2, study="TCGAluad", Name="Procedure", Fields=list(date="01/31/2006", name=as.character(NA), site=as.character(NA), side=as.character(NA))))
     
-    #CHECK! dates are missing in new script
+    #CORRECT site is forced 
     #slight collection change, [2] has combined site [1] is NA
     x <- create.Procedure.records(study_name,"TCGA.MP.A4T9")
     #checkEquals(x[[2]], list(PatientID= "TCGA.MP.A4T9", PtNum=500, study="TCGAluad", Name="Procedure", Fields=list(date= "06/09/2009", name=as.character(NA), site=as.character(NA), side=as.character(NA)))
@@ -4570,19 +4605,19 @@ test_create.Procedure.records <- function(study_name)
     checkEquals(names(x[[1]]), c("PatientID", "PtNum","study", "Name", "Fields"))
     checkEquals(names(x[[1]]$Fields), c("date","name","site","side"))
     checkEquals(x[[1]], list(PatientID="TCGA.NK.A7XE", PtNum=488, study="TCGAlusc", Name="Procedure", Fields=list(date="06/12/2004", name="PROSTECTOMY", site=as.character(NA), side=as.character(NA))))
-    #CHECK! site is different
+    #CORRECT old script forced LOCOREGIONAL if there was a date
     x <- create.Procedure.records(study_name,"TCGA.21.5786")
     #checkEquals(x[[1]], list(PatientID= "TCGA.21.5786", PtNum=34, study="TCGAlusc", Name="Procedure", Fields=list(date="04/19/2011", name=as.character(NA), site="LOCOREGIONAL", side=as.character(NA))))
       	}
   if(study_name == "TCGAprad"){
     print("--- TCGAprad_test_create.Procedure.records")
-    #CHECK! data is fine but its picking up BILATERAL
+    #CORRECT! New is CORRECT, SITE was forced NA in old script
     x <- create.Procedure.records(study_name, "TCGA.CH.5763")
     #checkEquals(names(x[[1]]), c("PatientID", "PtNum","study", "Name", "Fields"))
     #checkEquals(names(x[[1]]$Fields), c("date","name","site","side"))
     #checkEquals(x[[1]], list(PatientID= "TCGA.CH.5763", PtNum=29, study="TCGAprad", Name="Procedure", Fields=list(date= "10/02/2007",  name=as.character(NA), site=as.character(NA), side=as.character(NA)))))
     
-    #CHECK data is fine but it is picking up BILATERAL
+    #CORRECT! New is CORRECT, SITE was forced NA in old script
     x <- create.Procedure.records(study_name,"TCGA.KK.A8IB")
     #checkEquals(x[[1]], list(PatientID= "TCGA.KK.A8IB", PtNum=338, study="TCGAprad", Name="Procedure", Fields=list(date= "02/25/2006", name=as.character(NA), site=as.character(NA), side=as.character(NA)))))
       	}
