@@ -15,10 +15,15 @@
             // Reset DataTable Custom Filters
             angular.element.fn.DataTable.ext.search = [];
 
-            // if (toState.authenticate && !osApi.getUserApi().getUser().authenticated) {
-            //      $state.transitionTo("landing");
-            //      event.preventDefault();
+
+            // if (window.location.protocol != "https:") {
+            //     window.location.protocol = "https:";
+            //     window.location.reload();
             // }
+            if (toState.authenticate && !osApi.getUserApi().getUser().authenticated) {
+                 $state.transitionTo("landing");
+                 event.preventDefault();
+            }
 
             
 

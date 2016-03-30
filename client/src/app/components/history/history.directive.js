@@ -23,7 +23,7 @@
 
             // View Model
             var vm = this;
-            vm.datasource = $stateParams.datasource || "DEMOdz";
+            vm.datasource = $stateParams.datasource || osApi.getDataSource();
             vm.filter;
             vm.colnames = [];
             vm.diagnosisMin = vm.diagnosisMinValue = 1;

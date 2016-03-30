@@ -23,6 +23,7 @@
             var vm = this;
             vm.datasets = [];
             vm.explore = function(tool, datasource) {
+                osApi.setDataSource(datasource);
                 $state.go(tool, {
                     datasource: datasource
                 });

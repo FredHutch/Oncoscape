@@ -23,7 +23,7 @@
 
             // State
             var vm = this;
-            vm.datasource = $stateParams.datasource || "DEMOdz";
+            vm.datasource = $stateParams.datasource || osApi.getDataSource();
             vm.geneSets = [];
             vm.geneSet = null;
             vm.toggleFilter = function() {

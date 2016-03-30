@@ -260,7 +260,7 @@
 
             // View Model
             var vm = this;
-            vm.datasource = $stateParams.datasource || "DEMOdz";
+            vm.datasource = $stateParams.datasource || osApi.getDataSource();
             vm.features;
             vm.feature;
             vm.events;

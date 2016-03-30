@@ -23,7 +23,7 @@
 
             // View Model
             var vm = this;
-            vm.dataset = $stateParams.datasource || "DEMOdz";
+            vm.dataset = $stateParams.datasource || osApi.getDataSource();
             vm.colnames = [];
             vm.rows = [];
             vm.search = "";

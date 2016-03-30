@@ -22,7 +22,7 @@
         function PathwaysController(osApi, $state, $stateParams, $scope, $sce, cytoscape) {
             var markersNetwork;
             var vm = this;
-            vm.datasource = $stateParams.datasource || "DEMOdz";
+            vm.datasource = $stateParams.datasource || osApi.getDataSource();
             vm.toggleFilter = function() {
                 angular.element(".container-filters").toggleClass("container-filters-collapsed");
                 angular.element(".container-filter-toggle").toggleClass("container-filter-toggle-collapsed");

@@ -23,7 +23,7 @@
 
             // View Model
             var vm = this;
-            vm.datasource = $stateParams.datasource || "DEMOdz";
+            vm.datasource = $stateParams.datasource || osApi.getDataSource();
             vm.deathMinFilter = vm.deathMinValue = 45;
             vm.deathMaxFilter = vm.deathMaxValue = 66;
             vm.survivalMinFilter = vm.survivalMinValue = 3;
@@ -39,7 +39,7 @@
                 angular.element(".container-filter-toggle").toggleClass("container-filter-toggle-collapsed");
             };
             vm.update = function() {
-                update(true);
+                update();
             };
 
             // Elements
@@ -72,41 +72,59 @@
                 var lines, circles, text;
                 var xScale, yScale;
 
-                function create(abs, vectors, genes) {
-                    if (circles) circles.remove();
-                    if (lines) lines.remove();
+                function draw(abs, vectors, genes) {
+                    
                     var nAbs = -1.0 * abs;
 
                     xScale = d3.scale.linear().domain([nAbs, abs]).range([0, width])
                     yScale = d3.scale.linear().domain([nAbs, abs]).range([height, 0])
-                    text = svg.selectAll("text")
-                        .data(vectors)
+
+                    text = svg.selectAll("text").data(vectors);
+
+                    text
                         .enter().append("text")
-                        .attr("class", "text")
-                        .attr("x", function(v) {
-                            return xScale(v[0]);
+                        .attr({
+                            "class": "text",
+                            "x": function(v) { return xScale(v[0]); },
+                            "y": function(v) { return yScale(v[1]); },
+                            "text-anchor": function(v) { return (v[0] > 0) ? "start" : "end" }
                         })
-                        .attr("y", function(v) {
-                            return yScale(v[1]);
-                        })
-                        .text(function(v) {
-                            return v.name;
-                        })
-                        .attr("text-anchor",
-                            function(v) {
-                                var lr = (v[0] > 0) ? "start" : "end";
-                                return lr;
-                            })
+                        .text(function(v) { return v.name; })
                         .style("fill", "black");
-                    lines = svg.selectAll("line")
-                        .data(vectors)
+
+                    text
+                        .transition()
+                        .duration(900)
+                        .attr({
+                            "x": function(v) { return xScale(v[0]); },
+                            "y": function(v) { return yScale(v[1]); }
+                        });
+
+                    text
+                        .exit()
+                        .remove();
+                        
+
+                    lines = svg.selectAll("line").data(vectors)
+
+                    lines
                         .enter()
                         .append("line")
-                        .attr("class", "line")
-                        .style("stroke-width", 3)
+                        .attr({
+                            "class": "line",
+                            "stroke-width": 3,
+                            "x1": xScale(0),
+                            "y1": yScale(0),
+                            "x2": function(v) { return xScale(v[0]); },
+                            "y2": function(v) { return yScale(v[1]); }
+                        })
                         .style("stroke", function(d) {
                             return (d.name.indexOf("Age")) ? "#1396de" : "#38347b"
-                        })
+                        });
+
+                    lines
+                        .transition()
+                        .duration(900)
                         .attr("x1", xScale(0))
                         .attr("y1", yScale(0))
                         .attr("x2", function(v) {
@@ -115,20 +133,24 @@
                         .attr("y2", function(v) {
                             return yScale(v[1]);
                         });
-                    circles = svg.selectAll("circle")
-                        .data(genes)
+
+                    lines
+                        .exit().remove();
+                  
+                    circles = svg.selectAll("circle").data(genes);
+
+                    circles
                         .enter()
                         .append("circle")
-                        .attr("cx", function(d) {
-                            return xScale(d[0]);
+                        .attr({
+                            "cx": function(d) { return xScale(d[0]); },
+                            "cy": function(d) { return yScale(d[1]); },
+                            "r": 3
                         })
-                        .attr("cy", function(d) {
-                            return yScale(d[1]);
+                        .style({
+                            'fill': 'black',
+                            'opacity': 1
                         })
-                        .attr("r", function() {
-                            return 3;
-                        })
-                        .style("fill", 'black')
                         .on("click", function(d) {
                             angular.element('#plsr-webpage').modal();
                             var url = "http://www.genecards.org/cgi-bin/carddisp.pl?gene=" + d.name;
@@ -152,7 +174,29 @@
                         })
                         .on("mouseout", function() {
                             return tooltip.style("visibility", "hidden");
-                        });
+                        })
+
+
+                    circles
+                        .transition()
+                        .duration(900)
+                        .each("start", function() { d3.select(this) })
+                        .delay(function(d, i) {
+                            return i / genes.length * 500; // Dynamic delay (i.e. each item delays a little longer)
+                        })
+                        .attr("cx", function(d) { return xScale(d[0]);  })
+                        .attr("cy", function(d) { return yScale(d[1]);  })
+                        .each("end", function() { // End animation
+                            d3.select(this) // 'this' means the current element
+                                .transition()
+                                .duration(500)
+                                .style("fill", "black") // Change color
+                                .attr("r", 3); // Change radius
+                        })
+
+                    circles
+                        .exit().remove();
+
                 }
 
                 function update(abs, vectors, genes) {
@@ -167,6 +211,7 @@
                         .attr("y", function(v) {
                             return yScale(v[1]);
                         })
+
 
 
                     lines
@@ -184,7 +229,10 @@
 
 
                     circles
-                        .data(genes) // Update with new data
+                        .data(genes); // Update with new data
+                        
+
+                    circles
                         .transition()
                         .duration(900)
                         .each("start", function() { // Start animation
@@ -208,14 +256,13 @@
                                 .duration(500)
                                 .style("fill", "black") // Change color
                                 .attr("r", 3); // Change radius
-                        });
+                        })
                 }
 
 
 
                 return {
-                    create: create,
-                    update: update
+                    draw: draw
 
                 }
             })("#plsr-chart");
@@ -248,7 +295,7 @@
                             vm.survivalMinValue = Math.floor(payload.Survival[0] / 365.24);
                             vm.survivalMaxValue = Math.floor(payload.Survival[4] / 365.24);
                             $scope.$watch('vm.geneSet', function() {
-                                update(false);
+                                update();
                             });
                         });
                     });
@@ -257,7 +304,7 @@
 
 
             // API Call To Calculate PLSR
-            var update = function(animate) {
+            var update = function() {
                 osApi.setBusyMessage("Calculating PLSR");
                 var factors = [{
                     name: "Survival",
@@ -285,8 +332,8 @@
                     var abs = payload.maxValue * 1.2;
 
 
-                    if (animate) chart.update(abs, vectors, genes);
-                    else chart.create(abs, vectors, genes);
+                    chart.draw(abs, vectors, genes);
+                    
                     osApi.setBusy(false);
                 });
             };

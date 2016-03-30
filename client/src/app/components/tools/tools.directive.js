@@ -21,7 +21,7 @@
         /** @ngInject */
         function ToolsController(osApi, $state, $stateParams) {
             var vm = this;
-            vm.datasource = $stateParams.datasource || "DEMOdz";
+            vm.datasource = $stateParams.datasource || osApi.getDataSource();
             vm.tools = [{
                 name: 'Markers + Patients',
                 route: 'markers',

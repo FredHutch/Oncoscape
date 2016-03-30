@@ -24,7 +24,7 @@
 
             // View Model
             var vm = this;
-            vm.datasource = $stateParams.datasource || 'DEMOdz';
+            vm.datasource = $stateParams.datasource || osApi.getDataSource();
             vm.optInteractiveModes;
             vm.optInteractiveMode;
             vm.optPatientLayouts;
