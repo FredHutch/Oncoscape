@@ -4486,17 +4486,17 @@ test_create.Progression.records <- function(study_name)
 		checkTrue(is.list(x))
 		checkEquals(names(x[[1]]), c("PatientID", "PtNum", "study", "Name", "Fields"))
 		checkEquals(names(x[[1]][["Fields"]]), c("date", "event", "number"))
-		checkEquals(x[[1]], list(PatientID="TCGA.AF.2689", PtNum=2, study=study, Name="Progression", 
+		checkEquals(x[[1]], list(PatientID="TCGA.AF.2689", PtNum=2, study=study_name, Name="Progression", 
 							Fields=list(date="10/29/2009", event=as.character(NA), number=1)))
 		x <- create.Progression.records(study_name, "TCGA.AF.A56K")  #in nte table
 		checkEquals(length(x), 1)
-		checkEquals(x[[1]], list(PatientID="TCGA.AF.A56K", PtNum=16, study=study, Name="Progression", 
+		checkEquals(x[[1]], list(PatientID="TCGA.AF.A56K", PtNum=16, study=study_name, Name="Progression", 
 							Fields=list(date="05/02/2009", event="LOCOREGIONAL DISEASE", number=1)))
 		x <- create.Progression.records(study_name, "TCGA.AF.3911")  #2 progression events
 		checkEquals(length(x), 2)
-		checkEquals(x[[1]], list(PatientID="TCGA.AF.3911", PtNum=8, study=study, Name="Progression", 
+		checkEquals(x[[1]], list(PatientID="TCGA.AF.3911", PtNum=8, study=study_name, Name="Progression", 
 							Fields=list(date="11/27/2010", event=as.character(NA), number=1)))
-		checkEquals(x[[2]], list(PatientID="TCGA.AF.3911", PtNum=8, study=study, Name="Progression", 
+		checkEquals(x[[2]], list(PatientID="TCGA.AF.3911", PtNum=8, study=study_name, Name="Progression", 
 							Fields=list(date="10/18/2011", event=as.character(NA), number=2)))
 	}
 }
@@ -4547,6 +4547,8 @@ test_create.Absent.records <- function(study_name)
 					Fields=list(date="11/06/2004", Radiation="TRUE", Drug="TRUE", Pulmonary=as.character(NA))))
 		x <- create.Absent.records(study_name, "TCGA.02.0009") #has f2: no radiation
 		checkEquals(x[[1]], list(PatientID="TCGA.02.0009", PtNum=5, study=study_name, Name="Absent",
+					Fields=list(date=as.character(NA), Radiation="TRUE", Drug=as.character(NA), Pulmonary=as.character(NA))))
+		checkEquals(x[[2]], list(PatientID="TCGA.02.0009", PtNum=5, study=study_name, Name="Absent",
 					Fields=list(date="09/22/2003", Radiation="TRUE", Drug=as.character(NA), Pulmonary=as.character(NA))))
 	}
   if(study_name == "TCGAhnsc"){
@@ -4604,11 +4606,11 @@ test_create.Absent.records <- function(study_name)
 		checkTrue(is.list(x))
 		checkEquals(length(x),3)
 		checkEquals(names(x[[1]][["Fields"]]), c("date", "Radiation", "Drug", "Pulmonary"))
-		checkEquals(x[[3]], list(PatientID="TCGA.AF.2689", PtNum=2, study=study_name, Name="Absent", 
-					Fields=list(date="10/29/2009", Radiation="TRUE", Drug="FALSE", Pulmonary=as.character(NA))))
 		checkEquals(x[[1]], list(PatientID="TCGA.AF.2689", PtNum=2, study=study_name, Name="Absent", 
-					Fields=list(date="04/07/2010", Radiation="TRUE", Drug="FALSE", Pulmonary=as.character(NA))))
+					Fields=list(date="10/29/2009", Radiation="TRUE", Drug="FALSE", Pulmonary=as.character(NA))))
 		checkEquals(x[[2]], list(PatientID="TCGA.AF.2689", PtNum=2, study=study_name, Name="Absent", 
+					Fields=list(date="04/07/2010", Radiation="TRUE", Drug="FALSE", Pulmonary=as.character(NA))))
+		checkEquals(x[[3]], list(PatientID="TCGA.AF.2689", PtNum=2, study=study_name, Name="Absent", 
 					Fields=list(date="02/09/2012", Radiation="TRUE", Drug="TRUE", Pulmonary=as.character(NA))))
 	}
 }
@@ -4639,20 +4641,117 @@ test_create.Tests.records <- function(study_name)
 	    					Fields=list(date=as.character(NA),Test="estro",Result="nteEstroStatus:POSITIVE")))
 	}
   if(study_name == "TCGAcoad"){
+		x <- create.Tests.records(study_name, "TCGA.DM.A28E")
+		checkTrue(is.list(x))
+		checkEquals(names(x[[1]]), c("PatientID", "PtNum", "study", "Name", "Fields"))
+		checkEquals(names(x[[1]][["Fields"]]), c("date", "Test", "Result"))
+		checkEquals(length(x),7) #has two mutations
+		checkEquals(names(x[[1]][["Fields"]]), c("Date","Type","Test", "Result"))
+		checkEquals(x[[1]], list(PatientID="TCGA.DM.A28E", PtNum=389, study=study_name, Name="Tests", 
+							Fields=list(Date=NA, Type=NA,Test="kras", Result="12")))
+		checkEquals(x[[2]], list(PatientID="TCGA.DM.A28E", PtNum=389, study=study_name, Name="Tests", 
+							Fields=list(Date=NA, Type=NA,Test="braf", Result="Normal")))
+
+		x <- create.Tests.records(study_name, "TCGA.NH.A8F8")
+		checkEquals(x[[1]], list(PatientID="TCGA.NH.A8F8", PtNum=446, study=study_name, Name="Tests",
+							Fields=list(Date=NA, Type=NA,Test="kras", Result="12")))
+		checkEquals(x[[2]], list(PatientID="TCGA.NH.A8F8", PtNum=446, study=study_name, Name="Tests",
+							Fields=list(Date=NA, Type=NA,Test="braf", Result=NA)))
+		checkEquals(x[[3]], list(PatientID="TCGA.NH.A8F8", PtNum=446, study=study_name, Name="Tests",
+							Fields=list(Date=NA, Type=NA,Test="cea", Result="24.9")))
+		x <- create.Tests.records(study_name, "TCGA.A6.5662")
+		checkEquals(x[[1]], list(PatientID="TCGA.A6.5662", PtNum=31, study=study_name, Name="Tests",
+							Fields=list(Date=NA, Type=NA,Test="kras", Result="12")))
+		checkEquals(x[[2]], list(PatientID="TCGA.A6.5662", PtNum=31, study=study_name, Name="Tests",
+							Fields=list(Date=NA, Type=NA,Test="braf", Result=NA)))
+		checkEquals(x[[3]], list(PatientID="TCGA.A6.5662", PtNum=31, study=study_name, Name="Tests",
+							Fields=list(Date=NA, Type=NA,Test="loci", Result="tested: 5 ; abnormal count: 0")))
+		checkEquals(x[[4]], list(PatientID="TCGA.A6.5662", PtNum=31, study=study_name, Name="Tests",
+							Fields=list(Date=NA, Type="IHC",Test="mismatched protein", Result="tested: YES ; mismatch proteins loss: MLH1 Expressed|MSH2 Expressed|PMS2 Expressed|MSH6 Expressed")))
+
 	}
   if(study_name == "TCGAgbm"){
+  	checkEquals(x, list(PatientID="TCGA.02.0001", PtNum=1, study=study, Name="Tests",Fields=list(Date=NA, Type=NA, Test=NA,Res=NA)))
 	}
   if(study_name == "TCGAhnsc"){	
+  	 x <- create.Tests.record("TCGA-QK-A6V9") #nte
+    checkTrue(is.list(x))
+    checkEquals(names(x[[1]]), c("PatientID", "PtNum", "study", "Name", "Fields"))
+    checkEquals(names(x[[1]][["Fields"]]), c("Test", "Result"))
+    checkEquals(x[[1]], list(PatientID="TCGA.QK.A6V9", PtNum=485, study=study, Name="Tests", Fields=list(Test="hpv status ISH", Result="Positive")))
+    checkEquals(x[[2]], list(PatientID="TCGA.QK.A6V9", PtNum=485, study=study, Name="Tests", Fields=list(Test="hpv status p16", Result="Positive")))
+    x <- create.Tests.record("TCGA-CN-A497")
+    checkEquals(x[[1]], list(PatientID="TCGA.CN.A497", PtNum=116, study=study, Name="Tests", Fields=list(Test="egfr", Result="Unamplified")))
+    checkEquals(x[[2]], list(PatientID="TCGA.CN.A497", PtNum=116, study=study, Name="Tests", Fields=list(Test="hpv status ISH", Result="Negative")))
+    checkEquals(x[[3]], list(PatientID="TCGA.CN.A497", PtNum=116, study=study, Name="Tests", Fields=list(Test="hpv status p16", Result="Negative")))
+
     }
   if(study_name == "TCGAlgg"){
+  	 x <- create.Tests.record("TCGA-CS-6290")
+    checkTrue(is.list(x))
+    checkEquals(names(x), c("PatientID", "PtNum", "study", "Name", "Fields"))
+    checkEquals(x, list(PatientID="TCGA.CS.6290", PtNum=1, study=study, Name="Tests",Fields=list(Date=NA, Type=NA, Test="IDH1",Res=NA)))
+    x <- create.Tests.record(tcga.ids[86])
+    checkEquals(x, list(PatientID="TCGA.HW.7489", PtNum=86, study=study, Name="Tests",
+    Fields=list(Date=NA, Type="Sequence Analysis", Test="IDH1",Res="Yes")))
+    x <- create.Tests.record(tcga.ids[402])
+    checkEquals(x, list(PatientID="TCGA.TM.A84C", PtNum=402, study=study, Name="Tests",
+    Fields=list(Date=NA, Type="IHC", Test="IDH1",Res="No")))
   	}	
   if(study_name == "TCGAluad"){
+  	  print("--- test_create.Absent.record")
+    x <- create.Tests.record("TCGA-69-7761") #nte
+    checkTrue(is.list(x))
+    checkEquals(names(x[[1]]), c("PatientID", "PtNum", "study", "Name", "Fields"))
+    checkEquals(names(x[[1]][["Fields"]]), c("Test", "Result"))
+    checkEquals(x[[1]], list(PatientID="TCGA.69.7761", PtNum=294, study=study, Name="Tests", Fields=list(Test="egfr", Result="Other")))
+    x <- create.Tests.record("TCGA-49-AAQV")#has two mutations
+    checkEquals(x[[1]], list(PatientID="TCGA.49.AAQV", PtNum=118, study=study, Name="Tests",Fields=list(Test="egfr", Result="Exon 19 Deletion")))
+    checkEquals(x[[2]], list(PatientID="TCGA.49.AAQV", PtNum=118, study=study, Name="Tests",Fields=list(Test="eml4_alk_translocation", Result=NA)))
+
 	}
   if(study_name == "TCGAlusc"){
+  	 checkTrue(is.list(x))
+    checkEquals(names(x[[1]]), c("PatientID", "PtNum", "study", "Name", "Fields"))
+    checkEquals(names(x[[1]][["Fields"]]), c("Date","Type","Test", "Result"))
+    checkEquals(x[[1]], list(PatientID="TCGA.21.5783", PtNum=32, study=study, Name="Tests", Fields=list(Date=NA, Type=NA,Test="egfr", Result="Not found")))
+    checkEquals(x[[2]], list(PatientID="TCGA.21.5783", PtNum=32, study=study, Name="Tests", Fields=list(Date=NA, Type=NA,Test="eml4_alk_translocation", Result="Not found")))
+    checkEquals(x[[3]], list(PatientID="TCGA.21.5783", PtNum=32, study=study, Name="Tests", Fields=list(Date=NA, Type=NA,Test="pulmonary_function", Result="YES")))
+    
+    x <- create.Tests.record("TCGA-60-2710")#has two mutations
+    checkEquals(x[[1]], list(PatientID="TCGA.60.2710", PtNum=238, study=study, Name="Tests",Fields=list(Date=NA, Type=NA,Test="egfr", Result="Not found")))
+    checkEquals(x[[2]], list(PatientID="TCGA.60.2710", PtNum=238, study=study, Name="Tests",Fields=list(Date=NA, Type=NA,Test="eml4_alk_translocation", Result="Not found")))
+ 
 	}
   if(study_name == "TCGAprad"){
+  	 checkTrue(is.list(x))
+    checkEquals(names(x[[1]]), c("PatientID", "PtNum", "study", "Name", "Fields"))
+    checkEquals(names(x[[1]][["Fields"]]), c("Date","Type","Test", "Result"))
+    checkEquals(length(x),3)
+    checkEquals(x[[1]], list(PatientID="TCGA.2A.A8VL", PtNum=1, study=study, Name="Tests", Fields=list(Date="08/09/2011",Type="PSA",Test="PSA", Result="0.05")))
+    checkEquals(x[[2]], list(PatientID="TCGA.2A.A8VL", PtNum=1, study=study, Name="Tests", Fields=list(Date="01/22/2010",Type="bone scan",Test="bone scan", Result="Normal (no evidence of prostate cancer) [cM0]")))
+    checkEquals(x[[3]], list(PatientID="TCGA.2A.A8VL", PtNum=1, study=study, Name="Tests", Fields=list(Date=NA,Type="CT scan",Test="CT scan", Result=NA)))
+
 	}
   if(study_name == "TCGAread"){
+  	 print("--- test_create.Tests.record")
+    x <- create.Tests.record("TCGA-DY-A1DE") #has two mutations
+    checkTrue(is.list(x))
+    checkEquals(names(x[[1]]), c("PatientID", "PtNum", "study", "Name", "Fields"))
+    checkEquals(names(x[[1]][["Fields"]]), c("Date","Type","Test", "Result"))
+    checkEquals(x[[1]], list(PatientID="TCGA.DY.A1DE", PtNum=133, study=study, Name="Tests", Fields=list(Date=NA, Type=NA,Test="kras", Result="61")))
+    checkEquals(x[[2]], list(PatientID="TCGA.DY.A1DE", PtNum=133, study=study, Name="Tests", Fields=list(Date=NA, Type=NA,Test="braf", Result="Normal")))
+    checkEquals(x[[3]], list(PatientID="TCGA.DY.A1DE", PtNum=133, study=study, Name="Tests", Fields=list(Date=NA, Type=NA,Test="loci", Result="tested: 5 ; abnormal count: 0")))
+    
+    x <- create.Tests.record("TCGA-AG-4021")
+    checkEquals(x[[1]], list(PatientID="TCGA.AG.4021", PtNum=74, study=study, Name="Tests",Fields=list(Date=NA, Type=NA,Test="braf", Result=NA)))
+    checkEquals(x[[2]], list(PatientID="TCGA.AG.4021", PtNum=74, study=study, Name="Tests",Fields=list(Date=NA, Type=NA,Test="cea", Result="3101")))
+    
+    x <- create.Tests.record("TCGA-AF-6136")
+    checkEquals(x[[1]], list(PatientID="TCGA.AF.6136", PtNum=13, study=study, Name="Tests",Fields=list(Date=NA, Type=NA,Test="cea", Result="18.3")))
+    checkEquals(x[[2]], list(PatientID="TCGA.AF.6136", PtNum=13, study=study, Name="Tests",Fields=list(Date=NA, Type=NA,Test="loci", Result="tested: 5 ; abnormal count: 0")))
+    checkEquals(x[[3]], list(PatientID="TCGA.AF.6136", PtNum=13, study=study, Name="Tests",Fields=list(Date=NA, Type="IHC",Test="mismatched protein", Result="tested: YES ; mismatch proteins loss: MLH1 Expressed|MSH2 Expressed|PMS2 Expressed|MSH6 Expressed")))
+
 	}
 }
 lapply(studies, test_create.Tests.records)
