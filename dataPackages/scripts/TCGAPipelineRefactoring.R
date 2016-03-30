@@ -3564,8 +3564,7 @@ create.Pathology.records <- function(study_name,  ptID){
 		                            N.Stage=N.Stage,
 		                            M.Stage=M.Stage,
 		                            staging.System=staging.System,
-		                            grade=grade,
-		                            disease=disease, 
+		                            grade=grade, 
 		                            date=date)))
 							  })
 				print(result)
@@ -4366,7 +4365,6 @@ test_create.Status.records <- function(study_name)
 lapply(studies, test_create.Status.records)
 #-------------------------------------------------------------------------------------------------------------------------- 
 test_create.Encounter.records <- function(study_name) 
-test_create.Encounter.records <- function(study_name)
 {
   if(study_name == "TCGAbrca"){
 		print("--- TCGAbrca_test_create.Encounter.records")
@@ -4477,7 +4475,7 @@ lapply(studies, test_create.Encounter.records)
 test_create.Procedure.records <- function(study_name)
 {
   if(study_name == "TCGAbrca"){
-		print("--- TCGAbrca_test_create.Procedure.records")
+	print("--- TCGAbrca_test_create.Procedure.records")
     x <- create.Procedure.records(study_name, "TCGA.3C.AAAU")
     checkTrue(is.list(x))
     checkEquals(names(x[[1]]), c("PatientID", "PtNum", "study", "Name", "Fields"))
@@ -4498,7 +4496,7 @@ test_create.Procedure.records <- function(study_name)
     checkEquals(x[[4]], list(PatientID="TCGA.A7.A13G", PtNum=137, study="TCGAbrca", Name="Procedure", Fields=list(date=as.character(NA), name=as.character(NA),site="NEW PRIMARY TUMOR",side=as.character(NA))))
       	}
   if(study_name == "TCGAcoad"){
-		print("--- TCGAcoad_test_create.Procedure.records")
+	print("--- TCGAcoad_test_create.Procedure.records")
     x <- create.Procedure.records(study_name, "TCGA.AD.6895")
     checkTrue(is.list(x))
     checkEquals(names(x[[1]]), c("PatientID", "PtNum", "study", "Name", "Fields"))
@@ -4509,7 +4507,7 @@ test_create.Procedure.records <- function(study_name)
     checkEquals(x[[2]], list(PatientID="TCGA.A6.A567", PtNum=53, study="TCGAcoad", Name="Procedure", Fields=list(date="02/11/2010", name=as.character(NA), site="METASTATIC", side=as.character(NA))))
 		}
   if(study_name == "TCGAgbm"){
-		print("--- TCGAgbm_test_create.Procedure.records")
+	print("--- TCGAgbm_test_create.Procedure.records")
    	checkEquals(names(x[[1]]), c("PatientID", "PtNum", "study", "Name", "Fields"))
     checkEquals(names(x[[1]][["Fields"]]), c("date", "name", "site", "side"))
     x <- create.Procedure.records(study_name, "TCGA.06.1806")
@@ -4521,9 +4519,9 @@ test_create.Procedure.records <- function(study_name)
     checkEquals(x[[2]], list(PatientID="TCGA.19.5958", PtNum=76, study="TCGAgbm", Name="Procedure", Fields=list(date="12/24/2010",name=as.character(NA), site="LOCOREGIONAL DISEASE", side=as.character(NA))))									
       	}
   if(study_name == "TCGAhnsc"){
-		print("--- TCGAhnsc_test_create.Procedure.records")
+	print("--- TCGAhnsc_test_create.Procedure.records")
     #CHECK THIS PATIENT!
-    #x <- create.Procedure.records(study_name,"TCGA.BA.5149") 
+    x <- create.Procedure.records(study_name,"TCGA.BA.5149") 
     #checkEquals(names(x[[1]]), c("PatientID", "PtNum", "study", "Name", "Fields"))
   	#checkEquals(names(x[[1]]$Fields), c("date","name","site","side"))
     #checkTrue(is.list(x))
@@ -4542,28 +4540,92 @@ test_create.Procedure.records <- function(study_name)
 	checkEquals(x[[4]], list(PatientID="TCGA.CQ.7063", PtNum=157, study="TCGAhnsc", Name="Procedure", Fields=list(date=as.character(NA),  name=as.character(NA), site=as.character(NA), side="RIGHT")))
 		}
   if(study_name == "TCGAlgg"){
-		
+	print("--- TCGAlgg_test_create.Procedure.records")
+    #CHECK!! 
+    #x <- create.Procedure.records(study_name, "TCGA.CS.6290")
+    #checkEquals(names(x[[1]]), c("PatientID", "PtNum","study", "Name", "Fields"))
+    #checkEquals(names(x[[1]]$Fields), c("date","name","site","side"))
+    #checkTrue(is.list(x))
+    #checkEquals(x[[1]], list(PatientID="TCGA.CS.6290", PtNum=1, study="TCGAlgg", Name="Procedure", Fields=list(date=as.character(NA),  name=as.character(NA), site="SUPRATENTORIAL, TEMPORAL LOBE: CEREBRAL CORTEX", side="LEFT")))
+    
+    #x <- create.Procedure.records(study_name, "TCGA.HT.8564")
+    #checkEquals(x[[1]], list(PatientID="TCGA.HT.8564", PtNum=188, study="TCGAlgg", Name="Procedure", Fields=list(date=as.character(NA), name=as.character(NA), site="SUPRATENTORIAL, TEMPORAL LOBE", side="LEFT")))
+    #checkEquals(x[[2]], list(PatientID="TCGA.HT.8564", PtNum=188, study="TCGAlgg", Name="Procedure", Fields=list(date="04/30/2012", name=as.character(NA), site="LOCOREGIONAL", side=as.character(NA))))
 		}
   if(study_name == "TCGAluad"){
-		
+		print("--- TCGAluad_test_create.Procedure.records")
+    x <- create.Procedure.records(study_name, "TCGA.05.4245")
+    checkTrue(is.list(x))
+    checkEquals(names(x[[1]]), c("PatientID", "PtNum","study", "Name", "Fields"))
+    checkEquals(names(x[[1]]$Fields), c("date","name","site","side"))
+    checkEquals(x[[2]], list(PatientID="TCGA.05.4245", PtNum=2, study="TCGAluad", Name="Procedure", Fields=list(date="01/31/2006", name=as.character(NA), site=as.character(NA), side=as.character(NA))))
+    
+    #CHECK! dates are missing in new script
+    #slight collection change, [2] has combined site [1] is NA
+    x <- create.Procedure.records(study_name,"TCGA.MP.A4T9")
+    #checkEquals(x[[2]], list(PatientID= "TCGA.MP.A4T9", PtNum=500, study="TCGAluad", Name="Procedure", Fields=list(date= "06/09/2009", name=as.character(NA), site=as.character(NA), side=as.character(NA)))
+    #checkEquals(x[[1]], list(PatientID= "TCGA.MP.A4T9", PtNum=500, study="TCGAluad", Name="Procedure", Fields=list(date="07/27/2008", name=as.character(NA), site="LOCOREGIONAL RECURRENCE|DISTANT METASTASIS", side=as.character(NA))))
 		}
   if(study_name == "TCGAlusc"){
-		
+	print("--- TCGAlusc_test_create.Procedure.records")
+    x <- create.Procedure.records(study_name,"TCGA.NK.A7XE")
+    checkTrue(is.list(x))
+    checkEquals(names(x[[1]]), c("PatientID", "PtNum","study", "Name", "Fields"))
+    checkEquals(names(x[[1]]$Fields), c("date","name","site","side"))
+    checkEquals(x[[1]], list(PatientID="TCGA.NK.A7XE", PtNum=488, study="TCGAlusc", Name="Procedure", Fields=list(date="06/12/2004", name="PROSTECTOMY", site=as.character(NA), side=as.character(NA))))
+    #CHECK! site is different
+    x <- create.Procedure.records(study_name,"TCGA.21.5786")
+    #checkEquals(x[[1]], list(PatientID= "TCGA.21.5786", PtNum=34, study="TCGAlusc", Name="Procedure", Fields=list(date="04/19/2011", name=as.character(NA), site="LOCOREGIONAL", side=as.character(NA))))
       	}
   if(study_name == "TCGAprad"){
+    print("--- TCGAprad_test_create.Procedure.records")
+    #CHECK! data is fine but its picking up BILATERAL
+    x <- create.Procedure.records(study_name, "TCGA.CH.5763")
+    #checkEquals(names(x[[1]]), c("PatientID", "PtNum","study", "Name", "Fields"))
+    #checkEquals(names(x[[1]]$Fields), c("date","name","site","side"))
+    #checkEquals(x[[1]], list(PatientID= "TCGA.CH.5763", PtNum=29, study="TCGAprad", Name="Procedure", Fields=list(date= "10/02/2007",  name=as.character(NA), site=as.character(NA), side=as.character(NA)))))
     
+    #CHECK data is fine but it is picking up BILATERAL
+    x <- create.Procedure.records(study_name,"TCGA.KK.A8IB")
+    #checkEquals(x[[1]], list(PatientID= "TCGA.KK.A8IB", PtNum=338, study="TCGAprad", Name="Procedure", Fields=list(date= "02/25/2006", name=as.character(NA), site=as.character(NA), side=as.character(NA)))))
       	}
   if(study_name == "TCGAread"){
-		
+	print("--- TCGAread_test_create.Procedure.records")
+    x <- create.Procedure.records(study_name,"TCGA.AF.A56K") 
+    checkEquals(names(x[[1]]), c("PatientID", "PtNum","study", "Name", "Fields"))
+    checkEquals(names(x[[1]]$Fields), c("date","name","site","side"))
+    checkEquals(x[[1]], list(PatientID="TCGA.AF.A56K", PtNum=16, study="TCGAread", Name="Procedure", Fields=list(date="12/29/2009", name=as.character(NA), site="LOCOREGIONAL DISEASE", side=as.character(NA))))
+    x <- create.Procedure.records(study_name,"TCGA.G5.6233") 
+    checkEquals(x[[1]], list(PatientID="TCGA.G5.6233", PtNum=168, study="TCGAread", Name="Procedure", Fields=list(date="07/24/2004", name=as.character(NA), site=as.character(NA), side=as.character(NA))))
       	}
 }
 lapply(studies, test_create.Procedure.records)
 #-------------------------------------------------------------------------------------------------------------------------- 
 test_create.Pathology.records <- function(study_name)
 {
-  print("--- test_create.Encounter.record")
+  print("--- test_create.Pathology.records")
   if(study_name == "TCGAbrca"){
-		
+	print("--- TCGAbrca_test_create.Pathology.records")
+    x <- create.Pathology.records(study_name,"TCGA.3C.AAAU")
+    #checkTrue(is.list(x))
+    #checkEquals(names(x[[1]]), c("PatientID", "PtNum", "study", "Name", "Fields"))
+    #checkEquals(names(x[[1]]$Fields), c("date", "pathDisease", "pathHistology","collection", "T.Stage","N.Stage","M.Stage","S.Stage","staging.System", "method","grade"))
+    #checkEquals(x[[1]], list(PatientID= "TCGA.3C.AAAU", PtNum=1, study=study, Name="Pathology", Fields=list(date="01/01/2004", disease="Breast", 
+    #histology="Infiltrating Lobular Carcinoma", histology.category=NA, collection="retrospective", T.Stage="TX",N.Stage="NX",M.Stage="MX",
+    #S.Stage="Stage X",staging.System="6th", method=NA)))
+    
+    #x <- create.Pathology.records(study_name,"TCGA.AO.A124")
+    #checkEquals(x[[1]], list(PatientID="TCGA.AO.A124", PtNum=357, study=study, Name="Pathology", Fields=list(date="01/01/2002", disease="Breast", 
+    #histology="Other  specify",  histology.category=NA, collection="retrospective", T.Stage="T2",N.Stage="N0 (i-)",M.Stage="M0",S.Stage="Stage IIA",
+    #staging.System="5th", method="Core Biopsy")))
+
+    #x <- create.Pathology.records(study_name,"TCGA.B6.A0I8")
+    #checkEquals(x[[1]], list(PatientID="TCGA.B6.A0I8", PtNum=459, study=study, Name="Pathology",Fields=list(date="01/01/1992", disease="Breast", 
+      #histology="Infiltrating Ductal Carcinoma", histology.category=NA, collection="retrospective",T.Stage="T1",N.Stage="NX",M.Stage="M0",
+      #S.Stage="Stage X",staging.System=NA, method="Other")))
+    #checkEquals(x[[2]], list(PatientID="TCGA.B6.A0I8", PtNum=459, study=study, Name="Pathology",Fields=list(date=NA, disease="Breast", 
+      #histology="Adenocarcinoma, Not Otherwise Specified", histology.category="Adenocarcinoma", collection=NA,T.Stage="T2",N.Stage="N0",M.Stage="M0",
+      #S.Stage="Stage II",staging.System="2nd", method=NA)))
       	}
   if(study_name == "TCGAcoad"){
 		
