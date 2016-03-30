@@ -774,6 +774,23 @@ if(STATUS){
 		return(df)
 	}	
 	#--------------------------------------------------------------------------------
+	Status.mapping.date.Check <- function(df){
+		
+		if(length(which(as.numeric(df$lastContact) > as.numeric(df$deathDate)))) {
+			lastContactGreaterThanDeath  = paste(df[which(df$lastContact > df$deathDate),]$PatientID)
+			warning("last contact occured after death: ", lastContactGreaterThanDeath)
+		}
+        df[which(!(is.na(df$lastContact))),]$date <- df[which(!(is.na(df$lastContact))),]$lastContact
+        df[which(!(is.na(df$deathDate))),]$date <- df[which(!(is.na(df$deathDate))),]$deathDate
+
+		return(df)
+	}	
+	#--------------------------------------------------------------------------------
+	Status.mapping.date.Calculation <- function(df){
+		df$date <- format(as.Date(df$dxyear, "%m/%d/%Y") + as.integer(df$date), "%m/%d/%Y")
+		return(df)
+	}	
+	#--------------------------------------------------------------------------------
 	Status.mapping.vital <- function(df){
 		from <- Status.unique.values$unique.vital
 		to 	 <- from 
@@ -789,44 +806,7 @@ if(STATUS){
 		df$tumorStatus <- mapvalues(df$tumorStatus, from = from, to = to, warn_missing = F)
 		return(df)
 	}
-	#--------------------------------------------------------------------------------
-	Status.mapping.date.Filter <- function(df){
-		
-		if(length(which(as.integer(df$lastContact) > as.integer(df$deathDate)))) {
-			lastContactGreaterThanDeath  = paste(df[which(df$lastContact > df$deathDate),]$PatientID)
-			warning("last contact occured after death: ", lastContactGreaterThanDeath)
-		}
-		
-        df[which(!(is.na(df$lastContact))),]$date <- df[which(!(is.na(df$lastContact))),]$lastContact
-        df[which(!(is.na(df$deathDate))),]$date <- df[which(!(is.na(df$deathDate))),]$deathDate
-        unique.patients <- unique(df$PatientID)
-		capturedRecords <- lapply(unique.patients, function(p){
-								ptDF <- df[df$PatientID==p,]
-								lastContactDate <- max(as.integer(ptDF$date), na.rm=FALSE)
-								capturedRecord <- ptDF[ptDF$date==lastContactDate, 
-													  c("PatientID", "tumorStatus", "vital","date")]
-								if(nrow(capturedRecord) > 1){
-									if(any(duplicated(capturedRecord))){
-										capturedRecord <- capturedRecord[-which(duplicated(capturedRecord)),]
-									}
-									if(nrow(capturedRecord) > 1){
-										capturedRecord$tumorStatus = paste(unique(capturedRecord$tumorStatus), collapse="/")
-										capturedRecord[1,]$vital = paste(unique(capturedRecord$vital), collapse="/")
-										capturedRecord <- capturedRecord[1,]
-									}
-								}			  
-								return(capturedRecord)
-								})
-		filteredDF <- ldply(capturedRecords, data.frame)		
-		return(filteredDF)
-	}	
-	#--------------------------------------------------------------------------------
-	Status.mapping.date.Calculation <- function(df){
-		df$date <- format(as.Date(df$dxyear, "%m/%d/%Y") + as.integer(df$date), "%m/%d/%Y")
-		return(df)
-	}	
 } # End of Status Native Functions
-#----------------------   Progression functions Start Here   --------------------
 if(PROGRESSION){
 	Progression.unique.request <- function(study_name){
 	  	uri <- rawTablesRequest(study_name, "Progression")
@@ -2406,38 +2386,36 @@ create.Status.records <- function(study_name,  ptID){
 	if(exists("tbl.f2")) tbl.f <- rbind.fill(tbl.f, tbl.f2)
 	if(exists("tbl.f3")) tbl.f <- rbind.fill(tbl.f, tbl.f3)
 
-	data.Status <- tbl.f[-which(duplicated(tbl.f)),]
+	data.Status <- tbl.f
 	data.Status$date <- rep(NA, nrow(data.Status))
 	data.Status <- Status.mapping.date(data.Status)
+	data.Status <- Status.mapping.date.Check(data.Status)
 	data.Status <- Status.mapping.vital(data.Status)
 	data.Status <- Status.mapping.tumorStatus(data.Status)
-	data.Status <- Status.mapping.date.Filter(data.Status)
-	
 	DX <- tbl.pt[,c("PatientID", "dxyear")]	
 	data.Status <- merge(data.Status, DX)
-	data.Status <- Status.mapping.date.Calculation(data.Status)
-	
+	data.Status <- data.Status[,c("PatientID", "vital", "tumorStatus", "dxyear", "date")]
+	data.Status <- data.Status[-which(duplicated(data.Status)),]
+
 	#more computation to determine the most recent contacted/death date, then find the matching vital & tumorStatus
 	#need group function by patient and determin.
 	#recentDatetbl <- aggregate(date ~ PatientID, data.Status, function(x){max(x)})
 	
- 
-	if(FALSE){
-	 		recentTbl <- c()
 
-		 	for(i in 1:nrow(tbl.pt)){
-		 		tmpDF <- subset(data.Status, PatientID == tbl.pt$PatientID[i], select = c(PatientID, vital, tumorStatus, dxyear, as.integer(date)))
-		 		tmpDF <- tmpDF[order(as.integer(tmpDF$date), decreasing=TRUE, na.last=TRUE),]
-		 		if(nrow(tmpDF[which(tmpDF$date == tmpDF[1,]$date), ]) > 1){
-		 			tmpDup <- tmpDF[which(tmpDF$date == tmpDF[1,]$date), ]
-		 			tmpDF[1, "vital"] 		= 	ifelse(any(duplicated(tmpDup[,"vital"])), tmpDup[1, "vital"], paste(tmpDup[, "vital"]))
-					tmpDF[1, "tumorStatus"] = 	ifelse(any(duplicated(tmpDup[,"tumorStatus"])), tmpDup[1, "tumorStatus"], paste(tmpDup[, "tumorStatus"], collapse=";"))
-		 		}
-				recentTbl <- rbind.fill(recentTbl, tmpDF[1,])
-		 	}
-    	    data.Status <- Status.mapping.date.Calculation(recentTbl)
-        }
- 	
+ 	recentTbl <- c()
+
+ 	for(i in 1:nrow(tbl.pt)){
+ 		tmpDF <- subset(data.Status, PatientID == tbl.pt$PatientID[i], select = c(PatientID, vital, tumorStatus, dxyear, as.integer(date)))
+ 		tmpDF <- tmpDF[order(as.integer(tmpDF$date), decreasing=TRUE, na.last=TRUE),]
+ 		if(nrow(tmpDF[which(tmpDF$date == tmpDF[1,]$date), ]) > 1){
+ 			tmpDup <- tmpDF[which(tmpDF$date == tmpDF[1,]$date), ]
+ 			tmpDF[1, "vital"] 		= 	ifelse(any(duplicated(tmpDup[,"vital"])), tmpDup[1, "vital"], paste(tmpDup[, "vital"]))
+			tmpDF[1, "tumorStatus"] = 	ifelse(any(duplicated(tmpDup[,"tumorStatus"])), tmpDup[1, "tumorStatus"], paste(tmpDup[, "tumorStatus"], collapse=";"))
+ 		}
+		recentTbl <- rbind.fill(recentTbl, tmpDF[1,])
+ 	}
+
+ 	data.Status <- Status.mapping.date.Calculation(recentTbl)
 
  	ptNumMap <- ptNumMapUpdate(tbl.pt)
  	if(missing(ptID)){
@@ -4292,104 +4270,75 @@ test_create.Status.records <- function(study_name)
    						Fields=list(date="10/08/2003", status="DEAD", tumorStatus="WITH TUMOR")))
 	}
   if(study_name == "TCGAhnsc"){
-		x <- create.Rad.records(study_name, "TCGA.CX.7082")
+		x <- create.Status.records(study_name, "TCGA.4P.AA8J")
 		checkTrue(is.list(x))
-		checkEquals(x[[1]], list(PatientID="TCGA.CX.7082", PtNum=364, study=study_name, Name="Radiation", 
-							Fields=list(date=c(as.character(NA), as.character(NA)), therapyType=as.character(NA), intent=as.character(NA), 
-							target="LOCOREGIONAL, AT PRIMARY TUMOR SITE: NO", totalDose=as.character(NA), 
-							totalDoseUnits=as.character(NA), numFractions=as.character(NA))))
-		
-		x <- create.Rad.records(study_name, "TCGA.BA.5153")  # rad two records
-		checkEquals(x[[1]], list(PatientID="TCGA.BA.5153", PtNum=10, study=study_name, Name="Radiation", 
-							Fields=list(date=c("02/11/2005", "04/02/2005"), therapyType=as.character(NA), 
-							intent="ADJUVANT", target="PRIMARY TUMOR FIELD", totalDose=as.character(NA), 
-							totalDoseUnits=as.character(NA), numFractions=as.character(NA))))
-		checkEquals(x[[2]], list(PatientID="TCGA.BA.5153", PtNum=10, study=study_name, Name="Radiation", 
-							Fields=list(date=c(as.character(NA), as.character(NA)), therapyType=as.character(NA), 
-							intent="PALLIATIVE", target="DISTANT RECURRENCE", totalDose=as.character(NA), 
-							totalDoseUnits=as.character(NA), numFractions=as.character(NA))))
+		checkEquals(names(x[[1]]), c("PatientID", "PtNum", "study", "Name", "Fields"))
+		checkEquals(names(x[[1]]$Fields), c("date", "status", "tumorStatus"))
+		checkEquals(x[[1]], list(PatientID="TCGA.4P.AA8J", PtNum=1, study=study_name, Name="Status", 
+						Fields=list(date="04/13/2013", status="ALIVE", tumorStatus="TUMOR FREE")))
+		x <- create.Status.records(study_name, "TCGA.CN.6017")
+		checkEquals(x[[1]], list(PatientID="TCGA.CN.6017", PtNum=100, study=study_name, Name="Status", 
+						Fields=list(date="05/03/2012", status="DEAD", tumorStatus="TUMOR FREE")))
 
-		x <- create.Rad.records(study_name, "TCGA.CV.A6JN")  # omf two records
-		checkEquals(x[[2]], list(PatientID="TCGA.CV.A6JN", PtNum=355, study=study_name, Name="Radiation", 
-							Fields=list(date=c("02/09/2011", "03/19/2011"), therapyType="EXTERNAL", intent=as.character(NA), 
-							target="PRIMARY TUMOR FIELD", totalDose="6000", totalDoseUnits="CGY", numFractions="30")))
-		checkEquals(x[[1]], list(PatientID="TCGA.CV.A6JN", PtNum=355, study=study_name, Name="Radiation", 
-							Fields=list(date=c("02/09/2011", "03/19/2011"), therapyType="EXTERNAL", intent=as.character(NA), 
-							target="REGIONAL SITE", totalDose="5700", totalDoseUnits="CGY", numFractions="30")))
+		x <- create.Status.records(study_name, "TCGA.BA.4074")
+		checkEquals(x[[1]], list(PatientID="TCGA.BA.4074", PtNum=2, study=study_name, Name="Status", 
+						Fields=list(date="04/07/2004", status="DEAD", tumorStatus="WITH TUMOR")))
 	}
   if(study_name == "TCGAlgg"){
-		x <- create.Rad.records(study_name, "TCGA.CS.6290")
+		x <- create.Status.records(study_name, "TCGA.CS.6290")
 		checkTrue(is.list(x))
-		checkEquals(length(x), 1)
-		checkEquals(names(x[[1]]), c("PatientID", "PtNum","study", "Name", "Fields"))
-		checkEquals(x[[1]], list(PatientID="TCGA.CS.6290", PtNum=1, study=study_name, Name="Radiation", 
-							Fields=list(date=c(as.character(NA), "04/26/2009"), therapyType="EXTERNAL BEAM", intent="ADJUVANT", 
-							target="PRIMARY TUMOR FIELD", totalDose=as.character(NA), totalDoseUnits=as.character(NA), 
-							numFractions=as.character(NA))))
-		x <- create.Rad.records(study_name, "TCGA.FG.A4MY")
-		checkEquals(x[[1]], list(PatientID="TCGA.FG.A4MY", PtNum=200, study=study_name, Name="Radiation", 
-							Fields=list(date=c("02/06/2012", "03/18/2012"), therapyType="EXTERNAL", intent=as.character(NA), 
-							target="PRIMARY TUMOR FIELD", totalDose="5700", totalDoseUnits="CGY", numFractions="30")))
-		x <- create.Rad.records(study_name, "TCGA.HT.A619")
-		checkEquals(x[[1]], list(PatientID="TCGA.HT.A619", PtNum=260, study=study_name, Name="Radiation", 
-							Fields=list(date=c("08/19/2001", as.character(NA)), therapyType=as.character(NA), intent=as.character(NA), 
-							target="LOCOREGIONAL, AT PRIMARY TUMOR SITE: YES", totalDose=as.character(NA), 
-							totalDoseUnits=as.character(NA), numFractions=as.character(NA))))
+		checkEquals(names(x[[1]]), c("PatientID", "PtNum", "study", "Name", "Fields"))
+		checkEquals(names(x[[1]]$Fields), c("date", "status", "tumorStatus"))
+		checkEquals(x[[1]], list(PatientID="TCGA.CS.6290", PtNum=1, study=study_name, Name="Status", 
+						Fields=list(date="07/01/2010", status="ALIVE", tumorStatus="NA;WITH TUMOR")))
 	}
   if(study_name == "TCGAluad"){
-		x <- create.Rad.records(study_name, "TCGA.05.4382")
+  		x <- create.Status.records(study_name, "TCGA.05.4244")
 		checkTrue(is.list(x))
-		checkEquals(length(x), 2)
-		checkEquals(x[[1]], list(PatientID="TCGA.05.4382", PtNum=5, study=study_name, Name="Radiation", 
-							Fields=list(date=c("01/01/2010", "01/29/2010"), therapyType="EXTERNAL", intent=as.character(NA), 
-							target="DISTANT RECURRENCE", totalDose=as.character(NA), totalDoseUnits=as.character(NA), numFractions=as.character(NA))))
-		x <- create.Rad.records(study_name, "TCGA.44.7669")  # cCi
-		checkEquals(x[[1]], list(PatientID="TCGA.44.7669", PtNum=86, study=study_name, Name="Radiation", 
-							Fields=list(date=c( "04/20/2011", "04/20/2011"), therapyType="CYBER KNIFE", 
-							intent="PROGRESSION", target="DISTANT SITE", totalDose="2000", totalDoseUnits="CGY", numFractions="1")))
-		checkEquals(x[[2]], list(PatientID="TCGA.44.7669", PtNum=86, study=study_name, Name="Radiation", 
-							Fields=list(date=c("06/11/2011", "06/17/2011"), therapyType="EXTERNAL BEAM", 
-							intent="PALLIATIVE", target="DISTANT RECURRENCE", totalDose="2000", totalDoseUnits="CGY", numFractions="5")))
-		x <- create.Rad.records(study_name, "TCGA.49.AAR4")  #in totalDosage is 4,500 cGy
-		checkEquals(x[[1]], list(PatientID="TCGA.49.AAR4", PtNum=122, study=study_name, Name="Radiation", 
-							Fields=list(date=c( "04/29/2006", "06/03/2006"), therapyType="EXTERNAL", intent=as.character(NA), 
-							target="PRIMARY TUMOR FIELD", totalDose="4,500", totalDoseUnits="CGY", numFractions=as.character(NA))))
+		checkEquals(names(x[[1]]), c("PatientID", "PtNum", "study", "Name", "Fields"))
+		checkEquals(x[[1]], list(PatientID="TCGA.05.4244", PtNum=1, study=study_name, Name="Status", 
+							Fields=list(date="01/01/2009", status="ALIVE", tumorStatus="TUMOR FREE")))
+		x <- create.Status.records(study_name, "TCGA.49.4486")
+    	checkEquals(x[[1]], list(PatientID="TCGA.49.4486", PtNum=100, study=study_name, Name="Status", 
+    						Fields=list(date="05/07/1998", status="DEAD", tumorStatus="WITH TUMOR")))
 	}
   if(study_name == "TCGAlusc"){
-		x <- create.Rad.records(study_name, "TCGA.18.3407")
-	    checkTrue(is.list(x))
-	    checkEquals(x[[1]], list(PatientID="TCGA.18.3407", PtNum=2, study=study_name, Name="Radiation", 
-	    					Fields=list(date=c(as.character(NA),as.character(NA)), therapyType=as.character(NA), intent=as.character(NA), 
-	    					target="LOCOREGIONAL", totalDose=as.character(NA), totalDoseUnits=as.character(NA), numFractions=as.character(NA))))
-   		x <- create.Rad.records(study_name, "TCGA.46.6026")  # tbl.rad has both dates
-   		checkEquals(x[[1]], list(PatientID="TCGA.46.6026", PtNum=170, study=study_name, Name="Radiation", 
-   							Fields=list(date=c("03/05/2010", "04/20/2010"), therapyType="EXTERNAL BEAM", 
-   							intent="ADJUVANT", target="PRIMARY TUMOR FIELD", totalDose="6,120", totalDoseUnits="CGY", numFractions="34")))
+		x <- create.Status.records(study_name, "TCGA.18.3406")	
+		checkEquals(names(x[[1]]$Fields), c("date", "status", "tumorStatus"))
+		checkEquals(x[[1]], list(PatientID="TCGA.18.3406", PtNum=1, study=study_name, Name="Status", 
+							Fields=list(date="01/07/2004", status="DEAD", tumorStatus="WITH TUMOR")))    
+		x <- create.Status.records(study_name, "TCGA.63.5128") #tbl.pt.row$death_days_to == "[Not Available]"
+		checkEquals(x[[1]], list(PatientID="TCGA.63.5128", PtNum=253, study=study_name, Name="Status", 
+							Fields=list(date=as.character(NA), status="DEAD", tumorStatus="WITH TUMOR")))
+		x <- create.Status.records(study_name, "TCGA.NC.A5HI")
+		checkEquals(x[[1]], list(PatientID="TCGA.NC.A5HI", PtNum=473, study=study_name, Name="Status", 
+							Fields=list(date="10/12/2012", status="ALIVE", tumorStatus="TUMOR FREE")))
 	}
   if(study_name == "TCGAprad"){
-		x <- create.Rad.records(study_name, "TCGA.EJ.5524")
-	    checkTrue(is.list(x))
-   		checkEquals(x[[1]], list(PatientID="TCGA.EJ.5524", PtNum=70, study=study_name, Name="Radiation", 
-   							Fields=list(date=c("04/23/2010","04/23/2010"), therapyType=as.character(NA), intent=as.character(NA), 
-   							target="LOCAL RECURRENCE", totalDose=as.character(NA), totalDoseUnits=as.character(NA), 
-   							numFractions=as.character(NA)))) 
-    }
-  if(study_name == "TCGAread"){
-		x <- create.Rad.records(study_name, "TCGA.G5.6233")
+		x <- create.Status.records(study_name, "TCGA.2A.A8VL")
 		checkTrue(is.list(x))
-  	    checkEquals(names(x[[1]]), c("PatientID", "PtNum", "study", "Name", "Fields"))
-        checkEquals(x[[1]], list(PatientID="TCGA.G5.6233", PtNum=168, study=study_name, Name="Radiation", 
-        					Fields=list(date=c(as.character(NA),as.character(NA)), therapyType=as.character(NA), intent=as.character(NA), 
-        					target="LOCOREGIONAL, AT PRIMARY TUMOR SITE: NO", totalDose=as.character(NA), 
-        					totalDoseUnits=as.character(NA), numFractions=as.character(NA))))
-		x <- create.Rad.records(study_name, "TCGA.AF.2692")  #no start date
-		checkEquals(x[[1]], list(PatientID="TCGA.AF.2692", PtNum=5, study=study_name, Name="Radiation", 
-							Fields=list(date=c("02/23/2010", "03/12/2010"), therapyType="EXTERNAL BEAM", 
-							intent= "PALLIATIVE", target="DISTANT SITE", totalDose="3500", totalDoseUnits="CGY", numFractions="14")))
-		checkEquals(x[[2]], list(PatientID="TCGA.AF.2692", PtNum=5, study=study_name, Name="Radiation", 
-							Fields=list(date=c("12/17/2009", "01/21/2010"), therapyType="EXTERNAL BEAM", 
-							intent= "RECURRENCE", target="PRIMARY TUMOR FIELD", totalDose="5000", totalDoseUnits="CGY", numFractions="25")))
-   }
+		checkEquals(names(x[[1]]), c("PatientID", "PtNum", "study", "Name", "Fields"))
+		checkEquals(names(x[[1]]$Fields), c("date", "status", "tumorStatus"))
+		checkEquals(x[[1]], list(PatientID="TCGA.2A.A8VL", PtNum=1, study=study_name, Name="Status", 
+						Fields=list(date="09/14/2011", status="ALIVE", tumorStatus="TUMOR FREE")))
+		x <- create.Status.records(study_name, "TCGA.V1.A8MF")
+		checkEquals(x[[1]], list(PatientID="TCGA.V1.A8MF", PtNum=367, study=study_name, Name="Status", 
+						Fields=list(date=as.character(NA), status="ALIVE", tumorStatus=as.character(NA))))
+	}
+  if(study_name == "TCGAread"){
+		x <- create.Status.records(study_name, "TCGA.AF.2687")
+		checkTrue(is.list(x))
+		checkEquals(names(x[[1]]), c("PatientID", "PtNum", "study", "Name", "Fields"))
+		checkEquals(names(x[[1]]$Fields), c("date", "status", "tumorStatus"))
+		checkEquals(x[[1]], list(PatientID="TCGA.AF.2687", PtNum=1, study=study_name, Name="Status", 
+					Fields=list(date="01/05/2011", status="ALIVE", tumorStatus="TUMOR FREE")))
+		x <- create.Status.records(study_name, "TCGA.AG.3583")
+		checkEquals(x[[1]], list(PatientID= "TCGA.AG.3583", PtNum=25, study=study_name, Name="Status", 
+					Fields=list(date="09/02/2009", status="DEAD", tumorStatus=as.character(NA))))
+		x <- create.Status.records(study_name, "TCGA.BM.6198")
+		checkEquals(x[[1]], list(PatientID="TCGA.BM.6198", PtNum=106, study=study_name, Name="Status", 
+					Fields=list(date="11/07/2010", status="ALIVE", tumorStatus="NA;TUMOR FREE")))
+	}
 }
 lapply(studies, test_create.Status.records)
 #-------------------------------------------------------------------------------------------------------------------------- 
