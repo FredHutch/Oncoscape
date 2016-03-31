@@ -21,7 +21,7 @@ The ultimate goal is to connect the entire pipeline of cancer research, from mol
 
 Oncoscape's design encourages custom deployments focused on any clinical/molecular data set. Oncoscape, here at GitHub, ships with patient and molecular data from the TCGA. 
 
-If you would like to update the code or contribute with new features, please read [wiki contribution](https://github.com/FredHutch/Oncoscape/wiki/Contribution).
+If you would like to update the code or contribute with new features, please read [wiki](https://github.com/FredHutch/Oncoscape/wiki).
 
 ## Signature Features [<img src="https://github.com/FredHutch/Oncoscape/blob/newReadme/img/signature.png" width="40">](https://github.com/FredHutch/Oncoscape/wiki)
 
