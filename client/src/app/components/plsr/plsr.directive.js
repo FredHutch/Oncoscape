@@ -21,9 +21,14 @@
         /** @ngInject */
         function PlsrController(osApi, $state, $stateParams, $timeout, $scope, d3, $sce) {
 
+            if (angular.isUndefined($stateParams.datasource)){
+                $state.go("datasource");
+                return;
+            }
+
             // View Model
             var vm = this;
-            vm.datasource = $stateParams.datasource || osApi.getDataSource();
+            vm.datasource = $stateParams.datasource;
             vm.deathMinFilter = vm.deathMinValue = 45;
             vm.deathMaxFilter = vm.deathMaxValue = 66;
             vm.survivalMinFilter = vm.survivalMinValue = 3;

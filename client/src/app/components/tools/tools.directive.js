@@ -20,8 +20,14 @@
 
         /** @ngInject */
         function ToolsController(osApi, $state, $stateParams) {
+
+            if (angular.isUndefined($stateParams.datasource)){
+                $state.go("datasource");
+                return;
+            }
+
             var vm = this;
-            vm.datasource = $stateParams.datasource || osApi.getDataSource();
+            vm.datasource = $stateParams.datasource;
             vm.tools = [{
                 name: 'Markers + Patients',
                 route: 'markers',

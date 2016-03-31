@@ -21,9 +21,14 @@
         /** @ngInject */
         function HistoryController(osApi, $state, $timeout, $scope, $stateParams) {
 
+            if (angular.isUndefined($stateParams.datasource)){
+                $state.go("datasource");
+                return;
+            }
+
             // View Model
             var vm = this;
-            vm.datasource = $stateParams.datasource || osApi.getDataSource();
+            vm.datasource = $stateParams.datasource;
             vm.filter;
             vm.colnames = [];
             vm.diagnosisMin = vm.diagnosisMinValue = 1;

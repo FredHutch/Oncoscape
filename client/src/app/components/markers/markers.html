@@ -28,7 +28,7 @@
                 <li style="padding:5px;font-weight:600;">Patient Distribution</li>
                 <li ng-repeat="item in vm.optPatientLayouts" class="radio" style="padding-left:10px">
                   <label>
-                    <input type="radio" name="patientType" ng-click="item.fn(item)" >{{item.name}}
+                    <input type="radio" name="patientType" ng-click="vm.optPatientLayout = item" ng-checked="optPatientLayout==item" >{{item.name}}
                   </label>
                 </li>
               </ul>
@@ -46,7 +46,7 @@
                 <li style="padding:5px;font-weight:600;">Patients Colors</li>
                 <li ng-repeat="item in vm.optNodeColors" class="radio" style="padding-left:10px">
                   <label>
-                    <input type="radio" name="patientType" ng-click="item.fn(item);" >
+                    <input type="radio" name="patientType" ng-click="vm.optNodeColor = item" ng-checked="vm.optNodeColor==item">
                     {{item.name}}
                   </label>
                 </li>

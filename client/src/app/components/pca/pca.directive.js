@@ -21,9 +21,14 @@
         /** @ngInject */
         function PcaController(osApi, $state, $stateParams, $timeout, $scope, d3) {
 
+            if (angular.isUndefined($stateParams.datasource)){
+                $state.go("datasource");
+                return;
+            }
+
             // State
             var vm = this;
-            vm.datasource = $stateParams.datasource || osApi.getDataSource();
+            vm.datasource = $stateParams.datasource;
             vm.geneSets = [];
             vm.geneSet = null;
             vm.toggleFilter = function() {

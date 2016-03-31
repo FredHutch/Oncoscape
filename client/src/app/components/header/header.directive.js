@@ -55,6 +55,7 @@
             vm.cohortClick = function() {
                 osApi.toggleFilter();
             };
+            
             vm.logoutClick = function(){
                userApi.logout();
                $state.transitionTo("landing");
