@@ -53,7 +53,7 @@
                 initializeEdgeColors(chart, vm, $scope, $timeout, osApi);
 
                 // Initialize Zoome
-                initializeZoom(chart);
+                initializeZoom(chart, $timeout);
                 
                 // Ready
                 osApi.setBusy(false);
@@ -416,8 +416,6 @@
             },{
                 name: '2° When Selected',
                 register: function(){
-
-
                     var degmap = {};
                     chart.$('node[nodeType="patient"]:selected')
                         .forEach(function(node){
@@ -559,8 +557,43 @@
                 // });
         }
 
-        function initializeZoom(chart){
-            
+        function initializeZoom(chart, $timeout){
+            var _zoomlevel = 0;
+            var _timeout;
+            chart.on('pan', function(e){
+
+                var zoom = e.cy.zoom();
+                var zoomlevel = 
+                    (zoom>19) ? .000001 :
+                    (zoom>15) ? .000005 :
+                    (zoom>9 ) ? .00005 :
+                    (zoom>8 ) ? .0005 :
+                    (zoom>6 ) ? .005 :
+                    (zoom>4 ) ? .02 : 
+                    (zoom>2 ) ? .1 :
+                    (zoom>.5) ? .3 :
+                    (zoom>.3) ? .5 :
+                    1;
+
+                if (_zoomlevel==zoomlevel) return;
+                _zoomlevel = zoomlevel;
+                    
+                // Delay Call To Resize Nodes.  The User Could Still Be Zooming
+                if (angular.isDefined(_timeout)) $timeout.cancel(_timeout);
+                _timeout = $timeout( function(chart, zoomlevel){
+
+                    var degmap = {};
+                    var nodes = chart.nodes();
+                    for (var i=0; i<nodes.length; i++){
+                        degmap[nodes[i].id()] = { 
+                            sizeEle:nodes[i].degree() * zoomlevel,
+                            sizeLbl:50*zoomlevel };
+                    }
+                    chart.batchData(degmap);
+
+                }, 100, false, chart, zoomlevel);                    
+                
+            })
         }
 
         function initializeNodeColors(chart, vm, $scope, osApi){
@@ -675,17 +708,42 @@
 
                     // Gender Comes From Patient Table
                     case "Gender":
-                        nodes.forEach(function(node){
-                            try{
-                                if (node.data("patient")[0][2].toLowerCase()=='male'){
-                                    node.position({x:100, y:-500})
-                                }else{
-                                    node.position({x:100, y:500})
-                                }
-                            }catch(e){
-                                node.position({x:100,y:0})
-                            }
-                        });
+                        nodes
+                            .filter(function(index, node){
+                                try{ return (node.data("patient")[0][2].toLowerCase()=='male')}
+                                catch(e){}
+                                return false;
+                            })
+                            .forEach(function(node, index){
+                                var a = 30;
+                                var b = 30;
+                                var angle = 0.1 * (index+1);
+                                var x = -1000 + (a+b * angle) * Math.cos(angle);
+                                var y = -1500 + (a+b * angle) * Math.sin(angle);
+                                console.log(x) ;
+                                node.position({
+                                    x: x,
+                                    y: y
+                                });
+                            });
+                        nodes
+                            .filter(function(index, node){
+                                try{ return (node.data("patient")[0][2].toLowerCase()=='female')}
+                                catch(e){}
+                                return false;
+                            })
+                            .forEach(function(node, index){
+                                var a = 30;
+                                var b = 30;
+                                var angle = 0.1 * (index+1);
+                                var x = -1000 + (a+b * angle) * Math.cos(angle);
+                                var y = 1500 + (a+b * angle) * Math.sin(angle);
+                                console.log(x) ;
+                                node.position({
+                                    x: x,
+                                    y: y
+                                });
+                            });
                         break;
                 }
                 chart.endBatch();
