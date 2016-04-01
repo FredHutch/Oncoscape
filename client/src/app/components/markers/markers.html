@@ -56,7 +56,7 @@
                 <li style="padding:5px;font-weight:600;">Edge Colors</li>
                 <li ng-repeat="item in vm.optEdgeColors">
                   <button class="btn btn-default filter-button {{item.class}}"
-                  ng-click="item.fn(item); $event.stopPropagation();">
+                  ng-click="vm.updateEdge(item); $event.stopPropagation();">
                         {{item.name}} ({{item.state}})
                   </button>
                 </li>
@@ -106,7 +106,7 @@
     <li class="legend-section">Edge Colors</li>
     <li ng-repeat="item in vm.optEdgeColors">
       <button class="btn btn-default filter-button {{item.class}}"
-      ng-click="item.fn(item); $event.stopPropagation();" style="font-weight: 300">
+      ng-click="vm.updateEdge(item); $event.stopPropagation();" style="font-weight: 300">
             {{item.name}} ({{item.state}})
       </button>
     </li>
