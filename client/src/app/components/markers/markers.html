@@ -2,7 +2,7 @@
 	<h2>Markers + Patients &mdash; {{vm.datasource}}</h2>
 	<div class="row">
         <div class="col-xs-2" style="padding-right:20px;">
-            <label>Edge Options</label>
+            <label>Interactive Mode</label>
             <div class="dropdown bs-dropdown">
               <button class="btn btn-default dropdown-toggle" type="button" id="dropdownMenu1" data-toggle="dropdown" aria-haspopup="true" aria-expanded="true">
                 {{vm.optInteractiveMode.name}}
@@ -17,7 +17,7 @@
             </div>
         </div>
         <div class="col-xs-2" style="padding-right:20px;">
-            <label>Layout Options</label>
+            <label>Patient Layout</label>
             <div class="dropdown bs-dropdown">
               <button class="btn btn-default dropdown-toggle" type="button" id="dropdownMenu1" data-toggle="dropdown" aria-haspopup="true" aria-expanded="true">
                 {{vm.optPatientLayout.name}}
@@ -35,10 +35,10 @@
             </div>
         </div>
         <div class="col-xs-2" style="padding-right:20px;">
-            <label>Color Options</label>
+            <label>Patient Color</label>
             <div class="dropdown bs-dropdown">
               <button class="btn btn-default dropdown-toggle" type="button" id="dropdownMenu1" data-toggle="dropdown" aria-haspopup="true" aria-expanded="true">
-               Patients + Edges
+               {{vm.optNodeColor.name}}
                 <span class="caret"></span>
               </button>
               <ul class="dropdown-menu filter-list" aria-labelledby="dropdownMenu1"
@@ -50,7 +50,7 @@
                     {{item.name}}
                   </label>
                 </li>
-                
+                <!--
                 <li><hr></li>
       
                 <li style="padding:5px;font-weight:600;">Edge Colors</li>
@@ -60,19 +60,21 @@
                         {{item.name}} ({{item.state}})
                   </button>
                 </li>
+                -->
               </ul>
             </div>
-        </div>
-        <div class="col-xs-2" style="padding-right:20px;">
-            <label>Gene Search</label>
-            <input type="text" class="ngrs-range-slider" style="width:100%"
-                ng-model="vm.searchGene">
         </div>
         <div class="col-xs-2" style="padding-right:20px;">
             <label>Patient Search</label>
             <input type="text" class="ngrs-range-slider" style="width:100%"
                 ng-model="vm.searchPatient">
         </div>
+        <div class="col-xs-2" style="padding-right:20px;">
+            <label>Gene Search</label>
+            <input type="text" class="ngrs-range-slider" style="width:100%"
+                ng-model="vm.searchGene">
+        </div>
+        
         <div class="col-xs-2">
             <label>Create Cohort</label>
             <div class="input-group">

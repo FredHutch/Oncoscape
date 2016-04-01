@@ -20,7 +20,7 @@
         return directive;
 
         /** @ngInject */
-        function MarkersController(osApi, $state, $timeout, $scope, $stateParams, cytoscape, signals, $window) {
+        function MarkersController(osApi, $state, $timeout, $scope, $stateParams, cytoscape, signals, $window, _) {
 
             if (angular.isUndefined($stateParams.datasource)){
                 $state.go("datasource");
@@ -46,11 +46,16 @@
                 // Initalize Node Colors
                 initializeNodeColors(chart, vm, $scope, osApi);
 
+                // Initialize Edge Colors
+                initializeEdgeColors(chart, vm, $scope, $timeout);
+
+                // Initialize Events
+                initializeEvents(chart, vm, $scope, $timeout, osApi);
+
                 // Initalize Search
                 initializeSearch(chart, vm, $scope)
 
-                // Initialize Edge Color Options
-                initializeEdgeColors(chart, vm, $scope, $timeout, osApi);
+                
 
                 // Initialize Zoome
                 initializeZoom(chart, $timeout);
@@ -152,8 +157,8 @@
                 style: {
                     'display': "data(display)",
                     'label': "data(id)",
-                    'height': "mapData(sizeEle, 0, 50, 10, 100)",
-                    'width': "mapData(sizeEle, 0, 50, 10, 100)",
+                    'height': "mapData(sizeEle, 0, 50, 1, 80)",
+                    'width': "mapData(sizeEle, 0, 50, 1, 80)",
                     'border-width': "5px",
                     'font-size': 'data(sizeLbl)',
                     'text-valign': 'center',
@@ -204,7 +209,7 @@
             }];
         }
 
-        function initializeEdgeColors(chart, vm, $scope, $timeout, osApi){
+        function initializeEvents(chart, vm, $scope, $timeout, osApi){
 
             // Create Signals
             var events = (function() {
@@ -497,6 +502,9 @@
                 if (angular.isDefined(prev)) prev.unregister();
                 if (angular.isDefined(next)) next.register();
             });
+        }
+
+        function initializeEdgeColors(chart, vm, $scope, $timeout){
 
             // Set Edge Options
             var colors = [{ 
@@ -526,74 +534,136 @@
                     color: '#FD7400',
                     state: 'Highlight'
                 }];
+            var colorMap = {
+                'mutation' : colors[0],
+                'cnGain.1' : colors[1],
+                'cnLoss.1' : colors[2],
+                'cnGain.2' : colors[3],
+                'cnLoss.2' : colors[4]
+            };
 
             // Default colors
             $timeout(function(){
                 colors.forEach(function(item){
                     angular.element("." + item.class).css("border-color", item.color);
                 });
+                var degmap = {};
+                chart.edges('edge[edgeType!="chromosome"]')
+                    .forEach(function(edge){
+                        this[edge.id()] = {color:colorMap[edge.data("edgeType")].color};
+                    }, degmap);
+                chart.batchData(degmap);
             });
 
             vm.optEdgeColors = colors;
 
             // Update Edge Callback
             vm.updateEdge = function(item){
+                var color, state;
+                switch (item.state){
+                    case "Highlight":
+                        item.state = "Show";
+                        color = '#3993fa';
+                        state = {color:color, display:'element'};
+                        break;
+                    case "Show":
+                        item.state = "Hide";
+                        color = '#EEEEEE';
+                        state = {display:'none'};
+                        break;
+                    default:
+                        item.state = "Highlight";
+                        color = item.color;
+                        state = {color:color, display:'element'};
+                        break;
+                }
+
+                // Set Legand color
+                angular.element("." + item.class).css("border-color", color );
+
+                // update Degree Map
                 var degmap = {};
-
-
+                chart.edges('edge[edgeType="'+item.name+'"]')
+                    .forEach(function(edge){
+                        this.degmap[edge.id()] = this.state;
+                    }, {degmap:degmap, state:state});
+                chart.batchData(degmap);
 
             }
-
-
-
-                // $timeout(function() {
-                //     value.forEach(function(item) {
-                //         angular.element("." + item.class).css("border-color", item.color);
-                //         chart.$('edge[edgeType="' + item.name + '"]').style({
-                //             'line-color': item.color,
-                //             'width': '2px'
-                //         });
-                //     });
-                // });
         }
 
         function initializeZoom(chart, $timeout){
-            var _zoomlevel = 0;
-            var _timeout;
-            chart.on('pan', function(e){
 
+            var nodeZoomFn ={
+                "A": function(node){
+                    this[node.id()] = {
+                        sizeEle: node.degree(),
+                        sizeLbl: 0
+                    }
+                },
+                "B": function(node){
+                    this[node.id()] = {
+                        sizeEle: node.degree() * .5,
+                        sizeLbl: 0
+                    }
+                },
+                "C": function(node){
+                    this[node.id()] = {
+                        sizeEle: node.degree() * .25,
+                        sizeLbl: 12
+                    }
+                },
+                "D": function(node){
+                    this[node.id()] = {
+                        sizeEle: node.degree() * .125,
+                        sizeLbl: 16
+                    }
+                },
+                "E": function(node){
+                    this[node.id()] = {
+                        sizeEle: node.degree() * .06,
+                        sizeLbl: 14
+                    }
+                },
+                "F": function(node){
+                    this[node.id()] = {
+                        sizeEle: node.degree() * .03,
+                        sizeLbl: 12
+                    }
+                },
+                "Z": function(node){
+                    this[node.id()] = {
+                        sizeEle: node.degree() * .000000001,
+                        sizeLbl: 1
+                    }
+                }
+
+
+            }
+            var _zoomlevel = "A";
+            var _timeout;
+            chart.on('pan', _.debounce(function(e) {
                 var zoom = e.cy.zoom();
+                console.log(zoom);
                 var zoomlevel = 
-                    (zoom>19) ? .000001 :
-                    (zoom>15) ? .000005 :
-                    (zoom>9 ) ? .00005 :
-                    (zoom>8 ) ? .0005 :
-                    (zoom>6 ) ? .005 :
-                    (zoom>4 ) ? .02 : 
-                    (zoom>2 ) ? .1 :
-                    (zoom>.5) ? .3 :
-                    (zoom>.3) ? .5 :
-                    1;
+                    (zoom>19) ? "Z" :
+                    (zoom>1.5) ? "F" :
+                    (zoom>1.2) ? "E" :
+                    (zoom>.9) ? "D" :
+                    (zoom>.6) ? "C" : 
+                    (zoom>.3) ? "B" : 
+                    "A";
 
                 if (_zoomlevel==zoomlevel) return;
                 _zoomlevel = zoomlevel;
-                    
-                // Delay Call To Resize Nodes.  The User Could Still Be Zooming
-                if (angular.isDefined(_timeout)) $timeout.cancel(_timeout);
-                _timeout = $timeout( function(chart, zoomlevel){
+                console.log(_zoomlevel);
+                var fn = nodeZoomFn[zoomlevel];
+                var degmap = {};
+                chart.nodes().forEach(fn, degmap);
+                chart.batchData(degmap);
 
-                    var degmap = {};
-                    var nodes = chart.nodes();
-                    for (var i=0; i<nodes.length; i++){
-                        degmap[nodes[i].id()] = { 
-                            sizeEle:nodes[i].degree() * zoomlevel,
-                            sizeLbl:50*zoomlevel };
-                    }
-                    chart.batchData(degmap);
+            }, 500));
 
-                }, 100, false, chart, zoomlevel);                    
-                
-            })
         }
 
         function initializeNodeColors(chart, vm, $scope, osApi){
@@ -726,6 +796,7 @@
                                     y: y
                                 });
                             });
+
                         nodes
                             .filter(function(index, node){
                                 try{ return (node.data("patient")[0][2].toLowerCase()=='female')}

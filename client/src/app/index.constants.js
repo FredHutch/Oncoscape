@@ -1,4 +1,4 @@
-/* global d3:false, $:false, signals:false, cytoscape:false, SockJS:false, document:false, moment:false */
+/* global d3:false, $:false, signals:false, cytoscape:false, SockJS:false, document:false, moment:false, _:false */
 (function() {
     'use strict';
 
@@ -10,7 +10,8 @@
         .constant('signals', signals)
         .constant('SockJS', SockJS)
         .constant('domain', document.domain)
-        .constant('$', $);
+        .constant('$', $)
+        .constant('_', _);
 
     // Util Functions
     Number.prototype.map = function (in_min, in_max, out_min, out_max) {

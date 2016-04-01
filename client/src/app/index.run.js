@@ -18,7 +18,7 @@
             // Reset DataTable Custom Filters
             angular.element.fn.DataTable.ext.search = [];
 
-/*
+
             if (window.location.protocol != "https:" && window.location.hostname !="localhost" ) {
                 window.location.protocol = "https:";
                 window.location.reload();
@@ -27,7 +27,7 @@
                  $state.transitionTo("landing");
                  event.preventDefault();
             }
-*/
+
             
 
 
