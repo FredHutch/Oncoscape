@@ -55,9 +55,7 @@
                 // Initalize Search
                 initializeSearch(chart, vm, $scope)
 
-                
-
-                // Initialize Zoome
+                // Initialize Zoom
                 initializeZoom(chart, $timeout);
                 
                 // Ready
@@ -157,8 +155,8 @@
                 style: {
                     'display': "data(display)",
                     'label': "data(id)",
-                    'height': "mapData(sizeEle, 0, 50, 1, 80)",
-                    'width': "mapData(sizeEle, 0, 50, 1, 80)",
+                    'height': "data(sizeEle)", //"mapData(sizeEle, 0, 50, 1, 80)",
+                    'width': "data(sizeEle)", //"mapData(sizeEle, 0, 50, 1, 80)",
                     'border-width': "5px",
                     'font-size': 'data(sizeLbl)',
                     'text-valign': 'center',
@@ -638,13 +636,26 @@
                     }
                 }
 
-
             }
             var _zoomlevel = "A";
             var _timeout;
             chart.on('pan', _.debounce(function(e) {
-                var zoom = e.cy.zoom();
-                console.log(zoom);
+                //var zoom = e.cy.zoom();
+
+                var degmap = {};
+
+                var zoom = e.cy.zoom().map(.1, 20, 1, .0002);
+                chart.nodes().forEach(function(node){
+
+
+                    this.degmap[node.id()] = {sizeEle:50 * this.zoom};
+
+
+                }, { degmap:degmap, zoom:zoom });
+
+                chart.batchData(degmap);
+
+                /*
                 var zoomlevel = 
                     (zoom>19) ? "Z" :
                     (zoom>1.5) ? "F" :
@@ -661,7 +672,7 @@
                 var degmap = {};
                 chart.nodes().forEach(fn, degmap);
                 chart.batchData(degmap);
-
+                */
             }, 500));
 
         }
@@ -694,7 +705,7 @@
                                             var gender = node.data("patient")[0][2];
                                             degmap[node.id()] = {color: (gender==='male') ? 'rgb(5, 108, 225)' :  'pink' };
                                         }catch(e){
-                                            degmap[node.id()] = {color: '#000000'};
+                                            degmap[node.id()] = {color: '#EEEEEE'};
                                         }
                                     });
                                 chart.batchData(degmap);
@@ -790,7 +801,21 @@
                                 var angle = 0.1 * (index+1);
                                 var x = -1000 + (a+b * angle) * Math.cos(angle);
                                 var y = -1500 + (a+b * angle) * Math.sin(angle);
-                                console.log(x) ;
+                                node.position({
+                                    x: x,
+                                    y: y
+                                });
+                            });
+                        nodes
+                            .filter(function(index, node){
+                                return angular.isUndefined(node.data("patient")[0])
+                            })
+                            .forEach(function(node, index){
+                                var a = 50;
+                                var b = 50;
+                                var angle = 0.1 * (index+1);
+                                var x = -2500 + (a+b * angle) * Math.cos(angle);
+                                var y = 0 + (a+b * angle) * Math.sin(angle);
                                 node.position({
                                     x: x,
                                     y: y

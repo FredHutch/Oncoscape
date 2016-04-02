@@ -117,12 +117,12 @@
 <div class="legend legend-right" ng-show="vm.patient">
   <ul> 
     <li class="legend-section">Patient Information</li>
-    <li>PID: {{vm.patient[0]}}</li>
-    <li>GENDER: {{vm.patient[2]}}</li>
-    <li>STATUS: {{vm.patient[6]}}</li>
-    <li>DIAGNOSED: {{vm.patient[4]}} years old</li>
-    <li>SURVIVED: {{vm.patient[3]}} years</li>
-    <li>PROGRESSION: {{vm.patient[5]}}</li>
+    <li>PID: {{vm.patient[0][0]}}</li>
+    <li>GENDER: {{vm.patient[0][2]}}</li>
+    <li>STATUS: {{vm.patient[0][6]}}</li>
+    <li>DIAGNOSED: {{vm.patient[0][4]}} years old</li>
+    <li>SURVIVED: {{vm.patient[0][3]}} years</li>
+    <li>PROGRESSION: {{vm.patient[0][5]}}</li>
     <li><hr></li>
     <li class="legend-section">Genes ({{vm.patientChromosomes.length}})</li>
     <li><span ng-repeat="item in vm.patientChromosomes">{{item}} | </span></li>
