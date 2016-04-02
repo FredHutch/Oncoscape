@@ -21,9 +21,13 @@
         /** @ngInject */
         function SurvivalController(osApi, $state, $timeout, $scope, $stateParams) {
 
+            if (angular.isUndefined($stateParams.datasource)){
+                $state.go("datasource");
+                return;
+            }
             // View Model
             var vm = this;
-            vm.datasource = $stateParams.datasource || "DEMOdz";
+            vm.datasource = $stateParams.datasource;
             
             // Filter
             var rawData;

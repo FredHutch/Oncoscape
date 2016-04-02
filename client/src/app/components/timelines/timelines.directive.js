@@ -258,9 +258,14 @@
                 }
             })();
 
+            if (angular.isUndefined($stateParams.datasource)){
+                $state.go("datasource");
+                return;
+            }
+
             // View Model
             var vm = this;
-            vm.datasource = $stateParams.datasource || "DEMOdz";
+            vm.datasource = $stateParams.datasource;
             vm.features;
             vm.feature;
             vm.events;
