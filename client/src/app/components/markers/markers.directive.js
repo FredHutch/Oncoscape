@@ -155,8 +155,8 @@
                 style: {
                     'display': "data(display)",
                     'label': "data(id)",
-                    'height': "data(sizeEle)", //"mapData(sizeEle, 0, 50, 1, 80)",
-                    'width': "data(sizeEle)", //"mapData(sizeEle, 0, 50, 1, 80)",
+                    'height': "mapData(sizeEle, 0, 50, 1, 80)",
+                    'width': "mapData(sizeEle, 0, 50, 1, 80)",
                     'border-width': "5px",
                     'font-size': 'data(sizeLbl)',
                     'text-valign': 'center',
@@ -640,7 +640,9 @@
             var _zoomlevel = "A";
             var _timeout;
             chart.on('pan', _.debounce(function(e) {
-                //var zoom = e.cy.zoom();
+                var zoom = e.cy.zoom();
+                /*
+                
 
                 var degmap = {};
 
@@ -654,8 +656,7 @@
                 }, { degmap:degmap, zoom:zoom });
 
                 chart.batchData(degmap);
-
-                /*
+*/
                 var zoomlevel = 
                     (zoom>19) ? "Z" :
                     (zoom>1.5) ? "F" :
@@ -672,7 +673,7 @@
                 var degmap = {};
                 chart.nodes().forEach(fn, degmap);
                 chart.batchData(degmap);
-                */
+                
             }, 500));
 
         }
