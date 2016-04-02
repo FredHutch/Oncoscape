@@ -12,13 +12,21 @@
         // Actions To Take On State Change
         $rootScope.$on('$stateChangeStart', function(event, toState) {
 
+            // Hide Busy Cursor
+            osApi.setBusy(false);
+
             // Reset DataTable Custom Filters
             angular.element.fn.DataTable.ext.search = [];
 
-            // if (toState.authenticate && !osApi.getUserApi().getUser().authenticated) {
-            //      $state.transitionTo("landing");
-            //      event.preventDefault();
-            // }
+
+            if (window.location.protocol != "https:" && window.location.hostname !="localhost" ) {
+                window.location.protocol = "https:";
+                window.location.reload();
+            }
+            if (toState.authenticate && !osApi.getUserApi().getUser().authenticated) {
+                 $state.transitionTo("landing");
+                 event.preventDefault();
+            }
 
             
 

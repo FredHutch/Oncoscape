@@ -2,7 +2,7 @@
 	<h2>Markers + Patients &mdash; {{vm.datasource}}</h2>
 	<div class="row">
         <div class="col-xs-2" style="padding-right:20px;">
-            <label>Edge Options</label>
+            <label>Interactive Mode</label>
             <div class="dropdown bs-dropdown">
               <button class="btn btn-default dropdown-toggle" type="button" id="dropdownMenu1" data-toggle="dropdown" aria-haspopup="true" aria-expanded="true">
                 {{vm.optInteractiveMode.name}}
@@ -17,7 +17,7 @@
             </div>
         </div>
         <div class="col-xs-2" style="padding-right:20px;">
-            <label>Layout Options</label>
+            <label>Patient Layout</label>
             <div class="dropdown bs-dropdown">
               <button class="btn btn-default dropdown-toggle" type="button" id="dropdownMenu1" data-toggle="dropdown" aria-haspopup="true" aria-expanded="true">
                 {{vm.optPatientLayout.name}}
@@ -28,17 +28,17 @@
                 <li style="padding:5px;font-weight:600;">Patient Distribution</li>
                 <li ng-repeat="item in vm.optPatientLayouts" class="radio" style="padding-left:10px">
                   <label>
-                    <input type="radio" name="patientType" ng-click="item.fn(item)" >{{item.name}}
+                    <input type="radio" name="patientType" ng-click="vm.optPatientLayout = item" ng-checked="optPatientLayout==item" >{{item.name}}
                   </label>
                 </li>
               </ul>
             </div>
         </div>
         <div class="col-xs-2" style="padding-right:20px;">
-            <label>Color Options</label>
+            <label>Patient Color</label>
             <div class="dropdown bs-dropdown">
               <button class="btn btn-default dropdown-toggle" type="button" id="dropdownMenu1" data-toggle="dropdown" aria-haspopup="true" aria-expanded="true">
-               Patients + Edges
+               {{vm.optNodeColor.name}}
                 <span class="caret"></span>
               </button>
               <ul class="dropdown-menu filter-list" aria-labelledby="dropdownMenu1"
@@ -46,33 +46,35 @@
                 <li style="padding:5px;font-weight:600;">Patients Colors</li>
                 <li ng-repeat="item in vm.optNodeColors" class="radio" style="padding-left:10px">
                   <label>
-                    <input type="radio" name="patientType" ng-click="item.fn(item);" >
+                    <input type="radio" name="patientType" ng-click="vm.optNodeColor = item" ng-checked="vm.optNodeColor==item">
                     {{item.name}}
                   </label>
                 </li>
-                
+                <!--
                 <li><hr></li>
       
                 <li style="padding:5px;font-weight:600;">Edge Colors</li>
                 <li ng-repeat="item in vm.optEdgeColors">
                   <button class="btn btn-default filter-button {{item.class}}"
-                  ng-click="item.fn(item); $event.stopPropagation();">
+                  ng-click="vm.updateEdge(item); $event.stopPropagation();">
                         {{item.name}} ({{item.state}})
                   </button>
                 </li>
+                -->
               </ul>
             </div>
-        </div>
-        <div class="col-xs-2" style="padding-right:20px;">
-            <label>Gene Search</label>
-            <input type="text" class="ngrs-range-slider" style="width:100%"
-                ng-model="vm.searchGene">
         </div>
         <div class="col-xs-2" style="padding-right:20px;">
             <label>Patient Search</label>
             <input type="text" class="ngrs-range-slider" style="width:100%"
                 ng-model="vm.searchPatient">
         </div>
+        <div class="col-xs-2" style="padding-right:20px;">
+            <label>Gene Search</label>
+            <input type="text" class="ngrs-range-slider" style="width:100%"
+                ng-model="vm.searchGene">
+        </div>
+        
         <div class="col-xs-2">
             <label>Create Cohort</label>
             <div class="input-group">
@@ -106,7 +108,7 @@
     <li class="legend-section">Edge Colors</li>
     <li ng-repeat="item in vm.optEdgeColors">
       <button class="btn btn-default filter-button {{item.class}}"
-      ng-click="item.fn(item); $event.stopPropagation();" style="font-weight: 300">
+      ng-click="vm.updateEdge(item); $event.stopPropagation();" style="font-weight: 300">
             {{item.name}} ({{item.state}})
       </button>
     </li>
@@ -115,12 +117,12 @@
 <div class="legend legend-right" ng-show="vm.patient">
   <ul> 
     <li class="legend-section">Patient Information</li>
-    <li>PID: {{vm.patient[0]}}</li>
-    <li>GENDER: {{vm.patient[2]}}</li>
-    <li>STATUS: {{vm.patient[6]}}</li>
-    <li>DIAGNOSED: {{vm.patient[4]}} years old</li>
-    <li>SURVIVED: {{vm.patient[3]}} years</li>
-    <li>PROGRESSION: {{vm.patient[5]}}</li>
+    <li>PID: {{vm.patient[0][0]}}</li>
+    <li>GENDER: {{vm.patient[0][2]}}</li>
+    <li>STATUS: {{vm.patient[0][6]}}</li>
+    <li>DIAGNOSED: {{vm.patient[0][4]}} years old</li>
+    <li>SURVIVED: {{vm.patient[0][3]}} years</li>
+    <li>PROGRESSION: {{vm.patient[0][5]}}</li>
     <li><hr></li>
     <li class="legend-section">Genes ({{vm.patientChromosomes.length}})</li>
     <li><span ng-repeat="item in vm.patientChromosomes">{{item}} | </span></li>

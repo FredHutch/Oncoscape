@@ -20,11 +20,86 @@
         return directive;
 
         /** @ngInject */
-        function MarkersController(osApi, $state, $timeout, $scope, $stateParams, cytoscape, signals, $window) {
+        function MarkersController(osApi, $state, $timeout, $scope, $stateParams, cytoscape, signals, $window, _) {
 
-            // View Model
-            var vm = this;
-            vm.datasource = $stateParams.datasource || 'DEMOdz';
+            if (angular.isUndefined($stateParams.datasource)){
+                $state.go("datasource");
+                return;
+            }
+
+            // Initialize View Model
+            var vm = initializeViewModel(this, $stateParams);
+
+            // Load Data
+            osApi.setBusy(true);
+            loadData(osApi, vm, function(data){
+
+                // Initalize Styles
+                var styles = initializeStyles();
+
+                // Initialize Chart
+                var chart = initializeChart(data, styles, cytoscape, angular.element("#markers-chart"));
+
+                // Initalize Layouts
+                initializeLayouts(chart, vm, $scope);
+
+                // Initalize Node Colors
+                initializeNodeColors(chart, vm, $scope, osApi);
+
+                // Initialize Edge Colors
+                initializeEdgeColors(chart, vm, $scope, $timeout);
+
+                // Initialize Events
+                initializeEvents(chart, vm, $scope, $timeout, osApi);
+
+                // Initalize Search
+                initializeSearch(chart, vm, $scope)
+
+                // Initialize Zoom
+                initializeZoom(chart, $timeout);
+                
+                // Ready
+                osApi.setBusy(false);
+            });
+        }
+
+        function initializeSearch(chart, vm, $scope){
+
+            // Search Gene Textbox
+            $scope.$watch("vm.searchGene", function(){
+                if (angular.isUndefined(vm.searchGene)) return;
+                chart.startBatch();
+                chart.nodes('node[nodeType="gene"]')
+                    .forEach(function(ele){
+                        if (vm.searchGene=="") { ele.deselect(); return; }
+                        if (ele.data().name.toLowerCase().indexOf(vm.searchGene.toLowerCase())==0){
+                            ele.select()
+                        }else{
+                            ele.deselect();
+                        }
+                    });
+                chart.endBatch();
+            });
+
+            // Search Patient Textbox
+            $scope.$watch("vm.searchPatient", function(){
+                if (angular.isUndefined(vm.searchPatient)) return;
+                chart.startBatch();
+                chart.nodes('node[nodeType="patient"]')
+                    .forEach(function(ele){
+                        if (vm.searchPatient=="") { ele.deselect(); return; }
+                        if (ele.data().id.toLowerCase().indexOf(vm.searchPatient.toLowerCase())==0){
+                            ele.select()
+                        }else{
+                            ele.deselect();
+                        }
+                });
+                chart.endBatch();
+            });
+        }
+            
+        function initializeViewModel(vm, $stateParams){
+            vm.datasource = $stateParams.datasource;
             vm.optInteractiveModes;
             vm.optInteractiveMode;
             vm.optPatientLayouts;
@@ -36,790 +111,802 @@
             vm.legandPatient;
             vm.legandChromosomes;
             vm.frame;
+            return vm;
+        }
 
-            // VM Event Handlers
-            vm.toggleFilter = function() {
-                angular.element(".container-filters").toggleClass("container-filters-collapsed");
-                angular.element(".container-filter-toggle").toggleClass("container-filter-toggle-collapsed");
+        function initializeChart(data, styles, cytoscape, el){
+            // Initalize Cytoscape Chart
+            // If performance becomes an issue set *Viewport attributes to true
+            return cytoscape({
+                container: el,
+                elements: data,
+                style: styles,
+                hideEdgesOnViewport: false,
+                hideLabelsOnViewport: false,
+                textureOnViewport: false,
+                motionBlur: true,
+                minZoom: 0.1,
+                maxZoom: 20,
+                layout: {
+                    name: "preset",
+                    fit: true
+                }
+            });
+        }
+
+        function initializeStyles(){
+            // Unlike CSS order of operations is determined by order
+            // Play specific attention to use of data() + mapdata() values they are dynamic
+            // Care should be taken not to update styles directly in code, but to use underlying data model
+            // Cytoscape Dynamic Style Properties Include
+            /*
+                display
+                color
+                sizeEle
+                sizeLbl
+                posX
+                posY
+                hobo
+                patient
+            */
+            return [
+            {
+                selector: 'node',
+                style: {
+                    'display': "data(display)",
+                    'label': "data(id)",
+                    'height': "mapData(sizeEle, 0, 50, 1, 80)",
+                    'width': "mapData(sizeEle, 0, 50, 1, 80)",
+                    'border-width': "5px",
+                    'font-size': 'data(sizeLbl)',
+                    'text-valign': 'center',
+                    'min-zoomed-font-size': '8px',
+                }
+            }, {
+                selector: 'node[nodeType="patient"]',
+                style: {
+                    'background-color': 'data(color)',
+                    'border-color': 'data(color)',
+                    'text-halign': 'center'
+                }
+            }, {
+                selector: 'node[nodeType="patient"]:selected',
+                style: {
+                    'border-color': "#FF0000"
+                }
+            }, {
+                selector: 'node[nodeType="gene"]',
+                style: {
+                    'background-color': "#FFFFFF",
+                    'border-color': "data(color)",
+                    'text-halign': 'right'
+                }
+            }, {
+                selector: 'node[nodeType="gene"]:selected',
+                style: {
+                    'border-color': "#FF0000",
+                }
+            },{
+                selector: 'node[nodeType="centromere"]',
+                style:{
+                    'font-size': '24px',
+                    'text-halign': 'center',
+                    'background-color': '#FFFFFF',
+                    'border-color': 'rgb(19, 150, 222)',
+                    'height': '40px',
+                    'width': '120px',
+                    'shape': 'roundrectangle'
+                }
+            },{
+                selector: 'edge',
+                style:{
+                    'display': "data(display)",
+                    'line-color': "data(color)",
+                    'line-width': "data(sizeEle)"
+                }
+            }];
+        }
+
+        function initializeEvents(chart, vm, $scope, $timeout, osApi){
+
+            // Create Signals
+            var events = (function() {
+                var geneOver = new signals.Signal();
+                var geneOut = new signals.Signal();
+                var geneClick = new signals.Signal();
+                var patientOver = new signals.Signal();
+                var patientOut = new signals.Signal();
+                var patientClick = new signals.Signal();
+                var removeAll = function() {
+                    geneOver.removeAll();
+                    geneOut.removeAll();
+                    patientOver.removeAll();
+                    patientOut.removeAll();
+                    geneClick.removeAll();
+                    patientClick.removeAll();
+                }
+                var over = function(e) {
+                    geneOver.add(e);
+                    patientOver.add(e);
+                };
+                var out = function(e) {
+                    geneOut.add(e);
+                    patientOut.add(e);
+                }
+                var click = function(e) {
+                    geneClick.add(e);
+                    patientClick.add(e);
+                }
+                return {
+                    geneOver: geneOver,
+                    geneOut: geneOut,
+                    geneClick: geneClick,
+                    patientOver: patientOver,
+                    patientOut: patientOut,
+                    patientClick: patientClick,
+                    over: over,
+                    out: out,
+                    click: click,
+                    removeAll: removeAll
+                };
+            })();
+
+            // Attach Event Signals To Real Events
+            chart
+                .on('click', 'node[nodeType="gene"]', events.geneClick.dispatch)
+                .on('click', 'node[nodeType="patient"]', events.patientClick.dispatch)
+                .on('mouseover', 'node[nodeType="gene"]', events.geneOver.dispatch)
+                .on('mouseover', 'node[nodeType="patient"]', events.patientOver.dispatch)
+                .on('mouseout', 'node[nodeType="gene"]', events.geneOut.dispatch)
+                .on('mouseout', 'node[nodeType="patient"]', events.patientOut.dispatch);
+
+            // Cache Hide All Edges Structure
+            var hidePatientEdges = {};
+            chart.$('edge[edgeType!="chromosome"]')
+                .forEach(function(node){ this[node.id()] = { display: 'none' };}, hidePatientEdges);
+                    
+            // Define Behaviors
+            var behaviors = {
+                showPatientInfo: function(e){
+                    if (e.cyTarget.data().nodeType == 'patient') {
+                        $scope.$apply(function() {
+                            vm.patient = e.cyTarget.attr('patient');
+                            vm.patientChromosomes = e.cyTarget.neighborhood("node")
+                                .map(function(item) { return item.data().id });
+                        });
+                    }
+                    return this;
+                },
+                hidePatientInfo: function(){
+                    $scope.$apply(function() {
+                        vm.patient = vm.patientChromosomes = null;
+                    });
+                    return this;
+                },
+                showDegreeOne: function(e){
+                    var degmap = {};
+                    e.cyTarget.neighborhood('edge')
+                        .forEach(function(item){
+                            this[item.id()] = {display:'element'};
+                        }, degmap);
+                    chart.batchData(degmap);
+                },
+                hideDegreeOne: function(e){
+                    var degmap = {};
+                    e.cyTarget.neighborhood('edge')
+                        .forEach(function(item){
+                            this[item.id()] = {display:'none'};
+                        }, degmap);
+                    chart.batchData(degmap);
+                },
+                showDegreeTwo: function(e){
+                    var degmap = {};
+                    e.cyTarget.neighborhood('node')
+                        .forEach(function(node){
+                            node.neighborhood('edge')
+                                .forEach(function(item){
+                                    this[item.id()] = {display:'element'};
+                            }, this);
+                        }, degmap);
+                    chart.batchData(degmap);
+                },
+                hideDegreeTwo: function(e){
+                    var degmap = {};
+                    e.cyTarget.neighborhood('node')
+                        .forEach(function(node){
+                            node.neighborhood('edge')
+                                .forEach(function(item){
+                                    this[item.id()] = {display:'none'};
+                            }, this);
+                        }, degmap);
+                    chart.batchData(degmap);
+                },
+                showOncoPrint: function(e){
+                    var ds = vm.datasource;
+                    if (ds=="DEMOdz") return;
+                    if (ds.indexOf("TCGA" == 0)) {
+                        var cbioDsName = ds.substr(4) + "_tcga";
+                        var genes = e.cyTarget.neighborhood('node').map(function(n) {
+                            return n.data().name;
+                        }).join("+");
+                        var url = "http://www.cbioportal.org/ln?cancer_study_id=" + cbioDsName + "&q=" + genes;
+                        $scope.$apply(function() {
+                            $window.open(url);
+                        });
+                    }
+                }
             }
 
-            // Create Cohort
-            vm.cohort;
-            vm.createCohort = function() {
-                osApi.setBusy(true);
-                var selected = cyChart.$('node[nodeType="patient"]:selected');
-                var ids = selected.map(function(node){ return node.data().id; });
-                pfApi.addFilter(vm.cohort, ids);
-                vm.cohort = "";
+            // Use States To Associate Events + Behaviors
+            var states = [{
+                name: 'Hide All',
+                register: function() {
+                    events.click(function(e) {
+                        behaviors
+                            .showOncoPrint(e)
+                    });
+                    events.over(function(e) {
+                        behaviors
+                            .showPatientInfo(e)
+                    });
+                    events.out(function(e) {
+                        behaviors
+                            .hidePatientInfo(e)
+                    });
+                },
+                unregister: function() {
+                    events.removeAll();
+                }
+            }, {
+                name: 'Show All',
+                register: function() {
+                    events.click(function(e) {
+                        behaviors
+                            .showOncoPrint(e)
+                    });
+                    events.over(function(e) {
+                        behaviors
+                            .showPatientInfo(e)
+                    });
+                    events.out(function(e) {
+                        behaviors
+                            .hidePatientInfo(e)
+                    });
+
+                    // Show all Edges
+                    var degmap = {};
+                    chart.$('edge[edgeType!="chromosome"]')
+                        .forEach(function(node){
+                            this[node.id()] = { display: 'element' };
+                        }, degmap);
+                    chart.batchData(degmap);
+                },
+                unregister: function() {
+                    events.removeAll();
+
+                    // Hide All Edges
+                    chart.batchData(hidePatientEdges);
+                }
+            },{
+                name: '1° When Selected',
+                register: function(){
+
+                    var degmap = {};
+                    chart.$('node[nodeType="patient"]:selected')
+                        .forEach(function(node) {
+                            node.neighborhood('edge').forEach( function(edge) {
+                                this[edge.id()] = { display: 'element' };
+                            }, degmap)
+                        }, degmap);
+                    chart.batchData(degmap);
+
+
+                    chart.on('select', 'node', function(e){
+                        behaviors.showDegreeOne(e);
+                    });
+                    chart.on('unselect','node',function(e){
+                        behaviors.hideDegreeOne(e);
+                    });
+                },
+                unregister: function(){
+
+                    // Hide All Edges
+                    chart.batchData(hidePatientEdges);
+                    chart.off('select', 'node');
+                    chart.off('unselect', 'node');
+                }
+
+            },{
+                name: '2° When Selected',
+                register: function(){
+                    var degmap = {};
+                    chart.$('node[nodeType="patient"]:selected')
+                        .forEach(function(node){
+                            node.neighborhood('node')
+                                .forEach(function(node){
+                                    node.neighborhood('edge')
+                                        .forEach(function(item){
+                                            this[item.id()] = {display:'element'};
+                                        }, this)
+                                }, this)
+                        }, degmap);
+                    chart.batchData(degmap);
+                    
+                    chart.on('select', 'node', function(e){
+                        behaviors.showDegreeTwo(e);
+                    });
+                    chart.on('unselect','node',function(e){
+                        behaviors.hideDegreeTwo(e);
+                    });
+                },
+                unregister: function(){
+
+                    // Hide All Edges
+                    chart.batchData(hidePatientEdges);
+                    chart.off('select', 'node');
+                    chart.off('unselect', 'node');
+                }
+
+            },{
+                name: '1° On Mouse Over',
+                register: function() {
+                    events.click(function(e) {
+                        behaviors
+                            .showOncoPrint(e)
+                    });
+                    events.over(function(e) {
+                        behaviors
+                            .showPatientInfo(e)
+                            .showDegreeOne(e)
+                        
+                    });
+                    events.out(function(e) {
+                        behaviors
+                            .hidePatientInfo(e)
+                            .hideDegreeOne(e)
+                    });
+                },
+                unregister: function() {
+                    events.removeAll();
+                }
+            }, {
+                name: '2° On Mouse Over',
+                register: function() {
+                    events.click(function(e) {
+                        behaviors
+                            .showOncoPrint(e)
+                    });
+                    events.over(function(e) {
+                        behaviors
+                            .showPatientInfo(e)
+                            .showDegreeTwo(e)
+                    });
+                    events.out(function(e) {
+                        behaviors
+                            .hidePatientInfo(e)
+                            .hideDegreeTwo(e)                           
+                    });
+                },
+                unregister: function() {
+                    events.removeAll();
+                }
+            }];
+
+            vm.optInteractiveModes = states;
+            vm.optInteractiveMode = vm.optInteractiveModes[0];
+
+            // What Scope To Initialize Behaviors
+            $scope.$watch("vm.optInteractiveMode", function(next, prev) {
+                if (angular.isDefined(prev)) prev.unregister();
+                if (angular.isDefined(next)) next.register();
+            });
+        }
+
+        function initializeEdgeColors(chart, vm, $scope, $timeout){
+
+            // Set Edge Options
+            var colors = [{ 
+                    name: 'mutation',
+                    class: 'edgeMutation',
+                    color: '#004358',
+                    state: 'Highlight'
+                }, {
+                    name: 'cnGain.1',
+                    class: 'edgeCnGain1',
+                    color: '#1F8A70',
+                    state: 'Highlight'
+                }, {
+                    name: 'cnLoss.1',
+                    class: 'edgeCnLoss1',
+                    color: '#BEDB39',
+                    state: 'Highlight'
+                }, {
+                    name: 'cnGain.2',
+                    class: 'edgeCnGain2',
+                    color: '#FFE11A',
+                    state: 'Highlight'
+
+                }, {
+                    name: 'cnLoss.2',
+                    class: 'edgeCnLoss2',
+                    color: '#FD7400',
+                    state: 'Highlight'
+                }];
+            var colorMap = {
+                'mutation' : colors[0],
+                'cnGain.1' : colors[1],
+                'cnLoss.1' : colors[2],
+                'cnGain.2' : colors[3],
+                'cnLoss.2' : colors[4]
             };
 
+            // Default colors
+            $timeout(function(){
+                colors.forEach(function(item){
+                    angular.element("." + item.class).css("border-color", item.color);
+                });
+                var degmap = {};
+                chart.edges('edge[edgeType!="chromosome"]')
+                    .forEach(function(edge){
+                        this[edge.id()] = {color:colorMap[edge.data("edgeType")].color};
+                    }, degmap);
+                chart.batchData(degmap);
+            });
 
+            vm.optEdgeColors = colors;
 
-            // Elements
-            var elChart = angular.element("#markers-chart");
-            var cyChart;
-            var rawData;
+            // Update Edge Callback
+            vm.updateEdge = function(item){
+                var color, state;
+                switch (item.state){
+                    case "Highlight":
+                        item.state = "Show";
+                        color = '#3993fa';
+                        state = {color:color, display:'element'};
+                        break;
+                    case "Show":
+                        item.state = "Hide";
+                        color = '#EEEEEE';
+                        state = {display:'none'};
+                        break;
+                    default:
+                        item.state = "Highlight";
+                        color = item.color;
+                        state = {color:color, display:'element'};
+                        break;
+                }
 
+                // Set Legand color
+                angular.element("." + item.class).css("border-color", color );
 
-            var pfApi = osApi.getPatientFilterApi();
-            pfApi.init(vm.datasource);
-            pfApi.onSelect.add(draw);
+                // update Degree Map
+                var degmap = {};
+                chart.edges('edge[edgeType="'+item.name+'"]')
+                    .forEach(function(edge){
+                        this.degmap[edge.id()] = this.state;
+                    }, {degmap:degmap, state:state});
+                chart.batchData(degmap);
 
- 
-            var removedPatients;
-            function draw(o){
-                osApi.setBusy(true);
-                if (angular.isUndefined(o)) return;
-                if (angular.isDefined(removedPatients)) removedPatients.restore();
-                var patients = cyChart
-                    .nodes('node[nodeType="patient"]')
-                    .filterFn(function(ele){
-                        if (this=="*") return false;
-                        for (var i=0; i<this.length; i++){
-                            if (ele.data().id == this[i]) return false;
-                        }
-                        return true;
-                    }, o.ids);
-
-                removedPatients = cyChart.remove(patients);
-                osApi.setBusy(false);
             }
-         
-            // Initialize
-            osApi.setBusy(true);
+        }
+
+        function initializeZoom(chart, $timeout){
+
+            var nodeZoomFn ={
+                "A": function(node){
+                    this[node.id()] = {
+                        sizeEle: node.degree(),
+                        sizeLbl: 0
+                    }
+                },
+                "B": function(node){
+                    this[node.id()] = {
+                        sizeEle: node.degree() * .5,
+                        sizeLbl: 0
+                    }
+                },
+                "C": function(node){
+                    this[node.id()] = {
+                        sizeEle: node.degree() * .25,
+                        sizeLbl: 12
+                    }
+                },
+                "D": function(node){
+                    this[node.id()] = {
+                        sizeEle: node.degree() * .125,
+                        sizeLbl: 16
+                    }
+                },
+                "E": function(node){
+                    this[node.id()] = {
+                        sizeEle: node.degree() * .06,
+                        sizeLbl: 14
+                    }
+                },
+                "F": function(node){
+                    this[node.id()] = {
+                        sizeEle: node.degree() * .03,
+                        sizeLbl: 12
+                    }
+                },
+                "Z": function(node){
+                    this[node.id()] = {
+                        sizeEle: node.degree() * .000000001,
+                        sizeLbl: 1
+                    }
+                }
+
+            }
+            var _zoomlevel = "A";
+            var _timeout;
+            chart.on('pan', _.debounce(function(e) {
+                var zoom = e.cy.zoom();
+                /*
+                
+
+                var degmap = {};
+
+                var zoom = e.cy.zoom().map(.1, 20, 1, .0002);
+                chart.nodes().forEach(function(node){
+
+
+                    this.degmap[node.id()] = {sizeEle:50 * this.zoom};
+
+
+                }, { degmap:degmap, zoom:zoom });
+
+                chart.batchData(degmap);
+*/
+                var zoomlevel = 
+                    (zoom>19) ? "Z" :
+                    (zoom>1.5) ? "F" :
+                    (zoom>1.2) ? "E" :
+                    (zoom>.9) ? "D" :
+                    (zoom>.6) ? "C" : 
+                    (zoom>.3) ? "B" : 
+                    "A";
+
+                if (_zoomlevel==zoomlevel) return;
+                _zoomlevel = zoomlevel;
+                console.log(_zoomlevel);
+                var fn = nodeZoomFn[zoomlevel];
+                var degmap = {};
+                chart.nodes().forEach(fn, degmap);
+                chart.batchData(degmap);
+                
+            }, 500));
+
+        }
+
+        function initializeNodeColors(chart, vm, $scope, osApi){
+            
+            osApi.getSampleCategorizationNames().then(function(response) {
+                vm.optNodeColors =  [{name: 'Default'},{name: 'Gender'},{name: 'Age At Diagnosis'}]
+                    .concat( response.payload
+                        .map(function(item) { return {'name': item} }));
+                vm.optNodeColor = vm.optNodeColors[0];
+
+                $scope.$watch("vm.optNodeColor", function(){
+                        switch(vm.optNodeColor.name){
+                            case "Default":
+                                vm.legandNodes = [{name:'Patients', color:'#3993fa'}];
+                                var degmap = {};
+                                chart.$('node[nodeType="patient"]')
+                                    .forEach(function(node){
+                                        degmap[node.id()] = {color:'#3993fa'};
+                                    });
+                                chart.batchData(degmap);
+                                break;
+                            case "Gender":
+                                vm.legandNodes = [{name:'Male', color:'blue'}, {name:'Female', color:'pink'}];
+                                var degmap = {};
+                                chart.$('node[nodeType="patient"]')
+                                    .forEach(function(node){
+                                        try{
+                                            var gender = node.data("patient")[0][2];
+                                            degmap[node.id()] = {color: (gender==='male') ? 'rgb(5, 108, 225)' :  'pink' };
+                                        }catch(e){
+                                            degmap[node.id()] = {color: '#EEEEEE'};
+                                        }
+                                    });
+                                chart.batchData(degmap);
+                                break;
+                            case "Age At Diagnosis":
+                                vm.legandNodes = [{name:'Young', color:'green'}, {name:'Old', color:'red'}];
+                                var degmap = {};
+                                chart.$('node[nodeType="patient"]')
+                                    .forEach(function(node){
+                                        try{
+                                            var age = Number(node.data("patient")[0][4]);
+                                            degmap[node.id()] = {color: 'rgb(' + ((255 * age) / 100) + ',' + ((255 * (100 - age)) / 100) + ',0)' };
+                                        }catch(e){
+                                            degmap[node.id()] = {color: '#000000'};
+                                        }
+                                    });
+                                chart.batchData(degmap);
+                                break;
+                            default:
+                                osApi.getSampleCategorization(vm.optNodeColor.name).then(function(response) {
+                                    vm.legandNodes = response.payload.tbl
+                                        .map(function(e) {return e[0] + "|" + e[1]; })
+                                        .filter(function(v, i, s) { return s.indexOf(v) === i; })
+                                        .map(function(e) { var p = e.split("|");
+                                            return { 'name': p[0], 'color': p[1] } });
+                                        var rows = response.payload.rownames;
+                                        var tbl = response.payload.tbl;
+                                        var degmap = {};
+                                        var nodes = chart.$('node[nodeType="patient"]');
+                                        // Revisit This.  Would be faster to not loop.
+                                        for (var i=0; i<nodes.length; i++){
+                                            var id = nodes[i].id();
+                                            degmap[id] = {color:'#DDDDDD'}
+                                            for (var ii=0; ii<rows.length; ii++){
+                                                if (id==rows[ii]){
+                                                    degmap[id] = {color:tbl[ii][1]}
+                                                    break;
+                                                }
+                                            }
+                                        }
+                                        chart.batchData(degmap);
+                                    });
+                                break;
+                        }
+                    });
+
+            });
+        }
+
+        function initializeLayouts(chart, vm, $scope){
+            vm.optPatientLayouts = [{name: 'Hobo'},{name: 'Age At Diagnosis'},{name: 'Gender'}];
+            vm.optPatientLayout = vm.optPatientLayouts[0];
+            $scope.$watch('vm.optPatientLayout', function(layout){
+                var data = {};
+                var nodes = chart.nodes('node[nodeType="patient"]');
+                chart.startBatch();
+                switch (layout.name){
+
+                    // Hobo Chart Positions Are Sent From Server In Initial Dataset + Cached Load
+                    case "Hobo":
+                        nodes.forEach(function(node){ 
+                            node.position(node.data("hobo")); 
+                        });
+                        break;
+
+                    // Age At Dx Comes From Patient Table
+                    case "Age At Diagnosis":
+                        nodes.forEach(function(node){
+                            try{
+                                var age = Number(node.data("patient")[0][4]);
+                                age = age.map(0, 100, -3000, 3000);
+                                node.position({
+                                    y: age, 
+                                    x: (Math.pow(age, 2) / 5000) - 200
+                                });
+                            }catch(e){
+                                node.position({x:100,y:0});
+                            }
+                        });
+                        break;
+
+                    // Gender Comes From Patient Table
+                    case "Gender":
+                        nodes
+                            .filter(function(index, node){
+                                try{ return (node.data("patient")[0][2].toLowerCase()=='male')}
+                                catch(e){}
+                                return false;
+                            })
+                            .forEach(function(node, index){
+                                var a = 30;
+                                var b = 30;
+                                var angle = 0.1 * (index+1);
+                                var x = -1000 + (a+b * angle) * Math.cos(angle);
+                                var y = -1500 + (a+b * angle) * Math.sin(angle);
+                                node.position({
+                                    x: x,
+                                    y: y
+                                });
+                            });
+                        nodes
+                            .filter(function(index, node){
+                                return angular.isUndefined(node.data("patient")[0])
+                            })
+                            .forEach(function(node, index){
+                                var a = 50;
+                                var b = 50;
+                                var angle = 0.1 * (index+1);
+                                var x = -2500 + (a+b * angle) * Math.cos(angle);
+                                var y = 0 + (a+b * angle) * Math.sin(angle);
+                                node.position({
+                                    x: x,
+                                    y: y
+                                });
+                            });
+
+                        nodes
+                            .filter(function(index, node){
+                                try{ return (node.data("patient")[0][2].toLowerCase()=='female')}
+                                catch(e){}
+                                return false;
+                            })
+                            .forEach(function(node, index){
+                                var a = 30;
+                                var b = 30;
+                                var angle = 0.1 * (index+1);
+                                var x = -1000 + (a+b * angle) * Math.cos(angle);
+                                var y = 1500 + (a+b * angle) * Math.sin(angle);
+                                console.log(x) ;
+                                node.position({
+                                    x: x,
+                                    y: y
+                                });
+                            });
+                        break;
+                }
+                chart.endBatch();
+            });
+        }
+
+        function loadData(osApi, vm, cb){
+            // Today multiple nested data calls are nessisary to obtain all the data to render the chart
+            // Future server refactor should be done to limit number of calls and preformat data
             osApi.setDataset(vm.datasource).then(function() {
+
+                // Patient Data
                 osApi.getPatientHistoryTable(vm.datasource).then(function(response) {
-
-                    // Store Patient Data
                     var dataPatients = response.payload.tbl;
+
+                    // Marker Data
                     osApi.getMarkersNetwork(response.payload).then(function(response) {
+                        var dataMarkers = angular.fromJson(response.payload).elements;
 
-                        // Store Marker Data
-                        rawData = angular.fromJson(response.payload).elements;
-
-                        // Process Nodes (Save Hobo Positions + Patient History Info)
-                        rawData.nodes
+                        // Process Patient Nodes (Save Hobo Positions + Patient History Info + Color + SizeEle + SizeLbl)
+                        dataMarkers.nodes
                             .filter(function(item) { return item.data.nodeType === 'patient'; })
                             .map(function(value) {
-                                value.data.pos = { x: value.position.x, y: value.position.y };
-                                value.data.patient = this.filter(function(item) {
-                                    return item[0] === value.data.id;
-                                })[0];
+                                var data = value.data;
+                                data.display = "element";
+                                data.color = "rgb(19, 150, 222)";
+                                data.sizeEle = data.degree;
+                                data.sizeLbl = 12;
+                                data.hobo = {x: value.position.x, y: value.position.y};
+                                data.patient = this.filter(function(item){ return item[0]===value.data.id });
                             }, dataPatients);
 
-                        // Prevent Dragging Of Chromosome - Centromere
-                        rawData.nodes
-                            .filter(function(item) { 
-                                var type = item.data.nodeType;
-                                return (type==='centromere' || type==='telomere' || type==='gene')
-                                })
+                        // Process Non Patient Nodes
+                        dataMarkers.nodes
+                            .filter(function(item) {  return  item.data.nodeType != 'patient'; })
                             .map(function(value){
+                                var data = value.data;
+                                data.display = "element";
+                                data.color = "rgb(19, 150, 222)";
+                                data.sizeEle = data.degree;
+                                data.sizeLbl = 12;
                                 value.locked = true;
                                 value.selectable = true;
                                 value.grabbable = false;
                                 return value;
                             });
 
-
-                        rawData.edges
+                        // Process Edges
+                        dataMarkers.edges
                             .map(function(value){
+                                var data = value.data;
+                                data.display = (data.edgeType=="chromosome") ? "element" : "none";
+                                data.color = "rgb(19, 150, 222)";
+                                data.sizeEle = 1;
+                                data.sizeLbl = 12;
                                 value.locked = true;
                                 value.selectable = false;
                                 value.grabbable = false;
                                 return value;
                             });
-                
-                        // Initalize CytoScape
-                        cyChart = cytoscape({
-                            container: elChart,
-                            elements: rawData,
-                            style: styles,
-                            hideEdgesOnViewport: false,
-                            hideLabelsOnViewport: true,
-                            textureOnViewport: false,
-                            motionBlur: true,
-                            minZoom: 0.1,
-                            maxZoom: 20,
-                            layout: {
-                                name: "preset",
-                                fit: true
-                            }
-                        });
 
-                        cyChart.nodes().map(function(node){node.data({degree: node.degree(), baseWidth: node.width(), baseHeight: node.height(), zoomed:false });});
-                            
-                        draw();
-
-                        // Opt Edge Colors
-                        vm.optPatientLayouts = optPatientLayoutsFatory(cyChart, vm);
-                        vm.optEdgeColors = optEdgeColorsFactory(cyChart, vm, $timeout);
-                        vm.optNodeColors = optNodeColorsFactory(cyChart, vm, osApi);
-                        vm.optInteractiveModes = optInteractiveModesFactory(cyChart, vm, $scope);
-                        vm.optInteractiveMode = vm.optInteractiveModes[0];
-                        optZoomResizeFactory(cyChart);
-
-                        // Register Search Listeners
-                        $scope.$watch("vm.searchGene", function(){
-                            if (angular.isUndefined(vm.searchGene)) return;
-                            cyChart.nodes('node[nodeType="gene"]')
-                            .forEach(function(ele){
-                                if (vm.searchGene=="") { ele.deselect(); return; }
-                                if (ele.data().name.toLowerCase().indexOf(vm.searchGene.toLowerCase())==0){
-                                    ele.select()
-                                }else{
-                                    ele.deselect();
-                                }
-
-                            });
-                        });
-
-                        $scope.$watch("vm.searchPatient", function(){
-                            if (angular.isUndefined(vm.searchPatient)) return;
-                            cyChart.nodes('node[nodeType="patient"]')
-                            .forEach(function(ele){
-                                if (vm.searchPatient=="") { ele.deselect(); return; }
-                                if (ele.data().id.toLowerCase().indexOf(vm.searchPatient.toLowerCase())==0){
-                                    ele.select()
-                                }else{
-                                    ele.deselect();
-                                }
-
-                            });
-                        });
-
-                        osApi.setBusy(false);
+                        // Call Back
+                        cb(dataMarkers);
                     });
                 });
             });
-
-
-            // Zoom Resize
-            
-            var optZoomResizeFactory = function(chart){
-
-                var _zoomlevel = 0;
-                var _timeout;
-                chart.on('pan', function(e){
-
-                    var zoom = e.cy.zoom();
-                    var zoomlevel = 
-                        (zoom>19) ? .0000005 :
-                        (zoom>15) ? .000005 :
-                        (zoom>9 ) ? .00005 :
-                        (zoom>8 ) ? .0005 :
-                        (zoom>6 ) ? .005 :
-                        (zoom>4 ) ? .02 : 
-                        (zoom>2 ) ? .1 :
-                        (zoom>.5) ? .3 :
-                        (zoom>.3) ? .5 :
-                        1;
-
-                    if (_zoomlevel==zoomlevel) return;
-                    _zoomlevel = zoomlevel;
-                        
-                    // Delay Call To Resize Nodes.  The User Could Still Be Zooming
-                    if (angular.isDefined(_timeout)) $timeout.cancel(_timeout);
-                    _timeout = $timeout( function(chart, zoomlevel){
-
-                        var degmap = {};
-                        var nodes = chart.nodes();
-                        for (var i=0; i<nodes.length; i++){
-                            degmap[nodes[i].id()] = { degree:nodes[i].degree() * zoomlevel };
-                        }
-                        chart.batchData(degmap);
-
-                    }, 100, false, chart, zoomlevel);                    
-                    
-                })
-            }
-
-
-
-
-
-            // Interactive Mode Options
-            var optInteractiveModesFactory = function(chart, vm) {
-                // Event Signals
-                var events = (function() {
-                    var geneOver = new signals.Signal();
-                    var geneOut = new signals.Signal();
-                    var geneClick = new signals.Signal();
-                    var patientOver = new signals.Signal();
-                    var patientOut = new signals.Signal();
-                    var patientClick = new signals.Signal();
-                    var removeAll = function() {
-                        geneOver.removeAll();
-                        geneOut.removeAll();
-                        patientOver.removeAll();
-                        patientOut.removeAll();
-                        geneClick.removeAll();
-                        patientClick.removeAll();
-                    }
-                    var over = function(e) {
-                        geneOver.add(e);
-                        patientOver.add(e);
-                    };
-                    var out = function(e) {
-                        geneOut.add(e);
-                        patientOut.add(e);
-                    }
-                    var click = function(e) {
-                        geneClick.add(e);
-                        patientClick.add(e);
-                    }
-                    return {
-                        geneOver: geneOver,
-                        geneOut: geneOut,
-                        geneClick: geneClick,
-                        patientOver: patientOver,
-                        patientOut: patientOut,
-                        patientClick: patientClick,
-                        over: over,
-                        out: out,
-                        click: click,
-                        removeAll: removeAll
-                    };
-                })();
-                chart
-                    .on('click', 'node[nodeType="gene"]', events.geneClick.dispatch)
-                    .on('click', 'node[nodeType="patient"]', events.patientClick.dispatch)
-                    .on('mouseover', 'node[nodeType="gene"]', events.geneOver.dispatch)
-                    .on('mouseover', 'node[nodeType="patient"]', events.patientOver.dispatch)
-                    .on('mouseout', 'node[nodeType="gene"]', events.geneOut.dispatch)
-                    .on('mouseout', 'node[nodeType="patient"]', events.patientOut.dispatch);
-
-
-                var behaviors = {
-                    showPatientInfo: function(e){
-                        if (e.cyTarget.data().nodeType == 'patient') {
-                            $scope.$apply(function() {
-                                vm.patient = e.cyTarget.attr('patient');
-                                vm.patientChromosomes = e.cyTarget.neighborhood("node")
-                                    .map(function(item) { return item.data().id });
-                            });
-                        }
-                        return this;
-                    },
-                    hidePatientInfo: function(){
-                        $scope.$apply(function() {
-                            vm.patient = vm.patientChromosomes = null;
-                        });
-                        return this;
-                    },
-                    showNodeLabel: function(e){
-                        e.cyTarget.style({ 'font-size': '50px' });
-                        return this;
-                    },
-                    hideNodeLabel: function(e){
-                        e.cyTarget.style({ 'font-size': '0px' });
-                        return this;
-                    },
-                    showNeighborLabel: function(e){
-                        e.cyTarget.neighborhood('node').style({'font-size': '50px'});
-                        return this;
-                    },
-                    hideNeighborLabel: function(e){
-                        e.cyTarget.neighborhood('node').style({'font-size': '0px'});
-                        return this;
-                    },
-                    showDegreeOne: function(e){
-                        e.cyTarget.neighborhood('edge').style({ 'display': 'element', 'line-style': 'solid' });
-                        return this;
-                    },
-                    hideDegreeOne: function(e){
-                        e.cyTarget.neighborhood('edge').style({ 'display': 'none' });
-                        return this;
-                    },
-                    showDegreeTwo: function(e){
-                        e.cyTarget.neighborhood('node')
-                            .neighborhood('edge').style({ 'line-style': 'dashed', 'display': 'element' });
-                        this.showDegreeOne(e);
-                        return this;
-                    },
-                    hideDegreeTwo: function(e){
-                         e.cyTarget.neighborhood('node').neighborhood('edge').style({ 'display': 'none' });
-                        return this;
-                    },
-                    showOncoPrint: function(e){
-                        var ds = vm.datasource;
-                        if (ds=="DEMOdz") return;
-                        if (ds.indexOf("TCGA" == 0)) {
-                            var cbioDsName = ds.substr(4) + "_tcga";
-                            var genes = e.cyTarget.neighborhood('node').map(function(n) {
-                                return n.data().name;
-                            }).join("+");
-                            var url = "http://www.cbioportal.org/ln?cancer_study_id=" + cbioDsName + "&q=" + genes;
-                            $scope.$apply(function() {
-                                $window.open(url);
-                            });
-                        }
-                    }
-                }
-
-                // States
-                var states = [{
-                    name: 'Hide All',
-                    register: function() {
-                        events.click(function(e) {
-                            behaviors
-                                .showOncoPrint(e)
-                        });
-                        events.over(function(e) {
-                            behaviors
-                                .showPatientInfo(e)
-                                //.showNodeLabel(e)
-                        });
-                        events.out(function(e) {
-                            behaviors
-                                .hidePatientInfo(e)
-                                //.hideNodeLabel(e)
-                        });
-                    },
-                    unregister: function() {
-                        events.removeAll();
-                    }
-                }, {
-                    name: 'Show All',
-                    register: function() {
-                        events.click(function(e) {
-                            behaviors
-                                .showOncoPrint(e)
-                        });
-                        events.over(function(e) {
-                            behaviors
-                                .showPatientInfo(e)
-                                //.showNodeLabel(e)
-                                //.showNeighborLabel(e);
-                        });
-                        events.out(function(e) {
-                            behaviors
-                                .hidePatientInfo(e)
-                                //.hideNodeLabel(e)
-                                //.hideNeighborLabel(e);
-                        });
-
-                        // Show all Edges
-                        chart.$('edge[edgeType!="chromosome"]').style({ display: 'element' });
-                    },
-                    unregister: function() {
-                        events.removeAll();
-
-                        // Hide All Edges
-                        chart.$('edge[edgeType!="chromosome"]').style({ display: 'none' });
-                    }
-                },{
-                    name: '1° When Selected',
-                    register: function(){
-                        cyChart.$('node[nodeType="patient"]:selected').forEach(function(e) {
-                            e.neighborhood('edge').style({ 'display': 'element', 'line-style': 'solid' });
-                        });
-                        cyChart.on('select', 'node', function(e){
-                            behaviors.showDegreeOne(e);
-                        });
-                        cyChart.on('unselect','node',function(e){
-                            behaviors.hideDegreeOne(e);
-                        });
-                    },
-                    unregister: function(){
-                        cyChart.$('node[nodeType="patient"]:selected').forEach(function(e) {
-                            e.neighborhood('edge').style({ 'display': 'none' });
-                        });
-                        cyChart.off('select', 'node');
-                        cyChart.off('unselect', 'node');
-                    }
-
-                },{
-                    name: '2° When Selected',
-                    register: function(){
-                        cyChart.$('node[nodeType="patient"]:selected').forEach(function(e) {
-                            e.neighborhood('edge').style({ 'display': 'element', 'line-style': 'solid' });
-                            e.neighborhood('node')
-                                .neighborhood('edge').style({ 'line-style': 'dashed', 'display': 'element' });
-                        });
-                        cyChart.on('select', 'node', function(e){
-                            behaviors.showDegreeTwo(e);
-                        });
-                        cyChart.on('unselect','node',function(e){
-                            behaviors.hideDegreeTwo(e);
-                        });
-                    },
-                    unregister: function(){
-                        cyChart.$('node[nodeType="patient"]:selected').forEach(function(e) {
-                            e.neighborhood('edge').style({ 'display': 'none'});
-                            e.neighborhood('node')
-                                .neighborhood('edge').style({ 'display': 'none' });
-                        });
-                        cyChart.off('select', 'node');
-                        cyChart.off('unselect', 'node');
-                    }
-
-                },{
-                    name: '1° On Mouse Over',
-                    register: function() {
-                        events.click(function(e) {
-                            behaviors
-                                .showOncoPrint(e)
-                        });
-                        events.over(function(e) {
-                            behaviors
-                                .showPatientInfo(e)
-                                //.showNodeLabel(e)
-                                //.showNeighborLabel(e)
-                                .showDegreeOne(e)
-                            
-                        });
-                        events.out(function(e) {
-                            behaviors
-                                .hidePatientInfo(e)
-                                //.hideNodeLabel(e)
-                                //.hideNeighborLabel(e)
-                                .hideDegreeOne(e)
-                        });
-                    },
-                    unregister: function() {
-                        events.removeAll();
-                    }
-                }, {
-                    name: '2° On Mouse Over',
-                    register: function() {
-                        events.click(function(e) {
-                            behaviors
-                                .showOncoPrint(e)
-                        });
-                        events.over(function(e) {
-                            behaviors
-                                .showPatientInfo(e)
-                                //.showNodeLabel(e)
-                                //.showNeighborLabel(e)
-                                .showDegreeTwo(e)
-                        });
-                        events.out(function(e) {
-                            behaviors
-                                .hidePatientInfo(e)
-                                //.hideNodeLabel(e)
-                                //.hideNeighborLabel(e)
-                                .hideDegreeTwo(e)                           
-                        });
-                    },
-                    unregister: function() {
-                        events.removeAll();
-                    }
-                }];
-                $scope.$watch("vm.optInteractiveMode", function(next, prev) {
-                    prev.unregister();
-                    next.register();
-                });
-                return states;
-            };
-
-            // Node Color Options
-            var optNodeColorsFactory = function(chart, vm, osApi) {
-                var fn = function(item) {
-                    chart.$('node[nodeType="patient"]').style({
-                        'background-color': 'rgb(19, 150, 222)'
-                    });
-                    osApi.getSampleCategorization(item.name).then(function(response) {
-                        vm.legandNodes = response.payload.tbl.map(function(e) {
-                            return e[0] + "|" + e[1];
-                        }).filter(function(v, i, s) {
-                            return s.indexOf(v) === i;
-                        }).map(function(e) {
-                            var p = e.split("|");
-                            return {
-                                'name': p[0],
-                                'color': p[1]
-                            }
-                        });
-                        chart.$('node[nodeType="patient"]').forEach(function(ele) {
-                            var id = ele.data().id;
-                            for (var i = 0; i < this.rownames.length; i++) {
-                                if (id === this.rownames[i]) {
-                                    ele.style({
-                                        'background-color': this.tbl[i][1]
-                                    });
-                                    break;
-                                }
-                            }
-                        }, response.payload);
-                    });
-                }
-                osApi.getSampleCategorizationNames().then(function(response) {
-                    vm.optNodeColors = vm.optNodeColors.concat(response.payload
-                        .map(function(item) {
-                            return {
-                                'name': item,
-                                fn: fn
-                            }
-                        }));
-                });
-
-                vm.legandNodes = [{
-                    name: 'Patients',
-                    color: '#3993fa'
-                }];
-                var value = [{
-                    name: 'Default',
-                    fn: function() {
-                        vm.legandNodes = [{
-                            name: 'Patients',
-                            color: '#3993fa'
-                        }];
-                        chart.$('node[nodeType="patient"]').style({
-                            'background-color': 'rgb(19, 150, 222)'
-                        });
-                    }
-                }, {
-                    name: 'Gender',
-                    fn: function() {
-                        vm.legandNodes = [{
-                            name: 'Male',
-                            color: 'blue'
-                        }, {
-                            name: 'Female',
-                            color: 'pink'
-                        }];
-                        chart.$('node[nodeType="patient"]').forEach(function(ele) {
-                            if (ele.data().patient) {
-                                ele.style({
-                                    'background-color': (ele.data().patient[2] === 'male') ? 'rgb(5, 108, 225)' : (ele.data().patient[2] === 'female') ? 'pink' : 'black'
-                                });
-                            }
-                        });
-                    }
-                }, {
-                    name: 'Age At Diagnosis',
-                    fn: function() {
-                        vm.legandNodes = [{
-                            name: 'Young',
-                            color: 'green'
-                        }, {
-                            name: 'Old',
-                            color: 'red'
-                        }];
-                        chart.$('node[nodeType="patient"]').forEach(function(ele) {
-                            if (ele.data().patient) {
-                                var age = ele.data().patient[4];
-                                ele.style({
-                                    'background-color': 'rgb(' + ((255 * age) / 100) + ',' + ((255 * (100 - age)) / 100) + ',0)'
-                                });
-                            }
-                        });
-                    }
-                }];
-                vm.optNodeColor = value[0]
-                return value;
-            };
-
-            // Edge Color Options
-            var optEdgeColorsFactory = function(chart) {
-                var fn = function(edgeColor) {
-                    var el = angular.element("." + edgeColor.class);
-                    switch (edgeColor.state) {
-                        case 'Visible':
-                            edgeColor.state = 'Highlight';
-                            el.css("border-color", edgeColor.color);
-                            chart.$('edge[edgeType="' + edgeColor.name + '"]').style({
-                                'line-color': edgeColor.color,
-                                'width': '2px'
-                            });
-                            break;
-                        case 'Hidden':
-                            edgeColor.state = 'Visible';
-                            el.css("border-color", color.gray);
-                            chart.$('edge[edgeType="' + edgeColor.name + '"]').style({
-                                'line-color': '#CCC',
-                                'width': '2px'
-                            });
-                            break;
-                        default:
-                            edgeColor.state = 'Hidden';
-                            el.css("border-color", color.white);
-                            chart.$('edge[edgeType="' + edgeColor.name + '"]').style({
-                                'width': '0px'
-                            });
-                            break;
-                    }
-                };
-                var value = [{
-                    name: 'mutation',
-                    class: 'edgeMutation',
-                    color: '#004358',
-                    state: 'Highlight',
-                    fn: fn
-                }, {
-                    name: 'cnGain.1',
-                    class: 'edgeCnGain1',
-                    color: '#1F8A70',
-                    state: 'Highlight',
-                    fn: fn
-                }, {
-                    name: 'cnLoss.1',
-                    class: 'edgeCnLoss1',
-                    color: '#BEDB39',
-                    state: 'Highlight',
-                    fn: fn
-                }, {
-                    name: 'cnGain.2',
-                    class: 'edgeCnGain2',
-                    color: '#FFE11A',
-                    state: 'Highlight',
-                    fn: fn
-
-                }, {
-                    name: 'cnLoss.2',
-                    class: 'edgeCnLoss2',
-                    color: '#FD7400',
-                    state: 'Highlight',
-                    fn: fn
-                }];
-                $timeout(function() {
-                    value.forEach(function(item) {
-                        angular.element("." + item.class).css("border-color", item.color);
-                        chart.$('edge[edgeType="' + item.name + '"]').style({
-                            'line-color': item.color,
-                            'width': '2px'
-                        });
-                    });
-                });
-                return value;
-            };
-
-            // Patient Layouts
-            var optPatientLayoutsFatory = function(chart, vm) {
-                var value = [{
-                    name: 'Hobo',
-                    fn: function(item) {
-                        vm.optPatientLayout = item;
-                        chart.$('node[nodeType="patient"]').forEach(function(item) {
-                            item.position(item.data().pos);
-                        });
-                    }
-                }, {
-                    name: 'Age At Diagnosis',
-                    fn: function(item) {
-                        vm.optPatientLayout = item;
-                        chart.$('node[nodeType="patient"]').forEach(function(item) {
-                            if (item.data().patient) {
-                                item.position({
-                                    x: 500,
-                                    y: (item.data().patient[4] * 60) - 3000
-                                });
-                            }
-                        });
-
-                    }
-                }, {
-                    name: 'Gender',
-                    fn: function(item) {
-                        vm.optPatientLayout = item;
-                        var xMale = 1000;
-                        var xFemale = 1000;
-                        chart.$('node[nodeType="patient"]').forEach(function(item) {
-                            if (item.data().patient) {
-                                if (item.data().patient[2].toLowerCase() == 'male') {
-                                    item.position({
-                                        x: xMale -= 50,
-                                        y: 500
-                                    });
-                                } else {
-                                    item.position({
-                                        x: xFemale -= 50,
-                                        y: -500
-                                    });
-                                }
-                            }
-                        });
-                    }
-                }];
-                vm.optPatientLayout = value[0];
-                return value;
-            };
-
-        
-            // Styles
-            var color = {
-                darkblue: 'rgb(5, 108, 225)',
-                blue: 'rgb(19, 150, 222)',
-                black: 'black',
-                white: 'white',
-                red: 'red',
-                purple: 'rgb(56, 52,123)',
-                gray: '#CCC'
-            };
-            var styles = [{
-                selector: 'node',
-                style: {
-                    'background-color': color.blue,
-                    'border-opacity': 1,
-                    'border-color': color.red,
-                    'border-width': "0px",
-                    'height': "20px",
-                    'width': "20px",
-                    'label': " data(id)",
-                    'text-halign': 'center',
-                    'text-valign': 'center',
-                    //'text-background-color': color.white,
-                    //'text-background-opacity': '.8',
-                    //'text-background-shape': 'roundrectangle',
-                    'font-size': '0px'
-                }
-            }, 
-            {
-                selector: 'node[nodeType="patient"]',
-                style: {
-                    'background-color': color.blue,
-                    'height': 'mapData(degree, 0, 50, 3.0, 100.0)',
-                    'width': 'mapData(degree, 0, 50, 3.0, 100.0)'
-                }
-            }, {
-                selector: 'edge',
-                style: {
-                    'display': 'none'
-                }
-            }, { // Chromo Bars
-                selector: 'edge[edgeType="chromosome"]',
-                style: {
-                    'line-color': color.blue,
-                    'display': 'element'
-                }
-            }, {
-                selector: 'node[nodeType="gene"]',
-                style: {
-                    'background-color': color.white,
-                    'border-color': color.purple,
-                    'border-width': 'mapData(degree, 0, 50, 1.0, 3.0)',
-                    'height': 'mapData(degree, 0, 50, 1.0, 100.0)',
-                    'width': 'mapData(degree, 0, 50, 1.0, 100.0)'
-                }
-            }, {
-                selector: 'node[nodeType="gene"]:selected',
-                style: {
-                    'border-color': color.red,
-                    'border-width': '6px'
-                }
-            }, {
-                selector: 'node[nodeType="centromere"]',
-                style:{
-                    'font-size': '24px',
-                    'min-zoomed-font-size': '12px',
-                    'text-halign': 'center',
-                    'text-valign': 'center',
-                    'background-color': color.white,
-                    'border-color': color.blue,
-                    'color': color.blue,
-                    'border-width': '3px',
-                    'height': '40px',
-                    'width': '120px',
-                    'shape': 'roundrectangle',
-                    'label': 'data(id)'
-               }
-            }, {
-                selector: 'node[nodeType="patient"]:selected',
-                style: {
-                    'border-color': color.red,
-                    'border-width': 'mapData(degree, 0, 50, 1.0, 3.0)',
-                }
-            }];
         }
     }
 })();

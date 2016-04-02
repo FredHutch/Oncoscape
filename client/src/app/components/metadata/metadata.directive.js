@@ -21,9 +21,13 @@
         /** @ngInject */
         function MetadataController(osApi, $state, $timeout, $scope, $stateParams) {
 
+            if (angular.isUndefined($stateParams.datasource)){
+                $state.go("datasource");
+                return;
+            }
             // View Model
             var vm = this;
-            vm.dataset = $stateParams.datasource || "DEMOdz";
+            vm.dataset = $stateParams.datasource;
             vm.colnames = [];
             vm.rows = [];
             vm.search = "";

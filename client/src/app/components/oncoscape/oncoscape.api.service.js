@@ -8,6 +8,16 @@
     /** @ngInject */
     function oncoscape(osSocket, $http, signals) {
 
+        var _dataSource;
+        var onDataSource = new signals.Signal();
+        function getDataSource(){ return _dataSource; }
+        function setDataSource(value){
+            _dataSource = value;
+            onDataSource.dispatch(_dataSource);
+        }
+
+
+
         /*** User Api ***/
         function userApi(){
 
@@ -353,6 +363,9 @@
         }
   
         return {
+            setDataSource: setDataSource,
+            getDataSource: getDataSource,
+            onDataSource: onDataSource,
             getPatientFilterApi: getPatientFilterApi,
             getUserApi: getUserApi,
             showFilter: showFilter,
