@@ -18,12 +18,6 @@
             // Reset DataTable Custom Filters
             angular.element.fn.DataTable.ext.search = [];
 
-            
-            // // Force HTTPS
-            if (window.location.protocol != "https:" && window.location.hostname !="localhost" ) {
-                window.location.replace("https://"+window.location.hostname);
-            }
-
             // Route unauthenticated users to landing page
             if (toState.authenticate && !osApi.getUserApi().getUser().authenticated) {
                  $state.transitionTo("landing");
