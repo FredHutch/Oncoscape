@@ -158,8 +158,8 @@
                 selector: 'node',
                 style: {
                     'display': "data(display)",
-                    'height': "mapData(sizeEle, 0, 50, 0, 80)",
-                    'width': "mapData(sizeEle, 0, 50, 0, 80)",
+                    'height': "mapData(sizeEle, 0, 50, 1, 80)",
+                    'width': "mapData(sizeEle, 0, 50, 1, 80)",
                     'font-size': 'data(sizeLbl)',
                     'text-valign': 'center'
                 }
@@ -167,7 +167,9 @@
                 selector: 'node[nodeType="patient"]',
                 style: {
                     'background-color': 'data(color)',
-                    'text-halign': 'center'
+                    'text-halign': 'center',
+                    'border-width': 'data(sizeBdr)',
+                    'border-color': 'data(color)'
                 }
             }, {
                 selector: 'node[nodeType="patient"]:selected',
@@ -178,10 +180,10 @@
                 selector: 'node[nodeType="gene"]',
                 style: {
                     'background-color': "#FFFFFF",
-                    'border-color': "data(color)",
+                    'border-color': "#38347b",
                     'text-halign': "right",
                     'label': "data(id)",
-                    'border-width': "data(sizeBdr)"
+                    'border-width': 'data(sizeBdr)'
                 }
             }, {
                 selector: 'node[nodeType="gene"]:selected',
@@ -567,17 +569,17 @@
                     case "Highlight":
                         item.state = "Show";
                         color = '#3993fa';
-                        state = {color:color, display:'element'};
+                        state = {color:color};
                         break;
                     case "Show":
                         item.state = "Hide";
                         color = '#EEEEEE';
-                        state = {display:'none'};
+                        state = {color:'#FFF'};
                         break;
                     default:
                         item.state = "Highlight";
                         color = item.color;
-                        state = {color:color, display:'element'};
+                        state = {color:color};
                         break;
                 }
 
@@ -602,7 +604,6 @@
                 var degmap = {};
                 var font = Math.ceil(Math.max(12/zoom, 1));
                 var sizeBdr = Math.ceil(Math.max(5/zoom, .5));
-                console.log(sizeBdr);
                 chart.nodes().forEach(function(node){
                     this.degmap[node.id()] = {
                         sizeEle: (node.degree()/this.zoom),
@@ -804,6 +805,7 @@
                                 data.color = "rgb(19, 150, 222)";
                                 data.sizeEle = data.degree;
                                 data.sizeLbl = 12;
+                                data.sizeBdr = 5;
                                 data.hobo = {x: value.position.x, y: value.position.y};
                                 data.patient = this.filter(function(item){ return item[0]===value.data.id });
                             }, dataPatients);
@@ -812,13 +814,12 @@
                         dataMarkers.nodes
                             .filter(function(item) {  return  item.data.nodeType != 'patient'; })
                             .map(function(value,i){
-                               
                                 var data = value.data;
                                 data.display = "element";
                                 data.color = "rgb(19, 150, 222)";
                                 data.sizeEle = data.degree;
                                 data.sizeLbl = 12;
-                                data.sizeBdr = 10;
+                                data.sizeBdr = 5;
                                 value.locked = true;
                                 value.selectable = true;
                                 value.grabbable = false;

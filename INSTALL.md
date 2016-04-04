@@ -134,13 +134,13 @@ After the node modules are installed, you'll need to install the rstats library 
 
 ```
 cd /<path>/Oncoscape/server/rstats
-node-gyp configure build 
+npm install 
 ```
 
 You are now ready to run Oncoscape.
 
 
-## 3. Running Oncoscape
+## 3. Running Oncoscape 
 
 ### Running Oncoscape on Linux and Mac OS X
 
@@ -163,6 +163,42 @@ Proxy Server Started On: 80
 After the Oncoscape application has started, open a web browser and navigate to http://localhost to access Oncoscape. If you are running Oncoscape on a remote server, you'll need open a web browser and navigate to the Oncoscape application replacing "yourservername.com" with the name of the server where Oncoscape is running.
 
 > http://yourservername.com
+
+
+## 3. Running Oncoscape Development Environment
+To manage javascript dependencies and streamline the development workflow, Oncoscape utilizes Gulp, Bower, Sass and Bootstrap.  For more information on these technologies please visit our wiki at XXXXXX.
+
+Before you can successfully run Oncoscapes client build server, you will need to satisfy the following dependencies:
+
+- Gulp 3.9.1
+- Bower 1.7.7
+
+```bash
+cd /<path>/Oncoscape/client
+npm install -g gulp
+npm install -g bower 
+```
+
+Next you will need to install the Node Modules required by Gulp and Javscript Libraries required by Oncoscape.
+
+```bash
+npm install
+bower install
+bower update
+```
+
+Now that you've installed all the required dependencies you are ready to run the development server development server.
+
+```bash
+gulp serve
+```
+
+If you are having difficulty interacting with Oncoscape, please make sure that the Oncoscape server is still running.  If not you can restart it by executing the following commands in a seperate termininal window.
+
+```
+cd /<path>/Oncoscape/server
+sudo node start.js
+```
 
 
 ## 4. Running and Developing Oncoscape with Docker
