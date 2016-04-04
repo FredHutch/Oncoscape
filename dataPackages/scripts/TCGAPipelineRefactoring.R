@@ -5,8 +5,8 @@ library(R.utils)
 library(stringr)
 library(plyr)
 
-stopifnot(file.exists("TCGA_Reference_Filenames_gh.txt")) 
-TCGAfilename<-read.table("TCGA_Reference_Filenames_gh.txt", sep="\t", header=TRUE)
+stopifnot(file.exists("TCGA_Reference_Filenames.txt")) 
+TCGAfilename<-read.table("TCGA_Reference_Filenames.txt", sep="\t", header=TRUE)
 ##===load drug reference table ===
 drug_ref <- read.table("drug_names_10272015.txt", sep="\t", header=TRUE)
 rad_ref <- read.table("rad_ref_02232016.txt", sep="\t", header=TRUE)
@@ -1629,6 +1629,7 @@ if(TESTS){
 						   	 'kras_mutation_identified_type' = list(name = "krasType", data = "upperCharacter"),
 						   	 'egfr_mutation_status' = list(name = "egfrStatus", data = "upperCharacter"),
 						   	 'egfr_mutation_identified_type' = list(name = "egfrType", data = "upperCharacter"),
+						   	 'egfr_amplification_status' = list(name = "egfrAmp", data = "upperCharacter"),
 						   	 'pulmonary_function_test_indicator' = list(name = "pulInd", data = "upperCharacter"),
 						   	 'eml4_alk_translocation_status' = list(name = "elm4AlkStatus", data = "upperCharacter"),
 						   	 'eml4_alk_translocation_variant' = list(name = "elm4AlkVar", data = "upperCharacter"),
@@ -1701,6 +1702,7 @@ if(TESTS){
 						   	 'kras_mutation_identified_type' = list(name = "krasType", data = "upperCharacter"),
 						   	 'egfr_mutation_status' = list(name = "egfrStatus", data = "upperCharacter"),
 						   	 'egfr_mutation_identified_type' = list(name = "egfrType", data = "upperCharacter"),
+						   	 'egfr_amplification_status' = list(name = "egfrAmp", data = "upperCharacter"),
 						   	 'pulmonary_function_test_indicator' = list(name = "pulInd", data = "upperCharacter"),
 						   	 'eml4_alk_translocation_status' = list(name = "elm4AlkStatus", data = "upperCharacter"),
 						   	 'eml4_alk_translocation_variant' = list(name = "elm4AlkVar", data = "upperCharacter"),
@@ -1774,6 +1776,7 @@ if(TESTS){
 						   	 'kras_mutation_identified_type' = list(name = "krasType", data = "upperCharacter"),
 						   	 'egfr_mutation_status' = list(name = "egfrStatus", data = "upperCharacter"),
 						   	 'egfr_mutation_identified_type' = list(name = "egfrType", data = "upperCharacter"),
+						   	 'egfr_amplification_status' = list(name = "egfrAmp", data = "upperCharacter"),
 						   	 'pulmonary_function_test_indicator' = list(name = "pulInd", data = "upperCharacter"),
 						   	 'eml4_alk_translocation_status' = list(name = "elm4AlkStatus", data = "upperCharacter"),
 						   	 'eml4_alk_translocation_variant' = list(name = "elm4AlkVar", data = "upperCharacter"),
@@ -1847,6 +1850,7 @@ if(TESTS){
 						   	 'kras_mutation_identified_type' = list(name = "krasType", data = "upperCharacter"),
 						   	 'egfr_mutation_status' = list(name = "egfrStatus", data = "upperCharacter"),
 						   	 'egfr_mutation_identified_type' = list(name = "egfrType", data = "upperCharacter"),
+						   	 'egfr_amplification_status' = list(name = "egfrAmp", data = "upperCharacter"),
 						   	 'pulmonary_function_test_indicator' = list(name = "pulInd", data = "upperCharacter"),
 						   	 'eml4_alk_translocation_status' = list(name = "elm4AlkStatus", data = "upperCharacter"),
 						   	 'eml4_alk_translocation_variant' = list(name = "elm4AlkVar", data = "upperCharacter"),
@@ -1920,7 +1924,8 @@ if(TESTS){
 						   	 'kras_mutation_identified_type' = list(name = "krasType", data = "upperCharacter"),
 						   	 'egfr_mutation_status' = list(name = "egfrStatus", data = "upperCharacter"),
 						   	 'egfr_mutation_identified_type' = list(name = "egfrType", data = "upperCharacter"),
-						   	 'pulmonary_function_test_indicator' = list(name = "pulInd", data = "upperCharacter"),
+						   	 'egfr_amplification_status' = list(name = "egfrAmp", data = "upperCharacter"),
+						   	 'pulmonary_function_test_indicator' = list(name = "pulInd", data = "upperCharater"),
 						   	 'eml4_alk_translocation_status' = list(name = "elm4AlkStatus", data = "upperCharacter"),
 						   	 'eml4_alk_translocation_variant' = list(name = "elm4AlkVar", data = "upperCharacter"),
 						   	 'kras_mutation_codon' = list(name = "krasCodon", data = "upperCharacter"),
@@ -1993,6 +1998,7 @@ if(TESTS){
 						   	 'kras_mutation_identified_type' = list(name = "krasType", data = "upperCharacter"),
 						   	 'egfr_mutation_status' = list(name = "egfrStatus", data = "upperCharacter"),
 						   	 'egfr_mutation_identified_type' = list(name = "egfrType", data = "upperCharacter"),
+						   	 'egfr_amplification_status' = list(name = "egfrAmp", data = "upperCharacter"),
 						   	 'pulmonary_function_test_indicator' = list(name = "pulInd", data = "upperCharacter"),
 						   	 'eml4_alk_translocation_status' = list(name = "elm4AlkStatus", data = "upperCharacter"),
 						   	 'eml4_alk_translocation_variant' = list(name = "elm4AlkVar", data = "upperCharacter"),
@@ -2083,6 +2089,77 @@ if(TESTS){
 		to[match(c("[NOT AVAILABLE]","[NOT EVALUATED]","[UNKNOWN]"), to)] <- NA
 		vec <- mapvalues(vec, from = from, to = to, warn_missing = F)
 		return(vec)
+	}
+	#--------------------------------------------------------------------------------
+	Tests.mapping.type <- function(df, df.methods){
+		if(exists("type")){
+			rm(type)		
+		}
+		type <- NA
+		if(missing(df.methods)){
+			if(length(grep("psa", colnames(df[2]), ignore.case=TRUE)) > 0 ) {type <- "PSA"}
+			if(length(grep("boneScan", colnames(df[2]), ignore.case=TRUE)) > 0 ){type <- "BONE SCAN"}
+			if(length(grep("ctAbPel", colnames(df[2]), ignore.case=TRUE)) > 0 ){type <- "CT SCAN"}
+			if(length(grep("mri", colnames(df[2]), ignore.case=TRUE)) > 0 ){type <- "MRI"}
+			if(length(grep("ihc", colnames(df[2]), ignore.case=TRUE)) > 0 ){type <- "IHC"}
+			if(length(grep("pul", colnames(df[2]), ignore.case=TRUE)) > 0 ){type <- "PULMONARY"}
+			if(length(grep("p16", colnames(df[2]), ignore.case=TRUE)) > 0 ){type <- "P16"}
+			if(length(grep("ish", colnames(df[2]), ignore.case=TRUE)) > 0 ){type <- "ISH"}
+			if(length(grep("fish", colnames(df[2]), ignore.case=TRUE)) > 0 ){type <- "FISH"}
+			if(length(grep("cellsCount", colnames(df[2]), ignore.case=TRUE)) > 0 ){type <- "CELLS COUNT"}
+			if(!exists("type")) type <- NA
+			df$Type <- rep(type, nrow(df))
+			return(df)
+		}else{
+			methods <- gsub("Method", "", colnames(df.methods))
+			for(i in 1:length(methods)){
+				if(length(grep(methods[i], colnames(df)[2], ignore.case=TRUE)) > 0){
+					type <- df.methods[,i]
+					return(df)
+				}
+			}
+			if(!exists("type")){
+				if(length(grep("psa", colnames(df[2]), ignore.case=TRUE)) > 0 ) {type <- "PSA"}
+				if(length(grep("boneScan", colnames(df[2]), ignore.case=TRUE)) > 0 ){type <- "BONE SCAN"}
+				if(length(grep("ctAbPel", colnames(df[2]), ignore.case=TRUE)) > 0 ){type <- "CT SCAN"}
+				if(length(grep("mri", colnames(df[2]), ignore.case=TRUE)) > 0 ){type <- "MRI"}
+				if(length(grep("ihc", colnames(df[2]), ignore.case=TRUE)) > 0 ){type <- "IHC"}
+				if(length(grep("pul", colnames(df[2]), ignore.case=TRUE)) > 0 ){type <- "PULMONARY"}
+				if(length(grep("p16", colnames(df[2]), ignore.case=TRUE)) > 0 ){type <- "P16"}
+				if(length(grep("ish", colnames(df[2]), ignore.case=TRUE)) > 0 ){type <- "ISH"}
+				if(length(grep("fish", colnames(df[2]), ignore.case=TRUE)) > 0 ){type <- "FISH"}
+				if(length(grep("cellsCount", colnames(df[2]), ignore.case=TRUE)) > 0 ){type <- "CELLS COUNT"}
+			}
+	
+			df$Type <- rep(type, nrow(df))
+			return(df)
+		}
+	}
+	#--------------------------------------------------------------------------------
+	Tests.mapping.testAndDate <- function(df, df.dates){
+		testNames <- c("KRAS", "EGFR", "Pulmonary_function", "IDH1", "EML4_ALK", "BRAF", "CEA", "LOCI", "MISMATCHED_PROTEIN",
+  					"HPV_P16", "HPV_ISH", "PSA", "BONE_SCAN", "CT_SCAN_AB_PELVIS", "MRI", "HER2", "ESTROGEN", 
+  					"PROGESTERONE_RECEPTOR", "CENTROMERE_17")
+	    searchKeyWords <- c("kras", "egfr", "pul", "idh1", "elm4Alk", "braf", "cea", "loci", "mismatchProtein", 
+	    					"hpvP16", "hpvIsh", "psa", "boneScan", "ctAbPel", "mri", "her2", "estro", "prog", "cent17")
+	    test <- NA
+	    key <- NA
+	    for(i in 1:length(searchKeyWords)) {
+	    	if(length(grep(searchKeyWords[i], colnames(df[2]),ignore.case=TRUE)) > 0){
+	    		key <- searchKeyWords[i]
+	    		test <- testNames[i]
+	    	}
+	    }
+	    if(!missing(df.dates)) {
+			if(length(grep(key, colnames(df.dates))) > 0) {
+	    		df$Date <- df.dates[,grep(key, colnames(df.dates))]
+	    		df$Test <- rep(test, nrow(df))
+				return(df)
+			}
+		}else{
+			df$Test <- rep(test, nrow(df))
+			return(df)
+		}
 	}
 	#--------------------------------------------------------------------------------
 	Tests.mapping.date.Calculation <- function(df){
@@ -2717,7 +2794,7 @@ create.Absent.records <- function(study_name,  ptID){
 #--------------------------------------------------------------------------------------------------------------------------
 create.Tests.records <- function(study_name,  ptID){
 	uri <- rawTablesRequest(study_name, "Tests")
-  	rm(list=ls(pattern="tbl"))
+	rm(list=ls(pattern="tbl"))
   	tbl.pt <- loadData(uri[1], 
 		               list(
 					     'bcr_patient_barcode' = list(name = "PatientID", data = "tcgaId"),
@@ -2733,6 +2810,7 @@ create.Tests.records <- function(study_name,  ptID){
 					   	 'kras_mutation_identified_type' = list(name = "krasType", data = "upperCharacter"),
 					   	 'egfr_mutation_status' = list(name = "egfrStatus", data = "upperCharacter"),
 					   	 'egfr_mutation_identified_type' = list(name = "egfrType", data = "upperCharacter"),
+					   	 'egfr_amplification_status' = list(name = "egfrAmp", data = "upperCharacter"),
 					   	 'pulmonary_function_test_indicator' = list(name = "pulInd", data = "upperCharacter"),
 					   	 'eml4_alk_translocation_status' = list(name = "elm4AlkStatus", data = "upperCharacter"),
 					   	 'eml4_alk_translocation_variant' = list(name = "elm4AlkVar", data = "upperCharacter"),
@@ -2805,6 +2883,7 @@ create.Tests.records <- function(study_name,  ptID){
 					   	 'kras_mutation_identified_type' = list(name = "krasType", data = "upperCharacter"),
 					   	 'egfr_mutation_status' = list(name = "egfrStatus", data = "upperCharacter"),
 					   	 'egfr_mutation_identified_type' = list(name = "egfrType", data = "upperCharacter"),
+					   	 'egfr_amplification_status' = list(name = "egfrAmp", data = "upperCharacter"),
 					   	 'pulmonary_function_test_indicator' = list(name = "pulInd", data = "upperCharacter"),
 					   	 'eml4_alk_translocation_status' = list(name = "elm4AlkStatus", data = "upperCharacter"),
 					   	 'eml4_alk_translocation_variant' = list(name = "elm4AlkVar", data = "upperCharacter"),
@@ -2878,6 +2957,7 @@ create.Tests.records <- function(study_name,  ptID){
 					   	 'kras_mutation_identified_type' = list(name = "krasType", data = "upperCharacter"),
 					   	 'egfr_mutation_status' = list(name = "egfrStatus", data = "upperCharacter"),
 					   	 'egfr_mutation_identified_type' = list(name = "egfrType", data = "upperCharacter"),
+					   	 'egfr_amplification_status' = list(name = "egfrAmp", data = "upperCharacter"),
 					   	 'pulmonary_function_test_indicator' = list(name = "pulInd", data = "upperCharacter"),
 					   	 'eml4_alk_translocation_status' = list(name = "elm4AlkStatus", data = "upperCharacter"),
 					   	 'eml4_alk_translocation_variant' = list(name = "elm4AlkVar", data = "upperCharacter"),
@@ -2951,6 +3031,7 @@ create.Tests.records <- function(study_name,  ptID){
 					   	 'kras_mutation_identified_type' = list(name = "krasType", data = "upperCharacter"),
 					   	 'egfr_mutation_status' = list(name = "egfrStatus", data = "upperCharacter"),
 					   	 'egfr_mutation_identified_type' = list(name = "egfrType", data = "upperCharacter"),
+					   	 'egfr_amplification_status' = list(name = "egfrAmp", data = "upperCharacter"),
 					   	 'pulmonary_function_test_indicator' = list(name = "pulInd", data = "upperCharacter"),
 					   	 'eml4_alk_translocation_status' = list(name = "elm4AlkStatus", data = "upperCharacter"),
 					   	 'eml4_alk_translocation_variant' = list(name = "elm4AlkVar", data = "upperCharacter"),
@@ -3024,7 +3105,8 @@ create.Tests.records <- function(study_name,  ptID){
 					   	 'kras_mutation_identified_type' = list(name = "krasType", data = "upperCharacter"),
 					   	 'egfr_mutation_status' = list(name = "egfrStatus", data = "upperCharacter"),
 					   	 'egfr_mutation_identified_type' = list(name = "egfrType", data = "upperCharacter"),
-					   	 'pulmonary_function_test_indicator' = list(name = "pulInd", data = "upperCharacter"),
+					   	 'egfr_amplification_status' = list(name = "egfrAmp", data = "upperCharacter"),
+					   	 'pulmonary_function_test_indicator' = list(name = "pulInd", data = "upperCharater"),
 					   	 'eml4_alk_translocation_status' = list(name = "elm4AlkStatus", data = "upperCharacter"),
 					   	 'eml4_alk_translocation_variant' = list(name = "elm4AlkVar", data = "upperCharacter"),
 					   	 'kras_mutation_codon' = list(name = "krasCodon", data = "upperCharacter"),
@@ -3097,6 +3179,7 @@ create.Tests.records <- function(study_name,  ptID){
 					   	 'kras_mutation_identified_type' = list(name = "krasType", data = "upperCharacter"),
 					   	 'egfr_mutation_status' = list(name = "egfrStatus", data = "upperCharacter"),
 					   	 'egfr_mutation_identified_type' = list(name = "egfrType", data = "upperCharacter"),
+					   	 'egfr_amplification_status' = list(name = "egfrAmp", data = "upperCharacter"),
 					   	 'pulmonary_function_test_indicator' = list(name = "pulInd", data = "upperCharacter"),
 					   	 'eml4_alk_translocation_status' = list(name = "elm4AlkStatus", data = "upperCharacter"),
 					   	 'eml4_alk_translocation_variant' = list(name = "elm4AlkVar", data = "upperCharacter"),
@@ -3168,71 +3251,55 @@ create.Tests.records <- function(study_name,  ptID){
     if(length(tbl) == 0){
     	return(print(c(study_name, ncol(tbl), "Result is empty.")))
     }else{
-    	testNames <- c("KRAS", "EGFR", "Pulmonary_function", "IDH1", "EML4_ALK", "BRAF", "CEA", "LOCI", "MISMATCHED_PROTEIN",
-  					"HPV_P16", "HPV_ISH", "PSA", "BONE_SCAN", "CT_SCAN_AB_PELVIS", "MRI", "HER2", "ESTROGEN", 
-  					"PROGESTERONE_RECEPTOR", "CENTROMERE_17")
-
-	    searchKeyWords <- c("kras", "egfr", "pul", "idh1", "elm4Alk", "braf", "cea", "loci", "mismatchProtein", 
-	    					"hvpP16", "hpvIsh", "psa", "boneScan", "ctAbPel", "mri", "her2", "estro", "prog", "cent17")
-
-
 	    tbl <- apply(tbl, 2, Tests.mapping.testResult)
 	    tbl <- as.data.frame(tbl)
+	    if(length(grep("Date", colnames(tbl))) > 0){
+	    	tbl.dates <- tbl[,colnames(tbl)[grep("Date", colnames(tbl))]]
+	    	tbl.result <- tbl[, -grep("Date", colnames(tbl))]
+	    }else{
+	    	tbl.result <- tbl
+	    }
 
-	    m <- matrix(nrow=nrow(tbl), ncol=3)
-	    df <- as.data.frame(m)
-	    colnames(df) <- c("Date", "Test", "Result")
-	    data.Tests <- cbind(PatientID=tbl$PatientID, df)
-	   
+	    if(length(grep("Method", colnames(tbl.result))) > 0){
+	    	tbl.methods <- as.data.frame(tbl[, colnames(tbl.result)[grep("Method", colnames(tbl.result))]])
+	    	colnames(tbl.methods) <- colnames(tbl.result)[grep("Method", colnames(tbl.result))]
+	    	tbl.result <- tbl.result[, -grep("Method", colnames(tbl.result))]
+	    }
 
-	    for(i in 1:length(searchKeyWords)){
-	    	if(length(grep(searchKeyWords[i],colnames(tbl), ignore.case=T))>0){
-		    		# construct structure of restul data.frame
-		    		tmp.Tests <- list()
-			    	tmp.Tests$PatientID <- tbl$PatientID
-			    	tmp.Tests$Test <- rep(searchKeyWords[i], nrow(tbl))
+	    data.Tests <- data.frame()
+        for(i in 2:ncol(tbl.result)){
+        	tmpTB <- tbl.result[,c(1,i)]
+        	tmpTB$Date <- rep(NA, nrow(tmpTB))
+        	if(exists("tbl.dates")){
+        		tmpTB <- Tests.mapping.testAndDate(tmpTB, tbl.dates)	
+        	}else{
+        		tmpTB <- Tests.mapping.testAndDate(tmpTB)
+        	}
+        	
+        	if(exists("tbl.methods")){
+        		tmpTB <- Tests.mapping.type(tmpTB, tbl.methods)
+        	}else{
+        		tmpTB <- Tests.mapping.type(tmpTB)	
+        	}
 
-					oneTest <- tbl[,colnames(tbl)[grep(searchKeyWords[i],colnames(tbl), ignore.case=T)]]
-					# compile Result field
-					rs <- c()
-					if(length(grep(searchKeyWords[i],colnames(tbl), ignore.case=T)) == 1){ 
-						prefix <- colnames(tbl)[grep(searchKeyWords[i],colnames(tbl), ignore.case=T)]
-						rs <- paste(prefix, oneTest, sep=":")
-					}else{
-						rs <- rep("", nrow(oneTest))
-						for(j in 1:length(colnames(oneTest))) {
-							#rs <- paste(rs, paste(colnames(oneTest)[j], na.omit(oneTest[,j]), sep=":"))
-							nonNAPos <- which(!(is.na(oneTest[, j])))
-							tmpRs <- rep("", nrow(oneTest))
-							tmpRs[nonNAPos] <- paste(colnames(oneTest)[j], oneTest[,j][nonNAPos], sep=":")
-							rs[nonNAPos] <- paste(rs[nonNAPos], tmpRs[nonNAPos], sep="/")
-						}
-					}
-					
-					tmp.Tests$Result <- rs
-			    	
-					# get test dates
-					ifelse(paste(searchKeyWords[i], "Date", sep="") %in% colnames(oneTest),
-						   tmp.Tests$Date <- oneTest[,paste(searchKeyWords[i],"Date",sep="")],
-						   tmp.Tests$Date <- rep(NA, nrow(tbl)))
-		    		
-			    	data.Tests <- rbind.fill(data.Tests, as.data.frame(tmp.Tests))
-	    	}
-    	}
+        	if(length(which(is.na(tmpTB[,2]))) > 0){
+        		tmpTB <- tmpTB[-which(is.na(tmpTB[,2])),]
+        	}
+        	if(nrow(tmpTB) > 0){
+        		tmpTB[,2] <- paste(colnames(tmpTB)[2], tmpTB[,2], sep=":")
+        		tmpTB <- tmpTB[,c(1,3,5,4,2)]
+        		colnames(tmpTB)[5] <- "Result"
+        		data.Tests <- rbind(data.Tests, tmpTB)
+        	}
+        }
+        
 	    data.Tests  <- merge(tbl.pt[, c("PatientID", "dxyear")], data.Tests)
 	    data.Tests  <- Tests.mapping.date.Calculation(data.Tests)
 	    if(length(which(duplicated(data.Tests))) > 0 ){
 	    	data.Tests <- data.Tests[-which(duplicated(data.Tests)),]
 	    }
-	    if(length(which(is.na(data.Tests$Test))) > 0 ){
-	    	data.Tests <- data.Tests[-which(is.na(data.Tests$Test)),] 
-	    }
-	    if(length(which(data.Tests$Result == "")) > 0 ){
-	    	data.Tests <- data.Tests[-which(data.Tests$Result == ""),]
-	    }
 	    
-	    
-	    data.Tests$Result <- str_replace_all(data.Tests$Result,"^/","")
+	    #data.Tests$Result <- str_replace_all(data.Tests$Result,"^/","")
 
 	 	ptNumMap <- ptNumMapUpdate(tbl.pt)
 	 	if(missing(ptID)){
@@ -3240,10 +3307,11 @@ create.Tests.records <- function(study_name,  ptID){
 	    				PatientID = getElement(x, "PatientID")
 	    				PtNum = ptNumMap[ptNumMap$PatientID == PatientID,]$PatientNumber
 	    				date = getElement(x, "Date")
+	    				type = getElement(x, "Type")
 	    				test = getElement(x, "Test")
 	    				result = getElement(x, "Result")
 	    				return(list(PatientID=PatientID, PtNum=PtNum, study=study_name, Name="Tests", 
-	    				 			Fields=list(date=date, Test=test, Result=result)))
+	    				 			Fields=list(date=date, Type=type, Test=test, Result=result)))
 	    				})
 			print(c(study_name, dim(data.Tests), length(result)))
 			return(result)
@@ -3254,10 +3322,11 @@ create.Tests.records <- function(study_name,  ptID){
 	    				PatientID = getElement(x, "PatientID")
 	    				PtNum = ptNumMap[ptNumMap$PatientID == PatientID,]$PatientNumber
 	    				date = getElement(x, "Date")
+	    				type = getElement(x, "Type")
 	    				test = getElement(x, "Test")
 	    				result = getElement(x, "Result")
 	    				return(list(PatientID=PatientID, PtNum=PtNum, study=study_name, Name="Tests", 
-	    				 			Fields=list(date=date, Test=test, Result=result)))
+	    				 			Fields=list(date=date, Type=type, Test=test, Result=result)))
 	    				})
 				print(result)
 		 	}	   
@@ -4657,135 +4726,144 @@ test_create.Tests.records <- function(study_name)
 		x <- create.Tests.records(study_name, "TCGA.A2.A0YC")
 		checkTrue(is.list(x))
 		checkEquals(names(x[[1]]), c("PatientID", "PtNum", "study", "Name", "Fields"))
-	    checkEquals(names(x[[1]][["Fields"]]), c("date", "Test", "Result"))
+	    checkEquals(names(x[[1]][["Fields"]]), c("date", "Type", "Test", "Result"))
 	    checkEquals(length(x),9)
 	    checkEquals(x[[1]], list(PatientID="TCGA.A2.A0YC", PtNum=80, study=study_name, Name="Tests", 
-	    					Fields=list(date=as.character(NA), Test="prog",Result="ProgStatusIhc:POSITIVE")))
-	    checkEquals(x[[2]], list(PatientID="TCGA.A2.A0YC", PtNum=80, study=study_name, Name="Tests", 
-	    					Fields=list(date=as.character(NA),Test="her2",Result="her2FishStatus:NEGATIVE/her2Cent17CellsCount:60/her2Cent17Ratio:1.18/her2FishMethod:ENUMERATE 60 TUMOR CELLS; RATIO OF HER2/CENTROMERE 17 >= 2.1 IS AMPLIFIED")))
-		checkEquals(x[[3]], list(PatientID="TCGA.A2.A0YC", PtNum=80, study=study_name, Name="Tests", 
-	    					Fields=list(date=as.character(NA),Test="her2",Result="nteHer2Status:EQUIVOCAL")))
-		checkEquals(x[[4]], list(PatientID="TCGA.A2.A0YC", PtNum=80, study=study_name, Name="Tests", 
-	    					Fields=list(date=as.character(NA),Test="her2",Result="nteHer2Status:NEGATIVE/nteHer2PosIhcScore:2+")))
-		checkEquals(x[[5]], list(PatientID="TCGA.A2.A0YC", PtNum=80, study=study_name, Name="Tests", 
-	    					Fields=list(date=as.character(NA),Test="prog",Result="nteProgStatusIhc:POSITIVE")))
-		checkEquals(x[[6]], list(PatientID="TCGA.A2.A0YC", PtNum=80, study=study_name, Name="Tests", 
-	    					Fields=list(date=as.character(NA),Test="cent17",Result="her2Cent17CellsCount:60/her2Cent17Ratio:1.18")))
-		checkEquals(x[[7]], list(PatientID="TCGA.A2.A0YC", PtNum=80, study=study_name, Name="Tests", 
-	    					Fields=list(date=as.character(NA),Test="estro",Result="nteEstroStatus:POSITIVE")))
+	    					Fields=list(date=as.character(NA), Type="IHC", Test="CENTROMERE_17",Result="her2Cent17Ratio:1.18")))
+		checkEquals(x[[8]], list(PatientID="TCGA.A2.A0YC", PtNum=80, study=study_name, Name="Tests", 
+	    					Fields=list(date=as.character(NA), Type="FISH", Test="HER2",
+	    					Result="her2FishMethod:ENUMERATE 60 TUMOR CELLS; RATIO OF HER2/CENTROMERE 17 >= 2.1 IS AMPLIFIED")))
 	}
   if(study_name == "TCGAcoad"){
 		x <- create.Tests.records(study_name, "TCGA.DM.A28E")
 		checkTrue(is.list(x))
 		checkEquals(names(x[[1]]), c("PatientID", "PtNum", "study", "Name", "Fields"))
-		checkEquals(names(x[[1]][["Fields"]]), c("date", "Test", "Result"))
-		checkEquals(length(x),7) #has two mutations
-		checkEquals(names(x[[1]][["Fields"]]), c("Date","Type","Test", "Result"))
-		checkEquals(x[[1]], list(PatientID="TCGA.DM.A28E", PtNum=389, study=study_name, Name="Tests", 
-							Fields=list(Date=NA, Type=NA,Test="kras", Result="12")))
-		checkEquals(x[[2]], list(PatientID="TCGA.DM.A28E", PtNum=389, study=study_name, Name="Tests", 
-							Fields=list(Date=NA, Type=NA,Test="braf", Result="Normal")))
+		checkEquals(names(x[[1]][["Fields"]]), c("date", "Type", "Test", "Result"))
+		checkEquals(length(x),4) #has two mutations
+		checkEquals(x[[3]], list(PatientID="TCGA.DM.A28E", PtNum=389, study=study_name, Name="Tests", 
+							Fields=list(date=as.character(NA), Type=as.character(NA),Test="KRAS", Result="krasInd:YES")))
+		checkEquals(x[[4]], list(PatientID="TCGA.DM.A28E", PtNum=389, study=study_name, Name="Tests", 
+							Fields=list(date=as.character(NA), Type=as.character(NA), Test="BRAF", Result="brafRes:NORMAL")))
 
 		x <- create.Tests.records(study_name, "TCGA.NH.A8F8")
-		checkEquals(x[[1]], list(PatientID="TCGA.NH.A8F8", PtNum=446, study=study_name, Name="Tests",
-							Fields=list(Date=NA, Type=NA,Test="kras", Result="12")))
-		checkEquals(x[[2]], list(PatientID="TCGA.NH.A8F8", PtNum=446, study=study_name, Name="Tests",
-							Fields=list(Date=NA, Type=NA,Test="braf", Result=NA)))
 		checkEquals(x[[3]], list(PatientID="TCGA.NH.A8F8", PtNum=446, study=study_name, Name="Tests",
-							Fields=list(Date=NA, Type=NA,Test="cea", Result="24.9")))
+							Fields=list(date=as.character(NA), Type=as.character(NA),Test="KRAS", Result="krasCodon:12")))
 		x <- create.Tests.records(study_name, "TCGA.A6.5662")
-		checkEquals(x[[1]], list(PatientID="TCGA.A6.5662", PtNum=31, study=study_name, Name="Tests",
-							Fields=list(Date=NA, Type=NA,Test="kras", Result="12")))
+		checkEquals(length(x), 7)
 		checkEquals(x[[2]], list(PatientID="TCGA.A6.5662", PtNum=31, study=study_name, Name="Tests",
-							Fields=list(Date=NA, Type=NA,Test="braf", Result=NA)))
+							Fields=list(date=as.character(NA), Type=as.character(NA),Test="LOCI", Result="lociAbnormalCount:0")))
 		checkEquals(x[[3]], list(PatientID="TCGA.A6.5662", PtNum=31, study=study_name, Name="Tests",
-							Fields=list(Date=NA, Type=NA,Test="loci", Result="tested: 5 ; abnormal count: 0")))
-		checkEquals(x[[4]], list(PatientID="TCGA.A6.5662", PtNum=31, study=study_name, Name="Tests",
-							Fields=list(Date=NA, Type="IHC",Test="mismatched protein", Result="tested: YES ; mismatch proteins loss: MLH1 Expressed|MSH2 Expressed|PMS2 Expressed|MSH6 Expressed")))
-
-	}
+							Fields=list(date=as.character(NA), Type=as.character(NA),Test="LOCI", Result="lociTestCount:5")))
+  	}
   if(study_name == "TCGAgbm"){
-  	checkEquals(x, list(PatientID="TCGA.02.0001", PtNum=1, study=study, Name="Tests",Fields=list(Date=NA, Type=NA, Test=NA,Res=NA)))
-	}
-  if(study_name == "TCGAhnsc"){	
-  	 x <- create.Tests.record("TCGA-QK-A6V9") #nte
-    checkTrue(is.list(x))
-    checkEquals(names(x[[1]]), c("PatientID", "PtNum", "study", "Name", "Fields"))
-    checkEquals(names(x[[1]][["Fields"]]), c("Test", "Result"))
-    checkEquals(x[[1]], list(PatientID="TCGA.QK.A6V9", PtNum=485, study=study, Name="Tests", Fields=list(Test="hpv status ISH", Result="Positive")))
-    checkEquals(x[[2]], list(PatientID="TCGA.QK.A6V9", PtNum=485, study=study, Name="Tests", Fields=list(Test="hpv status p16", Result="Positive")))
-    x <- create.Tests.record("TCGA-CN-A497")
-    checkEquals(x[[1]], list(PatientID="TCGA.CN.A497", PtNum=116, study=study, Name="Tests", Fields=list(Test="egfr", Result="Unamplified")))
-    checkEquals(x[[2]], list(PatientID="TCGA.CN.A497", PtNum=116, study=study, Name="Tests", Fields=list(Test="hpv status ISH", Result="Negative")))
-    checkEquals(x[[3]], list(PatientID="TCGA.CN.A497", PtNum=116, study=study, Name="Tests", Fields=list(Test="hpv status p16", Result="Negative")))
-
+  		x <- create.Tests.records(study_name, "TCGA.02.0001")
+  		checkEquals(x[2], "Result is empty.")
     }
+  if(study_name == "TCGAhnsc"){	
+		x <- create.Tests.records(study_name, "TCGA.QK.A6V9") #nte
+		checkTrue(is.list(x))
+		checkEquals(names(x[[1]]), c("PatientID", "PtNum", "study", "Name", "Fields"))
+		checkEquals(names(x[[1]][["Fields"]]), c("date", "Type", "Test", "Result"))
+		checkEquals(x[[1]], list(PatientID="TCGA.QK.A6V9", PtNum=485, study=study_name, Name="Tests", 
+							Fields=list(date=as.character(NA), Type="ISH",Test="HPV_ISH", Result="hpvIsh:POSITIVE")))
+		checkEquals(x[[2]], list(PatientID="TCGA.QK.A6V9", PtNum=485, study=study_name, Name="Tests", 
+							Fields=list(date=as.character(NA), Type="P16",Test="HPV_P16", Result="hpvP16:POSITIVE")))
+		
+		x <- create.Tests.records(study_name, "TCGA.CN.A497")
+		checkEquals(length(x), 3)
+		checkEquals(x[[2]], list(PatientID="TCGA.CN.A497", PtNum=116, study=study_name, Name="Tests", 
+							Fields=list(date=as.character(NA), Type=as.character(NA),Test="EGFR", Result="egfrAmp:UNAMPLIFIED")))
+	}
   if(study_name == "TCGAlgg"){
-  	 x <- create.Tests.record("TCGA-CS-6290")
-    checkTrue(is.list(x))
-    checkEquals(names(x), c("PatientID", "PtNum", "study", "Name", "Fields"))
-    checkEquals(x, list(PatientID="TCGA.CS.6290", PtNum=1, study=study, Name="Tests",Fields=list(Date=NA, Type=NA, Test="IDH1",Res=NA)))
-    x <- create.Tests.record(tcga.ids[86])
-    checkEquals(x, list(PatientID="TCGA.HW.7489", PtNum=86, study=study, Name="Tests",
-    Fields=list(Date=NA, Type="Sequence Analysis", Test="IDH1",Res="Yes")))
-    x <- create.Tests.record(tcga.ids[402])
-    checkEquals(x, list(PatientID="TCGA.TM.A84C", PtNum=402, study=study, Name="Tests",
-    Fields=list(Date=NA, Type="IHC", Test="IDH1",Res="No")))
+		x <- create.Tests.records(study_name, "TCGA.HW.7489") 
+		checkTrue(is.list(x))
+		checkEquals(names(x[[1]]), c("PatientID", "PtNum", "study", "Name", "Fields"))
+		checkEquals(names(x[[1]][["Fields"]]), c("date", "Type", "Test", "Result"))
+		checkEquals(x[[1]], list(PatientID="TCGA.HW.7489", PtNum=86, study=study_name, Name="Tests",
+					Fields=list(date=as.character(NA), Type="SEQUENCE ANALYSIS", Test="IDH1",Result="idh1Found:YES")))
+		x <- create.Tests.records(study_name, "TCGA.TM.A84C") 
+		checkEquals(x[[1]], list(PatientID="TCGA.TM.A84C", PtNum=402, study=study_name, Name="Tests",
+					Fields=list(date=as.character(NA),Type="IHC", Test="IDH1",Result="idh1Found:NO")))
   	}	
   if(study_name == "TCGAluad"){
-  	  print("--- test_create.Absent.record")
-    x <- create.Tests.record("TCGA-69-7761") #nte
-    checkTrue(is.list(x))
-    checkEquals(names(x[[1]]), c("PatientID", "PtNum", "study", "Name", "Fields"))
-    checkEquals(names(x[[1]][["Fields"]]), c("Test", "Result"))
-    checkEquals(x[[1]], list(PatientID="TCGA.69.7761", PtNum=294, study=study, Name="Tests", Fields=list(Test="egfr", Result="Other")))
-    x <- create.Tests.record("TCGA-49-AAQV")#has two mutations
-    checkEquals(x[[1]], list(PatientID="TCGA.49.AAQV", PtNum=118, study=study, Name="Tests",Fields=list(Test="egfr", Result="Exon 19 Deletion")))
-    checkEquals(x[[2]], list(PatientID="TCGA.49.AAQV", PtNum=118, study=study, Name="Tests",Fields=list(Test="eml4_alk_translocation", Result=NA)))
-
+		x <- create.Tests.records(study_name, "TCGA.69.7761") #nte
+		checkTrue(is.list(x))
+		checkEquals(names(x[[1]]), c("PatientID", "PtNum", "study", "Name", "Fields"))
+		checkEquals(names(x[[1]][["Fields"]]), c("date", "Type", "Test", "Result"))
+		checkEquals(x[[1]], list(PatientID="TCGA.69.7761", PtNum=294, study=study_name, Name="Tests", 
+							Fields=list(date=as.character(NA),Type=as.character(NA),Test="EGFR", Result="egfrStatus:YES")))
+		checkEquals(x[[3]], list(PatientID="TCGA.69.7761", PtNum=294, study=study_name, Name="Tests", 
+							Fields=list(date=as.character(NA),Type="PULMONARY",Test="Pulmonary_function", Result="pulInd:YES")))
+		x <- create.Tests.records(study_name, "TCGA.49.AAQV")#has two mutations
+		checkEquals(x[[2]], list(PatientID="TCGA.49.AAQV", PtNum=118, study=study_name, Name="Tests",
+							Fields=list(date=as.character(NA),Type=as.character(NA), Test="EGFR", Result="egfrStatus:YES")))
+		checkEquals(x[[4]], list(PatientID="TCGA.49.AAQV", PtNum=118, study=study_name, Name="Tests",
+							Fields=list(date=as.character(NA),Type=as.character(NA), Test="EGFR", Result="egfrType:EXON 19 DELETION")))
+		
+		checkEquals(x[[1]], list(PatientID="TCGA.49.AAQV", PtNum=118, study=study_name, Name="Tests",
+							Fields=list(date=as.character(NA),Type=as.character(NA), Test="EML4_ALK", Result="elm4AlkStatus:YES")))
 	}
   if(study_name == "TCGAlusc"){
-  	 checkTrue(is.list(x))
-    checkEquals(names(x[[1]]), c("PatientID", "PtNum", "study", "Name", "Fields"))
-    checkEquals(names(x[[1]][["Fields"]]), c("Date","Type","Test", "Result"))
-    checkEquals(x[[1]], list(PatientID="TCGA.21.5783", PtNum=32, study=study, Name="Tests", Fields=list(Date=NA, Type=NA,Test="egfr", Result="Not found")))
-    checkEquals(x[[2]], list(PatientID="TCGA.21.5783", PtNum=32, study=study, Name="Tests", Fields=list(Date=NA, Type=NA,Test="eml4_alk_translocation", Result="Not found")))
-    checkEquals(x[[3]], list(PatientID="TCGA.21.5783", PtNum=32, study=study, Name="Tests", Fields=list(Date=NA, Type=NA,Test="pulmonary_function", Result="YES")))
-    
-    x <- create.Tests.record("TCGA-60-2710")#has two mutations
-    checkEquals(x[[1]], list(PatientID="TCGA.60.2710", PtNum=238, study=study, Name="Tests",Fields=list(Date=NA, Type=NA,Test="egfr", Result="Not found")))
-    checkEquals(x[[2]], list(PatientID="TCGA.60.2710", PtNum=238, study=study, Name="Tests",Fields=list(Date=NA, Type=NA,Test="eml4_alk_translocation", Result="Not found")))
- 
+		x <- create.Tests.records(study_name, "TCGA.21.5783")
+		checkTrue(is.list(x))
+		checkEquals(length(x), 3)
+		checkEquals(names(x[[1]]), c("PatientID", "PtNum", "study", "Name", "Fields"))
+		checkEquals(names(x[[1]][["Fields"]]), c("date","Type","Test", "Result"))
+		checkEquals(x[[1]], list(PatientID="TCGA.21.5783", PtNum=32, study=study_name, Name="Tests", 
+							Fields=list(date=as.character(NA),Type=as.character(NA), Test="EGFR", Result="egfrStatus:NO")))
+		checkEquals(x[[3]], list(PatientID="TCGA.21.5783", PtNum=32, study=study_name, Name="Tests", 
+							Fields=list(date=as.character(NA),Type=as.character(NA),Test="EML4_ALK", Result="elm4AlkStatus:NO")))
+		checkEquals(x[[2]], list(PatientID="TCGA.21.5783", PtNum=32, study=study_name, Name="Tests", 
+							Fields=list(date=as.character(NA),Type="PULMONARY",Test="Pulmonary_function", Result="pulInd:YES")))
+		x <- create.Tests.records(study_name, "TCGA.60.2710") #has two mutations
+		checkEquals(x[[2]], list(PatientID="TCGA.60.2710", PtNum=238, study=study_name, Name="Tests",
+							Fields=list(date=as.character(NA),Type=as.character(NA), Test="EGFR", Result="egfrStatus:NO")))
+		checkEquals(x[[1]], list(PatientID="TCGA.60.2710", PtNum=238, study=study_name, Name="Tests",
+							Fields=list(date=as.character(NA),Type=as.character(NA), Test="EML4_ALK", Result="elm4AlkStatus:NO")))
 	}
   if(study_name == "TCGAprad"){
-  	 checkTrue(is.list(x))
-    checkEquals(names(x[[1]]), c("PatientID", "PtNum", "study", "Name", "Fields"))
-    checkEquals(names(x[[1]][["Fields"]]), c("Date","Type","Test", "Result"))
-    checkEquals(length(x),3)
-    checkEquals(x[[1]], list(PatientID="TCGA.2A.A8VL", PtNum=1, study=study, Name="Tests", Fields=list(Date="08/09/2011",Type="PSA",Test="PSA", Result="0.05")))
-    checkEquals(x[[2]], list(PatientID="TCGA.2A.A8VL", PtNum=1, study=study, Name="Tests", Fields=list(Date="01/22/2010",Type="bone scan",Test="bone scan", Result="Normal (no evidence of prostate cancer) [cM0]")))
-    checkEquals(x[[3]], list(PatientID="TCGA.2A.A8VL", PtNum=1, study=study, Name="Tests", Fields=list(Date=NA,Type="CT scan",Test="CT scan", Result=NA)))
-
+		x <- create.Tests.records(study_name, "TCGA.2A.A8VL")
+		checkTrue(is.list(x))
+		checkEquals(names(x[[1]]), c("PatientID", "PtNum", "study", "Name", "Fields"))
+		checkEquals(names(x[[1]][["Fields"]]), c("date","Type","Test", "Result"))
+		checkEquals(length(x),2)
+		checkEquals(x[[2]], list(PatientID="TCGA.2A.A8VL", PtNum=1, study=study_name, Name="Tests", 
+							Fields=list(date="08/09/2011",Type="PSA",Test="PSA", Result="psaRes:0.05")))
+		checkEquals(x[[1]], list(PatientID="TCGA.2A.A8VL", PtNum=1, study=study_name, Name="Tests", 
+							Fields=list(date="01/22/2010",Type="BONE SCAN",Test="BONE_SCAN", Result="boneScaneRes:NORMAL (NO EVIDENCE OF PROSTATE CANCER) [CM0]")))
 	}
   if(study_name == "TCGAread"){
-  	 print("--- test_create.Tests.record")
-    x <- create.Tests.record("TCGA-DY-A1DE") #has two mutations
-    checkTrue(is.list(x))
-    checkEquals(names(x[[1]]), c("PatientID", "PtNum", "study", "Name", "Fields"))
-    checkEquals(names(x[[1]][["Fields"]]), c("Date","Type","Test", "Result"))
-    checkEquals(x[[1]], list(PatientID="TCGA.DY.A1DE", PtNum=133, study=study, Name="Tests", Fields=list(Date=NA, Type=NA,Test="kras", Result="61")))
-    checkEquals(x[[2]], list(PatientID="TCGA.DY.A1DE", PtNum=133, study=study, Name="Tests", Fields=list(Date=NA, Type=NA,Test="braf", Result="Normal")))
-    checkEquals(x[[3]], list(PatientID="TCGA.DY.A1DE", PtNum=133, study=study, Name="Tests", Fields=list(Date=NA, Type=NA,Test="loci", Result="tested: 5 ; abnormal count: 0")))
-    
-    x <- create.Tests.record("TCGA-AG-4021")
-    checkEquals(x[[1]], list(PatientID="TCGA.AG.4021", PtNum=74, study=study, Name="Tests",Fields=list(Date=NA, Type=NA,Test="braf", Result=NA)))
-    checkEquals(x[[2]], list(PatientID="TCGA.AG.4021", PtNum=74, study=study, Name="Tests",Fields=list(Date=NA, Type=NA,Test="cea", Result="3101")))
-    
-    x <- create.Tests.record("TCGA-AF-6136")
-    checkEquals(x[[1]], list(PatientID="TCGA.AF.6136", PtNum=13, study=study, Name="Tests",Fields=list(Date=NA, Type=NA,Test="cea", Result="18.3")))
-    checkEquals(x[[2]], list(PatientID="TCGA.AF.6136", PtNum=13, study=study, Name="Tests",Fields=list(Date=NA, Type=NA,Test="loci", Result="tested: 5 ; abnormal count: 0")))
-    checkEquals(x[[3]], list(PatientID="TCGA.AF.6136", PtNum=13, study=study, Name="Tests",Fields=list(Date=NA, Type="IHC",Test="mismatched protein", Result="tested: YES ; mismatch proteins loss: MLH1 Expressed|MSH2 Expressed|PMS2 Expressed|MSH6 Expressed")))
+		x <- create.Tests.records(study_name, "TCGA.DY.A1DE") #has two mutations
+		checkTrue(is.list(x))
+		checkEquals(length(x), 6)
+		checkEquals(names(x[[1]]), c("PatientID", "PtNum", "study", "Name", "Fields"))
+		checkEquals(names(x[[1]][["Fields"]]), c("date","Type","Test", "Result"))
+		checkEquals(x[[6]], list(PatientID="TCGA.DY.A1DE", PtNum=133, study=study_name, Name="Tests", 
+							Fields=list(date=as.character(NA),Type=as.character(NA),Test="KRAS", Result="krasInd:YES")))
+		checkEquals(x[[4]], list(PatientID="TCGA.DY.A1DE", PtNum=133, study=study_name, Name="Tests", 
+							Fields=list(date=as.character(NA),Type=as.character(NA),Test="BRAF", Result="brafRes:NORMAL")))
+		checkEquals(x[[1]], list(PatientID="TCGA.DY.A1DE", PtNum=133, study=study_name, Name="Tests", 
+							Fields=list(date=as.character(NA),Type=as.character(NA),Test="LOCI", Result="lociTestCount:5")))
+		checkEquals(x[[5]], list(PatientID="TCGA.DY.A1DE", PtNum=133, study=study_name, Name="Tests", 
+							Fields=list(date=as.character(NA),Type=as.character(NA),Test="LOCI", Result="lociAbnormalCount:0")))
 
+	    x <- create.Tests.records(study_name, "TCGA.AG.4021")
+	    checkEquals(length(x), 3)
+	    checkEquals(x[[1]], list(PatientID="TCGA.AG.4021", PtNum=74, study=study_name, Name="Tests",
+					    	Fields=list(date=as.character(NA),Type=as.character(NA),Test="CEA", Result="ceaTx:3101")))
+	    checkEquals(x[[2]], list(PatientID="TCGA.AG.4021", PtNum=74, study=study_name, Name="Tests",
+					    	Fields=list(date=as.character(NA),Type="IHC",Test="MISMATCHED_PROTEIN", Result="mismatchProteinTestIhc:NO")))
+	    checkEquals(x[[3]], list(PatientID="TCGA.AG.4021", PtNum=74, study=study_name, Name="Tests",
+					    	Fields=list(date=as.character(NA),Type=as.character(NA),Test="BRAF", Result="brafInd:YES")))
+	   
+		x <- create.Tests.records(study_name, "TCGA.AF.6136")
+		checkEquals(x[[3]], list(PatientID="TCGA.AF.6136", PtNum=13, study=study_name, Name="Tests",
+							Fields=list(date=as.character(NA),Type=as.character(NA),Test="CEA", Result="ceaTx:18.3")))
+		checkEquals(x[[4]], list(PatientID="TCGA.AF.6136", PtNum=13, study=study_name, Name="Tests",
+							Fields=list(date=as.character(NA),Type=as.character(NA),Test="LOCI", Result="lociAbnormalCount:0")))
+		checkEquals(x[[1]], list(PatientID="TCGA.AF.6136", PtNum=13, study=study_name, Name="Tests",
+							Fields=list(date=as.character(NA), Type="IHC",Test="MISMATCHED_PROTEIN", 
+								Result="mismatchProteinLossIhc:MLH1 EXPRESSED|MSH2 EXPRESSED|PMS2 EXPRESSED|MSH6 EXPRESSED")))
 	}
 }
 lapply(studies, test_create.Tests.records)
