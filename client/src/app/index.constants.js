@@ -1,4 +1,4 @@
-/* global d3:false, $:false, signals:false, cytoscape:false, SockJS:false, document:false, moment:false, _:false */
+/* global d3:false, $:false, signals:false, cytoscape:false, SockJS:false, document:false, moment:false, _:false, THREE:false */
 (function() {
     'use strict';
 
@@ -10,6 +10,7 @@
         .constant('signals', signals)
         .constant('SockJS', SockJS)
         .constant('domain', document.domain)
+        .constant('THREE', THREE)
         .constant('$', $)
         .constant('_', _);
 

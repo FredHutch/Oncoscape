@@ -50,6 +50,11 @@
                 template: '<os-pca>',
                 authenticate: true
             })
+            .state('pca3d', {
+                url: '/pca3d/{datasource}',
+                template: '<os-pca3d>',
+                authenticate: true
+            })
             .state('markers', {
                 url: '/markers/{datasource}',
                 template: '<os-markers>',
