@@ -31,7 +31,8 @@
     "qtip2": "^2.2.1",
     "cytoscape-qtip": "^2.3.0",
     "d3-timeline": "^0.0.5",
-    "underscore": "^1.8.3"
+    "underscore": "^1.8.3",
+    "three.js": "threejs#*"
   },
   "overrides": {
     "bootstrap-sass": {
@@ -48,6 +49,5 @@
   "resolutions": {
     "jquery": "~2.1.4",
     "angular": "~1.4.2"
-  },
-  "devDependencies": {}
+  }
 }
