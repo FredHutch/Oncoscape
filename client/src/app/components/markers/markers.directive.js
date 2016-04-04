@@ -29,6 +29,10 @@
 
             // Initialize View Model
             var vm = initializeViewModel(this, $stateParams);
+            vm.toggleFilter = function() {
+                angular.element(".container-filters").toggleClass("container-filters-collapsed");
+                angular.element(".container-filter-toggle").toggleClass("container-filter-toggle-collapsed");
+            };
 
             // Load Data
             osApi.setBusy(true);
@@ -125,8 +129,8 @@
                 hideLabelsOnViewport: false,
                 textureOnViewport: false,
                 motionBlur: true,
-                minZoom: 0.1,
-                maxZoom: 20,
+                minZoom: 0.05,
+                maxZoom: 40,
                 layout: {
                     name: "preset",
                     fit: true
@@ -154,19 +158,15 @@
                 selector: 'node',
                 style: {
                     'display': "data(display)",
-                    'label': "data(id)",
-                    'height': "mapData(sizeEle, 0, 50, 1, 80)",
-                    'width': "mapData(sizeEle, 0, 50, 1, 80)",
-                    'border-width': "5px",
+                    'height': "mapData(sizeEle, 0, 50, 0, 80)",
+                    'width': "mapData(sizeEle, 0, 50, 0, 80)",
                     'font-size': 'data(sizeLbl)',
-                    'text-valign': 'center',
-                    'min-zoomed-font-size': '8px',
+                    'text-valign': 'center'
                 }
             }, {
                 selector: 'node[nodeType="patient"]',
                 style: {
                     'background-color': 'data(color)',
-                    'border-color': 'data(color)',
                     'text-halign': 'center'
                 }
             }, {
@@ -179,12 +179,14 @@
                 style: {
                     'background-color': "#FFFFFF",
                     'border-color': "data(color)",
-                    'text-halign': 'right'
+                    'text-halign': "right",
+                    'label': "data(id)",
+                    'border-width': "data(sizeBdr)"
                 }
             }, {
                 selector: 'node[nodeType="gene"]:selected',
                 style: {
-                    'border-color': "#FF0000",
+                    'border-color': "#FF0000"
                 }
             },{
                 selector: 'node[nodeType="centromere"]',
@@ -195,7 +197,8 @@
                     'border-color': 'rgb(19, 150, 222)',
                     'height': '40px',
                     'width': '120px',
-                    'shape': 'roundrectangle'
+                    'shape': 'roundrectangle',
+                    'label': "  data(id)"
                 }
             },{
                 selector: 'edge',
@@ -322,6 +325,7 @@
                     chart.batchData(degmap);
                 },
                 showOncoPrint: function(e){
+                    /*
                     var ds = vm.datasource;
                     if (ds=="DEMOdz") return;
                     if (ds.indexOf("TCGA" == 0)) {
@@ -334,6 +338,7 @@
                             $window.open(url);
                         });
                     }
+                    */
                 }
             }
 
@@ -591,91 +596,22 @@
         }
 
         function initializeZoom(chart, $timeout){
-
-            var nodeZoomFn ={
-                "A": function(node){
-                    this[node.id()] = {
-                        sizeEle: node.degree(),
-                        sizeLbl: 0
-                    }
-                },
-                "B": function(node){
-                    this[node.id()] = {
-                        sizeEle: node.degree() * .5,
-                        sizeLbl: 0
-                    }
-                },
-                "C": function(node){
-                    this[node.id()] = {
-                        sizeEle: node.degree() * .25,
-                        sizeLbl: 12
-                    }
-                },
-                "D": function(node){
-                    this[node.id()] = {
-                        sizeEle: node.degree() * .125,
-                        sizeLbl: 16
-                    }
-                },
-                "E": function(node){
-                    this[node.id()] = {
-                        sizeEle: node.degree() * .06,
-                        sizeLbl: 14
-                    }
-                },
-                "F": function(node){
-                    this[node.id()] = {
-                        sizeEle: node.degree() * .03,
-                        sizeLbl: 12
-                    }
-                },
-                "Z": function(node){
-                    this[node.id()] = {
-                        sizeEle: node.degree() * .000000001,
-                        sizeLbl: 1
-                    }
-                }
-
-            }
-            var _zoomlevel = "A";
             var _timeout;
             chart.on('pan', _.debounce(function(e) {
-                var zoom = e.cy.zoom();
-                /*
-                
-
+                var zoom = Math.max(e.cy.zoom(), 1);
                 var degmap = {};
-
-                var zoom = e.cy.zoom().map(.1, 20, 1, .0002);
+                var font = Math.ceil(Math.max(12/zoom, 1));
+                var sizeBdr = Math.ceil(Math.max(5/zoom, .5));
+                console.log(sizeBdr);
                 chart.nodes().forEach(function(node){
-
-
-                    this.degmap[node.id()] = {sizeEle:50 * this.zoom};
-
-
-                }, { degmap:degmap, zoom:zoom });
-
+                    this.degmap[node.id()] = {
+                        sizeEle: (node.degree()/this.zoom),
+                        sizeLbl: font,
+                        sizeBdr:sizeBdr
+                    };
+                }, { degmap:degmap, zoom:zoom, font:font, sizeBdr:sizeBdr });
                 chart.batchData(degmap);
-*/
-                var zoomlevel = 
-                    (zoom>19) ? "Z" :
-                    (zoom>1.5) ? "F" :
-                    (zoom>1.2) ? "E" :
-                    (zoom>.9) ? "D" :
-                    (zoom>.6) ? "C" : 
-                    (zoom>.3) ? "B" : 
-                    "A";
-
-                if (_zoomlevel==zoomlevel) return;
-                _zoomlevel = zoomlevel;
-                console.log(_zoomlevel);
-                var fn = nodeZoomFn[zoomlevel];
-                var degmap = {};
-                chart.nodes().forEach(fn, degmap);
-                chart.batchData(degmap);
-                
-            }, 500));
-
+            }, 300));
         }
 
         function initializeNodeColors(chart, vm, $scope, osApi){
@@ -801,7 +737,7 @@
                                 var b = 30;
                                 var angle = 0.1 * (index+1);
                                 var x = -1000 + (a+b * angle) * Math.cos(angle);
-                                var y = -1500 + (a+b * angle) * Math.sin(angle);
+                                var y = -1200 + (a+b * angle) * Math.sin(angle);
                                 node.position({
                                     x: x,
                                     y: y
@@ -834,8 +770,7 @@
                                 var b = 30;
                                 var angle = 0.1 * (index+1);
                                 var x = -1000 + (a+b * angle) * Math.cos(angle);
-                                var y = 1500 + (a+b * angle) * Math.sin(angle);
-                                console.log(x) ;
+                                var y = 1200 + (a+b * angle) * Math.sin(angle);
                                 node.position({
                                     x: x,
                                     y: y
@@ -876,12 +811,14 @@
                         // Process Non Patient Nodes
                         dataMarkers.nodes
                             .filter(function(item) {  return  item.data.nodeType != 'patient'; })
-                            .map(function(value){
+                            .map(function(value,i){
+                               
                                 var data = value.data;
                                 data.display = "element";
                                 data.color = "rgb(19, 150, 222)";
                                 data.sizeEle = data.degree;
                                 data.sizeLbl = 12;
+                                data.sizeBdr = 10;
                                 value.locked = true;
                                 value.selectable = true;
                                 value.grabbable = false;

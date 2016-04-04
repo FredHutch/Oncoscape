@@ -6,7 +6,7 @@
         .run(runBlock);
 
     /** @ngInject */
-    function runBlock($rootScope, $state, osApi) {
+    function runBlock($rootScope, $state, $window, $exceptionHandler, osApi) {
 
 
         // Actions To Take On State Change
@@ -18,18 +18,17 @@
             // Reset DataTable Custom Filters
             angular.element.fn.DataTable.ext.search = [];
 
-
+            // Force HTTPS
             if (window.location.protocol != "https:" && window.location.hostname !="localhost" ) {
-                window.location.protocol = "https:";
-                window.location.reload();
+                window.location.assign("https://"+window.location.hostname);
+                window.location.reload(true);
             }
+
+            // Route unauthenticated users to landing page
             if (toState.authenticate && !osApi.getUserApi().getUser().authenticated) {
                  $state.transitionTo("landing");
                  event.preventDefault();
             }
-
-            
-
 
         });
 
