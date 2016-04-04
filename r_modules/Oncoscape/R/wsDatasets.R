@@ -73,13 +73,15 @@ getAllDataSetNames <- function(msg)
 specifyCurrentDataset <- function(msg)
 {
   available.datasets <- ls(datasets)
-  printf("wsDatasets.R, specifyCurrentDataset, available: %s",
-         paste(available.datasets, collapse=";"));
+#  printf("wsDatasets.R, specifyCurrentDataset, available: %s",
+#         paste(available.datasets, collapse=";"));
   
   dataset <- msg$payload
   .loadDataset(dataset)
 
   state[["currentDatasetName"]] <- dataset;  
+  printf("wsDatasets.R, specifyCurrentDataset, currentDataset: %s", dataset)
+  
   payload <- getDataManifestAsJSON(dataset)
   return.msg <- list(cmd=msg$callback, status="success", callback="",
                      payload=payload)
