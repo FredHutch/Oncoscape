@@ -3769,7 +3769,8 @@ lgg  <- create.STUDY.records(studies[5])
 luad <- create.STUDY.records(studies[6])
 lusc <- create.STUDY.records(studies[7])
 prad <- create.STUDY.records(studies[8])
-read <- create.STUDY.records(studies[9])	
+read <- create.STUDY.records(studies[9])
+blca <- create.STUDY.records(studies[10])
 
 # run through all studies by Feature
 lapply(studies, create.DOB.records)
