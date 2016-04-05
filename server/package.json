@@ -1,7 +1,7 @@
 {
   "name": "oncoscape",
   "version": "15.0.0",
-  "description": "oncoscape fred hutchinson",
+  "description": "Oncoscape Fred Hutchinson",
   "main": "start.js",
   "dependencies": {
     "blob-stream": "^0.1.3",
