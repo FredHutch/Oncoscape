@@ -14,7 +14,7 @@ Oncoscape is developed at the Fred Hutchinson Cancer Research Center under the a
 
 With the assistance of the general coding community, we hope to deliver polished tools that are easier for clinicians to use and that can grow and adapt indefinitely with emerging technologies. [See how your expertise can make an impact](https://github.com/FredHutch/Oncoscape/wiki/Contribution).
 
-## The Goal [<img src="https://github.com/FredHutch/Oncoscape/blob/newReadme/img/signature.png" width="40">](https://github.com/FredHutch/Oncoscape/wiki)
+## The Goal [<img src="https://cloud.githubusercontent.com/assets/5760217/14293557/ef3ba88c-fb21-11e5-8f64-fff93ebebfa6.png" width="40">](https://github.com/FredHutch/Oncoscape/wiki)
 
 The ultimate goal is to connect the entire pipeline of cancer research, from molecular data and research experiments to clinical and patient data. By giving clinicians and researchers direct access to the data and methods through an online portal, more time is spent answering biological questions than formatting files and installing disparate software packages.
 
@@ -22,7 +22,7 @@ Oncoscape's design encourages custom deployments focused on any clinical/molecul
 
 If you would like to update code or contribute new features, please read [wiki](https://github.com/FredHutch/Oncoscape/wiki).
 
-## Signature Features [<img src="https://github.com/FredHutch/Oncoscape/blob/newReadme/img/signature.png" width="40">](https://github.com/FredHutch/Oncoscape/wiki)
+## Signature Features [<img src="https://cloud.githubusercontent.com/assets/5760217/14293557/ef3ba88c-fb21-11e5-8f64-fff93ebebfa6.png" width="40">](https://github.com/FredHutch/Oncoscape/wiki)
 
  + **Web accessible & Intuitive Interface** so Physicians and Researchers can interact with data without requiring computational support    
  + **Integrated, Iterative Analyses** to test conditional hypotheses by refining selections and sharing results
