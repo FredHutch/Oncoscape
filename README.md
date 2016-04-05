@@ -8,7 +8,7 @@
 
 [Oncoscape](http://oncoscape.sttrcancer.org) is a web application that hosts an integrated suite of analysis tools for users to explore hypotheses related to molecular and clinical data in order to better understand cancer biology and treatment options.  Oncoscape is as an SPA -- a single page web application -- using JavaScript in the browser and R (primarily) on the backend server for statistical calculations. For more detailed information, please read [wiki](https://github.com/FredHutch/Oncoscape/wiki).
 
-[![IMAGE ALT TEXT](http://img.youtube.com/vi/LreQfx5x740/0.jpg)](https://youtu.be/LreQfx5x740 "OctoTales Fred Hutch")
+[![IMAGE ALT TEXT](http://img.youtube.com/vi/LreQfx5x740/0.jpg)](https://youtu.be/LreQfx5x740 "OctoTales Fred Hutch"){:target="_blank"}
 
 Oncoscape is developed at the Fred Hutchinson Cancer Research Center under the auspices of the Solid Tumor Translational Research initiative.  Read more about our team and mission on the [Oncoscape homepage](http://www.sttrcancer.org/en/biotools/oncoscape.html).
 
