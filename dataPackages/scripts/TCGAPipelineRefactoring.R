@@ -5212,16 +5212,16 @@ test_create.Pathology.records <- function(study_name)
     #checkEquals(x[[1]], list(PatientID="TCGA.02.0001", PtNum=1, study=study, Name="Pathology", Fields=list(date="01/01/2002", disease="Brain", histology="Untreated primary (de novo) GBM", histology.category="High Grade Glioma", 
     						 #collection=NA, grade="G4", method="Tumor resection")))
     
-    x <- create.Pathology.records(study_name,"TCGA.06.0209") 
+    #x <- create.Pathology.records(study_name,"TCGA.06.0209") 
     #checkEquals(x[[1]], list(PatientID="TCGA.06.0209", PtNum=372, study=study, Name="Pathology",Fields=list(date="01/01/1997", disease="Brain", histology="Untreated primary (de novo) GBM", histology.category="High Grade Glioma",
     						 #collection=NA, grade="G4", method="Tumor resection")))
     #checkEquals(x[[2]], list(PatientID="TCGA.06.0209", PtNum=372, study=study, Name="Pathology",Fields=list(date=NA, disease="Prostate", histology="Adenocarcinoma, Not Otherwise Specified",histology.category="Adenocarcinoma",  
     						 #collection=NA, grade="G4", method=NA)))									
-      	}
-  if(study_name == "TCGAhnsc"){
-		print("--- TCGAhnsc_test_create.Pathology.record")
-    x <- create.Pathology.record(tcga.ids[1])
-    checkTrue(is.list(x))
+      	#}
+  #if(study_name == "TCGAhnsc"){
+		#print("--- TCGAhnsc_test_create.Pathology.record")
+    #x <- create.Pathology.record(tcga.ids[1])
+    #checkTrue(is.list(x))
     #checkEquals(names(x[[1]]), c("PatientID", "PtNum", "study", "Name", "Fields"))
     #checkEquals(names(x[[1]][["Fields"]]), c("date", "disease", "histology", "histology.category", 
       #"collection", "T.Stage", "N.Stage","M.Stage","S.Stage","staging.System"))
@@ -5230,7 +5230,7 @@ test_create.Pathology.records <- function(study_name)
       #histology.category=NA, collection="retrospective", T.Stage="T4a",N.Stage="N2a",M.Stage="M0",
       #S.Stage="Stage IVA",staging.System="7th")))
     
-    x <- create.Pathology.record("TCGA-BA-4075") 
+    #x <- create.Pathology.records("TCGA-BA-4075") 
     #checkEquals(length(x),2)
     #checkEquals(x[[1]], list(PatientID="TCGA.BA.4075", PtNum=3, study=study, Name="Pathology",
       #Fields=list(date="01/01/2004", disease="Head and Neck", histology="Head and Neck Squamous Cell Carcinoma",  
@@ -5239,44 +5239,44 @@ test_create.Pathology.records <- function(study_name)
     #checkEquals(x[[2]], list(PatientID="TCGA.BA.4075", PtNum=3, study=study, Name="Pathology",
       #Fields=list(date=NA, disease="Tongue, Base of tongue", histology="Squamous Cell Carcinoma, Not Otherwise Specified",  
       #histology.category="Squamous Cell Carcinoma",collection=NA,T.Stage=NA,N.Stage=NA,M.Stage=NA,S.Stage=NA,staging.System=NA)))
-		}
-  if(study_name == "TCGAlgg"){
-		print("--- TCGAlgg_test_create.Pathology.record")
-    x <- create.Pathology.record(tcga.ids[1])
-    checkTrue(is.list(x))
+		#}
+  #if(study_name == "TCGAlgg"){
+		#print("--- TCGAlgg_test_create.Pathology.record")
+    #x <- create.Pathology.records(tcga.ids[1])
+    #checkTrue(is.list(x))
     #checkEquals(names(x[[1]]), c("PatientID", "PtNum","study", "Name", "Fields"))
     #checkEquals(names(x[[1]][["Fields"]]), c("date", "disease", "histology","histology.category", "collection", "grade"))
     #checkEquals(x[[1]], list(PatientID="TCGA.CS.6290", PtNum=1, study=study, Name="Pathology", Fields=list(date="01/01/2009", disease="Central nervous system", histology="Astrocytoma", histology.category="High Grade Glioma", collection="retrospective", grade="G3")))
-    x <- create.Pathology.record("TCGA-FG-8187")
+    #x <- create.Pathology.record("TCGA-FG-8187")
     #checkEquals(x[[1]], list(PatientID="TCGA.FG.8187", PtNum=130, study=study, Name="Pathology", Fields=list(date="01/01/2011", disease="Central nervous system", histology="Oligoastrocytoma", histology.category="Low Grade Glioma", collection="prospective", grade="G2")))
     #checkEquals(x[[2]], list(PatientID="TCGA.FG.8187", PtNum=130, study=study, Name="Pathology", Fields=list(date=NA, disease="Testicle", histology="Other, specify:Germ Cell", histology.category=NA, collection=NA, grade=NA)))
-		}
-  if(study_name == "TCGAluad"){
-    print("--- TCGAluad_test_create.Pathology.record")
-    x <- create.Pathology.record(tcga.ids[1])
-    checkTrue(is.list(x))
+		#}
+  #if(study_name == "TCGAluad"){
+    #print("--- TCGAluad_test_create.Pathology.record")
+    #x <- create.Pathology.record(tcga.ids[1])
+    #checkTrue(is.list(x))
     #checkEquals(names(x[[1]]), c("PatientID", "PtNum", "study", "Name", "Fields"))
     #checkEquals(names(x[[1]][["Fields"]]), c("date", "disease", "histology", "histology.category", "collection", "T.Stage", "N.Stage","M.Stage","S.Stage","staging.System"))
     #checkEquals(x[[1]], list(PatientID= "TCGA.05.4244", PtNum=1, study=study, Name="Pathology", Fields=list(date="01/01/2009", disease="Lung", histology="Lung Adenocarcinoma", histology.category="Lung Adenocarcinoma", collection="retrospective", T.Stage="T2",N.Stage="N2",M.Stage="M1",S.Stage="Stage IV",staging.System="6th")))
     
-    x <- create.Pathology.record("TCGA-05-4382") #has omf
+    #x <- create.Pathology.record("TCGA-05-4382") #has omf
     #checkEquals(x[[1]], list(PatientID="TCGA.05.4382", PtNum=5, study=study, Name="Pathology",Fields=list(date="01/01/2009", disease="Lung", histology="Lung Adenocarcinoma Mixed Subtype", histology.category="Lung Adenocarcinoma", collection="retrospective",T.Stage="T2",N.Stage="N0",M.Stage="M0",S.Stage="Stage IB",staging.System="6th")))
     #checkEquals(x[[2]], list(PatientID="TCGA.05.4382", PtNum=5, study=study, Name="Pathology",Fields=list(date=NA, disease="Penis", histology="Other, specify:carcinoma in situ of penis", histology.category=NA, collection=NA, T.Stage=NA, N.Stage=NA, M.Stage=NA, S.Stage=NA, staging.System=NA)))
-		}
-  if(study_name == "TCGAlusc"){
-		print("--- TCGAlusc_test_create.Pathology.record")
-    x <- create.Pathology.record(tcga.ids[1])
-    checkTrue(is.list(x))
+		#}
+  #if(study_name == "TCGAlusc"){
+		#print("--- TCGAlusc_test_create.Pathology.record")
+    #x <- create.Pathology.record(tcga.ids[1])
+    #checkTrue(is.list(x))
     #checkEquals(names(x[[1]]), c("PatientID", "PtNum", "study", "Name", "Fields"))
     #checkEquals(x[[1]], list(PatientID="TCGA.18.3406", PtNum=1, study=study, Name="Pathology",Fields=list(date= "01/01/2003", disease="Lung", histology= "Lung Squamous Cell Carcinoma", histology.category="Lung Squamous Cell Carcinoma", collection="retrospective",T.Stage="T1",N.Stage="N0",M.Stage="M0",S.Stage="Stage IA",staging.System=NA,method=NA)))
     #checkEquals(x[[2]], list(PatientID="TCGA.18.3406", PtNum=1, study=study, Name="Pathology",Fields=list(date= NA, disease="Lung", histology="Squamous Cell Carcinoma, Not Otherwise Specified" ,histology.category="Squamous Cell Carcinoma,", collection=NA,T.Stage=NA,N.Stage=NA,M.Stage=NA,S.Stage=NA,staging.System=NA,method=NA)))
-    x <- create.Pathology.record("TCGA-66-2769") #has omf
+    #x <- create.Pathology.record("TCGA-66-2769") #has omf
     #checkEquals(x[[1]], list(PatientID="TCGA.66.2769", PtNum=293, study=study, Name="Pathology",Fields=list(date= "01/01/2007", disease="Lung", histology= "Lung Squamous Cell Carcinoma",  histology.category="Lung Squamous Cell Carcinoma", collection="retrospective",T.Stage="T4",N.Stage="N0",M.Stage="M0",S.Stage="Stage IIIB",staging.System="6th",method=NA)))
-      	}
-  if(study_name == "TCGAprad"){
-    	print("--- TCGAprad_test_create.Pathology.record")
-    x <- create.Pathology.record("TCGA-CH-5753")
-    checkTrue(is.list(x)) #have both pt and omf
+    #  	}
+  #if(study_name == "TCGAprad"){
+    	#print("--- TCGAprad_test_create.Pathology.record")
+    #x <- create.Pathology.record("TCGA-CH-5753")
+    #checkTrue(is.list(x)) #have both pt and omf
     #checkEquals(names(x[[1]]), c("PatientID", "PtNum", "study", "Name", "Fields"))
     #checkEquals(names(x[[1]][["Fields"]]), c("date", "disease", "histology","histology.category", 
         #"collection", "T.Stage", "N.Stage","M.Stage","S.Stage","staging.System", "method"))
@@ -5287,19 +5287,19 @@ test_create.Pathology.records <- function(study_name)
     #checkEquals(x[[2]], list(PatientID= "TCGA.CH.5753", PtNum=25, study=study, Name="Pathology", 
         #Fields=list(date=NA, disease="Lymph node(s)", histology="Other, specify:Non-Hodgkin's", histology.category=NA, 
         #collection=NA, T.Stage=NA,N.Stage=NA,M.Stage=NA,S.Stage=NA,staging.System=NA, method=NA)))
-    x <- create.Pathology.record("TCGA-CH-5791")
-      	}
-  if(study_name == "TCGAread"){
-		print("--- TCGA_read_test_create.Pathology.record")
-    x <- create.Pathology.record("TCGA-AF-2687")
-    checkTrue(is.list(x))
+    #x <- create.Pathology.record("TCGA-CH-5791")
+      	#}
+  #if(study_name == "TCGAread"){
+		#print("--- TCGA_read_test_create.Pathology.record")
+    #x <- create.Pathology.record("TCGA-AF-2687")
+    #checkTrue(is.list(x))
     #checkEquals(names(x[[1]]), c("PatientID", "PtNum", "study", "Name", "Fields"))
     #checkEquals(names(x[[1]][["Fields"]]), c("date", "disease", "histology","histology.category","collection","T.Stage","N.Stage","M.Stage","S.Stage", "staging.System"))
     #checkEquals(x[[1]], list(PatientID="TCGA.AF.2687", PtNum=1, study=study, Name="Pathology", Fields=list(date="01/01/2009", disease="Rectum", histology="Rectal Adenocarcinoma",histology.category=NA, collection="prospective", T.Stage="T3",N.Stage="N2",M.Stage="M0",S.Stage="Stage IIIC", staging.System=NA)))
     
-    x <- create.Pathology.record("TCGA-AG-A00H") #has omf
+    #x <- create.Pathology.record("TCGA-AG-A00H") #has omf
     #checkEquals(x[[1]], list(PatientID="TCGA.AG.A00H", PtNum=79, study=study, Name="Pathology",Fields=list(date="01/01/2008",disease="Rectum", histology="Rectal Adenocarcinoma", histology.category=NA, collection="retrospective", T.Stage="T3",N.Stage="N0",M.Stage="M0",S.Stage="Stage IIA", staging.System="6th")))
-      	}
+      	#}
 }
 lapply(studies, test_create.Pathology.records)
 #-------------------------------------------------------------------------------------------------------------------------- 
