@@ -9,7 +9,6 @@
         .constant('cytoscape', cytoscape)
         .constant('signals', signals)
         .constant('SockJS', SockJS)
-        .constant('domain', document.domain)
         .constant('THREE', THREE)
         .constant('$', $)
         .constant('_', _);

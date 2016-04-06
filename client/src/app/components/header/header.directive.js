@@ -20,7 +20,7 @@
         return directive;
 
         /** @ngInject */
-        function HeaderController(osApi, $stateParams, $state, $timeout, $rootScope) {
+        function HeaderController(osApi, $stateParams, $state, $timeout) {
 
             
             osApi.onDataSource.add(function(){

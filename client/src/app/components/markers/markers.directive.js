@@ -35,12 +35,12 @@
             };
 
 
-            $(".legand-toggle")
+            angular.element(".legand-toggle")
                 .mouseover(function(){
-                    $(".legand-toggle").removeClass("legand-toggle-collapse");
+                    angular.element(".legand-toggle").removeClass("legand-toggle-collapse");
                 })
                 .mouseout(function(){
-                    $(".legand-toggle").addClass("legand-toggle-collapse");
+                    angular.element(".legand-toggle").addClass("legand-toggle-collapse");
                 })
 
 
@@ -65,13 +65,13 @@
                 initializeEdgeColors(chart, vm, $scope, $timeout);
 
                 // Initialize Events
-                initializeEvents(chart, vm, $scope, $timeout, osApi);
+                initializeEvents(chart, vm, $scope, $timeout, osApi, signals);
 
                 // Initalize Search
                 initializeSearch(chart, vm, $scope)
 
                 // Initialize Zoom
-                initializeZoom(chart, $timeout);
+                initializeZoom(chart, _);
                 
                 // Ready
                 osApi.setBusy(false);
@@ -238,10 +238,10 @@
             }];
         }
 
-        function initializeEvents(chart, vm, $scope, $timeout, osApi){
+        function initializeEvents(chart, vm, $scope, $timeout, osApi, signals){
 
             // Create Signals
-            var events = (function() {
+            var events = (function(signals) {
                 var geneOver = new signals.Signal();
                 var geneOut = new signals.Signal();
                 var geneClick = new signals.Signal();
@@ -280,7 +280,7 @@
                     click: click,
                     removeAll: removeAll
                 };
-            })();
+            })(signals);
 
             // Attach Event Signals To Real Events
             chart
@@ -352,7 +352,7 @@
                         }, degmap);
                     chart.batchData(degmap);
                 },
-                showOncoPrint: function(e){
+                showOncoPrint: function(){
                     /*
                     var ds = vm.datasource;
                     if (ds=="DEMOdz") return;
@@ -623,8 +623,7 @@
             }
         }
 
-        function initializeZoom(chart, $timeout){
-            var _timeout;
+        function initializeZoom(chart, _){
             chart.on('pan', _.debounce(function(e) {
                 var zoom = Math.max(e.cy.zoom(), 1);
                 var degmap = {};
@@ -654,71 +653,66 @@
                 vm.optNodeColor = vm.optNodeColors[0];
 
                 $scope.$watch("vm.optNodeColor", function(){
-                        switch(vm.optNodeColor.name){
-                            case "Default":
-                                vm.legandNodes = [{name:'Patients', color:'#3993fa'}];
-                                var degmap = {};
-                                chart.$('node[nodeType="patient"]')
-                                    .forEach(function(node){
-                                        degmap[node.id()] = {color:'#3993fa'};
-                                    });
-                                chart.batchData(degmap);
-                                break;
-                            case "Gender":
-                                vm.legandNodes = [{name:'Male', color:'blue'}, {name:'Female', color:'pink'}];
-                                var degmap = {};
-                                chart.$('node[nodeType="patient"]')
-                                    .forEach(function(node){
-                                        try{
-                                            var gender = node.data("patient")[0][2];
-                                            degmap[node.id()] = {color: (gender==='male') ? 'rgb(5, 108, 225)' :  'pink' };
-                                        }catch(e){
-                                            degmap[node.id()] = {color: '#EEEEEE'};
-                                        }
-                                    });
-                                chart.batchData(degmap);
-                                break;
-                            case "Age At Diagnosis":
-                                vm.legandNodes = [{name:'Young', color:'green'}, {name:'Old', color:'red'}];
-                                var degmap = {};
-                                chart.$('node[nodeType="patient"]')
-                                    .forEach(function(node){
-                                        try{
-                                            var age = Number(node.data("patient")[0][4]);
-                                            degmap[node.id()] = {color: 'rgb(' + ((255 * age) / 100) + ',' + ((255 * (100 - age)) / 100) + ',0)' };
-                                        }catch(e){
-                                            degmap[node.id()] = {color: '#000000'};
-                                        }
-                                    });
-                                chart.batchData(degmap);
-                                break;
-                            default:
-                                osApi.getSampleCategorization(vm.optNodeColor.name).then(function(response) {
-                                    vm.legandNodes = response.payload.tbl
-                                        .map(function(e) {return e[0] + "|" + e[1]; })
-                                        .filter(function(v, i, s) { return s.indexOf(v) === i; })
-                                        .map(function(e) { var p = e.split("|");
-                                            return { 'name': p[0], 'color': p[1] } });
+                    var degmap = {};
+                    switch(vm.optNodeColor.name){
+                        case "Default":
+                            vm.legandNodes = [{name:'Patients', color:'#3993fa'}];
+                            chart.$('node[nodeType="patient"]')
+                                .forEach(function(node){
+                                    degmap[node.id()] = {color:'#3993fa'};
+                                });
+                            break;
+                        case "Gender":
+                            vm.legandNodes = [{name:'Male', color:'blue'}, {name:'Female', color:'pink'}];
+                            chart.$('node[nodeType="patient"]')
+                                .forEach(function(node){
+                                    try{
+                                        var gender = node.data("patient")[0][2];
+                                        degmap[node.id()] = {color: (gender==='male') ? 'rgb(5, 108, 225)' :  'pink' };
+                                    }catch(e){
+                                        degmap[node.id()] = {color: '#EEEEEE'};
+                                    }
+                                });
+                            break;
+                        case "Age At Diagnosis":
+                            vm.legandNodes = [{name:'Young', color:'green'}, {name:'Old', color:'red'}];
+                            chart.$('node[nodeType="patient"]')
+                                .forEach(function(node){
+                                    try{
+                                        var age = Number(node.data("patient")[0][4]);
+                                        degmap[node.id()] = {color: 'rgb(' + ((255 * age) / 100) + ',' + ((255 * (100 - age)) / 100) + ',0)' };
+                                    }catch(e){
+                                        degmap[node.id()] = {color: '#000000'};
+                                    }
+                                });
+                            break;
+                        default:
+                            osApi.getSampleCategorization(vm.optNodeColor.name).then(function(response) {
+                                vm.legandNodes = response.payload.tbl
+                                    .map(function(e) {return e[0] + "|" + e[1]; })
+                                    .filter(function(v, i, s) { return s.indexOf(v) === i; })
+                                    .map(function(e) { var p = e.split("|");
+                                        return { 'name': p[0], 'color': p[1] } });
 
-                                        var rows = response.payload.rownames;
-                                        var tbl = response.payload.tbl;
-                                        var degmap = {};
-                                        var nodes = chart.$('node[nodeType="patient"]');
-                                        // Revisit This.  Would be faster to not loop.
-                                        for (var i=0; i<nodes.length; i++){
-                                            var id = nodes[i].id();
-                                            degmap[id] = {color:'#DDDDDD'}
-                                            for (var ii=0; ii<rows.length; ii++){
-                                                if (id==rows[ii]){
-                                                    degmap[id] = {color:tbl[ii][1]}
-                                                    break;
-                                                }
+                                    var rows = response.payload.rownames;
+                                    var tbl = response.payload.tbl;
+                                    var degmap = {};
+                                    var nodes = chart.$('node[nodeType="patient"]');
+                                    // Revisit This.  Would be faster to not loop.
+                                    for (var i=0; i<nodes.length; i++){
+                                        var id = nodes[i].id();
+                                        degmap[id] = {color:'#DDDDDD'}
+                                        for (var ii=0; ii<rows.length; ii++){
+                                            if (id==rows[ii]){
+                                                degmap[id] = {color:tbl[ii][1]}
+                                                break;
                                             }
                                         }
-                                        chart.batchData(degmap);
-                                    });
-                                break;
+                                    }
+                                });
+                            break;
                         }
+                        chart.batchData(degmap);
                     });
 
             });
@@ -727,8 +721,7 @@
         function initializeLayouts(chart, vm, $scope){
             vm.optPatientLayouts = [{name: 'Hobo'},{name: 'Age At Diagnosis'},{name: 'Gender'}];
             vm.optPatientLayout = vm.optPatientLayouts[0];
-            $scope.$watch('vm.optPatientLayout', function(layout){
-                var data = {};
+            $scope.$watch('vm.optPatientLayout', function(layout){                
                 var nodes = chart.nodes('node[nodeType="patient"]');
                 chart.startBatch();
                 switch (layout.name){
@@ -761,8 +754,7 @@
                         nodes
                             .filter(function(index, node){
                                 try{ return (node.data("patient")[0][2].toLowerCase()=='male')}
-                                catch(e){}
-                                return false;
+                                catch(e){ return false; }
                             })
                             .forEach(function(node, index){
                                 var a = 30;
@@ -794,8 +786,7 @@
                         nodes
                             .filter(function(index, node){
                                 try{ return (node.data("patient")[0][2].toLowerCase()=='female')}
-                                catch(e){}
-                                return false;
+                                catch(e){ return false; }
                             })
                             .forEach(function(node, index){
                                 var a = 30;
@@ -844,7 +835,7 @@
                         // Process Non Patient Nodes
                         dataMarkers.nodes
                             .filter(function(item) {  return  item.data.nodeType != 'patient'; })
-                            .map(function(value,i){
+                            .map(function(value){
                                 var data = value.data;
                                 data.display = "element";
                                 data.color = "rgb(19, 150, 222)";

@@ -6,15 +6,23 @@
         .config(config);
 
     /** @ngInject */
-    function config($logProvider, toastrConfig) {
+    function config($logProvider) {
         // Enable log
         $logProvider.debugEnabled(true);
 
-        // Set options third-party lib
-        toastrConfig.allowHtml = true;
-        toastrConfig.timeOut = 3000;
-        toastrConfig.positionClass = 'toast-top-right';
-        toastrConfig.preventDuplicates = true;
-        toastrConfig.progressBar = true;
+        // Decorate The Exception Handler
+        /*
+        $provide.decorator('$exceptionHandler', function($delgate){
+            return function(exception, cause) {
+                $delegate(exception, cause);
+                var errorData = {
+                    exception: exception,
+                    cause: cause
+                };
+                alert(exception.msg);
+                //toastr.error(exception.msg, errorData);
+            };
+        });
+        */
     }
 })();

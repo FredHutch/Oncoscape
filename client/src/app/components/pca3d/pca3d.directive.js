@@ -19,7 +19,7 @@
         return directive;
 
         /** @ngInject */
-        function Pca3dController(osApi, $state, $stateParams, $timeout, $scope, d3, THREE) {
+        function Pca3dController(osApi, $state, $stateParams, $timeout, $scope, d3, THREE, $window) {
 
             if (angular.isUndefined($stateParams.datasource)){
                 $state.go("datasource");
@@ -84,12 +84,12 @@
             };
 
             var scene = new THREE.Scene();
-            var camera = new THREE.PerspectiveCamera( 50, window.innerWidth / window.innerHeight, 0.1, 1000 );
+            var camera = new THREE.PerspectiveCamera( 50, $window.innerWidth / $window.innerHeight, 0.1, 1000 );
             camera.position.z = 60;
-
-            var renderer = window.WebGLRenderingContext ? new THREE.WebGLRenderer({ antialias: true }) : new THREE.CanvasRenderer();
-            renderer.setPixelRatio( window.devicePixelRatio );
-            renderer.setSize( window.innerWidth, window.innerHeight );
+            
+            var renderer = $window.WebGLRenderingContext ? new THREE.WebGLRenderer({ antialias: true }) : new THREE.CanvasRenderer();
+            renderer.setPixelRatio( $window.devicePixelRatio );
+            renderer.setSize( $window.innerWidth, $window.innerHeight );
             elChart.append( renderer.domElement );
 
 
@@ -100,9 +100,6 @@
                 var sphereGeometry = new THREE.SphereGeometry(.1, 8, 8);
                 var sphereMaterial = new THREE.MeshBasicMaterial({color: '#59a5fb'});//rgb(255, 0, 0)'});
                 for(var idSphere = 0; idSphere < numSphere; idSphere++){
-                    console.log(idSphere);
-                    
-
                     sphereThree[idSphere] = new THREE.Mesh(sphereGeometry, sphereMaterial);
                     var datum = rawData[idSphere];
                     sphereThree[idSphere].position.x = datum[0];

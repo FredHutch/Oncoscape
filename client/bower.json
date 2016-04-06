@@ -38,6 +38,7 @@
     "bootstrap-sass": {
       "main": [
         "assets/stylesheets/_bootstrap.scss",
+        "assets/javascripts/bootstrap.js",
         "assets/fonts/bootstrap/glyphicons-halflings-regular.eot",
         "assets/fonts/bootstrap/glyphicons-halflings-regular.svg",
         "assets/fonts/bootstrap/glyphicons-halflings-regular.ttf",

@@ -43,9 +43,7 @@
                 angular.element(".container-filters").toggleClass("container-filters-collapsed");
                 angular.element(".container-filter-toggle").toggleClass("container-filter-toggle-collapsed");
             };
-            vm.update = function() {
-                update();
-            };
+            
 
             // Elements
             var elChart = angular.element("#plsr-chart");
@@ -270,8 +268,6 @@
             })("#plsr-chart");
 
 
-
-
             // Load Data
             osApi.setBusy(true)("Loading Dataset");
             osApi.setDataset(vm.datasource).then(function(response) {
@@ -297,7 +293,7 @@
                             vm.survivalMinValue = Math.floor(payload.Survival[0] / 365.24);
                             vm.survivalMaxValue = Math.floor(payload.Survival[4] / 365.24);
                             $scope.$watch('vm.geneSet', function() {
-                                update();
+                                vm.update();
                             });
                         });
                     });
@@ -306,7 +302,7 @@
 
 
             // API Call To Calculate PLSR
-            var update = function() {
+            vm.update = function() {
                 osApi.setBusyMessage("Calculating PLSR");
                 var factors = [{
                     name: "Survival",
