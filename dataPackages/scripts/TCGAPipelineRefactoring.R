@@ -5,8 +5,13 @@ library(R.utils)
 library(stringr)
 library(plyr)
 
+<<<<<<< HEAD
+stopifnot(file.exists("TCGA_Reference_Filenames.txt")) 
+TCGAfilename<-read.table("TCGA_Reference_Filenames.txt", sep="\t", header=TRUE)
+=======
 stopifnot(file.exists("TCGA_Reference_Filenames_jz.txt")) 
 TCGAfilename<-read.table("TCGA_Reference_Filenames_jz.txt", sep="\t", header=TRUE)
+>>>>>>> 10a2e76521f2e3a63b22fe41311e816f2822d00d
 ##===load drug reference table ===
 drug_ref <- read.table("drug_names_10272015.txt", sep="\t", header=TRUE)
 rad_ref <- read.table("rad_ref_02232016.txt", sep="\t", header=TRUE)
@@ -1044,12 +1049,12 @@ if(ENCOUNTER){
 	                       ))
 	    #(tbl.f1'encType','karnofsky_score','ECOG only in gbm,lgg,luad,lusc)
 	    tbl.f1 <- loadData(uri[2], 
-	                               list(
-	                                 'bcr_patient_barcode' = list(name = "PatientID", data = "tcgaId"),
-	                                 'performance_status_timing' = list(name = "encType", data = "upperCharacter"),
-	                                 'karnofsky_score'= list(name = "KPS", data = "upperCharacter"),
-	                                 'ecog_score' = list(name = "ECOG", data = "upperCharacter")
-	                               ))
+	                       list('bcr_patient_barcode' = list(name = "PatientID", data = "tcgaId"),
+	                            'performance_status_timing' = list(name = "encType", data = "upperCharacter"),
+	                            'karnofsky_score'= list(name = "KPS", data = "upperCharacter"),
+	                            'ecog_score' = list(name = "ECOG", data = "upperCharacter")
+	                       ))
+	                           
 	    
 	    # reorganize two tbls
 
@@ -1231,7 +1236,7 @@ if(PROCEDURE){
 	                         'bcr_patient_barcode' = list(name = "PatientID", data = "tcgaId"),
 	                         'new_tumor_event_surgery_days_to_loco' = list(name = "date_locoregional", data = "upperCharacter"), #(only in lgg,luad,lusc)
 	                         'new_tumor_event_surgery_days_to_met'= list(name = "date_metastatic", data = "upperCharacter"), #(only in lgg,luad,lusc)
-	                         #'new_tumor_event_surgery' = list(name = "new_tumor_event_surgery", data = "upperCharacter"), #(in brca,hnsc but not being collected...)
+	                         #'new_tumor_event_surgery' = list(name = "new_tumor_event_surgery", data = "upperCharacter"), #(in brca,hnsc but not being collected...) #YES/NO
 	                         'days_to_new_tumor_event_additional_surgery_procedure'  = list(name = "date", data = "upperCharacter"), #(only in gbm,coad,read)
 	                         'new_neoplasm_event_type'  = list(name = "site", data = "upperCharacter"), #(only in gbm, coad, read)
 	                         'new_tumor_event_type'  = list(name = "site", data = "upperCharacter") #(only in hnsc, prad, luad, lusc)
@@ -3947,9 +3952,6 @@ sarc <- create.STUDY.records(studies[10])
 laml <- create.STUDY.records(studies[11])
 blca <- create.STUDY.records(studies[12])
 paad <- create.STUDY.records(studies[13])
-
-
-	
 
 # run through all studies by Feature
 lapply(studies, create.DOB.records)
