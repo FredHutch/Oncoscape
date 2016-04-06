@@ -192,6 +192,15 @@
                 payload: payload
             });
         }
+        function getCalculatedPCA2(geneSet) {
+            var payload = {
+                genes: geneSet
+            };
+            return osSocket.request({
+                cmd: "calculatePCA2",
+                payload: payload
+            });
+        }
         function getPLSR(dataPackage, matrixName) {
             var payload = {
                 dataPackage: dataPackage,
@@ -390,6 +399,7 @@
             getOncoprintDataSelection: getOncoprintDataSelection,
             getPCA: getPCA,
             getCalculatedPCA: getCalculatedPCA,
+            getCalculatedPCA2: getCalculatedPCA2,
             getPLSR: getPLSR,
             getCalculatedPLSR: getCalculatedPLSR,
             getSummarizedPLSRPatientAttributes: getSummarizedPLSRPatientAttributes,

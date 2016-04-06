@@ -73,14 +73,14 @@
                         })
                         .on('click', 'node', function(e) {
                             angular.element('#gbm-webpage').modal();
-                            var url = "http://www.genecards.org/cgi-bin/carddisp.pl?gene=" + e.cyTarget.data().id;
+                            var url = "https://www.genecards.org/cgi-bin/carddisp.pl?gene=" + e.cyTarget.data().id;
                             $scope.$apply(function() {
                                 vm.frame = $sce.trustAsResourceUrl(url);
                             });
                         })
                         .on('click', 'edge', function(e) {
                             angular.element('#gbm-webpage').modal();
-                            var url = "http://www.ncbi.nlm.nih.gov/pubmed/?term=" + e.cyTarget.data().pmid;
+                            var url = "https://www.ncbi.nlm.nih.gov/pubmed/?term=" + e.cyTarget.data().pmid;
                             $scope.$apply(function() {
                                 vm.frame = $sce.trustAsResourceUrl(url);
                             });

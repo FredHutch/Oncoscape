@@ -50,6 +50,11 @@
             // Elements
             var elChart = angular.element("#plsr-chart");
 
+            // Tooltip
+            var d3Tooltip = d3.select("body")
+                .append("div")
+                .attr("class", "tooltip plsr-tooltip");
+
             // Chart
             var chart = (function() {
 
@@ -68,11 +73,6 @@
                     .attr("id", "chart")
                     .attr("width", width)
                     .attr("height", height);
-
-                var tooltip = svg.append("div")
-                    .style("position", "absolute")
-                    .style("z-index", "10")
-                    .style("visibility", "hidden");
 
                 var lines, circles, text;
                 var xScale, yScale;
@@ -148,6 +148,7 @@
                         .enter()
                         .append("circle")
                         .attr({
+                            "class": "plsr-node",
                             "cx": function(d) { return xScale(d[0]); },
                             "cy": function(d) { return yScale(d[1]); },
                             "r": 3
@@ -158,27 +159,23 @@
                         })
                         .on("click", function(d) {
                             angular.element('#plsr-webpage').modal();
-                            var url = "http://www.genecards.org/cgi-bin/carddisp.pl?gene=" + d.name;
+                            var url = "https://www.genecards.org/cgi-bin/carddisp.pl?gene=" + d.name;
                             $scope.$apply(function() {
                                 vm.frame = $sce.trustAsResourceUrl(url);
                             });
                         })
                         .on("mouseover", function(d) {
-                            var pt = d3.mouse(this);
-                            tooltip
-                                .text(d.name)
-                                .style("top", (pt[1] + 160) + "px")
-                                .style("left", (pt[0] + 10) + "px")
-                                .style("visibility", "visible");
-                        })
-                        .on("mousemove", function() {
-                            var pt = d3.mouse(this);
-                            tooltip
-                                .style("top", (pt[1] + 160) + "px")
-                                .style("left", (pt[0] + 10) + "px");
+                            d3Tooltip.transition()        
+                                .duration(200)      
+                                .style("opacity", 1);      
+                            d3Tooltip.html(d.name)  
+                                .style("left", (d3.event.pageX+15) + "px")     
+                                .style("top", (d3.event.pageY-15) + "px"); 
                         })
                         .on("mouseout", function() {
-                            return tooltip.style("visibility", "hidden");
+                            d3Tooltip.transition()      
+                                .duration(500)      
+                                .style("opacity", 0); 
                         })
 
 
@@ -327,15 +324,15 @@
                     // Clean Up Data
                     var payload = response.payload;
                     var genes = payload.loadings.map(function(item, index) {
-                        item.name = payload.loadingNames[index];
+                        item.name = this[index];
                         return item;
-                    });
+                    }, payload.loadingNames);
                     var vectors = payload.vectors.map(function(item, index) {
-                        item.name = payload.vectorNames[index];
+                        item.name = this[index];
                         return item;
-                    });
+                    }, payload.vectorNames);
                     var abs = payload.maxValue * 1.2;
-
+                    
 
                     chart.draw(abs, vectors, genes);
                     

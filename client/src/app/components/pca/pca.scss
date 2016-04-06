@@ -26,3 +26,8 @@
     stroke: red;
     stroke-width: 3;
 }
+.pca-tooltip{
+    pointer-events : none;
+    background-color: rgba(255,255,255,.5); 
+    padding: 5px;
+}

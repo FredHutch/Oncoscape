@@ -34,6 +34,17 @@
                 angular.element(".container-filter-toggle").toggleClass("container-filter-toggle-collapsed");
             };
 
+
+            $(".legand-toggle")
+                .mouseover(function(){
+                    $(".legand-toggle").removeClass("legand-toggle-collapse");
+                })
+                .mouseout(function(){
+                    $(".legand-toggle").addClass("legand-toggle-collapse");
+                })
+
+
+
             // Load Data
             osApi.setBusy(true);
             loadData(osApi, vm, function(data){
@@ -71,34 +82,45 @@
 
             // Search Gene Textbox
             $scope.$watch("vm.searchGene", function(){
-                if (angular.isUndefined(vm.searchGene)) return;
+                if (angular.isUndefined(vm.searchGene)){
+                    vm.geneSearchResult = "";
+                    return;
+                } 
                 chart.startBatch();
+                var matches = {found:0};
                 chart.nodes('node[nodeType="gene"]')
                     .forEach(function(ele){
                         if (vm.searchGene=="") { ele.deselect(); return; }
                         if (ele.data().name.toLowerCase().indexOf(vm.searchGene.toLowerCase())==0){
-                            ele.select()
+                            ele.select(); 
+                            this.found += 1;
                         }else{
                             ele.deselect();
                         }
-                    });
+                    }, matches);
                 chart.endBatch();
+                if (vm.searchGene=="") vm.searchGeneResult = "";
+                else vm.searchGeneResult = "("+matches.found +" Matches)"
             });
 
             // Search Patient Textbox
             $scope.$watch("vm.searchPatient", function(){
                 if (angular.isUndefined(vm.searchPatient)) return;
                 chart.startBatch();
+                var matches = {found:0};
                 chart.nodes('node[nodeType="patient"]')
                     .forEach(function(ele){
                         if (vm.searchPatient=="") { ele.deselect(); return; }
                         if (ele.data().id.toLowerCase().indexOf(vm.searchPatient.toLowerCase())==0){
                             ele.select()
+                            this.found += 1;
                         }else{
                             ele.deselect();
                         }
-                });
+                }, matches);
                 chart.endBatch();
+                if (vm.searchPatient=="") vm.searchPatientResult = "";
+                else vm.searchPatientResult = "("+matches.found +" Matches)"
             });
         }
             
@@ -114,6 +136,10 @@
             vm.legandNodes;
             vm.legandPatient;
             vm.legandChromosomes;
+            vm.searchGene;
+            vm.searchGeneResult = "";
+            vm.searchPatient;
+            vm.searchPatientResult = "";
             vm.frame;
             return vm;
         }
@@ -129,7 +155,7 @@
                 hideLabelsOnViewport: false,
                 textureOnViewport: false,
                 motionBlur: true,
-                minZoom: 0.05,
+                minZoom: 0.0001,
                 maxZoom: 40,
                 layout: {
                     name: "preset",
@@ -158,8 +184,8 @@
                 selector: 'node',
                 style: {
                     'display': "data(display)",
-                    'height': "mapData(sizeEle, 0, 50, 1, 80)",
-                    'width': "mapData(sizeEle, 0, 50, 1, 80)",
+                    'height': "mapData(sizeEle, 0, 50, .1, 80)",
+                    'width': "mapData(sizeEle, 0, 50, .1, 80)",
                     'font-size': 'data(sizeLbl)',
                     'text-valign': 'center'
                 }
@@ -618,9 +644,13 @@
         function initializeNodeColors(chart, vm, $scope, osApi){
             
             osApi.getSampleCategorizationNames().then(function(response) {
-                vm.optNodeColors =  [{name: 'Default'},{name: 'Gender'},{name: 'Age At Diagnosis'}]
-                    .concat( response.payload
+                var optNodeColors =  [{name: 'Default'},{name: 'Gender'},{name: 'Age At Diagnosis'}];
+                if (angular.isDefined(response.payload.length)){
+                    optNodeColors.concat( response.payload
                         .map(function(item) { return {'name': item} }));
+
+                }
+                vm.optNodeColors = optNodeColors;
                 vm.optNodeColor = vm.optNodeColors[0];
 
                 $scope.$watch("vm.optNodeColor", function(){
@@ -669,6 +699,7 @@
                                         .filter(function(v, i, s) { return s.indexOf(v) === i; })
                                         .map(function(e) { var p = e.split("|");
                                             return { 'name': p[0], 'color': p[1] } });
+
                                         var rows = response.payload.rownames;
                                         var tbl = response.payload.tbl;
                                         var degmap = {};

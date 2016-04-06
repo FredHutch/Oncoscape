@@ -60,7 +60,7 @@
             
             var d3Tooltip = d3.select("body")
                 .append("div")
-                .attr("class", "tooltip")
+                .attr("class", "tooltip pca-tooltip")
 
 
             // Initalizae
@@ -92,8 +92,8 @@
                 osApi.getCalculatedPCA(vm.geneSet).then(function(response) {
                     osApi.setBusyMessage("Rendering PCA");
                     var payload = response.payload;
-                    vm.pc1 = response.payload["importance.PC1"];
-                    vm.pc2 = response.payload["importance.PC2"];
+                    vm.pc1 = Math.round(response.payload["importance.PC1"] * 100);
+                    vm.pc2 = Math.round(response.payload["importance.PC2"] * 100);
                     var scores = payload.scores;
                     var ids = payload.ids;
                     rawData = scores.map(function(d, i){
