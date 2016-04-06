@@ -11,10 +11,14 @@
         var directive = {
             restrict: 'E',
             templateUrl: 'app/components/legend/legend.html',
-            scope: {},
+            scope: {
+                caption: '@'
+            },
             controller: LegendController,
             controllerAs: 'vm',
-            bindToController: true
+            bindToController: true,
+            replace: true,
+            transclude: true
         };
 
         return directive;
@@ -23,9 +27,22 @@
         function LegendController() {
 
             var vm = this;
-            
+
+            var elSidebar = angular.element(".sidebar");
+
+            elSidebar
+                .bind("mouseover", (function(e){
+                    elSidebar.removeClass("sidebar-collapsed");
+                }))
+                .bind("mouseout", (function(e){
+                    elSidebar.addClass("sidebar-collapsed");
+                }));
+
+
 
         }
     }
 
 })();
+
+

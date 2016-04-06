@@ -33,6 +33,7 @@
               </ul>
             </div>
         </div>
+        
         <div class="col-xs-2" style="padding-right:20px;">
             <label>Patient Color</label>
             <div class="dropdown bs-dropdown">
@@ -94,39 +95,43 @@
 </section>
 
 <!-- Legend -->
-<div class="legend">
-  <ul style="min-width: 160px;">
-    <li class="legend-section">Node Colors</li>
-    <li ng-repeat="item in vm.legandNodes">
-      <div class="circle" style="background-color:{{item.color}}"></div>{{item.name}}
-    </li>
-    <li>
-      <div class="circle gene"></div>Gene
-    </li>
-    <li><hr></li>
-    <li class="legend-section">Edge Colors</li>
-    <li ng-repeat="item in vm.optEdgeColors">
-      <button class="btn btn-default filter-button {{item.class}}"
-      ng-click="vm.updateEdge(item); $event.stopPropagation();" style="font-weight: 300">
-            {{item.name}} ({{item.state}})
-      </button>
-    </li>
-  </ul>
-</div>
-<div class="legend legend-right" ng-show="vm.patient">
-  <ul> 
-    <li class="legend-section">Patient Information</li>
-    <li>PID: {{vm.patient[0][0]}}</li>
-    <li>GENDER: {{vm.patient[0][2]}}</li>
-    <li>STATUS: {{vm.patient[0][6]}}</li>
-    <li>DIAGNOSED: {{vm.patient[0][4]}} years old</li>
-    <li>SURVIVED: {{vm.patient[0][3]}} years</li>
-    <li>PROGRESSION: {{vm.patient[0][5]}}</li>
-    <li><hr></li>
-    <li class="legend-section">Genes ({{vm.patientChromosomes.length}})</li>
-    <li><span ng-repeat="item in vm.patientChromosomes">{{item}} | </span></li>
-  </ul>
-</div>
+
+<os-legend caption="Some Value">
+  <div class="legend">
+    <ul style="min-width: 160px;">
+      <li class="legend-section">Node Colors</li>
+      <li ng-repeat="item in vm.legandNodes">
+        <div class="circle" style="background-color:{{item.color}}"></div>{{item.name}}
+      </li>
+      <li>
+        <div class="circle gene"></div>Gene
+      </li>
+      <li><hr></li>
+      <li class="legend-section">Edge Colors</li>
+      <li ng-repeat="item in vm.optEdgeColors">
+        <button class="btn btn-default filter-button {{item.class}}"
+        ng-click="vm.updateEdge(item); $event.stopPropagation();" style="font-weight: 300">
+              {{item.name}} ({{item.state}})
+        </button>
+      </li>
+    </ul>
+  </div>
+  <div class="legend legend-right" ng-show="vm.patient">
+    <ul> 
+      <li class="legend-section">Patient Information</li>
+      <li>PID: {{vm.patient[0][0]}}</li>
+      <li>GENDER: {{vm.patient[0][2]}}</li>
+      <li>STATUS: {{vm.patient[0][6]}}</li>
+      <li>DIAGNOSED: {{vm.patient[0][4]}} years old</li>
+      <li>SURVIVED: {{vm.patient[0][3]}} years</li>
+      <li>PROGRESSION: {{vm.patient[0][5]}}</li>
+      <li><hr></li>
+      <li class="legend-section">Genes ({{vm.patientChromosomes.length}})</li>
+      <li><span ng-repeat="item in vm.patientChromosomes">{{item}} | </span></li>
+    </ul>
+  </div>
+</os-legend>
+
 
 <!-- Chart -->
 <section id="markers-chart" class="markers-chart">

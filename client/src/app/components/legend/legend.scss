@@ -1,4 +1,34 @@
 // Namespace
-.legend{
-	
+.sidebar{
+	display:inline-block;
+	position:absolute;
+	left:0px;
+	top:0px;
+	background-color: #000;
+	color:#FFF;
+	max-width: 500px;
+	transition: max-width .5s ease;
+	overflow: hidden;
+
 }
+
+.sidebar-caption{
+	transform: rotate(90deg);
+	width:500px;
+	position: relative;
+	left:0px;
+	
+
+}
+
+.sidebar-content{
+	display:inline-block;
+	width:10000px;
+	background-color:green;
+	margin:20px;
+
+}
+
+ .sidebar-collapsed{
+ 	max-width:20px;
+ }
