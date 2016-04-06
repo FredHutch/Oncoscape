@@ -89,49 +89,83 @@ test_create.DOB.records <- function(study_name)
 		x <- create.DOB.records(study_name, "TCGA.AF.6136")[[1]]
 		checkEquals(x, list(PatientID="TCGA.AF.6136", PtNum=13, study="TCGAread", Name="Birth", Fields=list(date="06/23/1938", gender="FEMALE", race="WHITE", ethnicity="NOT HISPANIC OR LATINO")))
 	}
+  if(study_name == "TCGAsarc"){
+  		x <- create.DOB.records(study_name, "TCGA.WP.A9GB")[[1]]
+  		checkTrue(is.list(x))
+		checkEquals(names(x), c("PatientID", "PtNum","study", "Name", "Fields"))
+		checkEquals(names(x$Fields), c("date", "gender", "race", "ethnicity"))
+		checkEquals(x, list(PatientID="TCGA.WP.A9GB", PtNum=243, study=study_name, Name="Birth", Fields=list(date=as.character(NA), gender="FEMALE", race="WHITE", ethnicity="NOT HISPANIC OR LATINO")))
+		x <- create.DOB.records(study_name,"TCGA.DX.A3U8")[[1]]
+		checkEquals(x, list(PatientID="TCGA.DX.A3U8", PtNum=50, study=study_name, Name="Birth", Fields=list(date="11/17/1966", gender="MALE", race=as.character(NA), ethnicity=as.character(NA))))
+  }
+  if(study_name == "TCGAlaml"){
+  		x <- create.DOB.records(study_name, "TCGA.AB.2882")[[1]]
+  		checkTrue(is.list(x))
+		checkEquals(names(x), c("PatientID", "PtNum","study", "Name", "Fields"))
+		checkEquals(names(x$Fields), c("date", "gender", "race", "ethnicity"))
+		checkEquals(x, list(PatientID="TCGA.AB.2882", PtNum=80, study=study_name, Name="Birth", Fields=list(date="07/04/1932", gender="FEMALE", race="WHITE", ethnicity=ethnicity=as.character(NA))))
+		x <- create.DOB.records(study_name,"TCGA.AB.2982")[[1]]
+		checkEquals(x, list(PatientID="TCGA.AB.2982", PtNum=173, study=study_name, Name="Birth", Fields=list(date="05/31/1977", gender="FEMALE", race=as.character(NA), ethnicity=as.character(NA))))
+  }
+  if(study_name == "TCGAblca"){
+  		x <- create.DOB.records(study_name, "TCGA.HQ.A2OE")[[1]]
+  		checkTrue(is.list(x))
+		checkEquals(names(x), c("PatientID", "PtNum","study", "Name", "Fields"))
+		checkEquals(names(x$Fields), c("date", "gender", "race", "ethnicity"))
+		checkEquals(x, list(PatientID="TCGA.HQ.A2OE", PtNum=276, study=study_name, Name="Birth",  Fields=list(date=as.character(NA), gender="MALE", race=as.character(NA), ethnicity=as.character(NA))))
+  }
+  if(study_name == "TCGApaad"){
+  		x <- create.DOB.records(study_name, "TCGA.M8.A5N4")[[1]]
+  		checkTrue(is.list(x))
+		checkEquals(names(x), c("PatientID", "PtNum","study", "Name", "Fields"))
+		checkEquals(names(x$Fields), c("date", "gender", "race", "ethnicity"))
+		checkEquals(x, list(PatientID="TCGA.M8.A5N4", PtNum=159, study=study_name, Name="Birth",  Fields=list(date=as.character(NA), gender="FEMALE", race=as.character(NA), ethnicity=as.character(NA))))
+		x <- create.DOB.records(study_name,"TCGA.F2.6879")[[1]]
+		checkEquals(x, list(PatientID="TCGA.F2.6879", PtNum=43, study=study_name, Name="Birth", Fields=list(date="07/21/1951", gender="MALE", race="WHITE", ethnicity=as.character(NA))))
+  }
 }
 lapply(studies, test_create.DOB.records)
 #--------------------------------------------------------------------------------------------------------------------------  
 test_create.Diagnosis.records <- function(study_name)
 {
-  print("--- test_create.Diagnosis.record")
-  if(study_name == "TCGAbrca"){
+	print("--- test_create.Diagnosis.record")
+	if(study_name == "TCGAbrca"){
 		x <- create.Diagnosis.records(study_name, "TCGA.3C.AAAU")
 		checkEquals(names(x[[1]]), c("PatientID", "PtNum", "study", "Name", "Fields"))
 		checkEquals(names(x[[1]]$Fields), c("date", "disease", "siteCode"))
 		checkEquals(x[[1]], list(PatientID="TCGA.3C.AAAU", PtNum=1, study="TCGAbrca", Name="Diagnosis", Fields=list(date="01/01/2004", disease="BREAST", siteCode="3C")))
-   	}
-  if(study_name == "TCGAcoad"){
+		}
+	if(study_name == "TCGAcoad"){
 		x <- create.Diagnosis.records(study_name, "TCGA.3L.AA1B")
 		checkEquals(names(x[[1]]), c("PatientID", "PtNum", "study", "Name", "Fields"))
 		checkEquals(names(x[[1]]$Fields), c("date", "disease", "siteCode"))
 		checkEquals(x[[1]], list(PatientID="TCGA.3L.AA1B", PtNum=1, study="TCGAcoad", Name="Diagnosis", Fields=list(date="01/01/2013", disease="COLON", siteCode="3L")))
 	}
-  if(study_name == "TCGAgbm"){
+	if(study_name == "TCGAgbm"){
 		x <- create.Diagnosis.records(study_name, "TCGA.02.0001")
 		checkEquals(names(x[[1]]), c("PatientID", "PtNum", "study", "Name", "Fields"))
 		checkEquals(names(x[[1]]$Fields), c("date", "disease", "siteCode"))
 		checkEquals(x[[1]], list(PatientID="TCGA.02.0001", PtNum=1, study="TCGAgbm", Name="Diagnosis", Fields=list(date="01/01/2002", disease="BRAIN", siteCode="02")))
 	}
-  if(study_name == "TCGAhnsc"){
+	if(study_name == "TCGAhnsc"){
 		x <- create.Diagnosis.records(study_name,  "TCGA.4P.AA8J")
 		checkEquals(names(x[[1]]), c("PatientID", "PtNum", "study", "Name", "Fields"))
 		checkEquals(names(x[[1]]$Fields), c("date", "disease", "siteCode"))
 		checkEquals(x[[1]], list(PatientID="TCGA.4P.AA8J", PtNum=1, study="TCGAhnsc", Name="Diagnosis", Fields=list(date="01/01/2013", disease="HEAD AND NECK", siteCode="4P")))
- 	}
-  if(study_name == "TCGAlgg"){
+		}
+	if(study_name == "TCGAlgg"){
 		x <- create.Diagnosis.records(study_name,  "TCGA.CS.6290")
 		checkEquals(names(x[[1]]), c("PatientID", "PtNum", "study", "Name", "Fields"))
 		checkEquals(names(x[[1]]$Fields), c("date", "disease", "siteCode"))
 		checkEquals(x[[1]], list(PatientID="TCGA.CS.6290", PtNum=1, study=study_name, Name="Diagnosis", Fields=list(date="01/01/2009", disease="CENTRAL NERVOUS SYSTEM", siteCode="CS")))
-    }
-  if(study_name == "TCGAluad"){
+	}
+	if(study_name == "TCGAluad"){
 		x <- create.Diagnosis.records(study_name,  "TCGA.05.4244")
 		checkEquals(names(x[[1]]), c("PatientID", "PtNum", "study", "Name", "Fields"))
 		checkEquals(names(x[[1]]$Fields), c("date", "disease", "siteCode"))
 		checkEquals(x[[1]], list(PatientID="TCGA.05.4244", PtNum=1, study=study_name, Name="Diagnosis", Fields=list(date="01/01/2009", disease="LUNG", siteCode="05")))
 	}
-  if(study_name == "TCGAlusc"){
+	if(study_name == "TCGAlusc"){
 		x <- create.Diagnosis.records(study_name,  "TCGA.18.3406")
 		checkEquals(names(x[[1]]), c("PatientID", "PtNum", "study", "Name", "Fields"))
 		checkEquals(names(x[[1]]$Fields), c("date", "disease", "siteCode"))
@@ -139,25 +173,50 @@ test_create.Diagnosis.records <- function(study_name)
 		x <- create.Diagnosis.records(study_name,  "TCGA.63.A5MI") #diagnosis. year == "[Not Available]"
 		checkEquals(x[[1]], list(PatientID="TCGA.63.A5MI", PtNum=263, study=study_name, Name="Diagnosis", Fields=list(date=as.character(NA), disease="LUNG", siteCode="63")))
 	}
-  if(study_name == "TCGAprad"){
+	if(study_name == "TCGAprad"){
 		x <- create.Diagnosis.records(study_name,  "TCGA.2A.A8VL")
 		checkEquals(names(x[[1]]), c("PatientID", "PtNum", "study", "Name", "Fields"))
 		checkEquals(names(x[[1]]$Fields), c("date", "disease", "siteCode"))
 		checkEquals(x[[1]], list(PatientID="TCGA.2A.A8VL", PtNum=1, study="TCGAprad", Name="Diagnosis", Fields=list(date="01/01/2010", disease="PROSTATE", siteCode="2A")))
 	}
-  if(study_name == "TCGAread"){
+	if(study_name == "TCGAread"){
 		x <- create.Diagnosis.records(study_name,  "TCGA.AF.2687")
 		checkEquals(names(x[[1]]), c("PatientID", "PtNum", "study", "Name", "Fields"))
 		checkEquals(names(x[[1]]$Fields), c("date", "disease", "siteCode"))
 		checkEquals(x[[1]], list(PatientID= "TCGA.AF.2687", PtNum=1, study=study_name, Name="Diagnosis", Fields=list(date="01/01/2009", disease="RECTUM", siteCode= "AF")))
+	}
+	if(study_name == "TCGAsarc"){
+		x <- create.Diagnosis.records(study_name,  "TCGA.HS.A5N7")
+		checkEquals(names(x[[1]]), c("PatientID", "PtNum", "study", "Name", "Fields"))
+		checkEquals(names(x[[1]]$Fields), c("date", "disease", "siteCode"))
+		checkEquals(x[[1]], list(PatientID= "TCGA.HS.A5N7", PtNum=152, study=study_name, Name="Diagnosis", 
+							Fields=list(date=as.character(NA), disease="RETROPERITONEUM/UPPER ABDOMINAL - RETROPERITONEUM", siteCode= "HS")))
+	}
+	if(study_name == "TCGAlaml"){
+		x <- create.Diagnosis.records(study_name,  "TCGA.AB.2811")
+		checkEquals(names(x[[1]]), c("PatientID", "PtNum", "study", "Name", "Fields"))
+		checkEquals(names(x[[1]]$Fields), c("date", "disease", "siteCode"))
+		checkEquals(x[[1]], list(PatientID= "TCGA.AB.2811", PtNum=10, study=study_name, Name="Diagnosis", Fields=list(date="01/01/2002", disease="BONE MARROW", siteCode= "AB")))
+	}
+	if(study_name == "TCGAblca"){
+		x <- create.Diagnosis.records(study_name,  "TCGA.HQ.A2OF")
+		checkEquals(names(x[[1]]), c("PatientID", "PtNum", "study", "Name", "Fields"))
+		checkEquals(names(x[[1]]$Fields), c("date", "disease", "siteCode"))
+		checkEquals(x[[1]], list(PatientID= "TCGA.HQ.A2OF", PtNum=277, study=study_name, Name="Diagnosis", Fields=list(date=as.character(NA), disease="BLADDER", siteCode= "HQ")))
+	}
+	if(study_name == "TCGApaad"){
+		x <- create.Diagnosis.records(study_name,  "TCGA.M8.A5N4")
+		checkEquals(names(x[[1]]), c("PatientID", "PtNum", "study", "Name", "Fields"))
+		checkEquals(names(x[[1]]$Fields), c("date", "disease", "siteCode"))
+		checkEquals(x[[1]], list(PatientID= "TCGA.M8.A5N4", PtNum=159, study=study_name, Name="Diagnosis", Fields=list(date=as.character(NA),  disease="PANCREAS", siteCode= "M8")))
 	}
 }
 lapply(studies, test_create.Diagnosis.records)
 #-------------------------------------------------------------------------------------------------------------------------- 
 test_create.Chemo.records <- function(study_name)
 {
-  print("--- test_create.Chemo.record")
-  if(study_name == "TCGAbrca"){
+	print("--- test_create.Chemo.record")
+	if(study_name == "TCGAbrca"){
 		x <- create.Chemo.records(study_name, "TCGA.3C.AAAU")
 		checkTrue(is.list(x))
 		checkEquals(length(x), 1)
@@ -178,8 +237,8 @@ test_create.Chemo.records <- function(study_name)
 						Fields=list(date=c("02/13/2013", "08/26/2013"), agent="FLUOROURACIL", therapyType="CHEMOTHERAPY",  
 									intent=as.character(NA), dose=as.character(NA), units=as.character(NA), totalDose=as.character(NA), 
 									totalDoseUnits=as.character(NA), route=as.character(NA), cycle=as.character(NA))))
-      	}
-  if(study_name == "TCGAcoad"){
+	}
+	if(study_name == "TCGAcoad"){
 		x <- create.Chemo.records(study_name, "TCGA.A6.2671")
 		checkTrue(is.list(x))
 		checkEquals(length(x), 22)
@@ -207,9 +266,8 @@ test_create.Chemo.records <- function(study_name)
 										therapyType=as.character(NA), intent="PRIOR MALIGNANCY", dose=as.character(NA), 
 										units=as.character(NA), totalDose=as.character(NA), totalDoseUnits=as.character(NA), 
 										route=as.character(NA), cycle=as.character(NA))))
-
-		}
-  if(study_name == "TCGAgbm"){
+	}
+	if(study_name == "TCGAgbm"){
 		x <- create.Chemo.records(study_name, "TCGA.02.0001")
 		checkTrue(is.list(x))
 		checkEquals(length(x), 4)
@@ -251,8 +309,8 @@ test_create.Chemo.records <- function(study_name)
 							Fields=list(date=c(as.character(NA), as.character(NA)),  agent=as.character(NA), therapyType=as.character(NA),
 										intent="PRIOR MALIGNANCY", dose=as.character(NA), units=as.character(NA), totalDose=as.character(NA),  
 										totalDoseUnits=as.character(NA) , route=as.character(NA), cycle=as.character(NA))))
-      	}
-  if(study_name == "TCGAhnsc"){
+	}
+	if(study_name == "TCGAhnsc"){
 		x <- create.Chemo.records(study_name, "TCGA.BA.4075")
 		checkTrue(is.list(x))
 		checkEquals(length(x), 3)
@@ -291,8 +349,8 @@ test_create.Chemo.records <- function(study_name)
 						Fields=list(date=c("09/21/2004", "10/19/2004"), agent="CARBOPLATIN", therapyType="CHEMOTHERAPY", 
 								intent="PALLIATIVE" , dose="2", units="AUC", totalDose=as.character(NA), totalDoseUnits=as.character(NA), 
 								route=as.character(NA), cycle=as.character(NA))))
-		}
-  if(study_name == "TCGAlgg"){
+	}
+	if(study_name == "TCGAlgg"){
 		x <- create.Chemo.records(study_name, "TCGA.CS.6290")
 		checkTrue(is.list(x))
 		checkEquals(length(x), 1)
@@ -310,9 +368,8 @@ test_create.Chemo.records <- function(study_name)
 						Fields=list(date=c("04/28/1998", "05/03/1998"), agent="TEMOZOLOMIDE", therapyType="CHEMOTHERAPY", 
 									intent="PROGRESSION"  , dose="100", units="MG/M2", totalDose="200", 
 									totalDoseUnits="MG", route="ORAL", cycle="01")))
-
-		}
-  if(study_name == "TCGAluad"){
+	}
+	if(study_name == "TCGAluad"){
 		x <- create.Chemo.records(study_name, "TCGA.75.7030")
 		checkTrue(is.list(x))
 		checkEquals(length(x), 2)
@@ -351,8 +408,8 @@ test_create.Chemo.records <- function(study_name)
 						Fields=list(date=c(as.character(NA),as.character(NA)), agent=as.character(NA), therapyType=as.character(NA), 
 									intent="PRIOR MALIGNANCY" ,dose=as.character(NA), units=as.character(NA), totalDose=as.character(NA), 
 									totalDoseUnits=as.character(NA), route=as.character(NA), cycle=as.character(NA))))
-		}
-  if(study_name == "TCGAlusc"){
+	}
+	if(study_name == "TCGAlusc"){
 		x <- create.Chemo.records(study_name, "TCGA.18.3412")
 		checkTrue(is.list(x))
 		checkEquals(length(x), 3)
@@ -369,8 +426,8 @@ test_create.Chemo.records <- function(study_name)
 					Fields=list(date=c("08/01/2013", "11/08/2013"), agent="CARBOPLATIN", therapyType="CHEMOTHERAPY", 
 								intent=as.character(NA) , dose=as.character(NA), units=as.character(NA), totalDose=as.character(NA), 
 								totalDoseUnits=as.character(NA), route=as.character(NA), cycle=as.character(NA))))
-      	}
-  if(study_name == "TCGAprad"){
+	}
+	if(study_name == "TCGAprad"){
 		x <- create.Chemo.records(study_name, "TCGA.V1.A8MU")
 		checkTrue(is.list(x))
 		checkEquals(length(x), 1)
@@ -381,9 +438,8 @@ test_create.Chemo.records <- function(study_name)
 						Fields=list(date=c(as.character(NA),as.character(NA)), agent= "LHRH AGONIST", therapyType="HORMONE THERAPY",
 								intent=as.character(NA) , dose=as.character(NA), units=as.character(NA), totalDose=as.character(NA), 
 								totalDoseUnits=as.character(NA), route=as.character(NA), cycle=as.character(NA))))
-    
-      	}
-  if(study_name == "TCGAread"){
+	}
+	if(study_name == "TCGAread"){
 		x <- create.Chemo.records(study_name, "TCGA.AF.A56N")
 		checkTrue(is.list(x))
 		checkEquals(length(x), 2)
@@ -394,7 +450,7 @@ test_create.Chemo.records <- function(study_name)
 						Fields=list(date=c("06/08/2012", "12/13/2012"), agent="XELODA", therapyType="CHEMOTHERAPY", 
 								intent=as.character(NA) , dose=as.character(NA), units=as.character(NA), totalDose=as.character(NA), 
 								totalDoseUnits=as.character(NA), route=as.character(NA), cycle=as.character(NA))))
-    
+
 
 		x <- create.Chemo.records(study_name, "TCGA.AG.3999")  #no start date
 		checkEquals(length(x), 1)
@@ -415,8 +471,74 @@ test_create.Chemo.records <- function(study_name)
 						Fields=list(date=c( "08/20/2009", "11/10/2009"), agent="OXALIPLATIN", therapyType="CHEMOTHERAPY",   
 									intent="PALLIATIVE", dose=as.character(NA), units=as.character(NA), totalDose=as.character(NA), 
 									totalDoseUnits=as.character(NA), route="INTRAVENOUS (IV)", cycle="3")))
-   
-      	}
+	}
+	if(study_name == "TCGAsarc"){
+		x <- create.Chemo.records(study_name, "TCGA.IW.A3M6")
+		checkTrue(is.list(x))
+		checkEquals(length(x), 3)
+		checkEquals(names(x[[1]]), c("PatientID", "PtNum", "study", "Name", "Fields"))
+		checkEquals(names(x[[1]][["Fields"]]), c("date", "agent", "therapyType", "intent", 
+						"dose", "units", "totalDose", "totalDoseUnits", "route", "cycle"))
+		checkEquals(x[[1]], list(PatientID= "TCGA.IW.A3M6", PtNum=171, study=study_name, Name="Drug", 
+						Fields=list(date=c("01/25/2011", "02/15/2011"), agent="DOCETAXEL", therapyType="CHEMOTHERAPY", 
+								intent=as.character(NA) , dose=as.character(NA), units=as.character(NA), totalDose=as.character(NA), 
+								totalDoseUnits=as.character(NA), route=as.character(NA), cycle=as.character(NA))))
+		checkEquals(x[[3]], list(PatientID= "TCGA.IW.A3M6", PtNum=171, study=study_name, Name="Drug", 
+						Fields=list(date=c(as.character(NA), as.character(NA)), agent="REQUIRE MANUAL CHECK", therapyType=as.character(NA), 
+								intent="PRIOR MALIGNANCY" , dose=as.character(NA), units=as.character(NA), totalDose=as.character(NA), 
+								totalDoseUnits=as.character(NA), route=as.character(NA), cycle=as.character(NA))))
+
+
+		x <- create.Chemo.records(study_name, "TCGA.3B.A9HO")  #no start date
+		checkEquals(length(x), 1)
+		checkEquals(x[[1]], list(PatientID= "TCGA.3B.A9HO", PtNum=4, study=study_name, Name="Drug", 
+						Fields=list(date=c("02/11/2010", as.character(NA)), agent="REQUIRE MANUAL CHECK", therapyType=as.character(NA), 
+								intent="PRIOR MALIGNANCY" , dose=as.character(NA), units=as.character(NA), totalDose=as.character(NA), 
+								totalDoseUnits=as.character(NA), route=as.character(NA), cycle=as.character(NA))))
+		x <- create.Chemo.records(study_name, "TCGA.DX.A6BK")  # no end date
+		checkEquals(x[[1]], list(PatientID= "TCGA.DX.A6BK", PtNum=76, study=study_name, Name="Drug", 
+						Fields=list(date=c("04/26/1992", as.character(NA)), agent="TAMOXIFEN", therapyType=as.character(NA), 
+								intent="PRIOR MALIGNANCY" , dose=as.character(NA), units=as.character(NA), totalDose=as.character(NA), 
+								totalDoseUnits=as.character(NA), route=as.character(NA), cycle=as.character(NA))))
+	}
+	if(study_name == "TCGAlaml"){
+		x <- create.Chemo.records(study_name, "TCGA.AB.3012")
+		checkTrue(!is.list(x))
+	}
+	if(study_name == "TCGAblca"){
+		x <- create.Chemo.records(study_name, "TCGA.2F.A9KT")
+		checkEquals(length(x), 2)
+		checkEquals(x[[2]], list(PatientID= "TCGA.2F.A9KT", PtNum=5, study=study_name, Name="Drug", 
+						Fields=list(date=c(as.character(NA), as.character(NA)), agent=as.character(NA), therapyType=as.character(NA), 
+								intent="PRIOR MALIGNANCY" , dose=as.character(NA), units=as.character(NA), totalDose=as.character(NA), 
+								totalDoseUnits=as.character(NA), route=as.character(NA), cycle=as.character(NA))))
+		x <- create.Chemo.records(study_name, "TCGA.DK.A1A7")
+		checkEquals(length(x), 2)
+		checkEquals(x[[1]], list(PatientID= "TCGA.DK.A1A7", PtNum=91, study=study_name, Name="Drug", 
+						Fields=list(date=c("05/14/2010", "09/04/2010"), agent="CISPLATIN", therapyType="CHEMOTHERAPY", 
+								intent=as.character(NA) , dose=as.character(NA), units=as.character(NA), totalDose=as.character(NA), 
+								totalDoseUnits=as.character(NA), route=as.character(NA), cycle=as.character(NA))))
+		checkEquals(x[[2]], list(PatientID= "TCGA.DK.A1A7", PtNum=91, study=study_name, Name="Drug", 
+						Fields=list(date=c("05/14/2010", "09/04/2010"), agent="GEMZAR", therapyType="CHEMOTHERAPY", 
+								intent="PROGRESSION" , dose="1000", units="MG/M2", totalDose="1300", 
+								totalDoseUnits="MG", route="IV", cycle="6")))
+	}
+	if(study_name == "TCGApaad"){
+		x <- create.Chemo.records(study_name, "TCGA.3A.A9IJ")
+		checkEquals(length(x), 1)
+		checkEquals(x[[1]], list(PatientID= "TCGA.3A.A9IJ", PtNum=30, study=study_name, Name="Drug", 
+						Fields=list(date=c(as.character(NA), as.character(NA)), agent=as.character(NA), therapyType=as.character(NA), 
+								intent="PRIOR MALIGNANCY" , dose=as.character(NA), units=as.character(NA), totalDose=as.character(NA), 
+								totalDoseUnits=as.character(NA), route=as.character(NA), cycle=as.character(NA))))
+		x <- create.Chemo.records(study_name, "TCGA.LB.A7SX")
+		checkEquals(length(x), 3)
+		checkEquals(x[[3]], list(PatientID= "TCGA.LB.A7SX", PtNum=156, study=study_name, Name="Drug", 
+						Fields=list(date=c(as.character(NA), as.character(NA)), agent=as.character(NA), therapyType=as.character(NA), 
+								intent="PRIOR MALIGNANCY" , dose=as.character(NA), units=as.character(NA), totalDose=as.character(NA), 
+								totalDoseUnits=as.character(NA), route=as.character(NA), cycle=as.character(NA))))
+		checkEquals(x[[1]]$Fields$date, c("04/24/2013", "06/27/2013"))
+		checkEquals(x[[2]]$Fields$agent, "PACLITAXEL")
+	}
 }
 lapply(studies, test_create.Chemo.records)
 #-------------------------------------------------------------------------------------------------------------------------- 
