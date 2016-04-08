@@ -5,13 +5,13 @@ library(R.utils)
 library(stringr)
 library(plyr)
 
-<<<<<<< HEAD
-stopifnot(file.exists("TCGA_Reference_Filenames.txt")) 
-TCGAfilename<-read.table("TCGA_Reference_Filenames.txt", sep="\t", header=TRUE)
-=======
-stopifnot(file.exists("TCGA_Reference_Filenames_jz.txt")) 
-TCGAfilename<-read.table("TCGA_Reference_Filenames_jz.txt", sep="\t", header=TRUE)
->>>>>>> 10a2e76521f2e3a63b22fe41311e816f2822d00d
+
+stopifnot(file.exists("TCGA_Reference_Filenames_gh.txt")) 
+TCGAfilename<-read.table("TCGA_Reference_Filenames_gh.txt", sep="\t", header=TRUE)
+
+#stopifnot(file.exists("TCGA_Reference_Filenames_jz.txt")) 
+#TCGAfilename<-read.table("TCGA_Reference_Filenames_jz.txt", sep="\t", header=TRUE)
+
 ##===load drug reference table ===
 drug_ref <- read.table("drug_names_10272015.txt", sep="\t", header=TRUE)
 rad_ref <- read.table("rad_ref_02232016.txt", sep="\t", header=TRUE)
@@ -295,7 +295,7 @@ if(DOB){
 	#--------------------------------------------------------------------------------
 	DOB.unique.values <- Reduce(DOB.unique.aggregate, lapply(studies, DOB.unique.request))
 	DOB.mapping.dob <- function(df){
-		from <- DOB.unique.values$unique.race
+		from <- DOB.unique.values$unique.dob
 		to 	 <- from 
 		to[match("[NOT AVAILABLE]", to)] <- NA
 		df$dob <- mapvalues(df$dob, from = from, to = to, warn_missing = F)
@@ -308,7 +308,7 @@ if(DOB){
 	}	
 	#--------------------------------------------------------------------------------
 	DOB.mapping.gender <- function(df){
-		from <- DOB.unique.values$unique.race
+		from <- DOB.unique.values$unique.gender
 		to 	 <- from 
 		to[match(c("[UNKNOWN]","[NOT AVAILABLE]","[NOT EVALUATED]"), to)] <- NA
 		df$gender <- mapvalues(df$gender, from = from, to = to, warn_missing = F)
