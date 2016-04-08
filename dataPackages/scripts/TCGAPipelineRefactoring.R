@@ -475,8 +475,8 @@ if(DRUG){
 	#--------------------------------------------------------------------------------
 	Drug.unique.values <- Reduce(Drug.unique.aggregate, lapply(studies, Drug.unique.request))
 	Drug.mapping.date <- function(df){
-		df$drugStart[which(df$drugStart %in% c("[Not Available]","[Pending]"))] <- NA
-		df$drugEnd[which(df$drugEnd == "[Not Available]")] <- NA
+		df$drugStart[which(df$drugStart %in% c("[NOT AVAILABLE]","[Not Available]","[Pending]"))] <- NA
+		df$drugEnd[which(df$drugEnd == "[NOT AVAILABLE]")] <- NA
 
 		df$start[which(is.na(df$drugStart))] <- NA
 		df$end[which(is.na(df$drugEnd))] <- NA
@@ -489,7 +489,16 @@ if(DRUG){
 	}	
 	#--------------------------------------------------------------------------------
 	Drug.mapping.agent <- function(df){
-		df$agent <- drug_ref[match(df$agent,drug_ref$COMMON.NAMES),]$STANDARDIZED.NAMES	
+		if(length(which(df$agent %in% drug_ref$COMMON.NAMES)) > 0 ) {
+			df$agent <- drug_ref[match(df$agent,drug_ref$COMMON.NAMES),]$STANDARDIZED.NAMES	
+		}
+		if(length(which(!df$agent %in% drug_ref$COMMON.NAMES)) > 0){
+			common.names <- df$agent[which(!df$agent %in% drug_ref$COMMON.NAMES)]
+			standardized.names <- rep("REQUIRE MANUAL CHECK", length(common.names))
+			m <- data.frame(COMMON.NAMES=common.names, STANDARDIZED.NAMES=standardized.names)
+			drug_ref <- rbind(drug_ref, m)
+			write.csv(drug_ref, file=paste("drug_ref_", study_name,".csv", sep=""))
+		}
 		return(df)
 	}	
 	#--------------------------------------------------------------------------------
@@ -2332,7 +2341,7 @@ create.DOB.records <- function(study_name, ptID){
 	data.DOB <- loadData(uri, 
 	             list(
 				    'bcr_patient_barcode' = list(name = "PatientID", data = "tcgaId"),
-				    'birth_days_to' = list(name = "dob", data = "character"),
+				    'birth_days_to' = list(name = "dob", data = "upperCharacter"),
 				    'gender' = list(name = "gender", data = "upperCharacter"),
 				    'ethnicity' = list(name = "ethnicity", data ="upperCharacter"),
 				    'race' = list(name = "race", data = "upperCharacter"),
@@ -2428,8 +2437,8 @@ create.Chemo.records <- function(study_name,  ptID){
 				tbl.drug <- loadData(uri[2], 
 				              list(
 							     'bcr_patient_barcode' = list(name = "PatientID", data = "tcgaId"),
-							     'pharmaceutical_tx_started_days_to' = list(name = "drugStart", data = "character"),
-							     'pharmaceutical_tx_ended_days_to' = list(name = "drugEnd", data = "character"),
+							     'pharmaceutical_tx_started_days_to' = list(name = "drugStart", data = "upperCharacter"),
+							     'pharmaceutical_tx_ended_days_to' = list(name = "drugEnd", data = "upperCharacter"),
 							     'pharmaceutical_therapy_drug_name' = list(name = "agent", data = "upperCharacter"),
 							     'pharmaceutical_therapy_type' = list(name = "therapyType", data = "upperCharacter"),
 							     'therapy_regimen' = list(name = "intent", data = "upperCharacter"),
@@ -2464,7 +2473,6 @@ create.Chemo.records <- function(study_name,  ptID){
 	    	data.Chemo <- merge(tbl.f, tbl.pt, by = "PatientID", all.x = T)
 		    data.Chemo$start <- rep(NA,nrow(data.Chemo))
 		    data.Chemo$end <- rep(NA,nrow(data.Chemo))
-		    
 		    # mapping
 		    data.Chemo <- Drug.mapping.date(data.Chemo)
 			data.Chemo <- Drug.mapping.agent(data.Chemo)
