@@ -81,7 +81,6 @@
                     drawTimeline(patients, feature, events, sort, align, rowHeight);
                 };
 
-
                 var drawFeature = function(patients, feature, events, sort, align, rowHeight){
                     var svgFeatures;
                     if (feature.index==-1){

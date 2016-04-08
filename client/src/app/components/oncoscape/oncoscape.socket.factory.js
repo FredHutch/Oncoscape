@@ -10,6 +10,13 @@
        
         // Object To Store Call Back Promises
         var callbacks = {};
+        var dataSource;
+        var getDataSource = function() { 
+            return dataSource; 
+        }
+        var setDataSource = function(value){
+            dataSource = value;
+        }
 
         // Request Ids Used To Coorelate Request With Callback
         var requestId = 1;
@@ -47,6 +54,7 @@
             request.callback = getRequestId();
             request.status = "request";
             request.payload = request.payload || "";
+            request.ds = getDataSource();
 
             // Store Promise In Callback Object
             var deferred = $q.defer();
@@ -70,7 +78,8 @@
 
         // Return Object
         return {
-            request: request
+            request: request,
+            setDataSource: setDataSource
         };
     }
 })();

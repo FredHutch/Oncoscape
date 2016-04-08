@@ -35,9 +35,12 @@
                 angular.element(".container-filters").toggleClass("container-filters-collapsed");
                 angular.element(".container-filter-toggle").toggleClass("container-filter-toggle-collapsed");
             }
+            vm.optNodeColors = [{name: 'Default'},{name: 'Gender'},{name: 'Age At Diagnosis'}];
+            vm.optNodeColor = vm.optNodeColors[0];
 
             // Filters
             var rawData;
+            var rawPatientData;
             var pfApi = osApi.getPatientFilterApi();
             pfApi.init(vm.datasource);
             pfApi.onSelect.add(draw);
@@ -47,7 +50,6 @@
                 pfApi.addFilter(vm.cohort, d3.selectAll(".pca-node-selected")[0].map(function(data) { return data.__data__.id }) );
                 vm.cohort = "";
             };
-
 
             // Elements
             var elChart = angular.element("#pca-chart");
@@ -66,21 +68,36 @@
             // Initalizae
             osApi.setBusy(true)("Loading Dataset");
             osApi.setDataset(vm.datasource).then(function(response) {
-                var mtx = response.payload.rownames.filter(function(v) {
-                    return v.indexOf("mtx.mrna") >= 0
-                });
 
-                mtx = mtx[mtx.length - 1].replace(".RData", "");
-                osApi.setBusyMessage("Creating PCA Matrix");
-                osApi.getPCA(vm.datasource, mtx).then(function() {
-                    osApi.setBusyMessage("Loading Gene Sets");
-                    osApi.getGeneSetNames().then(function(response) {
+                debugger;
+                var mtx = response.payload.rownames.filter(function(v) { return v.indexOf("mtx.mrna") >= 0 });
 
-                        // Load Gene Sets
-                        vm.geneSets = response.payload;
-                        vm.geneSet = vm.geneSets[0];
-                        $scope.$watch('vm.geneSet', function() {
-                            update();
+                    // Patient Data
+                osApi.getPatientHistoryTable(vm.datasource).then(function(response) {
+
+                    debugger;
+
+                    rawPatientData = response.payload.tbl;
+                    mtx = mtx[mtx.length - 1].replace(".RData", "");
+                    osApi.setBusyMessage("Creating PCA Matrix");
+                    osApi.getPCA(vm.datasource, mtx).then(function() {
+
+                        debugger;
+
+                        osApi.setBusyMessage("Loading Gene Sets");
+                        osApi.getGeneSetNames().then(function(response) {
+
+debugger;
+
+                            // Load Gene Sets
+                            vm.geneSets = response.payload;
+                            vm.geneSet = vm.geneSets[0];
+                            $scope.$watch('vm.geneSet', function() {
+                                update();
+                            });
+                            $scope.$watch('vm.optNodeColor', function() {
+                            
+                            });
                         });
                     });
                 });
@@ -94,6 +111,7 @@
                     var payload = response.payload;
                     vm.pc1 = Math.round(response.payload["importance.PC1"] * 100);
                     vm.pc2 = Math.round(response.payload["importance.PC2"] * 100);
+                    // Error Patient Ids From Server Are Different Than 
                     var scores = payload.scores;
                     var ids = payload.ids;
                     rawData = scores.map(function(d, i){

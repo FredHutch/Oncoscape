@@ -12,6 +12,7 @@
         var onDataSource = new signals.Signal();
         function getDataSource(){ return _dataSource; }
         function setDataSource(value){
+            osSocket.setDataSource(value);
             _dataSource = value;
             onDataSource.dispatch(_dataSource);
         }
@@ -114,6 +115,7 @@
 
         /*** R Service Calls ***/
         function setDataset(dataPackage) {
+            osSocket.setDataSource(dataPackage);
             return osSocket.request({
                 cmd: "specifyCurrentDataset",
                 payload: dataPackage
@@ -284,6 +286,48 @@
             });
         }
 
+        var _cohortPatient = collection(signals);
+        function getCohortPatient(){ return _cohortPatient; }
+
+        var _cohortGene = collection(signals);
+        function getCohortGene(){ return _cohortGene; }
+
+        function collection(signals){
+            var onAdd = new signals.Signal();
+            var onRemove = new signals.Signal();
+            var _collection = [];
+            function get() { return _collection; }
+            function add(value){ 
+                _collection.push(value); 
+                onAdd.dispatch(_collection);
+            }
+            function remove(value){
+                _collection.splice(_collection.indexOf(value)); 
+                onRemove.dispatch(_collection);
+            }
+            function save(key){
+
+            }
+            function load(key){
+
+            }
+            function destroy(){
+                // onAdd.removeAll();
+                // onRemove.removeAll();
+            }
+            return{
+                get: get,
+                add: add,
+                remove: remove,
+                onAdd: onAdd,
+                onRemove: onRemove,
+                save: save,
+                load:load,
+                destroy: destroy
+            }
+        }
+
+
         /*** Filter Api ***/
         var _patientFilterApi = filter();
         function getPatientFilterApi() { return _patientFilterApi; }
@@ -372,6 +416,8 @@
         }
   
         return {
+            getCohortPatient: getCohortPatient,
+            getCohortGene: getCohortGene,
             setDataSource: setDataSource,
             getDataSource: getDataSource,
             onDataSource: onDataSource,

@@ -29,10 +29,29 @@
                 });
             };
 
+            var nameMap = {
+                "DEMOdz" : "Glioblastoma (DEMO)",
+                "TCGAbrain": "Brain (TCGA)",
+                "TCGAbrca": "Breast (TCGA)",
+                "TCGAcoadread": "Colorectal (TCGA)",
+                "TCGAgbm": "Glioblastoma (TCGA)",
+                "TCGAhnsc": "Head + Neck (TCGA)",
+                "TCGAlgg" : "Lower Grade Glioma (TCGA)",
+                "TCGAluad": "Lung Adenocarcinoma (TCGA)",
+                "TCGAlung": "Lung (TCGA)",
+                "TCGAlusc": "Lung Sasquamous Cell (TCGA)",
+                "TCGApaad": "Pancreas (TCGA)",
+                "TCGAprad": "Prostate (TCGA)"
+            };
+
+
             // Load Datasets
             osApi.setBusy(true);
             osApi.getDataSetNames().then(function(response) {
-                vm.datasets = response.payload.datasets;
+                var datasets = response.payload.datasets;
+                vm.datasets = datasets.map(function(item){
+                    return {name: this[item], id: item}
+                }, nameMap)
                 osApi.setBusy(false);
             });
         }

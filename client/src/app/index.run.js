@@ -7,6 +7,20 @@
 
     /** @ngInject */
     function runBlock($rootScope, $state, $window, $exceptionHandler, osApi) {
+        console.log("  ___  _ __   ___ ___  ___  ___ __ _ _ __   ___ \n / _ \\| '_ \\ / __/ _ \\/ __|/ __/ _` | '_ \\ / _ \\\n| (_) | | | | (_| (_) \\__ \\ (_| (_| | |_) |  __/\n \\___/|_| |_|\\___\\___/|___/\\___\\__,_| .__/ \\___|\n                                    |_|         ");
+
+        // Route Errors To Angular
+        $window.onerror = function handleGlobalError( message, fileName, lineNumber, columnNumber, error ) {
+            if ( ! error ) {
+                error = new Error( message );
+                error.fileName = fileName;
+                error.lineNumber = lineNumber;
+                error.columnNumber = ( columnNumber || 0 );
+            }
+            $exceptionHandler( error );
+        }
+
+
 
 
         // Actions To Take On State Change

@@ -34,17 +34,6 @@
                 angular.element(".container-filter-toggle").toggleClass("container-filter-toggle-collapsed");
             };
 
-
-            angular.element(".legand-toggle")
-                .mouseover(function(){
-                    angular.element(".legand-toggle").removeClass("legand-toggle-collapse");
-                })
-                .mouseout(function(){
-                    angular.element(".legand-toggle").addClass("legand-toggle-collapse");
-                })
-
-
-
             // Load Data
             osApi.setBusy(true);
             loadData(osApi, vm, function(data){

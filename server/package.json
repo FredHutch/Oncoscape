@@ -17,10 +17,6 @@
     "soap": "^0.12.0",
     "sockjs": "^0.3.15"
   },
-  "devDependencies": {
-    "pdfkit": "^0.7.2",
-    "rstats": "file:rstats"
-  },
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1"
   },

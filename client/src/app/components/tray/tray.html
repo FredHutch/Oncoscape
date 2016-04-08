@@ -1,0 +1,11 @@
+<div class="tray">
+    <span class="tray-label">
+		<i class="glyphicon glyphicon-th-list"></i>
+		&nbsp;&nbsp;{{vm.caption}}
+		<i class="glyphicon glyphicon-remove tray-sticky-icon" style="float:right"
+		ng-click="vm.toggleSticky()"></i>
+	</span>
+    <div class="tray-content">
+        <ng-transclude></ng-transclude>
+    </div>
+</div>

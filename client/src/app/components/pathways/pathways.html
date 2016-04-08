@@ -1,6 +1,6 @@
 <section class="pathways container container-filters">
     
-    <h2>Pathways &mdash; {{vm.datasource}}</h2>
+    <h2>Pathways</h2>
     
     <div class="row">
         <div class="col-xs-3">
@@ -16,21 +16,9 @@
     <img src="/assets/images/arrow_down.png" ng-click="vm.toggleFilter()">
 </section>
 
-<section id="gbm-chart" class="pathways-chart">
-</section>
 
-<div class="modal fade pathways" id="gbm-webpage" tabindex="-1" role="dialog" aria-labelledby="myModalLabel">
-    <div class="modal-dialog" role="document">
-        <div class="modal-content">
-            <div class="modal-header">
-                <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
-                <h4 class="modal-title" id="myModalLabel">{{vm.tip}}</h4>
-            </div>
-            <iframe class="modal-iframe" ng-src="{{vm.frame}}" />
-        </div>
-    </div>
-</div>
 <!-- Legand -->
+<os-tray caption="Legend" style="position: absolute;">
 <section class="legend">
     <ul>
         <li class="legend-section">Legend</li>
@@ -47,11 +35,20 @@
             Genes
         </li>
     </ul>
-    <ul class="legand" ng-if="vm.tip">
-        <li>
-            <hr>
-        </li>
-        <li class="legend-section">Click To</li>
-        <li>View {{vm.tip}}</li>
-    </ul>
 </section>
+</os-tray>
+<section id="gbm-chart" class="pathways-chart">
+</section>
+
+<div class="modal fade pathways" id="gbm-webpage" tabindex="-1" role="dialog" aria-labelledby="myModalLabel">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+                <h4 class="modal-title" id="myModalLabel">{{vm.tip}}</h4>
+            </div>
+            <iframe class="modal-iframe" ng-src="{{vm.frame}}" />
+        </div>
+    </div>
+</div>
+
