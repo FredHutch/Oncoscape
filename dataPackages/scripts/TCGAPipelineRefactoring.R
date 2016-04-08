@@ -6,11 +6,11 @@ library(stringr)
 library(plyr)
 
 
-stopifnot(file.exists("TCGA_Reference_Filenames_gh.txt")) 
-TCGAfilename<-read.table("TCGA_Reference_Filenames_gh.txt", sep="\t", header=TRUE)
+#stopifnot(file.exists("TCGA_Reference_Filenames.txt")) 
+#TCGAfilename<-read.table("TCGA_Reference_Filenames.txt", sep="\t", header=TRUE)
 
-#stopifnot(file.exists("TCGA_Reference_Filenames_jz.txt")) 
-#TCGAfilename<-read.table("TCGA_Reference_Filenames_jz.txt", sep="\t", header=TRUE)
+stopifnot(file.exists("TCGA_Reference_Filenames_jz.txt")) 
+TCGAfilename<-read.table("TCGA_Reference_Filenames_jz.txt", sep="\t", header=TRUE)
 
 ##===load drug reference table ===
 drug_ref <- read.table("drug_names_10272015.txt", sep="\t", header=TRUE)
