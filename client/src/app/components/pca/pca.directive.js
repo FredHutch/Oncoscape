@@ -19,24 +19,23 @@
         return directive;
 
         /** @ngInject */
-        function PcaController(osApi, $state, $stateParams, $timeout, $scope, d3) {
+        function PcaController(osApi, $state, $stateParams, $timeout, $scope, d3, $window) {
 
-            if (angular.isUndefined($stateParams.datasource)){
+            if (angular.isUndefined($stateParams.datasource)) {
                 $state.go("datasource");
                 return;
             }
 
-            // State
+            // View Model
             var vm = this;
             vm.datasource = $stateParams.datasource;
             vm.geneSets = [];
             vm.geneSet = null;
-            vm.toggleFilter = function() {
-                angular.element(".container-filters").toggleClass("container-filters-collapsed");
-                angular.element(".container-filter-toggle").toggleClass("container-filter-toggle-collapsed");
-            }
-            vm.optNodeColors = [{name: 'Default'},{name: 'Gender'},{name: 'Age At Diagnosis'}];
+            vm.optNodeColors = [{name: 'Default'}, {name: 'Gender'}, {name: 'Age At Diagnosis'}];
             vm.optNodeColor = vm.optNodeColors[0];
+
+            // D3 Scale
+            var width, height, xScale, yScale, xMax, yMax, xAxis, yAxis;
 
             // Filters
             var rawData;
@@ -44,50 +43,40 @@
             var pfApi = osApi.getPatientFilterApi();
             pfApi.init(vm.datasource);
             pfApi.onSelect.add(draw);
-
             vm.cohort;
             vm.createCohort = function() {
-                pfApi.addFilter(vm.cohort, d3.selectAll(".pca-node-selected")[0].map(function(data) { return data.__data__.id }) );
+                pfApi.addFilter(vm.cohort, d3.selectAll(".pca-node-selected")[0].map(function(data) {
+                    return data.__data__.id
+                }));
                 vm.cohort = "";
             };
 
             // Elements
             var elChart = angular.element("#pca-chart");
-            var d3Chart = d3.select("#pca-chart")
-                .append("svg")
-                .attr("id", "chart");
-
+            var d3Chart = d3.select("#pca-chart").append("svg").attr("id", "chart");
             var d3xAxis = d3Chart.append("g");
             var d3yAxis = d3Chart.append("g");
-            
-            var d3Tooltip = d3.select("body")
-                .append("div")
-                .attr("class", "tooltip pca-tooltip")
-
+            var d3Tooltip = d3.select("body").append("div").attr("class", "tooltip pca-tooltip")
+            var xAxis, yAxis;
 
             // Initalizae
             osApi.setBusy(true)("Loading Dataset");
             osApi.setDataset(vm.datasource).then(function(response) {
+                var mtx = response.payload.rownames.filter(function(v) {
+                    return v.indexOf("mtx.mrna") >= 0
+                });
 
-                debugger;
-                var mtx = response.payload.rownames.filter(function(v) { return v.indexOf("mtx.mrna") >= 0 });
-
-                    // Patient Data
+                // Patient Data
                 osApi.getPatientHistoryTable(vm.datasource).then(function(response) {
-
-                    debugger;
 
                     rawPatientData = response.payload.tbl;
                     mtx = mtx[mtx.length - 1].replace(".RData", "");
                     osApi.setBusyMessage("Creating PCA Matrix");
                     osApi.getPCA(vm.datasource, mtx).then(function() {
 
-                        debugger;
 
                         osApi.setBusyMessage("Loading Gene Sets");
                         osApi.getGeneSetNames().then(function(response) {
-
-debugger;
 
                             // Load Gene Sets
                             vm.geneSets = response.payload;
@@ -95,13 +84,16 @@ debugger;
                             $scope.$watch('vm.geneSet', function() {
                                 update();
                             });
-                            $scope.$watch('vm.optNodeColor', function() {
-                            
-                            });
+                            // $scope.$watch('vm.optNodeColor', function() {
+
+                            // });
+
                         });
                     });
                 });
             });
+
+
 
             // API Call To Calculate PCA
             var update = function() {
@@ -114,7 +106,7 @@ debugger;
                     // Error Patient Ids From Server Are Different Than 
                     var scores = payload.scores;
                     var ids = payload.ids;
-                    rawData = scores.map(function(d, i){
+                    rawData = scores.map(function(d, i) {
                         d.id = ids[i];
                         return d;
                     }, payload.ids);
@@ -123,13 +115,27 @@ debugger;
                 });
             };
 
+            function setScale() {
+                width = window.innerWidth - 100; 
+                height = window.innerHeight - 190;
+                if (angular.element(".tray").attr("locked")=="true") width -= 300;
+
+                d3Chart
+                    .attr("width", '100%')
+                    .attr("height", height);
+                xScale = d3.scale.linear()
+                    .domain([-xMax, xMax])
+                    .range([0, width]).nice();
+
+                yScale = d3.scale.linear()
+                    .domain([-yMax, yMax])
+                    .range([height, 0]).nice();
+            }
+
             // Render
             function draw() {
-                
-                var dataset = rawData;
 
-                var width = elChart.width();
-                var height = elChart.height();
+                var dataset = rawData;
 
                 var max, min;
                 max = Math.abs(d3.max(dataset, function(d) {
@@ -138,79 +144,73 @@ debugger;
                 min = Math.abs(d3.min(dataset, function(d) {
                     return +d[0];
                 }));
-                var xMax = ((max > min) ? max : min) * 1.2;
+                xMax = ((max > min) ? max : min) * 1.2;
                 max = Math.abs(d3.max(dataset, function(d) {
                     return +d[1];
                 }));
                 min = Math.abs(d3.min(dataset, function(d) {
                     return +d[1];
                 }));
-                var yMax = ((max > min) ? max : min) * 1.2;
+                yMax = ((max > min) ? max : min) * 1.2;
 
-                var xScale = d3.scale.linear()
-                    .domain([-xMax, xMax])
-                    .range([0, width]);
+                setScale();
 
-                var yScale = d3.scale.linear()
-                    .domain([-yMax, yMax])
-                    .range([height, 0]);
-
-                var xAxis = d3.svg.axis()
+                xAxis = d3.svg.axis()
                     .scale(xScale)
                     .orient("top")
                     .ticks(5);
 
-                var yAxis = d3.svg.axis()
+                yAxis = d3.svg.axis()
                     .scale(yScale)
                     .orient("left")
                     .ticks(5);
 
                 // Brush
                 var brush = d3.svg.brush()
-                   .x(xScale)
-                   .y(yScale)
-                   .on("brushend", function(){
+                    .x(xScale)
+                    .y(yScale)
+                    .on("brushend", function() {
                         var bv = brush.extent();
                         d3Chart.selectAll("circle")
-                            .classed("pca-node-selected", function(d){
-                                return (d[0] > bv[0][0] && d[0] < bv[1][0] && d[1] > bv[0][1] && d[1] < bv[1][1]);                                
+                            .classed("pca-node-selected", function(d) {
+                                return (d[0] > bv[0][0] && d[0] < bv[1][0] && d[1] > bv[0][1] && d[1] < bv[1][1]);
                             });
                         d3.select(this).transition().duration(300)
-                            .call( brush.extent([[0,0],[0,0]]) );
-                   });
+                            .call(brush.extent([
+                                [0, 0],
+                                [0, 0]
+                            ]));
+                    });
 
                 d3Chart.call(brush);
 
-                dataset = pfApi.filter(rawData, function(p){ return p.id });
-                
-                d3Chart
-                    .attr("width", width)
-                    .attr("height", height);
+                dataset = pfApi.filter(rawData, function(p) {
+                    return p.id
+                });
 
-                var circles = d3Chart.selectAll("circle").data(dataset, function(d) {
-                    return d;
-                })
+                var circles = d3Chart.selectAll("circle").data(dataset, function(d) { return d; });
+
                 circles.enter()
                     .append("circle")
-                    .attr("class","pca-node")
-                    .attr("cx", width * .5)
-                    .attr("cy", height * .5)
-                    .attr("r", function() {
-                        return 3;
+                    .attr({
+                        "class": "pca-node",
+                        "cx":  width * .5,
+                        "cy": height * .5,
+                        "r": 3
                     })
                     .style("fill-opacity", "0")
                     .on("mouseover", function(d) {
-                        d3Tooltip.transition()        
-                            .duration(200)      
-                            .style("opacity", 1);      
-                        d3Tooltip.html(d.id)  
-                            .style("left", (d3.event.pageX+10) + "px")     
-                            .style("top", (d3.event.pageY-5) + "px");    
-                    })                  
-                    .on("mouseout", function(){
-                        d3Tooltip.transition()      
-                            .duration(500)      
-                            .style("opacity", 0);   
+                        d3Tooltip.transition()
+                            .duration(200)
+                            .style("opacity", 1);
+                        d3Tooltip.html(d.id)
+                            .style("left", (d3.event.pageX + 10) + "px")
+                            .style("top", (d3.event.pageY - 5) + "px");
+                    })
+                    .on("mouseout", function() {
+                        d3Tooltip.transition()
+                            .duration(500)
+                            .style("opacity", 0);
                     })
                     .transition()
                     .duration(750)
@@ -223,8 +223,8 @@ debugger;
                     .attr("cy", function(d) {
                         return yScale(d[1]);
                     })
-                    .style("fill-opacity", 1)
-                    
+                    .style("fill-opacity", 1);
+
 
                 circles.exit()
                     .transition()
@@ -238,14 +238,14 @@ debugger;
                     .remove();
 
 
-                d3xAxis
+                d3yAxis
                     .attr("class", "axis")
                     .attr("transform", "translate(0, " + yScale(0) + ")")
                     .call(xAxis)
                     .append("text")
                     .text("PC1");
 
-                d3yAxis
+                d3xAxis
                     .attr("class", "axis")
                     .attr("transform", "translate(" + xScale(0) + ", 0)")
                     .call(yAxis)
@@ -253,7 +253,26 @@ debugger;
                     .attr("y", 10)
                     .attr("dy", ".71em")
                     .text("PC2");
+
             }
+
+
+            vm.resize = function () {
+                setScale();
+                xAxis.scale(xScale);
+                yAxis.scale(yScale);
+                d3yAxis.attr("transform", "translate(0, " + yScale(0) + ")").call(xAxis);
+                d3xAxis.attr("transform", "translate(" + xScale(0) + ", 0)").call(yAxis);
+                d3Chart.selectAll("circle")
+                    .attr("cx", function(d) { return xScale(d[0]); })
+                    .attr("cy", function(d) { return yScale(d[1]); })
+            };
+
+            // Listen For Resize
+            angular.element($window).bind('resize', 
+                _.debounce(vm.resize, 300)
+            );
+
         }
     }
 })();

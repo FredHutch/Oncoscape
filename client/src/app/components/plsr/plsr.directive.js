@@ -19,7 +19,7 @@
         return directive;
 
         /** @ngInject */
-        function PlsrController(osApi, $state, $stateParams, $timeout, $scope, d3, $sce) {
+        function PlsrController(osApi, $state, $stateParams, $timeout, $scope, d3, $sce, $window) {
 
             if (angular.isUndefined($stateParams.datasource)){
                 $state.go("datasource");
@@ -38,21 +38,21 @@
             vm.frame;
             vm.tip = null;
 
-            // VM Event Handlers
-            vm.toggleFilter = function() {
-                angular.element(".container-filters").toggleClass("container-filters-collapsed");
-                angular.element(".container-filter-toggle").toggleClass("container-filter-toggle-collapsed");
-            };
-            
+            // D3 Scale
+            var width, height, xScale, yScale, xMax, yMax, xAxis, yAxis;
 
             // Elements
             var elChart = angular.element("#plsr-chart");
+            var elChart = angular.element("#pca-chart");
+            var d3Chart = d3.select("#plsr-chart").append("svg").attr("id", "chart");
+            var d3xAxis = d3Chart.append("g");
+            var d3yAxis = d3Chart.append("g");
+            var d3Tooltip = d3.select("body").append("div").attr("class", "tooltip plsr-tooltip")
+            var xAxis, yAxis;
 
-            // Tooltip
-            var d3Tooltip = d3.select("body")
-                .append("div")
-                .attr("class", "tooltip plsr-tooltip");
 
+
+/*
             // Chart
             var chart = (function() {
 
@@ -83,7 +83,6 @@
                     yScale = d3.scale.linear().domain([nAbs, abs]).range([height, 0])
 
                     text = svg.selectAll("text").data(vectors);
-
                     text
                         .enter().append("text")
                         .attr({
@@ -266,9 +265,9 @@
 
                 }
             })("#plsr-chart");
+*/
 
-
-            // Load Data
+            // Initialize
             osApi.setBusy(true)("Loading Dataset");
             osApi.setDataset(vm.datasource).then(function(response) {
                 var mtx = response.payload.rownames.filter(function(v) {
@@ -328,12 +327,179 @@
                         return item;
                     }, payload.vectorNames);
                     var abs = payload.maxValue * 1.2;
-                    
-
-                    chart.draw(abs, vectors, genes);
-                    
+                    draw(abs, vectors, genes);
                     osApi.setBusy(false);
                 });
+
+                function setScale() {
+                    width = window.innerWidth - 100; 
+                    height = window.innerHeight - 190;
+                    if (angular.element(".tray").attr("locked")=="true") width -= 300;
+
+                    d3Chart
+                        .attr("width", '100%')
+                        .attr("height", height);
+                    xScale = d3.scale.linear()
+                        .domain([-xMax, xMax])
+                        .range([0, width]).nice();
+
+                    yScale = d3.scale.linear()
+                        .domain([-yMax, yMax])
+                        .range([height, 0]).nice();
+                }
+
+                // Render
+                function draw(abs, vectors, genes) {
+
+                    xMax = abs * .9;
+                    yMax = abs * .9;
+                    setScale();
+
+                    // Brush
+                    var brush = d3.svg.brush()
+                        .x(xScale)
+                        .y(yScale)
+                        .on("brushend", function() {
+                            var bv = brush.extent();
+                            d3Chart.selectAll("circle")
+                                .classed("pca-node-selected", function(d) {
+                                    return (d[0] > bv[0][0] && d[0] < bv[1][0] && d[1] > bv[0][1] && d[1] < bv[1][1]);
+                                });
+                            d3.select(this).transition().duration(300)
+                                .call(brush.extent([
+                                    [0, 0],
+                                    [0, 0]
+                                ]));
+                        });
+
+                    d3Chart.call(brush);
+
+                    // Circles
+                    var circles = d3Chart.selectAll("circle").data(genes, function(d) { return d; });
+                    circles.enter()
+                        .append("circle")
+                        .attr({
+                            "class": "plsr-node",
+                            "cx":  width * .5,
+                            "cy": height * .5,
+                            "r": 3
+                        })
+                        .style("fill-opacity", "0")
+                        .on("mouseover", function(d) {
+                            d3Tooltip.transition()        
+                                .duration(200)      
+                                .style("opacity", 1);      
+                            d3Tooltip.html(d.name)  
+                                .style("left", (d3.event.pageX+15) + "px")     
+                                .style("top", (d3.event.pageY-15) + "px"); 
+                        })
+                        .on("mouseout", function() {
+                            d3Tooltip.transition()      
+                                .duration(500)      
+                                .style("opacity", 0); 
+                        });
+                    circles.transition()
+                        .duration(750)
+                        .delay(function(d, i) {
+                            return i / 300 * 500;
+                        })
+                        .attr("cx", function(d) {
+                            return xScale(d[0]);
+                        })
+                        .attr("cy", function(d) {
+                            return yScale(d[1]);
+                        })
+                        .style("fill-opacity", 1);
+                     circles.exit()
+                        .transition()
+                        .duration(600)
+                        .delay(function(d, i) {
+                            return i / 300 * 500;
+                        })
+                        .attr("cx", width * .5)
+                        .attr("cy", height * .5)
+                        .style("fill-opacity", "0")
+                        .remove();
+
+                    // Lines
+                    var lines = d3Chart.selectAll("line").data(vectors)
+                    lines.enter()
+                        .append("line")
+                        .attr({
+                            "class": "line",
+                            "stroke-width": 3,
+                            "x1": xScale(0),
+                            "y1": yScale(0),
+                            "x2": xScale(0),
+                            "y2": yScale(0)
+                        })
+                        .style("stroke", function(d) {
+                            return (d.name.indexOf("Age")) ? "#1396de" : "#38347b"
+                        });
+                    lines.transition()
+                        .duration(900)
+                        .attr({
+                            "x1": xScale(0),
+                            "y1": yScale(0),
+                            "x2": function(v) { return xScale(v[0]); },
+                            "y2": function(v) { return yScale(v[1]); }
+                        });
+                    lines.exit().remove();
+
+                    // Text
+                    var text = d3Chart.selectAll("text").data(vectors);
+                    text.enter()
+                        .append("text")
+                        .attr({
+                            "class": "text",
+                            "x": function(v) { return xScale(v[0]); },
+                            "y": function(v) { return yScale(v[1]); },
+                            "text-anchor": function(v) { return (v[0] > 0) ? "start" : "end" }
+                        })
+                        .text(function(v) { return v.name; })
+                        .style({
+                            "fill": "black",
+                            "text-anchor": "middle"
+                        });
+
+                    text.transition()
+                        .duration(900)
+                        .attr({
+                            "x": function(v) { return xScale(v[0]); },
+                            "y": function(v) { return yScale(v[1]); }
+                        });
+
+                    text.exit().remove();
+                }
+
+                vm.resize = function () {
+                    setScale();
+
+                    d3Chart.selectAll("circle")
+                        .attr({
+                            "cx": function(d) { return xScale(d[0]); },
+                            "cy": function(d) { return yScale(d[1]); }
+                        });
+
+                    d3Chart.selectAll("text")
+                       .attr({
+                            "x": function(v) { return xScale(v[0]); },
+                            "y": function(v) { return yScale(v[1]); }
+                        });
+
+                    d3Chart.selectAll("line")
+                        .attr({
+                            "x1": xScale(0),
+                            "y1": yScale(0),
+                            "x2": function(v) { return xScale(v[0]); },
+                            "y2": function(v) { return yScale(v[1]); }
+                        });
+                };
+
+                // Listen For Resize
+                angular.element($window).bind('resize', 
+                    _.debounce(vm.resize, 300)
+                );
             };
 
         }

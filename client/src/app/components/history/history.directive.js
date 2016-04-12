@@ -96,7 +96,7 @@
                     vm.colnames = rawData.colnames;
                     $timeout(function() {
                         dtTable = angular.element('#history-datatable').dataTable({
-                            "scrollY": "70vh",
+                            //"scrollY": "500px",
                             "paging": false
                         });
                         $scope.$watch('vm.search', function() {

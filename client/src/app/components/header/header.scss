@@ -1,23 +1,37 @@
 // Namespace
-.navbar-brand{
-	padding:10px 0px;
-}
-.navbar{
-	line-height: 70px;
-	.container-fluid{
-		padding:0px 20px;
+.header{
+	position:absolute;
+
+	.navbar-brand{
+		padding:10px 0px;
 	}
-}
-.nav{
-	li{
-		color: #FFF;
-		a{
-			span{
-				padding-right:5px;
+	.navbar{
+		line-height: 70px;
+		.container-fluid{
+			padding:0px 20px;
+		}
+	}
+	.nav{
+		li{
+			color: #FFF;
+			a{
+				span{
+					padding-right:5px;
+				}
 			}
 		}
 	}
+	.nav-divider{
+	    background-image: url(/assets/images/texture.png);
+	    background-size:cover;
+	    box-shadow: 3px 3px 10px #000000;
+	    height:4px;
+	    width: 100%;
+	    z-index: 10000;
+	    margin-bottom: -1px;
+	}
 }
+
 
 .github{
 	color:#000;

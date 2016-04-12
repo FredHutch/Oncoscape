@@ -1,64 +1,15 @@
-<section class="plsr container container-filters">
-	<h2>Partial Least Squares Regression</h2>
-    <div class="row">
-        <div class="col-xs-3" style="padding-right:20px;">
-            <label>Gene Set</label>
-            <div class="dropdown bs-dropdown">
-              <button class="btn btn-default dropdown-toggle" type="button" id="dropdownMenu1" data-toggle="dropdown" aria-haspopup="true" aria-expanded="true">
-                {{vm.geneSet}}
-                <span class="caret"></span>
-              </button>
-              <ul class="dropdown-menu" aria-labelledby="dropdownMenu1">
-                <li ng-repeat="item in vm.geneSets"
-                    ng-click="vm.geneSet=item">{{item}}</li>
-              </ul>
-            </div>
-        </div>
-        <div class="col-xs-3" style="padding-right:20px;">
-            <label>Age At Diagnosis</label>
-            <div range-slider 
-                min="vm.deathMinValue" model-min="vm.deathMinFilter" 
-                max="vm.deathMaxValue" model-max="vm.deathMaxFilter"
-                show-values="true" attach-handle-values="true"
-                on-handle-up="vm.update()"></div>
-        </div>
-        <div class="col-xs-3" style="padding-right:20px;">
-            <label>Survival</label>
-            <div range-slider 
-                min="vm.survivalMinValue" model-min="vm.survivalMinFilter" 
-                max="vm.survivalMaxValue" model-max="vm.survivalMaxFilter" 
-                show-values="true" attach-handle-values="true"
-                on-handle-up="vm.update()"></div>
-        </div>
-    </div>
-</section>
-<section class="container-filter-toggle">
-  <img src="/assets/images/arrow_down.png" ng-click="vm.toggleFilter()">
-</section>
 
-<!-- Legand -->
+
+
+
+<!-- Legand 
 <os-tray caption="Legend" style="position:absolute;">
 <section class="legend">
-  <ul>
-    <li class="legend-section">Legend</li>
-
-    <li style="border:0px solid #1396de; border-left-width:10px; padding-left:10px;margin-bottom:1px;">
-        Age At Diagnosis
-    </li>
-    <li style="border:0px solid #38347b; border-left-width:10px; padding-left:10px;margin-bottom:1px;">
-        Survival
-    </li>
-    <li><span class="circle" style="background-color:black;width:10px;height: 10px;margin-right:10px;"></span>Genes</li>
-  </ul>
+ 
 </section>
 </os-tray>
-
-
-
-<section id="plsr-chart" class="plsr container-fluid container-content">
-</section>
-
-
+-->
+<!--
 <div class="modal fade pathways" id="plsr-webpage" tabindex="-1" role="dialog" aria-labelledby="myModalLabel">
   <div class="modal-dialog" role="document">
     <div class="modal-content">
@@ -71,4 +22,70 @@
     </div>
   </div>
 </div>
+-->
 
+
+<os-tray content="tray-content-block" change="vm.resize($event)">
+    <section class="tray-content">
+            <div class="row">
+                <div class="col-xs-12 form-label">
+                    <h2>Filters</h2>
+                </div>
+                <div class="col-xs-12 form-item">
+                    <label>Gene Set</label>
+                    <div class="dropdown bs-dropdown">
+                      <button class="btn btn-default dropdown-toggle" type="button" id="dropdownMenu1" data-toggle="dropdown" aria-haspopup="true" aria-expanded="true">
+                        {{vm.geneSet}}
+                        <span class="caret"></span>
+                      </button>
+                      <ul class="dropdown-menu" aria-labelledby="dropdownMenu1">
+                        <li ng-repeat="item in vm.geneSets"
+                            ng-click="vm.geneSet=item">{{item}}</li>
+                      </ul>
+                    </div>
+                </div>
+                <div class="col-xs-12 form-item">
+                    <label>Age At Diagnosis</label>
+                    <div range-slider 
+                        min="vm.deathMinValue" model-min="vm.deathMinFilter" 
+                        max="vm.deathMaxValue" model-max="vm.deathMaxFilter"
+                        show-values="true" attach-handle-values="true"
+                        on-handle-up="vm.update()"></div>
+                </div>
+                <div class="col-xs-12 form-item">
+                  <label>Survival</label>
+                  <div range-slider 
+                      min="vm.survivalMinValue" model-min="vm.survivalMinFilter" 
+                      max="vm.survivalMaxValue" model-max="vm.survivalMaxFilter" 
+                      show-values="true" attach-handle-values="true"
+                      on-handle-up="vm.update()"></div>
+                </div>
+                
+            </div>
+            <os-cohort></os-cohort>
+            <div class="row">
+                <div class="col-xs-6 form-label">
+                    <h2>Legend</h2>
+                    <!--
+                    <span style="background-color:black;width:10px;height: 10px;margin-right:10px;"></span>Patients
+                     <ul>
+    <li style="border:0px solid #1396de; border-left-width:10px; padding-left:10px;margin-bottom:1px;">
+        Age At Diagnosis
+    </li>
+    <li style="border:0px solid #38347b; border-left-width:10px; padding-left:10px;margin-bottom:1px;">
+        Survival
+    </li>
+    <li><span class="circle" style="background-color:black;width:10px;height: 10px;margin-right:10px;"></span>Genes</li>
+  </ul>
+  -->
+                </div>
+            </div>
+    </section>
+</os-tray>
+
+<section class="tray-content-block">
+  <div class="container-fluid">
+    <h2>Partial Least Squares Regression</h2>
+    <div id="plsr-chart" class="plsr"></div>
+  </div>
+</section>

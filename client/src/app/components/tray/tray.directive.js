@@ -12,7 +12,10 @@
             restrict: 'E',
             templateUrl: 'app/components/tray/tray.html',
             scope: {
-                caption: '@'
+                caption: '@',
+                content: '@',
+                change: '&'
+
             },
             controller: TrayController,
             controllerAs: 'vm',
@@ -26,38 +29,60 @@
         /** @ngInject */
         function TrayController($timeout) {
 
+
             var vm = this;
-            var elSidebar = angular.element(".tray");
-            var elIcon = angular.element(".tray-sticky-icon");
-            var sticky = true;
+            vm.trayClass = Math.random().toString(36).substring(3);
+            vm.iconClass = Math.random().toString(36).substring(3);
+            
 
-            vm.toggleSticky = function(){
-                sticky = !sticky;
+            var isLocked = true;
+            vm.toggle = function(){
+                var elTray = angular.element("."+vm.trayClass);
+                var elIcon = angular.element("."+vm.iconClass);
+                var elContent = angular.element("."+vm.content);
+
+                isLocked = !isLocked;
                 elIcon
-                    .addClass(sticky ? 'glyphicon-remove' : 'glyphicon-plus')
-                    .removeClass(sticky ? 'glyphicon-plus' : 'glyphicon-remove');
+                    .addClass(isLocked ? 'glyphicon-remove' : 'glyphicon-plus')
+                    .removeClass(isLocked ? 'glyphicon-plus' : 'glyphicon-remove');
 
-                if (sticky) {
-                    elSidebar
+                elTray.attr("locked", isLocked ? "true" : "false");
+
+                if (isLocked) {
+                    elContent
+                        .removeClass("tray-content-block-collapsed")
+
+                    elTray
                         .unbind("mouseover", mouseOver)
                         .unbind("mouseout", mouseOut)
                         .removeClass("tray-collapsed");
+
+                    $timeout(function(){
+                        vm.change();
+                    });
                         
                 } else {
-                    elSidebar
+                    elContent
+                        .addClass("tray-content-block-collapsed")
+                    elTray
                         .addClass("tray-collapsed")
                         .bind("mouseover", mouseOver)
                         .bind("mouseout", mouseOut);
-                        
+                    $timeout(function(){
+                        vm.change();
+                    });
                 }
             };
 
             
+
             var mouseOver = function(){
-                 elSidebar.removeClass("tray-collapsed");
+                angular.element("."+vm.trayClass)
+                    .removeClass("tray-collapsed");
             }
             var mouseOut = function(){
-                elSidebar.addClass("tray-collapsed");
+                angular.element("."+vm.trayClass)
+                    .addClass("tray-collapsed");
             }
         }
     }

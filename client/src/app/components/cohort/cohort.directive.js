@@ -11,9 +11,7 @@
         var directive = {
             restrict: 'E',
             templateUrl: 'app/components/cohort/cohort.html',
-            controller: CohortController,
-            controllerAs: 'vm',
-            bindToController: true
+            replace: true
         };
 
         return directive;
@@ -21,6 +19,8 @@
         /** @ngInject */
         function CohortController(osApi) {
             var vm = this;
+            vm.cohorts;
+            vm.cohort;
            
         }
     }
