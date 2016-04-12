@@ -27,6 +27,10 @@
                 return;
             }
 
+            // Elements
+            var cyChart;
+            var elChart = angular.element(".markers-chart");
+
             // Initialize View Model
             var vm = initializeViewModel(this, $stateParams);
             vm.toggleFilter = function() {
@@ -34,33 +38,49 @@
                 angular.element(".container-filter-toggle").toggleClass("container-filter-toggle-collapsed");
             };
 
+            vm.resize = function(){
+                var width = $window.innerWidth
+                if (angular.element(".tray").attr("locked")=="true") width -= 300;
+                elChart.width( width );
+                elChart.height($window.innerHeight - 145);
+                if (cyChart) cyChart.resize();
+            }
+
+            // Listen For Resize
+            angular.element($window).bind('resize', 
+                _.debounce(vm.resize, 300)
+            );
+       
             // Load Data
             osApi.setBusy(true);
             loadData(osApi, vm, function(data){
+
+                // Resize
+                vm.resize();
 
                 // Initalize Styles
                 var styles = initializeStyles();
 
                 // Initialize Chart
-                var chart = initializeChart(data, styles, cytoscape, angular.element("#markers-chart"));
+                cyChart = initializeChart(data, styles, cytoscape, angular.element("#markers-chart"));
 
                 // Initalize Layouts
-                initializeLayouts(chart, vm, $scope);
+                initializeLayouts(cyChart, vm, $scope);
 
                 // Initalize Node Colors
-                initializeNodeColors(chart, vm, $scope, osApi);
+                initializeNodeColors(cyChart, vm, $scope, osApi);
 
                 // Initialize Edge Colors
-                initializeEdgeColors(chart, vm, $scope, $timeout);
+                initializeEdgeColors(cyChart, vm, $scope, $timeout);
 
                 // Initialize Events
-                initializeEvents(chart, vm, $scope, $timeout, osApi, signals);
+                initializeEvents(cyChart, vm, $scope, $timeout, osApi, signals);
 
                 // Initalize Search
-                initializeSearch(chart, vm, $scope)
+                initializeSearch(cyChart, vm, $scope)
 
                 // Initialize Zoom
-                initializeZoom(chart, _);
+                initializeZoom(cyChart, _);
                 
                 // Ready
                 osApi.setBusy(false);

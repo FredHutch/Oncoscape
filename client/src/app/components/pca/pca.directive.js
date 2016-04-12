@@ -19,7 +19,7 @@
         return directive;
 
         /** @ngInject */
-        function PcaController(osApi, $state, $stateParams, $timeout, $scope, d3, $window) {
+        function PcaController(osApi, $state, $stateParams, $timeout, $scope, d3, $window, _) {
 
             if (angular.isUndefined($stateParams.datasource)) {
                 $state.go("datasource");
@@ -38,8 +38,7 @@
             var width, height, xScale, yScale, xMax, yMax, xAxis, yAxis;
 
             // Filters
-            var rawData;
-            var rawPatientData;
+            var rawData, rawPatientData;
             var pfApi = osApi.getPatientFilterApi();
             pfApi.init(vm.datasource);
             pfApi.onSelect.add(draw);
@@ -52,12 +51,10 @@
             };
 
             // Elements
-            var elChart = angular.element("#pca-chart");
             var d3Chart = d3.select("#pca-chart").append("svg").attr("id", "chart");
             var d3xAxis = d3Chart.append("g");
             var d3yAxis = d3Chart.append("g");
             var d3Tooltip = d3.select("body").append("div").attr("class", "tooltip pca-tooltip")
-            var xAxis, yAxis;
 
             // Initalizae
             osApi.setBusy(true)("Loading Dataset");
@@ -116,8 +113,8 @@
             };
 
             function setScale() {
-                width = window.innerWidth - 100; 
-                height = window.innerHeight - 190;
+                width = $window.innerWidth - 100; 
+                height = $window.innerHeight - 190;
                 if (angular.element(".tray").attr("locked")=="true") width -= 300;
 
                 d3Chart

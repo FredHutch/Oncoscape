@@ -56,9 +56,41 @@ button{
 	color:#000;
 	margin-bottom:20px;
 }
+
+.legend{
+	text-transform:capitalize;
+	display:block !important;
+}
+.legend-bar{
+	text-transform:capitalize;
+	border: solid 0px;
+	border-left-width: 10px;
+	padding-left:10px;
+	display:block;
+	margin-bottom: 1px;
+}
+.legend-dot{
+	border: solid 0px;
+	width:10px;
+	height:10px;
+	border-radius: 5px;
+	margin-right:10px;
+	display: inline-block;
+	margin-bottom: 1px;
+}
+
+/* Overrides */
 .ngrs-range-slider{
 	margin-bottom: 0px !important;
 	margin-top: 0px !important;
+}
+table.dataTable.dtr-inline.collapsed tbody td:first-child:before, table.dataTable.dtr-inline.collapsed tbody th:first-child:before{
+	background-color: #59a5fb !important;
+	box-shadow: 0 0 1px #59a5fb !important;
+}
+table.dataTable.dtr-inline.collapsed tbody tr.parent td:first-child:before, table.dataTable.dtr-inline.collapsed tbody tr.parent th:first-child:before{
+	background-color: #FFF !important;
+	color: #59a5fb !important;
 }
 /*
 .ngrs-range-slider{

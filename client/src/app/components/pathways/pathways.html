@@ -1,45 +1,28 @@
-<section class="pathways container container-filters">
-    
-    <h2>Pathways</h2>
-    
-    <div class="row">
-        <div class="col-xs-3">
-            <label>Search</label>
-            <div class="input-group">
-                <input type="text" class="ngrs-range-slider" style="width:100%" ng-model="vm.search">
+<os-tray content="tray-content-block">
+    <section class="tray-content">
+            <div class="row">
+                <div class="col-xs-12 form-label">
+                    <h2>Search</h2>
+                </div>
+                <div class="col-xs-12 form-item">
+                    <input type="text" class="ngrs-range-slider" style="width:100%" ng-model="vm.search">
+                </div>
+                <div class="col-xs-12 form-label">
+                    <h2>Legend</h2>
+                    <span class="legend-bar" style="border-color: green">Activation</span>
+                    <span class="legend-bar" style="border-color: red">Inhibition</span>
+                    <span class="legend-bar" style="border-color: #38347B">Modification</span>
+                    <span class="legend-bar" style="border-color: #056ce1">Genes</span>
+                </div>
             </div>
-        </div>
-    </div>
-</section>
-
-<section class="container-filter-toggle">
-    <img src="/assets/images/arrow_down.png" ng-click="vm.toggleFilter()">
-</section>
-
-
-<!-- Legand -->
-<os-tray caption="Legend" style="position: absolute;">
-<section class="legend">
-    <ul>
-        <li class="legend-section">Legend</li>
-        <li style="border:0px solid green; border-left-width:10px; padding-left:10px;margin-bottom:1px;">
-            Activation
-        </li>
-        <li style="border:0px solid red; border-left-width:10px; padding-left:10px;margin-bottom:1px;">
-            Inhibition
-        </li>
-        <li style="border:0px solid #38347B; border-left-width:10px; padding-left:10px;margin-bottom:1px;">
-            Modification
-        </li>
-        <li style="border:0px solid #056ce1; border-left-width:10px; padding-left:10px;margin-bottom:1px;">
-            Genes
-        </li>
-    </ul>
-</section>
+    </section>
 </os-tray>
-<section id="gbm-chart" class="pathways-chart">
+<section class="tray-content-block">
+  <div class="container-fluid">
+  <h2>Pathways</h2>  
+    <div id="gbm-chart" class="pathways-chart"></div>
+  </div>
 </section>
-
 <div class="modal fade pathways" id="gbm-webpage" tabindex="-1" role="dialog" aria-labelledby="myModalLabel">
     <div class="modal-dialog" role="document">
         <div class="modal-content">
@@ -51,4 +34,5 @@
         </div>
     </div>
 </div>
+
 

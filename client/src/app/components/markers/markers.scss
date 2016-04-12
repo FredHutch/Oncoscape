@@ -1,15 +1,4 @@
 // Namespace
-.markers-chart{
-		width: 100%;
-		height: 80vh;
-}
-.filter-list{
-	li{
-		padding:0px;
-		margin:0px;
-
-	}
-}
 .filter-button{
 	border:solid 0px #CCC;
 	border-left-width:10px;
@@ -34,4 +23,8 @@
 .gene{
 	background-color: #FFF;
 	border:solid 3px rgb(56, 52,123);
+}
+.markers-chart{
+	position: relative;
+	top: 0px;
 }

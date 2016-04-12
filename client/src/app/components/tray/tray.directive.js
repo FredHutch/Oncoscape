@@ -50,20 +50,18 @@
 
                 if (isLocked) {
                     elContent
-                        .removeClass("tray-content-block-collapsed")
-
+                        .removeClass("tray-content-block-collapsed");
                     elTray
                         .unbind("mouseover", mouseOver)
                         .unbind("mouseout", mouseOut)
                         .removeClass("tray-collapsed");
-
                     $timeout(function(){
                         vm.change();
                     });
                         
                 } else {
                     elContent
-                        .addClass("tray-content-block-collapsed")
+                        .addClass("tray-content-block-collapsed");
                     elTray
                         .addClass("tray-collapsed")
                         .bind("mouseover", mouseOver)

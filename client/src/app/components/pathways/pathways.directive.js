@@ -66,6 +66,8 @@
                             container: elChart,
                             elements: markersNetwork.elements,
                             style: getStyle(),
+                            minZoom: .2,
+                            maxZoom: 5,
                             layout: {
                                 name: "preset",
                                 fit: true
