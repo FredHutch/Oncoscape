@@ -1,26 +1,19 @@
-<div class="row">
-    <div class="col-xs-12 form-label">
-        <h2>Cohorts</h2>
+<div class="input-group">
+    <div class="dropdown bs-dropdown">
+        <button class="btn btn-default dropdown-toggle" type="button" id="dropdownMenu1" data-toggle="dropdown" aria-haspopup="true" aria-expanded="true"
+        style="height:35px;">
+            {{vm.cohort.name}}
+            <span class="caret"></span>
+        </button>
+        <ul class="dropdown-menu" aria-labelledby="dropdownMenu1" style="width:100%">
+            <li ng-repeat="item in vm.cohorts" ng-click="vm.cohort=item">
+                <input type="text" ng-value="item.name">
+            
+            </li>
+        </ul>
     </div>
-    <div class="col-xs-12 form-item">
-        <label>Select Cohorts</label>
-        <div class="dropdown bs-dropdown">
-            <button class="btn btn-default dropdown-toggle" type="button" id="dropdownMenu1" data-toggle="dropdown" aria-haspopup="true" aria-expanded="true">
-                {{vm.cohort.name}}
-                <span class="caret"></span>
-            </button>
-            <ul class="dropdown-menu" aria-labelledby="dropdownMenu1" style="width:100%">
-                <li ng-repeat="item in vm.cohorts" ng-click="vm.cohort=item">{{item.name}}</li>
-            </ul>
-        </div>
-    </div>
-    <div class="col-xs-12 form-item">
-        <label>Create Cohort</label>
-        <div class="input-group">
-            <input type="text" class="form-control" placeholder="Cohort Name">
-            <span class="input-group-btn">
-                <button class="btn btn-primary" type="button">Go</button>
-            </span>
-        </div>
-    </div>
+    <span class="input-group-btn">
+        <button class="btn btn-default" type="button">+</button>
+    </span>
 </div>
+  

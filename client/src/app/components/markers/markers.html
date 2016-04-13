@@ -72,10 +72,18 @@
                   <label>Gene Search {{vm.searchGeneResult}}</label>
                   <input type="text" class="form-control" ng-model="vm.searchGene" placeholder="Enter Gene Name">
                 </div>
-            </div>
-            <os-cohort></os-cohort>
-            <div class="row">
-              <div class="col-xs-12 form-label">
+                <div class="col-xs-12 form-label">
+                    <h2>Cohorts</h2>
+                </div>
+                <div class="col-sm-12 form-item">
+                  <label>Patient Cohorts</label>
+                  <os-cohort></os-cohort>
+                </div>
+                <div class="col-sm-12 form-item">
+                  <label>Gene Cohorts</label>
+                  <os-cohort></os-cohort>
+                </div>
+                <div class="col-xs-12 form-label">
                     <h2>Legend</h2>
                     <span class="legend" ng-repeat="item in vm.legandNodes">
                       <span class="legend-dot" style="background-color:{{item.color}}"></span>

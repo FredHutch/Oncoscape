@@ -43,8 +43,8 @@
 
                 isLocked = !isLocked;
                 elIcon
-                    .addClass(isLocked ? 'glyphicon-remove' : 'glyphicon-plus')
-                    .removeClass(isLocked ? 'glyphicon-plus' : 'glyphicon-remove');
+                    .addClass(isLocked ? 'fa-lock' : 'fa-unlock-alt')
+                    .removeClass(isLocked ? 'fa-unlock-alt' : 'fa-lock');
 
                 elTray.attr("locked", isLocked ? "true" : "false");
 

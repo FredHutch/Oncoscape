@@ -32,7 +32,8 @@
     "cytoscape-qtip": "^2.3.0",
     "d3-timeline": "^0.0.5",
     "underscore": "^1.8.3",
-    "three.js": "threejs#*"
+    "three.js": "threejs#*",
+    "components-font-awesome": "^4.5.0"
   },
   "overrides": {
     "bootstrap-sass": {
