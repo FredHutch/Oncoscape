@@ -1,6 +1,10 @@
+########################################################################     Step 1: Load in Reference files ########################################################################
 
 stopifnot(file.exists("TCGA_Reference_Filenames_gh.txt")) 
 TCGAfilename<-read.table("TCGA_Reference_Filenames_gh.txt", sep="\t", header=TRUE)
+
+#stopifnot(file.exists("TCGA_Reference_Filenames_zager.txt")) 
+#TCGAfilename<-read.table("TCGA_Reference_Filenames_zager.txt", sep="\t", header=TRUE)
 
 #stopifnot(file.exists("TCGA_Reference_Filenames_jz.txt")) 
 #TCGAfilename<-read.table("TCGA_Reference_Filenames_jz.txt", sep="\t", header=TRUE)
@@ -20,187 +24,11 @@ if(!interactive()){
     stopifnot(file.exists(directory))
   }
 }
-########################################################################     Step 2: Set Classes for the fields  ########################################################################
 
-
-
-
-########################################################################     Step 3: Loading Raw Tables & Data Class Columns  ########################################################################
-
-rawTablesRequest <- function(study, table){
-  if(table == "DOB" || table == "Diagnosis"){
-    return(paste(TCGAfilename[TCGAfilename$study==study,]$directory, 
-                 TCGAfilename[TCGAfilename$study==study,]$pt, sep="/"))
-  }
-  if(table == "Drug"){
-    return(c(paste(TCGAfilename[TCGAfilename$study==study,]$directory, 
-                   TCGAfilename[TCGAfilename$study==study,]$pt, sep="/"),
-             ifelse(is.na(TCGAfilename[TCGAfilename$study==study,]$drug), 
-                    NA,
-                    paste(TCGAfilename[TCGAfilename$study==study,]$directory, 
-                          TCGAfilename[TCGAfilename$study==study,]$drug, sep="/")),
-             ifelse(is.na(TCGAfilename[TCGAfilename$study==study,]$omf), 
-                    NA,
-                    paste(TCGAfilename[TCGAfilename$study==study,]$directory, 
-                          TCGAfilename[TCGAfilename$study==study,]$omf, sep="/"))))
-  }
-  if(table == "Radiation"){
-    return(c(paste(TCGAfilename[TCGAfilename$study==study,]$directory, 
-                   TCGAfilename[TCGAfilename$study==study,]$pt, sep="/"),
-             ifelse(is.na(TCGAfilename[TCGAfilename$study==study,]$rad), 
-                    NA,
-                    paste(TCGAfilename[TCGAfilename$study==study,]$directory, 
-                          TCGAfilename[TCGAfilename$study==study,]$rad, sep="/")),
-             ifelse(is.na(TCGAfilename[TCGAfilename$study==study,]$omf), 
-                    NA,
-                    paste(TCGAfilename[TCGAfilename$study==study,]$directory, 
-                          TCGAfilename[TCGAfilename$study==study,]$omf, sep="/"))))
-  }
-  if(table == "Status"){
-    return(c(paste(TCGAfilename[TCGAfilename$study==study,]$directory, 
-                   TCGAfilename[TCGAfilename$study==study,]$pt, sep="/"),
-             
-             ifelse(is.na(TCGAfilename[TCGAfilename$study==study,]$f1), 
-                    NA,
-                    paste(TCGAfilename[TCGAfilename$study==study,]$directory, 
-                          TCGAfilename[TCGAfilename$study==study,]$f1, sep="/")),
-             ifelse(is.na(TCGAfilename[TCGAfilename$study==study,]$f2), 
-                    NA,
-                    paste(TCGAfilename[TCGAfilename$study==study,]$directory, 
-                          TCGAfilename[TCGAfilename$study==study,]$f2, sep="/")),
-             ifelse(is.na(TCGAfilename[TCGAfilename$study==study,]$f3), 
-                    NA,
-                    paste(TCGAfilename[TCGAfilename$study==study,]$directory, 
-                          TCGAfilename[TCGAfilename$study==study,]$f3, sep="/"))))
-  }
-  if(table == "Encounter"){
-    return(c(paste(TCGAfilename[TCGAfilename$study==study,]$directory, 
-                   TCGAfilename[TCGAfilename$study==study,]$pt, sep="/"),
-             ifelse(is.na(TCGAfilename[TCGAfilename$study==study,]$f1), 
-                    NA,
-                    paste(TCGAfilename[TCGAfilename$study==study,]$directory, 
-                          TCGAfilename[TCGAfilename$study==study,]$f1, sep="/"))))
-  }
-  if(table == "Procedure"){
-    return(c(ifelse(is.na(TCGAfilename[TCGAfilename$study==study,]$nte), 
-                    NA,
-                    paste(TCGAfilename[TCGAfilename$study==study,]$directory, 
-                          TCGAfilename[TCGAfilename$study==study,]$nte, sep="/")),
-             ifelse(is.na(TCGAfilename[TCGAfilename$study==study,]$omf), 
-                    NA,
-                    paste(TCGAfilename[TCGAfilename$study==study,]$directory, 
-                          TCGAfilename[TCGAfilename$study==study,]$omf, sep="/")),
-             ifelse(is.na(TCGAfilename[TCGAfilename$study==study,]$pt), 
-                    NA,
-                    paste(TCGAfilename[TCGAfilename$study==study,]$directory, 
-                          TCGAfilename[TCGAfilename$study==study,]$pt, sep="/")),
-             ifelse(is.na(TCGAfilename[TCGAfilename$study==study,]$f1), 
-                    NA,
-                    paste(TCGAfilename[TCGAfilename$study==study,]$directory, 
-                          TCGAfilename[TCGAfilename$study==study,]$f1, sep="/")),
-             ifelse(is.na(TCGAfilename[TCGAfilename$study==study,]$nte_f1), 
-                    NA,
-                    paste(TCGAfilename[TCGAfilename$study==study,]$directory, 
-                          TCGAfilename[TCGAfilename$study==study,]$nte_f1, sep="/"))))
-  }
-  if(table == "Progression"){
-    return(c(paste(TCGAfilename[TCGAfilename$study==study,]$directory, 
-                   TCGAfilename[TCGAfilename$study==study,]$pt, sep="/"),
-             
-             ifelse(is.na(TCGAfilename[TCGAfilename$study==study,]$f1), 
-                    NA,
-                    paste(TCGAfilename[TCGAfilename$study==study,]$directory, 
-                          TCGAfilename[TCGAfilename$study==study,]$f1, sep="/")),
-             ifelse(is.na(TCGAfilename[TCGAfilename$study==study,]$f2), 
-                    NA,
-                    paste(TCGAfilename[TCGAfilename$study==study,]$directory, 
-                          TCGAfilename[TCGAfilename$study==study,]$f2, sep="/")),
-             ifelse(is.na(TCGAfilename[TCGAfilename$study==study,]$nte), 
-                    NA,
-                    paste(TCGAfilename[TCGAfilename$study==study,]$directory, 
-                          TCGAfilename[TCGAfilename$study==study,]$nte, sep="/")),
-             ifelse(is.na(TCGAfilename[TCGAfilename$study==study,]$nte_f1), 
-                    NA,
-                    paste(TCGAfilename[TCGAfilename$study==study,]$directory, 
-                          TCGAfilename[TCGAfilename$study==study,]$nte_f1, sep="/"))))
-  }
-  if(table == "Absent"){
-    return(c(paste(TCGAfilename[TCGAfilename$study==study,]$directory, 
-                   TCGAfilename[TCGAfilename$study==study,]$pt, sep="/"),
-             
-             ifelse(is.na(TCGAfilename[TCGAfilename$study==study,]$omf), 
-                    NA,
-                    paste(TCGAfilename[TCGAfilename$study==study,]$directory, 
-                          TCGAfilename[TCGAfilename$study==study,]$omf, sep="/")),
-             ifelse(is.na(TCGAfilename[TCGAfilename$study==study,]$nte), 
-                    NA,
-                    paste(TCGAfilename[TCGAfilename$study==study,]$directory, 
-                          TCGAfilename[TCGAfilename$study==study,]$nte, sep="/")),
-             ifelse(is.na(TCGAfilename[TCGAfilename$study==study,]$f1), 
-                    NA,
-                    paste(TCGAfilename[TCGAfilename$study==study,]$directory, 
-                          TCGAfilename[TCGAfilename$study==study,]$f1, sep="/")),
-             ifelse(is.na(TCGAfilename[TCGAfilename$study==study,]$f2), 
-                    NA,
-                    paste(TCGAfilename[TCGAfilename$study==study,]$directory, 
-                          TCGAfilename[TCGAfilename$study==study,]$f2, sep="/")),
-             ifelse(is.na(TCGAfilename[TCGAfilename$study==study,]$f3), 
-                    NA,
-                    paste(TCGAfilename[TCGAfilename$study==study,]$directory, 
-                          TCGAfilename[TCGAfilename$study==study,]$f3, sep="/")),
-             ifelse(is.na(TCGAfilename[TCGAfilename$study==study,]$nte_f1), 
-                    NA,
-                    paste(TCGAfilename[TCGAfilename$study==study,]$directory, 
-                          TCGAfilename[TCGAfilename$study==study,]$nte_f1, sep="/"))))
-  }
-  if(table == "Tests"){
-    return(c(paste(TCGAfilename[TCGAfilename$study==study,]$directory, 
-                   TCGAfilename[TCGAfilename$study==study,]$pt, sep="/"),
-             ifelse(is.na(TCGAfilename[TCGAfilename$study==study,]$f1), 
-                    NA,
-                    paste(TCGAfilename[TCGAfilename$study==study,]$directory, 
-                          TCGAfilename[TCGAfilename$study==study,]$f1, sep="/")),
-             ifelse(is.na(TCGAfilename[TCGAfilename$study==study,]$f2), 
-                    NA,
-                    paste(TCGAfilename[TCGAfilename$study==study,]$directory, 
-                          TCGAfilename[TCGAfilename$study==study,]$f2, sep="/")),
-             ifelse(is.na(TCGAfilename[TCGAfilename$study==study,]$f3), 
-                    NA,
-                    paste(TCGAfilename[TCGAfilename$study==study,]$directory, 
-                          TCGAfilename[TCGAfilename$study==study,]$f3, sep="/")),
-             ifelse(is.na(TCGAfilename[TCGAfilename$study==study,]$nte), 
-                    NA,
-                    paste(TCGAfilename[TCGAfilename$study==study,]$directory, 
-                          TCGAfilename[TCGAfilename$study==study,]$nte, sep="/")),
-             ifelse(is.na(TCGAfilename[TCGAfilename$study==study,]$nte_f1), 
-                    NA,
-                    paste(TCGAfilename[TCGAfilename$study==study,]$directory, 
-                          TCGAfilename[TCGAfilename$study==study,]$nte_f1, sep="/"))))
-  }
-  if(table == "Pathology"){
-    return(c(paste(TCGAfilename[TCGAfilename$study==study,]$directory, 
-                   TCGAfilename[TCGAfilename$study==study,]$pt, sep="/"),
-             ifelse(is.na(TCGAfilename[TCGAfilename$study==study,]$omf), 
-                    NA,
-                    paste(TCGAfilename[TCGAfilename$study==study,]$directory, 
-                          TCGAfilename[TCGAfilename$study==study,]$omf, sep="/"))))
-  }
-}
-#--------------------------------------------------------------------------------
-loadData <- function(uri, columns){
-  
-  # Columns :: Create List From Url
+########################################################################     Step 2: Loading Raw Tables & Data Columns  ########################################################################
+os.data.load <- function(uri, columns){
   header <- unlist(strsplit(readLines(uri, n=1),'\t'));
-  
-  # Columns :: Change Names Of Columns
   intersect(header, columns)
-  # colNames <- unlist(lapply(header, function(x) {
-  #   for (name in names(columns)){
-  #     if (name==x) return(columns[[name]]$name)
-  #   }
-  #   return(x);
-  # }));
-  
   # Columns :: Specify Data Type For Columns
   colData <- unlist(lapply(header, function(x) {
     for (name in names(columns)){
@@ -221,21 +49,44 @@ loadData <- function(uri, columns){
              colClasses = colData
   )
 }
+
+os.data.save <- function(df, file){
+  save(df, file=file)
+}
 #--------------------------------------------------------------------------------
 ptNumMapUpdate <- function(df){
   return(data.frame(PatientID=df$PatientID, 
                     PatientNumber=(seq(1:length(df$PatientID)))))
 }
 #--------------------------------------------------------------------------------
-studies <- TCGAfilename$study 
-DOB <- TRUE
-DIAGNOSIS <- TRUE
-DRUG <- TRUE
-RAD <- TRUE
-STATUS <- TRUE
-ENCOUNTER <- TRUE
-PROGRESSION <- TRUE
-PROCEDURE <- TRUE
-PATHOLOGY <- TRUE
-ABSENT <- TRUE
-TESTS <- TRUE
+# fns<-as.character(TCGAfilename[1,3:ncol(TCGAfilename)])
+# diseases<-TCGAfilename[2:nrow(TCGAfilename),1]
+# files<-TCGAfilename[2:nrow(TCGAfilename),j]
+
+
+
+#   for(i in 1:length(fns)){
+#     print(fns[i])
+#   for (j in 1:length(diseases)){
+#     #print(diseases[j])
+#     files<-TCGAfilename[i,j]
+#     print(files)
+#     } 
+#   }
+
+
+
+# os.import.table.patient <- function(fileInput, fileOutput){ 
+#       #important for diseases like LAML that only have a patient table
+#    if (length(TCGAfilename[i,"pt"])>0){
+#      tbl.pt <- read.table(paste(directory,TCGAfilename[i,"pt"],sep="/") #, quote="", sep="\t", header=TRUE, as.is=TRUE)
+    
+   
+
+  
+
+# os.data.save <- function(df, file){
+# serialized.file.path <-paste("..",study,"inst/extdata",sep="/")
+# save(foobar, file=paste(serialized.file.path,"os.mapping.patient.RData",sep="/"))
+#    }
+
