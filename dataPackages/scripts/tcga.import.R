@@ -20,6 +20,9 @@ library(plyr)
 
 # Class Definitions :: Enumerations -------------------------------------------------------
 os.enum.na <- c("[NOTAVAILABLE]","[UNKNOWN]","[NOT AVAILABLE]","[NOT EVALUATED]","UKNOWN","[DISCREPANCY]","OTHER","NOT LISTED IN MEDICAL RECORD","[NOT APPLICABLE]","[PENDING]","OTHER","PENDING", "[NOT AVAILABLE]","[PENDING]","OTHER: SPECIFY IN NOTES","[NOTAVAILABLE]","OTHER (SPECIFY BELOW)","OTHER", "SPECIFY")
+os.enum.logical.true  <- c("TRUE","YES","1","Y")
+os.enum.logical.false <- c("FALSE","NO","0","N")
+
 os.enum.classes <- list(
         "os.class.gender" = c("MALE", "FEMALE"),
         "os.class.race" = c("WHITE","BLACK OR AFRICAN AMERICAN","ASIAN","AMERICAN INDIAN OR ALASKA NATIVE"),
@@ -31,11 +34,7 @@ os.enum.classes <- list(
         "os.class.newTumor" = c("LOCOREGIONAL DISEASE","RECURRENCE" ,"PROGRESSION OF DISEASE","METASTATIC","DISTANT METASTASIS","LOCOREGIONAL RECURRENCE","NEW PRIMARY TUMOR","BIOCHEMICAL EVIDENCE OF DISEASE"),
         "os.class.encType" = c("[NOT AVAILABLE]","PRE-OPERATIVE","PRE-ADJUVANT THERAPY" ,"POST-ADJUVANT THERAPY","ADJUVANT THERAPY","PREOPERATIVE"),
         "os.class.side" = c("RIGHT","LEFT", "BILATERAL"),
-        "os.class.site" = c("RECURRENCE" ,"PROGRESSION OF DISEASE","LOCOREGIONAL DISEASE","METASTATIC","DISTANT METASTASIS","NEW PRIMARY TUMOR", "LOCOREGIONAL RECURRENCE","BIOCHEMICAL EVIDENCE OF DISEASE"),
-        "os.class.prospective_collection" = c("YES","NO"),
-        "os.class.retrospective_collection" = c("YES","NO"),
-        "os.class.radInd" = c("YES","NO"),
-        "os.class.drugInd" = c("YES","NO")
+        "os.class.site" = c("RECURRENCE" ,"PROGRESSION OF DISEASE","LOCOREGIONAL DISEASE","METASTATIC","DISTANT METASTASIS","NEW PRIMARY TUMOR", "LOCOREGIONAL RECURRENCE","BIOCHEMICAL EVIDENCE OF DISEASE")
 )
 Map( function(key, value, env=parent.frame()){
         setClass(key)
@@ -93,9 +92,10 @@ setAs("character","os.class.tcgaCharacter", function(from){
         return(from)
 })
 
+
 ### TCGA Numeric
 setClass("os.class.tcgaNumeric");
-setAs("character","os.class.tcgaNumeric", function(from){
+setAs("numeric","os.class.tcgaNumeric", function(from){
         
         # Convert Input Character Vector To Uppercase
         from<-toupper(from)	
@@ -106,23 +106,29 @@ setAs("character","os.class.tcgaNumeric", function(from){
         # Set From Indexes Values To NA
         from[from.na]<-NA	
         
-        return(from)
+        return(as.numeric(from))
 })
 
 ### TCGA Boolean
 setClass("os.class.tcgaBoolean");
-setAs("character","os.class.tcgaBoolean", function(from){
+setAs("logical","os.class.tcgaBoolean", function(from){
         
-        # Convert Input Character Vector To Uppercase
         from<-toupper(from)	
         
-        # Get Indexes Of Fram Where Value Is In NA
         from.na<-which(from %in% os.enum.na)
+        from[from.na]<-NA  
         
-        # Set From Indexes Values To NA
-        from[from.na]<-NA	
+        from.true <- which( from %in% os.enum.logical.true )
+        from[from.true] <- TRUE
         
-        return(from)
+        from.false <- which(from %in% os.enum.logical.false )
+        from[from.false] <- FALSE
+        
+        # Return Enum or NA
+        if( all(from %in% c( os.enum.logical.true, os.enum.logical.false, NA))) return( as.logical(from) )
+        
+        # Kill If Not In Enum or Na
+        stop(setdiff(from,c( os.enum.logical.true, os.enum.logical.false, NA )))
 })
 
 # Table Mapping Definitions -------------------------------------------------
@@ -166,8 +172,8 @@ os.table.mappings <- list(
                 'days_to_initial_pathologic_diagnosis' = list(name = "date", data = "os.class.tcgaNumeric"),
                 'tumor_tissue_site' = list(name = "pathDisease", data = "os.class.tcgaCharacter"),
                 'histological_type' = list(name = "pathHistology", data = "os.class.tcgaCharacter"),
-                'prospective_collection' = list(name = "prospective_collection", data = "os.class.prospective_collection"),
-                'retrospective_collection' = list(name = "retrospective_collection", data = "os.class.retrospective_collection"),
+                'prospective_collection' = list(name = "prospective_collection", data = "os.class.tcgaBoolean"),
+                'retrospective_collection' = list(name = "retrospective_collection", data = "os.class.tcgaBoolean"),
                 'method_initial_path_dx' = list(name = "pathMethod", data = "os.class.tcgaCharacter"),
                 'ajcc_tumor_pathologic_pt' = list(name = "T.Stage", data = "os.class.tcgaCharacter"),
                 'ajcc_nodes_pathologic_pn' = list(name = "N.Stage", data = "os.class.tcgaCharacter"),
@@ -287,8 +293,8 @@ os.table.mappings <- list(
                    'ecog_score' = list(name = "ECOG", data = "os.class.tcgaNumeric"), 
                    #Absent Table 
                    'new_tumor_event_dx_days_to' = list(name = "omfdx", data = "os.class.tcgaNumeric"),
-                   'new_tumor_event_radiation_tx' = list(name = "radInd", data = "os.class.radInd"),
-                   'new_tumor_event_pharmaceutical_tx' = list(name = "drugInd", data = "os.class.drugInd"), 
+                   'new_tumor_event_radiation_tx' = list(name = "radInd", data = "os.class.tcgaBoolean"),
+                   'new_tumor_event_pharmaceutical_tx' = list(name = "drugInd", data = "os.class.tcgaBoolean"), 
                    #Test Table 
                    'days_to_psa_most_recent' = list(name = "psaDate", data = "os.class.tcgaNumeric"),
                    'days_to_bone_scan' = list(name = "boneScanDate", data = "os.class.tcgaNumeric"),
@@ -375,8 +381,8 @@ os.table.mappings <- list(
                    'ecog_score' = list(name = "ECOG", data = "os.class.tcgaNumeric"),
                    # Absent Table 
                    'new_tumor_event_dx_days_to' = list(name = "omfdx", data = "os.class.tcgaNumeric"),
-                   'new_tumor_event_radiation_tx' = list(name = "radInd", data = "os.class.radInd"),
-                   'new_tumor_event_pharmaceutical_tx' = list(name = "drugInd", data = "os.class.drugInd"),
+                   'new_tumor_event_radiation_tx' = list(name = "radInd", data = "os.class.tcgaBoolean"),
+                   'new_tumor_event_pharmaceutical_tx' = list(name = "drugInd", data = "os.class.tcgaBoolean"),
                    # Test Table 
                    'days_to_psa_most_recent' = list(name = "psaDate", data = "os.class.tcgaNumeric"),
                    'days_to_bone_scan' = list(name = "boneScanDate", data = "os.class.tcgaNumeric"),
@@ -730,7 +736,7 @@ os.table.mappings <- list(
         )
 )
 
-# IO Utility Functions :: [BatchProcess, Load, Save]  -------------------------------------------------------
+# IO Utility Functions :: [Batch, Load, Save]  -------------------------------------------------------
 
 ### Load Function Takes An Import File + Column List & Returns A DataFrame
 os.data.load <- function(inputFile, columns){
@@ -814,7 +820,7 @@ os.data.batch <- function(inputFile, outputDirectory){
                         # Load Data Frame
                         df <- os.data.load( 
                                 inputFile = inputFile, 
-                                columns = os.table.mappings[[currentDataFile]])
+                                columns = os.table.mappings[[currentTable]])
                         
                         # Save Data Frame
                         os.data.save(
