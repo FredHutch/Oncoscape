@@ -1,17 +1,3 @@
-#Step 1 - Create Clean Data Set
-	  # Read File
-	  # Set Column Types
-	  # Normalize Column Names
-	  # Remove Invalid Values
-	  # Write To Disk
-
-# Step 2 - Create Custom Data Sets
-
-	# Read File
-	# Create Calculated "Date" Field (Dx Year + Days To)
-	# Remove Days To + Dx Field
-	# Write To Disk
-
 #Reference Table#------------------------------------------------------------------------------------
 options(stringsAsFactors=FALSE)
 library(RUnit)
@@ -46,68 +32,26 @@ if(!interactive()){
 ##################################################################################
 
 ########################   Step 1: Set Classes for the fields    #################
-# define factors
-os.enum.na <- c("[UNKNOWN]","[NOT AVAILABLE]","[NOT EVALUATED]","Uknown","[Discrepancy]","Other","NOT LISTED IN MEDICAL RECORD","[NOT APPLICABLE]","[PENDING]","OTHER","pending", "[not available]","[pending]","OTHER: SPECIFY IN NOTES","[NotAvailable]")
-os.enum.gender <- c("MALE", "FEMALE")
-os.enum.race <- c("WHITE","BLACK OR AFRICAN AMERICAN","ASIAN","AMERICAN INDIAN OR ALASKA NATIVE")
-os.enum.ethnicity <- c("HISPANIC OR LATINO","NOT HISPANIC OR LATINO")                      
-#--------------------------------------------------------------------------------
-#set classes
 
-setClass("os.class.gender")
-setAs("factor", "os.class.gender", function(from){
+enum.na <- c("[UNKNOWN]","[NOT AVAILABLE]","[NOT EVALUATED]","Uknown","[Discrepancy]","Other","NOT LISTED IN MEDICAL RECORD","[NOT APPLICABLE]","[PENDING]","OTHER")
 
-	toupper(from)	
-	
-	if(from %in% os.enum.gender){ 
-		return(from)
-	} else if (from %in% os.enum.na){
-		 return(NA)
-	} else {
-		print("UKNOWN VALUE IN:os.class.gender")
-	}
+setClass("gender");
+setAs("factor", "gender", function(from){
 
-})
+	from <- from.toupper();
 
-#--------------------------------------------------------------------------------
-setClass("os.class.race")
-setAs("factor", "os.class.race", function(from){
-	
-	toupper(from)	
-	
-	if(from %in% os.enum.race){ 
-		return(from)
-	} else if (from %in% os.enum.na){
-		 return(NA)
-	} else {
-		print("UKNOWN VALUE IN:os.class.race")
-	}
+	if (from in c("MALE", "FEMALE")) return(from);
+	if (from in enum.na)  return(NA)
 
-})
-#--------------------------------------------------------------------------------
+	throw("SOMETHING EXPECTED")
 
-setClass("os.class.ethnicity")
-setAs("factor", "os.class.ethnicity", function(from){
-	
-	toupper(from)	
-	
-	if(from %in% os.enum.ethnicity){ 
-		return(from)
-	} else if (from %in% os.enum.na){
-		 return(NA)
-	} else {
-		print("UKNOWN VALUE IN:os.class.ethnicity")
-	}
+});
 
-})
-#--------------------------------------------------------------------------------
-
-setClass("tcgaId")
+setClass("tcgaId");
 setAs("character","tcgaId", function(from) {
   as.character(str_replace_all(from,"-","." )) 
-})
+});
 #--------------------------------------------------------------------------------
-
 setClass("tcgaDate");
 setAs("character","tcgaDate", function(from){
   # If 4 Year Date
@@ -116,14 +60,13 @@ setAs("character","tcgaDate", function(from){
   }
   return(NA)
 });
-
 #--------------------------------------------------------------------------------
-setClass("upperCharacter")
+setClass("upperCharacter");
 setAs("character","upperCharacter", function(from){
-	from <- from.toupper()
-	if (from in os.enum.na) return (NA)
-  	from
-})
+  toupper(from)
+});
+#--------------------------------------------------------------------------------
+#add gender, ethnicity, race 
 #--------------------------------------------------------------------------------
 
 rawTablesRequest <- function(study, table){
@@ -337,21 +280,75 @@ PROCEDURE <- TRUE
 PATHOLOGY <- TRUE
 ABSENT <- TRUE
 TESTS <- TRUE
-#----------------------     DOB Mapping Starts Here      -----------------------
+#----------------------     DOB functions Start Here      -----------------------
 if(DOB){
 	DOB.unique.request <- function(study_name){
-	  uri <- rawTablesRequest(study_name, "DOB") 
+	  uri <- rawTablesRequest(study_name, "DOB") #add NA collection, na.strings=
 	  df  <- loadData(uri, 
 	               list(
 	                    'bcr_patient_barcode' = list(name = "PatientID", data = "tcgaId"),
-	                   	#'birth_days_to' = list(name = "dob", data = "integer"), 
-	                    'gender' = list(name = "gender", data = "os.class.gender"),
-	                    'ethnicity' = list(name = "ethnicity", data ="os.class.ethnicity"),
-	                    'race' = list(name = "race", data = "os.class.race")
-	                    #'initial_pathologic_dx_year' = list(name = "dxyear", data = "tcgaDate")
+	                    'birth_days_to' = list(name = "dob", data = "integer"), #changed
+	                    'gender' = list(name = "gender", data = "gender"), #changed
+	                    'ethnicity' = list(name = "ethnicity", data ="ethnicity"), #changed
+	                    'race' = list(name = "race", data = "race"), #changed
+	                    'initial_pathologic_dx_year' = list(name = "dxyear", data = "tcgaDate")
 	                ))
-
-} # End of DOB mapping 
+	  #unique.dob <- unique(df$dob)
+	  #unique.gender <- unique(df$gender)
+	  #unique.ethnicity <- unique(df$ethnicity)
+	  #unique.race <- unique(df$race)
+	  #result = list(unique.dob=unique.dob, unique.gender=unique.gender, 
+	  				#unique.ethnicity=unique.ethnicity, unique.race=unique.race)
+	  #return(result)
+	}
+	#--------------------------------------------------------------------------------
+	#break apart into two functions: reading raw, creating a list of unique values
+	DOB.unique.aggregate <- function(res1, res2){
+		res = list(unique.dob=unique(c(res1$unique.dob,res2$unique.dob)),
+				   unique.gender=unique(c(res1$unique.gender,res2$unique.gender)),
+				   unique.ethnicity=unique(c(res1$unique.ethnicity,res2$unique.ethnicity)),
+				   unique.race=unique(c(res1$unique.race, res2$unique.race)))
+	    return(res)
+	}
+	#--------------------------------------------------------------------------------
+	DOB.unique.values <- Reduce(DOB.unique.aggregate, lapply(studies, DOB.unique.request))
+	DOB.mapping.dob <- function(df){
+		from <- DOB.unique.values$unique.dob
+		to 	 <- from 
+		to[match("[NOT AVAILABLE]", to)] <- NA
+		df$dob <- mapvalues(df$dob, from = from, to = to, warn_missing = F)
+		return(df)
+	}	
+	#--------------------------------------------------------------------------------
+	DOB.mapping.dob.Calculation <- function(df){
+		df$date <- format(as.Date(df$dxyear, "%m/%d/%Y") + as.integer(df$dob), "%m/%d/%Y")
+		return(df)
+	}	
+	#--------------------------------------------------------------------------------
+	DOB.mapping.gender <- function(df){
+		from <- DOB.unique.values$unique.gender
+		to 	 <- from 
+		to[match(c("[UNKNOWN]","[NOT AVAILABLE]","[NOT EVALUATED]"), to)] <- NA
+		df$gender <- mapvalues(df$gender, from = from, to = to, warn_missing = F)
+		return(df)
+	}	
+	#--------------------------------------------------------------------------------
+	DOB.mapping.race <- function(df){
+		from <- DOB.unique.values$unique.race
+		to 	 <- from 
+		to[match(c("[UNKNOWN]","[NOT AVAILABLE]","[NOT EVALUATED]"), to)] <- NA
+		df$race <- mapvalues(df$race, from = from, to = to, warn_missing = F)
+		return(df)
+	}	
+	#--------------------------------------------------------------------------------
+	DOB.mapping.ethnicity <- function(df){
+		from <- DOB.unique.values$unique.ethnicity 
+		to 	 <- from 
+		to[match(c("[NOT EVALUATED]","[NOT AVAILABLE]","[UNKNOWN]"), to)] <- NA
+		df$ethnicity <- mapvalues(df$ethnicity, from = from, to = to, warn_missing = F)
+		return(df)
+	}	
+} # End of DOB Native Functions
 #----------------------   Diagnosis functions Start Here   ----------------------
 if(DIAGNOSIS){
 	Diagnosis.unique.request <- function(study_name){
@@ -1257,11 +1254,11 @@ if(PROCEDURE){
 	                         'bcr_patient_barcode' = list(name = "PatientID", data = "tcgaId"),
 	                         'new_tumor_event_surgery_days_to_loco' = list(name = "date_locoregional", data = "upperCharacter"), #(only in lgg,luad,lusc)
 	                         'new_tumor_event_surgery_days_to_met'= list(name = "date_metastatic", data = "upperCharacter"), #(only in lgg,luad,lusc)
-	                         'new_tumor_event_surgery' = list(name = "new_tumor_event_surgery", data = "upperCharacter"), #(in brca,hnsc but not being collected...) #YES/NO
+	                         #'new_tumor_event_surgery' = list(name = "new_tumor_event_surgery", data = "upperCharacter"), #(in brca,hnsc but not being collected...) #YES/NO
 	                         'days_to_new_tumor_event_additional_surgery_procedure'  = list(name = "date", data = "upperCharacter"), #(only in gbm,coad,read)
 	                         'new_neoplasm_event_type'  = list(name = "site", data = "upperCharacter"), #(only in gbm, coad, read)
 	                         'new_tumor_event_type'  = list(name = "site", data = "upperCharacter") #(only in hnsc, prad, luad, lusc)
-	                         'new_tumor_event_additional_surgery_procedure'  = list(name = "new_tumor_event_additional_surgery_procedure", data = "upperCharacter") #(gbm,coad,read but not being collected...) YES/NO
+	                         #'new_tumor_event_additional_surgery_procedure'  = list(name = "new_tumor_event_additional_surgery_procedure", data = "upperCharacter") #(gbm,coad,read but not being collected...) YES/NO
 	                        ))
 	    tbl.omf <- loadData(uri[2],
 	                       list(
