@@ -25,29 +25,44 @@
                 $state.go("datasource");
                 return;
             }
+
+            // Data
+            var rawData;
+            var cohortPatient = osApi.getCohortPatient();
+
             // View Model
             var vm = this;
             vm.datasource = $stateParams.datasource;
+            vm.optCohortPatients = cohortPatient.get();
+            vm.optCohortPatient = vm.optCohortPatients[0];
             
-            // Filter
-            var rawData;
-            var pfApi = osApi.getPatientFilterApi();
-            pfApi.init(vm.datasource);
-            pfApi.onSelect.add(draw);
+
+            $scope.$watch('vm.optCohortPatient', function() {
+                var ids = vm.optCohortPatient.ids;
+                if (ids == "*"){
+                    ids = rawData;
+                }
+                else{
+                    var pids = vm.optCohortPatient.ids;
+                    ids = rawData.filter( function(d){
+                        return (pids.indexOf(d)>=0);
+                    });
+                    draw(ids);
+                }
+            });
 
             // Load Datasets
             osApi.setBusy(true);
             osApi.setDataset(vm.datasource).then(function() {
                 osApi.getPatientHistoryTable(vm.datasource).then(function(response) {
                     rawData = response.payload.tbl.map( function (d) { return d[0]; });
-                    draw();
+                    draw(rawData);
                 });
             });
 
             // Draw
-            function draw(){
+            function draw(ids){
                 osApi.setBusy(true);
-                var ids = pfApi.filter(rawData, function(p){ return p; });
                 osApi.getCalculatedSurvivalCurves(ids, "").then(function(r){
                         angular.element("#survival-img").attr('src',r.payload);
                         osApi.setBusy(false);

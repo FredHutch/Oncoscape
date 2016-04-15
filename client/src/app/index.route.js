@@ -10,6 +10,11 @@
 
 
         $stateProvider
+            .state('test',{
+                url: '/test',
+                template: '<os-test>',
+                authenticate: false
+            })
             .state('landing', {
                 url: '/',
                 template: '<os-landing>',

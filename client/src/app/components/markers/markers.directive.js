@@ -30,19 +30,17 @@
             // Elements
             var cyChart;
             var elChart = angular.element(".markers-chart");
+            var cohortPatient = osApi.getCohortPatient();
+            var cohortGene = osApi.getCohortGene();
 
             // Initialize View Model
             var vm = initializeViewModel(this, $stateParams);
-            vm.toggleFilter = function() {
-                angular.element(".container-filters").toggleClass("container-filters-collapsed");
-                angular.element(".container-filter-toggle").toggleClass("container-filter-toggle-collapsed");
-            };
 
             vm.resize = function(){
                 var width = $window.innerWidth
                 if (angular.element(".tray").attr("locked")=="true") width -= 300;
                 elChart.width( width );
-                elChart.height($window.innerHeight - 145);
+                elChart.height($window.innerHeight - 90);
                 if (cyChart) cyChart.resize();
             }
 
@@ -64,10 +62,13 @@
                 // Initialize Chart
                 cyChart = initializeChart(data, styles, cytoscape, angular.element("#markers-chart"));
 
-                // Initalize Layouts
+                // Initialize Cohorts
+                initializeCohort(cyChart, vm, osApi, cohortPatient, cohortGene, $scope);
+
+                // Initialize Layouts
                 initializeLayouts(cyChart, vm, $scope);
 
-                // Initalize Node Colors
+                // Initialize Node Colors
                 initializeNodeColors(cyChart, vm, $scope, osApi);
 
                 // Initialize Edge Colors
@@ -149,8 +150,103 @@
             vm.searchGeneResult = "";
             vm.searchPatient;
             vm.searchPatientResult = "";
+            vm.optCohortModes;
+            vm.optCohortMode = "";
+            vm.optCohortPatients;
+            vm.optCohortPatient;
+            vm.optCohortGenes;
+            vm.optCohortGene;
             vm.frame;
             return vm;
+        }
+
+        function initializeCohort(chart, vm, osApi, cohortPatient, cohortGene, $scope){
+            vm.optCohortModes = [{name:"Highlight Cohort"},{name:"Subset Cohort"}];
+            vm.optCohortMode = vm.optCohortModes[0];
+            vm.optCohortPatients = cohortPatient.get();
+            vm.optCohortPatient = vm.optCohortPatients[0];
+            vm.optCohortGenes = cohortGene.get();
+            vm.optCohortGene = vm.optCohortGenes[0];
+
+            vm.addCohortGene = function(e){
+                var cohortName = "P+M " + moment().format('- H:mm - M/D/YY');
+                var cohortIds = chart.$('node[nodeType="gene"]:selected').map(function(ele){ return ele.data().id.toUpperCase() });
+                var cohort = {name:cohortName, ids:cohortIds};
+                vm.optCohortGenes.push(cohort);
+                vm.optCohortGene = cohort;
+            }
+            vm.addCohortPatient = function(e){
+                var cohortName = "P+M " + moment().format('- H:mm - M/D/YY');
+                var cohortIds = chart.$('node[nodeType="patient"]:selected').map(function(ele){ return ele.data().id.toUpperCase() });
+                var cohort = {name:cohortName, ids:cohortIds};
+                vm.optCohortPatients.push(cohort);
+                vm.optCohortPatient = cohort;
+            }
+
+            var drawPatients = function(){
+                var degmap = {};
+                var highlight = (vm.optCohortMode.name=="Highlight Cohort");
+                chart.startBatch();
+
+                if (vm.optCohortPatient.ids=="*"){
+                    chart.$('node[nodeType="patient"]:selected')
+                        .forEach( function(ele){
+                            ele.deselect();
+                            degmap[ele.id()] = {display:'element'};
+                        }, degmap);
+                }else{
+                    chart.$('node[nodeType="patient"]')
+                        .forEach( function(ele){
+                            if (this.ids.indexOf(ele.id())>=0){
+                                ele.select();
+                                this.degmap[ele.id()] = {display:'element'};
+                            }else{
+                                ele.deselect();
+                                this.degmap[ele.id()] = {display: (highlight) ? 'element' : 'none' };
+                            }
+                        }, {degmap:degmap, ids:vm.optCohortPatient.ids} );
+                }
+                chart.batchData(degmap);
+                chart.endBatch();
+            };
+            var drawGenes = function(){
+                var degmap = {};
+                var highlight = (vm.optCohortMode.name=="Highlight Cohort");
+                chart.startBatch();
+
+                if (vm.optCohortGene.ids=="*"){
+                    chart.$('node[nodeType="gene"]:selected')
+                        .forEach( function(ele){
+                            ele.deselect();
+                            degmap[ele.id()] = {display:'element'};
+                        }, degmap);
+                }
+                else{
+                    chart.$('node[nodeType="gene"]')
+                        .forEach( function(ele){
+                            if (this.ids.indexOf(ele.id())>=0){
+                                ele.select()
+                                this.degmap[ele.id()] = {display:'element'};
+                            }else{
+                                ele.deselect();
+                                this.degmap[ele.id()] = {display: (highlight) ? 'element' : 'none' }
+                            }
+                        }, {degmap:degmap, ids:vm.optCohortGene.ids} );
+                }
+                chart.batchData(degmap);
+                chart.endBatch();
+            };
+
+            var drawMode = function(){
+                drawPatients();
+                drawGenes();
+            }
+
+            // What Scope To Initialize Behaviors
+            $scope.$watch("vm.optCohortPatient", drawPatients );
+            $scope.$watch("vm.optCohortGene", drawGenes );
+            $scope.$watch("vm.optCohortMode", drawMode );
+
         }
 
         function initializeChart(data, styles, cytoscape, el){
@@ -193,8 +289,8 @@
                 selector: 'node',
                 style: {
                     'display': "data(display)",
-                    'height': "mapData(sizeEle, 0, 50, .1, 80)",
-                    'width': "mapData(sizeEle, 0, 50, .1, 80)",
+                    'height': "mapData(sizeEle, 0, 50, 10, 100)",
+                    'width': "mapData(sizeEle, 0, 50, 10, 100)",
                     'font-size': 'data(sizeLbl)',
                     'text-valign': 'center'
                 }
@@ -652,7 +748,7 @@
         function initializeNodeColors(chart, vm, $scope, osApi){
             
             osApi.getSampleCategorizationNames().then(function(response) {
-                var optNodeColors =  [{name: 'Default'},{name: 'Gender'},{name: 'Age At Diagnosis'}];
+                var optNodeColors =  [{name: 'Hobo'},{name: 'Gender'},{name: 'Age At Diagnosis'}];
                 if (angular.isDefined(response.payload.length)){
                     optNodeColors.concat( response.payload
                         .map(function(item) { return {'name': item} }));
@@ -664,7 +760,7 @@
                 $scope.$watch("vm.optNodeColor", function(){
                     var degmap = {};
                     switch(vm.optNodeColor.name){
-                        case "Default":
+                        case "Hobo":
                             vm.legandNodes = [{name:'Patients', color:'#3993fa'}];
                             chart.$('node[nodeType="patient"]')
                                 .forEach(function(node){
@@ -766,8 +862,8 @@
                                 catch(e){ return false; }
                             })
                             .forEach(function(node, index){
-                                var a = 30;
-                                var b = 30;
+                                var a = 400;
+                                var b = 400;
                                 var angle = 0.1 * (index+1);
                                 var x = -1000 + (a+b * angle) * Math.cos(angle);
                                 var y = -1200 + (a+b * angle) * Math.sin(angle);
@@ -781,8 +877,8 @@
                                 return angular.isUndefined(node.data("patient")[0])
                             })
                             .forEach(function(node, index){
-                                var a = 50;
-                                var b = 50;
+                                var a = 400;
+                                var b = 400;
                                 var angle = 0.1 * (index+1);
                                 var x = -2500 + (a+b * angle) * Math.cos(angle);
                                 var y = 0 + (a+b * angle) * Math.sin(angle);
@@ -791,15 +887,14 @@
                                     y: y
                                 });
                             });
-
                         nodes
                             .filter(function(index, node){
                                 try{ return (node.data("patient")[0][2].toLowerCase()=='female')}
                                 catch(e){ return false; }
                             })
                             .forEach(function(node, index){
-                                var a = 30;
-                                var b = 30;
+                                var a = 400;
+                                var b = 400;
                                 var angle = 0.1 * (index+1);
                                 var x = -1000 + (a+b * angle) * Math.cos(angle);
                                 var y = 1200 + (a+b * angle) * Math.sin(angle);

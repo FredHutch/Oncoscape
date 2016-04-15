@@ -26,6 +26,14 @@
                 return;
             }
 
+            // Elements
+            var d3Chart = d3.select("#plsr-chart").append("svg").attr("id", "chart");
+            var d3Tooltip = d3.select("body").append("div").attr("class", "tooltip plsr-tooltip")
+
+            // Properties
+            var cohortGene = osApi.getCohortGene();
+            var width, height, xScale, yScale, xMax, yMax, brush;
+
             // View Model
             var vm = this;
             vm.datasource = $stateParams.datasource;
@@ -35,16 +43,35 @@
             vm.survivalMaxFilter = vm.survivalMaxValue = 7;
             vm.geneSets = [];
             vm.geneSet = null;
+            vm.optCohortGenes = cohortGene.get();
+            vm.optCohortGene = vm.optCohortGenes[0];
             vm.frame;
             vm.tip = null;
 
-            // D3 Scale
-            var width, height, xScale, yScale, xMax, yMax;
 
-            // Elements
-            var d3Chart = d3.select("#plsr-chart").append("svg").attr("id", "chart");
-            var d3Tooltip = d3.select("body").append("div").attr("class", "tooltip plsr-tooltip")
+            // Cohorts
+            vm.addCohortGene = function(){
+                var cohortName = "PLSR " + moment().format('- H:mm:ss - M/D/YY');
+                var cohortIds = d3Chart.selectAll(".plsr-node-selected")[0].map(function(node){ return node.__data__.name.toUpperCase(); });
+                var cohort = {name:cohortName, ids:cohortIds};
+                vm.optCohortGenes.push(cohort);
+                vm.optCohortGene = cohort;
+            }
+            $scope.$watch('vm.optCohortGene', function() {
+                var ids = vm.optCohortGene.ids;
+                if (ids == "*"){
+                    d3Chart.selectAll(".plsr-node-selected").classed("plsr-node-selected", false);
+                }
+                else{
+                    d3Chart.selectAll("circle").classed("plsr-node-selected", function(){
+                        return (ids.indexOf(this.__data__.name)>=0)
+                    });
+                }
+            });
 
+            
+
+            
 
             // Initialize
             osApi.setBusy(true)("Loading Dataset");
@@ -135,13 +162,13 @@
                     setScale();
 
                     // Brush
-                    var brush = d3.svg.brush()
+                    brush = d3.svg.brush()
                         .x(xScale)
                         .y(yScale)
                         .on("brushend", function() {
                             var bv = brush.extent();
                             d3Chart.selectAll("circle")
-                                .classed("pca-node-selected", function(d) {
+                                .classed("plsr-node-selected", function(d) {
                                     return (d[0] > bv[0][0] && d[0] < bv[1][0] && d[1] > bv[0][1] && d[1] < bv[1][1]);
                                 });
                             d3.select(this).transition().duration(300)
