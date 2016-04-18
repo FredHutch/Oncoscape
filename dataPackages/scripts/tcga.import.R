@@ -8,9 +8,14 @@
 # Configuration -----------------------------------------------------------
 rm(list = ls(all = TRUE))
 options(stringsAsFactors = FALSE)
-setwd('/Users/michaelz/Documents/Projects/git/tcgapipe/Oncoscape/dataPackages/scripts')
-os.data.batch.inputFile <- "/Users/michaelz/Documents/Projects/git/tcgapipe/Oncoscape/dataPackages/scripts/TCGA_Reference_Filenames_zager.txt"
-os.data.batch.outputDir <- "/Users/michaelz/Documents/Projects/git/tcgapipe/clean"
+os.data.batch.inputFile <- "tcga.filename.manifest.txt"
+os.data.batch.inputFile.studyCol <- "study"
+os.data.batch.inputFile.dirCol   <- "directory"
+os.data.batch.inputFile.fileCols <- c("pt", "drug", "rad","f1","f2", "f3","nte","omf","nte_f1")
+os.data.batch.outputDir <- "../tcga.clean/"
+
+dir.create(file.path(os.data.batch.outputDir), showWarnings = FALSE)
+
 
 # Library Imports ---------------------------------------------------------
 library(RUnit)
@@ -27,13 +32,13 @@ os.enum.classes <- list(
         "os.class.gender" = c("MALE", "FEMALE"),
         "os.class.race" = c("WHITE","BLACK OR AFRICAN AMERICAN","ASIAN","AMERICAN INDIAN OR ALASKA NATIVE"),
         "os.class.ethnicity" = c("HISPANIC OR LATINO","NOT HISPANIC OR LATINO"),
-        "os.class.disease" = c("BREAST","COLON","BRAIN","RECTUM","PROSTATE","LUNG","BLADDER","HEAD AND NECK","PANCREAS","SARCOMA"),
-        "os.class.route" = c("ORAL","INTRAVENOUS (IV)","INTRATUMORAL","INTRAVESICAL","INTRA-PERITONEAL (IP)|INTRAVENOUS (IV)","SUBCUTANEOUS (SC)","INTRAVENOUS (IV)|ORAL","INTRAMUSCULAR (IM)","INTRAMUSCULAR (IM)|INTRAVENOUS (IV)"),
+#        "os.class.tissueSite" = c("BREAST","COLON","BRAIN","RECTUM","PROSTATE","LUNG","BLADDER","HEAD AND NECK","PANCREAS","SARCOMA", "CENTRAL NERVOUS SYSTEM"),
+        "os.class.route" = c("ORAL","INTRAVENOUS (IV)","INTRATUMORAL","INTRAVESICAL","INTRA-PERITONEAL (IP)|INTRAVENOUS (IV)","SUBCUTANEOUS (SC)","INTRAVENOUS (IV)|ORAL","INTRAMUSCULAR (IM)","INTRAMUSCULAR (IM)|INTRAVENOUS (IV)","IV","PO","IM","SC","IV|PO","IM|IV", "IH", "INTUM","IP|IV"),
         "os.class.vital" = c("DEAD","ALIVE"),
         "os.class.status" = c("WITH TUMOR","TUMOR FREE"),
-        "os.class.newTumor" = c("LOCOREGIONAL DISEASE","RECURRENCE" ,"PROGRESSION OF DISEASE","METASTATIC","DISTANT METASTASIS","LOCOREGIONAL RECURRENCE","NEW PRIMARY TUMOR","BIOCHEMICAL EVIDENCE OF DISEASE"),
-        "os.class.encType" = c("[NOT AVAILABLE]","PRE-OPERATIVE","PRE-ADJUVANT THERAPY" ,"POST-ADJUVANT THERAPY","ADJUVANT THERAPY","PREOPERATIVE"),
-        "os.class.side" = c("RIGHT","LEFT", "BILATERAL"),
+        "os.class.newTumor" = c("LOCOREGIONAL DISEASE","RECURRENCE" ,"PROGRESSION OF DISEASE","METASTATIC","DISTANT METASTASIS","LOCOREGIONAL RECURRENCE","NEW PRIMARY TUMOR","BIOCHEMICAL EVIDENCE OF DISEASE", "LOCOREGIONAL RECURRENCE|DISTANT METASTASIS", "DISTANT METASTASIS|NEW PRIMARY TUMOR", "NO NEW TUMOR EVENT", "LOCOREGIONAL (UROTHELIAL TUMOR EVENT)"),
+        "os.class.encType" = c("PRE-OPERATIVE","PRE-ADJUVANT THERAPY" ,"POST-ADJUVANT THERAPY","ADJUVANT THERAPY","PREOPERATIVE"),
+        "os.class.side" = c("RIGHT","LEFT", "BILATERAL", "BOTH", "6TH"),
         "os.class.site" = c("RECURRENCE" ,"PROGRESSION OF DISEASE","LOCOREGIONAL DISEASE","METASTATIC","DISTANT METASTASIS","NEW PRIMARY TUMOR", "LOCOREGIONAL RECURRENCE","BIOCHEMICAL EVIDENCE OF DISEASE")
 )
 Map( function(key, value, env=parent.frame()){
@@ -48,7 +53,7 @@ Map( function(key, value, env=parent.frame()){
                 if(all(from %in% c(value, NA))) return(from)	
                 
                 # Kill If Not In Enum or Na
-                stop(setdiff(from,c(enum, NA)))
+                stop(paste(key, " not set due to: ", paste(setdiff(from,c(value, NA)), collapse=";"), " not belonging to ", paste(value, collapse=";")))
         })
 }, names(os.enum.classes), os.enum.classes);
 
@@ -95,8 +100,8 @@ setAs("character","os.class.tcgaCharacter", function(from){
 
 ### TCGA Numeric
 setClass("os.class.tcgaNumeric");
-setAs("numeric","os.class.tcgaNumeric", function(from){
-        
+setAs("character","os.class.tcgaNumeric", function(from){
+  
         # Convert Input Character Vector To Uppercase
         from<-toupper(from)	
         
@@ -106,29 +111,37 @@ setAs("numeric","os.class.tcgaNumeric", function(from){
         # Set From Indexes Values To NA
         from[from.na]<-NA	
         
-        return(as.numeric(from))
+        from <- as.numeric(from)
+        
+        if(all(is.numeric(from))) return (from)
+        
+        # Kill If Not In Enum or Na
+        stop(paste("os.class.tcgaNumeric not properly set: ", from[!is.numeric(from)], collapse=";"))
+        
 })
 
 ### TCGA Boolean
 setClass("os.class.tcgaBoolean");
-setAs("logical","os.class.tcgaBoolean", function(from){
-        
+setAs("character","os.class.tcgaBoolean", function(from){
+
         from<-toupper(from)	
         
         from.na<-which(from %in% os.enum.na)
         from[from.na]<-NA  
         
         from.true <- which( from %in% os.enum.logical.true )
-        from[from.true] <- TRUE
+        from[from.true] <- "TRUE"
         
         from.false <- which(from %in% os.enum.logical.false )
-        from[from.false] <- FALSE
+        from[from.false] <- "FALSE"
         
-        # Return Enum or NA
-        if( all(from %in% c( os.enum.logical.true, os.enum.logical.false, NA))) return( as.logical(from) )
+        from <- as.logical(from)
+
+        # Return Enum or NA        
+        if( all(from %in% c( TRUE, FALSE, NA))) return( from )
         
         # Kill If Not In Enum or Na
-        stop(setdiff(from,c( os.enum.logical.true, os.enum.logical.false, NA )))
+        stop(paste("os.class.tcgaBoolean not properly set: ", setdiff(from,c( TRUE, FALSE, NA )), collapse=";"))
 })
 
 # Table Mapping Definitions -------------------------------------------------
@@ -142,7 +155,8 @@ os.table.mappings <- list(
                 'ethnicity' = list(name = "ethnicity", data = "os.class.ethnicity"),
                 'race' = list(name = "race", data = "os.class.race"), 
                 #Diagnosis Table 
-                'tumor_tissue_site' = list(name = "tumorTissueSite", data = "os.class.disease"),
+                #'tumor_tissue_site' = list(name = "tumorTissueSite", data = "os.class.tissueSite"),
+                'tumor_tissue_site' = list(name = "tumorTissueSite", data = "os.class.tcgaCharacter"),
                 'tissue_source_site' = list(name = "tissueSourceSiteCode", data = "os.class.tcgaCharacter"), 
                 #Status Table 
                 'vital_status' = list(name = "vitalStatus", data = "os.class.vital"),
@@ -559,16 +573,16 @@ os.table.mappings <- list(
                     'other_malignancy_histological_type_text' = list(name = "otherMalignancyHistologicalTypeText", data = "os.class.tcgaCharacter"), 
                     #Absent Table 
                     'days_to_other_malignancy_dx' = list(name = "daysToOtherMalignancyDx", data = "os.class.tcgaNumeric"),
-                    'radiation_tx_indicator' = list(name = "radiationTxIndicator", data = "os.class.radInd"),
-                    'drug_tx_indicator' = list(name = "drugTxIndicator", data = "os.class.drugInd")
+                    'radiation_tx_indicator' = list(name = "radiationTxIndicator", data = "os.class.tcgaBoolean"),
+                    'drug_tx_indicator' = list(name = "drugTxIndicator", data = "os.class.tcgaBoolean")
         ),
         "nte"= list('bcr_patient_barcode' = list(name = "PatientID", data = "os.class.tcgaId"),
                     'days_to_new_tumor_event_after_initial_treatment' = list(name = "daysToNewTumorEventAfterInitialTreatment", data = "os.class.tcgaNumeric"),
                     'new_tumor_event_dx_days_to' = list(name = "newTumorEventDxDaysTo'", data = "os.class.tcgaNumeric"),
-                    'additional_radiation_therapy' = list(name = "additionalRadiationTherapy", data = "os.class.radInd"),
-                    'new_tumor_event_radiation_tx' = list(name = "newTumorEventRadiationTx", data = "os.class.radInd"),
-                    'additional_pharmaceutical_therapy' = list(name = "additionalPharmaceuticalTherapy", data = "os.class.drugInd"),
-                    'new_tumor_event_pharmaceutical_tx' = list(name = "newTumorEventPharmaceuticalTx", data = "os.class.drugInd"), 
+                    'additional_radiation_therapy' = list(name = "additionalRadiationTherapy", data = "os.class.tcgaBoolean"),
+                    'new_tumor_event_radiation_tx' = list(name = "newTumorEventRadiationTx", data = "os.class.tcgaBoolean"),
+                    'additional_pharmaceutical_therapy' = list(name = "additionalPharmaceuticalTherapy", data = "os.class.tcgaBoolean"),
+                    'new_tumor_event_pharmaceutical_tx' = list(name = "newTumorEventPharmaceuticalTx", data = "os.class.tcgaBoolean"), 
                     #Test Table 
                     'days_to_psa_most_recent' = list(name = "psaDate", data = "os.class.tcgaNumeric"),
                     'days_to_bone_scan' = list(name = "boneScanDate", data = "os.class.tcgaNumeric"),
@@ -748,24 +762,21 @@ os.table.mappings <- list(
 os.data.load <- function(inputFile, columns){
         
         # Columns :: Create List From Url
-        header <- unlist(strsplit(readLines(inputFile, n=1),'\t'));
+    header <- unlist(strsplit(readLines(inputFile, n=1),'\t'));
         
+		colIndicator <- which(header %in% names(columns))
+		colOverlapNames <- header[colIndicator]
+		
         # Columns :: Change Names Of Columns
-        colNames <- unlist(lapply(header, function(x) {
-                for (name in names(columns)){
-                        if (name==x) return(columns[[name]]$name)
-                }
-                return(x);
-        }));
-        
+		colNames <- header
+		colNames[colIndicator] <- unlist(lapply(columns[colOverlapNames], function(col){ col$name}))
+
         # Columns :: Specify Data Type For Columns
-        colData <- unlist(lapply(header, function(x) {
-                for (name in names(columns)){
-                        if (name==x) return(columns[[name]]$data)
-                }
-                return("NULL");
-        }));
-        
+		colData <- rep("NULL", length(header))
+		colData[colIndicator]  <- unlist(lapply(columns[colOverlapNames], function(col){ col$data}))
+
+		cat("---Unused columns: ", paste(setdiff(header, names(columns)) ,collapse=";"), "\n")
+				        
         # Table :: Read Table From URL
         read.delim(inputFile,
                    header = FALSE, 
@@ -780,16 +791,19 @@ os.data.load <- function(inputFile, columns){
 }
 
 ### Save Function Takes An DataFrame + Base File Path (w/o extendsion) & Writes DF Disk In Multiple Formats
-os.data.save <- function(df, file){
+os.data.save <- function(df, file, format = c("tsv", "csv", "RData")){
         
         # Write Tab Delimited
-        write.table(df, file=paste(file,".txt", sep = ""), quote=F, sep="\t")
+        if("tsv" %in% format)
+	        write.table(df, file=paste(file,".tsv", sep = ""), quote=F, sep="\t")
         
         # Write CSV Delimited
-        write.csv(df, file=paste(file,".csv",sep = ""), quote = F)
+        if("csv" %in% format)
+        	write.csv(df, file=paste(file,".csv",sep = ""), quote = F)
         
         # Write RData File
-        save(df, file=paste(file,".RData", sep = "") )
+        if("RData" %in% format)
+	        save(df, file=paste(file,".RData", sep = "") )
         
         # Return DataFrame For Chaining
         return(df)
@@ -799,42 +813,35 @@ os.data.save <- function(df, file){
 os.data.batch <- function(inputFile, outputDirectory){
         
         # Load Input File 
-        inputFiles <- read.table(inputFile, sep="\t", header=TRUE)
-        
-        # Get Column Names Of Input Files (Used To Map To Function)
-        colNames <- colnames(inputFiles)
-        
-        # Get Vector Of Disease Names (Used For File Save)
-        diseases <- inputFiles[,1]
-        
-        # Get Vector Of Directories (Used To Prefix Files On Load)
-        directories <- inputFiles[,2]
-        
-        # Loop Column Wise
-        for (columnIndex in 3:ncol(inputFiles))
+        inputFiles <- read.delim(inputFile, sep="\t", header=TRUE)
+                        
+        # Loop Column Wise: for each file type
+        for (currentTable in os.data.batch.inputFile.fileCols)
         {
+		        # Loop Row Wise: for each disease type
                 for (rowIndex in 1:nrow(inputFiles))
                 {
-                        currentTable <- colNames[columnIndex]
-                        currentDisease <- diseases[ rowIndex ];
-                        currentDirectory <- directories[ rowIndex ]
-                        currentDataFile <- inputFiles[ rowIndex, columnIndex]
-                        if (is.na(currentDataFile)) next()
-                        inputFile <- paste(currentDirectory, "/", currentDataFile, sep = "")
-                        outputFile <- paste(outputDirectory, "/", currentDisease, "_", currentTable, sep="")
-                        
-                        # Load Data Frame
-                        df <- os.data.load( 
-                                inputFile = inputFile, 
-                                columns = os.table.mappings[[currentTable]])
-                        
-                        # Save Data Frame
-                        os.data.save(
-                                df = df,
-                                file = outputFile)
-                        
-                        # Remove Df From Memory
-                        rm(df)
+                  
+                    currentDisease   <- inputFiles[ rowIndex, os.data.batch.inputFile.studyCol ];
+                    currentDirectory <- inputFiles[ rowIndex, os.data.batch.inputFile.dirCol ]
+				          	currentDataFile  <- inputFiles[ rowIndex, currentTable]
+					if (is.na(currentDataFile)) next()
+				          	cat(currentDisease, currentTable,"\n")
+					inputFile <- paste(currentDirectory, currentDataFile, sep = "")
+					outputFile <- paste(outputDirectory, currentDisease, "_", currentTable, sep="")
+					
+					# Load Data Frame - map and filter by named columns
+					df <- os.data.load( 
+							inputFile = inputFile, 
+							columns = os.table.mappings[[currentTable]])
+					
+					# Save Data Frame
+					os.data.save(
+							df = df,
+							file = outputFile)
+					
+					# Remove Df From Memory
+					rm(df)
                 }
         }
 }
