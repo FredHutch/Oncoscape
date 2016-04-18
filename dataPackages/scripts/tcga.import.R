@@ -28,18 +28,18 @@ os.enum.na <- c("[NOTAVAILABLE]","[UNKNOWN]","[NOT AVAILABLE]","[NOT EVALUATED]"
 os.enum.logical.true  <- c("TRUE","YES","1","Y")
 os.enum.logical.false <- c("FALSE","NO","0","N")
 
-os.enum.classes <- list(
-        "os.class.gender" = c("MALE", "FEMALE"),
-        "os.class.race" = c("WHITE","BLACK OR AFRICAN AMERICAN","ASIAN","AMERICAN INDIAN OR ALASKA NATIVE"),
-        "os.class.ethnicity" = c("HISPANIC OR LATINO","NOT HISPANIC OR LATINO"),
-#        "os.class.tissueSite" = c("BREAST","COLON","BRAIN","RECTUM","PROSTATE","LUNG","BLADDER","HEAD AND NECK","PANCREAS","SARCOMA", "CENTRAL NERVOUS SYSTEM"),
-        "os.class.route" = c("ORAL","INTRAVENOUS (IV)","INTRATUMORAL","INTRAVESICAL","INTRA-PERITONEAL (IP)|INTRAVENOUS (IV)","SUBCUTANEOUS (SC)","INTRAVENOUS (IV)|ORAL","INTRAMUSCULAR (IM)","INTRAMUSCULAR (IM)|INTRAVENOUS (IV)","IV","PO","IM","SC","IV|PO","IM|IV", "IH", "INTUM","IP|IV"),
-        "os.class.vital" = c("DEAD","ALIVE"),
-        "os.class.status" = c("WITH TUMOR","TUMOR FREE"),
-        "os.class.newTumor" = c("LOCOREGIONAL DISEASE","RECURRENCE" ,"PROGRESSION OF DISEASE","METASTATIC","DISTANT METASTASIS","LOCOREGIONAL RECURRENCE","NEW PRIMARY TUMOR","BIOCHEMICAL EVIDENCE OF DISEASE", "LOCOREGIONAL RECURRENCE|DISTANT METASTASIS", "DISTANT METASTASIS|NEW PRIMARY TUMOR", "NO NEW TUMOR EVENT", "LOCOREGIONAL (UROTHELIAL TUMOR EVENT)"),
-        "os.class.encType" = c("PRE-OPERATIVE","PRE-ADJUVANT THERAPY" ,"POST-ADJUVANT THERAPY","ADJUVANT THERAPY","PREOPERATIVE"),
-        "os.class.side" = c("RIGHT","LEFT", "BILATERAL", "BOTH", "6TH"),
-        "os.class.site" = c("RECURRENCE" ,"PROGRESSION OF DISEASE","LOCOREGIONAL DISEASE","METASTATIC","DISTANT METASTASIS","NEW PRIMARY TUMOR", "LOCOREGIONAL RECURRENCE","BIOCHEMICAL EVIDENCE OF DISEASE")
+#os.enum.classes <- list(
+     #    "os.class.gender" = c("MALE", "FEMALE"),
+     #    "os.class.race" = c("WHITE","BLACK OR AFRICAN AMERICAN","ASIAN","AMERICAN INDIAN OR ALASKA NATIVE"),
+     #    "os.class.ethnicity" = c("HISPANIC OR LATINO","NOT HISPANIC OR LATINO"),
+	 #    "os.class.tissueSite" = c("BREAST","COLON","BRAIN","RECTUM","PROSTATE","LUNG","BLADDER","HEAD AND NECK","PANCREAS","SARCOMA", "CENTRAL NERVOUS SYSTEM"),
+     #    "os.class.route" = c("ORAL","INTRAVENOUS (IV)","INTRATUMORAL","INTRAVESICAL","INTRA-PERITONEAL (IP)|INTRAVENOUS (IV)","SUBCUTANEOUS (SC)","INTRAVENOUS (IV)|ORAL","INTRAMUSCULAR (IM)","INTRAMUSCULAR (IM)|INTRAVENOUS (IV)","IV","PO","IM","SC","IV|PO","IM|IV", "IH", "INTUM","IP|IV"),
+     #    "os.class.vital" = c("DEAD","ALIVE"),
+     #    "os.class.status" = c("WITH TUMOR","TUMOR FREE"),
+     #    "os.class.newTumor" = c("LOCOREGIONAL DISEASE","RECURRENCE" ,"PROGRESSION OF DISEASE","METASTATIC","DISTANT METASTASIS","LOCOREGIONAL RECURRENCE","NEW PRIMARY TUMOR","BIOCHEMICAL EVIDENCE OF DISEASE", "LOCOREGIONAL RECURRENCE|DISTANT METASTASIS", "DISTANT METASTASIS|NEW PRIMARY TUMOR", "NO NEW TUMOR EVENT", "LOCOREGIONAL (UROTHELIAL TUMOR EVENT)"),
+     #    "os.class.encType" = c("PRE-OPERATIVE","PRE-ADJUVANT THERAPY" ,"POST-ADJUVANT THERAPY","ADJUVANT THERAPY","PREOPERATIVE"),
+     #    "os.class.side" = c("RIGHT","LEFT", "BILATERAL", "BOTH", "6TH"),
+     #    #"os.class.site" = c("RECURRENCE" ,"PROGRESSION OF DISEASE","LOCOREGIONAL DISEASE","METASTATIC","DISTANT METASTASIS","NEW PRIMARY TUMOR", "LOCOREGIONAL RECURRENCE","BIOCHEMICAL EVIDENCE OF DISEASE")
 )
 Map( function(key, value, env=parent.frame()){
         setClass(key)
@@ -670,7 +670,7 @@ os.table.mappings <- list(
                        'new_tumor_event_dx_days_to' = list(name = "newTumorDate", data = "os.class.tcgaNumeric"),
                        'new_neoplasm_event_type' = list(name = "newTumor", data = "os.class.newTumor"),
                        'new_tumor_event_type' = list(name = "newTumor", data = "os.class.newTumor"), 
-                       #Procedure Table 
+                        #Procedure Table 
                        'new_tumor_event_surgery' = list(name = "newTumorEventSurgery", data = "os.class.tcgaCharacter"),
                        'days_to_new_tumor_event_additional_surgery_procedure' = list(name = "daysToNewTumorEventAdditionalSurgeryProcedure", data = "os.class.tcgaNumeric"),
                        'new_neoplasm_event_type' = list(name = "newTumor", data = "os.class.tcgaCharacter"),
@@ -772,13 +772,12 @@ os.data.load <- function(inputFile, columns){
 		colNames[colIndicator] <- unlist(lapply(columns[colOverlapNames], function(col){ col$name}))
 
         # Columns :: Specify Data Type For Columns
-		colData <- rep("NULL", length(header))
+#		colData <- rep("NULL", length(header))
+		colData <- rep("character", length(header))
 		colData[colIndicator]  <- unlist(lapply(columns[colOverlapNames], function(col){ col$data}))
-
-		cat("---Unused columns: ", paste(setdiff(header, names(columns)) ,collapse=";"), "\n")
 				        
         # Table :: Read Table From URL
-        read.delim(inputFile,
+      mappedTable<-  read.delim(inputFile,
                    header = FALSE, 
                    skip = 3,
                    dec = ".", 
@@ -788,6 +787,13 @@ os.data.load <- function(inputFile, columns){
                    col.names = colNames,
                    colClasses = colData
         );
+      
+      headerWithData <- setdiff(header, names(columns))
+      DataIndicator <- sapply(headerWithData, function(colName){ !all(is.na(mappedTable[,colName]))})
+      headerWithData <- headerWithData[DataIndicator]
+            cat("---Unused columns: ", paste(headerWithData ,collapse=";"), "\n")
+      
+      return(mappedTable[,colNames[colIndicator]])
 }
 
 ### Save Function Takes An DataFrame + Base File Path (w/o extendsion) & Writes DF Disk In Multiple Formats
@@ -821,7 +827,6 @@ os.data.batch <- function(inputFile, outputDirectory){
 		        # Loop Row Wise: for each disease type
                 for (rowIndex in 1:nrow(inputFiles))
                 {
-                  
                     currentDisease   <- inputFiles[ rowIndex, os.data.batch.inputFile.studyCol ];
                     currentDirectory <- inputFiles[ rowIndex, os.data.batch.inputFile.dirCol ]
 				          	currentDataFile  <- inputFiles[ rowIndex, currentTable]
