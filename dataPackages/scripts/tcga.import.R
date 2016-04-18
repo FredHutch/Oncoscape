@@ -670,7 +670,7 @@ os.table.mappings <- list(
                        'new_tumor_event_dx_days_to' = list(name = "newTumorDate", data = "os.class.tcgaNumeric"),
                        'new_neoplasm_event_type' = list(name = "newTumor", data = "os.class.newTumor"),
                        'new_tumor_event_type' = list(name = "newTumor", data = "os.class.newTumor"), 
-                       #Procedure Table 
+                        #Procedure Table 
                        'new_tumor_event_surgery' = list(name = "newTumorEventSurgery", data = "os.class.tcgaCharacter"),
                        'days_to_new_tumor_event_additional_surgery_procedure' = list(name = "daysToNewTumorEventAdditionalSurgeryProcedure", data = "os.class.tcgaNumeric"),
                        'new_neoplasm_event_type' = list(name = "newTumor", data = "os.class.tcgaCharacter"),
@@ -772,13 +772,12 @@ os.data.load <- function(inputFile, columns){
 		colNames[colIndicator] <- unlist(lapply(columns[colOverlapNames], function(col){ col$name}))
 
         # Columns :: Specify Data Type For Columns
-		colData <- rep("NULL", length(header))
+#		colData <- rep("NULL", length(header))
+		colData <- rep("character", length(header))
 		colData[colIndicator]  <- unlist(lapply(columns[colOverlapNames], function(col){ col$data}))
-
-		cat("---Unused columns: ", paste(setdiff(header, names(columns)) ,collapse=";"), "\n")
 				        
         # Table :: Read Table From URL
-        read.delim(inputFile,
+      mappedTable<-  read.delim(inputFile,
                    header = FALSE, 
                    skip = 3,
                    dec = ".", 
@@ -788,6 +787,13 @@ os.data.load <- function(inputFile, columns){
                    col.names = colNames,
                    colClasses = colData
         );
+      
+      headerWithData <- setdiff(header, names(columns))
+      DataIndicator <- sapply(headerWithData, function(colName){ !all(is.na(mappedTable[,colName]))})
+      headerWithData <- headerWithData[DataIndicator]
+            cat("---Unused columns: ", paste(headerWithData ,collapse=";"), "\n")
+      
+      return(mappedTable[,colNames[colIndicator]])
 }
 
 ### Save Function Takes An DataFrame + Base File Path (w/o extendsion) & Writes DF Disk In Multiple Formats
@@ -821,7 +827,6 @@ os.data.batch <- function(inputFile, outputDirectory){
 		        # Loop Row Wise: for each disease type
                 for (rowIndex in 1:nrow(inputFiles))
                 {
-                  
                     currentDisease   <- inputFiles[ rowIndex, os.data.batch.inputFile.studyCol ];
                     currentDirectory <- inputFiles[ rowIndex, os.data.batch.inputFile.dirCol ]
 				          	currentDataFile  <- inputFiles[ rowIndex, currentTable]
