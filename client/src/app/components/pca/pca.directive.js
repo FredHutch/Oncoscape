@@ -56,7 +56,7 @@
             var d3yAxis = d3Chart.append("g");
             var d3Tooltip = d3.select("body").append("div").attr("class", "tooltip pca-tooltip")
 
-            // Initalizae
+            // Initialize
             osApi.setBusy(true)("Loading Dataset");
             osApi.setDataset(vm.datasource).then(function(response) {
                 var mtx = response.payload.rownames.filter(function(v) {

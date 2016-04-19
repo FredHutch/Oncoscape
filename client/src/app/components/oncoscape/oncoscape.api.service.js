@@ -285,6 +285,12 @@
                 }
             });
         }
+        function getOncoprint(geneSetAndPatients) {
+            return osSocket.request({
+                cmd: "oncoprint_data_selection",
+                payload: geneSetAndPatients
+            });
+        }
 
         var _cohortPatient = collection(signals);
         function getCohortPatient(){ return _cohortPatient; }
@@ -455,7 +461,8 @@
             getMrnaData: getMrnaData,
             getCnvData: getCnvData,
             getMutationData: getMutationData,
-            getModuleModificationDate: getModuleModificationDate
+            getModuleModificationDate: getModuleModificationDate,
+            getOncoprint: getOncoprint
         }
 
     }
