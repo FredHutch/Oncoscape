@@ -22,9 +22,12 @@ library(RUnit)
 library(R.utils)
 library(stringr)
 library(plyr)
+library(jsonlite)
+
+json_data <- fromJSON("JSONEnumerations.json")
 
 # Class Definitions :: Enumerations -------------------------------------------------------
-os.enum.na <- c("[NOTAVAILABLE]","[UNKNOWN]","[NOT AVAILABLE]","[NOT EVALUATED]","UKNOWN","[DISCREPANCY]","OTHER","NOT LISTED IN MEDICAL RECORD","[NOT APPLICABLE]","[PENDING]","OTHER","PENDING", "[NOT AVAILABLE]","[PENDING]","OTHER: SPECIFY IN NOTES","[NOTAVAILABLE]","OTHER (SPECIFY BELOW)","OTHER", "SPECIFY")
+os.enum.na <- c("[NOTAVAILABLE]","[UNKNOWN]","[NOT AVAILABLE]","[NOT EVALUATED]","UKNOWN","[DISCREPANCY]","OTHER","NOT LISTED IN MEDICAL RECORD","[NOT APPLICABLE]","[PENDING]","OTHER","PENDING", "[NOT AVAILABLE]","[PENDING]","OTHER: SPECIFY IN NOTES","[NOTAVAILABLE]","OTHER (SPECIFY BELOW)","OTHER", "SPECIFY", "NOT SPECIFIED")
 os.enum.logical.true  <- c("TRUE","YES","1","Y")
 os.enum.logical.false <- c("FALSE","NO","0","N")
 
@@ -33,14 +36,14 @@ os.enum.logical.false <- c("FALSE","NO","0","N")
      #    "os.class.race" = c("WHITE","BLACK OR AFRICAN AMERICAN","ASIAN","AMERICAN INDIAN OR ALASKA NATIVE"),
      #    "os.class.ethnicity" = c("HISPANIC OR LATINO","NOT HISPANIC OR LATINO"),
 	 #    "os.class.tissueSite" = c("BREAST","COLON","BRAIN","RECTUM","PROSTATE","LUNG","BLADDER","HEAD AND NECK","PANCREAS","SARCOMA", "CENTRAL NERVOUS SYSTEM"),
-     #    "os.class.route" = c("ORAL","INTRAVENOUS (IV)","INTRATUMORAL","INTRAVESICAL","INTRA-PERITONEAL (IP)|INTRAVENOUS (IV)","SUBCUTANEOUS (SC)","INTRAVENOUS (IV)|ORAL","INTRAMUSCULAR (IM)","INTRAMUSCULAR (IM)|INTRAVENOUS (IV)","IV","PO","IM","SC","IV|PO","IM|IV", "IH", "INTUM","IP|IV"),
+     #    "os.class.route" = c(names"ORAL","INTRAVENOUS (IV)","INTRATUMORAL","INTRAVESICAL","INTRA-PERITONEAL (IP)|INTRAVENOUS (IV)","SUBCUTANEOUS (SC)","INTRAVENOUS (IV)|ORAL","INTRAMUSCULAR (IM)","INTRAMUSCULAR (IM)|INTRAVENOUS (IV)","IV","PO","IM","SC","IV|PO","IM|IV", "IH", "INTUM","IP|IV"),
      #    "os.class.vital" = c("DEAD","ALIVE"),
      #    "os.class.status" = c("WITH TUMOR","TUMOR FREE"),
      #    "os.class.newTumor" = c("LOCOREGIONAL DISEASE","RECURRENCE" ,"PROGRESSION OF DISEASE","METASTATIC","DISTANT METASTASIS","LOCOREGIONAL RECURRENCE","NEW PRIMARY TUMOR","BIOCHEMICAL EVIDENCE OF DISEASE", "LOCOREGIONAL RECURRENCE|DISTANT METASTASIS", "DISTANT METASTASIS|NEW PRIMARY TUMOR", "NO NEW TUMOR EVENT", "LOCOREGIONAL (UROTHELIAL TUMOR EVENT)"),
      #    "os.class.encType" = c("PRE-OPERATIVE","PRE-ADJUVANT THERAPY" ,"POST-ADJUVANT THERAPY","ADJUVANT THERAPY","PREOPERATIVE"),
      #    "os.class.side" = c("RIGHT","LEFT", "BILATERAL", "BOTH", "6TH"),
      #    #"os.class.site" = c("RECURRENCE" ,"PROGRESSION OF DISEASE","LOCOREGIONAL DISEASE","METASTATIC","DISTANT METASTASIS","NEW PRIMARY TUMOR", "LOCOREGIONAL RECURRENCE","BIOCHEMICAL EVIDENCE OF DISEASE")
-)
+#)
 Map( function(key, value, env=parent.frame()){
         setClass(key)
         setAs("character", key, function(from){ 
@@ -50,12 +53,20 @@ Map( function(key, value, env=parent.frame()){
                 from[from.na]<-NA    
                 
                 # Return Enum or NA
-                if(all(from %in% c(value, NA))) return(from)	
+                standardVals <- names(json_data[[key]])
+                for(fieldName in standardVals){
+                  values <-json_data[[key]][[fieldName]]
+                  from[ which(from %in% values)] <- fieldName
+                }
+                
+                if(all(from %in% c(standardVals, NA)))
+                  return(from)
+#                if(all(from %in% c(value, NA))) return(from)	
                 
                 # Kill If Not In Enum or Na
-                stop(paste(key, " not set due to: ", paste(setdiff(from,c(value, NA)), collapse=";"), " not belonging to ", paste(value, collapse=";")))
+                stop(paste(key, " not set due to: ", paste(setdiff(from,c(standardVals, NA)), collapse=";"), " not belonging to ", paste(standardVals, collapse=";")))
         })
-}, names(os.enum.classes), os.enum.classes);
+}, names(json_data), json_data);
 
 # Class Definitions :: TCGA [ID | DATE | CHAR | NUM | BOOL] -------------------------------------------------------
 
@@ -270,7 +281,7 @@ os.table.mappings <- list(
         "drug"= list('bcr_patient_barcode' = list(name = "PatientID", data = "os.class.tcgaId"),
                      'pharmaceutical_tx_started_days_to' = list(name = "drugStart", data = "os.class.tcgaNumeric"),
                      'pharmaceutical_tx_ended_days_to' = list(name = "drugEnd", data = "os.class.tcgaNumeric"),
-                     'pharmaceutical_therapy_drug_name' = list(name = "DrugTherapyName", data = "os.class.tcgaCharacter"),
+                     'pharmaceutical_therapy_drug_name' = list(name = "DrugTherapyName", data = "os.class.drugAgent"),
                      'pharmaceutical_therapy_type' = list(name = "drugType", data = "os.class.tcgaCharacter"),
                      'therapy_regimen' = list(name = "drugTherapyRegimen", data = "os.class.tcgaCharacter"),
                      'prescribed_dose' = list(name = "drugDose", data = "os.class.tcgaCharacter"),
@@ -283,8 +294,8 @@ os.table.mappings <- list(
         "rad"= list('bcr_patient_barcode' = list(name = "PatientID", data = "os.class.tcgaId"),
                     'radiation_therapy_started_days_to' = list(name = "radStart", data = "os.class.tcgaNumeric"),
                     'radiation_therapy_ended_days_to' = list(name = "radEnd", data = "os.class.tcgaNumeric"),
-                    'radiation_therapy_type' = list(name = "radType", data = "os.class.tcgaCharacter"),
-                    'radiation_type_other' = list(name = "radTypeOther", data = "os.class.tcgaCharacter"),
+                    'radiation_therapy_type' = list(name = "radType", data = "os.class.radiationType"),
+                    'radiation_type_other' = list(name = "radTypeOther", data = "os.class.radiationTypeOther"),
                     'therapy_regimen' = list(name = "radiationTherapyRegimen", data = "os.class.tcgaCharacter"),
                     'radiation_therapy_site' = list(name = "radiationTherapySite", data = "os.class.tcgaCharacter"),
                     'radiation_total_dose' = list(name = "radiationTotalDose", data = "os.class.tcgaCharacter"),
