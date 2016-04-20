@@ -800,7 +800,7 @@ os.data.load <- function(inputFile, columns){
         );
       
       headerWithData <- setdiff(header, names(columns))
-      DataIndicator <- sapply(headerWithData, function(colName){ !all(is.na(mappedTable[,colName]))})
+      DataIndicator <- sapply(headerWithData, function(colName){ !all(toupper(mappedTable[,colName]) %in% os.enum.na)})
       headerWithData <- headerWithData[DataIndicator]
             cat("---Unused columns: ", paste(headerWithData ,collapse=";"), "\n")
       
