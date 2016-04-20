@@ -278,7 +278,7 @@ os.table.mappings <- list(
 	                'nte_cent17_her2_other_scale' = list(name = "nteCent17Her2OtherScale", data = "os.class.tcgaCharacter"),
 	           		#not in original capture
 	               	#brca
-	               	'menopause_status'= list(name = "menopause_status", data = "os.class.tcgaCharacter"),
+	                'menopause_status'= list(name = "menopause_status", data = "os.class.tcgaCharacter"),
 					'history_other_malignancy'= list(name = "history_other_malignancy", data = "os.class.tcgaCharacter"),
 					'history_neoadjuvant_treatment'= list(name = "history_neoadjuvant_treatment", data = "os.class.tcgaCharacter"),
 					'radiation_treatment_adjuvant'= list(name = "radiation_treatment_adjuvant", data = "os.class.tcgaCharacter"),
@@ -332,8 +332,8 @@ os.table.mappings <- list(
 					'age_at_initial_pathologic_diagnosis'= list(name = "age_at_initial_pathologic_diagnosis", data = "os.class.tcgaCharacter"),
 					'initial_pathologic_diagnosis_method'= list(name = "initial_pathologic_diagnosis_method", data = "os.class.tcgaCharacter"),
 	        		#gbm
-	        		'history_lgg_dx_of_brain_tissue'= list(name = "history_lgg_dx_of_brain_tissue", data = "os.class.tcgaCharacter"),
-	        		#hnsc
+	                'history_lgg_dx_of_brain_tissue'= list(name = "history_lgg_dx_of_brain_tissue", data = "os.class.tcgaCharacter"),
+	    	 		#hnsc
 					'anatomic_organ_subdivision'= list(name = "anatomic_organ_subdivision", data = "os.class.tcgaCharacter"),
 					'lymph_node_neck_dissection_indicator'= list(name = "lymph_node_neck_dissection_indicator", data = "os.class.tcgaCharacter"),
 					'lymph_node_dissection_method'= list(name = "lymph_node_dissection_method", data = "os.class.tcgaCharacter"),
@@ -349,6 +349,7 @@ os.table.mappings <- list(
 					'clinical_N'= list(name = "clinical_N", data = "os.class.tcgaCharacter"),
 					'clinical_T'= list(name = "clinical_T", data = "os.class.tcgaCharacter"),
 					'clinical_stage'= list(name = "clinical_stage", data = "os.class.tcgaCharacter"),
+					'lymphovascular_invasion'= list(name = "lymphovascular_invasion", data = "os.class.tcgaCharacter"),
 					#lgg
 					'history_ionizing_rt_to_head'= list(name = "history_ionizing_rt_to_head", data = "os.class.tcgaCharacter"),
 					'history_seizures'= list(name = "history_seizures", data = "os.class.tcgaCharacter"),
@@ -401,6 +402,7 @@ os.table.mappings <- list(
 					'days_to_biochemical_recurrence_first'= list(name = "days_to_biochemical_recurrence_first", data = "os.class.tcgaNumeric"),
 					'pathologic_N'= list(name = "pathologic_N", data = "os.class.tcgaCharacter"),
 					'pathologic_T'= list(name = "pathologic_T", data = "os.class.tcgaCharacter"),
+					'gleason_pattern_secondary'= list(name = "gleason_pattern_secondary", data = "os.class.tcgaCharacter"),
 					#read all listed
 					#sarc 
 					'histologic_subtype'= list(name = "histologic_subtype", data = "os.class.tcgaCharacter"),
@@ -503,6 +505,7 @@ os.table.mappings <- list(
 					'incidental_prostate_cancer_indicator'= list(name = "incidental_prostate_cancer_indicator", data = "os.class.tcgaCharacter"),
 					'ajcc_path_pt_incidental_prostate'= list(name = "ajcc_path_pt_incidental_prostate", data = "os.class.tcgaCharacter"),
 					'neoplasm_histologic_grade'= list(name = "steroid_therapy_administered", data = "os.class.tcgaCharacter"),
+					'tobacco_smoking_age_started'= list(name = "tobacco_smoking_age_started", data = "os.class.tcgaCharacter"),
 					#paad
 					'invasive_adenocarcinoma_indicator'= list(name = "invasive_adenocarcinoma_indicator", data = "os.class.tcgaCharacter"),
 					'tumor_sample_type'= list(name = "tumor_sample_type", data = "os.class.tcgaCharacter"),
@@ -526,7 +529,16 @@ os.table.mappings <- list(
                      'pharmaceutical_tx_dose_units' = list(name = "drugUnits", data = "os.class.tcgaCharacter"),
                      'pharmaceutical_tx_total_dose_units' = list(name = "drugTotalDoseUnits", data = "os.class.tcgaCharacter"),
                      'route_of_administration' = list(name = "drugAdministration", data = "os.class.route"),
-                     'pharma_adjuvant_cycles_count' = list(name = "drugCycles", data = "os.class.tcgaCharacter")
+                     'pharma_adjuvant_cycles_count' = list(name = "drugCycles", data = "os.class.tcgaCharacter"),
+        			 #not in original (shared among datasets)
+        			 'clinical_trial_drug_classification'= list(name = "clinical_trial_drug_classification", data = "os.class.tcgaCharacter"),
+					 'pharmaceutical_tx_ongoing_indicator'= list(name = "pharmaceutical_tx_ongoing_indicator", data = "os.class.tcgaCharacter"),
+					 'treatment_best_response'= list(name = "treatment_best_response", data = "os.class.tcgaCharacter"),
+					 'pharma_type_other'= list(name = "pharma_type_other", data = "os.class.tcgaCharacter"),
+					 'regimen_number'= list(name = "regimen_number", data = "os.class.tcgaCharacter"),
+					 'therapy_regimen_other'= list(name = "therapy_regimen_other", data = "os.class.tcgaCharacter"),
+					 'tx_on_clinical_trial' = list(name = "tx_on_clinical_trial", data = "os.class.tcgaCharacter")
+
         ),
         "rad"= list('bcr_patient_barcode' = list(name = "PatientID", data = "os.class.tcgaId"),
                     'radiation_therapy_started_days_to' = list(name = "radStart", data = "os.class.tcgaNumeric"),
@@ -537,7 +549,14 @@ os.table.mappings <- list(
                     'radiation_therapy_site' = list(name = "radiationTherapySite", data = "os.class.tcgaCharacter"),
                     'radiation_total_dose' = list(name = "radiationTotalDose", data = "os.class.tcgaCharacter"),
                     'radiation_adjuvant_units' = list(name = "radiationTotalDoseUnits", data = "os.class.tcgaCharacter"),
-                    'radiation_adjuvant_fractions_total' = list(name = "radiationNumFractions", data = "os.class.tcgaCharacter")
+                    'radiation_adjuvant_fractions_total' = list(name = "radiationNumFractions", data = "os.class.tcgaCharacter"),
+        			#not in original (shared among datasets)
+        			'radiation_therapy_ongoing_indicator' = list(name = "radiation_therapy_ongoing_indicator", data = "os.class.tcgaCharacter"),
+					'treatment_best_response' = list(name = "treatment_best_response", data = "os.class.tcgaCharacter"),
+					'course_number' = list(name = "course_number", data = "os.class.tcgaCharacter"),
+					'therapy_regimen_other'  = list(name = "therapy_regimen_other", data = "os.class.tcgaCharacter")
+
+
         ),
         "f1"= list('bcr_patient_barcode' = list(name = "PatientID", data = "os.class.tcgaId"), 
                    #Status Table 
@@ -629,7 +648,43 @@ os.table.mappings <- list(
                    'her2_cent17_ratio' = list(name = "her2Cent17Ratio", data = "os.class.tcgaCharacter"),
                    'nte_cent_17_her2_ratio' = list(name = "nteCent17Her2Ratio", data = "os.class.tcgaCharacter"),
                    'nte_cent_17_signal_number' = list(name = "nteCent17SignalNum", data = "os.class.tcgaCharacter"),
-                   'nte_cent17_her2_other_scale' = list(name = "nteCent17Her2OtherScale", data = "os.class.tcgaCharacter")
+                   'nte_cent17_her2_other_scale' = list(name = "nteCent17Her2OtherScale", data = "os.class.tcgaCharacter"),
+	    			#not in original (shared among datasets)
+	    			'followup_reason'= list(name = "followup_reason", data = "os.class.tcgaCharacter"),
+				    'followup_lost_to'= list(name = "followup_lost_to", data = "os.class.tcgaCharacter"),
+					'radiation_treatment_adjuvant'= list(name = "radiation_treatment_adjuvant", data = "os.class.tcgaCharacter"),
+					'pharmaceutical_tx_adjuvant'= list(name = "pharmaceutical_tx_adjuvant", data = "os.class.tcgaCharacter"),
+					'treatment_outcome_first_course'= list(name = "treatment_outcome_first_course", data = "os.class.tcgaCharacter"),
+					'new_tumor_event_dx_indicator'= list(name = "new_tumor_event_dx_indicator", data = "os.class.tcgaCharacter"),
+					'treatment_outcome_at_tcga_followup'= list(name = "treatment_outcome_at_tcga_followup", data = "os.class.tcgaCharacter"),
+			        'targeted_molecular_therapy'= list(name = "targeted_molecular_therapy", data = "os.class.tcgaCharacter"),
+			        'new_tumor_event_site'= list(name = "new_tumor_event_site", data = "os.class.tcgaCharacter"),
+					'new_tumor_event_site_other'= list(name = "new_tumor_event_site_other", data = "os.class.tcgaCharacter"),
+					'additional_surgery_locoregional_procedure'= list(name = "additional_surgery_locoregional_procedure", data = "os.class.tcgaCharacter"),
+					'new_tumor_event_surgery_met'= list(name = "new_tumor_event_surgery_met", data = "os.class.tcgaCharacter"),
+					'days_to_performance_status_assessment'= list(name = "days_to_performance_status_assessment", data = "os.class.tcgaNumeric"),
+					'new_tumor_event_dx_evidence'= list(name = "new_tumor_event_dx_evidence", data = "os.class.tcgaCharacter"),
+					'cause_of_death'= list(name = "cause_of_death", data = "os.class.tcgaCharacter"),
+					'cause_of_death_source'= list(name = "cause_of_death_source", data = "os.class.tcgaCharacter"),
+					'days_to_biochemical_recurrence_first'= list(name = "days_to_biochemical_recurrence_first", data = "os.class.tcgaNumeric"),
+					'progression_after_hormone_tx'= list(name = "progression_after_hormone_tx", data = "os.class.tcgaCharacter"),
+					'progression_after_hormone_tx_type'= list(name = "progression_after_hormone_tx_type", data = "os.class.tcgaCharacter"),
+					'days_to_biochemical_recurrence_second'= list(name = "days_to_biochemical_recurrence_second", data = "os.class.tcgaNumeric"),
+					'days_to_biochemical_recurrence_third'= list(name = "days_to_biochemical_recurrence_third", data = "os.class.tcgaNumeric"),
+					'days_to_additional_surgery_metastatic_procedure'= list(name = "days_to_additional_surgery_metastatic_procedure", data = "os.class.tcgaNumeric"),
+			        #brca only
+			        'nte_er_status_ihc__positive'= list(name = "nte_er_status_ihc__positive", data = "os.class.tcgaCharacter"),
+			        'nte_pr_status_ihc__positive'= list(name = "nte_pr_status_ihc__positive", data = "os.class.tcgaCharacter"),
+			        'nte_her2_status_ihc__positive'= list(name = "nte_her2_status_ihc__positive", data = "os.class.tcgaCharacter"),
+			        'cent17_copy_number'= list(name = "cent17_copy_number", data = "os.class.tcgaCharacter"),
+			        'days_to_additional_surgery_locoregional_procedure'= list(name = "days_to_additional_surgery_locoregional_procedure", data = "os.class.tcgaNumeric"),
+			        'days_to_additional_surgery_metastatic_procedure'= list(name = "days_to_additional_surgery_metastatic_procedure", data = "os.class.tcgaNumeric"),
+			        'days_to_last_known_alive'= list(name = "days_to_last_known_alive", data = "os.class.tcgaNumeric"),
+			        'er_ihc_score'= list(name = "er_ihc_score", data = "os.class.tcgaCharacter"),
+			        'er_status_by_ihc'= list(name = "er_status_by_ihc", data = "os.class.tcgaCharacter"),
+			        'er_status_ihc_Percent_Positive'= list(name = "er_status_ihc_Percent_Positive", data = "os.class.tcgaCharacter"),
+			        'new_tumor_event_surgery_met'= list(name = "new_tumor_event_surgery_met", data = "os.class.tcgaCharacter"),
+			        'pr_status_ihc_percent_positive'= list(name = "pr_status_ihc_percent_positive", data = "os.class.tcgaCharacter")
         ),
         "f2"= list('bcr_patient_barcode' = list(name = "PatientID", data = "os.class.tcgaId"), 
                    #Status Table 
@@ -719,7 +774,33 @@ os.table.mappings <- list(
                    'her2_cent17_ratio' = list(name = "her2Cent17Ratio", data = "os.class.tcgaCharacter"),
                    'nte_cent_17_her2_ratio' = list(name = "nteCent17Her2Ratio", data = "os.class.tcgaCharacter"),
                    'nte_cent_17_signal_number' = list(name = "nteCent17SignalNum", data = "os.class.tcgaCharacter"),
-                   'nte_cent17_her2_other_scale' = list(name = "nteCent17Her2OtherScale", data = "os.class.tcgaCharacter")
+                   'nte_cent17_her2_other_scale' = list(name = "nteCent17Her2OtherScale", data = "os.class.tcgaCharacter"),
+                   #not in orginal script (shared among datasets)
+                   'radiation_treatment_adjuvant'= list(name = "radiation_treatment_adjuvant", data = "os.class.tcgaCharacter"),
+					'new_tumor_event_dx_indicator'= list(name = "new_tumor_event_dx_indicator", data = "os.class.tcgaCharacter"),
+					'new_tumor_event_site'= list(name = "new_tumor_event_site", data = "os.class.tcgaCharacter"),
+					'new_tumor_event_site_other'= list(name = "new_tumor_event_site_other", data = "os.class.tcgaCharacter"),
+					'nte_er_status_ihc__positive'= list(name = "nte_er_status_ihc__positive", data = "os.class.tcgaCharacter"),
+					'nte_er_positivity_scale_used'= list(name = "nte_er_positivity_scale_used", data = "os.class.tcgaCharacter"),
+					'nte_pr_status_ihc__positive'= list(name = "nte_pr_status_ihc__positive", data = "os.class.tcgaCharacter"),
+					'nte_pr_positivity_scale_used'= list(name = "nte_pr_positivity_scale_used", data = "os.class.tcgaCharacter"),
+					'nte_her2_status_ihc__positive'= list(name = "nte_her2_status_ihc__positive", data = "os.class.tcgaCharacter"),
+					'days_to_additional_surgery_metastatic_procedure'= list(name = "days_to_additional_surgery_metastatic_procedure", data = "os.class.tcgaNumeric"),
+					'followup_reason'= list(name = "followup_reason", data = "os.class.tcgaCharacter"),
+					'targeted_molecular_therapy'= list(name = "targeted_molecular_therapy", data = "os.class.tcgaCharacter"),
+					'treatment_outcome_first_course'= list(name = "treatment_outcome_first_course", data = "os.class.tcgaCharacter"),
+					'treatment_outcome_at_tcga_followup'= list(name = "treatment_outcome_at_tcga_followup", data = "os.class.tcgaCharacter"),
+					'tobacco_smokeless_use_at_dx'= list(name = "tobacco_smokeless_use_at_dx", data = "os.class.tcgaCharacter"),
+					'tobacco_smokeless_regular_use'= list(name = "tobacco_smokeless_regular_use", data = "os.class.tcgaCharacter"),
+					'tobacco_smokeless_average_per_day'= list(name = "tobacco_smokeless_average_per_day", data = "os.class.tcgaCharacter"),
+					'tobacco_smokeless_age_use_started'= list(name = "tobacco_smokeless_age_use_started", data = "os.class.tcgaCharacter"),
+					'tobacco_smokeless_age_use_ended'= list(name = "tobacco_smokeless_age_use_ended", data = "os.class.tcgaCharacter"),
+					'definitive_tx_method'= list(name = "definitive_tx_method", data = "os.class.tcgaCharacter"),
+					'definitive_tx_evidence_disease_after'= list(name = "definitive_tx_evidence_disease_after", data = "os.class.tcgaCharacter"),
+					'cause_of_death'= list(name = "cause_of_death", data = "os.class.tcgaCharacter"),
+					'days_to_completion_of_curative_tx'= list(name = "days_to_completion_of_curative_tx", data = "os.class.tcgaNumeric"),
+					'followup_lost_to'= list(name = "followup_lost_to", data = "os.class.tcgaCharacter"),
+					'pharmaceutical_tx_adjuvant'= list(name = "pharmaceutical_tx_adjuvant", data = "os.class.tcgaCharacter")
         ),
         "f3"= list('bcr_patient_barcode' = list(name = "PatientID", data = "os.class.tcgaId"), 
                    #Status Table 
@@ -799,7 +880,13 @@ os.table.mappings <- list(
                    'her2_cent17_ratio' = list(name = "her2Cent17Ratio", data = "os.class.tcgaCharacter"),
                    'nte_cent_17_her2_ratio' = list(name = "nteCent17Her2Ratio", data = "os.class.tcgaCharacter"),
                    'nte_cent_17_signal_number' = list(name = "nteCent17SignalNum", data = "os.class.tcgaCharacter"),
-                   'nte_cent17_her2_other_scale' = list(name = "nteCent17Her2OtherScale", data = "os.class.tcgaCharacter")
+                   'nte_cent17_her2_other_scale' = list(name = "nteCent17Her2OtherScale", data = "os.class.tcgaCharacter"),
+        			#brca only
+        			'followup_lost_to'= list(name = "followup_lost_to", data = "os.class.tcgaCharacter"),
+					'radiation_treatment_adjuvant'= list(name = "radiation_treatment_adjuvant", data = "os.class.tcgaCharacter"),
+					'pharmaceutical_tx_adjuvant'= list(name = "pharmaceutical_tx_adjuvant", data = "os.class.tcgaCharacter"),
+					'new_tumor_event_dx_indicator' = list(name = "new_tumor_event_dx_indicator", data = "os.class.tcgaCharacter")
+
         ),
         "omf"= list('bcr_patient_barcode' = list(name = "PatientID", data = "os.class.tcgaId"), 
                     #drug Table 
@@ -812,7 +899,7 @@ os.table.mappings <- list(
                     'days_to_radiation_therapy_start' = list(name = "radStart", data = "os.class.tcgaNumeric"),
                     # Procedure Table 
                     'days_to_surgical_resection' = list(name = "daysToSurgicalResection", data = "os.class.tcgaNumeric"),
-                    'other_malignancy_laterality' = list(name = "otherMalignancyLaterality", data = "os.class.side"),
+                    'other_malignancy_laterality' = list(name = "otherMalignancyLaterality", data = "os.class.tcgaCharacter"),
                     'surgery_type' = list(name = "surgeryType", data = "os.class.tcgaCharacter"), 
                     #Pathology Table 
                     'other_malignancy_anatomic_site' = list(name = "otherMalignancyAnatomicSite", data = "os.class.tcgaCharacter"),
@@ -822,7 +909,28 @@ os.table.mappings <- list(
                     #Absent Table 
                     'days_to_other_malignancy_dx' = list(name = "daysToOtherMalignancyDx", data = "os.class.tcgaNumeric"),
                     'radiation_tx_indicator' = list(name = "radiationTxIndicator", data = "os.class.tcgaBoolean"),
-                    'drug_tx_indicator' = list(name = "drugTxIndicator", data = "os.class.tcgaBoolean")
+                    'drug_tx_indicator' = list(name = "drugTxIndicator", data = "os.class.tcgaBoolean"),
+					#not in orginal script
+					'other_malignancy_dx_days_to'= list(name = "other_malignancy_dx_days_to", data = "os.class.tcgaNumeric"),
+					'surgery_indicator'= list(name = "surgery_indicator", data = "os.class.tcgaCharacter"),
+					'other_malignancy_surgery_type'= list(name = "other_malignancy_surgery_type", data = "os.class.tcgaCharacter"),
+					'other_malignancy_surgery_days_to'= list(name = "other_malignancy_surgery_days_to", data = "os.class.tcgaCharacter"),
+					'pharmaceutical_therapy_indicator'= list(name = "pharmaceutical_therapy_indicator", data = "os.class.tcgaCharacter"),
+					'pharmaceutical_therapy_extent'= list(name = "pharmaceutical_therapy_extent", data = "os.class.tcgaCharacter"),
+					'pharmaceutical_therapy_drug_name'= list(name = "pharmaceutical_therapy_drug_name", data = "os.class.tcgaCharacter"),
+					'pharmaceutical_tx_started_days_to'= list(name = "pharmaceutical_tx_started_days_to", data = "os.class.tcgaCharacter"),
+					'radiation_therapy_indicator'= list(name = "radiation_therapy_indicator", data = "os.class.tcgaCharacter"),
+					'radiation_therapy_extent'= list(name = "radiation_therapy_extent", data = "os.class.tcgaCharacter"),
+					'history_rt_tx_to_site_of_tcga_tumor'= list(name = "history_rt_tx_to_site_of_tcga_tumor", data = "os.class.tcgaCharacter"),
+					'radiation_therapy_started_days_to'= list(name = "radiation_therapy_started_days_to", data = "os.class.tcgaCharacter"),
+					'ajcc_staging_edition'= list(name = "ajcc_staging_edition", data = "os.class.tcgaCharacter"),
+					'ajcc_tumor_pathologic_pt'= list(name = "ajcc_tumor_pathologic_pt", data = "os.class.tcgaCharacter"),
+					'ajcc_nodes_pathologic_pn'= list(name = "ajcc_nodes_pathologic_pn", data = "os.class.tcgaCharacter"),
+					'ajcc_metastasis_pathologic_pm'= list(name = "ajcc_metastasis_pathologic_pm", data = "os.class.tcgaCharacter"),
+					'ajcc_pathologic_tumor_stage'= list(name = "ajcc_pathologic_tumor_stage", data = "os.class.tcgaCharacter"),
+					'clinical_stage'= list(name = "clinical_stage", data = "os.class.tcgaCharacter"),
+					'stage_other' = list(name = "stage_other", data = "os.class.tcgaCharacter"),
+					'other_malignancy_anatomic_site_text'= list(name = "other_malignancy_anatomic_site_text", data = "os.class.tcgaCharacter")
         ),
         "nte"= list('bcr_patient_barcode' = list(name = "PatientID", data = "os.class.tcgaId"),
                     'days_to_new_tumor_event_after_initial_treatment' = list(name = "daysToNewTumorEventAfterInitialTreatment", data = "os.class.tcgaNumeric"),
@@ -911,7 +1019,29 @@ os.table.mappings <- list(
                     'days_to_new_tumor_event_additional_surgery_procedure' = list(name = "daysToNewTumorEventAdditionalSurgeryProcedure", data = "os.class.tcgaNumeric"),
                     'new_neoplasm_event_type' = list(name = "newTumor", data = "os.class.tcgaCharacter"),
                     'new_tumor_event_type' = list(name = "newTumor", data = "os.class.tcgaCharacter"),
-                    'new_tumor_event_additional_surgery_procedure' = list(name = "newTumorEventAdditionalSurgeryProcedure", data = "os.class.tcgaCharacter"),
+                    'new_tumor_event_additional_surgery_procedure' = list(name = "new_tumor_event_additional_surgery_procedure", data = "os.class.tcgaCharacter"),
+					#not in original script
+					'new_tumor_event_surgery_days_to'= list(name = "new_tumor_event_surgery_days_to", data = "os.class.tcgaNumeric"),
+					'nte_er_status_ihc__positive'= list(name = "nte_er_status_ihc__positive", data = "os.class.tcgaCharacter"),
+					'nte_er_positivity_scale_used'= list(name = "nte_er_positivity_scale_used", data = "os.class.tcgaCharacter"),
+					'nte_pr_status_ihc__positive'= list(name = "nte_pr_status_ihc__positive", data = "os.class.tcgaCharacter"),
+					'nte_pr_positivity_scale_used'= list(name = "nte_pr_positivity_scale_used", data = "os.class.tcgaCharacter"),
+					'nte_her2_status_ihc__positive' = list(name = "nte_her2_status_ihc__positive", data = "os.class.tcgaCharacter"),
+					'new_tumor_event_site_surgery' = list(name = "new_tumor_event_site_surgery", data = "os.class.tcgaCharacter"),
+					'new_tumor_event_site'= list(name = "new_tumor_event_site", data = "os.class.tcgaCharacter"),
+					'new_tumor_event_site_other'= list(name = "new_tumor_event_site_other", data = "os.class.tcgaCharacter"),
+					'new_tumor_event_dx_evidence'  = list(name = "new_tumor_event_dx_evidence", data = "os.class.tcgaCharacter"),
+					'new_tumor_event_surgery_met' = list(name = "new_tumor_event_surgery_met", data = "os.class.tcgaCharacter"),
+					'progression_after_hormone_tx'= list(name = "progression_after_hormone_tx", data = "os.class.tcgaCharacter"),
+					'progression_after_hormone_tx_type'  = list(name = "progression_after_hormone_tx_type", data = "os.class.tcgaCharacter"), 
+					'disease_multifocal_indicator'= list(name = "disease_multifocal_indicator", data = "os.class.tcgaCharacter"),
+					'discontinuous_lesions_count'= list(name = "discontinuous_lesions_count", data = "os.class.tcgaCharacter"),
+					'tumor_burden_radiologic'= list(name = "tumor_burden_radiologic", data = "os.class.tcgaCharacter"),
+					'tumor_burden_pathologic'= list(name = "tumor_burden_pathologic", data = "os.class.tcgaCharacter"),
+					'nte_well_or_dedifferentiated_indicator'= list(name = "nte_well_or_dedifferentiated_indicator", data = "os.class.tcgaCharacter"),
+					'residual_disease_post_new_tumor_event_margin_status' = list(name = "residual_disease_post_new_tumor_event_margin_status", data = "os.class.tcgaCharacter"),
+					'new_tumor_event_residual_tumor' = list(name = "new_tumor_event_residual_tumor", data = "os.class.tcgaCharacter")
+
         ),
         "nte_f1"= list('bcr_patient_barcode' = list(name = "PatientID", data = "os.class.tcgaId"), 
                        #Progression Table 
@@ -999,7 +1129,32 @@ os.table.mappings <- list(
                        'her2_cent17_ratio' = list(name = "her2Cent17Ratio", data = "os.class.tcgaCharacter"),
                        'nte_cent_17_her2_ratio' = list(name = "nteCent17Her2Ratio", data = "os.class.tcgaCharacter"),
                        'nte_cent_17_signal_number' = list(name = "nteCent17SignalNum", data = "os.class.tcgaCharacter"),
-                       'nte_cent17_her2_other_scale' = list(name = "nteCent17Her2OtherScale", data = "os.class.tcgaCharacter")
+                       'nte_cent17_her2_other_scale' = list(name = "nteCent17Her2OtherScale", data = "os.class.tcgaCharacter"),
+        				#not in orginal script
+        				'new_tumor_event_site'= list(name = "new_tumor_event_site", data = "os.class.tcgaCharacter"),
+						'new_tumor_event_site'= list(name = "new_tumor_event_site", data = "os.class.tcgaCharacter"),
+						'new_tumor_event_surgery_days_to'= list(name = "new_tumor_event_surgery_days_to", data = "os.class.tcgaNumeric"),
+						'nte_er_status_ihc__positive'= list(name = "nte_er_status_ihc__positive", data = "os.class.tcgaCharacter"),
+						'nte_er_positivity_scale_used'= list(name = "nte_er_positivity_scale_used", data = "os.class.tcgaCharacter"),
+						'nte_pr_status_ihc__positive'= list(name = "nte_pr_status_ihc__positive", data = "os.class.tcgaCharacter"),
+						'nte_pr_positivity_scale_used'= list(name = "nte_pr_positivity_scale_used", data = "os.class.tcgaCharacter"),
+						'nte_her2_status_ihc__positive'= list(name = "nte_her2_status_ihc__positive", data = "os.class.tcgaCharacter"),
+						'new_tumor_event_site_surgery'= list(name = "new_tumor_event_site_surgery", data = "os.class.tcgaCharacter"),
+						'residual_disease_post_new_tumor_event_margin_status' = list(name = "residual_disease_post_new_tumor_event_margin_status", data = "os.class.tcgaCharacter"),
+						'new_tumor_event_dx_evidence'= list(name = "new_tumor_event_dx_evidence", data = "os.class.tcgaCharacter"),
+						'tumor_multifocal'= list(name = "tumor_multifocal", data = "os.class.tcgaCharacter"),
+						'new_tumor_event_residual_tumor'= list(name = "new_tumor_event_residual_tumor", data = "os.class.tcgaCharacter"),
+						'nte_well_or_dedifferentiated_indicator'= list(name = "nte_well_or_dedifferentiated_indicator", data = "os.class.tcgaCharacter"),
+						'nte_lesion_radiologic_length'= list(name = "nte_lesion_radiologic_length", data = "os.class.tcgaCharacter"),
+						'nte_lesion_radiologic_width'= list(name = "nte_lesion_radiologic_width", data = "os.class.tcgaCharacter"),
+						'nte_lesion_radiologic_depth'= list(name = "nte_lesion_radiologic_depth", data = "os.class.tcgaCharacter"),
+						'nte_lesion_pathologic_length'= list(name = "nte_lesion_pathologic_length", data = "os.class.tcgaCharacter"),
+						'nte_lesion_pathologic_width'= list(name = "nte_lesion_pathologic_width", data = "os.class.tcgaCharacter"),
+						'nte_lesion_pathologic_depth'= list(name = "nte_lesion_pathologic_depth", data = "os.class.tcgaCharacter"),
+						'discontiguous_lesion_count'= list(name = "discontiguous_lesion_count", data = "os.class.tcgaCharacter"),
+						'pathologic_tumor_burden'= list(name = "pathologic_tumor_burden", data = "os.class.tcgaCharacter"),
+						'radiologic_tumor_burden'= list(name = "radiologic_tumor_burden", data = "os.class.tcgaCharacter"),
+						'new_tumor_event_site_other'= list(name = "new_tumor_event_site_other", data = "os.class.tcgaCharacter")
         )
 )
 
