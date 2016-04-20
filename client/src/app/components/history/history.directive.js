@@ -79,8 +79,6 @@
                         return (vm.optCohortPatient.ids.indexOf(d[0])>=0)
                     });
                 }
-
-                
                 if (data.length==0) return;
                 var d = data.map(function(d){ return d[4]; });
                 var s = data.map(function(d){ return d[3]; });
@@ -94,8 +92,6 @@
                 });
                 
             }
-
-
 
             // Load Datasets
             osApi.setBusy(true);
