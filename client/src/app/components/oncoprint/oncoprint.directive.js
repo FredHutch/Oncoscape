@@ -175,6 +175,9 @@
                                 "TCGA.06.0878", "TCGA.06.0879", "TCGA.06.0881", "TCGA.06.0882",
                                 "TCGA.12.0670", "TCGA.12.0818", "TCGA.12.0819", "TCGA.12.0820",
                                 "TCGA.12.0821", "TCGA.12.0822", "TCGA.12.0826", "TCGA.12.0827", "EGFR", "PTEN"];
+                console.log("***** demoOncoString is :", demoOncoString);
+                osApi.getOncoprint(demoOncoString);
+                console.log("after osApi");
                 osApi.getOncoprint(demoOncoString).then(function(response) {
                     console.log(osApi.getOncoprint(demoOncoString));
                     osApi.setBusyMessage("Rendering Oncoprint");

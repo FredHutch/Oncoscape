@@ -10,6 +10,7 @@ oncoprint_data_selection <- function(ws, msg)
     
     currentDataSetName <- state[["currentDatasetName"]]
     printf("***** currentDatasetName: %s", currentDataSetName)
+    printf(msg)
     if(!is.null(msg$payload$ds)){
         ds <- msg$payload$ds
     }else{
