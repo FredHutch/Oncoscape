@@ -109,15 +109,18 @@ table.dataTable.dtr-inline.collapsed tbody tr.parent td:first-child:before, tabl
 	button{
 		width: 100%;
 		text-align: left;
-		height: 28px;
+		height: 34px;
 		line-height: 14px;
 		overflow: hidden;
     	text-overflow: ellipsis;
     	font-weight: 300;
     	margin-right:50px;
+    	position: relative;
 		.caret{
-			float:right;
-			margin-top:5px;
+			position: absolute;
+			right: 15px;
+			top: 15px;
+			
 		}
 	}
 	ul{

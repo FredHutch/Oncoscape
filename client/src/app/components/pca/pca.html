@@ -36,9 +36,23 @@
                     <label>Search</label>
                     <input type="text" class="ngrs-range-slider" style="width: 100%;" ng-model="vm.search">
                 </div>
-            </div>
-            <os-cohort></os-cohort>
-            <div class="row">
+                <div class="col-xs-12 form-label">
+                    <h2>Cohorts</h2>
+                </div>
+                <div class="col-sm-12 form-item">
+                    <label>Patient Cohorts</label>
+                    <div class="dropdown bs-dropdown">
+                        <button class="btn btn-default dropdown-toggle" type="button" style="width: 34px;display: inline-block; margin-right:0px; float:right" ng-click="vm.addCohortPatient()">+
+                        </button>
+                        <button class="btn btn-default dropdown-toggle" type="button" id="dropdownMenu1" data-toggle="dropdown" aria-haspopup="true" aria-expanded="true" style="width: 220px;display: inline-block; margin-right:0px;">
+                            {{vm.optCohortPatient.name}}
+                            <span class="caret"></span>
+                        </button>
+                        <ul class="dropdown-menu" aria-labelledby="dropdownMenu1" style="width:100%">
+                            <li ng-repeat="item in vm.optCohortPatients" ng-click="vm.optCohortPatient=item">{{item.name}}</li>
+                        </ul>
+                    </div>
+                </div>
                 <div class="col-xs-6 form-label">
                     <h2>Legend</h2>
                     <span class="circle" style="background-color:black;width:10px;height: 10px;margin-right:10px;"></span>Patients

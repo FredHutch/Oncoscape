@@ -26,6 +26,17 @@
                 return;
             }
 
+            // Elements
+            var d3Chart = d3.select("#pca-chart").append("svg").attr("id", "chart");
+            var d3xAxis = d3Chart.append("g");
+            var d3yAxis = d3Chart.append("g");
+            var d3Tooltip = d3.select("body").append("div").attr("class", "tooltip pca-tooltip")
+
+            // Properties
+            var cohortPatient = osApi.getCohortPatient();
+            var width, height, xScale, yScale, xMax, yMax, xAxis, yAxis;
+            var rawData, rawPatientData;
+
             // View Model
             var vm = this;
             vm.datasource = $stateParams.datasource;
@@ -33,28 +44,29 @@
             vm.geneSet = null;
             vm.optNodeColors = [{name: 'Default'}, {name: 'Gender'}, {name: 'Age At Diagnosis'}];
             vm.optNodeColor = vm.optNodeColors[0];
+            vm.optCohortPatients = cohortPatient.get();
+            vm.optCohortPatient = vm.optCohortPatients[0];
 
-            // D3 Scale
-            var width, height, xScale, yScale, xMax, yMax, xAxis, yAxis;
-
-            // Filters
-            var rawData, rawPatientData;
-            var pfApi = osApi.getPatientFilterApi();
-            pfApi.init(vm.datasource);
-            pfApi.onSelect.add(draw);
-            vm.cohort;
-            vm.createCohort = function() {
-                pfApi.addFilter(vm.cohort, d3.selectAll(".pca-node-selected")[0].map(function(data) {
-                    return data.__data__.id
-                }));
-                vm.cohort = "";
-            };
-
-            // Elements
-            var d3Chart = d3.select("#pca-chart").append("svg").attr("id", "chart");
-            var d3xAxis = d3Chart.append("g");
-            var d3yAxis = d3Chart.append("g");
-            var d3Tooltip = d3.select("body").append("div").attr("class", "tooltip pca-tooltip")
+            
+            // Cohorts
+            vm.addCohortPatient = function(){
+                var cohortName = "PLSR " + moment().format('- H:mm:ss - M/D/YY');
+                var cohortIds = d3Chart.selectAll(".pca-node-selected")[0].map(function(node){return node.__data__.id.toUpperCase(); });
+                var cohort = {name:cohortName, ids:cohortIds};
+                vm.optCohortPatients.push(cohort);
+                vm.optCohortPatient = cohort;
+            }
+            $scope.$watch('vm.optCohortPatient', function() {
+                var ids = vm.optCohortPatient.ids;
+                if (ids == "*"){
+                    d3Chart.selectAll(".pca-node-selected").classed("pca-node-selected", false);
+                }
+                else{
+                    d3Chart.selectAll("circle").classed("pca-node-selected", function(){
+                        return (ids.indexOf(this.__data__.id)>=0)
+                    });
+                }
+            });
 
             // Initialize
             osApi.setBusy(true)("Loading Dataset");
@@ -181,11 +193,8 @@
 
                 d3Chart.call(brush);
 
-                dataset = pfApi.filter(rawData, function(p) {
-                    return p.id
-                });
-
-                var circles = d3Chart.selectAll("circle").data(dataset, function(d) { return d; });
+                
+                var circles = d3Chart.selectAll("circle").data(rawData, function(d) { return d; });
 
                 circles.enter()
                     .append("circle")

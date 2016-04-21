@@ -292,35 +292,40 @@
             });
         }
 
-        var _cohortPatient = collection(signals);
+        var _cohortPatient = collection(signals, {name:'All Patients', ids:'*'}, "osCohortPatient");
         function getCohortPatient(){ return _cohortPatient; }
 
-        var _cohortGene = collection(signals);
+        var _cohortGene = collection(signals, {name:'All Genes', ids:'*'}, "osCohortGene");
         function getCohortGene(){ return _cohortGene; }
 
-        function collection(signals){
+        function collection(signals, defaultValue, collectionName){
+
             var onAdd = new signals.Signal();
             var onRemove = new signals.Signal();
-            var _collection = [];
+            var onSelect = new signals.Signal();
+
+            var _collection = [defaultValue];
+            
             function get() { return _collection; }
+            
             function add(value){ 
                 _collection.push(value); 
                 onAdd.dispatch(_collection);
             }
             function remove(value){
+                if (_selected==value) select(_collection[0]);
                 _collection.splice(_collection.indexOf(value)); 
                 onRemove.dispatch(_collection);
             }
+           
             function save(key){
 
             }
+
             function load(key){
 
             }
-            function destroy(){
-                // onAdd.removeAll();
-                // onRemove.removeAll();
-            }
+
             return{
                 get: get,
                 add: add,
@@ -328,8 +333,7 @@
                 onAdd: onAdd,
                 onRemove: onRemove,
                 save: save,
-                load:load,
-                destroy: destroy
+                load:load
             }
         }
 
@@ -417,8 +421,7 @@
                 getFilterTree : getFilterTree,
                 onChange : onChange,
                 onSelect : onSelect
-            };
-                
+            };       
         }
   
         return {
