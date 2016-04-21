@@ -1189,7 +1189,7 @@ os.data.load <- function(inputFile, columns){
                    col.names = colNames,
                    colClasses = colData
         );
-      
+   
       headerWithData <- setdiff(header, names(columns))
       DataIndicator <- sapply(headerWithData, function(colName){!all(toupper(mappedTable[,colName]) %in% os.enum.na)})
       headerWithData <- headerWithData[DataIndicator]
