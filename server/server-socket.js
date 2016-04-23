@@ -13,6 +13,10 @@ exports.start = function(config){
 	var sockjs = require('sockjs');
 	var fork = require('child_process').fork;
 
+
+	var NodeCache = require( "node-cache" );
+	var socketCache = new NodeCache( {stdTTL: 0, checkperiod: 0, useClones: false} );
+
 	// List of clients
 	var clients = {};
 	var socket = sockjs.createServer();
@@ -23,16 +27,31 @@ exports.start = function(config){
 
 		// R To Socket
 		r.on('message', function(data){
-		 	conn.write(data);
+			var c = clients[conn.id];
+			socketCache.set( c.cmd, data );
+		 	c.conn.write(data);
 		});
 
 		// Socket To R
 		conn.on('data', function(message){
-			r.send(message);
+			var c = clients[conn.id];
+			socketCache.get( message, function( err, value ){
+				console.log(err);
+				if ( !err ){
+					if(value == undefined){
+						c.cmd = message
+						c.r.send(message);	
+					}else{
+						clients[conn.id].conn.write( value );	
+					}
+				}
+			});
+
+			
 		});
 
 	  	// Add this client to the client list.
-	  	clients[conn.id] = {conn: conn, r:r};
+	  	clients[conn.id] = {conn: conn, r:r, cmd:''};
 
 		// Destory Client and R Process
 		conn.on('close', function() {

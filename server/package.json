@@ -12,6 +12,7 @@
     "http-proxy": "^1.12.0",
     "httpd": "^0.0.2",
     "ldapjs": "^1.0.0",
+    "node-cache": "^3.2.1",
     "node-uuid": "~1.4.7",
     "pdfkit": "^0.7.2",
     "soap": "^0.12.0",
