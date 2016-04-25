@@ -286,9 +286,13 @@
             });
         }
         function getOncoprint(geneSetAndPatients) {
+            //console.log("***** within osApi.getOncoprint: ", geneSetAndPatients);
+            //debugger;
             return osSocket.request({
                 cmd: "oncoprint_data_selection",
-                payload: geneSetAndPatients
+                payload: {
+                    patientIdsAndGenes: geneSetAndPatients
+                }
             });
         }
 

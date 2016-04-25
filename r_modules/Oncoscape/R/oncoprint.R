@@ -29,8 +29,10 @@ random.samples.genes.oncoprint <- function(numberReceived, genes_all, patients_a
 create.oncoprint.input <- function(samplesAndGenes, ds)
 {
     printf(" ======= entering create.oncoprint.input")
-
+    printf(samplesAndGenes)
+    printf(ds)
     cmd <- sprintf("ds <- datasets[['%s']]", ds)
+    print(cmd)
     eval(parse(text=cmd))
     #}else{
     #    printf("***** datasets doesn't exits, create ds object")
