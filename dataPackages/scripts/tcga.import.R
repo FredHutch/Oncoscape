@@ -206,8 +206,9 @@ os.data.load <- function(inputFile, checkEnumerations=FALSE){
 
       if(checkEnumerations) {
         headerWithData <- columns[column.type == "character"]
-        headerWithData <- headerWithData[- which(headerWithData %in% os.tcga.ignore.columns)]
-        if(length(headerWithData) == 0) return(mappedTable);
+        ignoreCols <- which(headerWithData %in% os.tcga.ignore.columns)
+        if(length(ignoreCols > 0))       headerWithData <- headerWithData[- ignoreCols ]
+        if(length(headerWithData) == 0)  return(mappedTable);
         
         DataIndicator <- sapply(headerWithData, function(colName){!all(toupper(mappedTable[,colName]) %in% os.enum.na)})
         headerWithData <- headerWithData[DataIndicator]
