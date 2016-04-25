@@ -175,7 +175,7 @@ os.data.save <- function(df, file, format = c("tsv", "csv", "RData")){
 }
 
 ### Load Function Takes An Import File + Column List & Returns A DataFrame
-os.data.load <- function(inputFile, checkEnumerations=FALSE){
+os.data.load <- function(inputFile, checkEnumerations=FALSE, checkClassType = "character"){
         
         # Columns :: Create List From Url
     columns <- unlist(strsplit(readLines(inputFile, n=1),'\t'));
@@ -205,7 +205,7 @@ os.data.load <- function(inputFile, checkEnumerations=FALSE){
         );
 
       if(checkEnumerations) {
-        headerWithData <- columns[column.type == "character"]
+        headerWithData <- columns[column.type == checkClassType]
         ignoreCols <- which(headerWithData %in% os.tcga.ignore.columns)
         if(length(ignoreCols > 0))       headerWithData <- headerWithData[- ignoreCols ]
         if(length(headerWithData) == 0)  return(mappedTable);
@@ -261,4 +261,5 @@ os.data.batch <- function(inputFile, outputDirectory, ...){
 os.data.batch(
         inputFile = os.data.batch.inputFile,
         outputDirectory = os.data.batch.outputDir,
-        checkEnumerations = TRUE)
+        checkEnumerations = TRUE,
+        checkClassType = "os.class.tcgaCharacter")
