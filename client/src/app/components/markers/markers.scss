@@ -1,15 +1,4 @@
 // Namespace
-.markers-chart{
-		width: 100%;
-		height: 80vh;
-}
-.filter-list{
-	li{
-		padding:0px;
-		margin:0px;
-
-	}
-}
 .filter-button{
 	border:solid 0px #CCC;
 	border-left-width:10px;
@@ -17,6 +6,7 @@
 	margin-top:1px;
 	width: 100%;
 	text-align: left;
+	font-weight:300;
 }
 .circle{
 		border-radius: 50%;
@@ -30,46 +20,12 @@
 		position:relative;
 		top:2px;
 	}
-	.blue{
-		background-color: blue;
-	}
-	.pink{
-		background-color: pink;
-	}
-	.green{
-		background-color: green;
-	}
-	.red{
-		background-color: red;
-	}
-	.chartreuse{
-		background-color: chartreuse;
-	}
-	.aquamarine{
-		background-color: aquamarine;
-	}
-	.orange{
-		background-color: orange;
-	}
-	.magenta{
-		background-color: magenta;
-	}
-	.cyan{
-		background-color: cyan;
-	}
-	.forestgreen{
-		background-color: forestgreen;
-	}
-	.turquoise{
-		background-color: turquoise;
-	}
-	.chocolate{
-		background-color: chocolate;
-	}
-	.purple{
-		background-color: purple;
-	}
-	.gene{
-		background-color: #FFF;
-		border:solid 3px rgb(56, 52,123);
-	}
+
+.gene{
+	background-color: #FFF;
+	border:solid 3px rgb(56, 52,123);
+}
+.markers-chart{
+	position: relative;
+	top: 0px;
+}

@@ -1,7 +1,26 @@
-<section class="survival container container-filters">
-	<h2>Patient Survival &mdash; {{vm.datasource}} <span
-        ng-if="vm.datasource!=vm.filter.name"> {{vm.filter.name}}</span></h2>
-</section>
-<section class="survival container" style="padding-top:20px;text-align: center;">
-  <img id="survival-img" style="max-width: 75%; height: auto; margin:auto;">
+<os-tray content="tray-content-block" change="vm.resize($event)">
+    <section class="tray-content">
+        <div class="row">
+            <div class="col-xs-12 form-label">
+                <h2>Patient Cohort</h2>
+            </div>
+            <div class="dropdown bs-dropdown">
+                    <button class="btn btn-default dropdown-toggle" type="button" id="dropdownMenu1" data-toggle="dropdown" aria-haspopup="true" aria-expanded="true">
+                        {{vm.optCohortPatient.name}}
+                        <span class="caret"></span>
+                    </button>
+                    <ul class="dropdown-menu" aria-labelledby="dropdownMenu1" style="width:100%">
+                        <li ng-repeat="item in vm.optCohortPatients" ng-click="vm.optCohortPatient=item">{{item.name}}</li>
+                    </ul>
+			</div>
+		</div>
+	</section>
+</os-tray>
+<section class="tray-content-block">
+  <div class="container-fluid">
+    <h2>Patient Survival</h2>
+    <div style="text-align: center;">
+    	<img id="survival-img" style="width:100%; height: auto; margin:auto;">
+    </div>
+  </div>
 </section>

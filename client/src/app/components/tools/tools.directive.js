@@ -59,7 +59,7 @@
                 img: 'survival.png',
                 copy: 'Compare survival rates of selected patients against the remaining population in a Kaplan Meier plot.'
             }, {
-                name: 'Patient History',
+                name: 'Patient Data',
                 route: 'history',
                 img: 'history.png',
                 copy: ''

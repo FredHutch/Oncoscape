@@ -1,46 +1,51 @@
-<section class="history container container-filters">
-	<h2>Patient History &mdash; {{vm.datasource}}</h2>
-    <div class="row">
-        <div class="col-xs-3" style="padding-right:20px;">
-            <label>Age At diagnosis</label>
-            <div range-slider 
-                min="vm.diagnosisMinValue" model-min="vm.diagnosisMin" 
-                max="vm.diagnosisMaxValue" model-max="vm.diagnosisMax"
-                show-values="true" attach-handle-values="true"
-                on-handle-up="vm.applyFilter()"></div>
-        </div>
-        <div class="col-xs-3" style="padding-right:20px;">
-            <label>Survival</label>
-            <div range-slider 
-                min="vm.survivalMinValue" model-min="vm.survivalMin" 
-                max="vm.survivalMaxValue" model-max="vm.survivalMax" 
-                show-values="true" attach-handle-values="true"
-                on-handle-up="vm.applyFilter()"></div>
-        </div>
-        <div class="col-xs-3" style="padding-right:20px">
-            <label>Search</label>
-            <input type="text" class="ngrs-range-slider" style="width: 100%;"
-                ng-model="vm.search">
-        </div>
-        <div class="col-xs-3">
-            <label>Create Cohort</label>
-            <div class="input-group">
-              <input type="text" class="form-control" placeholder="Cohort Name" style="height:29px;"
-                ng-model="vm.cohort">
-              <span class="input-group-btn">
-                <button class="btn btn-primary" type="button"
-                    style="height:29px;"
-                    ng-click="vm.createCohort()">Go!</button>
-              </span>
+<os-tray caption="Patients" content="tray-content-block">
+    <section class="tray-content">
+            <div class="row">
+                <div class="col-xs-12 form-label">
+                    <h2>Filters</h2>
+                </div>
+                <div class="col-xs-12 form-item">
+                    <label>Age At Diagnosis</label>
+                    <div range-slider min="vm.diagnosisMinValue" model-min="vm.diagnosisMin" max="vm.diagnosisMaxValue" model-max="vm.diagnosisMax" show-values="true" attach-handle-values="true" on-handle-up="vm.applyFilter()"></div>
+                </div>
+                <div class="col-xs-12 form-item">
+                    <label>Survival</label>
+                    <div range-slider min="vm.survivalMinValue" model-min="vm.survivalMin" max="vm.survivalMaxValue" model-max="vm.survivalMax" show-values="true" attach-handle-values="true" on-handle-up="vm.applyFilter()"></div>
+                </div>
+                <div class="col-xs-12 form-item">
+                    <label>Search</label>
+                    <input type="text" class="ngrs-range-slider" style="width: 100%;" ng-model="vm.search">
+                </div>
+                <div class="col-xs-12 form-label">
+                    <h2>Patient Cohort</h2>
+                </div>
+                <div class="dropdown bs-dropdown">
+                  
+                    <button class="btn btn-default dropdown-toggle" type="button"
+                    style="width: 34px;display: inline-block; margin-right:0px; float:right"
+                    ng-click="vm.addCohortPatient()">+
+                    </button>
+                    
+                    <button class="btn btn-default dropdown-toggle" type="button" id="dropdownMenu1" data-toggle="dropdown" aria-haspopup="true" aria-expanded="true"
+                    style="width: 220px;display: inline-block; margin-right:0px;">
+                        {{vm.optCohortPatient.name}}
+                        <span class="caret"></span>
+                    </button>
+                    
+                    <ul class="dropdown-menu" aria-labelledby="dropdownMenu1" style="width:100%">
+                        <li ng-repeat="item in vm.optCohortPatients" 
+                          ng-click="vm.optCohortPatient=item">{{item.name}}</li>
+                    </ul>
+
+                  </div>
             </div>
-        </div>
-    </div>
-</section>
-<section class="container-filter-toggle">
-  <img src="/assets/images/arrow_down.png" ng-click="vm.toggleFilter()">
-</section>
-<section class="history container" style="padding-top:20px;">
-    <table id="history-datatable" class="table table-striped table-bordered" cellspacing="0">
+    </section>
+</os-tray>
+
+<section class="tray-content-block">
+    <div class="container-fluid">
+        <h2>Patient Data</h2>
+        <table id="history-datatable" class="table table-striped table-bordered dt-responsive nowrap" cellspacing="0" width="100%">
             <thead>
                 <tr>
                     <th ng-repeat="col in vm.colnames">{{col}}</th>
@@ -51,5 +56,6 @@
                     <td ng-repeat="datum in row track by $index">{{datum}}</td>
                 </tr>
             </tbody>
-    </table>
+        </table>
+    </div>
 </section>

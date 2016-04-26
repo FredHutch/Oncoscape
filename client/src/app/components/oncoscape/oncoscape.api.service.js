@@ -12,6 +12,7 @@
         var onDataSource = new signals.Signal();
         function getDataSource(){ return _dataSource; }
         function setDataSource(value){
+            osSocket.setDataSource(value);
             _dataSource = value;
             onDataSource.dispatch(_dataSource);
         }
@@ -110,10 +111,9 @@
         }
 
         
-
-
         /*** R Service Calls ***/
         function setDataset(dataPackage) {
+            osSocket.setDataSource(dataPackage);
             return osSocket.request({
                 cmd: "specifyCurrentDataset",
                 payload: dataPackage
@@ -189,6 +189,15 @@
             };
             return osSocket.request({
                 cmd: "calculatePCA",
+                payload: payload
+            });
+        }
+        function getCalculatedPCA2(geneSet) {
+            var payload = {
+                genes: geneSet
+            };
+            return osSocket.request({
+                cmd: "calculatePCA2",
                 payload: payload
             });
         }
@@ -275,6 +284,52 @@
             });
         }
 
+        var _cohortPatient = collection(signals, {name:'All Patients', ids:'*'}, "osCohortPatient");
+        function getCohortPatient(){ return _cohortPatient; }
+
+        var _cohortGene = collection(signals, {name:'All Genes', ids:'*'}, "osCohortGene");
+        function getCohortGene(){ return _cohortGene; }
+
+        function collection(signals, defaultValue, collectionName){
+
+            var onAdd = new signals.Signal();
+            var onRemove = new signals.Signal();
+            var onSelect = new signals.Signal();
+
+            var _collection = [defaultValue];
+            
+            function get() { return _collection; }
+            
+            function add(value){ 
+                _collection.push(value); 
+                onAdd.dispatch(_collection);
+            }
+            function remove(value){
+                if (_selected==value) select(_collection[0]);
+                _collection.splice(_collection.indexOf(value)); 
+                onRemove.dispatch(_collection);
+            }
+           
+            function save(key){
+
+            }
+
+            function load(key){
+
+            }
+
+            return{
+                get: get,
+                add: add,
+                remove: remove,
+                onAdd: onAdd,
+                onRemove: onRemove,
+                save: save,
+                load:load
+            }
+        }
+
+
         /*** Filter Api ***/
         var _patientFilterApi = filter();
         function getPatientFilterApi() { return _patientFilterApi; }
@@ -358,11 +413,12 @@
                 getFilterTree : getFilterTree,
                 onChange : onChange,
                 onSelect : onSelect
-            };
-                
+            };       
         }
   
         return {
+            getCohortPatient: getCohortPatient,
+            getCohortGene: getCohortGene,
             setDataSource: setDataSource,
             getDataSource: getDataSource,
             onDataSource: onDataSource,
@@ -390,6 +446,7 @@
             getOncoprintDataSelection: getOncoprintDataSelection,
             getPCA: getPCA,
             getCalculatedPCA: getCalculatedPCA,
+            getCalculatedPCA2: getCalculatedPCA2,
             getPLSR: getPLSR,
             getCalculatedPLSR: getCalculatedPLSR,
             getSummarizedPLSRPatientAttributes: getSummarizedPLSRPatientAttributes,

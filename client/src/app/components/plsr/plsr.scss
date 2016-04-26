@@ -13,8 +13,20 @@
 	    position: relative;
 	    top: -1px;
 	}
+
 }
 .plsr-node:hover{
 	stroke: rgb(89, 165, 251);
 	stroke-width: 20px;
 }
+.plsr-tooltip{
+	pointer-events : none;
+	background-color: rgba(255,255,255,.5); 
+	padding: 5px;
+}
+.plsr-node-selected{
+	fill: none;
+    stroke: red;
+    stroke-width: 3;
+}
+

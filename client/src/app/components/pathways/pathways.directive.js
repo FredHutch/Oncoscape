@@ -19,7 +19,7 @@
         return directive;
 
         /** @ngInject */
-        function PathwaysController(osApi, $state, $stateParams, $scope, $sce, cytoscape) {
+        function PathwaysController(osApi, $state, $stateParams, $scope, $sce, moment, cytoscape) {
 
             if (angular.isUndefined($stateParams.datasource)){
                 $state.go("datasource");
@@ -27,23 +27,59 @@
             }
             var markersNetwork;
             var vm = this;
+            var cohortGene = osApi.getCohortGene();
+            // Elements
+            var elChart = angular.element("#gbm-chart");
+            var csChart;
+
+            vm.optCohortGenes = cohortGene.get();
+            vm.optCohortGene = vm.optCohortGenes[0];
             vm.datasource = $stateParams.datasource;
-            vm.toggleFilter = function() {
-                angular.element(".container-filters").toggleClass("container-filters-collapsed");
-                angular.element(".container-filter-toggle").toggleClass("container-filter-toggle-collapsed");
-            }
             vm.search = "";
             vm.frame;
             vm.tip = null;
 
-            // Elements
-            var elChart = angular.element("#gbm-chart");
-            var csChart;
+            // Cohorts
+            vm.addCohortGene = function(){
+                var cohortName = "Pathways " + moment().format('- H:mm - M/D/YY');
+                var cohortIds = csChart.$('node[nodeType="gene"]:selected').map(function(ele){ return ele.data().id.toUpperCase() });
+                var cohort = {name:cohortName, ids:cohortIds};
+                vm.optCohortGenes.push(cohort);
+                vm.optCohortGene = cohort;
+            }
+            $scope.$watch('vm.optCohortGene', function() {
+                if (angular.isUndefined(csChart)) return;
+                csChart.startBatch();
+                var highlight = true;
+                var degmap = {};
+                if (vm.optCohortGene.ids=="*"){
+                    csChart.$('node[nodeType="gene"]:selected')
+                        .forEach( function(ele){
+                            ele.deselect();
+                            degmap[ele.id()] = {display:'element'};
+                        }, degmap);
+                }else{
+                    csChart.$('node[nodeType="gene"]')
+                        .forEach( function(ele){
+                            if (this.ids.indexOf(ele.id())>=0){
+                                ele.select();
+                                this.degmap[ele.id()] = {display:'element'};
+                            }else{
+                                ele.deselect();
+                                this.degmap[ele.id()] = {display: (highlight) ? 'element' : 'none' };
+                            }
+                        }, {degmap:degmap, ids:vm.optCohortGene.ids} );
+                }
+                csChart.batchData(degmap);
+                csChart.endBatch();
+            });
+            
 
             $scope.$watch('vm.search', function() {
                 if (angular.isUndefined(csChart)) return;
                 var term = vm.search.toUpperCase();
                 var len = term.length;
+                csChart.startBatch()
                 csChart.nodes().map(function(ele) {
                     if (len == 0) {
                         ele.unselect();
@@ -53,12 +89,13 @@
                         ele.unselect();
                     }
                 });
-
+                csChart.endBatch();
             });
 
             // Load Datasets
             osApi.setBusy(true);
             osApi.setDataset(vm.datasource).then(function() {
+
                 osApi.getPathway().then(function(response) {
 
                     markersNetwork = angular.fromJson(response.payload);
@@ -66,21 +103,24 @@
                             container: elChart,
                             elements: markersNetwork.elements,
                             style: getStyle(),
+                            minZoom: .2,
+                            maxZoom: 5,
                             layout: {
                                 name: "preset",
                                 fit: true
                             }
                         })
                         .on('click', 'node', function(e) {
+                            if (e.cyTarget.data().nodeType!="gene") return;
                             angular.element('#gbm-webpage').modal();
-                            var url = "http://www.genecards.org/cgi-bin/carddisp.pl?gene=" + e.cyTarget.data().id;
+                            var url = "https://www.genecards.org/cgi-bin/carddisp.pl?gene=" + e.cyTarget.data().id;
                             $scope.$apply(function() {
                                 vm.frame = $sce.trustAsResourceUrl(url);
                             });
                         })
                         .on('click', 'edge', function(e) {
                             angular.element('#gbm-webpage').modal();
-                            var url = "http://www.ncbi.nlm.nih.gov/pubmed/?term=" + e.cyTarget.data().pmid;
+                            var url = "https://www.ncbi.nlm.nih.gov/pubmed/?term=" + e.cyTarget.data().pmid;
                             $scope.$apply(function() {
                                 vm.frame = $sce.trustAsResourceUrl(url);
                             });
@@ -190,7 +230,7 @@
                         'selector': 'node[nodeType="process"]',
                         'style': {}
                     }, {
-                        'selector': 'node:selected',
+                        'selector': 'node[nodeType="gene"]:selected',
                         'style': {
                             'overlay-opacity': '0.5',
                             'overlay-color': 'red'

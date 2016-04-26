@@ -19,7 +19,7 @@
         return directive;
 
         /** @ngInject */
-        function Pca3dController(osApi, $state, $stateParams, $timeout, $scope, d3, THREE) {
+        function Pca3dController(osApi, $state, $stateParams, $timeout, $scope, d3, THREE, $window) {
 
             if (angular.isUndefined($stateParams.datasource)){
                 $state.go("datasource");
@@ -36,7 +36,7 @@
                 angular.element(".container-filter-toggle").toggleClass("container-filter-toggle-collapsed");
             }
             var rawData;
-            
+
             // Elements
             var elChart = angular.element("#pca-chart");
 
@@ -67,7 +67,7 @@
             // API Call To Calculate PCA
             var update = function() {
                 osApi.setBusyMessage("Calculating PCA");
-                osApi.getCalculatedPCA(vm.geneSet).then(function(response) {
+                osApi.getCalculatedPCA2(vm.geneSet).then(function(response) {
                     osApi.setBusyMessage("Rendering PCA");
                     var payload = response.payload;
                     vm.pc1 = response.payload["importance.PC1"];
@@ -83,32 +83,66 @@
                 });
             };
 
-            // Render
-            function draw() {
-            }
-
-
             var scene = new THREE.Scene();
-            var camera = new THREE.PerspectiveCamera( 75, window.innerWidth / window.innerHeight, 0.1, 1000 );
-
-            var renderer = new THREE.WebGLRenderer();
-            renderer.setSize( window.innerWidth, window.innerHeight );
+            var camera = new THREE.PerspectiveCamera( 50, $window.innerWidth / $window.innerHeight, 0.1, 1000 );
+            camera.position.z = 60;
+            
+            var renderer = $window.WebGLRenderingContext ? new THREE.WebGLRenderer({ antialias: true }) : new THREE.CanvasRenderer();
+            renderer.setPixelRatio( $window.devicePixelRatio );
+            renderer.setSize( $window.innerWidth, $window.innerHeight );
             elChart.append( renderer.domElement );
-            var geometry = new THREE.BoxGeometry( 1, 1, 1 );
-            var material = new THREE.MeshBasicMaterial( { color: 0x00ff00 } );
-            var cube = new THREE.Mesh( geometry, material );
-            scene.add( cube );
-            camera.position.z = 5;
+
+
+
+            var draw = function(){
+                var sphereThree = [];
+                var numSphere = rawData.length;
+                var sphereGeometry = new THREE.SphereGeometry(.1, 8, 8);
+                var sphereMaterial = new THREE.MeshBasicMaterial({color: '#59a5fb'});//rgb(255, 0, 0)'});
+                for(var idSphere = 0; idSphere < numSphere; idSphere++){
+                    sphereThree[idSphere] = new THREE.Mesh(sphereGeometry, sphereMaterial);
+                    var datum = rawData[idSphere];
+                    sphereThree[idSphere].position.x = datum[0];
+                    sphereThree[idSphere].position.y = datum[1];
+                    sphereThree[idSphere].position.z = datum[2];
+                    scene.add(sphereThree[idSphere]);
+                }
+                render();
+            }
+            
 
             var render = function () {
-                requestAnimationFrame( render );
 
-                cube.rotation.x += 0.1;
-                cube.rotation.y += 0.1;
+//                requestAnimationFrame( render );
 
-                renderer.render(scene, camera);
+                // if( !options.fixed ) {
+                //     mesh.rotation.x += 0.005;
+                //     mesh.rotation.y += 0.005;
+                // }
+
+
+                renderer.render( scene, camera );
+
             };
-            render();
+
+            function animate() {
+
+  requestAnimationFrame( animate );
+  controls.update();
+
+}
+
+
+
+  var controls = new THREE.OrbitControls( camera );
+  controls.addEventListener( 'change', render );
+    
+        
+animate();
+            
+
+           
+            
 
         }
     }
