@@ -64,7 +64,7 @@ code to interpret and display information.  Features can be developed and deploy
 
 ### What needs to be done?
 
-We have a [`help-wanted`](https://github.com/FredHutch/oncoscape/issues?labels=help-wanted&state=open)
+We have a [`help wanted`](https://github.com/FredHutch/oncoscape/issues?labels=help%20wanted&state=open)
 tag on our issue tracker to indicate tasks which contributors can pick up.
 
 If you've found something you'd like to contribute to, leave a comment in the issue
