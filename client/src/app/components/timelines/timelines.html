@@ -46,7 +46,7 @@
                     </ul>
                 </div>
             </div>
-            <div class="col-sm-9 form-item">
+            <div class="col-sm-12 form-item">
                   <label>Event Colors</label>
                   <span
                       ng-repeat="item in vm.events"
@@ -56,18 +56,8 @@
                     {{item.name}} ({{item.selected ? 'Visible' : 'Hidden'}})
                     </span>
             </div>
-            <div class="col-sm-3 form-item" style="text-align: center">
-                <label>Zoom</label>
-                <div range-slider orientation="vertical"
-                    min="vm.sliderMin" 
-                    model-min="vm.sliderMinValue" 
-                    max="vm.sliderMax" 
-                    model-max="vm.sliderMaxValue"
-                    show-values="false" 
-                    attach-handle-values="true" 
-                    class="timeline-slider"
-                    ></div>
-            </div>
+          
+            
             <div class="col-xs-12 form-label">
                 <h2>Cohorts</h2>
             </div>    

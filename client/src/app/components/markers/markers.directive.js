@@ -20,7 +20,7 @@
         return directive;
 
         /** @ngInject */
-        function MarkersController(osApi, $state, $timeout, $scope, $stateParams, cytoscape, signals, $window, _) {
+        function MarkersController(osApi, $state, $timeout, $scope, $stateParams, cytoscape, signals, moment, $window, _) {
 
             if (angular.isUndefined($stateParams.datasource)){
                 $state.go("datasource");
@@ -63,7 +63,7 @@
                 cyChart = initializeChart(data, styles, cytoscape, angular.element("#markers-chart"));
 
                 // Initialize Cohorts
-                initializeCohort(cyChart, vm, osApi, cohortPatient, cohortGene, $scope);
+                initializeCohort(cyChart, vm, osApi, cohortPatient, cohortGene, $scope, moment);
 
                 // Initialize Layouts
                 initializeLayouts(cyChart, vm, $scope);
@@ -160,7 +160,7 @@
             return vm;
         }
 
-        function initializeCohort(chart, vm, osApi, cohortPatient, cohortGene, $scope){
+        function initializeCohort(chart, vm, osApi, cohortPatient, cohortGene, $scope, moment){
             vm.optCohortModes = [{name:"Highlight Cohort"},{name:"Subset Cohort"}];
             vm.optCohortMode = vm.optCohortModes[0];
             vm.optCohortPatients = cohortPatient.get();
@@ -168,14 +168,14 @@
             vm.optCohortGenes = cohortGene.get();
             vm.optCohortGene = vm.optCohortGenes[0];
 
-            vm.addCohortGene = function(e){
+            vm.addCohortGene = function(){
                 var cohortName = "P+M " + moment().format('- H:mm - M/D/YY');
                 var cohortIds = chart.$('node[nodeType="gene"]:selected').map(function(ele){ return ele.data().id.toUpperCase() });
                 var cohort = {name:cohortName, ids:cohortIds};
                 vm.optCohortGenes.push(cohort);
                 vm.optCohortGene = cohort;
             }
-            vm.addCohortPatient = function(e){
+            vm.addCohortPatient = function(){
                 var cohortName = "P+M " + moment().format('- H:mm - M/D/YY');
                 var cohortIds = chart.$('node[nodeType="patient"]:selected').map(function(ele){ return ele.data().id.toUpperCase() });
                 var cohort = {name:cohortName, ids:cohortIds};

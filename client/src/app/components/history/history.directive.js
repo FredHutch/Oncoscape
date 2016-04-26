@@ -19,7 +19,7 @@
         return directive;
 
         /** @ngInject */
-        function HistoryController(osApi, $state, $timeout, $scope, $stateParams) {
+        function HistoryController(osApi, $state, $timeout, $scope, moment, $stateParams) {
 
             if (angular.isUndefined($stateParams.datasource)){
                 $state.go("datasource");

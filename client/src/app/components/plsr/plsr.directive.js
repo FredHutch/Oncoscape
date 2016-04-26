@@ -19,7 +19,7 @@
         return directive;
 
         /** @ngInject */
-        function PlsrController(osApi, $state, $stateParams, $timeout, $scope, d3, $sce, $window, _) {
+        function PlsrController(osApi, $state, $stateParams, $timeout, $scope, d3, moment, $sce, $window, _) {
 
             if (angular.isUndefined($stateParams.datasource)){
                 $state.go("datasource");
@@ -109,6 +109,9 @@
             // API Call To Calculate PLSR
             vm.update = function() {
                 osApi.setBusyMessage("Calculating PLSR");
+
+
+
                 var factors = [{
                     name: "Survival",
                     low: Number(vm.survivalMinFilter) * 365.24,

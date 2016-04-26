@@ -19,10 +19,7 @@
             }
             $exceptionHandler( error );
         }
-
-
-
-
+        
         // Actions To Take On State Change
         $rootScope.$on('$stateChangeStart', function(event, toState) {
 
@@ -33,10 +30,10 @@
             angular.element.fn.DataTable.ext.search = [];
 
             // Route unauthenticated users to landing page
-            // if (toState.authenticate && !osApi.getUserApi().getUser().authenticated) {
-            //      $state.transitionTo("landing");
-            //      event.preventDefault();
-            // }
+            if (toState.authenticate && !osApi.getUserApi().getUser().authenticated) {
+                 $state.transitionTo("landing");
+                 event.preventDefault();
+            }
         });
     }
 })();

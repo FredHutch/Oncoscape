@@ -19,7 +19,7 @@
         return directive;
 
         /** @ngInject */
-        function PathwaysController(osApi, $state, $stateParams, $scope, $sce, cytoscape) {
+        function PathwaysController(osApi, $state, $stateParams, $scope, $sce, moment, cytoscape) {
 
             if (angular.isUndefined($stateParams.datasource)){
                 $state.go("datasource");
