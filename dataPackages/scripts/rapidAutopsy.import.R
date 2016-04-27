@@ -8,10 +8,10 @@
 # Configuration -----------------------------------------------------------
 rm(list = ls(all = TRUE))
 options(stringsAsFactors = FALSE)
-os.data.batch.inputFile <- "tcga.filename.manifest.txt"
-os.data.batch.outputDir <- "../tcga.clean/"
+os.data.batch.inputFile <- "rapidAutopsy.filename.manifest.tsv"
+os.data.batch.outputDir <- "../rapidAutopsy.clean/"
 
-os.data.batch.inputFile.fileCols <- c("pt", "drug", "rad","f1","f2", "f3","nte","omf","nte_f1")
+os.data.batch.inputFile.fileCols <- c("pt")
 os.data.batch.inputFile.studyCol <- "study"
 os.data.batch.inputFile.dirCol   <- "directory"
 
@@ -26,21 +26,15 @@ library(plyr)
 library(jsonlite)
 
 #os.tcga.batch.inputFile    <- fromJSON("os.tcga.file.manifest.json")
-os.tcga.field.enumerations  <- fromJSON("os.tcga.field.enumerations.json")
-os.tcga.column.enumerations <- fromJSON("os.tcga.column.enumerations.json")
+os.field.enumerations  <- fromJSON("os.tcga.field.enumerations.json")
+os.column.enumerations <- fromJSON("os.rapidAutopsy.column.enumerations.json")
 
 # Class Definitions :: Enumerations -------------------------------------------------------
-os.enum.na <- c("", "NA", "[NOTAVAILABLE]","[UNKNOWN]","[NOT AVAILABLE]","[NOT EVALUATED]","UKNOWN","[DISCREPANCY]","NOT LISTED IN MEDICAL RECORD","[NOT APPLICABLE]","[PENDING]","PENDING", "[NOT AVAILABLE]","[PENDING]","[NOTAVAILABLE]","NOT SPECIFIED","[NOT AVAILABLE]|[NOT AVAILABLE]","[NOT AVAILABLE]|[NOT AVAILABLE]|[NOT AVAILABLE]|[NOT AVAILABLE]|[NOT AVAILABLE]|[NOT AVAILABLE]","[NOT AVAILABLE]|[NOT AVAILABLE]|[NOT AVAILABLE]|[NOT AVAILABLE]|[NOT AVAILABLE]|[NOT AVAILABLE]|[NOT AVAILABLE]|[NOT AVAILABLE]","[NOT AVAILABLE]|[NOT AVAILABLE]|[NOT AVAILABLE]")
+os.enum.na <- c("", "NA", "[NOTAVAILABLE]","[UNKNOWN]","[NOT AVAILABLE]","[NOT EVALUATED]","UKNOWN","[DISCREPANCY]","NOT LISTED IN MEDICAL RECORD","[NOT APPLICABLE]","[PENDING]","PENDING", "[NOT AVAILABLE]","[PENDING]","[NOTAVAILABLE]","NOT SPECIFIED","[NOT AVAILABLE]|[NOT AVAILABLE]","[NOT AVAILABLE]|[NOT AVAILABLE]|[NOT AVAILABLE]|[NOT AVAILABLE]|[NOT AVAILABLE]|[NOT AVAILABLE]","[NOT AVAILABLE]|[NOT AVAILABLE]|[NOT AVAILABLE]|[NOT AVAILABLE]|[NOT AVAILABLE]|[NOT AVAILABLE]|[NOT AVAILABLE]|[NOT AVAILABLE]","[NOT AVAILABLE]|[NOT AVAILABLE]|[NOT AVAILABLE]", "UNK")
 #os.enum.other <- c( "OTHER","OTHER: SPECIFY IN NOTES","OTHER (SPECIFY BELOW)","SPECIFY")
 os.enum.logical.true  <- c("TRUE","YES","1","Y")
 os.enum.logical.false <- c("FALSE","NO","0","N")
-os.tcga.ignore.columns <- c("bcr_patient_uuid", 
-                            "bcr_drug_uuid","bcr_drug_barcode",
-                            "bcr_followup_uuid","bcr_followup_barcode",
-                            "bcr_radiation_uuid","bcr_radiation_barcode", 
-                            "bcr_omf_uuid", "bcr_omf_barcode",
-                            "informed_consent_verified", "form_completion_date", 
-                            "project_code", "patient_id")
+os.ignore.columns <- c("cytoxan and 5-FU (S)","cytoxan and 5-FU (E)")
 
 
 Map( function(key, value, env=parent.frame()){
@@ -52,9 +46,9 @@ Map( function(key, value, env=parent.frame()){
                 from[from.na]<-NA    
                 
                 # Return Enum or NA
-                standardVals <- names(os.tcga.field.enumerations[[key]])
+                standardVals <- names(os.field.enumerations[[key]])
                 for(fieldName in standardVals){
-                  values <-os.tcga.field.enumerations[[key]][[fieldName]]
+                  values <-os.field.enumerations[[key]][[fieldName]]
                   from[ which(from %in% values)] <- fieldName
                 }
                 
@@ -64,7 +58,7 @@ Map( function(key, value, env=parent.frame()){
                 # Kill If Not In Enum or Na
                 stop(paste(key, " not set due to: ", paste(setdiff(from,c(standardVals, NA)), collapse=";"), " not belonging to ", paste(standardVals, collapse=";")))
         })
-}, names(os.tcga.field.enumerations), os.tcga.field.enumerations);
+}, names(os.field.enumerations), os.field.enumerations);
 
 # Class Definitions :: TCGA [ID | DATE | CHAR | NUM | BOOL] -------------------------------------------------------
 
@@ -153,7 +147,7 @@ setAs("character","os.class.Boolean", function(from){
         if( all(from %in% c( TRUE, FALSE, NA))) return( from )
         
         # Kill If Not In Enum or Na
-        stop(paste("os.class.tcgaBoolean not properly set: ", setdiff(from,c( TRUE, FALSE, NA )), collapse=";"))
+        stop(paste("os.class.Boolean not properly set: ", setdiff(from,c( TRUE, FALSE, NA )), collapse=";"))
 })
 
 # IO Utility Functions :: [Batch, Load, Save]  -------------------------------------------------------
@@ -185,10 +179,10 @@ os.data.load <- function(inputFile, checkEnumerations=FALSE, checkClassType = "c
     if(checkEnumerations) { column.type <- rep("character", length(columns))}
     else                  { column.type <- rep("NULL", length(columns)) }
     
-    os.tcga.classes <- names(os.tcga.column.enumerations)
-    for(class.type in os.tcga.classes){
-      for(colName in names(os.tcga.column.enumerations[[class.type]])){
-          values <-os.tcga.column.enumerations[[class.type]][[colName]]
+    os.classes <- names(os.column.enumerations)
+    for(class.type in os.classes){
+      for(colName in names(os.column.enumerations[[class.type]])){
+          values <-os.column.enumerations[[class.type]][[colName]]
           matching.values <- which(columns %in% values)
           columns[matching.values ] <- colName
           column.type[ matching.values] <- class.type
@@ -209,7 +203,7 @@ os.data.load <- function(inputFile, checkEnumerations=FALSE, checkClassType = "c
 
       if(checkEnumerations) {
         headerWithData <- columns[column.type == checkClassType]
-        ignoreCols <- which(headerWithData %in% os.tcga.ignore.columns)
+        ignoreCols <- which(headerWithData %in% os.ignore.columns)
         if(length(ignoreCols > 0))       headerWithData <- headerWithData[- ignoreCols ]
         if(length(headerWithData) == 0)  return(mappedTable);
         

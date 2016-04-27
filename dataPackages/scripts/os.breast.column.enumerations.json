@@ -1,0 +1,91 @@
+{
+	"os.class.tcgaId": {
+		"patient_ID": ["SpecIDKey"]
+	},
+	"os.class.Date": {
+		"date_death": ["knownDeceasedDate"]
+	},
+	"os.class.gender": {
+		"gender" : ["Gender"]
+	},
+	"os.class.ethnicity": {
+		"ethnicity" : ["Ethnicity"]
+	},
+	"os.class.status": {
+		"status_tumor": ["CancerStatus"]
+	},
+
+	"os.class.procedure": {
+		"procedure_type_left": ["procedureTypeL", "procedureSubTypeL", "lymphNodeProcedureTypeL"]
+		"procedure_type_right": ["procedureTypeR", "procedureSubTypeR", "lymphNodeProcedureTypeR"]
+	},
+	"os.class.stage": {
+		"stage_T": ["PathT"],
+		"stage_N": ["PathN"]
+	},
+	
+	"os.class.Numeric": {
+		"age_at_procedure": ["AgeAtProc"],
+		"menopause_cause": ["menopauseCause"],
+		"menopause_status": ["menopauseStatus"],
+		"age_start_smoking": ["SmokingAgeStarted"],
+		"current_smoker": ["CurrentSmoker"],
+		"age_menarche": ["AgeOfMenarche"],
+		"age_first_birth": ["AgeFirstLiveBirth"],
+		"number_lymphnodes_total" : ["TotalNumberOfLymphNodes"],
+		"ki67": ["ki67"],
+		"status_vital": ["VitalStatus"]
+	},
+	"os.class.Boolean": {
+		"neoadjuvant_treatment" : ["NeoAdjuvantTreatment"],
+		"radiation_pre_surgery" : ["RadiationTreatmentPriorToSurgery"],
+		"mutation_carrier" : ["MutationCarrier"],
+		"race_black": ["African American/Black"],
+		"race_asian" : ["Asian"],
+		"race_white": ["Caucasian/White"],
+		"race_islander": ["Hawaiian/Pacific Islander"],
+		"race_multi": ["More than one race (unspecified)"],
+		"race_native": ["Native American/Native Alaskan"],
+		"race_unknown": ["RaceUnknown"],
+		"pregnant_ever": ["EverPregnant"],
+		"pregnant_to_term": ["PregnancyToTerm"],
+		"history_family_cancer": ["CancerInRelative"],
+		"history_family_cancer_breast_ovarian_prostate": ["CancerInRelative_Breast_Ovarian_Prostate"],
+		"dcis_type": ["DCIStype"],
+		"dcis_solid": ["DCIS_solid"],
+		"dcis_cribriform": ["DCIS_cribriform"],
+		"dcis_comedo": ["DCIS_comedo"],
+		"dcis_papillary": ["DCIS_papillary"],
+		"dcis_micropapillary": ["DCIS_micropapillary"],
+		"dcis_clinging": ["DCIS_clinging"],
+		"dcis_NA": ["DCIS_unknown", "DCIS_NA", "DCIS_notrecorded"],
+		"dcis_grade": ["DCISgrade"],
+		"dcis_necrosis": ["DCISNecrosis"],
+		"er_positive": ["ER"],
+		"pr_positive": ["PR"],
+	},
+	"os.class.Character": {
+		"laterality_overview" : ["laterality_overview"],
+		"laterality_path" : ["laterality_path"],
+		"note_procedure" : ["procedureComment"],
+		"diagnosis_primary_path": ["PrimaryPathDiagnosis"],
+		"note_primary_path" : ["PrimaryPathNotes"],
+		"histology_grade_left" : ["HistologyGradeLeft"],
+		"histology_grade_right": ["HistoGradeRight"],
+		"tubular_formation_left": ["TubularFormationLeft"],
+		"tubular_formation_right": ["TubularFormationRight"],
+		"nuclear_grade_left": ["NuclearGradeLeft"],
+		"nuclear_grade_right": ["NuclearGradeRight"],
+		"mitotic_index_left": ["MitoticIndexLeft"],
+		"mitotic_index_right": ["MitoticIndexRight"],
+		"note_diagnosis_benign" :["BenignDiagnosisDesc"],
+		"in_situ_disease_other": ["AssociatedInSituDisease"],
+		"in_situ_disease_extent": ["ExtentInSituDisease"],
+		"her2_ICC" : ["Her2ICC"],
+		"her2_fish": ["Her2FISH"],
+		"p53" : ["p53"],
+		"notes_pathology" :["PathologyRemarks"],
+		"brca_testing" : ["BRCA_testing"],
+		"invasion_angio" :["AngioInvasion"]
+	}
+} 

@@ -1,0 +1,93 @@
+{
+	"os.class.tcgaId": {
+		"patient_ID": ["Vessella's Tissue #"]
+	},
+	"os.class.Date": {
+		"date_TAN": ["TAN date"],
+		"date_diagnosis": ["Date of Diagnosis"],
+		"date_radical_prostatectomy": ["RP Date"],
+		"date_start_neuroendocrine_therapy": ["NED start"],
+		"date_end_neuroendocrine_therapy": ["NED end"],
+		"date_start_adt": ["ADT START"],
+		"date_end_adt": ["ADT END"],
+		"date_androgen_independence": ["Date of Androgen Independence"],
+		"date_first_positive_bone_scan": ["Date of First Pos Bone Scan"],
+		"date_start_ketoconazole" :["Ketoconazole start"],
+		"date_end_ketoconazole" :["ketoconazole end"],
+		"date_start_diethylstilbestrol": ["DES/ESTROGEN START"],
+		"date_start_diethylstilbestrol": ["DES/ESTROGEN END"],
+		"date_start_corticosteroid" :["Corticosteroid START"],
+		"date_end_corticosteroid" :["Corticosteroid End"],
+		"date_start_taxotere": ["TAXOTERE START"],
+		"date_end_taxotere": ["TAXOTERE END"],
+		"date_start_taxol": ["Taxol Start"],
+		"date_end_taxol": ["Taxol end"],
+		"date_start_carboplatin": ["CARBOPLATIN (S)"],
+		"date_end_carboplatin": ["CARBOPLATIN (E)"],
+		"date_start_estramustine": ["estramustine start"],
+		"date_end_estramustine": ["estramustine end"],
+		"date_start_mitoxantrone" : ["Mitoxantrone START"],
+		"date_end_mitoxantrone" : ["Mitoxantrone End"],
+		"date_start_abiraterone": ["abiraterone start"],
+		"date_end_abiraterone": ["abiraterone end"],
+		"date_start_enzalutamide": ["enzalutamide start"],
+		"date_end_enzalutamide": ["enzalutamide end"],
+		"date_start_bisphosphonates": ["Pamidronate/Zometa/ Alendronate start"],
+		"date_end_bisphosphonates": ["Pamidronate/Zometa End"],
+		"date_hospice" :["D'c to hospice or hosp visit"],
+		"date_final_PSA_serum": ["Final Serum PSA Date"],
+		"date_last_chart_note": ["last chart note"]
+	},
+	"os.class.race": {
+		"race": ["Race"]
+	},
+	"os.class.Numeric": {
+		"psa_at_diagnosis": ["PSA at Ddx"],
+		"age_at_diagnosis": ["Age at Diagnosis"],
+		"age_at_death":     ["Age @ death (years)"],
+		"years_diagnosis_to_death": 	    ["survival from dx (years)"],
+		"years_androgen_independence": ["Androgen Independence (yrs)"],
+		"years_androgen_ablation_duration": ["Androgen Ablation Duration (years)"],
+		"age_first_bone_mets": ["First Bone Mets Age (years)"],
+		"years_diagnosis_to_bone_met": ["Bone Met delay from diagnosis (yrs)"],
+		"years_bone_mets_to_death": ["surv from bone mets (years)"],
+		"psa_final_ngMl": ["Final Serum PSA (ng/mL)"]
+	},
+	"os.class.Boolean": {
+		"radical_prostatectomy": ["RP"],
+		"neuroendocrine_therapy": ["NED"],
+		"antiandrogren": ["Antiandrogen"],
+		"external_radiation": ["XRT"],
+		"external_radiation_skeletal": ["Skeletal XRT"],
+		"external_radiation_spine": ["Spine"],
+		"external_radiation_extremities": ["Extremities"],
+		"external_radiation_rib": ["rib"],
+		"external_radiation_skull": ["Skull"],
+		"external_radiation_hip_pelvis": ["Hip/Bony Pelvis"],
+		"external_radiation_prostate_pelvis": ["Prostate/Pelvis"],
+		"external_radiation_other": ["Other XRT"],
+		"given_ketaconazole": ["ketaconazole given"],
+		"given_diethylstilbestrol" :["DES Given"],
+		"given_diethylstilbestrol_ketoconazole": ["DES+Ketoconazole"],
+		"given_corticosteroid": ["Corticosteroid given"],
+		"given_taxotere": ["taxotere given"],
+		"given_taxol": ["Taxol Given"],
+		"given_carboplatin" : ["Carboplatin Given"],
+		"given_estramustine": ["Estrmustine given"],
+	    "given_mitoxantrone" : ["Mitoxantrone"],
+		"given_cytoxan_5FU": ["cytoxan and 5-FU"],
+		"given_abiraterone": ["abiraterone"],
+		"given_enzalutamide" : ["enzalutamide"],
+		"given_bisphosphonates" : ["P/Z/A - Bisphosphonates"],
+		"given_vaccine": ["vaccine."]
+	},
+	"os.class.drug_agent": {
+		"adt_name": ["CHOICE OF ADT"],
+		"vaccine_name": ["Type of Vaccine"]
+	},
+	"os.class.Character": {
+		"gleason_score": ["Gl of Primary CaP if known"],
+		"external_radiation_site": ["XRT SITE"],
+		"other_therapy": ["Any other therapies"]
+	}
+} 
