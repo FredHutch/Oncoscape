@@ -10,6 +10,7 @@
 var exports = module.exports = {};
 exports.start = function(config){
 
+
   var express = require('express');
   var bodyParser = require('body-parser');
   var cookieParser = require('cookie-parser')
@@ -58,18 +59,17 @@ exports.start = function(config){
 
   server.get('/logout', function (req, res){
     res.clearCookie('token');
-    res.sendFile(__dirname + '/public/login.html');
+    res.sendFile(__dirname + '/public/index.html');
   });
   
   server.post('/login', function (req, res){
-
     var username = req.body.username;
     var password = req.body.password;
     var domain = req.body.domain;
 
-    auth.login(username, password, domain, function(isValid){
-      if (isValid){
-        res.json({success:true, token:uuid.v1()});
+    auth.login(username, password, domain, function(isValid, datasets){
+      if (isValid, datasets){
+        res.json({success:true, token:uuid.v1(), datasets});
       }else{
         res.json({success:false});
       }

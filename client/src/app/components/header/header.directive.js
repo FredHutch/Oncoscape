@@ -44,8 +44,7 @@
             var vm = this;
             vm.showMenu = false;
             vm.showTools = false;
-            
-            
+              
             vm.toolsClick = function(){
                 $state.go("tools", {
                     datasource: osApi.getDataSource()

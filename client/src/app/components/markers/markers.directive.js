@@ -161,7 +161,7 @@
         }
 
         function initializeCohort(chart, vm, osApi, cohortPatient, cohortGene, $scope, moment){
-            vm.optCohortModes = [{name:"Highlight Cohort"},{name:"Subset Cohort"}];
+            vm.optCohortModes = [{name:"Highlight"},{name:"Filter"}];
             vm.optCohortMode = vm.optCohortModes[0];
             vm.optCohortPatients = cohortPatient.get();
             vm.optCohortPatient = vm.optCohortPatients[0];
@@ -185,7 +185,7 @@
 
             var drawPatients = function(){
                 var degmap = {};
-                var highlight = (vm.optCohortMode.name=="Highlight Cohort");
+                var highlight = (vm.optCohortMode.name=="Highlight");
                 chart.startBatch();
 
                 if (vm.optCohortPatient.ids=="*"){
@@ -211,7 +211,7 @@
             };
             var drawGenes = function(){
                 var degmap = {};
-                var highlight = (vm.optCohortMode.name=="Highlight Cohort");
+                var highlight = (vm.optCohortMode.name=="Highlight");
                 chart.startBatch();
 
                 if (vm.optCohortGene.ids=="*"){
@@ -701,17 +701,17 @@
                     case "Highlight":
                         item.state = "Show";
                         color = '#3993fa';
-                        state = {color:color};
+                        state = {color:color, display:'element'};
                         break;
                     case "Show":
                         item.state = "Hide";
                         color = '#EEEEEE';
-                        state = {color:'#FFF'};
+                        state = {color:'#FFF', display:'none'};
                         break;
                     default:
                         item.state = "Highlight";
                         color = item.color;
-                        state = {color:color};
+                        state = {color:color, display:'element'};
                         break;
                 }
 

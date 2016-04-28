@@ -35,6 +35,7 @@ exports.start = function(config){
 		// Socket To R
 		conn.on('data', function(message){
 			var c = clients[conn.id];
+			//console.log(message);
 			c.r.send(message);	
 			/*var key = message.replace(/"(callback)"\:\d+,/g,"");
 			socketCache.get( key, function( err, value ){
