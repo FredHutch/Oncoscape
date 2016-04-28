@@ -11,10 +11,11 @@
     z-index: 900;
     padding: 20px;
     padding-top: 0px;
-    -webkit-transition: all 0.5s ease;
-    -moz-transition: all 0.5s ease;
-    -o-transition: all 0.5s ease;
-    transition: all 0.5s ease;
+    -webkit-transition: all 0.3s ease;
+    -moz-transition: all 0.3s ease;
+    -o-transition: all 0.3s ease;
+    transition: all 0.3s ease;
+    padding-bottom: 150px;
 }
 .tray-sticky-icon{
 	position: absolute;
@@ -27,14 +28,17 @@
 .tray-collapsed{
 	margin-right:-280px;
 }
+.tray-collapsed-left{
+    margin-left:-280px;
+}
 .tray-content-block{
  	width: 100%;
     position: absolute;
     padding-top:20px;
-    -webkit-transition: all 0.5s ease;
-    -moz-transition: all 0.5s ease;
-    -o-transition: all 0.5s ease;
-    transition: all 0.5s ease;
+    -webkit-transition: all 0.3s ease;
+    -moz-transition: all 0.3s ease;
+    -o-transition: all 0.3s ease;
+    transition: all 0.3s ease;
     padding-right: 300px;
 }
 .tray-content-block-collapsed{

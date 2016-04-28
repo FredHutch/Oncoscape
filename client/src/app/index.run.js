@@ -34,6 +34,7 @@
                  $state.transitionTo("landing");
                  event.preventDefault();
             }
+            
         });
     }
 })();

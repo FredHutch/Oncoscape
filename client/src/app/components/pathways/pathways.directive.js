@@ -19,7 +19,7 @@
         return directive;
 
         /** @ngInject */
-        function PathwaysController(osApi, $state, $stateParams, $scope, $sce, moment, cytoscape) {
+        function PathwaysController(osApi, $state, $stateParams, $scope, $sce, $window, moment, cytoscape) {
 
             if (angular.isUndefined($stateParams.datasource)){
                 $state.go("datasource");
@@ -38,6 +38,23 @@
             vm.search = "";
             vm.frame;
             vm.tip = null;
+
+            vm.resize = function(){
+                var width = $window.innerWidth;
+                if (width > 760)  width -= 140;
+                if (angular.element(".tray").attr("locked")=="true") width -= 300;
+                elChart.width( width );
+                elChart.height($window.innerHeight - 90);
+                if (csChart){
+                    csChart.resize();
+                    csChart.center();
+                } 
+            }
+
+            // Listen For Resize
+            angular.element($window).bind('resize', 
+                _.debounce(vm.resize, 300)
+            );
 
             // Cohorts
             vm.addCohortGene = function(){

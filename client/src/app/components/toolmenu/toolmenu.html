@@ -1,0 +1,13 @@
+<section class="tool-menu tray tray-collapsed-left">
+    <div class="row">
+        <div class="col-xs-12 form-label">
+            <h2>Tools</h2>
+        </div>
+    </div>
+    <div class="row tool-menu-row" ng-repeat="tool in vm.tools">
+        <a href="" ng-click="vm.explore(tool.route, vm.datasource)">
+            <img class="tool-menu-img" ng-src="/assets/images/datasets/{{tool.img}}">
+            <h2 class="tool-menu-lbl">{{tool.name}}</h2>
+        </a>
+    </div>
+</section>
