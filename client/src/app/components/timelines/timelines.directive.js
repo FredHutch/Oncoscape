@@ -133,8 +133,11 @@
                 // Helpers
                 var hRow = 20;
                 var hChart = $window.innerHeight - 75 - 10 - 130;
-                var wChart = elChart.width();
-
+                var wChart = $window.innerWidth;
+                if (wChart > 760)  wChart -= 140;
+     
+                if (angular.element(".tray").attr("locked")=="true") wChart -= 300;
+     
                 dataProcessed = processData(dataPatients, vm.align, vm.sort);
                 d3ScaleX = d3.scale.linear().domain( dataProcessed.bounds ).range([10, wChart-10]);
                 d3ScaleY = d3.scale.linear().domain([0, dataProcessed.patients.length]).range(0,hChart-50);
@@ -343,7 +346,6 @@
                         ]   
                     }, [Infinity, -Infinity] );
 
-
                     return processedData;
             };
 
@@ -499,7 +501,7 @@
             }
 
             // Event Handlers
-            vm.resize = function(){ _.debounce(draw, 300); }
+            vm.resize = draw;
             vm.updateEventColor = function(item){
                 item.selected = !item.selected;
                 item.color = (item.selected) ? item.__color : "#FEFEFE";
