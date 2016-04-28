@@ -68,7 +68,7 @@
                 }
             });
 
-            // Initalizae
+            // Initialize
             osApi.setBusy(true)("Loading Dataset");
             osApi.setDataset(vm.datasource).then(function(response) {
                 var mtx = response.payload.rownames.filter(function(v) {
