@@ -19,7 +19,7 @@
         return directive;
 
         /** @ngInject */
-        function TimelinesController(osApi, $state, $scope, $stateParams, $window, $document, moment, d3, _) {
+        function TimelinesController(osApi, $state, $scope, $stateParams, $window, $document, moment, d3) {
 
             if (angular.isUndefined($stateParams.datasource)) {
                 $state.go("datasource");
@@ -135,7 +135,6 @@
                 var hChart = $window.innerHeight - 75 - 10 - 130;
                 var wChart = $window.innerWidth;
                 if (wChart > 760)  wChart -= 140;
-     
                 if (angular.element(".tray").attr("locked")=="true") wChart -= 300;
      
                 dataProcessed = processData(dataPatients, vm.align, vm.sort);
@@ -175,14 +174,14 @@
 
                     if (vm.optCohortMode.name=="Highlight" && vm.optCohortPatient.ids!="*"){
                         rows
-                            .each( function(d, i){
+                            .each( function(d){
                                 var selected = (vm.optCohortPatient.ids.indexOf(d.id)>=0);
                                 var e = d3.select(this.firstChild);
                                 e.classed("timeline-selected", selected );
                         });
                     }else{
                         rows
-                            .each( function(d, i){
+                            .each( function(){
                                 var e = d3.select(this.firstChild);
                                 e.classed("timeline-selected", false );
                         });

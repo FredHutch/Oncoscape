@@ -293,11 +293,11 @@
         var _cohortGene = collection(signals, {name:'All Genes', ids:'*'}, "osCohortGene");
         function getCohortGene(){ return _cohortGene; }
 
-        function collection(signals, defaultValue, collectionName){
+        function collection(signals, defaultValue){ //, collectionName
 
             var onAdd = new signals.Signal();
             var onRemove = new signals.Signal();
-            var onSelect = new signals.Signal();
+            //var onSelect = new signals.Signal();
 
             var _collection = [defaultValue];
             
@@ -311,17 +311,15 @@
                 _collection = [defaultValue]   
             }
             function remove(value){
-                if (_selected==value) select(_collection[0]);
                 _collection.splice(_collection.indexOf(value)); 
                 onRemove.dispatch(_collection);
             }
            
-            function save(key){
-
+            function save(){
+                
             }
 
-            function load(key){
-
+            function load(){
             }
 
             return{
