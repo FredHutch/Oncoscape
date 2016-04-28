@@ -1,4 +1,4 @@
-window.oncoprint_RuleSet = (function() {
+oncoprint_RuleSet = (function() {
 	var utils = oncoprint_utils;
 	var defaults = oncoprint_defaults;
 

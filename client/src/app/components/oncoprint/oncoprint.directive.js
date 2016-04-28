@@ -26,36 +26,48 @@
                 return;
             }
 
+            // Properties
+            var cohortGene = osApi.getCohortGene();
+            var cohortPatient = osApi.getCohortPatient();
+
             // View Model
             var vm = this;
             vm.datasource = $stateParams.datasource;
-            //console.log(vm.datasource);
-            vm.geneSets = []; // needs to updated to string, which includes genes and patients
+            vm.geneSets = [];
             vm.geneSet = null;
-            // vm.optNodeColors = [{name: 'Default'}, {name: 'Gender'}, {name: 'Age At Diagnosis'}];
-            // vm.optNodeColor = vm.optNodeColors[0];
+            vm.optCohortGenes = cohortGene.get();
+            vm.optCohortGene = vm.optCohortGenes[0];
+            vm.optCohortPatients = cohortPatient.get();
+            vm.optCohortPatient = vm.optCohortPatients[0];
+            vm.geneSetAndPatients = vm.optCohortGenes + vm.optCohortPatients;
+            console.log("vm.optCohortGenes are: ", vm.optCohortGenes);
+            console.log("vm.optCohortPatients are: ", vm.optCohortPatients);
 
 
-            // Filters: oncoprint doesn't have the select/send feature yet
-             var rawData, rawPatientData;
-            // var pfApi = osApi.getPatientFilterApi();
-            // pfApi.init(vm.datasource);
-            // pfApi.onSelect.add(draw);
-            // vm.cohort;
-            // vm.createCohort = function() {
-            //     pfApi.addFilter(vm.cohort, d3.selectAll(".pca-node-selected")[0].map(function(data) {
-            //         return data.__data__.id
-            //     }));
-            //     vm.cohort = "";
-            // };
+            // Cohorts
+            // vm.addCohortGene = function(){
+            //     var cohortName = "Oncoprint " + moment().format('- H:mm:ss - M/D/YY');
+            //     var cohortIds = d3Chart.selectAll(".oncoprint-track-label-main")[0].map(function(node){ return node.innerText; });
+            //     var cohort = {name:cohortName, ids:cohortIds};
+            //     vm.optCohortPatients.push(cohort);
+            //     vm.optCohortPatinet = cohort;
+            // }
+            // $scope.$watch('vm.optCohortGene', function() {
+            //     var ids = vm.optCohortGene.ids;
+            //     if (ids == "*"){
+            //         d3Chart.selectAll(".plsr-node-selected").classed("plsr-node-selected", false);
+            //     }
+            //     else{
+            //         d3Chart.selectAll("circle").classed("plsr-node-selected", function(){
+            //             return (ids.indexOf(this.__data__.name)>=0)
+            //         });
+            //     }
+            // });
 
-
-            // Elements
-            // var d3Chart = d3.select("#pca-chart").append("svg").attr("id", "chart");
-            // var d3xAxis = d3Chart.append("g");
-            // var d3yAxis = d3Chart.append("g");
-            // var d3Tooltip = d3.select("body").append("div").attr("class", "tooltip pca-tooltip")
-            window.Oncoprint = (function() {
+            
+          
+                    
+           Oncoprint = (function() {
               var events = oncoprint_events;
               var utils = oncoprint_utils;
               var RuleSet = oncoprint_RuleSet;
@@ -576,7 +588,8 @@
                 }
               };
             })();
-            window.OncoprintSVGRenderer = (function() {
+          
+           OncoprintSVGRenderer = (function() {
                   var events = oncoprint_events;
                   var utils = oncoprint_utils;
 
@@ -1423,7 +1436,7 @@
                     //debugger;
                     return v.indexOf("mtx") >= 0
                 });
-                console.log("mtx is:",  mtx);
+                //console.log("mtx is:",  mtx);
 
                 // Patient Data
                 osApi.getPatientHistoryTable(vm.datasource).then(function(response) {
@@ -1433,11 +1446,8 @@
                     mtx = mtx[mtx.length - 1].replace(".RData", "");
                     osApi.setBusyMessage("Creating Oncoprint");
                     osApi.getPCA(vm.datasource, mtx).then(function() {
-
-
-                        osApi.setBusyMessage("Loading Gene Sets and Patients");
+                       osApi.setBusyMessage("Loading Gene Sets and Patients");
                         osApi.getGeneSetNames().then(function(response) {
-
                             // Load Gene Sets
                             vm.geneSetAndPatients = response.payload;
                             vm.geneSetAndPatients = vm.geneSetAndPatients[0];
@@ -1466,11 +1476,13 @@
                                 "TCGA.06.0878", "TCGA.06.0879", "TCGA.06.0881", "TCGA.06.0882",
                                 "TCGA.12.0670", "TCGA.12.0818", "TCGA.12.0819", "TCGA.12.0820",
                                 "TCGA.12.0821", "TCGA.12.0822", "TCGA.12.0826", "TCGA.12.0827", "EGFR", "PTEN"];
-                console.log("***** demoOncoString is :", demoOncoString);
-                osApi.getOncoprint(demoOncoString);
+                //var geneSetAndPatients = vm.geneSetAndPatients;
+                var geneSetAndPatients = demoOncoString;
+                console.log("***** demoOncoString is :", geneSetAndPatients);
+                osApi.getOncoprint(geneSetAndPatients);
                 console.log("after osApi");
-                osApi.getOncoprint(demoOncoString).then(function(response) {
-                    console.log(osApi.getOncoprint(demoOncoString));
+                osApi.getOncoprint(geneSetAndPatients).then(function(response) {
+                    console.log(osApi.getOncoprint(geneSetAndPatients));
                     osApi.setBusyMessage("Rendering Oncoprint");
                     var payload = response.payload;
                     console.log("within update function", payload);

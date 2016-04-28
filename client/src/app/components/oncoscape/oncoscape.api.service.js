@@ -364,6 +364,7 @@
                     sb += ']';
                 }
                 sb += "}";
+                console.log("****** filter return is ", sb);
                 return sb;
             };
 

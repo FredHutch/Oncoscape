@@ -27,7 +27,7 @@
  * You should have received a copy of the GNU Lesser General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
-window.OncoprintRenderer = (function() {
+OncoprintRenderer = (function() {
 	var events = oncoprint_events;
 	var utils = oncoprint_utils;
 	var RuleSet = oncoprint_RuleSet;

@@ -1,4 +1,4 @@
-window.oncoprint_defaults = (function() {
+oncoprint_defaults = (function() {
 	var utils = window.oncoprint_utils;
 	var makeGeneticAlterationComparator = function(distinguish_mutations) {
 		var cna_key = 'cna';

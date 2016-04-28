@@ -28,7 +28,7 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
  
- window.OncoprintSVGRenderer = (function() {
+ OncoprintSVGRenderer = (function() {
 		var events = oncoprint_events;
 		var utils = oncoprint_utils;
 
