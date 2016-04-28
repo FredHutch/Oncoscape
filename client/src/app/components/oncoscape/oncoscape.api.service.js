@@ -6,7 +6,7 @@
         .service('osApi', oncoscape);
 
     /** @ngInject */
-    function oncoscape(osSocket, $http, signals) {
+    function oncoscape(osSocket, $http, signals, $location) {
 
         var _dataSource;
         var onDataSource = new signals.Signal();
@@ -54,7 +54,7 @@
            
                 var req = {
                     method: 'POST',
-                    url: 'http://localhost/login/',
+                    url: $location.protocol()+"://"+$location.host()+":"+ (($location.port()=="3002") ? 80 : $location.port()) +'/login',
                     data: {
                         username: _user.name,
                         password: _user.password,
