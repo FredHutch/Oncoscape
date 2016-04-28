@@ -62,6 +62,20 @@
                 <h2>Cohorts</h2>
             </div>    
             <div class="col-sm-12 form-item">
+                  <label>Display Mode</label>
+                  <div class="dropdown bs-dropdown">
+                    <button class="btn btn-default dropdown-toggle" type="button" id="dropdownMenu1" data-toggle="dropdown" aria-haspopup="true" aria-expanded="true">
+                     {{vm.optCohortMode.name}}
+                      <span class="caret"></span>
+                    </button>
+                    <ul class="dropdown-menu" aria-labelledby="dropdownMenu1"
+                        style="width:100%">
+                        <li ng-repeat="item in vm.optCohortModes"
+                            ng-click="vm.optCohortMode=item">{{item.name}}</li>
+                    </ul>
+                  </div>
+            </div>
+            <div class="col-sm-12 form-item">
               <label>Patient Cohorts</label>
               <div class="dropdown bs-dropdown">
               

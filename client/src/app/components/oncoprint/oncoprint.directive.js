@@ -40,8 +40,8 @@
             vm.optCohortPatients = cohortPatient.get();
             vm.optCohortPatient = vm.optCohortPatients[0];
             vm.geneSetAndPatients = vm.optCohortGenes + vm.optCohortPatients;
-            console.log("vm.optCohortGenes are: ", vm.optCohortGenes);
-            console.log("vm.optCohortPatients are: ", vm.optCohortPatients);
+            console.log("vm.optCohortGenes are: ", vm.optCohortGenes[1]);
+            console.log("vm.optCohortPatients are: ", vm.optCohortPatients[1]);
 
 
             // Cohorts
@@ -1445,20 +1445,23 @@
                     //console.log(rawPatientData);
                     mtx = mtx[mtx.length - 1].replace(".RData", "");
                     osApi.setBusyMessage("Creating Oncoprint");
-                    osApi.getPCA(vm.datasource, mtx).then(function() {
-                       osApi.setBusyMessage("Loading Gene Sets and Patients");
-                        osApi.getGeneSetNames().then(function(response) {
-                            // Load Gene Sets
-                            vm.geneSetAndPatients = response.payload;
-                            vm.geneSetAndPatients = vm.geneSetAndPatients[0];
-                            $scope.$watch('vm.geneSetAndPatients', function() {
-                                update();
-                            });
-                            // $scope.$watch('vm.optNodeColor', function() {
-
-                            // });
-
+                   
+                    (if(typeof vm.optCohortGenes !== 'undefined') && (typeof vm.optCohortPatients !== 'undefined')).then(function() {
+                        // Load Gene Sets
+                        //console.log("**** what is the response.payload:", response.payload);
+                        //vm.geneSetAndPatients = response.payload;
+                        vm.geneSetAndPatients = vm.geneSetAndPatients[0];
+                        vm.geneSetAndPatients = vm.optCohortGenes[1]+ "," + vm.optCohortPatients[1];
+                        console.log("***** vm.optCohortGenes are:", vm.optCohortGenes);
+                        console.log("***** vm.geneSetAndPatients are: ", vm.geneSetAndPatients);
+                        $scope.$watch('vm.geneSetAndPatients', function() {
+                          console.log("***** vm.geneSetAndPatients are: within scope section:", vm.geneSetAndPatients);
+                            update();
                         });
+                        // $scope.$watch('vm.optNodeColor', function() {
+
+                        // });
+
                     });
                 });
             });

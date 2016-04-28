@@ -6,17 +6,18 @@
         .service('osApi', oncoscape);
 
     /** @ngInject */
-    function oncoscape(osSocket, $http, signals) {
+    function oncoscape(osSocket, $http, signals, $location) {
 
         var _dataSource;
         var onDataSource = new signals.Signal();
         function getDataSource(){ return _dataSource; }
         function setDataSource(value){
+            _cohortGene.clear();
+            _cohortPatient.clear();
             osSocket.setDataSource(value);
             _dataSource = value;
             onDataSource.dispatch(_dataSource);
         }
-
 
 
         /*** User Api ***/
@@ -25,38 +26,35 @@
             // Events
             var onLogin = new signals.Signal(); // Fired When Data Changes
             var onLogout = new signals.Signal(); // Fired When Selection changes
-
             var _user = {
                 "name":"",
                 "password":"",
                 "domain":{"name":"Guest"},
                 "authenticated":false,
-                "token": null 
+                "token": null,
+                "datasets": []
             };
             var _domains = [
                 { "name": "Guest" },
                 { "name": "FHCRC" },
-                { "name": "SCCA" }
+                { "name": "UW" }
             ];
             var logout = function(){
                 _user.name = "";
                 _user.password = "";
                 _user.domain = {"name":"Guest"};
                 _user.authenticated = false;
-                _user.token = null 
+                _user.token = null;
+                _user.datasets = [];
+
                 onLogout.dispatch();
             }
             var login = function(user){
                 _user = user;
-                if (user.domain.name=="Guest"){
-                    _user.authenticated = true;
-                    _user.token = "Guest";
-                    onLogin.dispatch(_user);
-                    return;
-                }
+           
                 var req = {
                     method: 'POST',
-                    url: '/login/',
+                    url: $location.protocol()+"://"+$location.host()+":"+ (($location.port()=="3002") ? 80 : $location.port()) +'/login',
                     data: {
                         username: _user.name,
                         password: _user.password,
@@ -67,6 +65,7 @@
                     if (res.data.success) {
                         _user.authenticated = true;
                         _user.token = res.data.token;
+                        _user.datasets = res.data.datasets;
                         onLogin.dispatch(_user);
                     } else {
                         _user.authenticated = false;
@@ -86,9 +85,7 @@
         var _userApi = userApi();
         function getUserApi() { return _userApi; }
 
-
-
-/*** UI Functions ***/
+        /*** UI Functions ***/
         function setBusy(value) {
             if (value) {
                 angular.element(".loader-modal").show();
@@ -119,11 +116,7 @@
                 payload: dataPackage
             });
         }
-        function getDataSetNames() {
-            return osSocket.request({
-                cmd: "getDataSetNames"
-            });
-        }
+        
         function getDataManifest(dataPackage) {
             return osSocket.request({
                 cmd: "getDataManifest",
@@ -314,6 +307,9 @@
                 _collection.push(value); 
                 onAdd.dispatch(_collection);
             }
+            function clear(){
+                _collection = [defaultValue]   
+            }
             function remove(value){
                 if (_selected==value) select(_collection[0]);
                 _collection.splice(_collection.indexOf(value)); 
@@ -335,97 +331,11 @@
                 onAdd: onAdd,
                 onRemove: onRemove,
                 save: save,
-                load:load
+                load:load,
+                clear:clear
             }
         }
 
-
-        /*** Filter Api ***/
-        var _patientFilterApi = filter();
-        function getPatientFilterApi() { return _patientFilterApi; }
-        function filter(){
-
-            var _dataSource = null;
-            var _filterTree = null;
-            var _filter = null;
-            var _serialize = function (o){
-                var sb = "{";
-                sb += '"name":"'+o.name+'"';
-                sb += ',"ids":';
-                sb += (typeof(o.ids)=="string") ? '"*"' : '["'+o.ids.join('","')+'"]';
-                if (o.hasOwnProperty("children")){
-                    sb += ',"children":[';
-                    for (var i=0; i<o.children.length; i++){
-                        if (i>0) sb += ",";
-                        sb += _serialize(o.children[i]);
-                    }
-                    sb += ']';
-                }
-                sb += "}";
-                console.log("****** filter return is ", sb);
-                return sb;
-            };
-
-            function init(dataSource){
-                if (_dataSource==dataSource) return;
-                _dataSource = dataSource;
-                 _filterTree = angular.fromJson(localStorage.getItem(dataSource));
-                if (!_filterTree) _filterTree = {name:dataSource, ids:'*' };
-                _filter = _filterTree;
-            }
-            function delFilter(){}
-            function addFilter(name, ids){
-                var filter = {
-                    name:name,
-                    ids:ids
-                };
-                if (!_filter.hasOwnProperty("children")) _filter.children = [];
-                _filter.children.push(filter);
-                _filter = filter;
-                onChange.dispatch(_filterTree);
-                onSelect.dispatch(_filter);
-                localStorage.setItem(_dataSource, _serialize(_filterTree));
-            }
-            function getActiveFilter(){
-                return _filter;
-            }
-
-            function setActiveFilter(filter){
-                _filter = filter;
-                onSelect.dispatch(_filter);
-            }
-
-            function getFilterTree(){
-                return _filterTree;
-            }
-
-            function filter(data, idFn){
-                if (_filter.ids=="*") return data;
-
-                return data.filter(function(p){
-                    for (var i=0; i<_filter.ids.length; i++){
-                        if (idFn(p) == _filter.ids[i]) return true;
-                    }
-                    return false;
-                });
-            }
-
-            // Events
-            var onChange = new signals.Signal(); // Fired When Data Changes
-            var onSelect = new signals.Signal(); // Fired When Selection changes
-
-            return {
-                init : init,
-                filter : filter,
-                getActiveFilter : getActiveFilter,
-                setActiveFilter : setActiveFilter,
-                addFilter: addFilter,
-                delFilter: delFilter,
-                getFilterTree : getFilterTree,
-                onChange : onChange,
-                onSelect : onSelect
-            };       
-        }
   
         return {
             getCohortPatient: getCohortPatient,
@@ -433,7 +343,6 @@
             setDataSource: setDataSource,
             getDataSource: getDataSource,
             onDataSource: onDataSource,
-            getPatientFilterApi: getPatientFilterApi,
             getUserApi: getUserApi,
             showFilter: showFilter,
             hideFilter: hideFilter,
@@ -441,7 +350,6 @@
             setBusy: setBusy,
             setBusyMessage: setBusyMessage,
             setDataset: setDataset,
-            getDataSetNames: getDataSetNames,
             getDataManifest: getDataManifest,
             getPatientHistoryTable: getPatientHistoryTable,
             getPatientHistoryDxAndSurvivalMinMax: getPatientHistoryDxAndSurvivalMinMax,
