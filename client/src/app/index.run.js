@@ -30,10 +30,11 @@
             angular.element.fn.DataTable.ext.search = [];
 
             // Route unauthenticated users to landing page
-            // if (toState.authenticate && !osApi.getUserApi().getUser().authenticated) {
-            //      $state.transitionTo("landing");
-            //      event.preventDefault();
-            // }
+            if (toState.authenticate && !osApi.getUserApi().getUser().authenticated) {
+                 $state.transitionTo("landing");
+                 event.preventDefault();
+            }
+            
         });
     }
 })();
