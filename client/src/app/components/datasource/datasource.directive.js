@@ -41,19 +41,15 @@
                 "TCGAlung": "Lung (TCGA)",
                 "TCGAlusc": "Lung Sasquamous Cell (TCGA)",
                 "TCGApaad": "Pancreas (TCGA)",
-                "TCGAprad": "Prostate (TCGA)"
+                "TCGAprad": "Prostate (TCGA)",
+                "UWbrain":  "Brain (UW)",
+                "MSKbrain": "Brain (MSK)"
             };
 
-
             // Load Datasets
-            osApi.setBusy(true);
-            osApi.getDataSetNames().then(function(response) {
-                var datasets = response.payload.datasets;
-                vm.datasets = datasets.map(function(item){
+            vm.datasets = osApi.getUserApi().getUser().datasets.map(function(item){
                     return {name: this[item], id: item}
-                }, nameMap)
-                osApi.setBusy(false);
-            });
+                }, nameMap);
         }
     }
 })();
