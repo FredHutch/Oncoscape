@@ -80,6 +80,11 @@
                 template: '<os-survival>',
                 authenticate: true
             })
+            .state('oncoprint', {
+                url: '/oncoprint/{datasource}',
+                template: '<os-oncoprint>',
+                authenticate: false
+            })
             .state('compare', {
                 url: '/compare/{datasource}',
                 template: '<os-compare>',
