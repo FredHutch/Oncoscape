@@ -18,11 +18,12 @@
             </div>
             <div class="col-xs-12 form-item">
                 <label>Age At Diagnosis</label>
-                <div range-slider min="vm.deathMinValue" model-min="vm.deathMinFilter" max="vm.deathMaxValue" model-max="vm.deathMaxFilter" show-values="true" attach-handle-values="true" on-handle-up="vm.update()"></div>
+                <div range-slider min="vm.deathMinValue" model-min="vm.deathMinFilter" max="vm.deathMaxValue" 
+                 model-max="vm.deathMaxFilter" prevent-equal-min-max="true" show-values="true" attach-handle-values="true" on-handle-up="vm.update()"></div>
             </div>
             <div class="col-xs-12 form-item">
                 <label>Survival</label>
-                <div range-slider min="vm.survivalMinValue" model-min="vm.survivalMinFilter" max="vm.survivalMaxValue" model-max="vm.survivalMaxFilter" show-values="true" attach-handle-values="true" on-handle-up="vm.update()"></div>
+                <div range-slider min="vm.survivalMinValue" model-min="vm.survivalMinFilter" max="vm.survivalMaxValue" model-max="vm.survivalMaxFilter" prevent-equal-min-max  show-values="true" attach-handle-values="true" on-handle-up="vm.update()"></div>
             </div>
             <div class="col-xs-12 form-label">
                 <h2>Cohorts</h2>

@@ -27,270 +27,231 @@
             }
 
             // Variables
-            var data;
+            var dataProcessed;
+            var dataPatients;
             var dataEvents;
-            var patientHeight = 100;
-            var rows, cells;
-
-            // Elements
             var d3ScaleX;
             var d3ScaleY;
+            var minZoom = 0;
 
+
+            var shift = false;
+            $window.addEventListener ("keydown",  function(e) { if (e.keyCode==16) shift = true;  }, false);
+            $window.addEventListener ("keyup",    function(e) { if (e.keyCode==16) shift = false; }, false);
+
+            // View Model
+            var vm = this;
+                vm.selShow = false;
+                vm.selPatient;
+                vm.selEvent;
+                vm.selFields = [];
+                vm.datasource = $stateParams.datasource;
+                vm.optCohortPatients;
+                vm.optCohortPatient;
+                vm.timescaleunit;
+                vm.timescales;
+                vm.timescale;
+                vm.features;
+                vm.feature;
+                vm.events;
+                vm.sorts;
+                vm.sort;
+                vm.align;
+          
             // Elements
             var elChart = angular.element("#timelines-chart");
-            var d3Chart = d3.select("#timelines-chart").append("svg").attr("id", "chart");
-            var d3TimelineClip = d3Chart.append("clipPath").attr("id","clip");
-            var d3TimelineClipArea = d3TimelineClip.append("rect").style({"fill":"#e20074"});
-            var d3TimelineClipContainer = d3Chart.append("g").style("clip-path", "url(#clip)");
-            var d3Timeline =  d3TimelineClipContainer.append("g");
-            var d3AxisTimeline = d3Chart.append("g").style({'shape-rendering': 'crispEdges','stroke': 'none'}).attr({"class":"d3AxisTimeline"}); 
-            
+            var d3Chart = d3.select("#timelines-chart").append("svg")
+                .attr("id", "chart")
+                .style({width:'100%'});
+            var d3Axis = d3Chart.append("g")
+                .attr({"class":"axis"})
+                .style({'shape-rendering': 'crispEdges',"stroke-width": "1.0", "stroke": "#000","fill": "none"});
+            var d3BarsSvg = d3Chart.append("svg")  // Used To Clip Overflow
+                .attr({"class":"bars-svg"});
+            var d3BarsBackground = d3BarsSvg.append("rect") // Serves As Hit Area For Zoom
+                .attr({"width": elChart.width(), "height": $window.innerHeight - 75 - 10 - 130-50 })
+                .style({fill:"#FFFFFF"}); //,"cursor": "move" });
+            var d3Bars = d3BarsSvg.append("g")
+                .attr({"class":"bars"});  // Container For Bars
 
-            // View State
-            var vm = this;
-            vm.selShow = false;
-            vm.selPatient;
-            vm.selEvent;
-            vm.selFields = [];
-            vm.sliderMinValue = 1;
-            vm.sliderMaxValue = 1000;
-            vm.sliderMin = 1;
-            vm.sliderMax = 1000;
-            vm.datasource = $stateParams.datasource;
-            vm.optCohortPatients;
-            vm.optCohortPatient;
-            vm.timescaleunit;
-            vm.timescales;
-            vm.timescale;
-            vm.features;
-            vm.feature;
-            vm.events;
-            vm.sorts;
-            vm.sort;
-            vm.align;
 
-            vm.updateEventColor = function(item){
-                item.selected = !item.selected;
-                item.color = (item.selected) ? item.__color : "#FEFEFE";
-                draw();
-            }
+            var zoom;
+            var zoomed = function(){
+                if (shift) return;
+                var scale = Math.max(minZoom, d3.event.scale);
+                var translate= d3.event.translate[1];
 
-            var scale = function(){
+                var ch = $window.innerHeight - 75 - 10 - 130- 50;
+                var rh = (dataProcessed.patients.length*20) * scale;
+                var dh = ch - rh;   // Delta height - Used For Offset
 
-                var chartHeight = $window.innerHeight - 75 - 10 - 130;    // Height Of Chart
-                var totalHeight = vm.sliderMax * patientHeight; // Unscaled Height Of All Patients
-                var visibleHeight = (vm.sliderMaxValue - vm.sliderMinValue) * patientHeight;
+                if (translate>0) translate=0;
+                if (translate<dh) translate=dh;
+                zoom.translate([d3.event.translate[0],translate]);
+                var rowH = (20 * scale);
+                var rowsVisible = (ch / rowH);
+                var rowOffset = Math.abs(translate / rowH);
+                brush.y(d3.scale.linear().range([0,ch]).domain([rowOffset, rowOffset+rowsVisible]))
                 
-                var yScale = chartHeight / visibleHeight;
-                var yOffset = - vm.sliderMinValue * (patientHeight * yScale);
-
-                 d3Timeline.attr("transform", "translate(0, "+yOffset+")scale(1, " + yScale + ")");
-            }
-  
-            // Main Draw Function
-            var draw = function(){
-                var processedData = processData(data, vm.align, vm.sort);
-                var w = elChart.width();
-                var h = $window.innerHeight - 75 - 80 - 50; // Nav, H2, Footer
-                if (angular.element(".tray").attr("locked")=="false") w += 300;
-                updateScaleZoom(w, h, processedData);
-                updateTimeline(w, h, processedData);
-                drawAxis(w,h);
-                scale()
-            }
-            // Listen For Resize
-            vm.resize = function(e){ _.debounce(draw, 300); }
-
-            function initializeCohort(vm, osApi){
-                var cohortPatient = osApi.getCohortPatient();
-                vm.optCohortPatients = cohortPatient.get();
-                vm.optCohortPatient = vm.optCohortPatients[0];
-                vm.addCohortPatient = function(e){
-                    var cohortName = "TL " + moment().format('- H:mm - M/D/YY');
-                    //var cohortIds = chart.$('node[nodeType="patient"]:selected').map(function(ele){ return ele.data().id.toUpperCase() });
-                //var cohort = {name:cohortName, ids:cohortIds};
-                    vm.optCohortPatients.push(cohort);
-                    vm.optCohortPatient = cohort;
-                }
-                $scope.$watch("vm.optCohortPatient", draw );
-
-
-
-            }
-
-            function makeSliderDragable(){
-
-                var pos = function(f) {
-                    try {
-                        return [(f.clientX || f.originalEvent.clientX || f.originalEvent.touches[0].clientX), (f.clientY || f.originalEvent.clientY || f.originalEvent.touches[0].clientY)];
-                    } catch (e) {
-                        return ['x', 'y'];
-                    }
-                };
-
-                // Stash Elements
-                var elJoint = angular.element(".ngrs-join");
-                var elTop = angular.element(".ngrs-handle-min");
-                var elBottom = angular.element(".ngrs-handle-max");
-                var state = {};
-
-                elJoint.bind("mousedown", function(e){
-                    
-                    state.height = angular.element(e.currentTarget.parentElement).height();
-                    state.delta = 0;
-                    state.mouseRefPos = pos(e)[1];
-                    state.bounds = [
-                        parseInt(elTop[0].style.top),
-                        100-parseInt(elBottom[0].style.top),
-                        parseInt(elBottom[0].style.top)
-                    ];
-
-                    $document.bind("mousemove", function(e) {
-                        e.preventDefault();
-                        
-                        // Determine Percentage Movement
-                        state.delta =  ( (pos(e)[1] - state.mouseRefPos) / state.height ) * 100;
-
-                        // Limit Delta To Ensure Bar Height
-                        state.delta = (state.delta>0) ? 
-                            (state.delta > state.bounds[1] ) ? state.bounds[1] : state.delta
-                            :
-                            (Math.abs(state.delta) > state.bounds[0]) ? -state.bounds[0] : state.delta;
-
-                        var top = state.bounds[0] + state.delta;
-                        var bottom = state.bounds[2] + state.delta;
-                        elTop.css({top: top + "%"});
-                        elJoint.css({top:top + "%", bottom: (100-bottom)+ "%"});
-                        elBottom.css({top: bottom + "%" });
-                        
-                    }).bind("mouseup", function(e){
-                        var d = Math.round((vm.sliderMax / 100) * state.delta);
-                        vm.sliderMinValue += d;
-                        vm.sliderMaxValue += d;
-                        $scope.$apply();
-                        $document.off("mouseup");
-                        $document.off("mousemove");
-                    });
-
-                })
+                d3Bars.attr("transform","translate(1,"+translate+")scale(1," + scale + ")");
             };
 
-            var updateTimeline = function(w, h, processedData){
-                
-                rows = d3Timeline.selectAll("g.timeline").data( processedData.patients );
-                rows.enter().append("g")
-                        .attr({
-                                'width' : w,
-                                'height' : patientHeight,
-                                'class' : 'timeline',
-                                'transform': function(d, i) { return "translate(0," +  (i * patientHeight)+ ")"; }
-                        })
-                        .append("rect")
-                        .attr({
-                            'width': w,
-                            'height': 1,
-                            'y': patientHeight-1,
-                            'fill': '#DDDDDD'
-                        })
-                rows.exit().remove();
+            var brush;
+            var onBrushStart = function(){
+                if (!shift) {
+                    d3.event.target.clear();
+                    d3.select(this).call(d3.event.target);
+                }
+            }
+            var onBrush = function(){
+                if (!shift) {
+                    d3.event.target.clear();
+                    d3.select(this).call(d3.event.target);
+                }
+                var extent = brush.extent();
+                var lower = Math.floor(extent[0][1]);
+                var upper = Math.floor(extent[1][1]);
 
-                 // Data Bind Event
-                cells = rows.selectAll("rect.timeline")
-                     .data( function(d) {
-                        return d.filteredEvents;
+                d3Bars.selectAll("g.timeline")
+                    .each( function(d, i){
+                        var e = d3.select(this.firstChild);
+                        e.classed("timeline-selected", (i>=lower && i<=upper));
                     });
 
-                    cells.enter()
-                        .append("rect")
-                        .style({'opacity':1, 'fill': function(d){ return d.color; }})
+            }
+            var onBrushEnd = function(){
+                d3.event.target.clear();
+                d3.select(this).call(d3.event.target);                
+            }
+
+            var draw = function(){
+
+                // Helpers
+                var hRow = 20;
+                var hChart = $window.innerHeight - 75 - 10 - 130;
+                var wChart = elChart.width();
+
+                dataProcessed = processData(dataPatients, vm.align, vm.sort);
+                d3ScaleX = d3.scale.linear().domain( dataProcessed.bounds ).range([5, wChart]);
+                d3ScaleY = d3.scale.linear().domain([0, dataProcessed.patients.length]).range(0,hChart-50);
+                minZoom = (hChart-50) / (dataProcessed.patients.length * 20)
+                
+                // Chart
+                d3Chart.attr( {'height': hChart+"px"})
+                d3BarsSvg.attr( {'height' : (hChart-50)+"px", 'width':wChart+"px"} );
+                d3BarsBackground.attr( {'height' : (hChart-50)+"px", 'width':wChart+"px"} );
+                d3Bars.attr("transform","scale(1," + minZoom + ")");
+
+                // Rows
+                var rows = d3Bars.selectAll("g.timeline").data( dataProcessed.patients );
+                    rows.exit().remove();
+                    rows.enter().append("g").attr({ 'class' : 'timeline' })
+                    rows
                         .attr({
-                            'class':'timeline',
-                            'height':function(d){ return (d.name == "Radiation" || d.name=="Drug") ? (patientHeight/2)-1 : (patientHeight-1); },
-                            'width': function(d){ return (d.endValue==null) ? 3 : (d3ScaleX(d.endValue) - d3ScaleX(d.startValue)); },
-                            'x': function(d) { return Math.round(d3ScaleX(d.startValue)); },
-                            'y': function(d) { return (d.name == "Radiation") ? patientHeight/2 : 0; }
-                        }).on("mouseover", function(d,i){
-                            var event = dataEvents[this.__data__.id];
-                            vm.selPatient = event.PatientID;
-                            vm.selEvent = event.Name;
-                            var fields = [];
-                            for(var field in event.Fields) {
-                                if (event.Fields[field]!=null){
-                                    if ( field=="date" && angular.isArray(event.Fields[field]) ){
-                                        fields.push( {name:"Start Date", value:event.Fields[field][0] })
-                                        fields.push( {name:"End Start", value:event.Fields[field][1] })
-                                    }else{
-                                        fields.push(
-                                            {name:field, value:event.Fields[field]}
-                                        );
+                            'width': wChart,
+                            'height': hRow,
+                            'transform': function(d, i) { return "translate(0," +  (i * hRow)+ ")"; }
+                        })
+                        .append("rect")
+                        .attr({
+                            'class': 'timeline-row-selected',
+                            'width': '0px',
+                            'height': hRow
+                        })
+                        .style({
+                            'fill': '#EEEEEE'
+                        })
+
+                // Columns
+                var cols = rows.selectAll("rect.event").data( function(d) { return d.filteredEvents; });
+                    cols.exit().remove();
+                    cols.enter().append("rect").attr({'class':'event'})
+                        .on("mouseover", function(){
+                                var event = dataEvents[this.__data__.id];
+                                vm.selPatient = event.PatientID;
+                                vm.selEvent = event.Name;
+                                var fields = [];
+                                for(var field in event.Fields) {
+                                    if (event.Fields[field]!=null){
+                                        if ( field=="date" && angular.isArray(event.Fields[field]) ){
+                                            fields.push( {name:"Start Date", value:event.Fields[field][0] })
+                                            fields.push( {name:"End Start", value:event.Fields[field][1] })
+                                        }else{
+                                            fields.push(
+                                                {name:field, value:event.Fields[field]}
+                                            );
+                                        }
                                     }
                                 }
-                            }
-                            vm.selShow = true;
-                            vm.selFields = fields;
-                            $scope.$apply();
-                            
-                        })
-                        .on("mouseout", function(d,i){
-                            vm.selShow = false;
-                            $scope.$apply();
-                        });
-
-                    cells.transition()
-                        .style({'opacity':1, 'fill':function(d){ return d.color; }})
+                                vm.selShow = true;
+                                vm.selFields = fields;
+                                $scope.$apply();
+                            })
+                            .on("mouseout", function(){
+                                vm.selShow = false;
+                                $scope.$apply();
+                            });
+                    cols.transition()
+                        .style({'fill':function(d){ return d.color; }})
                         .attr({
+                            'height':function(d){ return (d.name == "Radiation" || d.name=="Drug") ? hRow/2 : hRow; },
                             'width':function(d){ return (d.endValue==null) ? 3 : (d3ScaleX(d.endValue) - d3ScaleX(d.startValue)); },
-                            'x': function(d) { return Math.round(d3ScaleX(d.startValue)); }
+                            'x': function(d) { return Math.round(d3ScaleX(d.startValue)); },
+                            'y': function(d) { return ((d.name == "Radiation") ? hRow/2 : 0); }
                         });
 
-                    cells.exit().remove();
-            }
 
-            var updateScaleZoom = function(w, h, processedData){
-                d3Chart.attr({
-                    "width": w,
-                    "height": h
-                });
-                d3TimelineClipArea.attr({
-                    width:w,
-                    height: h-50
-                });
+                    var tlScale = d3.svg.axis()
+                        .scale(d3ScaleX)
+                        .orient("bottom")
+                        .ticks(5);
 
-                d3ScaleX = d3.scale.linear().domain( processedData.bounds ).range([0, w]);
-                //d3ScaleY = d3.scale.linear().domain( [0, processedData.patients.length] ). range([0, h]);                
-            }
-
-            var drawAxis = function(w, h){
+                    if (vm.timescale.name=='Log'){
+                        tlScale = tlScale.tickFormat(function (d) { 
+                            var Dir = (d<0 ? -1 : 1); 
+                            return Math.round(Dir * (Math.pow(2, (Math.abs(d)))-1) *100)/100;
+                        });
+                        vm.timescaleunit = "Days";
+                    }else{
+                        tlScale = tlScale.tickFormat(function (d) { 
+                            return moment.unix(d).year();
+                        });
+                        vm.timescaleunit = "Year";
+                    }
                 
-                var tlScale = d3.svg.axis()
-                    .scale(d3ScaleX)
-                    .orient("bottom")
-                    .ticks(5);
-                if (vm.timescale.name=='Log'){
-                    tlScale = tlScale.tickFormat(function (d) { 
-                        var Dir = (d<0 ? -1 : 1); 
-                        return Math.round(Dir * (Math.pow(2, (Math.abs(d)))-1) *100)/100;
-                    });
-                    vm.timescaleunit = "Days";
-                }else{
-                    tlScale = tlScale.tickFormat(function (d) { 
-                        return moment.unix(d).year();
-                    });
-                    vm.timescaleunit = "Year";
-                }
-                
-                d3AxisTimeline.attr({
+                // Brush
+                brush = d3.svg.brush()
+                    .x(d3ScaleX)
+                    .y(d3.scale.linear().range([0,hChart]).domain([0, dataProcessed.patients.length]))
+                    .on("brush", onBrush)
+                    .on("brushstart", onBrushStart)
+                    .on("brushend", onBrushEnd);
+                d3BarsBackground.call(brush);
+
+                // Clear Selections On MouseDown
+                d3BarsBackground.on("mousedown", function(){
+                    if (!shift) d3Bars.selectAll(".timeline-selected").classed("timeline-selected", false);
+                });
+
+                // Zoom
+                zoom = d3.behavior.zoom()
+                    .x( d3ScaleX )
+                    .y( d3ScaleY )
+                    .translate([0,0])
+                    .scale( 1, minZoom )
+                    .on("zoom", zoomed);
+                d3BarsBackground.call(zoom);
+
+                // Axis
+                d3Axis.attr({
                     "width": 100,
-                    transform: function(d, i) { return "translate(0," +  (h-50) + ")"; }
-                }).style({
-                    "fill": "none",
-                    "stroke-width": "1.0",
-                    "stroke": "#000",
-                    "shape-rendering": "crispEdges"
+                    transform: function() { return "translate(0," +  (hChart-50) + ")"; }
                 });
-                d3AxisTimeline.call( tlScale );
+                d3Axis.call( tlScale );
                 
-            }
+            };
+
+
 
             // Populates ProcessedData Object With Values Consistant With ViewState
             var processData = function (data, align, sort){
@@ -354,12 +315,12 @@
                     }, [Infinity, -Infinity] );
 
 
-                    vm.sliderMinValue = 0;
-                    vm.sliderMax = vm.sliderMaxValue = processedData.patients.length;
-
                     return processedData;
             };
-            var loadData = function(){
+
+
+            // Initialize
+            (function(){
 
                 var color = function(d){
                     var status = d.name;
@@ -385,15 +346,16 @@
                             rv.color = rv.__color = color(rv);
                             return rv;
                     });
-                }
+                };
+
                 var processFeatureData = function(patients){
                     return patients[0].calcEvents.map(function(d, i) {
                         return { "name": d.name, "index": i }
                     });
-                }
+                };
+
                 var processPatientData = function(patients){
 
-                     // Load & Normalize Data (Should be done on server)
                     patients = Object.keys(patients).map(function(key) {
                         var val = patients[key];
                         val.id = key;
@@ -440,13 +402,11 @@
                          });
                     }
                     return patients;
-                }
+                };
 
                 osApi.setBusy(true)("Loading Dataset");
                 osApi.setDataset(vm.datasource).then(function() {
                     osApi.getTimelines().then(function(response) {
-
-                        
 
                         // TimeScales
                         vm.timescales = [
@@ -462,11 +422,11 @@
                         vm.timescale = vm.timescales[0];
 
                         // Clean Data + Set Default VM
-                        data = processPatientData(response.payload.pts);
+                        dataPatients = processPatientData(response.payload.pts);
                         dataEvents = response.payload.events;
-                        vm.sorts = processFeatureData(data);
+                        vm.sorts = processFeatureData(dataPatients);
                         
-                        var features = processFeatureData(data);
+                        var features = processFeatureData(dataPatients);
                         features.unshift({index:-1, name:'None'});
                         vm.features =  features;
                         vm.feature = vm.features[0];
@@ -481,18 +441,52 @@
 
                         // Register Watch
                         $scope.$watchGroup(['vm.feature', 'vm.sort', 'vm.align', 'vm.timescale'], draw);
-                        $scope.$watchGroup(['vm.sliderMinValue', 'vm.sliderMaxValue'], scale);
-                        angular.element($window).bind('resize', function(e){
-                            draw();
-                        } );
+                        //$scope.$watchGroup(['vm.sliderMinValue', 'vm.sliderMaxValue'], updateScale);
+                        angular.element($window).bind('resize', draw);
+                        draw();
                                  
-                        makeSliderDragable();
                         initializeCohort(vm, osApi);   
                         osApi.setBusy(false);
                     });
                 });
-            };
-            loadData();
+            })();
+
+            var initializeCohort = function (vm, osApi){
+                var cohortPatient = osApi.getCohortPatient();
+                vm.optCohortPatients = cohortPatient.get();
+                vm.optCohortPatient = vm.optCohortPatients[0];
+                vm.addCohortPatient = function(){
+                    var cohortName = "TL " + moment().format('- H:mm - M/D/YY');
+                    var cohortIds = d3Bars.selectAll(".timeline-selected")[0]
+                        .map( function (p) { return p.__data__.id; }  )
+                    var cohort = {name:cohortName, ids:cohortIds};
+                    vm.optCohortPatients.push(cohort);
+                    vm.optCohortPatient = cohort;
+                }
+                $scope.$watch("vm.optCohortPatient", updateCohorts );
+            }
+
+            var updateCohorts = function(){
+                var ids = vm.optCohortPatient.ids;
+                if (ids==="*"){
+                    d3Bars.selectAll(".timeline-selected").classed("timeline-selected", false);
+                }else{
+                    d3Bars.selectAll("g.timeline")
+                        .each( function(d){
+                            var e = d3.select(this.firstChild);
+                            e.classed("timeline-selected", (ids.indexOf(d.id)>=0));
+                        });
+                }
+            }
+
+            // Event Handlers
+            vm.resize = function(){ _.debounce(draw, 300); }
+            vm.updateEventColor = function(item){
+                item.selected = !item.selected;
+                item.color = (item.selected) ? item.__color : "#FEFEFE";
+                draw();
+            }
+
         }
     }
 })();

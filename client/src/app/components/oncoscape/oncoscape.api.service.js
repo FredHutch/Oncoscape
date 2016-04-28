@@ -111,8 +111,6 @@
         }
 
         
-
-
         /*** R Service Calls ***/
         function setDataset(dataPackage) {
             osSocket.setDataSource(dataPackage);

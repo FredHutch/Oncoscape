@@ -13,9 +13,8 @@ exports.start = function(config){
 	var sockjs = require('sockjs');
 	var fork = require('child_process').fork;
 
-
-	var NodeCache = require( "node-cache" );
-	var socketCache = new NodeCache( {stdTTL: 0, checkperiod: 0, useClones: false} );
+	//var NodeCache = require( "node-cache" );
+	//var socketCache = new NodeCache( {stdTTL: 0, checkperiod: 0, useClones: true} );
 
 	// List of clients
 	var clients = {};
@@ -23,35 +22,37 @@ exports.start = function(config){
 	socket.on('connection', function(conn) {
 		
 		// Fork R Process
-		var r = fork(__dirname + '/r-process.js');
+		var r = fork(__dirname + '/r-process.js', [], {silent:true});
 
 		// R To Socket
 		r.on('message', function(data){
 			var c = clients[conn.id];
-			socketCache.set( c.cmd, data );
 		 	c.conn.write(data);
+		 	//socketCache.set( c.key, data );
+		 	//console.log("R :: "+ c.key);
 		});
 
 		// Socket To R
 		conn.on('data', function(message){
 			var c = clients[conn.id];
-			socketCache.get( message, function( err, value ){
-				console.log(err);
+			c.r.send(message);	
+			/*var key = message.replace(/"(callback)"\:\d+,/g,"");
+			socketCache.get( key, function( err, value ){
 				if ( !err ){
 					if(value == undefined){
-						c.cmd = message
+						c.key = key;
 						c.r.send(message);	
 					}else{
 						clients[conn.id].conn.write( value );	
+						console.log("CACHE :: "+key);
 					}
 				}
-			});
-
-			
+			});	
+			*/		
 		});
 
 	  	// Add this client to the client list.
-	  	clients[conn.id] = {conn: conn, r:r, cmd:''};
+	  	clients[conn.id] = {conn: conn, r:r, key:''};
 
 		// Destory Client and R Process
 		conn.on('close', function() {

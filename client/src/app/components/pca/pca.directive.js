@@ -19,7 +19,7 @@
         return directive;
 
         /** @ngInject */
-        function PcaController(osApi, $state, $stateParams, $timeout, $scope, d3, $window, _) {
+        function PcaController(osApi, $state, $stateParams, $timeout, $scope, d3, moment, $window, _) {
 
             if (angular.isUndefined($stateParams.datasource)) {
                 $state.go("datasource");
