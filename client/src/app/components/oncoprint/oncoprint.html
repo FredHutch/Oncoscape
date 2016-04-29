@@ -47,7 +47,8 @@
                 </div>
             <div class="col-xs-12 form-label">
                 <h2>Legend</h2>
-                <span class="legend"><span class="legend-dot" style="background-color:#000"></span>Genes</span>
+                <span class="legend"></span>
+                <span class="oncoprint-label-col1"></span>  
             </div>
         </div>
         </div>
@@ -56,8 +57,9 @@
 <section class="tray-content-block">
   <div class="container-fluid">
   <div id = 'oncoprintDiv' class="oncoprint">
-    <div id="oncoprintInstructions" style="display: hidden">Please select and send up to 350 genes and patients from another tab, such as Markers &amp Patients, to populate the display.</div>
-    <div id="oncoprintControlsDiv">  
+    <div id="oncoprintInstructions" style="display: show">Please select and send up to 350 genes and patients from another tab, such as Markers &amp Patients, to populate the display.</div>
+    <div id="oncoprintErrorSection" style="display: show"></div>
+    <div id="oncoprintControlsDiv" style="display: hide">  
       <!--    <select type="button" id="oncoprintSendSelectionsMenu" style="float:right; margin:15px"></select>  -->
       <div id='onc'></div>
       <button id='toggle_whitespace' >Toggle Whitespace</button>
