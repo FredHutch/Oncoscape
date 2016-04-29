@@ -1407,11 +1407,11 @@
 
                 //debugger;
                 $scope.$watch('vm.optCohortPatient', function() {
-                    console.log("within scope optCohortPatient are:", vm.optCohortPatient.ids);
-                    console.log("within scope optCohortGene are: ", vm.optCohortGene.ids);
                     var msg =  vm.optCohortPatient.ids.toString() + ", " + vm.optCohortGene.ids.toString();
-                    //var msg = vm.optCohortPatient.ids.push(vm.optCohortGene.ids);
-                    console.log("within scope msg is: ", msg);
+                    drawOncoprint(msg);
+                });  
+                $scope.$watch('vm.optCohortGene', function() {
+                    var msg =  vm.optCohortPatient.ids.toString() + ", " + vm.optCohortGene.ids.toString();
                     drawOncoprint(msg);
                 });     
             });
@@ -1419,21 +1419,18 @@
             // API Call To oncoprint_data_selection
             var drawOncoprint = function(msg) {
                 osApi.setBusyMessage("Calculating Oncoprint");
-                var demoOncoString = ["TCGA.02.0001", "TCGA.02.0003", "TCGA.02.0006", "TCGA.02.0007",
-                                "TCGA.02.0009", "TCGA.02.0010", "TCGA.02.0011", "TCGA.02.0014",
-                                "TCGA.02.0021", "TCGA.02.0024", "TCGA.02.0027", "TCGA.02.0028",
-                                "TCGA.02.0033", "TCGA.02.0034", "TCGA.02.0037", "TCGA.02.0038",
-                                "TCGA.02.0043", "TCGA.02.0046", "TCGA.02.0047", "TCGA.02.0052",
-                                "TCGA.02.0054", "TCGA.02.0055", "TCGA.02.0057", "TCGA.02.0058",
-                                "TCGA.02.0060", "TCGA.06.0875", "TCGA.06.0876", "TCGA.06.0877",
-                                "TCGA.06.0878", "TCGA.06.0879", "TCGA.06.0881", "TCGA.06.0882",
-                                "TCGA.12.0670", "TCGA.12.0818", "TCGA.12.0819", "TCGA.12.0820",
-                                "TCGA.12.0821", "TCGA.12.0822", "TCGA.12.0826", "TCGA.12.0827", "EGFR", "PTEN"];
+                // var demoOncoString = ["TCGA.02.0001", "TCGA.02.0003", "TCGA.02.0006", "TCGA.02.0007",
+                //                 "TCGA.02.0009", "TCGA.02.0010", "TCGA.02.0011", "TCGA.02.0014",
+                //                 "TCGA.02.0021", "TCGA.02.0024", "TCGA.02.0027", "TCGA.02.0028",
+                //                 "TCGA.02.0033", "TCGA.02.0034", "TCGA.02.0037", "TCGA.02.0038",
+                //                 "TCGA.02.0043", "TCGA.02.0046", "TCGA.02.0047", "TCGA.02.0052",
+                //                 "TCGA.02.0054", "TCGA.02.0055", "TCGA.02.0057", "TCGA.02.0058",
+                //                 "TCGA.02.0060", "TCGA.06.0875", "TCGA.06.0876", "TCGA.06.0877",
+                //                 "TCGA.06.0878", "TCGA.06.0879", "TCGA.06.0881", "TCGA.06.0882",
+                //                 "TCGA.12.0670", "TCGA.12.0818", "TCGA.12.0819", "TCGA.12.0820",
+                //                 "TCGA.12.0821", "TCGA.12.0822", "TCGA.12.0826", "TCGA.12.0827", "EGFR", "PTEN"];
                 var geneAndPatients = msg;
-                //var geneAndPatients = demoOncoString;
-                console.log("***** demoOncoString is :", geneAndPatients);
                 geneAndPatients = geneAndPatients.split(',');
-                console.log("***** msg is :", geneAndPatients);
                 
                 osApi.getOncoprint(geneAndPatients);
                 console.log("after osApi");
