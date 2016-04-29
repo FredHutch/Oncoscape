@@ -35,7 +35,7 @@
             // Properties
             var cohortPatient = osApi.getCohortPatient();
             var width, height, xScale, yScale, xMax, yMax, xAxis, yAxis;
-            var rawData, rawPatientData;
+            var rawData;
 
             // View Model
             var vm = this;
@@ -76,9 +76,9 @@
                 });
 
                 // Patient Data
-                osApi.getPatientHistoryTable(vm.datasource).then(function(response) {
+                // osApi.getPatientHistoryTable(vm.datasource).then(function(response) {
 
-                    rawPatientData = response.payload.tbl;
+                    //rawPatientData = response.payload.tbl;
                     mtx = mtx[mtx.length - 1].replace(".RData", "");
                     osApi.setBusyMessage("Creating PCA Matrix");
                     osApi.getPCA(vm.datasource, mtx).then(function() {
@@ -98,7 +98,7 @@
                             // });
 
                         });
-                    });
+                   // });
                 });
             });
 

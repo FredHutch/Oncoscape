@@ -6,8 +6,7 @@
         .run(runBlock);
 
     /** @ngInject */
-    function runBlock($rootScope, $state, $window, $exceptionHandler, osApi, $log) {
-        //$log.log("  ___  _ __   ___ ___  ___  ___ __ _ _ __   ___ \n / _ \\| '_ \\ / __/ _ \\/ __|/ __/ _` | '_ \\ / _ \\\n| (_) | | | | (_| (_) \\__ \\ (_| (_| | |_) |  __/\n \\___/|_| |_|\\___\\___/|___/\\___\\__,_| .__/ \\___|\n                                    |_|         ");
+    function runBlock($rootScope, $state, $window, $exceptionHandler, osApi) { //, $log
 
         // Route Errors To Angular
         $window.onerror = function handleGlobalError( message, fileName, lineNumber, columnNumber, error ) {
@@ -21,7 +20,7 @@
         }
         
         // Actions To Take On State Change
-        $rootScope.$on('$stateChangeStart', function(event, toState) {
+        var off = $rootScope.$on('$stateChangeStart', function(event, toState) {
 
             // Hide Busy Cursor
             osApi.setBusy(false);
@@ -36,5 +35,7 @@
             }
             
         });
+
+        $rootScope.$on('$destroy', off)
     }
 })();
