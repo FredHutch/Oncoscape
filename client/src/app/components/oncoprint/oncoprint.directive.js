@@ -39,35 +39,12 @@
             vm.optCohortGene = vm.optCohortGenes[0];
             vm.optCohortPatients = cohortPatient.get();
             vm.optCohortPatient = vm.optCohortPatients[0];
-            vm.geneSetAndPatients = vm.optCohortGenes + vm.optCohortPatients;
-            console.log("vm.optCohortGenes are: ", vm.optCohortGenes[1]);
-            console.log("vm.optCohortPatients are: ", vm.optCohortPatients[1]);
-
-
-            // Cohorts
-            // vm.addCohortGene = function(){
-            //     var cohortName = "Oncoprint " + moment().format('- H:mm:ss - M/D/YY');
-            //     var cohortIds = d3Chart.selectAll(".oncoprint-track-label-main")[0].map(function(node){ return node.innerText; });
-            //     var cohort = {name:cohortName, ids:cohortIds};
-            //     vm.optCohortPatients.push(cohort);
-            //     vm.optCohortPatinet = cohort;
-            // }
-            // $scope.$watch('vm.optCohortGene', function() {
-            //     var ids = vm.optCohortGene.ids;
-            //     if (ids == "*"){
-            //         d3Chart.selectAll(".plsr-node-selected").classed("plsr-node-selected", false);
-            //     }
-            //     else{
-            //         d3Chart.selectAll("circle").classed("plsr-node-selected", function(){
-            //             return (ids.indexOf(this.__data__.name)>=0)
-            //         });
-            //     }
-            // });
-
-            
-          
-                    
-           Oncoprint = (function() {
+            vm.geneAndPatients = vm.optCohortGene.ids + "," + vm.optCohortPatient.ids;
+            console.log("vm.optCohortGenes are: ", vm.optCohortGenes);
+            console.log("vm.optCohortPatients are: ", vm.optCohortPatients);
+            console.log("vm.geneAndPatients are: ", vm.geneAndPatients);
+                                
+            Oncoprint = (function() {
               var events = oncoprint_events;
               var utils = oncoprint_utils;
               var RuleSet = oncoprint_RuleSet;
@@ -589,7 +566,7 @@
               };
             })();
           
-           OncoprintSVGRenderer = (function() {
+            OncoprintSVGRenderer = (function() {
                   var events = oncoprint_events;
                   var utils = oncoprint_utils;
 
@@ -1352,7 +1329,7 @@
                     return svg.node();
                   };
                   return OncoprintSVGRenderer;
-              })();
+            })();
             
             //////
             function displayOncoprint(msg)
@@ -1373,20 +1350,11 @@
                //    $("#onc").empty();
                //    postStatus("msg.status is error.");
                //  }else{
-                 var xx = JSON.parse(msg.payload);
-                 console.log("***** xx is:", xx);
-                 console.log("displayOncoprint print recieved genes: %s",xx[1]);
-                 var genes = xx[1];
-                 var processed_data = JSON.parse(xx[0]);
+                 var genes = msg[1];
+                 var processed_data = msg[0];
                  console.log("*****no error report but the processed_data is: ", processed_data);
-                 var then = Date.now(); 
-                 //onc = Oncoprint.create('#onc', {cell_padding: cell_padding, cell_width: cell_width});
                  var onc = Oncoprint.create('#onc');
-                 console.log("Milliseconds to create Oncoprint div: ", Date.now() - then); 
                  onc.suppressRendering();
-                   
-                 var startGenes = Date.now(); 
-                    
                  $.when(processed_data).then(function() {
 
                     if(typeof(genes) === "string"){
@@ -1406,68 +1374,50 @@
 
                       var addTrackStart = Date.now();
                       track_id[i] = onc.addTrack({label: gene, removable:true}, 0);
-                      console.log("Milliseconds to addTrack ", gene, " : ", Date.now() - addTrackStart);
-
                       if(i === 0){
                         onc.setRuleSet(track_id[i], Oncoprint.GENETIC_ALTERATION);
                       }else{
                         onc.useSameRuleSet(track_id[i], track_id[0]);
                       }
-
                       onc.setTrackData(track_id[i], data_gene, true);
-                    }
-                    
+                    }            
                   onc.releaseRendering();
                   onc.sort();
-                  console.log("Milliseconds to step through processded_data ", Date.now() - startGenes);
-                 });    
-              //}
-               //console.log("#######Computing since msg sent took: " + (Date.now() - compute_start) + " milliseconds"); 
-               
-            } // displaySurvivalCurves
-            //------
+                });           
+            } // displayOncoprint
+           
 
             // Initialize
             osApi.setBusy(true)("Loading Dataset");
             osApi.setDataset(vm.datasource).then(function(response) {
+                osApi.setBusy(false);
                 console.log(vm.datasource);
                 console.log(response.payload.rownames);
                 var mtx = response.payload.rownames.filter(function(v) {
                     //debugger;
                     return v.indexOf("mtx") >= 0
                 });
-                //console.log("mtx is:",  mtx);
-
+        
                 // Patient Data
-                osApi.getPatientHistoryTable(vm.datasource).then(function(response) {
-                    //console.log(osApi.getPatientHistoryTable(vm.datasource));
-                    rawPatientData = response.payload.tbl;
-                    //console.log(rawPatientData);
-                    mtx = mtx[mtx.length - 1].replace(".RData", "");
-                    osApi.setBusyMessage("Creating Oncoprint");
-                   
-                    (if(typeof vm.optCohortGenes !== 'undefined') && (typeof vm.optCohortPatients !== 'undefined')).then(function() {
-                        // Load Gene Sets
-                        //console.log("**** what is the response.payload:", response.payload);
-                        //vm.geneSetAndPatients = response.payload;
-                        vm.geneSetAndPatients = vm.geneSetAndPatients[0];
-                        vm.geneSetAndPatients = vm.optCohortGenes[1]+ "," + vm.optCohortPatients[1];
-                        console.log("***** vm.optCohortGenes are:", vm.optCohortGenes);
-                        console.log("***** vm.geneSetAndPatients are: ", vm.geneSetAndPatients);
-                        $scope.$watch('vm.geneSetAndPatients', function() {
-                          console.log("***** vm.geneSetAndPatients are: within scope section:", vm.geneSetAndPatients);
-                            update();
-                        });
-                        // $scope.$watch('vm.optNodeColor', function() {
+                rawPatientData = response.payload.tbl;
+                mtx = mtx[mtx.length - 1].replace(".RData", "");
+                osApi.setBusyMessage("Creating Oncoprint");
+                osApi.setBusyMessage("Loading Gene Sets and Patients");
+                (vm.optCohortPatient.ids == "*") ? $("#oncoprintControlsDiv").hide():$("#oncoprintInstructions").show();
 
-                        // });
-
-                    });
-                });
+                //debugger;
+                $scope.$watch('vm.optCohortPatient', function() {
+                    console.log("within scope optCohortPatient are:", vm.optCohortPatient.ids);
+                    console.log("within scope optCohortGene are: ", vm.optCohortGene.ids);
+                    var msg =  vm.optCohortPatient.ids.toString() + ", " + vm.optCohortGene.ids.toString();
+                    //var msg = vm.optCohortPatient.ids.push(vm.optCohortGene.ids);
+                    console.log("within scope msg is: ", msg);
+                    drawOncoprint(msg);
+                });     
             });
             
             // API Call To oncoprint_data_selection
-            var update = function() {
+            var drawOncoprint = function(msg) {
                 osApi.setBusyMessage("Calculating Oncoprint");
                 var demoOncoString = ["TCGA.02.0001", "TCGA.02.0003", "TCGA.02.0006", "TCGA.02.0007",
                                 "TCGA.02.0009", "TCGA.02.0010", "TCGA.02.0011", "TCGA.02.0014",
@@ -1479,18 +1429,22 @@
                                 "TCGA.06.0878", "TCGA.06.0879", "TCGA.06.0881", "TCGA.06.0882",
                                 "TCGA.12.0670", "TCGA.12.0818", "TCGA.12.0819", "TCGA.12.0820",
                                 "TCGA.12.0821", "TCGA.12.0822", "TCGA.12.0826", "TCGA.12.0827", "EGFR", "PTEN"];
-                //var geneSetAndPatients = vm.geneSetAndPatients;
-                var geneSetAndPatients = demoOncoString;
-                console.log("***** demoOncoString is :", geneSetAndPatients);
-                osApi.getOncoprint(geneSetAndPatients);
+                var geneAndPatients = msg;
+                //var geneAndPatients = demoOncoString;
+                console.log("***** demoOncoString is :", geneAndPatients);
+                geneAndPatients = geneAndPatients.split(',');
+                console.log("***** msg is :", geneAndPatients);
+                
+                osApi.getOncoprint(geneAndPatients);
                 console.log("after osApi");
-                osApi.getOncoprint(geneSetAndPatients).then(function(response) {
-                    console.log(osApi.getOncoprint(geneSetAndPatients));
+                osApi.getOncoprint(geneAndPatients).then(function(response) {
+                    console.log(osApi.getOncoprint(geneAndPatients));
                     osApi.setBusyMessage("Rendering Oncoprint");
                     var payload = response.payload;
                     console.log("within update function", payload);
                     displayOncoprint(payload);
-                    osApi.setBusy(false);
+                    $("#oncoprintInstructions").hide();
+                    $("#oncoprintControlsDiv").show();
                 });
             };
 
