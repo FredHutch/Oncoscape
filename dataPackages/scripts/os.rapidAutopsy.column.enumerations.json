@@ -15,7 +15,7 @@
 		"date_start_ketoconazole" :["Ketoconazole start"],
 		"date_end_ketoconazole" :["ketoconazole end"],
 		"date_start_diethylstilbestrol": ["DES/ESTROGEN START"],
-		"date_start_diethylstilbestrol": ["DES/ESTROGEN END"],
+		"date_end_diethylstilbestrol": ["DES/ESTROGEN END"],
 		"date_start_corticosteroid" :["Corticosteroid START"],
 		"date_end_corticosteroid" :["Corticosteroid End"],
 		"date_start_taxotere": ["TAXOTERE START"],
