@@ -1,3 +1,4 @@
+<os-tool-menu datasource="{{vm.datasource}}"></os-tool-menu>
 <os-tray content="tray-content-block" change="vm.resize()">
     <section class="tray-content">
             <div class="row">
@@ -33,7 +34,9 @@
                     </div>
                 </div>
                 <div class="col-sm-2 form-item" style="text-align: center;padding-top:30px;">
+                <!--
                   <i class="fa fa-link" aria-hidden="true"></i>
+                  -->
                 </div>
                 <div class="col-sm-5 form-item">
                   <label>Patient Color</label>
@@ -59,7 +62,7 @@
                     </span>
                 </div>
                 <div class="col-sm-12 form-item">
-                   
+                  <label>Patient Search {{vm.searchPatientResult}}</label>
                   <input type="text" class="form-control" ng-model="vm.searchPatient" placeholder="Enter Patient Id">
                 </div>
                 <div class="col-sm-12 form-item">
@@ -137,7 +140,8 @@
 <section class="tray-content-block">
   <div id="markers-chart" class="markers-chart"></div>
   <div style="position:absolute;top:10px;left:50px;">
-    <h2>Patients + Markers</h2>  
+    <h2 class="h2-tool">Patients + Markers</h2>  
+    <h3 class="h3-datasource">{{vm.datasource}}</h3>
   </div>
 </section>
 

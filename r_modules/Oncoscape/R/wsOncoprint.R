@@ -29,7 +29,8 @@ oncoprint_data_selection <- function(msg)
     printf("test5")
     #partial_msg <- create.oncoprint.input(payload_str, ds, payload_mode) 
     partial_msg <- create.oncoprint.input(payload_str, ds)
-    toJSON(list(cmd=msg$callback, callback="", status="response", payload=partial_msg),
+    toJSON(list(cmd=msg$callback, callback="", status="response", 
+            payload=partial_msg),
                             auto_unbox=TRUE)
    
     #return.msg <- toJSON(c(cmd=msg$callback, partial_msg))

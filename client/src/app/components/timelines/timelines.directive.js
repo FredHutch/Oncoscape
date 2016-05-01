@@ -135,7 +135,11 @@
                 var hChart = $window.innerHeight - 75 - 10 - 130;
                 var wChart = $window.innerWidth;
                 if (wChart > 760)  wChart -= 140;
-                if (angular.element(".tray").attr("locked")=="true") wChart -= 300;
+                if (angular.element(".tray").attr("locked")=="true"){
+                    wChart -= 300;
+                    console.dir("LOCKED");
+                } 
+                console.log(wChart);
      
                 dataProcessed = processData(dataPatients, vm.align, vm.sort);
                 d3ScaleX = d3.scale.linear().domain( dataProcessed.bounds ).range([10, wChart-10]);
@@ -492,7 +496,8 @@
                     var cohortIds = d3Bars.selectAll(".timeline-selected")[0]
                         .map( function (p) { return p.__data__.id; }  )
                     var cohort = {name:cohortName, ids:cohortIds};
-                    vm.optCohortPatients.push(cohort);
+                    if (cohortIds.length==0) return;
+                    cohortPatient.add(cohort);
                     vm.optCohortPatient = cohort;
                 }
                 $scope.$watch("vm.optCohortMode", draw );

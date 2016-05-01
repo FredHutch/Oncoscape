@@ -22,7 +22,7 @@ exports.start = function(config){
 	socket.on('connection', function(conn) {
 		
 		// Fork R Process
-		var r = fork(__dirname + '/r-process.js', [], {silent:true});
+		var r = fork(__dirname + '/r-process.js', [], {silent:false});
 
 		// R To Socket
 		r.on('message', function(data){

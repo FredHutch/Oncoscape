@@ -9,7 +9,7 @@
             <li ng-repeat="tool in vm.tools" class="col-xs-12 col-sm-6 col-md-4 col-lg-3">
                 <img class="tools-img" ng-src="/assets/images/datasets/{{tool.img}}">
                 <div class="tools-copy">
-                	<h2 class="tools-lbl">{{tool.name}}</h2>
+                	<h3 class="tools-lbl">{{tool.name}}</h3>
 	                <a href="" ng-click="vm.explore(tool.route, vm.datasource)">Explore</a>
 	             </div>
             </li>

@@ -1,3 +1,5 @@
+<os-tool-menu datasource="{{vm.datasource}}"
+    change="vm.addCohortPatient()"></os-tool-menu>
 <os-tray content="tray-content-block" change="vm.resize($event)">
     <section class="tray-content">
         <div class="row">
@@ -101,7 +103,8 @@
 
 <section class="tray-content-block">
   <div class="container-fluid">
-    <h2>Timelines</h2>
+    <h2 class="h2-tool">Timelines</h2>
+    <h3 class="h3-datasource">{{vm.datasource}}</h3>
     <div id="timelines-chart"></div>
     <div class="timeline-legend-scale" style="position:relative;top:-30px;width: 100%;text-align: center; font-weight: 500;">{{vm.timescaleunit}}</div>
   </div>

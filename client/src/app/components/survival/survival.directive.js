@@ -44,10 +44,12 @@
                 }
                 else{
                     var pids = vm.optCohortPatient.ids;
-                    ids = rawData.filter( function(d){
-                        return (pids.indexOf(d)>=0);
-                    });
-                    draw(ids);
+                    if (rawData!=null){
+                        ids = rawData.filter( function(d){
+                            return (pids.indexOf(d)>=0);
+                        });
+                        draw(ids);
+                    }
                 }
             });
 
@@ -56,7 +58,8 @@
             osApi.setDataset(vm.datasource).then(function() {
                 osApi.getPatientHistoryTable(vm.datasource).then(function(response) {
                     rawData = response.payload.tbl.map( function (d) { return d[0]; });
-                    draw(rawData);
+                    var data = (vm.optCohortPatient.ids=="*") ? rawData : vm.optCohortPatient.ids;
+                    draw(data);
                 });
             });
 
