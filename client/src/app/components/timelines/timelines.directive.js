@@ -19,7 +19,7 @@
         return directive;
 
         /** @ngInject */
-        function TimelinesController(osApi, $state, $scope, $stateParams, $window, $document, moment, d3, _) {
+        function TimelinesController(osApi, $state, $scope, $stateParams, $window, $document, moment, d3) {
 
             if (angular.isUndefined($stateParams.datasource)) {
                 $state.go("datasource");
@@ -133,13 +133,14 @@
                 // Helpers
                 var hRow = 20;
                 var hChart = $window.innerHeight - 75 - 10 - 130;
-                var wChart = $window.innerWidth;
+                var wChart = $window.innerWidth - 300;
                 if (wChart > 760)  wChart -= 140;
-     
-                if (angular.element(".tray").attr("locked")=="true") wChart -= 300;
+                if (angular.element(".tray-rt").attr("locked")=="false"){
+                    wChart += 300;
+                } 
      
                 dataProcessed = processData(dataPatients, vm.align, vm.sort);
-                d3ScaleX = d3.scale.linear().domain( dataProcessed.bounds ).range([10, wChart-10]);
+                d3ScaleX = d3.scale.linear().domain( [dataProcessed.bounds[0],dataProcessed.bounds[1]] ).range([10, wChart-10]);
                 d3ScaleY = d3.scale.linear().domain([0, dataProcessed.patients.length]).range(0,hChart-50);
                 minZoom = (hChart-50) / (dataProcessed.patients.length * 20)
                 
@@ -175,14 +176,14 @@
 
                     if (vm.optCohortMode.name=="Highlight" && vm.optCohortPatient.ids!="*"){
                         rows
-                            .each( function(d, i){
+                            .each( function(d){
                                 var selected = (vm.optCohortPatient.ids.indexOf(d.id)>=0);
                                 var e = d3.select(this.firstChild);
                                 e.classed("timeline-selected", selected );
                         });
                     }else{
                         rows
-                            .each( function(d, i){
+                            .each( function(){
                                 var e = d3.select(this.firstChild);
                                 e.classed("timeline-selected", false );
                         });
@@ -234,15 +235,17 @@
 
                     if (vm.timescale.name=='Log'){
                         tlScale = tlScale.tickFormat(function (d) { 
+                            
                             var Dir = (d<0 ? -1 : 1); 
                             return Math.round(Dir * (Math.pow(2, (Math.abs(d)))-1) *100)/100;
+                        
                         });
                         vm.timescaleunit = "Days";
                     }else{
                         tlScale = tlScale.tickFormat(function (d) { 
-                            return moment.unix(d).year();
+                            return d;
                         });
-                        vm.timescaleunit = "Year";
+                        vm.timescaleunit = "Days";
                     }
                 
                 // Brush
@@ -264,9 +267,10 @@
                     .x( d3ScaleX )
                     .y( d3ScaleY )
                     .translate([0,0])
-                    .scale( 1, minZoom )
+                    .scale( minZoom, 1 )
                     .on("zoom", zoomed);
                 d3BarsBackground.call(zoom);
+
 
                 // Axis
                 d3Axis.attr({
@@ -333,19 +337,19 @@
                     processedData.bounds = processedData.patients.reduce( function( prev, current ) {
                         // Min Max For Individual Patients
                         var patientMinMax = current.filteredEvents.reduce(function( prev, current ) {
+                            
                             return [
                                 Math.min(current.startValue, prev[0]),
                                 Math.max((current.endValue==null) ? current.startValue : current.endValue, prev[1])
                             ]
 
                         }, [Infinity, -Infinity]);
-
+                        
                         return [
                             Math.min(patientMinMax[0], prev[0]),
                             Math.max(patientMinMax[1], prev[1])
                         ]   
                     }, [Infinity, -Infinity] );
-
                     return processedData;
             };
 
@@ -472,7 +476,6 @@
 
                         // Register Watch
                         $scope.$watchGroup(['vm.feature', 'vm.sort', 'vm.align', 'vm.timescale'], draw);
-
                         angular.element($window).bind('resize', draw);
                       
                         initializeCohort(vm, osApi);   
@@ -493,7 +496,8 @@
                     var cohortIds = d3Bars.selectAll(".timeline-selected")[0]
                         .map( function (p) { return p.__data__.id; }  )
                     var cohort = {name:cohortName, ids:cohortIds};
-                    vm.optCohortPatients.push(cohort);
+                    if (cohortIds.length==0) return;
+                    cohortPatient.add(cohort);
                     vm.optCohortPatient = cohort;
                 }
                 $scope.$watch("vm.optCohortMode", draw );
@@ -501,7 +505,9 @@
             }
 
             // Event Handlers
-            vm.resize = draw;
+            vm.resize = function(){
+                draw();
+            }
             vm.updateEventColor = function(item){
                 item.selected = !item.selected;
                 item.color = (item.selected) ? item.__color : "#FEFEFE";

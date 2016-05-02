@@ -49,7 +49,8 @@
                 var cohortName = "Patient " + moment().format('- H:mm - M/D/YY');
                 var cohortIds = dtTable._('tr', {"filter":"applied"}).map( function ( item ){ return item[0].toUpperCase() } );
                 var cohort = {name:cohortName, ids:cohortIds};
-                vm.optCohortPatients.push(cohort);
+                if (cohortIds.length==0) return;
+                cohortPatient.add(cohort);
                 vm.optCohortPatient = cohort;
 
             }

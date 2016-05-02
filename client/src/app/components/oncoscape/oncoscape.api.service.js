@@ -276,6 +276,16 @@
                 }
             });
         }
+        function getOncoprint(geneSetAndPatients) {
+            //console.log("***** within osApi.getOncoprint: ", geneSetAndPatients);
+            //debugger;
+            return osSocket.request({
+                cmd: "oncoprint_data_selection",
+                payload: {
+                    patientIdsAndGenes: geneSetAndPatients
+                }
+            });
+        }
 
         var _cohortPatient = collection(signals, {name:'All Patients', ids:'*'}, "osCohortPatient");
         function getCohortPatient(){ return _cohortPatient; }
@@ -283,35 +293,33 @@
         var _cohortGene = collection(signals, {name:'All Genes', ids:'*'}, "osCohortGene");
         function getCohortGene(){ return _cohortGene; }
 
-        function collection(signals, defaultValue, collectionName){
+        function collection(signals, defaultValue){ //, collectionName
 
             var onAdd = new signals.Signal();
             var onRemove = new signals.Signal();
-            var onSelect = new signals.Signal();
+            //var onSelect = new signals.Signal();
 
             var _collection = [defaultValue];
             
             function get() { return _collection; }
             
             function add(value){ 
-                _collection.push(value); 
+                _collection.unshift(value); 
                 onAdd.dispatch(_collection);
             }
             function clear(){
                 _collection = [defaultValue]   
             }
             function remove(value){
-                if (_selected==value) select(_collection[0]);
                 _collection.splice(_collection.indexOf(value)); 
                 onRemove.dispatch(_collection);
             }
            
-            function save(key){
-
+            function save(){
+                
             }
 
-            function load(key){
-
+            function load(){
             }
 
             return{
@@ -326,8 +334,6 @@
             }
         }
 
-
-   
   
         return {
             getCohortPatient: getCohortPatient,
@@ -367,7 +373,8 @@
             getMrnaData: getMrnaData,
             getCnvData: getCnvData,
             getMutationData: getMutationData,
-            getModuleModificationDate: getModuleModificationDate
+            getModuleModificationDate: getModuleModificationDate,
+            getOncoprint: getOncoprint
         }
 
     }

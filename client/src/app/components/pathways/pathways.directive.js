@@ -19,7 +19,7 @@
         return directive;
 
         /** @ngInject */
-        function PathwaysController(osApi, $state, $stateParams, $scope, $sce, $window, moment, cytoscape) {
+        function PathwaysController(osApi, $state, $stateParams, $scope, $sce, $window, moment, cytoscape, _) {
 
             if (angular.isUndefined($stateParams.datasource)){
                 $state.go("datasource");
@@ -61,7 +61,8 @@
                 var cohortName = "Pathways " + moment().format('- H:mm - M/D/YY');
                 var cohortIds = csChart.$('node[nodeType="gene"]:selected').map(function(ele){ return ele.data().id.toUpperCase() });
                 var cohort = {name:cohortName, ids:cohortIds};
-                vm.optCohortGenes.push(cohort);
+                if (cohortIds.length==0) return;
+                cohortGene.add(cohort);
                 vm.optCohortGene = cohort;
             }
             $scope.$watch('vm.optCohortGene', function() {

@@ -53,8 +53,9 @@
             vm.addCohortGene = function(){
                 var cohortName = "PLSR " + moment().format('- H:mm:ss - M/D/YY');
                 var cohortIds = d3Chart.selectAll(".plsr-node-selected")[0].map(function(node){ return node.__data__.name.toUpperCase(); });
+                if (cohortIds.length==0) return;
                 var cohort = {name:cohortName, ids:cohortIds};
-                vm.optCohortGenes.push(cohort);
+                cohortGene.add(cohort);
                 vm.optCohortGene = cohort;
             }
             $scope.$watch('vm.optCohortGene', function() {
