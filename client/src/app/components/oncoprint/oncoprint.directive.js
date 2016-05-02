@@ -26,6 +26,10 @@
                 return;
             }
 
+            // Elements
+            var elControl = angular.element("#oncoprintControlsDiv");
+            var elInstructions = angular.element("#oncoprintInstructions");
+            var elErrors = angular.element("#oncoprintErrorSection");
             // Properties
             var cohortGene = osApi.getCohortGene();
             var cohortPatient = osApi.getCohortPatient();
@@ -40,7 +44,7 @@
             vm.optCohortPatients = cohortPatient.get();
             vm.optCohortPatient = vm.optCohortPatients[0];
             vm.geneAndPatients = vm.optCohortGene.ids + "," + vm.optCohortPatient.ids;
-            var errorMessage;
+            vm.errorMessage;
             
             var Oncoprint = (function() {
               var events = oncoprint_events;
@@ -1409,36 +1413,59 @@
                 // Patient Data
                 var rawPatientData = response.payload.tbl;
                 var mtx = mtx[mtx.length - 1].replace(".RData", "");
-                ((vm.optCohortPatient.ids == "*") || (vm.optCohortGene.ids == "*")) ? 
-                $("#oncoprintControlsDiv").hide():$("#oncoprintInstructions").show();
+   
+  
+                $scope.$watchGroup(['vm.optCohortPatient', 'vm.optCohortGene'], function() {
+                    var msg =  vm.optCohortPatient.ids.toString() + ", " + vm.optCohortGene.ids.toString();
+                    drawOncoprint(msg);
 
-                //debugger;
-                $scope.$watch('vm.optCohortPatient', function() {
-                    var msg =  vm.optCohortPatient.ids.toString() + ", " + vm.optCohortGene.ids.toString();
-                    osApi.setBusyMessage("calculating oncoprint"); 
-                    drawOncoprint(msg);
-                    osApi.setBusy(false); 
                 });  
-                $scope.$watch('vm.optCohortGene', function() {
-                    var msg =  vm.optCohortPatient.ids.toString() + ", " + vm.optCohortGene.ids.toString();
-                    osApi.setBusyMessage("calculating oncoprint"); 
-                    drawOncoprint(msg);
-                    osApi.setBusy(false);
-                });
+                 osApi.setBusy(false);
             });
+
+
+            var _state = "";
+            var setState = function(value){
+              if (_state==value) return;
+              switch(value){
+                case "instructions":
+                  elControl.hide();
+                  elInstructions.show();
+                  elErrors.hide();
+                  break;
+                case "control":
+                  elControl.show();
+                  elInstructions.hide();
+                  elErrors.hide();
+                  break;
+                case "errors":
+                  elControl.hide();
+                  elInstructions.show();
+                  elErrors.show();
+                  break;
+              }
+              
+            }
             
             // API Call To oncoprint_data_selection
             var drawOncoprint = function(msg) {
-                errorMessage = "";
+
+                if ( (vm.optCohortPatient.ids == "*") || (vm.optCohortGene.ids == "*") ){
+                  setState("instructions");
+                  return;
+                } 
+              
                 var geneAndPatients = msg;
                 geneAndPatients = geneAndPatients.split(',');
 
                 if(geneAndPatients.length > 350){
                   console.log("***** Number of total genes and patients is: ", geneAndPatients.length);
                   console.log("more than 350");
-                  errorMessage = "The total number of Patients and Genes are set to be less than 350.";
-                  $("#oncoprintErrorSection").append(errorMessage);
+                  vm.errorMessage = "The total number of Patients and Genes are set to be less than 350.";
+                  setState("errors");
                 }else{
+
+                  osApi.setBusy(true);
                   osApi.getOncoprint(geneAndPatients);
                   console.log("after osApi");
                   osApi.getOncoprint(geneAndPatients).then(function(response) {
@@ -1446,8 +1473,8 @@
                       var payload = response.payload;
                       console.log("within update function", payload);
                       displayOncoprint(payload);
-                      $("#oncoprintInstructions").hide();
-                      $("#oncoprintControlsDiv").show(); 
+                      setState("control");
+                      osApi.setBusy(false);
                   });
                 }
             }

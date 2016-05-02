@@ -59,8 +59,8 @@
 <section class="tray-content-block">
   <div class="container-fluid">
   <div id = 'oncoprintDiv' class="oncoprint">
-    <div id="oncoprintInstructions" style="font-size:150%;display: show"><p><h4>Please select and send up to 350 genes and patients from another tab, such as Markers &amp Patients, to populate the display.</h4></p></div>
-    <div id="oncoprintErrorSection" style="font-size:150%;display: show"></div>
+    <div id="oncoprintInstructions" style="font-size:150%;display: show">Please select and send up to 350 genes and patients from another tab, such as Markers &amp Patients, to populate the display.</div>
+    <div id="oncoprintErrorSection" style="font-size:150%;display: show" ng-show="vm.errorMessage!=''">{{vm.errorMessage}}</div>
     <div id="oncoprintControlsDiv" style="display: hide">  
       <!--    <select type="button" id="oncoprintSendSelectionsMenu" style="float:right; margin:15px"></select>  -->
       <div id='onc'></div>
