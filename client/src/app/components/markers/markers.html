@@ -6,7 +6,7 @@
                     <h2>Options</h2>
                 </div>
                 <div class="col-xs-12 form-item">
-                    <label>Interactive Mode</label>
+                    <label>Show Edges When</label>
                     <div class="dropdown bs-dropdown">
                       <button class="btn btn-default dropdown-toggle" type="button" id="dropdownMenu1" data-toggle="dropdown" aria-haspopup="true" aria-expanded="true">
                         {{vm.optInteractiveMode.name}}
@@ -53,6 +53,24 @@
                   </div>
                 </div>
                 <div class="col-sm-12 form-item">
+                  <label>Patient Search {{vm.searchPatientResult}}</label>
+                  <input type="text" class="form-control" ng-model="vm.searchPatient" placeholder="Enter Patient Id">
+                </div>
+                <div class="col-sm-12 form-item">
+                  <label>Gene Search {{vm.searchGeneResult}}</label>
+                  <input type="text" class="form-control" ng-model="vm.searchGene" placeholder="Enter Gene Name">
+                </div>
+                 <div class="col-xs-12 form-item">
+                    <label>Patient Colors</label>
+                    <span
+                      ng-repeat="item in vm.legandNodes"
+                      class="legend-bar btn btn-default filter-button" 
+                      style="border-color:{{item.color}}"
+                      ng-click="vm.updateNode(item); $event.stopPropagation();">
+                      {{item.name}} (Select)
+                    </span>
+                </div>  
+                <div class="col-sm-12 form-item">
                   <label>Edge Colors</label>
                   <span
                       ng-repeat="item in vm.optEdgeColors"
@@ -61,14 +79,8 @@
                     {{item.name}} ({{item.state}})
                     </span>
                 </div>
-                <div class="col-sm-12 form-item">
-                  <label>Patient Search {{vm.searchPatientResult}}</label>
-                  <input type="text" class="form-control" ng-model="vm.searchPatient" placeholder="Enter Patient Id">
-                </div>
-                <div class="col-sm-12 form-item">
-                  <label>Gene Search {{vm.searchGeneResult}}</label>
-                  <input type="text" class="form-control" ng-model="vm.searchGene" placeholder="Enter Gene Name">
-                </div>
+               
+                
                 <div class="col-xs-12 form-label">
                     <h2>Cohorts</h2>
                 </div>
@@ -108,7 +120,7 @@
                   </div>
 
                 </div>
-                <div class="col-sm-12 form-item">
+                <div class="col-sm-12 form-item" style="padding-bottom: 100px;">
                   <label>Gene Cohorts</label>
                   <div class="dropdown bs-dropdown">
                     <button class="btn btn-default dropdown-toggle" type="button"
@@ -127,13 +139,6 @@
                     </ul>
                   </div>
                 </div>
-                <div class="col-xs-12 form-label" style="padding-bottom: 100px;">
-                    <h2>Legend</h2>
-                    <span class="legend" ng-repeat="item in vm.legandNodes">
-                      <span class="legend-dot" style="background-color:{{item.color}}"></span>
-                      {{item.name}}
-                    </span>
-                </div>    
             </div>   
     </section>
 </os-tray>

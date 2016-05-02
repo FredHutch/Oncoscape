@@ -49,12 +49,21 @@ button{
 }
 .h2-tool{
 	font-size:20px;
+	display:inline-block;
+	padding-right:5px;
 }
 .h3-datasource{
-	font-size: 16px;
+	font-size: 20px;
 	padding: 0px;
     margin: 0px;
     margin-top: -5px;
+    display:inline-block;
+}
+.h3-datasource:before{
+	content: "(";
+}
+.h3-datasource:after{
+	content: ")";
 }
 .sro{	// Screen Readers Only
 	display:none !important;
@@ -76,6 +85,8 @@ button{
 	padding-left:10px;
 	display:block;
 	margin-bottom: 1px;
+	overflow:hidden;
+
 }
 .legend-dot{
 	border: solid 0px;
