@@ -1,3 +1,4 @@
+<os-tool-menu datasource="{{vm.datasource}}"></os-tool-menu>
 <os-tray content="tray-content-block" change="vm.resize($event)">
     <section class="tray-content">
         <div class="row">
@@ -18,7 +19,8 @@
 </os-tray>
 <section class="tray-content-block">
   <div class="container-fluid">
-    <h2>Patient Survival</h2>
+    <h2 class="h2-tool">Patient Survival</h2>
+    <h3 class="h3-datasource">{{vm.datasource}}</h3>
     <div style="text-align: center;">
     	<img id="survival-img" style="width:100%; height: auto; margin:auto;">
     </div>

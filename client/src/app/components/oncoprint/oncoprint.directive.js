@@ -1,6 +1,6 @@
 (function() {
-    //'use strict';
-
+    'use strict';
+    
     angular
         .module('oncoscape')
         .directive('osOncoprint', oncoprint);
@@ -1462,3 +1462,4 @@
         }
     }
 })();
+

@@ -1,3 +1,5 @@
+<os-tool-menu datasource="{{vm.datasource}}"
+ change="vm.addCohortPatient()"></os-tool-menu>
 <os-tray caption="Patients" content="tray-content-block">
     <section class="tray-content">
             <div class="row">
@@ -44,7 +46,8 @@
 
 <section class="tray-content-block">
     <div class="container-fluid">
-        <h2>Patient Data</h2>
+        <h2 class="h2-tool">Patient Data</h2>
+        <h3 class="h3-datasource">{{vm.datasource}}</h3>
         <table id="history-datatable" class="table table-striped table-bordered dt-responsive nowrap" cellspacing="0" width="100%">
             <thead>
                 <tr>

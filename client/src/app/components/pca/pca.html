@@ -1,3 +1,5 @@
+<os-tool-menu datasource="{{vm.datasource}}" change="vm.addCohortPatient()">
+</os-tool-menu>
 <os-tray content="tray-content-block" change="vm.resize($event)">
     <section class="tray-content">
             <div class="row">
@@ -16,7 +18,7 @@
                         </ul>
                     </div>
                 </div>
-                <div class="col-xs-12 form-item">
+              <!--   <div class="col-xs-12 form-item">
                     <label>Patient Colors</label>
                     <div class="dropdown bs-dropdown">
                         <button class="btn btn-default dropdown-toggle" type="button" id="dropdownMenu1" data-toggle="dropdown" aria-haspopup="true" aria-expanded="true">
@@ -30,7 +32,7 @@
                                 </label>
                             </li>
                         </ul>
-                    </div>
+                    </div> -->
                 </div>
                 <div class="col-xs-12 form-item">
                     <label>Search</label>
@@ -66,10 +68,10 @@
             </div>
     </section>
 </os-tray>
-
 <section class="tray-content-block">
   <div class="container-fluid">
-    <h2>Principal Component Analysis</h2>
+    <h2 class="h2-tool">Principal Component Analysis</h2>
+    <h3 class="h3-datasource">{{vm.datasource}}</h3>
     <div id="pca-chart" class="pca"></div>
   </div>
 </section>

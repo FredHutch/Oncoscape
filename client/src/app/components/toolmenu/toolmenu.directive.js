@@ -13,19 +13,19 @@
             templateUrl: 'app/components/toolmenu/toolmenu.html',
             controller: ToolMenuController,
             controllerAs: 'vm',
+            scope:{
+                datasource: '@',
+                change: '&'
+            },
             bindToController: true
         };
 
         return directive;
 
         /** @ngInject */
-        function ToolMenuController(osApi, $state, $stateParams) {
+        function ToolMenuController(osApi, $state) {
 
-            if (angular.isUndefined($stateParams.datasource)){
-                $state.go("datasource");
-                return;
-            }
-
+      
             var mouseOver = function(){
                 angular.element(".tool-menu")
                     .removeClass("tray-collapsed-left");
@@ -42,7 +42,6 @@
                     .bind("mouseout", mouseOut);
             
             var vm = this;
-            vm.datasource = $stateParams.datasource;
             vm.tools = [{
                 name: 'Markers + Patients',
                 route: 'markers',
@@ -84,9 +83,10 @@
                 img: 'metadata.png',
                 copy: ''
             }];
-            vm.explore = function(tool, datasource) {
+            vm.explore = function(tool) {
+                vm.change();
                 $state.go(tool, {
-                    datasource: datasource
+                    datasource: vm.datasource
                 });
             };
         }

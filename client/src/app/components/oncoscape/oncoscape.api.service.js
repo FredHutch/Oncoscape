@@ -304,7 +304,7 @@
             function get() { return _collection; }
             
             function add(value){ 
-                _collection.push(value); 
+                _collection.unshift(value); 
                 onAdd.dispatch(_collection);
             }
             function clear(){

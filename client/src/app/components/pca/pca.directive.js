@@ -47,16 +47,19 @@
             vm.optCohortPatients = cohortPatient.get();
             vm.optCohortPatient = vm.optCohortPatients[0];
 
-            
+     
             // Cohorts
             vm.addCohortPatient = function(){
-                var cohortName = "PLSR " + moment().format('- H:mm:ss - M/D/YY');
+                var cohortName = "PCA " + moment().format('- H:mm:ss - M/D/YY');
                 var cohortIds = d3Chart.selectAll(".pca-node-selected")[0].map(function(node){return node.__data__.id.toUpperCase(); });
+                if (cohortIds.length==0) return;
                 var cohort = {name:cohortName, ids:cohortIds};
-                vm.optCohortPatients.push(cohort);
+                cohortPatient.add(cohort);
                 vm.optCohortPatient = cohort;
             }
-            $scope.$watch('vm.optCohortPatient', function() {
+
+
+            var applyCohort = function() {
                 var ids = vm.optCohortPatient.ids;
                 if (ids == "*"){
                     d3Chart.selectAll(".pca-node-selected").classed("pca-node-selected", false);
@@ -66,7 +69,8 @@
                         return (ids.indexOf(this.__data__.id)>=0)
                     });
                 }
-            });
+            };
+            $scope.$watch('vm.optCohortPatient', applyCohort);
 
             // Initialize
             osApi.setBusy(true)("Loading Dataset");
@@ -93,12 +97,8 @@
                             $scope.$watch('vm.geneSet', function() {
                                 update();
                             });
-                            // $scope.$watch('vm.optNodeColor', function() {
-
-                            // });
-
+                            
                         });
-                   // });
                 });
             });
 
@@ -119,7 +119,8 @@
                         d.id = ids[i];
                         return d;
                     }, payload.ids);
-                    draw()
+                    draw();
+                    applyCohort();
                     osApi.setBusy(false);
                 });
             };

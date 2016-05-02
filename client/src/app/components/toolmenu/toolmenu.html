@@ -5,9 +5,9 @@
         </div>
     </div>
     <div class="row tool-menu-row" ng-repeat="tool in vm.tools">
-        <a href="" ng-click="vm.explore(tool.route, vm.datasource)">
+        <a href="" ng-click="vm.explore(tool.route)">
             <img class="tool-menu-img" ng-src="/assets/images/datasets/{{tool.img}}">
-            <h2 class="tool-menu-lbl">{{tool.name}}</h2>
+            <span class="tool-menu-lbl">{{tool.name}}</span>
         </a>
     </div>
 </section>
