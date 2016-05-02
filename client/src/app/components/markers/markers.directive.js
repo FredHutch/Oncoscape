@@ -601,7 +601,7 @@
             },
             */
             {
-                name: 'Mouse Over', //1° On 
+                name: 'Moused Over', //1° On 
                 register: function() {
                     events.click(function(e) {
                         behaviors
@@ -701,7 +701,7 @@
                 var degmap = {};
                 chart.edges('edge[edgeType!="chromosome"]')
                     .forEach(function(edge){
-                        this[edge.id()] = {color:colorMap[edge.data("edgeType")].color};
+                        this[edge.id()] = {'color':colorMap[edge.data("edgeType")].color, sizeEle:3};
                     }, degmap);
                 chart.batchData(degmap);
             });
@@ -715,17 +715,17 @@
                     case "Highlight":
                         item.state = "Show";
                         color = '#3993fa';
-                        state = {color:color, display:'element'};
+                        state = {'color':color, sizeEle:3};
                         break;
                     case "Show":
                         item.state = "Hide";
                         color = '#EEEEEE';
-                        state = {color:'#FFF', display:'none'};
+                        state = {'color':'#FF0000', sizeEle:0 };
                         break;
                     default:
                         item.state = "Highlight";
                         color = item.color;
-                        state = {color:color, display:'element'};
+                        state = {'color':color, sizeEle:3 };
                         break;
                 }
 
@@ -736,6 +736,7 @@
                 var degmap = {};
                 chart.edges('edge[edgeType="'+item.name+'"]')
                     .forEach(function(edge){
+                        
                         this.degmap[edge.id()] = this.state;
                     }, {degmap:degmap, state:state});
                 chart.batchData(degmap);
@@ -763,7 +764,7 @@
         function initializeNodeColors(chart, vm, $scope, osApi){
             
             osApi.getSampleCategorizationNames().then(function(response) {
-                var optNodeColors =  [{name: 'Hobo'},{name: 'Gender'},{name: 'Age At Diagnosis'}];
+                var optNodeColors =  [{name: 'Default'},{name: 'Gender'},{name: 'Age At Diagnosis'}];
                 if (angular.isDefined(response.payload.length)){
                     optNodeColors = optNodeColors.concat( response.payload
                         .map(function(item) { return {'name': item} }));
@@ -774,7 +775,7 @@
                 $scope.$watch("vm.optNodeColor", function(){
                     var degmap = {};
                     switch(vm.optNodeColor.name){
-                        case "Hobo":
+                        case "Default":
                             vm.legandNodes = [{name:'Patients', color:'#3993fa'}];
                             chart.$('node[nodeType="patient"]')
                                 .forEach(function(node){
@@ -836,8 +837,16 @@
                             break;
                         }
                     });
-
             });
+
+            vm.updateNode = function(item){
+                chart.startBatch();
+                chart.nodes('node[nodeType="patient"]')
+                    .forEach(function(node){ 
+                        if (node.style("background-color")==item.color) node.select();
+                });
+                chart.endBatch();
+            }
         }
 
         function initializeLayouts(chart, vm, $scope){
@@ -964,7 +973,7 @@
                                 data.sizeLbl = 12;
                                 data.sizeBdr = 5;
                                 value.locked = true;
-                                value.selectable = true;
+                                value.selectable = (value.data.nodeType==="gene");
                                 value.grabbable = false;
                                 return value;
                             });
