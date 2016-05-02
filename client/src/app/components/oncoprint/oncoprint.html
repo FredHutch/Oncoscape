@@ -50,7 +50,7 @@
             <div class="col-xs-12 form-label">
                 <h2>Legend</h2>
                 <span class="legend"></span>
-                <span class="oncoprint-label-col1"></span>  
+                <span class="oncoprint-label-col1" id="legend"></span>  
             </div>
         </div>
         </div>
@@ -59,9 +59,9 @@
 <section class="tray-content-block">
   <div class="container-fluid">
   <div id = 'oncoprintDiv' class="oncoprint">
-    <div id="oncoprintInstructions" style="font-size:150%;display: show">Please select and send up to 350 genes and patients from another tab, such as Markers &amp Patients, to populate the display.</div>
-    <div id="oncoprintErrorSection" style="font-size:150%;display: show" ng-show="vm.errorMessage!=''">{{vm.errorMessage}}</div>
-    <div id="oncoprintControlsDiv" style="display: hide">  
+    <div id="oncoprintInstructions" style="font-size:150%">Please select and send up to 350 genes and patients from another tab, such as Markers &amp Patients, to populate the display.</div>
+    <div id="oncoprintErrorSection" style="font-size:150%" ng-show="vm.errorMessage!=''">{{vm.errorMessage}}</div>
+    <div id="oncoprintControlsDiv">  
       <!--    <select type="button" id="oncoprintSendSelectionsMenu" style="float:right; margin:15px"></select>  -->
       <div id='onc'></div>
       <button id='toggle_whitespace' >Toggle Whitespace</button>

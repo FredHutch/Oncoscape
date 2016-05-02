@@ -30,6 +30,8 @@
             var elControl = angular.element("#oncoprintControlsDiv");
             var elInstructions = angular.element("#oncoprintInstructions");
             var elErrors = angular.element("#oncoprintErrorSection");
+            var elLegend = angular.element("#legend");
+
             // Properties
             var cohortGene = osApi.getCohortGene();
             var cohortPatient = osApi.getCohortPatient();
@@ -1296,7 +1298,7 @@
                               var text_elt = d3.select(this);
                               var font = text_elt.style('font-family') || 'Arial';
                               if (font !== 'Arial') {
-                                console.log(this);
+                                //console.log(this);
                               }
                               var weight = text_elt.style('font-weight'); 
                               var size = text_elt.style('font-size') || '12px';
@@ -1338,19 +1340,14 @@
                $("#onc").empty();
                $("#oncoprintErrorSection").empty();
                $(".oncoprint-label-col1").empty();
-               console.log("entering displayOncoprint");
-               console.log("***** msg is: ", msg);
-               
+              
                if(msg.status == "error") {
-                  errorMessage = JSON.parse(msg.payload);
-                  $("#oncoprintErrorSection").append(errorMessage);
-                  $("#oncoprintControlsDiv").hide();  
-                  $("#onc").empty();
-                  console.log("**********test1");
+                  vm.errorMessage = JSON.parse(msg.payload);
+                  console.log("***** errors in dispalyOncoprint", vm.errorMessage);
+                  setState("errors"); 
                 }else{
                      var genes = msg.payload[1];
                      var processed_data = msg.payload[0];
-                     console.log("*****no error report but the processed_data is: ", processed_data);
                      var onc = Oncoprint.create('#onc');
                      onc.suppressRendering();
                      $.when(processed_data).then(function(){
@@ -1358,7 +1355,6 @@
                             genes = [genes];
                            }  
                           var tracks_to_load = genes.length;
-                          console.log("Number of tracks to load: ", tracks_to_load);
 
                           var track_id = [];
                           for(var i = 0; i < genes.length; i++){
@@ -1403,10 +1399,7 @@
             // Initialize
             osApi.setBusy(true)("Loading Dataset");
             osApi.setDataset(vm.datasource).then(function(response) {
-                console.log(vm.datasource);
-                console.log(response.payload.rownames);
                 var mtx = response.payload.rownames.filter(function(v) {
-                    //debugger;
                     return v.indexOf("mtx") >= 0
                 });
         
@@ -1418,7 +1411,6 @@
                 $scope.$watchGroup(['vm.optCohortPatient', 'vm.optCohortGene'], function() {
                     var msg =  vm.optCohortPatient.ids.toString() + ", " + vm.optCohortGene.ids.toString();
                     drawOncoprint(msg);
-
                 });  
                  osApi.setBusy(false);
             });
@@ -1431,17 +1423,17 @@
                 case "instructions":
                   elControl.hide();
                   elInstructions.show();
-                  elErrors.hide();
+                  elLegend.hide();
                   break;
                 case "control":
                   elControl.show();
                   elInstructions.hide();
-                  elErrors.hide();
+                  elLegend.show();
                   break;
                 case "errors":
                   elControl.hide();
                   elInstructions.show();
-                  elErrors.show();
+                  elLegend.hide();
                   break;
               }
               
@@ -1459,26 +1451,19 @@
                 geneAndPatients = geneAndPatients.split(',');
 
                 if(geneAndPatients.length > 350){
-                  console.log("***** Number of total genes and patients is: ", geneAndPatients.length);
-                  console.log("more than 350");
-                  vm.errorMessage = "The total number of Patients and Genes are set to be less than 350.";
+                  vm.errorMessage = "ERROR: The total number of Patients and Genes are set to be less than 350.";
                   setState("errors");
                 }else{
-
                   osApi.setBusy(true);
                   osApi.getOncoprint(geneAndPatients);
-                  console.log("after osApi");
                   osApi.getOncoprint(geneAndPatients).then(function(response) {
-                      console.log(osApi.getOncoprint(geneAndPatients));
                       var payload = response.payload;
-                      console.log("within update function", payload);
                       displayOncoprint(payload);
                       setState("control");
                       osApi.setBusy(false);
                   });
                 }
             }
-
 
         }
     }
