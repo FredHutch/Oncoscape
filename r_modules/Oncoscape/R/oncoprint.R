@@ -201,13 +201,13 @@ create.oncoprint.input <- function(samplesAndGenes, ds)
             res = list(res_flattened,genes)
             printf("=== printing result json file\n")
             printf("=== dimension of res_flattened:%d, %d\n", dim(res_flattened)[1], dim(res_flattened)[2])
-            #return <- list(status="success", payload=toJSON(res))
-            return(res)
+            msg <- list(status="success", payload=res)
+            return(msg)
         }else{
             res = "No overlapping patients or genes within dataset, please re-select"
             printf("=== printing result json file, result is a samplesAndGenes\n")
-            #return <- list(status="error", payload=toJSON(res))
-            return(res)
+            msg <- list(status="error", payload=res)
+            return(msg)
         }
     
     }
