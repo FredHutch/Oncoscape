@@ -1,10 +1,12 @@
 // Namespace
-
+#timelines-chart{
+    padding-top:50px;
+}
 .timeline-hover{
 	position:fixed;
-	bottom: 0px;
+	top: 100px;
 	width: 100%;
-	text-align: center;
+	text-align: right;
 	padding-right:300px;
 	dl{
 		display: inline-block;
@@ -58,5 +60,11 @@
 		border:solid 0px #DDDDDD;
 		border-left-width: 13px;
 	}
-	
+}
+.timeline-legend-scale{
+	position:relative;
+	top:-30px;
+	width: 100%;
+	text-align: left; 
+	font-weight: 500;
 }

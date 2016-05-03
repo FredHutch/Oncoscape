@@ -427,6 +427,17 @@
                     });
                     return this;
                 },
+                showDegreeOneConnected: function(e){
+                    var degmap = {};
+                    e.cyTarget.neighborhood('edge')
+                        .forEach(function(edge){
+                            if (
+                                edge._private.source.selected() &&
+                                edge._private.target.selected()
+                            ) this[edge.id()] = {display:'element'};
+                        }, degmap);
+                    chart.batchData(degmap);              
+                },
                 showDegreeOne: function(e){
                     var degmap = {};
                     e.cyTarget.neighborhood('edge')
@@ -537,7 +548,7 @@
                     chart.batchData(hidePatientEdges);
                 }
             },*/{
-                name: 'Selected', //1° When 
+                name: 'Patient Or Gene Selected', //1° When 
                 register: function(){
 
                     var degmap = {};
@@ -552,6 +563,39 @@
 
                     chart.on('select', 'node', function(e){
                         behaviors.showDegreeOne(e);
+                    });
+                    chart.on('unselect','node',function(e){
+                        behaviors.hideDegreeOne(e);
+                    });
+                },
+                unregister: function(){
+
+                    // Hide All Edges
+                    chart.batchData(hidePatientEdges);
+                    chart.off('select', 'node');
+                    chart.off('unselect', 'node');
+                }
+
+            },
+            {
+                name: 'Patient And Gene Selected', //1° When 
+                register: function(){
+                    var degmap = {};
+                    chart.$('node[nodeType="patient"]:selected')
+                        .forEach(function(node) {
+                            node.neighborhood('edge').forEach( function(edge) {
+                                if (
+                                    edge._private.source.selected() &&
+                                    edge._private.target.selected()
+                                    )
+                                this[edge.id()] = { display: 'element' };
+                            }, degmap)
+                        }, degmap);
+                    chart.batchData(degmap);
+
+
+                    chart.on('select', 'node', function(e){
+                        behaviors.showDegreeOneConnected(e);
                     });
                     chart.on('unselect','node',function(e){
                         behaviors.hideDegreeOne(e);
