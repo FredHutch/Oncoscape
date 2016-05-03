@@ -87,11 +87,6 @@
                 route: 'metadata',
                 img: 'metadata.png',
                 copy: ''
-            }, {
-                name: 'Oncoprint',
-                route: 'oncoprint',
-                img: 'metadata.png',
-                copy: ''
             }];
             vm.explore = function(tool) {
                 vm.change();
