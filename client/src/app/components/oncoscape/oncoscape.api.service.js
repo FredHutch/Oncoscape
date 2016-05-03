@@ -277,8 +277,6 @@
             });
         }
         function getOncoprint(geneSetAndPatients) {
-            //console.log("***** within osApi.getOncoprint: ", geneSetAndPatients);
-            //debugger;
             return osSocket.request({
                 cmd: "oncoprint_data_selection",
                 payload: {
@@ -286,6 +284,62 @@
                 }
             });
         }
+
+
+
+        var selections = (function(){
+
+            var _geneSelections = [];
+            var _geneSelection = null;
+            var _patientSelections = [];
+            var _patientSelection = null;
+            var addGeneSelection = function(name, ids){
+                _geneSelections.push({name:name, ids:ids})
+            };
+            var getGeneSelections = function(){
+                return _geneSelection;
+            };
+            var setGeneSelection = function(selection){
+                _geneSelection = selection;
+            };
+
+            var getGeneSelection = function(selection){
+                return _geneSelection;
+            };
+
+            var _patientSelections = [];
+            var addPatientSelection = function(name, ids){
+                console.log("ADD PATIENT SELECTION");
+                _patientSelections.push({name:name, ids:ids})
+
+            };
+            var getPatientSelections = function(){
+                console.log("GET PATIENT SELECTION");
+                return _patientSelections;
+            };
+            var setPatientSelection = function(selection){
+                console.log("SET PATIENT SELECTION");
+                _patientSelection = selection;
+            };
+            var getPatientSelection = function(){
+                console.log("GET PATIENT SELECTION")
+                return _patientSelection;
+            };
+
+            return {
+                addGeneSelection: addGeneSelection,
+                setGeneSelection: setGeneSelection,
+                getGeneSelections: getGeneSelections,
+                addPatientSelection: addPatientSelection,
+                setPatientSelection: setPatientSelection,
+                getPatientSelection: getPatientSelection,
+                getPatientSelections: getPatientSelections
+
+            }
+        });
+
+
+
 
         var _cohortPatient = collection(signals, {name:'All Patients', ids:'*'}, "osCohortPatient");
         function getCohortPatient(){ return _cohortPatient; }
