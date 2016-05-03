@@ -1,6 +1,6 @@
 <os-tool-menu datasource="{{vm.datasource}}"
     change="vm.addCohortPatient()"></os-tool-menu>
-<os-tray class="tray-rt" content="tray-content-block" change="vm.resize($event)">
+<os-tray content="tray-content-block" change="vm.resize($event)">
     <section class="tray-content">
         <div class="row">
             <div class="col-xs-12 form-label">
@@ -37,7 +37,7 @@
                     </ul>
                 </div>            
             </div>
-
+            
             <div class="col-xs-12 form-item">
                 <label>Timescale</label>
                 <div class="dropdown bs-dropdown">
@@ -50,6 +50,7 @@
                     </ul>
                 </div>
             </div>
+
             <div class="col-sm-12 form-item">
                   <label>Event Colors</label>
                   <span
@@ -108,8 +109,9 @@
     <h2 class="h2-tool">Timelines</h2>
     <h3 class="h3-datasource">{{vm.datasource}}</h3>
     <div id="timelines-chart"></div>
-    <div class="timeline-legend-scale" style="position:relative;top:-30px;width: 100%;text-align: center; font-weight: 500;">{{vm.timescaleunit}}</div>
+    <div class="timeline-legend-scale">Days To {{vm.align.name}}</div>
   </div>
+  
   <div class="timeline-hover" ng-if="vm.selShow">
     <dl>
         <dt>Event</dt>
@@ -124,5 +126,6 @@
         <dd>{{item.value}}</dd>
     </dl>
 </div>
+
 </section>
 
