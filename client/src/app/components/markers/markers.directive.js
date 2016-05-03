@@ -82,6 +82,9 @@
 
                 // Initialize Zoom
                 initializeZoom(cyChart, _);
+
+                // Initialize Commands
+                initializeCommands(cyChart, vm);
                 
                 // Ready
                 osApi.setBusy(false);
@@ -134,6 +137,99 @@
             });
         }
             
+        function initializeCommands(chart, vm){
+            vm.optInteractiveMode = vm.optInteractiveModes[0];
+            vm.optCommands = [
+                
+                {name:"Show Edges Of Selected Patient", cmd:function(){
+                    var degmap = {};
+                    chart.$('node[nodeType="patient"]:selected')
+                        .forEach(function(node){
+                            node.neighborhood('edge').forEach(function(item){
+                                this[item.id()] = {display:'element'};
+                            }, this);
+                    }, degmap);
+                    chart.batchData(degmap);
+                }},
+                {name:"Show Edges Of Selected Genes", cmd:function(){
+                    var degmap = {};
+                    chart.$('node[nodeType="gene"]:selected')
+                        .forEach(function(node){
+                            node.neighborhood('edge').forEach(function(item){
+                                this[item.id()] = {display:'element'};
+                            }, this);
+                    }, degmap);
+                    chart.batchData(degmap);
+                }},
+                {name:"Show All Edges", cmd:function(){
+                    var degmap = {};
+                    chart.$('edge[edgeType!="chromosome"]')
+                        .forEach(function(item){
+                            this[item.id()] = {display:'element'};
+                        }, degmap);
+                    chart.batchData(degmap);
+                }},
+                {name:"Hide All Edges", cmd:function(){
+                    var degmap = {};
+                    chart.$('edge[edgeType!="chromosome"]')
+                        .forEach(function(item){
+                            this[item.id()] = {display:'none'};
+                        }, degmap);
+                    chart.batchData(degmap);
+                }},{name:"Select Connected Genes", cmd:function(){
+                    chart.startBatch();
+                    chart.$('node[nodeType="patient"]:selected')
+                        .neighborhood('node')
+                        .forEach( function(ele){
+                            ele.select();
+                        });
+                    chart.endBatch();
+                }},
+                {name:"Select Connected Patients", cmd:function(){
+                    chart.startBatch();
+                    chart.$('node[nodeType="gene"]:selected')
+                        .neighborhood('node')
+                        .forEach( function(ele){
+                            ele.select();
+                        });
+                    chart.endBatch();
+                }},
+                {name:"Deselect All Patients", cmd:function(){
+                    chart.startBatch();
+                    chart.$('node[nodeType="patient"]:selected')
+                        .forEach( function(ele){
+                            ele.deselect();
+                        });
+                    chart.endBatch();
+                }},
+                {name:"Deselect All Genes", cmd:function(){
+                    chart.startBatch();
+                    chart.$('node[nodeType="gene"]:selected')
+                        .forEach( function(ele){
+                            ele.deselect();
+                        });
+                    chart.endBatch();
+                }},
+                {name:"Invert Patient Selection", cmd:function(){
+                    chart.startBatch();
+                    chart.$('node[nodeType="patient"]')
+                        .forEach( function(ele){
+                            ele[ele._private.selected?"deselect":"select"]();
+                        });
+                    chart.endBatch();
+                }},
+                {name:"Invert Gene Selection", cmd:function(){
+                    chart.startBatch();
+                    chart.$('node[nodeType="gene"]')
+                        .forEach( function(ele){
+                            ele[ele._private.selected?"deselect":"select"]();
+                        });
+                    chart.endBatch();
+                }},
+
+            ]
+                
+        }
         function initializeViewModel(vm, $stateParams){
             vm.datasource = $stateParams.datasource;
             vm.optInteractiveModes;
@@ -156,6 +252,7 @@
             vm.optCohortPatient;
             vm.optCohortGenes;
             vm.optCohortGene;
+            vm.optCommands;
             vm.frame;
             return vm;
         }
@@ -312,7 +409,9 @@
             }, {
                 selector: 'node[nodeType="patient"]:selected',
                 style: {
-                    'border-color': "#FF0000"
+                    'border-color': "#FF0000",
+                    'border-width': 10
+
                 }
             }, {
                 selector: 'node[nodeType="gene"]',
@@ -326,7 +425,8 @@
             }, {
                 selector: 'node[nodeType="gene"]:selected',
                 style: {
-                    'border-color': "#FF0000"
+                    'border-color': "#FF0000",
+                    'border-width': 10
                 }
             },{
                 selector: 'node[nodeType="centromere"]',
@@ -427,17 +527,23 @@
                     });
                     return this;
                 },
-                showDegreeOneConnected: function(e){
-                    var degmap = {};
-                    e.cyTarget.neighborhood('edge')
-                        .forEach(function(edge){
-                            if (
-                                edge._private.source.selected() &&
-                                edge._private.target.selected()
-                            ) this[edge.id()] = {display:'element'};
-                        }, degmap);
-                    chart.batchData(degmap);              
-                },
+                // showDegreeOneConnected: function(e){
+                    
+                //     var degmap = {};
+                //     chart.off('select', 'node');
+                //     e.cyTarget.neighborhood('node').select();
+                //     e.cyTarget.neighborhood('edge')
+                //         .forEach(function(edge){
+                //             if (
+                //                 edge._private.source.selected() &&
+                //                 edge._private.target.selected()
+                //             ) this[edge.id()] = {display:'element'};
+                //         }, degmap);
+                //     chart.batchData(degmap);  
+                //     chart.on('select', 'node', {ui:true}, function(e){
+                //         behaviors.showDegreeOne(e);
+                //     });            
+                // },
                 showDegreeOne: function(e){
                     var degmap = {};
                     e.cyTarget.neighborhood('edge')
@@ -496,59 +602,18 @@
 
             // Use States To Associate Events + Behaviors
             var states = [
-
-/*
             {
-                name: 'Hide All',
-                register: function() {
-                    events.click(function(e) {
-                        behaviors
-                            .showOncoPrint(e)
-                    });
-                    events.over(function(e) {
-                        behaviors
-                            .showPatientInfo(e)
-                    });
-                    events.out(function(e) {
-                        behaviors
-                            .hidePatientInfo(e)
-                    });
-                },
-                unregister: function() {
-                    events.removeAll();
-                }
-            }, {
-                name: 'Show All',
-                register: function() {
-                    events.click(function(e) {
-                        behaviors
-                            .showOncoPrint(e)
-                    });
-                    events.over(function(e) {
-                        behaviors
-                            .showPatientInfo(e)
-                    });
-                    events.out(function(e) {
-                        behaviors
-                            .hidePatientInfo(e)
-                    });
-
-                    // Show all Edges
-                    var degmap = {};
-                    chart.$('edge[edgeType!="chromosome"]')
-                        .forEach(function(node){
-                            this[node.id()] = { display: 'element' };
-                        }, degmap);
-                    chart.batchData(degmap);
-                },
-                unregister: function() {
-                    events.removeAll();
+                name: 'Commands', //1° When 
+                register: function(){},
+                unregister: function(){
 
                     // Hide All Edges
                     chart.batchData(hidePatientEdges);
                 }
-            },*/{
-                name: 'Patient Or Gene Selected', //1° When 
+
+            },
+            {
+                name: 'Selection Highlight', //1° When 
                 register: function(){
 
                     var degmap = {};
@@ -561,10 +626,10 @@
                     chart.batchData(degmap);
 
 
-                    chart.on('select', 'node', function(e){
+                    chart.on('select', 'node', {ui:true}, function(e){
                         behaviors.showDegreeOne(e);
                     });
-                    chart.on('unselect','node',function(e){
+                    chart.on('unselect','node',{ui:true}, function(e){
                         behaviors.hideDegreeOne(e);
                     });
                 },
@@ -578,74 +643,7 @@
 
             },
             {
-                name: 'Patient And Gene Selected', //1° When 
-                register: function(){
-                    var degmap = {};
-                    chart.$('node[nodeType="patient"]:selected')
-                        .forEach(function(node) {
-                            node.neighborhood('edge').forEach( function(edge) {
-                                if (
-                                    edge._private.source.selected() &&
-                                    edge._private.target.selected()
-                                    )
-                                this[edge.id()] = { display: 'element' };
-                            }, degmap)
-                        }, degmap);
-                    chart.batchData(degmap);
-
-
-                    chart.on('select', 'node', function(e){
-                        behaviors.showDegreeOneConnected(e);
-                    });
-                    chart.on('unselect','node',function(e){
-                        behaviors.hideDegreeOne(e);
-                    });
-                },
-                unregister: function(){
-
-                    // Hide All Edges
-                    chart.batchData(hidePatientEdges);
-                    chart.off('select', 'node');
-                    chart.off('unselect', 'node');
-                }
-
-            },
-            /*
-            ,{
-                name: '2° When Selected',
-                register: function(){
-                    var degmap = {};
-                    chart.$('node[nodeType="patient"]:selected')
-                        .forEach(function(node){
-                            node.neighborhood('node')
-                                .forEach(function(node){
-                                    node.neighborhood('edge')
-                                        .forEach(function(item){
-                                            this[item.id()] = {display:'element'};
-                                        }, this)
-                                }, this)
-                        }, degmap);
-                    chart.batchData(degmap);
-                    
-                    chart.on('select', 'node', function(e){
-                        behaviors.showDegreeTwo(e);
-                    });
-                    chart.on('unselect','node',function(e){
-                        behaviors.hideDegreeTwo(e);
-                    });
-                },
-                unregister: function(){
-
-                    // Hide All Edges
-                    chart.batchData(hidePatientEdges);
-                    chart.off('select', 'node');
-                    chart.off('unselect', 'node');
-                }
-
-            },
-            */
-            {
-                name: 'Moused Over', //1° On 
+                name: 'Roll Over Highlight', //1° On 
                 register: function() {
                     events.click(function(e) {
                         behaviors
@@ -666,28 +664,8 @@
                 unregister: function() {
                     events.removeAll();
                 }
-            } /*{
-                name: '2° On Mouse Over',
-                register: function() {
-                    events.click(function(e) {
-                        behaviors
-                            .showOncoPrint(e)
-                    });
-                    events.over(function(e) {
-                        behaviors
-                            .showPatientInfo(e)
-                            .showDegreeTwo(e)
-                    });
-                    events.out(function(e) {
-                        behaviors
-                            .hidePatientInfo(e)
-                            .hideDegreeTwo(e)                           
-                    });
-                },
-                unregister: function() {
-                    events.removeAll();
-                }
-            }*/];
+            }
+          ];
 
             vm.optInteractiveModes = states;
             vm.optInteractiveMode = vm.optInteractiveModes[0];

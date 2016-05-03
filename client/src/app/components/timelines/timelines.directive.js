@@ -141,6 +141,7 @@
                 if (angular.element(".tray-right").attr("locked")=="false"){
                     wChart += 300;
                 } 
+                
                 dataProcessed = processData(dataPatients, vm.align, vm.sort);
                 d3ScaleX = d3.scale.linear().domain( dataProcessed.bounds ).range([10, wChart-10]);
                 d3ScaleY = d3.scale.linear().domain([0, dataProcessed.patients.length]).range(0,hChart-50);

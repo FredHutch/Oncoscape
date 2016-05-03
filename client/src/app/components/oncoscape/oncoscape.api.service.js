@@ -287,12 +287,13 @@
 
 
 
-        var selections = (function(){
+        var history = (function(){
 
             var _geneSelections = [];
             var _geneSelection = null;
             var _patientSelections = [];
             var _patientSelection = null;
+
             var addGeneSelection = function(name, ids){
                 _geneSelections.push({name:name, ids:ids})
             };
