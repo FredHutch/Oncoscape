@@ -64,13 +64,13 @@
                 img: 'history.png',
                 copy: ''
             }, {
-                name: 'MetaData',
-                route: 'metadata',
+                name: 'Oncoprint',
+                route: 'oncoprint',
                 img: 'metadata.png',
                 copy: ''
             }, {
-                name: 'Oncoprint',
-                route: 'oncoprint',
+                name: 'MetaData',
+                route: 'metadata',
                 img: 'metadata.png',
                 copy: ''
             }];

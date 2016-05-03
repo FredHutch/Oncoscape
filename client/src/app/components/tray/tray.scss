@@ -27,10 +27,11 @@
 }
 .tray-collapsed{
 	margin-right:-280px;
+    background-color: rgba(255,255,255,0);
 }
 .tray-collapsed-left{
     margin-left:-280px;
-    //background-color:#FFF;
+    background-color: rgba(255,255,255,0);
 }
 .tray-content-block{
  	width: 100%;
@@ -44,4 +45,25 @@
 }
 .tray-content-block-collapsed{
 	padding-right: 20px;
+}
+.tray-label{
+    transform: rotate(90deg);
+    transform-origin: 50% 100%;
+    position: absolute;
+    color:#000;
+    background-color:#EEE;
+    width: 100px;
+    height:40px;
+    text-align: center;
+    line-height: 40px;
+    letter-spacing: 2px;
+    border-radius: 5px;
+}
+.tray-label-right{
+    right: -10px;
+    top: 45vh;
+}
+.tray-label-left{
+    left: -50px;
+    top: 45vh;
 }

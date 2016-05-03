@@ -65,7 +65,14 @@ create.oncoprint.input <- function(samplesAndGenes, ds)
         genes <- samplesAndGenes[samplesAndGenes %in% genes_all]
         printf("*****original samplesAndGenes and patients and genes processing block")
     }
-   
+    print(samplesAndGenes)
+    print(class(samplesAndGenes))
+    print(typeof(samplesAndGenes))
+    print(samplesAndGenes %in% genes_all)
+    print(samplesAndGenes %in% patients_all)
+    print(length(genes_all))
+    print(length(patients_all))
+    print("&&&&&&")
     if(length(patients) == 0 || length(genes) == 0){
         res = "It seems you only selected either patients or genes, please re-select to include both information"
         printf("=== only genes or patients are selected, status failed\n")
@@ -190,16 +197,17 @@ create.oncoprint.input <- function(samplesAndGenes, ds)
         printf("=== res_flattened status:%d\n", exists("res_flattened"));
         if(exists("res_flattened")){
             #r <- jsonlite:::toJSON(res_flattened, pretty = TRUE)
-            res = list(res_flattened, genes)
+            #res = list(r,genes)
+            res = list(res_flattened,genes)
             printf("=== printing result json file\n")
             printf("=== dimension of res_flattened:%d, %d\n", dim(res_flattened)[1], dim(res_flattened)[2])
-            return(res)
-            #list(status="success", payload=toJSON(res))
+            msg <- list(status="success", payload=res)
+            return(msg)
         }else{
             res = "No overlapping patients or genes within dataset, please re-select"
             printf("=== printing result json file, result is a samplesAndGenes\n")
-            return(res)
-            #list(status="error", payload=toJSON(res))
+            msg <- list(status="error", payload=res)
+            return(msg)
         }
     
     }

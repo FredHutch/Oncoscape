@@ -6,7 +6,7 @@
                     <h2>Options</h2>
                 </div>
                 <div class="col-xs-12 form-item">
-                    <label>Show Edges When</label>
+                    <label>Interactive Mode</label>
                     <div class="dropdown bs-dropdown">
                       <button class="btn btn-default dropdown-toggle" type="button" id="dropdownMenu1" data-toggle="dropdown" aria-haspopup="true" aria-expanded="true">
                         {{vm.optInteractiveMode.name}}
@@ -16,6 +16,20 @@
                         style="width:100%">
                         <li ng-repeat="item in vm.optInteractiveModes"
                             ng-click="vm.optInteractiveMode=item">{{item.name}}</li>
+                      </ul>
+                    </div>
+                </div>
+                 <div class="col-xs-12 form-item" ng-if="vm.optInteractiveMode.name=='Commands'">
+                    <label>Command Menu</label>
+                    <div class="dropdown bs-dropdown">
+                      <button class="btn btn-default dropdown-toggle" type="button" id="dropdownMenu1" data-toggle="dropdown" aria-haspopup="true" aria-expanded="true">
+                        Select One
+                        <span class="caret"></span>
+                      </button>
+                      <ul class="dropdown-menu" aria-labelledby="dropdownMenu1"
+                        style="width:100%">
+                        <li ng-repeat="item in vm.optCommands"
+                            ng-click="item.cmd()">{{item.name}}</li>
                       </ul>
                     </div>
                 </div>
@@ -79,7 +93,42 @@
                     {{item.name}} ({{item.state}})
                     </span>
                 </div>
-               
+                <!--
+                <div class="col-xs-12 form-label">
+                    <h2>Selections</h2>
+                </div>
+                <div class="col-sm-12 form-item">
+                  <div class="dropdown bs-dropdown">
+                    <button class="btn btn-default dropdown-toggle" type="button" id="dropdownMenu1" data-toggle="dropdown" aria-haspopup="true" aria-expanded="true">
+                      History
+                      <span class="caret"></span>
+                    </button>
+                    <ul class="dropdown-menu" aria-labelledby="dropdownMenu1"
+                        style="width:100%">
+                        <li ng-repeat="item in vm.optCohortModes"
+                            ng-click="vm.optCohortMode=item">{{item.name}}</li>
+                    </ul>
+                  </div>
+                </div>
+
+                <div class="col-sm-8 form-item">
+                  <div class="dropdown bs-dropdown">
+                    <button class="btn btn-default dropdown-toggle" type="button" id="dropdownMenu1" data-toggle="dropdown" aria-haspopup="true" aria-expanded="true">
+                      Saved
+                      <span class="caret"></span>
+                    </button>
+                    <ul class="dropdown-menu" aria-labelledby="dropdownMenu1"
+                        style="width:100%">
+                        <li ng-repeat="item in vm.optCohortModes"
+                            ng-click="vm.optCohortMode=item">{{item.name}}</li>
+                    </ul>
+                  </div>
+                </div>
+                <div class="col-sm-4 form-item" style="text-align: right">
+                  <button class="btn btn-default dropdown-toggle">+</button>
+                  <button class="btn btn-default dropdown-toggle">-</button>
+                </div>
+                -->
                 
                 <div class="col-xs-12 form-label">
                     <h2>Cohorts</h2>

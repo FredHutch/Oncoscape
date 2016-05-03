@@ -80,7 +80,9 @@
             var zoom;
             var zoomed = function(){
                 if (shift) return;
-                var scale = Math.max(minZoom, d3.event.scale);
+
+                var scale = minZoom * d3.event.scale;
+                if (scale<minZoom) scale = minZoom;
                 var translate= d3.event.translate[1];
 
                 var ch = $window.innerHeight - 75 - 10 - 130- 50;
@@ -89,6 +91,7 @@
 
                 if (translate>0) translate=0;
                 if (translate<dh) translate=dh;
+
                 zoom.translate([d3.event.translate[0],translate]);
                 var rowH = (20 * scale);
                 var rowsVisible = (ch / rowH);
@@ -135,12 +138,12 @@
                 var hChart = $window.innerHeight - 75 - 10 - 130;
                 var wChart = $window.innerWidth - 300;
                 if (wChart > 760)  wChart -= 140;
-                if (angular.element(".tray-rt").attr("locked")=="false"){
+                if (angular.element(".tray-right").attr("locked")=="false"){
                     wChart += 300;
                 } 
-     
+                
                 dataProcessed = processData(dataPatients, vm.align, vm.sort);
-                d3ScaleX = d3.scale.linear().domain( [dataProcessed.bounds[0],dataProcessed.bounds[1]] ).range([10, wChart-10]);
+                d3ScaleX = d3.scale.linear().domain( dataProcessed.bounds ).range([10, wChart-10]);
                 d3ScaleY = d3.scale.linear().domain([0, dataProcessed.patients.length]).range(0,hChart-50);
                 minZoom = (hChart-50) / (dataProcessed.patients.length * 20)
                 
@@ -235,14 +238,13 @@
 
                     if (vm.timescale.name=='Log'){
                         tlScale = tlScale.tickFormat(function (d) { 
-                            
-                            var Dir = (d<0 ? -1 : 1); 
-                            return Math.round(Dir * (Math.pow(2, (Math.abs(d)))-1) *100)/100;
+                            var dir = (d<0 ? -1 : 1); 
+                            return Math.round(dir * (Math.pow(2, (Math.abs(d)))-1) *100)/100;
                         
                         });
                         vm.timescaleunit = "Days";
                     }else{
-                        tlScale = tlScale.tickFormat(function (d) { 
+                        tlScale = tlScale.tickFormat(function (d) {
                             return d;
                         });
                         vm.timescaleunit = "Days";
@@ -267,7 +269,7 @@
                     .x( d3ScaleX )
                     .y( d3ScaleY )
                     .translate([0,0])
-                    .scale( minZoom, 1 )
+                    .scale(1, minZoom )
                     .on("zoom", zoomed);
                 d3BarsBackground.call(zoom);
 
@@ -451,7 +453,7 @@
                             }},
                             {name:'Linear', 
                                 timeFn: function(val){
-                                    return val;
+                                    return moment.duration(val*1000).asDays()
                             }}
                         ];
                         vm.timescale = vm.timescales[0];
