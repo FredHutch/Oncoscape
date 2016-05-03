@@ -476,7 +476,6 @@
 
                         // Register Watch
                         $scope.$watchGroup(['vm.feature', 'vm.sort', 'vm.align', 'vm.timescale'], draw);
-
                         angular.element($window).bind('resize', draw);
                       
                         initializeCohort(vm, osApi);   
