@@ -77,7 +77,7 @@
                 initializeLayouts(cyChart, vm, $scope);
 
                 // Initialize Node Colors
-                initializeNodeColors(cyChart, vm, $scope, osApi);
+                initializeNodeColors(cyChart, vm, $scope, osApi, $timeout);
 
                 // Initialize Edge Colors
                 initializeEdgeColors(cyChart, vm, $scope, $timeout);
@@ -921,7 +921,7 @@
             }, 300));
         }
 
-        function initializeNodeColors(chart, vm, $scope, osApi){
+        function initializeNodeColors(chart, vm, $scope, osApi, $timeout){
             function calculateSelections(){
                 var selectedNodes = chart.$('node[nodeType="patient"]:selected');
                 var sums = {};
@@ -933,12 +933,12 @@
                 });
 
                 // Populate Legand
-                for (var i=0; i<vm.legandNodes.length; i++){
-                    var color = vm.legandNodes[i].color;
-                    vm.legandNodes[i].cnt = angular.isDefined(sums[color]) ? sums[color] : 0;
-                }
-                $scope.$apply();
-
+                $timeout(function(){
+                    for (var i=0; i<vm.legandNodes.length; i++){
+                        var color = vm.legandNodes[i].color;
+                        vm.legandNodes[i].cnt = angular.isDefined(sums[color]) ? sums[color] : 0;
+                    }
+                });
             }
             // Debounce To Avoid Multiple Calls
             chart.on('select', _.debounce(calculateSelections, 300));
