@@ -506,6 +506,15 @@
             */
             return [
             {
+                selector: 'core',
+                style:{
+                    'selection-box-color': '#3993fa',
+                    'selection-box-border-color': '#3993fa',
+                    'selection-box-border-width': '1px',
+                    'selection-box-opacity': '.2'
+                }
+            },
+            {
                 selector: 'node',
                 style: {
                     'display': "data(display)",
@@ -913,6 +922,28 @@
         }
 
         function initializeNodeColors(chart, vm, $scope, osApi){
+            function calculateSelections(){
+                var selectedNodes = chart.$('node[nodeType="patient"]:selected');
+                var sums = {};
+                
+                // Calculate Sums
+                selectedNodes.each(function(index, node){
+                    if ( angular.isUndefined(sums[node.data().color]) ) sums[node.data().color] = 1;
+                    else sums[node.data().color] += 1;
+                });
+
+                // Populate Legand
+                for (var i=0; i<vm.legandNodes.length; i++){
+                    var color = vm.legandNodes[i].color;
+                    vm.legandNodes[i].cnt = angular.isDefined(sums[color]) ? sums[color] : 0;
+                }
+                $scope.$apply();
+
+            }
+            // Debounce To Avoid Multiple Calls
+            chart.on('select', _.debounce(calculateSelections, 300));
+            chart.on('unselect', _.debounce(calculateSelections, 300))
+            
             
             osApi.getSampleCategorizationNames().then(function(response) {
                 var optNodeColors =  [{name: 'Default'},{name: 'Gender'},{name: 'Age At Diagnosis'}];
@@ -927,7 +958,7 @@
                     var degmap = {};
                     switch(vm.optNodeColor.name){
                         case "Default":
-                            vm.legandNodes = [{name:'Patients', color:'#3993fa'}];
+                            vm.legandNodes = [{name:'Patients', color:'#3993fa', cnt:0}];
                             chart.$('node[nodeType="patient"]')
                                 .forEach(function(node){
                                     degmap[node.id()] = {color:'#3993fa'};
@@ -935,7 +966,7 @@
                             chart.batchData(degmap);
                             break;
                         case "Gender":
-                            vm.legandNodes = [{name:'Male', color:'purple'}, {name:'Female', color:'green'}];
+                            vm.legandNodes = [{name:'Male', color:'purple', cnt:0}, {name:'Female', color:'green', cnt:0}];
                             chart.$('node[nodeType="patient"]')
                                 .forEach(function(node){
                                     try{
@@ -948,12 +979,12 @@
                             chart.batchData(degmap);
                             break;
                         case "Age At Diagnosis":
-                            vm.legandNodes = [{name:'Young', color:'green'}, {name:'Old', color:'red'}];
+                            vm.legandNodes = [{name:'Young', color:'green', cnt:0}, {name:'Old', color:'red', cnt:0}];
                             chart.$('node[nodeType="patient"]')
                                 .forEach(function(node){
                                     try{
                                         var age = Number(node.data("patient")[0][4]);
-                                        degmap[node.id()] = {color: 'rgb(' + ((255 * age) / 100) + ',' + ((255 * (100 - age)) / 100) + ',0)' };
+                                        degmap[node.id()] = {color: 'rgb(' + ((255 * age) / 100) + ',' + ((255 * (100 - age)) / 100) + ',0)'};
                                     }catch(e){
                                         degmap[node.id()] = {color: '#000000'};
                                     }
@@ -966,7 +997,7 @@
                                     .map(function(e) {return e[0] + "|" + e[1]; })
                                     .filter(function(v, i, s) { return s.indexOf(v) === i; })
                                     .map(function(e) { var p = e.split("|");
-                                        return { 'name': p[0], 'color': p[1] } });
+                                        return { 'name': p[0], 'color': p[1] , cnt:0} });
 
                                     var rows = response.payload.rownames;
                                     var tbl = response.payload.tbl;
@@ -984,9 +1015,9 @@
                                     }
                                     chart.batchData(degmap);
                                 });
-            
                             break;
                         }
+                        calculateSelections();
                     });
             });
 
