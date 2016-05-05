@@ -11,7 +11,7 @@ var exports = module.exports = {};
 var ldap = require('ldapjs');
 var soap = require('soap');
 
-var guest = ["DEMOdz","TCGAbrain","TCGAbrca","TCGAcoadread","TCGAgbm","TCGAhnsc","TCGAlgg","TCGAluad","TCGAlung","TCGAlusc","TCGApaad","TCGAprad"]
+var guest = ["DEMOdz","TCGAbrain","TCGAbrca","TCGAcoadread","TCGAhnsc","TCGAluad","TCGAlung","TCGAlusc","TCGApaad","TCGAprad"]
 var users = {
 };
 

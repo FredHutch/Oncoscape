@@ -143,8 +143,8 @@
                 } 
                 
                 dataProcessed = processData(dataPatients, vm.align, vm.sort);
-                d3ScaleX = d3.scale.linear().domain( dataProcessed.bounds ).range([10, wChart-10]);
-                d3ScaleY = d3.scale.linear().domain([0, dataProcessed.patients.length]).range(0,hChart-50);
+                d3ScaleX = d3.scale.linear().domain( dataProcessed.bounds ).range([10, wChart-10]).nice();
+                d3ScaleY = d3.scale.linear().domain([0, dataProcessed.patients.length]).range(0,hChart-50).nice();
                 minZoom = (hChart-50) / (dataProcessed.patients.length * 20)
                 
                 // Chart
@@ -230,24 +230,25 @@
                             'y': function(d) { return ((d.name == "Radiation") ? hRow/2 : 0); }
                         });
 
-
+                    var daysToUnit = function(d){
+                        if (Math.abs(d)==0) return d;
+                        if (Math.abs(d)<30) return d+" Days";
+                        if (Math.abs(d)<360) return Math.round( (d/30.4) * 10 ) / 10 + " Months";
+                        return Math.round( (d/365) * 10 ) / 10 + " Years";
+                    }
                     var tlScale = d3.svg.axis()
                         .scale(d3ScaleX)
                         .orient("bottom")
-                        .ticks(5);
+                        .ticks(8);
 
                     if (vm.timescale.name=='Log'){
                         tlScale = tlScale.tickFormat(function (d) { 
-                            var dir = (d<0 ? -1 : 1); 
-                            return Math.round(dir * (Math.pow(2, (Math.abs(d)))-1) *100)/100;
-                        
+                            return daysToUnit(Math.round((d<0 ? -1 : 1) * (Math.pow(2, (Math.abs(d)))-1) *100)/100);
                         });
-                        vm.timescaleunit = "Days";
                     }else{
                         tlScale = tlScale.tickFormat(function (d) {
-                            return d;
+                            return daysToUnit(d);
                         });
-                        vm.timescaleunit = "Days";
                     }
                 
                 // Brush
@@ -276,6 +277,7 @@
 
                 // Axis
                 d3Axis.attr({
+                    "class": "timeline-axis",
                     "width": 100,
                     transform: function() { return "translate(0," +  (hChart-50) + ")"; }
                 });
