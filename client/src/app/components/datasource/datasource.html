@@ -7,12 +7,11 @@
     </div>
     <div class="row">
         <ul>
-            <li ng-repeat="dataset in vm.datasets" class="col-xs-12 col-sm-6 col-lg-4">
+            <li ng-repeat="dataset in vm.datasets" class="col-xs-12 col-sm-6 col-lg-4" ng-click="vm.explore('tools',dataset.id)">
                 <img class="datasource-img" ng-src="/assets/images/datasets/{{dataset.id}}.png">
                 <h3 class="datasource-lbl">{{dataset.name}}</h3>
                 <nobr>
-                    <a href="" ng-click="vm.explore('tools',dataset.id)">Explore</a> &nbsp;|&nbsp;
-                    <a href="" ng-click="vm.explore('metadata',dataset.id)">Learn More</a>
+                    <a href="">Explore</a>
                 </nobr>
             </li>
         </ul>

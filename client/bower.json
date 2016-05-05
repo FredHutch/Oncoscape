@@ -33,7 +33,8 @@
     "d3-timeline": "^0.0.5",
     "underscore": "^1.8.3",
     "three.js": "threejs#*",
-    "components-font-awesome": "^4.5.0"
+    "components-font-awesome": "^4.5.0",
+    "angular-bootstrap-contextmenu": "^0.9.7"
   },
   "overrides": {
     "bootstrap-sass": {
