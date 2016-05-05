@@ -1,4 +1,39 @@
 // Namespace
+.markers-button-slider{
+	position: absolute;
+    left: 0px;
+    top: 0px;
+    
+    width: 100%;
+    height: 100%;
+    opacity: 0;
+    text-align: right;
+    padding-right:10px;
+   	div{
+   		
+    }
+    div:focus {outline:none;}
+}
+.markers-button-slider-circle{
+	display: inline-block;
+	margin-top:5px;
+	width: 20px;
+	height: 20px;
+	border-radius: 50%;
+	background-color:#FFF;
+	border: solid #FFF 3px;
+}
+.markers-button-slider-rect{
+	display: inline-block;
+	margin-top:5px;
+	width: 20px;
+	height: 20px;
+	background-color:#FFF;
+	
+}
+.markers-button-slider:hover{
+	opacity: 1;
+}
 .filter-button{
 	border:solid 0px #CCC;
 	border-left-width:10px;
@@ -28,4 +63,12 @@
 .markers-chart{
 	position: relative;
 	top: 0px;
+}
+.markers-ctx-menu{
+	position:absolute;
+	padding:10px;
+	background-color:#EFEFEF;
+	.title{
+		font-weight: bold;
+	}
 }

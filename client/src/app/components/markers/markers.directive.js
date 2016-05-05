@@ -37,16 +37,24 @@
             var vm = initializeViewModel(this, $stateParams);
 
             vm.resize = function(){
-                var width = $window.innerWidth
+                var width = $window.innerWidth;
                 if (angular.element(".tray").attr("locked")=="true") width -= 300;
                 elChart.width( width );
                 elChart.height($window.innerHeight - 90);
                 if (cyChart) cyChart.resize();
             }
 
-            // Listen For Resize
+            // Window Listeners // Todo: Need To Remove On $destroy
             angular.element($window).bind('resize', 
                 _.debounce(vm.resize, 300)
+            );
+            angular.element($window).bind('click', 
+                function(e){
+                    $scope.$apply(function(){
+                        vm.optCtxGeneShow = false;
+                        vm.optCtxPatientShow = false;
+                    });
+                }
             );
        
             // Load Data
@@ -84,7 +92,7 @@
                 initializeZoom(cyChart, _);
 
                 // Initialize Commands
-                initializeCommands(cyChart, vm);
+                initializeCommands(cyChart, vm, $window, $scope);
                 
                 // Ready
                 osApi.setBusy(false);
@@ -137,10 +145,111 @@
             });
         }
             
-        function initializeCommands(chart, vm){
+        function initializeCommands(chart, vm, $window, $scope){
             vm.optInteractiveMode = vm.optInteractiveModes[0];
+            vm.optCommandPatient = [
+                {name:"Show Edges", cmd:function(e){
+                    vm.optCommandPatient.selected.select();
+                    var degmap = {};
+                    vm.optCommandPatient.selected
+                        .neighborhood('edge')
+                        .forEach(function(item){
+                            this[item.id()] = {display:'element'};
+                        }, degmap);
+                    chart.batchData(degmap);
+                }},
+                {name:"Hide Edges", cmd:function(e){
+                    var degmap = {};
+                    vm.optCommandPatient.selected
+                        .neighborhood('edge')
+                        .forEach(function(item){
+                            this[item.id()] = {display:'none'};
+                        }, degmap);
+                    chart.batchData(degmap);
+                }},
+                {name:"Select Associated Genes", cmd:function(e){
+                    chart.startBatch();
+                    vm.optCommandPatient.selected.select();
+                    vm.optCommandPatient.selected
+                        .neighborhood('node')
+                        .forEach( function(ele){
+                            ele.select();
+                        });
+                    chart.endBatch();
+                    vm.optCtxPatientShow = false;
+                }},
+                {name:"Deselect Associated Genes", cmd:function(e){
+                    chart.startBatch();
+                    vm.optCommandPatient.selected
+                        .neighborhood('node')
+                        .forEach( function(ele){
+                            ele.deselect();
+                        });
+                    chart.endBatch();
+                    vm.optCtxPatientShow = false;
+                }},
+                {name:"View Oncoprint", cmd:function(e){
+
+                    if (vm.datasource=="DEMOdz") return;
+                    if (vm.datasource.indexOf("TCGA" == 0)) {
+                        var cbioDsName = vm.datasource.substr(4) + "_tcga";
+                        var genes = vm.optCommandPatient.selected.neighborhood('node').map(function(n) {
+                            return n.data().name;
+                        }).join("+");
+                        var url = "http://www.cbioportal.org/ln?cancer_study_id=" + cbioDsName + "&q=" + genes;
+                        $window.open(url);
+                    }
+                    vm.optCtxPatientShow = false;
+                }},
+            ];
+            vm.optCommandGene = [
+                {name:"Show Edges", cmd:function(e){
+                    vm.optCommandGene.selected.select();
+                    
+                    var degmap = {};
+                    vm.optCommandGene.selected
+                        .neighborhood('edge')
+                        .forEach(function(item){
+                            this[item.id()] = {display:'element'};
+                        }, degmap);
+                    chart.batchData(degmap);
+                }},
+                {name:"Hide Edges", cmd:function(e){
+                    var degmap = {};
+                    vm.optCommandGene.selected
+                        .neighborhood('edge')
+                        .forEach(function(item){
+                            this[item.id()] = {display:'none'};
+                        }, degmap);
+                    chart.batchData(degmap);
+                }},
+                {name:"Select Associated Patients", cmd:function(e){
+                    chart.startBatch();
+                    vm.optCommandGene.selected.select();
+                    vm.optCommandGene.selected
+                        .neighborhood('node')
+                        .forEach( function(ele){
+                            ele.select();
+                        });
+                    chart.endBatch();
+                    vm.optCtxGeneShow = false;
+                }},
+                {name:"Deselect Associated Patients", cmd:function(e){
+                    chart.startBatch();
+                    vm.optCommandGene.selected
+                        .neighborhood('node')
+                        .forEach( function(ele){
+                            ele.deselect();
+                        });
+                    chart.endBatch();
+                    vm.optCtxPatientShow = false;
+                }},
+                {name:"View Gene Card", cmd:function(e){
+                    $window.open("http://www.genecards.org/cgi-bin/carddisp.pl?gene="+vm.optCommandGene.selected.data().name);
+                    vm.optCtxGeneShow = false;
+                }}
+            ];
             vm.optCommands = [
-                
                 {name:"Show Edges Of Selected Patient", cmd:function(){
                     var degmap = {};
                     chart.$('node[nodeType="patient"]:selected')
@@ -226,12 +335,19 @@
                         });
                     chart.endBatch();
                 }},
-
+                {name: "Reset Zoom", cmd:function(){
+                    chart.fit();
+                    chart.center();
+                }}
             ]
-                
         }
         function initializeViewModel(vm, $stateParams){
+
             vm.datasource = $stateParams.datasource;
+            vm.optCommandGene = false;
+            vm.optCtxGeneShow;
+            vm.optCommandPatient;
+            vm.optCtxPatientShow = false;
             vm.optInteractiveModes;
             vm.optInteractiveMode;
             vm.optPatientLayouts;
@@ -403,8 +519,8 @@
                 style: {
                     'background-color': 'data(color)',
                     'text-halign': 'center',
-                    'border-width': 'data(sizeBdr)',
-                    'border-color': 'data(color)'
+                    'border-width': 1,
+                    'border-color': '#FFFFFF'
                 }
             }, {
                 selector: 'node[nodeType="patient"]:selected',
@@ -458,16 +574,20 @@
                 var geneOver = new signals.Signal();
                 var geneOut = new signals.Signal();
                 var geneClick = new signals.Signal();
+                var geneCtx = new signals.Signal();
                 var patientOver = new signals.Signal();
                 var patientOut = new signals.Signal();
                 var patientClick = new signals.Signal();
+                var patientCtx = new signals.Signal();
                 var removeAll = function() {
                     geneOver.removeAll();
                     geneOut.removeAll();
+                    geneClick.removeAll();
+                    geneCtx.removeAll();
                     patientOver.removeAll();
                     patientOut.removeAll();
-                    geneClick.removeAll();
                     patientClick.removeAll();
+                    patientCtx.removeAll();
                 }
                 var over = function(e) {
                     geneOver.add(e);
@@ -485,9 +605,11 @@
                     geneOver: geneOver,
                     geneOut: geneOut,
                     geneClick: geneClick,
+                    geneCtx: geneCtx,
                     patientOver: patientOver,
                     patientOut: patientOut,
                     patientClick: patientClick,
+                    patientCtx: patientCtx,
                     over: over,
                     out: out,
                     click: click,
@@ -502,7 +624,10 @@
                 .on('mouseover', 'node[nodeType="gene"]', events.geneOver.dispatch)
                 .on('mouseover', 'node[nodeType="patient"]', events.patientOver.dispatch)
                 .on('mouseout', 'node[nodeType="gene"]', events.geneOut.dispatch)
-                .on('mouseout', 'node[nodeType="patient"]', events.patientOut.dispatch);
+                .on('mouseout', 'node[nodeType="patient"]', events.patientOut.dispatch)
+                .on('cxttap', 'node[nodeType="gene"]', events.geneCtx.dispatch )
+                .on('cxttap', 'node[nodeType="patient"]', events.patientCtx.dispatch );
+                
 
             // Cache Hide All Edges Structure
             var hidePatientEdges = {};
@@ -511,6 +636,30 @@
                     
             // Define Behaviors
             var behaviors = {
+                showGeneCtxMenu: function(e){
+                    vm.optCommandGene.selected = e.cyTarget;
+                    var oe = e.originalEvent;
+                    var elMenu = angular.element("#gene-ctx-menu");
+                    elMenu.show();
+                    $scope.$apply(function(){
+                        vm.optCtxGeneShow = true;
+                    });
+                    elMenu.css({left: oe.pageX-20, top: oe.pageY-20});
+                    elMenu.find(".title").text(vm.optCommandGene.selected.data().name);
+                    return this;
+                },
+                showPatientCtxMenu: function(e){
+                    vm.optCommandPatient.selected = e.cyTarget;
+                    var oe = e.originalEvent;
+                    var elMenu = angular.element("#patient-ctx-menu");
+                    elMenu.show();
+                    $scope.$apply(function(){
+                        vm.optCtxPatientShow = true;
+                    });
+                    elMenu.css({left: oe.pageX-20, top: oe.pageY-20});
+                    elMenu.find(".title").text(vm.optCommandPatient.selected.data().name);
+                    return this;
+                },
                 showPatientInfo: function(e){
                     if (e.cyTarget.data().nodeType == 'patient') {
                         $scope.$apply(function() {
@@ -581,22 +730,6 @@
                             }, this);
                         }, degmap);
                     chart.batchData(degmap);
-                },
-                showOncoPrint: function(){
-                    /*
-                    var ds = vm.datasource;
-                    if (ds=="DEMOdz") return;
-                    if (ds.indexOf("TCGA" == 0)) {
-                        var cbioDsName = ds.substr(4) + "_tcga";
-                        var genes = e.cyTarget.neighborhood('node').map(function(n) {
-                            return n.data().name;
-                        }).join("+");
-                        var url = "http://www.cbioportal.org/ln?cancer_study_id=" + cbioDsName + "&q=" + genes;
-                        $scope.$apply(function() {
-                            $window.open(url);
-                        });
-                    }
-                    */
                 }
             }
 
@@ -604,10 +737,14 @@
             var states = [
             {
                 name: 'Commands', //1° When 
-                register: function(){},
+                register: function(){
+                    events.geneCtx.add(behaviors.showGeneCtxMenu);
+                    events.patientCtx.add(behaviors.showPatientCtxMenu);
+                },
                 unregister: function(){
 
                     // Hide All Edges
+                    events.removeAll();
                     chart.batchData(hidePatientEdges);
                 }
 
@@ -615,7 +752,6 @@
             {
                 name: 'Selection Highlight', //1° When 
                 register: function(){
-
                     var degmap = {};
                     chart.$('node[nodeType="patient"]:selected')
                         .forEach(function(node) {
@@ -624,8 +760,6 @@
                             }, degmap)
                         }, degmap);
                     chart.batchData(degmap);
-
-
                     chart.on('select', 'node', {ui:true}, function(e){
                         behaviors.showDegreeOne(e);
                     });
@@ -698,9 +832,8 @@
                 }, {
                     name: 'cnGain.2',
                     class: 'edgeCnGain2',
-                    color: '#FFE11A',
+                    color: 'purple', //'#FFE11A',
                     state: 'Highlight'
-
                 }, {
                     name: 'cnLoss.2',
                     class: 'edgeCnLoss2',
@@ -731,28 +864,24 @@
             vm.optEdgeColors = colors;
 
             // Update Edge Callback
-            vm.updateEdge = function(item){
-                var color, state;
-                switch (item.state){
+            vm.updateEdge = function(item, stateName){
+                if (item.state == stateName) return;
+                item.state = stateName;
+                var state;
+                switch(stateName){
                     case "Highlight":
-                        item.state = "Show";
-                        color = '#3993fa';
-                        state = {'color':color, sizeEle:3};
+                        state = {'color':item.color, sizeEle:3};
+                        break;
+                    case "Hide":
+                        state = {'color':'#FFFFFF', sizeEle:0};
                         break;
                     case "Show":
-                        item.state = "Hide";
-                        color = '#EEEEEE';
-                        state = {'color':'#FF0000', sizeEle:0 };
-                        break;
-                    default:
-                        item.state = "Highlight";
-                        color = item.color;
-                        state = {'color':color, sizeEle:3 };
+                        state = {'color':'#3993fa', sizeEle:3};
                         break;
                 }
 
                 // Set Legand color
-                angular.element("." + item.class).css("border-color", color );
+                angular.element("." + item.class).css("border-color", state.color );
 
                 // update Degree Map
                 var degmap = {};
@@ -861,11 +990,11 @@
                     });
             });
 
-            vm.updateNode = function(item){
+            vm.updateNode = function(item, select){
                 chart.startBatch();
                 chart.nodes('node[nodeType="patient"]')
                     .forEach(function(node){ 
-                        if (node.style("background-color")==item.color) node.select();
+                        if (node.style("background-color")==item.color) node[(select)?"select":"deselect"]();
                 });
                 chart.endBatch();
             }
@@ -976,7 +1105,7 @@
                             .map(function(value) {
                                 var data = value.data;
                                 data.display = "element";
-                                data.color = "rgb(19, 150, 222)";
+                                data.color = "#FFFF00"; //"rgb(19, 150, 222)";
                                 data.sizeEle = data.degree;
                                 data.sizeLbl = 12;
                                 data.sizeBdr = 5;
