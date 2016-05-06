@@ -20,14 +20,19 @@
 
 	}	
 }
+.timeline-row{
+	fill: #FFFFFF;
+}
 .timeline-selection{
 	fill: #FFFFFF;
 }
 .timeline-selected{
-	fill: #59a5fb;
+	fill: #DDDDDD;
 	width: 100%;
-
-
+}
+.timeline-highlight{
+	fill: #d7e8ff;
+	width:100%;
 }
 .timeline-slider{
 	width:15px !important;

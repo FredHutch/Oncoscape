@@ -250,6 +250,50 @@
                 }}
             ];
             vm.optCommands = [
+            /*
+                {name:"Select Patients With All Selected Genes", cmd:function(){
+                    var geneNodes = chart.$('node[nodeType="gene"]:selected');
+                    var geneNames = geneNodes.map(function(item){ return item.data().name; });
+                    var patientNodes = geneNodes.neighborhood("node");
+
+                    chart.startBatch();
+                    patientNodes.filter(function(i, patient){
+                        var patientGeneNames = patient.neighborhood("node").map(function(item){ return item.data().name; })
+                        geneNames.forEach(function(geneName){
+                            if (patientGeneNames.indexOf(geneName)==-1) return false;
+                        })
+                        return true;
+                    }).forEach( function(ele){
+                        ele.select();
+                    });
+                    chart.endBatch();
+                }},
+                */
+                {name:"Show Genes Common To All Selected Patients Genes", cmd:function(){
+                    var patientNodes = chart.$('node[nodeType="patient"]:selected');
+                    var genes;
+
+                    patientNodes.each(function(i, ele){
+                        var patientGenes = ele.neighborhood("node").map( function(item){ return item.data().name; });
+                        if (i==0) genes = patientGenes;
+                        else{
+                            genes = genes.filter(function(gene){
+                                return patientGenes.indexOf(gene)>=0;
+                            }, patientGenes)
+                        }
+                    })
+                    chart.startBatch();
+                    chart.$('node[nodeType="gene"]')
+                        .forEach(function(node){
+                            if (genes.indexOf(node.data().name)>=0){
+                                node.select();
+                            }
+                        });
+                    chart.endBatch();
+
+                }},
+                
+
                 {name:"Show Edges Of Selected Patient", cmd:function(){
                     var degmap = {};
                     chart.$('node[nodeType="patient"]:selected')
@@ -788,10 +832,10 @@
             {
                 name: 'Roll Over Highlight', //1° On 
                 register: function() {
-                    events.click(function(e) {
-                        behaviors
-                            .showOncoPrint(e)
-                    });
+                    // events.click(function(e) {
+                    //     behaviors
+                    //         .showOncoPrint(e)
+                    // });
                     events.over(function(e) {
                         behaviors
                             .showPatientInfo(e)
