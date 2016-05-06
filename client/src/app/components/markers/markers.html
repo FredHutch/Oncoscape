@@ -54,14 +54,6 @@
                 </div>
             </div>
             <div class="col-xs-12 form-item">
-                <label>Patient Search {{vm.searchPatientResult}}</label>
-                <input type="text" class="form-control" ng-model="vm.searchPatient" placeholder="Patient Id">
-            </div>
-            <div class="col-xs-12 form-item">
-                <label>Gene Search {{vm.searchGeneResult}}</label>
-                <input type="text" class="form-control" ng-model="vm.searchGene" placeholder="Gene Name">
-            </div>
-            <div class="col-xs-12 form-item">
                 <label>Patient Options</label>
                 <div ng-repeat="item in vm.legandNodes" class="legend-bar btn btn-default filter-button"
                   style="border-color:{{item.color}};position:relative">
@@ -92,8 +84,14 @@
                   </div>
                 </div>
             </div>
-
-
+            <div class="col-xs-12 form-item">
+                <label>Patient Search {{vm.searchPatientResult}}</label>
+                <input type="text" class="form-control" ng-model="vm.searchPatient" placeholder="Patient Id">
+            </div>
+            <div class="col-xs-12 form-item">
+                <label>Gene Search {{vm.searchGeneResult}}</label>
+                <input type="text" class="form-control" ng-model="vm.searchGene" placeholder="Gene Name">
+            </div>
             <div class="col-xs-12 form-label">
                     <h2>Cohorts</h2>
                 </div>

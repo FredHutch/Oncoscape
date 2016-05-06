@@ -29,11 +29,20 @@
                     </button>
 
                     <ul class="dropdown-menu" aria-labelledby="dropdownMenu1" style="width:100%">
-                        <!-- <li style="padding:5px;font-weight:600;">Feature:</li> -->
-                        <li ng-repeat="item in vm.features" ng-click="vm.sort = item">{{item.name}}</li>   
-                        <!-- <li><hr></li>
-                        <li style="padding:5px;font-weight:600;">Event:</li>
-                        <li ng-repeat="item in vm.eventTypes" ng-click="vm.sortClick(item)">{{item.name}}</li> -->
+                        <li ng-repeat="item in vm.features" ng-click="vm.sort = item">{{item.name}}</li>
+                    </ul>
+                </div>            
+            </div>
+
+            <div class="col-xs-12 form-item">
+                <label>Filter</label>
+                <div class="dropdown bs-dropdown">
+                    <button class="btn btn-default dropdown-toggle" type="button" id="dropdownMenu1" data-toggle="dropdown" aria-haspopup="true" aria-expanded="true">
+                        {{vm.filter.name}}
+                        <span class="caret"></span>
+                    </button>
+                    <ul class="dropdown-menu" aria-labelledby="dropdownMenu1" style="width:100%">
+                        <li ng-repeat="item in vm.filters" ng-click="vm.filter = item">{{item.name}}</li>   
                     </ul>
                 </div>            
             </div>
