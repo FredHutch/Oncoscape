@@ -1,25 +1,38 @@
 // Namespace
-
+#timelines-chart{
+    padding-top:50px;
+}
 .timeline-hover{
-	position:fixed;
-	bottom: 0px;
-	width: 100%;
-	text-align: center;
-	padding-right:300px;
+	position:absolute;
+	top:35px;
+	left:310px;
+	font-size:12px;
+	pointer-events:none;
+	dt{
+		text-transform: uppercase;
+	}
 	dl{
 		display: inline-block;
 		padding-left:10px;
 		padding-right:10px;
+		margin-bottom:10px;
+		padding-bottom:0px;
+
 	}	
+}
+.timeline-row{
+	fill: #FFFFFF;
 }
 .timeline-selection{
 	fill: #FFFFFF;
 }
 .timeline-selected{
-	fill: #59a5fb;
+	fill: #DDDDDD;
 	width: 100%;
-
-
+}
+.timeline-highlight{
+	fill: #d7e8ff;
+	width:100%;
 }
 .timeline-slider{
 	width:15px !important;
@@ -58,5 +71,16 @@
 		border:solid 0px #DDDDDD;
 		border-left-width: 13px;
 	}
-	
+}
+.timeline-legend-scale{
+	position:relative;
+	top:-30px;
+	width: 100%;
+	text-align: left; 
+	font-weight: 500;
+}
+.timeline-axis{
+    fill: none;
+    stroke: black;
+    shape-rendering: crispEdges;
 }

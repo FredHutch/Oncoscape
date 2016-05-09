@@ -30,6 +30,7 @@ button{
 	padding-left: 20px;
 	padding-right: 20px;
 }
+*:focus {outline:none;}
 .radio label, .checkbox label{
 	font-weight: 300;
 }
@@ -97,6 +98,8 @@ button{
 	display: inline-block;
 	margin-bottom: 1px;
 }
+
+
 
 /* Overrides */
 .ngrs-range-slider{

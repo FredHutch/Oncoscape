@@ -130,18 +130,21 @@
                         })
                         .on('click', 'node', function(e) {
                             if (e.cyTarget.data().nodeType!="gene") return;
-                            angular.element('#gbm-webpage').modal();
-                            var url = "https://www.genecards.org/cgi-bin/carddisp.pl?gene=" + e.cyTarget.data().id;
-                            $scope.$apply(function() {
-                                vm.frame = $sce.trustAsResourceUrl(url);
-                            });
+                            //angular.element('#gbm-webpage').modal();
+                            $window.open("https://www.genecards.org/cgi-bin/carddisp.pl?gene=" + e.cyTarget.data().id);
+                            // $scope.$apply(function() {
+                            //     vm.frame = $sce.trustAsResourceUrl(url);
+                            // });
                         })
                         .on('click', 'edge', function(e) {
-                            angular.element('#gbm-webpage').modal();
-                            var url = "https://www.ncbi.nlm.nih.gov/pubmed/?term=" + e.cyTarget.data().pmid;
-                            $scope.$apply(function() {
-                                vm.frame = $sce.trustAsResourceUrl(url);
-                            });
+                            //angular.element('#gbm-webpage').modal();
+                            $window.open("https://www.ncbi.nlm.nih.gov/pubmed/?term=" + e.cyTarget.data().pmid);
+                            $window.open("http://www.ncbi.nlm.nih.gov/pubmed/?term=(GENE "+e.cyTarget.data().source+") AND (GENE "+e.cyTarget.data().target+")");
+                            $window.open("https://www.genecards.org/cgi-bin/carddisp.pl?gene="+e.cyTarget.data().source);
+                            $window.open("https://www.genecards.org/cgi-bin/carddisp.pl?gene="+e.cyTarget.data().target);
+                            // $scope.$apply(function() {
+                            //     vm.frame = $sce.trustAsResourceUrl(url);
+                            // });
 
                         }).on('mouseover', 'edge', function(e) {
                             $scope.$apply(function() {

@@ -10,10 +10,8 @@
 var exports = module.exports = {};
 var ldap = require('ldapjs');
 var soap = require('soap');
+var data = require('./permissions');
 
-var guest = ["DEMOdz","TCGAbrain","TCGAbrca","TCGAcoadread","TCGAgbm","TCGAhnsc","TCGAlgg","TCGAluad","TCGAlung","TCGAlusc","TCGApaad","TCGAprad"]
-var users = {
-};
 
 exports.login = function(username, password, domain, cb){
 	
@@ -27,14 +25,14 @@ exports.login = function(username, password, domain, cb){
 			authSoap(username, password, 'scca', 'https://admaims47.fhcrc.org/breeze/Authentication.asmx?wsdl', cb);
 			break;
 		case "UW":
-			if (users[username]!=null){
-				cb( true, users[username].concat(guest) );
+			if (data.users[username]!=null){
+				cb( true, data.users[username].concat(data.guest) );
 			}else{
 				cb(false);
 			}
 			break;
 		default:
-			cb(true, guest); // Authentication is not required
+			cb(true, data.guest); // Authentication is not required
 			break;
 	}
 };
@@ -58,8 +56,8 @@ var authLdap = function(username, password, url, cb){
 	// Password Must Be Supplied To Avoid Authenticating Anon
 	if (password.trim().length<5) { cb(false); return; }	
 	var client = ldap.createClient( { url:url });
-	client.bind(username.substr(0,username.indexOf("@")) + "@fhcrc", password, function(err) {
-		var ds = (users[username]!=null) ? users[username].concat(guest) : guest;
+	var ds = (data.users[username+"@fhcrc.org"]!=null) ? data.users[username+"@fhcrc.org"].concat(data.guest) : data.guest;
+	client.bind( username + "@fhcrc", password, function(err) {
     	client.unbind();
     	cb(err===null, ds);
     });
