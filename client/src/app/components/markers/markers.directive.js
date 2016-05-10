@@ -249,51 +249,14 @@
                     vm.optCtxGeneShow = false;
                 }}
             ];
-
-
-            /*
-                {name:"Select Patients With All Selected Genes", cmd:function(){
-                    var geneNodes = chart.$('node[nodeType="gene"]:selected');
-                    var geneNames = geneNodes.map(function(item){ return item.data().name; });
-                    var patientNodes = geneNodes.neighborhood("node");
-
-                    chart.startBatch();
-                    patientNodes.filter(function(i, patient){
-                        var patientGeneNames = patient.neighborhood("node").map(function(item){ return item.data().name; })
-                        geneNames.forEach(function(geneName){
-                            if (patientGeneNames.indexOf(geneName)==-1) return false;
-                        })
-                        return true;
-                    }).forEach( function(ele){
-                        ele.select();
-                    });
-                    chart.endBatch();
-                }},
-                  {name:"Show Genes Common To All Selected Patients Genes", cmd:function(){
-                    var patientNodes = chart.$('node[nodeType="patient"]:selected');
-                    var genes;
-
-                    patientNodes.each(function(i, ele){
-                        var patientGenes = ele.neighborhood("node").map( function(item){ return item.data().name; });
-                        if (i==0) genes = patientGenes;
-                        else{
-                            genes = genes.filter(function(gene){
-                                return patientGenes.indexOf(gene)>=0;
-                            }, patientGenes)
-                        }
-                    })
-                    chart.startBatch();
-                    chart.$('node[nodeType="gene"]')
-                        .forEach(function(node){
-                            if (genes.indexOf(node.data().name)>=0){
-                                node.select();
-                            }
-                        });
-                    chart.endBatch();
-
-                }},
-                */
             vm.optCommands = {
+                 "zoomReset" : function(){
+                    chart.fit();
+                    chart.center();
+                },
+                "zoomFit" : function(){
+                    chart.fit( chart.$(':selected'), 50 )
+                },
                 "showPatientsInCommon": function(){
                     var geneNodes = chart.$('node[nodeType="gene"]:selected');
                     var geneNames = geneNodes.map(function(item){ return item.data().name; });
@@ -442,18 +405,32 @@
                         });
                     chart.endBatch();
                 },
+                "invertAll": function(){
+                    chart.startBatch();
+                    chart.$('node[nodeType="patient"]')
+                        .forEach( function(ele){
+                            ele[ele._private.selected?"deselect":"select"]();
+                        });
+                    chart.$('node[nodeType="gene"]')
+                        .forEach( function(ele){
+                            ele[ele._private.selected?"deselect":"select"]();
+                        });
+                    chart.endBatch();
+                },
                 "deselectAll" : function(){
-
+                    chart.startBatch();
+                    chart.$('node:selected')
+                        .forEach( function(ele){
+                            ele.deselect();
+                        });
+                    chart.endBatch();
                 },
                 "hideAllEdges" : function(){
-
-                },
-                "zoomReset" : function(){
-                    chart.fit();
-                    chart.center();
-                },
-                "zoomFit" : function(){
-                    chart.fit( chart.$(':selected'), 50 )
+                    var degmap = {};
+                    chart.$('edge[edgeType!="chromosome"]').forEach(function(item){
+                        this[item.id()] = {display:'none'};
+                    }, degmap);
+                    chart.batchData(degmap);
                 }
             };
         }
@@ -598,7 +575,7 @@
                 hideLabelsOnViewport: false,
                 textureOnViewport: false,
                 motionBlur: true,
-                minZoom: 0.0001,
+                minZoom: .05,
                 maxZoom: 40,
                 layout: {
                     name: "preset",
@@ -654,7 +631,6 @@
                 style: {
                     'border-color': "#FF0000",
                     'border-width': 10
-
                 }
             }, {
                 selector: 'node[nodeType="gene"]',
@@ -789,11 +765,10 @@
                 },
                 showPatientInfo: function(e){
                     if (e.cyTarget.data().nodeType == 'patient') {
-                        $scope.$apply(function() {
-                            vm.patient = e.cyTarget.attr('patient');
-                            vm.patientChromosomes = e.cyTarget.neighborhood("node")
-                                .map(function(item) { return item.data().id });
-                        });
+                        vm.patient = e.cyTarget.attr('patient');
+                        vm.patientChromosomes = e.cyTarget.neighborhood("node")
+                            .map(function(item) { return item.data().id });
+                        $scope.$apply();
                     }else{
                         var gene = {
                             name: e.cyTarget.data().name,
@@ -805,6 +780,7 @@
                         }
                         gene.mutations = gene.cnl1 + gene.cnl2 + gene.cng1 + gene.cng2;
                         vm.gene = gene;
+                        $scope.$apply();
                     }
                     return this;
                 },
@@ -816,18 +792,38 @@
                 },
                 showDegreeOne: function(e){
                     var degmap = {};
+                    var target = (e.cyTarget.data().nodeType == 'patient') ? 'target' : 'source';
+
+                    chart.startBatch();
                     e.cyTarget.neighborhood('edge')
                         .forEach(function(item){
-                            this[item.id()] = {display:'element'};
-                        }, degmap);
+                            this.degmap[item.id()] = {display:'element'};
+                            item[this.target]().css({
+                                'background-color':item.data().color,
+                                'border-color': item.data().color,
+                                'border-width': 60,
+                                'border-opacity': .3
+                            });
+                        }, {degmap:degmap, target:target});
+                    chart.endBatch();
                     chart.batchData(degmap);
                 },
                 hideDegreeOne: function(e){
                     var degmap = {};
+                    var target = (e.cyTarget.data().nodeType == 'patient') ? 'target' : 'source';
+                    var css = { 
+                        'background-color': "",
+                        'border-color': "",
+                        'border-width': "",
+                        'border-opacity': ""
+                    }
+                    chart.startBatch();
                     e.cyTarget.neighborhood('edge')
                         .forEach(function(item){
-                            this[item.id()] = {display:'none'};
-                        }, degmap);
+                            this.degmap[item.id()] = {display:'none'};
+                            item[target]().style(this.css);
+                        }, {degmap:degmap, css:css, target:target});
+                    chart.endBatch();                        
                     chart.batchData(degmap);
                 },
                 showDegreeTwo: function(e){
