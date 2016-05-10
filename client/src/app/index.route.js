@@ -85,6 +85,11 @@
                 template: '<os-oncoprint>',
                 authenticate: false
             })
+            .state('geneset', {
+                url: '/geneset/{datasource}',
+                template: '<os-geneset>',
+                authenticate: false
+            })
             .state('compare', {
                 url: '/compare/{datasource}',
                 template: '<os-compare>',

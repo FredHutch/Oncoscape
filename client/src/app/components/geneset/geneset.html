@@ -1,0 +1,95 @@
+<os-tool-menu datasource="{{vm.datasource}}" change="vm.addCohortPatient()">
+</os-tool-menu>
+<os-tray content="tray-content-block" change="vm.resize($event)">
+    <section class="tray-content">
+            <div class="row">
+                <div class="col-xs-12 form-label">
+                    <h2>Filters</h2>
+                </div>
+                <div class="col-xs-12 form-item">
+                    <label>Gene Set</label>
+                    <div class="dropdown bs-dropdown">
+                        <button class="btn btn-default dropdown-toggle" type="button" id="dropdownMenu1" data-toggle="dropdown" aria-haspopup="true" aria-expanded="true">
+                            {{vm.geneSet}}
+                            <span class="caret"></span>
+                        </button>
+                        <ul class="dropdown-menu" aria-labelledby="dropdownMenu1">
+                            <li ng-repeat="item in vm.geneSets" ng-click="vm.geneSet=item">{{item}}</li>
+                        </ul>
+                    </div>
+                </div>
+                </div>
+                <div class="col-xs-12 form-item">
+                    <label>Search</label>
+                    <input type="text" class="ngrs-range-slider" style="width: 100%;" ng-model="vm.search">
+                </div>
+                <div class="col-xs-12 form-label">
+                    <h2>Cohorts</h2>
+                </div>
+                <div class="col-sm-12 form-item">
+                    <label>Patient Cohorts</label>
+                    <div class="dropdown bs-dropdown">
+                        <button class="btn btn-default dropdown-toggle" type="button" style="width: 34px;display: inline-block; margin-right:0px; float:right" ng-click="vm.addCohortPatient()">+
+                        </button>
+                        <button class="btn btn-default dropdown-toggle" type="button" id="dropdownMenu1" data-toggle="dropdown" aria-haspopup="true" aria-expanded="true" style="width: 220px;display: inline-block; margin-right:0px;">
+                            {{vm.optCohortPatient.name}}
+                            <span class="caret"></span>
+                        </button>
+                        <ul class="dropdown-menu" aria-labelledby="dropdownMenu1" style="width:100%">
+                            <li ng-repeat="item in vm.optCohortPatients" ng-click="vm.optCohortPatient=item">{{item.name}}</li>
+                        </ul>
+                    </div>
+                </div>
+                <div class="col-xs-6 form-label">
+                    <h2>Legend</h2>
+                    <span class="circle" style="background-color:black;width:10px;height: 10px;margin-right:10px;"></span>Patients
+                </div>
+            </div>
+    </section>
+</os-tray>
+<section class="tray-content-block">
+  <div class="container-fluid">
+    <h2 class="h2-tool">Gene Set Binomial Test</h2>
+    <h3 class="h3-datasource">{{vm.datasource}}</h3>
+    <div id="geneSetTTestsModuleDiv" class="container-fluid">
+
+    <div id="geneSetTTests_Div">
+        <div id="geneSetTTestsControlsDiv" class="nav navbar-nav navbar navbar-default" role="navigation" style="width:100%;margin-bottom:20px">
+            <div class="navbar-collapse collapse navbar-inverse-collapse" style="height:50px !important;">  
+                 <div id="geneSetTTestsInputsDiv" >
+                    <div id="geneSetTTestsLaunchButtonDiv" class="nav navbar-nav navbar-form navbar-left" style="margin-left: 0px;">
+                        <form>
+                         <div class="form-group">
+                              <button id="geneSetTTestsLaunchButton" type="button" class="btn btn-default btn-sm" 
+                                      style="padding-bottom: 4px;border-top-width: 1px;padding-top: 4px;padding-left: 4px;
+                                      padding-right: 5px;">Analyze Gene set</button>
+                         </div>
+                       </form>
+                    </div>
+                </div>
+            </div>
+        </div> 
+    </div>
+
+ 
+    <div class="row-fluid">
+        <div id="geneSetTestsSampleListsDivWrapper" class="col-md-3">
+            <h4 style="margin-top:20px;">Candidate Patient Sets</h4>
+            <div id="geneSetTTestsSampleListsDiv"></div>
+            <hr>
+            <div  id="geneSetTTestsOutputsDiv"></div>
+        </div>
+
+        <div id="tabDiv" style="display:none" class="col-md-9">
+            <ul><li><a href='#heatMapImageArea'>Heat Map</a></li>
+                <li><a href='#geneSetInfo'>Gene Set Information (Broad Institute)</a></li>
+            </ul>
+            <div id="heatMapImageArea">
+                <p> This is within Heat Map Area</p>
+            </div>
+            <iframe id='geneSetInfo' width="90%" height="800px"></iframe>
+       </div>   
+    </div>
+</div>
+  </div>
+</section>
