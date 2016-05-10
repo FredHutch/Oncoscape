@@ -249,7 +249,8 @@
                     vm.optCtxGeneShow = false;
                 }}
             ];
-            vm.optCommands = [
+
+
             /*
                 {name:"Select Patients With All Selected Genes", cmd:function(){
                     var geneNodes = chart.$('node[nodeType="gene"]:selected');
@@ -268,8 +269,7 @@
                     });
                     chart.endBatch();
                 }},
-                */
-                {name:"Show Genes Common To All Selected Patients Genes", cmd:function(){
+                  {name:"Show Genes Common To All Selected Patients Genes", cmd:function(){
                     var patientNodes = chart.$('node[nodeType="patient"]:selected');
                     var genes;
 
@@ -292,9 +292,49 @@
                     chart.endBatch();
 
                 }},
-                
+                */
+            vm.optCommands = {
+                "showPatientsInCommon": function(){
+                    var geneNodes = chart.$('node[nodeType="gene"]:selected');
+                    var geneNames = geneNodes.map(function(item){ return item.data().name; });
+                    var patientNodes = geneNodes.neighborhood("node");
 
-                {name:"Show Edges Of Selected Patient", cmd:function(){
+                    chart.startBatch();
+                    patientNodes.filter(function(i, patient){
+                        var patientGeneNames = patient.neighborhood("node").map(function(item){ return item.data().name; })
+                        geneNames.forEach(function(geneName){
+                            if (patientGeneNames.indexOf(geneName)==-1) return false;
+                        })
+                        return true;
+                    }).forEach( function(ele){
+                        ele.select();
+                    });
+                    chart.endBatch();
+                },
+                "showGenesInCommon": function(){
+                    var patientNodes = chart.$('node[nodeType="patient"]:selected');
+                    var genes;
+
+                    patientNodes.each(function(i, ele){
+                        var patientGenes = ele.neighborhood("node").map( function(item){ return item.data().name; });
+                        if (i==0) genes = patientGenes;
+                        else{
+                            genes = genes.filter(function(gene){
+                                return patientGenes.indexOf(gene)>=0;
+                            }, patientGenes)
+                        }
+                    })
+                    chart.startBatch();
+                    chart.$('node[nodeType="gene"]')
+                        .forEach(function(node){
+                            if (genes.indexOf(node.data().name)>=0){
+                                node.select();
+                            }
+                        });
+                    chart.endBatch();
+
+                },
+                "showPatientEdges": function(){
                     var degmap = {};
                     chart.$('node[nodeType="patient"]:selected')
                         .forEach(function(node){
@@ -303,8 +343,18 @@
                             }, this);
                     }, degmap);
                     chart.batchData(degmap);
-                }},
-                {name:"Show Edges Of Selected Genes", cmd:function(){
+                },
+                "hidePatientEdges": function(){
+                    var degmap = {};
+                    chart.$('node[nodeType="patient"]:selected')
+                        .forEach(function(node){
+                            node.neighborhood('edge').forEach(function(item){
+                                this[item.id()] = {display:'none'};
+                            }, this);
+                    }, degmap);
+                    chart.batchData(degmap);
+                },
+                "showGeneEdges": function(){
                     var degmap = {};
                     chart.$('node[nodeType="gene"]:selected')
                         .forEach(function(node){
@@ -313,23 +363,19 @@
                             }, this);
                     }, degmap);
                     chart.batchData(degmap);
-                }},
-                {name:"Show All Edges", cmd:function(){
+                },
+                "hideGeneEdges": function(){
                     var degmap = {};
-                    chart.$('edge[edgeType!="chromosome"]')
-                        .forEach(function(item){
-                            this[item.id()] = {display:'element'};
-                        }, degmap);
+                    chart.$('node[nodeType="gene"]:selected')
+                        .forEach(function(node){
+                            node.neighborhood('edge').forEach(function(item){
+                                this[item.id()] = {display:'none'};
+                            }, this);
+                    }, degmap);
                     chart.batchData(degmap);
-                }},
-                {name:"Hide All Edges", cmd:function(){
-                    var degmap = {};
-                    chart.$('edge[edgeType!="chromosome"]')
-                        .forEach(function(item){
-                            this[item.id()] = {display:'none'};
-                        }, degmap);
-                    chart.batchData(degmap);
-                }},{name:"Select Connected Genes", cmd:function(){
+                },
+                "selectConnectedGenes" : function(){
+                    console.log("SELECT CONNECTED GENES");
                     chart.startBatch();
                     chart.$('node[nodeType="patient"]:selected')
                         .neighborhood('node')
@@ -337,8 +383,9 @@
                             ele.select();
                         });
                     chart.endBatch();
-                }},
-                {name:"Select Connected Patients", cmd:function(){
+                },
+                "selectConnectedPatients" : function(){
+                    console.log("CONNECTED PTS");
                     chart.startBatch();
                     chart.$('node[nodeType="gene"]:selected')
                         .neighborhood('node')
@@ -346,44 +393,69 @@
                             ele.select();
                         });
                     chart.endBatch();
-                }},
-                {name:"Deselect All Patients", cmd:function(){
+                },
+                "selectPatients" : function(){
+                    chart.startBatch();
+                    chart.$('node[nodeType="patient"]')
+                        .forEach( function(ele){
+                            ele.select();
+                        });
+                    chart.endBatch();
+                },
+                "selectGenes" : function(){
+                    chart.startBatch();
+                    chart.$('node[nodeType="gene"]')
+                        .forEach( function(ele){
+                            ele.select();
+                        });
+                    chart.endBatch();
+                },
+                "deselectPatients" : function(){
                     chart.startBatch();
                     chart.$('node[nodeType="patient"]:selected')
                         .forEach( function(ele){
                             ele.deselect();
                         });
                     chart.endBatch();
-                }},
-                {name:"Deselect All Genes", cmd:function(){
+                },
+                "deselectGenes" : function(){
                     chart.startBatch();
                     chart.$('node[nodeType="gene"]:selected')
                         .forEach( function(ele){
                             ele.deselect();
                         });
                     chart.endBatch();
-                }},
-                {name:"Invert Patient Selection", cmd:function(){
+                },
+                "invertPatientSelection" : function(){
                     chart.startBatch();
                     chart.$('node[nodeType="patient"]')
                         .forEach( function(ele){
                             ele[ele._private.selected?"deselect":"select"]();
                         });
                     chart.endBatch();
-                }},
-                {name:"Invert Gene Selection", cmd:function(){
+                },
+                "invertGeneSelection" : function(){
                     chart.startBatch();
                     chart.$('node[nodeType="gene"]')
                         .forEach( function(ele){
                             ele[ele._private.selected?"deselect":"select"]();
                         });
                     chart.endBatch();
-                }},
-                {name: "Reset Zoom", cmd:function(){
+                },
+                "deselectAll" : function(){
+
+                },
+                "hideAllEdges" : function(){
+
+                },
+                "zoomReset" : function(){
                     chart.fit();
                     chart.center();
-                }}
-            ]
+                },
+                "zoomFit" : function(){
+                    chart.fit( chart.$(':selected'), 50 )
+                }
+            };
         }
         function initializeViewModel(vm, $stateParams){
 
@@ -413,6 +485,8 @@
             vm.optCohortGenes;
             vm.optCohortGene;
             vm.optCommands;
+            vm.patient;
+            vm.gene;
             vm.frame;
             return vm;
         }
@@ -720,32 +794,26 @@
                             vm.patientChromosomes = e.cyTarget.neighborhood("node")
                                 .map(function(item) { return item.data().id });
                         });
+                    }else{
+                        var gene = {
+                            name: e.cyTarget.data().name,
+                            mutation: e.cyTarget.neighbourhood("edge[edgeType='mutation']").length,
+                            cnl1: e.cyTarget.neighbourhood("edge[edgeType='cnLoss.1']").length,
+                            cnl2: e.cyTarget.neighbourhood("edge[edgeType='cnLoss.2']").length,
+                            cng1: e.cyTarget.neighbourhood("edge[edgeType='cnGain.1']").length,
+                            cng2: e.cyTarget.neighbourhood("edge[edgeType='cnGain.2']").length
+                        }
+                        gene.mutations = gene.cnl1 + gene.cnl2 + gene.cng1 + gene.cng2;
+                        vm.gene = gene;
                     }
                     return this;
                 },
                 hidePatientInfo: function(){
                     $scope.$apply(function() {
-                        vm.patient = vm.patientChromosomes = null;
+                        vm.gene = vm.patient = vm.patientChromosomes = null;
                     });
                     return this;
                 },
-                // showDegreeOneConnected: function(e){
-                    
-                //     var degmap = {};
-                //     chart.off('select', 'node');
-                //     e.cyTarget.neighborhood('node').select();
-                //     e.cyTarget.neighborhood('edge')
-                //         .forEach(function(edge){
-                //             if (
-                //                 edge._private.source.selected() &&
-                //                 edge._private.target.selected()
-                //             ) this[edge.id()] = {display:'element'};
-                //         }, degmap);
-                //     chart.batchData(degmap);  
-                //     chart.on('select', 'node', {ui:true}, function(e){
-                //         behaviors.showDegreeOne(e);
-                //     });            
-                // },
                 showDegreeOne: function(e){
                     var degmap = {};
                     e.cyTarget.neighborhood('edge')
@@ -793,6 +861,12 @@
                 register: function(){
                     events.geneCtx.add(behaviors.showGeneCtxMenu);
                     events.patientCtx.add(behaviors.showPatientCtxMenu);
+                    events.over(function(e) {
+                        behaviors.showPatientInfo(e)
+                    });
+                    events.out(function(e) {
+                        behaviors.hidePatientInfo(e);
+                    });
                 },
                 unregister: function(){
 
@@ -819,6 +893,13 @@
                     chart.on('unselect','node',{ui:true}, function(e){
                         behaviors.hideDegreeOne(e);
                     });
+                    events.over(function(e) {
+                        behaviors.showPatientInfo(e)
+                    });
+                    events.out(function(e) {
+                        behaviors.hidePatientInfo(e);
+                    });
+
                 },
                 unregister: function(){
 
@@ -1198,9 +1279,9 @@
                                 data.sizeEle = data.degree;
                                 data.sizeLbl = 12;
                                 data.sizeBdr = 5;
-                                value.locked = true;
+                                value.locked = (value.data.nodeType!=="gene");
                                 value.selectable = (value.data.nodeType==="gene");
-                                value.grabbable = false;
+                                value.grabbable = (value.data.nodeType==="gene");
                                 return value;
                             });
 
