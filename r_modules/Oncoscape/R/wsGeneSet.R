@@ -32,7 +32,7 @@ ws.scoreHandler <- function(msg)
    geneSet = geneset,
    sampleDescription ="TCGA GBM long vs. short survivors",
    geneSetDescription ="msgidb:KANG_CISPLATIN_RESISTANCE_DN")
-
+   print(skat_nocov$summary.skatRes)
    toJSON(list(cmd=msg$callback, callback="", status="response", payload=toJSON(skat_nocov$summary.skatRes)))
 
 } # scoreHandler

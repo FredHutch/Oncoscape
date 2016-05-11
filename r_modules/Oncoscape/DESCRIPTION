@@ -20,9 +20,10 @@ Collate: OncoDev15.R
          wsGeneral.R
          wsDatasets.R
          wsSurvival.R
-	 wsOncoprint.R
+	      wsOncoprint.R
          oncoprint.R
          survival.R
          wsPLSR.R
          wsPCA.R
          wsTimelines.R
+         wsGeneSet.R

@@ -69,8 +69,8 @@
                 img: 'metadata.png',
                 copy: ''
             }, {
-                name: 'GeneSet',
-                route: 'geneset',
+                name: 'Geneset Test',
+                route: 'genesettest',
                 img: 'metadata.png',
                 copy: ''
             },{

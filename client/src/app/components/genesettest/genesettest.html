@@ -1,0 +1,65 @@
+<os-tool-menu datasource="{{vm.datasource}}" change="vm.addCohortPatient()">
+</os-tool-menu>
+<os-tray content="tray-content-block" change="vm.resize($event)">
+    <section class="tray-content">
+                <div class="col-xs-12 form-label">
+                    <h2>Cohorts</h2>
+                </div>
+                <div class="col-sm-12 form-item">
+                    <label>Patient Cohort 1</label>
+                    <div class="dropdown bs-dropdown">
+                        <button class="btn btn-default dropdown-toggle" type="button" style="width: 34px;display: inline-block; margin-right:0px; float:right" ng-click="vm.addCohortPatient()">+
+                        </button>
+                        <button class="btn btn-default dropdown-toggle" type="button" id="dropdownMenu1" data-toggle="dropdown" aria-haspopup="true" aria-expanded="true" style="width: 220px;display: inline-block; margin-right:0px;">
+                            {{vm.optCohortPatient.name}}
+                            <span class="caret"></span>
+                        </button>
+                        <ul class="dropdown-menu" aria-labelledby="dropdownMenu1" style="width:100%">
+                            <li ng-repeat="item in vm.optCohortPatients" ng-click="vm.optCohortPatient=item">{{item.name}}</li>
+                        </ul>
+                    </div>
+                </div>
+                <div class="col-sm-12 form-item">
+                    <label>Patient Cohort 2</label>
+                    <div class="dropdown bs-dropdown">
+                        <button class="btn btn-default dropdown-toggle" type="button" style="width: 34px;display: inline-block; margin-right:0px; float:right" ng-click="vm.addCohortPatient()">+
+                        </button>
+                        <button class="btn btn-default dropdown-toggle" type="button" id="dropdownMenu1" data-toggle="dropdown" aria-haspopup="true" aria-expanded="true" style="width: 220px;display: inline-block; margin-right:0px;">
+                            {{vm.optCohortPatient.name}}
+                            <span class="caret"></span>
+                        </button>
+                        <ul class="dropdown-menu" aria-labelledby="dropdownMenu1" style="width:100%">
+                            <li ng-repeat="item in vm.optCohortPatients" ng-click="vm.optCohortPatient=item">{{item.name}}</li>
+                        </ul>
+                    </div>
+                </div>
+    </section>
+</os-tray>
+<section class="tray-content-block">
+  <div class="container-fluid">
+    <h2 class="h2-tool">Gene Set Binomial Test</h2>
+    <h3 class="h3-datasource">{{vm.datasource}}</h3>
+    <div id="geneSetTestsModuleDiv" class="genesettest">
+
+    <div id="geneSetTests_Div">
+        <div id="geneSetTestsControlsDiv">
+            <div class="navbar-collapse collapse navbar-inverse-collapse">  
+                 <div id="geneSetTestsInputsDiv" >
+                    <div id="geneSetTestsLaunchButtonDiv">
+                        <form>
+                         <div class="form-group">
+                              <button id="geneSetTestsLaunchButton" type="button">Analyze Gene set</button>
+                         </div>
+                         <div>
+                         {{vm.message}};
+                         </div>
+                       </form>
+                    </div>
+                </div>
+            </div>
+        </div> 
+    </div>
+
+  </div>
+  </div>
+</section>

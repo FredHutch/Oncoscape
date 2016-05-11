@@ -284,6 +284,16 @@
                 }
             });
         }
+        function getGeneSetScore(Group1, Group2, geneSet) {
+            return osSocket.request({
+                cmd: "geneSetScoreTest",
+                payload: {
+                    group1: Group1,
+                    group2: Group2, 
+                    geneset: geneSet
+                }
+            });
+        }
 
 
 
@@ -433,7 +443,8 @@
             getCnvData: getCnvData,
             getMutationData: getMutationData,
             getModuleModificationDate: getModuleModificationDate,
-            getOncoprint: getOncoprint
+            getOncoprint: getOncoprint,
+            getGeneSetScore: getGeneSetScore
         }
 
     }
