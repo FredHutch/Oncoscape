@@ -30,6 +30,16 @@ button{
 	padding-left: 20px;
 	padding-right: 20px;
 }
+.btn-no-focus:focus{
+	outline:none !important;
+	background-color: #FFF !important;
+	border-color: #cccccc !important;
+}
+.btn-no-focus:hover{
+	background-color: #e6e6e6 !important;
+	border-color: #adadad !important;
+}
+
 *:focus {outline:none;}
 .radio label, .checkbox label{
 	font-weight: 300;

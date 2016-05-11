@@ -150,8 +150,6 @@
                 d3BarsBackground.attr( {'height' : (hChart-50)+"px", 'width':wChart+"px"} );
                 d3Bars.attr("transform","scale(1," + minZoom + ")");
 
-                var mdi;
-
                 // Rows
                 var rows = d3Bars.selectAll("g.timeline").data( dataProcessed.patients );
                     rows.exit().remove();

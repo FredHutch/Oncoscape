@@ -294,8 +294,11 @@
             var _patientSelections = [];
             var _patientSelection = null;
 
-            var addGeneSelection = function(name, ids){
-                _geneSelections.push({name:name, ids:ids})
+            var addGeneSelection = function(tool, desc, ids){
+                var selection = {name:name, desc:desc, ids:ids, date:moment().unix()};
+                _geneSelection = selection;
+                _geneSelections.unshift(selection);
+                if (_geneSelections.length>0) _geneSelections.pop();
             };
             var getGeneSelections = function(){
                 return _geneSelection;
@@ -303,15 +306,16 @@
             var setGeneSelection = function(selection){
                 _geneSelection = selection;
             };
-
             var getGeneSelection = function(selection){
                 return _geneSelection;
             };
 
             var _patientSelections = [];
             var addPatientSelection = function(name, ids){
-                console.log("ADD PATIENT SELECTION");
-                _patientSelections.push({name:name, ids:ids})
+                var selection = {name:name, desc:desc, ids:ids, date:moment().unix()};
+                _geneSelection = selection;
+                _patientSelections.unshift(selection);
+                if (_patientSelections.length>5) _patientSelections.pop()
 
             };
             var getPatientSelections = function(){
