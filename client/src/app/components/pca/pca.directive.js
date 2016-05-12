@@ -78,7 +78,9 @@
 
                         // Load Gene Sets
                         vm.geneSets = response.payload;
+                        vm.geneSets.unshift("All");
                         vm.geneSet = vm.geneSets[0];
+
                         $scope.$watch('vm.geneSet', function() {
                             update();
                         });
@@ -97,7 +99,7 @@
             // API Call To Calculate PCA
             var update = function() {
                 osApi.setBusyMessage("Calculating PCA");
-                osApi.getCalculatedPCA(vm.geneSet).then(function(response) {
+                osApi.getCalculatedPCA((vm.geneSet=="All") ? null : vm.geneSet).then(function(response) {
                     osApi.setBusyMessage("Rendering PCA");
                     var payload = response.payload;
                     vm.pc1 = Math.round(response.payload["importance.PC1"] * 100);

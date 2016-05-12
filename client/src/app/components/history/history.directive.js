@@ -19,9 +19,9 @@
         return directive;
 
         /** @ngInject */
-        function HistoryController(osApi, osHistory, $state, $timeout, $scope, moment, $stateParams) {
+        function HistoryController(osApi, osHistory, $state, $timeout, $scope, moment, $stateParams, _) {
 
-            $scope.$on("$destroy", function(event) {
+            $scope.$on("$destroy", function() {
                 vm.applyFilter("Exit");
                 osHistory.removeListeners();
             });
@@ -55,7 +55,7 @@
                 }).map(function(item) {
                     return item[0].toString().toUpperCase()
                 });
-                o = $.map(o, function(value, index) {
+                o = angular.map(o, function(value) {
                     return [value];
                 });
                 osHistory.addPatientSelection("Patient History", filter, o);
@@ -134,7 +134,6 @@
                                 return;
                             }
                             dtTable.api().search(vm.search).draw();
-                            saveSelection("Search");
                         }, 1000));
                         draw();
                         osApi.setBusy(false);

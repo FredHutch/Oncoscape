@@ -26,8 +26,6 @@
                 return;
             }
 
-            // Data
-            var rawData;
 
             // View Model
             var vm = this;

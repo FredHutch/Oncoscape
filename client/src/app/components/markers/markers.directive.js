@@ -20,7 +20,7 @@
         return directive;
 
         /** @ngInject */
-        function MarkersController(osApi, $state, $timeout, $scope, $stateParams, cytoscape, signals, moment, $window, _) {
+        function MarkersController(osApi, osHistory, $state, $timeout, $scope, $stateParams, cytoscape, signals, moment, $window, _) {
 
             if (angular.isUndefined($stateParams.datasource)){
                 $state.go("datasource");
@@ -30,11 +30,10 @@
             // Elements
             var cyChart;
             var elChart = angular.element(".markers-chart");
-            var cohortPatient = osApi.getCohortPatient();
-            var cohortGene = osApi.getCohortGene();
 
             // Initialize View Model
             var vm = initializeViewModel(this, $stateParams);
+
 
             vm.resize = function(){
                 var width = $window.innerWidth;
@@ -49,7 +48,7 @@
                 _.debounce(vm.resize, 300)
             );
             angular.element($window).bind('click', 
-                function(e){
+                function(){
                     $scope.$apply(function(){
                         vm.optCtxGeneShow = false;
                         vm.optCtxPatientShow = false;
@@ -70,14 +69,16 @@
                 // Initialize Chart
                 cyChart = initializeChart(data, styles, cytoscape, angular.element("#markers-chart"));
 
+                // Initialize History
+                initializeHistory(cyChart, osHistory);
                 // Initialize Cohorts
-                initializeCohort(cyChart, vm, osApi, cohortPatient, cohortGene, $scope, moment);
+                //initializeCohort(cyChart, vm, osApi, cohortPatient, cohortGene, $scope, moment);
 
                 // Initialize Layouts
                 initializeLayouts(cyChart, vm, $scope);
 
                 // Initialize Node Colors
-                initializeNodeColors(cyChart, vm, $scope, osApi, $timeout);
+                initializeNodeColors(cyChart, vm, $scope, osApi, $timeout, _);
 
                 // Initialize Edge Colors
                 initializeEdgeColors(cyChart, vm, $scope, $timeout);
@@ -92,7 +93,7 @@
                 initializeZoom(cyChart, _);
 
                 // Initialize Commands
-                initializeCommands(cyChart, vm, $window, $scope);
+                initializeCommands(cyChart, vm, $window);
                 
                 // Ready
                 osApi.setBusy(false);
@@ -145,10 +146,10 @@
             });
         }
             
-        function initializeCommands(chart, vm, $window, $scope){
+        function initializeCommands(chart, vm, $window){
             vm.optInteractiveMode = vm.optInteractiveModes[0];
             vm.optCommandPatient = [
-                {name:"Show Edges", cmd:function(e){
+                {name:"Show Edges", cmd:function(){
                     vm.optCommandPatient.selected.select();
                     var degmap = {};
                     vm.optCommandPatient.selected
@@ -158,7 +159,7 @@
                         }, degmap);
                     chart.batchData(degmap);
                 }},
-                {name:"Hide Edges", cmd:function(e){
+                {name:"Hide Edges", cmd:function(){
                     var degmap = {};
                     vm.optCommandPatient.selected
                         .neighborhood('edge')
@@ -167,7 +168,7 @@
                         }, degmap);
                     chart.batchData(degmap);
                 }},
-                {name:"Select Associated Genes", cmd:function(e){
+                {name:"Select Associated Genes", cmd:function(){
                     chart.startBatch();
                     vm.optCommandPatient.selected.select();
                     vm.optCommandPatient.selected
@@ -178,7 +179,7 @@
                     chart.endBatch();
                     vm.optCtxPatientShow = false;
                 }},
-                {name:"Deselect Associated Genes", cmd:function(e){
+                {name:"Deselect Associated Genes", cmd:function(){
                     chart.startBatch();
                     vm.optCommandPatient.selected
                         .neighborhood('node')
@@ -188,7 +189,7 @@
                     chart.endBatch();
                     vm.optCtxPatientShow = false;
                 }},
-                {name:"View Oncoprint", cmd:function(e){
+                {name:"View Oncoprint", cmd:function(){
 
                     if (vm.datasource=="DEMOdz") return;
                     if (vm.datasource.indexOf("TCGA" == 0)) {
@@ -200,10 +201,10 @@
                         $window.open(url);
                     }
                     vm.optCtxPatientShow = false;
-                }},
+                }}
             ];
             vm.optCommandGene = [
-                {name:"Show Edges", cmd:function(e){
+                {name:"Show Edges", cmd:function(){
                     vm.optCommandGene.selected.select();
                     
                     var degmap = {};
@@ -214,7 +215,7 @@
                         }, degmap);
                     chart.batchData(degmap);
                 }},
-                {name:"Hide Edges", cmd:function(e){
+                {name:"Hide Edges", cmd:function(){
                     var degmap = {};
                     vm.optCommandGene.selected
                         .neighborhood('edge')
@@ -223,7 +224,7 @@
                         }, degmap);
                     chart.batchData(degmap);
                 }},
-                {name:"Select Associated Patients", cmd:function(e){
+                {name:"Select Associated Patients", cmd:function(){
                     chart.startBatch();
                     vm.optCommandGene.selected.select();
                     vm.optCommandGene.selected
@@ -234,7 +235,7 @@
                     chart.endBatch();
                     vm.optCtxGeneShow = false;
                 }},
-                {name:"Deselect Associated Patients", cmd:function(e){
+                {name:"Deselect Associated Patients", cmd:function(){
                     chart.startBatch();
                     vm.optCommandGene.selected
                         .neighborhood('node')
@@ -244,7 +245,7 @@
                     chart.endBatch();
                     vm.optCtxPatientShow = false;
                 }},
-                {name:"View Gene Card", cmd:function(e){
+                {name:"View Gene Card", cmd:function(){
                     $window.open("http://www.genecards.org/cgi-bin/carddisp.pl?gene="+vm.optCommandGene.selected.data().name);
                     vm.optCtxGeneShow = false;
                 }}
@@ -338,7 +339,6 @@
                     chart.batchData(degmap);
                 },
                 "selectConnectedGenes" : function(){
-                    console.log("SELECT CONNECTED GENES");
                     chart.startBatch();
                     chart.$('node[nodeType="patient"]:selected')
                         .neighborhood('node')
@@ -348,7 +348,6 @@
                     chart.endBatch();
                 },
                 "selectConnectedPatients" : function(){
-                    console.log("CONNECTED PTS");
                     chart.startBatch();
                     chart.$('node[nodeType="gene"]:selected')
                         .neighborhood('node')
@@ -467,8 +466,45 @@
             vm.frame;
             return vm;
         }
+        function initializeHistory(){//chart, osHistory){
 
+            // History Integration
+            // var skipSave = false;
+            // var selectedGeneIds = (osHistory.getGeneSelection() == null) ? null : osHistory.getGeneSelection().ids;
+            // var selectedPatientIds = (osHistory.getPatientSelection() == null) ? null : osHistory.getPatientSelection().ids;
+
+
+            /*
+            function saveSelected() {
+
+                if (skipSave) { skipSave = false; return; }
+                console.log("SAVE");
+                var ids = csChart.$('node[nodeType="gene"]:selected').map(function(ele){ return ele.data().id.toUpperCase() });
+                osHistory.addGeneSelection("Pathways", "Manual Selection", ids );
+            }
+            function setSelected() {
+
+                skipSave = true;
+                csChart.startBatch();
+                if (selectedIds == null) {
+                    csChart.$('node[nodeType="gene"]:selected')
+                        .forEach( function(ele){
+                            ele.deselect();
+                        });
+                } else {
+                    csChart.$('node[nodeType="gene"]')
+                        .forEach( function(ele){
+                            ele[ (this.indexOf(ele.id())==-1) ? "deselect" : "select"]();
+                        }, selectedIds);
+                }
+                csChart.endBatch();
+            }
+            */
+
+        }
+        /*
         function initializeCohort(chart, vm, osApi, cohortPatient, cohortGene, $scope, moment){
+            
             vm.optCohortModes = [{name:"Highlight"},{name:"Filter"}];
             vm.optCohortMode = vm.optCohortModes[0];
             vm.optCohortPatients = cohortPatient.get();
@@ -523,7 +559,9 @@
                 }
                 chart.batchData(degmap);
                 chart.endBatch();
+                
             };
+
             var drawGenes = function(){
                 var degmap = {};
                 var highlight = (vm.optCohortMode.name=="Highlight");
@@ -563,6 +601,7 @@
             $scope.$watch("vm.optCohortMode", drawMode );
 
         }
+        */
 
         function initializeChart(data, styles, cytoscape, el){
             // Initalize Cytoscape Chart
@@ -1042,7 +1081,7 @@
             }, 300));
         }
 
-        function initializeNodeColors(chart, vm, $scope, osApi, $timeout){
+        function initializeNodeColors(chart, vm, $scope, osApi, $timeout, _){
             function calculateSelections(){
                 var selectedNodes = chart.$('node[nodeType="patient"]:selected');
                 var sums = {};
