@@ -17,7 +17,7 @@ GeneSetBinomialMethods <- function(sampleIDs=list(), geneSet=list(),
    # load(file)
    # obj@tbl.mrna <- tbl.mrna
    obj <- .GeneSetBinomialMethods()
-   obj@sampleIDs <- sampleIDs
+   #obj@sampleIDs <- sampleIDs
    obj@tbl.mrna <- matrix()
    file <- system.file(package="GeneSetBinomialMethods", "data", "tbl.ptHistory.RData")
    load(file)

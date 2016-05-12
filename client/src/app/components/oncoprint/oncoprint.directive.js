@@ -31,53 +31,70 @@
             var elInstructions = angular.element("#oncoprintInstructions");
             var elErrors = angular.element("#oncoprintErrorSection");
             var elLegend = angular.element("#legend");
-
+            var d3Chart = d3.select("#onc");
+            
             // History Integration
             var selectedPatientIds = (osHistory.getPatientSelection() == null) ? null : osHistory.getPatientSelection().ids;
             var selectedGeneIds = (osHistory.getGeneSelection() == null) ? null : osHistory.getGeneSelection().ids;
             
-            function saveSelectedPatients() {
-                osHistory.addPatientSelection("Oncoprint", "Manual Selection",
-                    d3Chart.selectAll(".pca-node-selected")[0].map(function(node) {
-                        return node.__data__.id.toUpperCase();
-                    })
-                );
-            }
-            function saveSelectedGenes() {
-                osHistory.addPatientSelection("Oncoprint", "Manual Selection",
-                    d3Chart.selectAll(".pca-node-selected")[0].map(function(node) {
-                        return node.__data__.id.toUpperCase();
-                    })
-                );
-            }
-            function setSelectedPatients() {
-                if (selectedIds == null) {
-                    d3Chart.selectAll(".pca-node-selected").classed("pca-node-selected", false);
-                } else {
-                    d3Chart.selectAll("circle").classed("pca-node-selected", function() {
-                        return (selectedIds.indexOf(this.__data__.id) >= 0)
-                    });
-                }
-            }
-            function setSelectedGenes() {
-                if (selectedIds == null) {
-                    d3Chart.selectAll(".pca-node-selected").classed("pca-node-selected", false);
-                } else {
-                    d3Chart.selectAll("circle").classed("pca-node-selected", function() {
-                        return (selectedIds.indexOf(this.__data__.id) >= 0)
-                    });
-                }
-            }
+            // selection
+            // function saveSelectedPatients() {
+            //     osHistory.addPatientSelection("Oncoprint", "Manual Selection",
+            //         d3Chart.selectAll(".pca-node-selected")[0].map(function(node) {
+            //             return node.__data__.id.toUpperCase();
+            //         })
+            //     );
+            // }
+            // function saveSelectedGenes() {
+            //     osHistory.addPatientSelection("Oncoprint", "Manual Selection",
+            //         d3Chart.selectAll("oncoprint-track-label-main")[0].map(function(node) {
+            //             return node.__data__.id.toUpperCase();
+            //         })
+            //     );
+            // }
+            // function setSelectedPatients() {
+            //     if (selectedIds == null) {
+            //         d3Chart.selectAll(".pca-node-selected").classed("pca-node-selected", false);
+            //     } else {
+            //         d3Chart.selectAll("circle").classed("pca-node-selected", function() {
+            //             return (selectedIds.indexOf(this.__data__.id) >= 0)
+            //         });
+            //     }
+            // }
+            // function setSelectedGenes() {
+            //     if (selectedIds == null) {
+            //         d3Chart.selectAll(".pca-node-selected").classed("pca-node-selected", false);
+            //     } else {
+            //         d3Chart.selectAll("circle").classed("pca-node-selected", function() {
+            //             return (selectedIds.indexOf(this.__data__.id) >= 0)
+            //         });
+            //     }
+            // }
+            // // Brush
+            // var brush = d3.svg.brush()
+            //     .on("brushend", function() {
+            //         var bv = brush.extent();
+            //         d3Chart.classed("oncoprint-track-label-main", function(d) {
+            //                 return (d[0] > bv[0][0] && d[0] < bv[1][0] && d[1] > bv[0][1] && d[1] < bv[1][1]);
+            //             });
+            //         d3.select(this).transition().duration(300)
+            //             .call(brush.extent([
+            //                 [0, 0],
+            //                 [0, 0]
+            //             ]));
+            //         saveSelectedGenes();
+            //     });
 
-            // var cohortGene = osApi.getCohortGene();
-            // var cohortPatient = osApi.getCohortPatient();
+            // d3Chart.call(brush);
 
             // View Model
             var vm = this;
             vm.datasource = $stateParams.datasource;
             vm.geneAndPatients = selectedPatientIds + "," + selectedGeneIds;
             vm.errorMessage;
+
             
+
             var Oncoprint = (function() {
               var events = oncoprint_events;
               var utils = oncoprint_utils;
@@ -804,7 +821,7 @@
                         self.removeTrackButtons(track_id);
                         
                         self.computeTrackCellTops();
-                        self.renderLegend();
+                        //self.renderLegend();
                         self.renderTrackLabels();
                         self.renderTrackButtons();
                         self.resizeLabelDiv();
@@ -1045,7 +1062,7 @@
                           }, function() {
                             new_btn.style('font-size','12px').style('color', '#87CEFA');
                           }).qtip({
-                                            content: {text: 'Click to remove'},
+                                            //content: {text: 'Click to remove'},
                                             position: {my:'bottom middle', at:'top middle', viewport: $(window)},
                                             style: { classes: 'qtip-light qtip-rounded qtip-shadow qtip-lightyellow' },
                                             show: {event: "mouseover"},

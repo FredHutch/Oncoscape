@@ -23,7 +23,7 @@ ws.scoreHandler <- function(msg)
    print(geneset)
   
    #set40 <- randomSample(obj = GeneSetBinomialMethods(), nG1 = 40, nG2 = 40, cut = 0.5, all = FALSE, seed = 12345)
-   #set40 <- randomSample(obj = GeneSetBinomialMethods(), nG1 = nG1, nG2 = nG2, cut = 0.5, all = FALSE, seed = 12345)
+   set40 <- randomSample(obj = GeneSetBinomialMethods(), nG1 = nG1, nG2 = nG2, cut = 0.5, all = FALSE, seed = 12345)
    
    skat_nocov <- geneSetScoreTest(
                  obj = GeneSetBinomialMethods(),
