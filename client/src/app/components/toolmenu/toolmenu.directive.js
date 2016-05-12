@@ -83,6 +83,11 @@
                 img: 'history.png',
                 copy: ''
             }, {
+                name: 'Geneset Test',
+                route: 'genesettest',
+                img: 'history.png',
+                copy: ''
+            }, {
                 name: 'MetaData',
                 route: 'metadata',
                 img: 'metadata.png',

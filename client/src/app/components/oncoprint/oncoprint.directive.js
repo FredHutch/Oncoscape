@@ -19,7 +19,7 @@
         return directive;
 
         /** @ngInject */
-        function OncoprintController(osApi, $state, $stateParams, $timeout, $scope, d3, $window, _) {
+        function OncoprintController(osApi, osHistory, $state, $stateParams, $timeout, $scope, d3, $window, _) {
 
             if (angular.isUndefined($stateParams.datasource)) {
                 $state.go("datasource");
@@ -32,20 +32,50 @@
             var elErrors = angular.element("#oncoprintErrorSection");
             var elLegend = angular.element("#legend");
 
-            // Properties
-            var cohortGene = osApi.getCohortGene();
-            var cohortPatient = osApi.getCohortPatient();
+            // History Integration
+            var selectedPatientIds = (osHistory.getPatientSelection() == null) ? null : osHistory.getPatientSelection().ids;
+            var selectedGeneIds = (osHistory.getGeneSelection() == null) ? null : osHistory.getGeneSelection().ids;
+            
+            function saveSelectedPatients() {
+                osHistory.addPatientSelection("Oncoprint", "Manual Selection",
+                    d3Chart.selectAll(".pca-node-selected")[0].map(function(node) {
+                        return node.__data__.id.toUpperCase();
+                    })
+                );
+            }
+            function saveSelectedGenes() {
+                osHistory.addPatientSelection("Oncoprint", "Manual Selection",
+                    d3Chart.selectAll(".pca-node-selected")[0].map(function(node) {
+                        return node.__data__.id.toUpperCase();
+                    })
+                );
+            }
+            function setSelectedPatients() {
+                if (selectedIds == null) {
+                    d3Chart.selectAll(".pca-node-selected").classed("pca-node-selected", false);
+                } else {
+                    d3Chart.selectAll("circle").classed("pca-node-selected", function() {
+                        return (selectedIds.indexOf(this.__data__.id) >= 0)
+                    });
+                }
+            }
+            function setSelectedGenes() {
+                if (selectedIds == null) {
+                    d3Chart.selectAll(".pca-node-selected").classed("pca-node-selected", false);
+                } else {
+                    d3Chart.selectAll("circle").classed("pca-node-selected", function() {
+                        return (selectedIds.indexOf(this.__data__.id) >= 0)
+                    });
+                }
+            }
+
+            // var cohortGene = osApi.getCohortGene();
+            // var cohortPatient = osApi.getCohortPatient();
 
             // View Model
             var vm = this;
             vm.datasource = $stateParams.datasource;
-            vm.geneSets = [];
-            vm.geneSet = null;
-            vm.optCohortGenes = cohortGene.get();
-            vm.optCohortGene = vm.optCohortGenes[0];
-            vm.optCohortPatients = cohortPatient.get();
-            vm.optCohortPatient = vm.optCohortPatients[0];
-            vm.geneAndPatients = vm.optCohortGene.ids + "," + vm.optCohortPatient.ids;
+            vm.geneAndPatients = selectedPatientIds + "," + selectedGeneIds;
             vm.errorMessage;
             
             var Oncoprint = (function() {
@@ -1408,9 +1438,8 @@
                 var mtx = mtx[mtx.length - 1].replace(".RData", "");
    
   
-                $scope.$watchGroup(['vm.optCohortPatient', 'vm.optCohortGene'], function() {
-                    var msg =  vm.optCohortPatient.ids.toString() + ", " + vm.optCohortGene.ids.toString();
-                    drawOncoprint(msg);
+                $scope.$watchGroup(['vm.geneAndPatients'], function() {
+                   drawOncoprint(vm.geneAndPatients);
                 });  
                  osApi.setBusy(false);
             });
@@ -1442,7 +1471,7 @@
             // API Call To oncoprint_data_selection
             var drawOncoprint = function(msg) {
 
-                if ( (vm.optCohortPatient.ids == "*") || (vm.optCohortGene.ids == "*") ){
+                if ((selectedPatientIds == null) || (selectedGeneIds == null) ){
                   setState("instructions");
                   return;
                 } 
