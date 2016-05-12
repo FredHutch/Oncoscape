@@ -133,7 +133,7 @@
                                 init = false;
                                 return;
                             }
-                            dtTable.api().search(vm.search).draw();
+                            vm.applyFilter("Search");
                         }, 1000));
                         draw();
                         osApi.setBusy(false);
