@@ -19,7 +19,7 @@
         return directive;
 
         /** @ngInject */
-        function TimelinesController(osApi, $state, $scope, $stateParams, $window, $document, moment, d3) {
+        function TimelinesController(osApi, osHistory, $state, $scope, $stateParams, $window, $document, moment, d3) {
 
             if (angular.isUndefined($stateParams.datasource)) {
                 $state.go("datasource");
@@ -35,7 +35,6 @@
             var minZoom = 0;
 
 
-            
             // View Model
             var vm = this;
                 vm.selShow = false;
@@ -43,8 +42,6 @@
                 vm.selEvent;
                 vm.selFields = [];
                 vm.datasource = $stateParams.datasource;
-                vm.optCohortPatients;
-                vm.optCohortPatient;
                 vm.optCohortModes;
                 vm.optCohortMode;
                 vm.timescaleunit;
@@ -58,6 +55,8 @@
                 vm.sorts;
                 vm.sort;
                 vm.align;
+                vm.optCohortModes = [{name:"Highlight"},{name:"Filter"}];
+                vm.optCohortMode = vm.optCohortModes[0];
           
             // Elements
             var elChart = angular.element("#timelines-chart");
@@ -75,6 +74,16 @@
             var d3Bars = d3BarsSvg.append("g")
                 .attr({"class":"bars"});  // Container For Bars
 
+            // History Integration
+            var selectedIds = (osHistory.getPatientSelection() == null) ? null : osHistory.getPatientSelection().ids;
+            function saveSelected() {
+                selectedIds = d3Bars.selectAll(".timeline-selected")[0].map( function (p) { return p.__data__.id; }  )
+                if (selectedIds.length==0) selectedIds = d3Bars.selectAll()[0].map( function (p) { return p.__data__.id; }  )
+                osHistory.addPatientSelection("Patient History", "Manual Selection",
+                    selectedIds
+                );
+                if (vm.optCohortMode.name=="Filter") draw();
+            }
 
             var zoom;
             var zoomed = function(){
@@ -102,29 +111,31 @@
             };
 
             var brush;
+            var brushing = false;
             var onBrushStart = function(){
-                if (!d3.event.shiftKey) {
+                if (!d3.event.sourceEvent.shiftKey) {
                     d3.event.target.clear();
                     d3.select(this).call(d3.event.target);
+                }else{
+                    brushing = true;
                 }
             }
             var onBrush = function(){
-          
+                if (!brushing) return;
                 var extent = brush.extent();
                 var lower = Math.floor(extent[0][1]);
                 var upper = Math.floor(extent[1][1]);
-
                 d3Bars.selectAll("g.timeline")
                     .each( function(d, i){
-                        var e = d3.select(this.firstChild);
-                        e.classed("timeline-selected", (i>=lower && i<=upper) );
-                        
+                        d3.select(this.firstChild).classed("timeline-selected", (i>=lower && i<=upper) );
                     });
-
             }
             var onBrushEnd = function(){
+                if (!brushing) return;
+                brushing = false;
                 d3.event.target.clear();
-                d3.select(this).call(d3.event.target);                
+                d3.select(this).call(d3.event.target);    
+                saveSelected();
             }
 
 
@@ -172,10 +183,10 @@
                         });
 
 
-                    if (vm.optCohortMode.name=="Highlight" && vm.optCohortPatient.ids!="*"){
+                    if (vm.optCohortMode.name=="Highlight" && selectedIds){
                         rows
                             .each( function(d){
-                                var selected = (vm.optCohortPatient.ids.indexOf(d.id)>=0);
+                                var selected = (selectedIds.indexOf(d.id)>=0);
                                 var e = d3.select(this.firstChild);
                                 e.classed("timeline-selected", selected );
                         });
@@ -295,12 +306,12 @@
                         if (vm.filter.name=="Only Alive" && patient.dead) return false;
                         if (vm.filter.name=="Only Dead" && !patient.dead) return false;
                         if (!patient.hasOwnProperty("__"+this.align)) return false;
-                        if (this.filter & this.ids!=="*"){
+                        if (this.filter && this.ids){
                             if (this.ids.indexOf(patient.id)==-1) return false;
                         }
                         return true;
 
-                    }, {'align':align.name, 'filter':(vm.optCohortMode.name=="Filter"), 'ids':vm.optCohortPatient.ids});
+                    }, {'align':align.name, 'filter':(vm.optCohortMode.name=="Filter"), 'ids':selectedIds});
 
                     // Sort Patients On Align Property    
                     if (sort.name=="Survival"){
@@ -495,31 +506,18 @@
                         $scope.$watchGroup(['vm.feature', 'vm.sort', 'vm.align', 'vm.timescale', 'vm.filter'], draw);
                         angular.element($window).bind('resize', draw);
                       
-                        initializeCohort(vm, osApi);   
-                        draw();
+                        $scope.$watch("vm.optCohortMode", draw );   // Triggers Inital Draw
+
+                        // History
+                        osHistory.onPatientSelectionChange.add(function(selection) {
+                            selectedIds = selection.ids;
+                            draw();
+                        });
                         osApi.setBusy(false);
                     });
                 });
             })();
 
-            var initializeCohort = function (vm, osApi){
-                var cohortPatient = osApi.getCohortPatient();
-                vm.optCohortModes = [{name:"Highlight"},{name:"Filter"}];
-                vm.optCohortMode = vm.optCohortModes[1];
-                vm.optCohortPatients = cohortPatient.get();
-                vm.optCohortPatient = vm.optCohortPatients[0];
-                vm.addCohortPatient = function(){
-                    var cohortName = "TL " + moment().format('- H:mm - M/D/YY');
-                    var cohortIds = d3Bars.selectAll(".timeline-selected")[0]
-                        .map( function (p) { return p.__data__.id; }  )
-                    var cohort = {name:cohortName, ids:cohortIds};
-                    if (cohortIds.length==0) return;
-                    cohortPatient.add(cohort);
-                    vm.optCohortPatient = cohort;
-                }
-                $scope.$watch("vm.optCohortMode", draw );
-                $scope.$watch("vm.optCohortPatient", draw );
-            }
 
             // Event Handlers
             vm.resize = function(){

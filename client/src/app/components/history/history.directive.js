@@ -19,18 +19,22 @@
         return directive;
 
         /** @ngInject */
-        function HistoryController(osApi, $state, $timeout, $scope, moment, $stateParams) {
+        function HistoryController(osApi, osHistory, $state, $timeout, $scope, moment, $stateParams) {
 
-            if (angular.isUndefined($stateParams.datasource)){
+            $scope.$on("$destroy", function(event) {
+                vm.applyFilter("Exit");
+                osHistory.removeListeners();
+            });
+
+            if (angular.isUndefined($stateParams.datasource)) {
                 $state.go("datasource");
                 return;
             }
-
             // Properties
             var dtTable;
-            var cohortPatient = osApi.getCohortPatient();
             var rawData;
             var data;
+            var selectedIds = (osHistory.getPatientSelection() == null) ? null : osHistory.getPatientSelection().ids;
 
             // View Model
             var vm = this;
@@ -41,48 +45,51 @@
             vm.diagnosisMax = vm.diagnosisMaxValue = 99;
             vm.survivalMin = vm.survivalMinValue = 0;
             vm.survivalMax = vm.survivalMaxValue = 10;
-            vm.optCohortPatients = cohortPatient.get();
-            vm.optCohortPatient = vm.optCohortPatients[0];
             vm.search = "";
 
-            vm.addCohortPatient = function(){
-                var cohortName = "Patient " + moment().format('- H:mm - M/D/YY');
-                var cohortIds = dtTable._('tr', {"filter":"applied"}).map( function ( item ){ return item[0].toUpperCase() } );
-                var cohort = {name:cohortName, ids:cohortIds};
-                if (cohortIds.length==0) return;
-                cohortPatient.add(cohort);
-                vm.optCohortPatient = cohort;
 
-            }
-            $scope.$watch('vm.optCohortPatient', draw);
-
-            vm.applyFilter = function() {
-                // Override Datatables Default Search Function - More Efficent Than Using Angular Bindings
-                angular.element.fn.DataTable.ext.search = [function(settings, data) {
-                    var survival = parseFloat(data[3]);
-                    var diagnosis = parseFloat(data[4]);
-                    if (isNaN(survival) || isNaN(diagnosis)) return false;
-                    return (diagnosis >= vm.diagnosisMin &&
-                        diagnosis <= vm.diagnosisMax &&
-                        survival >= vm.survivalMin &&
-                        survival <= vm.survivalMax);
-                }];
+            vm.applyFilter = function(filter) {
+                selectedIds = null;
+                var o = dtTable._('tr', {
+                    "filter": "applied"
+                }).map(function(item) {
+                    return item[0].toString().toUpperCase()
+                });
+                o = $.map(o, function(value, index) {
+                    return [value];
+                });
+                osHistory.addPatientSelection("Patient History", filter, o);
                 dtTable.api().draw();
             };
 
 
-            function draw(){
+            function draw() {
+
                 if (angular.isUndefined(dtTable)) return;
                 dtTable.fnClearTable();
                 data = rawData.tbl;
-                if (vm.optCohortPatient.ids!="*"){
-                    data = data.filter(function(d){
-                        return (vm.optCohortPatient.ids.indexOf(d[0])>=0)
-                    });
-                }
-                if (data.length==0) return;
-                var d = data.map(function(d){ return d[4]; });
-                var s = data.map(function(d){ return d[3]; });
+                if (data.length == 0) return;
+                var d = data.map(function(d) {
+                    return d[4];
+                });
+                var s = data.map(function(d) {
+                    return d[3];
+                });
+
+                // Override Datatables Default Search Function - More Efficent Than Using Angular Bindings
+                angular.element.fn.DataTable.ext.search = [function(settings, data) {
+                    var survival = parseFloat(data[3]);
+                    var diagnosis = parseFloat(data[4]);
+                    if (selectedIds != null) {
+                        if (selectedIds.indexOf(data[0]) == -1) return false;
+                    }
+                    if (isNaN(survival) || isNaN(diagnosis)) return false;
+                    return (diagnosis >= vm.diagnosisMin &&
+                        diagnosis < (vm.diagnosisMax + 1) &&
+                        survival >= vm.survivalMin &&
+                        survival < (vm.survivalMax + 1));
+
+                }];
                 $timeout(function() {
                     vm.diagnosisMin = vm.diagnosisMinValue = Math.floor(Math.min.apply(null, d));
                     vm.diagnosisMax = vm.diagnosisMaxValue = Math.ceil(Math.max.apply(null, d));
@@ -91,7 +98,7 @@
                     dtTable.fnAddData(data);
                     dtTable.api().draw();
                 });
-                
+
             }
 
             // Load Datasets
@@ -101,13 +108,34 @@
                     rawData = response.payload;
                     vm.colnames = rawData.colnames;
                     $timeout(function() {
+
+                        // Configure Data Table
                         dtTable = angular.element('#history-datatable').dataTable({
-                            //"scrollY": "500px",
                             "paging": false
                         });
-                        $scope.$watch('vm.search', function() {
-                            dtTable.api().search(vm.search).draw();
+
+                        // Register History Component
+                        osHistory.onPatientSelectionChange.add(function(selection) {
+                            selectedIds = selection.ids;
+                            vm.diagnosisMin = vm.diagnosisMinValue;
+                            vm.diagnosisMax = vm.diagnosisMaxValue;
+                            vm.survivalMin = vm.survivalMinValue;
+                            vm.survivalMax = vm.survivalMaxValue;
+                            vm.search = "";
+                            $scope.$apply();
+                            dtTable.api().draw();
                         });
+
+                        // Register Search Watch
+                        var init = true;
+                        $scope.$watch('vm.search', _.debounce(function() {
+                            if (init) {
+                                init = false;
+                                return;
+                            }
+                            dtTable.api().search(vm.search).draw();
+                            saveSelection("Search");
+                        }, 1000));
                         draw();
                         osApi.setBusy(false);
                     }, 0, false);

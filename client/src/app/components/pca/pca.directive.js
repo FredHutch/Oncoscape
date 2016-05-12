@@ -19,7 +19,7 @@
         return directive;
 
         /** @ngInject */
-        function PcaController(osApi, $state, $stateParams, $timeout, $scope, d3, moment, $window, _) {
+        function PcaController(osApi, osHistory, $state, $stateParams, $timeout, $scope, d3, moment, $window, _) {
 
             if (angular.isUndefined($stateParams.datasource)) {
                 $state.go("datasource");
@@ -33,7 +33,6 @@
             var d3Tooltip = d3.select("body").append("div").attr("class", "tooltip pca-tooltip")
 
             // Properties
-            var cohortPatient = osApi.getCohortPatient();
             var width, height, xScale, yScale, xMax, yMax, xAxis, yAxis;
             var rawData;
 
@@ -42,35 +41,26 @@
             vm.datasource = $stateParams.datasource;
             vm.geneSets = [];
             vm.geneSet = null;
-            vm.optNodeColors = [{name: 'Default'}, {name: 'Gender'}, {name: 'Age At Diagnosis'}];
-            vm.optNodeColor = vm.optNodeColors[0];
-            vm.optCohortPatients = cohortPatient.get();
-            vm.optCohortPatient = vm.optCohortPatients[0];
+            vm.search = "";
 
-     
-            // Cohorts
-            vm.addCohortPatient = function(){
-                var cohortName = "PCA " + moment().format('- H:mm:ss - M/D/YY');
-                var cohortIds = d3Chart.selectAll(".pca-node-selected")[0].map(function(node){return node.__data__.id.toUpperCase(); });
-                if (cohortIds.length==0) return;
-                var cohort = {name:cohortName, ids:cohortIds};
-                cohortPatient.add(cohort);
-                vm.optCohortPatient = cohort;
+            // History Integration
+            var selectedIds = (osHistory.getPatientSelection() == null) ? null : osHistory.getPatientSelection().ids;
+            function saveSelected() {
+                osHistory.addPatientSelection("PCA", "Manual Selection",
+                    d3Chart.selectAll(".pca-node-selected")[0].map(function(node) {
+                        return node.__data__.id.toUpperCase();
+                    })
+                );
             }
-
-
-            var applyCohort = function() {
-                var ids = vm.optCohortPatient.ids;
-                if (ids == "*"){
+            function setSelected() {
+                if (selectedIds == null) {
                     d3Chart.selectAll(".pca-node-selected").classed("pca-node-selected", false);
-                }
-                else{
-                    d3Chart.selectAll("circle").classed("pca-node-selected", function(){
-                        return (ids.indexOf(this.__data__.id)>=0)
+                } else {
+                    d3Chart.selectAll("circle").classed("pca-node-selected", function() {
+                        return (selectedIds.indexOf(this.__data__.id) >= 0)
                     });
                 }
-            };
-            $scope.$watch('vm.optCohortPatient', applyCohort);
+            }
 
             // Initialize
             osApi.setBusy(true)("Loading Dataset");
@@ -79,30 +69,30 @@
                     return v.indexOf("mtx.mrna") >= 0
                 });
 
-                // Patient Data
-                // osApi.getPatientHistoryTable(vm.datasource).then(function(response) {
+                mtx = mtx[mtx.length - 1].replace(".RData", "");
+                osApi.setBusyMessage("Creating PCA Matrix");
+                osApi.getPCA(vm.datasource, mtx).then(function() {
 
-                    //rawPatientData = response.payload.tbl;
-                    mtx = mtx[mtx.length - 1].replace(".RData", "");
-                    osApi.setBusyMessage("Creating PCA Matrix");
-                    osApi.getPCA(vm.datasource, mtx).then(function() {
+                    osApi.setBusyMessage("Loading Gene Sets");
+                    osApi.getGeneSetNames().then(function(response) {
 
-
-                        osApi.setBusyMessage("Loading Gene Sets");
-                        osApi.getGeneSetNames().then(function(response) {
-
-                            // Load Gene Sets
-                            vm.geneSets = response.payload;
-                            vm.geneSet = vm.geneSets[0];
-                            $scope.$watch('vm.geneSet', function() {
-                                update();
-                            });
-                            
+                        // Load Gene Sets
+                        vm.geneSets = response.payload;
+                        vm.geneSet = vm.geneSets[0];
+                        $scope.$watch('vm.geneSet', function() {
+                            update();
                         });
+
+                        // History
+                        osHistory.onPatientSelectionChange.add(function(selection) {
+                            selectedIds = selection.ids;
+                            vm.search = "";
+                            $scope.$apply();
+                            setSelected();
+                        });
+                    });
                 });
             });
-
-
 
             // API Call To Calculate PCA
             var update = function() {
@@ -120,15 +110,14 @@
                         return d;
                     }, payload.ids);
                     draw();
-                    applyCohort();
                     osApi.setBusy(false);
                 });
             };
 
             function setScale() {
-                width = $window.innerWidth - 100; 
+                width = $window.innerWidth - 100;
                 height = $window.innerHeight - 190;
-                if (angular.element(".tray").attr("locked")=="true") width -= 300;
+                if (angular.element(".tray").attr("locked") == "true") width -= 300;
 
                 d3Chart
                     .attr("width", '100%')
@@ -190,18 +179,20 @@
                                 [0, 0],
                                 [0, 0]
                             ]));
+                        saveSelected();
                     });
 
                 d3Chart.call(brush);
 
-                
-                var circles = d3Chart.selectAll("circle").data(rawData, function(d) { return d; });
+                var circles = d3Chart.selectAll("circle").data(rawData, function(d) {
+                    return d;
+                });
 
                 circles.enter()
                     .append("circle")
                     .attr({
                         "class": "pca-node",
-                        "cx":  width * .5,
+                        "cx": width * .5,
                         "cy": height * .5,
                         "r": 3
                     })
@@ -232,7 +223,6 @@
                     })
                     .style("fill-opacity", 1);
 
-
                 circles.exit()
                     .transition()
                     .duration(600)
@@ -261,22 +251,26 @@
                     .attr("dy", ".71em")
                     .text("PC2");
 
+                setSelected();
             }
 
-
-            vm.resize = function () {
+            vm.resize = function() {
                 setScale();
                 xAxis.scale(xScale);
                 yAxis.scale(yScale);
                 d3yAxis.attr("transform", "translate(0, " + yScale(0) + ")").call(xAxis);
                 d3xAxis.attr("transform", "translate(" + xScale(0) + ", 0)").call(yAxis);
                 d3Chart.selectAll("circle")
-                    .attr("cx", function(d) { return xScale(d[0]); })
-                    .attr("cy", function(d) { return yScale(d[1]); })
+                    .attr("cx", function(d) {
+                        return xScale(d[0]);
+                    })
+                    .attr("cy", function(d) {
+                        return yScale(d[1]);
+                    })
             };
 
             // Listen For Resize
-            angular.element($window).bind('resize', 
+            angular.element($window).bind('resize',
                 _.debounce(vm.resize, 300)
             );
 

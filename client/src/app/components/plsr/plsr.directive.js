@@ -19,7 +19,7 @@
         return directive;
 
         /** @ngInject */
-        function PlsrController(osApi, $state, $stateParams, $timeout, $scope, d3, moment, $sce, $window, _) {
+        function PlsrController(osApi, osHistory, $state, $stateParams, $timeout, $scope, d3, moment, $sce, $window, _) {
 
             if (angular.isUndefined($stateParams.datasource)){
                 $state.go("datasource");
@@ -31,7 +31,6 @@
             var d3Tooltip = d3.select("body").append("div").attr("class", "tooltip plsr-tooltip")
 
             // Properties
-            var cohortGene = osApi.getCohortGene();
             var width, height, xScale, yScale, xMax, yMax, brush;
 
             // View Model
@@ -42,34 +41,30 @@
             vm.survivalMinFilter = vm.survivalMinValue = 3;
             vm.survivalMaxFilter = vm.survivalMaxValue = 7;
             vm.geneSets = [];
-            vm.geneSet = null;
-            vm.optCohortGenes = cohortGene.get();
-            vm.optCohortGene = vm.optCohortGenes[0];
+            vm.geneSet = null;            
             vm.frame;
             vm.tip = null;
 
 
-            // Cohorts
-            vm.addCohortGene = function(){
-                var cohortName = "PLSR " + moment().format('- H:mm:ss - M/D/YY');
-                var cohortIds = d3Chart.selectAll(".plsr-node-selected")[0].map(function(node){ return node.__data__.name.toUpperCase(); });
-                if (cohortIds.length==0) return;
-                var cohort = {name:cohortName, ids:cohortIds};
-                cohortGene.add(cohort);
-                vm.optCohortGene = cohort;
+            // History Integration
+            var selectedIds = (osHistory.getGeneSelection() == null) ? null : osHistory.getGeneSelection().ids;
+            function saveSelected() {
+                osHistory.addGeneSelection("PLSR", "Manual Selection",
+                    d3Chart.selectAll(".plsr-node-selected")[0].map(function(node){ 
+                        return node.__data__.name.toUpperCase()
+                    })
+                );
             }
-            $scope.$watch('vm.optCohortGene', function() {
-                var ids = vm.optCohortGene.ids;
-                if (ids == "*"){
+            function setSelected() {
+                if (selectedIds == null) {
                     d3Chart.selectAll(".plsr-node-selected").classed("plsr-node-selected", false);
-                }
-                else{
-                    d3Chart.selectAll("circle").classed("plsr-node-selected", function(){
-                        return (ids.indexOf(this.__data__.name)>=0)
+                } else {
+                    d3Chart.selectAll("circle").classed("plsr-node-selected", function() {
+                        return (selectedIds.indexOf(this.__data__.name) >= 0)
                     });
                 }
-            });
-
+            }
+     
             
 
             
@@ -100,6 +95,13 @@
                             vm.survivalMaxValue = Math.floor(payload.Survival[4] / 365.24);
                             $scope.$watch('vm.geneSet', function() {
                                 vm.update();
+                            });
+
+                            // History
+                            osHistory.onGeneSelectionChange.add(function(selection) {
+                                selectedIds = selection.ids;
+                                $scope.$apply();
+                                setSelected();
                             });
                         });
                     });
@@ -180,6 +182,7 @@
                                     [0, 0],
                                     [0, 0]
                                 ]));
+                            saveSelected();
                         });
 
                     d3Chart.call(brush);
@@ -288,6 +291,7 @@
                         });
 
                     text.exit().remove();
+                    setSelected();
                 }
 
                 vm.resize = function () {
