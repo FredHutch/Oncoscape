@@ -36,7 +36,7 @@
         };
         var setGeneSelection = function(selection){
             _geneSelection = selection;
-            _onGeneSelctionChange.dispatch(selection);
+            _onGeneSelectionChange.dispatch(selection);
         };
         var getGeneSelection = function(){
             return _geneSelection;
@@ -74,7 +74,7 @@
         };
         var setPatientSelection = function(selection){
             _patientSelection = selection;
-            _onPatientSelctionChange.dispatch(selection);
+            _onPatientSelectionChange.dispatch(selection);
         };
         var getPatientSelection = function(){
             return _patientSelection;
@@ -98,7 +98,7 @@
             return _patientSelection;
         };
 
-        $(document).keypress(function(e) {
+        angular.element(document).keypress(function(e) {
             var selection;
             if (!e.ctrlKey) return;
             switch (e.keyCode)
@@ -122,17 +122,15 @@
             }
         });
         var removeListeners = function(){
-            debugger;
+          
         }
 
         return {
-            removeListeners: removeListeners,
+            
             onPatientSelectionChange: _onPatientSelectionChange,
             onGeneSelectionChange: _onGeneSelectionChange,
 
             addGeneSelection: addGeneSelection,
-            setGeneSelection: setGeneSelection,
-            getGeneSelections: getGeneSelections,
             setGeneSelection: setGeneSelection,
             getGeneSelection: getGeneSelection,
             getGeneSelections: getGeneSelections,
@@ -145,6 +143,8 @@
             getPatientSelections: getPatientSelections,
             getPatientSelectionLast: getPatientSelectionLast,
             getPatientSelectionNext: getPatientSelectionNext,
+
+            removeListeners: removeListeners,
             clear: clear
         }
     }

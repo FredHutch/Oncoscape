@@ -3,17 +3,18 @@
 
     angular
         .module('oncoscape', [
-        			'ngAnimate',
-        			'ngCookies', 
-        			'ngTouch', 
-        			'ngSanitize', 
-        			'ngMessages', 
-        			'ngAria', 
-        			'ngResource', 
-        			'ui.router', 
-        			'ui.bootstrap', 
-        			'ui-rangeSlider', 
-        			'ui.bootstrap.contextMenu',
-        			'toastr']);
+            'ngAnimate',
+            'ngCookies',
+            'ngTouch',
+            'ngSanitize',
+            'ngMessages',
+            'ngAria',
+            'ngResource',
+            'ui.router',
+            'ui.bootstrap',
+            'ui-rangeSlider',
+            'ui.bootstrap.contextMenu',
+            'toastr'
+        ]);
 
 })();

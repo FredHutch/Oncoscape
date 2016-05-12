@@ -177,8 +177,10 @@
             var payload = {
                 genes: geneSet
             };
+
             return osSocket.request({
                 cmd: "calculatePCA",
+            
                 payload: payload
             });
         }
