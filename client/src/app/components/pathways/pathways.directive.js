@@ -27,13 +27,12 @@
             }
             var markersNetwork;
             var vm = this;
-            var cohortGene = osApi.getCohortGene();
+            
             // Elements
             var elChart = angular.element("#gbm-chart");
             var csChart;
 
-            vm.optCohortGenes = cohortGene.get();
-            vm.optCohortGene = vm.optCohortGenes[0];
+            
             vm.datasource = $stateParams.datasource;
             vm.search = "";
             vm.frame;
@@ -57,6 +56,7 @@
             );
 
             // Cohorts
+            /*
             vm.addCohortGene = function(){
                 var cohortName = "Pathways " + moment().format('- H:mm - M/D/YY');
                 var cohortIds = csChart.$('node[nodeType="gene"]:selected').map(function(ele){ return ele.data().id.toUpperCase() });
@@ -91,6 +91,7 @@
                 csChart.batchData(degmap);
                 csChart.endBatch();
             });
+            */
             
 
             $scope.$watch('vm.search', function() {

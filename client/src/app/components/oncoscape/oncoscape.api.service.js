@@ -12,14 +12,11 @@
         var onDataSource = new signals.Signal();
         function getDataSource(){ return _dataSource; }
         function setDataSource(value){
-            _cohortGene.clear();
-            _cohortPatient.clear();
             osSocket.setDataSource(value);
             _dataSource = value;
             onDataSource.dispatch(_dataSource);
         }
-
-
+        
         /*** User Api ***/
         function userApi(){
 
@@ -285,118 +282,7 @@
             });
         }
 
-
-
-        var history = (function(){
-
-            var _geneSelections = [];
-            var _geneSelection = null;
-            var _patientSelections = [];
-            var _patientSelection = null;
-
-            var addGeneSelection = function(tool, desc, ids){
-                var selection = {name:name, desc:desc, ids:ids, date:moment().unix()};
-                _geneSelection = selection;
-                _geneSelections.unshift(selection);
-                if (_geneSelections.length>0) _geneSelections.pop();
-            };
-            var getGeneSelections = function(){
-                return _geneSelection;
-            };
-            var setGeneSelection = function(selection){
-                _geneSelection = selection;
-            };
-            var getGeneSelection = function(selection){
-                return _geneSelection;
-            };
-
-            var _patientSelections = [];
-            var addPatientSelection = function(name, ids){
-                var selection = {name:name, desc:desc, ids:ids, date:moment().unix()};
-                _geneSelection = selection;
-                _patientSelections.unshift(selection);
-                if (_patientSelections.length>5) _patientSelections.pop()
-
-            };
-            var getPatientSelections = function(){
-                console.log("GET PATIENT SELECTION");
-                return _patientSelections;
-            };
-            var setPatientSelection = function(selection){
-                console.log("SET PATIENT SELECTION");
-                _patientSelection = selection;
-            };
-            var getPatientSelection = function(){
-                console.log("GET PATIENT SELECTION")
-                return _patientSelection;
-            };
-
-            return {
-                addGeneSelection: addGeneSelection,
-                setGeneSelection: setGeneSelection,
-                getGeneSelections: getGeneSelections,
-                addPatientSelection: addPatientSelection,
-                setPatientSelection: setPatientSelection,
-                getPatientSelection: getPatientSelection,
-                getPatientSelections: getPatientSelections
-
-            }
-        });
-
-
-
-
-        var _cohortPatient = collection(signals, {name:'All Patients', ids:'*'}, "osCohortPatient");
-        function getCohortPatient(){ return _cohortPatient; }
-
-        var _cohortGene = collection(signals, {name:'All Genes', ids:'*'}, "osCohortGene");
-        function getCohortGene(){ return _cohortGene; }
-
-        function collection(signals, defaultValue){ //, collectionName
-
-            var onAdd = new signals.Signal();
-            var onRemove = new signals.Signal();
-            //var onSelect = new signals.Signal();
-
-            var _collection = [defaultValue];
-            
-            function get() { return _collection; }
-            
-            function add(value){ 
-                _collection.unshift(value); 
-                onAdd.dispatch(_collection);
-            }
-            function clear(){
-                _collection = [defaultValue]   
-            }
-            function remove(value){
-                _collection.splice(_collection.indexOf(value)); 
-                onRemove.dispatch(_collection);
-            }
-           
-            function save(){
-                
-            }
-
-            function load(){
-            }
-
-            return{
-                get: get,
-                add: add,
-                remove: remove,
-                onAdd: onAdd,
-                onRemove: onRemove,
-                save: save,
-                load:load,
-                clear:clear
-            }
-        }
-
-  
         return {
-            getCohortPatient: getCohortPatient,
-            getCohortGene: getCohortGene,
             setDataSource: setDataSource,
             getDataSource: getDataSource,
             onDataSource: onDataSource,
@@ -435,9 +321,5 @@
             getModuleModificationDate: getModuleModificationDate,
             getOncoprint: getOncoprint
         }
-
     }
 })();
-
-
-
