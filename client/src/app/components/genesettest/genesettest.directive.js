@@ -56,29 +56,10 @@
 
                 mtx = mtx[mtx.length - 1].replace(".RData", "");
                 osApi.setBusyMessage("Creating PCA Matrix");
-                osApi.getPCA(vm.datasource, mtx).then(function() {
-
-                    osApi.setBusyMessage("Loading Gene Sets");
-                    osApi.getGeneSetNames().then(function(response) {
-
-                        // Load Gene Sets
-                        vm.geneSets = response.payload;
-                        vm.geneSets.unshift("All");
-                        vm.geneSet = vm.geneSets[0];
-
-                        $scope.$watch('vm.geneSet', function() {
-                            update();
-                        });
-
-                        // History
-                        osHistory.onPatientSelectionChange.add(function(selection) {
-                            selectedIds = selection.ids;
-                            vm.search = "";
-                            $scope.$apply();
-                            setSelected();
-                        });
-                    });
-                });
+                var Group1 = ["TCGA.02.0014", "TCGA.02.0021", "TCGA.02.0028"];
+                var Group2 = ["TCGA.06.0140", "TCGA.06.0182", "TCGA.06.0413"];
+                var geneSet = "";
+                vm.message = osApi.getGeneSetScore(Group1, Group2, geneSet);
             });
             //osApi.setBusy(true);
             var Group1 = ["TCGA.02.0014", "TCGA.02.0021", "TCGA.02.0028"];

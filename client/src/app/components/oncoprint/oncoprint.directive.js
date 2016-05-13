@@ -19,10 +19,10 @@
         return directive;
 
         /** @ngInject */
-        function OncoprintController(osApi, osHistory, $state, $stateParams, $timeout, $scope, d3, $window, _) {
+        function OncoprintController(osApi, osHistory, angular.elementstate, angular.elementstateParams, angular.elementtimeout, angular.elementscope, d3, angular.elementwindow, _) {
 
-            if (angular.isUndefined($stateParams.datasource)) {
-                $state.go("datasource");
+            if (angular.isUndefined(angular.elementstateParams.datasource)) {
+                angular.elementstate.go("datasource");
                 return;
             }
 
@@ -89,7 +89,7 @@
 
             // View Model
             var vm = this;
-            vm.datasource = $stateParams.datasource;
+            vm.datasource = angular.elementstateParams.datasource;
             vm.geneAndPatients = selectedPatientIds + "," + selectedGeneIds;
             vm.errorMessage;
 
@@ -152,7 +152,7 @@
                 // Cell Padding
                 self.toggleCellPadding = function() {
                   self.cell_padding_on = !self.cell_padding_on;
-                  $(self).trigger(events.SET_CELL_PADDING);
+                  angular.element(self).trigger(events.SET_CELL_PADDING);
                 };
                 self.getCellPadding = function() {
                   return Math.ceil(self.config.cell_padding*self.getZoom())*(+self.cell_padding_on);
@@ -166,7 +166,7 @@
                   self.zoom = utils.clamp(z, 0, 1);
                   updateZoomedCellWidth();
                   updateZoom();
-                  $(self).trigger(events.SET_ZOOM);
+                  angular.element(self).trigger(events.SET_ZOOM);
                   return self.zoom;
                 };
                 var updateZoom = function() {
@@ -180,13 +180,13 @@
                 self.increaseZoom = function() {
                   self.zoomed_cell_width = utils.clamp(self.zoomed_cell_width+1, 1, self.true_cell_width);
                   updateZoom();
-                  $(self).trigger(events.SET_ZOOM);
+                  angular.element(self).trigger(events.SET_ZOOM);
                   return self.zoom;
                 };
                 self.decreaseZoom = function() {
                   self.zoomed_cell_width = utils.clamp(self.zoomed_cell_width-1, 1, self.true_cell_width);
                   updateZoom();
-                  $(self).trigger(events.SET_ZOOM);
+                  angular.element(self).trigger(events.SET_ZOOM);
                   return self.zoom;
                 };
 
@@ -240,13 +240,13 @@
                     return !self.hidden_ids[id];
                   });
                   self.visible_inverted_id_order = utils.invert_array(self.visible_id_order);
-                  $(self).trigger(events.SET_VISIBLE_ID_ORDER);
+                  angular.element(self).trigger(events.SET_VISIBLE_ID_ORDER);
                 };
                 self.setIdOrder = function(id_order) {
                   self.id_order = id_order.slice();
                   self.inverted_id_order = utils.invert_array(self.id_order);
                   updateVisibleIdOrder();
-                  $(self).trigger(events.SET_ID_ORDER);
+                  angular.element(self).trigger(events.SET_ID_ORDER);
                 };
                 // Hide Ids
                 self.hideIds = function(ids, clear_existing) {
@@ -368,12 +368,12 @@
                   var track_id = getTrackId();
                   self.tracks[track_id] ={id: track_id, 
                         data: [], 
-                        config: $.extend({}, defaultTrackConfig, config),
+                        config: angular.element.extend({}, defaultTrackConfig, config),
                         id_data_map: {}};
                   self.track_groups[group].push(track_id);
                   self.sort_direction[track_id] = 1;
 
-                  $(self).trigger(events.ADD_TRACK, {track_id: track_id});
+                  angular.element(self).trigger(events.ADD_TRACK, {track_id: track_id});
                   return track_id;
                 };
                 self.removeTrack = function(track_id) {
@@ -388,14 +388,14 @@
                     var old_position = track_group.indexOf(track_id);
                     track_group.splice(old_position, 1);
 
-                    $(self).trigger(events.REMOVE_TRACK, {track: track, track_id: track_id});
+                    angular.element(self).trigger(events.REMOVE_TRACK, {track: track, track_id: track_id});
                     return true;  
                   }
                 };
 
                 // Track Ordering
                 self.getTrackGroups = function(reference) {
-                  return (reference === true ? self.track_groups : $.extend(true, [], self.track_groups));      
+                  return (reference === true ? self.track_groups : angular.element.extend(true, [], self.track_groups));      
                 };
                 self.getTracks = function() {
                   return _.flatten(self.getTrackGroups());
@@ -421,7 +421,7 @@
                   track_group.splice(old_position, 1);
                   track_group.splice(new_position, 0, track_id);
                   var moved_tracks = track_group.slice(Math.min(old_position, new_position), Math.max(old_position, new_position) + 1);
-                  $(self).trigger(events.MOVE_TRACK, {moved_tracks: moved_tracks});
+                  angular.element(self).trigger(events.MOVE_TRACK, {moved_tracks: moved_tracks});
                 };
 
 
@@ -461,7 +461,7 @@
                   _.each(self.tracks[track_id].data, function(datum) {
                     id_data_map[id_accessor(datum)] = datum;
                   });
-                  $(self).trigger(events.SET_TRACK_DATA, {track_id: track_id});
+                  angular.element(self).trigger(events.SET_TRACK_DATA, {track_id: track_id});
                 };
                 self.getTrackDatum = function(track_id, datum_id) {
                   return self.tracks[track_id].id_data_map[datum_id];
@@ -507,8 +507,8 @@
                 GENETIC_ALTERATION: RuleSet.GENETIC_ALTERATION,
                 BAR_CHART: RuleSet.BAR_CHART,
                 create: function CreateOncoprint(container_selector_string, config) {
-                  config = $.extend({}, defaultOncoprintConfig, config || {});
-                  config = $.extend(config, hiddenOncoprintConfig);
+                  config = angular.element.extend({}, defaultOncoprintConfig, config || {});
+                  config = angular.element.extend(config, hiddenOncoprintConfig);
                   var oncoprint = new Oncoprint(config);
                   var renderer = new OncoprintSVGRenderer(container_selector_string, oncoprint, {label_font: 'Arial', legend:config.legend});
                   var ret = {
@@ -597,20 +597,20 @@
                       oncoprint.setTrackTooltip(track_id, tooltip);
                     }
                   };
-                  $(oncoprint).on(events.MOVE_TRACK, function() {
-                    $(ret).trigger(events.MOVE_TRACK);
+                  angular.element(oncoprint).on(events.MOVE_TRACK, function() {
+                    angular.element(ret).trigger(events.MOVE_TRACK);
                   });
-                  $(renderer).on(events.FINISHED_RENDERING, function() {
-                    $(ret).trigger(events.FINISHED_RENDERING);
+                  angular.element(renderer).on(events.FINISHED_RENDERING, function() {
+                    angular.element(ret).trigger(events.FINISHED_RENDERING);
                   });
-                  $(oncoprint).on(events.REMOVE_TRACK, function(evt, data) {
-                    $(ret).trigger(events.REMOVE_TRACK, {track_id: data.track_id});
+                  angular.element(oncoprint).on(events.REMOVE_TRACK, function(evt, data) {
+                    angular.element(ret).trigger(events.REMOVE_TRACK, {track_id: data.track_id});
                   });
-                  $(renderer).on(events.CONTENT_AREA_MOUSEENTER, function(evt, data) {
-                    $(ret).trigger(events.CONTENT_AREA_MOUSEENTER);
+                  angular.element(renderer).on(events.CONTENT_AREA_MOUSEENTER, function(evt, data) {
+                    angular.element(ret).trigger(events.CONTENT_AREA_MOUSEENTER);
                   });
-                  $(renderer).on(events.CONTENT_AREA_MOUSELEAVE, function(evt, data) {
-                    $(ret).trigger(events.CONTENT_AREA_MOUSELEAVE);
+                  angular.element(renderer).on(events.CONTENT_AREA_MOUSELEAVE, function(evt, data) {
+                    angular.element(ret).trigger(events.CONTENT_AREA_MOUSELEAVE);
                   });
                   return ret;
                 }
@@ -689,28 +689,28 @@
                       (function() {
                         var prev_track, prev_cell_index, prev_dom, highlighted_col_cells = [];
                         var column_highlight_timeout;
-                        $(self.cell_div.node()).qtip({
+                        angular.element(self.cell_div.node()).qtip({
                           content: 'SHARED QTIP',
-                          position: {target: 'event', my:'bottom middle', at:'top middle', viewport: $(window)},
+                          position: {target: 'event', my:'bottom middle', at:'top middle', viewport: angular.element(window)},
                           style: { classes: CELL_QTIP_CLASS, border: 'none'},
                           show: {event: "cell-mouseover"},
                           hide: {fixed: true, delay: 100, event: "cell-mouseout"},
                           events: {
                             show: function() {
-                              $(this).find('.qtip-content').html(self.cell_tooltip_html);
+                              angular.element(this).find('.qtip-content').html(self.cell_tooltip_html);
                             },
                             render: function(){
-                              $(this).find('.qtip-content').html(self.cell_tooltip_html);
+                              angular.element(this).find('.qtip-content').html(self.cell_tooltip_html);
                             }
                           }
                         });
                         var hover_cell = function(dom) {
-                          $('.'+CELL_QTIP_CLASS).finish();
-                          $(dom).trigger("cell-mouseover");
+                          angular.element('.'+CELL_QTIP_CLASS).finish();
+                          angular.element(dom).trigger("cell-mouseover");
                         };
                         var unhover_cell = function(dom) {
-                          $('.'+CELL_QTIP_CLASS).finish();
-                          $(dom).trigger("cell-mouseout");
+                          angular.element('.'+CELL_QTIP_CLASS).finish();
+                          angular.element(dom).trigger("cell-mouseout");
                         };
                         var clear_and_unhover = function() {
                           prev_track = undefined;
@@ -775,7 +775,7 @@
                               return;
                             }
                             // otherwise, we're over a cell
-                            $('.'+CELL_QTIP_CLASS).finish().hide();
+                            angular.element('.'+CELL_QTIP_CLASS).finish().hide();
                             prev_cell_index = cell_index;
                             prev_track = track;
                             prev_dom = track_cell.dom;
@@ -804,14 +804,14 @@
                       // TODO: magic number
                       self.cell_div.style('max-width', '1000px');
                     })();
-                    $(content_area.node()).hover(function() {
-                      $(self.label_div.node()).find('.'+self.getTrackButtonCSSClass()).stop().fadeTo(80,1);
+                    angular.element(content_area.node()).hover(function() {
+                      angular.element(self.label_div.node()).find('.'+self.getTrackButtonCSSClass()).stop().fadeTo(80,1);
                     }, function() {
-                      $(self.label_div.node()).find('.'+self.getTrackButtonCSSClass()).stop().fadeOut(500);
+                      angular.element(self.label_div.node()).find('.'+self.getTrackButtonCSSClass()).stop().fadeOut(500);
                     });
                     
                     (function reactToOncoprint() {
-                      $(oncoprint).on(events.REMOVE_TRACK, function(evt, data) {
+                      angular.element(oncoprint).on(events.REMOVE_TRACK, function(evt, data) {
                         var track_id = data.track_id;
                         delete self.rule_sets[track_id];
                         delete self.track_cell_selections[track_id];
@@ -828,7 +828,7 @@
                         self.resizeCellDiv();
                         oncoprint.sort();
                       });
-                      $(oncoprint).on(events.MOVE_TRACK, function(evt, data) {
+                      angular.element(oncoprint).on(events.MOVE_TRACK, function(evt, data) {
                         self.computeTrackCellTops();
                         self.clipAndPositionCells(data.moved_tracks, 'top', true);
                         self.renderTrackLabels();
@@ -836,7 +836,7 @@
                         oncoprint.sort();
                       });
 
-                      $(oncoprint).on(events.ADD_TRACK, function(e,d) {
+                      angular.element(oncoprint).on(events.ADD_TRACK, function(e,d) {
                         //this.cell_div.style('display', 'none');
                         self.drawCells(d.track_id);
                         self.clipAndPositionCells(undefined, 'top', true);
@@ -848,7 +848,7 @@
                         //this.cell_div.style('display','inherit');
                       });
 
-                      $(oncoprint).on(events.SET_TRACK_DATA, function(e,d) {
+                      angular.element(oncoprint).on(events.SET_TRACK_DATA, function(e,d) {
                         //this.cell_div.style('display', 'none');
                         self.drawCells(d.track_id);
                         self.clipAndPositionCells(d.track_id, undefined, true);
@@ -861,19 +861,19 @@
                       });
 
 
-                      $(oncoprint).on(events.SET_CELL_PADDING, function(e,d) {
+                      angular.element(oncoprint).on(events.SET_CELL_PADDING, function(e,d) {
                         self.clipAndPositionCells(undefined, undefined, true);
                         self.resizeCellDiv();
                       });
 
-                      $(oncoprint).on(events.SET_ZOOM, function(e,d) {
+                      angular.element(oncoprint).on(events.SET_ZOOM, function(e,d) {
                         self.clipAndPositionCells(undefined, undefined, true);
                         self.resizeCells();
                         self.resizeCellDiv();
                         //self.cell_highlight.style('width', oncoprint.getZoomedCellWidth() + 'px');
                       });
 
-                      $(oncoprint).on(events.SET_VISIBLE_ID_ORDER, function() {
+                      angular.element(oncoprint).on(events.SET_VISIBLE_ID_ORDER, function() {
                         self.clipAndPositionCells(undefined, undefined, true);
                         self.resizeCellDiv();
                       });
@@ -911,7 +911,7 @@
                     this.cell_div.node().appendChild(this.document_fragment);
                     this.document_fragment = undefined;
                     var self = this;
-                    $(this.cell_div.node()).ready(function() {
+                    angular.element(this.cell_div.node()).ready(function() {
                       self.resizeCells();
                       self.clipAndPositionCells(undefined, undefined, true);
                     });
@@ -987,7 +987,7 @@
                           disp_label_text = label_text.substring(0,self.max_label_length-3)+'...';
                         }
                         _.each(div.selectAll(self.getTrackLabelCSSSelector(track_id)), function(node) {
-                          $(node).qtip('destroy');
+                          angular.element(node).qtip('destroy');
                         });
                         div.selectAll(self.getTrackLabelCSSSelector(track_id)).remove();
                         var span = div.append('span')
@@ -1004,8 +1004,8 @@
                           .on("mousedown", function() {
                             self.dragLabel(track_id);
                           });
-                          $(span.node()).qtip( {content: {text: (label_text.length > self.max_label_length ? label_text+'<br> hold to drag' : 'hold to drag') },
-                                  position: {my:'middle right', at:'middle left', viewport: $(window)},
+                          angular.element(span.node()).qtip( {content: {text: (label_text.length > self.max_label_length ? label_text+'<br> hold to drag' : 'hold to drag') },
+                                  position: {my:'middle right', at:'middle left', viewport: angular.element(window)},
                                   style: { classes: 'qtip-light qtip-rounded qtip-shadow qtip-lightyellow'},
                                   show: {event: "mouseover"}
                                 });
@@ -1057,13 +1057,13 @@
                           })
                           .style('position', 'absolute').style('left', left+'px').style('top', label_tops[track_id]+'px');
                           new_btn.text('X');
-                          $(new_btn.node()).hover(function() {
+                          angular.element(new_btn.node()).hover(function() {
                             new_btn.style('font-size', '15px').style('color', '#0000FF');
                           }, function() {
                             new_btn.style('font-size','12px').style('color', '#87CEFA');
                           }).qtip({
                                             //content: {text: 'Click to remove'},
-                                            position: {my:'bottom middle', at:'top middle', viewport: $(window)},
+                                            position: {my:'bottom middle', at:'top middle', viewport: angular.element(window)},
                                             style: { classes: 'qtip-light qtip-rounded qtip-shadow qtip-lightyellow' },
                                             show: {event: "mouseover"},
                                             hide: {fixed: true, delay: 100, event: "mouseout"}
@@ -1079,11 +1079,11 @@
                           var current_sort_setting = sort_direction.indexOf(self.oncoprint.getTrackSortDirection(track_id));
                           var new_btn = div.append('img');
                           new_btn.attr('src', imgs[current_sort_setting]).style('cursor','pointer');
-                          $(new_btn.node()).qtip({
+                          angular.element(new_btn.node()).qtip({
                                             content: {text: function() {
                                               return descs[current_sort_setting];
                                             }},
-                                            position: {my:'bottom middle', at:'top middle', viewport: $(window)},
+                                            position: {my:'bottom middle', at:'top middle', viewport: angular.element(window)},
                                             style: { classes: 'qtip-light qtip-rounded qtip-shadow qtip-lightyellow' },
                                             show: {event: "mouseover"},
                                             hide: {fixed: true, delay: 100, event: "mouseout"}
@@ -1158,7 +1158,7 @@
                       this.cellRenderTarget().node().appendChild(fragment);
                     }
                     setTimeout(function() {
-                      $(self).trigger(events.FINISHED_RENDERING);
+                      angular.element(self).trigger(events.FINISHED_RENDERING);
                     }, 0);
                   };
 
@@ -1226,7 +1226,7 @@
                       var rule_set_id = rule_set.getRuleSetId();
                       var active_rules = {};
                       _.each(self.active_rule_set_rules[rule_set_id], function(track_map, track_id) {
-                        $.extend(active_rules, track_map);
+                        angular.element.extend(active_rules, track_map);
                       });
                       if (!rendered.hasOwnProperty(rule_set_id)) {
                         var tr = self.legend_table.append('tr');
@@ -1260,7 +1260,7 @@
                     drag_bounds[1] = utils.clamp(track_tops[last_track]+this.getRenderedTrackHeight(last_track), 0, label_area_height);
 
                     var self = this;
-                    var $label_drag_div = $(self.getLabelDragDiv().node());
+                    var angular.elementlabel_drag_div = angular.element(self.getLabelDragDiv().node());
                     delete track_tops[track_id];
 
                     (function(track_id) {
@@ -1283,32 +1283,32 @@
                           self.renderTrackLabels(id, top);
                         });
                       }
-                      $label_drag_div.on("mousemove", moveHandler);
+                      angular.elementlabel_drag_div.on("mousemove", moveHandler);
                       var mouseUpHandler = function(evt) {
-                        $label_drag_div.hide();
-                        $label_drag_div.off("mousemove", moveHandler);
+                        angular.elementlabel_drag_div.hide();
+                        angular.elementlabel_drag_div.off("mousemove", moveHandler);
                         if (new_pos > -1) {
                           self.oncoprint.moveTrack(track_id, new_pos);
                         }
                       };
-                      $(document).one("mouseup", mouseUpHandler);
+                      angular.element(document).one("mouseup", mouseUpHandler);
                     })(track_id);
                   };
                   OncoprintSVGRenderer.prototype.toSVG = function(full_labels) {
                     var self = this;
-                    var root = $(this.container.node()).offset();
+                    var root = angular.element(this.container.node()).offset();
                     var svg = d3.select(document.createElementNS('http://www.w3.org/2000/svg', 'svg'));
                     svg.attr('width', this.getLabelAreaWidth() + this.getCellAreaWidth() + 'px');
                     this.renderLegend(true);
                     this.renderTrackLabels(undefined, undefined, full_labels);
-                    svg.attr('height', $(this.container.node()).height()+'px');
+                    svg.attr('height', angular.element(this.container.node()).height()+'px');
                     (function addLabels() {
                       self.label_div.selectAll('.oncoprint-track-label').each(function() {
                         var text_elt = d3.select(this);
                         var font = text_elt.style('font-family') || 'Arial';
                         var weight = text_elt.style('font-weight'); 
                         var size = text_elt.style('font-size') || '12px';
-                        var pos = $(text_elt.node()).offset();
+                        var pos = angular.element(text_elt.node()).offset();
                         var text = text_elt.text();
                         svg.append('text').style('font-family', font).style('font-weight', weight).style('font-size', size)
                             .attr('transform', utils.translate(pos.left - root.left,pos.top - root.top))
@@ -1322,7 +1322,7 @@
                         var cell_elt = d3.select(this);
                         var cell_rect = cell_elt.node().getBoundingClientRect();
                         var cell_dim = {width: cell_rect.width, height: cell_rect.height};
-                        var pos = $(cell_elt.node()).offset();
+                        var pos = angular.element(cell_elt.node()).offset();
                         var g = svg.append('g').attr('transform', utils.translate(pos.left - root.left, pos.top - root.top));
                         cell_elt.selectAll('*').each(function() {
                           utils.appendD3SVGElement(d3.select(this), g);
@@ -1340,7 +1340,7 @@
                       self.legend_table.selectAll('tr').each(function() {
                         d3.select(this).selectAll('td').each(function() {
                           d3.select(this).selectAll('.oncoprint-legend-header,.oncoprint-legend-element').each(function() {
-                            if ($(this).text().trim().length) {
+                            if (angular.element(this).text().trim().length) {
                               // text type element
                               var text_elt = d3.select(this);
                               var font = text_elt.style('font-family') || 'Arial';
@@ -1350,7 +1350,7 @@
                               var weight = text_elt.style('font-weight'); 
                               var size = text_elt.style('font-size') || '12px';
                               var text = text_elt.text();
-                              var pos = $(text_elt.node()).offset();
+                              var pos = angular.element(text_elt.node()).offset();
                               svg.append('text').style('font-family', font).style('font-weight', weight)
                                 .style('font-size', size)
                                 .attr('transform', utils.translate(pos.left - root.left, pos.top - root.top))
@@ -1358,7 +1358,7 @@
                                 .text(text);
                             } else if (this.tagName.toLowerCase() === 'svg') {
                               var elt = d3.select(this);
-                              var pos = $(elt.node()).offset();
+                              var pos = angular.element(elt.node()).offset();
                               var g = svg.append('g').attr('transform', utils.translate(pos.left - root.left, pos.top - root.top));
                               var cell_rect = elt.node().getBoundingClientRect();
                               var cell_dim = {width: cell_rect.width, height: cell_rect.height};
@@ -1384,9 +1384,9 @@
             
             function displayOncoprint(msg)
             {
-               $("#onc").empty();
-               $("#oncoprintErrorSection").empty();
-               $(".oncoprint-label-col1").empty();
+               angular.element("#onc").empty();
+               angular.element("#oncoprintErrorSection").empty();
+               angular.element(".oncoprint-label-col1").empty();
               
                if(msg.status == "error") {
                   vm.errorMessage = JSON.parse(msg.payload);
@@ -1397,7 +1397,7 @@
                      var processed_data = msg.payload[0];
                      var onc = Oncoprint.create('#onc');
                      onc.suppressRendering();
-                     $.when(processed_data).then(function(){
+                     angular.element.when(processed_data).then(function(){
                           if(typeof(genes) === "string"){
                             genes = [genes];
                            }  
@@ -1422,22 +1422,22 @@
                           }            
                         onc.releaseRendering();
                         onc.sort();
-                        $('#toggle_whitespace').click(function() {
+                        angular.element('#toggle_whitespace').click(function() {
                            onc.toggleCellPadding();
                         });
                         var z = 1;
-                        $('#reduce_cell_width').click(function() {
+                        angular.element('#reduce_cell_width').click(function() {
                             z *= 0.5;
                             onc.setZoom(z);
                         });  
                     //move legend to oncoscape label section
-                    var allOncoLegendBlocks = $(".oncoprint-legend-block");
-                    var allOncoLegendLabels = $(".oncoprint-legend-label");
+                    var allOncoLegendBlocks = angular.element(".oncoprint-legend-block");
+                    var allOncoLegendLabels = angular.element(".oncoprint-legend-label");
                     for(var j = 0; j < allOncoLegendBlocks.length; j++){
                       allOncoLegendBlocks[j].appendChild(allOncoLegendLabels[j]);
                     }
-                    $(".oncoprint-label-col1").append(allOncoLegendBlocks); 
-                    $("#oncoprintInstructions").hide();
+                    angular.element(".oncoprint-label-col1").append(allOncoLegendBlocks); 
+                    angular.element("#oncoprintInstructions").hide();
                   });  
                 }           
             } // displayOncoprint
@@ -1455,7 +1455,7 @@
                 var mtx = mtx[mtx.length - 1].replace(".RData", "");
    
   
-                $scope.$watchGroup(['vm.geneAndPatients'], function() {
+                angular.elementscope.angular.elementwatchGroup(['vm.geneAndPatients'], function() {
                    drawOncoprint(vm.geneAndPatients);
                 });  
                  osApi.setBusy(false);

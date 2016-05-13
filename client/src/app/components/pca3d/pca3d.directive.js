@@ -74,6 +74,7 @@
                     vm.pc2 = response.payload["importance.PC2"];
                     var scores = payload.scores;
                     var ids = payload.ids;
+                    //debugger;
                     rawData = scores.map(function(d, i){
                         d.id = ids[i];
                         return d;
