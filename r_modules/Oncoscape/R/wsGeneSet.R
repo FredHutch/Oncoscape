@@ -13,7 +13,7 @@ ws.scoreHandler <- function(msg)
    group2 <- payload$group2
    nG1 <- length(group1)#
    nG2 <- length(group2)#
-   geneset <- payload$geneset#
+   geneset <- payload$geneset
    
    print("group1")
    print(length(group1))
@@ -22,16 +22,18 @@ ws.scoreHandler <- function(msg)
    print("geneset")
    print(geneset)
   
-   set40 <- randomSample(obj = GeneSetBinomialMethods(), nG1 = 40, nG2 = 40, cut = 0.5, all = FALSE, seed = 12345)
-  
+   #set40 <- randomSample(obj = GeneSetBinomialMethods(), nG1 = 40, nG2 = 40, cut = 0.5, all = FALSE, seed = 12345)
+   #set40 <- randomSample(obj = GeneSetBinomialMethods(), nG1 = nG1, nG2 = nG2, cut = 0.5, all = FALSE, seed = 12345)
+   
    skat_nocov <- geneSetScoreTest(
-   obj = GeneSetBinomialMethods(),
-   sampleIDsG1 = group1,
-   sampleIDsG2 = group2,
-   covariates = NULL,
-   geneSet = geneset,
-   sampleDescription ="TCGA GBM long vs. short survivors",
-   geneSetDescription ="msgidb:KANG_CISPLATIN_RESISTANCE_DN")
+                 #obj = GeneSetBinomialMethods(),
+                 obj,group1, group2, covariates=NULL, geneset)
+                 # sampleIDsG1 = group1,
+                 # sampleIDsG2 = group2,
+                 # covariates = NULL,
+                 # geneSet = geneset,
+                 # sampleDescription ="TCGA GBM long vs. short survivors",
+                 # geneSetDescription ="msgidb:KANG_CISPLATIN_RESISTANCE_DN")
    print(skat_nocov$summary.skatRes)
    toJSON(list(cmd=msg$callback, callback="", status="response", payload=toJSON(skat_nocov$summary.skatRes)))
 

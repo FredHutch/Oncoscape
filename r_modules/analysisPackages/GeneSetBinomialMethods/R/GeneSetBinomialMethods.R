@@ -6,24 +6,28 @@
 )
 
 #------------------------------------------------------------------------------------------------------------------------
-GeneSetBinomialMethods <- function()
+GeneSetBinomialMethods <- function(sampleIDs=list(), geneSet=list(),
+                         sampleDescription="", geneSetDescription="")
 {
-  obj <- .GeneSetBinomialMethods()
+   
+   obj <- .GeneSetBinomialMethods()
   
-  file <- system.file(package="GeneSetBinomialMethods", "data", "tbl.mrnaUnified.TCGA.GBM.RData")
-  stopifnot(file.exists(file))
-  load(file)
-  obj@tbl.mrna <- tbl.mrna
+   file <- system.file(package="GeneSetBinomialMethods", "data", "tbl.mrnaUnified.TCGA.GBM.RData")
+   stopifnot(file.exists(file))
+   load(file)
+   obj@tbl.mrna <- tbl.mrna
+   obj <- .GeneSetBinomialMethods()
+   #obj@sampleIDs <- sampleIDs
+   obj@tbl.mrna <- matrix()
+   file <- system.file(package="GeneSetBinomialMethods", "data", "tbl.ptHistory.RData")
+   load(file)
+   obj@tbl.clinical <- tbl.clinical
   
-  file <- system.file(package="GeneSetBinomialMethods", "data", "tbl.ptHistory.RData")
-  load(file)
-  obj@tbl.clinical <- tbl.clinical
-  
-  file <- system.file(package="GeneSetBinomialMethods", "data", "msigdb.RData")
-  load(file)
-  obj@genesets <- genesets
+   file <- system.file(package="GeneSetBinomialMethods", "data", "msigdb.RData")
+   load(file)
+   obj@genesets <- genesets
 
-  return(obj)
+   return(obj)
 } # GeneSetBinomialMethods constructor
 
 #------------------------------------------------------------------------------------------------------------------------
@@ -156,81 +160,81 @@ setMethod("analysisDataSetup", signature = "GeneSetBinomialMethods",
 #------------------------------------------------------------------------------------------------------------------------
 setMethod("geneSetScoreTest", signature = "GeneSetBinomialMethods",
           function (obj, sampleIDsG1, sampleIDsG2, covariates = NULL, geneSet, sampleDescription="", geneSetDescription="") {
+              print(sampleIDsG2)
+              skatData <- analysisDataSetup(
+                  obj = obj,
+                  sampleIDsG1 = sampleIDsG1,
+                  sampleIDsG2 = sampleIDsG2,
+                  geneSet = geneSet,
+                  covariates = covariates,
+                  sampleDescription = sampleDescription,
+                  geneSetDescription = geneSetDescription)
 
-            skatData <- analysisDataSetup(
-              obj = obj,
-              sampleIDsG1 = sampleIDsG1,
-              sampleIDsG2 = sampleIDsG2,
-              geneSet = geneSet,
-              covariates = covariates,
-              sampleDescription = sampleDescription,
-              geneSetDescription = geneSetDescription)
-
-            for(i in length(covariates)) {
-              skatData$analysisData[which(skatData$analysisData[, covariates[i]] == ""), covariates[i]] <- NA
-            }
-            
-            skatData$analysisData <- na.omit(skatData$analysisData)
-            
-            myGenes <- data.matrix(skatData$analysisData[, (-1)*which(colnames(skatData$analysisData) %in% c(covariates, "ID", "group"))])
-            
-            #Function to retrieve warnings without sending them to the standard output
-            withWarnings <- function(expr) {
-              myWarnings <- NULL
-              
-              wHandler <- function(w) {
-                myWarnings <<- c(myWarnings, list(w))
-                invokeRestart("muffleWarning")
+              for(i in length(covariates)) {
+                skatData$analysisData[which(skatData$analysisData[, covariates[i]] == ""), covariates[i]] <- NA
               }
               
-              val <- withCallingHandlers(expr, warning = wHandler)
+              skatData$analysisData <- na.omit(skatData$analysisData)
               
-              return(list(value = val, warnings = myWarnings))
-            }
+              myGenes <- data.matrix(skatData$analysisData[, (-1)*which(colnames(skatData$analysisData) %in% c(covariates, "ID", "group"))])
             
-            if(!is.null(covariates)) {
-              myformula <- as.formula(paste("skatData$analysisData[, 'group'] ~ 1 +",  paste("skatData$analysisData[ ,'", covariates, "']", sep = "", collapse = " + ")))
-              
-              sink("/dev/null")
-                null <- withWarnings(SKAT_Null_Model(myformula, out_type = "D", Adjustment = FALSE))
-                skatRes <- SKAT(myGenes, null$value, kernel = "linear", is_check_genotype = FALSE)
-              sink()
-              
-              mNull <- paste("group ~ 1 + ", paste(covariates, collapse = " + "), sep = "")
+              #Function to retrieve warnings without sending them to the standard output
+              withWarnings <- function(expr) {
+                  myWarnings <- NULL
+                  
+                  wHandler <- function(w) {
+                    myWarnings <<- c(myWarnings, list(w))
+                    invokeRestart("muffleWarning")
+                  }
+                  
+                  val <- withCallingHandlers(expr, warning = wHandler)
+                  
+                  return(list(value = val, warnings = myWarnings))
+              }
             
-              mAlt <- paste("group ~ 1 + ", paste(covariates, collapse = " + "), " + ", paste(colnames(myGenes), collapse = " + "), sep = "")
-            } else {
-              myformula <- as.formula(paste("skatData$analysisData[, 'group'] ~ 1"))
+              if(!is.null(covariates)) {
+                  myformula <- as.formula(paste("skatData$analysisData[, 'group'] ~ 1 +",  paste("skatData$analysisData[ ,'", covariates, "']", sep = "", collapse = " + ")))
+                  
+                  sink("/dev/null")
+                    null <- withWarnings(SKAT_Null_Model(myformula, out_type = "D", Adjustment = FALSE))
+                    skatRes <- SKAT(myGenes, null$value, kernel = "linear", is_check_genotype = FALSE)
+                  sink()
+                  
+                  mNull <- paste("group ~ 1 + ", paste(covariates, collapse = " + "), sep = "")
+                
+                  mAlt <- paste("group ~ 1 + ", paste(covariates, collapse = " + "), " + ", paste(colnames(myGenes), collapse = " + "), sep = "")
+              } else {
+                  myformula <- as.formula(paste("skatData$analysisData[, 'group'] ~ 1"))
+                  
+                  sink("/dev/null")
+                    null <- withWarnings(SKAT_Null_Model(myformula, out_type = "D", Adjustment = FALSE))
+                    skatRes <- SKAT(myGenes, null$value, kernel = "linear", is_check_genotype = FALSE)
+                  sink()
+        
+                  mNull <- paste("group ~ 1", sep = "")
+                  
+                  mAlt <- paste("group ~ 1 + ", paste(colnames(myGenes), collapse = " + "), sep = "")
+              }
               
-              sink("/dev/null")
-                null <- withWarnings(SKAT_Null_Model(myformula, out_type = "D", Adjustment = FALSE))
-                skatRes <- SKAT(myGenes, null$value, kernel = "linear", is_check_genotype = FALSE)
-              sink()
-    
-              mNull <- paste("group ~ 1", sep = "")
-              
-              mAlt <- paste("group ~ 1 + ", paste(colnames(myGenes), collapse = " + "), sep = "")
-            }
-              
-            if(is.null(null$warnings)) {
-              summary.skatRes <- paste("Null Model: ", mNull, "\nAlternative Model: ", mAlt, "\n\nP-value:", round(skatRes$p.value, 4))
-            } else {
-              summary.skatRes <- paste("Null Model: ", mNull, "\nAlternative Model: ", mAlt, "\n\nP-value:", round(skatRes$p.value, 4), 
-                                       "\n\nNull Model Warnings:", unlist(null$warnings)) 
-            }
-                        
-            res <- list(
-              sampleDescription = sampleDescription, 
-              geneSetDescription = geneSetDescription, 
-              unmatchedSamples = skatData$unmatchedSamples, 
-              unmatchedGenes = skatData$unmatchedGenes, 
-              analysisData = skatData$analysisData, 
-              null.model = mNull, 
-              null.warnings = unlist(null$warnings),
-              alternative.model = mAlt, 
-              skatRes = skatRes,
-              summary.skatRes = summary.skatRes
-              )
+              if(is.null(null$warnings)) {
+                  summary.skatRes <- paste("Null Model: ", mNull, "\nAlternative Model: ", mAlt, "\n\nP-value:", round(skatRes$p.value, 4))
+              } else {
+                  summary.skatRes <- paste("Null Model: ", mNull, "\nAlternative Model: ", mAlt, "\n\nP-value:", round(skatRes$p.value, 4), 
+                                         "\n\nNull Model Warnings:", unlist(null$warnings)) 
+              }
+                          
+              res <- list(
+                  sampleDescription = sampleDescription, 
+                  geneSetDescription = geneSetDescription, 
+                  unmatchedSamples = skatData$unmatchedSamples, 
+                  unmatchedGenes = skatData$unmatchedGenes, 
+                  analysisData = skatData$analysisData, 
+                  null.model = mNull, 
+                  null.warnings = unlist(null$warnings),
+                  alternative.model = mAlt, 
+                  skatRes = skatRes,
+                  summary.skatRes = summary.skatRes
+                  )
             
             return(res)
           }) #geneSetScoreTest
