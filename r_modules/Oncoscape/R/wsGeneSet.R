@@ -29,6 +29,7 @@ ws.scoreHandler <- function(msg)
    stopifnot(file.exists(file))
    load(file)
    obj@tbl.mrna <- tbl.mrna
+   #obj@tbl.mrna <- matrix()
    skat_nocov <- geneSetScoreTest(
                  obj, group1, group2, covariates = NULL, geneset)
                  # sampleIDsG1 = group1,
