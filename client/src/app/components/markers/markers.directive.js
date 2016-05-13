@@ -22,6 +22,8 @@
         /** @ngInject */
         function MarkersController(osApi, osHistory, $state, $timeout, $scope, $stateParams, cytoscape, signals, moment, $window, _) {
 
+
+
             if (angular.isUndefined($stateParams.datasource)){
                 $state.go("datasource");
                 return;
@@ -69,11 +71,6 @@
                 // Initialize Chart
                 cyChart = initializeChart(data, styles, cytoscape, angular.element("#markers-chart"));
 
-                // Initialize History
-                initializeHistory(cyChart, osHistory);
-                // Initialize Cohorts
-                //initializeCohort(cyChart, vm, osApi, cohortPatient, cohortGene, $scope, moment);
-
                 // Initialize Layouts
                 initializeLayouts(cyChart, vm, $scope);
 
@@ -94,6 +91,9 @@
 
                 // Initialize Commands
                 initializeCommands(cyChart, vm, $window);
+
+                // Initialize History
+                initializeHistory(cyChart, osHistory, _, $scope);
                 
                 // Ready
                 osApi.setBusy(false);
@@ -144,8 +144,7 @@
                 if (vm.searchPatient=="") vm.searchPatientResult = "";
                 else vm.searchPatientResult = "("+matches.found +" Matches)"
             });
-        }
-            
+        }          
         function initializeCommands(chart, vm, $window){
             vm.optInteractiveMode = vm.optInteractiveModes[0];
             vm.optCommandPatient = [
@@ -466,142 +465,91 @@
             vm.frame;
             return vm;
         }
-        function initializeHistory(){//chart, osHistory){
+        function initializeHistory(chart, osHistory, _, $scope){
+
 
             // History Integration
-            // var skipSave = false;
-            // var selectedGeneIds = (osHistory.getGeneSelection() == null) ? null : osHistory.getGeneSelection().ids;
-            // var selectedPatientIds = (osHistory.getPatientSelection() == null) ? null : osHistory.getPatientSelection().ids;
+            var selectedGeneIds = (osHistory.getGeneSelection() == null) ? null : osHistory.getGeneSelection().ids;
+            var selectedPatientIds = (osHistory.getPatientSelection() == null) ? null : osHistory.getPatientSelection().ids;
+            var skipSaveGene = false;
+            var skipSavePatient = false;
 
-
-            /*
-            function saveSelected() {
-
-                if (skipSave) { skipSave = false; return; }
-                console.log("SAVE");
-                var ids = csChart.$('node[nodeType="gene"]:selected').map(function(ele){ return ele.data().id.toUpperCase() });
-                osHistory.addGeneSelection("Pathways", "Manual Selection", ids );
+            function saveSelectedGenes(){
+                if (skipSaveGene) { skipSaveGene = false; return; }
+                var ids = chart.$('node[nodeType="gene"]:selected').map(function(ele){ return ele.data().id.toUpperCase() });
+                if(ids.length>0) osHistory.addGeneSelection("Markers + Patients", "Manual", ids);
+            
             }
-            function setSelected() {
+            function saveSelectedPatients(){
+                if (skipSavePatient) { skipSavePatient = false; return; }
+                var ids = chart.$('node[nodeType="patient"]:selected').map(function(ele){ return ele.data().id.toUpperCase() });
+                if(ids.length>0) osHistory.addPatientSelection("Markers + Patients", "Manual", ids);
+            }
 
-                skipSave = true;
-                csChart.startBatch();
-                if (selectedIds == null) {
-                    csChart.$('node[nodeType="gene"]:selected')
-                        .forEach( function(ele){
-                            ele.deselect();
-                        });
-                } else {
-                    csChart.$('node[nodeType="gene"]')
+            function setSelectedGenes(){
+                skipSaveGene = true;
+                var degmap;
+                chart.startBatch();
+                if (selectedGeneIds==null){
+                    chart.$('node[nodeType="gene"]:selected')
+                            .forEach( function(ele){
+                                ele.deselect();
+                                degmap[ele.id()] = {display:'element'};
+                            }, degmap);
+                }else{
+                    chart.$('node[nodeType="gene"]')
                         .forEach( function(ele){
                             ele[ (this.indexOf(ele.id())==-1) ? "deselect" : "select"]();
-                        }, selectedIds);
+                        }, selectedGeneIds);
                 }
-                csChart.endBatch();
+                chart.batchData(degmap);
+                chart.endBatch();
             }
-            */
-
-        }
-        /*
-        function initializeCohort(chart, vm, osApi, cohortPatient, cohortGene, $scope, moment){
-            
-            vm.optCohortModes = [{name:"Highlight"},{name:"Filter"}];
-            vm.optCohortMode = vm.optCohortModes[0];
-            vm.optCohortPatients = cohortPatient.get();
-            vm.optCohortPatient = vm.optCohortPatients[0];
-            vm.optCohortGenes = cohortGene.get();
-            vm.optCohortGene = vm.optCohortGenes[0];
-
-            vm.addCohorts = function(){
-                vm.addCohortGene();
-                vm.addCohortPatient();
-            }
-
-            vm.addCohortGene = function(){
-                var cohortName = "P+M " + moment().format('- H:mm - M/D/YY');
-                var cohortIds = chart.$('node[nodeType="gene"]:selected').map(function(ele){ return ele.data().id.toUpperCase() });
-                var cohort = {name:cohortName, ids:cohortIds};
-                if (cohortIds.length==0) return;
-                cohortGene.add(cohort);
-                vm.optCohortGene = cohort;
-            }
-            vm.addCohortPatient = function(){
-                var cohortName = "P+M " + moment().format('- H:mm - M/D/YY');
-                var cohortIds = chart.$('node[nodeType="patient"]:selected').map(function(ele){ return ele.data().id.toUpperCase() });
-                var cohort = {name:cohortName, ids:cohortIds};
-                if (cohortIds.length==0) return;
-                cohortPatient.add(cohort);
-                vm.optCohortPatient = cohort;
-            }
-
-            var drawPatients = function(){
-                var degmap = {};
-                var highlight = (vm.optCohortMode.name=="Highlight");
+            function setSelectedPatients(){
+                skipSavePatient = true;
+                var degmap;
                 chart.startBatch();
-
-                if (vm.optCohortPatient.ids=="*"){
+                if (selectedPatientIds==null){
                     chart.$('node[nodeType="patient"]:selected')
-                        .forEach( function(ele){
-                            ele.deselect();
-                            degmap[ele.id()] = {display:'element'};
-                        }, degmap);
+                            .forEach( function(ele){
+                                ele.deselect();
+                                degmap[ele.id()] = {display:'element'};
+                            }, degmap);
                 }else{
                     chart.$('node[nodeType="patient"]')
                         .forEach( function(ele){
-                            if (this.ids.indexOf(ele.id())>=0){
-                                ele.select();
-                                this.degmap[ele.id()] = {display:'element'};
-                            }else{
-                                ele.deselect();
-                                this.degmap[ele.id()] = {display: (highlight) ? 'element' : 'none' };
-                            }
-                        }, {degmap:degmap, ids:vm.optCohortPatient.ids} );
+                            ele[ (this.indexOf(ele.id())==-1) ? "deselect" : "select"]();
+                        }, selectedPatientIds);
                 }
                 chart.batchData(degmap);
                 chart.endBatch();
-                
-            };
-
-            var drawGenes = function(){
-                var degmap = {};
-                var highlight = (vm.optCohortMode.name=="Highlight");
-                chart.startBatch();
-
-                if (vm.optCohortGene.ids=="*"){
-                    chart.$('node[nodeType="gene"]:selected')
-                        .forEach( function(ele){
-                            ele.deselect();
-                            degmap[ele.id()] = {display:'element'};
-                        }, degmap);
-                }
-                else{
-                    chart.$('node[nodeType="gene"]')
-                        .forEach( function(ele){
-                            if (this.ids.indexOf(ele.id())>=0){
-                                ele.select()
-                                this.degmap[ele.id()] = {display:'element'};
-                            }else{
-                                ele.deselect();
-                                this.degmap[ele.id()] = {display: (highlight) ? 'element' : 'none' }
-                            }
-                        }, {degmap:degmap, ids:vm.optCohortGene.ids} );
-                }
-                chart.batchData(degmap);
-                chart.endBatch();
-            };
-
-            var drawMode = function(){
-                drawPatients();
-                drawGenes();
             }
 
-            // What Scope To Initialize Behaviors
-            $scope.$watch("vm.optCohortPatient", drawPatients );
-            $scope.$watch("vm.optCohortGene", drawGenes );
-            $scope.$watch("vm.optCohortMode", drawMode );
+            osHistory.onGeneSelectionChange.add(function(selection){
+                selectedGeneIds = (selection==null) ? null : selection.ids;
+                setSelectedGenes();
+            });
+            osHistory.onPatientSelectionChange.add(function(selection){
+                selectedPatientIds = (selection==null) ? null : selection.ids;
+                setSelectedPatients();
+            });
 
+            setSelectedGenes();
+            setSelectedPatients();
+            chart.on('select', 'node[nodeType="gene"]', _.debounce(saveSelectedGenes, 300));
+            chart.on('select', 'node[nodeType="patient"]', _.debounce(saveSelectedPatients, 300));
+
+            $scope.$on("$destroy", function() {
+                saveSelectedGenes();
+                saveSelectedPatients();
+                osHistory.removeListeners();
+            });
+
+            return {
+                saveGenes: saveSelectedGenes,
+                savePatients: saveSelectedPatients
+            };
         }
-        */
 
         function initializeChart(data, styles, cytoscape, el){
             // Initalize Cytoscape Chart

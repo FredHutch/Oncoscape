@@ -64,10 +64,6 @@
                     });
                 }
             }
-     
-            
-
-            
 
             // Initialize
             osApi.setBusy(true)("Loading Dataset");
@@ -112,9 +108,7 @@
             // API Call To Calculate PLSR
             vm.update = function() {
                 osApi.setBusyMessage("Calculating PLSR");
-
-
-
+                
                 var factors = [{
                     name: "Survival",
                     low: Number(vm.survivalMinFilter) * 365.24,
