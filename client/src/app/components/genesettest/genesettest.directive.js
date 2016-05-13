@@ -40,13 +40,7 @@
 
             // History Integration
             var selectedIds = (osHistory.getPatientSelection() == null) ? null : osHistory.getPatientSelection().ids;
-            function saveSelected() {
-                osHistory.addPatientSelection("PCA", "Manual Selection",
-                    d3Chart.selectAll(".pca-node-selected")[0].map(function(node) {
-                        return node.__data__.id.toUpperCase();
-                    })
-                );
-            }
+            
             // Initialize
             osApi.setBusy(true)("Loading Dataset");
             osApi.setDataset(vm.datasource).then(function(response) {
@@ -55,36 +49,16 @@
                 });
 
                 mtx = mtx[mtx.length - 1].replace(".RData", "");
-                osApi.setBusyMessage("Creating PCA Matrix");
-                osApi.getPCA(vm.datasource, mtx).then(function() {
-
-                    osApi.setBusyMessage("Loading Gene Sets");
-                    osApi.getGeneSetNames().then(function(response) {
-
-                        // Load Gene Sets
-                        vm.geneSets = response.payload;
-                        vm.geneSets.unshift("All");
-                        vm.geneSet = vm.geneSets[0];
-
-                        $scope.$watch('vm.geneSet', function() {
-                            update();
-                        });
-
-                        // History
-                        osHistory.onPatientSelectionChange.add(function(selection) {
-                            selectedIds = selection.ids;
-                            vm.search = "";
-                            $scope.$apply();
-                            setSelected();
-                        });
-                    });
+                osApi.setBusyMessage("Loading Gene Sets");
+                var Group1 = ["TCGA.02.0014", "TCGA.02.0021", "TCGA.02.0028"];
+                var Group2 = ["TCGA.06.0140", "TCGA.06.0182", "TCGA.06.0413"];
+                var geneSet = "NOUSHMEHR_GBM_SOMATIC_MUTATED";
+                osApi.getGeneSetScore(Group1, Group2, geneSet).then(function(response){
+                    vm.message = response.payload;
                 });
             });
-            //osApi.setBusy(true);
-            var Group1 = ["TCGA.02.0014", "TCGA.02.0021", "TCGA.02.0028"];
-            var Group2 = ["TCGA.06.0140", "TCGA.06.0182", "TCGA.06.0413"];
-            var geneSet = "";
-            vm.message = osApi.getGeneSetScore(Group1, Group2, geneSet);
+            osApi.setBusy(false);
+            
         }    
      }
 })();     

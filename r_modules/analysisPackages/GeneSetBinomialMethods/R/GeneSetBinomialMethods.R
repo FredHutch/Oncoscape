@@ -12,10 +12,10 @@ GeneSetBinomialMethods <- function(sampleIDs=list(), geneSet=list(),
    
    obj <- .GeneSetBinomialMethods()
   
-   # file <- system.file(package="GeneSetBinomialMethods", "data", "tbl.mrnaUnified.TCGA.GBM.RData")
-   # stopifnot(file.exists(file))
-   # load(file)
-   # obj@tbl.mrna <- tbl.mrna
+   file <- system.file(package="GeneSetBinomialMethods", "data", "tbl.mrnaUnified.TCGA.GBM.RData")
+   stopifnot(file.exists(file))
+   load(file)
+   obj@tbl.mrna <- tbl.mrna
    obj <- .GeneSetBinomialMethods()
    #obj@sampleIDs <- sampleIDs
    obj@tbl.mrna <- matrix()
