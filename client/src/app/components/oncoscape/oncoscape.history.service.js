@@ -8,6 +8,8 @@
     /** @ngInject */
     function osHistory(moment, signals, osSound) {
 
+        
+
         var _historyMax = 50;
         var _geneSelections = [];
         var _geneSelection = null;
@@ -134,7 +136,7 @@
           
         }
 
-        return {
+        var api = {
             
             onPatientSelectionChange: _onPatientSelectionChange,
             onGeneSelectionChange: _onGeneSelectionChange,
@@ -157,5 +159,6 @@
             removeListeners: removeListeners,
             clear: clear
         }
+        return api;
     }
 })();

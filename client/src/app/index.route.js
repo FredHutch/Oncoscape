@@ -80,6 +80,11 @@
                 template: '<os-survival>',
                 authenticate: true
             })
+            .state('apiexplorer', {
+                url: '/apiexplorer/{datasource}',
+                template: '<os-api-explorer>',
+                authenticate: false
+            })
             .state('oncoprint', {
                 url: '/oncoprint/{datasource}',
                 template: '<os-oncoprint>',
