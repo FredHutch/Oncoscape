@@ -6,7 +6,7 @@
         .service('osApi', oncoscape);
 
     /** @ngInject */
-    function oncoscape(osSocket, $http, signals, $location) {
+    function oncoscape(osSocket, osHttp, $http, signals, $location) {
 
         var _dataSource;
         var onDataSource = new signals.Signal();
@@ -16,6 +16,7 @@
             _dataSource = value;
             onDataSource.dispatch(_dataSource);
         }
+
         
         /*** User Api ***/
         function userApi(){
@@ -146,6 +147,11 @@
                 img: 'history.png',
                 copy: ''
             }, {
+                name: 'Api Explorer',
+                route: 'apiexplorer',
+                img: 'metadata.png',
+                copy: ''
+            }, {
                 name: 'MetaData',
                 route: 'metadata',
                 img: 'metadata.png',
@@ -153,6 +159,12 @@
             }];
         }
 
+        function query(table, query){
+            return osHttp.request({
+                table: table,
+                query: query
+            });
+        }
 
         /*** R Service Calls ***/
         function setDataset(dataPackage) {
@@ -334,6 +346,7 @@
         }
 
         return {
+            query: query,
             setDataSource: setDataSource,
             getDataSource: getDataSource,
             onDataSource: onDataSource,
