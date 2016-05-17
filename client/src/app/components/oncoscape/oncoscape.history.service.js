@@ -88,6 +88,15 @@
             _patientSelection = _patientSelections[i];
             return _patientSelection;
         };
+        var getPatientSelectionSecondLast = function(){
+            var i = _patientSelections.indexOf(_patientSelection) - 2;
+            if (i<1){
+                osSound.beep();
+                return null;
+            } 
+            _patientSelection = _patientSelections[i];
+            return _patientSelection;
+        };
         var getPatientSelectionNext = function(){
             var i = _patientSelections.indexOf(_patientSelection) + 1;
             if (i>=_patientSelections.length){
@@ -143,7 +152,8 @@
             getPatientSelections: getPatientSelections,
             getPatientSelectionLast: getPatientSelectionLast,
             getPatientSelectionNext: getPatientSelectionNext,
-
+            getPatientSelectionSecondLast: getPatientSelectionSecondLast,
+            
             removeListeners: removeListeners,
             clear: clear
         }

@@ -337,6 +337,16 @@
                 }
             });
         }
+        function getGeneSetTest(dataPackage, matrixName) {
+            var payload = {
+                dataPackage: dataPackage,
+                matrixName: matrixName
+            };
+            return osSocket.request({
+                cmd: "createGeneSetTest",
+                payload: payload
+            });
+        }
         function getGeneSetScore(Group1, Group2, geneSet) {
             return osSocket.request({
                 cmd: "geneSetScoreTest",
@@ -387,6 +397,7 @@
             getMutationData: getMutationData,
             getModuleModificationDate: getModuleModificationDate,
             getOncoprint: getOncoprint,
+            getGeneSetTest: getGeneSetTest,
             getGeneSetScore: getGeneSetScore
         }
     }

@@ -1,43 +1,52 @@
 #------------------------------------------------------------------------------------------------------------------------
 .GeneSetBinomialMethods <- setClass ("GeneSetBinomialMethods", 
-                            representation = representation (tbl.mrna="matrix",
-                                                             tbl.clinical="data.frame",
-                                                             genesets="list")
+                            representation = representation (
+                              dataPackage="SttrDataPackageClass",
+                              dataMatrixName="character",
+                              tbl.mrna="matrix",
+                              tbl.clinical="data.frame",
+                              genesets="list")
 )
 
 #------------------------------------------------------------------------------------------------------------------------
-GeneSetBinomialMethods <- function(sampleIDs=list(), geneSet=list(),
+GeneSetBinomialMethods <- function(sttrDataPackage, dataMatrixName,
+                                   sampleIDs=list(), geneSet=list(),
                          sampleDescription="", geneSetDescription="")
 {
    
-   obj <- .GeneSetBinomialMethods()
+   obj <- .GeneSetBinomialMethods(dataPackage=sttrDataPackage, dataMatrixName=dataMatrixName)
   
-   file <- system.file(package="GeneSetBinomialMethods", "data", "tbl.mrnaUnified.TCGA.GBM.RData")
-   stopifnot(file.exists(file))
-   load(file)
-   obj@tbl.mrna <- tbl.mrna
-   obj <- .GeneSetBinomialMethods()
-   #obj@sampleIDs <- sampleIDs
-   obj@tbl.mrna <- matrix()
-   file <- system.file(package="GeneSetBinomialMethods", "data", "tbl.ptHistory.RData")
-   load(file)
-   obj@tbl.clinical <- tbl.clinical
+   # file <- system.file(package="GeneSetBinomialMethods", "data", "tbl.mrnaUnified.TCGA.GBM.RData")
+   # stopifnot(file.exists(file))
+   # load(file)
+   # obj@tbl.mrna <- tbl.mrna
+   # obj <- .GeneSetBinomialMethods()
+   # #obj@sampleIDs <- sampleIDs
+   # obj@tbl.mrna <- matrix()
+   # file <- system.file(package="GeneSetBinomialMethods", "data", "tbl.ptHistory.RData")
+   # load(file)
+   # obj@tbl.clinical <- tbl.clinical
   
    file <- system.file(package="GeneSetBinomialMethods", "data", "msigdb.RData")
    load(file)
    obj@genesets <- genesets
-
+   stopifnot(dataMatrixName %in% names(matrices(sttrDataPackage)))
+   dataPackageObj <- sttrDataPackage
+   mtx <- matrices(dataPackageObj)[[dataMatrixName]]
+   obj@tbl.mrna <- mtx
+   clinical <- getPatientTable(dataPackageObj)
+   obj@tbl.clinical = clinical 
    return(obj)
 } # GeneSetBinomialMethods constructor
 
 #------------------------------------------------------------------------------------------------------------------------
 setGeneric('getExpressionData', signature='obj', function(obj) standardGeneric ('getExpressionData'))
+setGeneric('geneSetDataSummary',           signature='obj', function(obj) standardGeneric ('geneSetDataSummary'))
 setGeneric('getClinicalData', signature='obj', function(obj) standardGeneric ('getClinicalData'))
 setGeneric('getGeneSets', signature='obj', function(obj) standardGeneric ('getGeneSets'))
 setGeneric("randomSample", signature='obj', function(obj, nG1 = NULL, nG2 = NULL, cut  = 0.5, all = FALSE, seed = sample(.Random.seed, 1)) standardGeneric ('randomSample'))
 setGeneric("analysisDataSetup", signature='obj', function(obj, sampleIDsG1, sampleIDsG2, covariates = NULL, geneSet, sampleDescription="", geneSetDescription="") standardGeneric ('analysisDataSetup'))
 setGeneric("geneSetScoreTest", signature='obj', function(obj, sampleIDsG1, sampleIDsG2, covariates = NULL, geneSet, sampleDescription="", geneSetDescription="") standardGeneric ('geneSetScoreTest'))
-
 #------------------------------------------------------------------------------------------------------------------------
 setMethod ('getExpressionData', signature = 'GeneSetBinomialMethods',
            function (obj) { 
@@ -45,6 +54,14 @@ setMethod ('getExpressionData', signature = 'GeneSetBinomialMethods',
            })
 
 #------------------------------------------------------------------------------------------------------------------------
+setMethod("geneSetDataSummary", "GeneSetBinomialMethods",
+  function (obj) {
+     msg <- sprintf("GeneSetBinomialMethods package, matrices: %s",
+                    paste(names(obj), collapse=","))
+     msg
+     })
+
+#----------------------------------------------------------------------------------------------------
 setMethod ('getClinicalData', signature = 'GeneSetBinomialMethods',
            function (obj) { 
              invisible(obj@tbl.clinical)
@@ -97,45 +114,41 @@ setMethod("randomSample", signature = "GeneSetBinomialMethods",
 #------------------------------------------------------------------------------------------------------------------------
 setMethod("analysisDataSetup", signature = "GeneSetBinomialMethods",
           function (obj, sampleIDsG1, sampleIDsG2, covariates = NULL, geneSet, sampleDescription="", geneSetDescription="") {
-
+            print("***** within analysisDataSetup")
             msigdbGeneList <- getGeneSets(obj)[geneSet][[1]]
-              
+            
             if(length(which(colnames(getExpressionData(obj)) %in% msigdbGeneList)) == 0) {
               stop("None of the genes in the specified gene sets are contained in the TCGA gene expression data.")
             }
             
-            clinicalG1 <- data.frame(getClinicalData(obj)[which(getClinicalData(obj)$ID %in% sampleIDsG1), c("ID", covariates)], stringsAsFactors = FALSE)
+            clinicalG1 <- data.frame(getClinicalData(obj)[which(getClinicalData(obj)$ptID %in% sampleIDsG1), c("ptID", covariates)], stringsAsFactors = FALSE)
             clinicalG1$group <- 1
             colnames(clinicalG1)[1] <- "ID"
-              
-            clinicalG2 <-  data.frame(getClinicalData(obj)[which(getClinicalData(obj)$ID %in% sampleIDsG2), c("ID", covariates)], stringsAsFactors = FALSE)
+            clinicalG2 <-  data.frame(getClinicalData(obj)[which(getClinicalData(obj)$ptID %in% sampleIDsG2), c("ptID", covariates)], stringsAsFactors = FALSE)
             clinicalG2$group <- 0 #Group 2 is treated as the referent.
             colnames(clinicalG2)[1] <- "ID"
   
             clinical <- rbind(clinicalG1, clinicalG2)
               #which(clinical$ID %in% sampleIDsG1)
               #which(clinical$ID %in% sampleIDsG2)
-
             if(length(which(colnames(getExpressionData(obj)) %in% msigdbGeneList)) > 1) {
               geneExpression <- getExpressionData(obj)[, which(colnames(getExpressionData(obj)) %in% msigdbGeneList)]
-                #dim(geneExpression)
-              
+                dim(geneExpression)
               unmatchedGenes = setdiff(msigdbGeneList, colnames(geneExpression))
             } else {
               geneExpression <- getExpressionData(obj)[, which(colnames(getExpressionData(obj)) %in% msigdbGeneList)]
-                #length(geneExpression)
-              
+                length(geneExpression)
+    
               geneExpression <- matrix(geneExpression, 
                 dimnames = list(rownames(getExpressionData(obj)), 
                 colnames(getExpressionData(obj))[which(colnames(getExpressionData(obj)) %in% msigdbGeneList)]))
               
               unmatchedGenes = setdiff(msigdbGeneList, colnames(geneExpression))
-            }
-            
-            analysisData <- merge(clinical, geneExpression, by.x = "ID", by.y = "row.names")
-                     
+            }    
+            analysisData <- merge(clinical, geneExpression, by.x = "ID", by.y = "row.names")          
             unmatchedSamples = setdiff(unlist(c(sampleIDsG1, sampleIDsG2)), analysisData$ID)
-               
+            printf("dim(analysisData): %d x %d", nrow(analysisData), ncol(analysisData))
+
             output <- list(sampleDescription = sampleDescription,
                         geneSetDescription = geneSetDescription,
                         unmatchedSamples = unmatchedSamples,
@@ -160,7 +173,8 @@ setMethod("analysisDataSetup", signature = "GeneSetBinomialMethods",
 #------------------------------------------------------------------------------------------------------------------------
 setMethod("geneSetScoreTest", signature = "GeneSetBinomialMethods",
           function (obj, sampleIDsG1, sampleIDsG2, covariates = NULL, geneSet, sampleDescription="", geneSetDescription="") {
-
+              print("***** within geneSetScoreTest function")
+              #print("***** obj structure 1: ", str(obj, max.level=1))
               skatData <- analysisDataSetup(
                   obj = obj,
                   sampleIDsG1 = sampleIDsG1,
@@ -169,7 +183,7 @@ setMethod("geneSetScoreTest", signature = "GeneSetBinomialMethods",
                   covariates = covariates,
                   sampleDescription = sampleDescription,
                   geneSetDescription = geneSetDescription)
-
+              printf("dim(skatData$analysisData): %d x %d", nrow(skatData$analysisData), ncol(skatData$analysisData))
               for(i in length(covariates)) {
                 skatData$analysisData[which(skatData$analysisData[, covariates[i]] == ""), covariates[i]] <- NA
               }
@@ -191,7 +205,7 @@ setMethod("geneSetScoreTest", signature = "GeneSetBinomialMethods",
                   
                   return(list(value = val, warnings = myWarnings))
               }
-            
+    
               if(!is.null(covariates)) {
                   myformula <- as.formula(paste("skatData$analysisData[, 'group'] ~ 1 +",  paste("skatData$analysisData[ ,'", covariates, "']", sep = "", collapse = " + ")))
                   
@@ -204,8 +218,9 @@ setMethod("geneSetScoreTest", signature = "GeneSetBinomialMethods",
                 
                   mAlt <- paste("group ~ 1 + ", paste(covariates, collapse = " + "), " + ", paste(colnames(myGenes), collapse = " + "), sep = "")
               } else {
+        
                   myformula <- as.formula(paste("skatData$analysisData[, 'group'] ~ 1"))
-                  
+        
                   sink("/dev/null")
                     null <- withWarnings(SKAT_Null_Model(myformula, out_type = "D", Adjustment = FALSE))
                     skatRes <- SKAT(myGenes, null$value, kernel = "linear", is_check_genotype = FALSE)
@@ -215,14 +230,17 @@ setMethod("geneSetScoreTest", signature = "GeneSetBinomialMethods",
                   
                   mAlt <- paste("group ~ 1 + ", paste(colnames(myGenes), collapse = " + "), sep = "")
               }
-              
+  
+
               if(is.null(null$warnings)) {
                   summary.skatRes <- paste("Null Model: ", mNull, "\nAlternative Model: ", mAlt, "\n\nP-value:", round(skatRes$p.value, 4))
+  
               } else {
                   summary.skatRes <- paste("Null Model: ", mNull, "\nAlternative Model: ", mAlt, "\n\nP-value:", round(skatRes$p.value, 4), 
                                          "\n\nNull Model Warnings:", unlist(null$warnings)) 
+                  
               }
-                          
+                
               res <- list(
                   sampleDescription = sampleDescription, 
                   geneSetDescription = geneSetDescription, 

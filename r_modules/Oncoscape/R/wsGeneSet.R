@@ -1,8 +1,32 @@
 # handlers for the GeneSetBinomialMethods module
 #----------------------------------------------------------------------------------------------------
+addRMessageHandler("createGeneSetTest", "ws.createGeneSetTest")
 addRMessageHandler("geneSetScoreTest", "ws.scoreHandler")
 addRMessageHandler("fetchHeatMap", "ws.heatMapHandler")
-#---------------------------------------------------------------------------------------------------   
+#---------------------------------------------------------------------------------------------------
+ws.createGeneSetTest <- function(msg)
+{
+   printf("=== ws.createGeneSetTest, full msg:");
+   print(msg)
+   
+   currentDataSetName <- state[["currentDatasetName"]]
+   ds <- datasets[[currentDataSetName]];
+   matrixName = msg$payload$matrixName
+   cmd <- sprintf("myGeneSetBinomialMethods <- GeneSetBinomialMethods(ds, '%s')", matrixName);
+   eval(parse(text=cmd))
+   state[["myGeneSetBinomialMethods"]] <- myGeneSetBinomialMethods
+   printf("ws.createGeneSetBinomialMethods just executed '%s'", cmd)
+   printf("resulting myGeneSetBinomialMethods object:")
+   print(geneSetDataSummary(myGeneSetBinomialMethods))
+   
+   response <- geneSetDataSummary(myGeneSetBinomialMethods)
+   toJSON(list(cmd=msg$callback, callback="", status="response", payload=response),
+                            auto_unbox=TRUE)
+   
+   
+
+} # ws.createGeneSetBinomialMethods
+#----------------------------------------------------------------------------------------------------   
 ws.scoreHandler <- function(msg)
 {
    print("=== received score request");
@@ -24,14 +48,15 @@ ws.scoreHandler <- function(msg)
   
    #set40 <- randomSample(obj = GeneSetBinomialMethods(), nG1 = 40, nG2 = 40, cut = 0.5, all = FALSE, seed = 12345)
    #set40 <- randomSample(obj = GeneSetBinomialMethods(), nG1 = nG1, nG2 = nG2, cut = 0.5, all = FALSE, seed = 12345)
-   obj = GeneSetBinomialMethods()
-   file <- system.file(package="GeneSetBinomialMethods", "data", "tbl.mrnaUnified.TCGA.GBM.RData")
-   stopifnot(file.exists(file))
-   load(file)
-   obj@tbl.mrna <- tbl.mrna
+   # obj = GeneSetBinomialMethods()
+   # file <- system.file(package="GeneSetBinomialMethods", "data", "tbl.mrnaUnified.TCGA.GBM.RData")
+   # stopifnot(file.exists(file))
+   # load(file)
+   # obj@tbl.mrna <- tbl.mrna
    #obj@tbl.mrna <- matrix()
+   myGeneSetBinomialMethods <- state[["myGeneSetBinomialMethods"]] 
    skat_nocov <- geneSetScoreTest(
-                 obj, group1, group2, covariates = NULL, geneset)
+                 myGeneSetBinomialMethods, group1, group2, covariates = NULL, geneset)
                  # sampleIDsG1 = group1,
                  # sampleIDsG2 = group2,
                  # covariates = NULL,
