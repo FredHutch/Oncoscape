@@ -63,9 +63,19 @@ ws.scoreHandler <- function(msg)
                  # geneSet = geneset,
                  # sampleDescription ="TCGA GBM long vs. short survivors",
                  # geneSetDescription ="msgidb:KANG_CISPLATIN_RESISTANCE_DN")
-   print(skat_nocov$summary.skatRes)
-   toJSON(list(cmd=msg$callback, callback="", status="response", payload=skat_nocov$summary.skatRes),
+   if(is.character(skat_nocov)){
+      payload = skat_nocov
+      print(payload)
+      toJSON(list(cmd=msg$callback, callback="", status="error", payload=payload),
                             auto_unbox=TRUE)
+   }else{
+      payload = skat_nocov$summary.skatRes
+      print(payload)
+      toJSON(list(cmd=msg$callback, callback="", status="response", payload=payload),
+                            auto_unbox=TRUE)
+   }
+  
+   
 } # scoreHandler
 #----------------------------------------------------------------------------------------------------
 ws.heatMapHandler <- function (msg)
@@ -93,7 +103,8 @@ ws.heatMapHandler <- function (msg)
     
     #if(!is.na(filename))
     jpeg(file=temp.file, width=650,height=650,res=80)
-    drawHeatmap(gstt, geneset.name=geneset, group1=group1, group2=group2, cluster.patients=FALSE);
+    myGeneSetBinomialMethods <- state[["myGeneSetBinomialMethods"]] 
+    drawHeatmap(myGeneSetBinomialMethods, geneset.name=geneset, group1=group1, group2=group2, cluster.patients=FALSE);
     dev.off()
     p = base64encode(readBin(temp.file,what="raw",n=1e6))
     p = paste("data:image/jpg;base64,\n",p,sep="")

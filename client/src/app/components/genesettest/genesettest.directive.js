@@ -53,13 +53,14 @@
                 console.log("**** mtx is: ", mtx);
 
                 if(cohort1 == null || cohort2 == null){
-                    vm.message = "Error, please select two cohorts to compare";
+                    vm.message = "Please select two cohorts to test out the Gene Set";
                     vm.optCohort1 = "Empty";
                     vm.optCohort2 = "Empty";
                 }else{
                     vm.optCohort1 = cohort1.tool + " " +cohort1.desc + " " + cohort1.ids.length + " Patients selected" ;
                     vm.optCohort2 = cohort2.tool + " " +cohort2.desc + " " + cohort2.ids.length + " Patients selected" ;
-                    var geneset = "NUTT_GBM_VS_AO_GLIOMA_UP";
+                    //var geneset = "random.24";
+                    var geneset = "tcga.pancan.mutated";
                     osApi.getGeneSetTest(vm.datasource, mtx).then(function() {
                         $scope.$watchGroup(['vm.optCohort1', 'vm.optCohort2'], function() {
                            calculateGeneSetScore(cohort1, cohort2, geneset);
@@ -77,7 +78,11 @@
 
                 osApi.setBusy(true);
                 osApi.getGeneSetScore(Group1, Group2, geneset).then(function(response){
-                    vm.message = response.payload;
+                    if(response.status == "error"){
+                        vm.message = response.payload + "Please select two cohorts to test out the Gene Set";
+                    }else{
+                        vm.message = response.payload;
+                    }
                     osApi.setBusy(false);
                 });
              }    

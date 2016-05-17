@@ -27,15 +27,16 @@ GeneSetBinomialMethods <- function(sttrDataPackage, dataMatrixName,
    # load(file)
    # obj@tbl.clinical <- tbl.clinical
   
-   file <- system.file(package="GeneSetBinomialMethods", "data", "msigdb.RData")
-   load(file)
-   obj@genesets <- genesets
+   
    stopifnot(dataMatrixName %in% names(matrices(sttrDataPackage)))
    dataPackageObj <- sttrDataPackage
    mtx <- matrices(dataPackageObj)[[dataMatrixName]]
    obj@tbl.mrna <- mtx
    clinical <- getPatientTable(dataPackageObj)
    obj@tbl.clinical = clinical 
+   file <- system.file(package="GeneSetBinomialMethods", "data", "msigdb.RData")
+   load(file)
+   obj@genesets <- c(genesets, dataPackageObj@genesets)
    return(obj)
 } # GeneSetBinomialMethods constructor
 
@@ -47,6 +48,8 @@ setGeneric('getGeneSets', signature='obj', function(obj) standardGeneric ('getGe
 setGeneric("randomSample", signature='obj', function(obj, nG1 = NULL, nG2 = NULL, cut  = 0.5, all = FALSE, seed = sample(.Random.seed, 1)) standardGeneric ('randomSample'))
 setGeneric("analysisDataSetup", signature='obj', function(obj, sampleIDsG1, sampleIDsG2, covariates = NULL, geneSet, sampleDescription="", geneSetDescription="") standardGeneric ('analysisDataSetup'))
 setGeneric("geneSetScoreTest", signature='obj', function(obj, sampleIDsG1, sampleIDsG2, covariates = NULL, geneSet, sampleDescription="", geneSetDescription="") standardGeneric ('geneSetScoreTest'))
+setGeneric("drawHeatmap", signature='obj',
+       function(obj, geneset.name,  group1, group2,cluster.patients=FALSE) standardGeneric('drawHeatmap'))
 #------------------------------------------------------------------------------------------------------------------------
 setMethod ('getExpressionData', signature = 'GeneSetBinomialMethods',
            function (obj) { 
@@ -118,34 +121,50 @@ setMethod("analysisDataSetup", signature = "GeneSetBinomialMethods",
             msigdbGeneList <- getGeneSets(obj)[geneSet][[1]]
             
             if(length(which(colnames(getExpressionData(obj)) %in% msigdbGeneList)) == 0) {
-              stop("None of the genes in the specified gene sets are contained in the TCGA gene expression data.")
+              print("which(colnames(getExpressionData(obj)) %in% msigdbGeneList)) == 0")
+              return("None of the genes in the specified gene sets are contained in the TCGA gene expression data.")
             }
-            
+            if(nchar(getClinicalData(obj)$ptID[1]) == 12){
+              print("nchar of clinical ptID is 12")
+              sampleIDsG1 <- substring(sampleIDsG1, 1, 12)
+              sampleIDsG2 <- substring(sampleIDsG2, 1, 12)
+
+            }
+        
             clinicalG1 <- data.frame(getClinicalData(obj)[which(getClinicalData(obj)$ptID %in% sampleIDsG1), c("ptID", covariates)], stringsAsFactors = FALSE)
             clinicalG1$group <- 1
             colnames(clinicalG1)[1] <- "ID"
             clinicalG2 <-  data.frame(getClinicalData(obj)[which(getClinicalData(obj)$ptID %in% sampleIDsG2), c("ptID", covariates)], stringsAsFactors = FALSE)
             clinicalG2$group <- 0 #Group 2 is treated as the referent.
             colnames(clinicalG2)[1] <- "ID"
-  
+            print("test3")
             clinical <- rbind(clinicalG1, clinicalG2)
               #which(clinical$ID %in% sampleIDsG1)
               #which(clinical$ID %in% sampleIDsG2)
             if(length(which(colnames(getExpressionData(obj)) %in% msigdbGeneList)) > 1) {
+              print("test4")
+              print(colnames(getExpressionData(obj))[c(1:10)])
+              printf("dim(getExpressionData(obj)): %d x %d", nrow(getExpressionData(obj)), ncol(getExpressionData(obj)))
+              print(which(colnames(getExpressionData(obj)) %in% msigdbGeneList))
               geneExpression <- getExpressionData(obj)[, which(colnames(getExpressionData(obj)) %in% msigdbGeneList)]
-                dim(geneExpression)
+                  print("test5")
               unmatchedGenes = setdiff(msigdbGeneList, colnames(geneExpression))
             } else {
+              print("test6")
               geneExpression <- getExpressionData(obj)[, which(colnames(getExpressionData(obj)) %in% msigdbGeneList)]
                 length(geneExpression)
-    
+              print("test7")
               geneExpression <- matrix(geneExpression, 
                 dimnames = list(rownames(getExpressionData(obj)), 
                 colnames(getExpressionData(obj))[which(colnames(getExpressionData(obj)) %in% msigdbGeneList)]))
               
               unmatchedGenes = setdiff(msigdbGeneList, colnames(geneExpression))
-            }    
-            analysisData <- merge(clinical, geneExpression, by.x = "ID", by.y = "row.names")          
+            } 
+            print("test8")   
+            rownames(geneExpression) <- substring(rownames(geneExpression), 1, 12)
+            print(rownames(geneExpression)[c(1:10)])
+            analysisData <- merge(clinical, geneExpression, by.x = "ID", by.y = "row.names")
+            print("test9")          
             unmatchedSamples = setdiff(unlist(c(sampleIDsG1, sampleIDsG2)), analysisData$ID)
             printf("dim(analysisData): %d x %d", nrow(analysisData), ncol(analysisData))
 
@@ -183,6 +202,11 @@ setMethod("geneSetScoreTest", signature = "GeneSetBinomialMethods",
                   covariates = covariates,
                   sampleDescription = sampleDescription,
                   geneSetDescription = geneSetDescription)
+              if(is.character(skatData)){
+                print("receive skatData string, should be an error.")
+                print(skatData)
+                return(skatData)
+              }
               printf("dim(skatData$analysisData): %d x %d", nrow(skatData$analysisData), ncol(skatData$analysisData))
               for(i in length(covariates)) {
                 skatData$analysisData[which(skatData$analysisData[, covariates[i]] == ""), covariates[i]] <- NA
@@ -257,3 +281,60 @@ setMethod("geneSetScoreTest", signature = "GeneSetBinomialMethods",
             return(res)
           }) #geneSetScoreTest
 #------------------------------------------------------------------------------------------------------------------------
+# create a trimmed-down matrix with only the genes and samples suppled to the score method
+# 
+.trimMatrix <- function(tbl.mrna, sampleIDs, geneNames, geneset.name="", quiet=TRUE)
+{
+   overlapping.sampleIDs <- intersect(sampleIDs, rownames(tbl.mrna))
+   overlapping.genes <- intersect(geneNames, colnames(tbl.mrna))
+   
+   if(length(overlapping.sampleIDs) == 0){
+      warning(sprintf("no matching sampleIDs in tbl.mrna for %s", geneset.name));
+      return(NA)
+      }
+   if (length(overlapping.genes) < 2) {
+      warning(sprintf("no or only one matching gene in tbl.mrna for %s", geneset.name));
+      return(NA)
+      }
+   
+   mtx.trimmed <- tbl.mrna[overlapping.sampleIDs, overlapping.genes];
+   msg <- sprintf("found %d/%d overlapping samples in the expession data, %d/%d overlapping genes in %s",
+                  nrow(mtx.trimmed), length(sampleIDs), ncol(mtx.trimmed), length(geneNames), geneset.name)
+   if(!quiet)
+      message(msg)
+   
+   invisible(mtx.trimmed)
+   
+} # .trimMatrix
+#------------------------------------------------------------------------------------------------------------------------
+setMethod("drawHeatmap", signature = "GeneSetBinomialMethods",
+
+    function(obj, geneset.name, group1, group2,cluster.patients=FALSE){
+      tbl.mrna <- getExpressionData(obj)
+      genes <- getGeneSets(obj)[[geneset.name]]
+      mtx <- .trimMatrix(tbl.mrna, c(group1, group2), genes, geneset.name)
+      group1.known <- intersect(group1, rownames(mtx))
+      group2.known <- intersect(group2, rownames(mtx))
+      row.groups <- c("group1","group2")
+      colors <- colorRampPalette (c ('green', 'white', 'red')) (10)   # built in, namespace:grDevices
+      predefined.class.index <- c(rep(1, length(group1.known)), rep(2, length(group2.known)))
+      rowIndividualColors <- c("magenta", "blue")[c(predefined.class.index)]
+      my.colors <- function (x) {colorRampPalette (c ('green', 'white', 'red')) (x)}
+      
+      #row.names(mtx) <- seq(1,nrow(mtx),1)
+      if(!is.na(mtx)){
+      heatmap.3(mtx,
+                scale="column",
+                color.FUN=my.colors,
+                RowIndividualColors=rowIndividualColors,
+                labRow.by.group=row.groups,
+                main=geneset.name,
+                Rowv=FALSE,
+                dendrogram="col",
+                cluster.by.col=TRUE,
+                srtCol=45,
+                )
+                
+      }
+})  # drawHeatmap
+#----------------------------------------------------------------------------------------------------
