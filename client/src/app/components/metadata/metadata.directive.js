@@ -31,11 +31,7 @@
             vm.colnames = [];
             vm.rows = [];
             vm.search = "";
-            vm.toggleFilter = function() {
-                angular.element(".container-filters").toggleClass("container-filters-collapsed");
-                angular.element(".container-filter-toggle").toggleClass("container-filter-toggle-collapsed");
-            }
-
+    
             // Elements
             var dtTable;
 

@@ -1,0 +1,76 @@
+[
+  {
+    "bcr_patient_uuid": "AE10B73D-E7F4-4334-8452-167B60D71CB5",
+    "patient_ID": "TCGA.N6.A4VG",
+    "bcr_followup_barcode": "TCGA-N6-A4VG-F69549",
+    "new_tumor": "LOCOREGIONAL RECURRENCE",
+    "new_tumor_event_site": "LYMPH NODE(S)",
+    "days_to_progression": 493
+  },
+  {
+    "bcr_patient_uuid": "EEC002C4-7602-4179-8EB3-2B0508D5EE1C",
+    "patient_ID": "TCGA.N8.A4PM",
+    "bcr_followup_barcode": "TCGA-N8-A4PM-F56668",
+    "new_tumor": "LOCOREGIONAL RECURRENCE",
+    "new_tumor_event_site": "LYMPH NODE(S)",
+    "surgery": false,
+    "radiation": false,
+    "drug": true,
+    "days_to_progression": 524
+  },
+  {
+    "bcr_patient_uuid": "EBB834C6-374E-4077-A4CE-C74A850BE358",
+    "patient_ID": "TCGA.N8.A4PP",
+    "bcr_followup_barcode": "TCGA-N8-A4PP-F56669",
+    "new_tumor": "LOCOREGIONAL RECURRENCE",
+    "new_tumor_event_site": "PELVIS",
+    "surgery": false,
+    "radiation": true,
+    "drug": false,
+    "days_to_progression": 327
+  },
+  {
+    "bcr_patient_uuid": "33AD8D6E-10F4-4965-9721-1A9984F9E87D",
+    "patient_ID": "TCGA.N8.A56S",
+    "bcr_followup_barcode": "TCGA-N8-A56S-F45258",
+    "new_tumor": "PROGRESSION OF DISEASE",
+    "new_tumor_event_site": "LUNG",
+    "surgery": false,
+    "drug": true,
+    "days_to_progression": 199
+  },
+  {
+    "bcr_patient_uuid": "33AD8D6E-10F4-4965-9721-1A9984F9E87D",
+    "patient_ID": "TCGA.N8.A56S",
+    "bcr_followup_barcode": "TCGA-N8-A56S-F45258",
+    "new_tumor": "PROGRESSION OF DISEASE",
+    "new_tumor_event_site": "LYMPH NODE(S)",
+    "surgery": false,
+    "drug": true,
+    "days_to_progression": 199
+  },
+  {
+    "bcr_patient_uuid": "3428AA0A-127D-492A-BF4A-EE82563D3701",
+    "patient_ID": "TCGA.NA.A5I1",
+    "bcr_followup_barcode": "TCGA-NA-A5I1-F59466",
+    "new_tumor": "DISTANT METASTASIS",
+    "new_tumor_event_site": "PELVIS",
+    "surgery": false,
+    "days_to_progression": 2553
+  },
+  {
+    "bcr_patient_uuid": "485B221F-F40F-46A0-A9CF-023F807E6146",
+    "patient_ID": "TCGA.QM.A5NM",
+    "bcr_followup_barcode": "TCGA-QM-A5NM-F56900",
+    "new_tumor": "LOCOREGIONAL RECURRENCE",
+    "new_tumor_event_site": "OTHER, SPECIFY",
+    "new_tumor_event_site_other": "VAGINA",
+    "surgery": true,
+    "new_tumor_event_procedure": "EXCISIONAL BIOPSY",
+    "radiation": false,
+    "drug": false,
+    "days_to_surgery": 155,
+    "days_to_progression": 153,
+    "residual_tumor": "RX"
+  }
+]

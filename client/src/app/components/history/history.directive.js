@@ -19,7 +19,7 @@
         return directive;
 
         /** @ngInject */
-        function HistoryController(osApi, osHistory, $state, $timeout, $scope, moment, $stateParams, _) {
+        function HistoryController(osApi, osHistory, $state, $timeout, $scope, moment, $stateParams, _, $) {
 
             $scope.$on("$destroy", function() {
                 vm.applyFilter("Exit");
@@ -55,7 +55,7 @@
                 }).map(function(item) {
                     return item[0].toString().toUpperCase()
                 });
-                o = angular.map(o, function(value) {
+                o = $.map(o, function(value) {
                     return [value];
                 });
                 osHistory.addPatientSelection("Patient History", filter, o);

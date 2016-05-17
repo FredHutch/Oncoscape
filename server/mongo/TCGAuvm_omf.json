@@ -1,0 +1,61 @@
+[
+  {
+    "bcr_patient_uuid": "8DE236F1-C029-44DF-A2A9-319145488BAA",
+    "patient_ID": "TCGA.V4.A9EL",
+    "bcr_omf_barcode": "TCGA-V4-A9EL-O52202",
+    "bcr_omf_uuid": "CAB8CEE3-3A72-4596-8D3F-8196093DADA9",
+    "form_completion_date": "2013-11-29",
+    "malignancy_type": "PRIOR MALIGNANCY",
+    "surgery_indicator": true,
+    "pharmaceutical_therapy_indicator": false,
+    "radiation_therapy_indicator": true,
+    "radiation_therapy_extent": "LOCOREGIONAL",
+    "history_rt_tx_to_site_of_tumor": false,
+    "anatomic_site": "PROSTATE"
+  },
+  {
+    "bcr_patient_uuid": "4498044C-1607-403E-867E-BEFD7FAD275A",
+    "patient_ID": "TCGA.WC.A87U",
+    "bcr_omf_barcode": "TCGA-WC-A87U-O57416",
+    "bcr_omf_uuid": "130A2CEB-1F75-41F5-B786-41691052EDA3",
+    "form_completion_date": "2014-3-12",
+    "malignancy_type": "SYNCHRONOUS MALIGNANCY",
+    "days_to_diagnosis": -18,
+    "surgery_indicator": false,
+    "pharmaceutical_therapy_indicator": true,
+    "pharmaceutical_therapy_extent": "SYSTEMIC",
+    "days_to_drug_start": 8,
+    "radiation_therapy_indicator": false,
+    "anatomic_site": "PANCREAS",
+    "histologicalType": "ADENOCARCINOMA, NOT OTHERWISE SPECIFIED"
+  },
+  {
+    "bcr_patient_uuid": "56ED4EA2-18CE-48D4-BF72-9FFABE576CA9",
+    "patient_ID": "TCGA.WC.A881",
+    "bcr_omf_barcode": "TCGA-WC-A881-O57418",
+    "bcr_omf_uuid": "599B6255-A397-47BC-9A68-DF22E8C733FC",
+    "form_completion_date": "2014-3-12",
+    "malignancy_type": "PRIOR MALIGNANCY",
+    "surgery_indicator": false,
+    "pharmaceutical_therapy_indicator": false,
+    "radiation_therapy_indicator": true,
+    "radiation_therapy_extent": "LOCOREGIONAL",
+    "history_rt_tx_to_site_of_tumor": false,
+    "anatomic_site": "PROSTATE"
+  },
+  {
+    "bcr_patient_uuid": "01B18F83-DA8A-4D3F-B722-F00FE7559C60",
+    "patient_ID": "TCGA.WC.AA9A",
+    "bcr_omf_barcode": "TCGA-WC-AA9A-O55441",
+    "bcr_omf_uuid": "FB7DB8DF-ED79-4718-9D6C-0A2C62F5922A",
+    "form_completion_date": "2014-1-9",
+    "malignancy_type": "PRIOR MALIGNANCY",
+    "surgery_indicator": true,
+    "surgery_type": "LEFT MASTECTOMY",
+    "days_to_surgery": -4019,
+    "pharmaceutical_therapy_indicator": false,
+    "radiation_therapy_indicator": false,
+    "anatomic_site": "BREAST",
+    "laterality": "LEFT"
+  }
+]

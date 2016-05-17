@@ -1,0 +1,32 @@
+[
+  {
+    "V1": "bcr_patient_uuid",
+    "V2": "bcr_patient_barcode",
+    "V3": "bcr_followup_barcode",
+    "V4": "bcr_followup_uuid",
+    "V5": "form_completion_date",
+    "V6": "lost_follow_up",
+    "V7": "radiation_therapy",
+    "V8": "postoperative_rx_tx",
+    "V9": "person_neoplasm_cancer_status",
+    "V10": "vital_status",
+    "V11": "new_tumor_event_after_initial_treatment",
+    "V12": "days_to_last_followup",
+    "V13": "days_to_death"
+  },
+  {
+    "V1": "",
+    "V2": "2673794",
+    "V3": "",
+    "V4": "",
+    "V5": "",
+    "V6": "61333",
+    "V7": "2005312",
+    "V8": "3397567",
+    "V9": "2759550",
+    "V10": "5",
+    "V11": "3121376",
+    "V12": "3008273",
+    "V13": "3165475"
+  }
+]
