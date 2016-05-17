@@ -1,0 +1,184 @@
+[
+  {
+    "bcr_patient_uuid": "B5C516BA-4785-41DC-BD07-B129D47808DD",
+    "patient_ID": "TCGA.V4.A9E7",
+    "new_tumor": "DISTANT METASTASIS",
+    "new_tumor_event_site": "LIVER",
+    "new_tumor_event_histology": "MIXED",
+    "surgery": true,
+    "radiation": false,
+    "drug": true,
+    "days_to_surgery": 56,
+    "days_to_progression": 35
+  },
+  {
+    "bcr_patient_uuid": "DF941BC1-6356-4F2E-A3F5-AE190266B441",
+    "patient_ID": "TCGA.V4.A9E8",
+    "new_tumor": "DISTANT METASTASIS",
+    "new_tumor_event_site": "LIVER",
+    "new_tumor_event_histology": "MIXED",
+    "surgery": false,
+    "radiation": false,
+    "drug": true,
+    "days_to_progression": 557
+  },
+  {
+    "bcr_patient_uuid": "EDBF6720-467E-4928-B1CB-0E7336358D18",
+    "patient_ID": "TCGA.V4.A9EE",
+    "new_tumor": "DISTANT METASTASIS",
+    "new_tumor_event_site": "LIVER",
+    "days_to_progression": 211
+  },
+  {
+    "bcr_patient_uuid": "B533E555-90CF-4657-80C6-15B67DA8AD26",
+    "patient_ID": "TCGA.V4.A9EI",
+    "new_tumor": "DISTANT METASTASIS",
+    "new_tumor_event_site": "LIVER",
+    "days_to_progression": 241
+  },
+  {
+    "bcr_patient_uuid": "8DE236F1-C029-44DF-A2A9-319145488BAA",
+    "patient_ID": "TCGA.V4.A9EL",
+    "new_tumor": "DISTANT METASTASIS",
+    "new_tumor_event_site": "LIVER",
+    "new_tumor_event_histology": "EPITHELIOID",
+    "surgery": false,
+    "drug": true,
+    "days_to_progression": 413
+  },
+  {
+    "bcr_patient_uuid": "A6FF0B7A-1D04-4A64-AF43-5011A4487CB2",
+    "patient_ID": "TCGA.V4.A9EQ",
+    "new_tumor": "DISTANT METASTASIS",
+    "new_tumor_event_site": "LIVER",
+    "new_tumor_event_histology": "EPITHELIOID",
+    "drug": true,
+    "days_to_progression": 252
+  },
+  {
+    "bcr_patient_uuid": "DF685F8C-645A-47AE-A471-63BF1973A0AE",
+    "patient_ID": "TCGA.V4.A9EU",
+    "new_tumor": "NEW PRIMARY TUMOR",
+    "new_tumor_event_site": "OTHER, SPECIFY",
+    "new_tumor_event_site_other": "BILIARY",
+    "new_tumor_event_histology": "CHOLANGIOCARCINOMA",
+    "days_to_progression": 86
+  },
+  {
+    "bcr_patient_uuid": "6BE5176C-4980-4663-ADFF-D04F05737DA0",
+    "patient_ID": "TCGA.V4.A9EW",
+    "new_tumor": "DISTANT METASTASIS",
+    "new_tumor_event_site": "LIVER",
+    "new_tumor_event_histology": "EPITHELIOID",
+    "drug": true,
+    "days_to_progression": 197
+  },
+  {
+    "bcr_patient_uuid": "892E7630-B11E-47BD-987C-327D33258E11",
+    "patient_ID": "TCGA.V4.A9EX",
+    "new_tumor": "DISTANT METASTASIS",
+    "new_tumor_event_site": "LIVER",
+    "new_tumor_event_histology": "EPITHELIOID",
+    "drug": true,
+    "days_to_progression": 381
+  },
+  {
+    "bcr_patient_uuid": "92FCA97D-6123-46A7-9C34-7A6F877FE612",
+    "patient_ID": "TCGA.V4.A9F0",
+    "new_tumor": "DISTANT METASTASIS",
+    "new_tumor_event_site": "LIVER",
+    "drug": true,
+    "days_to_progression": 489
+  },
+  {
+    "bcr_patient_uuid": "E21D8018-8FE9-4C92-8B36-28D7D3F7DF2B",
+    "patient_ID": "TCGA.V4.A9F3",
+    "new_tumor": "DISTANT METASTASIS",
+    "new_tumor_event_site": "LIVER",
+    "new_tumor_event_histology": "EPITHELIOID",
+    "drug": true,
+    "days_to_progression": 355
+  },
+  {
+    "bcr_patient_uuid": "E21D8018-8FE9-4C92-8B36-28D7D3F7DF2B",
+    "patient_ID": "TCGA.V4.A9F3",
+    "new_tumor": "DISTANT METASTASIS",
+    "new_tumor_event_site": "SKIN",
+    "new_tumor_event_histology": "MELANOMA OF EPITHELOID TYPE",
+    "surgery": true,
+    "drug": false,
+    "days_to_surgery": 595,
+    "days_to_progression": 597
+  },
+  {
+    "bcr_patient_uuid": "73B3E4DD-C53D-4FE3-8607-EE462C9CBBD1",
+    "patient_ID": "TCGA.VD.A8KD",
+    "new_tumor": "DISTANT METASTASIS",
+    "new_tumor_event_site": "LIVER",
+    "days_to_progression": -4
+  },
+  {
+    "bcr_patient_uuid": "78039723-94A9-4903-8BB4-C00852E8E889",
+    "patient_ID": "TCGA.VD.A8KF",
+    "new_tumor": "DISTANT METASTASIS"
+  },
+  {
+    "bcr_patient_uuid": "3EB7ADED-8887-4C27-A464-1B50EC090133",
+    "patient_ID": "TCGA.WC.A87T",
+    "new_tumor": "NEW PRIMARY TUMOR",
+    "new_tumor_event_site": "SKIN",
+    "new_tumor_event_histology": "SQUAMOUS CELL CACINOMA",
+    "surgery": true,
+    "radiation": false,
+    "drug": false,
+    "days_to_surgery": 2020,
+    "days_to_progression": 2020
+  },
+  {
+    "bcr_patient_uuid": "60D7B6CF-D605-4837-9061-612F6BBB7393",
+    "patient_ID": "TCGA.WC.A87W",
+    "new_tumor": "NEW PRIMARY TUMOR",
+    "new_tumor_event_site": "SKIN",
+    "new_tumor_event_histology": "BASAL CELL CARCINOMA",
+    "surgery": true,
+    "radiation": false,
+    "drug": false,
+    "days_to_surgery": 625,
+    "days_to_progression": 606
+  },
+  {
+    "bcr_patient_uuid": "01B18F83-DA8A-4D3F-B722-F00FE7559C60",
+    "patient_ID": "TCGA.WC.AA9A",
+    "new_tumor": "DISTANT METASTASIS",
+    "new_tumor_event_site": "SKIN",
+    "surgery": true,
+    "radiation": false,
+    "drug": false,
+    "days_to_surgery": 371,
+    "days_to_progression": 371
+  },
+  {
+    "bcr_patient_uuid": "743FC661-9BA2-4FA8-966E-508FB4B965E0",
+    "patient_ID": "TCGA.YZ.A984",
+    "new_tumor": "NEW PRIMARY TUMOR",
+    "new_tumor_event_site": "OTHER, SPECIFY",
+    "new_tumor_event_site_other": "THYROID",
+    "new_tumor_event_histology": "ANGIOINVASIVE FOLLICULAR CARCINOMA",
+    "surgery": true,
+    "radiation": false,
+    "drug": false,
+    "days_to_surgery": 154,
+    "days_to_progression": 154
+  },
+  {
+    "bcr_patient_uuid": "743FC661-9BA2-4FA8-966E-508FB4B965E0",
+    "patient_ID": "TCGA.YZ.A984",
+    "new_tumor": "DISTANT METASTASIS",
+    "new_tumor_event_site": "LIVER",
+    "new_tumor_event_histology": "NO TISSUE BIOPSY",
+    "surgery": false,
+    "radiation": false,
+    "drug": false,
+    "days_to_progression": 916
+  }
+]

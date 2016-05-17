@@ -465,8 +465,8 @@
             vm.frame;
             return vm;
         }
-        function initializeHistory(chart, osHistory, _, $scope){
 
+        function initializeHistory(chart, osHistory, _, $scope){
 
             // History Integration
             var selectedGeneIds = (osHistory.getGeneSelection() == null) ? null : osHistory.getGeneSelection().ids;

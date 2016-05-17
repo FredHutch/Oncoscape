@@ -1,0 +1,34 @@
+[
+  {
+    "V1": "bcr_patient_uuid",
+    "V2": "bcr_patient_barcode",
+    "V3": "bcr_followup_barcode",
+    "V4": "new_neoplasm_event_type",
+    "V5": "new_neoplasm_event_occurrence_anatomic_site",
+    "V6": "new_neoplasm_occurrence_anatomic_site_text",
+    "V7": "days_to_new_tumor_event_after_initial_treatment",
+    "V8": "new_tumor_event_additional_surgery_procedure",
+    "V9": "days_to_new_tumor_event_additional_surgery_procedure",
+    "V10": "recurrence_second_surgery_neoplasm_surgical_procedure_name",
+    "V11": "recurrence_second_surgery_neoplasm_surgical_procedure_name_other",
+    "V12": "additional_radiation_therapy",
+    "V13": "additional_pharmaceutical_therapy",
+    "V14": "residual_disease_post_new_tumor_event_margin_status"
+  },
+  {
+    "V1": "",
+    "V2": "2673794",
+    "V3": "",
+    "V4": "3119721",
+    "V5": "3108271",
+    "V6": "3128033",
+    "V7": "3392464",
+    "V8": "3427611",
+    "V9": "3008335",
+    "V10": "3125097",
+    "V11": "3125102",
+    "V12": "3427615",
+    "V13": "3427616",
+    "V14": "3008753"
+  }
+]

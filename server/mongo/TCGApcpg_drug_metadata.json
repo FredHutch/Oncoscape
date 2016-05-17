@@ -1,0 +1,42 @@
+[
+  {
+    "V1": "bcr_patient_uuid",
+    "V2": "bcr_patient_barcode",
+    "V3": "bcr_radiation_barcode",
+    "V4": "bcr_radiation_uuid",
+    "V5": "form_completion_date",
+    "V6": "radiation_type",
+    "V7": "anatomic_treatment_site",
+    "V8": "radiation_dosage",
+    "V9": "units",
+    "V10": "numfractions",
+    "V11": "days_to_radiation_therapy_start",
+    "V12": "radiation_treatment_ongoing",
+    "V13": "days_to_radiation_therapy_end",
+    "V14": "measure_of_response",
+    "V15": "course_number",
+    "V16": "radiation_type_notes",
+    "V17": "regimen_indication",
+    "V18": "regimen_indication_notes"
+  },
+  {
+    "V1": "",
+    "V2": "2673794",
+    "V3": "",
+    "V4": "",
+    "V5": "",
+    "V6": "2842944",
+    "V7": "2793522",
+    "V8": "2721441",
+    "V9": "61446",
+    "V10": "61465",
+    "V11": "3008313",
+    "V12": "2842745",
+    "V13": "3008333",
+    "V14": "2857291",
+    "V15": "2732184",
+    "V16": "2195477",
+    "V17": "2793511",
+    "V18": "2793516"
+  }
+]
