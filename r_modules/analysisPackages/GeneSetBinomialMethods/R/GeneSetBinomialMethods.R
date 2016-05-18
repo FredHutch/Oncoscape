@@ -307,34 +307,3 @@ setMethod("geneSetScoreTest", signature = "GeneSetBinomialMethods",
    
 } # .trimMatrix
 #------------------------------------------------------------------------------------------------------------------------
-setMethod("drawHeatmap", signature = "GeneSetBinomialMethods",
-
-    function(obj, geneset.name, group1, group2,cluster.patients=FALSE){
-      tbl.mrna <- getExpressionData(obj)
-      genes <- getGeneSets(obj)[[geneset.name]]
-      mtx <- .trimMatrix(tbl.mrna, c(group1, group2), genes, geneset.name)
-      group1.known <- intersect(group1, rownames(mtx))
-      group2.known <- intersect(group2, rownames(mtx))
-      row.groups <- c("group1","group2")
-      colors <- colorRampPalette (c ('green', 'white', 'red')) (10)   # built in, namespace:grDevices
-      predefined.class.index <- c(rep(1, length(group1.known)), rep(2, length(group2.known)))
-      rowIndividualColors <- c("magenta", "blue")[c(predefined.class.index)]
-      my.colors <- function (x) {colorRampPalette (c ('green', 'white', 'red')) (x)}
-      
-      #row.names(mtx) <- seq(1,nrow(mtx),1)
-      if(!is.na(mtx)){
-      heatmap.3(mtx,
-                scale="column",
-                color.FUN=my.colors,
-                RowIndividualColors=rowIndividualColors,
-                labRow.by.group=row.groups,
-                main=geneset.name,
-                Rowv=FALSE,
-                dendrogram="col",
-                cluster.by.col=TRUE,
-                srtCol=45,
-                )
-                
-      }
-})  # drawHeatmap
-#----------------------------------------------------------------------------------------------------

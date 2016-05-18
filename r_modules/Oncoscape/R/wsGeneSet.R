@@ -69,8 +69,16 @@ ws.scoreHandler <- function(msg)
       toJSON(list(cmd=msg$callback, callback="", status="error", payload=payload),
                             auto_unbox=TRUE)
    }else{
-      payload = skat_nocov$summary.skatRes
-      print(payload)
+      payload$summary = skat_nocov$summary.skatRes
+      print("test1")
+      print(names(skat_nocov))
+      skat_nocov$analysisData = skat_nocov$analysisData[order(skat_nocov$analysisData[,2]),]
+      payload$pt = skat_nocov$analysisData[,1]
+      payload$genes = colnames(skat_nocov)
+      print(payload$pt)
+      payload$grouping = skat_nocov$analysisData[,2]
+      payload$analysisData = toJSON(as.matrix(skat_nocov$analysisData[,-c(1,2)]), pretty=TRUE)
+      print(payload$summary)
       toJSON(list(cmd=msg$callback, callback="", status="response", payload=payload),
                             auto_unbox=TRUE)
    }
