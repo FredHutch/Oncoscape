@@ -60,7 +60,7 @@
                     vm.optCohort1 = cohort1.tool + " " +cohort1.desc + " " + cohort1.ids.length + " Patients selected" ;
                     vm.optCohort2 = cohort2.tool + " " +cohort2.desc + " " + cohort2.ids.length + " Patients selected" ;
                     //var geneset = "random.24";
-                    var geneset = "tcga.pancan.mutated";
+                    var geneset = "random.24";
                     osApi.getGeneSetTest(vm.datasource, mtx).then(function() {
                         $scope.$watchGroup(['vm.optCohort1', 'vm.optCohort2'], function() {
                            calculateGeneSetScore(cohort1, cohort2, geneset);
@@ -70,7 +70,44 @@
                 osApi.setBusy(false);
             });
 
+            var drawHeatMap = function(pt, genes, expressionData){
+                console.log(expressionData);
+                
 
+                var zValues = JSON.parse(expressionData);
+                var colorscaleValue = [
+                      [1, '#339966'],
+                      [2, '#003333']
+                    ];
+
+                    var data = [{
+                      //x: genes,
+                      y: pt,
+                      z: zValues,
+                      type: 'heatmap',
+                      //colorscale: colorscaleValue,
+                      showscale: true
+                    }];
+
+                    var layout = {
+                      title: 'GeneSet Heatmap',
+                      annotations: [],
+                      xaxis: {
+                        ticks: '',
+                        side: 'top'
+                      },
+                      yaxis: {
+                        ticks: '',
+                        ticksuffix: ' ',
+                        width: 500,
+                        height: 250,
+                        autosize: false
+                      }
+                    };
+
+
+                    Plotly.newPlot('heatMap', data, layout);
+            }
             // API Call To oncoprint_data_selection
             var calculateGeneSetScore = function(cohort1, cohort2, geneset) {    
                 var Group1 = cohort1.ids;
@@ -78,10 +115,14 @@
 
                 osApi.setBusy(true);
                 osApi.getGeneSetScore(Group1, Group2, geneset).then(function(response){
+                    console.log(response.payload);
                     if(response.status == "error"){
                         vm.message = response.payload + "Please select two cohorts to test out the Gene Set";
                     }else{
-                        vm.message = response.payload;
+                        vm.message = response.payload.summary;
+                        var pt = response.payload.pt;
+                        var g = response.payload.genes;
+                        drawHeatMap(pt, g, response.payload.analysisData);
                     }
                     osApi.setBusy(false);
                 });
