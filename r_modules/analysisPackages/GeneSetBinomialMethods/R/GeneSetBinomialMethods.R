@@ -164,6 +164,8 @@ setMethod("analysisDataSetup", signature = "GeneSetBinomialMethods",
             rownames(geneExpression) <- substring(rownames(geneExpression), 1, 12)
             print(rownames(geneExpression)[c(1:10)])
             analysisData <- merge(clinical, geneExpression, by.x = "ID", by.y = "row.names")
+            print(colnames(analysisData))
+            print(rownames(analysisData))
             print("test9")          
             unmatchedSamples = setdiff(unlist(c(sampleIDsG1, sampleIDsG2)), analysisData$ID)
             printf("dim(analysisData): %d x %d", nrow(analysisData), ncol(analysisData))

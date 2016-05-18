@@ -108,6 +108,66 @@
 
                     Plotly.newPlot('heatMap', data, layout);
             }
+            var drawHeatMap2 = function(pt, genes, expressionData){
+                   
+                   Highcharts.chart('heatMap', {
+                    chart: {
+                        type: 'heatmap',
+                        marginTop: 40,
+                        marginBottom: 80,
+                        plotBorderWidth: 1
+                    },
+
+
+                    title: {
+                        text: 'Gene Set Expression Data'
+                    },
+
+                    // xAxis: {
+                    //     categories: genes
+                    // },
+
+                    // yAxis: {
+                    //     categories: pt,
+                    //     title: null
+                    // },
+
+                    // colorAxis: {
+                    //     min: 0,
+                    //     minColor: '#FFFFFF',
+                    //     maxColor: Highcharts.getOptions().colors[0]
+                    // },
+
+                    legend: {
+                        align: 'right',
+                        layout: 'vertical',
+                        margin: 0,
+                        verticalAlign: 'top',
+                        y: 25,
+                        symbolHeight: 280
+                    },
+
+                    tooltip: {
+                        formatter: function () {
+                            return '<b>' + this.series.xAxis.categories[this.point.x] + '</b> sold <br><b>' +
+                                this.point.value + '</b> items on <br><b>' + this.series.yAxis.categories[this.point.y] + '</b>';
+                        }
+                    },
+
+                    series: [{
+                        name: 'Sales per employee',
+                        borderWidth: 1,
+                        data: expressionData,
+                        turboThreshold: 0,
+                        dataLabels: {
+                            enabled: true,
+                            color: '#000000'
+                        }
+                    }]
+
+                });
+
+            }    
             // API Call To oncoprint_data_selection
             var calculateGeneSetScore = function(cohort1, cohort2, geneset) {    
                 var Group1 = cohort1.ids;
@@ -122,7 +182,7 @@
                         vm.message = response.payload.summary;
                         var pt = response.payload.pt;
                         var g = response.payload.genes;
-                        drawHeatMap(pt, g, response.payload.analysisData);
+                        drawHeatMap2(pt, g, response.payload.analysisData);
                     }
                     osApi.setBusy(false);
                 });
