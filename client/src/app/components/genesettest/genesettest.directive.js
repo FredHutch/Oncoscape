@@ -109,63 +109,63 @@
                     Plotly.newPlot('heatMap', data, layout);
             }
             var drawHeatMap2 = function(pt, genes, expressionData){
+                   console.log(expressionData);
                    
-                   Highcharts.chart('heatMap', {
-                    chart: {
-                        type: 'heatmap',
-                        marginTop: 40,
-                        marginBottom: 80,
-                        plotBorderWidth: 1
-                    },
+                   angular.element('#heatMap').highcharts({
+                        chart: {
+                            type: 'heatmap',
+                            marginTop: 40,
+                            marginBottom: 80,
+                            plotBorderWidth: 1
+                        },
 
 
-                    title: {
-                        text: 'Gene Set Expression Data'
-                    },
+                        title: {
+                            text: 'Gene Set Expression Heat Map'
+                        },
 
-                    // xAxis: {
-                    //     categories: genes
-                    // },
+                        xAxis: {
+                            // labels: {
+                            //     step: 1
+                            // },
+                            categories: genes
+                        },
 
-                    // yAxis: {
-                    //     categories: pt,
-                    //     title: null
-                    // },
+                        yAxis: {
+                            // labels: {
+                            //     step: 1
+                            // },
+                            categories: pt,
+                            title: null
+                        },
 
-                    // colorAxis: {
-                    //     min: 0,
-                    //     minColor: '#FFFFFF',
-                    //     maxColor: Highcharts.getOptions().colors[0]
-                    // },
+                        colorAxis: {
+                            min: 0,
+                            minColor:Highcharts.getOptions().colors[7],
+                            maxColor:'#CC9933'
+                        },
 
-                    legend: {
-                        align: 'right',
-                        layout: 'vertical',
-                        margin: 0,
-                        verticalAlign: 'top',
-                        y: 25,
-                        symbolHeight: 280
-                    },
+                        legend: {
+                            align: 'right',
+                            layout: 'vertical',
+                            margin: 0,
+                            verticalAlign: 'top',
+                            y: 25,
+                            symbolHeight: 280
+                        },
 
-                    tooltip: {
-                        formatter: function () {
-                            return '<b>' + this.series.xAxis.categories[this.point.x] + '</b> sold <br><b>' +
-                                this.point.value + '</b> items on <br><b>' + this.series.yAxis.categories[this.point.y] + '</b>';
-                        }
-                    },
+                        tooltip: {
+                            formatter: function () {
+                                return '<b>' +this.series.yAxis.categories[this.point.y]  + ' '+ 
+                                     this.series.xAxis.categories[this.point.x]+ ': ' +this.point.value + '</b>';
+                            }
+                        },
 
-                    series: [{
-                        name: 'Sales per employee',
-                        borderWidth: 1,
-                        data: expressionData,
-                        turboThreshold: 0,
-                        dataLabels: {
-                            enabled: true,
-                            color: '#000000'
-                        }
-                    }]
-
-                });
+                        series: [{
+                                    name: 'Sales per employee',
+                                    borderWidth: 1,
+                                    data: JSON.parse(expressionData) }]
+                    });
 
             }    
             // API Call To oncoprint_data_selection

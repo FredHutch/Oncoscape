@@ -79,17 +79,18 @@ ws.scoreHandler <- function(msg)
       md = m[,-c(1,2)]
       payload$genes = names(md)
       print(payload$genes)
-      row.names(md) <- m$ID
-      print(row.names(m$ID))
       md <- as.matrix(md)
       print("test before flatten_md")
       flatten_md <- ramify:::flatten(md, across = "rows")
       # d <- data.frame(i=rep(row.names(md),ncol(md)),
       #                 j=rep(colnames(md),each=nrow(md)),
       #                 score=flatten_md)
-      d <- data.frame(i=rep(seq(1:ncol(md)),nrow(md)),
-                      j=rep(seq(1:nrow(md)),each=ncol(md)),
+      d <- data.frame(i=rep(seq(0:(ncol(md)-1)),nrow(md)),
+                      j=rep(seq(0:(nrow(md)-1)),each=ncol(md)),
                       score=flatten_md)
+      d$i <- d$i -1
+      d$j <- d$j -1
+      print(d$i)
       print(names(d))
       print(nrow(d))
       payload$analysisData = toJSON(as.matrix(d), pretty=TRUE)
