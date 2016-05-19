@@ -59,8 +59,8 @@
                 }else{
                     vm.optCohort1 = cohort1.tool + " " +cohort1.desc + " " + cohort1.ids.length + " Patients selected" ;
                     vm.optCohort2 = cohort2.tool + " " +cohort2.desc + " " + cohort2.ids.length + " Patients selected" ;
-                    //var geneset = "random.24";
                     var geneset = "random.24";
+                    //var geneset = "tcga.pancan.mutated";
                     osApi.getGeneSetTest(vm.datasource, mtx).then(function() {
                         $scope.$watchGroup(['vm.optCohort1', 'vm.optCohort2'], function() {
                            calculateGeneSetScore(cohort1, cohort2, geneset);
@@ -110,13 +110,14 @@
             }
             var drawHeatMap2 = function(pt, genes, expressionData){
                    console.log(expressionData);
-                   
+            
                    angular.element('#heatMap').highcharts({
+
                         chart: {
                             type: 'heatmap',
                             marginTop: 40,
                             marginBottom: 80,
-                            plotBorderWidth: 1
+                            plotBorderWidth: 1,
                         },
 
 
@@ -132,23 +133,23 @@
                         },
 
                         yAxis: {
-                            // labels: {
-                            //     step: 1
-                            // },
+                            lineWidth: 5,
+                            lineColor: '#F33',
                             categories: pt,
                             title: null
                         },
 
                         colorAxis: {
                             min: 0,
-                            minColor:Highcharts.getOptions().colors[7],
+                            //minColor:Highcharts.getOptions().colors[7],
+                            minColor: "#FFFFFF",
                             maxColor:'#CC9933'
                         },
 
                         legend: {
                             align: 'right',
                             layout: 'vertical',
-                            margin: 0,
+                            margin: 10,
                             verticalAlign: 'top',
                             y: 25,
                             symbolHeight: 280
@@ -163,7 +164,7 @@
 
                         series: [{
                                     name: 'Sales per employee',
-                                    borderWidth: 1,
+                                    borderWidth: 0,
                                     data: JSON.parse(expressionData) }]
                     });
 
