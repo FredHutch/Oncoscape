@@ -37,56 +37,7 @@
             var selectedPatientIds = (osHistory.getPatientSelection() == null) ? null : osHistory.getPatientSelection().ids;
             var selectedGeneIds = (osHistory.getGeneSelection() == null) ? null : osHistory.getGeneSelection().ids;
             
-            // selection
-            // function saveSelectedPatients() {
-            //     osHistory.addPatientSelection("Oncoprint", "Manual Selection",
-            //         d3Chart.selectAll(".pca-node-selected")[0].map(function(node) {
-            //             return node.__data__.id.toUpperCase();
-            //         })
-            //     );
-            // }
-            // function saveSelectedGenes() {
-            //     osHistory.addPatientSelection("Oncoprint", "Manual Selection",
-            //         d3Chart.selectAll("oncoprint-track-label-main")[0].map(function(node) {
-            //             return node.__data__.id.toUpperCase();
-            //         })
-            //     );
-            // }
-            // function setSelectedPatients() {
-            //     if (selectedIds == null) {
-            //         d3Chart.selectAll(".pca-node-selected").classed("pca-node-selected", false);
-            //     } else {
-            //         d3Chart.selectAll("circle").classed("pca-node-selected", function() {
-            //             return (selectedIds.indexOf(this.__data__.id) >= 0)
-            //         });
-            //     }
-            // }
-            // function setSelectedGenes() {
-            //     if (selectedIds == null) {
-            //         d3Chart.selectAll(".pca-node-selected").classed("pca-node-selected", false);
-            //     } else {
-            //         d3Chart.selectAll("circle").classed("pca-node-selected", function() {
-            //             return (selectedIds.indexOf(this.__data__.id) >= 0)
-            //         });
-            //     }
-            // }
-            // // Brush
-            // var brush = d3.svg.brush()
-            //     .on("brushend", function() {
-            //         var bv = brush.extent();
-            //         d3Chart.classed("oncoprint-track-label-main", function(d) {
-            //                 return (d[0] > bv[0][0] && d[0] < bv[1][0] && d[1] > bv[0][1] && d[1] < bv[1][1]);
-            //             });
-            //         d3.select(this).transition().duration(300)
-            //             .call(brush.extent([
-            //                 [0, 0],
-            //                 [0, 0]
-            //             ]));
-            //         saveSelectedGenes();
-            //     });
-
-            // d3Chart.call(brush);
-
+            
             // View Model
             var vm = this;
             vm.datasource = $stateParams.datasource;
@@ -1514,4 +1465,3 @@
         }
     }
 })();
-
