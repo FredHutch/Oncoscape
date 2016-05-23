@@ -469,28 +469,28 @@
         function initializeHistory(chart, osHistory, _, $scope){
 
             // History Integration
-            var selectedGeneIds = (osHistory.getGeneSelection() == null) ? null : osHistory.getGeneSelection().ids;
-            var selectedPatientIds = (osHistory.getPatientSelection() == null) ? null : osHistory.getPatientSelection().ids;
-            var skipSaveGene = false;
-            var skipSavePatient = false;
+            var selectedGeneIds = (osHistory.getGeneSelection() == null) ? [] : osHistory.getGeneSelection().ids;
+            var selectedPatientIds = (osHistory.getPatientSelection() == null) ? [] : osHistory.getPatientSelection().ids;
 
             function saveSelectedGenes(){
-                if (skipSaveGene) { skipSaveGene = false; return; }
                 var ids = chart.$('node[nodeType="gene"]:selected').map(function(ele){ return ele.data().id.toUpperCase() });
+                if (_.difference(ids, selectedGeneIds).length==0) return;
                 if(ids.length>0) osHistory.addGeneSelection("Markers + Patients", "Manual", ids);
-            
             }
+            
             function saveSelectedPatients(){
-                if (skipSavePatient) { skipSavePatient = false; return; }
                 var ids = chart.$('node[nodeType="patient"]:selected').map(function(ele){ return ele.data().id.toUpperCase() });
+                if (_.difference(ids, selectedPatientIds).length==0) return;
                 if(ids.length>0) osHistory.addPatientSelection("Markers + Patients", "Manual", ids);
             }
 
+            chart.on('select', 'node[nodeType="gene"]', _.debounce(saveSelectedGenes, 900));
+            chart.on('select', 'node[nodeType="patient"]', _.debounce(saveSelectedPatients, 900));
+
             function setSelectedGenes(){
-                skipSaveGene = true;
-                var degmap;
+                var degmap = [];
                 chart.startBatch();
-                if (selectedGeneIds==null){
+                if (selectedGeneIds.length==0){
                     chart.$('node[nodeType="gene"]:selected')
                             .forEach( function(ele){
                                 ele.deselect();
@@ -506,10 +506,9 @@
                 chart.endBatch();
             }
             function setSelectedPatients(){
-                skipSavePatient = true;
-                var degmap;
+                var degmap = [];
                 chart.startBatch();
-                if (selectedPatientIds==null){
+                if (selectedPatientIds.length==0){
                     chart.$('node[nodeType="patient"]:selected')
                             .forEach( function(ele){
                                 ele.deselect();
@@ -524,6 +523,8 @@
                 chart.batchData(degmap);
                 chart.endBatch();
             }
+            setSelectedGenes();
+            setSelectedPatients();
 
             osHistory.onGeneSelectionChange.add(function(selection){
                 selectedGeneIds = (selection==null) ? null : selection.ids;
@@ -534,10 +535,11 @@
                 setSelectedPatients();
             });
 
-            setSelectedGenes();
-            setSelectedPatients();
-            chart.on('select', 'node[nodeType="gene"]', _.debounce(saveSelectedGenes, 300));
-            chart.on('select', 'node[nodeType="patient"]', _.debounce(saveSelectedPatients, 300));
+            
+            
+
+
+
 
             $scope.$on("$destroy", function() {
                 saveSelectedGenes();

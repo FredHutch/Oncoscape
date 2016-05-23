@@ -46,6 +46,8 @@
             // History Integration
             var selectedIds = (osHistory.getPatientSelection() == null) ? null : osHistory.getPatientSelection().ids;
             function saveSelected() {
+                var selected = d3Chart.selectAll(".pca-node-selected")[0];
+                selected.map(function(v){ console.dir(v.__data__.id); });
                 osHistory.addPatientSelection("PCA", "Manual Selection",
                     d3Chart.selectAll(".pca-node-selected")[0].map(function(node) {
                         return node.__data__.id.toUpperCase();
@@ -69,7 +71,7 @@
                     return v.indexOf("mtx.mrna") >= 0
                 });
 
-                mtx = mtx[mtx.length - 1].replace(".RData", "");
+                mtx = mtx[0].replace(".RData", "");
                 osApi.setBusyMessage("Creating PCA Matrix");
                 osApi.getPCA(vm.datasource, mtx).then(function() {
 

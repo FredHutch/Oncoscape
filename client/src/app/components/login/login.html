@@ -12,7 +12,7 @@
 				ng-options="option.name for option in vm.domains track by option.name"
 				ng-model="vm.user.domain"></select>
 		</fieldset>
-			<fieldset class="form-group"> 
+			<fieldset class="form-group" ng-show="vm.user.domain.name!='Guest'"> 
 			<span class="form-control-label small" for="username">Username</span>
 			<input id="username" class="form-control input-sm" type="text" placeholder="Username"
 				ng-model="vm.user.name">

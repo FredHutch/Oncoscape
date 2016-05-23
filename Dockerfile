@@ -1,12 +1,6 @@
 # Use Ubuntu 14.04 as the base container
 FROM ubuntu:14.04
 
-# Import MongoDB public GPG key AND create a MongoDB list file
-RUN apt-key adv --keyserver keyserver.ubuntu.com --recv 7F0CEB10
-RUN echo "deb http://repo.mongodb.org/apt/ubuntu "$(lsb_release -sc)"/mongodb-org/3.0 multiverse" | tee /etc/apt/sources.list.d/mongodb-org-3.0.list
-
-
-
 # ADD the CRAN Repo to the apt sources list
 RUN echo "deb http://cran.fhcrc.org/bin/linux/ubuntu trusty/" > /etc/apt/sources.list.d/cran.fhcrc.org.list
 
@@ -23,12 +17,7 @@ RUN apt-get -y -qq update && apt-get -y -qq install \
 	g++ \
 	libxml2 \
 	libxml2-dev \
-	python-pip \
-	mongodb-org
-
-#Create the MongoDB data directory
-VOLUME ["/data/db"]
-WORKDIR /data
+	python-pip
 
 # Install latest version of Node 5.x
 RUN curl -sL https://deb.nodesource.com/setup_5.x | bash -
@@ -54,11 +43,9 @@ RUN npm install
 WORKDIR /home/sttrweb/Oncoscape/server/rstats
 RUN npm install -g node-gyp && node-gyp configure build 
 
-EXPOSE 27017 # Mongo
-EXPOSE  80 # Http
+EXPOSE  80
 
 # Switch to the server directory and start it up
 WORKDIR /home/sttrweb/Oncoscape/server
 
-CMD ["mongod"]
-CMD ["node", "start.js",]
+CMD ["node", "start.js"]
