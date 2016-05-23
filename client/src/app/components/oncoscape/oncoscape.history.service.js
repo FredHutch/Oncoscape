@@ -10,7 +10,7 @@
 
         
 
-        var _historyMax = 50;
+        var _historyMax = 100;
         var _geneSelections = [{ids:[], tool:'', desc:''}];
         var _geneIndex = 0;
         var _patientSelections = [{ids:[], tool:'', desc:''}];

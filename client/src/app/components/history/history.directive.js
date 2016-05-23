@@ -34,7 +34,7 @@
             var dtTable;
             var rawData;
             var data;
-            var selectedIds = (osHistory.getPatientSelection() == null) ? null : osHistory.getPatientSelection().ids;
+            var selectedIds = (osHistory.getPatientSelection() == null) ? [] : osHistory.getPatientSelection().ids;
 
             // View Model
             var vm = this;
@@ -49,17 +49,20 @@
 
 
             vm.applyFilter = function(filter) {
-                selectedIds = null;
-                var o = dtTable._('tr', {
-                    "filter": "applied"
-                }).map(function(item) {
-                    return item[0].toString().toUpperCase()
-                });
-                o = $.map(o, function(value) {
-                    return [value];
-                });
-                osHistory.addPatientSelection("Patient History", filter, o);
+                selectedIds = [];
                 dtTable.api().draw();
+                    var o = dtTable._('tr', {
+                        "filter": "applied"
+                    }).map(function(item) {
+                        return item[0].toString().toUpperCase()
+                    });
+                    o = $.map(o, function(value) {
+                        return [value];
+                    });
+                    
+                    osHistory.addPatientSelection("Patient History", filter, o);
+                    
+                
             };
 
 
@@ -80,7 +83,7 @@
                 angular.element.fn.DataTable.ext.search = [function(settings, data) {
                     var survival = parseFloat(data[3]);
                     var diagnosis = parseFloat(data[4]);
-                    if (selectedIds != null) {
+                    if (selectedIds.length=0) {
                         if (selectedIds.indexOf(data[0]) == -1) return false;
                     }
                     if (isNaN(survival) || isNaN(diagnosis)) return false;

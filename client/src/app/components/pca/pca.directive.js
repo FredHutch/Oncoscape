@@ -119,7 +119,11 @@
             };
 
             function setScale() {
-                width = $window.innerWidth - 100;
+                
+                width = $window.innerWidth - 400;
+                if (angular.element(".tray-right").attr("locked")=="false"){
+                    width += 300;
+                } 
                 height = $window.innerHeight - 190;
                 if (angular.element(".tray").attr("locked") == "true") width -= 300;
 

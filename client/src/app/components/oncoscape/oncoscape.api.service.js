@@ -142,16 +142,16 @@
                 img: 'history.png',
                 copy: ''
             }, {
-                name: 'Oncoprint',
-                route: 'oncoprint',
-                img: 'history.png',
-                copy: ''
-            }, {
-                name: 'Api Explorer',
-                route: 'apiexplorer',
-                img: 'metadata.png',
-                copy: ''
-            }, {
+            //     name: 'Oncoprint',
+            //     route: 'oncoprint',
+            //     img: 'history.png',
+            //     copy: ''
+            // }, {
+            //     name: 'Api Explorer',
+            //     route: 'apiexplorer',
+            //     img: 'metadata.png',
+            //     copy: ''
+            // }, {
                 name: 'MetaData',
                 route: 'metadata',
                 img: 'metadata.png',
