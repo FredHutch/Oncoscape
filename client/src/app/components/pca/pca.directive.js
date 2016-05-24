@@ -44,10 +44,10 @@
             vm.search = "";
 
             // History Integration
-            var selectedIds = (osHistory.getPatientSelection() == null) ? null : osHistory.getPatientSelection().ids;
+            var selectedIds = (osHistory.getPatientSelection() == null) ? [] : osHistory.getPatientSelection().ids;
             function saveSelected() {
                 var selected = d3Chart.selectAll(".pca-node-selected")[0];
-                selected.map(function(v){ console.dir(v.__data__.id); });
+                if (selected.length==0) return;
                 osHistory.addPatientSelection("PCA", "Manual Selection",
                     d3Chart.selectAll(".pca-node-selected")[0].map(function(node) {
                         return node.__data__.id.toUpperCase();
@@ -55,7 +55,7 @@
                 );
             }
             function setSelected() {
-                if (selectedIds == null) {
+                if (selectedIds.length==0) {
                     d3Chart.selectAll(".pca-node-selected").classed("pca-node-selected", false);
                 } else {
                     d3Chart.selectAll("circle").classed("pca-node-selected", function() {
@@ -91,7 +91,6 @@
                         osHistory.onPatientSelectionChange.add(function(selection) {
                             selectedIds = selection.ids;
                             vm.search = "";
-                            $scope.$apply();
                             setSelected();
                         });
                     });

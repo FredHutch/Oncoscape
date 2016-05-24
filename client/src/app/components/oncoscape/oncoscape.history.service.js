@@ -6,19 +6,28 @@
         .service('osHistory', osHistory);
 
     /** @ngInject */
-    function osHistory(moment, signals, osSound) {
+    function osHistory(moment, signals, osSound, _) {
 
         
 
-        var _historyMax = 100;
-        var _geneSelections = [{ids:[], tool:'', desc:''}];
+        //var _historyMax = 100;
+        var _geneSelections = [{ids:[], tool:'Application', desc:'Load'}];
         var _geneIndex = 0;
-        var _patientSelections = [{ids:[], tool:'', desc:''}];
+        var _patientSelections = [{ids:[], tool:'Application', desc:'Load'}];
         var _patientIndex = 0;
+        var _onPatientAdd = new signals.Signal();
         var _onPatientSelectionChange = new signals.Signal();
+        var _onGeneAdd = new signals.Signal();
         var _onGeneSelectionChange = new signals.Signal();
        
         /* Gene */
+        var setGeneSelection = function(selection){
+            var index = _geneSelections.indexOf(selection);
+            if (index>=0){
+                _geneIndex = index
+                _onGeneSelectionChange.dispatch(getGeneSelection())
+            }
+        };
         var getGeneSelections = function(){
             return _geneSelections;
         };
@@ -29,27 +38,41 @@
         };
         var addGeneSelection = function(tool, desc, ids){
             ids = ids.sort();
-            if (_.difference(ids, getGeneSelection().ids).length==0) return;
+            if (ids.length==getGeneSelection().ids.length){
+                if (_.difference(ids, getGeneSelection().ids).length==0) return;
+            }
             var m = moment();
             _geneSelections.push({tool:tool, desc:desc, ids:ids, date:m.unix(), time:m.format("H:mm")});
             _geneIndex += _geneSelections.length-1;
-        }
+            _onGeneAdd.dispatch(getGeneSelection())
+        };
         var getGeneSelectionLast = function(){
             _geneIndex -= 1;
-            if (_geneIndex<0) { _geneIndex = 0; return; }
+            if (_geneIndex<0) { 
+                osSound.beep();
+                _geneIndex = 0; return; }
             var selection = getGeneSelection();
             _onGeneSelectionChange.dispatch(selection);
             return selection;
-        }
+        };
         var getGeneSelectionNext = function(){
             _geneIndex += 1;
-            if (_geneIndex==_geneSelections.length) { _geneIndex = _geneSelections.length-1; return; }
+            if (_geneIndex==_geneSelections.length) { 
+                osSound.beep();
+                _geneIndex = _geneSelections.length-1; return; }
             var selection = getGeneSelection();
             _onGeneSelectionChange.dispatch(selection);
             return selection;
-        }
+        };
 
         /* Patient */
+        var setPatientSelection = function(selection){
+            var index = _patientSelections.indexOf(selection);
+            if (index>=0){
+                _patientIndex = index
+                _onPatientSelectionChange.dispatch(getPatientSelection())
+            }
+        };
         var getPatientSelections = function(){
             return _patientSelections;
         };
@@ -60,62 +83,61 @@
         };
         var addPatientSelection = function(tool, desc, ids){
             ids = ids.sort();
-            if (_.difference(ids, getPatientSelection().ids).length==0) return;
+            if (ids.length==getPatientSelection().ids.length){
+                if (_.difference(ids, getPatientSelection().ids).length==0) return;
+            }
             var m = moment();
             _patientSelections.push({tool:tool, desc:desc, ids:ids, date:m.unix(), time:m.format("H:mm")});
             _patientIndex = _patientSelections.length-1;
+            _onPatientAdd.dispatch(getPatientSelection());
         };
         var getPatientSelectionLast = function(){
             _patientIndex -= 1;
-            if (_patientIndex<0) { _patientIndex = 0; return; }
+            if (_patientIndex<0) { 
+                osSound.beep();
+                _patientIndex = 0; return; }
             var selection = getPatientSelection();
             _onPatientSelectionChange.dispatch(selection);
             return selection;
         };
         var getPatientSelectionNext = function(){
             _patientIndex += 1;
-            if (_patientIndex==_patientSelections.length) { _patientIndex = _patientSelections.length-1; return; }
+            if (_patientIndex==_patientSelections.length) { 
+                osSound.beep();
+                _patientIndex = _patientSelections.length-1; return; }
             var selection = getPatientSelection();
             _onPatientSelectionChange.dispatch(selection);
             return selection;
         };
 
-        // Keypress
-        angular.element(document).keypress(function(e) {
-            var selection;
-            if (!e.ctrlKey) return;
-            switch (e.keyCode)
-            {
-                case 11: getGeneSelectionLast(); break;
-                case 12: getGeneSelectionNext(); break;
-                case 46: getPatientSelectionNext(); break;
-                case 44: getPatientSelectionLast(); break;
-            }
-        });
 
         var removeListeners = function(){
           
         };
         var clear = function(){
-            _geneSelections = [];
-            _geneSelection = null;
-            _patientSelections = [];
-            _patientSelection = null;
-        }
+           
+        };
 
 
         var api = {
-            
+            onPatientAdd: _onPatientAdd,
             onPatientSelectionChange: _onPatientSelectionChange,
+            onGeneAdd: _onGeneAdd,
             onGeneSelectionChange: _onGeneSelectionChange,
 
             addGeneSelection: addGeneSelection,
+            setGeneSelection: setGeneSelection,
             getGeneSelection: getGeneSelection,
             getGeneSelections: getGeneSelections,
+            getGeneSelectionLast: getGeneSelectionLast,
+            getGeneSelectionNext: getGeneSelectionNext,
 
             addPatientSelection: addPatientSelection,
+            setPatientSelection: setPatientSelection,
             getPatientSelection: getPatientSelection,
             getPatientSelections: getPatientSelections,
+            getPatientSelectionNext: getPatientSelectionNext,
+            getPatientSelectionLast: getPatientSelectionLast,
 
             removeListeners: removeListeners,
             clear: clear

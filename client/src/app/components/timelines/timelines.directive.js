@@ -79,7 +79,7 @@
             function saveSelected() {
                 selectedIds = d3Bars.selectAll(".timeline-selected")[0].map( function (p) { return p.__data__.id; }  )
                 if (selectedIds.length==0) selectedIds = d3Bars.selectAll()[0].map( function (p) { return p.__data__.id; }  )
-                osHistory.addPatientSelection("Patient History", "Manual Selection",
+                osHistory.addPatientSelection("Timelines", "Manual Selection",
                     selectedIds
                 );
                 if (vm.optCohortMode.name=="Filter") draw();
@@ -183,7 +183,7 @@
                         });
 
 
-                    if (vm.optCohortMode.name=="Highlight" && selectedIds){
+                    if (vm.optCohortMode.name=="Highlight" && selectedIds.length>0){
                         rows
                             .each( function(d){
                                 var selected = (selectedIds.indexOf(d.id)>=0);
@@ -505,7 +505,6 @@
                         // Register Watch
                         $scope.$watchGroup(['vm.feature', 'vm.sort', 'vm.align', 'vm.timescale', 'vm.filter'], draw);
                         angular.element($window).bind('resize', draw);
-                      
                         $scope.$watch("vm.optCohortMode", draw );   // Triggers Inital Draw
 
                         // History

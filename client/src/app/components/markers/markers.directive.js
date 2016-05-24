@@ -477,7 +477,7 @@
                 if (_.difference(ids, selectedGeneIds).length==0) return;
                 if(ids.length>0) osHistory.addGeneSelection("Markers + Patients", "Manual", ids);
             }
-            
+
             function saveSelectedPatients(){
                 var ids = chart.$('node[nodeType="patient"]:selected').map(function(ele){ return ele.data().id.toUpperCase() });
                 if (_.difference(ids, selectedPatientIds).length==0) return;
@@ -1051,8 +1051,8 @@
                 });
             }
             // Debounce To Avoid Multiple Calls
-            chart.on('select', _.debounce(calculateSelections, 300));
-            chart.on('unselect', _.debounce(calculateSelections, 300))
+            chart.on('select', _.debounce(calculateSelections, 20));
+            chart.on('unselect', _.debounce(calculateSelections, 20))
             
             
             osApi.getSampleCategorizationNames().then(function(response) {

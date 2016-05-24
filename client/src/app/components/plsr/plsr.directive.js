@@ -45,10 +45,11 @@
             vm.frame;
             vm.tip = null;
 
-
             // History Integration
-            var selectedIds = (osHistory.getGeneSelection() == null) ? null : osHistory.getGeneSelection().ids;
+            var selectedIds = (osHistory.getGeneSelection() == null) ? [] : osHistory.getGeneSelection().ids;
             function saveSelected() {
+                var selected  = d3Chart.selectAll(".plsr-node-selected")[0];
+                if (selected.length==0) return;
                 osHistory.addGeneSelection("PLSR", "Manual Selection",
                     d3Chart.selectAll(".plsr-node-selected")[0].map(function(node){ 
                         return node.__data__.name.toUpperCase()
@@ -56,7 +57,7 @@
                 );
             }
             function setSelected() {
-                if (selectedIds == null) {
+                if (selectedIds.length == 0) {
                     d3Chart.selectAll(".plsr-node-selected").classed("plsr-node-selected", false);
                 } else {
                     d3Chart.selectAll("circle").classed("plsr-node-selected", function() {
@@ -96,7 +97,6 @@
                             // History
                             osHistory.onGeneSelectionChange.add(function(selection) {
                                 selectedIds = selection.ids;
-                                $scope.$apply();
                                 setSelected();
                             });
                         });
