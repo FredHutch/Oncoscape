@@ -98,6 +98,15 @@
             _onPatientSelectionChange.dispatch(selection);
             return selection;
         };
+        var getPatientSelectionSecondLast = function(){
+            var i = _patientSelections.indexOf(_patientSelection) - 2;
+            if (i<1){
+                osSound.beep();
+                return null;
+            } 
+            _patientSelection = _patientSelections[i];
+            return _patientSelection;
+        };
         var getPatientSelectionNext = function(){
             _patientIndex += 1;
             if (_patientIndex==_patientSelections.length) { 
@@ -136,7 +145,8 @@
             getPatientSelections: getPatientSelections,
             getPatientSelectionNext: getPatientSelectionNext,
             getPatientSelectionLast: getPatientSelectionLast,
-
+            getPatientSelectionSecondLast: getPatientSelectionSecondLast,
+            
             removeListeners: removeListeners,
             clear: clear
         };
