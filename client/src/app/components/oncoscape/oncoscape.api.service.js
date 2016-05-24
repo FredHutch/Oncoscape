@@ -147,6 +147,10 @@
                 img: 'history.png',
                 copy: ''
             }, {
+                name: 'Geneset Test',
+                route: 'genesettest',
+                img: 'history.png',
+            }, {
                 name: 'Api Explorer',
                 route: 'apiexplorer',
                 img: 'metadata.png',
@@ -344,6 +348,26 @@
                 }
             });
         }
+        function getGeneSetTest(dataPackage, matrixName) {
+            var payload = {
+                dataPackage: dataPackage,
+                matrixName: matrixName
+            };
+            return osSocket.request({
+                cmd: "createGeneSetTest",
+                payload: payload
+            });
+        }
+        function getGeneSetScore(Group1, Group2, geneSet) {
+            return osSocket.request({
+                cmd: "geneSetScoreTest",
+                payload: {
+                    group1: Group1,
+                    group2: Group2, 
+                    geneset: geneSet
+                }
+            });
+        }
 
         return {
             query: query,
@@ -384,7 +408,9 @@
             getCnvData: getCnvData,
             getMutationData: getMutationData,
             getModuleModificationDate: getModuleModificationDate,
-            getOncoprint: getOncoprint
+            getOncoprint: getOncoprint,
+            getGeneSetTest: getGeneSetTest,
+            getGeneSetScore: getGeneSetScore
         }
     }
 })();
