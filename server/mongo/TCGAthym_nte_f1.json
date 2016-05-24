@@ -1,0 +1,172 @@
+[
+  {
+    "bcr_patient_uuid": "81FDC97F-8BAD-4286-9D36-9A887C6B59A1",
+    "patient_ID": "TCGA.3G.AB19",
+    "bcr_followup_barcode": "TCGA-3G-AB19-F72302",
+    "new_tumor": "NEW PRIMARY TUMOR",
+    "new_tumor_event_site": "LUNG",
+    "surgery": false,
+    "radiation": true,
+    "drug": false,
+    "days_to_progression": 2420
+  },
+  {
+    "bcr_patient_uuid": "EDDB3067-A0E5-461F-A8B8-95081EC67DE0",
+    "patient_ID": "TCGA.3T.AA9L",
+    "bcr_followup_barcode": "TCGA-3T-AA9L-F64918",
+    "new_tumor": "DISTANT METASTASIS",
+    "new_tumor_event_site": "OTHER, SPECIFY",
+    "new_tumor_event_site_other": "LUNG PLEURA",
+    "surgery": true,
+    "radiation": true,
+    "drug": true,
+    "days_to_progression": 702
+  },
+  {
+    "bcr_patient_uuid": "EDDB3067-A0E5-461F-A8B8-95081EC67DE0",
+    "patient_ID": "TCGA.3T.AA9L",
+    "bcr_followup_barcode": "TCGA-3T-AA9L-F64918",
+    "new_tumor": "LOCOREGIONAL RECURRENCE",
+    "new_tumor_event_site": "OTHER, SPECIFY",
+    "new_tumor_event_site_other": "THYMUS",
+    "surgery": true,
+    "radiation": true,
+    "drug": true,
+    "days_to_progression": 702
+  },
+  {
+    "bcr_patient_uuid": "EDDB3067-A0E5-461F-A8B8-95081EC67DE0",
+    "patient_ID": "TCGA.3T.AA9L",
+    "bcr_followup_barcode": "TCGA-3T-AA9L-F64918",
+    "new_tumor": "DISTANT METASTASIS",
+    "new_tumor_event_site": "BONE",
+    "surgery": true,
+    "radiation": true,
+    "drug": true,
+    "days_to_progression": 702
+  },
+  {
+    "bcr_patient_uuid": "EDDB3067-A0E5-461F-A8B8-95081EC67DE0",
+    "patient_ID": "TCGA.3T.AA9L",
+    "bcr_followup_barcode": "TCGA-3T-AA9L-F64918",
+    "new_tumor": "DISTANT METASTASIS",
+    "new_tumor_event_site": "OTHER, SPECIFY",
+    "new_tumor_event_site_other": "SUPERIOR VENA CAVA LYMPH NODE",
+    "surgery": true,
+    "radiation": true,
+    "drug": true,
+    "days_to_progression": 702
+  },
+  {
+    "bcr_patient_uuid": "51ABE033-5FB4-49B5-89EF-C44D0BB1AB00",
+    "patient_ID": "TCGA.4V.A9QN",
+    "bcr_followup_barcode": "TCGA-4V-A9QN-F70718",
+    "new_tumor": "DISTANT METASTASIS",
+    "new_tumor_event_site": "OTHER, SPECIFY",
+    "new_tumor_event_site_other": "PLEURA",
+    "surgery": true,
+    "radiation": false,
+    "drug": false,
+    "days_to_progression": 937
+  },
+  {
+    "bcr_patient_uuid": "7A99A808-5AC7-49B3-87F6-106663EB323F",
+    "patient_ID": "TCGA.4V.A9QQ",
+    "bcr_followup_barcode": "TCGA-4V-A9QQ-F70719",
+    "new_tumor": "LOCOREGIONAL RECURRENCE",
+    "new_tumor_event_site": "OTHER, SPECIFY",
+    "new_tumor_event_site_other": "PLEURA",
+    "surgery": true,
+    "radiation": false,
+    "drug": false,
+    "days_to_progression": 1549
+  },
+  {
+    "bcr_patient_uuid": "88C0AF76-B1BA-478F-A42B-8A50C0568D5E",
+    "patient_ID": "TCGA.4V.A9QS",
+    "bcr_followup_barcode": "TCGA-4V-A9QS-F70722",
+    "new_tumor": "LOCOREGIONAL RECURRENCE",
+    "new_tumor_event_site": "OTHER, SPECIFY",
+    "new_tumor_event_site_other": "PLEURA",
+    "surgery": true,
+    "radiation": false,
+    "drug": false,
+    "days_to_progression": 752
+  },
+  {
+    "bcr_patient_uuid": "66C564BA-B42D-4BE9-9E5F-BF93984569EB",
+    "patient_ID": "TCGA.X7.A8D6",
+    "bcr_followup_barcode": "TCGA-X7-A8D6-F68399",
+    "new_tumor": "NEW PRIMARY TUMOR",
+    "new_tumor_event_site": "OTHER, SPECIFY",
+    "new_tumor_event_site_other": "BREAST",
+    "surgery": true,
+    "radiation": false,
+    "drug": false,
+    "days_to_progression": 2928
+  },
+  {
+    "bcr_patient_uuid": "66C564BA-B42D-4BE9-9E5F-BF93984569EB",
+    "patient_ID": "TCGA.X7.A8D6",
+    "bcr_followup_barcode": "TCGA-X7-A8D6-F68399",
+    "new_tumor": "NEW PRIMARY TUMOR",
+    "new_tumor_event_site": "OTHER, SPECIFY",
+    "new_tumor_event_site_other": "FACE",
+    "radiation": false,
+    "drug": false,
+    "days_to_progression": 3143
+  },
+  {
+    "bcr_patient_uuid": "66C564BA-B42D-4BE9-9E5F-BF93984569EB",
+    "patient_ID": "TCGA.X7.A8D6",
+    "bcr_followup_barcode": "TCGA-X7-A8D6-F68399",
+    "new_tumor": "NEW PRIMARY TUMOR",
+    "new_tumor_event_site": "OTHER, SPECIFY",
+    "new_tumor_event_site_other": "NOSE",
+    "radiation": false,
+    "drug": false,
+    "days_to_progression": 3502
+  },
+  {
+    "bcr_patient_uuid": "8CC1E08D-75B6-48DA-90DF-E6AF23CB4C35",
+    "patient_ID": "TCGA.X7.A8D7",
+    "bcr_followup_barcode": "TCGA-X7-A8D7-F68439",
+    "new_tumor": "NEW PRIMARY TUMOR",
+    "new_tumor_event_site": "LUNG",
+    "days_to_progression": 265
+  },
+  {
+    "bcr_patient_uuid": "9BBD057C-5A3B-4E04-8DF7-C2F0C1823084",
+    "patient_ID": "TCGA.XH.A853",
+    "bcr_followup_barcode": "TCGA-XH-A853-F70471",
+    "new_tumor": "NEW PRIMARY TUMOR",
+    "new_tumor_event_site": "OTHER, SPECIFY",
+    "new_tumor_event_site_other": "RIGHT AXILLARY",
+    "surgery": false,
+    "radiation": false,
+    "drug": false,
+    "days_to_progression": 196
+  },
+  {
+    "bcr_patient_uuid": "2F6F86F3-6D31-4A8C-B70D-2759B44BAC6C",
+    "patient_ID": "TCGA.ZB.A962",
+    "bcr_followup_barcode": "TCGA-ZB-A962-F72422",
+    "new_tumor": "DISTANT METASTASIS",
+    "new_tumor_event_site": "LIVER",
+    "surgery": true,
+    "radiation": false,
+    "drug": false,
+    "days_to_progression": 1091
+  },
+  {
+    "bcr_patient_uuid": "2F6F86F3-6D31-4A8C-B70D-2759B44BAC6C",
+    "patient_ID": "TCGA.ZB.A962",
+    "bcr_followup_barcode": "TCGA-ZB-A962-F72422",
+    "new_tumor": "DISTANT METASTASIS",
+    "new_tumor_event_site": "LIVER",
+    "surgery": false,
+    "radiation": true,
+    "drug": false,
+    "days_to_progression": 1365
+  }
+]

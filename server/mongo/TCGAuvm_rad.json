@@ -1,0 +1,40 @@
+[
+  {
+    "bcr_patient_uuid": "3A161C85-2544-4283-A10D-E332C9DD1692",
+    "patient_ID": "TCGA.WC.A87Y",
+    "bcr_radiation_barcode": "TCGA-WC-A87Y-R64835",
+    "bcr_radiation_uuid": "D177098D-AC7E-44E5-8B8A-133B2CB76A1D",
+    "form_completion_date": "2014-9-25",
+    "radiation_type": "EXTERNAL",
+    "radiation_therapy_site": "DPRIMARY TUMOR FIELD",
+    "radiation_total_dose": 60,
+    "radiation_total_dose_units": "GY",
+    "radiation_number_fractions_total": 30,
+    "days_to_rad_start": 22,
+    "radiation_therapy_ongoing_indicator": false,
+    "days_to_radiation_end": 64,
+    "treatment_best_response": "STABLE DISEASE",
+    "radiation_type_notes": "[Not Applicable]",
+    "regimen_indication": "[Not Available]",
+    "regimen_indication_notes": "[Not Available]"
+  },
+  {
+    "bcr_patient_uuid": "4480D290-5E8A-4289-8E3C-DE087E0DE412",
+    "patient_ID": "TCGA.WC.AA9E",
+    "bcr_radiation_barcode": "TCGA-WC-AA9E-R67772",
+    "bcr_radiation_uuid": "942CED73-38CF-425E-9603-2C675C5AE541",
+    "form_completion_date": "2014-12-3",
+    "radiation_type": "EXTERNAL",
+    "radiation_therapy_site": "DPRIMARY TUMOR FIELD",
+    "radiation_total_dose": 60,
+    "radiation_total_dose_units": "GY",
+    "radiation_number_fractions_total": 30,
+    "days_to_rad_start": 253,
+    "radiation_therapy_ongoing_indicator": false,
+    "days_to_radiation_end": 296,
+    "treatment_best_response": "COMPLETE RESPONSE",
+    "radiation_type_notes": "[Not Applicable]",
+    "regimen_indication": "[Not Available]",
+    "regimen_indication_notes": "[Not Available]"
+  }
+]
