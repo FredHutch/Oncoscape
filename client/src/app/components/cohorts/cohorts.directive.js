@@ -24,10 +24,6 @@
         /** @ngInject */
         function CohortsController(osHistory, $state, $timeout, $scope, $stateParams) {
 
-            if (angular.isUndefined($stateParams.datasource)){
-                $state.go("datasource");
-                return;
-            }
             var vm = this;
             vm.selection;
             vm.selections;
@@ -50,6 +46,7 @@
             osHistory["on"+vm.type+"SelectionChange"].add(function(){update(false)});
             
             var isDragable = false;
+            var isVisible = false;
             var show = function(){
                 angular.element(".cohorts-"+vm.type).show();
                 if (isDragable) return;
@@ -77,7 +74,6 @@
                 }
                 
             });
-            
         }
     }
 })();

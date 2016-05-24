@@ -34,11 +34,17 @@
             // Load Datasets
             osApi.setBusy(true);
             var start = new Date().getTime();
-            osApi.query("TCGA_BRCA_PT",
-                {
-                    gender:'MALE'
-                }).then(function(e){
+            // http://localhost:3000/api/TCGA_DISEASE
+            // osApi.query("TCGA_DISEASE",
+            //     {
+            //         gender:'MALE'
+            //     }).then(function(e){
+            //    debugger;
+            //    osApi.setBusy(false);
+            // });
+            osApi.query("TCGA_DISEASE").then(function(e){
                debugger;
+               osApi.setBusy(false);
             });
             
         }

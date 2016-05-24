@@ -147,11 +147,11 @@
             //     img: 'history.png',
             //     copy: ''
             // }, {
-            //     name: 'Api Explorer',
-            //     route: 'apiexplorer',
-            //     img: 'metadata.png',
-            //     copy: ''
-            // }, {
+                name: 'Api Explorer',
+                route: 'apiexplorer',
+                img: 'metadata.png',
+                copy: ''
+            }, {
                 name: 'MetaData',
                 route: 'metadata',
                 img: 'metadata.png',
