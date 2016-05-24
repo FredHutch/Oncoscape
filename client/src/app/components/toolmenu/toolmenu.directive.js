@@ -42,6 +42,7 @@
                     .bind("mouseout", mouseOut);
             
             var vm = this;
+
             vm.tools = osApi.getTools();
             vm.explore = function(tool) {
                 vm.change();

@@ -90,6 +90,11 @@
                 template: '<os-oncoprint>',
                 authenticate: false
             })
+            .state('genesettest', {
+                url: '/genesettest/{datasource}',
+                template: '<os-genesettest>',
+                authenticate: false
+            })
             .state('compare', {
                 url: '/compare/{datasource}',
                 template: '<os-compare>',

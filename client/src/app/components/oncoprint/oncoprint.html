@@ -1,0 +1,31 @@
+<os-tool-menu datasource="{{vm.datasource}}" change="vm.addCohortPatient()">
+</os-tool-menu>
+<os-tray content="tray-content-block">
+     <section class="tray-content">
+        <div class="row">
+          <div class="col-xs-12 form-label">
+                <h2>Cohorts</h2>
+            </div>
+            <div class="col-xs-12 form-label">
+                <h2>Legend</h2>
+                <span class="legend"></span>
+                <span class="oncoprint-label-col1" id="legend"></span>  
+            </div>
+        </div>
+        </div>
+    </section>
+</os-tray>
+<section class="tray-content-block">
+  <div class="container-fluid">
+  <div id = 'oncoprintDiv' class="oncoprint">
+    <div id="oncoprintInstructions" style="font-size:150%">Please select and send up to 350 genes and patients from another tab, such as Markers and Patients, to populate the display.</div>
+    <div id="oncoprintErrorSection" style="font-size:150%" ng-show="vm.errorMessage!=''">{{vm.errorMessage}}</div>
+    <div id="oncoprintControlsDiv">  
+      <div id='onc'></div>
+      <button id='toggle_whitespace' >Toggle Whitespace</button>
+      <button id='reduce_cell_width'>Reduce Cell Width</button>
+    </div>
+  </div>
+
+</section>
+</div>
