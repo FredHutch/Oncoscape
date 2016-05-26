@@ -60,7 +60,7 @@
                     vm.optCohort1 = cohort1.tool + " " +cohort1.desc + " " + cohort1.ids.length + " Patients selected" ;
                     vm.optCohort2 = cohort2.tool + " " +cohort2.desc + " " + cohort2.ids.length + " Patients selected" ;
                     var geneset = "random.24";
-                    //var geneset = "tcga.pancan.mutated";
+                    //var geneset = "marker.genes.545";
                     osApi.getGeneSetTest(vm.datasource, mtx).then(function() {
                         $scope.$watchGroup(['vm.optCohort1', 'vm.optCohort2'], function() {
                            calculateGeneSetScore(cohort1, cohort2, geneset);
@@ -108,65 +108,88 @@
 
                     Plotly.newPlot('heatMap', data, layout);
             }
-            var drawHeatMap2 = function(pt, genes, expressionData){
+            var drawHeatMap2 = function(pt, genes, group, expressionData){
                    console.log(expressionData);
             
                    angular.element('#heatMap').highcharts({
 
                         chart: {
-                            type: 'heatmap',
-                            marginTop: 40,
-                            marginBottom: 80,
-                            plotBorderWidth: 1,
+                            type: 'heatmap'
                         },
-
-
                         title: {
-                            text: 'Gene Set Expression Heat Map'
+                            text: null
                         },
-
-                        xAxis: {
-                            // labels: {
-                            //     step: 1
-                            // },
-                            categories: genes
-                        },
-
-                        yAxis: {
-                            lineWidth: 5,
-                            lineColor: '#F33',
-                            categories: pt,
-                            title: null
-                        },
-
-                        colorAxis: {
-                            min: 0,
-                            //minColor:Highcharts.getOptions().colors[7],
-                            minColor: "#FFFFFF",
-                            maxColor:'#CC9933'
-                        },
-
-                        legend: {
-                            align: 'right',
-                            layout: 'vertical',
-                            margin: 10,
-                            verticalAlign: 'top',
-                            y: 25,
-                            symbolHeight: 280
-                        },
-
                         tooltip: {
                             formatter: function () {
-                                return '<b>' +this.series.yAxis.categories[this.point.y]  + ' '+ 
-                                     this.series.xAxis.categories[this.point.x]+ ': ' +this.point.value + '</b>';
+                                return '<b>' + this.series.yAxis.categories[this.point.y] + ' </b> had a value of <br><b>' + 
+                                this.point.value + '</b> on <b>' + this.series.xAxis.categories[this.point.x] + '</b>';
+                            },
+                            //backgroundColor: null,
+                            borderWidth: 0,
+                            borderColor: '#000000',
+                            distance: 10,
+                            shadow: false,
+                            useHTML: true,
+                            style: {
+                                padding: 0,
+                                color: 'black'
                             }
                         },
-
+                        xAxis: {
+                            categories: genes,
+                            labels: {
+                                rotation: 90
+                            }
+                        },
+                        yAxis: {
+                            title: {
+                                text: null
+                            },
+                            categories: pt
+                            //,reversed: false
+                        },
+                        colorAxis: {
+                            stops: [
+                                [0, '#4682B4'],
+                                [0.1, '#ADD8E6'],
+                                [0.5, '#FFFACD'],
+                                [1, '#FFA500'],
+                                [2, '#FF8C00'],
+                                [2.5,'#FF0000']
+                            ],
+                            min: 0,
+                            max: 2.5,
+                            startOnTick: false,
+                            endOnTick: false
+                        },
                         series: [{
-                                    name: 'Sales per employee',
-                                    borderWidth: 0,
-                                    data: JSON.parse(expressionData) }]
-                    });
+                            borderWidth: 0,
+                            nullColor: '#EFEFEF',
+                            data: JSON.parse(expressionData) }]
+                                    });
+
+                   /** Grouping information
+                   **/
+                   // var svgContainer = d3.selectAll(".highcharts-axis-labels")
+                   //                      .append("svg")
+                   //                      .attr("width",100)
+                   //                      .attr("height",600)
+                   // vra lineData1 = [{"x":100, "y": 10}, {"x":100, "y": 100}];
+                   // var lineData2 = [{"x":100, "y": 100}, {"x":100, "y": 300}];
+                   // var lineFunction = d3.svg.line()
+                   //                      .x(function(d) { return d.x; })
+                               //          .y(function(d) { return d.y; })
+                               //          .interpolate("linear");
+                   // var lineGraph1 = svgContainer.append("path")
+                   //                              .attr("d", lineFunction(lineData1))
+                   //                              .attr("stroke","green")
+                   //                              .attr("stroke-width",5)
+                   //                              .attr("fill","none");
+                   // var lineGraph2 = svgContainer.append("path")
+                   //                              .attr("d", lineFunction(lineData2))
+                   //                              .attr("stroke","red")
+                   //                              .attr("stroke-width",5)
+                   //                              .attr("fill","none");
 
             }    
             // API Call To oncoprint_data_selection
@@ -183,7 +206,8 @@
                         vm.message = response.payload.summary;
                         var pt = response.payload.pt;
                         var g = response.payload.genes;
-                        drawHeatMap2(pt, g, response.payload.analysisData);
+                        var group = response.payload.group;
+                        drawHeatMap2(pt, g, group, response.payload.analysisData);
                     }
                     osApi.setBusy(false);
                 });
