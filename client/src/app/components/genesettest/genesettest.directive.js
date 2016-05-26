@@ -59,8 +59,8 @@
                 }else{
                     vm.optCohort1 = cohort1.tool + " " +cohort1.desc + " " + cohort1.ids.length + " Patients selected" ;
                     vm.optCohort2 = cohort2.tool + " " +cohort2.desc + " " + cohort2.ids.length + " Patients selected" ;
-                    var geneset = "random.24";
-                    //var geneset = "marker.genes.545";
+                    //var geneset = "random.24";
+                    var geneset = "marker.genes.545";
                     osApi.getGeneSetTest(vm.datasource, mtx).then(function() {
                         $scope.$watchGroup(['vm.optCohort1', 'vm.optCohort2'], function() {
                            calculateGeneSetScore(cohort1, cohort2, geneset);
@@ -154,8 +154,7 @@
                                 [0.1, '#ADD8E6'],
                                 [0.5, '#FFFACD'],
                                 [1, '#FFA500'],
-                                [2, '#FF8C00'],
-                                [2.5,'#FF0000']
+                                [2, '#FF0000']
                             ],
                             min: 0,
                             max: 2.5,
@@ -170,26 +169,33 @@
 
                    /** Grouping information
                    **/
-                   // var svgContainer = d3.selectAll(".highcharts-axis-labels")
-                   //                      .append("svg")
-                   //                      .attr("width",100)
-                   //                      .attr("height",600)
-                   // vra lineData1 = [{"x":100, "y": 10}, {"x":100, "y": 100}];
-                   // var lineData2 = [{"x":100, "y": 100}, {"x":100, "y": 300}];
-                   // var lineFunction = d3.svg.line()
-                   //                      .x(function(d) { return d.x; })
-                               //          .y(function(d) { return d.y; })
-                               //          .interpolate("linear");
-                   // var lineGraph1 = svgContainer.append("path")
-                   //                              .attr("d", lineFunction(lineData1))
-                   //                              .attr("stroke","green")
-                   //                              .attr("stroke-width",5)
-                   //                              .attr("fill","none");
-                   // var lineGraph2 = svgContainer.append("path")
-                   //                              .attr("d", lineFunction(lineData2))
-                   //                              .attr("stroke","red")
-                   //                              .attr("stroke-width",5)
-                   //                              .attr("fill","none");
+                   d3.selection.prototype.second = function(){
+                        return d3.select(this[0][1]);
+                   }
+
+                   var svgContainer = d3.selectAll(".highcharts-axis-labels")
+                                        .second()
+                                        .append("svg")
+                                        .attr("width",100)
+                                        .attr("height",600);
+                   var svgContainerHeight = d3.select(".highcharts-series-group").node().getBoundingClientRect()[["height"]];
+                   var group1y = 10 + (group.indexOf(1)/group.length)*svgContainerHeight;                    
+                   var group1label = [{"x":100, "y": 10}, {"x":100, "y": group1y}];
+                   var group2label = [{"x":100, "y": group1y}, {"x":100, "y": (10 + svgContainerHeight)}];
+                   var lineFunction = d3.svg.line()
+                                        .x(function(d) { return d.x; })
+                                        .y(function(d) { return d.y; })
+                                        .interpolate("linear");
+                   var lineGraph1 = svgContainer.append("path")
+                                                .attr("d", lineFunction(group1label))
+                                                .attr("stroke","#000080")
+                                                .attr("stroke-width",10)
+                                                .attr("fill","none");
+                   var lineGraph2 = svgContainer.append("path")
+                                                .attr("d", lineFunction(group2label))
+                                                .attr("stroke","#9ACD32")
+                                                .attr("stroke-width",10)
+                                                .attr("fill","none");
 
             }    
             // API Call To oncoprint_data_selection
