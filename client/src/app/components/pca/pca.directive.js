@@ -45,6 +45,16 @@
 
             // History Integration
             var selectedIds = (osHistory.getPatientSelection() == null) ? null : osHistory.getPatientSelection().ids;
+            console.log("**** within PCA History Integeration section");
+            console.log("**** selectedIds are: ", selectedIds);
+            console.log("**** PCA");
+            console.log("Selected Ids are: ", selectedIds);
+            osApi.getCanonicalizePatientIDsInDataset(selectedIds).then(function(response){
+                console.log("within the cannonicalize reponse is: ", response);
+                selectedIds = response.payload;
+                console.log("**** within osApi canonicalization selectedIds are: ", response.payload);
+                console.log("**** within osApi canonicalization selectedIds are: ", selectedIds);
+            });
             function saveSelected() {
                 osHistory.addPatientSelection("PCA", "Manual Selection",
                     d3Chart.selectAll(".pca-node-selected")[0].map(function(node) {
@@ -57,7 +67,14 @@
                     d3Chart.selectAll(".pca-node-selected").classed("pca-node-selected", false);
                 } else {
                     d3Chart.selectAll("circle").classed("pca-node-selected", function() {
-                        return (selectedIds.indexOf(this.__data__.id) >= 0)
+                        console.log("**** within setSelected pca-node-selected");
+                        console.log(this.__data__.id);
+                        var str = this.__data__.id.substring(0,11);
+                        console.log("*** substring of this.__data__.id", str); 
+                        console.log(selectedIds);
+                        console.log(str.indexOf(selectedIds));
+                        //return (str.indexOf(selectedIds) >= 0)
+                        return (selectedIds.indexOf(str) >= 0)
                     });
                 }
             }
@@ -88,6 +105,7 @@
                         // History
                         osHistory.onPatientSelectionChange.add(function(selection) {
                             selectedIds = selection.ids;
+                            console.log("**** within PCA osHistory.onPatientSelectionChange, selected.ids:", selectedIds);
                             vm.search = "";
                             $scope.$apply();
                             setSelected();
@@ -124,10 +142,10 @@
                 d3Chart
                     .attr("width", '100%')
                     .attr("height", height);
+
                 xScale = d3.scale.linear()
                     .domain([-xMax, xMax])
                     .range([0, width]).nice();
-
                 yScale = d3.scale.linear()
                     .domain([-yMax, yMax])
                     .range([height, 0]).nice();

@@ -222,7 +222,7 @@
         function getDrugGeneInteractions() {}
         function getCanonicalizePatientIDsInDataset(patientIds) {
             return osSocket.request({
-                cmd: "getCanonicalizePatientIDsInDataset",
+                cmd: "canonicalizePatientIDsInDataset",
                 payload: patientIds
             });
         }

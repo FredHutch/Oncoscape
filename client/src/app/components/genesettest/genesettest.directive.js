@@ -50,7 +50,7 @@
                     });
 
                 mtx = mtx[mtx.length - 1].replace(".RData", "");
-                console.log("**** mtx is: ", mtx);
+                //console.log("**** mtx is: ", mtx);
 
                 if(cohort1 == null || cohort2 == null){
                     vm.message = "Please select two cohorts to test out the Gene Set";

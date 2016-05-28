@@ -1412,8 +1412,8 @@
                               });
                 });
                 
-                vm.geneAndPatients = allPatients.splice(1,20).push("EGFR", "PTEN");
-                drawOncoprint(vm.geneAndPatients);
+                // vm.geneAndPatients = allPatients.splice(1,20).push("EGFR", "PTEN");
+                // drawOncoprint(vm.geneAndPatients);
                 $scope.$watchGroup(['vm.geneAndPatients'], function() {
                    drawOncoprint(vm.geneAndPatients);
                 });  
