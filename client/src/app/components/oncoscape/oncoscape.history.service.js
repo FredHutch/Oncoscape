@@ -99,6 +99,7 @@
             return selection;
         };
         var getPatientSelectionSecondLast = function(){
+            /*
             var i = _patientSelections.indexOf(_patientSelection) - 2;
             if (i<1){
                 osSound.beep();
@@ -106,6 +107,7 @@
             } 
             _patientSelection = _patientSelections[i];
             return _patientSelection;
+            */
         };
         var getPatientSelectionNext = function(){
             _patientIndex += 1;

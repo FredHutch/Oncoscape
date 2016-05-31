@@ -10,11 +10,6 @@
 
 
         $stateProvider
-            .state('test',{
-                url: '/test',
-                template: '<os-test>',
-                authenticate: false
-            })
             .state('landing', {
                 url: '/',
                 template: '<os-landing>',
@@ -80,26 +75,27 @@
                 template: '<os-survival>',
                 authenticate: true
             })
-            .state('apiexplorer', {
-                url: '/apiexplorer/{datasource}',
-                template: '<os-api-explorer>',
-                authenticate: false
+            .state('dataexplorer', {
+                url: '/dataexplorer/{datasource}',
+                template: '<os-data-explorer>',
+                authenticate: true
             })
             .state('oncoprint', {
                 url: '/oncoprint/{datasource}',
                 template: '<os-oncoprint>',
-                authenticate: false
+                authenticate: true
             })
             .state('genesettest', {
                 url: '/genesettest/{datasource}',
                 template: '<os-genesettest>',
-                authenticate: false
-            })
-            .state('compare', {
-                url: '/compare/{datasource}',
-                template: '<os-compare>',
                 authenticate: true
-            });
+            })
+            .state('cohortbuilder', {
+                url: '/cohortbuilder/{datasource}',
+                template: '<os-cohort-builder>',
+                authenticate: true
+            })
+           
 
         $urlRouterProvider.otherwise('/');
     }

@@ -22,7 +22,7 @@
         return directive;
 
         /** @ngInject */
-        function CohortsController(osHistory, $state, $timeout, $scope, $stateParams) {
+        function CohortsController(osHistory, $state, $timeout) {
 
             var vm = this;
             vm.selection;
@@ -46,7 +46,6 @@
             osHistory["on"+vm.type+"SelectionChange"].add(function(){update(false)});
             
             var isDragable = false;
-            var isVisible = false;
             var show = function(){
                 angular.element(".cohorts-"+vm.type).show();
                 if (isDragable) return;

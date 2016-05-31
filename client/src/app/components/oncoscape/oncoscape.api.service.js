@@ -151,9 +151,14 @@
                 route: 'genesettest',
                 img: 'history.png',
             }, {
-                name: 'Api Explorer',
-                route: 'apiexplorer',
-                img: 'metadata.png',
+                name: 'Data Explorer',
+                route: 'dataexplorer',
+                img: 'dataexplorer.png',
+                copy: ''
+            },{
+                name: 'Cohort Builder',
+                route: 'cohortbuilder',
+                img: 'dataexplorer.png',
                 copy: ''
             }, {
                 name: 'MetaData',
@@ -162,9 +167,15 @@
                 copy: ''
             }];
         }
-
+        
+        function queryString(table, query){
+            return osHttp.queryString({
+                table: table,
+                query: query
+            });
+        }
         function query(table, query){
-            return osHttp.request({
+            return osHttp.query({
                 table: table,
                 query: query
             });
@@ -371,6 +382,7 @@
 
         return {
             query: query,
+            queryString: queryString,
             setDataSource: setDataSource,
             getDataSource: getDataSource,
             onDataSource: onDataSource,
