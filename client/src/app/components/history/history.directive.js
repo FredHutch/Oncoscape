@@ -20,6 +20,14 @@
 
         /** @ngInject */
         function HistoryController(osApi, osHistory, $state, $timeout, $scope, moment, $stateParams, _, $) {
+<<<<<<< HEAD
+=======
+
+            $scope.$on("$destroy", function() {
+                vm.applyFilter("Exit");
+                osHistory.removeListeners();
+            });
+>>>>>>> 4646811ce13a4d562c2925f1f4f7072454460c15
 
             // Redirect if No Datasource
             if (angular.isUndefined($stateParams.datasource)) {
@@ -29,6 +37,7 @@
 
             // Properties
             var vm = this;
+<<<<<<< HEAD
             var table;
             var selectedIds = (osHistory.getPatientSelection() == null) ? [] : osHistory.getPatientSelection().ids;
 
@@ -40,6 +49,45 @@
                 vm.survivalMax = vm.survivalMaxValue = 10;
                 vm.search = "";
             }
+=======
+            vm.datasource = $stateParams.datasource;
+            vm.filter;
+            vm.colnames = [];
+            vm.diagnosisMin = vm.diagnosisMinValue = 1;
+            vm.diagnosisMax = vm.diagnosisMaxValue = 99;
+            vm.survivalMin = vm.survivalMinValue = 0;
+            vm.survivalMax = vm.survivalMaxValue = 10;
+            vm.search = "";
+
+
+            vm.applyFilter = function(filter) {
+                selectedIds = null;
+                var o = dtTable._('tr', {
+                    "filter": "applied"
+                }).map(function(item) {
+                    return item[0].toString().toUpperCase()
+                });
+                o = $.map(o, function(value) {
+                    return [value];
+                });
+                osHistory.addPatientSelection("Patient History", filter, o);
+                dtTable.api().draw();
+            };
+
+
+            function draw() {
+
+                if (angular.isUndefined(dtTable)) return;
+                dtTable.fnClearTable();
+                data = rawData.tbl;
+                if (data.length == 0) return;
+                var d = data.map(function(d) {
+                    return d[4];
+                });
+                var s = data.map(function(d) {
+                    return d[3];
+                });
+>>>>>>> 4646811ce13a4d562c2925f1f4f7072454460c15
 
             var initDataTable = function(vm, data){
                 

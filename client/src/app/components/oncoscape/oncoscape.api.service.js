@@ -172,6 +172,11 @@
                 beta: true,
                 copy: ''
             }, {
+                name: 'Api Explorer',
+                route: 'apiexplorer',
+                img: 'metadata.png',
+                copy: ''
+            }, {
                 name: 'MetaData',
                 route: 'metadata',
                 img: 'metadata.png',
@@ -179,6 +184,7 @@
                 copy: ''
             }];
         }
+<<<<<<< HEAD
         
         function queryString(table, query){
             return osHttp.queryString({
@@ -188,6 +194,11 @@
         }
         function query(table, query){
             return osHttp.query({
+=======
+
+        function query(table, query){
+            return osHttp.request({
+>>>>>>> 4646811ce13a4d562c2925f1f4f7072454460c15
                 table: table,
                 query: query
             });
@@ -394,7 +405,10 @@
 
         return {
             query: query,
+<<<<<<< HEAD
             queryString: queryString,
+=======
+>>>>>>> 4646811ce13a4d562c2925f1f4f7072454460c15
             setDataSource: setDataSource,
             getDataSource: getDataSource,
             onDataSource: onDataSource,

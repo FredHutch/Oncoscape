@@ -153,14 +153,13 @@ exports.start = function(config){
 
   mongo.configure(function (config) { 
     collections.forEach(function(collection){
+    .forEach(function(collection){
         this.register({name:collection});
     }, config);
   });
 
 
-
   // Open Connection For Fns
-  ;
   mongo.handleCmd = function(req,res,next,cmd){
     mongo.mdb.eval(
       cmd, 
