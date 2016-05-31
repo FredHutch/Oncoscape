@@ -8,6 +8,7 @@
     /** @ngInject */
     function osHistory(moment, signals, osSound, _) {
 
+        //var _historyMax = 100;
         var _geneSelections = [{ids:[], tool:'Application', desc:'Load'}];
         var _geneIndex = 0;
         var _patientSelections = [{ids:[], tool:'Application', desc:'Load'}];
@@ -151,6 +152,7 @@
             removeListeners: removeListeners,
             clear: clear
         };
+
         return api;
     }
 })();
