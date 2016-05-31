@@ -76,14 +76,7 @@
 
             // History Integration
             var selectedIds = (osHistory.getPatientSelection() == null) ? null : osHistory.getPatientSelection().ids;
-            console.log("**** Timeline");
-            console.log("Selected Ids are: ", selectedIds);
-            osApi.getCanonicalizePatientIDsInDataset(selectedIds).then(function(response){
-                console.log("within the cannonicalize reponse is: ", response);
-                selectedIds = response.payload;
-                console.log("**** within osApi canonicalization selectedIds are: ", response.payload);
-                console.log("**** within osApi canonicalization selectedIds are: ", selectedIds);
-            });
+
             function saveSelected() {
                 selectedIds = d3Bars.selectAll(".timeline-selected")[0].map( function (p) { return p.__data__.id; }  )
                 if (selectedIds.length==0) selectedIds = d3Bars.selectAll()[0].map( function (p) { return p.__data__.id; }  )
