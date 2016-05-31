@@ -153,7 +153,6 @@ exports.start = function(config){
 
   mongo.configure(function (config) { 
     collections.forEach(function(collection){
-    .forEach(function(collection){
         this.register({name:collection});
     }, config);
   });
