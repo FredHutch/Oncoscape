@@ -65,7 +65,7 @@
                 // Transform DataSources
                 var data = result.data;
                 vm.dataSources = 
-                _.chain(data).pluck("source").uniq().map(function(v){return { name:v,
+                    _.chain(data).pluck("source").uniq().map(function(v){return { name:v,
                         diseases:_.chain(data).where({source:v}).pluck("disease").uniq().map(function(v){ 
                             return { name:v,
                                 tables: _.chain(data).where({source:"tcga",disease:v}).map(function(v){ 

@@ -35,6 +35,35 @@
             vm.dataTable;
             vm.dataFields;
 
+            
+
+            vm.chartOptions = {
+                chart: {
+                    type: 'discreteBarChart',
+                    height: 450,
+                    margin : {
+                        top: 20,
+                        right: 20,
+                        bottom: 50,
+                        left: 55
+                    },
+                    x: function(d){return d.label;},
+                    y: function(d){return d.value + (1e-10);},
+                    showValues: true,
+                    valueFormat: function(d){
+                        return d3.format(',.4f')(d);
+                    },
+                    duration: 500,
+                    xAxis: {
+                        axisLabel: 'X Axis'
+                    },
+                    yAxis: {
+                        axisLabel: 'Y Axis',
+                        axisLabelDistance: -10
+                    }
+                }
+            }
+
             vm.toolTipContentFunction = function(){
                 return function(key, x, y, e, graph) {
                         return  'Super New Tooltip' +
@@ -88,7 +117,6 @@
                 $scope.$watch("vm.dataDisease", function(){
                     vm.dataTables = vm.dataDisease.tables;
                     vm.dataTable = vm.dataTables[0];
-                    
                 });
                 $scope.$watch("vm.dataTable", function(){
                     osApi.query("_stats", {collection:vm.dataTable.collection}).then(function(result){

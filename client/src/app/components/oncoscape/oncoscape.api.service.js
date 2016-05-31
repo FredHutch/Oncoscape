@@ -110,60 +110,72 @@
                 name: 'Markers + Patients',
                 route: 'markers',
                 img: 'markers.png',
+                beta: true,
                 copy: 'Link copy number variation and mutation data to patients.'
             }, {
                 name: 'Timelines',
                 route: 'timelines',
                 img: 'timelines.png',
+                beta: true,
                 copy: ''
             }, {
                 name: 'Pathways',
                 route: 'pathways',
                 img: 'pathways.png',
+                beta: true,
                 copy: 'Map patient specific expression levels on a hand curated network of genes.'
             }, {
                 name: 'PLSR',
                 route: 'plsr',
                 img: 'plsr.png',
+                beta: true,
                 copy: 'Use linear regression to correlate genes with clinical features using RNA expression.'
             }, {
                 name: 'PCA',
                 route: 'pca',
                 img: 'pca.png',
+                beta: true,
                 copy: 'Two dimensional view of per sample expression data.'
             }, {
                 name: 'Survival',
                 route: 'survival',
                 img: 'survival.png',
+                beta: true,
                 copy: 'Compare survival rates of selected patients against the remaining population in a Kaplan Meier plot.'
             }, {
                 name: 'Patient Data',
                 route: 'history',
                 img: 'history.png',
+                beta: true,
                 copy: ''
             }, {
                 name: 'Oncoprint',
                 route: 'oncoprint',
                 img: 'history.png',
+                beta: true,
                 copy: ''
             }, {
                 name: 'Geneset Test',
                 route: 'genesettest',
                 img: 'history.png',
+                beta: true,
             }, {
                 name: 'Data Explorer',
                 route: 'dataexplorer',
                 img: 'dataexplorer.png',
+                beta: true,
                 copy: ''
             },{
                 name: 'Cohort Builder',
                 route: 'cohortbuilder',
                 img: 'dataexplorer.png',
+                beta: true,
                 copy: ''
             }, {
                 name: 'MetaData',
                 route: 'metadata',
                 img: 'metadata.png',
+                beta: true,
                 copy: ''
             }];
         }
