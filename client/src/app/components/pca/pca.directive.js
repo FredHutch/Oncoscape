@@ -95,7 +95,6 @@
                         // History
                         osHistory.onPatientSelectionChange.add(function(selection) {
                             selectedIds = selection.ids;
-                            console.log("**** within PCA osHistory.onPatientSelectionChange, selected.ids:", selectedIds);
                             vm.search = "";
                             setSelected();
                         });

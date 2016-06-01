@@ -1404,7 +1404,6 @@
                 // Patient Data
                 var rawPatientData = response.payload.tbl;
                 var mtx = mtx[mtx.length - 1].replace(".RData", "");
-<
                 // var allPatients =[];
                 // osApi.getPatientHistoryTable(vm.datasource).then(function(response){
                 //    var ptHsTbl = response.payload.tbl;

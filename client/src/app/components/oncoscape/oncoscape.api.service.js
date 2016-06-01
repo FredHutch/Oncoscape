@@ -159,6 +159,7 @@
                 route: 'genesettest',
                 img: 'history.png',
                 beta: true,
+                copy: ''
             }, {
                 name: 'Data Explorer',
                 route: 'dataexplorer',
