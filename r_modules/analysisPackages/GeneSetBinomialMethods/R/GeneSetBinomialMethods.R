@@ -277,35 +277,10 @@ setMethod("geneSetScoreTest", signature = "GeneSetBinomialMethods",
                   null.warnings = unlist(null$warnings),
                   alternative.model = mAlt, 
                   skatRes = skatRes,
-                  summary.skatRes = summary.skatRes
+                  summary.skatRes = summary.skatRes,
+                  pValue = round(skatRes$p.value, 4)
                   )
             
             return(res)
           }) #geneSetScoreTest
-#------------------------------------------------------------------------------------------------------------------------
-# create a trimmed-down matrix with only the genes and samples suppled to the score method
-# 
-.trimMatrix <- function(tbl.mrna, sampleIDs, geneNames, geneset.name="", quiet=TRUE)
-{
-   overlapping.sampleIDs <- intersect(sampleIDs, rownames(tbl.mrna))
-   overlapping.genes <- intersect(geneNames, colnames(tbl.mrna))
-   
-   if(length(overlapping.sampleIDs) == 0){
-      warning(sprintf("no matching sampleIDs in tbl.mrna for %s", geneset.name));
-      return(NA)
-      }
-   if (length(overlapping.genes) < 2) {
-      warning(sprintf("no or only one matching gene in tbl.mrna for %s", geneset.name));
-      return(NA)
-      }
-   
-   mtx.trimmed <- tbl.mrna[overlapping.sampleIDs, overlapping.genes];
-   msg <- sprintf("found %d/%d overlapping samples in the expession data, %d/%d overlapping genes in %s",
-                  nrow(mtx.trimmed), length(sampleIDs), ncol(mtx.trimmed), length(geneNames), geneset.name)
-   if(!quiet)
-      message(msg)
-   
-   invisible(mtx.trimmed)
-   
-} # .trimMatrix
 #------------------------------------------------------------------------------------------------------------------------

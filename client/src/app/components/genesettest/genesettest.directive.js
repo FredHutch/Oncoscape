@@ -38,25 +38,18 @@
             vm.geneSets = [];
             vm.geneSet = null;
             var cohort1, cohort2;
-            // cohort1 = osHistory.getPatientSelections()[0];
-            // cohort2 = osHistory.getPatientSelections()[1];
             var selectionTimes = osHistory.getPatientSelections().length;
-            //debugger;
-            console.log("selected time is: ", selectionTimes);    
-                if (selectionTimes > 1){
-                    cohort1 = osHistory.getPatientSelections()[selectionTimes-1];
-                    cohort2 = osHistory.getPatientSelections()[selectionTimes-2];
-                } else{
-                    cohort1 = null;
-                    cohort2 = null;
-                }
+            if (selectionTimes > 1){
+                cohort1 = osHistory.getPatientSelections()[selectionTimes-1];
+                cohort2 = osHistory.getPatientSelections()[selectionTimes-2];
+            } else{
+                cohort1 = null;
+                cohort2 = null;
+            }
 
             // Initialize
             osApi.setBusy(true);
             osApi.setDataset(vm.datasource).then(function(response) {
-                
-                
-
                 var mtx = response.payload.rownames.filter(function(v) {
                         return v.indexOf("mtx.mrna") >= 0
                     });
@@ -72,8 +65,8 @@
                     vm.optCohort2 = cohort2.tool + " " +cohort2.desc + " " + cohort2.ids.length + " Patients selected" ;
 
                     //var geneset = "random.24";
-                    var geneset = "tcga.pancan.mutated";
-
+                    //var geneset = "tcga.pancan.mutated";
+                    var geneset = "DNA_REPAIR";
                     osApi.getGeneSetTest(vm.datasource, mtx).then(function() {
                         $scope.$watchGroup(['vm.optCohort1', 'vm.optCohort2'], function() {
                            calculateGeneSetScore(cohort1, cohort2, geneset);
@@ -128,6 +121,7 @@
 
                         chart: {
                             type: 'heatmap'
+
                         },
                         title: {
                             text: null
@@ -166,8 +160,7 @@
                                 [0, '#4682B4'],
                                 [0.1, '#ADD8E6'],
                                 [0.5, '#FFFACD'],
-                                [1, '#FFA500'],
-                                [2, '#FF0000']
+                                [1, '#FF4500']
                             ],
                             min: 0,
                             max: 2.5,
@@ -177,7 +170,9 @@
                         series: [{
                             borderWidth: 0,
                             nullColor: '#EFEFEF',
-                            data: JSON.parse(expressionData) }]
+                            data: JSON.parse(expressionData) }],
+                            pointPadding: 0.3,
+                            pointPlacement: -0.2
                                     });
 
                    /** Grouping information
@@ -221,10 +216,25 @@
                     if(response.status == "error"){
                         vm.message = response.payload + "Please select two cohorts to test out the Gene Set";
                     }else{
-                        vm.message = response.payload.summary;
-                        var pt = response.payload.pt;
-                        var g = response.payload.genes;
+                        
+                        console.log("payload is: ", response.payload);
+                        var pt = [];
+                        var g = []; 
+                        if(typeof(response.payload.genes) == "string"){
+                            var singleGene = response.payload.genes;
+                            g.push(singleGene);
+                        }else{
+                            g = response.payload.genes;
+                        }
+                        if(typeof(response.payload.pt) == "string"){
+                            var singlePatient = response.payload.pt;
+                            pt.push(singlePatient);
+                        }else{
+                            pt = response.payload.pt;
+                        }
                         var group = response.payload.group;
+                        var pValue = response.payload.pValue;
+                        vm.message = "Gene set Name is: " + geneset + "; List of genes are: " + g + "; P-Value is: " + pValue;
                         drawHeatMap2(pt, g, group, response.payload.analysisData);
 
                     }
