@@ -44,11 +44,11 @@
             vm.search = "";
 
             // History Integration
-            var selectedIds = (osHistory.getPatientSelection() == null) ? null : osHistory.getPatientSelection().ids;
-            osApi.getCanonicalizePatientIDsInDataset(selectedIds).then(function(response){
-                selectedIds = response.payload;
-            });
+
+            var selectedIds = (osHistory.getPatientSelection() == null) ? [] : osHistory.getPatientSelection().ids;
             function saveSelected() {
+                var selected = d3Chart.selectAll(".pca-node-selected")[0];
+                if (selected.length==0) return;
                 osHistory.addPatientSelection("PCA", "Manual Selection",
                     d3Chart.selectAll(".pca-node-selected")[0].map(function(node) {
                         return node.__data__.id.toUpperCase();
@@ -56,7 +56,7 @@
                 );
             }
             function setSelected() {
-                if (selectedIds == null) {
+                if (selectedIds.length==0) {
                     d3Chart.selectAll(".pca-node-selected").classed("pca-node-selected", false);
                 } else {
                     d3Chart.selectAll("circle").classed("pca-node-selected", function() {
@@ -76,7 +76,7 @@
                     return v.indexOf("mtx.mrna") >= 0
                 });
 
-                mtx = mtx[mtx.length - 1].replace(".RData", "");
+                mtx = mtx[0].replace(".RData", "");
                 osApi.setBusyMessage("Creating PCA Matrix");
                 osApi.getPCA(vm.datasource, mtx).then(function() {
 
@@ -97,7 +97,6 @@
                             selectedIds = selection.ids;
                             console.log("**** within PCA osHistory.onPatientSelectionChange, selected.ids:", selectedIds);
                             vm.search = "";
-                            $scope.$apply();
                             setSelected();
                         });
                     });
@@ -125,7 +124,11 @@
             };
 
             function setScale() {
-                width = $window.innerWidth - 100;
+                
+                width = $window.innerWidth - 400;
+                if (angular.element(".tray-right").attr("locked")=="false"){
+                    width += 300;
+                } 
                 height = $window.innerHeight - 190;
                 if (angular.element(".tray").attr("locked") == "true") width -= 300;
 

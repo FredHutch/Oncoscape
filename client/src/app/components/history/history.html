@@ -27,16 +27,6 @@
         <h2 class="h2-tool">Patient Data</h2>
         <h3 class="h3-datasource">{{vm.datasource}}</h3>
         <table id="history-datatable" class="table table-striped table-bordered dt-responsive nowrap" cellspacing="0" width="100%">
-            <thead>
-                <tr>
-                    <th ng-repeat="col in vm.colnames">{{col}}</th>
-                </tr>
-            </thead>
-            <tbody>
-                <tr ng-repeat="row in vm.rows">
-                    <td ng-repeat="datum in row track by $index">{{datum}}</td>
-                </tr>
-            </tbody>
         </table>
     </div>
 </section>

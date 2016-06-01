@@ -10,7 +10,9 @@
                 <img class="tools-img" ng-src="/assets/images/datasets/{{tool.img}}">
                 <div class="tools-copy">
                 	<h3 class="tools-lbl">{{tool.name}}</h3>
-	                <a href="">Explore</a>
+	                <a href="" ng-if="!tool.beta">Explore</a>
+                    <a href="" ng-if="tool.beta" style="color:red">(Beta)</a>
+                    
 	             </div>
             </li>
         </ul>

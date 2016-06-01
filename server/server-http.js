@@ -17,6 +17,7 @@ exports.start = function(config){
   var auth = require('./auth-module.js');
   var uuid = require('node-uuid');
   var pdf = require('pdfkit');
+  var format = require('util').format;
 
   // Construct Http Server With Body Parsing Capabilities
   var server = express();
@@ -66,14 +67,134 @@ exports.start = function(config){
         name: "oncoscape"
     });
 
+  mongo.mdb.open(function(err, result){});
+
+    var collections = [
+    "_collections",
+    "_fields",
+    "_stats",
+    "tcga_brca_pt",
+    "tcga_cesc_pt",
+    "tcga_chol_pt",
+    "tcga_coad_pt",
+    "tcga_dlbc_pt",
+    "tcga_esca_pt",
+    "tcga_gbm_pt",
+    "tcga_hnsc_pt",
+    "tcga_kich_pt",
+    "tcga_kirc_pt",
+    "tcga_kirp_pt",
+    "tcga_laml_pt",
+    "tcga_lgg_pt",
+    "tcga_lich_pt",
+    "tcga_luad_pt",
+    "tcga_lusc_pt",
+    "tcga_meso_pt",
+    "tcga_ov_pt",
+    "tcga_paad_pt",
+    "tcga_pcpg_drug",
+    "tcga_pcpg_f1",
+    "tcga_pcpg_pt",
+    "tcga_pcpg_rad",
+    "tcga_prad_pt",
+    "tcga_read_pt",
+    "tcga_sarc_pt",
+    "tcga_skcm_drug",
+    "tcga_skcm_f1",
+    "tcga_skcm_pt",
+    "tcga_skcm_rad",
+    "tcga_stad_drug",
+    "tcga_stad_f1",
+    "tcga_stad_pt",
+    "tcga_stad_rad",
+    "tcga_tgct_drug",
+    "tcga_tgct_f1",
+    "tcga_tgct_pt",
+    "tcga_tgct_rad",
+    "tcga_thca_drug",
+    "tcga_thca_f1",
+    "tcga_thca_f2",
+    "tcga_thca_nte",
+    "tcga_thca_nte_f1",
+    "tcga_thca_nte_f2",
+    "tcga_thca_omf",
+    "tcga_thca_pt",
+    "tcga_thca_rad",
+    "tcga_thym_drug",
+    "tcga_thym_f1",
+    "tcga_thym_nte",
+    "tcga_thym_nte_f1",
+    "tcga_thym_omf",
+    "tcga_thym_pt",
+    "tcga_thym_rad",
+    "tcga_ucec_drug",
+    "tcga_ucec_f1",
+    "tcga_ucec_f2",
+    "tcga_ucec_f3",
+    "tcga_ucec_nte",
+    "tcga_ucec_nte_f1",
+    "tcga_ucec_omf",
+    "tcga_ucec_pt",
+    "tcga_ucec_rad",
+    "tcga_ucs_drug",
+    "tcga_ucs_f1",
+    "tcga_ucs_nte",
+    "tcga_ucs_nte_f1",
+    "tcga_ucs_omf",
+    "tcga_ucs_pt",
+    "tcga_ucs_rad",
+    "tcga_uvm_drug",
+    "tcga_uvm_f1",
+    "tcga_uvm_nte",
+    "tcga_uvm_omf",
+    "tcga_uvm_pt",
+    "tcga_uvm_rad"
+    ];
+
   mongo.configure(function (config) { 
-    ["TCGA_METADATA","TCGA_ACC_DRUG","TCGA_ACC_F1","TCGA_ACC_NTE","TCGA_ACC_NTE_F1","TCGA_ACC_OMF","TCGA_ACC_PT","TCGA_ACC_RAD","TCGA_BLCA_DRUG","TCGA_BLCA_F1","TCGA_BLCA_F2","TCGA_BLCA_NTE","TCGA_BLCA_NTE_F1","TCGA_BLCA_OMF","TCGA_BLCA_PT","TCGA_BLCA_RAD","TCGA_BRCA_DRUG","TCGA_BRCA_F1","TCGA_BRCA_F2","TCGA_BRCA_F3","TCGA_BRCA_NTE","TCGA_BRCA_NTE_F1","TCGA_BRCA_OMF","TCGA_BRCA_PT","TCGA_BRCA_RAD","TCGA_CESC_DRUG","TCGA_CESC_F1","TCGA_CESC_F2","TCGA_CESC_NTE","TCGA_CESC_NTE_F1","TCGA_CESC_OMF","TCGA_CESC_PT","TCGA_CESC_RAD","TCGA_CHOL_DRUG","TCGA_CHOL_F1","TCGA_CHOL_NTE","TCGA_CHOL_NTE_F1","TCGA_CHOL_OMF","TCGA_CHOL_PT","TCGA_CHOL_RAD","TCGA_COAD_DRUG","TCGA_COAD_F1","TCGA_COAD_NTE","TCGA_COAD_NTE_F1","TCGA_COAD_OMF","TCGA_COAD_PT","TCGA_COAD_RAD","TCGA_DISEASE","TCGA_DLBC_DRUG","TCGA_DLBC_F1","TCGA_DLBC_NTE","TCGA_DLBC_NTE_F1","TCGA_DLBC_PT","TCGA_DLBC_RAD","TCGA_ESCA_DRUG","TCGA_ESCA_F1","TCGA_ESCA_NTE","TCGA_ESCA_NTE_F1","TCGA_ESCA_OMF","TCGA_ESCA_PT","TCGA_ESCA_RAD","TCGA_GBM_DRUG","TCGA_GBM_F1","TCGA_GBM_NTE","TCGA_GBM_NTE_F1","TCGA_GBM_OMF","TCGA_GBM_PT","TCGA_GBM_RAD","TCGA_HNSC_DRUG","TCGA_HNSC_F1","TCGA_HNSC_F2","TCGA_HNSC_NTE","TCGA_HNSC_NTE_F1","TCGA_HNSC_OMF","TCGA_HNSC_PT","TCGA_HNSC_RAD","TCGA_KICH_DRUG","TCGA_KICH_F1","TCGA_KICH_NTE","TCGA_KICH_NTE_F1","TCGA_KICH_OMF","TCGA_KICH_PT","TCGA_KICH_RAD","TCGA_KIRC_DRUG","TCGA_KIRC_F1","TCGA_KIRC_NTE","TCGA_KIRC_OMF","TCGA_KIRC_PT","TCGA_KIRC_RAD","TCGA_KIRP_DRUG","TCGA_KIRP_F1","TCGA_KIRP_NTE","TCGA_KIRP_OMF","TCGA_KIRP_PT","TCGA_KIRP_RAD","TCGA_LAML_PT","TCGA_LGG_DRUG","TCGA_LGG_F1","TCGA_LGG_NTE","TCGA_LGG_OMF","TCGA_LGG_PT","TCGA_LGG_RAD","TCGA_LICH_DRUG","TCGA_LICH_F1","TCGA_LICH_NTE","TCGA_LICH_NTE_F1","TCGA_LICH_OMF","TCGA_LICH_PT","TCGA_LICH_RAD","TCGA_LUAD_DRUG","TCGA_LUAD_F1","TCGA_LUAD_NTE","TCGA_LUAD_OMF","TCGA_LUAD_PT","TCGA_LUAD_RAD","TCGA_LUSC_DRUG","TCGA_LUSC_F1","TCGA_LUSC_NTE","TCGA_LUSC_OMF","TCGA_LUSC_PT","TCGA_LUSC_RAD","TCGA_MESO_DRUG","TCGA_MESO_F1","TCGA_MESO_NTE","TCGA_MESO_NTE_F1","TCGA_MESO_OMF","TCGA_MESO_PT","TCGA_MESO_RAD","TCGA_OV_DRUG","TCGA_OV_F1","TCGA_OV_NTE","TCGA_OV_NTE_F1","TCGA_OV_OMF","TCGA_OV_PT","TCGA_OV_RAD","TCGA_PAAD_DRUG","TCGA_PAAD_F1","TCGA_PAAD_NTE","TCGA_PAAD_NTE_F1","TCGA_PAAD_OMF","TCGA_PAAD_PT","TCGA_PAAD_RAD","TCGA_PCPG_DRUG","TCGA_PCPG_F1","TCGA_PCPG_NTE","TCGA_PCPG_NTE_F1","TCGA_PCPG_OMF","TCGA_PCPG_PT","TCGA_PCPG_RAD","TCGA_PRAD_DRUG","TCGA_PRAD_F1","TCGA_PRAD_NTE","TCGA_PRAD_OMF","TCGA_PRAD_PT","TCGA_PRAD_RAD","TCGA_READ_DRUG","TCGA_READ_F1","TCGA_READ_NTE","TCGA_READ_NTE_F1","TCGA_READ_OMF","TCGA_READ_PT","TCGA_READ_RAD","TCGA_SARC_DRUG","TCGA_SARC_F1","TCGA_SARC_NTE","TCGA_SARC_NTE_F1","TCGA_SARC_OMF","TCGA_SARC_PT","TCGA_SARC_RAD","TCGA_SKCM_DRUG","TCGA_SKCM_F1","TCGA_SKCM_NTE","TCGA_SKCM_OMF","TCGA_SKCM_PT","TCGA_SKCM_RAD","TCGA_STAD_DRUG","TCGA_STAD_F1","TCGA_STAD_NTE","TCGA_STAD_OMF","TCGA_STAD_PT","TCGA_STAD_RAD","TCGA_TABLE","TCGA_TGCT_DRUG","TCGA_TGCT_F1","TCGA_TGCT_NTE","TCGA_TGCT_NTE_F1","TCGA_TGCT_OMF","TCGA_TGCT_PT","TCGA_TGCT_RAD","TCGA_THCA_DRUG","TCGA_THCA_F1","TCGA_THCA_F2","TCGA_THCA_NTE","TCGA_THCA_NTE_F1","TCGA_THCA_NTE_F2","TCGA_THCA_OMF","TCGA_THCA_PT","TCGA_THCA_RAD","TCGA_THYM_DRUG","TCGA_THYM_F1","TCGA_THYM_NTE","TCGA_THYM_NTE_F1","TCGA_THYM_OMF","TCGA_THYM_PT","TCGA_THYM_RAD","TCGA_UCEC_DRUG","TCGA_UCEC_F1","TCGA_UCEC_F2","TCGA_UCEC_F3","TCGA_UCEC_NTE","TCGA_UCEC_NTE_F1","TCGA_UCEC_OMF","TCGA_UCEC_PT","TCGA_UCEC_RAD","TCGA_UCS_DRUG","TCGA_UCS_F1","TCGA_UCS_NTE","TCGA_UCS_NTE_F1","TCGA_UCS_OMF","TCGA_UCS_PT","TCGA_UCS_RAD","TCGA_UVM_DRUG","TCGA_UVM_F1","TCGA_UVM_NTE","TCGA_UVM_OMF","TCGA_UVM_PT","TCGA_UVM_RAD"]
-    .forEach(function(collection){
+    collections.forEach(function(collection){
         this.register({name:collection});
     }, config);
   });
 
-  server.all('/api/:collection*', function (req, res, next) {    
+
+  // Open Connection For Fns
+  mongo.handleCmd = function(req,res,next,cmd){
+    mongo.mdb.eval(
+      cmd, 
+      function(error, results){
+        if (error) {
+            if (typeof (error) === 'object') {
+                if (error.code && error.messages) {
+                    res.status(error.code).send(error.messages)
+                } else {
+                    res.status(500).send(error.message)
+                }
+            } else {
+                res.status(500).send(error)
+            }
+        } else {
+            res.send(results)
+        }
+        res.end();
+    });
+  }
+ /*
+  server.get('/api/columns/:table', function(req, res, next){
+    var cmd = format("fnGetAllColumns('%s')",req.params.table);
+    console.log(cmd);
+    mongo.handleCmd(req, res, next, cmd);
+  });
+
+  server.get('/api/factorcount/:table/:column', function (req, res, next){
+    var cmd = format("fnGetFactorCount('%s','%s')",req.params.table, req.params.column)
+    console.log(cmd);
+    mongo.handleCmd(req, res, next, cmd);
+  });
+  */
+
+
+  server.get('/api/:collection*', function (req, res, next) {    
 
         // prepare an info object for the routing function     
         var route = {

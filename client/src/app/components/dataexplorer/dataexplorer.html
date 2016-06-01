@@ -1,0 +1,118 @@
+<os-tray content="tray-content-block" change="vm.resize($event)">
+    <section class="tray-content dataexplorer">
+        <div class="row">
+            <div class="col-xs-12 form-label">
+                <h2>Data Source</h2>
+            </div>
+            <div class="col-xs-12 form-item">
+                <label>Origin</label>
+                <div class="dropdown bs-dropdown">
+                    <button class="btn btn-default dropdown-toggle" type="button" id="dropdownMenu1" data-toggle="dropdown" aria-haspopup="true" aria-expanded="true">
+                        {{vm.dataSource.name}}
+                        <span class="caret"></span>
+                    </button>
+                    <ul class="dropdown-menu" aria-labelledby="dropdownMenu1" style="width:100%">
+                        <li ng-repeat="item in vm.dataSources" ng-click="vm.dataSource = item">{{item.name}}</li>
+                    </ul>
+                </div>
+            </div>
+            <div class="col-xs-12 form-item">
+                <label>Disease</label>
+                <div class="dropdown bs-dropdown">
+                    <button class="btn btn-default dropdown-toggle" type="button" id="dropdownMenu1" data-toggle="dropdown" aria-haspopup="true" aria-expanded="true">
+                        {{vm.dataDisease.name}}
+                        <span class="caret"></span>
+                    </button>
+                    <ul class="dropdown-menu" aria-labelledby="dropdownMenu1" style="width:100%">
+                        <li ng-repeat="item in vm.dataDiseases" ng-click="vm.dataDisease = item">{{item.name}}</li>
+                    </ul>
+                </div>
+            </div>
+            <div class="col-xs-12 form-item">
+                <label>Table</label>
+                <div class="dropdown bs-dropdown">
+                    <button class="btn btn-default dropdown-toggle" type="button" id="dropdownMenu1" data-toggle="dropdown" aria-haspopup="true" aria-expanded="true">
+                        {{vm.dataTable.name}}
+                        <span class="caret"></span>
+                    </button>
+                    <ul class="dropdown-menu" aria-labelledby="dropdownMenu1" style="width:100%">
+                        <li ng-repeat="item in vm.dataTables" ng-click="vm.dataTable = item">{{item.name}}</li>
+                    </ul>
+                </div>
+            </div>
+            <div class="col-xs-12 form-label">
+                <h2>Metadata</h2>
+                <dl>
+                <dt>Date Uploaded</dt>
+                <dd>{{vm.dataTable.created}}</dd>
+                <dt>Record Count</dt>
+                <dd>{{vm.dataTable.records}}</dd>
+                <dt>Field Count</dt>
+                <dd>{{vm.dataFields.length}}</dd>
+            </dl>    
+        </div>
+    </section>
+</os-tray>
+<section class="tray-content-block dataexplorer">
+    <div class="container-fluid">
+        <h2 >Data Explorer</h2>
+        <div ng-repeat="item in vm.dataFields" class="row" style="padding-bottom:50px;">
+            <div class="col-sm-9" >
+             
+                <h2>{{item.name}}</h2>
+                <p style="text-transform: capitalize;">{{item.desc}}</p>
+                <div class="row">
+                    <div class="col-sm-3">
+                        <b>Availibility</b><br />
+                        {{item.percent}}%
+                    </div>
+                    <div class="col-sm-3">
+                        <b>Distinct Values</b><br />
+                        {{item.distinct}}
+                    </div>
+                    <div class="col-sm-3">
+                        <b>Data Type</b><br />
+                        {{item.type}}
+                    </div>
+                </div>
+                <div class="row" style="padding-top:10px;">
+                    <div class="col-sm-12">
+                        <b>TCGA Value Mappings</b><br />
+                        {{item.map}}
+                    </div>
+                </div>
+            </div>
+            <div class="col-sm-3" >
+        
+                <nvd3-pie-chart ng-if="item.values"
+                    data="item.values" x="vm.xFunction()" y="vm.yFunction()" 
+                    showLabels = "false"
+                    showLegend = "false"
+                    tooltips = "true"
+                    labelType = "percent"
+                    noData = "Data is not available"
+                    height="250"
+                    width="250"></nvd3-pie-chart>
+            </div>
+       
+
+<!--
+                <p style="text-transform: capitalize;">{{item.desc}}</p>
+                <dl>
+        
+                    <dt>Key</dt>
+                    <dd>{{item.key}}</dd>
+                    <dt>Url</dt>
+                    <dd>{{item.url}}</dd>
+                    <dt>Mapped Values</dt>
+                    <dd>{{item.map}}</dd>
+                    <dd>{{item.map}}</dd>
+                </dl>
+-->                
+              
+            </div>
+        </div>
+    </div>
+</section>
+
+
