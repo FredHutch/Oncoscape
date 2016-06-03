@@ -39,7 +39,7 @@
                 "TCGAlgg" : "Lower Grade Glioma (TCGA)",
                 "TCGAluad": "Lung Adenocarcinoma (TCGA)",
                 "TCGAlung": "Lung (TCGA)",
-                "TCGAlusc": "Lung Sasquamous Cell (TCGA)",
+                "TCGAlusc": "Lung Squamous Cell (TCGA)",
                 "TCGApaad": "Pancreas (TCGA)",
                 "TCGAprad": "Prostate (TCGA)",
                 "UWbrain":  "Brain (UW)",
