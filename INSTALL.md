@@ -71,6 +71,7 @@ Before you can successfully install Oncoscape on a Mac OS X system, you will nee
 To install the R head over the the CRAN site (https://cran.r-project.org/mirrors.html), pick a mirror site closest to you then download the latest version of R (currently 3.2.3) for Mac OS X and install it. If you are already running the Homebrew package manager, you can alternatively install R as follows:
 
 ```bash
+brew tap homebrew/science
 brew install r
 ```
 
