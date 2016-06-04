@@ -5,6 +5,17 @@
         .module('oncoscape')
         .directive('osHistory', history);
 
+    var colLabels = {
+      "ptID": "ID",
+      "study": "Study",
+      "Birth.gender": "Gender",
+      "Survival": "Survival",
+      "AgeDx": "Age of Diagnosis",
+      "TimeFirstProgression": "Time to First Progression",
+      "Status.status": "Status",
+      "Pathology.histology": "Histology",
+    };
+
     /** @ngInject */
     function history() {
 
@@ -106,7 +117,11 @@
             osApi.setDataset(vm.datasource).then(function() {
                 osApi.getPatientHistoryTable(vm.datasource).then(function(response) {
                     rawData = response.payload;
-                    vm.colnames = rawData.colnames;
+
+                    vm.colnames = rawData.colnames.map(function(name) {
+                        return colLabels[name];
+                    });
+
                     $timeout(function() {
 
                         // Configure Data Table
