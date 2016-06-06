@@ -36,4 +36,5 @@ deployment:
       - docker tag fredhutch/oncoscape:$CIRCLE_SHA1 fredhutch/oncoscape:test
       - docker login -e $DOCKER_EMAIL -u $DOCKER_USER -p $DOCKER_PASS
       - docker push fredhutch/oncoscape:test; sleep 60
+      - curl -X POST $DEPLOY_DOCKER_TEST
   
