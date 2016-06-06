@@ -28,3 +28,13 @@ deployment:
       - docker login -e $DOCKER_EMAIL -u $DOCKER_USER -p $DOCKER_PASS
       - docker push fredhutch/oncoscape:develop; sleep 60
       - curl -X POST $DEPLOY_DOCKER_DEVELOP
+    develop:
+  
+  test:
+    branch: test
+    commands:
+      - docker tag fredhutch/oncoscape:$CIRCLE_SHA1 fredhutch/oncoscape:test
+      - docker login -e $DOCKER_EMAIL -u $DOCKER_USER -p $DOCKER_PASS
+      - docker push fredhutch/oncoscape:develop; sleep 60
+      - curl -X POST $DEPLOY_DOCKER_TEST
+  
