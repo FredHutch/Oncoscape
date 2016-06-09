@@ -175,12 +175,6 @@
                 img: 'dataexplorer.png',
                 beta: true,
                 copy: ''
-            },{
-                name: 'Cohort Builder',
-                route: 'cohortbuilder',
-                img: 'dataexplorer.png',
-                beta: true,
-                copy: ''
             }, {
                 name: 'MetaData',
                 route: 'metadata',

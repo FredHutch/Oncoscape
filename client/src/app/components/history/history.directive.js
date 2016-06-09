@@ -33,11 +33,13 @@
             var selectedIds = (osHistory.getPatientSelection() == null) ? [] : osHistory.getPatientSelection().ids;
 
             var initViewState = function(vm){
+                vm.datasource = osApi.convertDatasetNameFromRToMongo($stateParams.datasource);
                 vm.diagnosisMin = vm.diagnosisMinValue = 1;
                 vm.diagnosisMax = vm.diagnosisMaxValue = 100000;
                 vm.survivalMin = vm.survivalMinValue = 0;
                 vm.survivalMax = vm.survivalMaxValue = 10;
                 vm.search = "";
+                vm.detail = null;
             }
 
             var initDataTable = function(vm, columns, data){
@@ -58,17 +60,30 @@
                     //     survival < (vm.survivalMax + 1));
                     return true;
                 }];
-
+        
                 // Specify Data
                 table = angular.element('#history-datatable').dataTable({
                             paging: false,
                             columns: columns,
-                            data: data
+                            data: data,
+                            "scrollY": "50vh",
+                            "scrollCollapse": true
                 });
                 table.api().draw();
             }
 
             var initEvents = function(vm, $scope){
+
+                $('#history-datatable tbody').on( 'mouseover', 'tr', function () {
+                    // $('.history-row-selected').removeClass('history-row-selected');
+                    $(this).addClass('history-row-selected');
+                    osApi.query(vm.datasource+"_pt", {'patient_ID':this.firstChild.textContent, $limit:1}).then(function(response){
+                        vm.detail = response.data[0];
+                    });
+                } );
+                $('#history-datatable tbody').on( 'mouseout', 'tr', function () {
+                    $(this).removeClass('history-row-selected');
+                });
 
                 vm.applyFilter = function(filter) {
 
@@ -117,9 +132,9 @@
                 {data:'status_vital', title:'Status', defaultContent:'NA'}
             ];
 
-            var ds = osApi.convertDatasetNameFromRToMongo($stateParams.datasource);
+            
             initViewState(vm);
-            osApi.query(ds+"_pt", 
+            osApi.query(vm.datasource+"_pt", 
                 {
                     $fields:columns.map(function(f){ return f.data; }),
                     $limit:0
