@@ -28,33 +28,12 @@ exports.start = function(config){
 		r.on('message', function(data){
 			var c = clients[conn.id];
 		 	c.conn.write(data);
-		 	//socketCache.set( c.key, data );
-		 	//console.log("R :: "+ c.key);
 		});
 
 		// Socket To R
 		conn.on('data', function(message){
 			var c = clients[conn.id];
-			
-			// var cache = message.substr(0,1);
-			// message = message.substr(1);
-			// console.log(cache);
-			console.log(message);
-			
-			c.r.send(message);	
-			/*var key = message.replace(/"(callback)"\:\d+,/g,"");
-			socketCache.get( key, function( err, value ){
-				if ( !err ){
-					if(value == undefined){
-						c.key = key;
-						c.r.send(message);	
-					}else{
-						clients[conn.id].conn.write( value );	
-						console.log("CACHE :: "+key);
-					}
-				}
-			});	
-			*/		
+				c.r.send(message);
 		});
 
 	  	// Add this client to the client list.

@@ -14,7 +14,7 @@
             'ui.bootstrap',
             'ui-rangeSlider',
             'ui.bootstrap.contextMenu',
-            'nvd3ChartDirectives',
+            'nvd3',
             'toastr'
         ]);
 

@@ -16,6 +16,7 @@ console.log("  ___  _ __   ___ ___  ___  ___ __ _ _ __   ___ \n / _ \\| '_ \\ / 
 var config = require('./configuration.js').get(process.argv);
 
 // Start Servers
+//var mongo = require('./server-mongo.js').start(config);
 var http = require('./server-http.js').start(config);
 var socket = require('./server-socket.js').start(config);
 var proxy = require('./server-proxy.js').start(config);

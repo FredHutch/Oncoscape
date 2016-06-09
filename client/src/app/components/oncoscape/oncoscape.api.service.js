@@ -17,6 +17,16 @@
             onDataSource.dispatch(_dataSource);
         }
 
+        // Temp Method
+        function convertDatasetNameFromRToMongo(name){
+
+            return (name==="TCGAbrain") ? "tcga_gbm" :
+                 (name==="TCGAbrca")  ? "tcga_brca"  :
+                "tcga_brca";
+
+
+        }
+
         
         /*** User Api ***/
         function userApi(){
@@ -393,6 +403,7 @@
         }
 
         return {
+            convertDatasetNameFromRToMongo: convertDatasetNameFromRToMongo,
             query: query,
             queryString: queryString,
             setDataSource: setDataSource,

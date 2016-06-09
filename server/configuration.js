@@ -14,7 +14,8 @@ exports.get = function(argv){
 	var config = {
 		port_proxy:80,
 		port_http:3000,
-		port_socket:3001
+		port_socket:3001,
+		port_mongo:3002
 	};
 
 	// Configuration Override
@@ -33,6 +34,7 @@ exports.get = function(argv){
 		getPortHttp: function(){ return config.port_http; },
 		getPortProxy: function(){ return config.port_proxy; },
 		getPortSocket: function(){ return config.port_socket; },
+		getPortMongo: function(){ return config.port_mongo; },
 		toString: function(){ return serialized; }
 	};
 };

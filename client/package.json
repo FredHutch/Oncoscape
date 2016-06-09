@@ -1,7 +1,9 @@
 {
   "name": "oncoscape",
   "version": "0.0.0",
-  "dependencies": {},
+  "dependencies": {
+    "angular-nvd3": "^1.0.7"
+  },
   "scripts": {
     "test": "gulp test"
   },

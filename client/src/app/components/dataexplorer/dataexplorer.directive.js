@@ -34,10 +34,9 @@
             vm.dataTables;
             vm.dataTable;
             vm.dataFields;
-
+            vm.dataField;
             
-
-            vm.chartOptions = {
+            var bar = {
                 chart: {
                     type: 'discreteBarChart',
                     height: 450,
@@ -48,7 +47,7 @@
                         left: 55
                     },
                     x: function(d){return d.label;},
-                    y: function(d){return d.value + (1e-10);},
+                    y: function(d){return d.value;},
                     showValues: true,
                     valueFormat: function(d){
                         return d3.format(',.4f')(d);
@@ -62,7 +61,25 @@
                         axisLabelDistance: -10
                     }
                 }
-            }
+            };
+
+            var pie = {
+                chart: {
+                    type: 'pieChart',
+                    height: 450,
+                    donut: false,
+                    x: function(d){return d.label; },
+                    y: function(d){return d.value; },
+                    showLabels: false,
+                    pie: {
+                        startAngle: function(d) { return d.startAngle/2 -Math.PI/2 },
+                        endAngle: function(d) { return d.endAngle/2 -Math.PI/2 }
+                    },
+                    duration: 500
+                }
+            };
+
+            vm.chartOptions = bar;
 
             vm.toolTipContentFunction = function(){
                 return function(key, x, y, e, graph) {
@@ -86,27 +103,13 @@
                 };
             }
           
-          // var colorArray = ['#000000', '#660000', '#CC0000', '#FF6666', '#FF3333', '#FF6666', '#FFE6E6'];
-          //   vm.colorFunction = function() {
-          //       return function(d, i) {
-          //           return colorArray[i];
-          //       };
-          //   }
+        
 
             // Load Datasets
             osApi.setBusy(true);
             osApi.query("_collections").then(function(result){
-                
-                // Transform DataSources
-                var data = result.data;
-                vm.dataSources = 
-                _.chain(data).pluck("source").uniq().map(function(v){return { name:v,
-                        diseases:_.chain(data).where({source:v}).pluck("disease").uniq().map(function(v){ 
-                            return { name:v,
-                                tables: _.chain(data).where({source:"tcga",disease:v}).map(function(v){ 
-                                    return {created:v.created, name:v.table, records:v.records, collection:v.collection}} ).value()
-                            };}).value()
-                    };}).value();
+
+                vm.dataSources = result.data;
                 vm.dataSource = vm.dataSources[0];
                 
                 $scope.$watch("vm.dataSource", function(){
@@ -119,8 +122,10 @@
                     vm.dataTable = vm.dataTables[0];
                 });
                 $scope.$watch("vm.dataTable", function(){
-                    osApi.query("_stats", {collection:vm.dataTable.collection}).then(function(result){
-                        vm.dataFields = result.data[0].fields;
+                    osApi.query("_field_detail", {collection:vm.dataTable.collection}).then(function(result){
+                         vm.dataFields = result.data[0].fields.filter(function(field){ return field.key!="_id"; });
+                         vm.dataField = vm.dataFields[0];
+                         console.dir(vm.dataField)
                     });
                 });
 

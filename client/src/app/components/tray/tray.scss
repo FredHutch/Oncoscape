@@ -16,7 +16,16 @@
     -o-transition: all 0.3s ease;
     transition: all 0.3s ease;
     padding-bottom: 150px;
+    overflow:auto;
+
 }
+::-webkit-scrollbar {
+    width: 0em;
+    
+}
+
+//.tray:hover { overflow-y:auto; }
+
 .tray-sticky-icon{
 	position: absolute;
 	right: 30px;

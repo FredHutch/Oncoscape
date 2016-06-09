@@ -102,11 +102,9 @@
 
             // Load Datasets
             osApi.setBusy(true);
-            osApi.setDataset(vm.datasource).then(function() {
-
-                osApi.getPathway().then(function(response) {
-
-                    markersNetwork = angular.fromJson(response.payload);
+            osApi.query("_pathways").then(function(result){
+                markersNetwork = result.data[0];
+            
                     csChart = cytoscape({
                             container: elChart,
                             elements: markersNetwork.elements,
@@ -119,28 +117,30 @@
                             }
                         })
                         .on('select', 'node', _.debounce(saveSelected, 300))
-                        .on('click', 'node', function() {
-                            //if (e.cyTarget.data().nodeType!="gene") return;
-                            //angular.element('#gbm-webpage').modal();
-                            //$window.open("https://www.genecards.org/cgi-bin/carddisp.pl?gene=" + e.cyTarget.data().id);
-                            // $scope.$apply(function() {
-                            //     vm.frame = $sce.trustAsResourceUrl(url);
-                            // });
+                        .on('click', 'node', function(e) {
+                            if (e.cyTarget.data().nodeType!="gene") return;
+                            angular.element('#gbm-webpage').modal();
+                            $scope.$apply(function() {
+                                 vm.frame = $sce.trustAsResourceUrl("https://www.genecards.org/cgi-bin/carddisp.pl?gene=" + e.cyTarget.data().id);
+                            });
                         })
-                        .on('click', 'edge', function() {
-                            // links =[
-                            //     { name: "PubMed Article", url:"https://www.ncbi.nlm.nih.gov/pubmed/?term=" + e.cyTarget.data().pmid },
-                            //     { name: "PubMed Search",  url:"http://www.ncbi.nlm.nih.gov/pubmed/?term=(GENE "+e.cyTarget.data().source+") AND (GENE "+e.cyTarget.data().target+")"}
-                            //     { name: e.cyTarget.data().source+"Gene Card", url: "https://www.genecards.org/cgi-bin/carddisp.pl?gene="+e.cyTarget.data().source}
-                            //     { name: e.cyTarget.data().target+"Gene Card", url: "https://www.genecards.org/cgi-bin/carddisp.pl?gene="+e.cyTarget.data().target}
-                            // ];
-                            //$window.open("https://www.ncbi.nlm.nih.gov/pubmed/?term=" + e.cyTarget.data().pmid);
-                            //$window.open("http://www.ncbi.nlm.nih.gov/pubmed/?term=(GENE "+e.cyTarget.data().source+") AND (GENE "+e.cyTarget.data().target+")");
-                            //$window.open("https://www.genecards.org/cgi-bin/carddisp.pl?gene="+e.cyTarget.data().source);
-                            //$window.open("https://www.genecards.org/cgi-bin/carddisp.pl?gene="+e.cyTarget.data().target);
-                            // $scope.$apply(function() {
-                            //     vm.frame = $sce.trustAsResourceUrl(url);
-                            // });
+                        .on('click', 'edge', function(e) {
+                            /* Open Multiple Windows - Hamid Recommended We Remove
+                            links =[
+                                { name: "PubMed Article", url:"https://www.ncbi.nlm.nih.gov/pubmed/?term=" + e.cyTarget.data().pmid },
+                                { name: "PubMed Search",  url:"http://www.ncbi.nlm.nih.gov/pubmed/?term=(GENE "+e.cyTarget.data().source+") AND (GENE "+e.cyTarget.data().target+")"}
+                                { name: e.cyTarget.data().source+"Gene Card", url: "https://www.genecards.org/cgi-bin/carddisp.pl?gene="+e.cyTarget.data().source}
+                                { name: e.cyTarget.data().target+"Gene Card", url: "https://www.genecards.org/cgi-bin/carddisp.pl?gene="+e.cyTarget.data().target}
+                            ];
+                            $window.open("https://www.ncbi.nlm.nih.gov/pubmed/?term=" + e.cyTarget.data().pmid);
+                            $window.open("http://www.ncbi.nlm.nih.gov/pubmed/?term=(GENE "+e.cyTarget.data().source+") AND (GENE "+e.cyTarget.data().target+")");
+                            $window.open("https://www.genecards.org/cgi-bin/carddisp.pl?gene="+e.cyTarget.data().source);
+                            $window.open("https://www.genecards.org/cgi-bin/carddisp.pl?gene="+e.cyTarget.data().target);
+                            */
+                            angular.element('#gbm-webpage').modal();
+                            $scope.$apply(function() {
+                                vm.frame = $sce.trustAsResourceUrl("https://www.ncbi.nlm.nih.gov/pubmed/?term=" + e.cyTarget.data().pmid );
+                            });
 
                         }).on('mouseover', 'edge', function(e) {
                             $scope.$apply(function() {
@@ -175,7 +175,6 @@
                     setSelected();
                     osApi.setBusy(false);
                 });
-            });
 
 
             function getStyle() {
