@@ -1404,8 +1404,15 @@
                 // Patient Data
                 var rawPatientData = response.payload.tbl;
                 var mtx = mtx[mtx.length - 1].replace(".RData", "");
-   
-  
+                // var allPatients =[];
+                // osApi.getPatientHistoryTable(vm.datasource).then(function(response){
+                //    var ptHsTbl = response.payload.tbl;
+                //    ptHsTbl.forEach(function(pt){
+                //               allPatients.push(pt[0]);
+                //               });
+                // });
+                
+               
                 $scope.$watchGroup(['vm.geneAndPatients'], function() {
                    drawOncoprint(vm.geneAndPatients);
                 });  

@@ -76,6 +76,7 @@
 
             // History Integration
             var selectedIds = (osHistory.getPatientSelection() == null) ? null : osHistory.getPatientSelection().ids;
+
             function saveSelected() {
                 selectedIds = d3Bars.selectAll(".timeline-selected")[0].map( function (p) { return p.__data__.id; }  )
                 if (selectedIds.length==0) selectedIds = d3Bars.selectAll()[0].map( function (p) { return p.__data__.id; }  )

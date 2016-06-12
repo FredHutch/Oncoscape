@@ -37,10 +37,15 @@
             vm.datasource = $stateParams.datasource;
             vm.geneSets = [];
             vm.geneSet = null;
-
-        
-            var cohort1 = osHistory.getPatientSelections()[0];
-            var cohort2 = osHistory.getPatientSelections()[1];
+            var cohort1, cohort2;
+            var selectionTimes = osHistory.getPatientSelections().length;
+            if (selectionTimes > 1){
+                cohort1 = osHistory.getPatientSelections()[selectionTimes-1];
+                cohort2 = osHistory.getPatientSelections()[selectionTimes-2];
+            } else{
+                cohort1 = null;
+                cohort2 = null;
+            }
 
             // Initialize
             osApi.setBusy(true);
@@ -50,8 +55,7 @@
                     });
 
                 mtx = mtx[mtx.length - 1].replace(".RData", "");
-                console.log("**** mtx is: ", mtx);
-
+                
                 if(cohort1 == null || cohort2 == null){
                     vm.message = "Please select two cohorts to test out the Gene Set";
                     vm.optCohort1 = "Empty";
@@ -59,8 +63,10 @@
                 }else{
                     vm.optCohort1 = cohort1.tool + " " +cohort1.desc + " " + cohort1.ids.length + " Patients selected" ;
                     vm.optCohort2 = cohort2.tool + " " +cohort2.desc + " " + cohort2.ids.length + " Patients selected" ;
-                    var geneset = "random.24";
+
+                    //var geneset = "random.24";
                     //var geneset = "tcga.pancan.mutated";
+                    var geneset = "DNA_REPAIR";
                     osApi.getGeneSetTest(vm.datasource, mtx).then(function() {
                         $scope.$watchGroup(['vm.optCohort1', 'vm.optCohort2'], function() {
                            calculateGeneSetScore(cohort1, cohort2, geneset);
@@ -108,65 +114,96 @@
 
                     Plotly.newPlot('heatMap', data, layout);
             }
-            var drawHeatMap2 = function(pt, genes, expressionData){
-                   console.log(expressionData);
-            
+
+            var drawHeatMap2 = function(pt, genes, group, expressionData){
+
                    angular.element('#heatMap').highcharts({
 
                         chart: {
-                            type: 'heatmap',
-                            marginTop: 40,
-                            marginBottom: 80,
-                            plotBorderWidth: 1,
+                            type: 'heatmap'
+
                         },
-
-
                         title: {
-                            text: 'Gene Set Expression Heat Map'
+                            text: null
                         },
-
-                        xAxis: {
-                            // labels: {
-                            //     step: 1
-                            // },
-                            categories: genes
-                        },
-
-                        yAxis: {
-                            lineWidth: 5,
-                            lineColor: '#F33',
-                            categories: pt,
-                            title: null
-                        },
-
-                        colorAxis: {
-                            min: 0,
-                            //minColor:Highcharts.getOptions().colors[7],
-                            minColor: "#FFFFFF",
-                            maxColor:'#CC9933'
-                        },
-
-                        legend: {
-                            align: 'right',
-                            layout: 'vertical',
-                            margin: 10,
-                            verticalAlign: 'top',
-                            y: 25,
-                            symbolHeight: 280
-                        },
-
                         tooltip: {
                             formatter: function () {
-                                return '<b>' +this.series.yAxis.categories[this.point.y]  + ' '+ 
-                                     this.series.xAxis.categories[this.point.x]+ ': ' +this.point.value + '</b>';
+                                return '<b>' + this.series.yAxis.categories[this.point.y] + ' </b> had a value of <br><b>' + 
+                                this.point.value + '</b> on <b>' + this.series.xAxis.categories[this.point.x] + '</b>';
+                            },
+                            //backgroundColor: null,
+                            borderWidth: 0,
+                            borderColor: '#000000',
+                            distance: 10,
+                            shadow: false,
+                            useHTML: true,
+                            style: {
+                                padding: 0,
+                                color: 'black'
                             }
                         },
-
+                        xAxis: {
+                            categories: genes,
+                            labels: {
+                                rotation: 90
+                            }
+                        },
+                        yAxis: {
+                            title: {
+                                text: null
+                            },
+                            categories: pt
+                            //,reversed: false
+                        },
+                        colorAxis: {
+                            stops: [
+                                [0, '#4682B4'],
+                                [0.1, '#ADD8E6'],
+                                [0.5, '#FFFACD'],
+                                [1, '#FF4500']
+                            ],
+                            min: 0,
+                            max: 2.5,
+                            startOnTick: false,
+                            endOnTick: false
+                        },
                         series: [{
-                                    name: 'Sales per employee',
-                                    borderWidth: 0,
-                                    data: JSON.parse(expressionData) }]
-                    });
+                            borderWidth: 0,
+                            nullColor: '#EFEFEF',
+                            data: JSON.parse(expressionData) }],
+                            pointPadding: 0.3,
+                            pointPlacement: -0.2
+                                    });
+
+                   /** Grouping information
+                   **/
+                   d3.selection.prototype.second = function(){
+                        return d3.select(this[0][1]);
+                   }
+
+                   var svgContainer = d3.selectAll(".highcharts-axis-labels")
+                                        .second()
+                                        .append("svg")
+                                        .attr("width",100)
+                                        .attr("height",600);
+                   var svgContainerHeight = d3.select(".highcharts-series-group").node().getBoundingClientRect()[["height"]];
+                   var group1y = 10 + (group.indexOf(1)/group.length)*svgContainerHeight;                    
+                   var group1label = [{"x":100, "y": 10}, {"x":100, "y": group1y}];
+                   var group2label = [{"x":100, "y": group1y}, {"x":100, "y": (10 + svgContainerHeight)}];
+                   var lineFunction = d3.svg.line()
+                                        .x(function(d) { return d.x; })
+                                        .y(function(d) { return d.y; })
+                                        .interpolate("linear");
+                   var lineGraph1 = svgContainer.append("path")
+                                                .attr("d", lineFunction(group1label))
+                                                .attr("stroke","#000080")
+                                                .attr("stroke-width",10)
+                                                .attr("fill","none");
+                   var lineGraph2 = svgContainer.append("path")
+                                                .attr("d", lineFunction(group2label))
+                                                .attr("stroke","#9ACD32")
+                                                .attr("stroke-width",10)
+                                                .attr("fill","none");
 
             }    
             // API Call To oncoprint_data_selection
@@ -176,14 +213,30 @@
 
                 osApi.setBusy(true);
                 osApi.getGeneSetScore(Group1, Group2, geneset).then(function(response){
-                    console.log(response.payload);
                     if(response.status == "error"){
                         vm.message = response.payload + "Please select two cohorts to test out the Gene Set";
                     }else{
-                        vm.message = response.payload.summary;
-                        var pt = response.payload.pt;
-                        var g = response.payload.genes;
-                        drawHeatMap2(pt, g, response.payload.analysisData);
+                        
+                        console.log("payload is: ", response.payload);
+                        var pt = [];
+                        var g = []; 
+                        if(typeof(response.payload.genes) == "string"){
+                            var singleGene = response.payload.genes;
+                            g.push(singleGene);
+                        }else{
+                            g = response.payload.genes;
+                        }
+                        if(typeof(response.payload.pt) == "string"){
+                            var singlePatient = response.payload.pt;
+                            pt.push(singlePatient);
+                        }else{
+                            pt = response.payload.pt;
+                        }
+                        var group = response.payload.group;
+                        var pValue = response.payload.pValue;
+                        vm.message = "Gene set Name is: " + geneset + "; List of genes are: " + g + "; P-Value is: " + pValue;
+                        drawHeatMap2(pt, g, group, response.payload.analysisData);
+
                     }
                     osApi.setBusy(false);
                 });

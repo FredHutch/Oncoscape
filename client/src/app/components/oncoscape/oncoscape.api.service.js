@@ -169,6 +169,7 @@
                 route: 'genesettest',
                 img: 'history.png',
                 beta: true,
+                copy: ''
             }, {
                 name: 'Data Explorer',
                 route: 'dataexplorer',
@@ -249,7 +250,7 @@
         function getDrugGeneInteractions() {}
         function getCanonicalizePatientIDsInDataset(patientIds) {
             return osSocket.request({
-                cmd: "getCanonicalizePatientIDsInDataset",
+                cmd: "canonicalizePatientIDsInDataset",
                 payload: patientIds
             });
         }

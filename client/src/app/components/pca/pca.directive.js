@@ -44,6 +44,7 @@
             vm.search = "";
 
             // History Integration
+
             var selectedIds = (osHistory.getPatientSelection() == null) ? [] : osHistory.getPatientSelection().ids;
             function saveSelected() {
                 var selected = d3Chart.selectAll(".pca-node-selected")[0];
@@ -59,6 +60,10 @@
                     d3Chart.selectAll(".pca-node-selected").classed("pca-node-selected", false);
                 } else {
                     d3Chart.selectAll("circle").classed("pca-node-selected", function() {
+                        this.__data__.id = this.__data__.id.substring(0,12);
+                        // osApi.getCanonicalizePatientIDsInDataset(this.__data__.id).then(function(response){
+                        //     this.__data__.id = response.payload;
+                        // });
                         return (selectedIds.indexOf(this.__data__.id) >= 0)
                     });
                 }
@@ -129,10 +134,10 @@
                 d3Chart
                     .attr("width", '100%')
                     .attr("height", height);
+
                 xScale = d3.scale.linear()
                     .domain([-xMax, xMax])
                     .range([0, width]).nice();
-
                 yScale = d3.scale.linear()
                     .domain([-yMax, yMax])
                     .range([height, 0]).nice();

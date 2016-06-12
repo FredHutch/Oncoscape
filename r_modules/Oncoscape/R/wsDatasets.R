@@ -428,7 +428,7 @@ canonicalizePatientIDsInDataset <- function(msg)
 
   datasetName <- state[["currentDatasetName"]]
   dataset <- datasets[[datasetName]]
-
+  print("test within canonicalizePatientIDsInDataset");
   printf("-- getPatientIDs from %s", datasetName)
   
   sampleIDs <- msg$payload
