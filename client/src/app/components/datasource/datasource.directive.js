@@ -29,27 +29,9 @@
                 });
             };
 
-            var nameMap = {
-                "DEMOdz" : "DEMO (TCGA)",
-                "TCGAbrain": "Glioma (TCGA)",
-                "TCGAbrca": "Breast (TCGA)",
-                "TCGAcoadread": "Colorectal (TCGA)",
-                "TCGAgbm": "Glioblastoma (TCGA)",
-                "TCGAhnsc": "Head + Neck (TCGA)",
-                "TCGAlgg" : "Lower Grade Glioma (TCGA)",
-                "TCGAluad": "Lung Adenocarcinoma (TCGA)",
-                "TCGAlung": "Lung (TCGA)",
-                "TCGAlusc": "Lung Squamous Cell (TCGA)",
-                "TCGApaad": "Pancreas (TCGA)",
-                "TCGAprad": "Prostate (TCGA)",
-                "UWbrain":  "Brain (UW)",
-                "MSKbrain": "Brain (MSK)"
-            };
-
-            // Load Datasets
-            vm.datasets = osApi.getUserApi().getUser().datasets.map(function(item){
-                    return {name: this[item], id: item}
-                }, nameMap);
+           osApi.query("os_datasources").then(function(response){
+                vm.datasets = response.data;
+           })
         }
     }
 })();

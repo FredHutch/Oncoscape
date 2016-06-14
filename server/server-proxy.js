@@ -15,14 +15,6 @@ exports.start = function(config){
 	// Create Proxy Server
 	var proxy = httpProxy.createProxyServer({ws:true});
 
-	// // Create Http Routing
- //  	var httpProxyRules = new HttpProxyRules({
- //    	rules: {
- //      		'.*/api': 'http://localhost:8080/cool', // Rule (1)
- //    	},
- //    	default: 'http://127.0.0.1:'+config.getPortHttp() // default target
- //  	});
-
 	// Create Http Server and Proxy Calls Based On Routing
 	var server = http.createServer(function(req, res) {
 

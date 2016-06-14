@@ -28,7 +28,9 @@
 
             var vm = this;
             vm.datasource = $stateParams.datasource;
-            vm.tools = osApi.getTools();
+            osApi.query("os_tools").then(function(response){
+                vm.tools = response.data;
+            });
             vm.explore = function(tool, datasource) {
                 $state.go(tool, {
                     datasource: datasource

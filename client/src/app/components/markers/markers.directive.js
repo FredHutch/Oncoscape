@@ -20,7 +20,7 @@
         return directive;
 
         /** @ngInject */
-        function MarkersController(osApi, osHistory, $state, $timeout, $scope, $stateParams, cytoscape, signals, moment, $window, _) {
+        function MarkersController(osApi, osHistory, $state, $timeout, $scope, $stateParams, cytoscape, signals, moment, $window, _, $q) {
 
 
 
@@ -60,7 +60,7 @@
        
             // Load Data
             osApi.setBusy(true);
-            loadData(osApi, vm, function(data){
+            loadData(osApi, vm, $q, function(data){
 
                 // Resize
                 vm.resize();
@@ -70,6 +70,11 @@
 
                 // Initialize Chart
                 cyChart = initializeChart(data, styles, cytoscape, angular.element("#markers-chart"));
+
+                // Load Gene Sets
+                $scope.$watch("vm.optGeneSet", function(){
+                    loadGeneSet(osApi, vm, $q, cyChart);
+                });
 
                 // Initialize Layouts
                 initializeLayouts(cyChart, vm, $scope);
@@ -453,6 +458,8 @@
             vm.searchGeneResult = "";
             vm.searchPatient;
             vm.searchPatientResult = "";
+            vm.optGeneSets;
+            vm.optGeneSet = "";
             vm.optCohortModes;
             vm.optCohortMode = "";
             vm.optCohortPatients;
@@ -561,11 +568,12 @@
                 elements: data,
                 style: styles,
                 hideEdgesOnViewport: false,
-                hideLabelsOnViewport: false,
+                hideLabelsOnViewport: true,
                 textureOnViewport: false,
-                motionBlur: true,
-                minZoom: .05,
-                maxZoom: 40,
+                motionBlur: false,
+                 //motionBlurOpacity: 0.2,
+                //minZoom: .05,
+                //maxZoom: 40,
                 layout: {
                     name: "preset",
                     fit: true
@@ -612,7 +620,9 @@
                 style: {
                     'background-color': 'data(color)',
                     'text-halign': 'center',
-                    'border-width': 1,
+                    'border-width': 500,
+                    'width': '2500px',
+                    'height': '2500px',
                     'border-color': '#FFFFFF'
                 }
             }, {
@@ -627,8 +637,10 @@
                     'background-color': "#FFFFFF",
                     'border-color': "#38347b",
                     'text-halign': "right",
-                    'label': "data(id)",
-                    'border-width': 'data(sizeBdr)'
+                    //'label': "data(id)",
+                    'border-width': 'data(sizeBdr)',
+                    'width': '2500px',
+                    'height': '2500px'
                 }
             }, {
                 selector: 'node[nodeType="gene"]:selected',
@@ -639,13 +651,13 @@
             },{
                 selector: 'node[nodeType="centromere"]',
                 style:{
-                    'font-size': '24px',
+                    'font-size': '2000px',
                     'text-halign': 'center',
                     'background-color': "#3993fa",
                     'color':"#FFFFFF",
                     'border-color': 'rgb(19, 150, 222)',
-                    'height': '40px',
-                    'width': '120px',
+                    'height': '2500px',
+                    'width': '4000px',
                     'shape': 'roundrectangle',
                     'label': "  data(id)"
                 }
@@ -1018,16 +1030,24 @@
             chart.on('pan', _.debounce(function(e) {
                 var zoom = Math.max(e.cy.zoom(), 1);
                 var degmap = {};
-                var font = Math.ceil(Math.max(12/zoom, 1));
-                var sizeBdr = Math.ceil(Math.max(5/zoom, .5));
-                chart.nodes().forEach(function(node){
-                    this.degmap[node.id()] = {
-                        sizeEle: (node.degree()/this.zoom),
-                        sizeLbl: font,
-                        sizeBdr:sizeBdr
-                    };
-                }, { degmap:degmap, zoom:zoom, font:font, sizeBdr:sizeBdr });
+
+                // Resize Nodes
+                // Resize Edges
+                // Resize Text
+
+
+                //console.log(zoom)
+                //var font = Math.ceil(Math.max(12/zoom, 1));
+                // var sizeBdr = Math.ceil(Math.max(5/zoom, .5));
+                // chart.nodes().forEach(function(node){
+                //     this.degmap[node.id()] = {
+                //         sizeEle: (node.degree()/this.zoom),
+                //         sizeLbl: font,
+                //         sizeBdr:sizeBdr
+                //     };
+                // }, { degmap:degmap, zoom:zoom, font:font, sizeBdr:sizeBdr });
                 chart.batchData(degmap);
+                
             }, 300));
         }
 
@@ -1227,15 +1247,224 @@
             });
         }
 
-        function loadData(osApi, vm, cb){
+        function loadGeneSet(osApi, vm, $q, chart){
+
+            console.log("!!!");
+            chart.remove('node[nodeType="gene"]');
+var geneset = vm.optGeneSet.name;
+console.log(geneset);
+var edgeset = (geneset==="tcga.GBM.classifiers") ? "_mp_edges_gbm_mutation_01_12_tcga-GBM-classifiers" :
+    (geneset==="tcga.pancan.mutated") ? "_mp_edges_gbm_cnv_11_tcga-pancan-mutated" :
+    (geneset==="oncoVogel274") ? "_mp_edges_gbm_mutation_01_12_oncoVogel274" :
+    "marker.genes.545";
+//_mp_edges_gbm_mutation_01_12_oncoVogel274
+            $q.all([
+                osApi.query("_mp_genesets", {name:geneset}),
+                osApi.query(edgeset)
+                ]).then(function(results){
+                console.log("!!! HI");
+                    // Process Genes
+                    var nodes = results[0].data[0].genes.map(function(item){
+                       return {
+                            group: "nodes",
+                            grabbable: false,
+                            locked: true,
+                            selectable: false,
+                            position: item.position,
+                            data:{
+                                color:"rgb(19, 150, 222)",
+                                id:item.name,
+                                display:"element",
+                                nodeType:"gene",
+                                degree:1,
+                                sizeBdr:300,
+                                sizeEle:500,
+                                sizeLbl:500,
+                                subType: "unassigned"
+                            }
+                        };
+                    });
+
+                    var edges = results[1].data.map(function(item){
+                        return {group:"edges", grabbable:false, locked:true, data:{
+                            color: "rgb(19,150,222)",
+                            id: "mp_"+item.g+"_"+item.p,
+                            display: "element",
+                            edgeType: "CN",
+                            sizeEle: 500,
+                            source: item.g,
+                            target: item.p
+                        }};
+                    });
+                    console.log(edges);
+                
+                    
+                    chart.add(nodes);
+                    chart.add(edges);
+                    
+                    
+                });
+        }
+
+        function loadData(osApi, vm, $q, cb){
+
+            var dataPatients;
+
+            var collection = osApi.convertDatasetNameFromRToMongo(vm.datasource);
+            
+            $q.all([
+                osApi.query("_mp_genesets", {
+                    $fields:['name'],
+                    $limit:0
+                }),
+                osApi.query("_mp", {name:"chromosome"}),
+                osApi.query("_mp_pt_gbm_cnv_11_mutation_01_12_oncoVogel274"),
+                osApi.query(collection+"_pt", {
+                    $fields:['patient_ID', 'gender', 'race', 'age_at_diagnosis', 'days_to_death','status_vital'],
+                    $limit:0
+                })
+            
+                ]).then(function(results){
+                    
+                    // Set Genes
+                    vm.optGeneSets = results[0].data;
+                    vm.optGeneSet = vm.optGeneSets[0];
+
+                    // Get Edges + Nodes
+                    var edges = [];
+                    var nodes = [];
+
+                    // Process Chromosome
+                    var chromosomes = results[1].data[0].data;
+                    Object.keys(chromosomes).forEach(function(key){
+                        var chromosome = this.chromosomes[key][0];
+                        this.edges.push(
+                            {
+                                group: "edges",
+                                grabbable: false,
+                                locked: true,
+                                selectable: false,
+                                data:{
+                                    color: "rgb(19, 150, 222)",
+                                    id: "ce"+key,   // Chromosome Edge (CE)
+                                    display: "element",
+                                    edgeType:"chromosome",
+                                    sizeEle: 500,  // Style?
+                                    source : "cp"+key,  // Chromosome P (CP)
+                                    target : "cq"+key   // Chromosome Q (CQ)
+                                }
+                            });
+
+                        // Telemere P
+                        this.nodes.push({
+                                group: "nodes",
+                                grabbable: false,
+                                locked: true,
+                                selectable: false,
+                                position:{
+                                    x: chromosome.x,
+                                    y: chromosome.p
+                                },
+                                data:{
+                                    color:"rgb(19, 150, 222)",
+                                    id:"cp"+key,
+                                    display:"element",
+                                    nodeType:"telomere",
+                                    degree:1,
+                                    sizeBdr:0,
+                                    sizeEle:500,
+                                    sizeLbl:12,
+                                    subType: "unassigned"
+                                }
+                            });
+                        // Telemere Q
+                        this.nodes.push({
+                               group: "nodes",
+                                grabbable: false,
+                                locked: true,
+                                selectable: false,
+                                position:{
+                                    x: chromosome.x,
+                                    y: chromosome.q
+                                },
+                                data:{
+                                    color:"rgb(19, 150, 222)",
+                                    id:"cq"+key,
+                                    display:"element",
+                                    nodeType:"telomere",
+                                    degree:1,
+                                    sizeBdr:500,
+                                    sizeEle:500,
+                                    sizeLbl:500,
+                                    subType: "unassigned"
+                                }
+                            });
+                        // Centromere Q
+                        this.nodes.push({
+                                group: "nodes",
+                                grabbable: false,
+                                locked: true,
+                                selectable: false,
+                                position:{
+                                    x: chromosome.x,
+                                    y: chromosome.c
+                                },
+                                data:{
+                                    id:key,
+                                    display:"element",
+                                    nodeType:"centromere",
+                                    degree:1
+                                }
+                            });
+                    }, {chromosomes:chromosomes, edges:edges, nodes:nodes});
+                    
+                    // Process Patients    
+                    nodes = nodes.concat(results[2].data.map(function(item){
+                           var node = {
+                                group: "nodes",
+                                grabbable: false,
+                                locked: true,
+                                selectable: false,
+                                position: item.position,
+                                data:{
+                                    color:"rgb(19, 150, 222)",
+                                    id:item.name,
+                                    display:"element",
+                                    nodeType:"patient",
+                                    degree:1,
+                                    sizeBdr:300,
+                                    sizeEle:500,
+                                    sizeLbl:500,
+                                    subType: "unassigned"
+                                }
+                            };
+                            node.position.x -= 400000;
+                            return node;
+                    }));
+
+                    
+
+                    // Process Patients
+                    dataPatients = results[3].data;
+
+
+                    cb({edges:edges,nodes:nodes});
+                });
+
+
+            
+
+
             // Today multiple nested data calls are nessisary to obtain all the data to render the chart
             // Future server refactor should be done to limit number of calls and preformat data
+            /*
             osApi.setDataset(vm.datasource).then(function() {
 
                 // Patient Data
                 osApi.getPatientHistoryTable(vm.datasource).then(function(response) {
-                    var dataPatients = response.payload.tbl;
+                    //var dataPatients = response.payload.tbl;
 
+                    
                     // Marker Data
                     osApi.getMarkersNetwork(response.payload).then(function(response) {
                         var dataMarkers = angular.fromJson(response.payload).elements;
@@ -1251,7 +1480,7 @@
                                 data.sizeLbl = 12;
                                 data.sizeBdr = 5;
                                 data.hobo = {x: value.position.x, y: value.position.y};
-                                data.patient = this.filter(function(item){ return item[0]===value.data.id });
+                                data.patient = this.filter(function(item){ return item.patient_ID===data.id });
                             }, dataPatients);
 
                         // Process Non Patient Nodes
@@ -1267,28 +1496,39 @@
                                 value.locked = (value.data.nodeType!=="gene");
                                 value.selectable = (value.data.nodeType==="gene");
                                 value.grabbable = (value.data.nodeType==="gene");
+                                if (value.data.nodeType!=="gene"){
+                                    console.dir(value);
+                                }
                                 return value;
                             });
 
                         // Process Edges
                         dataMarkers.edges
                             .map(function(value){
+                                
                                 var data = value.data;
                                 data.display = (data.edgeType=="chromosome") ? "element" : "none";
+
                                 data.color = "rgb(19, 150, 222)";
                                 data.sizeEle = 3;
                                 data.sizeLbl = 12;
                                 value.locked = true;
                                 value.selectable = false;
                                 value.grabbable = false;
+                                 if (data.edgeType=="chromosome"){
+                                    //debugger;
+                                }
                                 return value;
                             });
 
                         // Call Back
-                        cb(dataMarkers);
+                        alert("R LOADED");
+                        //cb(dataMarkers);
                     });
                 });
             });
+            */
+            
         }
     }
 })();

@@ -65,16 +65,17 @@
                 table = angular.element('#history-datatable').dataTable({
                             paging: false,
                             columns: columns,
-                            data: data,
-                            "scrollY": "50vh",
-                            "scrollCollapse": true
+                            data: data
+                            //"scrollY": "50vh",
+                            //"scrollCollapse": true
                 });
                 table.api().draw();
             }
 
             var initEvents = function(vm, $scope){
 
-                $('#history-datatable tbody').on( 'mouseover', 'tr', function () {
+/*
+                $('#history-datatable tbody').on( 'click', 'tr', function () {
                     // $('.history-row-selected').removeClass('history-row-selected');
                     $(this).addClass('history-row-selected');
                     osApi.query(vm.datasource+"_pt", {'patient_ID':this.firstChild.textContent, $limit:1}).then(function(response){
@@ -83,7 +84,9 @@
                 } );
                 $('#history-datatable tbody').on( 'mouseout', 'tr', function () {
                     $(this).removeClass('history-row-selected');
+                    vm.detail = null;
                 });
+                */
 
                 vm.applyFilter = function(filter) {
 
@@ -122,7 +125,7 @@
 
             // Load Datasets
             osApi.setBusy(true);
-
+            
             var columns = [
                 {data:'patient_ID', title:'Patient ID', defaultContent:'NA'},
                 {data:'gender', title:'Gender', defaultContent:'NA'},

@@ -15,6 +15,7 @@
     "ldapjs": "^1.0.0",
     "mongodb": "^2.1.18",
     "mongodb-proxy": "^1.0.45",
+    "mongodb-proxy-memcache": "^1.0.45",
     "mongodb-rest": "^0.10.14",
     "mongoose": "^4.4.16",
     "node-cache": "^3.2.1",
