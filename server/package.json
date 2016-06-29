@@ -9,6 +9,7 @@
     "cache-manager": "^2.0.0",
     "cookie-parser": "^1.4.1",
     "express": "^4.13.3",
+    "express-redis-cache": "^0.3.0",
     "http-proxy": "^1.12.0",
     "http-proxy-rules": "^1.0.1",
     "httpd": "^0.0.2",

@@ -11,7 +11,7 @@ var exports = module.exports = {};
 exports.start = function(config){
 
   var mongoProxy = require('mongodb-proxy');
-  var MemCache = require('mongodb-proxy-memcache');
+  //var MemCache = require('mongodb-proxy-memcache');
   var express = require('express');
   var bodyParser = require('body-parser');
   var cookieParser = require('cookie-parser')
@@ -19,6 +19,7 @@ exports.start = function(config){
   var uuid = require('node-uuid');
   var pdf = require('pdfkit');
   var format = require('util').format;
+  var cache = require('express-redis-cache')();
 
   // Construct Http Server With Body Parsing Capabilities
   var server = express();
@@ -72,7 +73,7 @@ exports.start = function(config){
     mongo.mdb.listCollections().toArray(function(err, result){
         var collections = result.map(function(f){ return f.name} );
         mongo.configure(function (config) { 
-            config.cache(new MemCache());
+            //config.cache(new MemCache());
             collections.forEach(function(collection){
                 this.register({name:collection});
             }, config);
@@ -116,8 +117,10 @@ exports.start = function(config){
   });
   */
 
-  server.get('/api/:collection*', function (req, res, next) {    
-
+  server.get('/api/:collection*', 
+    cache.route(),
+    function (req, res, next) {    
+      console.log("PROCESSED"+req._parsedUrl);
         // prepare an info object for the routing function     
         var route = {
             method: req.method,
@@ -185,9 +188,6 @@ exports.start = function(config){
 
   // Use Public Directory To Serve Static Files
   server.use(express.static('public'));
-
-
-  
 
   // Open Port 
   server.listen(config.getPortHttp(), function () {

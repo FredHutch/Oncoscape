@@ -21,19 +21,14 @@
         /** @ngInject */
         function ToolsController(osApi, $state, $stateParams) {
 
-            if (angular.isUndefined($stateParams.datasource)){
-                $state.go("datasource");
-                return;
-            }
-
             var vm = this;
-            vm.datasource = $stateParams.datasource;
-            osApi.query("os_tools").then(function(response){
+            osApi.query("os_tools",{beta:false}).then(function(response){
                 vm.tools = response.data;
             });
+
             vm.explore = function(tool, datasource) {
                 $state.go(tool, {
-                    datasource: datasource
+                    datasource: osApi.getDataSource().key
                 });
             };
         }

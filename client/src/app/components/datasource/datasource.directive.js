@@ -21,17 +21,13 @@
         /** @ngInject */
         function DatasourceController(osApi, $state) {
             var vm = this;
-            vm.datasets = [];
+            vm.datasets = osApi.getDataSources();
             vm.explore = function(tool, datasource) {
                 osApi.setDataSource(datasource);
                 $state.go(tool, {
-                    datasource: datasource
+                    datasource: datasource.key
                 });
-            };
-
-           osApi.query("os_datasources").then(function(response){
-                vm.datasets = response.data;
-           })
+            };     
         }
     }
 })();

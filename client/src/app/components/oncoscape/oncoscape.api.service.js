@@ -8,26 +8,37 @@
     /** @ngInject */
     function oncoscape(osSocket, osHttp, $http, signals, $location) {
 
-        var _dataSource;
+        // Events
         var onDataSource = new signals.Signal();
-        function getDataSource(){ return _dataSource; }
+
+        // State
+        var _dataSources;
+        var _dataSource;
+        function getDataSources(){
+            return _dataSources;
+        }
+        function getDataSource(value){ 
+            return _dataSource; 
+        }
         function setDataSource(value){
-            osSocket.setDataSource(value);
-            _dataSource = value;
-            onDataSource.dispatch(_dataSource);
+            
+            if (typeof(value)==="object"){
+                if (_dataSource != value) onDataSource.dispatch(_dataSource);
+                _dataSource = value;
+            }else if (typeof(value)==="string"){
+                if (_dataSource.key!=value){
+                    if (_dataSource != value) onDataSource.dispatch(_dataSource);
+                    _dataSource = _dataSources.filter(function(v){ v.key==key}, {key:value})[0]
+                }
+
+            }
+            
         }
 
-        // Temp Method
-        function convertDatasetNameFromRToMongo(name){
-            alert(name);
-            return (name==="TCGAbrain") ? "tcga_gbm" :
-                 (name==="TCGAbrca")  ? "tcga_brca"  :
-
-                "tcga_brca";
-
-
-        }
-
+        query("os_datasources",{beta:false}).then(function(response){ 
+            _dataSources = response.data; 
+                            
+        });
         
         /*** User Api ***/
         function userApi(){
@@ -60,7 +71,6 @@
             }
             var login = function(user){
                 _user = user;
-           
                 var req = {
                     method: 'POST',
                     url: $location.protocol()+"://"+$location.host()+":"+ (($location.port()=="3002") ? 80 : $location.port()) +'/login',
@@ -74,7 +84,7 @@
                     if (res.data.success) {
                         _user.authenticated = true;
                         _user.token = res.data.token;
-                        _user.datasets = res.data.datasets;
+                        _user.datasets = res.data.datasets;                        
                         onLogin.dispatch(_user);
                     } else {
                         _user.authenticated = false;
@@ -117,77 +127,6 @@
         }
 
         function getTools(){
-            // return [{
-            //     name: 'Markers + Patients',
-            //     route: 'markers',
-            //     img: 'markers.png',
-            //     beta: false,
-            //     desc: 'Link copy number variation and mutation data to patients.'
-            // }, {
-            //     name: 'Timelines',
-            //     route: 'timelines',
-            //     img: 'timelines.png',
-            //     beta: false,
-            //     desc: ''
-            // }, {
-            //     name: 'Survival',
-            //     route: 'survival',
-            //     img: 'survival.png',
-            //     beta: false,
-            //     desc: 'Compare survival rates of selected patients against the remaining population in a Kaplan Meier plot.'
-            // }, {
-            //     name: 'Pathways',
-            //     route: 'pathways',
-            //     img: 'pathways.png',
-            //     beta: false,
-            //     desc: 'Map patient specific expression levels on a hand curated network of genes.'
-            // }, {
-            //     name: 'Patient Data',
-            //     route: 'history',
-            //     img: 'history.png',
-            //     beta: false,
-            //     desc: ''
-            // },{
-            //     name: 'PLSR',
-            //     route: 'plsr',
-            //     img: 'plsr.png',
-            //     beta: true,
-            //     desc: 'Use linear regression to correlate genes with clinical features using RNA expression.'
-            // }, {
-            //     name: 'PCA',
-            //     route: 'pca',
-            //     img: 'pca.png',
-            //     beta: true,
-            //     desc: 'Two dimensional view of per sample expression data.'
-            // }, 
-            // {
-            //     name: 'Oncoprint',
-            //     route: 'oncoprint',
-            //     img: 'history.png',
-            //     beta: true,
-            //     desc: ''
-            // }, 
-            // {
-            //     name: 'Geneset Test',
-            //     route: 'genesettest',
-            //     img: 'history.png',
-            //     beta: true,
-            //     desc: ''
-            // }, {
-            //     name: 'Data Explorer',
-            //     route: 'dataexplorer',
-            //     img: 'dataexplorer.png',
-            //     beta: true,
-            //     desc: ''
-            // }, {
-            //     name: 'MetaData',
-            //     route: 'metadata',
-            //     img: 'metadata.png',
-            //     beta: true,
-            //     desc: ''
-            // }
-           
-            // ];
         }
         
         function queryString(table, query){
@@ -402,13 +341,19 @@
             });
         }
 
+
+
         return {
-            convertDatasetNameFromRToMongo: convertDatasetNameFromRToMongo,
+
+            // Mongo V
             query: query,
             queryString: queryString,
             setDataSource: setDataSource,
             getDataSource: getDataSource,
+            getDataSources: getDataSources,
             onDataSource: onDataSource,
+
+            // Legacy
             getTools: getTools,
             getUserApi: getUserApi,
             showFilter: showFilter,

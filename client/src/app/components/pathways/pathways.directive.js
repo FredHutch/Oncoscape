@@ -21,10 +21,6 @@
         /** @ngInject */
         function PathwaysController(osApi, osHistory, $state, $stateParams, $scope, $sce, $window, moment, cytoscape, _) {
 
-            if (angular.isUndefined($stateParams.datasource)){
-                $state.go("datasource");
-                return;
-            }
             var markersNetwork;
             var vm = this;
             
@@ -36,7 +32,6 @@
             var skipSave = false;
             var selectedIds = (osHistory.getGeneSelection() == null) ? null : osHistory.getGeneSelection().ids;
             function saveSelected() {
-
                 if (skipSave) { skipSave = false; return; }
                 var ids = csChart.$('node[nodeType="gene"]:selected').map(function(ele){ return ele.data().id.toUpperCase() });
                 osHistory.addGeneSelection("Pathways", "Manual Selection", ids );
@@ -59,7 +54,7 @@
                 csChart.endBatch();
             }
             
-            vm.datasource = $stateParams.datasource;
+            vm.datasource = osApi.getDataSource();
             vm.search = "";
             vm.frame;
             vm.tip = null;

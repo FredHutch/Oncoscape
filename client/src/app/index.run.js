@@ -20,7 +20,7 @@
         }
         
         // Actions To Take On State Change
-        var off = $rootScope.$on('$stateChangeStart', function(event, toState) {
+        var off = $rootScope.$on('$stateChangeStart', function(event, toState, toParams) {
 
             // Hide Busy Cursor
             osApi.setBusy(false);
@@ -29,10 +29,23 @@
             angular.element.fn.DataTable.ext.search = [];
 
             // Route unauthenticated users to landing page
-            // if (toState.authenticate && !osApi.getUserApi().getUser().authenticated) {
-            //      $state.transitionTo("landing");
-            //      event.preventDefault();
-            // }
+            if (toState.authenticate && !osApi.getUserApi().getUser().authenticated) {
+                $state.transitionTo("landing");
+                event.preventDefault();
+                return;
+            }
+
+            // Redirect If Unable To Resolve Data Source
+            if (toState.datasource && (angular.isUndefined(toParams.datasource) || toParams.datasource==="")){
+                $state.transitionTo("datasource")
+                event.preventDefault();
+                return;
+            }else{
+                osApi.setDataSource(toParams.datasource);
+            }
+            
+            
+            
             
         });
 

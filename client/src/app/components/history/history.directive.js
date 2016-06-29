@@ -20,20 +20,13 @@
 
         /** @ngInject */
         function HistoryController(osApi, osHistory, $state, $timeout, $scope, moment, $stateParams, _, $, $q) {
-
-            // Redirect if No Datasource
-            if (angular.isUndefined($stateParams.datasource)) {
-                $state.go("datasource");
-                return;
-            }
-
             // Properties
             var vm = this;
             var table;
             var selectedIds = (osHistory.getPatientSelection() == null) ? [] : osHistory.getPatientSelection().ids;
 
             var initViewState = function(vm){
-                vm.datasource = osApi.convertDatasetNameFromRToMongo($stateParams.datasource);
+                vm.datasource = osApi.getDataSource();
                 vm.diagnosisMin = vm.diagnosisMinValue = 1;
                 vm.diagnosisMax = vm.diagnosisMaxValue = 100000;
                 vm.survivalMin = vm.survivalMinValue = 0;
@@ -137,7 +130,7 @@
 
             
             initViewState(vm);
-            osApi.query(vm.datasource+"_pt", 
+            osApi.query(vm.datasource.table.patient, 
                 {
                     $fields:columns.map(function(f){ return f.data; }),
                     $limit:0

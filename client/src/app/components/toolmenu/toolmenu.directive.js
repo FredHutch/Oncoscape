@@ -42,12 +42,14 @@
                     .bind("mouseout", mouseOut);
             
             var vm = this;
+            osApi.query("os_tools",{beta:false}).then(function(response){
+                vm.tools = response.data;
+            });
 
-            vm.tools = osApi.getTools();
             vm.explore = function(tool) {
                 vm.change();
                 $state.go(tool, {
-                    datasource: vm.datasource
+                    datasource: osApi.getDataSource().key
                 });
             };
         }
