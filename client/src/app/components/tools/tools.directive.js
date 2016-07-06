@@ -22,13 +22,13 @@
         function ToolsController(osApi, $state, $stateParams) {
 
             var vm = this;
-            osApi.query("os_tools",{beta:false}).then(function(response){
+            osApi.query("lookup_oncoscape_tools",{beta:false}).then(function(response){
                 vm.tools = response.data;
             });
 
             vm.explore = function(tool, datasource) {
                 $state.go(tool, {
-                    datasource: osApi.getDataSource().key
+                    datasource: osApi.getDataSource().disease
                 });
             };
         }

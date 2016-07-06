@@ -42,7 +42,7 @@
                     .bind("mouseout", mouseOut);
             
             var vm = this;
-            osApi.query("os_tools",{beta:false}).then(function(response){
+            osApi.query("lookup_oncoscape_tools",{beta:false}).then(function(response){
                 vm.tools = response.data;
             });
 

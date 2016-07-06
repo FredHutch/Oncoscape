@@ -22,59 +22,42 @@
         /** @ngInject */
         function MarkersController(osApi, osHistory, $state, $timeout, $scope, $stateParams, cytoscape, signals, moment, $window, _, $q) {
 
-            var signal = {
-                patients: {
-                    select: new signals.Signal(),
-                    unselect: new signals.Signal(),
-                    over: new signals.Signal(),
-                    out: new signals.Signal()
-                },
-                genes: {
-                    select: new signals.Signal(),
-                    unselect: new signals.Signal(),
-                    over: new signals.Signal(),
-                    out: new signals.Signal()
-                },
-                edges: {
-                    select: new signals.Signal(),
-                    unselect: new signals.Signal(),
-                    over: new signals.Signal(),
-                    out: new signals.Signal()
-                }
-            };
-
-            signal.patients.over.add(function(){
-                arguments[0].cyTarget.select();
-            });
-            signal.patients.out.add(function(){
-                arguments[0].cyTarget.unselect();
-            });
-            signal.genes.over.add(function(){
-                arguments[0].cyTarget.select();
-            });
-            signal.genes.out.add(function(){
-                arguments[0].cyTarget.unselect();
-            });
-
-            signal.patients.select.add(function(){
-                //vm.zoom.fit();
-                //vm.showPopupSelection = true;
-                vm.redraw();
-            });
-            signal.patients.unselect.add(function(){
-                //vm.zoom.reset();
-                //vm.showPopupSelection = false;
-                vm.redraw();
-            });
-
-            signal.genes.select.add(function(){
-                vm.redraw();
-            });
-
-            signal.genes.unselect.add(function(){
-                vm.redraw();
-            });
-
+            var signal = (function(){
+                return {
+                    patients: {
+                        select: new signals.Signal(),
+                        unselect: new signals.Signal(),
+                        over: new signals.Signal(),
+                        out: new signals.Signal()
+                    },
+                    genes: {
+                        select: new signals.Signal(),
+                        unselect: new signals.Signal(),
+                        over: new signals.Signal(),
+                        out: new signals.Signal()
+                    },
+                    edges: {
+                        select: new signals.Signal(),
+                        unselect: new signals.Signal(),
+                        over: new signals.Signal(),
+                        out: new signals.Signal()
+                    },
+                    clear: function(){
+                        this.edges.select.removeAll();
+                        this.edges.unselect.removeAll();
+                        this.edges.over.removeAll();
+                        this.edges.out.removeAll();
+                        this.patients.select.removeAll();
+                        this.patients.unselect.removeAll();
+                        this.patients.over.removeAll();
+                        this.patients.out.removeAll();
+                        this.genes.select.removeAll();
+                        this.genes.unselect.removeAll();
+                        this.genes.over.removeAll();
+                        this.genes.out.removeAll();
+                    }
+                };
+            })()
 
             /*
             *  Cytoscape Chart
@@ -106,16 +89,16 @@
                         style: {
                             'background-color': 'data(color)',
                             'text-halign': 'center',
-                            'border-width': 500,
-                            'width': '2500px',
-                            'height': '2500px',
+                            'border-width': '3px',
+                            'width': '250px',
+                            'height': '250px',
                             'border-color': '#FFFFFF'
                         }
                     }, {
                         selector: 'node[nodeType="patient"]:selected',
                         style: {
                             'border-color': "#FF0000",
-                            'border-width': 300
+                            'border-width': '50px'
                         }
                     }, {
                         selector: 'node[nodeType="gene"]',
@@ -123,10 +106,10 @@
                             'background-color': "#FFFFFF",
                             'border-color': "#38347b",
                             'text-halign': "right",
-                            //'label': "data(id)",
+                            'label': "data(id)",
                             'border-width': 'data(sizeBdr)',
-                            'width': '2500px',
-                            'height': '2500px'
+                            'width': '250px',
+                            'height': '250px'
                         }
                     }, {
                         selector: 'node[nodeType="gene"]:selected',
@@ -137,14 +120,14 @@
                     }, {
                         selector: 'node[nodeType="centromere"]',
                         style: {
-                            'font-size': '2000px',
+                            'font-size': '200px',
                             'text-halign': 'center',
                             'background-color': "#3993fa",
                             'color': "#FFFFFF",
                             'border-color': 'rgb(19, 150, 222)',
-                            'height': '2500px',
-                            'width': '4000px',
-                            'shape': 'roundrectangle',
+                            'height': '400px',
+                            'width': '400px',
+                            'shape': 'round',
                             'label': "  data(id)"
                         }
                     }, {
@@ -158,12 +141,12 @@
                     hideEdgesOnViewport: false,
                     hideLabelsOnViewport: true,
                     textureOnViewport: false,
-                    motionBlur: false,
+                    motionBlur: true,
                     //motionBlurOpacity: 0.2,
-                    zoom: 0.001,
-                    pan: {x: 700, y: 160},
-                    minZoom: .0001,
-                    maxZoom: .05,
+                    zoom: 0.01,
+                    pan: {x: 550, y: 160},
+                    //minZoom: .0001,
+                    //maxZoom: .05,
                     layout: {
                         name: "preset",
                         fit: true
@@ -176,14 +159,14 @@
             */
             (function(){
                 
-                    osApi.query("_mp", {name:"chromosome"}).then(function(result){
+                    osApi.query("render_chromosome", {type:"chromosome"}).then(function(result){
 
                         // Process Chromosome
                         var chromosomes = result.data[0].data;
                         var elements = [];
 
                         Object.keys(chromosomes).forEach(function(key){
-                            var chromosome = this.chromosomes[key][0];
+                            var chromosome = this.chromosomes[key];
                             this.elements.push(
                                 {
                                     group: "edges",
@@ -191,11 +174,11 @@
                                     locked: true,
                                     selectable: false,
                                     data:{
-                                        color: "rgb(19, 150, 222)",
+                                        color: "#3993fa",
                                         id: "ce"+key,   // Chromosome Edge (CE)
                                         display: "element",
                                         edgeType:"chromosome",
-                                        sizeEle: 500,  // Style?
+                                        sizeEle: 50,  // Style?
                                         source : "cp"+key,  // Chromosome P (CP)
                                         target : "cq"+key   // Chromosome Q (CQ)
                                     }
@@ -212,14 +195,14 @@
                                         y: chromosome.p
                                     },
                                     data:{
-                                        color:"rgb(19, 150, 222)",
+                                        color:"#3993fa",
                                         id:"cp"+key,
                                         display:"element",
                                         nodeType:"telomere",
                                         degree:1,
                                         sizeBdr:0,
-                                        sizeEle:500,
-                                        sizeLbl:12,
+                                        sizeEle:50,
+                                        sizeLbl:6,
                                         subType: "unassigned"
                                     }
                                 });
@@ -239,9 +222,9 @@
                                         display:"element",
                                         nodeType:"telomere",
                                         degree:1,
-                                        sizeBdr:500,
-                                        sizeEle:500,
-                                        sizeLbl:500,
+                                        sizeBdr:50,
+                                        sizeEle:50,
+                                        sizeLbl:50,
                                         subType: "unassigned"
                                     }
                                 });
@@ -265,6 +248,19 @@
 
                         }, {chromosomes:chromosomes, elements:elements});
                         cyChart.add(elements);
+
+                        // Select All Genes By Clicking Centromere
+                        // cyChart.$('node[nodeType="centromere"]').on("click", function(e){
+                        //     var posX = e.cyTarget.position().x;
+                        //     cyChart.startBatch();
+                        //     cyChart.$('node[nodeType="gene"]').filter(function(p){  
+                        //         debugger;
+                        //         return p.position().x==this; }, posX)
+                        //         .forEach( function(ele){
+                        //             ele.select();
+                        //         });
+                        //     cyChart.endBatch();
+                        // });
                     });
             })()
 
@@ -280,18 +276,55 @@
                 vm.optGeneSet;
                 vm.optPatientLayouts = [];
                 vm.optPatientLayout;
-                vm.optDatasets = [];
-                vm.optDataset;
+                // vm.optDatasets = [];
+                // vm.optDataset;
                 vm.search = "";
                 vm.optPatientColors = [];
                 vm.optPatientColor;
 
                 vm.optCommandModes = [
-                    {name: 'Classic'},
-                    {name: 'Explore'},
-                    {name: 'Select'}
+                    {name: 'Sequential'},
+                    {name: 'Set'},
+                    {name: 'Ad Hoc'}
                 ];
                 vm.optCommandMode = vm.optCommandModes[0];
+
+                vm.selectColor = function(item){
+
+                };
+
+                vm.deselectColor = function(item){
+                    var color = item.color;
+                    var nodes = cyChart.$('node[nodeType="patient"]:selected');
+                    cyChart.startBatch();
+                    nodes.forEach(function(node){
+                        if (node.data().color == this){
+                            node.unselect();
+                        }
+                    }, color);
+                    cyChart.endBatch();
+                };
+
+                vm.lockPatients = false;
+                vm.lockGenes = false;
+                vm.lock = function(type){
+                    switch  (type){
+                        case "patient":
+                            vm.lockPatients = !vm.lockPatients;
+                            cyChart.startBatch();
+                            cyChart.$('node[nodeType="patient"]')
+                                .forEach(function(node){ node.selectable = !vm.lockPatients; });
+                            cyChart.endBatch();
+                            break;
+
+                    }
+                    
+                    
+                    //         break;
+                    //     case "genes":
+                    //         break;
+                    // }
+                };
 
                 vm.optEdgeColors = [{ 
                     name: 'mutation',
@@ -321,18 +354,15 @@
                 }];
 
                 $q.all([
-                    osApi.query("mp_genesets", { $fields:['name'] }),
-                    osApi.query("mp_patient_layouts", { $fields:['layouts'] })
+                    osApi.query("render_chromosome", { type:'geneset', $fields:['name'] }),
+                    osApi.query("render_patient",    { type:'cluster', $fields:['name'] }),
+                    osApi.query("render_patient",    { type:'color', $fields:['name'] })
                 ]).then(function(results){
                     vm.optGeneSets = results[0].data;
                     vm.optGeneSet = vm.optGeneSets[0];
-                    vm.optPatientLayouts = results[1].data[0].layouts;
-                    vm.optPatientLayout = vm.optPatientLayouts[2]
-                    vm.optPatientColors = [
-                        {'name':'Default', values:[{name:'Default', color:'#1396de'}]},
-                        {'name':'Gender',  values:[{name:'Male', color:'#800080'}, {name:'female',color:'#008000'}]},
-                        {'name':'Age', values:[{name:'Default', color:'#1396de'}]}
-                    ];
+                    vm.optPatientLayouts = results[1].data;
+                    vm.optPatientLayout = vm.optPatientLayouts[0]
+                    vm.optPatientColors = [{'name':'Default'}].concat(results[2].data);
                     vm.optPatientColor = vm.optPatientColors[0];
                 });
                 vm.resize = function(){
@@ -346,6 +376,7 @@
                     _.debounce(vm.resize, 300)
                 );
 
+            
                 return vm;
             })(this, osApi);
 
@@ -394,18 +425,35 @@
                 var update = function(data){
                     cyChart.batchData(data);
                 };
-                var remove = function(selector){
-                    cyChart.remove(selector);
+                var remove = function(selector, data){
+                    if (angular.isUndefined(data)) { cyChart.remove(selector); return; }
+                    try{
+                        var items = data.map(function(item){ return this.getElementById(item); }, cyChart);
+                        cyChart.collection(items).remove();
+                    }catch(e){}
                 };
             
                 // Define Commands
-                cmd.patients_delete = function()     { remove('node[nodeType="patient"]'); };
+                cmd.patients_delete = function(data) { remove('node[nodeType="patient"]', data); };
                 cmd.patients_insert = function(data) { insert(data, signal.patients); };
                 cmd.patients_update = function(data) { update(data); } ;
-                cmd.genes_delete    = function()     { remove('node[nodeType="gene"]'); };
+                cmd.patients_layout = function(data) {
+                    var nodes = cyChart.nodes('node[nodeType="patient"]');
+                    cyChart.startBatch();
+                    nodes.forEach(function(node){
+                        var pos = data[node.id()];
+                        pos.x -= 40000;
+                        node.position( pos );
+                    });
+                    cyChart.endBatch();
+                };
+                cmd.patients_legend = function(data) {
+                    $scope.$apply(function(){ vm.legendNodes = data; });
+                };
+                cmd.genes_delete    = function(data) { remove('node[nodeType="gene"]', data); };
                 cmd.genes_insert    = function(data) { insert(data, signal.genes); };
                 cmd.genes_update    = function(data) { update(data); } ;
-                cmd.edges_delete    = function()     { remove('edge[edgeType="cn"]'); };
+                cmd.edges_delete    = function(data) { remove('edge[edgeType="cn"]', data); };
                 cmd.edges_insert    = function(data) { insert(data, signal.edges); };
                 cmd.edges_update    = function(data) { update(data); };
  
@@ -418,18 +466,17 @@
             /* Options Factory */
             var createOptions = (function(cyChart, vm){
 
-                return function(){
+                return function(cmd){
+                    cmd = cmd || "";
 
                     var geneset = vm.optGeneSet.name;
-
-                    // !!! This needs to be queried - Do not have Datatable at this point
-                    var edgeset = 'mp_edges';
-
-                    return {
+                    var opts = {
+                        mode: vm.optCommandMode.name,
+                        cmd: cmd,
                         patients:{
-                            data: vm.datasource.table.patient,
-                            layout: vm.optPatientLayout.collection,
-                            colors: vm.optPatientColor,
+                            data: vm.datasource.collections.pt,
+                            layout: vm.optPatientLayout.name,
+                            color: vm.optPatientColor.name,
                             selected: cyChart.$('node[nodeType="patient"]:selected').map(function(p){ return p.data().id })
                         },
                         genes:{
@@ -437,56 +484,161 @@
                             selected: cyChart.$('node[nodeType="gene"]:selected').map(function(p){ return p.data().id })
                         },
                         edges:{
-                            layout: edgeset,
+                            layout: vm.datasource.edges
+                                .filter(function(v){ return (v.name==this)}, geneset)[0],
                             colors: vm.optEdgeColors
                                 .filter(function(f){return (f.color!='#ffffff') })
                                 .map(function(f){ return {id:f.id, color:f.color}; })
                         }
                     };
+                    return opts;
                 }
             })(cyChart, vm)
 
 
-            vm.cmd = function(name){
-                cyChart.startBatch();
-                switch(name){
-                    case "showAllNodes":
-                        cyChart.$('node').style({display:'element'});
-                        break;
-                    case "hideAllEdges":
-                        cyChart.$('edge[edgeType="cn"]').style({display:'none'});
-                        break;
-                    case "hideUnselectedNodes":
-                        break;
-                    case "invertAllNodes":{
-                        cyChart.$('node').forEach( function(ele){
-                            ele[ele._private.selected?"deselect":"select"]();
-                        });
-                    }
-                }
-                cyChart.endBatch();
-            }
+            vm.cmd = function(){}
 
-            /*
-            * Redraw
-            */
-            vm.redraw = function(){
-                console.log("REDRAW");
-                setOptions(createOptions());
-            }
 
             /*
             *  Watch View Model
             *  + vm.optGeneSet
             *  + vm.optPatientLayout
             */
+            
             var watch = (function(vm, $scope){
-                $scope.$watchGroup(['vm.optPatientColor','vm.optGeneSet','vm.optPatientLayout','vm.optEdgeColors.color'], function(){
-                    try{
-                        vm.redraw();
-                    }catch(e){}
+                var watches = 1;
+
+                // GeneSet
+                watches += 1;
+                $scope.$watch('vm.optGeneSet', function(){
+                    if (watches>0) {watches -= 1; return; }
+                    if ( angular.isUndefined(vm.optGeneSet) || angular.isUndefined(vm.optPatientColor) || angular.isUndefined(vm.optPatientLayout)) return;
+                    cyChart.$('edge[edgeType="cn"]').remove();
+                    setOptions(createOptions());
+                    
                 });
+
+
+                // Patient Color
+                watches += 1;
+                $scope.$watch('vm.optPatientColor', function(){
+                    if (watches>0) {watches -= 1; return; }
+                    setOptions(createOptions());
+                });
+
+                // Patient Layout
+                watches += 1;
+                $scope.$watch('vm.optPatientLayout', function(){
+                    if (watches>0) {watches -=1; return; }
+                    setOptions(createOptions());
+                });
+
+                // Search
+                watches += 1;
+                $scope.$watch('vm.search', _.debounce(function(){
+                    if (watches>0) {watches -= 1; return; }
+                    var needle = vm.search.toUpperCase().trim();
+                    cyChart.$('node').unselect();
+                    if (needle.length>0) cyChart.$('node').filter( function(i,ele){ return (ele.id().toUpperCase().indexOf(needle)==0);} ).select();
+                }, 600))
+
+                // Edge Colors
+                watches += 1;
+                $scope.$watch('vm.optEdgeColors.color', function(){
+                    if (watches>0) {watches -= 1; return; }
+                    setOptions(createOptions());
+                    vm.resize()
+                });
+
             })(vm, $scope);
+
+            // Initialize Commands
+            $scope.$watch("vm.optCommandMode", function(){
+                signal.clear();
+                cyChart.$('node').unselect();
+                cyChart.$('edge[edgeType="cn"]').remove();
+                switch (vm.optCommandMode.name)
+                {
+                    case "Sequential":
+                        try{ cyChart.$('node').unselect(); setOptions(createOptions()); }catch(e){}
+                        vm.cmd = function(cmd){
+                            switch (cmd){
+                                case "HideAllEdges":
+                                    cyChart.$('edge[edgeType="cn"]').remove();
+                                    break;
+                                case "HideSelectedEdges":
+                                    cyChart.$('node[nodeType="patient"]:selected, node[nodeType="gene"]:selected')
+                                        .neighborhood("edge").remove();
+                                    break;
+                                case "SelectConnected":
+                                    cyChart.startBatch();
+                                    cyChart.$('node:selected')
+                                        .neighborhood("node")
+                                        .forEach( function(ele){
+                                            ele.select();
+                                        });
+                                    cyChart.endBatch();
+                                    break;
+                                case "SelectInverse":
+                                    cyChart.startBatch();
+                                    cyChart.$('node').forEach( function(ele){ ele[ele._private.selected?"deselect":"select"](); });
+                                    cyChart.endBatch();
+                                    break;
+                                case "HideUnselectedNodes":
+                                    var degmap = {};
+                                    cyChart.$('node[nodeType="patient"]:unselected, node[nodeType="gene"]:unselected')
+                                        .forEach(function(item){ 
+                                            this[item.id()] = {display:'none'};
+                                        }, degmap);
+                                    cyChart.batchData(degmap);
+                                    break;
+                                case "ShowAllNodes":
+                                    var degmap = {};
+                                    cyChart.$('node:hidden')
+                                        .forEach(function(item){ 
+                                            this[item.id()] = {display:'element'};
+                                        }, degmap);
+                                    cyChart.batchData(degmap);
+                                    break;
+                                default:
+                                    var opts = createOptions(cmd);
+                                    setOptions(opts);
+                                    break;
+                            }
+                        };
+                        break;
+                    case "Set":
+                        var unselect = function(){
+                            cyChart.$('edge[edgeType="cn"]').remove();
+                            var opts = createOptions();
+                            if (opts.patients.selected.length>0 || opts.genes.selected.length>0) setOptions(opts); 
+                        };
+                        var select = function() { 
+                            cyChart.$('edge[edgeType="cn"]').remove();
+                            setOptions(createOptions()); 
+                        };
+                        signal.patients.select.add(select);
+                        signal.patients.unselect.add(unselect);
+                        signal.genes.select.add(select);
+                        signal.genes.unselect.add(unselect);
+                        break;
+                    case "Ad Hoc":
+                        var over = function(e){
+                            e.cyTarget.select();
+                            setOptions(createOptions());
+                        }
+                        var out = function(e){
+                            e.cyTarget.unselect();
+                            cyChart.$('edge[edgeType="cn"]').remove();
+                        }
+                        signal.patients.over.add(over);
+                        signal.patients.out.add(out);
+                        signal.genes.over.add(over);
+                        signal.genes.out.add(out);
+                        break;
+                }
+            });
         }
     }
 })();
+

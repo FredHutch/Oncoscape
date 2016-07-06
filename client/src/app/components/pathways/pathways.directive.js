@@ -97,7 +97,7 @@
 
             // Load Datasets
             osApi.setBusy(true);
-            osApi.query("_pathways").then(function(result){
+            osApi.query("render_pathways").then(function(result){
                 markersNetwork = result.data[0];
             
                     csChart = cytoscape({

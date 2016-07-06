@@ -26,16 +26,14 @@
                 if (_dataSource != value) onDataSource.dispatch(_dataSource);
                 _dataSource = value;
             }else if (typeof(value)==="string"){
-                if (_dataSource.key!=value){
+                if (_dataSource.disease!=value){
                     if (_dataSource != value) onDataSource.dispatch(_dataSource);
-                    _dataSource = _dataSources.filter(function(v){ v.key==key}, {key:value})[0]
+                    _dataSource = _dataSources.filter(function(v){ v.disease==disease}, {key:value})[0]
                 }
-
             }
-            
         }
 
-        query("os_datasources",{beta:false}).then(function(response){ 
+        query("lookup_oncoscape_datasources",{beta:false}).then(function(response){ 
             _dataSources = response.data; 
                             
         });

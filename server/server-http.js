@@ -10,11 +10,11 @@
 var exports = module.exports = {};
 exports.start = function(config){
 
-  var mongoProxy = require('mongodb-proxy');
-  //var MemCache = require('mongodb-proxy-memcache');
+
+  var mongoose = require('mongoose');
   var express = require('express');
   var bodyParser = require('body-parser');
-  var cookieParser = require('cookie-parser')
+  var cookieParser = require('cookie-parser');
   var auth = require('./auth-module.js');
   var uuid = require('node-uuid');
   var pdf = require('pdfkit');
@@ -63,102 +63,44 @@ exports.start = function(config){
 
   // Mongo Api
   console.log('MongoDb v3.2.6 bound to "/api"');
-  var mongo = mongoProxy.create({
-        port: 27017,
-        host: "localhost",
-        name: "oncoscape"
-    });
-
-  mongo.mdb.open(function(err, result){
-    mongo.mdb.listCollections().toArray(function(err, result){
-        var collections = result.map(function(f){ return f.name} );
-        mongo.configure(function (config) { 
-            //config.cache(new MemCache());
-            collections.forEach(function(collection){
-                this.register({name:collection});
-            }, config);
-        });
-    });
-  });
-    
-  // Open Connection For Fns
-  mongo.handleCmd = function(req,res,next,cmd){
-    mongo.mdb.eval(
-      cmd, 
-      function(error, results){
-        if (error) {
-            if (typeof (error) === 'object') {
-                if (error.code && error.messages) {
-                    res.status(error.code).send(error.messages)
-                } else {
-                    res.status(500).send(error.message)
-                }
-            } else {
-                res.status(500).send(error)
-            }
-        } else {
-            res.send(results)
-        }
-        res.end();
-    });
-  }
-
- /*
-  server.get('/api/columns/:table', function(req, res, next){
-    var cmd = format("fnGetAllColumns('%s')",req.params.table);
-    console.log(cmd);
-    mongo.handleCmd(req, res, next, cmd);
-  });
-
-  server.get('/api/factorcount/:table/:column', function (req, res, next){
-    var cmd = format("fnGetFactorCount('%s','%s')",req.params.table, req.params.column)
-    console.log(cmd);
-    mongo.handleCmd(req, res, next, cmd);
-  });
-  */
+  mongoose.connect('mongodb://localhost/os');
 
   server.get('/api/:collection*', 
-    cache.route(),
-    function (req, res, next) {    
-      console.log("PROCESSED"+req._parsedUrl);
-        // prepare an info object for the routing function     
-        var route = {
-            method: req.method,
-            collection: req.params.collection,
-            path: req._parsedUrl.pathname.substring('/api/'.length + req.params.collection.length),
-            query: req.query.q,
-            data: req.body,
-            req: req,
-            res: res
+    cache.route(),    
+    function(req, res, next){
+      mongoose.connection.db.collection(req.params.collection, function (err, collection) {
+        if (err) {
+          res.status(err.code).send(err.messages);
+          res.end();
+          return;
         }
 
-        // get the post data 
-        var postdata = ""        
-        req.on('data', function (postdataChunk) {
-            postdata += postdataChunk
-        })  
+        // Process Query
+        var query = (req.query.q ) ? JSON.parse(req.query.q) : {};
         
-        req.on('end', function () {
-            var jsonData = JSON.parse(postdata || '{}')
-            route.data = jsonData
-            // pass the work on the proxy 
-            mongo.handle(route, next, function (error, results) {
-                if (error) {
-                    if (typeof (error) === 'object') {
-                        if (error.code && error.messages) {
-                            res.status(error.code).send(error.messages)
-                        } else {
-                            res.status(500).send(error.message)
-                        }
-                    } else {
-                        res.status(500).send(error)
-                    }
-                } else {
-                    res.send(results)
-                }
-            })
-        })
-    })
+        // Todo: Process Limit
+        if (query.$limit){
+          delete query.$limit;
+        }
+
+        // Process Fields
+        var fields = {_id:0};
+        if (query.$fields){
+          query.$fields.forEach(function(field){ this[field] = 1; }, fields);
+          delete query.$fields;
+        }
+
+        console.log("------");
+        console.log(query);
+        console.log(fields);
+        
+        collection.find(query, fields).toArray(function(err, results) {
+          res.send(results);
+          res.end();
+        });
+      });
+  });
+
 
   // Logout
   server.get('/logout', function (req, res){
