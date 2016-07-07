@@ -4,51 +4,51 @@
         <div class="row">
           
             <br />
-                        <div class="col-xs-12 form-item" style="padding-left:5px">
-                <label>Lock</label>
-                <div class="btn-group" role="group" style="display: block">
-                    <button class="btn btn-default btn-no-focus" type="button" 
-                        ng-click="vm.lock('patient')" style="width:50%; font-weight: 300;"
-                        title="Patient Selection Lock">
-                        <i class="fa fa-unlock" ng-show="vm.lockPatients"></i>
-                        <i class="fa fa-lock"   ng-show="!vm.lockPatients"></i>
-                        Patients
-                    </button>
-                    <button class="btn btn-default btn-no-focus" type="button" 
-                        ng-click="vm.lock('gene')" style="width:50%; font-weight: 300;"
-                        title="Gene Selection Lock">
-                        <i class="fa fa-unlock" ng-show="vm.lockGenes"></i>
-                        <i class="fa fa-lock"   ng-show="!vm.lockGenes"></i>
-                        Genes
-                    </button>
+            <div class="col-xs-12 form-item">
+                <label>Patient Selection</label>
+                <div ng-repeat="item in vm.legendNodes" class="legend-bar btn btn-default filter-button"
+                  style="border-color:{{item.color}};position:relative">
+                  {{item.name}} ({{item.cnt}} Selected)
+                  <div class="markers-button-slider">
+                    <div class="markers-button-slider-circle" ng-click="vm.selectColor(item, true); $event.stopPropagation();"
+                      style="background-color:{{item.color}};border-color:red;"></div>
+                    <div class="markers-button-slider-circle" ng-click="vm.deselectColor(item, false); $event.stopPropagation();"
+                      style="background-color:{{item.color}};"></div>
+                  </div>
                 </div>
             </div>
-            <div class="col-xs-12 form-item" style="padding-left:5px">
-                <label>Zoom</label>
-                <div class="btn-group" role="group" style="display: block">
-                    <button class="btn btn-default btn-no-focus" type="button" 
-                        ng-click="vm.zoom.reset()" style="width:50%; font-weight: 300;"
-                        title="Zoom Reset">
-                        Reset
-                    </button>
-                    <button class="btn btn-default btn-no-focus" type="button" 
-                        ng-click="vm.zoom.fit()" style="width:50%; font-weight: 300;"
-                        title="Zoom Selection">
-                        Selected
-                    </button>
+
+            <div class="col-xs-12 form-item">
+                <label>Edge Visibility</label>
+                <div ng-repeat="item in vm.optEdgeColors" class="legend-bar btn btn-default filter-button"
+                  style="border-color:{{item.color}};position:relative">
+                  {{item.name}}
+                  <div class="markers-button-slider">
+                    <div class="markers-button-slider-rect" 
+                      ng-click="item.color=item.highlight; vm.redraw(); $event.stopPropagation();"
+                      style="background-color:{{item.highlight}};"></div>
+                    <div class="markers-button-slider-rect" 
+                      ng-click="item.color='#3993fa'; vm.redraw(); $event.stopPropagation();"
+                      style="background-color:#3993fa"></div>
+                    <div class="markers-button-slider-rect"
+                      ng-click="item.color='#ffffff'; vm.redraw(); $event.stopPropagation();"
+                      style="background-color:#FFF"></div>
+                  </div>
                 </div>
             </div>
+            
 
             <div class="col-xs-12 form-item" ng-if="vm.optCommandMode.name=='Sequential'">
                 <label>Commands</label><br />
                 
-                <a ng-click="vm.cmd('ShowSelectedEdges')">Show Edges of Selected</a><br />
-                <a ng-click="vm.cmd('HideSelectedEdges')">Hide Edges of Selected</a><br />
-                <a ng-click="vm.cmd('HideAllEdges')">Hide All Edges</a><br />
-                <a ng-click="vm.cmd('SelectInverse')">Invert Node Selection</a><br />
-                <a ng-click="vm.cmd('SelectConnected')">Select Connected Nodes</a><br />
-                <a ng-click="vm.cmd('HideUnselectedNodes')">Hide Unselected Nodes</a><br />
-                <a ng-click="vm.cmd('ShowAllNodes')">Show All Nodes</a><br />
+                <a ng-click="vm.cmd('ShowSelectedEdges')" class="markers-command hvr-sweep-to-right">Show Edges of Selected</a>
+                <a ng-click="vm.cmd('HideSelectedEdges')" class="markers-command hvr-sweep-to-right">Hide Edges of Selected</a>
+                <a ng-click="vm.cmd('HideSelectedEdges')" class="markers-command hvr-sweep-to-right">Hide Edges of Unselected</a>
+                <a ng-click="vm.cmd('HideAllEdges')" class="markers-command hvr-sweep-to-right">Hide All Edges</a>
+                <a ng-click="vm.cmd('SelectInverse')" class="markers-command hvr-sweep-to-right">Invert Node Selection</a>
+                <a ng-click="vm.cmd('SelectConnected')" class="markers-command hvr-sweep-to-right">Select Connected Nodes</a>
+                <a ng-click="vm.cmd('HideUnselectedNodes')" class="markers-command hvr-sweep-to-right">Hide Unselected Nodes</a>
+                <a ng-click="vm.cmd('ShowAllNodes')" class="markers-command hvr-sweep-to-right">Show All Nodes</a>
             </div>
 
             <div class="col-xs-6 form-item" style="padding-right:5px">
@@ -101,39 +101,41 @@
                     </ul>
                 </div>
             </div>
-        
-            <div class="col-xs-12 form-item">
-                <label>Patient Options</label>
-                <div ng-repeat="item in vm.legendNodes" class="legend-bar btn btn-default filter-button"
-                  style="border-color:{{item.color}};position:relative">
-                  {{item.name}} ({{item.cnt}} Selected)
-                  <div class="markers-button-slider">
-                    <div class="markers-button-slider-circle" ng-click="vm.selectColor(item, true); $event.stopPropagation();"
-                      style="background-color:{{item.color}};border-color:red;"></div>
-                    <div class="markers-button-slider-circle" ng-click="vm.deselectColor(item, false); $event.stopPropagation();"
-                      style="background-color:{{item.color}};"></div>
-                  </div>
+            <div class="col-xs-12 form-item" style="padding-left:5px">
+                <label>Lock Selections</label>
+                <div class="btn-group" role="group" style="display: block">
+                    <button class="btn btn-default btn-no-focus" type="button" 
+                        ng-click="vm.lock('patient')" style="width:50%; font-weight: 300;"
+                        title="Patient Selection Lock">
+                        <i class="fa fa-unlock" ng-show="!vm.lockPatients"></i>
+                        <i class="fa fa-lock"   ng-show="vm.lockPatients"></i>
+                        Patients
+                    </button>
+                    <button class="btn btn-default btn-no-focus" type="button" 
+                        ng-click="vm.lock('gene')" style="width:50%; font-weight: 300;"
+                        title="Gene Selection Lock">
+                        <i class="fa fa-unlock" ng-show="!vm.lockGenes"></i>
+                        <i class="fa fa-lock"   ng-show="vm.lockGenes"></i>
+                        Genes
+                    </button>
                 </div>
             </div>
-
-            <div class="col-xs-12 form-item">
-                <label>Edge Options</label>
-                <div ng-repeat="item in vm.optEdgeColors" class="legend-bar btn btn-default filter-button"
-                  style="border-color:{{item.color}};position:relative">
-                  {{item.name}}
-                  <div class="markers-button-slider">
-                    <div class="markers-button-slider-rect" 
-                      ng-click="item.color=item.highlight; vm.redraw(); $event.stopPropagation();"
-                      style="background-color:{{item.highlight}};"></div>
-                    <div class="markers-button-slider-rect" 
-                      ng-click="item.color='#3993fa'; vm.redraw(); $event.stopPropagation();"
-                      style="background-color:#3993fa"></div>
-                    <div class="markers-button-slider-rect"
-                      ng-click="item.color='#ffffff'; vm.redraw(); $event.stopPropagation();"
-                      style="background-color:#FFF"></div>
-                  </div>
+            <div class="col-xs-12 form-item" style="padding-left:5px">
+                <label>Zoom</label>
+                <div class="btn-group" role="group" style="display: block">
+                    <button class="btn btn-default btn-no-focus" type="button" 
+                        ng-click="vm.zoom.reset()" style="width:50%; font-weight: 300;"
+                        title="Zoom Reset">
+                        Reset
+                    </button>
+                    <button class="btn btn-default btn-no-focus" type="button" 
+                        ng-click="vm.zoom.fit()" style="width:50%; font-weight: 300;"
+                        title="Zoom Selection">
+                        Selected
+                    </button>
                 </div>
             </div>
+            
 
             <div class="col-xs-12 form-item">
                 <label>Search</label>

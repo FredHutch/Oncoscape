@@ -18,16 +18,33 @@ var state = {
 	patientColors: [],
 	genes: [],
 	patients: [],
-	edges: []
+	edges: [],
+	edgePatients: [],
+	edgeGenes: [],
+	degrees: null
 };
 
 
 // Load Data
 var data = (function(){
 
+	var getRangeFn = function(data){
+			var range = data
+				.map(function(p) { return parseInt(p[Object.keys(p)[0]]); })
+				.reduce( function(previousValue, currentValue, currentIndex, array){
+				if (currentValue>previousValue.max) previousValue.max = currentValue;
+				if (currentValue<previousValue.min) previousValue.min = currentValue;
+				return previousValue;
+				}, {max:-Infinity, min:Infinity});
+			return function(value, low, high){
+				value = parseInt(value);
+				return Math.round(((value - range.min) / (range.max - range.min)) * (high - low) + low);
+			}
+	};
+
 	var clean = function(state){
 		// Remove Edges That Don't Have Patients || Genes Assiciated
-		console.log("EDGES PRE CLEAN: "+state.edges.length);
+//		console.log("EDGES PRE CLEAN: "+state.edges.length);
 		state.edges = state.edges
 			.filter(function(item){  // Remove Edges w/ Invalid Gene
 				for (var i=0;i<this.length; i++){ if (item.data.source==this[i].data.id) return true; }
@@ -37,7 +54,40 @@ var data = (function(){
 				for (var i=0;i<this.length; i++){ if (item.data.target==this[i].data.id) return true; }
 				return false;
 			}, state.patients);
-		console.log("EDGES POST CLEAN: "+state.edges.length);			
+//		console.log("EDGES POST CLEAN: "+state.edges.length);
+
+		// Size Nodes :: Eliminate Duplicate Functions
+		var rFn = getRangeFn( state.edgePatients );
+		var patientEdgeDegrees = state.edgePatients
+			.map(function(obj){
+				var key = Object.keys(obj)[0];
+				var val = this.fn(obj[key], 200, 1500);
+				return {'id':key, 'val':val};
+				}, {fn:rFn})
+			.reduce(function(previousValue, currentValue){
+				previousValue[currentValue.id] = {'weight':currentValue.val};
+				return previousValue;
+			},{});
+
+
+		var rFn = getRangeFn( state.edgeGenes );
+		var geneEdgeDegrees = state.edgeGenes
+			.map(function(obj){
+				var key = Object.keys(obj)[0];
+				var val = this.fn(obj[key], 200, 1500);
+				return {'id':key, 'val':val};
+				}, {fn:rFn})
+			.reduce(function(previousValue, currentValue){
+				previousValue[currentValue.id] = {'weight':currentValue.val};
+				return previousValue;
+			},{});
+
+
+		return {
+			patientEdgeDegrees: patientEdgeDegrees,
+			geneEdgeDegrees: geneEdgeDegrees
+		};
+		
 	};
 
 	var formatPatientLayout = function(data){
@@ -64,17 +114,15 @@ var data = (function(){
 		}else{
 			if (state.patients.length>0){
 				state.patients.forEach(function(f){ this[f.data.id]= {'color':'#1396DE'} }, degMap)
-				
 				send("patients_update",degMap);
 				send("patients_legend", [{name:'Patient', color:'#1396DE'}]);
 			}
 		}
 	};
 
-
-	var formatPatientData = function(data){
-		return data;
-	};
+	var formatEdgePatients	= function(data){ return data; };
+	var formatEdgeGenes 	= function(data){ return data; };
+	var formatPatientData	= function(data){ return data; };
 
 	var formatGeneNodes = function(data){
 
@@ -99,7 +147,8 @@ var data = (function(){
                         nodeType: "gene",
                         degree: 1,
                         sizeBdr: 50,
-                        sizeEle: 50,
+                        sizeEle: 800,
+                        weight: 800,
                         sizeLbl: 50,
                         subType: "unassigned"
                     }
@@ -119,6 +168,7 @@ var data = (function(){
 	                display: "element",
 	                edgeType: "cn",
 	                sizeEle: 50,
+	                sizeBdr: 50,
 	                cn: parseInt(item.m),
 	                source: item.g,
 	                target: item.p
@@ -140,8 +190,9 @@ var data = (function(){
 	                display: "element",
 	                nodeType: "patient",
 	                degree: 1,
-	                sizeBdr: 50,
-	                sizeEle: 50,
+	                sizeBdr: 30,
+	                sizeEle: 800,
+	                weight: 800,
 	                sizeLbl: 50,
 	                subType: "unassigned",
 				};
@@ -156,9 +207,6 @@ var data = (function(){
 				node.position.x -= 40000;
 				return node;
 			}, data);
-
-
-	
 	};
 
 
@@ -219,17 +267,23 @@ var data = (function(){
 				request( { table: 'render_patient', query: { name:options.patients.layout } },
 					!update.patientLayout ? state.patients : null, formatPatientLayout ),
 
-
-
 				request( { table: 'render_patient', query:{  name:options.patients.color } },
 					!update.patientColor ? state.patientColor : null, formatPatientColor ),
-				
 				
 				request( { table: 'render_chromosome', query: { name: options.genes.layout } },
 				 	!update.genes ? state.genes : null, formatGeneNodes ),
 
 				request( { table: options.edges.layout.edges},		
-					!update.edges ? state.edges : null, formatEdgeNodes )
+					!update.edges ? state.edges : null, formatEdgeNodes ),
+
+				request( { table: options.edges.layout.edges+"_gene_weight"},		
+					!update.edges ? state.edgeGenes : null, formatEdgeGenes ),
+
+				request( { table: options.edges.layout.edges+"_patient_weight"},		
+					!update.edges ? state.edgePatients : null, formatEdgePatients ),
+
+
+
 			];
 
 			Promise.all(promises).then(function(data){
@@ -240,8 +294,10 @@ var data = (function(){
 				state.patientColor = data[3];
 				state.genes = data[4];
 				state.edges = data[5];
+				state.edgeGenes = data[6];
+				state.edgePatients = data[7];
 				state.options = options;
-				if (update.edges) clean(state);
+				state.degrees = (update.edges) ? clean(state) : null;
 				resolve({state:state, update:update});
 			});
 		});
@@ -296,11 +352,12 @@ var filter = (function(){
     			return false;
     		}, options.edges.colors);
     	};
+
     	return {
     		edges:{
     			byColor:filterEdgesByColor,
     			byGenes:filterEdgesByGenes,
-    			byPatients:filterEdgesByPatients
+    			byPatients:filterEdgesByPatients,
     		}
     	}
 })();
@@ -308,7 +365,20 @@ var filter = (function(){
 
 // Data Load Commands
 var process = function(options, run){
-	
+	var getEdgeCounts = function(edges){
+		var rv = {"cnG1":0, "cnG2":0, "cnL1":0, "cnL2":0, "m":0, "total":0};
+		edges.forEach(function(edge){
+			switch(edge.data.cn){
+				case -2: rv.cnL2 += 1;	break;
+				case -1: rv.cnL1 += 1;	break;
+				case  0: rv.cnM += 1;	break;
+				case  1: rv.cnG1 += 1;	break;
+				case  2: rv.cnG2 += 1;	break;
+			}
+			rv.total += 1;
+		}, rv);
+		return rv;
+    };
 	data.update(options, state).then(function(response){
 		var state = response.state;
 		var update = response.update;
@@ -325,6 +395,7 @@ var process = function(options, run){
                 }
                 if (update.edges){
                 	send("edges_delete");
+                	send("nodes_resize", state.degrees);
                 }
 				break;
 			case "sequential-showselectededges":
@@ -334,22 +405,24 @@ var process = function(options, run){
 				var ids = edges.map( function(edge){ return edge.data.id } );
 				send("edges_delete", ids);
 				edges = filter.edges.byColor(options, edges);
-				console.log("EDGES Displayed: "+edges.length);			
-				send("edges_insert", edges);
+				counts = getEdgeCounts(edges);
+				send("edges_insert", {edges:edges, counts:counts});
 				break;
 			case "adhoc":
 				var edges = state.edges;
 				edges = filter.edges.byColor(options, edges);
 				edges = filter.edges.byPatients(options, edges);
 				edges = filter.edges.byGenes(options, edges);
-				send("edges_insert", edges);
+				counts = getEdgeCounts(edges);
+				send("edges_insert", {edges:edges, counts:counts});
 				break;
 			case "set":
 				var edges = state.edges;
 				edges = filter.edges.byColor(options, edges);
 				edges = filter.edges.byPatients(options, edges);
 				edges = filter.edges.byGenes(options, edges);
-				send("edges_insert", edges);
+				counts = getEdgeCounts(edges);
+				send("edges_insert", {edges:edges, counts:counts});
 				break;
 		}
 	});

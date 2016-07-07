@@ -6,6 +6,14 @@ CACHE:
 /favicon.ico
 /index.html
 /landing.html
+/styles/app-5a508d6417.css
+/styles/app-5d4adf1c41.css
+/styles/app-8bda0ba376.css
+/styles/app-a8cb860238.css
+/styles/app-c30965e4a4.css
+/styles/app-e863c17850.css
+/styles/vendor-cb08db3119.css
+/styles/vendor-fe5182b0e1.css
 /fonts/FontAwesome.otf
 /fonts/fontawesome-webfont.eot
 /fonts/fontawesome-webfont.svg
@@ -21,15 +29,9 @@ CACHE:
 /scripts/app-18de6cda7f.js
 /scripts/app-4dbaa82f09.js
 /scripts/app-97c024c4e3.js
+/scripts/app-a7311a0d4f.js
 /scripts/app-b9edf1b4e4.js
 /scripts/vendor-43bddc8657.js
-/styles/app-5a508d6417.css
-/styles/app-5d4adf1c41.css
-/styles/app-8bda0ba376.css
-/styles/app-c30965e4a4.css
-/styles/app-e863c17850.css
-/styles/vendor-cb08db3119.css
-/styles/vendor-fe5182b0e1.css
 /assets/images/angular.png
 /assets/images/arrow_down.png
 /assets/images/bootstrap.png
@@ -63,16 +65,19 @@ CACHE:
 /maps/scripts/app-18de6cda7f.js.map
 /maps/scripts/app-4dbaa82f09.js.map
 /maps/scripts/app-97c024c4e3.js.map
+/maps/scripts/app-a7311a0d4f.js.map
 /maps/scripts/app-b9edf1b4e4.js.map
 /maps/scripts/vendor-43bddc8657.js.map
 /maps/styles/app-13ce1be6e1.css.map
 /maps/styles/app-5a508d6417.css.map
 /maps/styles/app-5d4adf1c41.css.map
 /maps/styles/app-8bda0ba376.css.map
+/maps/styles/app-a8cb860238.css.map
 /maps/styles/app-c30965e4a4.css.map
 /maps/styles/app-e863c17850.css.map
 /maps/styles/vendor-cb08db3119.css.map
 /maps/styles/vendor-fe5182b0e1.css.map
+/app/components/markers/markers.worker.js
 /assets/images/datasets/Archive.zip
 /assets/images/datasets/DEMOdz.png
 /assets/images/datasets/DSbrain.png
@@ -121,4 +126,4 @@ https://*
 SETTINGS:
 prefer-online
 
-# hash: 6229e82d81a26bf7308561431fa70d52a82380a4b9f56842863e70d1f5637608
+# hash: 49e72720e00c52f7fd7b06de851da0d3537b63d04a3d3deefab7d7a73d792a2b
