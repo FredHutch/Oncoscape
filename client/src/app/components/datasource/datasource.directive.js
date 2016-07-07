@@ -27,7 +27,8 @@
                 $state.go(tool, {
                     datasource: datasource.disease
                 });
-            };     
+            };
+
         }
     }
 })();
