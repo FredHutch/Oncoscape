@@ -63,7 +63,21 @@ exports.start = function(config){
 
   // Mongo Api
   console.log('MongoDb v3.2.6 bound to "/api"');
-  mongoose.connect('mongodb://localhost/os');
+  //mongoose.connect('mongodb://localhost/os');
+
+  mongoose.connect(
+      'mongodb://oncoscape-dev-db1.sttrcancer.io:27017,oncoscape-dev-db2.sttrcancer.io:27017,oncoscape-dev-db3.sttrcancer.io:27017/os', 
+      {
+        db: { native_parser: true },
+        server: { 
+          poolSize: 5, 
+          reconnectTries: Number.MAX_VALUE 
+        },
+        replset: { rs_name: 'rs0' },
+        user: 'oncoscapeRead',
+        pass: 'i1f4d9botHD4xnZ'
+      }
+  );
 
   server.get('/api/:collection*', 
     cache.route(),    
