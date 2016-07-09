@@ -228,9 +228,8 @@ var data = (function(){
 	var request = function(object, data, format){
 		return new Promise(function(resolve, reject) {
 			if (data!=null) { resolve(data); return; }
-	    	var query = "http://localhost:80/api/" + object.table;
+	    	var query = "/api/" + object.table;
 	    	if (object.query) query += "/?q=" + encodeURIComponent(JSON.stringify(object.query));
-	    	console.log(query);
 	    	load(query, function(response){
 	    		resolve(format(JSON.parse(response.responseText)));
 	    	});

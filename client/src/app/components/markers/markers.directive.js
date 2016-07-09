@@ -106,6 +106,7 @@
                         selector: 'node[nodeType="gene"]',
                         style: {
                             'background-color': "#FFFFFF",
+                            'background-opacity': '.2',
                             'border-color': "#38347b",
                             'text-halign': "right",
                             'label': "data(id)"
@@ -114,6 +115,7 @@
                         selector: 'node[nodeType="gene"]:selected',
                         style: {
                             'border-color': "#FF0000",
+                            'background-opacity': '.2'
                         }
                     }, {
                         selector: 'node[nodeType="centromere"]',

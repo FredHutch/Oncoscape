@@ -8,7 +8,7 @@
      /** @ngInject */
      function oncoscape($http, $location) {
 
-         var url = $location.protocol() + "://" + $location.host() + ":" + (($location.port() == "3002") ? 80 : $location.port()) + '/api/'
+         var url = $location.protocol() + "://" + $location.host() + ":" + (($location.port() == "3000") ? 80 : $location.port()) + '/api/'
 
          var queryString = function(req) {
              var query = url + req.table;
@@ -19,6 +19,7 @@
          var query = function(req) {
             return $http({
                  method: 'GET',
+                 cache: true,
                  url: queryString(req)
              });
          };

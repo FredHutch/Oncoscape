@@ -230,7 +230,6 @@ var data = (function(){
 			if (data!=null) { resolve(data); return; }
 	    	var query = "http://localhost:80/api/" + object.table;
 	    	if (object.query) query += "/?q=" + encodeURIComponent(JSON.stringify(object.query));
-	    	console.log(query);
 	    	load(query, function(response){
 	    		resolve(format(JSON.parse(response.responseText)));
 	    	});
