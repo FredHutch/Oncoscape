@@ -49,7 +49,7 @@ var authSoap = function(username, password, domain, url, cb){
       	  cb(result.LogonResult==='<success />');
       });
   });
-};// RODC1
+};
 
 // Authenticate Using Ldap
 var authLdap = function(username, password, url, cb){
