@@ -18,7 +18,8 @@
     "router": "^1.1.4",
     "soap": "^0.12.0",
     "xml2js": "^0.4.16",
-    "xmldom": "^0.1.22"
+    "xmldom": "^0.1.22",
+    "serve-favicon": "2.3.0"
   },
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1"

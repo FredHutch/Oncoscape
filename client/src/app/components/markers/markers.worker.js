@@ -286,7 +286,6 @@ var data = (function(){
 			];
 
 			Promise.all(promises).then(function(data){
-
 				state.patientData = data[0];
 				state.patients = data[1];
 				state.patientLayout = data[2];

@@ -71,7 +71,7 @@
                 _user = user;
                 var req = {
                     method: 'POST',
-                    url: $location.protocol()+"://"+$location.host()+":"+ (($location.port()=="3002") ? 80 : $location.port()) +'/login',
+                    url: $location.protocol()+"://"+$location.host()+":"+ (($location.port()=="3000") ? 80 : $location.port()) +'/login',
                     data: {
                         username: _user.name,
                         password: _user.password,

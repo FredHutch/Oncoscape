@@ -10,7 +10,6 @@
 var exports = module.exports = {};
 var ldap = require('ldapjs');
 var soap = require('soap');
-var data = require('./permissions');
 
 
 exports.login = function(username, password, domain, cb){
@@ -25,14 +24,10 @@ exports.login = function(username, password, domain, cb){
 			authSoap(username, password, 'scca', 'https://admaims47.fhcrc.org/breeze/Authentication.asmx?wsdl', cb);
 			break;
 		case "UW":
-			if (data.users[username]!=null){
-				cb( true, data.users[username].concat(data.guest) );
-			}else{
-				cb(false);
-			}
+			cb(true);
 			break;
 		default:
-			cb(true, data.guest); // Authentication is not required
+			cb(true);
 			break;
 	}
 };
@@ -53,6 +48,8 @@ var authSoap = function(username, password, domain, url, cb){
 
 // Authenticate Using Ldap
 var authLdap = function(username, password, url, cb){
+	cb(true);
+	return;
 	// Password Must Be Supplied To Avoid Authenticating Anon
 	if (password.trim().length<5) { cb(false); return; }	
 	var client = ldap.createClient( { url:url });

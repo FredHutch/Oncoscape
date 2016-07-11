@@ -4,16 +4,29 @@ FROM ubuntu:14.04
 # Add the package verification key
 RUN apt-key adv --keyserver keyserver.ubuntu.com --recv-keys 51716619E084DAB9
 
-# Configure Log Level
-ENV NPM_CONFIG_LOGLEVEL production
+ARG DEBIAN_FRONTEND=noninteractive
 
-# Install Node
-RUN apt-get update && \
-    apt-get -y install curl && \
-    apt-get -y install git && \
-    apt-get -y install wget && \
-    curl -sL https://deb.nodesource.com/setup_6.x | sudo -E bash - && \
-    apt-get install --yes nodejs
+# Update the system and install packages
+RUN apt-get -y -qq update && apt-get -y -qq install \
+	apt-transport-https \
+	make \
+	gcc \
+	g++ \
+	libxml2 \
+	libxml2-dev \
+	python-pip \
+	curl \
+	nano \
+	supervisor
+
+# Install Varnish 4.0
+RUN curl https://repo.varnish-cache.org/GPG-key.txt | apt-key add -
+RUN echo "deb https://repo.varnish-cache.org/ubuntu/ trusty varnish-4.1" \ >> /etc/apt/sources.list.d/varnish-cache.list
+RUN apt-get -y -qq update && apt-get -y -qq install varnish
+
+# Install Node 6.x
+RUN curl -sL https://deb.nodesource.com/setup_6.x | bash -
+RUN apt-get -y -qq install nodejs
 
 # Install PM2
 RUN npm install -g pm2
@@ -24,16 +37,12 @@ RUN useradd -u 7534 -m -d /home/sttrweb -c "sttr web application" sttrweb && \
 
 # Set Working Directory + Copy Code Into Container
 WORKDIR /home/sttrweb/Oncoscape/server
-ADD . /home/sttrweb/Oncoscape/server
+ADD server /home/sttrweb/Oncoscape/server
 
 # Run NPM Install
 RUN npm install
 
 # Extenal Port
-EXPOSE  80
+EXPOSE 80
 
-# Switch to the server directory and start it up
-WORKDIR /home/sttrweb/Oncoscape/server
-
-# Start PM2
-CMD ["pm2", "start", "app.js", "--no-daemon"]
+CMD ["/usr/bin/supervisord", "-n", "-c", "/home/sttrweb/Oncoscape/server/supervisord.conf"]

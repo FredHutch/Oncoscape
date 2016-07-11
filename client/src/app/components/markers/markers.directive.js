@@ -460,7 +460,9 @@
                     cyChart.endBatch();
                 };
                 var update = function(data){
+                    
                     cyChart.batchData(data);
+                    vm.resize();
                 };
                 var remove = function(selector, data){
                     if (angular.isUndefined(data)) { cyChart.remove(selector); return; }
@@ -472,13 +474,18 @@
             
                 // Define Commands
                 cmd.nodes_resize = function(data){
+
+                    //debugger;
                     cyChart.batchData(data.patientEdgeDegrees);
                     cyChart.batchData(data.geneEdgeDegrees);
                     osApi.setBusy(false);
                 };
                 cmd.patients_delete = function(data) { remove('node[nodeType="patient"]', data); };
                 cmd.patients_insert = function(data) { insert(data, signal.patients); };
-                cmd.patients_update = function(data) { update(data); } ;
+                cmd.patients_update = function(data) { 
+                    debugger;
+                    update(data); 
+                } ;
                 cmd.patients_layout = function(data) {
                     var nodes = cyChart.nodes('node[nodeType="patient"]');
                     cyChart.startBatch();
