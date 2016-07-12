@@ -6,7 +6,7 @@ client/coverage/
 client/.sass-cache/
 client/.idea/
 client/.tmp/
-
+server/mongo/
 
 # Logs and databases #
 ######################

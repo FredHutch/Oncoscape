@@ -19,126 +19,126 @@
         return directive;
 
         /** @ngInject */
-        function HistoryController(osApi, osHistory, $state, $timeout, $scope, moment, $stateParams, _, $) {
-
-            $scope.$on("$destroy", function() {
-                vm.applyFilter("Exit");
-                osHistory.removeListeners();
-            });
-
-            if (angular.isUndefined($stateParams.datasource)) {
-                $state.go("datasource");
-                return;
-            }
+        function HistoryController(osApi, osHistory, $state, $timeout, $scope, moment, $stateParams, _, $, $q) {
             // Properties
-            var dtTable;
-            var rawData;
-            var data;
-            var selectedIds = (osHistory.getPatientSelection() == null) ? null : osHistory.getPatientSelection().ids;
-
-            // View Model
             var vm = this;
-            vm.datasource = $stateParams.datasource;
-            vm.filter;
-            vm.colnames = [];
-            vm.diagnosisMin = vm.diagnosisMinValue = 1;
-            vm.diagnosisMax = vm.diagnosisMaxValue = 99;
-            vm.survivalMin = vm.survivalMinValue = 0;
-            vm.survivalMax = vm.survivalMaxValue = 10;
-            vm.search = "";
+            var table;
+            var selectedIds = (osHistory.getPatientSelection() == null) ? [] : osHistory.getPatientSelection().ids;
 
+            var initViewState = function(vm){
+                vm.datasource = osApi.getDataSource();
+                vm.diagnosisMin = vm.diagnosisMinValue = 1;
+                vm.diagnosisMax = vm.diagnosisMaxValue = 100000;
+                vm.survivalMin = vm.survivalMinValue = 0;
+                vm.survivalMax = vm.survivalMaxValue = 10;
+                vm.search = "";
+                vm.detail = null;
+            }
 
-            vm.applyFilter = function(filter) {
-                selectedIds = null;
-                var o = dtTable._('tr', {
-                    "filter": "applied"
-                }).map(function(item) {
-                    return item[0].toString().toUpperCase()
-                });
-                o = $.map(o, function(value) {
-                    return [value];
-                });
-                osHistory.addPatientSelection("Patient History", filter, o);
-                dtTable.api().draw();
-            };
-
-
-            function draw() {
-
-                if (angular.isUndefined(dtTable)) return;
-                dtTable.fnClearTable();
-                data = rawData.tbl;
-                if (data.length == 0) return;
-                var d = data.map(function(d) {
-                    return d[4];
-                });
-                var s = data.map(function(d) {
-                    return d[3];
-                });
-
-                // Override Datatables Default Search Function - More Efficent Than Using Angular Bindings
+            var initDataTable = function(vm, columns, data){
+                
+                // Override Filter Function
                 angular.element.fn.DataTable.ext.search = [function(settings, data) {
-                    var survival = parseFloat(data[3]);
-                    var diagnosis = parseFloat(data[4]);
-                    if (selectedIds != null) {
+                    
+                    if (selectedIds.length!=0) {
                         if (selectedIds.indexOf(data[0]) == -1) return false;
                     }
-                    if (isNaN(survival) || isNaN(diagnosis)) return false;
-                    return (diagnosis >= vm.diagnosisMin &&
-                        diagnosis < (vm.diagnosisMax + 1) &&
-                        survival >= vm.survivalMin &&
-                        survival < (vm.survivalMax + 1));
 
+                    var diagnosis = parseFloat(data[3]);
+                    var survival = parseFloat(data[4]);
+                    //if (isNaN(survival) || isNaN(diagnosis)) return false;
+                    // return (diagnosis >= vm.diagnosisMin &&
+                    //     diagnosis < (vm.diagnosisMax + 1) &&
+                    //     survival >= vm.survivalMin &&
+                    //     survival < (vm.survivalMax + 1));
+                    return true;
                 }];
-                $timeout(function() {
-                    vm.diagnosisMin = vm.diagnosisMinValue = Math.floor(Math.min.apply(null, d));
-                    vm.diagnosisMax = vm.diagnosisMaxValue = Math.ceil(Math.max.apply(null, d));
-                    vm.survivalMin = vm.survivalMinValue = Math.floor(Math.min.apply(null, s));
-                    vm.survivalMax = vm.survivalMaxValue = Math.floor(Math.max.apply(null, s));
-                    dtTable.fnAddData(data);
-                    dtTable.api().draw();
+        
+                // Specify Data
+                table = angular.element('#history-datatable').dataTable({
+                            paging: false,
+                            columns: columns,
+                            data: data
+                            //"scrollY": "50vh",
+                            //"scrollCollapse": true
                 });
+                table.api().draw();
+            }
 
+            var initEvents = function(vm, $scope){
+
+/*
+                $('#history-datatable tbody').on( 'click', 'tr', function () {
+                    // $('.history-row-selected').removeClass('history-row-selected');
+                    $(this).addClass('history-row-selected');
+                    osApi.query(vm.datasource+"_pt", {'patient_ID':this.firstChild.textContent, $limit:1}).then(function(response){
+                        vm.detail = response.data[0];
+                    });
+                } );
+                $('#history-datatable tbody').on( 'mouseout', 'tr', function () {
+                    $(this).removeClass('history-row-selected');
+                    vm.detail = null;
+                });
+                */
+
+                vm.applyFilter = function(filter) {
+
+                    selectedIds = [];
+
+                    table.api().draw();
+
+                    var o = table._('tr', {
+                        "filter": "applied"
+                    }).map(function(item) {
+                        return item["patient_ID"].toString().toUpperCase()
+                    });
+
+                    o = $.map(o, function(value) {
+                        return [value];
+                    });
+
+                    osHistory.addPatientSelection("Patient History", filter, o);
+                };
+
+                var init = true;
+                $scope.$watch('vm.search', _.debounce(function() {
+                    if (init) {
+                        init = false;
+                        return;
+                    }
+                    vm.applyFilter("Search");
+                }, 1000));
+
+                osHistory.onPatientSelectionChange.add(function(selection) {
+                    selectedIds = selection.ids;
+                    table.api().draw();
+                });
+                
             }
 
             // Load Datasets
             osApi.setBusy(true);
-            osApi.setDataset(vm.datasource).then(function() {
-                osApi.getPatientHistoryTable(vm.datasource).then(function(response) {
-                    rawData = response.payload;
-                    vm.colnames = rawData.colnames;
-                    $timeout(function() {
+            
+            var columns = [
+                {data:'patient_ID', title:'Patient ID', defaultContent:'NA'},
+                {data:'gender', title:'Gender', defaultContent:'NA'},
+                {data:'race', title:'Race', defaultContent:'NA'},
+                {data:'age_at_diagnosis', title:'DX Age', defaultContent:'NA'},
+                {data:'days_to_death', title:'Survival', defaultContent:'NA'},
+                {data:'status_vital', title:'Status', defaultContent:'NA'}
+            ];
 
-                        // Configure Data Table
-                        dtTable = angular.element('#history-datatable').dataTable({
-                            "paging": false
-                        });
-
-                        // Register History Component
-                        osHistory.onPatientSelectionChange.add(function(selection) {
-                            selectedIds = selection.ids;
-                            vm.diagnosisMin = vm.diagnosisMinValue;
-                            vm.diagnosisMax = vm.diagnosisMaxValue;
-                            vm.survivalMin = vm.survivalMinValue;
-                            vm.survivalMax = vm.survivalMaxValue;
-                            vm.search = "";
-                            $scope.$apply();
-                            dtTable.api().draw();
-                        });
-
-                        // Register Search Watch
-                        var init = true;
-                        $scope.$watch('vm.search', _.debounce(function() {
-                            if (init) {
-                                init = false;
-                                return;
-                            }
-                            vm.applyFilter("Search");
-                        }, 1000));
-                        draw();
-                        osApi.setBusy(false);
-                    }, 0, false);
-                });
+            
+            initViewState(vm);
+            osApi.query(vm.datasource.table.patient, 
+                {
+                    $fields:columns.map(function(f){ return f.data; }),
+                    $limit:0
+                })
+            .then(function(response){
+               initDataTable(vm, columns, response.data);
+               initEvents(vm, $scope)
+               osApi.setBusy(false);
             });
         }
     }

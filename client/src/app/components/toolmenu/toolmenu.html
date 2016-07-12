@@ -10,6 +10,7 @@
         <a href="" ng-click="vm.explore(tool.route)">
             <img class="tool-menu-img" ng-src="/assets/images/datasets/{{tool.img}}">
             <span class="tool-menu-lbl">{{tool.name}}</span>
+            <span class="tool-menu-beta" ng-if="tool.beta" style="color:red"> (Beta)</span>
         </a>
     </div>
 </section>

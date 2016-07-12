@@ -26,13 +26,14 @@
         }
 
         // Create Sock JS Instace
-        var socket = new SockJS(
-            $location.protocol()+"://"+$location.host()+":"+ (($location.port()=="3002") ? 80 : $location.port()) +'/oncoscape','',
-            {
-                'debug': false,
-                'devel': false
-            }
-        );
+        var socket = {};
+        // new SockJS(
+        //     $location.protocol()+"://"+$location.host()+":"+ (($location.port()=="3002") ? 80 : $location.port()) +'/oncoscape','',
+        //     {
+        //         'debug': false,
+        //         'devel': false
+        //     }
+        // );
 
         // Handle Messages From Socket & Resolve Promise
         socket.onmessage = function(event) {

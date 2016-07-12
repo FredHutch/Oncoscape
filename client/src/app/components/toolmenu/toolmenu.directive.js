@@ -42,11 +42,14 @@
                     .bind("mouseout", mouseOut);
             
             var vm = this;
-            vm.tools = osApi.getTools();
+            osApi.query("lookup_oncoscape_tools",{beta:false}).then(function(response){
+                vm.tools = response.data;
+            });
+
             vm.explore = function(tool) {
                 vm.change();
                 $state.go(tool, {
-                    datasource: vm.datasource
+                    datasource: osApi.getDataSource().key
                 });
             };
         }

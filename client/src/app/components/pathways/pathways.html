@@ -1,5 +1,4 @@
-<os-tool-menu datasource="{{vm.datasource}}"
- change="vm.addCohortGene()"></os-tool-menu>
+<os-tool-menu></os-tool-menu>
 <os-tray content="tray-content-block" change="vm.resize($event)">
     <section class="tray-content">
         <div class="row">
@@ -23,7 +22,7 @@
 <section class="tray-content-block">
     <div class="container-fluid">
         <h2 class="h2-tool">Pathways</h2>
-        <h3 class="h3-datasource">{{vm.datasource}}</h3>
+        <h3 class="h3-datasource">{{vm.datasource.name}} {{vm.datasource.source}}</h3>
         <div id="gbm-chart" class="pathways-chart"></div>
     </div>
 </section>

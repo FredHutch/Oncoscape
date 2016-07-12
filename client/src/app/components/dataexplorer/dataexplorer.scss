@@ -1,0 +1,15 @@
+// Namespace
+.dataexplorer{
+	dd{
+		padding-bottom: 10px;
+	}
+}
+
+.data-field{
+	height:200px;
+	padding:20px;
+}
+.data-field:nth-child(even){
+	background-color:#EEE;
+
+}

@@ -8,15 +8,35 @@
     /** @ngInject */
     function oncoscape(osSocket, osHttp, $http, signals, $location) {
 
-        var _dataSource;
+        // Events
         var onDataSource = new signals.Signal();
-        function getDataSource(){ return _dataSource; }
+
+        // State
+        var _dataSources;
+        var _dataSource;
+        function getDataSources(){
+            return _dataSources;
+        }
+        function getDataSource(value){ 
+            return _dataSource; 
+        }
         function setDataSource(value){
-            osSocket.setDataSource(value);
-            _dataSource = value;
-            onDataSource.dispatch(_dataSource);
+            
+            if (typeof(value)==="object"){
+                if (_dataSource != value) onDataSource.dispatch(_dataSource);
+                _dataSource = value;
+            }else if (typeof(value)==="string"){
+                if (_dataSource.disease!=value){
+                    if (_dataSource != value) onDataSource.dispatch(_dataSource);
+                    _dataSource = _dataSources.filter(function(v){ v.disease==disease}, {key:value})[0]
+                }
+            }
         }
 
+        query("lookup_oncoscape_datasources",{beta:false}).then(function(response){ 
+            _dataSources = response.data; 
+                            
+        });
         
         /*** User Api ***/
         function userApi(){
@@ -49,10 +69,9 @@
             }
             var login = function(user){
                 _user = user;
-           
                 var req = {
                     method: 'POST',
-                    url: $location.protocol()+"://"+$location.host()+":"+ (($location.port()=="3002") ? 80 : $location.port()) +'/login',
+                    url: $location.protocol()+"://"+$location.host()+":"+ (($location.port()=="3000") ? 80 : $location.port()) +'/login',
                     data: {
                         username: _user.name,
                         password: _user.password,
@@ -63,7 +82,7 @@
                     if (res.data.success) {
                         _user.authenticated = true;
                         _user.token = res.data.token;
-                        _user.datasets = res.data.datasets;
+                        _user.datasets = res.data.datasets;                        
                         onLogin.dispatch(_user);
                     } else {
                         _user.authenticated = false;
@@ -106,61 +125,16 @@
         }
 
         function getTools(){
-            return [{
-                name: 'Markers + Patients',
-                route: 'markers',
-                img: 'markers.png',
-                copy: 'Link copy number variation and mutation data to patients.'
-            }, {
-                name: 'Timelines',
-                route: 'timelines',
-                img: 'timelines.png',
-                copy: ''
-            }, {
-                name: 'Pathways',
-                route: 'pathways',
-                img: 'pathways.png',
-                copy: 'Map patient specific expression levels on a hand curated network of genes.'
-            }, {
-                name: 'PLSR',
-                route: 'plsr',
-                img: 'plsr.png',
-                copy: 'Use linear regression to correlate genes with clinical features using RNA expression.'
-            }, {
-                name: 'PCA',
-                route: 'pca',
-                img: 'pca.png',
-                copy: 'Two dimensional view of per sample expression data.'
-            }, {
-                name: 'Survival',
-                route: 'survival',
-                img: 'survival.png',
-                copy: 'Compare survival rates of selected patients against the remaining population in a Kaplan Meier plot.'
-            }, {
-                name: 'Patient Data',
-                route: 'history',
-                img: 'history.png',
-                copy: ''
-            }, {
-                name: 'Oncoprint',
-                route: 'oncoprint',
-                img: 'history.png',
-                copy: ''
-            }, {
-                name: 'Api Explorer',
-                route: 'apiexplorer',
-                img: 'metadata.png',
-                copy: ''
-            }, {
-                name: 'MetaData',
-                route: 'metadata',
-                img: 'metadata.png',
-                copy: ''
-            }];
         }
-
+        
+        function queryString(table, query){
+            return osHttp.queryString({
+                table: table,
+                query: query
+            });
+        }
         function query(table, query){
-            return osHttp.request({
+            return osHttp.query({
                 table: table,
                 query: query
             });
@@ -344,12 +318,40 @@
                 }
             });
         }
+        function getGeneSetTest(dataPackage, matrixName) {
+            var payload = {
+                dataPackage: dataPackage,
+                matrixName: matrixName
+            };
+            return osSocket.request({
+                cmd: "createGeneSetTest",
+                payload: payload
+            });
+        }
+        function getGeneSetScore(Group1, Group2, geneSet) {
+            return osSocket.request({
+                cmd: "geneSetScoreTest",
+                payload: {
+                    group1: Group1,
+                    group2: Group2, 
+                    geneset: geneSet
+                }
+            });
+        }
+
+
 
         return {
+
+            // Mongo V
             query: query,
+            queryString: queryString,
             setDataSource: setDataSource,
             getDataSource: getDataSource,
+            getDataSources: getDataSources,
             onDataSource: onDataSource,
+
+            // Legacy
             getTools: getTools,
             getUserApi: getUserApi,
             showFilter: showFilter,
@@ -384,7 +386,9 @@
             getCnvData: getCnvData,
             getMutationData: getMutationData,
             getModuleModificationDate: getModuleModificationDate,
-            getOncoprint: getOncoprint
+            getOncoprint: getOncoprint,
+            getGeneSetTest: getGeneSetTest,
+            getGeneSetScore: getGeneSetScore
         }
     }
 })();
