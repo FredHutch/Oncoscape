@@ -1,4 +1,4 @@
-
+// 320000 (width)
 // State
 var state = {
 	options: {
@@ -61,11 +61,11 @@ var data = (function(){
 		var patientEdgeDegrees = state.edgePatients
 			.map(function(obj){
 				var key = Object.keys(obj)[0];
-				var val = this.fn(obj[key], 200, 1500);
+				var val = this.fn(obj[key], 400, 1000);
 				return {'id':key, 'val':val};
 				}, {fn:rFn})
 			.reduce(function(previousValue, currentValue){
-				previousValue[currentValue.id] = {'weight':currentValue.val};
+ 				previousValue[currentValue.id] = {'weight':currentValue.val};
 				return previousValue;
 			},{});
 
@@ -74,11 +74,11 @@ var data = (function(){
 		var geneEdgeDegrees = state.edgeGenes
 			.map(function(obj){
 				var key = Object.keys(obj)[0];
-				var val = this.fn(obj[key], 200, 1500);
+				var val = this.fn(obj[key], 400, 1000);
 				return {'id':key, 'val':val};
 				}, {fn:rFn})
 			.reduce(function(previousValue, currentValue){
-				previousValue[currentValue.id] = {'weight':currentValue.val};
+ 				previousValue[currentValue.id] = {'weight':currentValue.val};
 				return previousValue;
 			},{});
 
@@ -110,11 +110,11 @@ var data = (function(){
 				}, {degmap:this, color:colorValue});
 			}, degMap);
 			send("patients_legend", legend);
-			send("patients_update",degMap);
+			send("patients_color",degMap);
 		}else{
 			if (state.patients.length>0){
 				state.patients.forEach(function(f){ this[f.data.id]= {'color':'#1396DE'} }, degMap)
-				send("patients_update",degMap);
+				send("patients_color",degMap);
 				send("patients_legend", [{name:'Patient', color:'#1396DE'}]);
 			}
 		}
@@ -380,20 +380,20 @@ var process = function(options, run){
 	data.update(options, state).then(function(response){
 		var state = response.state;
 		var update = response.update;
+		var counts = "";
 		_options = options;
 		switch(run){
 			case "sequential":
 				if (update.genes){
 					send("genes_delete");
-					send("genes_insert", state.genes);
+					send("genes_insert", {genes:state.genes, degrees:state.degrees.geneEdgeDegrees});
 				}
                 if (update.patientData){
                 	send("patients_delete");
-                	send("patients_insert", state.patients);
+                	send("patients_insert", {patients:state.patients, degrees:state.degrees.patientEdgeDegrees} );
                 }
                 if (update.edges){
                 	send("edges_delete");
-                	send("nodes_resize", state.degrees);
                 }
 				break;
 			case "sequential-showselectededges":
@@ -403,7 +403,8 @@ var process = function(options, run){
 				var ids = edges.map( function(edge){ return edge.data.id } );
 				send("edges_delete", ids);
 				edges = filter.edges.byColor(options, edges);
-				counts = getEdgeCounts(edges);
+				//counts = getEdgeCounts(edges);
+
 				send("edges_insert", {edges:edges, counts:counts});
 				break;
 			case "adhoc":
@@ -411,7 +412,7 @@ var process = function(options, run){
 				edges = filter.edges.byColor(options, edges);
 				edges = filter.edges.byPatients(options, edges);
 				edges = filter.edges.byGenes(options, edges);
-				counts = getEdgeCounts(edges);
+				//counts = getEdgeCounts(edges);
 				send("edges_insert", {edges:edges, counts:counts});
 				break;
 			case "set":
@@ -419,7 +420,7 @@ var process = function(options, run){
 				edges = filter.edges.byColor(options, edges);
 				edges = filter.edges.byPatients(options, edges);
 				edges = filter.edges.byGenes(options, edges);
-				counts = getEdgeCounts(edges);
+				//counts = getEdgeCounts(edges);
 				send("edges_insert", {edges:edges, counts:counts});
 				break;
 		}
