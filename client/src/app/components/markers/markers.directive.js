@@ -23,7 +23,7 @@
         function MarkersController(osApi, osHistory, $state, $timeout, $scope, $stateParams, cytoscape, signals, moment, $window, _, $q) {
 
             osApi.setBusy(true);
-
+            var tmpdata;
             var signal = (function(){
                 return {
                     patients: {
@@ -80,6 +80,7 @@
                     }, {
                         selector: 'node',
                         style: {
+                            'background-color': "#3993fa",
                             'display': "data(display)",
                             //'height': "mapData(sizeEle, 0, 50, 10, 100)",
                             //'width': "mapData(sizeEle, 0, 50, 10, 100)",
@@ -90,6 +91,12 @@
                             'text-valign': 'center'
                         }
                     }, {
+                        selector: 'node[nodeType="telomere"]',
+                        style:{
+                            'background-color': "#3993fa",   
+                        }
+                    }
+                    , {
                         selector: 'node[nodeType="patient"]',
                         style: {
                             'background-color': 'data(color)',
@@ -158,111 +165,109 @@
             */
             (function(){
                 
-                    osApi.query("render_chromosome", {type:"chromosome"}).then(function(result){
+                osApi.query("render_chromosome", {type:"chromosome"}).then(function(result){
 
-                        // Process Chromosome
-                        var chromosomes = result.data[0].data;
-                        var elements = [];
+                    // Process Chromosome
+                    var chromosomes = result.data[0].data;
+                    var elements = [];
 
-                        Object.keys(chromosomes).forEach(function(key){
-                            var chromosome = this.chromosomes[key];
-                            this.elements.push(
-                                {
-                                    group: "edges",
-                                    grabbable: false,
-                                    locked: true,
-                                    selectable: false,
-                                    data:{
-                                        color: "#3993fa",
-                                        id: "ce"+key,   // Chromosome Edge (CE)
-                                        display: "element",
-                                        edgeType:"chromosome",
-                                        sizeBdr: 50,
-                                        sizeEle: 50,  // Style?
-                                        source : "cp"+key,  // Chromosome P (CP)
-                                        target : "cq"+key   // Chromosome Q (CQ)
-                                    }
-                                });
+                    Object.keys(chromosomes).forEach(function(key){
+                        var chromosome = this.chromosomes[key];
+                        this.elements.push(
+                            {
+                                group: "edges",
+                                grabbable: false,
+                                locked: true,
+                                selectable: false,
+                                data:{
+                                    color: "#3993fa",
+                                    id: "ce"+key,   // Chromosome Edge (CE)
+                                    display: "element",
+                                    edgeType:"chromosome",
+                                    sizeBdr: 0,
+                                    sizeEle: 60,  // Style?
+                                    source : "cp"+key,  // Chromosome P (CP)
+                                    target : "cq"+key   // Chromosome Q (CQ)
+                                }
+                            });
 
-                            // Telemere P
-                            this.elements.push({
-                                    group: "nodes",
-                                    grabbable: false,
-                                    locked: true,
-                                    selectable: false,
-                                    position:{
-                                        x: chromosome.x,
-                                        y: chromosome.p
-                                    },
-                                    data:{
-                                        color:"#3993fa",
-                                        id:"cp"+key,
-                                        display:"element",
-                                        nodeType:"telomere",
-                                        degree:1,
-                                        sizeBdr: 50,
-                                        sizeEle:50,
-                                        sizeLbl:6,
-                                        subType: "unassigned"
-                                    }
-                                });
-                            // Telemere Q
-                            this.elements.push({
-                                   group: "nodes",
-                                    grabbable: false,
-                                    locked: true,
-                                    selectable: false,
-                                    position:{
-                                        x: chromosome.x,
-                                        y: chromosome.q
-                                    },
-                                    data:{
-                                        color:"rgb(19, 150, 222)",
-                                        id:"cq"+key,
-                                        display:"element",
-                                        nodeType:"telomere",
-                                        degree:1,
-                                        sizeBdr:50,
-                                        sizeEle:50,
-                                        sizeLbl:50,
-                                        subType: "unassigned"
-                                    }
-                                });
-                            // Centromere Q
-                            this.elements.push({
-                                    group: "nodes",
-                                    grabbable: false,
-                                    locked: true,
-                                    selectable: false,
-                                    position:{
-                                        x: chromosome.x,
-                                        y: chromosome.c
-                                    },
-                                    data:{
-                                        id:key,
-                                        display:"element",
-                                        sizeBdr: 50,
-                                        nodeType:"centromere",
-                                        degree:1
-                                    }
-                                });
+                        // Telemere P
+                        this.elements.push({
+                                group: "nodes",
+                                grabbable: false,
+                                locked: true,
+                                selectable: false,
+                                position:{
+                                    x: chromosome.x,
+                                    y: chromosome.p
+                                },
+                                data:{
+                                    id:"cp"+key,
+                                    display:"element",
+                                    nodeType:"telomere",
+                                    degree:1,
+                                    sizeBdr: 50,
+                                    sizeEle:50,
+                                    sizeLbl:6,
+                                    subType: "unassigned"
+                                }
+                            });
+                        // Telemere Q
+                        this.elements.push({
+                               group: "nodes",
+                                grabbable: false,
+                                locked: true,
+                                selectable: false,
+                                position:{
+                                    x: chromosome.x,
+                                    y: chromosome.q
+                                },
+                                data:{
+                                    id:"cq"+key,
+                                    display:"element",
+                                    nodeType:"telomere",
+                                    degree:1,
+                                    sizeBdr:50,
+                                    sizeEle:50,
+                                    sizeLbl:50,
+                                    subType: "unassigned"
+                                }
+                            });
+                        // Centromere Q
+                        this.elements.push({
+                                group: "nodes",
+                                grabbable: false,
+                                locked: true,
+                                selectable: false,
+                                position:{
+                                    x: chromosome.x,
+                                    y: chromosome.c
+                                },
+                                data:{
+                                    id:key,
+                                    display:"element",
+                                    sizeBdr: 50,
+                                    nodeType:"centromere",
+                                    degree:1
+                                }
+                            });
 
-                        }, {chromosomes:chromosomes, elements:elements});
-                        cyChart.add(elements);
+                    }, {chromosomes:chromosomes, elements:elements});
+                    cyChart.add(elements);
 
-                        // Select All Genes By Clicking Centromere
-                        // cyChart.$('node[nodeType="centromere"]').on("click", function(e){
-                        //     var posX = e.cyTarget.position().x;
-                        //     cyChart.startBatch();
-                        //     cyChart.$('node[nodeType="gene"]').filter(function(p){  
-                        //         debugger;
-                        //         return p.position().x==this; }, posX)
-                        //         .forEach( function(ele){
-                        //             ele.select();
-                        //         });
-                        //     cyChart.endBatch();
-                        // });
-                    });
+                    // Select All Genes By Clicking Centromere
+                    // cyChart.$('node[nodeType="centromere"]').on("click", function(e){
+                    //     var posX = e.cyTarget.position().x;
+                    //     cyChart.startBatch();
+                    //     cyChart.$('node[nodeType="gene"]').filter(function(p){  
+                    //         debugger;
+                    //         return p.position().x==this; }, posX)
+                    //         .forEach( function(ele){
+                    //             ele.select();
+                    //         });
+                    //     cyChart.endBatch();
+                    // });
+                });
             })()
 
             /*
@@ -291,6 +296,30 @@
                 vm.optCommandMode = vm.optCommandModes[0];
 
                 vm.selectColor = function(item){
+
+                };
+
+                vm.filterModelEdge = function(){
+
+                    angular.element('#modalEdge').modal('hide');
+                    var vals = vm.optEdgeColors
+                        .filter(function(c){ return c.show; })
+                        .map(function(c){ return c.id});
+                    var edges = tmpdata.edges.filter(function(edge){
+                        return (vals.indexOf(edge.data.cn)!=-1);
+                    }, {vals:vals});
+
+                    cyChart.startBatch();
+                    var elements = cyChart.add(edges);
+                    cyChart.endBatch();
+                    tmpdata = null;
+
+                };
+
+                vm.edgeToggle = function(item){
+                    if (!item.show){
+                        cyChart.remove('edge[cn='+item.id+']');
+                    }
 
                 };
 
@@ -342,28 +371,38 @@
 
                 vm.optEdgeColors = [{ 
                     name: 'mutation',
-                    highlight: '#004358',
+                    abv:'m',
+                    show: true,
                     color: '#004358',
+                    class: 'switch-mutation',
                     id: 0
                 }, {
                     name: 'cnGain.1',
-                    highlight: '#1F8A70',
+                    abv:'cnG1',
+                    show: true,
                     color: '#1F8A70',
+                    class: 'switch-cnG1',
                     id: 1
                 }, {
                     name: 'cnLoss.1',
-                    highlight: '#BEDB39',
-                    color: '#BEDB39',
+                    abv:'cnL1',
+                    show: true,
+                    color: '#FFE11A',
+                    class: 'switch-cnL1',
                     id: -1
                 }, {
                     name: 'cnGain.2',
-                    highlight: 'purple',
-                    color: '#FFE11A',
+                    abv:'cnG2',
+                    show: true,
+                    color: '#BEDB39',
+                    class: 'switch-cnG2',
                     id: 2
                 }, {
                     name: 'cnLoss.2',
-                    highlight: '#FD7400',
+                    abv:'cnL2',
+                    show: true,
                     color: '#FD7400',
+                    class: 'switch-cnL2',
                     id: -2
                 }];
 
@@ -440,7 +479,7 @@
             var setOptions = (function(cyChart, vm, osApi, $q, zoom, _, signal){
 
                 // Instatiate Worker
-                var cmd = {patients_delete:function(){}, patients_insert:function(){}, patients_update:function(){}};
+                var cmd = {};
                 var worker = new Worker("app/components/markers/markers.worker.js");
                 worker.addEventListener('message', function(msg) { cmd[msg.data.cmd](msg.data.data); }, false);
                 
@@ -543,18 +582,19 @@
                 };
                 cmd.edges_insert    = function(data) { 
                     console.log("EDGES INSERT");
-                    if (data.counts.total>10000){
-                        // var r = confim("You selection will add "+data.counts.total+" edges.  Continue?");
-                        // if (r==false) return;
-                        console.log("Counts");
+                    tmpdata = data;
+                    if (data.counts.total>5000){
+                        angular.element('#modalEdge').modal();
+                        $scope.$apply(function(){
+                            vm.edgeCounts = data.counts;
+                        });
+                        return;
                     }
+
+                  
                     cyChart.startBatch();
-                    var signals = signal.edges;
+                    if (vm.optCommandMode.name=="Ad Hoc") cyChart.$('edge[edgeType="cn"]').remove();
                     var elements = cyChart.add(data.edges);
-                    //elements.on("select", _.debounce(signals.select.dispatch ,300));
-                    //elements.on("unselect", _.debounce(signals.unselect.dispatch ,300));
-                    elements.on("mouseover", signals.over.dispatch);
-                    elements.on("mouseout", signals.out.dispatch);
                     cyChart.endBatch();
                 };
                 cmd.edges_update    = function(data) {
@@ -591,7 +631,7 @@
                             layout: vm.datasource.edges
                                 .filter(function(v){ return (v.name==this)}, geneset)[0],
                             colors: vm.optEdgeColors
-                                .filter(function(f){return (f.color!='#ffffff') })
+                                .filter(function(f){return f.show })
                                 .map(function(f){ return {id:f.id, color:f.color}; })
                         }
                     };
@@ -693,13 +733,11 @@
                                     cyChart.endBatch();
                                     break;
                                 case "HideUnselectedNodes":
-                                    
                                     cyChart.startBatch();
                                     cyChart.$('node[nodeType="patient"]:unselected')
                                         .forEach(function(item){  
                                             item.style({display:'none'}); });
                                     cyChart.endBatch();
-
                                     break;
                                 case "ShowAllNodes":
                                     cyChart.startBatch();
@@ -739,7 +777,7 @@
                         }
                         var out = function(e){
                             e.cyTarget.unselect();
-                            cyChart.$('edge[edgeType="cn"]').remove();
+                            //cyChart.$('edge[edgeType="cn"]').remove();
                         }
                         signal.patients.over.add(over);
                         signal.patients.out.add(out);
