@@ -228,7 +228,7 @@ var data = (function(){
 	var request = function(object, data, format){
 		return new Promise(function(resolve, reject) {
 			if (data!=null) { resolve(data); return; }
-	    	var query = "/api/" + object.table;
+	    	var query = "http://localhost:80/api/" + object.table;
 	    	if (object.query) query += "/?q=" + encodeURIComponent(JSON.stringify(object.query));
 	    	load(query, function(response){
 	    		resolve(format(JSON.parse(response.responseText)));
@@ -369,7 +369,7 @@ var process = function(options, run){
 			switch(edge.data.cn){
 				case -2: rv.cnL2 += 1;	break;
 				case -1: rv.cnL1 += 1;	break;
-				case  0: rv.cnM += 1;	break;
+				case  0: rv.m += 1;		break;
 				case  1: rv.cnG1 += 1;	break;
 				case  2: rv.cnG2 += 1;	break;
 			}
@@ -403,7 +403,7 @@ var process = function(options, run){
 				var ids = edges.map( function(edge){ return edge.data.id } );
 				send("edges_delete", ids);
 				edges = filter.edges.byColor(options, edges);
-				//counts = getEdgeCounts(edges);
+				counts = getEdgeCounts(edges);
 
 				send("edges_insert", {edges:edges, counts:counts});
 				break;
@@ -412,7 +412,7 @@ var process = function(options, run){
 				edges = filter.edges.byColor(options, edges);
 				edges = filter.edges.byPatients(options, edges);
 				edges = filter.edges.byGenes(options, edges);
-				//counts = getEdgeCounts(edges);
+				counts = getEdgeCounts(edges);
 				send("edges_insert", {edges:edges, counts:counts});
 				break;
 			case "set":
@@ -420,7 +420,7 @@ var process = function(options, run){
 				edges = filter.edges.byColor(options, edges);
 				edges = filter.edges.byPatients(options, edges);
 				edges = filter.edges.byGenes(options, edges);
-				//counts = getEdgeCounts(edges);
+				counts =  getEdgeCounts(edges);
 				send("edges_insert", {edges:edges, counts:counts});
 				break;
 		}

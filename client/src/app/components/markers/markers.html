@@ -6,35 +6,25 @@
             <br />
             <div class="col-xs-12 form-item">
                 <label>Patient Selection</label>
-                <div ng-repeat="item in vm.legendNodes" class="legend-bar btn btn-default filter-button"
-                  style="border-color:{{item.color}};position:relative">
-                  {{item.name}} ({{item.cnt}} Selected)
-                  <div class="markers-button-slider">
-                    <div class="markers-button-slider-circle" ng-click="vm.selectColor(item, true); $event.stopPropagation();"
-                      style="background-color:{{item.color}};border-color:red;"></div>
-                    <div class="markers-button-slider-circle" ng-click="vm.deselectColor(item, false); $event.stopPropagation();"
-                      style="background-color:{{item.color}};"></div>
-                  </div>
+                <div ng-repeat="item in vm.legendNodes" class="legend-bar"
+                  style="border-color:{{item.color}};position:relative;background-color:#FFF;padding:2px 10px;line-height:25px;">{{item.name}}
+
                 </div>
             </div>
 
             <div class="col-xs-12 form-item">
                 <label>Edge Visibility</label>
-                <div ng-repeat="item in vm.optEdgeColors" class="legend-bar btn btn-default filter-button"
-                  style="border-color:{{item.color}};position:relative">
-                  {{item.name}}
-                  <div class="markers-button-slider">
-                    <div class="markers-button-slider-rect" 
-                      ng-click="item.color=item.highlight; vm.redraw(); $event.stopPropagation();"
-                      style="background-color:{{item.highlight}};"></div>
-                    <div class="markers-button-slider-rect" 
-                      ng-click="item.color='#3993fa'; vm.redraw(); $event.stopPropagation();"
-                      style="background-color:#3993fa"></div>
-                    <div class="markers-button-slider-rect"
-                      ng-click="item.color='#ffffff'; vm.redraw(); $event.stopPropagation();"
-                      style="background-color:#FFF"></div>
-                  </div>
+
+                
+                <div ng-repeat="item in vm.optEdgeColors" class="legend-bar"
+                  style="border-color:{{item.color}};position:relative;background-color:#FFF;padding:2px 10px;line-height:25px;">{{item.name}}
+                    <label class="switch {{item.class}}" style="float:right">
+                        <input type="checkbox" class="switch-input" ng-model="item.show" ng-change="vm.edgeToggle(item)">
+                        <span class="switch-label" data-on="On" data-off="Off"></span>
+                        <span class="switch-handle"></span> 
+                    </label>
                 </div>
+                
             </div>
             
 
@@ -157,6 +147,28 @@
     </div>
 </section>
 
+
+<div id="modalEdge" class="modal fade"  tabindex="-1" role="dialog" aria-labelledby="myModalLabel">
+        <div class="modal-dialog" role="document">
+            <div class="modal-content">
+                <div class="modal-body">
+                    <h2 style="margin-top:0px;">Your request would add {{vm.edgeCounts.total}} edges to the graph.</h2>
+                    <p>To improve performance + readability you may want to disable some of the edges.</p>
+                    <div class="input-group" ng-repeat="item in vm.optEdgeColors | filter:{show:true}">
+                        <label class="switch {{item.class}}">
+                            <input type="checkbox" class="switch-input" ng-model="item.show">
+                            <span class="switch-label" data-on="On" data-off="Off"></span>
+                            <span class="switch-handle"></span> 
+                        </label>
+                        <span style="padding-left:20px;">{{item.name}} ({{vm.edgeCounts[item.abv]}})</span>
+                    </div>
+                </div>
+                <button class="btn btn-default" style="position:absolute;right:10px;bottom:10px;"
+                ng-click="vm.filterModelEdge()">Continue</button>
+             </div>
+             
+         </div>
+   </iframe>
 
 <!-- Gene Context Menu -->
 <ul id="gene-ctx-menu" class="dropdown-menu markers-ctx-menu" role="menu" ng-show="vm.optCtxGeneShow">

@@ -49,7 +49,7 @@
             vm.explore = function(tool) {
                 vm.change();
                 $state.go(tool, {
-                    datasource: osApi.getDataSource().key
+                    datasource: osApi.getDataSource().disease
                 });
             };
         }
