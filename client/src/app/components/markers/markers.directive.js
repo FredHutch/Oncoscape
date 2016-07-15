@@ -23,7 +23,9 @@
         function MarkersController(osApi, osHistory, $state, $timeout, $scope, $stateParams, cytoscape, signals, moment, $window, _, $q) {
 
             osApi.setBusy(true);
-            var tmpdata;
+
+            var tmpdata, patientHtml, geneHtml;
+
             var signal = (function(){
                 return {
                     patients: {
@@ -121,7 +123,7 @@
                         selector: 'node[nodeType="gene"]:selected',
                         style: {
                             'border-color': "#FF0000",
-                            'background-opacity': '.2'
+                            //'background-opacity': '.2'
                         }
                     }, {
                         selector: 'node[nodeType="centromere"]',
@@ -278,6 +280,7 @@
             var vm = (function(vm, osApi){
                 vm.showPopupSelection = false;
                 vm.datasource = osApi.getDataSource();
+                vm.detail = {show:false, html:"", title:""};
                 vm.optGeneSets = [];
                 vm.optGeneSet;
                 vm.optPatientLayouts = [];
@@ -491,8 +494,10 @@
                         cyChart.collection(items).remove();
                     }catch(e){}
                 };
-            
-            
+                cmd.patients_html = function(data){
+                    patientHtml = data;
+                    console.log("PATIENTS HTML");
+                };
                 cmd.patients_resize = function(data){
                     console.log("PATIENTS RESIZE");
                 };
@@ -547,6 +552,10 @@
                     console.log("PATIENTS LEGEND");
                     $scope.$apply(function(){ vm.legendNodes = data; });
                 };
+                cmd.genes_html = function(data){
+                    geneHtml = data;
+                    console.log("GENES HTML");
+                };
                 cmd.genes_delete    = function(data) { 
                     console.log("GENES DELETE");
                     remove('node[nodeType="gene"]', data); 
@@ -590,8 +599,6 @@
                         });
                         return;
                     }
-
-                  
                     cyChart.startBatch();
                     if (vm.optCommandMode.name=="Ad Hoc") cyChart.$('edge[edgeType="cn"]').remove();
                     var elements = cyChart.add(data.edges);
@@ -696,6 +703,24 @@
 
             })(vm, $scope);
 
+            function setPatientInfo(e){
+                $scope.$apply(function(){
+                    if (e.type=="mouseout"){
+                        vm.detail.show= false
+                    }else{
+                        vm.detail.title = e.cyTarget.id();
+                        vm.detail.html = patientHtml[e.cyTarget.id()]; 
+                        vm.detail.show = true;
+                    }
+                });
+            };
+
+            function setGeneInfo(e){
+                console.log("genes");
+            }
+
+
+
             // Initialize Commands
             $scope.$watch("vm.optCommandMode", function(){
                 signal.clear();
@@ -704,7 +729,7 @@
                 switch (vm.optCommandMode.name)
                 {
                     case "Sequential":
-                        try{ cyChart.$('node').unselect(); setOptions(createOptions()); }catch(e){}
+                        //try{ cyChart.$('node').unselect(); setOptions(createOptions()); }catch(e){}
                         vm.cmd = function(cmd){
                             switch (cmd){
                                 case "HideAllEdges":
@@ -752,6 +777,10 @@
                                     break;
                             }
                         };
+                        signal.genes.over.add(setGeneInfo);
+                        signal.genes.over.add(setGeneInfo);
+                        signal.patients.over.add(setPatientInfo);
+                        signal.patients.out.add(setPatientInfo);
                         break;
 
                     case "Set":
@@ -764,6 +793,10 @@
                             cyChart.$('edge[edgeType="cn"]').remove();
                             setOptions(createOptions()); 
                         };
+                        signal.genes.over.add(setGeneInfo);
+                        signal.genes.over.add(setGeneInfo);
+                        signal.patients.over.add(setPatientInfo);
+                        signal.patients.out.add(setPatientInfo);
                         signal.patients.select.add(select);
                         signal.patients.unselect.add(unselect);
                         signal.genes.select.add(select);
@@ -772,13 +805,17 @@
 
                     case "Ad Hoc":
                         var over = function(e){
+                            setPatientInfo(e)
                             e.cyTarget.select();
                             setOptions(createOptions());
                         }
                         var out = function(e){
+                            setPatientInfo(e)
                             e.cyTarget.unselect();
                             //cyChart.$('edge[edgeType="cn"]').remove();
                         }
+                        signal.genes.over.add(setGeneInfo);
+                        signal.genes.over.add(setGeneInfo);
                         signal.patients.over.add(over);
                         signal.patients.out.add(out);
                         signal.genes.over.add(over);

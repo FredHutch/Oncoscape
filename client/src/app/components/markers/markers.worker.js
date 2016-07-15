@@ -247,6 +247,8 @@ var data = (function(){
 				edges: (state.options.edges.layout.name!=options.edges.layout.name),
 				genes: (state.options.genes.layout!=options.genes.layout)
 			};
+
+
 			
 			// Nothing? Return
 			if (!update.patientData && !update.patientColor && !update.patientLayout && !update.patients && !update.edges && !update.genes){
@@ -286,8 +288,35 @@ var data = (function(){
 			];
 
 			Promise.all(promises).then(function(data){
-				state.patientData = data[0];
-				state.patients = data[1];
+
+				// Reorient patient data to use PIDs as keys
+				if (update.patientData){
+					var patientInfo = data[0].reduce(function(prev, curr){ 
+
+						// Generate Html Representation of Data					
+	  					prev.data[curr.patient_ID+"-01"] = curr;
+	  					prev.html[curr.patient_ID+"-01"] = Object.keys(curr).sort()
+		  					.reduce(function(prev, curr){
+		  						if (curr!="patient_ID"){
+									prev.html += "<dt>"+curr.replace(/_/g," ")+"</dt><dd>"+prev.obj[curr]+"</dd>";
+								};
+								return prev;
+							}, {obj:curr, html:""}).html;
+	  					return prev;
+
+					},{data:{}, html:{}});
+					send("patients_html", patientInfo.html)
+					state.patientData = patientInfo.data;
+					state.patients = data[1];
+				}
+
+				if (update.genes){
+
+				}
+
+
+				
+				
 				state.patientLayout = data[2];
 				state.patientColor = data[3];
 				state.genes = data[4];

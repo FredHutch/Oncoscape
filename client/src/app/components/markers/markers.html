@@ -147,74 +147,35 @@
     </div>
 </section>
 
-
-<div id="modalEdge" class="modal fade"  tabindex="-1" role="dialog" aria-labelledby="myModalLabel">
-        <div class="modal-dialog" role="document">
-            <div class="modal-content">
-                <div class="modal-body">
-                    <h2 style="margin-top:0px;">Your request would add {{vm.edgeCounts.total}} edges to the graph.</h2>
-                    <p>To improve performance + readability you may want to disable some of the edges.</p>
-                    <div class="input-group" ng-repeat="item in vm.optEdgeColors | filter:{show:true}">
-                        <label class="switch {{item.class}}">
-                            <input type="checkbox" class="switch-input" ng-model="item.show">
-                            <span class="switch-label" data-on="On" data-off="Off"></span>
-                            <span class="switch-handle"></span> 
-                        </label>
-                        <span style="padding-left:20px;">{{item.name}} ({{vm.edgeCounts[item.abv]}})</span>
-                    </div>
+<div id="modalEdge" class="modal fade" tabindex="-1" role="dialog" aria-labelledby="myModalLabel">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-body">
+                <h2 style="margin-top:0px;">Your request would add {{vm.edgeCounts.total}} edges to the graph.</h2>
+                <p>To improve performance + readability you may want to disable some of the edges.</p>
+                <div class="input-group" ng-repeat="item in vm.optEdgeColors | filter:{show:true}">
+                    <label class="switch {{item.class}}">
+                        <input type="checkbox" class="switch-input" ng-model="item.show">
+                        <span class="switch-label" data-on="On" data-off="Off"></span>
+                        <span class="switch-handle"></span>
+                    </label>
+                    <span style="padding-left:20px;">{{item.name}} ({{vm.edgeCounts[item.abv]}})</span>
                 </div>
-                <button class="btn btn-default" style="position:absolute;right:10px;bottom:10px;"
-                ng-click="vm.filterModelEdge()">Continue</button>
-             </div>
-             
-         </div>
-   </iframe>
-
-<!-- Gene Context Menu -->
-<ul id="gene-ctx-menu" class="dropdown-menu markers-ctx-menu" role="menu" ng-show="vm.optCtxGeneShow">
-    <li class="title"></li>
-    <li ng-repeat="item in vm.optCommandGene" ng-click="item.cmd()">{{item.name}}</li>
-</ul>
-
-<!-- Patient Context Menu -->
-<ul id="patient-ctx-menu" class="dropdown-menu markers-ctx-menu" role="menu" ng-show="vm.optCtxPatientShow">
-    <li class="title"></li>
-    <li ng-repeat="item in vm.optCommandPatient" ng-click="item.cmd()">{{item.name}}</li>
-</ul>
-
-<!-- Hover Details -->
-<section ng-show="vm.gene" class="container-fluid" style="position:absolute;bottom:0px;margin-right: 300px;z-index: 999;pointer-events: none;">
-    <div class="row">
-        <div class="col-xs-12 legend" style="background-color: rgba(255,255,255,.8)">
-            <ul style="float:left;">
-                <li class="legend-section">{{vm.gene.name}}</li>
-                <li>CnGain.1: {{vm.gene.cng1}}</li>
-                <li>CnGain.2: {{vm.gene.cng2}}</li>
-                <li>CnLoss.1: {{vm.gene.cnl1}}</li>
-                <li>CnLoss.2: {{vm.gene.cnl2}}</li>
-            </ul>
+            </div>
+            <button class="btn btn-default" style="position:absolute;right:10px;bottom:10px;" ng-click="vm.filterModelEdge()">Continue</button>
         </div>
     </div>
-</section>
-<section ng-show="vm.patient" class="container-fluid" style="position:absolute;bottom:0px;margin-right: 300px;z-index: 999;pointer-events: none;">
-    <div class="row">
-        <div class="col-xs-12 legend"  style="background-color: rgba(255,255,255,.8)">
-            <ul style="float:left;">
-                <li class="legend-section">{{vm.patient[0][0]}}</li>
-                <li>GENDER: {{vm.patient[0][2]}}</li>
-                <li>STATUS: {{vm.patient[0][6]}}</li>
-                <li>DIAGNOSED: {{vm.patient[0][4]}} years old</li>
-                <li>SURVIVED: {{vm.patient[0][3]}} years</li>
-                <li>PROGRESSION: {{vm.patient[0][5]}}</li>
-            </ul>
-            <!--
-            <ul>
-                <li class="legend-section">Genes ({{vm.patientChromosomes.length}})</li>
-                <li><span ng-repeat="item in vm.patientChromosomes">{{item}} | </span></li>
-            </ul>
-            -->
-        </div>
-    </div>
-</section>
+</div>
 
-<!-- <os-summary></os-summary> -->
+
+
+<div class="tray tray-right" ng-if="vm.detail.show">
+<h2>
+ {{vm.detail.title}}
+</h2>
+<dl>
+<dl class="markers-dl" ng-bind-html="vm.detail.html"></dl>
+</dl>
+</div>
+
+

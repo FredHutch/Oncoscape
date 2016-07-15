@@ -14,17 +14,13 @@
                     <div range-slider min="vm.survivalMinValue" model-min="vm.survivalMin" max="vm.survivalMaxValue" model-max="vm.survivalMax" show-values="true" attach-handle-values="true" on-handle-up="vm.applyFilter('Survival')"></div>
                 </div>
                 <div class="col-xs-12 form-item">
-                    <label>Search</label>
-                    <input type="text" class="ngrs-range-slider" style="width: 100%;" ng-model="vm.search">
+                    <label>Export (beta)</label>
+                    <div>
+                        <button class="btn btn-default" ng-click="vm.exportCsv()">Excel (CSV)</button>
+                    </div>
                 </div>
+                
             </div>
-            <div>
-            <!--
-            <dl ng-repeat="(key, value) in vm.detail" class="col-xs-12">
-                <dt>{{key}}</dt><dd>{{value}}</dd>
-            </dl>
-            -->
-        </div>
     </section>
 </os-tray>
 
