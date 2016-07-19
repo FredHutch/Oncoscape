@@ -19,31 +19,9 @@
         return directive;
 
         /** @ngInject */
-        function PcaController(osApi, osHistory, $state, $stateParams, $timeout, $scope, d3, moment, $window, _) {
+        function PcaController($q, osApi, osHistory, $state, $stateParams, $timeout, $scope, d3, moment, $window, _) {
 
-            if (angular.isUndefined($stateParams.datasource)) {
-                $state.go("datasource");
-                return;
-            }
-
-            // Elements
-            var d3Chart = d3.select("#pca-chart").append("svg").attr("id", "chart");
-            var d3xAxis = d3Chart.append("g");
-            var d3yAxis = d3Chart.append("g");
-            var d3Tooltip = d3.select("body").append("div").attr("class", "tooltip pca-tooltip")
-
-            // Properties
-            var width, height, xScale, yScale, xMax, yMax, xAxis, yAxis;
-            var rawData;
-
-            // View Model
-            var vm = this;
-            vm.datasource = $stateParams.datasource;
-            vm.geneSets = [];
-            vm.geneSet = null;
-            vm.search = "";
-
-            // History Integration
+            // History
             var selectedIds = (osHistory.getPatientSelection() == null) ? [] : osHistory.getPatientSelection().ids;
             function saveSelected() {
                 var selected = d3Chart.selectAll(".pca-node-selected")[0];
@@ -64,117 +42,109 @@
                 }
             }
 
-            // Initialize
-            osApi.setBusy(true)("Loading Dataset");
-            osApi.setDataset(vm.datasource).then(function(response) {
-                var mtx = response.payload.rownames.filter(function(v) {
-                    return v.indexOf("mtx.mrna") >= 0
+            // Elements
+            var d3Chart = d3.select("#pca-chart").append("svg").attr("id", "chart");
+            var d3xAxis = d3Chart.append("g");
+            var d3yAxis = d3Chart.append("g");
+            var d3Tooltip = d3.select("body").append("div").attr("class", "tooltip pca-tooltip");
+
+            // Properties
+            var data;
+            var layout = { 
+                width:0, 
+                height:0, 
+                xScale:0, 
+                yScale:0, 
+                xMax:0, 
+                yMax:0, 
+                xAxis:0,
+                yAxis:0 };
+            
+            // View Model
+            var vm = (function(vm, osApi){
+                vm.datasource = osApi.getDataSource(); 
+                vm.geneSets = [];
+                vm.geneSet = null;
+                vm.search = "";
+                osApi.query("render_pca", {disease:vm.datasource.disease, $fields:['geneset']})
+                .then(function(response){
+                   vm.geneSets = response.data;
+                   vm.geneSet = vm.geneSets[0];
                 });
+                return vm;
 
-                mtx = mtx[0].replace(".RData", "");
-                osApi.setBusyMessage("Creating PCA Matrix");
-                osApi.getPCA(vm.datasource, mtx).then(function() {
+            })(this, osApi)
 
-                    osApi.setBusyMessage("Loading Gene Sets");
-                    osApi.getGeneSetNames().then(function(response) {
-
-                        // Load Gene Sets
-                        vm.geneSets = response.payload;
-                        vm.geneSets.unshift("All");
-                        vm.geneSet = vm.geneSets[0];
-
-                        $scope.$watch('vm.geneSet', function() {
-                            update();
-                        });
-
-                        // History
-                        osHistory.onPatientSelectionChange.add(function(selection) {
-                            selectedIds = selection.ids;
-                            vm.search = "";
-                            setSelected();
-                        });
-                    });
+            $scope.$watch('vm.geneSet', function(geneset){
+                if (geneset==null) return;
+                osApi.query("render_pca", {disease:vm.datasource.disease, geneset:geneset.geneset})
+                .then(function(response){
+                    vm.pc1 = response.data[0].pc1;
+                    vm.pc2 = response.data[0].pc2;
+                    var keys = Object.keys(response.data[0].data);
+                    data = keys.map(function(key){
+                        this.data[key].push(key);
+                        return this.data[key];
+                    },{data:response.data[0].data});
+                    draw();
                 });
             });
 
-            // API Call To Calculate PCA
-            var update = function() {
-                osApi.setBusyMessage("Calculating PCA");
-                osApi.getCalculatedPCA((vm.geneSet=="All") ? null : vm.geneSet).then(function(response) {
-                    osApi.setBusyMessage("Rendering PCA");
-                    var payload = response.payload;
-                    vm.pc1 = Math.round(response.payload["importance.PC1"] * 100);
-                    vm.pc2 = Math.round(response.payload["importance.PC2"] * 100);
-                    // Error Patient Ids From Server Are Different Than 
-                    var scores = payload.scores;
-                    var ids = payload.ids;
-                    rawData = scores.map(function(d, i) {
-                        d.id = ids[i];
-                        return d;
-                    }, payload.ids);
-                    draw();
-                    osApi.setBusy(false);
-                });
-            };
-
-            function setScale() {
-                
-                width = $window.innerWidth - 400;
+            // Drawing Functions
+            function scale(){
+                layout.width = $window.innerWidth - 400;
                 if (angular.element(".tray-right").attr("locked")=="false"){
-                    width += 300;
+                    layout.width += 300;
                 } 
-                height = $window.innerHeight - 190;
-                if (angular.element(".tray").attr("locked") == "true") width -= 300;
+                layout.height = $window.innerHeight - 190;
+                if (angular.element(".tray").attr("locked") == "true") layout.width -= 300;
 
                 d3Chart
                     .attr("width", '100%')
-                    .attr("height", height);
-                xScale = d3.scale.linear()
-                    .domain([-xMax, xMax])
-                    .range([0, width]).nice();
+                    .attr("height", layout.height);
+                layout.xScale = d3.scale.linear()
+                    .domain([-layout.xMax, layout.xMax])
+                    .range([0, layout.width]).nice();
 
-                yScale = d3.scale.linear()
-                    .domain([-yMax, yMax])
-                    .range([height, 0]).nice();
+                layout.yScale = d3.scale.linear()
+                    .domain([-layout.yMax, layout.yMax])
+                    .range([layout.height, 0]).nice();
             }
 
-            // Render
-            function draw() {
-
-                var dataset = rawData;
-
-                var max, min;
-                max = Math.abs(d3.max(dataset, function(d) {
+            function draw(){
+                var vals = Object.keys(data).map(function(key){ return data[key] },{data:data});
+                layout.max = Math.abs(d3.max(vals, function(d) {
                     return +d[0];
                 }));
-                min = Math.abs(d3.min(dataset, function(d) {
+                layout.min = Math.abs(d3.min(vals, function(d) {
                     return +d[0];
                 }));
-                xMax = ((max > min) ? max : min) * 1.2;
-                max = Math.abs(d3.max(dataset, function(d) {
+                layout.xMax = ((layout.max > layout.min) ? layout.max : layout.min) * 1.2;
+                layout.max = Math.abs(d3.max(vals, function(d) {
                     return +d[1];
                 }));
-                min = Math.abs(d3.min(dataset, function(d) {
+                layout.min = Math.abs(d3.min(vals, function(d) {
                     return +d[1];
                 }));
-                yMax = ((max > min) ? max : min) * 1.2;
+                layout.yMax = ((layout.max > layout.min) ? layout.max : layout.min) * 1.2;
 
-                setScale();
+                // Refresh Scale
+                scale();
 
-                xAxis = d3.svg.axis()
-                    .scale(xScale)
+                 layout.xAxis = d3.svg.axis()
+                    .scale(layout.xScale)
                     .orient("top")
                     .ticks(5);
 
-                yAxis = d3.svg.axis()
-                    .scale(yScale)
+                layout.yAxis = d3.svg.axis()
+                    .scale(layout.yScale)
                     .orient("left")
                     .ticks(5);
 
                 // Brush
                 var brush = d3.svg.brush()
-                    .x(xScale)
-                    .y(yScale)
+                    .x(layout.xScale)
+                    .y(layout.yScale)
                     .on("brushend", function() {
                         var bv = brush.extent();
                         d3Chart.selectAll("circle")
@@ -191,7 +161,7 @@
 
                 d3Chart.call(brush);
 
-                var circles = d3Chart.selectAll("circle").data(rawData, function(d) {
+                var circles = d3Chart.selectAll("circle").data(data, function(d) {
                     return d;
                 });
 
@@ -199,8 +169,8 @@
                     .append("circle")
                     .attr({
                         "class": "pca-node",
-                        "cx": width * .5,
-                        "cy": height * .5,
+                        "cx": layout.width * .5,
+                        "cy": layout.height * .5,
                         "r": 3
                     })
                     .style("fill-opacity", "0")
@@ -223,10 +193,10 @@
                         return i / 300 * 500;
                     })
                     .attr("cx", function(d) {
-                        return xScale(d[0]);
+                        return layout.xScale(d[0]);
                     })
                     .attr("cy", function(d) {
-                        return yScale(d[1]);
+                        return layout.yScale(d[1]);
                     })
                     .style("fill-opacity", 1);
 
@@ -236,43 +206,46 @@
                     .delay(function(d, i) {
                         return i / 300 * 500;
                     })
-                    .attr("cx", width * .5)
-                    .attr("cy", height * .5)
+                    .attr("cx", layout.width * .5)
+                    .attr("cy", layout.height * .5)
                     .style("fill-opacity", "0")
                     .remove();
 
 
                 d3yAxis
                     .attr("class", "axis")
-                    .attr("transform", "translate(0, " + yScale(0) + ")")
-                    .call(xAxis)
+                    .attr("transform", "translate(0, " + layout.yScale(0) + ")")
+                    .call(layout.xAxis)
                     .append("text")
                     .text("PC1");
 
                 d3xAxis
                     .attr("class", "axis")
-                    .attr("transform", "translate(" + xScale(0) + ", 0)")
-                    .call(yAxis)
+                    .attr("transform", "translate(" + layout.xScale(0) + ", 0)")
+                    .call(layout.yAxis)
                     .append("text")
                     .attr("y", 10)
                     .attr("dy", ".71em")
                     .text("PC2");
 
                 setSelected();
+
+
             }
+
 
             vm.resize = function() {
                 setScale();
-                xAxis.scale(xScale);
-                yAxis.scale(yScale);
-                d3yAxis.attr("transform", "translate(0, " + yScale(0) + ")").call(xAxis);
-                d3xAxis.attr("transform", "translate(" + xScale(0) + ", 0)").call(yAxis);
+                xAxis.scale(layout.xScale);
+                yAxis.scale(layout.yScale);
+                d3yAxis.attr("transform", "translate(0, " + yScale(0) + ")").call(layout.xAxis);
+                d3xAxis.attr("transform", "translate(" + xScale(0) + ", 0)").call(layout.yAxis);
                 d3Chart.selectAll("circle")
                     .attr("cx", function(d) {
-                        return xScale(d[0]);
+                        return layout.xScale(d[0]);
                     })
                     .attr("cy", function(d) {
-                        return yScale(d[1]);
+                        return layout.yScale(d[1]);
                     })
             };
 
@@ -280,7 +253,6 @@
             angular.element($window).bind('resize',
                 _.debounce(vm.resize, 300)
             );
-
         }
     }
 })();

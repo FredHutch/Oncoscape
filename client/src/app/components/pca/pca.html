@@ -10,17 +10,13 @@
                     <label>Gene Set</label>
                     <div class="dropdown bs-dropdown">
                         <button class="btn btn-default dropdown-toggle" type="button" id="dropdownMenu1" data-toggle="dropdown" aria-haspopup="true" aria-expanded="true">
-                            {{vm.geneSet}}
+                            {{vm.geneSet.geneset}}
                             <span class="caret"></span>
                         </button>
                         <ul class="dropdown-menu" aria-labelledby="dropdownMenu1">
-                            <li ng-repeat="item in vm.geneSets" ng-click="vm.geneSet=item">{{item}}</li>
+                            <li ng-repeat="item in vm.geneSets" ng-click="vm.geneSet=item">{{item.geneset}}</li>
                         </ul>
                     </div>
-                </div>
-                <div class="col-xs-12 form-item">
-                    <label>Search</label>
-                    <input type="text" class="ngrs-range-slider" style="width: 100%;" ng-model="vm.search">
                 </div>
                 <div class="col-xs-6 form-label">
                     <h2>Legend</h2>
@@ -38,7 +34,7 @@
 <section class="tray-content-block">
   <div class="container-fluid">
     <h2 class="h2-tool">Principal Component Analysis</h2>
-    <h3 class="h3-datasource">{{vm.datasource}}</h3>
+    <h3 class="h3-datasource">{{vm.datasource.name}} {{vm.datasource.source}}</h3>
     <div id="pca-chart" class="pca"></div>
   </div>
 </section>
