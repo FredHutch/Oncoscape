@@ -29,7 +29,7 @@
             angular.element.fn.DataTable.ext.search = [];
 
             
-            // Route unauthenticated users to landing page
+            // // Route unauthenticated users to landing page
             if (toState.authenticate && !osApi.getUserApi().getUser().authenticated) {
                 $state.transitionTo("landing");
                 event.preventDefault();

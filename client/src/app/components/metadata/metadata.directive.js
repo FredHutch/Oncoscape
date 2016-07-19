@@ -21,7 +21,7 @@
         /** @ngInject */
         function MetadataController(osApi, $state, $timeout, $scope, $stateParams) {
 
-            if (angular.isUndefined($stateParams.datasource)){
+            if (angular.isUndefined($stateParams.datasource)) {
                 $state.go("datasource");
                 return;
             }
@@ -31,7 +31,7 @@
             vm.colnames = [];
             vm.rows = [];
             vm.search = "";
-    
+
             // Elements
             var dtTable;
 

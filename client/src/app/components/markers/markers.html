@@ -2,35 +2,25 @@
 <os-tray content="tray-content-block" change="vm.resize()">
     <section class="tray-content">
         <div class="row">
-          
             <br />
             <div class="col-xs-12 form-item">
                 <label>Patient Selection</label>
-                <div ng-repeat="item in vm.legendNodes" class="legend-bar"
-                  style="border-color:{{item.color}};position:relative;background-color:#FFF;padding:2px 10px;line-height:25px;">{{item.name}}
-
+                <div ng-repeat="item in vm.legendNodes" class="legend-bar" style="border-color:{{item.color}};position:relative;background-color:#FFF;padding:2px 10px;line-height:25px;">{{item.name}}
                 </div>
             </div>
-
             <div class="col-xs-12 form-item">
                 <label>Edge Visibility</label>
-
-                
-                <div ng-repeat="item in vm.optEdgeColors" class="legend-bar"
-                  style="border-color:{{item.color}};position:relative;background-color:#FFF;padding:2px 10px;line-height:25px;">{{item.name}}
+                <div ng-repeat="item in vm.optEdgeColors" class="legend-bar" style="border-color:{{item.color}};position:relative;background-color:#FFF;padding:2px 10px;line-height:25px;">{{item.name}}
                     <label class="switch {{item.class}}" style="float:right">
                         <input type="checkbox" class="switch-input" ng-model="item.show" ng-change="vm.edgeToggle(item)">
                         <span class="switch-label" data-on="On" data-off="Off"></span>
-                        <span class="switch-handle"></span> 
+                        <span class="switch-handle"></span>
                     </label>
                 </div>
-                
             </div>
-            
-
             <div class="col-xs-12 form-item" ng-if="vm.optCommandMode.name=='Sequential'">
-                <label>Commands</label><br />
-                
+                <label>Commands</label>
+                <br />
                 <a ng-click="vm.cmd('ShowSelectedEdges')" class="markers-command hvr-sweep-to-right">Show Edges of Selected</a>
                 <a ng-click="vm.cmd('HideSelectedEdges')" class="markers-command hvr-sweep-to-right">Hide Edges of Selected</a>
                 <a ng-click="vm.cmd('HideUnselectedEdges')" class="markers-command hvr-sweep-to-right">Hide Edges of Unselected</a>
@@ -40,7 +30,6 @@
                 <a ng-click="vm.cmd('HideUnselectedNodes')" class="markers-command hvr-sweep-to-right">Hide Unselected Nodes</a>
                 <a ng-click="vm.cmd('ShowAllNodes')" class="markers-command hvr-sweep-to-right">Show All Nodes</a>
             </div>
-
             <div class="col-xs-6 form-item" style="padding-right:5px">
                 <label>Command Mode</label>
                 <div class="dropdown bs-dropdown">
@@ -53,7 +42,6 @@
                     </ul>
                 </div>
             </div>
-
             <div class="col-xs-6 form-item" style="padding-left:5px">
                 <label>Gene Set</label>
                 <div class="dropdown bs-dropdown">
@@ -66,7 +54,6 @@
                     </ul>
                 </div>
             </div>
-
             <div class="col-xs-6 form-item" style="padding-right:5px">
                 <label>Patient Layout</label>
                 <div class="dropdown bs-dropdown">
@@ -94,50 +81,34 @@
             <div class="col-xs-12 form-item" style="padding-left:5px">
                 <label>Lock Selections</label>
                 <div class="btn-group" role="group" style="display: block">
-                    <button class="btn btn-default btn-no-focus" type="button" 
-                        ng-click="vm.lock('patient')" style="width:50%; font-weight: 300;"
-                        title="Patient Selection Lock">
+                    <button class="btn btn-default btn-no-focus" type="button" ng-click="vm.lock('patient')" style="width:50%; font-weight: 300;" title="Patient Selection Lock">
                         <i class="fa fa-unlock" ng-show="!vm.lockPatients"></i>
-                        <i class="fa fa-lock"   ng-show="vm.lockPatients"></i>
-                        Patients
+                        <i class="fa fa-lock" ng-show="vm.lockPatients"></i> Patients
                     </button>
-                    <button class="btn btn-default btn-no-focus" type="button" 
-                        ng-click="vm.lock('gene')" style="width:50%; font-weight: 300;"
-                        title="Gene Selection Lock">
+                    <button class="btn btn-default btn-no-focus" type="button" ng-click="vm.lock('gene')" style="width:50%; font-weight: 300;" title="Gene Selection Lock">
                         <i class="fa fa-unlock" ng-show="!vm.lockGenes"></i>
-                        <i class="fa fa-lock"   ng-show="vm.lockGenes"></i>
-                        Genes
+                        <i class="fa fa-lock" ng-show="vm.lockGenes"></i> Genes
                     </button>
                 </div>
             </div>
             <div class="col-xs-12 form-item" style="padding-left:5px">
                 <label>Zoom</label>
                 <div class="btn-group" role="group" style="display: block">
-                    <button class="btn btn-default btn-no-focus" type="button" 
-                        ng-click="vm.zoom.reset()" style="width:50%; font-weight: 300;"
-                        title="Zoom Reset">
+                    <button class="btn btn-default btn-no-focus" type="button" ng-click="vm.zoom.reset()" style="width:50%; font-weight: 300;" title="Zoom Reset">
                         Reset
                     </button>
-                    <button class="btn btn-default btn-no-focus" type="button" 
-                        ng-click="vm.zoom.fit()" style="width:50%; font-weight: 300;"
-                        title="Zoom Selection">
+                    <button class="btn btn-default btn-no-focus" type="button" ng-click="vm.zoom.fit()" style="width:50%; font-weight: 300;" title="Zoom Selection">
                         Selected
                     </button>
                 </div>
             </div>
-            
-
             <div class="col-xs-12 form-item">
                 <label>Search</label>
                 <input type="text" class="form-control" ng-model="vm.search" placeholder="Genes or Patients">
             </div>
-
-
-            
         </div>
     </section>
 </os-tray>
-
 <!-- Label + Chart -->
 <section class="tray-content-block">
     <div id="markers-chart" class="markers-chart"></div>
@@ -146,75 +117,30 @@
         <h3 class="h3-datasource">{{vm.datasource.name}} {{vm.datasource.source}}</h3>
     </div>
 </section>
-
-
-<div id="modalEdge" class="modal fade"  tabindex="-1" role="dialog" aria-labelledby="myModalLabel">
-        <div class="modal-dialog" role="document">
-            <div class="modal-content">
-                <div class="modal-body">
-                    <h2 style="margin-top:0px;">Your request would add {{vm.edgeCounts.total}} edges to the graph.</h2>
-                    <p>To improve performance + readability you may want to disable some of the edges.</p>
-                    <div class="input-group" ng-repeat="item in vm.optEdgeColors | filter:{show:true}">
-                        <label class="switch {{item.class}}">
-                            <input type="checkbox" class="switch-input" ng-model="item.show">
-                            <span class="switch-label" data-on="On" data-off="Off"></span>
-                            <span class="switch-handle"></span> 
-                        </label>
-                        <span style="padding-left:20px;">{{item.name}} ({{vm.edgeCounts[item.abv]}})</span>
-                    </div>
+<div id="modalEdge" class="modal fade" tabindex="-1" role="dialog" aria-labelledby="myModalLabel">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-body">
+                <h2 style="margin-top:0px;">Your request would add {{vm.edgeCounts.total}} edges to the graph.</h2>
+                <p>To improve performance + readability you may want to disable some of the edges.</p>
+                <div class="input-group" ng-repeat="item in vm.optEdgeColors | filter:{show:true}">
+                    <label class="switch {{item.class}}">
+                        <input type="checkbox" class="switch-input" ng-model="item.show">
+                        <span class="switch-label" data-on="On" data-off="Off"></span>
+                        <span class="switch-handle"></span>
+                    </label>
+                    <span style="padding-left:20px;">{{item.name}} ({{vm.edgeCounts[item.abv]}})</span>
                 </div>
-                <button class="btn btn-default" style="position:absolute;right:10px;bottom:10px;"
-                ng-click="vm.filterModelEdge()">Continue</button>
-             </div>
-             
-         </div>
-   </iframe>
-
-<!-- Gene Context Menu -->
-<ul id="gene-ctx-menu" class="dropdown-menu markers-ctx-menu" role="menu" ng-show="vm.optCtxGeneShow">
-    <li class="title"></li>
-    <li ng-repeat="item in vm.optCommandGene" ng-click="item.cmd()">{{item.name}}</li>
-</ul>
-
-<!-- Patient Context Menu -->
-<ul id="patient-ctx-menu" class="dropdown-menu markers-ctx-menu" role="menu" ng-show="vm.optCtxPatientShow">
-    <li class="title"></li>
-    <li ng-repeat="item in vm.optCommandPatient" ng-click="item.cmd()">{{item.name}}</li>
-</ul>
-
-<!-- Hover Details -->
-<section ng-show="vm.gene" class="container-fluid" style="position:absolute;bottom:0px;margin-right: 300px;z-index: 999;pointer-events: none;">
-    <div class="row">
-        <div class="col-xs-12 legend" style="background-color: rgba(255,255,255,.8)">
-            <ul style="float:left;">
-                <li class="legend-section">{{vm.gene.name}}</li>
-                <li>CnGain.1: {{vm.gene.cng1}}</li>
-                <li>CnGain.2: {{vm.gene.cng2}}</li>
-                <li>CnLoss.1: {{vm.gene.cnl1}}</li>
-                <li>CnLoss.2: {{vm.gene.cnl2}}</li>
-            </ul>
+            </div>
+            <button class="btn btn-default" style="position:absolute;right:10px;bottom:10px;" ng-click="vm.filterModelEdge()">Continue</button>
         </div>
     </div>
-</section>
-<section ng-show="vm.patient" class="container-fluid" style="position:absolute;bottom:0px;margin-right: 300px;z-index: 999;pointer-events: none;">
-    <div class="row">
-        <div class="col-xs-12 legend"  style="background-color: rgba(255,255,255,.8)">
-            <ul style="float:left;">
-                <li class="legend-section">{{vm.patient[0][0]}}</li>
-                <li>GENDER: {{vm.patient[0][2]}}</li>
-                <li>STATUS: {{vm.patient[0][6]}}</li>
-                <li>DIAGNOSED: {{vm.patient[0][4]}} years old</li>
-                <li>SURVIVED: {{vm.patient[0][3]}} years</li>
-                <li>PROGRESSION: {{vm.patient[0][5]}}</li>
-            </ul>
-            <!--
-            <ul>
-                <li class="legend-section">Genes ({{vm.patientChromosomes.length}})</li>
-                <li><span ng-repeat="item in vm.patientChromosomes">{{item}} | </span></li>
-            </ul>
-            -->
-        </div>
-    </div>
-</section>
-
-<!-- <os-summary></os-summary> -->
+</div>
+<div class="tray tray-right" ng-if="vm.detail.show">
+    <h2>
+ {{vm.detail.title}}
+</h2>
+    <dl>
+        <dl class="markers-dl" ng-bind-html="vm.detail.html"></dl>
+    </dl>
+</div>

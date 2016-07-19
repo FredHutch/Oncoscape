@@ -6,7 +6,7 @@
         .service('osApi', oncoscape);
 
     /** @ngInject */
-    function oncoscape(osSocket, osHttp, $http, signals, $location) {
+    function oncoscape(osHttp, $http, signals, $location) {
 
         // Events
         var onDataSource = new signals.Signal();
@@ -141,6 +141,7 @@
         }
 
         /*** R Service Calls ***/
+        var osSocket = {};
         function setDataset(dataPackage) {
             osSocket.setDataSource(dataPackage);
             return osSocket.request({
