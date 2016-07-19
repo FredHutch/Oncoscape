@@ -55,44 +55,32 @@
             <div class="col-xs-12 form-label">
                 <h2>Table Info</h2>
                 <dl>
-                <dt>Date Uploaded</dt>
-                <dd>{{vm.dataTable.created}}</dd>
-                <dt>Record Count</dt>
-                <dd>{{vm.dataTable.records}}</dd>
-                <dt>Field Count</dt>
-                <dd>{{vm.dataFields.length}}</dd>
-            </dl>    
-        </div>
+                    <dt>Date Uploaded</dt>
+                    <dd>{{vm.dataTable.created}}</dd>
+                    <dt>Record Count</dt>
+                    <dd>{{vm.dataTable.records}}</dd>
+                    <dt>Field Count</dt>
+                    <dd>{{vm.dataFields.length}}</dd>
+                </dl>
+            </div>
     </section>
 </os-tray>
-
 <section class="tray-content-block dataexplorer">
     <div class="container-fluid">
         <h2>Data Explorer</h2>
-
         <div ng-repeat="item in vm.dataFields" class="data-field">
             <b>{{item.key}}</b>
-            <div style="width:30%; margin-top:10px">     
-                {{item.name}}.
-                {{item.desc}}
+            <div style="width:30%; margin-top:10px">
+                {{item.name}}. {{item.desc}}
             </div>
-            
             <nvd3 options="vm.chartOptions" data="item.values"></nvd3>
-            
-
-        <!--
+            <!--
         Unique Values: {{item.distinct}}<br>
         Total Values: {{item.count}}<br>
         Records Contain: {{item.percent}}<br>
         Url: {{item.url}}<br>
         TCGA: {{item.tcga}}<br>
         -->
-        
         </div>
-
-
-        
     </div>
 </section>
-
-
