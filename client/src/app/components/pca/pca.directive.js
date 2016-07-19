@@ -23,17 +23,19 @@
 
             // History
             var selectedIds = (osHistory.getPatientSelection() == null) ? [] : osHistory.getPatientSelection().ids;
+
             function saveSelected() {
                 var selected = d3Chart.selectAll(".pca-node-selected")[0];
-                if (selected.length==0) return;
+                if (selected.length == 0) return;
                 osHistory.addPatientSelection("PCA", "Manual Selection",
                     d3Chart.selectAll(".pca-node-selected")[0].map(function(node) {
                         return node.__data__.id.toUpperCase();
                     })
                 );
             }
+
             function setSelected() {
-                if (selectedIds.length==0) {
+                if (selectedIds.length == 0) {
                     d3Chart.selectAll(".pca-node-selected").classed("pca-node-selected", false);
                 } else {
                     d3Chart.selectAll("circle").classed("pca-node-selected", function() {
@@ -50,52 +52,61 @@
 
             // Properties
             var data;
-            var layout = { 
-                width:0, 
-                height:0, 
-                xScale:0, 
-                yScale:0, 
-                xMax:0, 
-                yMax:0, 
-                xAxis:0,
-                yAxis:0 };
-            
+            var layout = {
+                width: 0,
+                height: 0,
+                xScale: 0,
+                yScale: 0,
+                xMax: 0,
+                yMax: 0,
+                xAxis: 0,
+                yAxis: 0
+            };
+
             // View Model
-            var vm = (function(vm, osApi){
-                vm.datasource = osApi.getDataSource(); 
+            var vm = (function(vm, osApi) {
+                vm.datasource = osApi.getDataSource();
                 vm.geneSets = [];
                 vm.geneSet = null;
                 vm.search = "";
-                osApi.query("render_pca", {disease:vm.datasource.disease, $fields:['geneset']})
-                .then(function(response){
-                   vm.geneSets = response.data;
-                   vm.geneSet = vm.geneSets[0];
-                });
+                osApi.query("render_pca", {
+                        disease: vm.datasource.disease,
+                        $fields: ['geneset']
+                    })
+                    .then(function(response) {
+                        vm.geneSets = response.data;
+                        vm.geneSet = vm.geneSets[0];
+                    });
                 return vm;
 
             })(this, osApi)
 
-            $scope.$watch('vm.geneSet', function(geneset){
-                if (geneset==null) return;
-                osApi.query("render_pca", {disease:vm.datasource.disease, geneset:geneset.geneset})
-                .then(function(response){
-                    vm.pc1 = response.data[0].pc1;
-                    vm.pc2 = response.data[0].pc2;
-                    var keys = Object.keys(response.data[0].data);
-                    data = keys.map(function(key){
-                        this.data[key].push(key);
-                        return this.data[key];
-                    },{data:response.data[0].data});
-                    draw();
-                });
+            $scope.$watch('vm.geneSet', function(geneset) {
+                if (geneset == null) return;
+                osApi.query("render_pca", {
+                        disease: vm.datasource.disease,
+                        geneset: geneset.geneset
+                    })
+                    .then(function(response) {
+                        vm.pc1 = response.data[0].pc1;
+                        vm.pc2 = response.data[0].pc2;
+                        var keys = Object.keys(response.data[0].data);
+                        data = keys.map(function(key) {
+                            this.data[key].push(key);
+                            return this.data[key];
+                        }, {
+                            data: response.data[0].data
+                        });
+                        draw();
+                    });
             });
 
             // Drawing Functions
-            function scale(){
+            function scale() {
                 layout.width = $window.innerWidth - 400;
-                if (angular.element(".tray-right").attr("locked")=="false"){
+                if (angular.element(".tray-right").attr("locked") == "false") {
                     layout.width += 300;
-                } 
+                }
                 layout.height = $window.innerHeight - 190;
                 if (angular.element(".tray").attr("locked") == "true") layout.width -= 300;
 
@@ -111,8 +122,12 @@
                     .range([layout.height, 0]).nice();
             }
 
-            function draw(){
-                var vals = Object.keys(data).map(function(key){ return data[key] },{data:data});
+            function draw() {
+                var vals = Object.keys(data).map(function(key) {
+                    return data[key]
+                }, {
+                    data: data
+                });
                 layout.max = Math.abs(d3.max(vals, function(d) {
                     return +d[0];
                 }));
@@ -131,7 +146,7 @@
                 // Refresh Scale
                 scale();
 
-                 layout.xAxis = d3.svg.axis()
+                layout.xAxis = d3.svg.axis()
                     .scale(layout.xScale)
                     .orient("top")
                     .ticks(5);

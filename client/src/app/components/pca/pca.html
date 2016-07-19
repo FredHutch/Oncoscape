@@ -2,39 +2,37 @@
 </os-tool-menu>
 <os-tray content="tray-content-block" change="vm.resize($event)">
     <section class="tray-content">
-            <div class="row">
-                <div class="col-xs-12 form-label">
-                    <h2>Filters</h2>
-                </div>
-                <div class="col-xs-12 form-item">
-                    <label>Gene Set</label>
-                    <div class="dropdown bs-dropdown">
-                        <button class="btn btn-default dropdown-toggle" type="button" id="dropdownMenu1" data-toggle="dropdown" aria-haspopup="true" aria-expanded="true">
-                            {{vm.geneSet.geneset}}
-                            <span class="caret"></span>
-                        </button>
-                        <ul class="dropdown-menu" aria-labelledby="dropdownMenu1">
-                            <li ng-repeat="item in vm.geneSets" ng-click="vm.geneSet=item">{{item.geneset}}</li>
-                        </ul>
-                    </div>
-                </div>
-                <div class="col-xs-6 form-label">
-                    <h2>Legend</h2>
-                    <span class="circle" style="background-color:black;width:10px;height: 10px;margin-right:10px;"></span>Patients
-                </div>
-                <div class="col-xs-6 form-label">
-                    <h2>Variance</h2>
-                    PC1: {{vm.pc1}}%<br />
-                    PC2: {{vm.pc2}}%
-                </div>
-                
+        <div class="row">
+            <div class="col-xs-12 form-label">
+                <h2>Filters</h2>
             </div>
+            <div class="col-xs-12 form-item">
+                <label>Gene Set</label>
+                <div class="dropdown bs-dropdown">
+                    <button class="btn btn-default dropdown-toggle" type="button" id="dropdownMenu1" data-toggle="dropdown" aria-haspopup="true" aria-expanded="true">
+                        {{vm.geneSet.geneset}}
+                        <span class="caret"></span>
+                    </button>
+                    <ul class="dropdown-menu" aria-labelledby="dropdownMenu1">
+                        <li ng-repeat="item in vm.geneSets" ng-click="vm.geneSet=item">{{item.geneset}}</li>
+                    </ul>
+                </div>
+            </div>
+            <div class="col-xs-6 form-label">
+                <h2>Legend</h2>
+                <span class="circle" style="background-color:black;width:10px;height: 10px;margin-right:10px;"></span>Patients
+            </div>
+            <div class="col-xs-6 form-label">
+                <h2>Variance</h2> PC1: {{vm.pc1}}%
+                <br /> PC2: {{vm.pc2}}%
+            </div>
+        </div>
     </section>
 </os-tray>
 <section class="tray-content-block">
-  <div class="container-fluid">
-    <h2 class="h2-tool">Principal Component Analysis</h2>
-    <h3 class="h3-datasource">{{vm.datasource.name}} {{vm.datasource.source}}</h3>
-    <div id="pca-chart" class="pca"></div>
-  </div>
+    <div class="container-fluid">
+        <h2 class="h2-tool">Principal Component Analysis</h2>
+        <h3 class="h3-datasource">{{vm.datasource.name}} {{vm.datasource.source}}</h3>
+        <div id="pca-chart" class="pca"></div>
+    </div>
 </section>
