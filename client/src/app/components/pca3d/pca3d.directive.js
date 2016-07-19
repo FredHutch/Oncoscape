@@ -49,9 +49,8 @@
                 });
 
                 mtx = mtx[mtx.length - 1].replace(".RData", "");
-                osApi.setBusyMessage("Creating PCA Matrix");
+                
                 osApi.getPCA(vm.datasource, mtx).then(function() {
-                    osApi.setBusyMessage("Loading Gene Sets");
                     osApi.getGeneSetNames().then(function(response) {
 
                         // Load Gene Sets
@@ -66,9 +65,7 @@
 
             // API Call To Calculate PCA
             var update = function() {
-                osApi.setBusyMessage("Calculating PCA");
                 osApi.getCalculatedPCA2(vm.geneSet).then(function(response) {
-                    osApi.setBusyMessage("Rendering PCA");
                     var payload = response.payload;
                     vm.pc1 = response.payload["importance.PC1"];
                     vm.pc2 = response.payload["importance.PC2"];

@@ -32,8 +32,8 @@
             }
 
             var mouseOut = function(){
-                angular.element(".tool-menu")
-                    .addClass("tray-collapsed-left");
+                // angular.element(".tool-menu")
+                //     .addClass("tray-collapsed-left");
             }
 
             var elTray = angular.element(".tool-menu");
@@ -41,6 +41,10 @@
                     .bind("mouseover", mouseOver)
                     .bind("mouseout", mouseOut);
             
+            $('#myTabs a').click(function (e) {
+                e.preventDefault()
+                $(this).tab('show')
+            });
             
         }
     }
