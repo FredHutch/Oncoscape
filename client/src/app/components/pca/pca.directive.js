@@ -29,7 +29,7 @@
                 if (selected.length == 0) return;
                 osHistory.addPatientSelection("PCA", "Manual Selection",
                     d3Chart.selectAll(".pca-node-selected")[0].map(function(node) {
-                        return node.__data__.id.toUpperCase();
+                        return node.__data__[2].toUpperCase();
                     })
                 );
             }
@@ -186,7 +186,8 @@
                         "class": "pca-node",
                         "cx": layout.width * .5,
                         "cy": layout.height * .5,
-                        "r": 3
+                        "opacity": 0.3,
+                        "r": 5
                     })
                     .style("fill-opacity", "0")
                     .on("mouseover", function(d) {
@@ -250,11 +251,11 @@
 
 
             vm.resize = function() {
-                setScale();
-                xAxis.scale(layout.xScale);
-                yAxis.scale(layout.yScale);
-                d3yAxis.attr("transform", "translate(0, " + yScale(0) + ")").call(layout.xAxis);
-                d3xAxis.attr("transform", "translate(" + xScale(0) + ", 0)").call(layout.yAxis);
+                scale();
+                layout.xAxis.scale(layout.xScale);
+                layout.yAxis.scale(layout.yScale);
+                d3yAxis.attr("transform", "translate(0, " + layout.yScale(0) + ")").call(layout.xAxis);
+                d3xAxis.attr("transform", "translate(" + layout.xScale(0) + ", 0)").call(layout.yAxis);
                 d3Chart.selectAll("circle")
                     .attr("cx", function(d) {
                         return layout.xScale(d[0]);

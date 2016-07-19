@@ -313,6 +313,18 @@
                 vm.selectColor = function(item) {
 
                 };
+                vm.patientSelect = function(item){
+                    var c = cyChart.$('node[color="'+item.color+'"]');
+                    var nodes = cyChart.$('node[nodeType="patient"]');
+cyChart
+                    debugger;
+                    console.log("SE");
+                    console.log(item);
+                };
+                vm.patientUnselect = function(item){
+                    console.log("UN");
+                    console.log(item);
+                };
 
                 vm.filterModelEdge = function() {
 

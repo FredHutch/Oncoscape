@@ -47,7 +47,7 @@
               
             vm.toolsClick = function(){
                 $state.go("tools", {
-                    datasource: osApi.getDataSource()
+                    datasource: osApi.getDataSource().disease
                 });
             };
             
