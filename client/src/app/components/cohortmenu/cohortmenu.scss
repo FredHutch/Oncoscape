@@ -1,0 +1,17 @@
+// Namespace
+.cohort-menu{
+  background-color: #EFEFEF;
+  position: fixed;
+  left: 0px;
+  width: 300px;
+  height: 100%;
+  margin-left: 0px;
+  margin-top: 5px;
+  overflow-y: auto;
+  z-index: 900;
+  padding:20px;
+  min-width: 300px;
+  a:hover{
+    text-decoration: none;
+  } 
+}
