@@ -7,16 +7,16 @@
     cursor: pointer;
     display: block;
     padding: 0px;
-    padding-top: 1px;
-    padding-bottom: 1px;
+    padding-top: 2px;
+    padding-bottom: 2px;
     -webkit-transition-property: padding;
-    -webkit-transition-duration: .3s;
+    -webkit-transition-duration: .4s;
     transition-property: padding;
-    transition-duration: .3s;
+    transition-duration: .4s;    
 }
 
 .markers-command:hover {
-    padding-left: 10px;
+    padding-left: 5px;
     text-decoration: none;
 }
 
@@ -71,7 +71,7 @@
     margin-top: 2px;
     padding-top: 0px;
     display: inline-block;
-    background-color: #59a5fb;
+    background-color: #0b97d3;
     position: relative;
     top: 2px;
 }

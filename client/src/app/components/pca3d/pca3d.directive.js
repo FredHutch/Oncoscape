@@ -95,7 +95,7 @@
                 var sphereThree = [];
                 var numSphere = rawData.length;
                 var sphereGeometry = new THREE.SphereGeometry(.1, 8, 8);
-                var sphereMaterial = new THREE.MeshBasicMaterial({color: '#59a5fb'});//rgb(255, 0, 0)'});
+                var sphereMaterial = new THREE.MeshBasicMaterial({color: '#0b97d3'});//rgb(255, 0, 0)'});
                 for(var idSphere = 0; idSphere < numSphere; idSphere++){
                     sphereThree[idSphere] = new THREE.Mesh(sphereGeometry, sphereMaterial);
                     var datum = rawData[idSphere];

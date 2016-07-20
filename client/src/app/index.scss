@@ -2,11 +2,12 @@
  *  If you want to override some bootstrap variables, you have to change values here.
  *  The list of variables are listed here bower_components/bootstrap-sass/assets/stylesheets/bootstrap/_variables.scss
  */
-$navbar-inverse-link-color: #59a5fb;
+ //#0b97d3 - 0b97d3
+$navbar-inverse-link-color: #0b97d3;
 $navbar-height: 70px;
 $navbar-inverse-bg: #000;
 $icon-font-path: "../../bower_components/bootstrap-sass/assets/fonts/bootstrap/";
-$brand-primary:         darken(#59a5fb, 6.5%) !default; // #337ab7
+$brand-primary:         darken(#0b97d3, 6.5%) !default; // #337ab7
 $font-family-sans-serif: 'Lato', sans-serif;
 $font-family-serif: 'Lato', sans-serif;
 $font-size-base: 14px;
@@ -123,12 +124,12 @@ button{
 	margin-top: 0px !important;
 }
 table.dataTable.dtr-inline.collapsed tbody td:first-child:before, table.dataTable.dtr-inline.collapsed tbody th:first-child:before{
-	background-color: #59a5fb !important;
-	box-shadow: 0 0 1px #59a5fb !important;
+	background-color: #0b97d3 !important;
+	box-shadow: 0 0 1px #0b97d3 !important;
 }
 table.dataTable.dtr-inline.collapsed tbody tr.parent td:first-child:before, table.dataTable.dtr-inline.collapsed tbody tr.parent th:first-child:before{
 	background-color: #FFF !important;
-	color: #59a5fb !important;
+	color: #0b97d3 !important;
 }
 .bs-dropdown{
 	width: 100%;

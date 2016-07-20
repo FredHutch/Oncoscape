@@ -4,24 +4,42 @@
         <div class="row">
             <br />
             <div class="col-xs-12 form-item">
-                <label>Cohorts</label>
+
 
 
                 <ul class="nav nav-tabs">
-                    <li role="presentation" class="active"><a href="">Patients</a></li>
-                    <li role="presentation"><a href="">Genes</a></li>
+                    <li id="cohort-tab-patients" role="presentation" style="width:50%;text-align:center;"
+                        ng-click="vm.showPatientHistory()" class="active"><a>Patients</a></li>
+                    <li id="cohort-tab-genes" role="presentation" style="width:50%;text-align:center;"
+                        ng-click="vm.showGeneHistory()"><a>Genes</a></li>
                 </ul>
+                
                 <div style="background-color:#ffffff;border:#dddddd 1px solid;border-top-width:0px;padding:10px;">
-                <div style="text-align:center;position:relative;top:5px;">
-                    <button class="btn btn-default">Save Current Selection </button>
-                </div>
-                <hr style>
-                <a href="">M+P 04/17/77 17:02</a><br />
-                <a href="">Patient History 17:05</a><br />
-                <a href="">Patient History 17:20</a><br />
+                <br />
+                    <button class="btn-xs btn btn-default" style="float:right;"><i style="color:#0b97d3" class="glyphicon glyphicon-plus"></i></button>
+                    <label>Save the current cohort</label>
+                    <br /><br />
+                    <div class="chartzzz">
+                      <div style="width: 40px;">4</div>
+                      <div style="width: 80px;">8</div>
+                      <div style="width: 150px;">15</div>
+                      <div style="width: 160px;">16</div>
+                      <div style="width: 230px;">23</div>
+                      <div style="width: 120px;">42</div>
+                    </div>
+                    <button class="btn btn-xs btn-default" style="width:100%">Age at diagnosis</button>
+
+
+
+                    <hr style>
+                    <label>Load an exiting cohort</label>
+                    <a href="" class="markers-command hvr-sweep-to-right">M+P 04/17/77 17:02</a>
+                    <a href="" class="markers-command hvr-sweep-to-right">Patient History 17:05</a>
+                    <a href="" class="markers-command hvr-sweep-to-right">Patient History 17:20</a>
 
                 
                 </div>
+
                 
             </div>
         </div>

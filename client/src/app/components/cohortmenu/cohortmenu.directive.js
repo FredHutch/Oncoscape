@@ -25,7 +25,11 @@
         /** @ngInject */
         function CohortMenuController(osApi, $state) {
 
+            var vm = this;
       
+            var tabPatients = $('#cohort-tab-patients');
+            var tabGenes    = $('#cohort-tab-genes');
+
             var mouseOver = function(){
                 angular.element(".tool-menu")
                     .removeClass("tray-collapsed-left");
@@ -41,10 +45,17 @@
                     .bind("mouseover", mouseOver)
                     .bind("mouseout", mouseOut);
             
-            $('#myTabs a').click(function (e) {
-                e.preventDefault()
-                $(this).tab('show')
-            });
+
+            vm.showPatientHistory = function(){
+                tabPatients.addClass("active");
+                tabGenes.removeClass("active");
+            };
+            
+            vm.showGeneHistory = function(){
+                console.log("!!!!");
+                tabGenes.addClass("active");
+                tabPatients.removeClass("active");
+            };
             
         }
     }
