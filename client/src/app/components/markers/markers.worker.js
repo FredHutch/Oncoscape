@@ -1,5 +1,33 @@
-// 320000 (width)
-// State
+    // Load Data Function (URL, CallBack)
+    var load = function(t, e) {
+        function a() {
+            n.readyState < 4 || 200 === n.status && 4 === n.readyState && e(n)
+        }
+        var n;
+        if ("undefined" != typeof XMLHttpRequest) n = new XMLHttpRequest;
+        else
+            for (var X = ["MSXML2.XmlHttp.5.0", "MSXML2.XmlHttp.4.0", "MSXML2.XmlHttp.3.0", "MSXML2.XmlHttp.2.0", "Microsoft.XmlHttp"], M = 0, o = X.length; o > M; M++) try {
+                n = new ActiveXObject(X[M]);
+                break
+            } catch (p) {}
+        n.onreadystatechange = a, n.open("GET", t, !0), n.send("")
+    };
+
+    var request = function(object, data, format) {
+        return new Promise(function(resolve, reject) {
+            if (data != null) {
+                resolve(data);
+                return;
+            }
+            var query = "http://localhost:80/api/" + object.table;
+            if (object.query) query += "/?q=" + encodeURIComponent(JSON.stringify(object.query));
+            load(query, function(response) {
+                resolve(format(JSON.parse(response.responseText)));
+            });
+        });
+    };
+
+    
 var state = {
     options: {
         patients: {
@@ -116,7 +144,36 @@ var data = (function() {
     var formatPatientLayout = function(data) {
         if (state.patients.length == 0) return;
         if (data.length == 1) {
-            send("patients_layout", data[0].data);
+
+            var annotations = data[0].annotation;
+            if (annotations){
+                // Text Annotaitons
+                data[0].annotation = annotations.filter(function(annotation){
+                    return (annotation.hasOwnProperty("text"));
+                }).map(function(item){
+                    return {
+                        group: "nodes",
+                        grabbable: false,
+                        locked: true,
+                        selectable: false,
+                        position: {x:item.x-40000, y:item.y+1000},
+                        data: {
+                            id: "annotation"+item.text.replace(/[^\w\s!?]/g,''),
+                            color: "rgb(0, 255, 255)",
+                            display: "element",
+                            nodeType: "annotation-text",
+                            sizeEle: 800,
+                            weight: 800,
+                            sizeLbl: 500,
+                            degree: 1,
+                            sizeBdr: 50,
+                            sizeEle: 800,
+                            label: item.text + " (" + item.count + ")"
+                        }
+                    }
+                });
+            }
+            send("patients_layout", data[0]);
         };
     };
 
@@ -254,36 +311,6 @@ var data = (function() {
                 node.position.x -= 40000;
                 return node;
             }, data);
-    };
-
-
-    // Load Data Function (URL, CallBack)
-    var load = function(t, e) {
-        function a() {
-            n.readyState < 4 || 200 === n.status && 4 === n.readyState && e(n)
-        }
-        var n;
-        if ("undefined" != typeof XMLHttpRequest) n = new XMLHttpRequest;
-        else
-            for (var X = ["MSXML2.XmlHttp.5.0", "MSXML2.XmlHttp.4.0", "MSXML2.XmlHttp.3.0", "MSXML2.XmlHttp.2.0", "Microsoft.XmlHttp"], M = 0, o = X.length; o > M; M++) try {
-                n = new ActiveXObject(X[M]);
-                break
-            } catch (p) {}
-        n.onreadystatechange = a, n.open("GET", t, !0), n.send("")
-    };
-
-    var request = function(object, data, format) {
-        return new Promise(function(resolve, reject) {
-            if (data != null) {
-                resolve(data);
-                return;
-            }
-            var query = "http://localhost:80/api/" + object.table;
-            if (object.query) query += "/?q=" + encodeURIComponent(JSON.stringify(object.query));
-            load(query, function(response) {
-                resolve(format(JSON.parse(response.responseText)));
-            });
-        });
     };
 
     var update = function(options, state) {

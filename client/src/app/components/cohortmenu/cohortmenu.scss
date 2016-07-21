@@ -16,11 +16,13 @@
   } 
 }
 
-.chartzzz div {
-  font: 10px sans-serif;
-  background-color: #0b97d3;
-  text-align: right;
-  padding: 3px;
-  margin: 1px;
-  color: white;
+
+
+
+.cohortmenu-bar {
+  fill: #0b97d3;;
+}
+
+.cohortmenu-bar:hover {
+  fill: #000;
 }

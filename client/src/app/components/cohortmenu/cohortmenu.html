@@ -1,3 +1,4 @@
+
 <div>
     <label class="tray-label tray-label-left">Cohorts</label>
     <section class="tool-menu tray tray-collapsed-left">
@@ -9,33 +10,47 @@
 
                 <ul class="nav nav-tabs">
                     <li id="cohort-tab-patients" role="presentation" style="width:50%;text-align:center;"
-                        ng-click="vm.showPatientHistory()" class="active"><a>Patients</a></li>
+                        ng-click="vm.showPatientHistory()"><a>Patients</a></li>
                     <li id="cohort-tab-genes" role="presentation" style="width:50%;text-align:center;"
                         ng-click="vm.showGeneHistory()"><a>Genes</a></li>
                 </ul>
                 
                 <div style="background-color:#ffffff;border:#dddddd 1px solid;border-top-width:0px;padding:10px;">
                 <br />
-                    <button class="btn-xs btn btn-default" style="float:right;"><i style="color:#0b97d3" class="glyphicon glyphicon-plus"></i></button>
-                    <label>Save the current cohort</label>
-                    <br /><br />
-                    <div class="chartzzz">
-                      <div style="width: 40px;">4</div>
-                      <div style="width: 80px;">8</div>
-                      <div style="width: 150px;">15</div>
-                      <div style="width: 160px;">16</div>
-                      <div style="width: 230px;">23</div>
-                      <div style="width: 120px;">42</div>
+
+                    <div id="cohortmenu-chart" style="width:100%;height:150px;"></div>
+
+
+                    <div class="dropdown">
+  <button class="btn btn-default dropdown-toggle" type="button" data-toggle="dropdown" style="width:100%;">
+  {{vm.patientChartOption.name}}
+  <span class="caret"></span></button>
+  <ul class="dropdown-menu">
+    <li ng-repeat="item in vm.patientChartOptions" ng-click="vm.patientChartOption=item">{{item.name}}</li>
+    
+  </ul>
+</div>
+                   
+                    <button class="btn-xs btn btn-default" style="float:right;"
+                        ng-click="vm.addCohort()"><i style="color:#0b97d3" class="glyphicon glyphicon-plus"></i></button>
+
+                    <label>Save current selection as a cohort</label>
+
+                    <div ng-if="vm.cohorts.length>0">
+                        <hr style="margin:5px;">
+
+                        <label>My Cohorts</label>
+                        <div  ng-repeat="cohort in vm.cohorts">
+                            <button class="btn-xs btn btn-default" style="float:right;"
+                                ng-click="vm.removeCohort(cohort)">
+                                    <i style="color:#0b97d3" class="glyphicon glyphicon-minus"></i>
+                                </button>
+                            <a class="markers-command hvr-sweep-to-right" style="margin-right:25px;"
+                                ng-click="vm.setCohort(cohort)">
+                                {{ cohort.time | date : 'HH:mm:ss'}} &nbsp;&nbsp;&nbsp; {{cohort.name}} 
+                            </a>
+                        </div>
                     </div>
-                    <button class="btn btn-xs btn-default" style="width:100%">Age at diagnosis</button>
-
-
-
-                    <hr style>
-                    <label>Load an exiting cohort</label>
-                    <a href="" class="markers-command hvr-sweep-to-right">M+P 04/17/77 17:02</a>
-                    <a href="" class="markers-command hvr-sweep-to-right">Patient History 17:05</a>
-                    <a href="" class="markers-command hvr-sweep-to-right">Patient History 17:20</a>
 
                 
                 </div>
@@ -45,3 +60,4 @@
         </div>
     </section>
 </div>
+
