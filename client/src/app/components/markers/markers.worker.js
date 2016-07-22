@@ -27,7 +27,7 @@
         });
     };
 
-    
+
 var state = {
     options: {
         patients: {
@@ -394,11 +394,11 @@ var data = (function() {
                     var patientInfo = data[0].reduce(function(prev, curr) {
 
                         // Generate Html Representation of Data					
-                        prev.data[curr.patient_ID + "-01"] = curr;
-                        prev.html[curr.patient_ID + "-01"] = Object.keys(curr).sort()
+                        prev.data[curr.patient_ID] = curr;
+                        prev.html[curr.patient_ID] = Object.keys(curr).sort()
                             .reduce(function(prev, curr) {
                                 if (curr != "patient_ID") {
-                                    prev.html += "<dt>" + curr.replace(/_/g, " ") + "</dt><dd>" + prev.obj[curr] + "</dd>";
+                                    prev.html += "<li class='markers-legend'><span class='markers-legend-key'>" + curr.replace(/_/g, " ") + ":</span>"+ prev.obj[curr] + "</li>";
                                 };
                                 return prev;
                             }, {

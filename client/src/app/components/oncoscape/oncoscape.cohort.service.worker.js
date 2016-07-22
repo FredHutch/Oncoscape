@@ -27,6 +27,7 @@ var request = function(object, data, format) {
 };
 
 var patientData = [];
+var patientMetric = null;
 
 request({table:'clinical_tcga_brca_pt'}).then(function(response){
 	patientData = response;
@@ -37,34 +38,91 @@ var send = function(cmd, data) {
 };
 
 var cmd = {};
-cmd.getHistogram = function(data){
+cmd.getPatientMetric = function(data){
 
-	var property = data.property
-	var ids = data.ids;
+	
 
-	var data = patientData
-		.filter(function(pd){ return (ids.indexOf(pd.patient_ID)!=-1) })
-		.map(function(pd){ return pd[property]; });
-
-	data = {
-		type: 'histogram',
-		min: 0,
-		max: 0,
-		data: jStat.histogram(data, 10),
-		range: jStat.range(data),
-		ranges: [],
-		bins: 5
+	function getNumericStats(patients, attribute){
+		var bin = 10;
+		var props = patients.map(function(pd){ return pd[attribute]; });
+		var data = {
+			type: "numeric",
+			min: jStat.min(props),
+			max: jStat.max(props),
+			range: jStat.range(props),
+			sd:  jStat.stdev(props),
+			hist: jStat.histogram(props, 10),
+			histRange: [],
+			bins: bin
+		};
+		data.histRange = [jStat.min(data.hist), jStat.max(data.hist)];
+		bin = Math.round(data.range / bin);
+		data.hist = data.hist.map(function(pt){
+			var rv = {label: this.start+"-"+(this.start+this.bin), value: pt};
+			this.start += this.bin;
+			return rv;
+		},{bin:bin, start:data.min})
+		return data;
 	};
-	data.min = jStat.min(data.data);
-	data.max = jStat.max(data.data);
-	var bin = Math.round(data.range / data.bins);
-	for (var i=0; i<data.bins; i++){
-		data.ranges.push({
-			min: bin * i,
-			max: bin * (i+1)
-		});
+
+	function getFactorStats(patients, attribute){
+		var props = patients.map(function(pd){ return pd[attribute]; });
+		var factors = props
+			.reduce(function(prev,curr){
+				prev[curr] = (prev.hasOwnProperty(curr)) ? prev[curr]+1 : 1;
+				return prev;
+			},{});
+		factors = Object.keys(factors).map(function(key){
+			return {label:key, value:this.factors[key]};
+		},{factors:factors});
+		var values = factors.map(function(v){ return v.value; });
+		var data = {
+			type: "factor",
+			min: jStat.min(values),
+			max: jStat.max(values),
+			range: jStat.range(values),
+			ds: jStat.stdev(values),
+			hist: factors,
+			histRange: [],
+			bins: factors.length
+		}
+		data.histRange = [data.min, data.max];
+		return data;
 	}
-	send('setHistogram', data);
+
+	// If All Patients Run + Cache
+	if (data.length==0){
+		if (!patientMetric){
+			data = patientData;
+			patientMetric = [
+				{label: "Age At Diagnosis", data:getNumericStats(data,"age_at_diagnosis"), prop:"age_at_diagnosis", type:"numeric"},
+				{label: "Death", data:getNumericStats(data,"days_to_death"), prop:"days_to_death" , type:"numeric"},
+				{label: "Gender", data:getFactorStats(data,"gender"), prop:"gender", type:"factor"},
+				{label: "Race", data:getFactorStats(data,"race"), prop:"race", type:"factor"},
+				{label: "Ethnicity", data: getFactorStats(data, "ethnicity"), prop:"ethnicity", type:"factor"},
+				{label: "Vital", data: getFactorStats(data, "status_vital"), prop:"status_vital", type:"factor"},
+				{label: "Tumor", data: getFactorStats(data, "status_tumor"), prop:"Status_tumor", type:"factor"}
+			];
+		};
+		send('setPatientMetric', patientMetric);
+		return;
+	}else{
+
+		data = patientData
+			.filter(function(pd){ return (data.indexOf(pd.patient_ID)!=-1) });
+
+		data = [
+			{label: "Age At Diagnosis", data:getNumericStats(data,"age_at_diagnosis"), prop:"age_at_diagnosis", type:"numeric"},
+			{label: "Death", data:getNumericStats(data,"days_to_death"), prop:"days_to_death" , type:"numeric"},
+			{label: "Gender", data:getFactorStats(data,"gender"), prop:"gender", type:"factor"},
+			{label: "Race", data:getFactorStats(data,"race"), prop:"race", type:"factor"},
+			{label: "Ethnicity", data: getFactorStats(data, "ethnicity"), prop:"ethnicity", type:"factor"},
+			{label: "Vital", data: getFactorStats(data, "status_vital"), prop:"status_vital", type:"factor"},
+			{label: "Tumor", data: getFactorStats(data, "status_tumor"), prop:"Status_tumor", type:"factor"}
+		]
+	
+		send('setPatientMetric', data);
+	}
 };
 
 self.addEventListener('message', function(msg) {

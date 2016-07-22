@@ -585,8 +585,8 @@
                     var elements = cyChart.add(data.patients);
                     elements.on("select", _.debounce(signals.select.dispatch, 300));
                     elements.on("unselect", _.debounce(signals.unselect.dispatch, 300));
-                    //elements.on("mouseover", signals.over.dispatch);
-                    //elements.on("mouseout", signals.out.dispatch);
+                    elements.on("mouseover", signals.over.dispatch);
+                    elements.on("mouseout", signals.out.dispatch);
                     elements.forEach(function(node) {
                         try {
                             node.data({
@@ -616,7 +616,9 @@
 
                     cyChart.startBatch();
                     cyChart.$("node[nodeType='annotation-text']").remove();
-                    cyChart.add(data.annotation);
+                    if (data.annotation){
+                        cyChart.add(data.annotation);
+                    }
                     
                     cyChart.nodes('node[nodeType="patient"]').forEach(function(node) {
                         try {
@@ -821,14 +823,14 @@
 
             })(vm, $scope);
 
+            //var elLegendHtml = $("#cohortmenu-legand");
             function setPatientInfo(e) {
                 $scope.$apply(function() {
                     if (e.type == "mouseout") {
-                        vm.detail.show = false
+                        $("#cohortmenu-legand").html("Seletion ...");
+                        
                     } else {
-                        vm.detail.title = e.cyTarget.id();
-                        vm.detail.html = patientHtml[e.cyTarget.id()];
-                        vm.detail.show = true;
+                        $("#cohortmenu-legand").html(e.cyTarget.id() + patientHtml[e.cyTarget.id()]);
                     }
                 });
             };

@@ -20,20 +20,18 @@
         return directive;
 
         /** @ngInject */
-        function CohortMenuController(osApi, osCohortService, $state, $scope) {
+        function CohortMenuController(osApi, osCohortService, $state, $scope, $timeout) {
 
             var vm = this;
             vm.cohorts = [];
+            vm.patientChartOption = null;
             vm.addCohort = function(){};
             vm.setCohort = function(){};
             vm.removeCohort = function(){};
-            vm.patientChartOptions = [
-                {name:"Age Diagnosed", value:"age_at_diagnosis"},
-                {name:"Year Diagnosed", value:"diagnosis_year"},
-                {name:"Lymphy Nodes Examined", value:"count_lymph_nodes_examined"}
-            ];
-            vm.patientChartOption = vm.patientChartOptions[0];
 
+
+
+           
             // Configure Tray
             var elTray = angular.element(".tool-menu");
                 elTray
@@ -60,65 +58,80 @@
                 vm.removeCohort = osCohortService.delGeneCohort;
             };
 
+
+            var barClick =function(d,i){
+                vm.patientChartOption;
+                debugger;
+            }
+
+
+            // Init SVG;
+            var svg = d3.select("#cohortmenu-chart").append("svg")
+                .attr("width", 238)
+                .attr("height", 150)
+                .append("g");
+          
+            $scope.$watch('vm.patientChartOption', function(){
+                console.log(vm.patientChartOption);
+                if (vm.patientChartOption==null) return;
+
+                var data = vm.patientChartOption.data;
+
+                var barWidth = Math.floor(238/data.bins);
+                if (data.histRange[0]>0) data.histRange[0] -=2;
+
+                var yScale = d3.scale.linear()
+                    .domain(data.histRange)
+                    .range([0,150]);
+
+                var bars = svg
+                    .selectAll(".cohort-menu-chart-bar")
+                    .data(data.hist);
+
+                    bars.enter()
+                        .append("rect")
+                        .attr("class","cohort-menu-chart-bar")
+                        .attr("x", function(d, i) { return barWidth * i; })
+                        .attr("y", function(d, i) { return 150-yScale(d.value); })
+                        .attr("height", function(d, i) { return yScale(d.value); })
+                        .attr("width", barWidth)
+                        .on("click", barClick);
+
+                    bars
+                        .transition()
+                            .duration(300)
+                            .attr("x", function(d, i) { return (barWidth+1) * i; })
+                            .attr("y", function(d, i) { return 150-yScale(d.value); })
+                            .attr("height", function(d, i) { return yScale(d.value); })
+                            .attr("width", barWidth)
+
+                    bars.exit()
+                        .transition()
+                            .duration(300)
+                            .attr("y", 150)
+                            .attr("height", 0)
+                            .style('fill-opacity', 1e-6)
+                            .remove();
+
+            });
+
+
+
             // Interact with Cohort Service
             osCohortService.onPatientsSelect.add(function(obj){
-                osCohortService.getPatientMetric(vm.patientChartOption.value);
+                osCohortService.getPatientMetric();
             });
             osCohortService.onGenesSelect.add(function(obj){
                 console.log("GENES");
             });
             osCohortService.onMessage.add(function(obj){
-                if (obj.data.cmd!="setHistogram") return;
-                var data = obj.data.data;
-                if (data.data[0]==0) return;
 
-                console.dir(data)
-            var barWidth = Math.floor(238/data.data.length);
-
-                var y = d3.scale.linear()
-                    .domain([data.min, data.max])
-                    .range([0, 200]);
-
-                var bars = svg.selectAll(".bar").data(data.data);
-                bars.exit()
-                    .transition()
-                      .duration(300)
-                    .attr("y", y(0))
-                    .attr("height", 200 - y(0))
-                    .style('fill-opacity', 1e-6)
-                    .remove();
-
-                bars.enter().append("rect")
-                    .attr("class", "cohortmenu-bar")
-                    .attr("y", y(0))
-                    .attr("height", 200 - y(0));
-
-                bars
-                    .transition()
-                        .duration(300)
-                    .attr("x", function(d, i) { return (barWidth*i)+5 })
-                    .attr("width", barWidth-5) //x.rangeBand()) 
-                    .attr("y", function(d) {return y(d); })
-                    .attr("height", function(d) { return 200 - y(d); }); // flip the height, because y's domain is bottom up, but SVG renders top down
-
-
-                
-            });
-
-            var svg = d3.select("#cohortmenu-chart").append("svg")
-                .attr("width", 238)
-                .attr("height", 150)
-                .append("g");
-                //.attr("transform", "translate(" + margin.left + "," + margin.top + ")");
-
-
-            $scope.$watch(vm.patientChartOption, function(){
-                if (arguments[0]==undefined) return
-                console.log(vm.patientChartOption.value);
-                osCohortService.getPatientMetric(vm.patientChartOption.value);
-            });
-
-            
+                if (obj.data.cmd!="setPatientMetric") return;
+                $timeout(function(){
+                    vm.patientChartOptions = obj.data.data;
+                    vm.patientChartOption = vm.patientChartOptions[0];
+                });                
+            });            
 
             // And Go
             vm.showPatientHistory();

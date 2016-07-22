@@ -32,11 +32,15 @@ b:{})}});return g};"function"===typeof define&&define.amd?define(["jquery","data
         return directive;
 
         /** @ngInject */
-        function HistoryController(osApi, osHistory, $state, $timeout, $scope, moment, $stateParams, _, $, $q) {
+        function HistoryController(osApi, osCohortService, $state, $timeout, $scope, moment, $stateParams, _, $, $q) {
             // Properties
             var vm = this;
             var table;
-            var selectedIds = (osHistory.getPatientSelection() == null) ? [] : osHistory.getPatientSelection().ids;
+
+            var pc = osCohortService.getPatientCohort();
+            var selectedIds = (pc==null) ? [] : pc.ids;
+
+
             var fields = ['patient_ID', 'gender', 'race', 'age_at_diagnosis', 'days_to_death', 'status_vital'];
             var columns = fields.map(function(column) {
                 return {
@@ -65,13 +69,13 @@ b:{})}});return g};"function"===typeof define&&define.amd?define(["jquery","data
                         if (selectedIds.indexOf(data[0]) == -1) return false;
                     }
 
-                    var diagnosis = parseFloat(data[3]);
-                    var survival = parseFloat(data[4]);
-                    if (isNaN(survival) || isNaN(diagnosis)) return false;
-                    return (diagnosis >= vm.diagnosisMin &&
-                        diagnosis < (vm.diagnosisMax + 1) &&
-                        survival >= vm.survivalMin &&
-                        survival < (vm.survivalMax + 1));
+                    // var diagnosis = parseFloat(data[3]);
+                    // var survival = parseFloat(data[4]);
+                    // if (isNaN(survival) || isNaN(diagnosis)) return false;
+                    // return (diagnosis >= vm.diagnosisMin &&
+                    //     diagnosis < (vm.diagnosisMax + 1) &&
+                    //     survival >= vm.survivalMin &&
+                    //     survival < (vm.survivalMax + 1));
                     return true;
                 }];
 
@@ -123,28 +127,28 @@ b:{})}});return g};"function"===typeof define&&define.amd?define(["jquery","data
 
                 vm.applyFilter = function(filter) {
 
-                    selectedIds = [];
+                    // selectedIds = [];
 
-                    table.api().draw();
+                    // table.api().draw();
 
-                    var o = table._('tr', {
-                        "filter": "applied"
-                    }).map(function(item) {
-                        return item["patient_ID"].toString().toUpperCase()
-                    });
+                    // var o = table._('tr', {
+                    //     "filter": "applied"
+                    // }).map(function(item) {
+                    //     return item["patient_ID"].toString().toUpperCase()
+                    // });
 
-                    o = $.map(o, function(value) {
-                        return [value];
-                    });
+                    // o = $.map(o, function(value) {
+                    //     return [value];
+                    // });
 
-                    osHistory.addPatientSelection("Patient History", filter, o);
+                    //osHistory.addPatientSelection("Patient History", filter, o);
                 };
 
 
-                osHistory.onPatientSelectionChange.add(function(selection) {
-                    selectedIds = selection.ids;
-                    table.api().draw();
-                });
+                // osHistory.onPatientSelectionChange.add(function(selection) {
+                //     selectedIds = selection.ids;
+                //     table.api().draw();
+                // });
 
             }
 

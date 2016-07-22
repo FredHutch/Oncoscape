@@ -22,14 +22,11 @@
             activePatientCohort,
             activeGeneCohort;
 
-        var getPatientMetric = function(property){
+        var getPatientMetric = function(){
             if (!activePatientCohort.ids) return;
               worker.postMessage({
-                cmd: "getHistogram",
-                data: {
-                    property: property,
-                    ids: activePatientCohort.ids
-                }
+                cmd: "getPatientMetric",
+                data: activePatientCohort.ids
             });
         };
         var getPatientCohorts = function(){ return allPatientCohorts;  };
@@ -51,6 +48,11 @@
             indexPatientCohort += 1;
             onPatientsSelect.dispatch(activePatientCohort);
         };
+
+        // var filterPatientCohort = function(){
+
+
+        // };
 
         var getGeneMetric = function(obj){
             console.log(obj);
