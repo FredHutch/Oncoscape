@@ -44,6 +44,9 @@
             var vm = this;
             vm.showMenu = false;
             vm.showTools = false;
+
+            vm.showMenu = true;
+            vm.showTools = true;
               
             vm.toolsClick = function(){
                 $state.go("tools", {

@@ -310,6 +310,9 @@
                 vm.optGeneSet;
                 vm.optPatientLayouts = [];
                 vm.optPatientLayout;
+                vm.showPanelLayout = false;
+                vm.showPanelColor = false;
+                vm.showPanelColorRna = false;
                 // vm.optDatasets = [];
                 // vm.optDataset;
                 vm.search = "";
@@ -331,13 +334,9 @@
                 vm.patientSelect = function(item){
                     var c = cyChart.$('node[color="'+item.color+'"]');
                     var nodes = cyChart.$('node[nodeType="patient"]');
-                    //
-                    console.log("SE");
-                    console.log(item);
                 };
                 vm.patientUnselect = function(item){
-                    console.log("UN");
-                    console.log(item);
+                    
                 };
 
                 vm.filterModelEdge = function() {
@@ -569,17 +568,14 @@
                 };
                 cmd.patients_html = function(data) {
                     patientHtml = data;
-                    console.log("PATIENTS HTML");
                 };
                 cmd.patients_resize = function(data) {
-                    console.log("PATIENTS RESIZE");
+                    
                 };
                 cmd.patients_delete = function(data) {
-                    console.log("PATIENTS DELETE");
                     remove('node[nodeType="patient"]', data);
                 };
                 cmd.patients_insert = function(data) {
-                    console.log("PATIENTS INSERT");
                     cyChart.startBatch();
                     var signals = signal.patients;
                     var elements = cyChart.add(data.patients);
@@ -605,7 +601,6 @@
 
                 };
                 cmd.patients_color = function(data) {
-                    console.log("PATIENTS COLOR");
                     cyChart.startBatch();
                     cyChart.nodes('node[nodeType="patient"]').forEach(function(node) {
                         node.data('color', data[node.id()].color);
@@ -613,7 +608,6 @@
                     cyChart.endBatch();
                 };
                 cmd.patients_layout = function(data) {
-
                     cyChart.startBatch();
                     cyChart.$("node[nodeType='annotation-text']").remove();
                     if (data.annotation){
@@ -631,21 +625,17 @@
                     cyChart.endBatch();
                 };
                 cmd.patients_legend = function(data) {
-                    console.log("PATIENTS LEGEND");
                     $scope.$apply(function() {
                         vm.legendNodes = data;
                     });
                 };
                 cmd.genes_html = function(data) {
                     geneHtml = data;
-                    console.log("GENES HTML");
                 };
                 cmd.genes_delete = function(data) {
-                    console.log("GENES DELETE");
                     remove('node[nodeType="gene"]', data);
                 };
                 cmd.genes_insert = function(data) {
-                    console.log("GENES INSERT");
                     cyChart.startBatch();
                     var signals = signal.genes;
                     var elements = cyChart.add(data.genes);
@@ -669,15 +659,12 @@
                     osApi.setBusy(false);
                 };
                 cmd.genes_update = function(data) {
-                    console.log("GENES UPDATE");
                     update(data);
                 };
                 cmd.edges_delete = function(data) {
-                    console.log("EDGES DELETE");
                     remove('edge[edgeType="cn"]', data);
                 };
                 cmd.edges_insert = function(data) {
-                    console.log("EDGES INSERT");
                     tmpdata = data;
                     if (data.counts.total > 5000) {
                         angular.element('#modalEdge').modal();
@@ -692,7 +679,6 @@
                     cyChart.endBatch();
                 };
                 cmd.edges_update = function(data) {
-                    console.log("EDGES UPDATE")
                     update(data);
                 };
 
@@ -835,7 +821,6 @@
                 });
             };
             function setGeneInfo(e) {
-                console.log("genes");
             };
 
             var setPatientCohortUpdate = true;
@@ -850,6 +835,8 @@
                 }
                 setPatientCohortUpdate = true;
             });
+
+
             function setPatientCohort(opts){
                 setPatientCohortUpdate = false;
                 osCohortService.setPatientCohort(
@@ -865,7 +852,34 @@
                     "Markers + Patients"
                 );
             };
+/*------------- */
+            vm.colorGene = "TLR2";
+            vm.colorGeneSymbol = function(){
+                osApi.query("_rna", {
+                    gene: vm.colorGene.toUpperCase()
+                }).then(function(result) {
+                    if (result.data.length==1){
+                        var data = result.data[0];
+                        
+                        var scale = d3.scale.log()
+                            .domain([data.min,data.max])
+                            .interpolate(d3.interpolateRgb)
+                            .range(["#FF0000", "#0000ff"])
 
+                        cyChart.startBatch();
+                        cyChart.nodes('node[nodeType="patient"]').forEach(function(node) {
+                            node.data('color', 
+                                (data.patients.hasOwnProperty(node.id())) ? this.scale( data.patients[node.id()] ) : "#000"
+                            );
+                        }, {scale:scale});
+                        cyChart.endBatch();
+                        vm.showPanelColorRna = false;
+                    }else{
+                        alert("Gene not found");
+                    }
+                    
+                });
+            }
 
             // Initialize Commands
             $scope.$watch("vm.optCommandMode", function() {

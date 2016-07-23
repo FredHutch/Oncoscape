@@ -19,19 +19,21 @@
         return directive;
 
         /** @ngInject */
-        function PcaController($q, osApi, osHistory, $state, $stateParams, $timeout, $scope, d3, moment, $window, _) {
+        function PcaController($q, osApi, osCohortService, $state, $stateParams, $timeout, $scope, d3, moment, $window, _) {
 
             // History
-            var selectedIds = (osHistory.getPatientSelection() == null) ? [] : osHistory.getPatientSelection().ids;
+            var pc = osCohortService.getPatientCohort();
+            var selectedIds = (pc==null) ? [] : pc.ids;
+
 
             function saveSelected() {
                 var selected = d3Chart.selectAll(".pca-node-selected")[0];
                 if (selected.length == 0) return;
-                osHistory.addPatientSelection("PCA", "Manual Selection",
-                    d3Chart.selectAll(".pca-node-selected")[0].map(function(node) {
-                        return node.__data__[2].toUpperCase();
-                    })
-                );
+                // osHistory.addPatientSelection("PCA", "Manual Selection",
+                //     d3Chart.selectAll(".pca-node-selected")[0].map(function(node) {
+                //         return node.__data__[2].toUpperCase();
+                //     })
+                // );
             }
 
             function setSelected() {
