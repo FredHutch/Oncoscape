@@ -39,9 +39,7 @@ var send = function(cmd, data) {
 
 var cmd = {};
 cmd.getPatientMetric = function(data){
-
 	
-
 	function getNumericStats(patients, attribute){
 		var bin = 10;
 		var props = patients.map(function(pd){ return pd[attribute]; });
@@ -94,16 +92,20 @@ cmd.getPatientMetric = function(data){
 	if (data.length==0){
 		if (!patientMetric){
 			data = patientData;
-			patientMetric = [
-				{label: "Age At Diagnosis", data:getNumericStats(data,"age_at_diagnosis"), prop:"age_at_diagnosis", type:"numeric"},
-				{label: "Death", data:getNumericStats(data,"days_to_death"), prop:"days_to_death" , type:"numeric"},
-				{label: "Gender", data:getFactorStats(data,"gender"), prop:"gender", type:"factor"},
-				{label: "Race", data:getFactorStats(data,"race"), prop:"race", type:"factor"},
-				{label: "Ethnicity", data: getFactorStats(data, "ethnicity"), prop:"ethnicity", type:"factor"},
-				{label: "Vital", data: getFactorStats(data, "status_vital"), prop:"status_vital", type:"factor"},
-				{label: "Tumor", data: getFactorStats(data, "status_tumor"), prop:"Status_tumor", type:"factor"}
-			];
-		};
+			patientMetric = {
+				total: patientData.length,
+				selected: data.length,
+				features: [
+					{label: "Age At Diagnosis", data:getNumericStats(data,"age_at_diagnosis"), prop:"age_at_diagnosis", type:"numeric"},
+					{label: "Death", data:getNumericStats(data,"days_to_death"), prop:"days_to_death" , type:"numeric"},
+					{label: "Gender", data:getFactorStats(data,"gender"), prop:"gender", type:"factor"},
+					{label: "Race", data:getFactorStats(data,"race"), prop:"race", type:"factor"},
+					{label: "Ethnicity", data: getFactorStats(data, "ethnicity"), prop:"ethnicity", type:"factor"},
+					{label: "Vital", data: getFactorStats(data, "status_vital"), prop:"status_vital", type:"factor"},
+					{label: "Tumor", data: getFactorStats(data, "status_tumor"), prop:"Status_tumor", type:"factor"}
+					]
+				};
+		}
 		send('setPatientMetric', patientMetric);
 		return;
 	}else{
@@ -111,15 +113,19 @@ cmd.getPatientMetric = function(data){
 		data = patientData
 			.filter(function(pd){ return (data.indexOf(pd.patient_ID)!=-1) });
 
-		data = [
-			{label: "Age At Diagnosis", data:getNumericStats(data,"age_at_diagnosis"), prop:"age_at_diagnosis", type:"numeric"},
-			{label: "Death", data:getNumericStats(data,"days_to_death"), prop:"days_to_death" , type:"numeric"},
-			{label: "Gender", data:getFactorStats(data,"gender"), prop:"gender", type:"factor"},
-			{label: "Race", data:getFactorStats(data,"race"), prop:"race", type:"factor"},
-			{label: "Ethnicity", data: getFactorStats(data, "ethnicity"), prop:"ethnicity", type:"factor"},
-			{label: "Vital", data: getFactorStats(data, "status_vital"), prop:"status_vital", type:"factor"},
-			{label: "Tumor", data: getFactorStats(data, "status_tumor"), prop:"Status_tumor", type:"factor"}
-		]
+		data = {
+			total: patientData.length,
+			selected: data.length,
+			features: [
+				{label: "Age At Diagnosis", data:getNumericStats(data,"age_at_diagnosis"), prop:"age_at_diagnosis", type:"numeric"},
+				{label: "Death", data:getNumericStats(data,"days_to_death"), prop:"days_to_death" , type:"numeric"},
+				{label: "Gender", data:getFactorStats(data,"gender"), prop:"gender", type:"factor"},
+				{label: "Race", data:getFactorStats(data,"race"), prop:"race", type:"factor"},
+				{label: "Ethnicity", data: getFactorStats(data, "ethnicity"), prop:"ethnicity", type:"factor"},
+				{label: "Vital", data: getFactorStats(data, "status_vital"), prop:"status_vital", type:"factor"},
+				{label: "Tumor", data: getFactorStats(data, "status_tumor"), prop:"Status_tumor", type:"factor"}
+			]
+		};
 	
 		send('setPatientMetric', data);
 	}

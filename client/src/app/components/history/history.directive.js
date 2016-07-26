@@ -33,14 +33,23 @@ b:{})}});return g};"function"===typeof define&&define.amd?define(["jquery","data
 
         /** @ngInject */
         function HistoryController(osApi, osCohortService, $state, $timeout, $scope, moment, $stateParams, _, $, $q) {
+
+
             // Properties
             var vm = this;
             var table;
+            
 
+            // Retrieve Selected Patient Ids From OS Service
             var pc = osCohortService.getPatientCohort();
+
+            if (pc==null){
+                osCohortService.setPatientCohort([],"All Patients")
+            }
             var selectedIds = (pc==null) ? [] : pc.ids;
 
 
+            // Get Column Definitions
             var fields = ['patient_ID', 'gender', 'race', 'age_at_diagnosis', 'days_to_death', 'status_vital'];
             var columns = fields.map(function(column) {
                 return {
@@ -50,7 +59,9 @@ b:{})}});return g};"function"===typeof define&&define.amd?define(["jquery","data
                 };
             });
 
-            var initViewState = function(vm) {
+
+            // intialize View State
+            (function(vm) {
                 vm.datasource = osApi.getDataSource();
                 vm.diagnosisMin = vm.diagnosisMinValue = 1;
                 vm.diagnosisMax = vm.diagnosisMaxValue = 100000;
@@ -58,22 +69,24 @@ b:{})}});return g};"function"===typeof define&&define.amd?define(["jquery","data
                 vm.survivalMax = vm.survivalMaxValue = 10;
                 vm.search = "";
                 vm.detail = null;
-            }
+            })(vm);
 
             var initDataTable = function(vm, columns, data) {
 
                 // Override Filter Function
                 angular.element.fn.DataTable.ext.search = [function(settings, data) {
 
-                    if (selectedIds.length != 0) {
-                        if (selectedIds.indexOf(data[0]) == -1) return false;
-                    }
+                    
+                    if (selectedIds.length != 0) { if (selectedIds.indexOf(data[0]) == -1) return false; }
+                    var diagnosis = parseFloat(data[3]);
+                    //var survival = parseFloat(data[4]);
+                    //console.log(survival+":"+diagnosis);
+                    //if (isNaN(survival) || isNaN(diagnosis)) return false;
+                    if (isNaN(diagnosis)) return false;
 
-                    // var diagnosis = parseFloat(data[3]);
-                    // var survival = parseFloat(data[4]);
-                    // if (isNaN(survival) || isNaN(diagnosis)) return false;
-                    // return (diagnosis >= vm.diagnosisMin &&
-                    //     diagnosis < (vm.diagnosisMax + 1) &&
+                    return (diagnosis >= vm.diagnosisMin &&
+                             diagnosis < (vm.diagnosisMax + 1));
+                              //&&
                     //     survival >= vm.survivalMin &&
                     //     survival < (vm.survivalMax + 1));
                     return true;
@@ -93,19 +106,16 @@ b:{})}});return g};"function"===typeof define&&define.amd?define(["jquery","data
 
             var initEvents = function(vm, $scope) {
 
-                /*
-                $('#history-datatable tbody').on( 'click', 'tr', function () {
-                    // $('.history-row-selected').removeClass('history-row-selected');
-                    $(this).addClass('history-row-selected');
-                    osApi.query(vm.datasource+"_pt", {'patient_ID':this.firstChild.textContent, $limit:1}).then(function(response){
-                        vm.detail = response.data[0];
-                    });
-                } );
-                $('#history-datatable tbody').on( 'mouseout', 'tr', function () {
-                    $(this).removeClass('history-row-selected');
-                    vm.detail = null;
-                });
-                */
+                var layout = function(){
+                    var layout = osApi.getLayout();
+                    $(".history-content").css("margin-left", layout.left).css("margin-right", layout.right);
+                    table.api().draw();
+                };
+                osApi.onResize.add(layout);
+                layout();
+
+
+                // Export CSV Button
                 vm.exportCsv = function() {
 
                     var csv = table._('tr', {
@@ -122,43 +132,39 @@ b:{})}});return g};"function"===typeof define&&define.amd?define(["jquery","data
                     csv = csv.join("\n");
                     var encodedUri = encodeURI("data:text/csv;charset=utf-8," + csv);
                     window.open(encodedUri);
-
                 }
 
+
+                // Apply Fitler
                 vm.applyFilter = function(filter) {
 
-                    // selectedIds = [];
+                    selectedIds = [];
 
-                    // table.api().draw();
+                    table.api().draw();
 
-                    // var o = table._('tr', {
-                    //     "filter": "applied"
-                    // }).map(function(item) {
-                    //     return item["patient_ID"].toString().toUpperCase()
-                    // });
+                    var o = table._('tr', {
+                        "filter": "applied"
+                    }).map(function(item) {
+                        return item["patient_ID"].toString().toUpperCase()
+                    });
+                    o = $.map(o, function(value) {
+                        return [value];
+                    });
+                    osCohortService.setPatientCohort(o, "Patient History");
 
-                    // o = $.map(o, function(value) {
-                    //     return [value];
-                    // });
-
-                    //osHistory.addPatientSelection("Patient History", filter, o);
                 };
 
+                osCohortService.onPatientsSelect.add(function(patients){
+                    selectedIds = patients.ids;
+                    table.api().draw();
 
-                // osHistory.onPatientSelectionChange.add(function(selection) {
-                //     selectedIds = selection.ids;
-                //     table.api().draw();
-                // });
+                });
+
 
             }
 
             // Load Datasets
             osApi.setBusy(true);
-
-
-
-
-            initViewState(vm);
             osApi.query(vm.datasource.collections.pt, {
                     $fields: fields
                 })
@@ -170,31 +176,32 @@ b:{})}});return g};"function"===typeof define&&define.amd?define(["jquery","data
                             prev.ageAtDiagnosis.min = Math.min(prev.ageAtDiagnosis.min, ageAtDiagnosis);
                             prev.ageAtDiagnosis.max = Math.max(prev.ageAtDiagnosis.max, ageAtDiagnosis);
                         }
-                        if (angular.isDefined(curr.days_to_death)) {
-                            var daysToDeath = parseInt(curr.days_to_death);
-                            prev.daysToDeath.min = Math.min(prev.daysToDeath.min, daysToDeath);
-                            prev.daysToDeath.max = Math.max(prev.daysToDeath.max, daysToDeath);
-                        }
+                        // if (angular.isDefined(curr.days_to_death)) {
+                        //     var daysToDeath = parseInt(curr.days_to_death);
+                        //     prev.daysToDeath.min = Math.min(prev.daysToDeath.min, daysToDeath);
+                        //     prev.daysToDeath.max = Math.max(prev.daysToDeath.max, daysToDeath);
+                        // }
                         return prev;
 
                     }, {
                         ageAtDiagnosis: {
                             max: -Infinity,
                             min: Infinity
-                        },
-                        daysToDeath: {
-                            max: -Infinity,
-                            min: Infinity
                         }
+                        // ,
+                        // daysToDeath: {
+                        //     max: -Infinity,
+                        //     min: Infinity
+                        // }
                     })
 
                     vm.diagnosisMin = vm.diagnosisMinValue = maxMin.ageAtDiagnosis.min;
                     vm.diagnosisMax = vm.diagnosisMaxValue = maxMin.ageAtDiagnosis.max;
-                    vm.survivalMin = vm.survivalMinValue = maxMin.daysToDeath.min;
-                    vm.survivalMax = vm.survivalMaxValue = maxMin.daysToDeath.max;
+                    //vm.survivalMin = vm.survivalMinValue = maxMin.daysToDeath.min;
+                    //vm.survivalMax = vm.survivalMaxValue = maxMin.daysToDeath.max;
 
                     initDataTable(vm, columns, response.data);
-                    initEvents(vm, $scope)
+                    initEvents(vm, $scope, osApi)
                     osApi.setBusy(false);
                 });
         }

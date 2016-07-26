@@ -1,6 +1,6 @@
 // Namespace
 .pca{
-
+    padding-top:20px;
 }
 .axis path,
 .axis line {
@@ -15,7 +15,7 @@
 }
 .pca-node:hover{
 	stroke: rgb(89, 165, 251);
-	stroke-width: 20px;
+	stroke-width: 2px;
 }
 .extent{
 	fill: #0b97d3;
@@ -23,8 +23,8 @@
 }
 .pca-node-selected{
 	fill: none;
-    stroke: red;
-    stroke-width: 3;
+    stroke: pink;
+    stroke-width: 1;
 }
 .pca-tooltip{
     pointer-events : none;

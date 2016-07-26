@@ -22,9 +22,15 @@
         /** @ngInject */
         function HeaderController(osApi, $stateParams, $state, $timeout) {
 
-            
-            osApi.onDataSource.add(function(){
+
+            osApi.query("lookup_oncoscape_tools",{beta:false}).then(function(response){
+                vm.tools = response.data;
+                
+            });
+
+            osApi.onDataSource.add(function(){                
                 $timeout(function(){
+                    vm.datasets = osApi.getDataSources();
                     vm.showTools = true;
                 });
             });
@@ -40,6 +46,8 @@
                     vm.showMenu = false;
                 });
             })
+
+
            
             var vm = this;
             vm.showMenu = false;
@@ -47,15 +55,18 @@
 
             vm.showMenu = true;
             vm.showTools = true;
-              
-            vm.toolsClick = function(){
-                $state.go("tools", {
-                    datasource: osApi.getDataSource().disease
+
+
+            vm.loadDataset = function(dataset) {
+                $state.go('markers', {
+                    datasource: dataset
                 });
             };
-            
-            vm.cohortClick = function() {
-                osApi.toggleFilter();
+
+            vm.loadTool = function(tool) {
+                $state.go(tool, {
+                    datasource: osApi.getDataSource().disease
+                });
             };
             
             vm.logoutClick = function(){

@@ -19,8 +19,10 @@
                 resolve(data);
                 return;
             }
+
             var query = "http://localhost:80/api/" + object.table;
             if (object.query) query += "/?q=" + encodeURIComponent(JSON.stringify(object.query));
+//            var query = "http://localhost/api/"+object.table+"/?q=%7B%22%24fields%22%3A%5B%22patient_ID%22%2C%22gender%22%2C%22race%22%2C%22age_at_diagnosis%22%2C%22days_to_death%22%2C%22status_vital%22%5D%7D";
             load(query, function(response) {
                 resolve(format(JSON.parse(response.responseText)));
             });
@@ -383,11 +385,10 @@ var data = (function() {
                     table: options.edges.layout.edges + "_patient_weight"
                 }, !update.edges ? state.edgePatients : null, formatEdgePatients),
 
-
-
             ];
 
             Promise.all(promises).then(function(data) {
+
 
                 // Reorient patient data to use PIDs as keys
                 if (update.patientData) {
@@ -603,6 +604,7 @@ var process = function(options, run) {
 
 // Recieve Command
 self.addEventListener('message', function(msg) {
+
     msg = msg.data;
     switch (msg.cmd) {
         case "setOptions":

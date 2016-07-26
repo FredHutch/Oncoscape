@@ -19,7 +19,7 @@
         return directive;
 
         /** @ngInject */
-        function PathwaysController(osApi, osHistory, $state, $stateParams, $scope, $sce, $window, moment, cytoscape, _) {
+        function PathwaysController(osApi, osCohortService, $state, $stateParams, $scope, $sce, $window, moment, cytoscape, _) {
 
             var markersNetwork;
             var vm = this;
@@ -29,6 +29,7 @@
             var csChart;
 
             // History Integration
+            /*
             var skipSave = false;
             var selectedIds = (osHistory.getGeneSelection() == null) ? null : osHistory.getGeneSelection().ids;
             function saveSelected() {
@@ -53,6 +54,7 @@
                 }
                 csChart.endBatch();
             }
+            */
             
             vm.datasource = osApi.getDataSource();
             vm.search = "";
@@ -111,7 +113,7 @@
                                 fit: true
                             }
                         })
-                        .on('select', 'node', _.debounce(saveSelected, 300))
+                        //.on('select', 'node', _.debounce(saveSelected, 300))
                         .on('click', 'node', function(e) {
                             if (e.cyTarget.data().nodeType!="gene") return;
                             angular.element('#gbm-webpage').modal();
@@ -163,11 +165,13 @@
                         })
 
                     // Register History Component
+                    /*
                     osHistory.onGeneSelectionChange.add(function(selection){
                         selectedIds = selection.ids;
                         setSelected();
                     });
                     setSelected();
+                    */
                     osApi.setBusy(false);
                 });
 

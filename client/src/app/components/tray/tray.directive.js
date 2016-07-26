@@ -27,7 +27,7 @@
         return directive;
 
         /** @ngInject */
-        function TrayController($timeout) {
+        function TrayController(osApi, $timeout) {
 
 
             var vm = this;
@@ -39,7 +39,6 @@
             vm.toggle = function(){
                 var elTray = angular.element("."+vm.trayClass);
                 var elIcon = angular.element("."+vm.iconClass);
-                var elContent = angular.element("."+vm.content);
 
                 isLocked = !isLocked;
                 elIcon
@@ -49,8 +48,6 @@
                 elTray.attr("locked", isLocked ? "true" : "false");
 
                 if (isLocked) {
-                    elContent
-                        .removeClass("tray-content-block-collapsed");
                     elTray
                         .unbind("mouseover", mouseOver)
                         .unbind("mouseout", mouseOut)
@@ -60,8 +57,6 @@
                     });
                         
                 } else {
-                    elContent
-                        .addClass("tray-content-block-collapsed");
                     elTray
                         .addClass("tray-collapsed")
                         .bind("mouseover", mouseOver)
@@ -70,6 +65,8 @@
                         vm.change();
                     });
                 }
+
+                osApi.onResize.dispatch();
             };
 
             

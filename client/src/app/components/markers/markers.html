@@ -1,4 +1,3 @@
-<os-cohort-menu></os-cohort-menu>
 <os-tray content="tray-content-block" change="vm.resize()">
     <section class="tray-content">
         <div class="row">
@@ -133,9 +132,9 @@
 <!-- Label + Chart -->
 <section class="tray-content-block">
     <div id="markers-chart" class="markers-chart"></div>
-    <div style="position:absolute;top:10px;left:50px;">
-        <h2 class="h2-tool">Patients + Markers</h2>
-        <h3 class="h3-datasource">{{vm.datasource.name}} {{vm.datasource.source}}</h3>
+    <div style="position:absolute;top:10px;text-align:center;width:100%;">
+        <h2 class="h2-tool">Patients + Markers</h2><br />
+        {{vm.datasource.source}} {{vm.datasource.name}} 
     </div>
 </section>
 
@@ -176,6 +175,7 @@
         <label>Enter Gene Symbol</label>
         <input ng-model="vm.colorGene" type="text" class="form-control" placeholder="Hugo Gene Symbol">
         <button class="btn btn-default" type="button" ng-click="vm.colorGeneSymbol()">Submit</button>
+        <div id="markersRnaColorChart"></div>
     </div>
 
   </div>

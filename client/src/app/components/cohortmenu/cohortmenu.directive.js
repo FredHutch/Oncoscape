@@ -29,14 +29,16 @@
             vm.setCohort = function(){};
             vm.removeCohort = function(){};
 
-
-
-           
             // Configure Tray
-            var elTray = angular.element(".tool-menu");
+            var elTray = angular.element(".cohort-menu");
+            var mouseOver = function(){
                 elTray
-                .bind("mouseover", function(){ elTray.removeClass("tray-collapsed-left"); })
-                .bind("mouseout", function() {});// elTray.addClass("tray-collapsed-left"); });
+                    .removeClass("tray-collapsed-left");
+            }
+            var mouseOut = function(){
+                elTray
+                    .addClass("tray-collapsed-left");
+            }
             
             // Configure Tabs
             var elTabPatients = $('#cohort-tab-patients');
@@ -58,10 +60,37 @@
                 vm.removeCohort = osCohortService.delGeneCohort;
             };
 
+            var isLocked = true;
+            vm.toggle = function(){
+                isLocked = !isLocked;
+                console.log(isLocked);
+                angular.element("#cohortmenu-lock")
+                    .addClass(isLocked ? 'fa-lock' : 'fa-unlock-alt')
+                    .removeClass(isLocked ? 'fa-unlock-alt' : 'fa-lock')
+                    .attr("locked", isLocked ? "true" : "false");
+
+                if (isLocked) {
+
+                    elTray
+                        .unbind("mouseover", mouseOver)
+                        .unbind("mouseout", mouseOut)
+                        .removeClass("tray-collapsed-left");
+                    
+                        
+                } else {
+                    elTray
+                        .addClass("tray-collapsed-left")
+                        .bind("mouseover", mouseOver)
+                        .bind("mouseout", mouseOut);
+                   
+                }
+                osApi.onResize.dispatch();
+                    
+            }   
+
 
             var barClick =function(d,i){
-                vm.patientChartOption;
-                debugger;
+                //vm.patientChartOption;
             }
 
 
@@ -72,7 +101,7 @@
                 .append("g");
           
             $scope.$watch('vm.patientChartOption', function(){
-                console.log(vm.patientChartOption);
+
                 if (vm.patientChartOption==null) return;
 
                 var data = vm.patientChartOption.data;
@@ -116,7 +145,6 @@
             });
 
 
-
             // Interact with Cohort Service
             osCohortService.onPatientsSelect.add(function(obj){
                 osCohortService.getPatientMetric();
@@ -128,7 +156,9 @@
 
                 if (obj.data.cmd!="setPatientMetric") return;
                 $timeout(function(){
-                    vm.patientChartOptions = obj.data.data;
+                    vm.patientTotal = obj.data.data.total,
+                    vm.patientSelected = obj.data.data.selected,
+                    vm.patientChartOptions = obj.data.data.features;
                     vm.patientChartOption = vm.patientChartOptions[0];
                 });                
             });            

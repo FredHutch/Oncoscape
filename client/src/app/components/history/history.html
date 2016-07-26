@@ -1,4 +1,3 @@
-<os-cohort-menu></os-cohort-menu>
 <os-tray caption="Patients" content="tray-content-block">
     <section class="tray-content">
         <div class="row">
@@ -9,10 +8,10 @@
                 <label>Age At Diagnosis</label>
                 <div range-slider min="vm.diagnosisMinValue" model-min="vm.diagnosisMin" max="vm.diagnosisMaxValue" model-max="vm.diagnosisMax" show-values="true" attach-handle-values="true" on-handle-up="vm.applyFilter('Diagnosis')"></div>
             </div>
-            <div class="col-xs-12 form-item">
+            <!-- <div class="col-xs-12 form-item">
                 <label>Survival</label>
                 <div range-slider min="vm.survivalMinValue" model-min="vm.survivalMin" max="vm.survivalMaxValue" model-max="vm.survivalMax" show-values="true" attach-handle-values="true" on-handle-up="vm.applyFilter('Survival')"></div>
-            </div>
+            </div> -->
             <div class="col-xs-12 form-item">
                 <label>Export (beta)</label>
                 <div>
@@ -22,7 +21,7 @@
         </div>
     </section>
 </os-tray>
-<section class="tray-content-block">
+<section class="history-content">
     <div class="container-fluid">
         <h2 class="h2-tool">Patient Data</h2>
         <h3 class="h3-datasource">{{vm.datasource.name}} {{vm.datasource.source}}</h3>

@@ -8,18 +8,20 @@
     "body-parser": "^1.14.2",
     "compression": "^1.6.2",
     "cookie-parser": "^1.4.1",
+    "crypto": "0.0.3",
     "express": "^4.13.3",
     "httpd": "^0.0.2",
     "ldapjs": "^1.0.0",
+    "memcached": "^2.2.2",
     "mongodb": "^2.1.18",
     "mongoose": "^4.4.16",
     "node-uuid": "~1.4.7",
     "pdfkit": "^0.7.2",
     "router": "^1.1.4",
+    "serve-favicon": "2.3.0",
     "soap": "^0.12.0",
     "xml2js": "^0.4.16",
-    "xmldom": "^0.1.22",
-    "serve-favicon": "2.3.0"
+    "xmldom": "^0.1.22"
   },
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1"

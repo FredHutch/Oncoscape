@@ -10,6 +10,15 @@
 
         // Events
         var onDataSource = new signals.Signal();
+        var onResize = new signals.Signal();
+
+        var getLayout = function(){
+            return {
+                left:  ($('#cohortmenu-lock').attr("locked")=="true") ? 300 : 0,
+                right: ($(".tray-right").attr("locked")==="true") ? 300 : 0
+            };
+        }
+
 
         // State
         var _dataSources;
@@ -17,7 +26,7 @@
         function getDataSources(){
             return _dataSources;
         }
-        function getDataSource(value){ 
+        function getDataSource(){ 
             return _dataSource; 
         }
         function setDataSource(value){
@@ -133,7 +142,9 @@
             setDataSource: setDataSource,
             getDataSource: getDataSource,
             getDataSources: getDataSources,
+            getLayout: getLayout,
             onDataSource: onDataSource,
+            onResize: onResize,
             getUserApi: getUserApi,
             setBusy: setBusy
         }

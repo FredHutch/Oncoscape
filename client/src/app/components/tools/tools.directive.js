@@ -26,7 +26,7 @@
                 vm.tools = response.data;
             });
 
-            vm.explore = function(tool, datasource) {
+            vm.explore = function(tool) {
                 $state.go(tool, {
                     datasource: osApi.getDataSource().disease
                 });
