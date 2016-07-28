@@ -27,10 +27,14 @@
     font-size: 12px;
 }
 .markers-legend{
-    font-size: 10px;
+    font-size: 12px;
+    list-style:none;
 }
 .markers-legend-key{
     font-weight: bold;
+    display: block;
+    text-transform: capitalize;
+    padding-top:3px;
 }
 .markers-command {
     cursor: pointer;

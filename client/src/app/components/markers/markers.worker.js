@@ -342,7 +342,10 @@ var data = (function() {
             var promises = [
 
                 request({
-                    table: options.patients.data
+                    table: options.patients.data,
+                    query:{
+                        $fields: ['patient_ID', 'gender', 'race', 'age_at_diagnosis', 'days_to_death', 'status_vital']
+                    }
                 }, !update.patientData ? state.patientData : null, formatPatientData),
 
                 request({

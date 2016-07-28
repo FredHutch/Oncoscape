@@ -20,7 +20,7 @@
         return directive;
 
         /** @ngInject */
-        function CohortMenuController(osApi, osCohortService, $state, $scope, $timeout) {
+        function CohortMenuController(osApi, osCohortService, $state, $scope, $timeout, $rootScope) {
 
             var vm = this;
             vm.cohorts = [];
@@ -28,6 +28,20 @@
             vm.addCohort = function(){};
             vm.setCohort = function(){};
             vm.removeCohort = function(){};
+            vm.show = false;
+
+            $rootScope.$on('$stateChangeStart', function(event, toState, toParams, fromState, fromParams){ 
+                switch (toState.url){
+                    case "/":
+                    case "/datasource":
+                    case "/tools/{datasource}":
+                        vm.show = false;
+                        break;
+                    default:
+                        vm.show = true;
+                        break;
+                }
+            });
 
             // Configure Tray
             var elTray = angular.element(".cohort-menu");

@@ -28,14 +28,21 @@
             }
             var selectedIds = (pc==null) ? [] : pc.ids;
 
+            var osCohortServiceUpdate = true;
+            osCohortService.onPatientsSelect.add(function(patients){
+                if (osCohortServiceUpdate){
+                    selectedIds = patients.ids;
+                    setSelected();
+                }else{
+                    osCohortServiceUpdate = true;
+                }
+            });
 
             function saveSelected() {
                 var selected = d3Chart.selectAll(".pca-node-selected")[0];
-                
                 var ids = (selected.length==0) ? [] : selected.map(function(node) { return node.__data__[2].toUpperCase(); });
-                
+                osCohortServiceUpdate = false;
                 osCohortService.setPatientCohort(ids, "PCA");
-                
             }
 
             function setSelected() {
@@ -43,7 +50,7 @@
                     d3Chart.selectAll(".pca-node-selected").classed("pca-node-selected", false);
                 } else {
                     d3Chart.selectAll("circle").classed("pca-node-selected", function() {
-                        return (selectedIds.indexOf(this.__data__.id) >= 0)
+                        return (selectedIds.indexOf(this.__data__[2]) >= 0)
                     });
                 }
             }
@@ -53,6 +60,7 @@
             var d3xAxis = d3Chart.append("g");
             var d3yAxis = d3Chart.append("g");
             var d3Tooltip = d3.select("body").append("div").attr("class", "tooltip pca-tooltip");
+            var brush;
 
             // Properties
             var data;
@@ -112,9 +120,7 @@
                 var osLayout = osApi.getLayout();
 
                 layout.width = $window.innerWidth - osLayout.left - osLayout.right - 60;
-                
                 layout.height = $window.innerHeight - 200;
-
 
                 angular.element("#pca-chart").css("margin-left",osLayout.left+30);
                 d3Chart
@@ -165,7 +171,7 @@
                     .ticks(5);
 
                 // Brush
-                var brush = d3.svg.brush()
+                brush = d3.svg.brush()
                     .x(layout.xScale)
                     .y(layout.yScale)
                     .on("brushend", function() {
@@ -182,21 +188,14 @@
                         saveSelected();
                     });
 
+
                 d3Chart.call(brush);
 
                 var circles = d3Chart.selectAll("circle").data(data, function(d) {
                     return d;
                 });
 
-                circles.enter()
-                    .append("circle")
-                    .attr({
-                        "class": "pca-node",
-                        "cx": layout.width * .5,
-                        "cy": layout.height * .5,
-                        //"opacity": 0.3,
-                        "r": 3
-                    })
+                /*
                     .style("fill-opacity", "0")
                     .on("mouseover", function(d) {
                         d3Tooltip.transition()
@@ -210,6 +209,17 @@
                         d3Tooltip.transition()
                             .duration(500)
                             .style("opacity", 0);
+                    })*/
+
+
+                circles.enter()
+                    .append("circle")
+                    .attr({
+                        "class": "pca-node",
+                        "cx": layout.width * .5,
+                        "cy": layout.height * .5,
+                        //"opacity": 0.3,
+                        "r": 3
                     })
                     .transition()
                     .duration(750)
@@ -262,6 +272,8 @@
                 scale();
                 layout.xAxis.scale(layout.xScale);
                 layout.yAxis.scale(layout.yScale);
+                brush.x(layout.xScale);
+                brush.y(layout.yScale);
                 d3yAxis.attr("transform", "translate(0, " + layout.yScale(0) + ")").call(layout.xAxis);
                 d3xAxis.attr("transform", "translate(" + layout.xScale(0) + ", 0)").call(layout.yAxis);
                 d3Chart.selectAll("circle")

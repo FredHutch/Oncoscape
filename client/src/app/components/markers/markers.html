@@ -133,8 +133,8 @@
 <section class="tray-content-block">
     <div id="markers-chart" class="markers-chart"></div>
     <div style="position:absolute;top:10px;text-align:center;width:100%;">
-        <h2 class="h2-tool">Patients + Markers</h2><br />
-        {{vm.datasource.source}} {{vm.datasource.name}} 
+        <h2 class="h2-tool">Patients + Markers</h2>
+        <span class="h3-tool">{{vm.datasource.source}} {{vm.datasource.name}}</span>
     </div>
 </section>
 
@@ -173,8 +173,13 @@
     </div>
     <div ng-if="vm.showPanelColorRna">
         <label>Enter Gene Symbol</label>
-        <input ng-model="vm.colorGene" type="text" class="form-control" placeholder="Hugo Gene Symbol">
-        <button class="btn btn-default" type="button" ng-click="vm.colorGeneSymbol()">Submit</button>
+
+         <div class="input-group">
+          <input ng-model="vm.colorGene" type="text" class="form-control" placeholder="Hugo Gene Symbol">
+          <span class="input-group-btn">
+            <button class="btn btn-default" type="button" ng-click="vm.colorGeneSymbol()">Submit</button>
+          </span>
+        </div><!-- /input-group -->
         <div id="markersRnaColorChart"></div>
     </div>
 

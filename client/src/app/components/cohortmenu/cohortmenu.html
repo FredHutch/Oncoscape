@@ -1,11 +1,13 @@
-<div>
+<div ng-show="vm.show">
     <label class="tray-label tray-label-left">Cohorts</label>
     <div class="cohort-menu tray tray-left">
+
 
 
       <section >
             <div class="row">
                 <br />
+                 {{vm.state}}
                 <div class="col-xs-12 form-item">
                     <ul class="nav nav-tabs">
                         <li id="cohort-tab-patients" role="presentation" style="width:50%;text-align:center;" ng-click="vm.showPatientHistory()"><a>Patients<br />({{vm.patientSelected}} of {{vm.patientTotal}})</a></li>

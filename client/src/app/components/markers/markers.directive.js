@@ -858,12 +858,69 @@
 
             vm.colorGene = "TP53";
             vm.colorGeneSymbol = function(){
-                osApi.query("_rna", {
-                    gene: vm.colorGene.toUpperCase()
-                }).then(function(result) {
-                    if (result.data.length==1){
-                        var data = result.data[0];
+                var genes = ("+"+vm.colorGene.replace(/\s/g,'').toUpperCase()).match(/[-+]\w*/gi).map(function(v){ return {op:v.substr(0,1), gene:v.substr(1)}; });
+
+                osApi.query("molecular_tcga_brca_rna", {
+                    gene: {'$in': genes.map(function(v){ return v.gene; })}
+                // osApi.query("molecular_tcga_brca_rna", {
+                //     gene: vm.colorGene}
+                }).then(function(results) {
+                    
+                    if (results.data.length>0){
+                        genes
                         
+                        var data;
+
+                        if (results.data.length==1) data = results.data[0];
+                        else{
+
+                            data = {};
+                            data.patients = results.data.reduce(function(p,c) {
+                                    var fn = p.lookup[c.gene];
+                                    for (var i=0; i<p.pids.length; i++){
+                                        var pid = p.pids[i];
+                                        var iv = p.output.hasOwnProperty(pid) ? p.output[pid] : 0;
+                                        if (fn==="+") p.output[pid] = iv + c.patients[pid];
+                                        if (fn==="-") p.output[pid] = iv - c.patients[pid];
+                                    }
+                                    return p;
+                                },
+                                {
+                                    pids: Object.keys(results.data[0].patients),
+                                    lookup: genes.reduce(function(p,c){
+                                        p[c.gene] = c.op;
+                                        return p;
+                                        },{}), 
+                                    output:{}
+                                }).output;
+
+                            var range = Object.keys(data.patients).reduce(function(p, c){
+                                p.min = Math.min( p.min, p.values[c] );
+                                p.max = Math.max( p.min, p.values[c] );
+                                return p;
+                            }, {values:data.patients, min:Infinity, max:-Infinity});
+                            data.min = range.min;
+                            data.max = range.max;
+                            
+                        }
+                        console.log(data.min+":"+data.max);
+
+
+                        // if (results.data.length>0){
+                        //     var genes = results.data.map(function(v){ return v.patients });
+                        //     Object.keys(genes[0]).reduce(function(prev, curr){
+                        //         for (var i=0; i<prev.genes.length; i++){
+                        //             prev.total[curr] += prev.genes
+                        //         }
+                        //         return prev;
+                        //         debugger;
+                        //     }, {total:genes.shift(),  genes:genes} );
+
+                        //     debugger;
+                        // }
+                        
+
+
                         // Draw Distribution
                         // var line = d3.svg.line()
                         // .x(function(d) {

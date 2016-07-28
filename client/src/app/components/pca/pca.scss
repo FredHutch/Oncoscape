@@ -5,26 +5,29 @@
 .axis path,
 .axis line {
     fill: none;
-    stroke: #0b97d3;
+    stroke: #000;
     shape-rendering: crispEdges;
 }
 .axis text {
     font-family: sans-serif;
     font-size: 11px;
-    fill: #0b97d3;
+    fill: #000;
 }
-.pca-node:hover{
-	stroke: rgb(89, 165, 251);
-	stroke-width: 2px;
-}
+// .pca-node:hover{
+// 	stroke: rgb(89, 165, 251);
+// 	stroke-width: 2px;
+// }
 .extent{
 	fill: #0b97d3;
     fill-opacity: .2;
 }
+.pca-node{
+    fill: #0095e1;
+}
 .pca-node-selected{
-	fill: none;
-    stroke: pink;
-    stroke-width: 1;
+	//fill: none;
+    stroke: #000;
+    stroke-width: 2;
 }
 .pca-tooltip{
     pointer-events : none;
