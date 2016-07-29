@@ -19,75 +19,58 @@
         return directive;
 
         /** @ngInject */
-        function SurvivalController(osApi, $state, $timeout, $scope, $stateParams) {
+        function SurvivalController(osApi, osCohortService, $state, $timeout, $scope, $stateParams) {
 
+            var colors = ['#004358','#800080','#BEDB39','#FD7400','#1F8A70'];
             if (angular.isUndefined($stateParams.datasource)){
                 $state.go("datasource");
                 return;
             }
 
-            // time n.event
-            var groups = [
-                {
-                    name:  'People',
-                    color: 'red',
-                    data:[
-                    [1,1],
-                    [3,2],
-                    [4,1],
-                    [10,1],
-                    [13,2],
-                    [16,2],
-                    [24,1],
-                    [26,1],
-                    [27,1],
-                    [28,1],
-                    [30,2],
-                    [32,1],
-                    [41,1],
-                    [51,1],
-                    [65,1],
-                    [67,1],
-                    [70,1],
-                    [72,1],
-                    [73,1],
-                    [77,1],
-                    [91,1],
-                    [93,1],
-                    [96,1],
-                    [100,1],
-                    [104,1],
-                    [157,1],
-                    [167,1]
-                    ]
+            var onSurvivalData = function(data){
+
+                if (data.data.cmd=="getSurvivalData"){
+                    var groups = data.data.data.cohorts;
+                    
+                    for (var i=0; i<groups.length; i++){
+                        groups[i].color = colors[i];
+                        addCurve(groups[i], [data.data.data.min,  data.data.data.max]);
+                    }
                 }
-            ];
+            }
+            osCohortService.onMessage.add(onSurvivalData);
 
             // View Model
             var vm = this;
+            vm.datasource = osApi.getDataSource();
 
             var svg = d3.select(".survival-chart")
                 .append("svg")
                 .attr("width",1000)
-                .attr("height",500);
+                .attr("height",500)
+                // .append("rect")
+                // .attr("width",1000)
+                // .attr("height", 500)
+                // .attr("fill", "pink");
 
-
-
-
-            var addCurve = function(group){
+            var addCurve = function(group, timeScaleRange){
             
                 // Determine Percentages
                 group.data.forEach(function(v){
                     if (v[1]==1) {
                         this.percent -= (this.percent/this.remainingPopulation);
-                        console.log(this.percent);
                     }
                     v.push( this.percent );
                     this.remainingPopulation -= 1;
-                    
-                },{deathIndex:0, totalPop: group.data.length, remainingPopulation: group.data.length, percent:100})
+                },{deathIndex:0, remainingPopulation: (group.data.length+group.alive), percent:100})
 
-                
+                // Adjust Censored Locations
+                var percent = 0;
+                for (var i=group.data.length-1; i>=0; i--){
+                    if (group.data[i][1]==1) percent = group.data[i][2];
+                    if (group.data[i][1]==2) group.data[i][2] = percent;
+                }
+
                 // Add Additional Points For Death Angles
                 var points = group.data.reduce(function(p,c){
                     if (c[1]==1) p.line.push(c);
@@ -102,13 +85,12 @@
                         output.push([ c[0], 0, a[i+1][2] ]);
                     }
                 })
-
+                points.line = output;
 
                 // Determine Scales
-                var ext = d3.extent(group.data, function(x){ return x[0] });
-                var timeScale = d3.scale.linear().domain(ext).range([0,1000]);
+            
+                var timeScale = d3.scale.linear().domain(timeScaleRange).range([0,1000]);
                 var deathScale = d3.scale.linear().domain([100,0]).range([0,500]);
-
 
                 // Define Line
                 var valueline = d3.svg.line()
@@ -118,17 +100,42 @@
                 svg.append("path")
                     .attr("class", "line")
                     .attr("stroke-width", 1)
-                    .attr("stroke", "black")
+                    .attr("stroke", group.color)
                     .attr("fill","none")
-                    .attr("d", valueline(output));
-                    
+                    .attr("d", valueline(points.line))
+                    .on("mouseover", function(){
+                        d3.select(this).attr("stroke-width", 2)
+                    })
+                    .on("mouseout", function(){
+                        d3.select(this).attr("stroke-width", 1)
+                    });
 
+                for (var i=0; i<points.tick.length; i++){
+                    svg.append("line")
+                        .attr("class", "line")
+                        .attr("stroke-width", 1)
+                        .attr("stroke", group.color)
+                        .attr("x1", timeScale(points.tick[i][0]))
+                        .attr("x2", timeScale(points.tick[i][0]))
+                        .attr("y1", deathScale(points.tick[i][2])-3)
+                        .attr("y2", deathScale(points.tick[i][2]));
+                }
             }
 
+/*
+ALIVE | DEAD
+if (status_vital=="dead"){
+    days_to_death
+}
+if (status_vital==na){
+    censored = datys_to_last_contact
+}
+*/
+
+     
 
 
-
-            addCurve(groups[0])
+            osCohortService.getSurvivalData();
             // vm.datasource = $stateParams.datasource;
 
             // // Set Dataset 
@@ -157,6 +164,14 @@
             //         osApi.setBusy(false);
             //     });
             // }
+
+             // Destroy
+            $scope.$on('$destroy', function() {
+                osCohortService.onMessage.remove(onSurvivalData);
+
+        
+            });
+                
         }
     }
 })();

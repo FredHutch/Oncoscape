@@ -17,31 +17,31 @@
       <ul class="nav navbar-nav navbar-right">
         
         <li class="dropdown">
-                <a href class="dropdown-toggle header-link" data-toggle="dropdown" role="button" aria-haspopup="true" aria-expanded="false"><span class="glyphicon glyphicon-th"></span>Data Sources</a>
-                <ul class="dropdown-menu">
-                  <li ng-repeat="item in vm.datasets" ng-click="vm.loadDataset(item.disease)">
-                    <a><img class="header-dropdown-img" ng-src="/assets/images/datasets/{{item.img}}">{{item.name}}</a>
-                  </li>
-                </ul>
-              </li>
-        <li>
+          <a href class="dropdown-toggle header-link" data-toggle="dropdown" role="button" aria-haspopup="true" aria-expanded="false"><span class="glyphicon glyphicon-th"></span>Data Sources</a>
+          <ul class="dropdown-menu">
+            <li ng-repeat="item in vm.datasets" ng-click="vm.loadDataset(item.disease)">
+              <a><img class="header-dropdown-img" ng-src="/assets/images/datasets/{{item.img}}">{{item.name}}</a>
+            </li>
+          </ul>
+        </li>
+        
         <li class="dropdown">
-                <a href class="dropdown-toggle header-link" data-toggle="dropdown" role="button" aria-haspopup="true" aria-expanded="false"><span class="glyphicon glyphicon-stats"></span>Analysis Tools</a>
-                <ul class="dropdown-menu">
-                  <li ng-repeat="item in vm.tools" ng-click="vm.loadTool(item.route)">
-                    <a><img class="header-dropdown-img" ng-src="/assets/images/datasets/{{item.img}}">{{item.name}}</a>
-                  </li>
-                
-                  
-                </ul>
-              </li>
-        <li>
+          <a href class="dropdown-toggle header-link" data-toggle="dropdown" role="button" aria-haspopup="true" aria-expanded="false"><span class="glyphicon glyphicon-stats"></span>Analysis Tools</a>
+          <ul class="dropdown-menu">
+            <li ng-repeat="item in vm.tools" ng-click="vm.loadTool(item.route)">
+              <a><img class="header-dropdown-img" ng-src="/assets/images/datasets/{{item.img}}">{{item.name}}</a>
+            </li>
+          </ul>
+        </li>
+        
           
+        
         <!--
         <li>
-          <a href="#help"><span class="glyphicon glyphicon-question-sign"></span>Help</a>
+          <a ng-click="vm.helpClick();" class="header-link"><span class="glyphicon glyphicon-question-sign"></span>Help</a>
         </li>
         -->
+        
         <li>
           <a ng-click="vm.logoutClick()" class="header-link"><span class="glyphicon glyphicon-user"></span>Logout</a>
         </li>

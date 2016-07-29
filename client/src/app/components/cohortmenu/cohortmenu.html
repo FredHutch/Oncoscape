@@ -3,14 +3,16 @@
     <div class="cohort-menu tray tray-left">
 
 
-
+<!--
+<br />({{vm.patientSelected}} of {{vm.patientTotal}})</a>
+-->
       <section >
             <div class="row">
                 <br />
                  {{vm.state}}
                 <div class="col-xs-12 form-item">
                     <ul class="nav nav-tabs">
-                        <li id="cohort-tab-patients" role="presentation" style="width:50%;text-align:center;" ng-click="vm.showPatientHistory()"><a>Patients<br />({{vm.patientSelected}} of {{vm.patientTotal}})</a></li>
+                        <li id="cohort-tab-patients" role="presentation" style="width:50%;text-align:center;" ng-click="vm.showPatientHistory()"><a>Patients</a></li>
                         <li id="cohort-tab-genes" role="presentation" style="width:50%;text-align:center;" ng-click="vm.showGeneHistory()"><a>Genes</a></li>
                     </ul>
                     <div style="background-color:#ffffff;border:#dddddd 1px solid;border-top-width:0px;padding:10px;">

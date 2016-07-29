@@ -22,25 +22,30 @@
         /** @ngInject */
         function CohortMenuController(osApi, osCohortService, $state, $scope, $timeout, $rootScope) {
 
+
+
+            var showState = function(state){
+                switch (state){
+                    case "/":
+                    case "/datasource":
+                    case "/tools/{datasource}":
+                        return false
+                        break;
+                }
+                return true;
+            }
+
             var vm = this;
             vm.cohorts = [];
             vm.patientChartOption = null;
             vm.addCohort = function(){};
             vm.setCohort = function(){};
             vm.removeCohort = function(){};
-            vm.show = false;
+            vm.show = showState($state.current);
+
 
             $rootScope.$on('$stateChangeStart', function(event, toState, toParams, fromState, fromParams){ 
-                switch (toState.url){
-                    case "/":
-                    case "/datasource":
-                    case "/tools/{datasource}":
-                        vm.show = false;
-                        break;
-                    default:
-                        vm.show = true;
-                        break;
-                }
+               vm.show = showState(toState.url);
             });
 
             // Configure Tray

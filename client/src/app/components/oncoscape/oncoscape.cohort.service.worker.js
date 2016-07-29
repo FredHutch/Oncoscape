@@ -27,10 +27,26 @@ var request = function(object, data, format) {
 };
 
 var patientData = [];
+var survivalData = {};
 var patientMetric = null;
 
 request({table:'clinical_tcga_brca_pt'}).then(function(response){
 	patientData = response;
+	for (var i=0; i<patientData.length; i++){
+		var status = patientData[i].status_vital.toUpperCase(),
+			censor, time;
+		if (status=="ALIVE"){
+			censor = 2;
+			time = patientData[i].days_to_last_contact;
+		}else if (status=="DEAD"){
+			censor = 1;
+			time = patientData[i].days_to_death
+		}else{
+			alert("Corrupt Data");
+		}
+		survivalData[patientData[i].patient_ID] = [time, censor];
+
+	}
 });
 
 var send = function(cmd, data) {
@@ -38,6 +54,96 @@ var send = function(cmd, data) {
 };
 
 var cmd = {};
+
+cmd.getSurvivalData = function(data){
+
+	if (patientData.length==0){
+		setTimeout(function(){ cmd.getSurvivalData(data) }, 500);
+		return;
+	}
+	var sort = function(a,b){
+		if (a[0] > b[0]) return 1;
+		if (a[0] < b[0]) return -1;
+		if (a[1] > b[1]) return 1;
+		if (a[1] < b[1]) return -1;
+
+		return 0;
+	}
+	
+
+	var sd = {
+		min: 0,
+		max: 0,
+		cohorts: data.map(function(datum){
+
+			// Get Data From Patient Data Collection
+			var output = {
+				id: datum.id,
+				name: datum.name,
+				alive: 0,
+				min: 0,
+				max: 0,
+				data: datum.ids
+					.map(function(id){ return this.sd[id] }, {sd:survivalData})
+					.sort(this.sort)
+			};
+			output.data.unshift([0,1]);
+			
+			output.max = output.data.reduce(function(p,c){
+				return Math.max(p, c[0]);
+			}, -Infinity);
+
+
+			// Determine Percentage
+			output.data.forEach(function(v){
+	            if (v[1]==1) {
+	                this.percent -= (this.percent/this.remainingPopulation);
+	            }
+	            v.push( this.percent );
+	            this.remainingPopulation -= 1;
+			},{deathIndex:0, remainingPopulation: (output.data.length+output.alive), percent:100})
+
+			// Adjust Censored Locations
+	        var percent = 0;
+	        for (var i=output.data.length-1; i>=0; i--){
+	            if (output.data[i][1]==1) percent = output.data[i][2];
+	            if (output.data[i][1]==2) output.data[i][2] = percent;
+	        }
+
+			// Add Additional Points For Death Angles
+			var points = output.data.reduce(function(p,c){
+			    if (c[1]==1) p.line.push(c);
+			    else p.tick.push(c);
+			    return p;
+			}, {line:[], tick:[]} );
+
+			var lines = [];
+			points.line.forEach(function(c,i,a){
+			    lines.push(c);
+			    if (i<a.length-1){
+			        lines.push([ c[0], 0, a[i+1][2] ]);
+			    }
+			})
+			points.line = lines;
+
+			// Adjust Dat To Include Positioning
+			return output;
+
+		},{sort:sort})
+	};
+
+	sd.max = sd.cohorts.reduce(function(p,c){
+		return Math.max(p, c.max)
+
+	},-Infinity);
+	
+
+	send('getSurvivalData', sd);
+
+
+}
+
+
 cmd.getPatientMetric = function(data){
 	
 	function getNumericStats(patients, attribute){
