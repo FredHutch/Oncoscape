@@ -415,7 +415,7 @@
                     name: 'cnLoss.1',
                     abv: 'cnL1',
                     show: true,
-                    color: '#800080',
+                    color: '#800080', 
                     class: 'switch-cnL1',
                     id: -1
                 }, {

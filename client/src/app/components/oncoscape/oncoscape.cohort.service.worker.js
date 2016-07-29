@@ -69,7 +69,13 @@ cmd.getSurvivalData = function(data){
 
 		return 0;
 	}
+
 	
+	// for (var i=0; i<data.length; i++){
+	// 	if (data[i].ids.length==0){
+	// 		data[i].ids = patientData.map(function(f){ return f.patient_ID});
+	// 	}
+	// }
 
 	var sd = {
 		min: 0,
@@ -87,44 +93,59 @@ cmd.getSurvivalData = function(data){
 					.map(function(id){ return this.sd[id] }, {sd:survivalData})
 					.sort(this.sort)
 			};
+
+			// Add 0,0 Point To Line - This is if a censored patient occurs before death
 			output.data.unshift([0,1]);
 			
 			output.max = output.data.reduce(function(p,c){
 				return Math.max(p, c[0]);
 			}, -Infinity);
 
+			// Determine Percentage Marks For All Patients
+            output.data.forEach(function(v){
+                if (v[1]==1) {
+                    this.percent -= (this.percent/this.remainingPopulation);
+                }
+                v.push( this.percent );
+                this.remainingPopulation -= 1;
+            },{deathIndex:0, remainingPopulation: (output.data.length+output.alive), percent:100})
 
-			// Determine Percentage
-			output.data.forEach(function(v){
-	            if (v[1]==1) {
-	                this.percent -= (this.percent/this.remainingPopulation);
-	            }
-	            v.push( this.percent );
-	            this.remainingPopulation -= 1;
-			},{deathIndex:0, remainingPopulation: (output.data.length+output.alive), percent:100})
+            // Adjust Censored Locations / Since They Occur After Death Percentage Decrement
+            var percent = output.data[output.data.length-1][2];
+            for (var i=output.data.length-1; i>=0; i--){
+                if (output.data[i][1]==1) percent = output.data[i][2];
+                if (output.data[i][1]==2) output.data[i][2] = percent;
+            }
 
-			// Adjust Censored Locations
-	        var percent = 0;
-	        for (var i=output.data.length-1; i>=0; i--){
-	            if (output.data[i][1]==1) percent = output.data[i][2];
-	            if (output.data[i][1]==2) output.data[i][2] = percent;
-	        }
+            // Seperate Lines From Ticks
+            var points = output.data.reduce(function(p,c){
+                if (c[1]==1) p.line.push(c);
+                else p.tick.push(c);
+                return p;
+            }, {line:[], tick:[]} );
 
-			// Add Additional Points For Death Angles
-			var points = output.data.reduce(function(p,c){
-			    if (c[1]==1) p.line.push(c);
-			    else p.tick.push(c);
-			    return p;
-			}, {line:[], tick:[]} );
+            // Add Additional Points For Death Angles 
+            var line = [];
+            points.line.forEach(function(c,i,a){
+                line.push(c);
+                if (i<a.length-1){
+                    line.push([ c[0], 0, a[i+1][2] ]);
+                }
+            })
+            points.line = line;
 
-			var lines = [];
-			points.line.forEach(function(c,i,a){
-			    lines.push(c);
-			    if (i<a.length-1){
-			        lines.push([ c[0], 0, a[i+1][2] ]);
-			    }
-			})
-			points.line = lines;
+            
+            // Add Points If Zero To One Death
+            for (var i=points.line.length; i<2; i++){
+            	points.line.push([0,1,0]);
+            }
+
+            // Adjust Last Line X Point To Be Max For Collection
+            points.line[points.line.length-1][0] = output.max;//points.tick[points.tick.length-1][0];
+
+            
+
+            output.data = points;
 
 			// Adjust Dat To Include Positioning
 			return output;
@@ -136,7 +157,7 @@ cmd.getSurvivalData = function(data){
 		return Math.max(p, c.max)
 
 	},-Infinity);
-	
+
 
 	send('getSurvivalData', sd);
 

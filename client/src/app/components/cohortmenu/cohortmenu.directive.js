@@ -41,7 +41,16 @@
             vm.addCohort = function(){};
             vm.setCohort = function(){};
             vm.removeCohort = function(){};
+            vm.editItem = {name:''};
+            vm.editCohort = function(item){
+                vm.editItem = item;
+                debugger;
+                vm.edit = true;
+            };
+            
+
             vm.show = showState($state.current);
+            vm.edit = false;
 
 
             $rootScope.$on('$stateChangeStart', function(event, toState, toParams, fromState, fromParams){ 
@@ -82,7 +91,6 @@
             var isLocked = true;
             vm.toggle = function(){
                 isLocked = !isLocked;
-                console.log(isLocked);
                 angular.element("#cohortmenu-lock")
                     .addClass(isLocked ? 'fa-lock' : 'fa-unlock-alt')
                     .removeClass(isLocked ? 'fa-unlock-alt' : 'fa-lock')

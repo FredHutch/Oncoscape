@@ -26,7 +26,7 @@
 
             worker.postMessage({
                 cmd: "getSurvivalData",
-                data: allPatientCohorts
+                data: cohorts
             });
 
         }
