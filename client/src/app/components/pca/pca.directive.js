@@ -59,7 +59,7 @@
             var d3Chart = d3.select("#pca-chart").append("svg").attr("id", "chart");
             var d3xAxis = d3Chart.append("g");
             var d3yAxis = d3Chart.append("g");
-            var d3Tooltip = d3.select("body").append("div").attr("class", "tooltip pca-tooltip");
+            //var d3Tooltip = d3.select("body").append("div").attr("class", "tooltip pca-tooltip");
             var brush;
 
             // Properties

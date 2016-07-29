@@ -14,8 +14,8 @@
 
         var getLayout = function(){
             return {
-                left:  ($('#cohortmenu-lock').attr("locked")=="true") ? 300 : 0,
-                right: ($(".tray-right").attr("locked")==="true") ? 300 : 0
+                left:  (angular.element('#cohortmenu-lock').attr("locked")=="true") ? 300 : 0,
+                right: (angular.element(".tray-right").attr("locked")==="true") ? 300 : 0
             };
         }
 
@@ -31,12 +31,13 @@
         }
         function setDataSource(value){
             
-            if (typeof(value)==="object"){
+            if (angular.isObject(value)){
                 if (_dataSource != value) onDataSource.dispatch(_dataSource);
                 _dataSource = value;
-            }else if (typeof(value)==="string"){
+            }else if (angular.isString(value){
                 if (_dataSource.disease!=value){
                     if (_dataSource != value) onDataSource.dispatch(_dataSource);
+                    console.log("DISEASE?");
                     _dataSource = _dataSources.filter(function(v){ v.disease==disease}, {key:value})[0]
                 }
             }

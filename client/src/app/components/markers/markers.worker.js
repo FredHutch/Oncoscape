@@ -1,3 +1,4 @@
+    /*ignore jslint start*/
     // Load Data Function (URL, CallBack)
     var load = function(t, e) {
         function a() {
@@ -20,7 +21,7 @@
                 return;
             }
 
-            var query = "http://localhost:80/api/" + object.table;
+            var query = "/api/" + object.table;
             if (object.query) query += "/?q=" + encodeURIComponent(JSON.stringify(object.query));
 //            var query = "http://localhost/api/"+object.table+"/?q=%7B%22%24fields%22%3A%5B%22patient_ID%22%2C%22gender%22%2C%22race%22%2C%22age_at_diagnosis%22%2C%22days_to_death%22%2C%22status_vital%22%5D%7D";
             load(query, function(response) {
@@ -616,3 +617,5 @@ self.addEventListener('message', function(msg) {
             break;
     }
 }, false);
+
+/*ignore jslint end*/ 

@@ -19,7 +19,7 @@
         return directive;
 
         /** @ngInject */
-        function SurvivalController(osApi, osCohortService, $state, $timeout, $scope, $stateParams, $window) {
+        function SurvivalController(d3, osApi, osCohortService, $state, $timeout, $scope, $stateParams, $window) {
 
             // Loading . . . 
             osApi.setBusy(true);
