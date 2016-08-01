@@ -20,7 +20,7 @@
         return directive;
 
         /** @ngInject */
-        function HeaderController(osApi, $stateParams, $state, $timeout) {
+        function HeaderController(osApi, $stateParams, $state, $timeout, $rootScope) {
 
 
             osApi.query("lookup_oncoscape_tools",{beta:false}).then(function(response){
@@ -36,22 +36,23 @@
             });
 
             var userApi = osApi.getUserApi();
-            userApi.onLogin.add(function(){
-                $timeout(function(){
-                    vm.showMenu = true;
-                });
-            })
-            userApi.onLogout.add(function(){
-                $timeout(function(){
-                    vm.showMenu = false;
-                });
-            })
+            // userApi.onLogin.add(function(){
+            //     $timeout(function(){
+            //         vm.showMenu = true;
+            //     });
+            // })
+            // userApi.onLogout.add(function(){
+            //     $timeout(function(){
+            //         vm.showMenu = false;
+            //     });
+            // })
+
 
 
            
             var vm = this;
-            vm.showMenu = false;
-            vm.showTools = false;
+            //vm.showMenu = false;
+            //vm.showTools = false;
 
             vm.showMenu = true;
             vm.showTools = true;

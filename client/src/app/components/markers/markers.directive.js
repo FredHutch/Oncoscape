@@ -20,11 +20,11 @@
         return directive;
 
         /** @ngInject */
-        function MarkersController(osApi, osCohortService, $state, $timeout, $scope, $stateParams, cytoscape, signals, moment, $window, _, $q) {
+        function MarkersController(osApi, d3, osCohortService, $state, $timeout, $scope, $stateParams, cytoscape, signals, moment, $window, _, $q) {
 
             osApi.setBusy(true);
 
-            var tmpdata, patientHtml, geneHtml, worker;
+            var tmpdata, patientHtml, worker;
 
 
 
@@ -98,7 +98,7 @@
                     }, {
                         selector: 'node[nodeType="telomere"]',
                         style: {
-                            'background-color': "#3993fa",
+                            'background-color': "#3993fa"
                         }
                     }, {
                         selector: 'node[nodeType="patient"]',
@@ -124,7 +124,7 @@
                     }, {
                         selector: 'node[nodeType="gene"]:selected',
                         style: {
-                            'border-color': "#FF0000",
+                            'border-color': "#FF0000"
                             //'background-opacity': '.2'
                         }
                     }, {
@@ -173,8 +173,8 @@
                         x: 550,
                         y: 160
                     },
-                    //minZoom: .0005,
-                    //maxZoom: 2,
+                    minZoom: .005,
+                    maxZoom: 1,
                     layout: {
                         name: "preset",
                         fit: true
@@ -316,16 +316,7 @@
                 }];
                 vm.optCommandMode = vm.optCommandModes[0];
 
-                vm.selectColor = function(item) {
-
-                };
-                vm.patientSelect = function(item){
-                    var c = cyChart.$('node[color="'+item.color+'"]');
-                    var nodes = cyChart.$('node[nodeType="patient"]');
-                };
-                vm.patientUnselect = function(item){
-                    
-                };
+                
 
                 vm.filterModelEdge = function() {
 
@@ -501,11 +492,12 @@
             })(cyChart, vm);
 
             var resizeNodes = function() {
+                console.log(cyChart.zoom()+"!!!!");;
                     var zoom = (1 / cyChart.zoom()) / 80;
                     if (zoom < .02) zoom = .02;
                     var sizeBdr = 50 * zoom;
                     var sizeLbl = 500 * (zoom * 2);
-                    var sizeLbl = (sizeLbl > 500) ? 0 : sizeLbl;
+                    sizeLbl = (sizeLbl > 500) ? 0 : sizeLbl;
 
                     cyChart.$('node[nodeType="patient"],node[nodeType="gene"]').forEach(function(node) {
                         node.data({
@@ -553,7 +545,7 @@
                 cmd.patients_html = function(data) {
                     patientHtml = data;
                 };
-                cmd.patients_resize = function(data) {
+                cmd.patients_resize = function() {
                     
                 };
                 cmd.patients_delete = function(data) {
@@ -627,8 +619,8 @@
                         vm.legendNodes = data;
                     });
                 };
-                cmd.genes_html = function(data) {
-                    geneHtml = data;
+                cmd.genes_html = function() {
+                    
                 };
                 cmd.genes_delete = function(data) {
                     remove('node[nodeType="gene"]', data);
@@ -656,9 +648,6 @@
                     cyChart.endBatch();
                     osApi.setBusy(false);
                 };
-                cmd.genes_update = function(data) {
-                    update(data);
-                };
                 cmd.edges_delete = function(data) {
                     remove('edge[edgeType="cn"]', data);
                 };
@@ -676,10 +665,7 @@
                     var elements = cyChart.add(data.edges);
                     cyChart.endBatch();
                 };
-                cmd.edges_update = function(data) {
-                    update(data);
-                };
-
+                
                 // Outbound
                 return function(options) {
                     worker.postMessage({
@@ -944,7 +930,7 @@
                         vm.showPanelColorRna = false;
 
                     }else{
-                        alert("Gene not found");
+                        
                     }
                     
                 });

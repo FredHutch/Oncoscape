@@ -30,15 +30,19 @@
             return _dataSource; 
         }
         function setDataSource(value){
-            
+        
             if (angular.isObject(value)){
-                if (_dataSource != value) onDataSource.dispatch(_dataSource);
-                _dataSource = value;
-            }else if (angular.isString(value){
+                if (_dataSource != value){
+                    _dataSource = value;
+                    onDataSource.dispatch(_dataSource);
+                } 
+            }else if (angular.isString(value)){
                 if (_dataSource.disease!=value){
-                    if (_dataSource != value) onDataSource.dispatch(_dataSource);
-                    console.log("DISEASE?");
-                    _dataSource = _dataSources.filter(function(v){ v.disease==disease}, {key:value})[0]
+                    if (_dataSource != value){
+                        _dataSource = _dataSources.filter(function(v){ v.disease==disease}, {key:value})[0]
+                        onDataSource.dispatch(_dataSource);
+                    } 
+                    
                 }
             }
         }

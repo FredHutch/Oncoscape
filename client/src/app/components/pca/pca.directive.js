@@ -232,7 +232,7 @@
                     .attr("cy", function(d) {
                         return layout.yScale(d[1]);
                     })
-                    .style("fill-opacity", 1);
+                    .style("fill-opacity", .3);
 
                 circles.exit()
                     .transition()

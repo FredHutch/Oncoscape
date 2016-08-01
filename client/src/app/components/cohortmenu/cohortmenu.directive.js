@@ -25,6 +25,7 @@
 
 
             var showState = function(state){
+                if (state.toString()=="[object Object]") return false;
                 switch (state){
                     case "/":
                     case "/datasource":
@@ -44,14 +45,17 @@
             vm.editItem = {name:''};
             vm.editCohort = function(item){
                 vm.editItem = item;
-                debugger;
                 vm.edit = true;
             };
             
 
             vm.show = showState($state.current);
             vm.edit = false;
-
+            
+            
+            osCohortService.onCohortsChange.add(function(allCohorts){
+                vm.cohorts = allCohorts;
+            });
 
             $rootScope.$on('$stateChangeStart', function(event, toState, toParams, fromState, fromParams){ 
                vm.show = showState(toState.url);
@@ -69,8 +73,8 @@
             }
             
             // Configure Tabs
-            var elTabPatients = $('#cohort-tab-patients');
-            var elTabGenes    = $('#cohort-tab-genes');
+            var elTabPatients = angular.element('#cohort-tab-patients');
+            var elTabGenes    = angular.element('#cohort-tab-genes');
             vm.showPatientHistory = function(){
                 elTabPatients.addClass("active");
                 elTabGenes.removeClass("active");
@@ -138,7 +142,7 @@
 
                 var yScale = d3.scale.linear()
                     .domain(data.histRange)
-                    .range([0,150]);
+                    .range([0,135]);
 
                 var bars = svg
                     .selectAll(".cohort-menu-chart-bar")
@@ -168,6 +172,43 @@
                             .attr("height", 0)
                             .style('fill-opacity', 1e-6)
                             .remove();
+
+                    var labels = svg
+                        .selectAll("text")
+                        .data(data.hist)
+
+                    labels.enter()
+                        .append("text")
+                        .attr("x", function(d, i) { return ((barWidth+1) * i) + (barWidth*.5); })
+                        .attr("y", function(d, i) { 
+                            return 145-yScale(d.value);
+                        })
+                        .attr("fill", "#000")
+                        .attr("height", function(d, i) { return yScale(d.value); })
+                        .attr("width", barWidth)
+                        .attr("font-size", "8px")
+                        .attr("text-anchor", "middle")
+                        .text(function(d){ return d.label; });
+
+                    labels
+                        .transition()
+                            .duration(300)
+                            .attr("x", function(d, i) { return ((barWidth+1) * i) + (barWidth*.5); })
+                            .attr("y", function(d, i) { 
+                                var y = 145-yScale(d.value);
+                                if (y<0) y = 20;
+                                return y;
+                            })
+                            .text(function(d){ return d.label; });
+
+                    labels.exit()
+                        .transition()
+                            .duration(300)
+                            .attr("y", 150)
+                            .attr("height", 0)
+                            .style('fill-opacity', 1e-6)
+                            .remove();
+                            
 
             });
 

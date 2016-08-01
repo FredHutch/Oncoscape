@@ -1,20 +1,6 @@
 <os-tray caption="Patients" content="tray-content-block">
     <section class="tray-content">
         <div class="row">
-            <!--
-            <div class="col-xs-12 form-label">
-                <h2>Filters</h2>
-            </div>
-            
-            <div class="col-xs-12 form-item">
-                <label>Age At Diagnosis</label>
-                <div range-slider min="vm.diagnosisMinValue" model-min="vm.diagnosisMin" max="vm.diagnosisMaxValue" model-max="vm.diagnosisMax" show-values="true" attach-handle-values="true" on-handle-up="vm.applyFilter('Diagnosis')"></div>
-            </div>
-            -->
-            <!-- <div class="col-xs-12 form-item">
-                <label>Survival</label>
-                <div range-slider min="vm.survivalMinValue" model-min="vm.survivalMin" max="vm.survivalMaxValue" model-max="vm.survivalMax" show-values="true" attach-handle-values="true" on-handle-up="vm.applyFilter('Survival')"></div>
-            </div> -->
             <div class="col-xs-12 form-item">
                 <br />
                 <label>Export</label>
@@ -22,12 +8,13 @@
                     <button class="btn btn-default" ng-click="vm.exportCsv()">Excel (CSV)</button>
                 </div>
             </div>
+            <!--
             <div class="col-xs-12 form-item">
                 <label>Fields</label>
                 <div>
-                    
                 </div>
             </div>
+            -->
         </div>
     </section>
 </os-tray>
@@ -36,7 +23,6 @@
 
         <h2 class="h2-tool">Patient Data</h2>
         <span class="h3-tool">{{vm.datasource.source}} {{vm.datasource.name}} </span>
-    
         <table id="history-datatable" class="table table-striped table-bordered dt-responsive nowrap" cellspacing="0" width="100%">
         </table>
     </div>

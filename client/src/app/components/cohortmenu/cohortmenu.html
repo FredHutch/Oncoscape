@@ -8,8 +8,6 @@
 -->
       <section >
             <div class="row">
-                <br />
-                 {{vm.state}}
                 <div class="col-xs-12 form-item">
                     <ul class="nav nav-tabs">
                         <li id="cohort-tab-patients" role="presentation" style="width:50%;text-align:center;" ng-click="vm.showPatientHistory()"><a>Patients</a></li>
@@ -25,12 +23,12 @@
                             <button class="btn btn-default dropdown-toggle" type="button" data-toggle="dropdown" style="width:100%;">
                                 {{vm.patientChartOption.label}}
                                 <span class="caret"></span></button>
-                            <br />
-                            <br />
+                            
                             <ul class="dropdown-menu">
-                                <li ng-repeat="item in vm.patientChartOptions" ng-click="vm.patientChartOption=item">{{item.label}}</li>
+                                <li style="padding:0px 5px;" ng-repeat="item in vm.patientChartOptions" ng-click="vm.patientChartOption=item">{{item.label}}</li>
                             </ul>
                         </div>
+                        <br />
                         <button class="btn-xs btn btn-default" style="float:right;" ng-click="vm.addCohort()"><i style="color:#0b97d3" class="glyphicon glyphicon-plus"></i></button>
                         <label>Save current selection as a cohort</label>
                         <div ng-if="vm.edit">

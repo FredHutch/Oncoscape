@@ -1,4 +1,3 @@
-    /*ignore jslint start*/
     // Load Data Function (URL, CallBack)
     var load = function(t, e) {
         function a() {
@@ -7,23 +6,23 @@
         var n;
         if ("undefined" != typeof XMLHttpRequest) n = new XMLHttpRequest;
         else
-            for (var X = ["MSXML2.XmlHttp.5.0", "MSXML2.XmlHttp.4.0", "MSXML2.XmlHttp.3.0", "MSXML2.XmlHttp.2.0", "Microsoft.XmlHttp"], M = 0, o = X.length; o > M; M++) try {
+            for (var X = ["MSXML2.XmlHttp.5.0", "MSXML2.XmlHttp.4.0", "MSXML2.XmlHttp.3.0", "MSXML2.XmlHttp.2.0", "Microsoft.XmlHttp"], M = 0, o = X.length; o > M; M++) 
+            try {
                 n = new ActiveXObject(X[M]);
-                break
-            } catch (p) {}
+            } catch (e) {}
         n.onreadystatechange = a, n.open("GET", t, !0), n.send("")
     };
 
     var request = function(object, data, format) {
-        return new Promise(function(resolve, reject) {
+        return new Promise(function(resolve) {
             if (data != null) {
                 resolve(data);
                 return;
             }
 
+            //var query = "http://localhost:80/api/" + object.table;
             var query = "/api/" + object.table;
             if (object.query) query += "/?q=" + encodeURIComponent(JSON.stringify(object.query));
-//            var query = "http://localhost/api/"+object.table+"/?q=%7B%22%24fields%22%3A%5B%22patient_ID%22%2C%22gender%22%2C%22race%22%2C%22age_at_diagnosis%22%2C%22days_to_death%22%2C%22status_vital%22%5D%7D";
             load(query, function(response) {
                 resolve(format(JSON.parse(response.responseText)));
             });
@@ -64,7 +63,7 @@ var data = (function() {
             .map(function(p) {
                 return parseInt(p[Object.keys(p)[0]]);
             })
-            .reduce(function(previousValue, currentValue, currentIndex, array) {
+            .reduce(function(previousValue, currentValue) {
                 if (currentValue > previousValue.max) previousValue.max = currentValue;
                 if (currentValue < previousValue.min) previousValue.min = currentValue;
                 return previousValue;
@@ -117,7 +116,7 @@ var data = (function() {
             }, {});
 
 
-        var rFn = getRangeFn(state.edgeGenes);
+        rFn = getRangeFn(state.edgeGenes);
         var geneEdgeDegrees = state.edgeGenes
             .map(function(obj) {
                 var key = Object.keys(obj)[0];
@@ -170,14 +169,13 @@ var data = (function() {
                             sizeLbl: 500,
                             degree: 1,
                             sizeBdr: 50,
-                            sizeEle: 800,
                             label: item.text + " (" + item.count + ")"
                         }
                     }
                 });
             }
             send("patients_layout", data[0]);
-        };
+        }
     };
 
     var formatPatientColor = function(data) {
@@ -229,8 +227,7 @@ var data = (function() {
     };
 
     var formatGeneNodes = function(data) {
-
-        var data = data[0].data;
+        data = data[0].data;
         return Object.keys(data)
             .filter(function(key) {
                 // Remove Genes That Are Not Positioned On Chromosome
@@ -262,7 +259,7 @@ var data = (function() {
 
     var formatEdgeNodes = function(data) {
         return data.map(function(item) {
-            return edge = {
+            return {
                 group: "edges",
                 grabbable: false,
                 locked: true,
@@ -283,7 +280,7 @@ var data = (function() {
 
     var formatPatientNodes = function(data) {
 
-        var data = data[0].data;
+        data = data[0].data;
         send("patients_legend", [{
             name: 'Patient',
             color: '#1396DE'
@@ -301,7 +298,7 @@ var data = (function() {
                     sizeEle: 800,
                     weight: 800,
                     sizeLbl: 50,
-                    subType: "unassigned",
+                    subType: "unassigned"
                 };
                 var node = {
                     group: "nodes",
@@ -317,7 +314,7 @@ var data = (function() {
     };
 
     var update = function(options, state) {
-        return new Promise(function(resolve, reject) {
+        return new Promise(function(resolve) {
 
             // What Changed?
             var update = {
@@ -387,7 +384,7 @@ var data = (function() {
 
                 request({
                     table: options.edges.layout.edges + "_patient_weight"
-                }, !update.edges ? state.edgePatients : null, formatEdgePatients),
+                }, !update.edges ? state.edgePatients : null, formatEdgePatients)
 
             ];
 
@@ -404,7 +401,7 @@ var data = (function() {
                             .reduce(function(prev, curr) {
                                 if (curr != "patient_ID") {
                                     prev.html += "<li class='markers-legend'><span class='markers-legend-key'>" + curr.replace(/_/g, " ") + ":</span>"+ prev.obj[curr] + "</li>";
-                                };
+                                }
                                 return prev;
                             }, {
                                 obj: curr,
@@ -420,13 +417,6 @@ var data = (function() {
                     state.patientData = patientInfo.data;
                     state.patients = data[1];
                 }
-
-                if (update.genes) {
-
-                }
-
-
-
 
                 state.patientLayout = data[2];
                 state.patientColor = data[3];
@@ -500,7 +490,7 @@ var filter = (function() {
         edges: {
             byColor: filterEdgesByColor,
             byGenes: filterEdgesByGenes,
-            byPatients: filterEdgesByPatients,
+            byPatients: filterEdgesByPatients
         }
     }
 })();
@@ -617,5 +607,3 @@ self.addEventListener('message', function(msg) {
             break;
     }
 }, false);
-
-/*ignore jslint end*/ 

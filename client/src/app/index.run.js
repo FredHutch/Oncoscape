@@ -36,7 +36,7 @@
                 return;
             }
 
-            Redirect If Unable To Resolve Data Source
+            //Redirect If Unable To Resolve Data Source
             if (toState.datasource && (angular.isUndefined(toParams.datasource) || toParams.datasource==="")){
                 $state.transitionTo("datasource")
                 event.preventDefault();
