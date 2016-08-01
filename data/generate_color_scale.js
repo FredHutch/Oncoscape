@@ -2,7 +2,7 @@ var MongoClient = require('mongodb').MongoClient, assert = require('assert');
 
 //connection url
 var url = 'mongodb://localhost:27017/os';
-var connection;	//global variable - fix this!!!
+var connection;
 
 //connect to server with connect method, pass in database location
 var getConnection = function(url){

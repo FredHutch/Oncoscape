@@ -10,7 +10,7 @@ const Y_MAX = 32216;
 const Y_CONST = 30000;
 const V_CONST = -1;
 
-var connection;	//global variable - fix this!!!
+var connection;
 
 //connect to server with connect method, pass in database location
 var getConnection = function(url){
