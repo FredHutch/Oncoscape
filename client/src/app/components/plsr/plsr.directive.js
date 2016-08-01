@@ -73,15 +73,12 @@
                     return v.indexOf("mtx.mrna") >= 0
                 });
                 mtx = mtx[mtx.length - 1].replace(".RData", "");
-                osApi.setBusyMessage("Creating PLSR Matrix");
                 osApi.getPLSR(vm.datasource, mtx).then(function() {
-                    osApi.setBusyMessage("Loading Gene Sets");
                     osApi.getGeneSetNames().then(function(response) {
 
                         // Load Gene Sets
                         vm.geneSets = response.payload;
                         vm.geneSet = vm.geneSets[0];
-                        osApi.setBusyMessage("Loading Patients");
                         osApi.getSummarizedPLSRPatientAttributes().then(function(response) {
 
                             // Load Min Max Values
@@ -107,7 +104,6 @@
 
             // API Call To Calculate PLSR
             vm.update = function() {
-                osApi.setBusyMessage("Calculating PLSR");
                 
                 var factors = [{
                     name: "Survival",
@@ -120,7 +116,6 @@
                 }];
 
                 osApi.getCalculatedPLSR(vm.geneSet, factors).then(function(response) {
-                    osApi.setBusyMessage("Rendering PLSR");
 
                     // Clean Up Data
                     var payload = response.payload;

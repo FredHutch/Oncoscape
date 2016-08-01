@@ -1,5 +1,35 @@
-// 320000 (width)
-// State
+    // Load Data Function (URL, CallBack)
+    var load = function(t, e) {
+        function a() {
+            n.readyState < 4 || 200 === n.status && 4 === n.readyState && e(n)
+        }
+        var n;
+        if ("undefined" != typeof XMLHttpRequest) n = new XMLHttpRequest;
+        else
+            for (var X = ["MSXML2.XmlHttp.5.0", "MSXML2.XmlHttp.4.0", "MSXML2.XmlHttp.3.0", "MSXML2.XmlHttp.2.0", "Microsoft.XmlHttp"], M = 0, o = X.length; o > M; M++) 
+            try {
+                n = new ActiveXObject(X[M]);
+            } catch (e) {}
+        n.onreadystatechange = a, n.open("GET", t, !0), n.send("")
+    };
+
+    var request = function(object, data, format) {
+        return new Promise(function(resolve) {
+            if (data != null) {
+                resolve(data);
+                return;
+            }
+
+            //var query = "http://localhost:80/api/" + object.table;
+            var query = "/api/" + object.table;
+            if (object.query) query += "/?q=" + encodeURIComponent(JSON.stringify(object.query));
+            load(query, function(response) {
+                resolve(format(JSON.parse(response.responseText)));
+            });
+        });
+    };
+
+
 var state = {
     options: {
         patients: {
@@ -33,7 +63,7 @@ var data = (function() {
             .map(function(p) {
                 return parseInt(p[Object.keys(p)[0]]);
             })
-            .reduce(function(previousValue, currentValue, currentIndex, array) {
+            .reduce(function(previousValue, currentValue) {
                 if (currentValue > previousValue.max) previousValue.max = currentValue;
                 if (currentValue < previousValue.min) previousValue.min = currentValue;
                 return previousValue;
@@ -86,7 +116,7 @@ var data = (function() {
             }, {});
 
 
-        var rFn = getRangeFn(state.edgeGenes);
+        rFn = getRangeFn(state.edgeGenes);
         var geneEdgeDegrees = state.edgeGenes
             .map(function(obj) {
                 var key = Object.keys(obj)[0];
@@ -116,8 +146,36 @@ var data = (function() {
     var formatPatientLayout = function(data) {
         if (state.patients.length == 0) return;
         if (data.length == 1) {
-            send("patients_layout", data[0].data);
-        };
+
+            var annotations = data[0].annotation;
+            if (annotations){
+                // Text Annotaitons
+                data[0].annotation = annotations.filter(function(annotation){
+                    return (annotation.hasOwnProperty("text"));
+                }).map(function(item){
+                    return {
+                        group: "nodes",
+                        grabbable: false,
+                        locked: true,
+                        selectable: false,
+                        position: {x:item.x-40000, y:item.y+1000},
+                        data: {
+                            id: "annotation"+item.text.replace(/[^\w\s!?]/g,''),
+                            color: "rgb(0, 255, 255)",
+                            display: "element",
+                            nodeType: "annotation-text",
+                            sizeEle: 800,
+                            weight: 800,
+                            sizeLbl: 500,
+                            degree: 1,
+                            sizeBdr: 50,
+                            label: item.text + " (" + item.count + ")"
+                        }
+                    }
+                });
+            }
+            send("patients_layout", data[0]);
+        }
     };
 
     var formatPatientColor = function(data) {
@@ -169,8 +227,7 @@ var data = (function() {
     };
 
     var formatGeneNodes = function(data) {
-
-        var data = data[0].data;
+        data = data[0].data;
         return Object.keys(data)
             .filter(function(key) {
                 // Remove Genes That Are Not Positioned On Chromosome
@@ -202,7 +259,7 @@ var data = (function() {
 
     var formatEdgeNodes = function(data) {
         return data.map(function(item) {
-            return edge = {
+            return {
                 group: "edges",
                 grabbable: false,
                 locked: true,
@@ -223,7 +280,7 @@ var data = (function() {
 
     var formatPatientNodes = function(data) {
 
-        var data = data[0].data;
+        data = data[0].data;
         send("patients_legend", [{
             name: 'Patient',
             color: '#1396DE'
@@ -241,7 +298,7 @@ var data = (function() {
                     sizeEle: 800,
                     weight: 800,
                     sizeLbl: 50,
-                    subType: "unassigned",
+                    subType: "unassigned"
                 };
                 var node = {
                     group: "nodes",
@@ -256,38 +313,8 @@ var data = (function() {
             }, data);
     };
 
-
-    // Load Data Function (URL, CallBack)
-    var load = function(t, e) {
-        function a() {
-            n.readyState < 4 || 200 === n.status && 4 === n.readyState && e(n)
-        }
-        var n;
-        if ("undefined" != typeof XMLHttpRequest) n = new XMLHttpRequest;
-        else
-            for (var X = ["MSXML2.XmlHttp.5.0", "MSXML2.XmlHttp.4.0", "MSXML2.XmlHttp.3.0", "MSXML2.XmlHttp.2.0", "Microsoft.XmlHttp"], M = 0, o = X.length; o > M; M++) try {
-                n = new ActiveXObject(X[M]);
-                break
-            } catch (p) {}
-        n.onreadystatechange = a, n.open("GET", t, !0), n.send("")
-    };
-
-    var request = function(object, data, format) {
-        return new Promise(function(resolve, reject) {
-            if (data != null) {
-                resolve(data);
-                return;
-            }
-            var query = "/api/" + object.table;
-            if (object.query) query += "/?q=" + encodeURIComponent(JSON.stringify(object.query));
-            load(query, function(response) {
-                resolve(format(JSON.parse(response.responseText)));
-            });
-        });
-    };
-
     var update = function(options, state) {
-        return new Promise(function(resolve, reject) {
+        return new Promise(function(resolve) {
 
             // What Changed?
             var update = {
@@ -313,7 +340,10 @@ var data = (function() {
             var promises = [
 
                 request({
-                    table: options.patients.data
+                    table: options.patients.data,
+                    query:{
+                        $fields: ['patient_ID', 'gender', 'race', 'age_at_diagnosis', 'days_to_death', 'status_vital']
+                    }
                 }, !update.patientData ? state.patientData : null, formatPatientData),
 
                 request({
@@ -354,25 +384,24 @@ var data = (function() {
 
                 request({
                     table: options.edges.layout.edges + "_patient_weight"
-                }, !update.edges ? state.edgePatients : null, formatEdgePatients),
-
-
+                }, !update.edges ? state.edgePatients : null, formatEdgePatients)
 
             ];
 
             Promise.all(promises).then(function(data) {
+
 
                 // Reorient patient data to use PIDs as keys
                 if (update.patientData) {
                     var patientInfo = data[0].reduce(function(prev, curr) {
 
                         // Generate Html Representation of Data					
-                        prev.data[curr.patient_ID + "-01"] = curr;
-                        prev.html[curr.patient_ID + "-01"] = Object.keys(curr).sort()
+                        prev.data[curr.patient_ID] = curr;
+                        prev.html[curr.patient_ID] = Object.keys(curr).sort()
                             .reduce(function(prev, curr) {
                                 if (curr != "patient_ID") {
-                                    prev.html += "<dt>" + curr.replace(/_/g, " ") + "</dt><dd>" + prev.obj[curr] + "</dd>";
-                                };
+                                    prev.html += "<li class='markers-legend'><span class='markers-legend-key'>" + curr.replace(/_/g, " ") + ":</span>"+ prev.obj[curr] + "</li>";
+                                }
                                 return prev;
                             }, {
                                 obj: curr,
@@ -388,13 +417,6 @@ var data = (function() {
                     state.patientData = patientInfo.data;
                     state.patients = data[1];
                 }
-
-                if (update.genes) {
-
-                }
-
-
-
 
                 state.patientLayout = data[2];
                 state.patientColor = data[3];
@@ -468,7 +490,7 @@ var filter = (function() {
         edges: {
             byColor: filterEdgesByColor,
             byGenes: filterEdgesByGenes,
-            byPatients: filterEdgesByPatients,
+            byPatients: filterEdgesByPatients
         }
     }
 })();
@@ -576,6 +598,7 @@ var process = function(options, run) {
 
 // Recieve Command
 self.addEventListener('message', function(msg) {
+
     msg = msg.data;
     switch (msg.cmd) {
         case "setOptions":

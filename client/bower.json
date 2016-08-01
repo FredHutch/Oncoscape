@@ -33,7 +33,6 @@
     "underscore": "^1.8.3",
     "components-font-awesome": "^4.5.0",
     "angular-bootstrap-contextmenu": "^0.9.7",
-    "highcharts": "^4.2.5",
     "angular-nvd3": "^1.0.7"
   },
   "overrides": {

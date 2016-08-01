@@ -31,6 +31,23 @@
 	    margin-bottom: -1px;
 	}
 }
+.header-link{
+	color:#FEFEFE !important;
+	cursor:hand;
+}
+.header-link:hover{
+	color:#FFF !important;
+}
+.header-dropdown-img{
+	width:30px;
+	height:30px;
+	box-shadow: 3px 3px 10px #888888;
+    border-radius: 50%;
+    margin-right: 20px;
+    margin-top: 3px;
+    margin-bottom: 6px;
+
+}
 
 
 .github{

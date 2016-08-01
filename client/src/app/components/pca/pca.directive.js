@@ -19,19 +19,30 @@
         return directive;
 
         /** @ngInject */
-        function PcaController($q, osApi, osHistory, $state, $stateParams, $timeout, $scope, d3, moment, $window, _) {
+        function PcaController($q, osApi, osCohortService, $state, $stateParams, $timeout, $scope, d3, moment, $window, _) {
 
-            // History
-            var selectedIds = (osHistory.getPatientSelection() == null) ? [] : osHistory.getPatientSelection().ids;
+            // Retrieve Selected Patient Ids From OS Service
+            var pc = osCohortService.getPatientCohort();
+            if (pc==null){
+                osCohortService.setPatientCohort([],"All Patients")
+            }
+            var selectedIds = (pc==null) ? [] : pc.ids;
+
+            var osCohortServiceUpdate = true;
+            osCohortService.onPatientsSelect.add(function(patients){
+                if (osCohortServiceUpdate){
+                    selectedIds = patients.ids;
+                    setSelected();
+                }else{
+                    osCohortServiceUpdate = true;
+                }
+            });
 
             function saveSelected() {
                 var selected = d3Chart.selectAll(".pca-node-selected")[0];
-                if (selected.length == 0) return;
-                osHistory.addPatientSelection("PCA", "Manual Selection",
-                    d3Chart.selectAll(".pca-node-selected")[0].map(function(node) {
-                        return node.__data__.id.toUpperCase();
-                    })
-                );
+                var ids = (selected.length==0) ? [] : selected.map(function(node) { return node.__data__[2].toUpperCase(); });
+                osCohortServiceUpdate = false;
+                osCohortService.setPatientCohort(ids, "PCA");
             }
 
             function setSelected() {
@@ -39,7 +50,7 @@
                     d3Chart.selectAll(".pca-node-selected").classed("pca-node-selected", false);
                 } else {
                     d3Chart.selectAll("circle").classed("pca-node-selected", function() {
-                        return (selectedIds.indexOf(this.__data__.id) >= 0)
+                        return (selectedIds.indexOf(this.__data__[2]) >= 0)
                     });
                 }
             }
@@ -48,7 +59,8 @@
             var d3Chart = d3.select("#pca-chart").append("svg").attr("id", "chart");
             var d3xAxis = d3Chart.append("g");
             var d3yAxis = d3Chart.append("g");
-            var d3Tooltip = d3.select("body").append("div").attr("class", "tooltip pca-tooltip");
+            //var d3Tooltip = d3.select("body").append("div").attr("class", "tooltip pca-tooltip");
+            var brush;
 
             // Properties
             var data;
@@ -103,23 +115,25 @@
 
             // Drawing Functions
             function scale() {
-                layout.width = $window.innerWidth - 400;
-                if (angular.element(".tray-right").attr("locked") == "false") {
-                    layout.width += 300;
-                }
-                layout.height = $window.innerHeight - 190;
-                if (angular.element(".tray").attr("locked") == "true") layout.width -= 300;
 
+
+                var osLayout = osApi.getLayout();
+
+                layout.width = $window.innerWidth - osLayout.left - osLayout.right - 60;
+                layout.height = $window.innerHeight - 200;
+
+                angular.element("#pca-chart").css("margin-left",osLayout.left+30);
                 d3Chart
                     .attr("width", '100%')
                     .attr("height", layout.height);
+                    
                 layout.xScale = d3.scale.linear()
                     .domain([-layout.xMax, layout.xMax])
                     .range([0, layout.width]).nice();
 
                 layout.yScale = d3.scale.linear()
                     .domain([-layout.yMax, layout.yMax])
-                    .range([layout.height, 0]).nice();
+                    .range([layout.height-20, 20]).nice();
             }
 
             function draw() {
@@ -157,7 +171,7 @@
                     .ticks(5);
 
                 // Brush
-                var brush = d3.svg.brush()
+                brush = d3.svg.brush()
                     .x(layout.xScale)
                     .y(layout.yScale)
                     .on("brushend", function() {
@@ -166,7 +180,7 @@
                             .classed("pca-node-selected", function(d) {
                                 return (d[0] > bv[0][0] && d[0] < bv[1][0] && d[1] > bv[0][1] && d[1] < bv[1][1]);
                             });
-                        d3.select(this).transition().duration(300)
+                        d3.select(this).transition().duration(200)
                             .call(brush.extent([
                                 [0, 0],
                                 [0, 0]
@@ -174,20 +188,14 @@
                         saveSelected();
                     });
 
+
                 d3Chart.call(brush);
 
                 var circles = d3Chart.selectAll("circle").data(data, function(d) {
                     return d;
                 });
 
-                circles.enter()
-                    .append("circle")
-                    .attr({
-                        "class": "pca-node",
-                        "cx": layout.width * .5,
-                        "cy": layout.height * .5,
-                        "r": 3
-                    })
+                /*
                     .style("fill-opacity", "0")
                     .on("mouseover", function(d) {
                         d3Tooltip.transition()
@@ -201,11 +209,22 @@
                         d3Tooltip.transition()
                             .duration(500)
                             .style("opacity", 0);
+                    })*/
+
+
+                circles.enter()
+                    .append("circle")
+                    .attr({
+                        "class": "pca-node",
+                        "cx": layout.width * .5,
+                        "cy": layout.height * .5,
+                        //"opacity": 0.3,
+                        "r": 3
                     })
                     .transition()
                     .duration(750)
                     .delay(function(d, i) {
-                        return i / 300 * 500;
+                        return i / 300 * 100;
                     })
                     .attr("cx", function(d) {
                         return layout.xScale(d[0]);
@@ -213,13 +232,13 @@
                     .attr("cy", function(d) {
                         return layout.yScale(d[1]);
                     })
-                    .style("fill-opacity", 1);
+                    .style("fill-opacity", .3);
 
                 circles.exit()
                     .transition()
-                    .duration(600)
+                    .duration(200)
                     .delay(function(d, i) {
-                        return i / 300 * 500;
+                        return i / 300 * 100;
                     })
                     .attr("cx", layout.width * .5)
                     .attr("cy", layout.height * .5)
@@ -250,11 +269,13 @@
 
 
             vm.resize = function() {
-                setScale();
-                xAxis.scale(layout.xScale);
-                yAxis.scale(layout.yScale);
-                d3yAxis.attr("transform", "translate(0, " + yScale(0) + ")").call(layout.xAxis);
-                d3xAxis.attr("transform", "translate(" + xScale(0) + ", 0)").call(layout.yAxis);
+                scale();
+                layout.xAxis.scale(layout.xScale);
+                layout.yAxis.scale(layout.yScale);
+                brush.x(layout.xScale);
+                brush.y(layout.yScale);
+                d3yAxis.attr("transform", "translate(0, " + layout.yScale(0) + ")").call(layout.xAxis);
+                d3xAxis.attr("transform", "translate(" + layout.xScale(0) + ", 0)").call(layout.yAxis);
                 d3Chart.selectAll("circle")
                     .attr("cx", function(d) {
                         return layout.xScale(d[0]);
@@ -263,6 +284,8 @@
                         return layout.yScale(d[1]);
                     })
             };
+
+            osApi.onResize.add(vm.resize);
 
             // Listen For Resize
             angular.element($window).bind('resize',

@@ -1,0 +1,72 @@
+<div ng-show="vm.show">
+    <label class="tray-label tray-label-left">Cohorts</label>
+    <div class="cohort-menu tray tray-left">
+
+
+<!--
+<br />({{vm.patientSelected}} of {{vm.patientTotal}})</a>
+-->
+      <section >
+            <div class="row">
+                <div class="col-xs-12 form-item">
+                    <ul class="nav nav-tabs">
+                        <li id="cohort-tab-patients" role="presentation" style="width:50%;text-align:center;" ng-click="vm.showPatientHistory()"><a>Patients</a></li>
+                        <!--
+                        <li id="cohort-tab-genes" role="presentation" style="width:50%;text-align:center;" ng-click="vm.showGeneHistory()"><a>Genes</a></li>
+                        -->
+                    </ul>
+                    <div style="background-color:#ffffff;border:#dddddd 1px solid;border-top-width:0px;padding:10px;">
+                        <br />
+
+                        <div id="cohortmenu-chart" style="width:100%;height:150px;"></div>
+                        <div class="dropdown">
+                            <button class="btn btn-default dropdown-toggle" type="button" data-toggle="dropdown" style="width:100%;">
+                                {{vm.patientChartOption.label}}
+                                <span class="caret"></span></button>
+                            
+                            <ul class="dropdown-menu">
+                                <li style="padding:0px 5px;" ng-repeat="item in vm.patientChartOptions" ng-click="vm.patientChartOption=item">{{item.label}}</li>
+                            </ul>
+                        </div>
+                        <br />
+                        <button class="btn-xs btn btn-default" style="float:right;" ng-click="vm.addCohort()"><i style="color:#0b97d3" class="glyphicon glyphicon-plus"></i></button>
+                        <label>Save current selection as a cohort</label>
+                        <div ng-if="vm.edit">
+                            <hr style="margin:5px;">
+                            <label>Edit Cohort (Rename &amp; Remove)</label>
+                            <div class="row">
+                                <div class="col-xs-12 form-group" style="margin-top:10px;">
+                                    <input type="text" class="form-control" ng-model="vm.editItem.name">
+                                </div>
+                                <button class="col-xs-5 btn btn-sm btn-default" ng-click="vm.removeCohort(vm.editItem);vm.edit=false;">Remove</button>
+                                <button class="col-xs-5 col-xs-push-2 btn btn-sm btn-primary" ng-click="vm.edit=false">Done</button>
+                            </div>
+                        </div>
+                        <div ng-if="vm.cohorts.length>0 && !vm.edit">
+                            <hr style="margin:5px;">
+                            <label>My Cohorts</label>
+                            <div ng-repeat="cohort in vm.cohorts track by $index">
+                                <button class="btn-xs btn btn-default" style="float:right;" ng-click="vm.editCohort(cohort)">
+                                    <i style="color:#0b97d3" class="glyphicon glyphicon-edit"></i>
+                                </button>
+                                
+                                <a class="markers-command hvr-sweep-to-right" style="margin-right:25px;" ng-click="vm.setCohort(cohort)">
+                                    {{cohort.name}} 
+                                </a>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div id="cohortmenu-legand"></div>
+            <i id="cohortmenu-lock" class="fa fa-lock tray-sticky-icon" ng-click="vm.toggle()" locked="true"></i>
+        </section>
+        
+        
+    </div>
+</div>
+
+
+
+
+  

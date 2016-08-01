@@ -19,16 +19,17 @@
         return directive;
 
         /** @ngInject */
-        function PathwaysController(osApi, osHistory, $state, $stateParams, $scope, $sce, $window, moment, cytoscape, _) {
+        function PathwaysController(osApi, osCohortService, $state, $stateParams, $scope, $sce, $window, moment, cytoscape, _) {
 
             var markersNetwork;
             var vm = this;
             
             // Elements
-            var elChart = angular.element("#gbm-chart");
+            var elChart = angular.element("#pathways-chart");
             var csChart;
 
             // History Integration
+            /*
             var skipSave = false;
             var selectedIds = (osHistory.getGeneSelection() == null) ? null : osHistory.getGeneSelection().ids;
             function saveSelected() {
@@ -53,6 +54,7 @@
                 }
                 csChart.endBatch();
             }
+            */
             
             vm.datasource = osApi.getDataSource();
             vm.search = "";
@@ -62,10 +64,7 @@
             vm.links = [];
 
             vm.resize = function(){
-                var width = $window.innerWidth;
-                if (width > 760)  width -= 140;
-                if (angular.element(".tray").attr("locked")=="true") width -= 300;
-                elChart.width( width );
+                elChart.width( '100%' );
                 elChart.height($window.innerHeight - 90);
                 if (csChart){
                     csChart.resize();
@@ -73,10 +72,7 @@
                 } 
             }
 
-            // Listen For Resize
-            angular.element($window).bind('resize', 
-                _.debounce(vm.resize, 300)
-            );
+
 
             $scope.$watch('vm.search', function() {
                 if (angular.isUndefined(csChart)) return;
@@ -104,14 +100,16 @@
                             container: elChart,
                             elements: markersNetwork.elements,
                             style: getStyle(),
-                            minZoom: .2,
+                            minZoom: .1,
                             maxZoom: 5,
+                            zoom: 0.2,
                             layout: {
                                 name: "preset",
                                 fit: true
                             }
                         })
-                        .on('select', 'node', _.debounce(saveSelected, 300))
+                    
+                        //.on('select', 'node', _.debounce(saveSelected, 300))
                         .on('click', 'node', function(e) {
                             if (e.cyTarget.data().nodeType!="gene") return;
                             angular.element('#gbm-webpage').modal();
@@ -120,18 +118,18 @@
                             });
                         })
                         .on('click', 'edge', function(e) {
-                            /* Open Multiple Windows - Hamid Recommended We Remove
-                            links =[
-                                { name: "PubMed Article", url:"https://www.ncbi.nlm.nih.gov/pubmed/?term=" + e.cyTarget.data().pmid },
-                                { name: "PubMed Search",  url:"http://www.ncbi.nlm.nih.gov/pubmed/?term=(GENE "+e.cyTarget.data().source+") AND (GENE "+e.cyTarget.data().target+")"}
-                                { name: e.cyTarget.data().source+"Gene Card", url: "https://www.genecards.org/cgi-bin/carddisp.pl?gene="+e.cyTarget.data().source}
-                                { name: e.cyTarget.data().target+"Gene Card", url: "https://www.genecards.org/cgi-bin/carddisp.pl?gene="+e.cyTarget.data().target}
-                            ];
-                            $window.open("https://www.ncbi.nlm.nih.gov/pubmed/?term=" + e.cyTarget.data().pmid);
-                            $window.open("http://www.ncbi.nlm.nih.gov/pubmed/?term=(GENE "+e.cyTarget.data().source+") AND (GENE "+e.cyTarget.data().target+")");
-                            $window.open("https://www.genecards.org/cgi-bin/carddisp.pl?gene="+e.cyTarget.data().source);
-                            $window.open("https://www.genecards.org/cgi-bin/carddisp.pl?gene="+e.cyTarget.data().target);
-                            */
+                            
+                            // links =[
+                            //     { name: "PubMed Article", url:"https://www.ncbi.nlm.nih.gov/pubmed/?term=" + e.cyTarget.data().pmid },
+                            //     { name: "PubMed Search",  url:"http://www.ncbi.nlm.nih.gov/pubmed/?term=(GENE "+e.cyTarget.data().source+") AND (GENE "+e.cyTarget.data().target+")"}
+                            //     { name: e.cyTarget.data().source+"Gene Card", url: "https://www.genecards.org/cgi-bin/carddisp.pl?gene="+e.cyTarget.data().source}
+                            //     { name: e.cyTarget.data().target+"Gene Card", url: "https://www.genecards.org/cgi-bin/carddisp.pl?gene="+e.cyTarget.data().target}
+                            // ];
+                            // $window.open("https://www.ncbi.nlm.nih.gov/pubmed/?term=" + e.cyTarget.data().pmid);
+                            // $window.open("http://www.ncbi.nlm.nih.gov/pubmed/?term=(GENE "+e.cyTarget.data().source+") AND (GENE "+e.cyTarget.data().target+")");
+                            // $window.open("https://www.genecards.org/cgi-bin/carddisp.pl?gene="+e.cyTarget.data().source);
+                            // $window.open("https://www.genecards.org/cgi-bin/carddisp.pl?gene="+e.cyTarget.data().target);
+                            
                             angular.element('#gbm-webpage').modal();
                             $scope.$apply(function() {
                                 vm.frame = $sce.trustAsResourceUrl("https://www.ncbi.nlm.nih.gov/pubmed/?term=" + e.cyTarget.data().pmid );
@@ -162,12 +160,16 @@
                             });
                         })
 
+
                     // Register History Component
+                    /*
                     osHistory.onGeneSelectionChange.add(function(selection){
                         selectedIds = selection.ids;
                         setSelected();
                     });
                     setSelected();
+                    */
+                    vm.resize();
                     osApi.setBusy(false);
                 });
 
@@ -430,6 +432,13 @@
                 ]
 
             }
+
+            // Listen For Resize
+            osApi.onResize.add(vm.resize);
+            angular.element($window).bind('resize', 
+                _.debounce(vm.resize, 300)
+            );
+
         }
     }
 })();

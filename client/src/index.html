@@ -32,12 +32,14 @@
     <![endif]-->
     
     <os-header></os-header>
-    <os-loader></os-loader>
+
+
     <div class="container-main">
+        <os-cohort-menu></os-cohort-menu>
         <div ui-view></div>
     </div>
-    <os-cohorts type="Patient"></os-cohorts>
-    <os-cohorts type="Gene"></os-cohorts>
+
+    <os-loader></os-loader>    
 
     <!-- build:js(src) scripts/vendor.js -->
     <!-- bower:js -->

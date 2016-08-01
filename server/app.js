@@ -7,9 +7,10 @@ const uuid = require('node-uuid');
 const favicon = require('serve-favicon');
 
 
+
 //mongoose.connect('mongodb://localhost/os');
 mongoose.connect(
-    'mongodb://oncoscape-dev-db1.sttrcancer.io:27017,oncoscape-dev-db2.sttrcancer.io:27017,oncoscape-dev-db3.sttrcancer.io:27017/os?authSource=admin', {
+    'mongodb://oncoscape-dev-db1.sttrcancer.io:27017,oncoscape-dev-db2.sttrcancer.io:27017,oncoscape-dev-db3.sttrcancer.io:27017/oncoscape?authSource=admin', {
         db: {
             native_parser: true
         },
@@ -59,37 +60,40 @@ app.get('/ping', function(req, res){
 
 // Mongoose Gateway Route
 app.get('/api/:collection*', function(req, res, next) {
-    mongoose.connection.db.collection(req.params.collection, function(err, collection) {
-        if (err) {
-            res.status(err.code).send(err.messages);
-            res.end();
-            return;
-        }
+    
+ 
+    
+        mongoose.connection.db.collection(req.params.collection, function(err, collection) {
+            if (err) {
+                res.status(err.code).send(err.messages);
+                res.end();
+                return;
+            }
 
-        // Process Query
-        var query = (req.query.q) ? JSON.parse(req.query.q) : {};
+            // Process Query
+            var query = (req.query.q) ? JSON.parse(req.query.q) : {};
 
-        // Todo: Process Limit
-        if (query.$limit) {
-            delete query.$limit;
-        }
+            // Todo: Process Limit
+            if (query.$limit) {
+                delete query.$limit;
+            }
 
-        // Process Fields
-        var fields = {
-            _id: 0
-        };
-        if (query.$fields) {
-            query.$fields.forEach(function(field) {
-                this[field] = 1;
-            }, fields);
-            delete query.$fields;
-        }
+            // Process Fields
+            var fields = {
+                _id: 0
+            };
+            if (query.$fields) {
+                query.$fields.forEach(function(field) {
+                    this[field] = 1;
+                }, fields);
+                delete query.$fields;
+            }
 
-        collection.find(query, fields).toArray(function(err, results) {
-            res.send(results);
-            res.end();
+            collection.find(query, fields).toArray(function(err, results) {
+                res.send(results);
+                res.end();
+            });
         });
-    });
 });
 
 // Login + Logout
@@ -125,6 +129,6 @@ app.get('/', function(req, res) {
 });
 
 // Start Listening
-app.listen(9999, function() {
+app.listen(80, function() {
     console.log("OK");
 });

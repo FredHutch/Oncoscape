@@ -10,6 +10,15 @@
 
         // Events
         var onDataSource = new signals.Signal();
+        var onResize = new signals.Signal();
+
+        var getLayout = function(){
+            return {
+                left:  (angular.element('#cohortmenu-lock').attr("locked")=="true") ? 300 : 0,
+                right: (angular.element(".tray-right").attr("locked")==="true") ? 300 : 0
+            };
+        }
+
 
         // State
         var _dataSources;
@@ -17,18 +26,23 @@
         function getDataSources(){
             return _dataSources;
         }
-        function getDataSource(value){ 
+        function getDataSource(){ 
             return _dataSource; 
         }
         function setDataSource(value){
-            
-            if (typeof(value)==="object"){
-                if (_dataSource != value) onDataSource.dispatch(_dataSource);
-                _dataSource = value;
-            }else if (typeof(value)==="string"){
+        
+            if (angular.isObject(value)){
+                if (_dataSource != value){
+                    _dataSource = value;
+                    onDataSource.dispatch(_dataSource);
+                } 
+            }else if (angular.isString(value)){
                 if (_dataSource.disease!=value){
-                    if (_dataSource != value) onDataSource.dispatch(_dataSource);
-                    _dataSource = _dataSources.filter(function(v){ v.disease==disease}, {key:value})[0]
+                    if (_dataSource != value){
+                        _dataSource = _dataSources.filter(function(v){ v.disease==disease}, {key:value})[0]
+                        onDataSource.dispatch(_dataSource);
+                    } 
+                    
                 }
             }
         }
@@ -109,24 +123,9 @@
             } else {
                 angular.element(".loader-modal").hide();
             }
-            return setBusyMessage;
-        }
-        function setBusyMessage() {
-            //console.log(value);
-        }
-        function showFilter() {
-            angular.element("#filter-dropdown").slideToggle();
-        }
-        function hideFilter() {
-            angular.element("#filter-dropdown").slideToggle();
-        }
-        function toggleFilter(){
-            angular.element("#filter-dropdown").slideToggle();
-        }
-
-        function getTools(){
         }
         
+       
         function queryString(table, query){
             return osHttp.queryString({
                 table: table,
@@ -140,208 +139,6 @@
             });
         }
 
-        /*** R Service Calls ***/
-        var osSocket = {};
-        function setDataset(dataPackage) {
-            osSocket.setDataSource(dataPackage);
-            return osSocket.request({
-                cmd: "specifyCurrentDataset",
-                payload: dataPackage
-            });
-        }
-        
-        function getDataManifest(dataPackage) {
-            return osSocket.request({
-                cmd: "getDataManifest",
-                payload: dataPackage
-            });
-        }
-        function getPatientHistoryTable(dataPackage) {
-            return osSocket.request({
-                cmd: "getPatientHistoryTable",
-                payload: {
-                    datasetName: dataPackage,
-                    durationFormat: "byYear"
-                }
-            });
-        }
-        function getPatientHistoryDxAndSurvivalMinMax() {}
-        function getSampleDataFrame() {}
-        function getGeneSetNames() {
-            return osSocket.request({
-                cmd: "getGeneSetNames"
-            });
-        }
-        function getSampleCategorizationNames() {
-            return osSocket.request({
-                cmd: 'getSampleCategorizationNames'
-            });
-        }
-        function getSampleCategorization(names) {
-            return osSocket.request({
-                cmd: 'getSampleCategorization',
-                payload: names
-            });
-        }
-        function getMarkersNetwork(payload) {
-            // Payload is return From Set DataSource
-            return osSocket.request({
-                cmd: "getMarkersNetwork",
-                payload: payload
-            })
-        }
-        function getDrugGeneInteractions() {}
-        function getCanonicalizePatientIDsInDataset(patientIds) {
-            return osSocket.request({
-                cmd: "getCanonicalizePatientIDsInDataset",
-                payload: patientIds
-            });
-        }
-        function getGeneSetGenes() {}
-        function getOncoprintDataSelection() {}
-        function getPCA(dataPackage, matrixName) {
-            var payload = {
-                dataPackage: dataPackage,
-                matrixName: matrixName
-            };
-            return osSocket.request({
-                cmd: "createPCA",
-                payload: payload
-            });
-        }
-        function getCalculatedPCA(geneSet) {
-            var payload = {
-                genes: geneSet
-            };
-
-            return osSocket.request({
-                cmd: "calculatePCA",
-            
-                payload: payload
-            });
-        }
-        function getCalculatedPCA2(geneSet) {
-            var payload = {
-                genes: geneSet
-            };
-            return osSocket.request({
-                cmd: "calculatePCA2",
-                payload: payload
-            });
-        }
-        function getPLSR(dataPackage, matrixName) {
-            var payload = {
-                dataPackage: dataPackage,
-                matrixName: matrixName
-            };
-            return osSocket.request({
-                cmd: "createPLSR",
-                payload: payload
-            });
-        }
-        function getCalculatedPLSR(geneSet, factors) {
-            var payload = {
-                genes: geneSet,
-                factorCount: factors.length,
-                factors: factors
-            };
-            return osSocket.request({
-                cmd: "calculatePLSR",
-                payload: payload
-            });
-        }
-        function getSummarizedPLSRPatientAttributes(attrs) {
-            attrs = attrs || ['AgeDx', 'Survival'];
-            return osSocket.request({
-                cmd: 'summarizePLSRPatientAttributes',
-                payload: attrs
-            });
-        }
-        function getCalculatedSurvivalCurves(patientIds, title) {
-            return osSocket.request({
-                cmd: "calculateSurvivalCurves",
-                payload: {
-                    sampleIDs: patientIds,
-                    title: title
-                }
-            });
-        }
-        function getTimelines() {
-            return osSocket.request({
-                cmd: "createTimelines"
-            });
-        }
-        function getCalculatedTimelines() {}
-        function getModuleModificationDate() {
-            return osSocket.request({
-                cmd: "getModuleModificationDate",
-                payload: 'gbmPathways'
-            });
-        }
-        function getPathway() {
-            return osSocket.request({
-                cmd: "getPathway",
-                payload: 'g.gbmPathways.json'
-            });
-        }
-        function getMrnaData(entities, features) {
-            return osSocket.request({
-                cmd: "get_mRNA_data",
-                payload: {
-                    entities: entities,
-                    features: features
-                }
-            });
-        }
-        function getCnvData(entities, features) {
-            return osSocket.request({
-                cmd: "get_cnv_data",
-                payload: {
-                    entities: entities,
-                    features: features
-                }
-            });
-        }
-        function getMutationData(entities, features) {
-            return osSocket.request({
-                cmd: "get_mutation_data",
-                payload: {
-                    entities: entities,
-                    features: features
-                }
-            });
-        }
-        function getOncoprint(geneSetAndPatients) {
-            return osSocket.request({
-                cmd: "oncoprint_data_selection",
-                payload: {
-                    patientIdsAndGenes: geneSetAndPatients
-                }
-            });
-        }
-        function getGeneSetTest(dataPackage, matrixName) {
-            var payload = {
-                dataPackage: dataPackage,
-                matrixName: matrixName
-            };
-            return osSocket.request({
-                cmd: "createGeneSetTest",
-                payload: payload
-            });
-        }
-        function getGeneSetScore(Group1, Group2, geneSet) {
-            return osSocket.request({
-                cmd: "geneSetScoreTest",
-                payload: {
-                    group1: Group1,
-                    group2: Group2, 
-                    geneset: geneSet
-                }
-            });
-        }
-
-
-
         return {
 
             // Mongo V
@@ -350,46 +147,11 @@
             setDataSource: setDataSource,
             getDataSource: getDataSource,
             getDataSources: getDataSources,
+            getLayout: getLayout,
             onDataSource: onDataSource,
-
-            // Legacy
-            getTools: getTools,
+            onResize: onResize,
             getUserApi: getUserApi,
-            showFilter: showFilter,
-            hideFilter: hideFilter,
-            toggleFilter: toggleFilter,
-            setBusy: setBusy,
-            setBusyMessage: setBusyMessage,
-            setDataset: setDataset,
-            getDataManifest: getDataManifest,
-            getPatientHistoryTable: getPatientHistoryTable,
-            getPatientHistoryDxAndSurvivalMinMax: getPatientHistoryDxAndSurvivalMinMax,
-            getSampleDataFrame: getSampleDataFrame,
-            getGeneSetNames: getGeneSetNames,
-            getSampleCategorizationNames: getSampleCategorizationNames,
-            getSampleCategorization: getSampleCategorization,
-            getMarkersNetwork: getMarkersNetwork,
-            getPathway: getPathway,
-            getDrugGeneInteractions: getDrugGeneInteractions,
-            getCanonicalizePatientIDsInDataset: getCanonicalizePatientIDsInDataset,
-            getGeneSetGenes: getGeneSetGenes,
-            getOncoprintDataSelection: getOncoprintDataSelection,
-            getPCA: getPCA,
-            getCalculatedPCA: getCalculatedPCA,
-            getCalculatedPCA2: getCalculatedPCA2,
-            getPLSR: getPLSR,
-            getCalculatedPLSR: getCalculatedPLSR,
-            getSummarizedPLSRPatientAttributes: getSummarizedPLSRPatientAttributes,
-            getCalculatedSurvivalCurves: getCalculatedSurvivalCurves,
-            getTimelines: getTimelines,
-            getCalculatedTimelines: getCalculatedTimelines,
-            getMrnaData: getMrnaData,
-            getCnvData: getCnvData,
-            getMutationData: getMutationData,
-            getModuleModificationDate: getModuleModificationDate,
-            getOncoprint: getOncoprint,
-            getGeneSetTest: getGeneSetTest,
-            getGeneSetScore: getGeneSetScore
+            setBusy: setBusy
         }
     }
 })();

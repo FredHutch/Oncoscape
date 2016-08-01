@@ -29,14 +29,14 @@
             angular.element.fn.DataTable.ext.search = [];
 
             
-            // // Route unauthenticated users to landing page
+            // Route unauthenticated users to landing page
             if (toState.authenticate && !osApi.getUserApi().getUser().authenticated) {
                 $state.transitionTo("landing");
                 event.preventDefault();
                 return;
             }
 
-            // Redirect If Unable To Resolve Data Source
+            //Redirect If Unable To Resolve Data Source
             if (toState.datasource && (angular.isUndefined(toParams.datasource) || toParams.datasource==="")){
                 $state.transitionTo("datasource")
                 event.preventDefault();
