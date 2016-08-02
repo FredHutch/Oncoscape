@@ -168,9 +168,9 @@
                     textureOnViewport: false,
                     //motionBlur: true,
                     //motionBlurOpacity: 0.2,
-                    zoom: 0.01,
+                    zoom: 0.008,
                     pan: {
-                        x: 550,
+                        x: 650,
                         y: 160
                     },
                     minZoom: .005,
@@ -480,8 +480,6 @@
                     reset: reset,
                     fit: fit
                 };
-
-
                 cyChart.on('pan', _.debounce(function(e) {
                     cyChart.startBatch();
                     resizeNodes();

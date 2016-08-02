@@ -36,17 +36,7 @@
             });
 
             var userApi = osApi.getUserApi();
-            // userApi.onLogin.add(function(){
-            //     $timeout(function(){
-            //         vm.showMenu = true;
-            //     });
-            // })
-            // userApi.onLogout.add(function(){
-            //     $timeout(function(){
-            //         vm.showMenu = false;
-            //     });
-            // })
-
+         
 
 
            
@@ -54,9 +44,23 @@
             //vm.showMenu = false;
             //vm.showTools = false;
 
-            vm.showMenu = true;
-            vm.showTools = true;
+            vm.showMenu = false;
+            vm.showTools = false;
 
+
+            $rootScope.$on('$stateChangeStart', function(event, toState, toParams, fromState, fromParams){ 
+                switch(toState.name){
+                    case "landing":
+                    case "tools":
+                    case "datasource":
+                        vm.showMenu = false;
+                        break;
+                    default:
+                        vm.showMenu= true;
+                        vm.showTools= true;
+                        break;
+                }
+            });
 
             vm.loadDataset = function(dataset) {
                 $state.go('markers', {
