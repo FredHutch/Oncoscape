@@ -22,7 +22,9 @@ CACHE:
 /scripts/app-32329ad833.js
 /scripts/app-6905a44e31.js
 /scripts/app-6e2fa0a8da.js
+/scripts/app-90eb8c0f81.js
 /scripts/app-9481680f93.js
+/scripts/app-c3a8ca8253.js
 /scripts/app-c6a38069c2.js
 /scripts/app-f94cb347bd.js
 /scripts/vendor-5eb4c30da9.js
@@ -31,6 +33,7 @@ CACHE:
 /styles/app-107f75577f.css
 /styles/app-1b4dc69e3d.css
 /styles/app-5a508d6417.css
+/styles/app-5cac003918.css
 /styles/app-5d4adf1c41.css
 /styles/app-62a5a671d0.css
 /styles/app-8bda0ba376.css
@@ -42,6 +45,7 @@ CACHE:
 /styles/app-de5d29536c.css
 /styles/app-e602404777.css
 /styles/app-e863c17850.css
+/styles/app-f6665e36ea.css
 /styles/app-fd7ae0387f.css
 /styles/app-ff6df4d56d.css
 /styles/vendor-236f31cb10.css
@@ -87,11 +91,13 @@ CACHE:
 /maps/scripts/app-4dbaa82f09.js.map
 /maps/scripts/app-6905a44e31.js.map
 /maps/scripts/app-6e2fa0a8da.js.map
+/maps/scripts/app-90eb8c0f81.js.map
 /maps/scripts/app-9481680f93.js.map
 /maps/scripts/app-97c024c4e3.js.map
 /maps/scripts/app-a7311a0d4f.js.map
 /maps/scripts/app-b8a8528d5c.js.map
 /maps/scripts/app-b9edf1b4e4.js.map
+/maps/scripts/app-c3a8ca8253.js.map
 /maps/scripts/app-c6a38069c2.js.map
 /maps/scripts/app-f94cb347bd.js.map
 /maps/scripts/app-ffb0b66b8a.js.map
@@ -104,6 +110,7 @@ CACHE:
 /maps/styles/app-13ce1be6e1.css.map
 /maps/styles/app-1b4dc69e3d.css.map
 /maps/styles/app-5a508d6417.css.map
+/maps/styles/app-5cac003918.css.map
 /maps/styles/app-5d4adf1c41.css.map
 /maps/styles/app-62a5a671d0.css.map
 /maps/styles/app-8bda0ba376.css.map
@@ -115,6 +122,7 @@ CACHE:
 /maps/styles/app-de5d29536c.css.map
 /maps/styles/app-e602404777.css.map
 /maps/styles/app-e863c17850.css.map
+/maps/styles/app-f6665e36ea.css.map
 /maps/styles/app-fd7ae0387f.css.map
 /maps/styles/app-ff6df4d56d.css.map
 /maps/styles/vendor-236f31cb10.css.map
@@ -122,6 +130,7 @@ CACHE:
 /maps/styles/vendor-692105e31d.css.map
 /maps/styles/vendor-cb08db3119.css.map
 /maps/styles/vendor-fe5182b0e1.css.map
+/app/components/oncoscape/oncoscape.cohort.service.worker.js
 /app/components/markers/markers.worker.js
 /assets/images/datasets/Archive.zip
 /assets/images/datasets/DEMOdz.png
@@ -171,4 +180,4 @@ https://*
 SETTINGS:
 prefer-online
 
-# hash: a5904e09c2b31c6225e5320c3b54cff4e848f76f3dbf0f8bee2692e53e84dbfc
+# hash: e87aefe177f0d8c90d4679f50b4ed5f6026981c126be00ed490143293cda6853
