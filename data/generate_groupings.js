@@ -1,4 +1,6 @@
 var MongoClient = require('mongodb').MongoClient, assert = require('assert');
+var comongo = require('co-mongodb');
+var co = require('co');
 
 //connection url
 var url = 'mongodb://localhost:27017/os';
@@ -10,20 +12,8 @@ const Y_MAX = 32216;
 const Y_CONST = 30000;
 const V_CONST = -1;
 
-var connection;
 
-//connect to server with connect method, pass in database location
-var getConnection = function(url){
-	return new Promise(function(resolve, reject){
-		MongoClient.connect(url, function(err, db) {
-			connection = db;
-			if (!err) console.log('connected'), resolve(db);
-			else console.log('err - not connected'), reject(err);
-		});
-	});
-};
-
-//from http://stackoverflow.com/questions/3230028/how-to-order-a-json-object-by-two-keys/3230748#3230748
+//sort function
 function sortByTwoFields(propertyName) {
 	console.log("sortByTwoFields")
     return function (a, b) {
@@ -44,72 +34,25 @@ function sortByTwoFields(propertyName) {
     };
 };
 
-//retrieves data from database, pass in collection name to get data from and the name of the field to sort this data by
-var getDocs = function(collectionName,category){
-	return new Promise(function(resolve, reject){
-		console.log("getDocs: " + collectionName + "  retrieving: " + category);
-
-		var fields = {patient_ID:1, _id:0};
-		fields[category] = 1;
-		var sorter = {};
-		sorter[category] = 1;
-
-		connection.collection(collectionName).find({},fields).sort(sorter).toArray(function(err,docsSorted){
-				console.log("getDocs completed: " + docsSorted.length + " docs returned");
-				if(!err) resolve(docsSorted);
-				else console.log("***error in filterDocs")
-					reject(err);
-			})
-	})
-};
-
-var getSecondarySortDocs = function(docs,collectionName2){
-	return new Promise(function(resolve, reject){
-		console.log("getSecondarySortDocs:");
-
-		var fields = {_id:0};
-		var secondarySortDocs = [];
-		connection.collection(collectionName2).find({},fields).toArray(function(err,secondarySortDocs){
-			for(var i=0; i<secondarySortDocs.length; i++){
-				secondarySortDocs[i]=[Object.keys(secondarySortDocs[i])[0],secondarySortDocs[i][Object.keys(secondarySortDocs[i])]];
-			}
-			console.log("secondarySort array completed: " + secondarySortDocs.length + " docs returned");
-			// console.dir(secondarySortDocs);
-			if(!err) resolve(secondarySortDocs);
-			else console.log("***error in secondarySort")
-				reject(err);
-		})
-	})
-};
-
 var secondarySort = function(docs,secondarySortDocs,category){
-	// return new Promise(function(resolve, reject){
-	console.log("addSecondarySortField:");
+	console.log("addSecondarySortField");
 	for(var i=0; i<secondarySortDocs.length; i++){
 		while(secondarySortDocs[i][1].length < 3){
 			secondarySortDocs[i][1] = "0"+secondarySortDocs[i][1];
 		}
 	}
-	// console.log("docs[patient_ID]: " + docs[1].patient_ID);
 	for(var i=0; i<docs.length; i++){
 		docs[i].patient_ID = docs[i].patient_ID.replace(/\./gi,"-")+"-01";
-		// console.log(docs[i].patient_ID);
 		for(var j=0; j<secondarySortDocs.length; j++){
 			if(docs[i].patient_ID == secondarySortDocs[j][0]){
 				docs[i].patient_weight = secondarySortDocs[j][1];
-				// console.log(docs[i]);
 			}
 		}
 	}
-	console.log("now to sort")
+
 	docs.sort(sortByTwoFields([category,'-patient_weight']));
-	// console.dir(docs);
-	console.log("sorted");
+
 	return docs;
-	// if(!err) resolve(sortedDocs);
-	// else console.log("***error in addSecondarySortField")
-	// 	reject(err);
-	// })
 };
 
 //constants for use in clusterGroupByValue
@@ -120,8 +63,8 @@ const X_SPACING = X_RANGE / VALUES_PER_ROW;
 
 //assigns x & y values to each patient clustered by category
 var clusterGroupByValue = function(docsSorted,category){
+	console.log("clusterDocs");
 	var docsClustered = new Array(docsSorted.length);
-	console.log("clusterDocs: starting");
 			// console.dir(docsSorted);
 	var counts = {};
 
@@ -132,20 +75,11 @@ var clusterGroupByValue = function(docsSorted,category){
 	}
 
 	//prints number of categories, then prints the name of each category
-	// console.log(Object.keys(counts).length);
-	// console.log(Object.keys(counts));
 
 	var categories = Object.keys(counts)
 	var annotationData = new Array(categories.length);
 	var yCoordinate = Y_MIN;
 	var xCoordinate = X_MIN;
-
-	console.log("categories.length: " + categories.length);
-	// console.log(categories[0] + ": " + counts[categories[0]]);
-	// console.log(categories[1] + ": " + counts[categories[1]]);
-	// console.log(categories[2] + ": " + counts[categories[2]]);
-	// console.log(categories[3] + ": " + counts[categories[3]]);
-	// console.log(categories[4] + ": " + counts[categories[4]]);
 
 	var totalRecordsCounter = 0;
 	var yGap = Y_RANGE * 0.05;
@@ -170,23 +104,14 @@ var clusterGroupByValue = function(docsSorted,category){
 		for (var j = 0; j < counts[categories[i]]; j++){
 			xCounter++;
 			//save coordinates
-			console.log("docsClustered next");
-			console.log(docsSorted[totalRecordsCounter].patient_ID);
-			console.log(docsSorted[totalRecordsCounter][category]);
-			console.log(xCoordinate);
-			console.log(yCoordinate);
-			console.log(docsSorted[totalRecordsCounter][category]);
-			console.log(docsSorted[totalRecordsCounter].patient_weight);
-
 			docsClustered[totalRecordsCounter] = {
 				patient_ID:docsSorted[totalRecordsCounter].patient_ID,
 				category:docsSorted[totalRecordsCounter][category],
 				x:xCoordinate,
 				y:yCoordinate,
 				v:docsSorted[totalRecordsCounter][category],
-				// z:docsSorted[totalRecordsCounter].patient_weight
 			};
-			console.log("docsClustered done");
+
 			xCoordinate += X_SPACING;
 			//start new row if max values per row is reached
 			if (xCounter == VALUES_PER_ROW){
@@ -198,38 +123,29 @@ var clusterGroupByValue = function(docsSorted,category){
 		}
 	}
 
-				// console.dir("annotationData to store: " + annotationData);
-	// docsClustered[totalRecordsCounter] = annotationData;
 	var docsClusteredObj = { allDocs:docsClustered, annotation:annotationData};
 
-	// console.dir(docsClustered[totalRecordsCounter]);
-	console.log('clusterDocs: finished')
 	return docsClusteredObj;
 }
 
 //inserts docs into database, pass in document array and name of data category
-var insertDocs = function(docs,annotationData,datasetLabel,category){
-	return new Promise(function (resolve, reject){
-		console.log("--------------------------------- INSERT DOCS FUNCTION ---------------------------------");
+var formatDocsForInsertion = function(docs,annotationData,datasetLabel,category){
+	console.log("--------------------------------- INSERT DOCS FUNCTION ---------------------------------");
 
-		var coordinateObj = docs.reduce(function(prevValue, currentValue, index, arr){
-			prevValue[currentValue.patient_ID] = {x:currentValue.x, y:currentValue.y, v:currentValue.v};
-			return prevValue;
-		}, {});
-		var docToInsert = {
-			type:'cluster',
-			dataset:datasetLabel,
-			name:category,
-			annotation:annotationData,
-			data:coordinateObj
-		};
+	var coordinateObj = docs.reduce(function(prevValue, currentValue, index, arr){
+		prevValue[currentValue.patient_ID] = {x:currentValue.x, y:currentValue.y, v:currentValue.v};
+		return prevValue;
+	}, {});
 
-		connection.collection('render_patient').insert(docToInsert, {w:'majority'}, function(err, docs) {
-			if (!err) resolve(docs);
-			else console.dir(err)
-				reject(err);
-		});
-	});
+	var docToInsert = {
+		type:'cluster',
+		dataset:datasetLabel,
+		name:category,
+		annotation:annotationData,
+		data:coordinateObj
+	};
+
+	return docToInsert;
 }
 
 //returns xFactor for given category of input array
@@ -241,7 +157,6 @@ var determineXFactor = function(docsSorted,category){
 	    if(docsSorted[i][category] > max) max = docsSorted[i][category];
 	}
 	var xFactor = (X_MAX/max)
-	// var xFactor = (X_MAX/(max - min))
 	console.log(category + ": xFactor=" + xFactor + " min=" + min + " max=" + max);
 	return xFactor;
 }
@@ -259,74 +174,49 @@ var determineYIncrement = function(docsSorted,category){
 	return yFactor;
 }
 
-// getConnection(url)
-// 	.then(getDocs.bind({},'clinical_tcga_brca_pt','days_to_death'))
-// 	.then(function(docsSorted){
-// 	 	// console.log(docsSorted.length + ' docs found')
-// 	 	// console.log("x: " + determineXFactor(docsSorted,'days_to_death') + ", y: " + determineYFactor(docsSorted,'days_to_death'));
-// 			// console.dir(docsDaysToDeath);
-// 		var docsToInsert = clusterSortAscending(docsSorted,'days_to_death');
-// 	 	 	 // console.dir(docsToInsert);
-// 	 		// console.log("num docs to insert: " + docsToInsert.length);
-// 		insertDocs(docsToInsert,'brca','Days to Death');
-// 	})
+//******************************************************************************************************
+//******************************************************************************************************
 
-// getConnection(url)
-// 	.then(getDocs.bind({},'clinical_tcga_brca_pt','age_at_diagnosis'))
-// 	.then(function(docsSorted){
-// 	 	// console.log(docsSorted.length + ' docs found')
-// 	 	// console.log("x: " + determineXFactor(docsSorted,'days_to_death') + ", y: " + determineYFactor(docsSorted,'days_to_death'));
-// 			// console.dir(docsDaysToDeath);
-// 		var docsToInsert = clusterSortAscending(docsSorted,'age_at_diagnosis');
-// 	 	 	 // console.dir(docsToInsert);
-// 	 		// console.log("num docs to insert: " + docsToInsert.length);
-// 		insertDocs(docsToInsert,'brca','Age at Diagnosis');
-// 	})
-
-// getConnection(url)
-// 	.then(getDocs.bind({},'clinical_tcga_brca_pt','count_lymph_nodes_examined'))
-// 	.then(function(docsSorted){
-// 		var docsToInsert = clusterSortAscending(docsSorted,'count_lymph_nodes_examined');
-// 		insertDocs(docsToInsert,'brca','Count Lymph Nodes Examined');
-// 	})
-
-// getConnection(url)
-// 	.then(getDocs.bind({},'clinical_tcga_brca_pt','count_lymph_nodes_examined_he'))
-// 	.then(function(docsSorted){
-// 		var docsToInsert = clusterSortAscending(docsSorted,'count_lymph_nodes_examined_he');
-// 		insertDocs(docsToInsert,'brca','Count Lymph Nodes Examined He');
-// 	})
-
-// getConnection(url)
-// 	.then(getDocs.bind({},'clinical_tcga_brca_pt','days_to_last_contact'))
-// 	.then(function(docsSorted){
-// 		var docsToInsert = clusterSortAscending(docsSorted,'days_to_last_contact');
-// 		insertDocs(docsToInsert,'brca','Days to Last Contact');
-// 	})
-
-// getConnection(url)
-// 	.then(getDocs.bind({},'clinical_tcga_brca_pt','gender'))
-// 	.then(function(docsSorted){
-// 					// console.dir(docsSorted);
-// 		var docsToInsert = clusterGroupByValue(docsSorted,'gender');
-// 		insertDocs(docsToInsert,'brca','GenderDistributed');
-// 	})
+connError = function(e){
+	console.log(e);
+}
 
 var collectionName = "clinical_tcga_brca_pt";
+var secondarySortCollectionName = 'edge_brca_oncovogel274_patient_weight';
 var category = "race";
-getConnection(url)
-	.then(getDocs.bind({},collectionName,category))
-	.then(function(docs){
-		var secondarySortDocs = getSecondarySortDocs(docs,'edge_brca_oncovogel274_patient_weight')
-		.then(function(secondarySortDocs){
-			var docsAllFields = secondarySort(docs,secondarySortDocs,category);
-			var docsToInsert = clusterGroupByValue(docsAllFields,category);
-			console.dir(docsToInsert);
-			console.log("insert next");
-			// insertDocs(docsToInsert.allDocs,docsToInsert.annotation,'brca','RaceDistributed');
-		})
+var categoryLabel = 'Race Distributed';
+var datasetLabel = 'brca';
+var collectionNameToInsertTo = 'render_patient';
 
-	})
+co(function *() {
+	var db = yield comongo.client.connect(url);
+	var collection = yield comongo.db.collection(db, collectionName);
+
+	//get sorted documents
+	var fields = {patient_ID:1, _id:0};
+	fields[category] = 1;
+	var sorter = {};
+	sorter[category] = 1;
+	var docs = yield collection.find({},fields).sort(sorter).toArray();
+
+	//get secondary sorting values
+	var collection2 = yield comongo.db.collection(db, secondarySortCollectionName);
+	fields = {_id:0};
+	var secondarySortDocs = yield collection2.find({},fields).toArray();
+	for(var i=0; i<secondarySortDocs.length; i++){
+		secondarySortDocs[i]=[Object.keys(secondarySortDocs[i])[0], secondarySortDocs[i][Object.keys(secondarySortDocs[i])]];
+	}
+
+	//secondary sort, group by value, format for db insertion, insert into db
+	var docsAllFields = yield secondarySort(docs,secondarySortDocs,category);
+	var docsWithPoints = yield clusterGroupByValue(docsAllFields,category);
+	var docToInsert = yield formatDocsForInsertion(docsWithPoints.allDocs,docsWithPoints.annotation,datasetLabel,categoryLabel);
+	var collectionToInsert = yield comongo.db.collection(db,collectionNameToInsertTo);
+	yield collectionToInsert.insert(docToInsert, {w:'majority'});
+
+	yield comongo.db.close(db);
+}).catch(connError);
+
 
 // getConnection(url)
 // 	.then(getDocs.bind({},'clinical_tcga_brca_pt','gender'))

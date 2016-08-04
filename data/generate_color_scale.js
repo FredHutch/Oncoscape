@@ -1,19 +1,9 @@
 var MongoClient = require('mongodb').MongoClient, assert = require('assert');
+var comongo = require('co-mongodb');
+var co = require('co');
 
 //connection url
 var url = 'mongodb://localhost:27017/os';
-var connection;
-
-//connect to server with connect method, pass in database location
-var getConnection = function(url){
-	return new Promise(function(resolve, reject){
-		MongoClient.connect(url, function(err, db) {
-			connection = db;
-			if (!err) console.log('connected'), resolve(db);
-			else console.log('err - not connected'), reject(err);
-		});
-	});
-};
 
 //retrieves data from database, pass in collection name to get data from and the name of the field to sort this data by
 var getDocs =	function(collectionName,category){
@@ -118,12 +108,37 @@ var getColorGroupings = function(numColorsNeeded,colorScheme){
 	return colorArray;
 }
 
+//******************************************************************************************************
+//******************************************************************************************************
+
 //run script
 getConnection(url)
 	.then(getDocs.bind({},'clinical_tcga_brca_pt','race'))
 	.then(function(docs){
-		//
 		colorArray = getColors(docs,'race',10,'orange');
 		console.dir(colorArray);
-		console.log(colorArray.length+" colors were generated");
+		console.log(colorArray.length + " colors were generated");
 	})
+
+
+
+connError = function(e){
+	console.log(e);
+}
+
+var collectionName = 'clinical_tcga_brca_pt';
+var category = 'age_at_diagnosis';
+
+co(function *() {
+	var db = yield comongo.client.connect(url);
+	var collection = yield comongo.db.collection(db,collectionName);
+
+	//get sorted documents
+	var fields = {patient_ID:1, _id:0};
+	fields[category] = 1;
+	var sorter = {};
+	sorter[category] = 1;
+	var docs = yield collection.find({},fields).sort(sorter).toArray();
+
+	yield comongo.db.close(db);
+}).catch(connError);

@@ -1,0 +1,12 @@
+#!/usr/bin/env node
+
+var os = require("os"),
+    rw = require("rw").dash,
+    dsv = require("../");
+
+rw.readFile(process.argv[2] || "-", "utf8", function(error, text) {
+  if (error) throw error;
+  rw.writeFile("-", dsv.csvFormat(dsv.tsvParse(text)) + os.EOL, "utf8", function(error) {
+    if (error) throw error;
+  });
+});
