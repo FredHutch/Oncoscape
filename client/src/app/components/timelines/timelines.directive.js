@@ -19,7 +19,7 @@
         return directive;
 
         /** @ngInject */
-        function TimelinesController(osApi, osHistory, $state, $scope, $stateParams, $window, $document, moment, d3) {
+        function TimelinesController(osApi, $state, $scope, $stateParams, $window, $document, moment, d3) {
 
             if (angular.isUndefined($stateParams.datasource)) {
                 $state.go("datasource");
@@ -75,15 +75,15 @@
                 .attr({"class":"bars"});  // Container For Bars
 
             // History Integration
-            var selectedIds = (osHistory.getPatientSelection() == null) ? null : osHistory.getPatientSelection().ids;
-            function saveSelected() {
-                selectedIds = d3Bars.selectAll(".timeline-selected")[0].map( function (p) { return p.__data__.id; }  )
-                if (selectedIds.length==0) selectedIds = d3Bars.selectAll()[0].map( function (p) { return p.__data__.id; }  )
-                osHistory.addPatientSelection("Timelines", "Manual Selection",
-                    selectedIds
-                );
-                if (vm.optCohortMode.name=="Filter") draw();
-            }
+            // var selectedIds = (osHistory.getPatientSelection() == null) ? null : osHistory.getPatientSelection().ids;
+            // function saveSelected() {
+            //     selectedIds = d3Bars.selectAll(".timeline-selected")[0].map( function (p) { return p.__data__.id; }  )
+            //     if (selectedIds.length==0) selectedIds = d3Bars.selectAll()[0].map( function (p) { return p.__data__.id; }  )
+            //     osHistory.addPatientSelection("Timelines", "Manual Selection",
+            //         selectedIds
+            //     );
+            //     if (vm.optCohortMode.name=="Filter") draw();
+            // }
 
             var zoom;
             var zoomed = function(){

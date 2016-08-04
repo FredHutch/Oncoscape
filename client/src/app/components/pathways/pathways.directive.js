@@ -114,7 +114,8 @@
                             if (e.cyTarget.data().nodeType!="gene") return;
                             angular.element('#gbm-webpage').modal();
                             $scope.$apply(function() {
-                                 vm.frame = $sce.trustAsResourceUrl("https://www.genecards.org/cgi-bin/carddisp.pl?gene=" + e.cyTarget.data().id);
+                                vm.frame = $sce.trustAsResourceUrl("http://resources.sttrcancer.org/markers-patients");
+                                 //vm.frame = $sce.trustAsResourceUrl("https://www.genecards.org/cgi-bin/carddisp.pl?gene=" + e.cyTarget.data().id);
                             });
                         })
                         .on('click', 'edge', function(e) {

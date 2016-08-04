@@ -21,7 +21,7 @@
             }
 
             var query = "http://localhost:80/api/" + object.table;
-            var query = "https://dev.oncoscape.sttrcancer.io/api/" + object.table;
+            //var query = "https://dev.oncoscape.sttrcancer.io/api/" + object.table;
             if (object.query) query += "/?q=" + encodeURIComponent(JSON.stringify(object.query));
             load(query, function(response) {
                 resolve(format(JSON.parse(response.responseText)));
@@ -149,31 +149,94 @@ var data = (function() {
 
             var annotations = data[0].annotation;
             if (annotations){
-                // Text Annotaitons
-                data[0].annotation = annotations.filter(function(annotation){
-                    return (annotation.hasOwnProperty("text"));
-                }).map(function(item){
-                    return {
-                        group: "nodes",
-                        grabbable: false,
-                        locked: true,
-                        selectable: false,
-                        position: {x:item.x-40000, y:item.y+1000},
-                        data: {
-                            id: "annotation"+item.text.replace(/[^\w\s!?]/g,''),
-                            color: "rgb(0, 255, 255)",
-                            display: "element",
-                            nodeType: "annotation-text",
-                            sizeEle: 800,
-                            weight: 800,
-                            sizeLbl: 500,
-                            degree: 1,
-                            sizeBdr: 50,
-                            label: item.text + " (" + item.count + ")"
+
+
+                var text = annotations
+                    .filter(function(item){ return item.type=="text"; })
+                    .map(function(item){
+                        return {
+                            group: "nodes",
+                            grabbable: false,
+                            locked: true,
+                            selectable: false,
+                            position: {x:item.x-40000, y:item.y},
+                            'text-rotation': item.rotation,
+                            data: {
+                                id: "annotation"+item.text.replace(/[^\w\s!?]/g,''),
+                                color: "rgb(0, 255, 255)",
+                                display: "element",
+                                nodeType: "annotation-text",
+                                sizeEle: 800,
+                                weight: 800,
+                                sizeLbl: 500,
+                                degree: 1,
+                                sizeBdr: 50,
+                                'text-rotation': item.rotation,
+                                label: item.text + " (" + item.dataValue + ")"
+                            }
                         }
-                    }
-                });
+                    });
+
+
+                var lines = annotations
+                    .filter(function(item){ return item.type=="line"})
+                    .map(function(line){
+
+                        var id = "annotation-"+Math.random().toString().substring(2);
+                        
+                        var elements = [];
+                        for (var i=0; i<line.points.length; i++){
+
+                            var item = line.points[i];
+                            
+                            elements.push({
+
+                                group: "nodes",
+                                grabbable: false,
+                                locked: true,
+                                position: {x:item.x-40000, y:item.y},
+                                selectable: false,
+                                data:{
+                                    display: "element",
+                                    id: id + i.toString(),
+                                    nodeType: "annotation-point",
+                                    sizeEle: 100,
+                                    sizeBdr: 1,
+                                    sizeLbl: 0
+                                }
+                            });
+                            if (i>0){
+                                elements.push({
+                                    
+                                    group: "edges",
+                                    grabbable: false,
+                                    locked: true,
+                                    position: line.points[i],
+                                    selectable: false,
+                                    data: {
+                                        display: "element",
+                                        id: id,
+                                        nodeType: "annotation-line",
+                                        source: id + i.toString(),
+                                        target: id + (i-1).toString(),
+                                        sizeEle: 50,
+                                        sizeBdr: 1,
+                                        sizeLbl: 0,
+                                        'color': "#000000"
+                                    }
+                                })
+                            }
+                        }
+                        return elements;
+
+                    });
+
+
+
+                data[0].annotation = text.concat( [].concat.apply( [], lines ) );
+                
             }
+            
             send("patients_layout", data[0]);
         }
     };

@@ -50,7 +50,7 @@
                     d3Chart.selectAll(".pca-node-selected").classed("pca-node-selected", false);
                 } else {
                     d3Chart.selectAll("circle").classed("pca-node-selected", function() {
-                        return (selectedIds.indexOf(this.__data__[2]) >= 0)
+                        return (selectedIds.indexOf(this.__data__.id) >= 0)
                     });
                 }
             }
@@ -104,7 +104,7 @@
                         vm.pc2 = response.data[0].pc2;
                         var keys = Object.keys(response.data[0].data);
                         data = keys.map(function(key) {
-                            this.data[key].push(key);
+                            this.data[key].id = key;
                             return this.data[key];
                         }, {
                             data: response.data[0].data
@@ -137,23 +137,24 @@
             }
 
             function draw() {
+
                 var vals = Object.keys(data).map(function(key) {
                     return data[key]
                 }, {
                     data: data
                 });
                 layout.max = Math.abs(d3.max(vals, function(d) {
-                    return +d[0];
+                    return +d.x;
                 }));
                 layout.min = Math.abs(d3.min(vals, function(d) {
-                    return +d[0];
+                    return +d.x;
                 }));
                 layout.xMax = ((layout.max > layout.min) ? layout.max : layout.min) * 1.2;
                 layout.max = Math.abs(d3.max(vals, function(d) {
-                    return +d[1];
+                    return +d.y;
                 }));
                 layout.min = Math.abs(d3.min(vals, function(d) {
-                    return +d[1];
+                    return +d.y;
                 }));
                 layout.yMax = ((layout.max > layout.min) ? layout.max : layout.min) * 1.2;
 
@@ -227,10 +228,10 @@
                         return i / 300 * 100;
                     })
                     .attr("cx", function(d) {
-                        return layout.xScale(d[0]);
+                        return layout.xScale(d.x);
                     })
                     .attr("cy", function(d) {
-                        return layout.yScale(d[1]);
+                        return layout.yScale(d.y);
                     })
                     .style("fill-opacity", .3);
 
@@ -278,10 +279,10 @@
                 d3xAxis.attr("transform", "translate(" + layout.xScale(0) + ", 0)").call(layout.yAxis);
                 d3Chart.selectAll("circle")
                     .attr("cx", function(d) {
-                        return layout.xScale(d[0]);
+                        return layout.xScale(d.x);
                     })
                     .attr("cy", function(d) {
-                        return layout.yScale(d[1]);
+                        return layout.yScale(d.y);
                     })
             };
 

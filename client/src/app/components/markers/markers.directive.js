@@ -25,9 +25,6 @@
             osApi.setBusy(true);
 
             var tmpdata, patientHtml, worker;
-
-
-
             
             var signal = (function() {
                 return {
@@ -64,7 +61,8 @@
                         this.genes.out.removeAll();
                     }
                 };
-            })()
+            })();
+
 
             /*
              *  Cytoscape Chart
@@ -111,7 +109,7 @@
                         selector: 'node[nodeType="patient"]:selected',
                         style: {
                             'border-color': "#000",
-                            'border-width': 50
+                            //'border-width': 50
                         }
                     }, {
                         selector: 'node[nodeType="gene"]',
@@ -119,6 +117,8 @@
                             'background-color': "#FFFFFF",
                             'border-color': "#38347b",
                             'text-halign': "right",
+                            'text-margin-x': 30,
+
                             'label': "data(id)"
                         }
                     }, {
@@ -432,13 +432,16 @@
                     }),
                     osApi.query("render_patient", {
                         type: 'cluster',
+                        dataset: osApi.getDataSource().disease,
                         $fields: ['name']
                     }),
                     osApi.query("render_patient", {
                         type: 'color',
+                        dataset: osApi.getDataSource().disease,
                         $fields: ['name']
                     })
                 ]).then(function(results) {
+
                     vm.optGeneSets = results[0].data;
                     vm.optGeneSet = vm.optGeneSets[0];
                     vm.optPatientLayouts = results[1].data;
@@ -489,24 +492,46 @@
                 return vm.zoom;
             })(cyChart, vm);
 
+            
+
+            var borderScale = d3.scale.log().domain([.005, 1]).range([50,2])
+            var nodeScale   = d3.scale.log().domain([.005, 1]).range([500,20]);
+            var labelScale  = d3.scale.log().domain([.005, 1]).range([500,20]);
+            var expressionScale = d3.scale.pow().range([.01,2]);
             var resizeNodes = function() {
-                console.log(cyChart.zoom()+"!!!!");;
-                    var zoom = (1 / cyChart.zoom()) / 80;
-                    if (zoom < .02) zoom = .02;
-                    var sizeBdr = 50 * zoom;
-                    var sizeLbl = 500 * (zoom * 2);
-                    sizeLbl = (sizeLbl > 500) ? 0 : sizeLbl;
+                    expressionScale.domain(
+                        cyChart.$('node[nodeType="patient"],node[nodeType="gene"]').toArray()
+                            .reduce(function(p, c) {
+                                var w = c.data().weight;
+                                p[0] = Math.min(p[0], w);
+                                p[1] = Math.max(p[1], w);
+                                return p;
+                            }, [Infinity, -Infinity])
+                    );
+
+                    var zoom = cyChart.zoom();
+                    var sizeNode = nodeScale(zoom);
+                    var sizeLbl  = labelScale(zoom);
+                    var sizeBdr  = borderScale(zoom);
+                        
+                    //console.log(sizeBdr);
+                    // // var sizeBdr = borderScale(zoom);
+                    // // //if (sizeBdr<5) sizeBdr = 0;
+                    
+                    // // var sizeLbl = 500 * (zoom * 2);
+                    // // sizeLbl = (sizeLbl > 500) ? 0 : sizeLbl;
 
                     cyChart.$('node[nodeType="patient"],node[nodeType="gene"]').forEach(function(node) {
                         node.data({
-                            'sizeEle': node.data().weight * this.zoom,
-                            sizeLbl: this.sizeLbl,
-                            sizeBdr: this.sizeBdr
+                            'sizeEle': Math.round(this.sizeNode * expressionScale(node.data().weight)),
+                            'sizeLbl': this.sizeLbl,
+                            'sizeBdr': this.sizeBdr
                         });
                     }, {
-                        zoom: zoom,
+                        sizeNode: sizeNode,
                         sizeBdr: sizeBdr,
-                        sizeLbl: sizeLbl
+                        sizeLbl: sizeLbl,
+                        scale: expressionScale
                     });
                 }
                 /* 
@@ -553,8 +578,8 @@
                     cyChart.startBatch();
                     var signals = signal.patients;
                     var elements = cyChart.add(data.patients);
-                    elements.on("select", _.debounce(signals.select.dispatch, 300));
-                    elements.on("unselect", _.debounce(signals.unselect.dispatch, 300));
+                    elements.on("select", _.debounce(signal.patients.select.dispatch, 300));
+                    elements.on("unselect", _.debounce(signal.patients.unselect.dispatch, 300));
                     elements.on("mouseover", signals.over.dispatch);
                     elements.on("mouseout", signals.out.dispatch);
                     elements.forEach(function(node) {
@@ -597,11 +622,11 @@
                 };
                 cmd.patients_layout = function(data) {
                     cyChart.startBatch();
-                    cyChart.$("node[nodeType='annotation-text']").remove();
+                    cyChart.$("node[nodeType='annotation-text'],edge[nodeType='annotation-line'],node[nodeType='annotation-point']").remove();
                     if (data.annotation){
                         cyChart.add(data.annotation);
+
                     }
-                    
                     cyChart.nodes('node[nodeType="patient"]').forEach(function(node) {
                         try {
                             var pos = data.data[node.id()];
@@ -627,8 +652,9 @@
                     cyChart.startBatch();
                     var signals = signal.genes;
                     var elements = cyChart.add(data.genes);
-                    elements.on("select", _.debounce(signals.select.dispatch, 300));
-                    elements.on("unselect", _.debounce(signals.unselect.dispatch, 300));
+
+                    elements.on("select", _.debounce(signal.genes.select.dispatch, 300));
+                    elements.on("unselect", _.debounce(signal.genes.unselect.dispatch, 300));
                     elements.on("mouseover", signals.over.dispatch);
                     elements.on("mouseout", signals.out.dispatch);
                     elements.forEach(function(node) {
@@ -677,6 +703,7 @@
             var createOptions = (function(cyChart, vm) {
 
                 return function(cmd) {
+
                     cmd = cmd || "";
                     var geneset = vm.optGeneSet.name;
                     var opts = {
