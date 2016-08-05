@@ -117,7 +117,7 @@
                             'background-color': "#FFFFFF",
                             'border-color': "#38347b",
                             'text-halign': "right",
-                            'text-margin-x': 30,
+                            'text-margin-x': 5,
 
                             'label': "data(id)"
                         }
@@ -130,13 +130,13 @@
                     }, {
                         selector: 'node[nodeType="centromere"]',
                         style: {
-                            'font-size': '200px',
+                            'font-size': '20px',
                             'text-halign': 'center',
                             'background-color': "#3993fa",
                             'color': "#FFFFFF",
                             'border-color': 'rgb(19, 150, 222)',
-                            'height': '400px',
-                            'width': '400px',
+                            'height': '40px',
+                            'width': '40px',
                             'shape': 'round',
                             'label': "  data(id)"
                         }
@@ -168,13 +168,13 @@
                     textureOnViewport: false,
                     //motionBlur: true,
                     //motionBlurOpacity: 0.2,
-                    zoom: 0.008,
+                    zoom: 0.1,
                     pan: {
                         x: 650,
                         y: 160
                     },
-                    minZoom: .005,
-                    maxZoom: 1,
+                    // minZoom: .005,
+                    // maxZoom: 1,
                     layout: {
                         name: "preset",
                         fit: true
@@ -208,7 +208,7 @@
                                 display: "element",
                                 edgeType: "chromosome",
                                 sizeBdr: 0,
-                                sizeEle: 60, // Style?
+                                sizeEle: 10, // Style?
                                 source: "cp" + key, // Chromosome P (CP)
                                 target: "cq" + key // Chromosome Q (CQ)
                             }
@@ -229,9 +229,9 @@
                                 display: "element",
                                 nodeType: "telomere",
                                 degree: 1,
-                                sizeBdr: 50,
-                                sizeEle: 50,
-                                sizeLbl: 6,
+                                sizeBdr: 1,
+                                sizeEle: 1,
+                                sizeLbl: 1,
                                 subType: "unassigned"
                             }
                         });
@@ -250,9 +250,9 @@
                                 display: "element",
                                 nodeType: "telomere",
                                 degree: 1,
-                                sizeBdr: 50,
-                                sizeEle: 50,
-                                sizeLbl: 50,
+                                sizeBdr: 5,
+                                sizeEle: 5,
+                                sizeLbl: 5,
                                 subType: "unassigned"
                             }
                         });
@@ -269,7 +269,9 @@
                             data: {
                                 id: key,
                                 display: "element",
-                                sizeBdr: 50,
+                                sizeBdr: 1,
+                                sizeEle: 10,
+                                sizeLbl: 10,
                                 nodeType: "centromere",
                                 degree: 1
                             }
@@ -494,9 +496,9 @@
 
             
 
-            var borderScale = d3.scale.log().domain([.005, 1]).range([50,2])
-            var nodeScale   = d3.scale.log().domain([.005, 1]).range([500,20]);
-            var labelScale  = d3.scale.log().domain([.005, 1]).range([500,20]);
+            var borderScale = d3.scale.log().domain([.005, 1]).range([10,1])
+            var nodeScale   = d3.scale.log().domain([.005, 1]).range([100,10]);
+            var labelScale  = d3.scale.log().domain([.005, 1]).range([100,10]);
             var expressionScale = d3.scale.pow().range([.01,2]);
             var resizeNodes = function() {
                     expressionScale.domain(
@@ -575,6 +577,7 @@
                     remove('node[nodeType="patient"]', data);
                 };
                 cmd.patients_insert = function(data) {
+debugger;
                     cyChart.startBatch();
                     var signals = signal.patients;
                     var elements = cyChart.add(data.patients);
@@ -649,6 +652,7 @@
                     remove('node[nodeType="gene"]', data);
                 };
                 cmd.genes_insert = function(data) {
+                    debugger;
                     cyChart.startBatch();
                     var signals = signal.genes;
                     var elements = cyChart.add(data.genes);
@@ -710,7 +714,7 @@
                         mode: vm.optCommandMode.name,
                         cmd: cmd,
                         patients: {
-                            data: vm.datasource.collections.pt,
+                            data: vm.datasource.collections.patient,
                             layout: vm.optPatientLayout.name,
                             color: vm.optPatientColor.name,
                             selected: cyChart.$('node[nodeType="patient"]:selected').map(function(p) {
@@ -726,6 +730,7 @@
                         edges: {
                             layout: vm.datasource.edges
                                 .filter(function(v) {
+                                    
                                     return (v.name == this)
                                 }, geneset)[0],
                             colors: vm.optEdgeColors

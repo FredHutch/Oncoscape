@@ -95,7 +95,7 @@
             osApi.setBusy(true);
             osApi.query("render_pathways").then(function(result){
                 markersNetwork = result.data[0];
-            
+
                     csChart = cytoscape({
                             container: elChart,
                             elements: markersNetwork.elements,

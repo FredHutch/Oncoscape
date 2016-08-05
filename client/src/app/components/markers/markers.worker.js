@@ -310,10 +310,10 @@ var data = (function() {
                         display: "element",
                         nodeType: "gene",
                         degree: 1,
-                        sizeBdr: 50,
-                        sizeEle: 800,
-                        weight: 800,
-                        sizeLbl: 50,
+                        sizeBdr: 10,
+                        sizeEle: 200,
+                        weight: 200,
+                        sizeLbl: 10,
                         subType: "unassigned"
                     }
                 };
@@ -399,6 +399,7 @@ var data = (function() {
                 return;
             }
 
+
             // Fetch New Stuff
             var promises = [
 
@@ -453,6 +454,7 @@ var data = (function() {
 
             Promise.all(promises).then(function(data) {
 
+                console.dir(data);
 
                 // Reorient patient data to use PIDs as keys
                 if (update.patientData) {

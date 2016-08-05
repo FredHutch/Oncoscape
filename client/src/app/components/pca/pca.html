@@ -8,11 +8,11 @@
                 <label>Gene Set</label>
                 <div class="dropdown bs-dropdown">
                     <button class="btn btn-default dropdown-toggle" type="button" id="dropdownMenu1" data-toggle="dropdown" aria-haspopup="true" aria-expanded="true">
-                        {{vm.geneSet.geneset}}
+                        {{vm.geneSet.type}} - {{vm.geneSet.geneset}}
                         <span class="caret"></span>
                     </button>
                     <ul class="dropdown-menu" aria-labelledby="dropdownMenu1">
-                        <li ng-repeat="item in vm.geneSets" ng-click="vm.geneSet=item">{{item.geneset}}</li>
+                        <li ng-repeat="item in vm.geneSets" ng-click="vm.geneSet=item">{{vm.geneSet.type}} - {{item.geneset}}</li>
                     </ul>
                 </div>
             </div>
