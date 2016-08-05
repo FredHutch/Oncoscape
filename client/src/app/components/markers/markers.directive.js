@@ -117,7 +117,7 @@
                             'background-color': "#FFFFFF",
                             'border-color': "#38347b",
                             'text-halign': "right",
-                            'text-margin-x': 5,
+                            'text-margin-x': 10,
 
                             'label': "data(id)"
                         }
@@ -168,13 +168,13 @@
                     textureOnViewport: false,
                     //motionBlur: true,
                     //motionBlurOpacity: 0.2,
-                    zoom: 0.1,
+                    zoom: 0.08,
                     pan: {
                         x: 650,
                         y: 160
                     },
-                    // minZoom: .005,
-                    // maxZoom: 1,
+                    //minZoom: .0005,
+                    //maxZoom: 1,
                     layout: {
                         name: "preset",
                         fit: true
@@ -497,7 +497,7 @@
             
 
             var borderScale = d3.scale.log().domain([.005, 1]).range([10,1])
-            var nodeScale   = d3.scale.log().domain([.005, 1]).range([100,10]);
+            var nodeScale   = d3.scale.log().domain([.005, 1]).range([100,20]);
             var labelScale  = d3.scale.log().domain([.005, 1]).range([100,10]);
             var expressionScale = d3.scale.pow().range([.01,2]);
             var resizeNodes = function() {
@@ -577,7 +577,6 @@
                     remove('node[nodeType="patient"]', data);
                 };
                 cmd.patients_insert = function(data) {
-debugger;
                     cyChart.startBatch();
                     var signals = signal.patients;
                     var elements = cyChart.add(data.patients);
@@ -633,7 +632,7 @@ debugger;
                     cyChart.nodes('node[nodeType="patient"]').forEach(function(node) {
                         try {
                             var pos = data.data[node.id()];
-                            pos.x -= 40000;
+                            pos.x -= 4000;
                             node.position(pos);
                         } catch (e) {}
                     });
@@ -652,7 +651,6 @@ debugger;
                     remove('node[nodeType="gene"]', data);
                 };
                 cmd.genes_insert = function(data) {
-                    debugger;
                     cyChart.startBatch();
                     var signals = signal.genes;
                     var elements = cyChart.add(data.genes);
@@ -706,15 +704,22 @@ debugger;
             /* Options Factory */
             var createOptions = (function(cyChart, vm) {
 
+               
                 return function(cmd) {
 
                     cmd = cmd || "";
                     var geneset = vm.optGeneSet.name;
+                   
+                    var edges = osApi.getDataSource().edges.filter(function(f){
+                        return f.name==this.geneset
+                    }, {geneset:geneset})[0];
+                   
                     var opts = {
                         mode: vm.optCommandMode.name,
                         cmd: cmd,
+                        dataset: osApi.getDataSource().disease,
                         patients: {
-                            data: vm.datasource.collections.patient,
+                            data: vm.datasource.collections.pt,
                             layout: vm.optPatientLayout.name,
                             color: vm.optPatientColor.name,
                             selected: cyChart.$('node[nodeType="patient"]:selected').map(function(p) {
@@ -728,6 +733,8 @@ debugger;
                             })
                         },
                         edges: {
+                            patientWeights: edges.patientWeights,
+                            geneWeights: edges.genesWeights,
                             layout: vm.datasource.edges
                                 .filter(function(v) {
                                     
@@ -745,6 +752,8 @@ debugger;
                                 })
                         }
                     };
+
+
                     return opts;
                 }
             })(cyChart, vm)

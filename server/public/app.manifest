@@ -20,6 +20,7 @@ CACHE:
 /scripts/app-158ccd3174.js
 /scripts/app-280b49bd58.js
 /scripts/app-32329ad833.js
+/scripts/app-68cdb00ed3.js
 /scripts/app-6905a44e31.js
 /scripts/app-6e2fa0a8da.js
 /scripts/app-90eb8c0f81.js
@@ -89,6 +90,7 @@ CACHE:
 /maps/scripts/app-280b49bd58.js.map
 /maps/scripts/app-32329ad833.js.map
 /maps/scripts/app-4dbaa82f09.js.map
+/maps/scripts/app-68cdb00ed3.js.map
 /maps/scripts/app-6905a44e31.js.map
 /maps/scripts/app-6e2fa0a8da.js.map
 /maps/scripts/app-90eb8c0f81.js.map
@@ -130,8 +132,8 @@ CACHE:
 /maps/styles/vendor-692105e31d.css.map
 /maps/styles/vendor-cb08db3119.css.map
 /maps/styles/vendor-fe5182b0e1.css.map
-/app/components/oncoscape/oncoscape.cohort.service.worker.js
 /app/components/markers/markers.worker.js
+/app/components/oncoscape/oncoscape.cohort.service.worker.js
 /assets/images/datasets/Archive.zip
 /assets/images/datasets/DEMOdz.png
 /assets/images/datasets/DSbrain.png
@@ -180,4 +182,4 @@ https://*
 SETTINGS:
 prefer-online
 
-# hash: e87aefe177f0d8c90d4679f50b4ed5f6026981c126be00ed490143293cda6853
+# hash: 62eb2cc251b2d2acd6b2450a02b75116f57e1f569177120d8692e3077af948bb

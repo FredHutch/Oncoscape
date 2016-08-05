@@ -6,7 +6,24 @@ const auth = require('./auth-module.js');
 const uuid = require('node-uuid');
 const favicon = require('serve-favicon');
 
-mongoose.connect('mongodb://localhost/os');
+
+
+//mongoose.connect('mongodb://localhost/os');
+mongoose.connect(
+    'mongodb://oncoscape-dev-db1.sttrcancer.io:27017,oncoscape-dev-db2.sttrcancer.io:27017,oncoscape-dev-db3.sttrcancer.io:27017/BnB?authSource=admin', {
+        db: {
+            native_parser: true
+        },
+        server: {
+            poolSize: 5,
+            reconnectTries: Number.MAX_VALUE
+        },
+        replset: {
+            rs_name: 'rs0'
+        },
+        user: 'oncoscapeRead',
+        pass: 'i1f4d9botHD4xnZ'
+    });
 
 var app = express();
 
@@ -36,13 +53,16 @@ app.use(function(req, res, next) { // Diable Cors
     next();
 });
 
+
 app.get('/ping', function(req, res){
   res.send('pong');
 });
 
 // Mongoose Gateway Route
 app.get('/api/:collection*', function(req, res, next) {
-
+    
+ 
+    
         mongoose.connection.db.collection(req.params.collection, function(err, collection) {
             if (err) {
                 res.status(err.code).send(err.messages);

@@ -30,8 +30,6 @@
             vm.cohorts = osCohortService.getPatientCohorts();
             vm.all = {show:true, color:'#000'};
 
-            debugger;
-
             var colors = ['#004358','#800080','#BEDB39','#FD7400','#1F8A70'];
             for (var i=0; i<vm.cohorts.length; i++){  
                 vm.cohorts[i].show = true;
