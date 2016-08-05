@@ -838,7 +838,7 @@
                         $("#cohortmenu-legand").html("");
                         
                     } else {
-                        $("#cohortmenu-legand").html(e.cyTarget.id() + patientHtml[e.cyTarget.id()]);
+                        $("#cohortmenu-legand").html(e.cyTarget.id());// + patientHtml[e.cyTarget.id()]);
                     }
                 });
             };
@@ -885,7 +885,7 @@
             vm.colorGeneSymbol = function(){
                 var genes = ("+"+vm.colorGene.replace(/\s/g,'').toUpperCase()).match(/[-+]\w*/gi).map(function(v){ return {op:v.substr(0,1), gene:v.substr(1)}; });
 
-                osApi.query("molecular_tcga_brca_rna", {
+                osApi.query("brain_rna", {
                     gene: {'$in': genes.map(function(v){ return v.gene; })}
                 // osApi.query("molecular_tcga_brca_rna", {
                 //     gene: vm.colorGene}

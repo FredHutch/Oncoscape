@@ -8,11 +8,23 @@
                 <label>Gene Set</label>
                 <div class="dropdown bs-dropdown">
                     <button class="btn btn-default dropdown-toggle" type="button" id="dropdownMenu1" data-toggle="dropdown" aria-haspopup="true" aria-expanded="true">
-                        {{vm.geneSet.type}} - {{vm.geneSet.geneset}}
+                        {{vm.geneSet.name}}
                         <span class="caret"></span>
                     </button>
                     <ul class="dropdown-menu" aria-labelledby="dropdownMenu1">
-                        <li ng-repeat="item in vm.geneSets" ng-click="vm.geneSet=item">{{vm.geneSet.type}} - {{item.geneset}}</li>
+                        <li ng-repeat="item in vm.geneSets" ng-click="vm.geneSet=item">{{item.name}}</li>
+                    </ul>
+                </div>
+            </div>
+            <div class="col-xs-12 form-item">
+                <label>PCA Type</label>
+                <div class="dropdown bs-dropdown">
+                    <button class="btn btn-default dropdown-toggle" type="button" id="dropdownMenu1" data-toggle="dropdown" aria-haspopup="true" aria-expanded="true">
+                        {{vm.pcaType.name}}
+                        <span class="caret"></span>
+                    </button>
+                    <ul class="dropdown-menu" aria-labelledby="dropdownMenu1">
+                        <li ng-repeat="item in vm.pcaTypes" ng-click="vm.pcaType=item">{{item.name}}</li>
                     </ul>
                 </div>
             </div>

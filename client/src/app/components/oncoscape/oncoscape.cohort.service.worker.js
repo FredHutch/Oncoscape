@@ -43,11 +43,12 @@ request({table:'brain_patient_tcga_clinical'}).then(function(response){
 				time = patientData[i].days_to_last_contact;
 			}else if (status=="DEAD"){
 				censor = 1;
-				time = patientData[i].days_to_death
+				time = patientData[i].days_to_death;
 			}else{
 				alert("Corrupt Data");
 			}
 			survivalData[patientData[i].patient_ID] = [time, censor];
+
 		}catch(e){
 			
 		}

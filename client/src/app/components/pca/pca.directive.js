@@ -86,20 +86,33 @@
                         $fields: ['type','geneset']
                     })
                     .then(function(response) {
-                       
-                        vm.geneSets = response.data;
+                        var mr = response.data.reduce( function (p, c) {
+                            if (!p.hasOwnProperty(c.geneset)) p[c.geneset] = [];
+                            p[c.geneset].push({name:c.type});
+                            return p;
+                        }, {});
+                        vm.geneSets = Object.keys(mr).reduce(function(p,c){
+                          p.rv.push( {name:c, types:p.values[c]});
+                          return p;
+                        }, {rv:[], values:mr}).rv;
                         vm.geneSet = vm.geneSets[0];
+                        // vm.pcaTypes = vm.geneSet[0].types;
+                        // vm.pcaType  = vm.pcaTypes[0];
                     });
                 return vm;
 
             })(this, osApi)
-
             $scope.$watch('vm.geneSet', function(geneset) {
+                vm.pcaTypes = vm.geneSet.types;
+                vm.pcaType  = vm.pcaTypes[0];
+            });
+
+            $scope.$watch('vm.pcaType', function(geneset) {
                 if (geneset == null) return;
                 osApi.query("render_pca", {
                         disease: vm.datasource.disease,
-                        geneset: geneset.geneset,
-                        type: geneset.type
+                        geneset: vm.geneSet.name,
+                        type: vm.pcaType.name
                     })
                     .then(function(response) {
                         vm.pc1 = response.data[0].pc1;

@@ -485,6 +485,7 @@ var data = (function() {
                         data: {},
                         html: {}
                     });
+                    console.dir(patientInfo.html)
                     send("patients_html", patientInfo.html)
                     state.patientData = patientInfo.data;
                     state.patients = data[1];
