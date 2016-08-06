@@ -31,21 +31,27 @@ var patientData = [];
 var survivalData = {};
 var patientMetric = null;
 
-request({table:'clinical_tcga_brca_pt'}).then(function(response){
+request({table:'brain_patient_tcga_clinical'}).then(function(response){
 	patientData = response;
 	for (var i=0; i<patientData.length; i++){
-		var status = patientData[i].status_vital.toUpperCase(),
-			censor, time;
-		if (status=="ALIVE"){
-			censor = 2;
-			time = patientData[i].days_to_last_contact;
-		}else if (status=="DEAD"){
-			censor = 1;
-			time = patientData[i].days_to_death
-		}else{
-			alert("Corrupt Data");
+		try{
+			var status = patientData[i].status_vital.toString().toUpperCase();
+			var censor;
+			var time;
+			if (status=="ALIVE"){
+				censor = 2;
+				time = patientData[i].days_to_last_contact;
+			}else if (status=="DEAD"){
+				censor = 1;
+				time = patientData[i].days_to_death;
+			}else{
+				alert("Corrupt Data");
+			}
+			survivalData[patientData[i].patient_ID] = [time, censor];
+
+		}catch(e){
+			
 		}
-		survivalData[patientData[i].patient_ID] = [time, censor];
 
 	}
 });

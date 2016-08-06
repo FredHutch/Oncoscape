@@ -50,7 +50,7 @@
                     d3Chart.selectAll(".pca-node-selected").classed("pca-node-selected", false);
                 } else {
                     d3Chart.selectAll("circle").classed("pca-node-selected", function() {
-                        return (selectedIds.indexOf(this.__data__[2]) >= 0)
+                        return (selectedIds.indexOf(this.__data__.id) >= 0)
                     });
                 }
             }
@@ -83,28 +83,43 @@
                 vm.search = "";
                 osApi.query("render_pca", {
                         disease: vm.datasource.disease,
-                        $fields: ['geneset']
+                        $fields: ['type','geneset']
                     })
                     .then(function(response) {
-                        vm.geneSets = response.data;
+                        var mr = response.data.reduce( function (p, c) {
+                            if (!p.hasOwnProperty(c.geneset)) p[c.geneset] = [];
+                            p[c.geneset].push({name:c.type});
+                            return p;
+                        }, {});
+                        vm.geneSets = Object.keys(mr).reduce(function(p,c){
+                          p.rv.push( {name:c, types:p.values[c]});
+                          return p;
+                        }, {rv:[], values:mr}).rv;
                         vm.geneSet = vm.geneSets[0];
+                        // vm.pcaTypes = vm.geneSet[0].types;
+                        // vm.pcaType  = vm.pcaTypes[0];
                     });
                 return vm;
 
             })(this, osApi)
-
             $scope.$watch('vm.geneSet', function(geneset) {
+                vm.pcaTypes = vm.geneSet.types;
+                vm.pcaType  = vm.pcaTypes[0];
+            });
+
+            $scope.$watch('vm.pcaType', function(geneset) {
                 if (geneset == null) return;
                 osApi.query("render_pca", {
                         disease: vm.datasource.disease,
-                        geneset: geneset.geneset
+                        geneset: vm.geneSet.name,
+                        type: vm.pcaType.name
                     })
                     .then(function(response) {
                         vm.pc1 = response.data[0].pc1;
                         vm.pc2 = response.data[0].pc2;
                         var keys = Object.keys(response.data[0].data);
                         data = keys.map(function(key) {
-                            this.data[key].push(key);
+                            this.data[key].id = key;
                             return this.data[key];
                         }, {
                             data: response.data[0].data
@@ -137,6 +152,7 @@
             }
 
             function draw() {
+
                 var vals = Object.keys(data).map(function(key) {
                     return data[key]
                 }, {

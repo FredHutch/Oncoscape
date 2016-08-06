@@ -21,7 +21,7 @@
             }
 
             var query = "http://localhost:80/api/" + object.table;
-            var query = "https://dev.oncoscape.sttrcancer.io/api/" + object.table;
+            //var query = "/api/" + object.table;
             if (object.query) query += "/?q=" + encodeURIComponent(JSON.stringify(object.query));
             load(query, function(response) {
                 resolve(format(JSON.parse(response.responseText)));
@@ -149,31 +149,94 @@ var data = (function() {
 
             var annotations = data[0].annotation;
             if (annotations){
-                // Text Annotaitons
-                data[0].annotation = annotations.filter(function(annotation){
-                    return (annotation.hasOwnProperty("text"));
-                }).map(function(item){
-                    return {
-                        group: "nodes",
-                        grabbable: false,
-                        locked: true,
-                        selectable: false,
-                        position: {x:item.x-40000, y:item.y+1000},
-                        data: {
-                            id: "annotation"+item.text.replace(/[^\w\s!?]/g,''),
-                            color: "rgb(0, 255, 255)",
-                            display: "element",
-                            nodeType: "annotation-text",
-                            sizeEle: 800,
-                            weight: 800,
-                            sizeLbl: 500,
-                            degree: 1,
-                            sizeBdr: 50,
-                            label: item.text + " (" + item.count + ")"
+
+
+                var text = annotations
+                    .filter(function(item){ return item.type=="text"; })
+                    .map(function(item){
+                        return {
+                            group: "nodes",
+                            grabbable: false,
+                            locked: true,
+                            selectable: false,
+                            position: {x:item.x-4000, y:item.y},
+                            'text-rotation': item.rotation,
+                            data: {
+                                id: "annotation"+item.text.replace(/[^\w\s!?]/g,''),
+                                color: "rgb(0, 255, 255)",
+                                display: "element",
+                                nodeType: "annotation-text",
+                                sizeEle: 800,
+                                weight: 800,
+                                sizeLbl: 500,
+                                degree: 1,
+                                sizeBdr: 50,
+                                'text-rotation': item.rotation,
+                                label: item.text + " (" + item.dataValue + ")"
+                            }
                         }
-                    }
-                });
+                    });
+
+
+                var lines = annotations
+                    .filter(function(item){ return item.type=="line"})
+                    .map(function(line){
+
+                        var id = "annotation-"+Math.random().toString().substring(2);
+                        
+                        var elements = [];
+                        for (var i=0; i<line.points.length; i++){
+
+                            var item = line.points[i];
+                            
+                            elements.push({
+
+                                group: "nodes",
+                                grabbable: false,
+                                locked: true,
+                                position: {x:item.x-4000, y:item.y},
+                                selectable: false,
+                                data:{
+                                    display: "element",
+                                    id: id + i.toString(),
+                                    nodeType: "annotation-point",
+                                    sizeEle: 100,
+                                    sizeBdr: 1,
+                                    sizeLbl: 0
+                                }
+                            });
+                            if (i>0){
+                                elements.push({
+                                    
+                                    group: "edges",
+                                    grabbable: false,
+                                    locked: true,
+                                    position: line.points[i],
+                                    selectable: false,
+                                    data: {
+                                        display: "element",
+                                        id: id,
+                                        nodeType: "annotation-line",
+                                        source: id + i.toString(),
+                                        target: id + (i-1).toString(),
+                                        sizeEle: 50,
+                                        sizeBdr: 1,
+                                        sizeLbl: 0,
+                                        'color': "#000000"
+                                    }
+                                })
+                            }
+                        }
+                        return elements;
+
+                    });
+
+
+
+                data[0].annotation = text.concat( [].concat.apply( [], lines ) );
+                
             }
+            
             send("patients_layout", data[0]);
         }
     };
@@ -247,10 +310,10 @@ var data = (function() {
                         display: "element",
                         nodeType: "gene",
                         degree: 1,
-                        sizeBdr: 50,
-                        sizeEle: 800,
-                        weight: 800,
-                        sizeLbl: 50,
+                        sizeBdr: 10,
+                        sizeEle: 200,
+                        weight: 200,
+                        sizeLbl: 10,
                         subType: "unassigned"
                     }
                 };
@@ -268,8 +331,8 @@ var data = (function() {
                     id: "mp_" + item.g + "_" + item.p + "_" + item.m,
                     display: "element",
                     edgeType: "cn",
-                    sizeEle: 50,
-                    sizeBdr: 50,
+                    sizeEle: 1,
+                    sizeBdr: 0,
                     cn: parseInt(item.m),
                     source: item.g,
                     target: item.p
@@ -308,7 +371,7 @@ var data = (function() {
                     position: value,
                     data: data
                 };
-                node.position.x -= 40000;
+                node.position.x -= 4000;
                 return node;
             }, data);
     };
@@ -335,6 +398,8 @@ var data = (function() {
                 });
                 return;
             }
+            console.log(options.edges.geneWeights);
+
 
             // Fetch New Stuff
             var promises = [
@@ -349,21 +414,27 @@ var data = (function() {
                 request({
                     table: 'render_patient',
                     query: {
+                        dataset: options.dataset,
                         name: options.patients.layout
+                        //type: 'Cluster'
                     }
                 }, !update.patientData ? state.patients : null, formatPatientNodes),
 
                 request({
                     table: 'render_patient',
                     query: {
+                        dataset: options.dataset,
                         name: options.patients.layout
+                        //type: 'Cluster'
                     }
                 }, !update.patientLayout ? state.patients : null, formatPatientLayout),
 
                 request({
                     table: 'render_patient',
                     query: {
+                        dataset: options.dataset,
                         name: options.patients.color
+                        // type: 'colorCategory'
                     }
                 }, !update.patientColor ? state.patientColor : null, formatPatientColor),
 
@@ -379,17 +450,18 @@ var data = (function() {
                 }, !update.edges ? state.edges : null, formatEdgeNodes),
 
                 request({
-                    table: options.edges.layout.edges + "_gene_weight"
+                    table: options.edges.geneWeights
                 }, !update.edges ? state.edgeGenes : null, formatEdgeGenes),
 
                 request({
-                    table: options.edges.layout.edges + "_patient_weight"
+                    table: options.edges.patientWeights
                 }, !update.edges ? state.edgePatients : null, formatEdgePatients)
 
             ];
 
             Promise.all(promises).then(function(data) {
 
+                console.dir(data);
 
                 // Reorient patient data to use PIDs as keys
                 if (update.patientData) {
@@ -413,6 +485,7 @@ var data = (function() {
                         data: {},
                         html: {}
                     });
+                    console.dir(patientInfo.html)
                     send("patients_html", patientInfo.html)
                     state.patientData = patientInfo.data;
                     state.patients = data[1];

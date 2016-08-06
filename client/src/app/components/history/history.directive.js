@@ -63,10 +63,7 @@ b:{})}});return g};"function"===typeof define&&define.amd?define(["jquery","data
             // intialize View State
             (function(vm) {
                 vm.datasource = osApi.getDataSource();
-                vm.diagnosisMin = vm.diagnosisMinValue = 1;
-                vm.diagnosisMax = vm.diagnosisMaxValue = 100000;
-                vm.survivalMin = vm.survivalMinValue = 0;
-                vm.survivalMax = vm.survivalMaxValue = 10;
+                
                 vm.search = "";
                 vm.detail = null;
             })(vm);
@@ -74,21 +71,8 @@ b:{})}});return g};"function"===typeof define&&define.amd?define(["jquery","data
             var initDataTable = function(vm, columns, data) {
 
                 // Override Filter Function
-                angular.element.fn.DataTable.ext.search = [function(settings, data) {
-
-                    
+                angular.element.fn.DataTable.ext.search = [function(settings, data) {                    
                     if (selectedIds.length != 0) { if (selectedIds.indexOf(data[0]) == -1) return false; }
-                    var diagnosis = parseFloat(data[3]);
-                    //var survival = parseFloat(data[4]);
-                    //console.log(survival+":"+diagnosis);
-                    //if (isNaN(survival) || isNaN(diagnosis)) return false;
-                    if (isNaN(diagnosis)) return false;
-
-                    return (diagnosis >= vm.diagnosisMin &&
-                             diagnosis < (vm.diagnosisMax + 1));
-                              //&&
-                    //     survival >= vm.survivalMin &&
-                    //     survival < (vm.survivalMax + 1));
                     return true;
                 }];
 
@@ -165,41 +149,10 @@ b:{})}});return g};"function"===typeof define&&define.amd?define(["jquery","data
 
             // Load Datasets
             osApi.setBusy(true);
-            osApi.query(vm.datasource.collections.pt, {
+            osApi.query(vm.datasource.collections.patient, {
                     $fields: fields
                 })
                 .then(function(response) {
-                    var maxMin = response.data.reduce(function(prev, curr) {
-
-                        if (angular.isDefined(curr.age_at_diagnosis)) {
-                            var ageAtDiagnosis = parseInt(curr.age_at_diagnosis);
-                            prev.ageAtDiagnosis.min = Math.min(prev.ageAtDiagnosis.min, ageAtDiagnosis);
-                            prev.ageAtDiagnosis.max = Math.max(prev.ageAtDiagnosis.max, ageAtDiagnosis);
-                        }
-                        // if (angular.isDefined(curr.days_to_death)) {
-                        //     var daysToDeath = parseInt(curr.days_to_death);
-                        //     prev.daysToDeath.min = Math.min(prev.daysToDeath.min, daysToDeath);
-                        //     prev.daysToDeath.max = Math.max(prev.daysToDeath.max, daysToDeath);
-                        // }
-                        return prev;
-
-                    }, {
-                        ageAtDiagnosis: {
-                            max: -Infinity,
-                            min: Infinity
-                        }
-                        // ,
-                        // daysToDeath: {
-                        //     max: -Infinity,
-                        //     min: Infinity
-                        // }
-                    })
-
-                    vm.diagnosisMin = vm.diagnosisMinValue = maxMin.ageAtDiagnosis.min;
-                    vm.diagnosisMax = vm.diagnosisMaxValue = maxMin.ageAtDiagnosis.max;
-                    //vm.survivalMin = vm.survivalMinValue = maxMin.daysToDeath.min;
-                    //vm.survivalMax = vm.survivalMaxValue = maxMin.daysToDeath.max;
-
                     initDataTable(vm, columns, response.data);
                     initEvents(vm, $scope, osApi)
                     osApi.setBusy(false);
