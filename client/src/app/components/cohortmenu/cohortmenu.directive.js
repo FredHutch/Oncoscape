@@ -218,7 +218,6 @@
                 console.log("GENES");
             });
             osCohortService.onMessage.add(function(obj){
-
                 if (obj.data.cmd!="setPatientMetric") return;
                 $timeout(function(){
                     vm.patientTotal = obj.data.data.total,

@@ -45,7 +45,6 @@ var state = {
 
     },
     patientData: [],
-    patientColors: [],
     genes: [],
     patients: [],
     edges: [],
@@ -241,44 +240,6 @@ var data = (function() {
         }
     };
 
-    var formatPatientColor = function(data) {
-        var degMap = {};
-        var legend = [];
-        if (data.length == 1) {
-            data[0].data.forEach(function(color) {
-                var colorName = color.name;
-                var colorValue = color.color;
-                legend.push({
-                    name: colorName,
-                    color: colorValue
-                });
-                color.values.forEach(function(patient) {
-                    this.degmap[patient + "-01"] = {
-                        'color': this.color
-                    }
-                }, {
-                    degmap: this,
-                    color: colorValue
-                });
-            }, degMap);
-            send("patients_legend", legend);
-            send("patients_color", degMap);
-        } else {
-            if (state.patients.length > 0) {
-                state.patients.forEach(function(f) {
-                    this[f.data.id] = {
-                        'color': '#1396DE'
-                    }
-                }, degMap)
-                send("patients_color", degMap);
-                send("patients_legend", [{
-                    name: 'Patient',
-                    color: '#1396DE'
-                }]);
-            }
-        }
-    };
-
     var formatEdgePatients = function(data) {
         return data;
     };
@@ -344,10 +305,6 @@ var data = (function() {
     var formatPatientNodes = function(data) {
 
         data = data[0].data;
-        send("patients_legend", [{
-            name: 'Patient',
-            color: '#1396DE'
-        }]);
         return Object.keys(data)
             .map(function(key) {
                 var value = this[key];
@@ -382,7 +339,6 @@ var data = (function() {
             // What Changed?
             var update = {
                 patientData: (state.options.patients.data != options.patients.data),
-                patientColor: (state.options.patients.color != options.patients.color),
                 patientLayout: (state.options.patients.layout != options.patients.layout),
                 edges: (state.options.edges.layout.name != options.edges.layout.name),
                 genes: (state.options.genes.layout != options.genes.layout)
@@ -391,14 +347,13 @@ var data = (function() {
 
 
             // Nothing? Return
-            if (!update.patientData && !update.patientColor && !update.patientLayout && !update.patients && !update.edges && !update.genes) {
+            if (!update.patientData && !update.patientLayout && !update.patients && !update.edges && !update.genes) {
                 resolve({
                     state: state,
                     update: update
                 });
                 return;
             }
-            console.log(options.edges.geneWeights);
 
 
             // Fetch New Stuff
@@ -430,15 +385,6 @@ var data = (function() {
                 }, !update.patientLayout ? state.patients : null, formatPatientLayout),
 
                 request({
-                    table: 'render_patient',
-                    query: {
-                        dataset: options.dataset,
-                        name: options.patients.color
-                        // type: 'colorCategory'
-                    }
-                }, !update.patientColor ? state.patientColor : null, formatPatientColor),
-
-                request({
                     table: 'render_chromosome',
                     query: {
                         name: options.genes.layout
@@ -460,8 +406,6 @@ var data = (function() {
             ];
 
             Promise.all(promises).then(function(data) {
-
-                console.dir(data);
 
                 // Reorient patient data to use PIDs as keys
                 if (update.patientData) {
@@ -485,18 +429,16 @@ var data = (function() {
                         data: {},
                         html: {}
                     });
-                    console.dir(patientInfo.html)
                     send("patients_html", patientInfo.html)
                     state.patientData = patientInfo.data;
                     state.patients = data[1];
                 }
 
                 state.patientLayout = data[2];
-                state.patientColor = data[3];
-                state.genes = data[4];
-                state.edges = data[5];
-                state.edgeGenes = data[6];
-                state.edgePatients = data[7];
+                state.genes = data[3];
+                state.edges = data[4];
+                state.edgeGenes = data[5];
+                state.edgePatients = data[6];
                 state.options = options;
                 state.degrees = (update.edges) ? clean(state) : null;
                 resolve({

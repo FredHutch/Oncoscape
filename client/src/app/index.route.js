@@ -58,10 +58,10 @@
                 authenticate: true,
                 datasource: true
             })
-            .state('pca3d', {
-                url: '/pca3d/{datasource}',
-                template: '<os-pca3d>',
-                authenticate: true,
+            .state('comparecluster', {
+                url: '/comparecluster/{datasource}',
+                template: '<os-compare-cluster>',
+                authenticate: false,
                 datasource: true
             })
             .state('markers', {
