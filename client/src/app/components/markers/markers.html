@@ -19,7 +19,7 @@
                 <div ng-repeat="item in vm.legendNodes" class="legend-bar" style="border-color:{{item.color}};position:relative;background-color:#FFF;padding:2px 10px;line-height:25px;">{{item.name}}</div>
             </div>
 
-            <div class="col-xs-12 form-item" style="padding-left:5px">
+            <div class="col-xs-12 form-item">
                 <label>Patient Options</label>
                 <div class="btn-group" role="group" style="display: block">
                     <button class="btn btn-default btn-no-focus" type="button" style="width:50%; font-weight: 300;" title="Zoom Reset"
@@ -142,7 +142,11 @@
             ng-click="vm.showPanelLayout=false"><i class="fa fa-times"></i></span>
   </div>
   <div class="panel-body">
-    <a class="markers-command hvr-sweep-to-right"
-     ng-repeat="item in vm.optPatientLayouts" ng-click="vm.optPatientLayout=item">{{item.name}}</a>
+        <div><label>Select a layout</label></div>
+        <div class="row">
+            <a class="col-sm-4 markers-command hvr-sweep-to-right"
+             ng-repeat="item in vm.optPatientLayouts" ng-click="vm.optPatientLayout=item">{{item.name}}</a>
+        </div>
+    
   </div>
 </div>

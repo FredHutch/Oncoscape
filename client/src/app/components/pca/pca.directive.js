@@ -40,7 +40,7 @@
 
             function saveSelected() {
                 var selected = d3Chart.selectAll(".pca-node-selected")[0];
-                var ids = (selected.length==0) ? [] : selected.map(function(node) { return node.__data__[2].toUpperCase(); });
+                var ids = (selected.length==0) ? [] : selected.map(function(node) { return node.__data__.id.toUpperCase(); });
                 osCohortServiceUpdate = false;
                 osCohortService.setPatientCohort(ids, "PCA");
             }
@@ -196,16 +196,16 @@
                     .y(layout.yScale)
                     .on("brushend", function() {
                         var bv = brush.extent();
-                        // d3Chart.selectAll("circle")
-                        //     .classed("pca-node-selected", function(d) {
-                        //         return (d[0] > bv[0][0] && d[0] < bv[1][0] && d[1] > bv[0][1] && d[1] < bv[1][1]);
-                        //     });
+                        d3Chart.selectAll("circle")
+                            .classed("pca-node-selected", function(d) {
+                                return (d[0] > bv[0][0] && d[0] < bv[1][0] && d[1] > bv[0][1] && d[1] < bv[1][1]);
+                            });
                         d3.select(this).transition().duration(200)
                             .call(brush.extent([
                                 [0, 0],
                                 [0, 0]
                             ]));
-                        // saveSelected();
+                        saveSelected();
                     });
 
 
@@ -273,7 +273,7 @@
                     .style("fill", function(d,i) { 
                         return d.color; 
                     } )
-                    .style("fill-opacity", .5);
+                    .style("fill-opacity", .8);
 
                 
 

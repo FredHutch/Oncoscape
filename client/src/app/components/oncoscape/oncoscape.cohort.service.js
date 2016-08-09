@@ -41,12 +41,9 @@
             return _patientColor;
 
         }
-        var setPatientColor = function(promise){
-
-            promise.then(function(v){
-                _patientColor = v.data[0];
-                onPatientColorChange.dispatch(_patientColor);
-            });
+        var setPatientColor = function(val){
+            _patientColor = val;
+            onPatientColorChange.dispatch(_patientColor);
         }
         
 
