@@ -12,6 +12,8 @@
         var onPatientsSelect = new signals.Signal();
         var onGenesSelect    = new signals.Signal();
         var onCohortsChange  = new signals.Signal();
+        var onPatientColorChange = new signals.Signal();
+
 
 
         var worker = new Worker("app/components/oncoscape/oncoscape.cohort.service.worker.js");
@@ -28,6 +30,21 @@
             allPatientCohorts = (allPatientCohorts==null) ? [] : JSON.parse(allPatientCohorts);
             onCohortsChange.dispatch(allPatientCohorts);
         });
+
+        var _patientColor = {
+            name:'xxx',
+            data: [{name: 'Patient', color: '#1396DE'}]
+        };
+        
+        
+        var getPatientColor = function(){
+            return _patientColor;
+
+        }
+        var setPatientColor = function(val){
+            _patientColor = val;
+            onPatientColorChange.dispatch(_patientColor);
+        }
         
 
         var getSurvivalData = function(cohorts, all){
@@ -89,6 +106,7 @@
             onMessage: onMessage,
             onPatientsSelect: onPatientsSelect,
             onCohortsChange: onCohortsChange,
+            onPatientColorChange: onPatientColorChange,
             getPatientCohorts: getPatientCohorts,
             getPatientCohort: getPatientCohort,
             setPatientCohort: setPatientCohort,
@@ -102,7 +120,8 @@
             addGeneCohort: addGeneCohort,
             delGeneCohort: delGeneCohort,
             getGeneMetric: getGeneMetric,
-            getSurvivalData: getSurvivalData
+            getSurvivalData: getSurvivalData,
+            setPatientColor: setPatientColor
         };
 
         return api;

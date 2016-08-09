@@ -22,14 +22,14 @@
     fill-opacity: .2;
 }
 .pca-node{
-    fill: #0095e1;
-    fill-opacity: .3;
+     stroke: #FFF;
+    stroke-width: .5;
+    fill: "#FFF"
 }
 .pca-node-selected{
 	//fill: none;
-    //stroke: #000;
-    //stroke-width: 1;
-    fill: #000;
+    stroke: #000;
+    stroke-width: .5;
 }
 .pca-tooltip{
     pointer-events : none;

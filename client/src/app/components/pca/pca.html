@@ -1,7 +1,8 @@
 <os-tray content="tray-content-block" change="vm.resize($event)">
     <section class="tray-content">
         <div class="row">
-            <br />
+            <br /><br />
+
             <div class="col-xs-12 form-item">
                 <label>Gene Set</label>
                 <div class="dropdown bs-dropdown">
@@ -14,6 +15,7 @@
                     </ul>
                 </div>
             </div>
+
             <div class="col-xs-12 form-item">
                 <label>PCA Type</label>
                 <div class="dropdown bs-dropdown">
@@ -26,20 +28,27 @@
                     </ul>
                 </div>
             </div>
-            <div class="col-xs-6 form-label">
-                <h2>Legend</h2>
-                <span class="circle" style="background-color:#0095e1;width:10px;height: 10px;margin-right:10px;"></span>
-                All Patients<br />
-                <span class="circle" style="background-color:black;width:10px;height: 10px;margin-right:10px;"></span>
-                My Cohort
+
+            <div ng-if="vm.legendCaption.length>0" class="col-xs-12 form-item">
+                <label>Patient {{vm.legendCaption}}</label>
+                <div ng-repeat="item in vm.legendNodes" class="legend-bar" style="border-color:{{item.color}};position:relative;background-color:#FFF;padding:2px 10px;line-height:25px;">{{item.name}}</div>
             </div>
-            <div class="col-xs-6 form-label">
-                <h2>Variance</h2> PC1: {{vm.pc1}}%
+
+            <div class="col-xs-12 form-item">
+                <label>Patient</label>
+                <button class="btn btn-default btn-no-focus" type="button" style="width:100%;font-weight: 300;" ng-click="vm.showPanelColor = true">Color Options</button>
+            </div>
+
+            
+           
+            <div class="col-xs-12 form-label">
+                <h3>Variance</h3> PC1: {{vm.pc1}}%
                 <br /> PC2: {{vm.pc2}}%
             </div>
         </div>
     </section>
 </os-tray>
+
 <!-- Label + Chart -->
 <section class="tray-content-block">
     <div style="position:absolute;top:10px;text-align:center;width:100%;">
@@ -48,4 +57,6 @@
         <div id="pca-chart" class="pca"></div>
     </div>
 </section>
+
+<os-color-panel ng-if="vm.showPanelColor"></os-color-panel>
 
