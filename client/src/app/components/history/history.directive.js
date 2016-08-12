@@ -38,6 +38,7 @@ b:{})}});return g};"function"===typeof define&&define.amd?define(["jquery","data
             // Properties
             var vm = this;
             var table;
+            var data;
             
 
             // Retrieve Selected Patient Ids From OS Service
@@ -58,12 +59,15 @@ b:{})}});return g};"function"===typeof define&&define.amd?define(["jquery","data
                     defaultContent: 'NA'
                 };
             });
+            columns[0].renderer = function(data, type, full, meta){
+                console.log(data);
+                return '!!'+data;
+            };
 
 
             // intialize View State
             (function(vm) {
                 vm.datasource = osApi.getDataSource();
-                
                 vm.search = "";
                 vm.detail = null;
             })(vm);
@@ -82,8 +86,7 @@ b:{})}});return g};"function"===typeof define&&define.amd?define(["jquery","data
                     columns: columns,
                     data: data,
                     "scrollY": "60vh",
-                    "scrollCollapse": true,
-                    buttons: ['copy', 'csv', 'excel', 'pdf', 'print']
+                    "scrollCollapse": true
                 });
                 table.api().draw();
             }
@@ -135,7 +138,6 @@ b:{})}});return g};"function"===typeof define&&define.amd?define(["jquery","data
                         return [value];
                     });
                     osCohortService.setPatientCohort(o, "Patient History");
-
                 };
 
                 osCohortService.onPatientsSelect.add(function(patients){
@@ -153,10 +155,49 @@ b:{})}});return g};"function"===typeof define&&define.amd?define(["jquery","data
                     $fields: fields
                 })
                 .then(function(response) {
+                    data = response.data;
                     initDataTable(vm, columns, response.data);
                     initEvents(vm, $scope, osApi)
                     osApi.setBusy(false);
                 });
+
+
+            var onPatientColorChange = function(colors){
+                vm.showPanelColor = false;
+                vm.legendCaption = colors.name;
+                vm.legendNodes = colors.data;
+
+                if(colors.name=="None"){
+                    vm.legendCaption = "";
+                    table.api().rows().every( function ( rowIdx, tableLoop, rowLoop ) {
+                        $(this.node()).children().first().attr("style","border-left-color:inherit;border-left-width:inherit;");
+                    });
+                    return;
+                }
+
+                var degMap =colors.data.reduce(function(p,c){
+                    for (var i=0; i<c.values.length; i++){
+                        p[c.values[i]] = c.color;
+                    }
+                    return p;
+                },{});
+
+                table.api().rows().every( function ( rowIdx, tableLoop, rowLoop ) {
+                    
+                    var pid = this.data().patient_ID;
+                    var color = degMap.hasOwnProperty(pid) ? degMap[pid] : "#EEE";
+                    $(this.node()).children().first().attr("style","border-left-color:"+color+";border-left-width:10px;");
+                    
+                } );
+    
+            }
+            
+            osCohortService.onPatientColorChange.add(onPatientColorChange);
+
+            // Destroy
+            $scope.$on('$destroy', function() {
+                osCohortService.onPatientColorChange.remove(onPatientColorChange);
+            });
         }
     }
 })();
