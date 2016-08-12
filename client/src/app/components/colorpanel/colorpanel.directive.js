@@ -13,7 +13,10 @@
             templateUrl: 'app/components/colorpanel/colorpanel.html',
             controller: ColorPanelController,
             controllerAs: 'vm',
-            bindToController: true
+            bindToController: true,
+            scope:{
+                close: "&"
+            }
         };
 
         return directive;
@@ -26,6 +29,7 @@
             vm.showPanelColorRna = false;
             var table;
 
+
             osApi.query('render_patient', {
                 type: 'color',
                 dataset: osApi.getDataSource().disease,
@@ -37,11 +41,34 @@
             });
 
             vm.setColor = function(item) {
+
+                if (item.name=="None"){
+                    osCohortService.setPatientColor({"dataset":osApi.getDataSource().disease,"type":"color","name":"None","data":[]})
+                    return;
+                }
+
+
                 osApi.query('render_patient', {
                     type: 'color',
                     dataset: osApi.getDataSource().disease,
                     name: item.name
                 }).then(function(v) {
+                    var data = v.data[0];
+                    data.data = data.data.map(function(v){
+                        var name = v.name.toLowerCase().trim();
+                        if (name=="" || name=="null" || name=="undefined"){
+                            v.name = "Null";
+                            v.color = "#DDDDDD";
+                        }
+                        v.id = "legend-"+v.color.substr(1);
+                        return v;
+                    }).sort(function(a,b){
+                        if (a.name=="Null") return 1;
+                        if (b.name=="Null") return -1;
+                        if(a.name < b.name) return -1;
+                        if(a.name > b.name) return 1;
+                        return 0;
+                    })
                     osCohortService.setPatientColor(v.data[0]);
                 });
             };
@@ -151,6 +178,17 @@
                             names: values
                         })
 
+                        data = data.sort(function(a,b){
+                            if(a.name < b.name) return -1;
+                            if(a.name > b.name) return 1;
+                            return 0;
+                        });
+                        data.push({
+                            color:'#DDD',
+                            name: 'Null',
+                            values: []
+                        })
+
                         var colors = {
                             dataset: osApi.getDataSource().disease,
                             type: 'color',
@@ -160,7 +198,8 @@
                             }, ""),
                             data: data
                         };
-
+                       
+                        debugger;
                         osCohortService.setPatientColor(colors);
                     }
 

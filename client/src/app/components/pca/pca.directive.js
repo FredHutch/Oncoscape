@@ -150,10 +150,13 @@
                     .domain([-layout.yMax, layout.yMax])
                     .range([layout.height-20, 20]).nice();
             }
+            var once = true;
             function setColor(){
-                Object.keys(data).map(function(key){
-                    this[key].color = "#0095e1";
-                }, data);
+                
+                    Object.keys(data).map(function(key){
+                        this[key].color = "#0095e1";
+                    }, data);
+                    
             }
             function draw() {
 
@@ -325,21 +328,25 @@
                 vm.showPanelColor = false;
                 vm.legendCaption = colors.name;
                 vm.legendNodes = colors.data;
+                if(colors.name=="None"){
+                    vm.legendCaption = "";
+                    data.forEach(function(v){  v.color = '#0096d5'; });
+                    draw();
+                    
+                }else{
+                    var degMap =colors.data.reduce(function(p,c){
+                        for (var i=0; i<c.values.length; i++){
+                            p[c.values[i]] = c.color;
+                        }
+                        return p;
+                    },{});
 
-                var degMap =colors.data.reduce(function(p,c){
-                    for (var i=0; i<c.values.length; i++){
-                        p[c.values[i]] = c.color;
-                    }
-                    return p;
-                },{});
-
-                data = data.map(function(v){ 
-                    v.color = (this[v.id]!=undefined) ? this[v.id] : "#DDD";
-                    return v;
-                },degMap);
-
+                    data = data.map(function(v){ 
+                        v.color = (this[v.id]!=undefined) ? this[v.id] : "#DDD";
+                        return v;
+                    },degMap);
+                }
                 draw();
-
             }
             
             osCohortService.onPatientColorChange.add(onPatientColorChange);
