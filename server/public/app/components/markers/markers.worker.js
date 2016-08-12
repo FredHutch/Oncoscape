@@ -20,8 +20,8 @@
                 return;
             }
 
-            var query = "http://localhost:80/api/" + object.table;
-            //var query = "/api/" + object.table;
+            //var query = "http://localhost:80/api/" + object.table;
+            var query = "/api/" + object.table;
             if (object.query) query += "/?q=" + encodeURIComponent(JSON.stringify(object.query));
             load(query, function(response) {
                 resolve(format(JSON.parse(response.responseText)));
@@ -61,18 +61,13 @@ var data = (function() {
         var range = data
             .map(function(p) {
                 return parseInt(p[Object.keys(p)[0]]);
-            })
-            .reduce(function(previousValue, currentValue) {
-                if (currentValue > previousValue.max) previousValue.max = currentValue;
-                if (currentValue < previousValue.min) previousValue.min = currentValue;
-                return previousValue;
-            }, {
-                max: -Infinity,
-                min: Infinity
             });
+
+        var min = Math.min.apply(null, range);
+        var max = Math.max.apply(null, range)
         return function(value, low, high) {
             value = parseInt(value);
-            return Math.round(((value - range.min) / (range.max - range.min)) * (high - low) + low);
+            return Math.round(((value - min) / (max - min)) * (high - low) + low);
         }
     };
 
@@ -94,12 +89,13 @@ var data = (function() {
             }, state.patients);
         //      console.log("EDGES POST CLEAN: "+state.edges.length);
 
+
         // Size Nodes :: Eliminate Duplicate Functions
         var rFn = getRangeFn(state.edgePatients);
         var patientEdgeDegrees = state.edgePatients
             .map(function(obj) {
                 var key = Object.keys(obj)[0];
-                var val = this.fn(obj[key], 400, 1000);
+                var val = this.fn(obj[key], 100, 2000);
                 return {
                     'id': key,
                     'val': val
@@ -119,7 +115,7 @@ var data = (function() {
         var geneEdgeDegrees = state.edgeGenes
             .map(function(obj) {
                 var key = Object.keys(obj)[0];
-                var val = this.fn(obj[key], 400, 1000);
+                var val = this.fn(obj[key], 50, 1500);
                 return {
                     'id': key,
                     'val': val
@@ -266,12 +262,13 @@ var data = (function() {
                     selectable: true,
                     position: this[key],
                     data: {
-                        color: "rgb(0, 255, 255)",
+                        sizeBdr: 1,
+                        colorBdr: '#FFF',
+                        color: "#0096d5",
                         id: key,
                         display: "element",
                         nodeType: "gene",
                         degree: 1,
-                        sizeBdr: 10,
                         sizeEle: 200,
                         weight: 200,
                         sizeLbl: 10,
@@ -334,6 +331,7 @@ var data = (function() {
     };
 
     var update = function(options, state) {
+
         return new Promise(function(resolve) {
 
             // What Changed?
@@ -362,7 +360,7 @@ var data = (function() {
                 request({
                     table: options.patients.data,
                     query:{
-                        $fields: ['patient_ID', 'gender', 'race', 'age_at_diagnosis', 'days_to_death', 'status_vital']
+                        $fields: ['patient_ID', 'gender', 'race', 'age_at_diagnosis', 'status_vital']
                     }
                 }, !update.patientData ? state.patientData : null, formatPatientData),
 
@@ -440,7 +438,7 @@ var data = (function() {
                 state.edgeGenes = data[5];
                 state.edgePatients = data[6];
                 state.options = options;
-                state.degrees = (update.edges) ? clean(state) : null;
+                state.degrees = (update.edges || update.genes) ? clean(state) : null;
                 resolve({
                     state: state,
                     update: update
