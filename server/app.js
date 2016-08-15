@@ -10,7 +10,7 @@ const favicon = require('serve-favicon');
 
 //mongoose.connect('mongodb://localhost/os');
 mongoose.connect(
-    'mongodb://oncoscape-dev-db1.sttrcancer.io:27017,oncoscape-dev-db2.sttrcancer.io:27017,oncoscape-dev-db3.sttrcancer.io:27017/BnB?authSource=admin', {
+    'mongodb://oncoscape-dev-db1.sttrcancer.io:27017,oncoscape-dev-db2.sttrcancer.io:27017,oncoscape-dev-db3.sttrcancer.io:27017/pancan12?authSource=admin', {
         db: {
             native_parser: true
         },
@@ -130,6 +130,6 @@ app.get('/', function(req, res) {
 });
 
 // Start Listening
-app.listen(9999, function() {
+app.listen(80, function() {
     console.log("OK");
 });

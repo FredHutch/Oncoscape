@@ -95,7 +95,7 @@ var data = (function() {
         var patientEdgeDegrees = state.edgePatients
             .map(function(obj) {
                 var key = Object.keys(obj)[0];
-                var val = this.fn(obj[key], 100, 2000);
+                var val = this.fn(obj[key], 400, 1200);
                 return {
                     'id': key,
                     'val': val
@@ -611,7 +611,7 @@ var process = function(options, run) {
 
 // Recieve Command
 self.addEventListener('message', function(msg) {
-
+    
     msg = msg.data;
     switch (msg.cmd) {
         case "setOptions":

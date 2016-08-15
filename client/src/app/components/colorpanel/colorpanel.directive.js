@@ -38,12 +38,14 @@
                 vm.optPatientColors = [{
                     name: 'None'
                 }].concat(v.data);
+
+
             });
 
             vm.setColor = function(item) {
 
                 if (item.name=="None"){
-                    osCohortService.setPatientColor({"dataset":osApi.getDataSource().disease,"type":"color","name":"None","data":[]})
+                    osCohortService.setPatientColor({"dataset":osApi.getDataSource().disease,"type":"color","name":"None","data":[], show:true})
                     return;
                 }
 
@@ -69,6 +71,8 @@
                         if(a.name > b.name) return 1;
                         return 0;
                     })
+
+                    // debugger;
                     osCohortService.setPatientColor(v.data[0]);
                 });
             };

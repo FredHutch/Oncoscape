@@ -47,8 +47,9 @@
             vm.showMenu = false;
             vm.showTools = false;
 
-
+            var currentTool;
             $rootScope.$on('$stateChangeStart', function(event, toState, toParams, fromState, fromParams){ 
+                currentTool = toState.name;
                 switch(toState.name){
                     case "landing":
                     case "tools":
@@ -63,7 +64,7 @@
             });
 
             vm.loadDataset = function(dataset) {
-                $state.go('markers', {
+                $state.go(currentTool, {
                     datasource: dataset
                 });
             };

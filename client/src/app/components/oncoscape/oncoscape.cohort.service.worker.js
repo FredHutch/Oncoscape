@@ -31,30 +31,7 @@ var patientData = [];
 var survivalData = {};
 var patientMetric = null;
 
-request({table:'brain_patient_tcga_clinical'}).then(function(response){
-	patientData = response;
-	for (var i=0; i<patientData.length; i++){
-		try{
-			var status = patientData[i].status_vital.toString().toUpperCase();
-			var censor;
-			var time;
-			if (status=="ALIVE"){
-				censor = 2;
-				time = patientData[i].days_to_last_contact;
-			}else if (status=="DEAD"){
-				censor = 1;
-				time = patientData[i].days_to_death;
-			}else{
-				alert("Corrupt Data");
-			}
-			survivalData[patientData[i].patient_ID] = [time, censor];
 
-		}catch(e){
-			
-		}
-
-	}
-});
 
 var send = function(cmd, data) {
     self.postMessage( { cmd: cmd, data: data } );
@@ -62,12 +39,59 @@ var send = function(cmd, data) {
 
 var cmd = {};
 
+cmd.setPatientDataSource =  function(table){
+	patientData = null;
+	patientMetric = null;
+	request({table:table}).then(function(response){
+		patientData = response;
+		for (var i=0; i<patientData.length; i++){
+			try{
+				var status = patientData[i].status_vital.toString().toUpperCase();
+				var censor;
+				var time;
+				if (status=="ALIVE"){
+					censor = 2;
+					time = patientData[i].days_to_last_contact;
+				}else if (status=="DEAD"){
+					censor = 1;
+					time = patientData[i].days_to_death;
+				}else{
+					alert("Corrupt Data");
+				}
+				survivalData[patientData[i].patient_ID] = [time, censor];
+
+			}catch(e){
+				
+			}
+
+		}
+});
+}
+
+cmd.filterPatients = function(data){
+	var ids;
+	if (data.type.toLowerCase()=="numeric"){
+		 ids = patientData
+			.filter(function(v){
+				if (v.patient_ID==undefined) return false;
+				if (v[this.prop]==undefined) return false;
+				if (v[this.prop]<this.bounds[0]) return false;
+				if (v[this.prop]>this.bounds[1]) return false;
+				return (this.ids.indexOf(v.patient_ID)!=-1)
+			}, data).map(function(v){
+				return v.patient_ID;
+			});
+	}
+	send('filterPatients', ids);
+}
+
 cmd.getSurvivalData = function(data){
 
-	if (patientData.length==0){
+	if (patientData==null){
 		setTimeout(function(){ cmd.getSurvivalData(data) }, 500);
 		return;
 	}
+	
 	var sort = function(a,b){
 		if (a[0] > b[0]) return 1;
 		if (a[0] < b[0]) return -1;
@@ -190,12 +214,17 @@ cmd.getSurvivalData = function(data){
 
 
 	send('getSurvivalData', sd);
-
-
 }
 
 
+
+
 cmd.getPatientMetric = function(data){
+
+	if (patientData==null){
+		setTimeout(function(){ cmd.getPatientMetric(data) }, 500);
+		return;
+	}
 	
 	function getNumericStats(patients, attribute){
 		var bin = 10;
@@ -221,15 +250,18 @@ cmd.getPatientMetric = function(data){
 	};
 
 	function getFactorStats(patients, attribute){
+
 		var props = patients.map(function(pd){ return pd[attribute]; });
 		var factors = props
 			.reduce(function(prev,curr){
 				prev[curr] = (prev.hasOwnProperty(curr)) ? prev[curr]+1 : 1;
 				return prev;
 			},{});
+
 		factors = Object.keys(factors).map(function(key){
 			return {label:key, value:this.factors[key]};
 		},{factors:factors});
+
 		var values = factors.map(function(v){ return v.value; });
 		var data = {
 			type: "factor",
@@ -265,10 +297,16 @@ cmd.getPatientMetric = function(data){
 		}
 		send('setPatientMetric', patientMetric);
 		return;
+		
 	}else{
+		
+		data = patientData.filter(function(f){
+   			if (!f.hasOwnProperty("patient_ID")) return false;
+   			return (this.indexOf(f.patient_ID)!=-1)
+			}, data);
 
-		data = patientData
-			.filter(function(pd){ return (data.indexOf(pd.patient_ID)!=-1) });
+
+		debugger;
 
 		data = {
 			total: patientData.length,
