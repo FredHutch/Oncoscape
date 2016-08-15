@@ -305,9 +305,6 @@ cmd.getPatientMetric = function(data){
    			return (this.indexOf(f.patient_ID)!=-1)
 			}, data);
 
-
-		debugger;
-
 		data = {
 			total: patientData.length,
 			selected: data.length,
