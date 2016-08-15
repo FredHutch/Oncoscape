@@ -17,7 +17,13 @@
 
 
         var worker = new Worker("app/components/oncoscape/oncoscape.cohort.service.worker.js");
-        worker.addEventListener('message', function(msg) { onMessage.dispatch(msg);}, false);
+        worker.addEventListener('message', function(msg) { 
+            if (msg.data.cmd=="filterPatients"){
+               setPatientCohort(msg.data.data, "Filter")
+            } else {
+                onMessage.dispatch(msg);
+            }
+        }, false);
 
         var allGeneCohorts = [],
             activePatientCohort,
@@ -25,7 +31,13 @@
 
         var allPatientCohorts = [];
 
-        osApi.onDataSource.add(function(x){
+        osApi.onDataSource.add(function(datasource){
+            
+            worker.postMessage({
+                cmd: "setPatientDataSource",
+                data: datasource.clinical.patient
+            });
+
             allPatientCohorts = localStorage.getItem(osApi.getDataSource().disease+"PatientCohorts");
             allPatientCohorts = (allPatientCohorts==null) ? [] : JSON.parse(allPatientCohorts);
             onCohortsChange.dispatch(allPatientCohorts);
@@ -33,19 +45,18 @@
 
         var _patientColor = {
             name:'xxx',
-            data: [{name: 'Patient', color: '#1396DE'}]
+            data: [{name: 'Patient', color: '#1396DE', show:true}]
         };
         
         
         var getPatientColor = function(){
             return _patientColor;
-
         }
+
         var setPatientColor = function(val){
             _patientColor = val;
             onPatientColorChange.dispatch(_patientColor);
         }
-        
 
         var getSurvivalData = function(cohorts, all){
             worker.postMessage({
@@ -85,6 +96,17 @@
             };
             onPatientsSelect.dispatch(activePatientCohort);
         };
+        var filterActivePatientCohort = function(bounds, prop, type){
+            worker.postMessage({
+                cmd: "filterPatients",
+                data: {
+                    ids: activePatientCohort.ids,
+                    type: type,
+                    bounds: bounds,
+                    prop: prop,
+                }
+            });
+        }
 
         var getGeneMetric = function(){};
         var getGeneCohorts = function(){ return allGeneCohorts;  };
@@ -121,7 +143,8 @@
             delGeneCohort: delGeneCohort,
             getGeneMetric: getGeneMetric,
             getSurvivalData: getSurvivalData,
-            setPatientColor: setPatientColor
+            setPatientColor: setPatientColor,
+            filterActivePatientCohort: filterActivePatientCohort
         };
 
         return api;

@@ -23,9 +23,7 @@
 
             // Retrieve Selected Patient Ids From OS Service
             var pc = osCohortService.getPatientCohort();
-            if (pc==null){
-                osCohortService.setPatientCohort([],"All Patients")
-            }
+            if (pc==null){ osCohortService.setPatientCohort([],"All Patients") }
             var selectedIds = (pc==null) ? [] : pc.ids;
 
             var osCohortServiceUpdate = true;
@@ -72,6 +70,12 @@
                 yMax: 0,
                 xAxis: 0,
                 yAxis: 0
+            };
+            var colors = {
+                data: [],
+                dataset: osApi.getDataSource().disease,
+                name: "None",
+                type: "color"
             };
 
             // View Model
@@ -123,14 +127,12 @@
                         }, {
                             data: response.data[0].data
                         });
-                        setColor();
                         draw();
                     });
             });
 
             // Drawing Functions
             function scale() {
-
 
                 var osLayout = osApi.getLayout();
 
@@ -150,16 +152,37 @@
                     .domain([-layout.yMax, layout.yMax])
                     .range([layout.height-20, 20]).nice();
             }
-            var once = true;
-            function setColor(){
+
+
+            function setColors(){
                 
-                    Object.keys(data).map(function(key){
-                        this[key].color = "#0095e1";
-                    }, data);
+                vm.legendCaption = colors.name;
+                vm.legendNodes = colors.data;
+                
+                if(colors.name=="None"){
+                    vm.legendCaption = "";
+                    data.forEach(function(v){  v.color = '#0096d5'; })                    
+                    
+                }else{
+                    var degMap =colors.data.reduce(function(p,c){
+                        for (var i=0; i<c.values.length; i++){
+                            p[c.values[i]] = c.color;
+                        }
+                        return p;
+                    },{});
+
+                    data = data.map(function(v){ 
+                        v.color = (this[v.id]!=undefined) ? this[v.id] : "#DDD";
+                        return v;
+                    },degMap);
+                }
+                
+
                     
             }
-            function draw() {
 
+            function draw() {
+                setColors();
                 var vals = Object.keys(data).map(function(key) {
                     return data[key]
                 }, {
@@ -297,6 +320,7 @@
                     .text("PC2");
 
                 setSelected();
+                
             }
 
             vm.resize = function() {
@@ -324,28 +348,9 @@
             );
 
 
-            var onPatientColorChange = function(colors){
+            var onPatientColorChange = function(value){
+                colors = value;
                 vm.showPanelColor = false;
-                vm.legendCaption = colors.name;
-                vm.legendNodes = colors.data;
-                if(colors.name=="None"){
-                    vm.legendCaption = "";
-                    data.forEach(function(v){  v.color = '#0096d5'; });
-                    draw();
-                    
-                }else{
-                    var degMap =colors.data.reduce(function(p,c){
-                        for (var i=0; i<c.values.length; i++){
-                            p[c.values[i]] = c.color;
-                        }
-                        return p;
-                    },{});
-
-                    data = data.map(function(v){ 
-                        v.color = (this[v.id]!=undefined) ? this[v.id] : "#DDD";
-                        return v;
-                    },degMap);
-                }
                 draw();
             }
             

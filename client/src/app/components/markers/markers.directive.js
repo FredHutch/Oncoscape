@@ -168,6 +168,7 @@
                     hideEdgesOnViewport: false,
                     hideLabelsOnViewport: true,
                     textureOnViewport: false,
+                    wheelSensitivity: .5,
                     //motionBlur: true,
                     //motionBlurOpacity: 0.2,
                     zoom: 0.08,
@@ -175,8 +176,8 @@
                         x: 650,
                         y: 160
                     },
-                    //minZoom: .0005,
-                    //maxZoom: 1,
+                    minZoom: .05,
+                    maxZoom: 20,
                     layout: {
                         name: "preset",
                         fit: true
@@ -454,7 +455,9 @@
                 ]).then(function(results) {
 
                     vm.optGeneSets = results[0].data;
-                    vm.optGeneSet = vm.optGeneSets[0];
+
+    
+                    vm.optGeneSet = vm.optGeneSets.filter(function(v){ return v.name == "TCGA pancan mutated"; })[0]
                     vm.optPatientLayouts = results[1].data;
                     vm.optPatientLayout = vm.optPatientLayouts[0]
                 });
@@ -520,8 +523,6 @@
                     var sizeNode = nodeScale(zoom);
                     var sizeLbl  = (zoom<.375) ? 0 : labelScale(zoom);
                     var sizeBdr  = borderScale(zoom);
-                        
-                    
 
                     cyChart.$('node[nodeType="patient"],node[nodeType="gene"]').forEach(function(node) {
                         node.data({
@@ -749,7 +750,7 @@
                         cmd: cmd,
                         dataset: osApi.getDataSource().disease,
                         patients: {
-                            data: vm.datasource.collections.patient,
+                            data: vm.datasource.clinical.patient,
                             layout: vm.optPatientLayout.name,
                             selected: cyChart.$('node[nodeType="patient"]:selected').map(function(p) {
                                 return p.data().id

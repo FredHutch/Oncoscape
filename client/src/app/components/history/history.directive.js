@@ -151,7 +151,7 @@ b:{})}});return g};"function"===typeof define&&define.amd?define(["jquery","data
 
             // Load Datasets
             osApi.setBusy(true);
-            osApi.query(vm.datasource.collections.patient, {
+            osApi.query(vm.datasource.clinical.patient, {
                     $fields: fields
                 })
                 .then(function(response) {

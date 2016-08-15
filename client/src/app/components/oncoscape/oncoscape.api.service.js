@@ -39,17 +39,17 @@
             }else if (angular.isString(value)){
                 if (_dataSource.disease!=value){
                     if (_dataSource != value){
-                        _dataSource = _dataSources.filter(function(v){ v.disease==disease}, {key:value})[0]
+                        _dataSource = _dataSources.filter(function(v){ return v.disease==this.key}, {key:value})[0]
                         onDataSource.dispatch(_dataSource);
                     } 
-                    
                 }
             }
         }
 
         query("lookup_oncoscape_datasources",{beta:false}).then(function(response){ 
-            _dataSources = response.data; 
-                            
+            _dataSources = response.data.sort(function(a,b){
+                return (b.name < a.name);
+            });
         });
         
         /*** User Api ***/

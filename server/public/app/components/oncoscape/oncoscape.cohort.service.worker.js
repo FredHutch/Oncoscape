@@ -31,30 +31,7 @@ var patientData = [];
 var survivalData = {};
 var patientMetric = null;
 
-request({table:'brain_patient_tcga_clinical'}).then(function(response){
-    patientData = response;
-    for (var i=0; i<patientData.length; i++){
-        try{
-            var status = patientData[i].status_vital.toString().toUpperCase();
-            var censor;
-            var time;
-            if (status=="ALIVE"){
-                censor = 2;
-                time = patientData[i].days_to_last_contact;
-            }else if (status=="DEAD"){
-                censor = 1;
-                time = patientData[i].days_to_death;
-            }else{
-                alert("Corrupt Data");
-            }
-            survivalData[patientData[i].patient_ID] = [time, censor];
 
-        }catch(e){
-            
-        }
-
-    }
-});
 
 var send = function(cmd, data) {
     self.postMessage( { cmd: cmd, data: data } );
@@ -62,78 +39,125 @@ var send = function(cmd, data) {
 
 var cmd = {};
 
+cmd.setPatientDataSource =  function(table){
+	patientData = null;
+	patientMetric = null;
+	request({table:table}).then(function(response){
+		patientData = response;
+		for (var i=0; i<patientData.length; i++){
+			try{
+				var status = patientData[i].status_vital.toString().toUpperCase();
+				var censor;
+				var time;
+				if (status=="ALIVE"){
+					censor = 2;
+					time = patientData[i].days_to_last_contact;
+				}else if (status=="DEAD"){
+					censor = 1;
+					time = patientData[i].days_to_death;
+				}else{
+					alert("Corrupt Data");
+				}
+				survivalData[patientData[i].patient_ID] = [time, censor];
+
+			}catch(e){
+				
+			}
+
+		}
+});
+}
+
+cmd.filterPatients = function(data){
+	var ids;
+	if (data.type.toLowerCase()=="numeric"){
+		 ids = patientData
+			.filter(function(v){
+				if (v.patient_ID==undefined) return false;
+				if (v[this.prop]==undefined) return false;
+				if (v[this.prop]<this.bounds[0]) return false;
+				if (v[this.prop]>this.bounds[1]) return false;
+				return (this.ids.indexOf(v.patient_ID)!=-1)
+			}, data).map(function(v){
+				return v.patient_ID;
+			});
+	}
+	send('filterPatients', ids);
+}
+
 cmd.getSurvivalData = function(data){
 
-    if (patientData.length==0){
-        setTimeout(function(){ cmd.getSurvivalData(data) }, 500);
-        return;
-    }
-    var sort = function(a,b){
-        if (a[0] > b[0]) return 1;
-        if (a[0] < b[0]) return -1;
-        if (a[1] > b[1]) return 1;
-        if (a[1] < b[1]) return -1;
-        return 0;
-    };
-    if (data.all){
-        data.cohorts.unshift(
-            {
-                color:'#000000',
-                id: "allcohorts",
-                ids: patientData.map(function(f){ return f.patient_ID}),
-                name: 'All',
-                time: new Date()
-            }
-        )
-    }
+	if (patientData==null){
+		setTimeout(function(){ cmd.getSurvivalData(data) }, 500);
+		return;
+	}
+	
+	var sort = function(a,b){
+		if (a[0] > b[0]) return 1;
+		if (a[0] < b[0]) return -1;
+		if (a[1] > b[1]) return 1;
+		if (a[1] < b[1]) return -1;
+		return 0;
+	};
+	if (data.all){
+		data.cohorts.unshift(
+			{
+				color:'#000000',
+				id: "allcohorts",
+				ids: patientData.map(function(f){ return f.patient_ID}),
+				name: 'All',
+				time: new Date()
+			}
+		)
+	}
 
-    var sd = {
-        min: 0,
-        max: 0,
-        cohorts: data.cohorts.map(function(datum){
+	var sd = {
+		min: 0,
+		max: 0,
+		cohorts: data.cohorts.map(function(datum){
 
-            // Get Data From Patient Data Collection
-            var output = {
-                id: datum.id,
-                name: datum.name,
-                alive: 0,
-                min: 0,
-                max: 0,
-                color: datum.color,
-                data: datum.ids
-                    .map(function(id){ 
+			// Get Data From Patient Data Collection
+			var output = {
+				id: datum.id,
+				name: datum.name,
+				alive: 0,
+				min: 0,
+				max: 0,
+				color: datum.color,
+				data: datum.ids
+					.map(function(id){ 
 
-                        if (this.sd.hasOwnProperty(id)){
-                            var tmp = this.sd[id];
-                            return [tmp[0],tmp[1]]
-                        } else{
-                            console.log("BAD DATA");
-                            return [-1,-1];
-                        }
-                        
-                        }, {sd:survivalData})
-                    .filter(function(data){
+						if (this.sd.hasOwnProperty(id)){
+							var tmp = this.sd[id];
+							return [tmp[0],tmp[1]]
+						} else{
+							console.log("BAD DATA");
+							return [-1,-1];
+						}
+						
+						}, {sd:survivalData})
+					.filter(function(data){
 
-                        // Clean Bad Data
-                        if ( (data[0]<0) || (isNaN(data[0])) )
-                            {
-                                console.log("DATA MISSING");
-                                return false;
-                            }
-                        return true;
-                    })
-                    .sort(this.sort)
-            };
+						// Clean Bad Data
+						if ( (data[0]<0) || (isNaN(data[0])) )
+							{
+								console.log("DATA MISSING");
+								return false;
+							}
+						return true;
+					})
+					.sort(this.sort)
+			};
 
 
-            // Add 0,0 Point To Line - This is if a censored patient occurs before death
-            output.data.unshift([0,1]);
-            
-            output.max = output.data.reduce(function(p,c){
-                return Math.max(p, c[0]);
-            }, -Infinity);
+			// Add 0,0 Point To Line - This is if a censored patient occurs before death
+			output.data.unshift([0,1]);
+			
+			output.max = output.data.reduce(function(p,c){
+				return Math.max(p, c[0]);
+			}, -Infinity);
 
-            // Determine Percentage Marks For All Patients
+			// Determine Percentage Marks For All Patients
             output.data.forEach(function(v){
                 if (v[1]==1) {
                     this.percent -= (this.percent/this.remainingPopulation);
@@ -169,7 +193,7 @@ cmd.getSurvivalData = function(data){
             
             // Add Points If Zero To One Death
             for (var i=points.line.length; i<2; i++){
-                points.line.push([0,1,0]);
+            	points.line.push([0,1,0]);
             }
 
             // Adjust Last Line X Point To Be Max For Collection
@@ -177,115 +201,126 @@ cmd.getSurvivalData = function(data){
 
             output.data = points;
 
-            // Adjust Dat To Include Positioning
-            return output;
+			// Adjust Dat To Include Positioning
+			return output;
 
-        },{sort:sort})
-    };
+		},{sort:sort})
+	};
 
-    sd.max = sd.cohorts.reduce(function(p,c){
-        return Math.max(p, c.max)
+	sd.max = sd.cohorts.reduce(function(p,c){
+		return Math.max(p, c.max)
 
-    },-Infinity);
-
-
-    send('getSurvivalData', sd);
+	},-Infinity);
 
 
+	send('getSurvivalData', sd);
 }
 
 
+
+
 cmd.getPatientMetric = function(data){
-    
-    function getNumericStats(patients, attribute){
-        var bin = 10;
-        var props = patients.map(function(pd){ return pd[attribute]; });
-        var data = {
-            type: "numeric",
-            min: jStat.min(props),
-            max: jStat.max(props),
-            range: jStat.range(props),
-            sd:  jStat.stdev(props),
-            hist: jStat.histogram(props, 10),
-            histRange: [],
-            bins: bin
-        };
-        data.histRange = [jStat.min(data.hist), jStat.max(data.hist)];
-        bin = Math.round(data.range / bin);
-        data.hist = data.hist.map(function(pt){
-            var rv = {label: this.start+"-"+(this.start+this.bin), value: pt};
-            this.start += this.bin;
-            return rv;
-        },{bin:bin, start:data.min})
-        return data;
-    };
 
-    function getFactorStats(patients, attribute){
-        var props = patients.map(function(pd){ return pd[attribute]; });
-        var factors = props
-            .reduce(function(prev,curr){
-                prev[curr] = (prev.hasOwnProperty(curr)) ? prev[curr]+1 : 1;
-                return prev;
-            },{});
-        factors = Object.keys(factors).map(function(key){
-            return {label:key, value:this.factors[key]};
-        },{factors:factors});
-        var values = factors.map(function(v){ return v.value; });
-        var data = {
-            type: "factor",
-            min: jStat.min(values),
-            max: jStat.max(values),
-            range: jStat.range(values),
-            ds: jStat.stdev(values),
-            hist: factors,
-            histRange: [],
-            bins: factors.length
-        }
-        data.histRange = [data.min, data.max];
-        return data;
-    }
+	if (patientData==null){
+		setTimeout(function(){ cmd.getPatientMetric(data) }, 500);
+		return;
+	}
+	
+	function getNumericStats(patients, attribute){
+		var bin = 10;
+		var props = patients.map(function(pd){ return pd[attribute]; });
+		var data = {
+			type: "numeric",
+			min: jStat.min(props),
+			max: jStat.max(props),
+			range: jStat.range(props),
+			sd:  jStat.stdev(props),
+			hist: jStat.histogram(props, 10),
+			histRange: [],
+			bins: bin
+		};
+		data.histRange = [jStat.min(data.hist), jStat.max(data.hist)];
+		bin = Math.round(data.range / bin);
+		data.hist = data.hist.map(function(pt){
+			var rv = {label: this.start+"-"+(this.start+this.bin), value: pt};
+			this.start += this.bin;
+			return rv;
+		},{bin:bin, start:data.min})
+		return data;
+	};
 
-    // If All Patients Run + Cache
-    if (data.length==0){
-        if (!patientMetric){
-            data = patientData;
-            patientMetric = {
-                total: patientData.length,
-                selected: data.length,
-                features: [
-                    {label: "Age At Diagnosis", data:getNumericStats(data,"age_at_diagnosis"), prop:"age_at_diagnosis", type:"numeric"},
-                    //{label: "Death", data:getNumericStats(data,"days_to_death"), prop:"days_to_death" , type:"numeric"},
-                    {label: "Gender", data:getFactorStats(data,"gender"), prop:"gender", type:"factor"},
-                    {label: "Race", data:getFactorStats(data,"race"), prop:"race", type:"factor"},
-                    {label: "Ethnicity", data: getFactorStats(data, "ethnicity"), prop:"ethnicity", type:"factor"},
-                    {label: "Vital", data: getFactorStats(data, "status_vital"), prop:"status_vital", type:"factor"},
-                    {label: "Tumor", data: getFactorStats(data, "status_tumor"), prop:"Status_tumor", type:"factor"}
-                    ]
-                };
-        }
-        send('setPatientMetric', patientMetric);
-        return;
-    }else{
+	function getFactorStats(patients, attribute){
 
-        data = patientData
-            .filter(function(pd){ return (data.indexOf(pd.patient_ID)!=-1) });
+		var props = patients.map(function(pd){ return pd[attribute]; });
+		var factors = props
+			.reduce(function(prev,curr){
+				prev[curr] = (prev.hasOwnProperty(curr)) ? prev[curr]+1 : 1;
+				return prev;
+			},{});
 
-        data = {
-            total: patientData.length,
-            selected: data.length,
-            features: [
-                {label: "Age At Diagnosis", data:getNumericStats(data,"age_at_diagnosis"), prop:"age_at_diagnosis", type:"numeric"},
-                //{label: "Death", data:getNumericStats(data,"days_to_death"), prop:"days_to_death" , type:"numeric"},
-                {label: "Gender", data:getFactorStats(data,"gender"), prop:"gender", type:"factor"},
-                {label: "Race", data:getFactorStats(data,"race"), prop:"race", type:"factor"},
-                {label: "Ethnicity", data: getFactorStats(data, "ethnicity"), prop:"ethnicity", type:"factor"},
-                {label: "Vital", data: getFactorStats(data, "status_vital"), prop:"status_vital", type:"factor"},
-                {label: "Tumor", data: getFactorStats(data, "status_tumor"), prop:"Status_tumor", type:"factor"}
-            ]
-        };
-    
-        send('setPatientMetric', data);
-    }
+		factors = Object.keys(factors).map(function(key){
+			return {label:key, value:this.factors[key]};
+		},{factors:factors});
+
+		var values = factors.map(function(v){ return v.value; });
+		var data = {
+			type: "factor",
+			min: jStat.min(values),
+			max: jStat.max(values),
+			range: jStat.range(values),
+			ds: jStat.stdev(values),
+			hist: factors,
+			histRange: [],
+			bins: factors.length
+		}
+		data.histRange = [data.min, data.max];
+		return data;
+	}
+
+	// If All Patients Run + Cache
+	if (data.length==0){
+		if (!patientMetric){
+			data = patientData;
+			patientMetric = {
+				total: patientData.length,
+				selected: data.length,
+				features: [
+					{label: "Age At Diagnosis", data:getNumericStats(data,"age_at_diagnosis"), prop:"age_at_diagnosis", type:"numeric"},
+					//{label: "Death", data:getNumericStats(data,"days_to_death"), prop:"days_to_death" , type:"numeric"},
+					{label: "Gender", data:getFactorStats(data,"gender"), prop:"gender", type:"factor"},
+					{label: "Race", data:getFactorStats(data,"race"), prop:"race", type:"factor"},
+					{label: "Ethnicity", data: getFactorStats(data, "ethnicity"), prop:"ethnicity", type:"factor"},
+					{label: "Vital", data: getFactorStats(data, "status_vital"), prop:"status_vital", type:"factor"},
+					{label: "Tumor", data: getFactorStats(data, "status_tumor"), prop:"Status_tumor", type:"factor"}
+					]
+				};
+		}
+		send('setPatientMetric', patientMetric);
+		return;
+		
+	}else{
+		
+		data = patientData.filter(function(f){
+   			if (!f.hasOwnProperty("patient_ID")) return false;
+   			return (this.indexOf(f.patient_ID)!=-1)
+			}, data);
+
+		data = {
+			total: patientData.length,
+			selected: data.length,
+			features: [
+				{label: "Age At Diagnosis", data:getNumericStats(data,"age_at_diagnosis"), prop:"age_at_diagnosis", type:"numeric"},
+				//{label: "Death", data:getNumericStats(data,"days_to_death"), prop:"days_to_death" , type:"numeric"},
+				{label: "Gender", data:getFactorStats(data,"gender"), prop:"gender", type:"factor"},
+				{label: "Race", data:getFactorStats(data,"race"), prop:"race", type:"factor"},
+				{label: "Ethnicity", data: getFactorStats(data, "ethnicity"), prop:"ethnicity", type:"factor"},
+				{label: "Vital", data: getFactorStats(data, "status_vital"), prop:"status_vital", type:"factor"},
+				{label: "Tumor", data: getFactorStats(data, "status_tumor"), prop:"Status_tumor", type:"factor"}
+			]
+		};
+	
+		send('setPatientMetric', data);
+	}
 };
 
 self.addEventListener('message', function(msg) {
