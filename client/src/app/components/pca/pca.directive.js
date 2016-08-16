@@ -86,18 +86,21 @@
                 vm.search = "";
                 osApi.query("render_pca", {
                         disease: vm.datasource.disease,
-                        $fields: ['type','geneset']
+                        $fields: ['type','geneset','source']
                     })
                     .then(function(response) {
                         var mr = response.data.reduce( function (p, c) {
                             if (!p.hasOwnProperty(c.geneset)) p[c.geneset] = [];
-                            p[c.geneset].push({name:c.type});
+                            p[c.geneset].push({name:c.type, source:c.source, label:(c.type+"-"+c.source).toUpperCase().replace(/-/gi," - ")});
                             return p;
                         }, {});
                         vm.geneSets = Object.keys(mr).reduce(function(p,c){
-                          p.rv.push( {name:c, types:p.values[c]});
+                          p.rv.push( {name:c, types:p.values[c], label:c.toUpperCase()});
                           return p;
-                        }, {rv:[], values:mr}).rv;
+                        }, {rv:[], values:mr}).rv.sort(function(a,b){
+                            return a.label > b.label;
+                        });
+
                         vm.geneSet = vm.geneSets[0];
                     });
                 return vm;
@@ -105,7 +108,11 @@
             })(this, osApi)
             $scope.$watch('vm.geneSet', function(geneset) {
                 try{
-                    vm.pcaTypes = vm.geneSet.types;
+                    // Sort PCA Types Alphabetically Then By Source R-Alpha (to put ucsc first)
+                    vm.pcaTypes = vm.geneSet.types.sort(function(a,b){
+                        if (a.name!=b.name) return a.name > b.name;
+                        else return a.source < b.source;
+                    });
                     vm.pcaType  = vm.pcaTypes[0];
                 }catch(e){}
             });
@@ -115,7 +122,8 @@
                 osApi.query("render_pca", {
                         disease: vm.datasource.disease,
                         geneset: vm.geneSet.name,
-                        type: vm.pcaType.name
+                        type: vm.pcaType.name,
+                        source: vm.pcaType.source
                     })
                     .then(function(response) {
                         vm.pc1 = response.data[0].pc1;

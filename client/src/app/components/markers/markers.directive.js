@@ -455,8 +455,6 @@
                 ]).then(function(results) {
 
                     vm.optGeneSets = results[0].data;
-
-    
                     vm.optGeneSet = vm.optGeneSets.filter(function(v){ return v.name == "TCGA pancan mutated"; })[0]
                     vm.optPatientLayouts = results[1].data;
                     vm.optPatientLayout = vm.optPatientLayouts[0]

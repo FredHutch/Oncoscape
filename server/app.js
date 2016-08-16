@@ -130,6 +130,9 @@ app.get('/', function(req, res) {
 });
 
 // Start Listening
-app.listen(9999, function() {
-    console.log("OK");
+app.listen(9999, function(){
+    console.log("GO");
 });
+// app.listen(process.env.PORT || 8080, function() {
+//   console.log('Listening on port ' + (process.env.PORT || 8080));
+// });
