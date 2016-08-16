@@ -42,8 +42,8 @@
 
                 isLocked = !isLocked;
                 elIcon
-                    .addClass(isLocked ? 'fa-lock' : 'fa-unlock-alt')
-                    .removeClass(isLocked ? 'fa-unlock-alt' : 'fa-lock');
+                    .addClass(isLocked ? 'glyphicon-menu-hamburger' : 'glyphicon-remove')
+                    .removeClass(isLocked ? 'glyphicon-remove' : 'glyphicon-menu-hamburger');
 
                 elTray.attr("locked", isLocked ? "true" : "false");
 

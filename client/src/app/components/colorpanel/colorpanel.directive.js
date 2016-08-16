@@ -29,8 +29,9 @@
             vm.showPanelColorRna = false;
             var table;
 
+            var tbl = osApi.getDataSource().category.filter(function(v){ return v.type=='color'; })[0].collection;
 
-            osApi.query('render_patient', {
+            osApi.query(tbl, {
                 type: 'color',
                 dataset: osApi.getDataSource().disease,
                 $fields: ['name']
@@ -50,7 +51,7 @@
                 }
 
 
-                osApi.query('render_patient', {
+                osApi.query(tbl, {
                     type: 'color',
                     dataset: osApi.getDataSource().disease,
                     name: item.name
@@ -74,6 +75,7 @@
 
                     // debugger;
                     osCohortService.setPatientColor(v.data[0]);
+                    vm.close();
                 });
             };
 
@@ -202,8 +204,6 @@
                             }, ""),
                             data: data
                         };
-                       
-                        debugger;
                         osCohortService.setPatientColor(colors);
                     }
 
