@@ -4,7 +4,7 @@ FROM ubuntu:14.04
 # Add the package verification key
 RUN apt-key adv --keyserver keyserver.ubuntu.com --recv-keys 51716619E084DAB9
 
-ENV DEBIAN_FRONTEND noninteractive
+ARG DEBIAN_FRONTEND=noninteractive
 
 # Update the system and install packages
 RUN apt-get -y -qq update && apt-get -y -qq install \
