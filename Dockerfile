@@ -17,12 +17,20 @@ RUN apt-get -y -qq update && apt-get -y -qq install \
 	python-pip \
 	curl \
 	nano \
+	#nginx \
 	supervisor
 
 # Install Varnish 4.0
 RUN curl https://repo.varnish-cache.org/GPG-key.txt | apt-key add -
-RUN echo "deb https://repo.varnish-cache.org/ubuntu/ trusty varnish-4.1" \ >> /etc/apt/sources.list.d/varnish-cache.list
+RUN echo "deb https://repo.varnish-cache.org/ubuntu/ trusty varnish-4.1" \ >> /etc/apt/sources.list.d/#varnish-cache.list
 RUN apt-get -y -qq update && apt-get -y -qq install varnish
+
+
+#ADD server/nginx.conf /etc/nginx/
+
+#RUN mkdir /data
+#RUN mkdir /data/nginx
+#RUN mkdir /data/nginx/cache
 
 # Install Node 6.x
 RUN curl -sL https://deb.nodesource.com/setup_6.x | bash -
