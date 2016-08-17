@@ -86,7 +86,7 @@
                         gene: v.substr(1)
                     };
                 });
-                osApi.query("brain_rna", {
+                osApi.query(osApi.getDataSource().rna, {
                     gene: {
                         '$in': genes.map(function(v) {
                             return v.gene;
