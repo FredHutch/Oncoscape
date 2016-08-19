@@ -56,8 +56,14 @@ app.get('/ping', function(req, res){
   res.send('pong');
 });
 
-// Mongoose Gateway Route
-app.get('/api/:collection*', function(req, res, next) {
+app.get('/api/time', function(req, res, next){
+    res.send(new Date());
+    res.end();
+});
+
+
+
+var processQuery = function(req, res, next, query){
 
     mongoose.connection.db.collection(req.params.collection, function(err, collection) {
         if (err) {
@@ -66,14 +72,14 @@ app.get('/api/:collection*', function(req, res, next) {
             return;
         }
 
-        // Process Query
-        var query = (req.query.q) ? JSON.parse(req.query.q) : {};
-
-        // Todo: Process Limit
+        var limit = null
         if (query.$limit) {
+            limit = query.$limit;
             delete query.$limit;
         }
+        var skip = null;
         if (query.$skip) {
+            skip = query.$skip;
             delete query.$skip;
         }
 
@@ -88,18 +94,36 @@ app.get('/api/:collection*', function(req, res, next) {
             delete query.$fields;
         }
 
-        collection.find(query, fields).toArray(function(err, results) {
+        var find = collection.find(query, fields);
+        if (limit)  find = find.limit(limit);
+        if (skip)   find = find.skip(skip);
+        find.toArray(function(err, results) {
             res.send(results);
             res.end();
         });
     });
+};
+
+// Mongoose Gateway Route
+app.get('/api/:collection/:query', function(req, res, next){
+    var query = (req.params.query) ? JSON.parse(req.params.query) : {};
+    processQuery(req, res, next, query);
 });
+app.get('/api/:collection*', function(req, res, next) {
+    var query = (req.query.q) ? JSON.parse(req.query.q) : {};
+    processQuery(req, res, next, query);
+});
+
+
+
+
+
 
 // Login + Logout
 app.get('/logout', function(req, res) {
     res.sendFile(__dirname + '/public/index.html');
 });
-app.post('/login', function(req, res) {
+app.post('/api/login', function(req, res) {
     var username = req.body.username;
     var password = req.body.password;
     var domain = req.body.domain;

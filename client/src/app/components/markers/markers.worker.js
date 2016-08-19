@@ -19,10 +19,8 @@
                 resolve(data);
                 return;
             }
-
             var query = "http://localhost:80/api/" + object.table;
-            //var query = "/api/" + object.table;
-            if (object.query) query += "/?q=" + encodeURIComponent(JSON.stringify(object.query));
+            if (object.query) query += "/" + encodeURIComponent(JSON.stringify(object.query));
             load(query, function(response) {
                 resolve(format(JSON.parse(response.responseText)));
             });
@@ -42,7 +40,6 @@ var state = {
         genes: {
             layout: ""
         }
-
     },
     patientData: [],
     genes: [],
@@ -52,7 +49,6 @@ var state = {
     edgeGenes: [],
     degrees: null
 };
-
 
 // Load Data
 var data = (function() {

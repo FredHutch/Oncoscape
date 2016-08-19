@@ -20,7 +20,7 @@ var request = function(object, data, format) {
     return new Promise(function(resolve, reject) {
         var query = "http://localhost:80/api/" + object.table;
         //var query = "/api/" + object.table;
-        if (object.query) query += "/?q=" + encodeURIComponent(JSON.stringify(object.query));
+        if (object.query) query += "/" + encodeURIComponent(JSON.stringify(object.query));
         load(query, function(response) {
             resolve(JSON.parse(response.responseText));
         });
