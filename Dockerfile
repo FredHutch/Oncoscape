@@ -39,6 +39,9 @@ RUN useradd -u 7534 -m -d /home/sttrweb -c "sttr web application" sttrweb && \
 WORKDIR /home/sttrweb/Oncoscape/server
 ADD server /home/sttrweb/Oncoscape/server
 
+WORKDIR /home/sttrweb/Oncoscape/client
+ADD client-build /home/sttrweb/Oncoscape/client
+
 # Run NPM Install
 RUN npm install
 
