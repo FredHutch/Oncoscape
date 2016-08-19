@@ -4,7 +4,6 @@ const compression = require('compression');
 const bodyParser = require('body-parser');
 const auth = require('./auth-module.js');
 const uuid = require('node-uuid');
-const favicon = require('serve-favicon');
 
 //mongoose.connect('mongodb://localhost/os');
 mongoose.connect(
@@ -51,13 +50,13 @@ app.use(function(req, res, next) { // Diable Cors
     next();
 });
 
-
-app.get('/ping', function(req, res){
-  res.send('pong');
+app.get('/api/time', function(req, res, next){
+    res.send(new Date());
+    res.end();
 });
 
-// Mongoose Gateway Route
-app.get('/api/:collection*', function(req, res, next) {
+
+var processQuery = function(req, res, next, query){
 
     mongoose.connection.db.collection(req.params.collection, function(err, collection) {
         if (err) {
@@ -66,14 +65,14 @@ app.get('/api/:collection*', function(req, res, next) {
             return;
         }
 
-        // Process Query
-        var query = (req.query.q) ? JSON.parse(req.query.q) : {};
-
-        // Todo: Process Limit
+        var limit = null
         if (query.$limit) {
+            limit = query.$limit;
             delete query.$limit;
         }
+        var skip = null;
         if (query.$skip) {
+            skip = query.$skip;
             delete query.$skip;
         }
 
@@ -88,22 +87,29 @@ app.get('/api/:collection*', function(req, res, next) {
             delete query.$fields;
         }
 
-        collection.find(query, fields).toArray(function(err, results) {
+        var find = collection.find(query, fields);
+        if (limit)  find = find.limit(limit);
+        if (skip)   find = find.skip(skip);
+        find.toArray(function(err, results) {
             res.send(results);
             res.end();
         });
     });
-});
+};
 
-// Login + Logout
-app.get('/logout', function(req, res) {
-    res.sendFile(__dirname + '/public/index.html');
+// Mongoose Gateway Route
+app.get('/api/:collection/:query', function(req, res, next){
+    var query = (req.params.query) ? JSON.parse(req.params.query) : {};
+    processQuery(req, res, next, query);
 });
-app.post('/login', function(req, res) {
+app.get('/api/:collection*', function(req, res, next) {
+    var query = (req.query.q) ? JSON.parse(req.query.q) : {};
+    processQuery(req, res, next, query);
+});
+app.post('/api/login', function(req, res) {
     var username = req.body.username;
     var password = req.body.password;
     var domain = req.body.domain;
-
     auth.login(username, password, domain, function(isValid) {
         if (isValid) {
             res.json({
@@ -118,19 +124,7 @@ app.post('/login', function(req, res) {
     });
 });
 
-// Static Assets 
-app.use(favicon('public/favicon.ico'));
-app.use(express.static('public'));
-
-// Default Page
-app.get('/', function(req, res) {
-    res.sendFile(__dirname + '/public/index.html');
-});
-
 // Start Listening
 app.listen(9999, function(){
     console.log("GO");
 });
-// app.listen(process.env.PORT || 8080, function() {
-//   console.log('Listening on port ' + (process.env.PORT || 8080));
-// });

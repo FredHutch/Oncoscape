@@ -4,8 +4,6 @@ FROM ubuntu:14.04
 # Add the package verification key
 RUN apt-key adv --keyserver keyserver.ubuntu.com --recv-keys 51716619E084DAB9
 
-
-
 # Update the system and install packages
 RUN apt-get -y -qq update && apt-get -y -qq install \
 	apt-transport-https \
@@ -17,12 +15,16 @@ RUN apt-get -y -qq update && apt-get -y -qq install \
 	python-pip \
 	curl \
 	nano \
+	nginx \
 	supervisor
 
-# Install Varnish 4.0
-RUN curl https://repo.varnish-cache.org/GPG-key.txt | apt-key add -
-RUN echo "deb https://repo.varnish-cache.org/ubuntu/ trusty varnish-4.1" \ >> /etc/apt/sources.list.d/varnish-cache.list
-RUN apt-get -y -qq update && apt-get -y -qq install varnish
+# Add NGinx Config + Cache Folder
+ADD  /nginx.conf /etc/nginx/
+RUN mkdir /data /data/nginx /data/nginx/cache
+
+# Add Supervisord Config
+Run mkdir /etc/supervisord
+ADD  /supervisord.conf /etc/supervisord/
 
 # Install Node 6.x
 RUN curl -sL https://deb.nodesource.com/setup_6.x | bash -
@@ -42,7 +44,12 @@ ADD server /home/sttrweb/Oncoscape/server
 # Run NPM Install
 RUN npm install
 
+WORKDIR /home/sttrweb/Oncoscape/client
+ADD client-build /home/sttrweb/Oncoscape/client
+
+WORKDIR /home/sttrweb/Oncoscape
+
 # Extenal Port
 EXPOSE 80
 
-CMD ["/usr/bin/supervisord", "-n", "-c", "/home/sttrweb/Oncoscape/server/supervisord.conf"]
+CMD ["/usr/bin/supervisord", "-n", "-c", "/etc/supervisord/supervisord.conf"]
