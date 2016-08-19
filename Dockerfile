@@ -19,10 +19,12 @@ RUN apt-get -y -qq update && apt-get -y -qq install \
 	supervisor
 
 # Add NGinx Config + Cache Folder
-ADD server/nginx.conf /etc/nginx/
-RUN mkdir /data
-RUN mkdir /data/nginx
-RUN mkdir /data/nginx/cache
+ADD  /nginx.conf /etc/nginx/
+RUN mkdir /data /data/nginx /data/nginx/cache
+
+# Add Supervisord Config
+Run mkdir /etc/supervisord
+ADD  /supervisord.conf /etc/supervisord/
 
 # Install Node 6.x
 RUN curl -sL https://deb.nodesource.com/setup_6.x | bash -
@@ -39,13 +41,15 @@ RUN useradd -u 7534 -m -d /home/sttrweb -c "sttr web application" sttrweb && \
 WORKDIR /home/sttrweb/Oncoscape/server
 ADD server /home/sttrweb/Oncoscape/server
 
+# Run NPM Install
+RUN npm install
+
 WORKDIR /home/sttrweb/Oncoscape/client
 ADD client-build /home/sttrweb/Oncoscape/client
 
-# Run NPM Install
-RUN npm install
+WORKDIR /home/sttrweb/Oncoscape
 
 # Extenal Port
 EXPOSE 80
 
-CMD ["/usr/bin/supervisord", "-n", "-c", "/home/sttrweb/Oncoscape/server/supervisord.conf"]
+CMD ["/usr/bin/supervisord", "-n", "-c", "/etc/supervisord/supervisord.conf"]

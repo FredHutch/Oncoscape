@@ -4,7 +4,6 @@ const compression = require('compression');
 const bodyParser = require('body-parser');
 const auth = require('./auth-module.js');
 const uuid = require('node-uuid');
-const favicon = require('serve-favicon');
 
 //mongoose.connect('mongodb://localhost/os');
 mongoose.connect(
@@ -51,16 +50,10 @@ app.use(function(req, res, next) { // Diable Cors
     next();
 });
 
-
-app.get('/ping', function(req, res){
-  res.send('pong');
-});
-
 app.get('/api/time', function(req, res, next){
     res.send(new Date());
     res.end();
 });
-
 
 
 var processQuery = function(req, res, next, query){
@@ -113,21 +106,10 @@ app.get('/api/:collection*', function(req, res, next) {
     var query = (req.query.q) ? JSON.parse(req.query.q) : {};
     processQuery(req, res, next, query);
 });
-
-
-
-
-
-
-// Login + Logout
-app.get('/logout', function(req, res) {
-    res.sendFile(__dirname + '/public/index.html');
-});
 app.post('/api/login', function(req, res) {
     var username = req.body.username;
     var password = req.body.password;
     var domain = req.body.domain;
-
     auth.login(username, password, domain, function(isValid) {
         if (isValid) {
             res.json({
@@ -142,19 +124,7 @@ app.post('/api/login', function(req, res) {
     });
 });
 
-// Static Assets 
-app.use(favicon('public/favicon.ico'));
-app.use(express.static('public'));
-
-// Default Page
-app.get('/', function(req, res) {
-    res.sendFile(__dirname + '/public/index.html');
-});
-
 // Start Listening
 app.listen(9999, function(){
     console.log("GO");
 });
-// app.listen(process.env.PORT || 8080, function() {
-//   console.log('Listening on port ' + (process.env.PORT || 8080));
-// });
