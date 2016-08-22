@@ -1,7 +1,8 @@
-server/node_modules/*
+client/node_modules/*
+node/node_modules/*
 kong/node_modules/*
 .git
-client
+client/dist/*
 README.md
 INSTALL.md
 DOCKER.md
