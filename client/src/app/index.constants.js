@@ -1,4 +1,4 @@
-/* global d3:false, $:false, signals:false, cytoscape:false, document:false, moment:false, _:false */
+/* global d3:false, $:false, signals:false, cytoscape:false, document:false, moment:false, _:false, hello:false */
 
 (function() {
     'use strict';
@@ -10,6 +10,7 @@
         .constant('cytoscape', cytoscape)
         .constant('signals', signals)
         .constant('$', $)
+        .constant('auth', hello)
         .constant('_', _);
     // Util Functions
     Number.prototype.map = function (in_min, in_max, out_min, out_max) {

@@ -1,0 +1,121 @@
+version: '2'
+
+# Networks (Used For Mongo 172 subnet conflict)
+networks:
+  onconet:
+    ipam:
+      driver: default
+      config:
+        - subnet: 13.20.0.1/16
+
+
+
+# Services          
+services:
+
+    # Kong Api Gateway
+    kong:
+        build:
+            context: ./kong 
+        image: oncoscape/kong
+        ports:
+            - "8000:8000"
+            - "8443:8443"
+            - "8001:8001"
+            - "7946:7946" 
+            - "7946:7946/udp"
+        environment:
+            - DATABASE=cassandra
+        links:
+            - kong-database:kong-database
+        depends_on:
+            - kong-database 
+        container_name: kong
+        privileged: false
+        restart: always
+        networks:
+            - onconet
+      
+     
+
+    # Kong Database
+    kong-database:
+        image: cassandra:2.2
+        volumes:
+            - /Users/michaelz/Documents/Projects/git/cassandra:/var/lib/cassandra
+        container_name: kong-database
+        privileged: false
+        restart: always
+        networks:
+            - onconet
+
+
+
+    # NGinx
+    nginx:
+        build: ./nginx
+        image: oncoscape/nginx
+        links:
+            - node1:node1
+            - node2:node2
+            - node3:node3
+        depends_on:
+            - node1
+            - node2
+            - node3
+        ports:
+            - "9090:9090"
+        networks:
+            - onconet
+
+
+
+    # Node Api Servers
+    node1:
+        build: ./node
+        image: oncoscape/node
+        ports:
+            - "8080:8080"
+        networks:
+            - onconet
+    node2:
+        build: ./node
+        image: oncoscape/node
+        ports:
+            - "8081:8080"
+        networks:
+            - onconet
+    node3:
+        build: ./node
+        image: oncoscape/node
+        ports:
+            - "8082:8080"
+        networks:
+            - onconet    
+
+
+
+    # OpenCPU Api Servers
+    opencpu1:
+        build: ./opencpu
+        image: oncoscape/opencpu
+        ports:
+            - "8070:80"
+        networks:
+            - onconet
+    opencpu2:
+        build: ./opencpu
+        image: oncoscape/opencpu
+        ports:
+            - "8071:80"
+        networks:
+            - onconet
+    opencpu3:
+        build: ./opencpu
+        image: oncoscape/opencpu
+        ports:
+            - "8072:80"
+        networks:
+            - onconet                    
+
+        

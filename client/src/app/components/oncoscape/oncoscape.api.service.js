@@ -3,34 +3,37 @@
 
     angular
         .module('oncoscape')
-        .service('osApi', oncoscape);
+        .service('osApi', osApi);
 
     /** @ngInject */
-    function oncoscape(osHttp, $http, signals, $location) {
+    function osApi(osHttp, $http, signals, $location, $q) {
 
         // Events
         var onDataSource = new signals.Signal();
         var onResize = new signals.Signal();
 
+
+        // Layout Metrics
         var getLayout = function(){
             return {
                 left:  (angular.element('#cohortmenu-lock').attr("locked")=="true") ? 300 : 0,
                 right: (angular.element(".tray-right").attr("locked")==="true") ? 300 : 0
             };
-        }
+        };
+        var setBusy = function(value) {
+            if (value) {
+                angular.element(".loader-modal").show();
+            } else {
+                angular.element(".loader-modal").hide();
+            }
+        };
 
-
-        // State
+        // DataSources
         var _dataSources;
         var _dataSource;
-        function getDataSources(){
-            return _dataSources;
-        }
-        function getDataSource(){ 
-            return _dataSource; 
-        }
-        function setDataSource(value){
-        
+        var getDataSources = function(){ return _dataSources; };
+        var getDataSource = function(){ return _dataSource; };
+        var setDataSource = function(value){
             if (angular.isObject(value)){
                 if (_dataSource != value){
                     _dataSource = value;
@@ -44,104 +47,34 @@
                     } 
                 }
             }
-        }
+        };
 
-        query("lookup_oncoscape_datasources",{beta:false}).then(function(response){ 
-            _dataSources = response.data.sort(function(a,b){
-                return (b.name < a.name);
-            });
-        });
-        
-        /*** User Api ***/
-        function userApi(){
-
-            // Events
-            var onLogin = new signals.Signal(); // Fired When Data Changes
-            var onLogout = new signals.Signal(); // Fired When Selection changes
-            var _user = {
-                "name":"",
-                "password":"",
-                "domain":{"name":"Guest"},
-                "authenticated":false,
-                "token": null,
-                "datasets": []
-            };
-            var _domains = [
-                { "name": "Guest" },
-                { "name": "FHCRC" },
-                { "name": "UW" }
-            ];
-            var logout = function(){
-                _user.name = "";
-                _user.password = "";
-                _user.domain = {"name":"Guest"};
-                _user.authenticated = false;
-                _user.token = null;
-                _user.datasets = [];
-
-                onLogout.dispatch();
-            }
-            var login = function(user){
-                _user = user;
-                var req = {
-                    method: 'POST',
-                    url: $location.protocol()+"://"+$location.host()+":"+ (($location.port()=="3000") ? 80 : $location.port()) +'/api/login',
-                    data: {
-                        username: _user.name,
-                        password: _user.password,
-                        domain: _user.domain.name
-                    }
-                };
-                return $http(req).then(function(res) {
-                    if (res.data.success) {
-                        _user.authenticated = true;
-                        _user.token = res.data.token;
-                        _user.datasets = res.data.datasets;                        
-                        onLogin.dispatch(_user);
-                    } else {
-                        _user.authenticated = false;
-                        _user.token =null;
-                    }
+        // Initialize
+        function init(){
+            return $q(function(resolve, reject) {
+                query("lookup_oncoscape_datasources",{beta:false}).then(function(response){ 
+                     _dataSources = response.data.sort(function(a,b){ return (b.name < a.name); });
+                     resolve(_dataSources);
                 });
-            }
-            return {
-                getDomains: function(){ return _domains; },
-                getUser: function() { return _user; },
-                login: login,
-                logout: logout,
-                onLogin: onLogin,
-                onLogout: onLogout
-            }
-        }
-        var _userApi = userApi();
-        function getUserApi() { return _userApi; }
-
-        /*** UI Functions ***/
-        function setBusy(value) {
-            if (value) {
-                angular.element(".loader-modal").show();
-            } else {
-                angular.element(".loader-modal").hide();
-            }
-        }
+            });
+        };
         
-       
-        function queryString(table, query){
+        // Query Api
+        var queryString = function(table, query){
             return osHttp.queryString({
                 table: table,
                 query: query
             });
-        }
-        function query(table, query){
+        };
+        var query = function(table, query){
             return osHttp.query({
                 table: table,
                 query: query
             });
-        }
+        };
 
         return {
-
-            // Mongo V
+            init: init,
             query: query,
             queryString: queryString,
             setDataSource: setDataSource,
@@ -150,7 +83,6 @@
             getLayout: getLayout,
             onDataSource: onDataSource,
             onResize: onResize,
-            getUserApi: getUserApi,
             setBusy: setBusy
         }
     }

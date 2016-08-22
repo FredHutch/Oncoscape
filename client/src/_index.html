@@ -1,0 +1,62 @@
+<html>
+	<head>
+		<title>Login</title>
+		<script   src="https://code.jquery.com/jquery-3.1.0.js"   integrity="sha256-slogkvB1K3VOkzAI8QITxV3VzpOnkeNVsKvtkYLMjfk="   crossorigin="anonymous"></script>
+		<script src="/assets/hello.js"></script>
+		<script>
+
+
+			var onAuth = function(auth){
+				console.dir(auth);
+				hello(auth.network).api('me').then(function(r) {
+					console.dir(r);
+				});
+			}
+			hello.init({
+				github: "78b5dbe2ba756151169e",
+				linkedin: "7869gkuwwnacez",
+				twitter: "vrbGiMB0LCtuHeShKE6v5IIFa",
+				facebook: "142281766208909",
+				windows: "caee23ac-d4aa-41c7-9bda-166b86c52de3",
+				google: "428912153446-7c82srcvu1bk1nramiqqctne005epl6s.apps.googleusercontent.com"
+			}, {redirect_uri: 'index.html'});
+
+			//hello.on('auth.login', onAuth);
+
+			hello.logout("github");
+			hello.logout("linkedin");
+			hello.logout("twitter");
+			hello.logout("facebook");
+			hello.logout("windows");
+			hello.logout("google");
+			
+			
+
+
+			$(document).ready(function(){
+				
+				$("button").click(function(e){
+
+					console.dir(e.currentTarget.id);
+					hello().login(
+						e.currentTarget.id,{
+							scope: "email"
+						});
+
+							
+				});
+			});
+			
+		</script>
+	</head>
+	<body>
+
+		<button id="github">Github</button>
+		<button id="linkedin">Linked In</button>
+		<button id="google">Google</button>
+		<button id="windows">Microsoft</button>
+		<button id="facebook">Facebook</button>
+		<button id="twitter">Twitter</button>
+		
+	</body>
+</html>
