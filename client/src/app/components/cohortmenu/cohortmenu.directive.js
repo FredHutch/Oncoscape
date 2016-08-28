@@ -120,11 +120,11 @@
             var barClick =function(d,i){
                 
                 
-                // if (vm.patientChartOption.type=="numeric"){
-                //     var bounds = d.label.split("-").map(function(v){ return parseInt(v); });
-                //     var prop = vm.patientChartOption.prop;
-                //     osCohortService.filterActivePatientCohort(bounds, prop, vm.patientChartOption.type);
-                // }
+                if (vm.patientChartOption.type=="numeric"){
+                    var bounds = d.label.split("-").map(function(v){ return parseInt(v); });
+                    var prop = vm.patientChartOption.prop;
+                    osCohortService.filterActivePatientCohort(bounds, prop, vm.patientChartOption.type);
+                }
             }
 
 

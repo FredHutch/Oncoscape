@@ -9,6 +9,7 @@
      function oncoscape($http, $location) {
 
          var url = $location.protocol() + "://" + $location.host() + "/api/";
+         //var url = "http://dev.oncoscape.sttrcancer.io/api/";
          var queryString = function(req) {
              var query = url + req.table;
              if (angular.isDefined(req.query)) query += "/"+encodeURIComponent(JSON.stringify(req.query));

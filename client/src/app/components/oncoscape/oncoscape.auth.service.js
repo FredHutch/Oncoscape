@@ -21,6 +21,7 @@
         // Authentication Sources
         var authSource = null;
         var authSources = [
+            {id:'guest',    name:'Guest',     icon:'fa fa-user'},
             {id:'facebook', name:'Facebook',  icon:'fa fa-facebook',    key:'142281766208909', mode:'implicit'},
             {id:'github',   name:'GitHub',    icon:'fa fa-github-alt',   key:'78b5dbe2ba756151169e', mode:'explicit'},
             {id:'google',   name:'Google',    icon:'fa fa-google-plus',      key:'428912153446-7c82srcvu1bk1nramiqqctne005epl6s.apps.googleusercontent.com', mode:'implicit'},
@@ -34,6 +35,18 @@
         var getAuthSources = function(){ return authSources; };
 
 		var login  = function(source){
+            if (source.id=='guest'){
+                user = {
+                    network: 'guest',
+                    id: 'x',
+                    name: 'Guest',
+                    thumb: 'Guest.png'
+                };
+                osApi.init().then(function(v){
+                    onLogin.dispatch();
+                });
+                return;
+            }
 			auth().login(source.id,
 			{
                 response_type: 'code',
@@ -55,7 +68,6 @@
            }
 		);
 
-
         auth.on('auth.login', function(e){
         	osApi.setBusy();
         	authSource = e.network;
@@ -66,12 +78,12 @@
         			name: e.name,
         			thumb: e.thumbnail
         		};
-                osApi.query('token',user).then(function(r){
+                // osApi.query('token',user).then(function(r){
+                //     debugger;
                     osApi.init().then(function(v){
-                        console.log(v);
                         onLogin.dispatch();
                     });
-                });
+                //});
         		
         	});
         });

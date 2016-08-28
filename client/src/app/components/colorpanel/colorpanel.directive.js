@@ -34,11 +34,25 @@
             osApi.query(tbl, {
                 type: 'color',
                 dataset: osApi.getDataSource().disease,
-                $fields: ['name']
+                $fields: ['name','subtype']
             }).then(function(v) {
-                vm.optPatientColors = [{
-                    name: 'None'
-                }].concat(v.data);
+
+                var data = v.data.reduce(function(p,c){
+                    if (!p.hasOwnProperty(c.subtype)) p[c.subtype] = [];
+                    p[c.subtype].push(c);
+                    return p;
+                },{});
+
+                vm.optPatientColors = Object.keys(data).map(function(key){
+                    return {name:key, values:this[key].sort(function(a,b){
+                        if (a.name>b.name) return 1;
+                        if (a.name<b.name) return -1;
+                        return 0;
+                    })};
+                }, data);
+                // vm.optPatientColors = [{
+                //     name: 'None'
+                // }].concat(v.data);
 
 
             });
@@ -49,7 +63,6 @@
                     osCohortService.setPatientColor({"dataset":osApi.getDataSource().disease,"type":"color","name":"None","data":[], show:true})
                     return;
                 }
-
 
                 osApi.query(tbl, {
                     type: 'color',
@@ -66,10 +79,12 @@
                         v.id = "legend-"+v.color.substr(1);
                         return v;
                     }).sort(function(a,b){
+                        var aname = (parseInt(a.name)!=NaN) ? parseInt(a.name) : a.name;
+                        var bname = (parseInt(b.name)!=NaN) ? parseInt(b.name) : b.name;
+                        if (aname < bname) return -1;
+                        if (aname > bname) return 1;
                         if (a.name=="Null") return 1;
                         if (b.name=="Null") return -1;
-                        if(a.name < b.name) return -1;
-                        if(a.name > b.name) return 1;
                         return 0;
                     })
 
