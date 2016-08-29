@@ -28,17 +28,20 @@ var getDocs =	function(collectionName,category){
 //currently only supports up to 10 colors
 //numColors and colorScheme are optional parameters
 //numColors is calculated from docs and category if none provided, colorScheme defaults to blue
-var getColors = function(docs,category,numColors,colorScheme){
+var getColors = function(docs,category,colorScheme,numColors){
 	//get count of each category
 	var counts = {};
 	for(var i = 0; i < docs.length; i++) {
 	    var categoryName = docs[i][category];
 	    counts[categoryName] = counts[categoryName] ? counts[categoryName]+1 : 1;
 	}
+
+console.log("length keys " + Object.keys(counts).length);
+
 	// assign parameters if not provided
 	switch(arguments.length - 2){
-		case 0: numColors = Object.keys(counts).length;
-		case 1: colorScheme = 'blue';
+		case 0: colorScheme = 'blue';
+		case 1: numColors = Object.keys(counts).length;
 	}
 
 	if(numColors > 10){
@@ -90,18 +93,15 @@ var getColorGroupings = function(numColorsNeeded,colorScheme){
 	var startValue = (increment/2)-1;
 	startValue = Math.round(startValue);
 
-	// console.log("startValue="+startValue+" increment="+increment+" numColorsNeeded="+numColorsNeeded);
 	var colorArray = [];
 
 	//assign number of needed colors
 	for(var i=0; i<numColorsNeeded; i++){
 		if(numColorsNeeded<3){
 			i+=(increment-1);
-			// console.log("i="+i+" numColorsNeeded=" + numColorsNeeded + "  index used=" + Math.round(i) + " increment=" + increment);
 			colorArray.push(colorSchemeArray[Math.round(i)]);
 			i-=(increment-1);
 		} else {
-			// console.log("i="+i+" numColorsNeeded=" + numColorsNeeded + "  index used=" + Math.round(i*increment) + " increment=" + increment);
 			colorArray.push(colorSchemeArray[Math.round(i*increment)]);
 		}
 	}
@@ -112,22 +112,12 @@ var getColorGroupings = function(numColorsNeeded,colorScheme){
 //******************************************************************************************************
 
 //run script
-getConnection(url)
-	.then(getDocs.bind({},'clinical_tcga_brca_pt','race'))
-	.then(function(docs){
-		colorArray = getColors(docs,'race',10,'orange');
-		console.dir(colorArray);
-		console.log(colorArray.length + " colors were generated");
-	})
-
-
-
 connError = function(e){
 	console.log(e);
 }
 
 var collectionName = 'clinical_tcga_brca_pt';
-var category = 'age_at_diagnosis';
+var category = 'gender';
 
 co(function *() {
 	var db = yield comongo.client.connect(url);
@@ -136,9 +126,9 @@ co(function *() {
 	//get sorted documents
 	var fields = {patient_ID:1, _id:0};
 	fields[category] = 1;
-	var sorter = {};
-	sorter[category] = 1;
-	var docs = yield collection.find({},fields).sort(sorter).toArray();
+	var docs = yield collection.find({},fields).toArray();
+	//get array of hex color values in input color based on number of distict values in given category of docs parameter
+	var colorArray = getColors(docs,category,'orange');
 
 	yield comongo.db.close(db);
 }).catch(connError);

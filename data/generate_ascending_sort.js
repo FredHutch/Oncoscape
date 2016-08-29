@@ -7,10 +7,13 @@ var d3 = require('d3');
 const url = 'mongodb://localhost:27017/os';
 const X_MIN = 0;
 const X_MAX = 32059;
-const X_CONST = 1000;
 const Y_MIN = 3786;
 const Y_MAX = 32216;
-const Y_CONST = 30000;
+var xMinForUndefined = 500;
+var xIncrementForUndefined = 250;
+var yMinForUndefined = 25000;
+var yIncrementForUndefined = 250;
+var numUndefinedPerRow = 40;
 const V_CONST = -1;
 
 
@@ -26,6 +29,7 @@ var clusterAssignPoints = function(docs,category){
 	    var categoryName = docs[i][category];
 	    counts[categoryName] = counts[categoryName] ? counts[categoryName]+1 : 1;
 	}
+	console.dir(counts);
 
 	//determine min, max for dataset
 	var min = Infinity, max = -Infinity;
@@ -34,17 +38,17 @@ var clusterAssignPoints = function(docs,category){
 	    if(docs[i][category] > max) max = docs[i][category];
 	}
 	
-	//function to adjust x value to fit range
+	//adjust x value to fit range
 	var xScale = d3.scaleLinear().domain([min,max]).range([X_MIN,X_MAX]);
 
 	var counter = 0;
-	var quartile = (max-min)/4;
+	var quarter = (max-min)/4;
 	var annoArray = [ "MIN ", "Q1 ", "Q2 ", "Q3 ", "MAX "];
-	var annotationData = new Array(annoArray.length);
+	var annotationData = new Array();
 
-	//assign annotation data for creating quartile lines on display
+	//assign annotation data for creating quarter lines on display
 	for (var i = 0; i < (annoArray.length*2); i+=2){
-		var dataValueToAdd = (min+(counter*quartile));
+		var dataValueToAdd = (min+(counter*quarter));
 		var lineArray = [{x:xScale(dataValueToAdd),y:0},{x:xScale(dataValueToAdd),y:Y_MAX}];
 		//halign can be LEFT|RIGHT|CENTER
 		annotationData[i] = {
@@ -60,30 +64,50 @@ var clusterAssignPoints = function(docs,category){
 			type:"line",
 			points:lineArray
 		}
-		counter++;
+		counter+=1;
 	}	
 
 	var docsSorted = new Array(docs.length);
+	var countUndefined = 0;
+	var xCoordUndefined = xMinForUndefined;
+	var yCoordUndefined = yMinForUndefined;
 
 	//assigns x,y values if document contains field of interest, otherwise assign x,y constants
 	for(i=0; i<docs.length; i++){
+		var pIDToAdd = docs[i].patient_ID;
+	
+		//if patient_ID doesn't end in "-01", add it
+		if(pIDToAdd.length-3 !== "-01"){
+			pIDToAdd = docs[i].patient_ID.replace(/\./gi,"-")+"-01"
+		}
+
 		if(!(isNaN(parseInt(docs[i][category])))){
+			//field of interest is present
 			docsSorted[i] = {
-				patient_ID:docs[i].patient_ID.replace(/\./gi,"-")+"-01",
+				patient_ID:pIDToAdd,
 				category:docs[i][category],
-				x:(xScale(docs[i][category])),
+				x:xScale(docs[i][category]),
 				y:yToInsert,
 				v:docs[i][category]
 			};
 			yToInsert += yIncrement;
 		} else {
-				docsSorted[i] = {
-				patient_ID:docs[i].patient_ID.replace(/\./gi,"-")+"-01",
+			//field of interest is not present
+			docsSorted[i] = {
+				patient_ID:pIDToAdd,
 				category:docs[i][category],
-				x:X_CONST,
-				y:Y_CONST,
+				x:xCoordUndefined,
+				y:yCoordUndefined,
 				v:V_CONST
 			};
+			//increment x & y coordinates for undefined values
+			countUndefined+=1;
+			xCoordUndefined += xIncrementForUndefined;
+			if(countUndefined==numUndefinedPerRow){
+				countUndefined = 0;
+				xCoordUndefined = xMinForUndefined;
+				yCoordUndefined += yIncrementForUndefined;
+			}
 		}
 	}
 
@@ -92,10 +116,8 @@ var clusterAssignPoints = function(docs,category){
 	return docsSortedObj;
 }
 
-//inserts docs into database, pass in document array and name of data category
+//prepares document for insertion into database, pass in document array and name of data category
 var formatDocsForInsertion = function(docs,annotationData,datasetLabel,category){
-		console.log("--------------------------- INSERT DOCS FUNCTION ---------------------------");
-
 		//group coordinates
 		var coordinateObj = docs.reduce(function(prevValue, currentValue, index, arr){
 			prevValue[currentValue.patient_ID] = {x:currentValue.x, y:currentValue.y, v:currentValue.v};
@@ -114,16 +136,17 @@ var formatDocsForInsertion = function(docs,annotationData,datasetLabel,category)
 		return docToInsert;
 }
 
-//returns yFactor of input array for given category
+//returns yIncrement of input array for given category
 var determineYIncrement = function(docs,category){
  	var count = 0;
-	for(i=0; i<docs.length; i++) {
+ 	docsLength = docs.length;
+	for(i=0; i<docsLength; i++) {
 		if(!(isNaN(parseInt(docs[i][category])))){
 			count++;
 		}
 	}
-	var yFactor = ((Y_MAX-Y_MIN)/count)
-	return yFactor;
+	var yIncrement = ((Y_MAX-Y_MIN)/count)
+	return yIncrement;
 }
 
 //******************************************************************************************************
@@ -133,15 +156,16 @@ connError = function(e){
 	console.log(e);
 }
 
+//change these values for different collections
 var collectionName = 'clinical_tcga_brca_pt';
-var category = 'age_at_diagnosis';
+// var category = 'age_at_diagnosis';
+var category = 'days_to_death';
 var categoryLabel = 'Age at Diagnosis';
 var datasetLabel = 'brca';
 var collectionNameToInsertTo = 'render_patient';
 
 co(function *() {
 	var db = yield comongo.client.connect(url);
-
 	var collection = yield comongo.db.collection(db,collectionName);
 
 	//get sorted documents

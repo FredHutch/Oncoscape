@@ -35,12 +35,13 @@ function sortByTwoFields(propertyName) {
 };
 
 var secondarySort = function(docs,secondarySortDocs,category){
-	console.log("addSecondarySortField");
+	//make all numbers three digits for accurate sorting
 	for(var i=0; i<secondarySortDocs.length; i++){
 		while(secondarySortDocs[i][1].length < 3){
 			secondarySortDocs[i][1] = "0"+secondarySortDocs[i][1];
 		}
 	}
+	//add secondary sort field to docs object
 	for(var i=0; i<docs.length; i++){
 		docs[i].patient_ID = docs[i].patient_ID.replace(/\./gi,"-")+"-01";
 		for(var j=0; j<secondarySortDocs.length; j++){
@@ -49,7 +50,7 @@ var secondarySort = function(docs,secondarySortDocs,category){
 			}
 		}
 	}
-
+	//sort docs by category and then in descending order by patient_weight
 	docs.sort(sortByTwoFields([category,'-patient_weight']));
 
 	return docs;
@@ -75,12 +76,10 @@ var clusterGroupByValue = function(docsSorted,category){
 	}
 
 	//prints number of categories, then prints the name of each category
-
 	var categories = Object.keys(counts)
 	var annotationData = new Array(categories.length);
 	var yCoordinate = Y_MIN;
 	var xCoordinate = X_MIN;
-
 	var totalRecordsCounter = 0;
 	var yGap = Y_RANGE * 0.05;
 	var ySpacing = Y_RANGE * 0.01;
@@ -128,15 +127,14 @@ var clusterGroupByValue = function(docsSorted,category){
 	return docsClusteredObj;
 }
 
-//inserts docs into database, pass in document array and name of data category
+//formats document data for insertion into database, pass in document array, annotation data, dataset label, name of data category
 var formatDocsForInsertion = function(docs,annotationData,datasetLabel,category){
-	console.log("--------------------------------- INSERT DOCS FUNCTION ---------------------------------");
-
+	//create coordinate object for each patient
 	var coordinateObj = docs.reduce(function(prevValue, currentValue, index, arr){
 		prevValue[currentValue.patient_ID] = {x:currentValue.x, y:currentValue.y, v:currentValue.v};
 		return prevValue;
 	}, {});
-
+	//format final document to insert into database
 	var docToInsert = {
 		type:'cluster',
 		dataset:datasetLabel,
@@ -148,30 +146,27 @@ var formatDocsForInsertion = function(docs,annotationData,datasetLabel,category)
 	return docToInsert;
 }
 
-//returns xFactor for given category of input array
-var determineXFactor = function(docsSorted,category){
-	console.log("x");
+//returns xIncrement for given category of input array
+var determineXIncrement = function(docsSorted,category){
  	var min = Infinity, max = -Infinity;
 	for(i=0; i<docsSorted.length; i++) {
 	    if(docsSorted[i][category] < min) min = docsSorted[i][category];
 	    if(docsSorted[i][category] > max) max = docsSorted[i][category];
 	}
-	var xFactor = (X_MAX/max)
-	console.log(category + ": xFactor=" + xFactor + " min=" + min + " max=" + max);
-	return xFactor;
+	var xIncrement = ((X_MAX-X_MIN)/max);
+	return xIncrement;
 }
 
-//returns yFactor of input array for given category
+//returns yIncrement of input array for given category
 var determineYIncrement = function(docsSorted,category){
-	console.log("y");
  	var count = 0;
 	for(i=0; i<docsSorted.length; i++) {
 		if(!(isNaN(parseInt(docsSorted[i][category])))){
 			count++;
 		}
 	}
-	var yFactor = ((Y_MAX-Y_MIN)/count)
-	return yFactor;
+	var yIncrement = ((Y_MAX-Y_MIN)/count);
+	return yIncrement;
 }
 
 //******************************************************************************************************
