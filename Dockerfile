@@ -39,7 +39,7 @@ RUN useradd -u 7534 -m -d /home/sttrweb -c "sttr web application" sttrweb && \
 
 # Set Working Directory + Copy Code Into Container
 WORKDIR /home/sttrweb/Oncoscape/server
-ADD server /home/sttrweb/Oncoscape/server
+ADD node /home/sttrweb/Oncoscape/server
 
 # Run NPM Install
 RUN npm install

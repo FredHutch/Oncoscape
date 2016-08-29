@@ -20,7 +20,7 @@
         return directive;
 
         /** @ngInject */
-        function HeaderController(osApi, $stateParams, $state, $timeout, $rootScope) {
+        function HeaderController(osApi, osAuth, $stateParams, $state, $timeout, $rootScope) {
 
 
             osApi.query("lookup_oncoscape_tools",{beta:false}).then(function(response){
@@ -35,10 +35,7 @@
                 });
             });
 
-            var userApi = osApi.getUserApi();
-         
-
-
+            
            
             var vm = this;
             //vm.showMenu = false;
@@ -76,7 +73,7 @@
             };
             
             vm.logoutClick = function(){
-               userApi.logout();
+               osAuth.logout();
                $state.transitionTo("landing");
             }
         }

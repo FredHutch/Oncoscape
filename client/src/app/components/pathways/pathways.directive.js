@@ -103,6 +103,7 @@
                             minZoom: .1,
                             maxZoom: 5,
                             zoom: 0.2,
+                            wheelSensitivity: .5,
                             layout: {
                                 name: "preset",
                                 fit: true

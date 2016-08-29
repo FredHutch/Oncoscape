@@ -21,16 +21,36 @@
         /** @ngInject */
         function SurvivalController(d3, osApi, osCohortService, $state, $timeout, $scope, $stateParams, $window) {
 
+            // Retrieve Selected Patient Ids From OS Service
+            var pc = osCohortService.getPatientCohort();
+            var cohorts = JSON.parse(JSON.stringify(osCohortService.getPatientCohorts()));
+            if (pc==null){
+                osCohortService.setPatientCohort([],"All Patients")
+            }else{
+                if (pc.ids.length>0){
+                    cohorts.push({
+                        id: "Last Selection",
+                        ids: pc.ids,
+                        name: "Last Selection",
+                        time: new Date()
+                    });
+                }
+            }
+            // var selectedIds = (pc==null) ? [] : pc.ids;
+
             // Loading . . . 
             osApi.setBusy(true);
     
              // View Model
             var vm = this;
             vm.datasource = osApi.getDataSource();
-            vm.cohorts = osCohortService.getPatientCohorts();
+            vm.cohorts = cohorts;
+
+
+
             vm.all = {show:true, color:'#000'};
 
-            var colors = ['#2e63cf','#df3700','#ff9a00','#009700','#9b009b','#0099c9','#df4176','#64ac00','#ba2c28','#2e6297'];//['#004358','#800080','#BEDB39','#FD7400','#1F8A70'];
+            var colors = ["#E91E63", "#673AB7","#2196F3","#00BCD4","#4CAF50","#CDDC39","#FFC107","#FF5722","#795548", "#607D8B","#03A9F4","#03A9F4"];//['#004358','#800080','#BEDB39','#FD7400','#1F8A70'];
             for (var i=0; i<vm.cohorts.length; i++){  
                 vm.cohorts[i].show = true;
                 vm.cohorts[i].color = colors[i]; 
@@ -54,8 +74,8 @@
                 height: 0,
                 xScale : null,
                 yScale : null,
-                xAxis : d3.svg.axis().orient("bottom").ticks(5),
-                yAxis : d3.svg.axis().orient("left").ticks(5)
+                xAxis : d3.axisBottom().ticks(5),
+                yAxis : d3.axisLeft().ticks(5)
             }
 
 
@@ -69,11 +89,11 @@
                     .attr("width", '100%')
                     .attr("height", layout.height);
 
-                layout.xScale = d3.scale.linear()
+                layout.xScale = d3.scaleLinear()
                     .domain(timelineDomain)
                     .range([50, layout.width]);
 
-                layout.yScale = d3.scale.linear()
+                layout.yScale = d3.scaleLinear()
                     .domain([0,100])
                     .range([layout.height-50,0]);
 
@@ -97,7 +117,7 @@
             var addCurve = function(points){
             
                 // Define Line
-                var valueline = d3.svg.line()
+                var valueline = d3.line()
                     .x(function(d) { return layout.xScale(d[0]); })
                     .y(function(d) { return layout.yScale(d[2])+10; });
 
@@ -143,10 +163,12 @@
             };
 
             osApi.onResize.add(draw);
+            angular.element($window).bind('resize', _.debounce(draw, 300) );
             
             // Destroy
             $scope.$on('$destroy', function() {
                 osCohortService.onMessage.remove(onSurvivalData);
+              
             });
 
             // Load Data
