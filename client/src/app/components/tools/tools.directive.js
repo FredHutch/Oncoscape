@@ -23,7 +23,7 @@
 
             var vm = this;
             //osApi.query("lookup_oncoscape_tools",{beta:false}).then(function(response){
-            osApi.query("lookup_oncoscape_tools",{}).then(function(response){                
+            osApi.query("lookup_oncoscape_tools",{beta:false}).then(function(response){                
                 vm.tools = response.data;
             });
 

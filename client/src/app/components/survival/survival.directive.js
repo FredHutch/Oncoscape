@@ -74,8 +74,8 @@
                 height: 0,
                 xScale : null,
                 yScale : null,
-                xAxis : d3.svg.axis().orient("bottom").ticks(5),
-                yAxis : d3.svg.axis().orient("left").ticks(5)
+                xAxis : d3.axisBottom().ticks(5),
+                yAxis : d3.axisLeft().ticks(5)
             }
 
 
@@ -89,11 +89,11 @@
                     .attr("width", '100%')
                     .attr("height", layout.height);
 
-                layout.xScale = d3.scale.linear()
+                layout.xScale = d3.scaleLinear()
                     .domain(timelineDomain)
                     .range([50, layout.width]);
 
-                layout.yScale = d3.scale.linear()
+                layout.yScale = d3.scaleLinear()
                     .domain([0,100])
                     .range([layout.height-50,0]);
 
@@ -117,7 +117,7 @@
             var addCurve = function(points){
             
                 // Define Line
-                var valueline = d3.svg.line()
+                var valueline = d3.line()
                     .x(function(d) { return layout.xScale(d[0]); })
                     .y(function(d) { return layout.yScale(d[2])+10; });
 
@@ -163,6 +163,7 @@
             };
 
             osApi.onResize.add(draw);
+            angular.element($window).bind('resize', _.debounce(draw, 300) );
             
             // Destroy
             $scope.$on('$destroy', function() {

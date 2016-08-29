@@ -143,7 +143,7 @@
                 var barWidth = Math.floor(238/data.bins);
                 if (data.histRange[0]>0) data.histRange[0] -=2;
 
-                var yScale = d3.scale.linear()
+                var yScale = d3.scaleLinear()
                     .domain(data.histRange)
                     .range([0,135]);
 
@@ -154,7 +154,7 @@
                     bars.enter()
                         .append("rect")
                         .attr("class","cohort-menu-chart-bar")
-                        .attr("x", function(d, i) { return barWidth * i; })
+                        .attr("x", function(d, i) { return (barWidth+1) * i; })
                         .attr("y", function(d, i) { return 150-yScale(d.value); })
                         .attr("height", function(d, i) { return yScale(d.value); })
                         .attr("width", barWidth)

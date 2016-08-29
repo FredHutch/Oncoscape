@@ -23,7 +23,7 @@
         function HeaderController(osApi, osAuth, $stateParams, $state, $timeout, $rootScope) {
 
 
-            osApi.query("lookup_oncoscape_tools",{}).then(function(response){
+            osApi.query("lookup_oncoscape_tools",{beta:false}).then(function(response){
                 vm.tools = response.data;
                 
             });

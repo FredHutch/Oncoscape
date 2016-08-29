@@ -518,10 +518,10 @@
 
             
 
-            var borderScale = d3.scale.log().domain([.005, 20]).range([5,1])
-            var nodeScale   = d3.scale.log().domain([.005, 20]).range([80,1]);
-            var labelScale  = d3.scale.log().domain([.005, 20]).range([50,1]);
-            var expressionScale = d3.scale.pow().range([.01,2]);
+            var borderScale = d3.scaleLog().domain([.005, 20]).range([5,1])
+            var nodeScale   = d3.scaleLog().domain([.005, 20]).range([80,1]);
+            var labelScale  = d3.scaleLog().domain([.005, 20]).range([50,1]);
+            var expressionScale = d3.scalePow().range([.01,2]);
             var resizeNodes = function() {
                     expressionScale.domain(
                         cyChart.$('node[nodeType="patient"],node[nodeType="gene"]').toArray()
