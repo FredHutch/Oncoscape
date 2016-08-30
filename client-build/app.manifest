@@ -21,6 +21,8 @@ CACHE:
 /fonts/glyphicons-halflings-regular.ttf
 /fonts/glyphicons-halflings-regular.woff
 /fonts/glyphicons-halflings-regular.woff2
+/scripts/app-2d6deed6ef.js
+/scripts/app-4292042d78.js
 /scripts/app-899579e3ab.js
 /scripts/app-8eb00d0fc0.js
 /scripts/app-94c2d91d61.js
@@ -63,6 +65,8 @@ CACHE:
 /assets/images/texture.png
 /assets/images/timelines.png
 /maps/scripts/app-25aff55575.js.map
+/maps/scripts/app-2d6deed6ef.js.map
+/maps/scripts/app-4292042d78.js.map
 /maps/scripts/app-899579e3ab.js.map
 /maps/scripts/app-8eb00d0fc0.js.map
 /maps/scripts/app-94c2d91d61.js.map
@@ -91,4 +95,4 @@ https://*
 SETTINGS:
 prefer-online
 
-# hash: 3c30af0e047074c8bd68801c6574c0209a17a6072b3a383dec4536d971f2cf8a
+# hash: 06e8ba729f5881121fd46c74edb6144df2f788e278862a328c6e2efdcd532678
