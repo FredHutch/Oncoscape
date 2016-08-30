@@ -64,7 +64,7 @@
            authSources.reduce(function(prev, curr){ prev[curr.id] = curr.key; return prev;}, {}),
            {           	
            	oauth_proxy:  '/api/auth',
-           	redirect_uri: 'http://localhost/'
+           	redirect_uri: 'https://dev.oncoscape.sttrcancer.io/'
            }
 		);
 
