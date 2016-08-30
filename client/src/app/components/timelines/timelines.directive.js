@@ -225,11 +225,11 @@
 
                 chart.brush.attr("class","brush").call(brush);
 
-                var axis = d3.axis()
-                        .scale(scaleX)
-                        .orient("bottom")
-                        .ticks(8);
-                chart.axis.call(axis);
+                // var axis = d3.axis()
+                //         .scale(scaleX)
+                //         .orient("bottom")
+                //         .ticks(8);
+                // chart.axis.call(axis);
             }
 
             osApi.onResize.add(render);
