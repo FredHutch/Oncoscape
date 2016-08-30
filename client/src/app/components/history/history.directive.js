@@ -32,7 +32,7 @@ b:{})}});return g};"function"===typeof define&&define.amd?define(["jquery","data
         return directive;
 
         /** @ngInject */
-        function HistoryController(osApi, osCohortService, $state, $timeout, $scope, moment, $stateParams, _, $, $q) {
+        function HistoryController(osApi, osCohortService, $state, $timeout, $scope, moment, $stateParams, _, $, $q, $window) {
 
 
             // Properties
@@ -91,15 +91,21 @@ b:{})}});return g};"function"===typeof define&&define.amd?define(["jquery","data
                 table.api().draw();
             }
 
-            var initEvents = function(vm, $scope) {
-
-                var layout = function(){
-                    var layout = osApi.getLayout();
+            var lo = function(){
+                var layout = osApi.getLayout();
                     $(".history-content").css("margin-left", layout.left).css("margin-right", layout.right);
                     table.api().draw();
-                };
-                osApi.onResize.add(layout);
-                layout();
+            };
+            osApi.onResize.add(lo);
+            angular.element($window).bind('resize',
+                    _.debounce(lo, 300)
+                );
+
+            var initEvents = function(vm, $scope) {
+
+               
+                
+                
 
 
                 // Export CSV Button
@@ -145,7 +151,7 @@ b:{})}});return g};"function"===typeof define&&define.amd?define(["jquery","data
                     table.api().draw();
 
                 });
-
+                lo();
 
             }
 

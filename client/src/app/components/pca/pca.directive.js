@@ -175,7 +175,7 @@
                 // Size
                 var layout = osApi.getLayout();
                 var width  = $window.innerWidth - layout.left - layout.right;
-                var height = $window.innerHeight - 10;
+                var height = $window.innerHeight - 120; //10
                 $("#pca-chart").css({
                     "width":width+"px",
                     "padding-left":layout.left+"px"
