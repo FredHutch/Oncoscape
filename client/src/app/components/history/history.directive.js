@@ -98,7 +98,7 @@ b:{})}});return g};"function"===typeof define&&define.amd?define(["jquery","data
             };
             osApi.onResize.add(lo);
             angular.element($window).bind('resize',
-                    _.debounce(ro, 300)
+                    _.debounce(lo, 300)
                 );
 
             var initEvents = function(vm, $scope) {
