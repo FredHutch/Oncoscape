@@ -60,7 +60,7 @@ app.all('/api/auth',
     oauthshim.unhandled);
 
 // Connect To Mongo
-var domain = "http://localhost"; //"https://oncoscape.sttrcancer.io";
+var domain = "https://dev.oncoscape.sttrcancer.io";
 mongoose.connect(
     'mongodb://oncoscape-dev-db1.sttrcancer.io:27017,oncoscape-dev-db2.sttrcancer.io:27017,oncoscape-dev-db3.sttrcancer.io:27017/pancan12?authSource=admin', {
         db: {

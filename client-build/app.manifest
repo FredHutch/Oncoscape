@@ -2,6 +2,72 @@ CACHE MANIFEST
 
 
 CACHE:
+/_index.html
+/contribute.html
+/favicon.ico
+/index.html
+/landing.html
+/main.html
+/privacy-policy.html
+/terms-of-service.html
+/fonts/FontAwesome.otf
+/fonts/fontawesome-webfont.eot
+/fonts/fontawesome-webfont.svg
+/fonts/fontawesome-webfont.ttf
+/fonts/fontawesome-webfont.woff
+/fonts/fontawesome-webfont.woff2
+/fonts/glyphicons-halflings-regular.eot
+/fonts/glyphicons-halflings-regular.svg
+/fonts/glyphicons-halflings-regular.ttf
+/fonts/glyphicons-halflings-regular.woff
+/fonts/glyphicons-halflings-regular.woff2
+/scripts/app-94c2d91d61.js
+/scripts/app-dcd9eac667.js
+/scripts/vendor-1d9fb8f6d9.js
+/scripts/vendor-a17e29a958.js
+/styles/app-9b963c3582.css
+/styles/vendor-692105e31d.css
+/styles/vendor-fe5182b0e1.css
+/assets/images/DSbladder.png
+/assets/images/DSbrain.png
+/assets/images/DSbreast.png
+/assets/images/DScoadread.png
+/assets/images/DScolorectal.png
+/assets/images/DSdemo.png
+/assets/images/DSheadneck.png
+/assets/images/DSlung.png
+/assets/images/DSovary.png
+/assets/images/DSpancreas.png
+/assets/images/DSprostate.png
+/assets/images/DSsarcoma.png
+/assets/images/arrow_down.png
+/assets/images/history.png
+/assets/images/logo.png
+/assets/images/markers.png
+/assets/images/pathways.png
+/assets/images/pca.png
+/assets/images/sttr-facebook-out.png
+/assets/images/sttr-google-out.png
+/assets/images/sttr-instagram-out.png
+/assets/images/sttr-linkedin-out.png
+/assets/images/sttr-twitter-out.png
+/assets/images/sttr-youtube-out.png
+/assets/images/sttr_highlight_arrow_up.png
+/assets/images/survival.png
+/assets/images/texture.png
+/assets/images/timelines.png
+/components/markers/markers.worker.js
+/components/oncoscape/oncoscape.cohort.service.worker.js
+/maps/scripts/app-25aff55575.js.map
+/maps/scripts/app-94c2d91d61.js.map
+/maps/scripts/app-d00b032e01.js.map
+/maps/scripts/app-dcd9eac667.js.map
+/maps/scripts/vendor-1d9fb8f6d9.js.map
+/maps/scripts/vendor-a17e29a958.js.map
+/maps/styles/app-9b963c3582.css.map
+/maps/styles/app-fdb93b9f7a.css.map
+/maps/styles/vendor-692105e31d.css.map
+/maps/styles/vendor-fe5182b0e1.css.map
 
 
 NETWORK:
@@ -13,4 +79,4 @@ https://*
 SETTINGS:
 prefer-online
 
-# hash: e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855
+# hash: 81aaf5a1dd06dfa1c56d73916b6bfe688645e42c521449e081ed43ba1b489a9f
