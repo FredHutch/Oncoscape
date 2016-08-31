@@ -10,7 +10,7 @@ const url = 'mongodb://localhost:27017/os';
 const ENUM_COLUMN = 4;
 const VALUE_COLUMN = 5;
 
-// Read Data + Create Useful Collections
+// Read Data & Create Useful Collections
 var data = JSON.parse(fs.readFileSync("enumeration_data_filtered.json", "utf8"));
 var categories = Object.keys(data);
 
@@ -78,18 +78,13 @@ var diseaseColumnLookup = function(disease){
 
 var checkIfEnumPresent = function(categoryName,valueToWrite,matchingNamesArray) {
     var present = [];
-    // console.log(matchingNamesArray[0].worksheetName);
     var matchingNamesArrayLength = matchingNamesArray.length;
     for(var i=0; i<matchingNamesArrayLength; i++){
-    //     if(matchingNamesArray[i].worksheetName == categoryName){
-    // console.log(matchingNamesArray[i].worksheetName+"  "+categoryName);
             if(matchingNamesArray[i].enum == valueToWrite){
                 var diseaseName = matchingNamesArray[i].diseaseName;
                 present.push(matchingNamesArray[i].diseaseName);
             }
-        // }
     }
-    // console.dir(present);
     return present;
 }
 
@@ -118,12 +113,6 @@ co(function *() {
     var worksheetNames = Object.keys(enumDataFile);
     var worksheetNamesCount = worksheetNames.length;
 
-
-
-
-    // console.log(worksheetNames);
-
-
     var collectionCount = Object.keys(docs).length;
     var collectionNames = [];
 
@@ -134,9 +123,6 @@ co(function *() {
 
         diseaseCollectionKeys = Object.keys(docs[i].collections);
         diseaseCollectionKeysCount = diseaseCollectionKeys.length;
-    	// console.log(diseaseName)
-
-
 
     	//loop through each disease, pulling out collection names for each disease
         for (var j=0; j<diseaseCollectionKeysCount; j++){
@@ -157,74 +143,40 @@ co(function *() {
 
     			//loop through each key in the disease's collection (field name that contains the value to be validated)
                 for(var l=0; l<diseaseDocKeysLength; l++){
-	// if(diseaseDocKeys[l].slice(-1)=='1'){console.log(diseaseDocKeys[l])};
-        		    // console.dir(worksheetNames);
                     keyConcat = diseaseDocKeys[l];
-            // if(keyConcat.slice(-1)=='1'){console.log(keyConcat)};
-
-
-
-
-
-
 
                     var colEnums = Object.keys(colEnumsDoc);
-                	// console.log(colEnums);
                     colEnumsLength = colEnums.length;
-                    // console.log(keyConcat);
 
                     //loop through colEnums to find col enum names
                     for(var m=0; m<colEnumsLength; m++){
                         var colEnumsKeys = Object.keys(colEnumsDoc[colEnums[m]]);
                         var colEnumsKeysLength = colEnumsKeys.length;
-                    // console.dir(colEnumsKeys);
 
                         //loop through each col enum name, pulling out values
                         for(var n=0; n<colEnumsKeysLength; n++){
                             var colEnumsKeysValue = colEnumsKeys[n];
                             var colEnumsKeysValueKeys = colEnumsDoc[colEnums[m]][colEnumsKeysValue];
-                    // console.log(colEnumsKeysValueKeys);
                             var colEnumsKeysValueKeysLength = colEnumsKeysValueKeys.length;
 
                             //loop through each value, comparing the value and col enum name back to the enum's field name (keyConcat)
                             for(var o=0; o<colEnumsKeysValueKeysLength; o++){
-                                // if(colEnums[m]=="os.class.relative_amount"){console.log("relative_amount: "+diseaseDocKeys[l]+"   "+diseaseCollectionName)}
-                                // if(colEnumsKeysValue=="tumor_infiltrating_lymphocytes"){console.log(colEnumsKeysValue)};
-            // if(keyConcat.slice(-1)=='2'){console.log(keyConcat+"   "+colEnumsKeysValueKeys[o]+"1     "+colEnumsKeysValue+"1")};
-                // if(keyConcat.slice(-1)=='1' && keyConcat==colEnumsKeysValueKeys[o]+"1"){console.log(keyConcat+"   "+colEnumsKeysValueKeys[o]+"1     "+colEnumsKeysValue+"1")};
-                // console.log(colEnumsKeysValueKeys[o]+"     "+colEnumsKeysValue)
-                                //if they match, assign keyConcat as the enumerated column name
+
                                 if(keyConcat==colEnumsKeysValue || keyConcat==colEnumsKeysValueKeys[o]
                                     ||keyConcat==colEnumsKeysValue+"1" || keyConcat==colEnumsKeysValueKeys[o]+"1"
                                     ||keyConcat==colEnumsKeysValue+"2" || keyConcat==colEnumsKeysValueKeys[o]+"2"){
-                            // if(keyConcat.slice(-1)=='1'){console.log(keyConcat+"   "+colEnumsKeysValue)};
                                     keyConcat = colEnums[m];
-                                    // console.log(colEnums[m]);
-                                    // console.log(colEnumsKeys+"  "+colEnumsKeysValue);
                                 }
-                                // console.log(colEnumsKeysValue+"  "+colEnumsKeysValueKeys[o]);
                             }
-
-
                         }
                     }
-
-                    // console.log(keyConcat);
-
-
-
 
                     //loop through the list of worksheet names, pulling out each worksheet name
                     for(var m=0; m<worksheetNamesCount; m++){
                         var worksheetName = worksheetNames[m];
-            			// console.log(keyConcat);
-
-
-
 
             			//compare enumerated column name to the worksheet name, if they match continue with comparison
                         if (keyConcat==worksheetName){
-            				// console.log("match: "+keyConcat);
                             var enumNames = Object.keys(enumDataFile[worksheetNames[m]]);
                             var enumNamesCount = enumNames.length;
 
@@ -234,38 +186,26 @@ co(function *() {
                             for(var n=0; n<enumNamesCount; n++) {
                                 var enumValues = enumDataFile[worksheetNames[m]][enumNames[n]];
                                 var enumValuesCount = enumValues.length;
-                // console.log(Object.keys(enumValues));
 
                                 for(var o=0; o<enumValuesCount; o++){
                                     var enumValuesToCompare = enumValues[o];
                                     var enumValuesToCompareCount = enumValuesToCompare.length;
 
-        // if(enumValuesToCompare=="MIXED ACINAR & DUCTAL"){console.log(keyConcat+" "+diseaseName+" "+diseaseDocKeysValue+"  "+enumValuesToCompare)};
-            // if(diseaseDocKeys[l]=="tumor_infiltrating_lymphocytes"){console.log("relAmt:"+diseaseDocKeys[l]+"  "+diseaseCollectionName)}
-            // if(diseaseDocKeys[l]=="tumor_infiltrating_lymphocytes"){console.log("keyConcat:"+keyConcat+"  worksheetName: "+worksheetName)}
-            // if(diseaseDocKeys[l]=="tumor_infiltrating_lymphocytes"){console.log("diseaseDocKeysValue:"+diseaseDocKeysValue+"  "+"enumValuesToCompare: "+enumValuesToCompare)}
-            // if(diseaseDocKeys[l]=="tumor_infiltrating_lymphocytes"){console.log("enumNames: "+enumNames[n])};
                                         if(diseaseDocKeysValue==enumValuesToCompare || diseaseDocKeysValue==enumNames[n]){
                                             var matchingNamesArrayLength = matchingNamesArray.length;
-                        //prints MODERATE, MODERATE NUMBERS, MODERATE
-                        // if(keyConcat=="os.class.relative_amount"){console.log(diseaseDocKeysValue+" "+enumValuesToCompare+" "+enumNames[n])};
 
                                             if(matchingNamesArrayLength==0){
-                                                // console.log("start array");
                                                 matchingNamesArray.push({"worksheetName":worksheetName,"diseaseName":diseaseName,"enum":enumValuesToCompare,"count":1});
                                             } else {
-                                                // console.log("compare");
                                                 var match = false;
                                                 for(var p=0; p<matchingNamesArray.length; p++){
                                                     if(matchingNamesArray[p].worksheetName==worksheetName && matchingNamesArray[p].diseaseName==diseaseName && matchingNamesArray[p].enum==enumValuesToCompare){
                                                         match = true;
                                                         matchingNamesArray[p].count++;
-                                                        // console.log("match,break"+enumValuesToCompare);
                                                         break;
                                                     }
                                                 }
                                                 if(!match){
-                                                    // console.log("push")
                                                     matchingNamesArray.push({"worksheetName":worksheetName,"diseaseName":diseaseName,"enum":enumValuesToCompare,"count":1});
                                                 }
                                             }
@@ -274,19 +214,11 @@ co(function *() {
                             }
                         }
                     }
-                    // console.log(diseaseDocKeys[l]);
                 }
             }
         }
-        
     }
 
-    for(var i=0; i<340; i++){
-        // console.log(matchingNamesArray[i].worksheetName);
-        // if(matchingNamesArray[i].enum=="NON-PAPILLARY"){console.log(matchingNamesArray[i].enum);}
-        // console.log(matchingNamesArray[i]);
-    }
-    // console.log(matchingNamesArray.length);
     yield comongo.db.close(db);
 
 
@@ -297,12 +229,6 @@ co(function *() {
 
 
 
-// for(var i=0; i<matchingNamesArrayLength; i++){
-//     if(matchingNamesArray[i].enum=="MODERATE NUMBERS"){console.log("MODERATE: "+matchingNamesArray[i].worksheetName+" "+matchingNamesArray[i].diseaseName+" "+matchingNamesArray[i].enum)}
-// }
-console.log("towrite: "+matchingNamesArrayLength);
-
-
 
 
 
@@ -310,8 +236,8 @@ console.log("towrite: "+matchingNamesArrayLength);
 
 
 // console.log("next write workbook");
-//
-    // Write
+
+    //create Excel workbook
     var workbook = excelbuilder.createWorkbook('./', 'enumeration_worksheet.xlsx')
 
     //write worksheet column headers
@@ -361,53 +287,41 @@ console.log("towrite: "+matchingNamesArrayLength);
         sheet.set(diseaseColumnLookup("uvm"),1,"uvm");
 
         var categoryEnums = fnGetEnumsByCategory(categoryName);
-        // console.log("categoryEnums length: " + categoryEnums.length)
 
-var countWritten = 0;
+    // var countWritten = 0;
         //write enumeration names
         for(var j=0; j<categoryEnums.length; j++){
             var enumToWrite = categoryEnums[j];
             fnWriteEnumRow(sheet, enumToWrite, rowNumber);
             rowNumber += 1;
-// console.log(categoryName+" <-worksheetName");
+
             //enumValues are the values listed in the xls
             var enumValues = fnGetValuesByCategoryEnum(categoryName,enumToWrite);
 
             //write value
             for(var k=0; k<enumValues.length; k++){
                 var valueToWrite = enumValues[k];
-                // console.log("val: " + valueToWrite+" row: "+rowNumber);
 
                 var present = [];
-        // if(valueToWrite=="NON-PAPILLARY"){console.log("non-pap "+categoryEnums[j])+" "+categories};
                 present = checkIfEnumPresent(categoryName,valueToWrite,matchingNamesArray);
                 presentLength = present.length;
 
                 fnWriteValueRow(sheet, valueToWrite, rowNumber);
 
                 if(presentLength > 0){
-                    // console.dir(present+"  "+valueToWrite);
                     for(var l=0; l<present.length; l++){
-
-                        // console.log("present[l]: "+present[l]+"  "+categoryName+"  "+diseaseName);
                         var diseaseColumn = diseaseColumnLookup(present[l]);
-                        // console.log(sheet.name);
                         fnWriteDiseaseColumnRow(sheet,diseaseColumn,rowNumber,1);
-countWritten++;
-                        // console.log(diseaseColumn+" "+valueToWrite);
+            // countWritten++;
                     }
                 }
 
                 rowNumber += 1;
             }
         }
-        //sheet.set(1, 1, categories[i]);
     }
 
-    // for(var i=0; i<matchingNamesArrayLength; i++){
-    //     worksheetName.set(diseaseColumnLookup(matchingNamesArray[i].diseaseName),1,1)
-    // }
-console.log("written: "+countWritten);
+    // console.log("written: "+countWritten);
     workbook.save(function(ok){
         if (!ok) 
           workbook.cancel();

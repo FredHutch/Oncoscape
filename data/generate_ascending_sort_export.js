@@ -123,22 +123,21 @@ exports.clusterAssignPoints = function(docs,category){
 
 //prepares document for insertion into database, pass in document array and name of data category
 var formatDocsForInsertion = function(docs,annotationData,datasetLabel,category){
-		//group coordinates
-		var coordinateObj = docs.reduce(function(prevValue, currentValue, index, arr){
-			prevValue[currentValue.patient_ID] = {x:currentValue.x, y:currentValue.y, v:currentValue.v};
-			return prevValue;
-		}, {});
+	//group coordinates
+	var coordinateObj = docs.reduce(function(prevValue, currentValue, index, arr){
+		prevValue[currentValue.patient_ID] = {x:currentValue.x, y:currentValue.y, v:currentValue.v};
+		return prevValue;
+	}, {});
+	//group data to insert
+	var docToInsert = {
+		type:'cluster',
+		dataset:datasetLabel,
+		name:category,
+		annotation:annotationData,
+		data:coordinateObj
+	};
 
-		//group data to insert
-		var docToInsert = {
-			type:'cluster',
-			dataset:datasetLabel,
-			name:category,
-			annotation:annotationData,
-			data:coordinateObj
-		};
-
-		return docToInsert;
+	return docToInsert;
 }
 
 //returns yIncrement of input array for given category
