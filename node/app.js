@@ -155,13 +155,13 @@ app.get('/api/:collection*', function(req, res, next) {
 });
 
 // If Dev + Running Gulp Proxy Everything Else
-// const httpProxy = require('http-proxy');
-// var proxy = httpProxy.createProxyServer();
-// app.all('/*', function (req, res, next) {
-//     proxy.web(req, res, {
-//         target: 'http://localhost:3000'
-//     });
-// });
+const httpProxy = require('http-proxy');
+var proxy = httpProxy.createProxyServer();
+app.all('/*', function (req, res, next) {
+    proxy.web(req, res, {
+        target: 'http://localhost:3000'
+    });
+});
 
 // Start Listening
 app.listen(9999, function(){
