@@ -1,4 +1,22 @@
 // Namespace
+.timeline-background{
+	background-color: #FFF;
+}
+#timelines-tip{
+	
+	
+	z-index:99999;
+	border: #BBB solid 1px;
+	font-size: 10px;
+	text-align:left;
+	background-color: #FFF;
+	padding:20px;
+	ul{
+		li{
+			list-style:none;
+		}
+	}
+}
 // #timelines-chart{
 //     padding-top:50px;
 // }
