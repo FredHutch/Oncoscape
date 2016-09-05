@@ -38,19 +38,19 @@
                     </ul>
                 </div>
             </div>
-<!--             <div class="col-xs-6 form-item" style="padding-left:5px">
-                <label>Selected Patients</label>
+            <div class="col-xs-6 form-item" style="padding-left:5px">
+                <label>Display Filter</label>
                 <div class="dropdown bs-dropdown">
                     <button class="btn btn-default dropdown-toggle" type="button" id="dropdownMenu1" data-toggle="dropdown" aria-haspopup="true" aria-expanded="true">
-                        {{vm.mode.name}}
+                        {{vm.displayMode.name}}
                         <span class="caret"></span>
                     </button>
                     <ul class="dropdown-menu" aria-labelledby="dropdownMenu1" style="width:100%">
-                        <li ng-repeat="item in vm.modes" ng-click="vm.mode=item">{{item.name}}</li>
+                        <li ng-repeat="item in vm.displayModes" ng-click="vm.displayMode=item;vm.update();">{{item.name}}</li>
                     </ul>
                 </div>
-            </div> -->
-            <div class="col-xs-6 form-item" style="padding-left:5px">
+            </div>
+            <div class="col-xs-6 form-item" style="padding-right:5px">
                 <label>Timescale</label>
                 <div class="dropdown bs-dropdown">
                     <button class="btn btn-default dropdown-toggle" type="button" id="dropdownMenu1" data-toggle="dropdown" aria-haspopup="true" aria-expanded="true">
@@ -60,6 +60,15 @@
                     <ul class="dropdown-menu" aria-labelledby="dropdownMenu1" style="width:100%">
                         <li ng-repeat="item in vm.timescales" ng-click="vm.timescale=item;vm.update();">{{item.name}}</li>
                     </ul>
+                </div>
+            </div>
+            <div class="col-xs-6 form-item" style="padding-left:5px">
+                <label>Zoom</label>
+                <div class="dropdown bs-dropdown">
+                    <button class="btn btn-default dropdown-toggle" type="button"
+                        ng-click="vm.resetZoom()">
+                        Reset
+                    </button>
                 </div>
             </div>
             <div class="col-xs-12 form-item">

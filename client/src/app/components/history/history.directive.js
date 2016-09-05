@@ -165,6 +165,8 @@ b:{})}});return g};"function"===typeof define&&define.amd?define(["jquery","data
                     initDataTable(vm, columns, response.data);
                     initEvents(vm, $scope, osApi)
                     osApi.setBusy(false);
+                    $timeout(lo, 200);
+                    
                 });
 
 
@@ -195,6 +197,8 @@ b:{})}});return g};"function"===typeof define&&define.amd?define(["jquery","data
                     $(this.node()).children().first().attr("style","border-left-color:"+color+";border-left-width:10px;");
                     
                 } );
+
+                lo();
     
             }
             
@@ -202,6 +206,7 @@ b:{})}});return g};"function"===typeof define&&define.amd?define(["jquery","data
 
             // Destroy
             $scope.$on('$destroy', function() {
+                console.log("DEST");
                 osCohortService.onPatientColorChange.remove(onPatientColorChange);
             });
         }

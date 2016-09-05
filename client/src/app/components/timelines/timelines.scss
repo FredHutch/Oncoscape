@@ -1,6 +1,49 @@
 // Namespace
+.timelines-content{
+	position:relative;
+	
+}
+.timeline-chart{
+	position:absolute;
+	left:20px;
+	top:20px;
+	background-color:#FEFEFE;
+
+}
+.timeline-scroll-y{
+	position: absolute;
+	fill:#EEE;
+	width: 15px;
+	left:5px;
+	top: 20px;
+	.selection{
+		fill: #47a8d8;
+	}
+	.handle{
+		fill: #0b97d3;
+	}
+}
+.timeline-scroll-x{
+	position: absolute;
+	fill:#EEE;
+	height: 15px;
+	left:20px;
+	top:5px;
+	.selection{
+		fill: #47a8d8;
+	}
+	.handle{
+		fill: #0b97d3
+	}
+}
 .timeline-background{
 	background-color: #FFF;
+}
+.timeline-axis-bg{
+	background-color: #FFF;
+	width:100%;
+	height: 70px;
+	position:absolute;
 }
 #timelines-tip{
 	
