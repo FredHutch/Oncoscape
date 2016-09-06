@@ -77,82 +77,87 @@ mongoose.connect(
         pass: "i1f4d9botHD4xnZ"
     });
 
-// Pull Networks From Databse
-mongoose.connection.db.collection("lookup_oncoscape_authentication").find().toArray(function(err, response){
-    var networks = response.map(function(v){ v.domain = domain; return v; });
-    oauthshim.init(networks);    
-});
+mongoose.connection.on('connected', function(){  
 
-// ----------------------------------------------- //
-// ----- Configure Mongo API  -------------------- //
-// ----------------------------------------------- //
-
-// Generic Method For Querying Mongo
-var processQuery = function(req, res, next, query){
-
-    mongoose.connection.db.collection(req.params.collection, function(err, collection) {
-        if (err) {
-            res.status(err.code).send(err.messages);
-            res.end();
-            return;
-        }
-
-        // Limits
-        var limit = null
-        if (query.$limit) {
-            limit = query.$limit;
-            delete query.$limit;
-        }
-
-        // Skup
-        var skip = null;
-        if (query.$skip) {
-            skip = query.$skip;
-            delete query.$skip;
-        }
-
-        // Fields
-        var fields = { _id: 0 };    // Omit Mongo IDs
-        if (query.$fields) {
-            query.$fields.forEach(function(field) {
-                this[field] = 1;
-            }, fields);
-            delete query.$fields;
-        }
-
-        // Execute
-        var find = collection.find(query, fields);
-        if (limit)  find = find.limit(limit);
-        if (skip)   find = find.skip(skip);
-        find.toArray(function(err, results) {
-            res.send(results);
-            res.end();
-        });
+    // Pull Networks From Databse
+    mongoose.connection.db.collection("lookup_oncoscape_authentication").find().toArray(function(err, response){
+        var networks = response.map(function(v){ v.domain = domain; return v; });
+        oauthshim.init(networks);    
     });
-};
-app.get("/api/time", function(req,res,next){
-    var d = new Date();
-    res.send(d.toString());
-    res.end();
-})
-app.get('/api/token/:user', function(req,res,next){
-    var user = (req.params.user) ? JSON.parse(req.params.user) : {};
-    console.dir(user);
-    res.send("dONE");
-    res.end();
+
+    // ----------------------------------------------- //
+    // ----- Configure Mongo API  -------------------- //
+    // ----------------------------------------------- //
+
+    // Generic Method For Querying Mongo
+    var processQuery = function(req, res, next, query){
+
+        mongoose.connection.db.collection(req.params.collection, function(err, collection) {
+            if (err) {
+                res.status(err.code).send(err.messages);
+                res.end();
+                return;
+            }
+
+            // Limits
+            var limit = null
+            if (query.$limit) {
+                limit = query.$limit;
+                delete query.$limit;
+            }
+
+            // Skup
+            var skip = null;
+            if (query.$skip) {
+                skip = query.$skip;
+                delete query.$skip;
+            }
+
+            // Fields
+            var fields = { _id: 0 };    // Omit Mongo IDs
+            if (query.$fields) {
+                query.$fields.forEach(function(field) {
+                    this[field] = 1;
+                }, fields);
+                delete query.$fields;
+            }
+
+            // Execute
+            var find = collection.find(query, fields);
+            if (limit)  find = find.limit(limit);
+            if (skip)   find = find.skip(skip);
+            find.toArray(function(err, results) {
+                res.send(results);
+                res.end();
+            });
+        });
+    };
+    app.get("/api/time", function(req,res,next){
+        var d = new Date();
+        res.send(d.toString());
+        res.end();
+    })
+    app.get('/api/token/:user', function(req,res,next){
+        var user = (req.params.user) ? JSON.parse(req.params.user) : {};
+        console.dir(user);
+        res.send("dONE");
+        res.end();
+    });
+
+    // Query using file path (client cache)
+    app.get('/api/:collection/:query', function(req, res, next){
+        var query = (req.params.query) ? JSON.parse(req.params.query) : {};
+        processQuery(req, res, next, query);
+    });
+
+    // Query using get querystring (no client cache)
+    app.get('/api/:collection*', function(req, res, next) {
+        var query = (req.query.q) ? JSON.parse(req.query.q) : {};
+        processQuery(req, res, next, query);
+    });
+
 });
 
-// Query using file path (client cache)
-app.get('/api/:collection/:query', function(req, res, next){
-    var query = (req.params.query) ? JSON.parse(req.params.query) : {};
-    processQuery(req, res, next, query);
-});
-
-// Query using get querystring (no client cache)
-app.get('/api/:collection*', function(req, res, next) {
-    var query = (req.query.q) ? JSON.parse(req.query.q) : {};
-    processQuery(req, res, next, query);
-});
 
 // If Dev + Running Gulp Proxy Everything Else
 // const httpProxy = require('http-proxy');

@@ -59,13 +59,12 @@
                 v.selected = true;
                 return v;
             });
+
             var clusters = vm.allClusters
                 .filter(function(v){ return v.collection.indexOf("ucsc")!=-1; })
                 .filter(function(v){ return v.type=="mds";})
 
             clusters.pop();
-                //.filter(function(v){ return v.collection.indexOf("ucsc")!=-1; });
-            
 
             function plot(p){
                 var rect = d3.select(this);
@@ -237,12 +236,11 @@
                     });
             };
             
-                // Listen For Resize
+            // Listen For Resize
             osApi.onResize.add(resize);
             angular.element($window).bind('resize', 
                 _.debounce(resize, 300)
             );
-
         }
     }
 })();

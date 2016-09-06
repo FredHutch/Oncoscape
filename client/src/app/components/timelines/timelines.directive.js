@@ -247,20 +247,20 @@
 
                 // Brush
 
-                // chart.d3Chart.call(brushSelect);
-                // brushSelect.on("end", function(){
-                //     if (d3.event.selection==null){
-                //         return;
-                //     }
-                //     var lowerIndex = Math.floor(d3.event.selection[0]/yZoom/20);
-                //     var upperIndex = Math.ceil(d3.event.selection[1]/yZoom/20);
-                //     var ids = [];
-                //     for (var i=lowerIndex; i<=upperIndex; i++){
-                //         ids.push(patientsFiltered[i].id);
-                //     }
-                //     osCohortService.setPatientCohort(ids,"All Patients");
-                //     chart.d3Chart.call(d3.event.target.move,null);                    
-                // });
+                chart.d3Chart.call(brushSelect);
+                brushSelect.on("end", function(){
+                    if (d3.event.selection==null){
+                        return;
+                    }
+                    var lowerIndex = Math.floor(d3.event.selection[0]/yZoom/20);
+                    var upperIndex = Math.ceil(d3.event.selection[1]/yZoom/20);
+                    var ids = [];
+                    for (var i=lowerIndex; i<=upperIndex; i++){
+                        ids.push(patientsFiltered[i].id);
+                    }
+                    osCohortService.setPatientCohort(ids,"All Patients");
+                    chart.d3Chart.call(d3.event.target.move,null);                    
+                });
 
                 // chart.d3Chart.call(d3.brushY().on("end", function(){
                 //     var selection = d3.event.selection.sort(function(a,b){ return a-b; });
