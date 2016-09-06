@@ -351,17 +351,7 @@
                 };
 
                 vm.edgeToggle = function(item) {
-                    // if (!item.show) {
-                    //     cyChart.remove('edge[cn=' + item.id + ']');
-                    // }
-                    console.log("!");
-                    // $timeout(function(){
-                    //     vm.cmd('ShowSelectedEdges')
-                    // }, 1);
-                    debugger;
                     vm.cmd('ShowSelectedEdges');
-                    
-
                 };
 
                 vm.deselectColor = function(item) {
@@ -467,7 +457,9 @@
                     vm.optGeneSets = results[0].data;
                     
                     if (osApi.getDataSource().disease=="brain"){
-                        vm.optGeneSet = vm.optGeneSets.filter(function(v){ return v.name == "Marker genes 545"; })[0]
+                        vm.optGeneSet = vm.optGeneSets.filter(function(v){ return v.name == "TCGA pancan mutated";
+                        //    "Marker genes 545"; 
+                        })[0]
                     }else{
                         vm.optGeneSet = vm.optGeneSets.filter(function(v){ return v.name == "TCGA pancan mutated"; })[0]
                     }
