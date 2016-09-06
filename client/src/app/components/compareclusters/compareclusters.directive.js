@@ -60,8 +60,10 @@
                 return v;
             });
             var clusters = vm.allClusters
-                .filter(function(v){ return v.collection.indexOf("ucsc")!=-1; });
-            //.filter(function(v){ return v.type=="mds";})
+                .filter(function(v){ return v.collection.indexOf("ucsc")!=-1; })
+                .filter(function(v){ return v.type=="mds";})
+
+            clusters.pop();
                 //.filter(function(v){ return v.collection.indexOf("ucsc")!=-1; });
             
 

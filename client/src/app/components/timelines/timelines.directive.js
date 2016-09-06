@@ -32,6 +32,9 @@
             var xZoom, yZoom, xTran, yTran;
             var zoom = d3.zoom();
             var axis;
+            var brushY = d3.brushY();
+            var brushX = d3.brushX();
+            var brushSelect = d3.brushY();
 
             // Retrieve Selected Patient Ids From OS Service
             var pc = osCohortService.getPatientCohort();
@@ -77,7 +80,6 @@
             vm.resetZoom = function(){
                 selectedIds = [];
                 osCohortService.setPatientCohort([],"All Patients");
-                console.log("B");
                 vm.update();
 
             };
@@ -95,6 +97,7 @@
 
                 var d3ScrollX  = elChart.append("svg");
                     d3ScrollX.attr("class","timeline-scroll-x");
+                
 
                 var gPatients = d3Chart.append("g");
                 var rAxis     = d3Chart.append("rect");
@@ -195,6 +198,8 @@
                 scaleX = d3.scaleLinear().domain( patientsDomain ).range([0, width]).nice();
 
                 chart.gPatients.selectAll("*").remove();
+                
+
                 var rows = chart.gPatients.selectAll("g.patient").data(patientsFiltered);
                 rows.exit()
                     .transition()
@@ -241,6 +246,21 @@
                     .style('fill', function(d){ return d.color; })
 
                 // Brush
+
+                // chart.d3Chart.call(brushSelect);
+                // brushSelect.on("end", function(){
+                //     if (d3.event.selection==null){
+                //         return;
+                //     }
+                //     var lowerIndex = Math.floor(d3.event.selection[0]/yZoom/20);
+                //     var upperIndex = Math.ceil(d3.event.selection[1]/yZoom/20);
+                //     var ids = [];
+                //     for (var i=lowerIndex; i<=upperIndex; i++){
+                //         ids.push(patientsFiltered[i].id);
+                //     }
+                //     osCohortService.setPatientCohort(ids,"All Patients");
+                //     chart.d3Chart.call(d3.event.target.move,null);                    
+                // });
 
                 // chart.d3Chart.call(d3.brushY().on("end", function(){
                 //     var selection = d3.event.selection.sort(function(a,b){ return a-b; });
@@ -295,14 +315,13 @@
                 chart.gAxis.call(axis);
             };
 
-            var brushY = d3.brushY();
-            var brushX = d3.brushX();
+
 
             var configScrollbars = function(height, width){
                 chart.d3ScrollY.call(
                     brushY
                     .on("end", function(){
-                        if (d3.selection!=null){
+                        if (d3.event.selection!=null){
                             var lower = d3.event.selection[0];
                             var upper = d3.event.selection[1];
                             var domain = height-70;
@@ -312,9 +331,12 @@
                             yZoom = (baseZoomY / deltaPercent);
                             yTran = (20 * patientsFiltered.length * yZoom) * -lowerPercent;
                         }else{
+                            
+                            if (yZoom==baseZoomY && yTran==0) return;
                             yZoom = baseZoomY;
-                            xZoom = baseZoomX;
-                            xTran = yTran = 0;
+                            yTran = 0;
+                            chart.d3ScrollY.call(brushY.move, null);
+                            
                         }
                         chart.gPatients
                             .transition()
@@ -326,7 +348,7 @@
                 chart.d3ScrollX.call(
                     brushX
                     .on("end", function(){
-                        if (d3.selection!=null){
+                        if (d3.event.selection!=null){
                             var lower = d3.event.selection[0];
                             var upper = d3.event.selection[1];
                             var domain = width-20;
@@ -336,9 +358,11 @@
                             xZoom = (baseZoomX / deltaPercent);
                             xTran = (width * xZoom) * -lowerPercent;
                         }else{
-                            yZoom = baseZoomY;
+                            if (xZoom==baseZoomX && xTran==0) return;
                             xZoom = baseZoomX;
-                            xTran = yTran = 0;
+                            xTran = 0;
+                            chart.d3ScrollX.call(brushX.move, null);
+                            
                         }
                         chart.gPatients
                             .transition()
