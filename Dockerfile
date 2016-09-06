@@ -23,7 +23,7 @@ ADD  /nginx.conf /etc/nginx/
 RUN mkdir /data /data/nginx /data/nginx/cache
 
 # Add Supervisord Config
-Run mkdir /etc/supervisord
+RUN mkdir /etc/supervisord
 ADD  /supervisord.conf /etc/supervisord/
 
 # Install Node 6.x
