@@ -11,9 +11,6 @@ test:
   override:
     - docker run -d -p 80:80 --name oncoscape-$CIRCLE_SHA1 fredhutch/oncoscape:$CIRCLE_SHA1; sleep 120
     - curl --retry 10 --retry-delay 10 -v http://localhost:80
-    - curl --retry 10 --retry-delay 10 -v http://localhost:80/api/time
-    - curl --retry 10 --retry-delay 10 -v http://localhost:80/api/lookup_oncoscape_datasources
-
 
 deployment:
   master: 
