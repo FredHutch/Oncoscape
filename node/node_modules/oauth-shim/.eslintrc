@@ -1,0 +1,30 @@
+{
+	"rules": {
+		"camelcase": 0,
+		"comma-spacing": [2, {"before": false, "after": true}],
+		"curly": 0,
+		"key-spacing": [2, {"beforeColon": false, "afterColon": true}],
+		"object-curly-spacing": [2, "never"],
+		"no-empty": 0,
+		"no-loop-func": 2,
+		"no-trailing-spaces": 2,
+		"no-catch-shadow": 2,
+		"no-multi-spaces": 2,
+		"no-underscore-dangle": 0,
+		"quotes": [2, "single", "avoid-escape"],
+		"space-after-keywords": 2,
+		"space-before-blocks": 2,
+		"space-in-parens": [2, "never"],
+		"space-infix-ops": [2, {"int32Hint": false}],
+		"strict": 0
+	},
+	"env": {
+		"node": true,
+		"jasmine": true,
+		"mocha": true
+	},
+	"globals": {
+		"sinon": true,
+		"mochaPhantomJS": true
+	}
+}

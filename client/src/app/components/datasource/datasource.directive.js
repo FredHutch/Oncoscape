@@ -1,6 +1,6 @@
 (function() {
     'use strict';
-    
+
     angular
         .module('oncoscape')
         .directive('osDatasource', datasource);
@@ -21,35 +21,14 @@
         /** @ngInject */
         function DatasourceController(osApi, $state) {
             var vm = this;
-            vm.datasets = [];
+            vm.datasets = osApi.getDataSources();
             vm.explore = function(tool, datasource) {
                 osApi.setDataSource(datasource);
                 $state.go(tool, {
-                    datasource: datasource
+                    datasource: datasource.disease
                 });
             };
 
-            var nameMap = {
-                "DEMOdz" : "Glioblastoma (DEMO)",
-                "TCGAbrain": "Brain (TCGA)",
-                "TCGAbrca": "Breast (TCGA)",
-                "TCGAcoadread": "Colorectal (TCGA)",
-                "TCGAgbm": "Glioblastoma (TCGA)",
-                "TCGAhnsc": "Head + Neck (TCGA)",
-                "TCGAlgg" : "Lower Grade Glioma (TCGA)",
-                "TCGAluad": "Lung Adenocarcinoma (TCGA)",
-                "TCGAlung": "Lung (TCGA)",
-                "TCGAlusc": "Lung Squamous Cell (TCGA)",
-                "TCGApaad": "Pancreas (TCGA)",
-                "TCGAprad": "Prostate (TCGA)",
-                "UWbrain":  "Brain (UW)",
-                "MSKbrain": "Brain (MSK)"
-            };
-
-            // Load Datasets
-            vm.datasets = osApi.getUserApi().getUser().datasets.map(function(item){
-                    return {name: this[item], id: item}
-                }, nameMap);
         }
     }
 })();

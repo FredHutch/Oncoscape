@@ -19,24 +19,20 @@
         return directive;
 
         /** @ngInject */
-        function PathwaysController(osApi, osHistory, $state, $stateParams, $scope, $sce, $window, moment, cytoscape, _) {
+        function PathwaysController(osApi, osCohortService, $state, $stateParams, $scope, $sce, $window, moment, cytoscape, _) {
 
-            if (angular.isUndefined($stateParams.datasource)){
-                $state.go("datasource");
-                return;
-            }
             var markersNetwork;
             var vm = this;
             
             // Elements
-            var elChart = angular.element("#gbm-chart");
+            var elChart = angular.element("#pathways-chart");
             var csChart;
 
             // History Integration
+            /*
             var skipSave = false;
             var selectedIds = (osHistory.getGeneSelection() == null) ? null : osHistory.getGeneSelection().ids;
             function saveSelected() {
-
                 if (skipSave) { skipSave = false; return; }
                 var ids = csChart.$('node[nodeType="gene"]:selected').map(function(ele){ return ele.data().id.toUpperCase() });
                 osHistory.addGeneSelection("Pathways", "Manual Selection", ids );
@@ -58,8 +54,9 @@
                 }
                 csChart.endBatch();
             }
+            */
             
-            vm.datasource = $stateParams.datasource;
+            vm.datasource = osApi.getDataSource();
             vm.search = "";
             vm.frame;
             vm.tip = null;
@@ -67,10 +64,7 @@
             vm.links = [];
 
             vm.resize = function(){
-                var width = $window.innerWidth;
-                if (width > 760)  width -= 140;
-                if (angular.element(".tray").attr("locked")=="true") width -= 300;
-                elChart.width( width );
+                elChart.width( '100%' );
                 elChart.height($window.innerHeight - 90);
                 if (csChart){
                     csChart.resize();
@@ -78,10 +72,7 @@
                 } 
             }
 
-            // Listen For Resize
-            angular.element($window).bind('resize', 
-                _.debounce(vm.resize, 300)
-            );
+
 
             $scope.$watch('vm.search', function() {
                 if (angular.isUndefined(csChart)) return;
@@ -102,45 +93,49 @@
 
             // Load Datasets
             osApi.setBusy(true);
-            osApi.setDataset(vm.datasource).then(function() {
+            osApi.query("render_pathways").then(function(result){
+                markersNetwork = result.data[0];
 
-                osApi.getPathway().then(function(response) {
-
-                    markersNetwork = angular.fromJson(response.payload);
                     csChart = cytoscape({
                             container: elChart,
                             elements: markersNetwork.elements,
                             style: getStyle(),
-                            minZoom: .2,
+                            minZoom: .1,
                             maxZoom: 5,
+                            zoom: 0.2,
+                            wheelSensitivity: .5,
                             layout: {
                                 name: "preset",
                                 fit: true
                             }
                         })
-                        .on('select', 'node', _.debounce(saveSelected, 300))
-                        .on('click', 'node', function() {
-                            //if (e.cyTarget.data().nodeType!="gene") return;
-                            //angular.element('#gbm-webpage').modal();
-                            //$window.open("https://www.genecards.org/cgi-bin/carddisp.pl?gene=" + e.cyTarget.data().id);
-                            // $scope.$apply(function() {
-                            //     vm.frame = $sce.trustAsResourceUrl(url);
-                            // });
+                    
+                        //.on('select', 'node', _.debounce(saveSelected, 300))
+                        .on('click', 'node', function(e) {
+                            if (e.cyTarget.data().nodeType!="gene") return;
+                            angular.element('#gbm-webpage').modal();
+                            $scope.$apply(function() {
+                                //vm.frame = $sce.trustAsResourceUrl("https://resources.sttrcancer.org/markers-patients");
+                                vm.frame = $sce.trustAsResourceUrl("https://www.genecards.org/cgi-bin/carddisp.pl?gene=" + e.cyTarget.data().id);
+                            });
                         })
-                        .on('click', 'edge', function() {
+                        .on('click', 'edge', function(e) {
+                            
                             // links =[
                             //     { name: "PubMed Article", url:"https://www.ncbi.nlm.nih.gov/pubmed/?term=" + e.cyTarget.data().pmid },
                             //     { name: "PubMed Search",  url:"http://www.ncbi.nlm.nih.gov/pubmed/?term=(GENE "+e.cyTarget.data().source+") AND (GENE "+e.cyTarget.data().target+")"}
                             //     { name: e.cyTarget.data().source+"Gene Card", url: "https://www.genecards.org/cgi-bin/carddisp.pl?gene="+e.cyTarget.data().source}
                             //     { name: e.cyTarget.data().target+"Gene Card", url: "https://www.genecards.org/cgi-bin/carddisp.pl?gene="+e.cyTarget.data().target}
                             // ];
-                            //$window.open("https://www.ncbi.nlm.nih.gov/pubmed/?term=" + e.cyTarget.data().pmid);
-                            //$window.open("http://www.ncbi.nlm.nih.gov/pubmed/?term=(GENE "+e.cyTarget.data().source+") AND (GENE "+e.cyTarget.data().target+")");
-                            //$window.open("https://www.genecards.org/cgi-bin/carddisp.pl?gene="+e.cyTarget.data().source);
-                            //$window.open("https://www.genecards.org/cgi-bin/carddisp.pl?gene="+e.cyTarget.data().target);
-                            // $scope.$apply(function() {
-                            //     vm.frame = $sce.trustAsResourceUrl(url);
-                            // });
+                            // $window.open("https://www.ncbi.nlm.nih.gov/pubmed/?term=" + e.cyTarget.data().pmid);
+                            // $window.open("http://www.ncbi.nlm.nih.gov/pubmed/?term=(GENE "+e.cyTarget.data().source+") AND (GENE "+e.cyTarget.data().target+")");
+                            // $window.open("https://www.genecards.org/cgi-bin/carddisp.pl?gene="+e.cyTarget.data().source);
+                            // $window.open("https://www.genecards.org/cgi-bin/carddisp.pl?gene="+e.cyTarget.data().target);
+                            
+                            angular.element('#gbm-webpage').modal();
+                            $scope.$apply(function() {
+                                vm.frame = $sce.trustAsResourceUrl("https://www.ncbi.nlm.nih.gov/pubmed/?term=" + e.cyTarget.data().pmid );
+                            });
 
                         }).on('mouseover', 'edge', function(e) {
                             $scope.$apply(function() {
@@ -167,15 +162,18 @@
                             });
                         })
 
+
                     // Register History Component
+                    /*
                     osHistory.onGeneSelectionChange.add(function(selection){
                         selectedIds = selection.ids;
                         setSelected();
                     });
                     setSelected();
+                    */
+                    vm.resize();
                     osApi.setBusy(false);
                 });
-            });
 
 
             function getStyle() {
@@ -436,6 +434,13 @@
                 ]
 
             }
+
+            // Listen For Resize
+            osApi.onResize.add(vm.resize);
+            angular.element($window).bind('resize', 
+                _.debounce(vm.resize, 300)
+            );
+
         }
     }
 })();

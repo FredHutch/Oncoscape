@@ -19,263 +19,271 @@
         return directive;
 
         /** @ngInject */
-        function PcaController(osApi, osHistory, $state, $stateParams, $timeout, $scope, d3, moment, $window, _) {
+        function PcaController($q, osApi, osCohortService, $state, $stateParams, $timeout, $scope, d3, moment, $window, _) {
 
-            if (angular.isUndefined($stateParams.datasource)) {
-                $state.go("datasource");
-                return;
-            }
+            // Retrieve Selected Patient Ids From OS Service
+            var pc = osCohortService.getPatientCohort();
+            if (pc==null){ osCohortService.setPatientCohort([],"All Patients") }
+            var selectedIds = (pc==null) ? [] : pc.ids;
 
-            // Elements
-            var d3Chart = d3.select("#pca-chart").append("svg").attr("id", "chart");
-            var d3xAxis = d3Chart.append("g");
-            var d3yAxis = d3Chart.append("g");
-            var d3Tooltip = d3.select("body").append("div").attr("class", "tooltip pca-tooltip")
-
-            // Properties
-            var width, height, xScale, yScale, xMax, yMax, xAxis, yAxis;
-            var rawData;
-
-            // View Model
-            var vm = this;
-            vm.datasource = $stateParams.datasource;
-            vm.geneSets = [];
-            vm.geneSet = null;
-            vm.search = "";
-
-            // History Integration
-            var selectedIds = (osHistory.getPatientSelection() == null) ? null : osHistory.getPatientSelection().ids;
-            function saveSelected() {
-                osHistory.addPatientSelection("PCA", "Manual Selection",
-                    d3Chart.selectAll(".pca-node-selected")[0].map(function(node) {
-                        return node.__data__.id.toUpperCase();
-                    })
-                );
-            }
+            var osCohortServiceUpdate = true;
+            osCohortService.onPatientsSelect.add(function(patients){
+                if (osCohortServiceUpdate){
+                    selectedIds = patients.ids;
+                    setSelected();
+                }else{
+                    osCohortServiceUpdate = true;
+                }
+            });
+       
             function setSelected() {
-                if (selectedIds == null) {
-                    d3Chart.selectAll(".pca-node-selected").classed("pca-node-selected", false);
+                if (selectedIds.length == 0) {
+                    d3Points.selectAll(".pca-node-selected").classed("pca-node-selected", false);
                 } else {
-                    d3Chart.selectAll("circle").classed("pca-node-selected", function() {
+                    d3Points.selectAll("circle").classed("pca-node-selected", function() {
                         return (selectedIds.indexOf(this.__data__.id) >= 0)
                     });
                 }
             }
 
-            // Initialize
-            osApi.setBusy(true)("Loading Dataset");
-            osApi.setDataset(vm.datasource).then(function(response) {
-                var mtx = response.payload.rownames.filter(function(v) {
-                    return v.indexOf("mtx.mrna") >= 0
-                });
+            // Elements
+            var d3Chart = d3.select("#pca-chart").append("svg");
+            var d3Points= d3Chart.append("g");
+            var d3xAxis = d3Chart.append("g");
+            var d3yAxis = d3Chart.append("g");
+            var d3Brush = d3Chart.append("g");
 
-                mtx = mtx[mtx.length - 1].replace(".RData", "");
-                osApi.setBusyMessage("Creating PCA Matrix");
-                osApi.getPCA(vm.datasource, mtx).then(function() {
+            // Properties
+            var scaleX, scaleY, axisX, axisY;
+            var data, minMax;
 
-                    osApi.setBusyMessage("Loading Gene Sets");
-                    osApi.getGeneSetNames().then(function(response) {
-
-                        // Load Gene Sets
-                        vm.geneSets = response.payload;
-                        vm.geneSets.unshift("All");
-                        vm.geneSet = vm.geneSets[0];
-
-                        $scope.$watch('vm.geneSet', function() {
-                            update();
-                        });
-
-                        // History
-                        osHistory.onPatientSelectionChange.add(function(selection) {
-                            selectedIds = selection.ids;
-                            vm.search = "";
-                            $scope.$apply();
-                            setSelected();
-                        });
-                    });
-                });
-            });
-
-            // API Call To Calculate PCA
-            var update = function() {
-                osApi.setBusyMessage("Calculating PCA");
-                osApi.getCalculatedPCA((vm.geneSet=="All") ? null : vm.geneSet).then(function(response) {
-                    osApi.setBusyMessage("Rendering PCA");
-                    var payload = response.payload;
-                    vm.pc1 = Math.round(response.payload["importance.PC1"] * 100);
-                    vm.pc2 = Math.round(response.payload["importance.PC2"] * 100);
-                    // Error Patient Ids From Server Are Different Than 
-                    var scores = payload.scores;
-                    var ids = payload.ids;
-                    rawData = scores.map(function(d, i) {
-                        d.id = ids[i];
-                        return d;
-                    }, payload.ids);
-                    draw();
-                    osApi.setBusy(false);
-                });
+            var colors = {
+                data: [],
+                dataset: osApi.getDataSource().disease,
+                name: "None",
+                type: "color"
             };
 
-            function setScale() {
-                width = $window.innerWidth - 100;
-                height = $window.innerHeight - 190;
-                if (angular.element(".tray").attr("locked") == "true") width -= 300;
+            // View Model
+            var vm = (function(vm, osApi) {
+                vm.datasource = osApi.getDataSource();
+                vm.geneSets = [];
+                vm.geneSet = null;
+                vm.search = "";
+                osApi.query("render_pca", {
+                        disease: vm.datasource.disease,
+                        $fields: ['type','geneset','source']
+                    })
+                    .then(function(response) {
+                        var mr = response.data.reduce( function (p, c) {
+                            if (!p.hasOwnProperty(c.geneset)) p[c.geneset] = [];
+                            p[c.geneset].push({name:c.type, source:c.source, label:(c.type+"-"+c.source).toUpperCase().replace(/-/gi," - ")});
+                            return p;
+                        }, {});
+                        vm.geneSets = Object.keys(mr).reduce(function(p,c){
+                          p.rv.push( {name:c, types:p.values[c], label:c.toUpperCase()});
+                          return p;
+                        }, {rv:[], values:mr}).rv.sort(function(a,b){
+                            return a.label > b.label;
+                        });
 
-                d3Chart
-                    .attr("width", '100%')
-                    .attr("height", height);
-                xScale = d3.scale.linear()
-                    .domain([-xMax, xMax])
-                    .range([0, width]).nice();
+                        vm.geneSet = vm.geneSets[0];
+                    });
+                return vm;
 
-                yScale = d3.scale.linear()
-                    .domain([-yMax, yMax])
-                    .range([height, 0]).nice();
+            })(this, osApi);
+
+            // Updates PCA Types When Geneset Changes
+            $scope.$watch('vm.geneSet', function(geneset) {
+                try{
+                    // Sort PCA Types Alphabetically Then By Source R-Alpha (to put ucsc first)
+                    vm.pcaTypes = vm.geneSet.types.sort(function(a,b){
+                        if (a.name!=b.name) return a.name > b.name;
+                        else return a.source < b.source;
+                    });
+                    vm.pcaType  = vm.pcaTypes[0];
+                }catch(e){}
+            });
+
+            // Fetches PCA Data + Calculates Min Max for XYZ
+            $scope.$watch('vm.pcaType', function(geneset) {
+                if (geneset == null) return;
+                osApi.query("render_pca", {
+                        disease: vm.datasource.disease,
+                        geneset: vm.geneSet.name,
+                        type: vm.pcaType.name,
+                        source: vm.pcaType.source
+                    })
+                    .then(function(response) {
+                        vm.pc1 = response.data[0].pc1;
+                        vm.pc2 = response.data[0].pc2;
+                        var keys = Object.keys(response.data[0].data);
+                        data = keys.map(function(key) {
+                            this.data[key].id = key;
+                            return this.data[key];
+                        }, {
+                            data: response.data[0].data
+                        });
+                        minMax = data.reduce(function(p,c){
+                            p.xMin = Math.min(p.xMin, c[0]);
+                            p.xMax = Math.max(p.xMax, c[0]);
+                            p.yMin = Math.min(p.yMin, c[1]);
+                            p.yMax = Math.max(p.yMax, c[1]);
+                            return p;
+                        }, {xMin:Infinity,yMin:Infinity,xMax:-Infinity,yMax:-Infinity});
+         
+                       minMax.xMax = Math.max(Math.abs(minMax.xMin), minMax.xMax);
+                       minMax.xMin = -minMax.xMax;
+                       minMax.yMax = Math.max(Math.abs(minMax.yMin), minMax.yMax);
+                       minMax.yMin = -minMax.yMax;
+
+                        draw();
+                    });
+            });
+
+            function setColors(){
+                
+                // Set Legend
+                vm.legendCaption = colors.name;
+                vm.legendNodes = colors.data;
+                
+                // If No Color Specified
+                if(colors.name=="None"){
+                    vm.legendCaption = "";
+                    data.forEach(function(v){  v.color = '#0096d5'; });
+
+                // Color Based On V
+                }else{
+                    var degMap =colors.data.reduce(function(p,c){
+                        for (var i=0; i<c.values.length; i++){
+                            p[c.values[i]] = c.color;
+                        }
+                        return p;
+                    },{});
+                    data = data.map(function(v){ 
+                        v.color = (this[v.id]!=undefined) ? this[v.id] : "#DDD";
+                        return v;
+                    },degMap);
+                }
             }
 
-            // Render
             function draw() {
 
-                var dataset = rawData;
+                // Colorize
+                setColors();
 
-                var max, min;
-                max = Math.abs(d3.max(dataset, function(d) {
-                    return +d[0];
-                }));
-                min = Math.abs(d3.min(dataset, function(d) {
-                    return +d[0];
-                }));
-                xMax = ((max > min) ? max : min) * 1.2;
-                max = Math.abs(d3.max(dataset, function(d) {
-                    return +d[1];
-                }));
-                min = Math.abs(d3.min(dataset, function(d) {
-                    return +d[1];
-                }));
-                yMax = ((max > min) ? max : min) * 1.2;
-
-                setScale();
-
-                xAxis = d3.svg.axis()
-                    .scale(xScale)
-                    .orient("top")
-                    .ticks(5);
-
-                yAxis = d3.svg.axis()
-                    .scale(yScale)
-                    .orient("left")
-                    .ticks(5);
-
-                // Brush
-                var brush = d3.svg.brush()
-                    .x(xScale)
-                    .y(yScale)
-                    .on("brushend", function() {
-                        var bv = brush.extent();
-                        d3Chart.selectAll("circle")
-                            .classed("pca-node-selected", function(d) {
-                                return (d[0] > bv[0][0] && d[0] < bv[1][0] && d[1] > bv[0][1] && d[1] < bv[1][1]);
-                            });
-                        d3.select(this).transition().duration(300)
-                            .call(brush.extent([
-                                [0, 0],
-                                [0, 0]
-                            ]));
-                        saveSelected();
-                    });
-
-                d3Chart.call(brush);
-
-                var circles = d3Chart.selectAll("circle").data(rawData, function(d) {
-                    return d;
+                // Size
+                var layout = osApi.getLayout();
+                var width  = $window.innerWidth - layout.left - layout.right;
+                var height = $window.innerHeight - 120; //10
+                $("#pca-chart").css({
+                    "width":width+"px",
+                    "padding-left":layout.left+"px"
                 });
+                d3Chart.attr( "width", width).attr("height", height);
+                d3Brush.attr( "width", width).attr("height", height);
+                d3Points.attr("width", width).attr("height", height);
 
-                circles.enter()
-                    .append("circle")
-                    .attr({
-                        "class": "pca-node",
-                        "cx": width * .5,
-                        "cy": height * .5,
-                        "r": 3
-                    })
-                    .style("fill-opacity", "0")
-                    .on("mouseover", function(d) {
-                        d3Tooltip.transition()
-                            .duration(200)
-                            .style("opacity", 1);
-                        d3Tooltip.html(d.id)
-                            .style("left", (d3.event.pageX + 10) + "px")
-                            .style("top", (d3.event.pageY - 5) + "px");
-                    })
-                    .on("mouseout", function() {
-                        d3Tooltip.transition()
-                            .duration(500)
-                            .style("opacity", 0);
-                    })
-                    .transition()
-                    .duration(750)
-                    .delay(function(d, i) {
-                        return i / 300 * 500;
-                    })
-                    .attr("cx", function(d) {
-                        return xScale(d[0]);
-                    })
-                    .attr("cy", function(d) {
-                        return yScale(d[1]);
-                    })
-                    .style("fill-opacity", 1);
-
+                // Scale
+                scaleX = d3.scaleLinear().domain([minMax.xMin, minMax.xMax]).range([50,width-50]).nice();
+                scaleY = d3.scaleLinear().domain([minMax.yMin, minMax.yMax]).range([50,height-50]).nice();
+               
+                // Draw
+                var circles = d3Points.selectAll("circle").data(data);
+                circles.enter().append("svg:circle")
+                    .attr("class", "pca-node")
+                    .attr("cx", function(d) { return scaleX(d[0]); })
+                    .attr("cy", function(d) { return scaleY(d[1]); })
+                    .style("fill", function(d,i) { return d.color; });
                 circles.exit()
                     .transition()
-                    .duration(600)
-                    .delay(function(d, i) {
-                        return i / 300 * 500;
-                    })
-                    .attr("cx", width * .5)
-                    .attr("cy", height * .5)
+                    .duration(200)
+                    .delay(function(d, i) { return i / 300 * 100; })
                     .style("fill-opacity", "0")
                     .remove();
+                circles
+                    .style("fill", function(d,i) { return d.color; } )
+                    .transition()
+                    .duration(750)
+                    .delay(function(d, i) { return i / 300 * 100; })
+                    .attr("cx", function(d) { return scaleX(d[0]);})
+                    .attr("cy", function(d) { return scaleY(d[1]);})
+                    .style("fill", function(d,i) {  return d.color; } )
+                    .style("fill-opacity", .8);
 
+                // Axis
+                axisX = d3.axisTop().scale(scaleX).ticks(5);
+                axisY = d3.axisLeft().scale(scaleY).ticks(5);
 
                 d3yAxis
                     .attr("class", "axis")
-                    .attr("transform", "translate(0, " + yScale(0) + ")")
-                    .call(xAxis)
+                    .attr("transform", "translate(0, " + scaleY(0) + ")")
+                    .call(axisX)
                     .append("text")
+                    .attr("x", 50)
+                    .attr("y", 15)
                     .text("PC1");
-
+                   
                 d3xAxis
                     .attr("class", "axis")
-                    .attr("transform", "translate(" + xScale(0) + ", 0)")
-                    .call(yAxis)
+                    .attr("transform", "translate(" + scaleX(0) + ", 0)")
+                    .call(axisY)
                     .append("text")
-                    .attr("y", 10)
-                    .attr("dy", ".71em")
+                    .attr("y", 55)
+                    .attr("x", 25)
                     .text("PC2");
+                    
+
+                // Brush
+                var brush = d3.brush()
+                    .on("end", function(e){
+                        
+                        if (!d3.event.selection){
+                            osCohortService.setPatientCohort([], "PCA");
+                            return;
+                        } 
+
+                        var bv = d3.event.selection;
+                        var xMin = bv[0][0];
+                        var xMax = bv[1][0];
+                        var yMin = bv[0][1];
+                        var yMax = bv[1][1];
+
+                        var ids = d3Points.selectAll("circle").data().filter(function(d){
+                            var x = scaleX(d[0]);
+                            var y = scaleY(d[1]);
+                            return (x>xMin && x<xMax && y>yMin && y<yMax);
+                        }).map(function(d){
+                            return d.id;
+                        });
+
+                        osCohortService.setPatientCohort(ids, "PCA");
+                        
+
+                    });
+
+                d3Brush.attr("class","brush").call(brush)
 
                 setSelected();
+                
             }
 
-            vm.resize = function() {
-                setScale();
-                xAxis.scale(xScale);
-                yAxis.scale(yScale);
-                d3yAxis.attr("transform", "translate(0, " + yScale(0) + ")").call(xAxis);
-                d3xAxis.attr("transform", "translate(" + xScale(0) + ", 0)").call(yAxis);
-                d3Chart.selectAll("circle")
-                    .attr("cx", function(d) {
-                        return xScale(d[0]);
-                    })
-                    .attr("cy", function(d) {
-                        return yScale(d[1]);
-                    })
-            };
-
             // Listen For Resize
-            angular.element($window).bind('resize',
-                _.debounce(vm.resize, 300)
-            );
+            osApi.onResize.add(draw);
+            angular.element($window).bind('resize', _.debounce(draw, 300) );
 
+            var onPatientColorChange = function(value){
+                colors = value;
+                vm.showPanelColor = false;
+                draw();
+            }
+            
+            osCohortService.onPatientColorChange.add(onPatientColorChange);
+
+            // Destroy
+            $scope.$on('$destroy', function() {
+                osCohortService.onPatientColorChange.remove(onPatientColorChange);
+            });
         }
     }
 })();

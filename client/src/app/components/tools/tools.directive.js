@@ -19,19 +19,17 @@
         return directive;
 
         /** @ngInject */
-        function ToolsController(osApi, $state, $stateParams) {
-
-            if (angular.isUndefined($stateParams.datasource)){
-                $state.go("datasource");
-                return;
-            }
+        function ToolsController(osApi, $state) {
 
             var vm = this;
-            vm.datasource = $stateParams.datasource;
-            vm.tools = osApi.getTools();
-            vm.explore = function(tool, datasource) {
+            //osApi.query("lookup_oncoscape_tools",{beta:false}).then(function(response){
+            osApi.query("lookup_oncoscape_tools",{beta:false}).then(function(response){                
+                vm.tools = response.data;
+            });
+
+            vm.explore = function(tool) {
                 $state.go(tool, {
-                    datasource: datasource
+                    datasource: osApi.getDataSource().disease
                 });
             };
         }

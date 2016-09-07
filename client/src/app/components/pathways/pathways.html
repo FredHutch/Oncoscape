@@ -1,11 +1,7 @@
-<os-tool-menu datasource="{{vm.datasource}}"
- change="vm.addCohortGene()"></os-tool-menu>
 <os-tray content="tray-content-block" change="vm.resize($event)">
     <section class="tray-content">
         <div class="row">
-            <div class="col-xs-12 form-label">
-                <h2>Options</h2>
-            </div>
+            <br /><br />
             <div class="col-xs-12 form-item">
                 <label>Search</label>
                 <input type="text" class="form-control" ng-model="vm.search">
@@ -20,13 +16,14 @@
         </div>
     </section>
 </os-tray>
-<section class="tray-content-block">
-    <div class="container-fluid">
+<section class="tray-content-block" style="padding-right:0px;">
+    <div id="pathways-chart" class="pathways-chart"></div>
+    <div style="position:absolute;top:10px;text-align:center;width:100%;">
         <h2 class="h2-tool">Pathways</h2>
-        <h3 class="h3-datasource">{{vm.datasource}}</h3>
-        <div id="gbm-chart" class="pathways-chart"></div>
+        <span class="h3-tool">{{vm.datasource.source}} {{vm.datasource.name}}</span>
     </div>
 </section>
+
 <div class="modal fade pathways" id="gbm-webpage" tabindex="-1" role="dialog" aria-labelledby="myModalLabel">
     <div class="modal-dialog" role="document">
         <div class="modal-content">

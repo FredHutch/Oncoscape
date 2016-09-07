@@ -8,28 +8,25 @@
      /** @ngInject */
      function oncoscape($http, $location) {
 
-         var url = $location.protocol() + "://" + $location.host() + ":" + (($location.port() == "3002") ? 80 : $location.port()) + '/api/'
-         var request = function(req) {
+         var url = $location.protocol() + "://" + $location.host() + "/api/";
+         //var url = "http://dev.oncoscape.sttrcancer.io/api/";
+         var queryString = function(req) {
              var query = url + req.table;
-             query += "/?q="+encodeURIComponent(JSON.stringify(req.query));
-             // switch (typeof(req.query).toString()) {
-             //     case "object":
-             //         query += "/?q=" + encodeURIComponent(JSON.stringify(req.query));
-             //         break;
-             //     case "string":
-             //         query += "/" + req.query;
-             //         break;
-             // }
-             // debugger;
-             return $http({
+             if (angular.isDefined(req.query)) query += "/"+encodeURIComponent(JSON.stringify(req.query));
+             return query;
+         };
+
+         var query = function(req) {
+            return $http({
                  method: 'GET',
-                 url: query
-             })
-         }
+                 url: queryString(req)
+             });
+         };
 
          // Return Object
          return {
-             request: request
+            queryString: queryString,
+            query: query
          };
      }
  })();
