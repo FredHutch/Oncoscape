@@ -29,6 +29,7 @@
             osApi.query("biomarker_immune_tree").then(function(response){
                 osApi.setBusy(false);
                 data = response.data[0];
+                debugger;
                 draw();
             });
 
@@ -40,7 +41,7 @@
 
                 var color = d3.scaleOrdinal(d3.schemeCategory20c)
 
-                var g = d3.select('#sunburst-chart')
+                var chart = d3.select('#sunburst-chart')
                     .append('svg')
                     .attr('width', width)
                     .attr('height', height)
@@ -57,6 +58,7 @@
 
                 partition(root);
 
+
                 var xScale = d3.scaleLinear()
                     .domain([0, radius])
                     .range([0, Math.PI * 2])
@@ -68,14 +70,25 @@
                     .innerRadius(function(d) { return d.y0 })
                     .outerRadius(function(d) { return d.y1 })
 
-                var path = g.selectAll('path')
+                var g = chart.selectAll("g")
                     .data(root.descendants())
-                    .enter().append('path')
+                    .enter().append("g");
+
+
+                var path = g.append('path')
                         .attr("display", function(d) { return d.depth ? null : "none"; })
                         .attr("d", arc)
                         .attr("fill-rule", "evenodd")
                         .style('stroke', '#fff')
-                        .style("fill", function(d) { return color((d.children ? d : d.parent).data.name); })
+                        .style("fill", function(d) { return color((d.children ? d : d.parent).data.name); });
+                var text = g.append("text")
+                        //.attr("transform", function(d) { return "rotate(" + computeTextRotation(d) + ")"; })
+                        //.attr("x", function(d) { return y(d.y); })
+                        .attr("dx", "6") // margin
+                        .attr("dy", ".35em") // vertical-align
+                        .text("HEY BOO");
+
+
             };
         }
     }
