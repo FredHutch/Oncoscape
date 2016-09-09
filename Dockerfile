@@ -89,7 +89,7 @@ RUN sh -c "echo -n 'admin:' >> /home/sttrweb/Oncoscape/.htpasswd" && \
 WORKDIR /home/sttrweb/Oncoscape/
 
 # Extenal Port
-EXPOSE 10000
+EXPOSE 80
 
 # Start Supervisor
 CMD ["/usr/bin/supervisord", "-n", "-c", "/etc/supervisord/supervisord-kong.conf"]
