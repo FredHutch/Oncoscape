@@ -1,7 +1,7 @@
 # Build Run
 # docker run -d --name kong-database -p 5432:5432 -e "POSTGRES_USER=kong" -e "POSTGRES_DB=kong" postgres:9.4
 # docker build -t kong/oncoscape .
-# docker run -t -i -p 80:10000 --link kong-database:kong-database --name web kong/oncoscape bash
+# docker run -t -i -p 80 --name web kong/oncoscape bash
 # /usr/bin/supervisord -n -c /etc/supervisord/supervisord-kong.conf
 
 # Use Ubuntu 14.04 as the base container
@@ -34,11 +34,16 @@ RUN \
   add-apt-repository -y ppa:opencpu/opencpu-1.6 && \
   apt-get update && \
   apt-get install -y opencpu
-  
+
 # Install Kong
 RUN curl -sL https://github.com/Mashape/kong/releases/download/0.9.0/kong-0.9.0.trusty_all.deb > kong-0.9.0.trusty_all.deb
 RUN dpkg -i kong-0.9.0.trusty_all.deb
 ENV KONG_DATABASE=postgres
+ENV KONG_PG_HOST=140.107.117.18
+ENV KONG_PG_PORT=32023
+ENV KONG_PG_USER=GBdh62FfCvwtnqey
+ENV KONG_PG_PASSWORD=hUDrQe7m5fXKprJC
+ENV KONG_PG_DATABASE=OncoGateway
 
 # Install Node 6.x
 RUN curl -sL https://deb.nodesource.com/setup_6.x | bash -

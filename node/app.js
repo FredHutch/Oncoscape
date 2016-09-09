@@ -41,7 +41,6 @@ app.all('/api/auth',
     oauthshim.redirect,
     oauthshim.unhandled);
 
-console.log("!!");
 // Connect To Mongo
 var domain = "https://dev.oncoscape.sttrcancer.io";
 mongoose.connect(
