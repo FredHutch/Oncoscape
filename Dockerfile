@@ -44,6 +44,7 @@ ENV KONG_PG_PORT=32023
 ENV KONG_PG_USER=GBdh62FfCvwtnqey
 ENV KONG_PG_PASSWORD=hUDrQe7m5fXKprJC
 ENV KONG_PG_DATABASE=OncoGateway
+ENV KONG_ADMIN_LISTEN=127.0.0.1:8001
 
 # Install Node 6.x
 RUN curl -sL https://deb.nodesource.com/setup_6.x | bash -

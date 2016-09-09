@@ -146,18 +146,18 @@ mongoose.connection.on('connected', function() {
     });
 
     // If Dev + Running Gulp Proxy Everything Else
-    const httpProxy = require('http-proxy');
-    var proxy = httpProxy.createProxyServer();
-    app.all('/*', function(req, res, next) {
-        proxy.web(req, res, {
-            target: 'http://localhost:3000'
-        });
-    });
+    // const httpProxy = require('http-proxy');
+    // var proxy = httpProxy.createProxyServer();
+    // app.all('/*', function(req, res, next) {
+    //     proxy.web(req, res, {
+    //         target: 'http://localhost:3000'
+    //     });
+    // });
 
 });
 
 
 // Start Listening
-app.listen(80, function() {
+app.listen(9000, function() {
     console.log("GO");
 });

@@ -50,22 +50,22 @@ http {
         # Expose Kong Admin Api - PWD Protected
         location /admin {
             proxy_pass http://127.0.0.1:8001;
-            auth_basic "Restricted Content";
-            auth_basic_user_file /home/sttrweb/Oncoscape/.htpasswd;
+            #auth_basic "Restricted Content";
+            #auth_basic_user_file /home/sttrweb/Oncoscape/.htpasswd;
         }
 
         # Expose Node PM2 Api - PWD Protected
         location /data {
             proxy_pass http://127.0.0.1:9000;
-            auth_basic "Restricted Content";
-            auth_basic_user_file /home/sttrweb/Oncoscape/.htpasswd;
+            #auth_basic "Restricted Content";
+            #auth_basic_user_file /home/sttrweb/Oncoscape/.htpasswd;
         }
 
         # Expose Open CPU Api - PWD Protected
-        location /cpu {
-            proxy_pass http://127.0.0.1:8004;
-            auth_basic "Restricted Content";
-            auth_basic_user_file /home/sttrweb/Oncoscape/.htpasswd;
-        }
+        #location /cpu {
+        #    proxy_pass http://127.0.0.1:8004;
+            #auth_basic "Restricted Content";
+            #auth_basic_user_file /home/sttrweb/Oncoscape/.htpasswd;
+        #}
     }
 }
