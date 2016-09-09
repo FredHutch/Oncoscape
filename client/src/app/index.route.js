@@ -112,6 +112,12 @@
                 authenticate: true,
                 datasource: true
             })
+            .state('sunburst', {
+                url: '/sunburst/{datasource}',
+                template: '<os-sunburst>',
+                authenticate: false,
+                datasource: true
+            })
            
 
         $urlRouterProvider.otherwise('/');

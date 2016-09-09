@@ -21,6 +21,9 @@
         /** @ngInject */
         function TimelinesController(osApi, osCohortService, $state, $scope, $stateParams, $window, $document, moment, d3, _) {
 
+            // Loading . . . 
+            osApi.setBusy(true);
+            
             // Data
             var patientsAll = [];
             var patientsFiltered = [];
@@ -80,6 +83,8 @@
             vm.resetZoom = function(){
                 selectedIds = [];
                 osCohortService.setPatientCohort([],"All Patients");
+                chart.d3ScrollY.call(brushY.move, null);
+                chart.d3ScrollX.call(brushY.move, null);
                 vm.update();
 
             };
@@ -98,8 +103,10 @@
                 var d3ScrollX  = elChart.append("svg");
                     d3ScrollX.attr("class","timeline-scroll-x");
                 
-
+                var rPatients = d3Chart.append("g");
+                    rPatients.attr("class","timeline-patients-hitarea");
                 var gPatients = d3Chart.append("g");
+
                 var rAxis     = d3Chart.append("rect");
                     rAxis.attr("class","timeline-axis-bg");
                 var gAxis     = d3Chart.append("g");
@@ -113,6 +120,7 @@
                     d3ScrollY: d3ScrollY,
                     d3ScrollX: d3ScrollX,
                     gPatients: gPatients,
+                    rPatients: rPatients,
                     gAxis: gAxis,
                     rAxis: rAxis
                 };
@@ -215,7 +223,7 @@
                 cols.exit().remove();
                 var colEnter = cols.enter().append("rect")
                     .attr('class','event')
-                    .attr('width', function(d) { return Math.max( (scaleX(d.tsEndAligned) - scaleX(d.tsStartAligned)), 2); })
+                    .attr('width', function(d) { return Math.max( (scaleX(d.tsEndAligned) - scaleX(d.tsStartAligned)), 3); })
                     .attr('height', function(d){ return (d.name == "Radiation" || d.name=="Drug") ? heightRow/2 : heightRow; })
                     .attr('y', function(d) { return ((d.name == "Radiation") ? heightRow/2 : 0); })
                     .attr('x', function(d) { return scaleX(d.tsStartAligned); })
@@ -246,8 +254,7 @@
                     .style('fill', function(d){ return d.color; })
 
                 // Brush
-
-                chart.d3Chart.call(brushSelect);
+                chart.rPatients.call(brushSelect);
                 brushSelect.on("end", function(){
                     if (d3.event.selection==null){
                         return;
@@ -259,22 +266,8 @@
                         ids.push(patientsFiltered[i].id);
                     }
                     osCohortService.setPatientCohort(ids,"All Patients");
-                    chart.d3Chart.call(d3.event.target.move,null);                    
+                    chart.rPatients.call(d3.event.target.move,null);                    
                 });
-
-                // chart.d3Chart.call(d3.brushY().on("end", function(){
-                //     var selection = d3.event.selection.sort(function(a,b){ return a-b; });
-                    
-                //     var lowerIndex = Math.floor(selection[0]/yZoom/20);
-                //     var upperIndex = Math.ceil(selection[1]/yZoom/20);
-                //     var ids = [];
-                //     for (var i=lowerIndex; i<=upperIndex; i++){
-                //         ids.push(patientsFiltered[i].id);
-                //     }
-                //     osCohortService.setPatientCohort(ids,"All Patients")
-                //     chart.d3Chart.call(d3.event.target.move,null);                    
-                    
-                // }));
             };
 
             var updateZoom = function(height, width){
@@ -295,6 +288,7 @@
                 chart.d3ScrollY.attr("height", height);
                 chart.d3ScrollX.attr("width", width);
                 chart.d3Chart.attr("height", height+70).attr("width", width);
+                chart.rPatients.attr("height", height+70).attr("width", width);
                 chart.gAxis.attr('transform', function() { return "translate(0," +  (height) + ")"; });
                 chart.rAxis.attr('transform', function() { return "translate(0," +  (height) + ")"; }).attr("width",width).attr("fill","#FFF");
             };
@@ -369,15 +363,6 @@
                             .duration(750)
                             .attr("transform", "translate(" + xTran + "," + yTran + ") scale("+xZoom+","+yZoom+")");
 
-
-                        //scaleX
-                        //updateAxis(height, width);
-                        // chart.gAxis
-                        //     .transition()
-                        //     .duration(750)
-                        //     .attr("transform", "translate(" + xTran + "," + (height-70) + ") scale("+xZoom+",1)")
-                        //     .call(axis);
-                        
         
                         var st = d3.zoomIdentity.translate(xTran).scale(xZoom).rescaleX(scaleX);
                         var axis = d3.axisBottom(st).ticks(7);
@@ -414,18 +399,17 @@
             /* Init Data */
             osApi.setBusy(true);
             osApi.query(osApi.getDataSource().clinical.events,{}).then(function(response){
-
                 var colorFn = function(status){
-                    return (status=="Birth") ?  "#17becf" : 
-                        (status=="Diagnosis") ? "#8c564b" :
-                        (status=="Pathology") ? "#7f7f7f" :
-                        (status=="Progression") ? "#1f77b4" :
-                        (status=="Absent") ? "#000000" :
-                        (status=="Status") ? "#bcbd22" :
-                        (status=="Radiation") ? "#e7969c" :
-                        (status=="Procedure") ? "#ff7f0e" :
-                        (status=="Encounter") ? "#d62728" :
-                        (status=="Drug") ? "#9467bd" :
+                    return (status=="Birth") ?  "#E91E63" : 
+                        (status=="Diagnosis") ? "#673AB7" :
+                        (status=="Pathology") ? "#2196F3" :
+                        (status=="Progression") ? "#00BCD4" :
+                        (status=="Absent") ? "#CDDC39" :
+                        (status=="Status") ? "#FFC107" :
+                        (status=="Radiation") ? "#FF5722" :
+                        (status=="Procedure") ? "#795548" :
+                        (status=="Encounter") ? "#607D8B" :
+                        (status=="Drug") ? "#03A9F4" :
                         "black";
                 };   
 
