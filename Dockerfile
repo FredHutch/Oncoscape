@@ -34,10 +34,11 @@ RUN \
   add-apt-repository -y ppa:opencpu/opencpu-1.6 && \
   apt-get update && \
   apt-get install -y opencpu
-
+  
 # Install Kong
 RUN curl -sL https://github.com/Mashape/kong/releases/download/0.9.0/kong-0.9.0.trusty_all.deb > kong-0.9.0.trusty_all.deb
 RUN dpkg -i kong-0.9.0.trusty_all.deb
+ENV KONG_DATABASE=postgres
 
 # Install Node 6.x
 RUN curl -sL https://deb.nodesource.com/setup_6.x | bash -
