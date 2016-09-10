@@ -33,7 +33,7 @@ RUN \
   apt-get install -y software-properties-common && \
   add-apt-repository -y ppa:opencpu/opencpu-1.6 && \
   apt-get update && \
-  apt-get install -y opencpu
+  apt-get install -y opencpu 
 
 # Install Kong
 RUN curl -sL https://github.com/Mashape/kong/releases/download/0.9.0/kong-0.9.0.trusty_all.deb > kong-0.9.0.trusty_all.deb
@@ -59,14 +59,15 @@ ADD /kong.conf /etc/kong/
 # Add NGinx Config 
 ADD  /nginx-kong-oncoscape.template /usr/local/kong/
 
-# Add OpenCPU Config
-ADD /opencpu.conf /etc/apache2/sites-available/
+# Add OpenCPU Config (remove port 80)
+RUN truncate -s 0 /etc/apache2/ports.conf
+# ADD /opencpu.conf /etc/apache2/sites-available/
 
 # Create Folder To Hold NGinx Cache
 RUN mkdir /data /data/nginx /data/nginx/cache
 
 # Add Supervisord Config
-Run mkdir /etc/supervisord
+RUN mkdir /etc/supervisord
 ADD  /supervisord-kong.conf /etc/supervisord/
 
 # Create The "sttrweb" User + Web Directory
