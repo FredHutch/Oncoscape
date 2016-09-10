@@ -29,7 +29,6 @@
             osApi.query("biomarker_immune_tree").then(function(response){
                 osApi.setBusy(false);
                 data = response.data[0];
-                debugger;
                 draw();
             });
 
@@ -74,7 +73,10 @@
                     .data(root.descendants())
                     .enter().append("g");
 
-
+function computeTextRotation(d) {
+    return xScale(d.x0 + d.x1);
+  //return (xScale(d.x0 + d.d1 / 2) - Math.PI / 2) / Math.PI * 180;
+}
                 var path = g.append('path')
                         .attr("display", function(d) { return d.depth ? null : "none"; })
                         .attr("d", arc)
@@ -83,7 +85,8 @@
                         .style("fill", function(d) { return color((d.children ? d : d.parent).data.name); });
                 var text = g.append("text")
                         //.attr("transform", function(d) { return "rotate(" + computeTextRotation(d) + ")"; })
-                        //.attr("x", function(d) { return y(d.y); })
+                        .attr("x", function(d) { return d.y0; })
+                        .attr("d", arc)
                         .attr("dx", "6") // margin
                         .attr("dy", ".35em") // vertical-align
                         .text("HEY BOO");
