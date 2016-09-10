@@ -50,8 +50,8 @@ http {
         # Expose Kong Admin Api - PWD Protected
         location /admin {
             proxy_pass http://127.0.0.1:8001;
-            auth_basic "Restricted Content";
-            auth_basic_user_file /home/sttrweb/Oncoscape/.htpasswd;
+            #auth_basic "Restricted Content";
+            #auth_basic_user_file /home/sttrweb/Oncoscape/.htpasswd;
         }
 
         # Expose Node PM2 Api - PWD Protected
