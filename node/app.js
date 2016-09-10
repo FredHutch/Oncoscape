@@ -156,7 +156,11 @@ mongoose.connection.on('connected', function() {
 
 });
 
-
+   app.get("/up", function(req, res, next) {
+        var d = new Date();
+        res.send(d.toString());
+        res.end();
+    })
 // Start Listening
 app.listen(9000, function() {
     console.log("GO");

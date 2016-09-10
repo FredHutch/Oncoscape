@@ -84,8 +84,8 @@ WORKDIR /home/sttrweb/Oncoscape/client
 ADD client-build /home/sttrweb/Oncoscape/client
 
 # Create HtPassword For Secure Resources
-RUN sh -c "echo -n 'admin:' >> /home/sttrweb/Oncoscape/.htpasswd" && \
-	sh -c "openssl p@ssw0rd -apr1 >> /home/sttrweb/Oncoscape/.htpasswd"
+#RUN sh -c "echo -n 'admin:' >> /home/sttrweb/Oncoscape/.htpasswd" && \
+#	sh -c "openssl p@ssw0rd -apr1 >> /home/sttrweb/Oncoscape/.htpasswd"
 
 # Set Working Dir
 WORKDIR /home/sttrweb/Oncoscape/
