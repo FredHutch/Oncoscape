@@ -26,7 +26,7 @@ http {
                         application/x-javascript
                         application/atom+xml;
 
-    # custom server
+    # Public Server
     server {
 
         server_name oncoscape;
