@@ -10,6 +10,7 @@ dependencies:
 test:
   override:
     - docker run -d -p 80:80 --name oncoscape-$CIRCLE_SHA1 fredhutch/oncoscape:$CIRCLE_SHA1; sleep 120
+    - curl --retry 10 --retry-delay 10 -v http://127.0.0.1:80
 
 deployment:
   master: 
