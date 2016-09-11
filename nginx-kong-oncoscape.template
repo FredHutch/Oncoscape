@@ -45,11 +45,13 @@ http {
         # Kong Api
         location /api/ {
             proxy_pass http://127.0.0.1:8000/;
+            proxy_set_header Host $host;
         }
 
         # Expose Kong Admin Api - PWD Protected
-        location /admin/ {
+        location /admin {
             proxy_pass http://127.0.0.1:8001/;
+            proxy_set_header Host $host;
             #auth_basic "Restricted Content";
             #auth_basic_user_file /home/sttrweb/Oncoscape/.htpasswd;
         }
@@ -57,13 +59,15 @@ http {
         # Expose Node PM2 Api - PWD Protected
         location /data/ {
             proxy_pass http://127.0.0.1:9000/;
+            proxy_set_header Host $host;
             #auth_basic "Restricted Content";
             #auth_basic_user_file /home/sttrweb/Oncoscape/.htpasswd;
         }
 
         # Expose Open CPU Api - PWD Protected
-        location /cpu/ {
+        location /ocpu/ {
             proxy_pass http://127.0.0.1:8004/ocpu/;
+            proxy_set_header Host $host;
             #auth_basic "Restricted Content";
             #auth_basic_user_file /home/sttrweb/Oncoscape/.htpasswd;
         }

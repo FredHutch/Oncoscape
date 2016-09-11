@@ -2,7 +2,7 @@
 # docker run -d --name kong-database -p 5432:5432 -e "POSTGRES_USER=kong" -e "POSTGRES_DB=kong" postgres:9.4
 # docker build -t kong/oncoscape .
 # docker run -t -i -p 80 --name web kong/oncoscape bash
-# /usr/bin/supervisord -n -c /etc/supervisord/supervisord-kong.conf
+# /usr/bin/supervisord -n -c /etc/supervisord/supervisord-kong.conf &
 
 # Use Ubuntu 14.04 as the base container
 FROM ubuntu:14.04
@@ -36,8 +36,9 @@ RUN \
   apt-get install -y opencpu 
 
 # Install Kong
-RUN curl -sL https://github.com/Mashape/kong/releases/download/0.9.0/kong-0.9.0.trusty_all.deb > kong-0.9.0.trusty_all.deb
-RUN dpkg -i kong-0.9.0.trusty_all.deb
+RUN curl -sL https://github.com/Mashape/kong/releases/download/0.9.0/kong-0.9.0.trusty_all.deb > kong-0.9.0.trusty_all.deb  && \
+	dpkg -i kong-0.9.0.trusty_all.deb
+
 ENV KONG_DATABASE=postgres
 ENV KONG_PG_HOST=140.107.117.18
 ENV KONG_PG_PORT=32023
@@ -90,8 +91,13 @@ ADD client-build /home/sttrweb/Oncoscape/client
 # Set Working Dir
 WORKDIR /home/sttrweb/Oncoscape/
 
-# Extenal Port
+# Expose Ports
 EXPOSE 80
+EXPOSE 8000
+EXPOSE 8001
+EXPOSE 8003
+EXPOSE 8004
+
 
 # Start Supervisor
 CMD ["/usr/bin/supervisord", "-n", "-c", "/etc/supervisord/supervisord-kong.conf"]
