@@ -57,10 +57,8 @@ http {
         }
 
         # Expose Node PM2 Api - PWD Protected
-        location /data {
-            rewrite ^/data(/.*)$ $1 last;
+         location /data/ {
             proxy_pass http://127.0.0.1:8003/api/;
-            proxy_set_header Host $host;
             #auth_basic "Restricted Content";
             #auth_basic_user_file /home/sttrweb/Oncoscape/.htpasswd;
         }
@@ -69,6 +67,8 @@ http {
         location /ocpu {
             proxy_pass http://127.0.0.1:8004/ocpu/;
             proxy_set_header Host $host;
+            port_in_redirect off;
+            server_name_in_redirect off;
             #auth_basic "Restricted Content";
             #auth_basic_user_file /home/sttrweb/Oncoscape/.htpasswd;
         }

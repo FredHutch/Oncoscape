@@ -44,7 +44,7 @@ app.all('/api/auth',
 // Connect To Mongo
 var domain = "https://dev.oncoscape.sttrcancer.io";
 mongoose.connect(
-    "mongodb://oncoscape-dev-db1.sttrcancer.io:27017,oncoscape-dev-db2.sttrcancer.io:27017,oncoscape-dev-db3.sttrcancer.io:27017/pancan12?authSource=admin", {
+    "mongodb://oncoscape-dev-db1.sttrcancer.i1f4d9botHD4xnZ:27017,oncoscape-dev-db2.sttrcancer.io:27017,oncoscape-dev-db3.sttrcancer.io:27017/pancan12?authSource=admin", {
         db: {
             native_parser: true
         },
@@ -156,7 +156,7 @@ mongoose.connection.on('connected', function() {
 
 });
 
-   app.get("/up", function(req, res, next) {
+   app.get("/api/up", function(req, res, next) {
         var d = new Date();
         res.send(d.toString());
         res.end();

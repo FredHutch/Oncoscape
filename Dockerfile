@@ -12,6 +12,8 @@ RUN apt-key adv --keyserver keyserver.ubuntu.com --recv-keys 51716619E084DAB9
 RUN apt-get -y -qq update && apt-get -y -qq install \
 	netcat \
 	openssl \
+	apache2 \
+	apache2-utils \
 	libpcre3 \
 	dnsmasq \
 	procps \
@@ -28,76 +30,45 @@ RUN apt-get -y -qq update && apt-get -y -qq install \
 
 # Install OpenCPU
 RUN \
-  apt-get update && \
-  apt-get -y dist-upgrade && \
-  apt-get install -y software-properties-common && \
-  add-apt-repository -y ppa:opencpu/opencpu-1.6 && \
-  apt-get update && \
-  apt-get install -y opencpu 
+	apt-get update && \
+	apt-get -y dist-upgrade && \
+	apt-get install -y software-properties-common && \
+	add-apt-repository -y ppa:opencpu/opencpu-1.6 && \
+	apt-get update && \
+	apt-get install -y opencpu 
+RUN truncate -s 0 /etc/apache2/ports.conf
 
 # Install Kong
 RUN curl -sL https://github.com/Mashape/kong/releases/download/0.9.0/kong-0.9.0.trusty_all.deb > kong-0.9.0.trusty_all.deb  && \
 	dpkg -i kong-0.9.0.trusty_all.deb
+ENV KONG_DATABASE=postgres KONG_PG_HOST=140.107.117.18 KONG_PG_PORT=32023 KONG_PG_USER=GBdh62FfCvwtnqey KONG_PG_PASSWORD=hUDrQe7m5fXKprJC KONG_PG_DATABASE=OncoGateway KONG_ADMIN_LISTEN=127.0.0.1:8001
+ADD /kong.conf /etc/kong/
 
-ENV KONG_DATABASE=postgres
-ENV KONG_PG_HOST=140.107.117.18
-ENV KONG_PG_PORT=32023
-ENV KONG_PG_USER=GBdh62FfCvwtnqey
-ENV KONG_PG_PASSWORD=hUDrQe7m5fXKprJC
-ENV KONG_PG_DATABASE=OncoGateway
-ENV KONG_ADMIN_LISTEN=127.0.0.1:8001
-
-# Install Node 6.x
+# Install Node 6.x + PM2
 RUN curl -sL https://deb.nodesource.com/setup_6.x | bash -
 RUN apt-get -y -qq install nodejs
-
-# Install PM2
 RUN npm install -g pm2
-
-# Add Kong Config
-ADD /kong.conf /etc/kong/
 
 # Add NGinx Config 
 ADD  /nginx-kong-oncoscape.template /usr/local/kong/
 
-# Add OpenCPU Config (remove port 80)
-RUN truncate -s 0 /etc/apache2/ports.conf
-# ADD /opencpu.conf /etc/apache2/sites-available/
-
-# Create Folder To Hold NGinx Cache
-RUN mkdir /data /data/nginx /data/nginx/cache
-
-# Add Supervisord Config
-RUN mkdir /etc/supervisord
-ADD  /supervisord-kong.conf /etc/supervisord/
-
-# Create The "sttrweb" User + Web Directory
+# Create Application User + Add Custom Code
 RUN useradd -u 7534 -m -d /home/sttrweb -c "sttr web application" sttrweb && \
 	mkdir /home/sttrweb/Oncoscape
-
-# Add Server Side Code
-WORKDIR /home/sttrweb/Oncoscape/server
+ADD client-build /home/sttrweb/Oncoscape/client
 ADD node /home/sttrweb/Oncoscape/server
+WORKDIR /home/sttrweb/Oncoscape/server
 RUN npm install
 
-# Add Client Side Code
-WORKDIR /home/sttrweb/Oncoscape/client
-ADD client-build /home/sttrweb/Oncoscape/client
 
-# Create HtPassword For Secure Resources
-#RUN sh -c "echo -n 'admin:' >> /home/sttrweb/Oncoscape/.htpasswd" && \
-#	sh -c "openssl p@ssw0rd -apr1 >> /home/sttrweb/Oncoscape/.htpasswd"
-
-# Set Working Dir
-WORKDIR /home/sttrweb/Oncoscape/
+# Entry Point Used To Create HTPassword + Replace Tokens In Config Files
+#ADD entrypoint.sh /home/sttrweb/Oncoscape/entrypoint.sh
+#ENTRYPOINT ["/home/sttrweb/Oncoscape/entrypoint.sh"]
 
 # Expose Ports
-EXPOSE 80
-EXPOSE 8000
-EXPOSE 8001
-EXPOSE 8003
-EXPOSE 8004
+EXPOSE 80 8000 8001 8003 8004
 
-
-# Start Supervisor
+# Config + Start Supervisor
+RUN mkdir /etc/supervisord
+ADD  /supervisord-kong.conf /etc/supervisord/
 CMD ["/usr/bin/supervisord", "-n", "-c", "/etc/supervisord/supervisord-kong.conf"]
