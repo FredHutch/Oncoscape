@@ -4,7 +4,7 @@
 # docker network create --driver=bridge --subnet=172.28.0.0/16 --ip-range=172.28.5.0/24 --gateway=172.28.5.254 brz
 # docker build -t kong/oncoscape .
 # docker run -t -i -p 80 --name web kong/oncoscape bash
-# /usr/bin/supervisord -n -c /etc/supervisord/supervisord-kong.conf &
+# /usr/bin/supervisord -n -c /etc/supervisord/docker-supervisord.conf &
 
 # Use Ubuntu 14.04 as the base container
 FROM ubuntu:14.04
@@ -48,7 +48,7 @@ ADD  /docker-nginx.template /usr/local/kong/
 RUN useradd -u 7534 -m -d /home/sttrweb -c "sttr web application" sttrweb && \
 	mkdir /home/sttrweb/Oncoscape
 ADD client-build /home/sttrweb/Oncoscape/client
-ADD node /home/sttrweb/Oncoscape/server
+ADD server /home/sttrweb/Oncoscape/server
 WORKDIR /home/sttrweb/Oncoscape/server
 RUN npm install
 
