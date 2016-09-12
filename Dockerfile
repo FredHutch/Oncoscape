@@ -52,14 +52,17 @@ ADD server /home/sttrweb/Oncoscape/server
 WORKDIR /home/sttrweb/Oncoscape/server
 RUN npm install
 
+# Add Supervisord Config
+RUN mkdir /etc/supervisord
+ADD  /docker-supervisord.conf /etc/supervisord/
+
 # Entry Point Used To Create HTPassword + Replace Tokens In Config Files
-#ADD entrypoint.sh /home/sttrweb/Oncoscape/docker-entrypoint.sh
-#ENTRYPOINT ["/home/sttrweb/Oncoscape/docker-entrypoint.sh"]
+ADD docker-entrypoint.sh /home/sttrweb/Oncoscape/
+RUN chmod +x /home/sttrweb/Oncoscape/docker-entrypoint.sh
 
 # Expose Ports
 EXPOSE 80 8000 8001 8003 8004
 
-# Config + Start Supervisor
-RUN mkdir /etc/supervisord
-ADD  /docker-supervisord.conf /etc/supervisord/
-CMD ["/usr/bin/supervisord", "-n", "-c", "/etc/supervisord/docker-supervisord.conf"]
+
+# Fire It Up
+ENTRYPOINT ["/home/sttrweb/Oncoscape/docker-entrypoint.sh"]

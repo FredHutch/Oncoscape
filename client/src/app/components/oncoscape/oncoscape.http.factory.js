@@ -19,7 +19,10 @@
          var query = function(req) {
             return $http({
                  method: 'GET',
-                 url: queryString(req)
+                 url: queryString(req),
+                 headers: {
+                    apikey: 'password'
+                 }
              });
          };
 

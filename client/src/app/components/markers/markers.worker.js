@@ -10,7 +10,7 @@
             try {
                 n = new ActiveXObject(X[M]);
             } catch (e) {}
-        n.onreadystatechange = a, n.open("GET", t, !0), n.send("")
+        n.onreadystatechange = a, n.open("GET", t, !0), n.setRequestHeader('apikey','password'), n.send("")
     };
 
     var request = function(object, data, format) {
