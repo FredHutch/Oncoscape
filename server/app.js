@@ -76,7 +76,7 @@ mongoose.connection.on('connected', function() {
                 delete query.$limit;
             }
 
-            // Skip
+            // skipp
             var skip = null;
             if (query.$skip) {
                 skip = query.$skip;
@@ -101,7 +101,6 @@ mongoose.connection.on('connected', function() {
             find.toArray(function(err, results) {
                 res.send(results);
                 res.end();
-                next();
             });
         });
     };
@@ -110,14 +109,12 @@ mongoose.connection.on('connected', function() {
     app.get('/api/:collection/:query', function(req, res, next) {
         var query = (req.params.query) ? JSON.parse(req.params.query) : {};
         processQuery(req, res, next, query);
-        next();
     });
 
     // Query using get querystring (no client cache)
     app.get('/api/:collection*', function(req, res, next) {
         var query = (req.query.q) ? JSON.parse(req.query.q) : {};
         processQuery(req, res, next, query);
-        next();
     });
 
     // If Dev + Running Gulp Proxy Everything Else
@@ -128,6 +125,11 @@ mongoose.connection.on('connected', function() {
     //         target: 'http://localhost:3000'
     //     });
     // });
+    app.get("/api/ping2", function(req, res, next) {
+        res.send((new Date()).toString());
+        res.end();
+    });
+
 
 });
 
@@ -135,7 +137,6 @@ mongoose.connection.on('connected', function() {
 app.get("/api/ping", function(req, res, next) {
     res.send((new Date()).toString());
     res.end();
-    next();
 });
 
 // Start Listening
