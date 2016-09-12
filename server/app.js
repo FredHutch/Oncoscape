@@ -109,7 +109,7 @@ mongoose.connection.on('connected', function() {
     app.get('/api/:collection/:query', function(req, res, next) {
         var query = (req.params.query) ? JSON.parse(req.params.query) : {};
         processQuery(req, res, next, query);
-    });
+    }); 
 
     // Query using get querystring (no client cache)
     app.get('/api/:collection*', function(req, res, next) {
