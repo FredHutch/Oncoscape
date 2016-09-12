@@ -3,7 +3,7 @@
 
 # docker network create --driver=bridge --subnet=172.28.0.0/16 --ip-range=172.28.5.0/24 --gateway=172.28.5.254 brz
 # docker build -t kong/oncoscape .
-# docker run -t -i -p 80 --name web kong/oncoscape bash
+# docker run -t -i -p 80:80 --name web kong/oncoscape bash
 # /usr/bin/supervisord -n -c /etc/supervisord/docker-supervisord.conf &
 
 # Use Ubuntu 14.04 as the base container

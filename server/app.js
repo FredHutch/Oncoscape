@@ -1,26 +1,21 @@
 const mongoose = require('mongoose');
 const express = require('express');
-const compression = require('compression');
 const bodyParser = require('body-parser');
-const uuid = require('node-uuid');
 const oauthshim = require('oauth-shim');
 
-// --------------------------------------------------------- //
-// ----- Configure Webserver Middleware -------------------- //
-// --------------------------------------------------------- //
+// ----------------------- //
+// -----  Middleware ----- //
+// ----------------------- //
 
 var app = express();
 app.use(bodyParser.json());
-app.use(bodyParser.urlencoded({
-    extended: true
-}));
+app.use(bodyParser.urlencoded({extended: true}));
 
-// ----------------------------------------------- //
-// ----- Configure OAuth API  -------------------- //
-// ----------------------------------------------- //
+// --------------------- //
+// ----- OAuth API ----- //
+// --------------------- //
 
 function oauthHandler(req, res, next) {
-
     // Check that this is a login redirect with an access_token (not a RESTful API call via proxy) 
     if (req.oauthshim &&
         req.oauthshim.redirect &&
@@ -28,12 +23,8 @@ function oauthHandler(req, res, next) {
         req.oauthshim.data.access_token &&
         req.oauthshim.options &&
         !req.oauthshim.options.path) {}
-
-    // Call next to complete the operation 
     next()
 }
-
-// Oauth Proxy
 app.all('/api/auth',
     oauthshim.interpret,
     oauthHandler,
@@ -41,29 +32,25 @@ app.all('/api/auth',
     oauthshim.redirect,
     oauthshim.unhandled);
 
-// Connect To Mongo
+// --------------------- //
+// ----- Mongo API ----- //
+// --------------------- //
 var domain = "https://dev.oncoscape.sttrcancer.io";
 mongoose.connect(
     "mongodb://oncoscape-dev-db1.sttrcancer.i1f4d9botHD4xnZ:27017,oncoscape-dev-db2.sttrcancer.io:27017,oncoscape-dev-db3.sttrcancer.io:27017/pancan12?authSource=admin", {
-        db: {
-            native_parser: true
-        },
+        db: { native_parser: true },
         server: {
             poolSize: 5,
             reconnectTries: Number.MAX_VALUE
         },
-        replset: {
-            rs_name: 'rs0'
-        },
+        replset: { rs_name: 'rs0' },
         user: "oncoscapeRead",
         pass: "i1f4d9botHD4xnZ"
     });
 
 mongoose.connection.on('connected', function() {
 
-    console.log("CONNECTED");
-
-    // Pull Networks From Databse
+    // Pull OAuth Networks From Databas + Init OAuth
     mongoose.connection.db.collection("lookup_oncoscape_authentication").find().toArray(function(err, response) {
         var networks = response.map(function(v) {
             v.domain = domain;
@@ -71,10 +58,6 @@ mongoose.connection.on('connected', function() {
         });
         oauthshim.init(networks);
     });
-
-    // ----------------------------------------------- //
-    // ----- Configure Mongo API  -------------------- //
-    // ----------------------------------------------- //
 
     // Generic Method For Querying Mongo
     var processQuery = function(req, res, next, query) {
@@ -93,7 +76,7 @@ mongoose.connection.on('connected', function() {
                 delete query.$limit;
             }
 
-            // Skup
+            // Skip
             var skip = null;
             if (query.$skip) {
                 skip = query.$skip;
@@ -118,31 +101,23 @@ mongoose.connection.on('connected', function() {
             find.toArray(function(err, results) {
                 res.send(results);
                 res.end();
+                next();
             });
         });
     };
-    app.get("/api/time", function(req, res, next) {
-        var d = new Date();
-        res.send(d.toString());
-        res.end();
-    })
-    app.get('/api/token/:user', function(req, res, next) {
-        var user = (req.params.user) ? JSON.parse(req.params.user) : {};
-        console.dir(user);
-        res.send("dONE");
-        res.end();
-    });
 
     // Query using file path (client cache)
     app.get('/api/:collection/:query', function(req, res, next) {
         var query = (req.params.query) ? JSON.parse(req.params.query) : {};
         processQuery(req, res, next, query);
+        next();
     });
 
     // Query using get querystring (no client cache)
     app.get('/api/:collection*', function(req, res, next) {
         var query = (req.query.q) ? JSON.parse(req.query.q) : {};
         processQuery(req, res, next, query);
+        next();
     });
 
     // If Dev + Running Gulp Proxy Everything Else
@@ -156,13 +131,12 @@ mongoose.connection.on('connected', function() {
 
 });
 
-app.get("/api/up", function(req, res, next) {
-    var d = new Date();
-    res.send(d.toString());
+// Ping Method - Used For Testing
+app.get("/api/ping", function(req, res, next) {
+    res.send((new Date()).toString());
     res.end();
+    next();
 });
 
 // Start Listening
-app.listen(8002, function() {
-    console.log("GO");
-});
+app.listen(8002, function() { console.log("UP"); });
