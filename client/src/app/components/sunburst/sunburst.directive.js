@@ -89,7 +89,7 @@ function computeTextRotation(d) {
                         .attr("d", arc)
                         .attr("dx", "6") // margin
                         .attr("dy", ".35em") // vertical-align
-                        .text("HEY BOO");
+                        .text("");
 
 
             };
