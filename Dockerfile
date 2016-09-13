@@ -1,15 +1,27 @@
 # Build Run
 # docker run -d --name kong-database -p 5432:5432 -e "POSTGRES_USER=kong" -e "POSTGRES_DB=kong" postgres:9.4
-
-# docker network create --driver=bridge --subnet=172.28.0.0/16 --ip-range=172.28.5.0/24 --gateway=172.28.5.254 brz
 # docker build -t kong/oncoscape .
 # docker run -t -i -p 80:80 --name web kong/oncoscape bash
-# /usr/bin/supervisord -n -c /etc/supervisord/docker-supervisord.conf &
+# /usr/bin/supervisord -n -c /home/sttrweb/Oncoscape/docker-supervisord.conf &
 
 # Use Ubuntu 14.04 as the base container
 FROM ubuntu:14.04
 
-# Add the package verification key
+# Set Environment Variables - These values are for test environment + are dynamically replaced upon deploy
+ENV KONG_DATABASE=postgres \
+	KONG_PG_HOST=140.107.117.18 \
+	KONG_PG_PORT=32023 \
+	KONG_PG_USER=GBdh62FfCvwtnqey \
+	KONG_PG_PASSWORD=hUDrQe7m5fXKprJC \
+	KONG_PG_DATABASE=OncoGateway \
+	KONG_ADMIN_LISTEN=127.0.0.1:8001 \
+	MONGO_CONNECTION=mongodb://oncoscape-dev-db1.sttrcancer.i1f4d9botHD4xnZ:27017,oncoscape-dev-db2.sttrcancer.io:27017,oncoscape-dev-db3.sttrcancer.io:27017/pancan12?authSource=admin \
+	MONGO_USERNAME=oncoscapeRead \
+	MONGO_PASSWORD=i1f4d9botHD4xnZ \
+	HT_USERNAME=zager \
+	HT_PASSWORD=regaz
+
+# Add Standard Packages + Verification Key
 RUN apt-key adv --keyserver keyserver.ubuntu.com --recv-keys 51716619E084DAB9
 RUN apt-get -y -qq update && apt-get -y -qq install \
 	netcat \
@@ -33,36 +45,45 @@ RUN apt-get -y -qq update && apt-get -y -qq install \
 # Install Kong
 RUN curl -sL https://github.com/Mashape/kong/releases/download/0.9.0/kong-0.9.0.trusty_all.deb > kong-0.9.0.trusty_all.deb  && \
 	dpkg -i kong-0.9.0.trusty_all.deb
-ENV KONG_DATABASE=postgres KONG_PG_HOST=140.107.117.18 KONG_PG_PORT=32023 KONG_PG_USER=GBdh62FfCvwtnqey KONG_PG_PASSWORD=hUDrQe7m5fXKprJC KONG_PG_DATABASE=OncoGateway KONG_ADMIN_LISTEN=127.0.0.1:8001
-Add /docker-kong.conf /etc/kong/
 
 # Install Node 6.x + PM2
 RUN curl -sL https://deb.nodesource.com/setup_6.x | bash -
 RUN apt-get -y -qq install nodejs
 RUN npm install -g pm2
 
-# Add NGinx Config 
-ADD  /docker-nginx.template /usr/local/kong/
+# Install OpenCPU
+RUN \
+  apt-get update && \
+  apt-get -y dist-upgrade && \
+  apt-get install -y software-properties-common && \
+  add-apt-repository -y ppa:opencpu/opencpu-1.6 && \
+  apt-get update && \
+  apt-get install -y opencpu
+RUN truncate -s 0 /etc/apache2/ports.conf
+RUN echo "ServerName localhost" >> /etc/apache2/apache2.conf
 
-# Create Application User + Add Custom Code
+
+# Create Application User
 RUN useradd -u 7534 -m -d /home/sttrweb -c "sttr web application" sttrweb && \
 	mkdir /home/sttrweb/Oncoscape
-ADD client-build /home/sttrweb/Oncoscape/client
-ADD server /home/sttrweb/Oncoscape/server
-WORKDIR /home/sttrweb/Oncoscape/server
+
+# Copy App Code + Run NPM Install
+COPY client-build /home/sttrweb/Oncoscape/client
+COPY server /home/sttrweb/Oncoscape/server
+WORKDIR /home/sttrweb/Oncoscape/server/
 RUN npm install
 
-# Add Supervisord Config
-RUN mkdir /etc/supervisord
-ADD  /docker-supervisord.conf /etc/supervisord/
-
-# Entry Point Used To Create HTPassword + Replace Tokens In Config Files
-ADD docker-entrypoint.sh /home/sttrweb/Oncoscape/
-RUN chmod +x /home/sttrweb/Oncoscape/docker-entrypoint.sh
+# Copy Config Files
+WORKDIR /home/sttrweb/Oncoscape/
+COPY /docker-kong.conf /home/sttrweb/Oncoscape/
+COPY /docker-nginx.template /home/sttrweb/Oncoscape/
+COPY /docker-supervisord.conf /home/sttrweb/Oncoscape/
+COPY /docker-entrypoint.sh /home/sttrweb/Oncoscape/
 
 # Expose Ports
 EXPOSE 80 8000 8001 8003 8004
 
-
 # Fire It Up
+RUN chmod +x /home/sttrweb/Oncoscape/docker-entrypoint.sh
 ENTRYPOINT ["/home/sttrweb/Oncoscape/docker-entrypoint.sh"]
+#CMD ["/usr/bin/supervisord", "-n", "-c", "/home/sttrweb/Oncoscape/docker-supervisord.conf"]

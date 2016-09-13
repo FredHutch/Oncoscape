@@ -35,17 +35,17 @@ app.all('/api/auth',
 // --------------------- //
 // ----- Mongo API ----- //
 // --------------------- //
-var domain = "https://dev.oncoscape.sttrcancer.io";
+var domain = process.env.MONGO_DOMAIN;
 mongoose.connect(
-    "mongodb://oncoscape-dev-db1.sttrcancer.i1f4d9botHD4xnZ:27017,oncoscape-dev-db2.sttrcancer.io:27017,oncoscape-dev-db3.sttrcancer.io:27017/pancan12?authSource=admin", {
+    process.env.MONGO_CONNECTION, {
         db: { native_parser: true },
         server: {
             poolSize: 5,
             reconnectTries: Number.MAX_VALUE
         },
         replset: { rs_name: 'rs0' },
-        user: "oncoscapeRead",
-        pass: "i1f4d9botHD4xnZ"
+        user: process.env.MONGO_USERNAME,
+        pass: process.env.MONGO_PASSWORD
     });
 
 mongoose.connection.on('connected', function() {
@@ -125,12 +125,6 @@ mongoose.connection.on('connected', function() {
     //         target: 'http://localhost:3000'
     //     });
     // });
-    app.get("/api/ping2", function(req, res, next) {
-        res.send((new Date()).toString());
-        res.end();
-    });
-
-
 });
 
 // Ping Method - Used For Testing
