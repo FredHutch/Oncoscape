@@ -1,9 +1,3 @@
-# Build Run
-# docker run -d --name kong-database -p 5432:5432 -e "POSTGRES_USER=kong" -e "POSTGRES_DB=kong" postgres:9.4
-# docker build -t kong/oncoscape .
-# docker run -t -i -p 80:80 --name web kong/oncoscape bash
-# /usr/bin/supervisord -n -c /home/sttrweb/Oncoscape/docker-supervisord.conf &
-
 # Use Ubuntu 14.04 as the base container
 FROM ubuntu:14.04
 
