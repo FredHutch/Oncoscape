@@ -46,8 +46,6 @@
             vm.datasource = osApi.getDataSource();
             vm.cohorts = cohorts;
 
-
-
             vm.all = {show:true, color:'#000'};
 
             var colors = ["#E91E63", "#673AB7","#2196F3","#00BCD4","#4CAF50","#CDDC39","#FFC107","#FF5722","#795548", "#607D8B","#03A9F4","#03A9F4"];//['#004358','#800080','#BEDB39','#FD7400','#1F8A70'];
@@ -57,7 +55,7 @@
             }
 
             vm.toggle = function(){
-                osCohortService.getSurvivalData( vm.cohorts.filter(function(c){ return c.show; }), vm.all.show );
+                osCohortService.getSurvivalData( vm.cohorts.filter(function(c){ return c.show; }), vm.all.show, "SurvivalController" );
             };
 
             // Create D3 Elements
@@ -108,8 +106,10 @@
 
             var onSurvivalData = function(result){
                 if (result.data.cmd=="getSurvivalData"){
-                    data = result.data.data;
-                    draw();
+                    if (result.data.data.correlationId=="SurvivalController"){
+                        data = result.data.data;
+                        draw();
+                    }
                 }
             }
             osCohortService.onMessage.add(onSurvivalData);

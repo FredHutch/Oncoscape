@@ -14,7 +14,9 @@ ENV KONG_DATABASE=postgres \
 	MONGO_PASSWORD=i1f4d9botHD4xnZ \
 	MONGO_DOMAIN=https://dev.oncoscape.sttrcancer.io \
 	HT_USERNAME=admin \
-	HT_PASSWORD=password
+	HT_PASSWORD=password \
+	NODE_PORT=8002 \
+	NODE_DEBUG=0
 
 # Add Standard Packages + Verification Key
 RUN apt-key adv --keyserver keyserver.ubuntu.com --recv-keys 51716619E084DAB9

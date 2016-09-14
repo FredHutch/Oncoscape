@@ -212,6 +212,8 @@ cmd.getSurvivalData = function(data){
 
 	},-Infinity);
 
+	sd.correlationId = data.correlationId;
+
 
 	send('getSurvivalData', sd);
 }

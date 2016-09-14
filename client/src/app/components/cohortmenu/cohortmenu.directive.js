@@ -25,6 +25,7 @@
             var vm = this;
             vm.cohorts = [];
             vm.patientChartOption = null;
+            vm.cohortName = "";
             vm.addCohort = function(){};
             vm.setCohort = function(){};
             vm.removeCohort = function(){};
@@ -216,9 +217,80 @@
             });
 
 
-            // Interact with Cohort Service
+            /* SURVIVAL - This very much needs to be refactored into a component */
+            var sChart = d3.select("#cohortmenu-survival").append("svg");
+            
+            var sLayout = {
+                width: 238,
+                height: 170,
+                xScale : null,
+                yScale : null
+            }
+            var addCurve = function(points){
+            
+                // Define Line
+                var valueline = d3.line()
+                    .x(function(d) { return sLayout.xScale(d[0]); })
+                    .y(function(d) { return sLayout.yScale(d[2])+10; });
+
+                sChart.append("path")
+                    .attr("class", "line")
+                    .attr("stroke-width", 1.5)
+                    .attr("stroke", points.color)
+                    .attr("fill","none")
+                    .attr("d", valueline(points.data.line));
+
+                for (var i=0; i<points.data.tick.length; i++){
+                    sChart.append("line")
+                        .attr("class", "line")
+                        .attr("stroke-width", .5)
+                        .attr("stroke", points.color)
+                        .attr("x1", sLayout.xScale(points.data.tick[i][0]))
+                        .attr("x2", sLayout.xScale(points.data.tick[i][0]))
+                        .attr("y1", sLayout.yScale(points.data.tick[i][2])+5)
+                        .attr("y2", sLayout.yScale(points.data.tick[i][2])+10);
+                }
+            }
+            var colors = ["#E91E63", "#673AB7","#2196F3","#00BCD4","#4CAF50","#CDDC39","#FFC107","#FF5722","#795548", "#607D8B","#03A9F4","#03A9F4"];//['#004358','#800080','#BEDB39','#FD7400','#1F8A70'];
+            osCohortService.onMessage.add(function(result){
+                if (result.data.cmd=="getSurvivalData"){
+                    var data = result.data.data;
+                    if (data.correlationId=="CohortMenuController"){
+                        sChart
+                            .attr("width", '100%')
+                            .attr("height", sLayout.height+10);
+                        sLayout.xScale = d3.scaleLinear()
+                            .domain([result.data.data.min,  result.data.data.max])
+                            .range([0, sLayout.width]);
+
+                        sLayout.yScale = d3.scaleLinear()
+                            .domain([0,100])
+                            .range([sLayout.height,0]);
+
+                        sChart.selectAll(".line").remove();
+                        for (var i=0; i<data.cohorts.length; i++){
+                            data.cohorts[i].color = (i<data.cohorts.length-1) ? colors[i] : "#000";
+                            addCurve(data.cohorts[i]);
+                        }
+                        //addCurve(data.cohorts[0]);
+                        //data.cohorts[1].color = "#0b97d3";
+                        //addCurve(data.cohorts[1]);
+                    }
+                }
+            });
+            /* END SURVIVAL */
+
+
+
+
+
+
             osCohortService.onPatientsSelect.add(function(obj){
+                vm.cohortName = obj.name;
                 osCohortService.getPatientMetric();
+                var chts =  JSON.parse(JSON.stringify(osCohortService.getPatientCohorts()));
+                chts.push(obj);
+                osCohortService.getSurvivalData(chts,true,"CohortMenuController");
             });
             osCohortService.onGenesSelect.add(function(obj){
                 console.log("GENES");

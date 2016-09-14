@@ -58,10 +58,10 @@
             onPatientColorChange.dispatch(_patientColor);
         }
 
-        var getSurvivalData = function(cohorts, all){
+        var getSurvivalData = function(cohorts, all, correlationId){
             worker.postMessage({
                 cmd: "getSurvivalData",
-                data: {cohorts:cohorts, all:all}
+                data: {cohorts:cohorts, all:all, correlationId:correlationId}
             });
         };
 
