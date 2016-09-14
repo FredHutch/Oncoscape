@@ -12,8 +12,9 @@ ENV KONG_DATABASE=postgres \
 	MONGO_CONNECTION=mongodb://oncoscape-dev-db1.sttrcancer.i1f4d9botHD4xnZ:27017,oncoscape-dev-db2.sttrcancer.io:27017,oncoscape-dev-db3.sttrcancer.io:27017/pancan12?authSource=admin \
 	MONGO_USERNAME=oncoscapeRead \
 	MONGO_PASSWORD=i1f4d9botHD4xnZ \
-	HT_USERNAME=zager \
-	HT_PASSWORD=regaz
+	MONGO_DOMAIN=https://dev.oncoscape.sttrcancer.io \
+	HT_USERNAME=admin \
+	HT_PASSWORD=password
 
 # Add Standard Packages + Verification Key
 RUN apt-key adv --keyserver keyserver.ubuntu.com --recv-keys 51716619E084DAB9
