@@ -25,8 +25,7 @@ R  --vanilla CMD INSTALL -l $R_LIBS --no-test-load --no-lock DGI
 cd ../analysisPackages
 R  --vanilla CMD INSTALL -l $R_LIBS --no-test-load --no-lock PCA
 R  --vanilla CMD INSTALL -l $R_LIBS --no-test-load --no-lock PLSR
-R  --vanilla CMD INSTALL --no-test-load --no-lock GeneSetBinomialMethods 
-
+ 
 cd ../Oncoscape
 R  --vanilla CMD INSTALL -l $R_LIBS --no-test-load --no-lock .
 

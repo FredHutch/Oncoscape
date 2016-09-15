@@ -1,0 +1,40 @@
+{
+  "name": "rstats",
+  "version": "0.3.1",
+  "description": "A node.js interface for statistical programming language R",
+  "main": "./lib/index.js",
+  "scripts": {
+    "test": "node-gyp configure build && mocha test",
+    "install": "node-gyp rebuild",
+    "test-cov": "./node_modules/.bin/istanbul cover ./node_modules/.bin/_mocha --dir ./reports/coverage -- -R spec",
+    "coveralls": "./node_modules/.bin/istanbul cover ./node_modules/.bin/_mocha --dir ./reports/coveralls/coverage --report lcovonly -- -R spec && cat ./reports/coveralls/coverage/lcov.info | ./node_modules/coveralls/bin/coveralls.js && rm -rf ./reports/coveralls"
+  },
+  "dependencies": {
+    "bindings": "1.2.0",
+    "nan": "^2.1.0"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/Planeshifter/node-Rstats.git"
+  },
+  "keywords": [
+    "statistics",
+    "R",
+    "Rcpp"
+  ],
+  "author": "Philipp Burckhardt",
+  "license": "GPL-2",
+  "gypfile": true,
+  "bugs": {
+    "url": "https://github.com/Planeshifter/node-Rstats/issues"
+  },
+  "homepage": "https://github.com/Planeshifter/node-Rstats",
+  "devDependencies": {
+    "chai": "^2.1.2",
+    "coveralls": "^2.11.2",
+    "istanbul": "^0.3.8",
+    "jshint": "^2.6.3",
+    "jshint-stylish": "^1.0.1",
+    "mocha": "^2.2.1"
+  }
+}

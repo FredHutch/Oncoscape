@@ -21,21 +21,31 @@
         return directive;
 
         /** @ngInject */
-        function LoginController(osApi, $state, $scope, osAuth) {
+        function LoginController(osApi, $state) {
             
+            var userApi = osApi.getUserApi();
 
             var vm = this;
-            vm.networks = osAuth.getAuthSources();
-            vm.login = osAuth.login;
+            vm.domains = userApi.getDomains();
+            vm.user = userApi.getUser();
+            vm.hasError = false;
 
-            var loginSuccess = function(v){ $state.go("datasource"); };
-
-            osAuth.onLogin.add(loginSuccess);
-
-            // Desotroy
-            $scope.$on('$destroy', function() {
-                osAuth.onLogin.remove(loginSuccess);
-            });            
+            vm.login = function() {
+                var promise = userApi.login(vm.user);
+                if (angular.isDefined(promise)){
+                    promise.then(function() {
+                        if (vm.user.authenticated) {
+                            $state.go("datasource");
+                        } else {
+                            vm.hasError = true;
+                        }
+                    });
+                }else{
+                    $state.go("datasource");
+                }
+                
+            }
         }
     }
+
 })();

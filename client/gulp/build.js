@@ -3,23 +3,10 @@
 var path = require('path');
 var gulp = require('gulp');
 var conf = require('./conf');
-var manifest = require('gulp-appcache');
+
 
 var $ = require('gulp-load-plugins')({
   pattern: ['gulp-*', 'main-bower-files', 'uglify-save-license', 'del']
-});
-
-gulp.task('manifest', function(){
-  gulp.src([path.join(conf.paths.dist, '/**/*')])
-    .pipe(manifest({
-      relativePath: '/',
-      hash: true,
-      preferOnline: true,
-      network: ['http://*', 'https://*', '*'],
-      filename: 'app.manifest',
-      exclude: 'app.manifest'
-     }))
-    .pipe(gulp.dest( conf.paths.dist ));
 });
 
 gulp.task('partials', function () {
@@ -109,4 +96,4 @@ gulp.task('clean', function () {
   return $.del([path.join(conf.paths.dist, '/'), path.join(conf.paths.tmp, '/')]);
 });
 
-gulp.task('build', ['html', 'fonts', 'other', 'manifest']);
+gulp.task('build', ['html', 'fonts', 'other']);

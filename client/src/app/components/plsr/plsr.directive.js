@@ -19,7 +19,7 @@
         return directive;
 
         /** @ngInject */
-        function PlsrController(osApi, osHistory, $state, $stateParams, $timeout, $scope, d3, moment, $sce, $window, _) {
+        function PlsrController(osApi, $state, $stateParams, $timeout, $scope, d3, moment, $sce, $window, _) {
 
             if (angular.isUndefined($stateParams.datasource)){
                 $state.go("datasource");
@@ -31,6 +31,7 @@
             var d3Tooltip = d3.select("body").append("div").attr("class", "tooltip plsr-tooltip")
 
             // Properties
+            var cohortGene = osApi.getCohortGene();
             var width, height, xScale, yScale, xMax, yMax, brush;
 
             // View Model
@@ -41,30 +42,37 @@
             vm.survivalMinFilter = vm.survivalMinValue = 3;
             vm.survivalMaxFilter = vm.survivalMaxValue = 7;
             vm.geneSets = [];
-            vm.geneSet = null;            
+            vm.geneSet = null;
+            vm.optCohortGenes = cohortGene.get();
+            vm.optCohortGene = vm.optCohortGenes[0];
             vm.frame;
             vm.tip = null;
 
-            // History Integration
-            var selectedIds = (osHistory.getGeneSelection() == null) ? [] : osHistory.getGeneSelection().ids;
-            function saveSelected() {
-                var selected  = d3Chart.selectAll(".plsr-node-selected")[0];
-                if (selected.length==0) return;
-                osHistory.addGeneSelection("PLSR", "Manual Selection",
-                    d3Chart.selectAll(".plsr-node-selected")[0].map(function(node){ 
-                        return node.__data__.name.toUpperCase()
-                    })
-                );
+
+            // Cohorts
+            vm.addCohortGene = function(){
+                var cohortName = "PLSR " + moment().format('- H:mm:ss - M/D/YY');
+                var cohortIds = d3Chart.selectAll(".plsr-node-selected")[0].map(function(node){ return node.__data__.name.toUpperCase(); });
+                if (cohortIds.length==0) return;
+                var cohort = {name:cohortName, ids:cohortIds};
+                cohortGene.add(cohort);
+                vm.optCohortGene = cohort;
             }
-            function setSelected() {
-                if (selectedIds.length == 0) {
+            $scope.$watch('vm.optCohortGene', function() {
+                var ids = vm.optCohortGene.ids;
+                if (ids == "*"){
                     d3Chart.selectAll(".plsr-node-selected").classed("plsr-node-selected", false);
-                } else {
-                    d3Chart.selectAll("circle").classed("plsr-node-selected", function() {
-                        return (selectedIds.indexOf(this.__data__.name) >= 0)
+                }
+                else{
+                    d3Chart.selectAll("circle").classed("plsr-node-selected", function(){
+                        return (ids.indexOf(this.__data__.name)>=0)
                     });
                 }
-            }
+            });
+
+            
+
+            
 
             // Initialize
             osApi.setBusy(true)("Loading Dataset");
@@ -73,12 +81,15 @@
                     return v.indexOf("mtx.mrna") >= 0
                 });
                 mtx = mtx[mtx.length - 1].replace(".RData", "");
+                osApi.setBusyMessage("Creating PLSR Matrix");
                 osApi.getPLSR(vm.datasource, mtx).then(function() {
+                    osApi.setBusyMessage("Loading Gene Sets");
                     osApi.getGeneSetNames().then(function(response) {
 
                         // Load Gene Sets
                         vm.geneSets = response.payload;
                         vm.geneSet = vm.geneSets[0];
+                        osApi.setBusyMessage("Loading Patients");
                         osApi.getSummarizedPLSRPatientAttributes().then(function(response) {
 
                             // Load Min Max Values
@@ -90,12 +101,6 @@
                             $scope.$watch('vm.geneSet', function() {
                                 vm.update();
                             });
-
-                            // History
-                            osHistory.onGeneSelectionChange.add(function(selection) {
-                                selectedIds = selection.ids;
-                                setSelected();
-                            });
                         });
                     });
                 });
@@ -104,7 +109,10 @@
 
             // API Call To Calculate PLSR
             vm.update = function() {
-                
+                osApi.setBusyMessage("Calculating PLSR");
+
+
+
                 var factors = [{
                     name: "Survival",
                     low: Number(vm.survivalMinFilter) * 365.24,
@@ -116,6 +124,7 @@
                 }];
 
                 osApi.getCalculatedPLSR(vm.geneSet, factors).then(function(response) {
+                    osApi.setBusyMessage("Rendering PLSR");
 
                     // Clean Up Data
                     var payload = response.payload;
@@ -133,10 +142,7 @@
                 });
 
                 function setScale() {
-                    width = $window.innerWidth - 400; 
-                    if (angular.element(".tray-right").attr("locked")=="false"){
-                        width += 300;
-                    } 
+                    width = $window.innerWidth - 100; 
                     height = $window.innerHeight - 190;
                     if (angular.element(".tray").attr("locked")=="true") width -= 300;
 
@@ -174,7 +180,6 @@
                                     [0, 0],
                                     [0, 0]
                                 ]));
-                            saveSelected();
                         });
 
                     d3Chart.call(brush);
@@ -283,7 +288,6 @@
                         });
 
                     text.exit().remove();
-                    setSelected();
                 }
 
                 vm.resize = function () {

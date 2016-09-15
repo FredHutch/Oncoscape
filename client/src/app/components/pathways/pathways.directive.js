@@ -19,52 +19,31 @@
         return directive;
 
         /** @ngInject */
-        function PathwaysController(osApi, osCohortService, $state, $stateParams, $scope, $sce, $window, moment, cytoscape, _) {
+        function PathwaysController(osApi, $state, $stateParams, $scope, $sce, $window, moment, cytoscape, _) {
 
+            if (angular.isUndefined($stateParams.datasource)){
+                $state.go("datasource");
+                return;
+            }
             var markersNetwork;
             var vm = this;
-            
+            var cohortGene = osApi.getCohortGene();
             // Elements
-            var elChart = angular.element("#pathways-chart");
+            var elChart = angular.element("#gbm-chart");
             var csChart;
 
-            // History Integration
-            /*
-            var skipSave = false;
-            var selectedIds = (osHistory.getGeneSelection() == null) ? null : osHistory.getGeneSelection().ids;
-            function saveSelected() {
-                if (skipSave) { skipSave = false; return; }
-                var ids = csChart.$('node[nodeType="gene"]:selected').map(function(ele){ return ele.data().id.toUpperCase() });
-                osHistory.addGeneSelection("Pathways", "Manual Selection", ids );
-            }
-            function setSelected() {
-
-                skipSave = true;
-                csChart.startBatch();
-                if (selectedIds == null) {
-                    csChart.$('node[nodeType="gene"]:selected')
-                        .forEach( function(ele){
-                            ele.deselect();
-                        });
-                } else {
-                    csChart.$('node[nodeType="gene"]')
-                        .forEach( function(ele){
-                            ele[ (this.indexOf(ele.id())==-1) ? "deselect" : "select"]();
-                        }, selectedIds);
-                }
-                csChart.endBatch();
-            }
-            */
-            
-            vm.datasource = osApi.getDataSource();
+            vm.optCohortGenes = cohortGene.get();
+            vm.optCohortGene = vm.optCohortGenes[0];
+            vm.datasource = $stateParams.datasource;
             vm.search = "";
             vm.frame;
             vm.tip = null;
-            vm.linkTitle = "";
-            vm.links = [];
 
             vm.resize = function(){
-                elChart.width( '100%' );
+                var width = $window.innerWidth;
+                if (width > 760)  width -= 140;
+                if (angular.element(".tray").attr("locked")=="true") width -= 300;
+                elChart.width( width );
                 elChart.height($window.innerHeight - 90);
                 if (csChart){
                     csChart.resize();
@@ -72,7 +51,47 @@
                 } 
             }
 
+            // Listen For Resize
+            angular.element($window).bind('resize', 
+                _.debounce(vm.resize, 300)
+            );
 
+            // Cohorts
+            vm.addCohortGene = function(){
+                var cohortName = "Pathways " + moment().format('- H:mm - M/D/YY');
+                var cohortIds = csChart.$('node[nodeType="gene"]:selected').map(function(ele){ return ele.data().id.toUpperCase() });
+                var cohort = {name:cohortName, ids:cohortIds};
+                if (cohortIds.length==0) return;
+                cohortGene.add(cohort);
+                vm.optCohortGene = cohort;
+            }
+            $scope.$watch('vm.optCohortGene', function() {
+                if (angular.isUndefined(csChart)) return;
+                csChart.startBatch();
+                var highlight = true;
+                var degmap = {};
+                if (vm.optCohortGene.ids=="*"){
+                    csChart.$('node[nodeType="gene"]:selected')
+                        .forEach( function(ele){
+                            ele.deselect();
+                            degmap[ele.id()] = {display:'element'};
+                        }, degmap);
+                }else{
+                    csChart.$('node[nodeType="gene"]')
+                        .forEach( function(ele){
+                            if (this.ids.indexOf(ele.id())>=0){
+                                ele.select();
+                                this.degmap[ele.id()] = {display:'element'};
+                            }else{
+                                ele.deselect();
+                                this.degmap[ele.id()] = {display: (highlight) ? 'element' : 'none' };
+                            }
+                        }, {degmap:degmap, ids:vm.optCohortGene.ids} );
+                }
+                csChart.batchData(degmap);
+                csChart.endBatch();
+            });
+            
 
             $scope.$watch('vm.search', function() {
                 if (angular.isUndefined(csChart)) return;
@@ -93,49 +112,39 @@
 
             // Load Datasets
             osApi.setBusy(true);
-            osApi.query("render_pathways").then(function(result){
-                markersNetwork = result.data[0];
+            osApi.setDataset(vm.datasource).then(function() {
 
+                osApi.getPathway().then(function(response) {
+
+                    markersNetwork = angular.fromJson(response.payload);
                     csChart = cytoscape({
                             container: elChart,
                             elements: markersNetwork.elements,
                             style: getStyle(),
-                            minZoom: .1,
+                            minZoom: .2,
                             maxZoom: 5,
-                            zoom: 0.2,
-                            wheelSensitivity: .5,
                             layout: {
                                 name: "preset",
                                 fit: true
                             }
                         })
-                    
-                        //.on('select', 'node', _.debounce(saveSelected, 300))
                         .on('click', 'node', function(e) {
                             if (e.cyTarget.data().nodeType!="gene") return;
-                            angular.element('#gbm-webpage').modal();
-                            $scope.$apply(function() {
-                                //vm.frame = $sce.trustAsResourceUrl("https://resources.sttrcancer.org/markers-patients");
-                                vm.frame = $sce.trustAsResourceUrl("https://www.genecards.org/cgi-bin/carddisp.pl?gene=" + e.cyTarget.data().id);
-                            });
+                            //angular.element('#gbm-webpage').modal();
+                            $window.open("https://www.genecards.org/cgi-bin/carddisp.pl?gene=" + e.cyTarget.data().id);
+                            // $scope.$apply(function() {
+                            //     vm.frame = $sce.trustAsResourceUrl(url);
+                            // });
                         })
                         .on('click', 'edge', function(e) {
-                            
-                            // links =[
-                            //     { name: "PubMed Article", url:"https://www.ncbi.nlm.nih.gov/pubmed/?term=" + e.cyTarget.data().pmid },
-                            //     { name: "PubMed Search",  url:"http://www.ncbi.nlm.nih.gov/pubmed/?term=(GENE "+e.cyTarget.data().source+") AND (GENE "+e.cyTarget.data().target+")"}
-                            //     { name: e.cyTarget.data().source+"Gene Card", url: "https://www.genecards.org/cgi-bin/carddisp.pl?gene="+e.cyTarget.data().source}
-                            //     { name: e.cyTarget.data().target+"Gene Card", url: "https://www.genecards.org/cgi-bin/carddisp.pl?gene="+e.cyTarget.data().target}
-                            // ];
-                            // $window.open("https://www.ncbi.nlm.nih.gov/pubmed/?term=" + e.cyTarget.data().pmid);
-                            // $window.open("http://www.ncbi.nlm.nih.gov/pubmed/?term=(GENE "+e.cyTarget.data().source+") AND (GENE "+e.cyTarget.data().target+")");
-                            // $window.open("https://www.genecards.org/cgi-bin/carddisp.pl?gene="+e.cyTarget.data().source);
-                            // $window.open("https://www.genecards.org/cgi-bin/carddisp.pl?gene="+e.cyTarget.data().target);
-                            
-                            angular.element('#gbm-webpage').modal();
-                            $scope.$apply(function() {
-                                vm.frame = $sce.trustAsResourceUrl("https://www.ncbi.nlm.nih.gov/pubmed/?term=" + e.cyTarget.data().pmid );
-                            });
+                            //angular.element('#gbm-webpage').modal();
+                            $window.open("https://www.ncbi.nlm.nih.gov/pubmed/?term=" + e.cyTarget.data().pmid);
+                            $window.open("http://www.ncbi.nlm.nih.gov/pubmed/?term=(GENE "+e.cyTarget.data().source+") AND (GENE "+e.cyTarget.data().target+")");
+                            $window.open("https://www.genecards.org/cgi-bin/carddisp.pl?gene="+e.cyTarget.data().source);
+                            $window.open("https://www.genecards.org/cgi-bin/carddisp.pl?gene="+e.cyTarget.data().target);
+                            // $scope.$apply(function() {
+                            //     vm.frame = $sce.trustAsResourceUrl(url);
+                            // });
 
                         }).on('mouseover', 'edge', function(e) {
                             $scope.$apply(function() {
@@ -163,17 +172,10 @@
                         })
 
 
-                    // Register History Component
-                    /*
-                    osHistory.onGeneSelectionChange.add(function(selection){
-                        selectedIds = selection.ids;
-                        setSelected();
-                    });
-                    setSelected();
-                    */
-                    vm.resize();
+
                     osApi.setBusy(false);
                 });
+            });
 
 
             function getStyle() {
@@ -434,13 +436,6 @@
                 ]
 
             }
-
-            // Listen For Resize
-            osApi.onResize.add(vm.resize);
-            angular.element($window).bind('resize', 
-                _.debounce(vm.resize, 300)
-            );
-
         }
     }
 })();

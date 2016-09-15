@@ -25,7 +25,6 @@ R --vanilla CMD INSTALL --no-test-load --no-lock NetworkMaker
 cd ../analysisPackages
 R --vanilla CMD INSTALL --no-test-load --no-lock PCA
 R --vanilla CMD INSTALL --no-test-load --no-lock PLSR
-R --vanilla CMD INSTALL --no-test-load --no-lock GeneSetBinomialMethods
 
 cd ../Oncoscape
 R  --vanilla CMD INSTALL --no-test-load --no-lock .
