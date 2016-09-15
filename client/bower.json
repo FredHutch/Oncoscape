@@ -20,21 +20,20 @@
     "moment": "~2.10.6",
     "animate.css": "~3.4.0",
     "angular": "~1.4.2",
-    "d3": "^3.5.13",
+    "d3": "~4.2.2",
     "datatables.net": "^1.10.11",
     "datatables.net-bs": "^1.10.11",
     "angular-rangeslider": "^0.0.14",
     "angular-ui-router-anim-in-out": "^1.0.2",
     "js-signals": "signals#^1.0.0",
-    "sockjs": "^0.3.4",
     "cytoscape": "^2.6.3",
     "qtip2": "^2.2.1",
     "cytoscape-qtip": "^2.3.0",
-    "d3-timeline": "^0.0.5",
     "underscore": "^1.8.3",
-    "three.js": "threejs#*",
     "components-font-awesome": "^4.5.0",
-    "angular-bootstrap-contextmenu": "^0.9.7"
+    "angular-bootstrap-contextmenu": "^0.9.7",
+    "angular-nvd3": "^1.0.7",
+    "hello": "^1.13.4"
   },
   "overrides": {
     "bootstrap-sass": {

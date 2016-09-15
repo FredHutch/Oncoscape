@@ -1,51 +1,55 @@
 # Use Ubuntu 14.04 as the base container
 FROM ubuntu:14.04
 
-# ADD the CRAN Repo to the apt sources list
-RUN echo "deb http://cran.fhcrc.org/bin/linux/ubuntu trusty/" > /etc/apt/sources.list.d/cran.fhcrc.org.list
-
 # Add the package verification key
 RUN apt-key adv --keyserver keyserver.ubuntu.com --recv-keys 51716619E084DAB9
 
 # Update the system and install packages
 RUN apt-get -y -qq update && apt-get -y -qq install \
-
-	r-base=3.2.2* \
-	r-recommended=3.2.2-1trusty0* \
+	apt-transport-https \
 	make \
 	gcc \
 	g++ \
 	libxml2 \
 	libxml2-dev \
-	python-pip
+	python-pip \
+	curl \
+	nano \
+	nginx \
+	supervisor
 
-# Install latest version of Node 5.x
-RUN curl -sL https://deb.nodesource.com/setup_5.x | bash -
-RUN apt-get -y install nodejs
+# Add NGinx Config + Cache Folder
+ADD  /nginx.conf /etc/nginx/
+RUN mkdir /data /data/nginx /data/nginx/cache
 
-# Create the sttrweb user and data directory
+# Add Supervisord Config
+RUN mkdir /etc/supervisord
+ADD  /supervisord.conf /etc/supervisord/
+
+# Install Node 6.x
+RUN curl -sL https://deb.nodesource.com/setup_6.x | bash -
+RUN apt-get -y -qq install nodejs
+
+# Install PM2
+RUN npm install -g pm2
+
+# Create The "sttrweb" User + Web Directory
 RUN useradd -u 7534 -m -d /home/sttrweb -c "sttr web application" sttrweb && \
-	mkdir /home/sttrweb/data && \
-	mkdir /home/sttrweb/Oncoscape && \
-	mkdir /home/sttrweb/rlib 
+	mkdir /home/sttrweb/Oncoscape
 
-# Install R Modules
-ADD r_modules /home/sttrweb/Oncoscape/r_modules
-WORKDIR /home/sttrweb/Oncoscape/r_modules
-RUN make install
-
-# Install Node Server + Modules
-ADD server /home/sttrweb/Oncoscape/server
+# Set Working Directory + Copy Code Into Container
 WORKDIR /home/sttrweb/Oncoscape/server
+ADD node /home/sttrweb/Oncoscape/server
+
+# Run NPM Install
 RUN npm install
 
-# Install Rstats
-WORKDIR /home/sttrweb/Oncoscape/server/rstats
-RUN npm install -g node-gyp && node-gyp configure build 
+WORKDIR /home/sttrweb/Oncoscape/client
+ADD client-build /home/sttrweb/Oncoscape/client
 
-EXPOSE  80
+WORKDIR /home/sttrweb/Oncoscape
 
-# Switch to the server directory and start it up
-WORKDIR /home/sttrweb/Oncoscape/server
+# Extenal Port
+EXPOSE 80
 
-CMD ["node", "start.js"]
+CMD ["/usr/bin/supervisord", "-n", "-c", "/etc/supervisord/supervisord.conf"]

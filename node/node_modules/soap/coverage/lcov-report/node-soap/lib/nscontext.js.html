@@ -1,0 +1,734 @@
+<!doctype html>
+<html lang="en">
+<head>
+    <title>Code coverage report for node-soap/lib/nscontext.js</title>
+    <meta charset="utf-8" />
+    <link rel="stylesheet" href="../../prettify.css" />
+    <link rel="stylesheet" href="../../base.css" />
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <style type='text/css'>
+        .coverage-summary .sorter {
+            background-image: url(../../sort-arrow-sprite.png);
+        }
+    </style>
+</head>
+<body>
+<div class='wrapper'>
+  <div class='pad1'>
+    <h1>
+      <a href="../../index.html">all files</a> / <a href="index.html">node-soap/lib/</a> nscontext.js
+    </h1>
+    <div class='clearfix'>
+      <div class='fl pad1y space-right2'>
+        <span class="strong">86.59% </span>
+        <span class="quiet">Statements</span>
+        <span class='fraction'>71/82</span>
+      </div>
+      <div class='fl pad1y space-right2'>
+        <span class="strong">76% </span>
+        <span class="quiet">Branches</span>
+        <span class='fraction'>38/50</span>
+      </div>
+      <div class='fl pad1y space-right2'>
+        <span class="strong">100% </span>
+        <span class="quiet">Functions</span>
+        <span class='fraction'>12/12</span>
+      </div>
+      <div class='fl pad1y space-right2'>
+        <span class="strong">86.59% </span>
+        <span class="quiet">Lines</span>
+        <span class='fraction'>71/82</span>
+      </div>
+    </div>
+  </div>
+  <div class='status-line high'></div>
+<pre><table class="coverage">
+<tr><td class="line-count quiet">1
+2
+3
+4
+5
+6
+7
+8
+9
+10
+11
+12
+13
+14
+15
+16
+17
+18
+19
+20
+21
+22
+23
+24
+25
+26
+27
+28
+29
+30
+31
+32
+33
+34
+35
+36
+37
+38
+39
+40
+41
+42
+43
+44
+45
+46
+47
+48
+49
+50
+51
+52
+53
+54
+55
+56
+57
+58
+59
+60
+61
+62
+63
+64
+65
+66
+67
+68
+69
+70
+71
+72
+73
+74
+75
+76
+77
+78
+79
+80
+81
+82
+83
+84
+85
+86
+87
+88
+89
+90
+91
+92
+93
+94
+95
+96
+97
+98
+99
+100
+101
+102
+103
+104
+105
+106
+107
+108
+109
+110
+111
+112
+113
+114
+115
+116
+117
+118
+119
+120
+121
+122
+123
+124
+125
+126
+127
+128
+129
+130
+131
+132
+133
+134
+135
+136
+137
+138
+139
+140
+141
+142
+143
+144
+145
+146
+147
+148
+149
+150
+151
+152
+153
+154
+155
+156
+157
+158
+159
+160
+161
+162
+163
+164
+165
+166
+167
+168
+169
+170
+171
+172
+173
+174
+175
+176
+177
+178
+179
+180
+181
+182
+183
+184
+185
+186
+187
+188
+189
+190
+191
+192
+193
+194
+195
+196
+197
+198
+199
+200
+201
+202
+203
+204
+205
+206
+207
+208
+209
+210
+211
+212
+213
+214
+215
+216
+217
+218
+219
+220
+221
+222
+223
+224</td><td class="line-coverage quiet"><span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">1×</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">1×</span>
+<span class="cline-any cline-yes">486×</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">486×</span>
+<span class="cline-any cline-yes">486×</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">1×</span>
+<span class="cline-any cline-yes">105×</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">105×</span>
+<span class="cline-any cline-yes">105×</span>
+<span class="cline-any cline-yes">105×</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">1×</span>
+<span class="cline-any cline-yes">223×</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">223×</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">223×</span>
+<span class="cline-any cline-yes">53×</span>
+<span class="cline-any cline-yes">170×</span>
+<span class="cline-any cline-yes">128×</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">42×</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">1×</span>
+<span class="cline-any cline-yes">435×</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">435×</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">435×</span>
+<span class="cline-any cline-yes">120×</span>
+<span class="cline-any cline-yes">315×</span>
+<span class="cline-any cline-yes">205×</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">110×</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">1×</span>
+<span class="cline-any cline-yes">323×</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">323×</span>
+<span class="cline-any cline-yes">162×</span>
+<span class="cline-any cline-yes">127×</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">196×</span>
+<span class="cline-any cline-yes">189×</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">7×</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">1×</span>
+<span class="cline-any cline-yes">88×</span>
+<span class="cline-any cline-yes">45×</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">43×</span>
+<span class="cline-any cline-yes">43×</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">43×</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">1×</span>
+<span class="cline-any cline-yes">486×</span>
+<span class="cline-any cline-yes">486×</span>
+<span class="cline-any cline-yes">486×</span>
+<span class="cline-any cline-yes">486×</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">1×</span>
+<span class="cline-any cline-yes">478×</span>
+<span class="cline-any cline-yes">478×</span>
+<span class="cline-any cline-yes">478×</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">478×</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">1×</span>
+<span class="cline-any cline-yes">95×</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">1×</span>
+<span class="cline-any cline-yes">134×</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">1×</span>
+<span class="cline-any cline-yes">134×</span>
+<span class="cline-any cline-yes">134×</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">127×</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">7×</span>
+<span class="cline-any cline-yes">7×</span>
+<span class="cline-any cline-yes">7×</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">7×</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">7×</span>
+<span class="cline-any cline-yes">7×</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">1×</span>
+<span class="cline-any cline-yes">230×</span>
+<span class="cline-any cline-yes">230×</span>
+<span class="cline-any cline-yes">230×</span>
+<span class="cline-any cline-yes">98×</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">132×</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">132×</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span></td><td class="text"><pre class="prettyprint lang-js">'use strict';
+&nbsp;
+module.exports = NamespaceContext;
+&nbsp;
+/**
+ * Scope for XML namespaces
+ * @param {NamespaceScope} [parent] Parent scope
+ * @returns {NamespaceScope}
+ * @constructor
+ */
+function NamespaceScope(parent) {
+  <span class="missing-if-branch" title="if path not taken" >I</span>if (!(this instanceof NamespaceScope)) {
+<span class="cstat-no" title="statement not covered" >    return new NamespaceScope(parent);</span>
+  }
+  this.parent = parent;
+  this.namespaces = {};
+}
+&nbsp;
+/**
+ * Namespace context that manages hierarchical scopes
+ * @returns {NamespaceContext}
+ * @constructor
+ */
+function NamespaceContext() {
+  <span class="missing-if-branch" title="if path not taken" >I</span>if (!(this instanceof NamespaceContext)) {
+<span class="cstat-no" title="statement not covered" >    return new NamespaceContext();</span>
+  }
+  this.scopes = [];
+  this.pushContext();
+  this.prefixCount = 0;
+}
+&nbsp;
+/**
+ * Look up the namespace URI by prefix
+ * @param {String} prefix Namespace prefix
+ * @param {Boolean} [localOnly] Search current scope only
+ * @returns {String} Namespace URI
+ */
+NamespaceScope.prototype.getNamespaceURI = function(prefix, localOnly) {
+  switch (prefix) {
+<span class="branch-0 cbranch-no" title="branch not covered" >    case 'xml':</span>
+<span class="cstat-no" title="statement not covered" >      return 'http://www.w3.org/XML/1998/namespace';</span>
+<span class="branch-1 cbranch-no" title="branch not covered" >    case 'xmlns':</span>
+<span class="cstat-no" title="statement not covered" >      return 'http://www.w3.org/2000/xmlns/';</span>
+    default:
+      var nsUri = this.namespaces[prefix];
+      /*jshint -W116 */
+      if (nsUri != null) {
+        return nsUri.uri;
+      } else if (!localOnly &amp;&amp; this.parent) {
+        return this.parent.getNamespaceURI(prefix);
+      } else {
+        return null;
+      }
+  }
+};
+&nbsp;
+NamespaceScope.prototype.getNamespaceMapping = function(prefix) {
+  switch (prefix) {
+<span class="branch-0 cbranch-no" title="branch not covered" >    case 'xml':</span>
+<span class="cstat-no" title="statement not covered" >      return {</span>
+        uri: 'http://www.w3.org/XML/1998/namespace',
+        prefix: 'xml',
+        declared: true
+      };
+<span class="branch-1 cbranch-no" title="branch not covered" >    case 'xmlns':</span>
+<span class="cstat-no" title="statement not covered" >      return {</span>
+        uri: 'http://www.w3.org/2000/xmlns/',
+        prefix: 'xmlns',
+        declared: true
+      };
+    default:
+      var mapping = this.namespaces[prefix];
+      /*jshint -W116 */
+      if (mapping != null) {
+        return mapping;
+      } else if (this.parent) {
+        return this.parent.getNamespaceMapping(prefix);
+      } else {
+        return null;
+      }
+  }
+};
+&nbsp;
+/**
+ * Look up the namespace prefix by URI
+ * @param {String} nsUri Namespace URI
+ * @param {Boolean} [localOnly] Search current scope only
+ * @returns {String} Namespace prefix
+ */
+NamespaceScope.prototype.getPrefix = function(nsUri, localOnly) {
+  switch (nsUri) {
+<span class="branch-0 cbranch-no" title="branch not covered" >    case 'http://www.w3.org/XML/1998/namespace':</span>
+<span class="cstat-no" title="statement not covered" >      return 'xml';</span>
+<span class="branch-1 cbranch-no" title="branch not covered" >    case 'http://www.w3.org/2000/xmlns/':</span>
+<span class="cstat-no" title="statement not covered" >      return 'xmlns';</span>
+    default:
+      for (var p in this.namespaces) {
+        if (this.namespaces[p].uri === nsUri) {
+          return p;
+        }
+      }
+      if (!localOnly &amp;&amp; this.parent) {
+        return this.parent.getPrefix(nsUri);
+      } else {
+        return null;
+      }
+  }
+};
+&nbsp;
+/**
+ * Add a prefix/URI namespace mapping
+ * @param {String} prefix Namespace prefix
+ * @param {String} nsUri Namespace URI
+ * @param {Boolean} [localOnly] Search current scope only
+ * @returns {boolean} true if the mapping is added or false if the mapping
+ * already exists
+ */
+NamespaceContext.prototype.addNamespace = function(prefix, nsUri, localOnly) {
+  if (this.getNamespaceURI(prefix, localOnly) === nsUri) {
+    return false;
+  }
+  <span class="missing-if-branch" title="else path not taken" >E</span>if (this.currentScope) {
+    this.currentScope.namespaces[prefix] = {
+      uri: nsUri,
+      prefix: prefix,
+      declared: false
+    };
+    return true;
+  }
+<span class="cstat-no" title="statement not covered" >  return false;</span>
+};
+&nbsp;
+/**
+ * Push a scope into the context
+ * @returns {NamespaceScope} The current scope
+ */
+NamespaceContext.prototype.pushContext = function() {
+  var scope = new NamespaceScope(this.currentScope);
+  this.scopes.push(scope);
+  this.currentScope = scope;
+  return scope;
+};
+&nbsp;
+/**
+ * Pop a scope out of the context
+ * @returns {NamespaceScope} The removed scope
+ */
+NamespaceContext.prototype.popContext = function() {
+  var scope = this.scopes.pop();
+  <span class="missing-if-branch" title="else path not taken" >E</span>if (scope) {
+    this.currentScope = scope.parent;
+  } else {
+<span class="cstat-no" title="statement not covered" >    this.currentScope = null;</span>
+  }
+  return scope;
+};
+&nbsp;
+/**
+ * Look up the namespace URI by prefix
+ * @param {String} prefix Namespace prefix
+ * @param {Boolean} [localOnly] Search current scope only
+ * @returns {String} Namespace URI
+ */
+NamespaceContext.prototype.getNamespaceURI = function(prefix, localOnly) {
+  return this.currentScope &amp;&amp; this.currentScope.getNamespaceURI(prefix, localOnly);
+};
+&nbsp;
+/**
+ * Look up the namespace prefix by URI
+ * @param {String} nsURI Namespace URI
+ * @param {Boolean} [localOnly] Search current scope only
+ * @returns {String} Namespace prefix
+ */
+NamespaceContext.prototype.getPrefix = function(nsUri, localOnly) {
+  return this.currentScope &amp;&amp; this.currentScope.getPrefix(nsUri, localOnly);
+};
+&nbsp;
+/**
+ * Register a namespace
+ * @param {String} nsUri Namespace URI
+ * @returns {String} The matching or generated namespace prefix
+ */
+NamespaceContext.prototype.registerNamespace = function(nsUri) {
+  var prefix = this.getPrefix(nsUri);
+  if (prefix) {
+    // If the namespace has already mapped to a prefix
+    return prefix;
+  } else {
+    // Try to generate a unique namespace
+    while (true) {
+      prefix = 'ns' + (++this.prefixCount);
+      <span class="missing-if-branch" title="else path not taken" >E</span>if (!this.getNamespaceURI(prefix)) {
+        // The prefix is not used
+        break;
+      }
+    }
+  }
+  this.addNamespace(prefix, nsUri, true);
+  return prefix;
+};
+&nbsp;
+/**
+ * Declare a namespace prefix/uri mapping
+ * @param {String} prefix Namespace prefix
+ * @param {String} nsUri Namespace URI
+ * @returns {Boolean} true if the declaration is created
+ */
+NamespaceContext.prototype.declareNamespace = function(prefix, nsUri) {
+  <span class="missing-if-branch" title="else path not taken" >E</span>if (this.currentScope) {
+    var mapping = this.currentScope.getNamespaceMapping(prefix);
+    if (mapping &amp;&amp; mapping.uri === nsUri &amp;&amp; mapping.declared) {
+      return false;
+    }
+    this.currentScope.namespaces[prefix] = {
+      uri: nsUri,
+      prefix: prefix,
+      declared: true
+    };
+    return true;
+  }
+<span class="cstat-no" title="statement not covered" >  return false;</span>
+};
+&nbsp;</pre></td></tr>
+</table></pre>
+<div class='push'></div><!-- for sticky footer -->
+</div><!-- /wrapper -->
+<div class='footer quiet pad2 space-top1 center small'>
+  Code coverage
+  generated by <a href="http://istanbul-js.org/" target="_blank">istanbul</a> at Sat Jan 09 2016 00:43:36 GMT-0700 (MST)
+</div>
+</div>
+<script src="../../prettify.js"></script>
+<script>
+window.onload = function () {
+        if (typeof prettyPrint === 'function') {
+            prettyPrint();
+        }
+};
+</script>
+<script src="../../sorter.js"></script>
+</body>
+</html>

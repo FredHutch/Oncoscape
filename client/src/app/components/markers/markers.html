@@ -1,261 +1,110 @@
-<os-tool-menu datasource="{{vm.datasource}}"></os-tool-menu>
 <os-tray content="tray-content-block" change="vm.resize()">
     <section class="tray-content">
         <div class="row">
-            <div class="col-xs-12 form-label">
-                <h2>Options</h2>
-            </div>
-            
+            <br />
+
             <div class="col-xs-12 form-item">
-                <label>Interactive Mode</label>
-                <div class="dropdown bs-dropdown">
-                    <button class="btn btn-default dropdown-toggle" type="button" id="dropdownMenu1" data-toggle="dropdown" aria-haspopup="true" aria-expanded="true">
-                        {{vm.optInteractiveMode.name}}
-                        <span class="caret"></span>
-                    </button>
-                    <ul class="dropdown-menu" aria-labelledby="dropdownMenu1" style="width:100%">
-                        <li ng-repeat="item in vm.optInteractiveModes" ng-click="vm.optInteractiveMode=item">{{item.name}}</li>
-                    </ul>
+                <label>Edge Visibility</label>
+                <div ng-repeat="item in vm.optEdgeColors" class="legend-bar" style="border-color:{{item.color}};position:relative;background-color:#FFF;padding:2px 10px;line-height:25px;">{{item.name}} {{item.count}}
+                    <label class="switch" style="float:right">
+                        <input type="checkbox" class="switch-input" ng-model="item.show" ng-change="vm.edgeToggle(item)">
+                        <span class="switch-label" data-on="On" data-off="Off"></span>
+                        <span class="switch-handle"></span>
+                    </label>
                 </div>
             </div>
             
-            <div class="col-xs-12 form-item" ng-if="vm.optInteractiveMode.name=='Commands'">
-                <label>Patients</label><br />
-                <div class="btn-group btn-group-md" role="group">
-                    <button type="button" class="btn btn-default btn-no-focus"
-                        title="Select Connected Genes" ng-click="vm.optCommands.selectConnectedGenes()">
-                         <span class="fa fa-code-fork" aria-hidden="true"></span>
-                    </button>
-                    <button type="button" class="btn btn-default btn-no-focus"
-                        title="Invert Patient Selection" ng-click="vm.optCommands.invertPatientSelection()">
-                         <span class="fa fa-random" aria-hidden="true"></span>
-                    </button>
-                    <button type="button" class="btn btn-default btn-no-focus"
-                        title="Select All Patients" ng-click="vm.optCommands.selectPatients()">
-                         <span class="fa fa-dot-circle-o" aria-hidden="true"></span>
-                    </button>
-                    <button type="button" class="btn btn-default btn-no-focus"
-                        title="Deselect Patients" ng-click="vm.optCommands.deselectPatients()">
-                         <span class="fa fa-circle-o" aria-hidden="true"></span>
-                    </button>
-                    <button type="button" class="btn btn-default btn-no-focus"
-                        title="Show Selected Patient Edges" ng-click="vm.optCommands.showPatientEdges()">
-                         <span class="fa fa-link" aria-hidden="true"></span>
-                    </button>
-                    <button type="button" class="btn btn-default btn-no-focus"
-                        title="Hide Edges" ng-click="vm.optCommands.hidePatientEdges()">
-                         <span class="fa fa-unlink" aria-hidden="true"></span>
-                    </button>
-                    <div class="btn-group" role="group">
-                        <button type="button" class="btn btn-default dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false"
-                            title="More Options">
-                            <span class="caret"></span>
-                        </button>
-                        <ul class="dropdown-menu pull-right">
-                            <li ng-click="vm.optCommand.showGenesInCommon()"> Select Genes In Common</li>
-                        </ul>
-                    </div>
-                </div>
-            </div>
-            <div class="col-xs-12 form-item" ng-if="vm.optInteractiveMode.name=='Commands'">
-                <label>Genes</label><br />
-                <div class="btn-group btn-group-md" role="group">
-                    <button type="button" class="btn btn-default btn-no-focus"
-                        title="Select Connected Patients" ng-click="vm.optCommands.selectConnectedPatients()">
-                         <span class="fa fa-code-fork" aria-hidden="true"></span>
-                    </button>
-                    <button type="button" class="btn btn-default btn-no-focus"
-                        title="Invert Gene Selection" ng-click="vm.optCommands.invertGeneSelection()">
-                         <span class="fa fa-random" aria-hidden="true"></span>
-                    </button>
-                    <button type="button" class="btn btn-default btn-no-focus"
-                        title="Select All Genes" ng-click="vm.optCommands.selectGenes()">
-                         <span class="fa fa-dot-circle-o" aria-hidden="true"></span>
-                    </button>
-                    <button type="button" class="btn btn-default btn-no-focus"
-                        title="Deselect Genes" ng-click="vm.optCommands.deselectGenes()">
-                         <span class="fa fa-circle-o" aria-hidden="true"></span>
-                    </button>
-                    <button type="button" class="btn btn-default btn-no-focus"
-                        title="Show Selected Gene Edges" ng-click="vm.optCommands.showGeneEdges()">
-                         <span class="fa fa-link" aria-hidden="true"></span>
-                    </button>
-                    <button type="button" class="btn btn-default btn-no-focus"
-                        title="Hide Selected Gene Edges" ng-click="vm.optCommands.hideGeneEdges()">
-                         <span class="fa fa-unlink" aria-hidden="true"></span>
-                    </button>
-                    <div class="btn-group" role="group">
-                        <button type="button" class="btn btn-default dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false"
-                            title="More Options">
-                            <span class="caret"></span>
-                        </button>
-                        <ul class="dropdown-menu pull-right">
-                            <li ng-click="vm.optCommand.showPatientsInCommon()"> Select Patients In Common</li>
-                        </ul>
-                    </div>
-                </div>
-            </div>
-            <div class="col-xs-6 form-item" style="padding-right:5px">
-                <label>Global</label>
-                <div class="btn-group" role="group" style="display: block">
-                    <button class="btn btn-default btn-no-focus" type="button" 
-                        ng-click="vm.optCommands.invertAll()" style="width:33.333%"
-                        title="Invert Selections">
-                        <span class="fa fa-random" aria-hidden="true"></span>
-                    </button>
-                    <button class="btn btn-default btn-no-focus" type="button" 
-                        ng-click="vm.optCommands.deselectAll()" style="width:33.333%"
-                        title="Deselect All"
-                        >
-                        <span class="fa fa-circle-o" aria-hidden="true"></span>
-                    </button>
-                    <button class="btn btn-default btn-no-focus" type="button" 
-                        ng-click="vm.optCommands.hideAllEdges()" style="width:33.333%"
-                        title="Hide All Edges"
-                        >
-                        <span class="fa fa-unlink" aria-hidden="true"></span>
-                    </button>
-                </div>
-            </div>
-            <div class="col-xs-6 form-item" style="padding-left:5px">
-                <label>Zoom</label>
-                <div class="btn-group" role="group" style="display: block">
-                    <button class="btn btn-default btn-no-focus" type="button" 
-                        ng-click="vm.optCommands.zoomReset()" style="width:50%; font-weight: 300;"
-                        title="Zoom Reset">
-                        Reset
-                    </button>
-                    <button class="btn btn-default btn-no-focus" type="button" 
-                        ng-click="vm.optCommands.zoomFit()" style="width:50%; font-weight: 300;"
-                        title="Zoom Selection">
-                        Fit
-                    </button>
+            <div ng-if="vm.legendNodes.length>0" class="col-xs-12 form-item">
+                <label>Patient {{vm.legendCaption}}</label>
+                <div ng-repeat="item in vm.legendNodes" class="legend-bar legend-bar-button" style="border-color:{{item.color}};">{{item.name}}<span id="{{item.id}}" class="legend-count"></span>
+
+                    <label style="float:right;">
+                        <button 
+                        ng-click="vm.deselectColor(item)"
+                        class="btn btn-xs btn-default" style="background-color:#47a8d8;color:#FFF;text-shadow: 0 1px rgba(0, 0, 0, 0.2);padding:3px;font-size:10px;font-weight:300;width:50px;border:none;">CLEAR</button>
+                    </label>
                 </div>
             </div>
 
-        
-            <div class="col-xs-6 form-item" style="padding-right:5px">
-                <label>Patient Layout</label>
-                <div class="dropdown bs-dropdown">
-                    <button class="btn btn-default dropdown-toggle" type="button" id="dropdownMenu1" data-toggle="dropdown" aria-haspopup="true" aria-expanded="true">
-                        {{vm.optPatientLayout.name}}
-                        <span class="caret"></span>
-                    </button>
-                    <ul class="dropdown-menu" aria-labelledby="dropdownMenu1" style="width:100%">
-                        <li ng-repeat="item in vm.optPatientLayouts" ng-click="vm.optPatientLayout=item">{{item.name}}</li>
-                    </ul>
-                </div>
-            </div>
-            <div class="col-xs-6 form-item" style="padding-left:5px">
-                <label>Patient Color</label>
-                <div class="dropdown bs-dropdown">
-                    <button class="btn btn-default dropdown-toggle" type="button" id="dropdownMenu1" data-toggle="dropdown" aria-haspopup="true" aria-expanded="true">
-                        {{vm.optNodeColor.name}}
-                        <span class="caret"></span>
-                    </button>
-                    <ul class="dropdown-menu" aria-labelledby="dropdownMenu1" style="width:100%">
-                        <li ng-repeat="item in vm.optNodeColors" ng-click="vm.optNodeColor=item">{{item.name}}</li>
-                    </ul>
-                </div>
-            </div>
             <div class="col-xs-12 form-item">
                 <label>Patient Options</label>
-                <div ng-repeat="item in vm.legandNodes" class="legend-bar btn btn-default filter-button"
-                  style="border-color:{{item.color}};position:relative">
-                  {{item.name}} ({{item.cnt}} Selected)
-                  <div class="markers-button-slider">
-                    <div class="markers-button-slider-circle" ng-click="vm.updateNode(item, true); $event.stopPropagation();"
-                      style="background-color:{{item.color}};border-color:red;"></div>
-                    <div class="markers-button-slider-circle" ng-click="vm.updateNode(item, false); $event.stopPropagation();"
-                      style="background-color:{{item.color}};"></div>
-                  </div>
+                <div class="btn-group" role="group" style="display: block">
+                    <button class="btn btn-default btn-no-focus" type="button" style="width:50%; font-weight: 300;" title="Zoom Reset"
+                        ng-click="vm.showPanelLayout = true">Layouts</button>
+                    <button class="btn btn-default btn-no-focus" type="button" style="width:50%; font-weight: 300;" title="Zoom Selection" 
+                        ng-click="vm.showPanelColor = true">Colors</button>
                 </div>
             </div>
-            <div class="col-xs-12 form-item">
-                <label>Edge Options</label>
-                <div ng-repeat="item in vm.optEdgeColors" class="legend-bar btn btn-default filter-button {{item.class}}"
-                  style="position:relative">
-                  {{item.name}}
-                  <div class="markers-button-slider">
-                    <div class="markers-button-slider-rect" 
-                      ng-click="vm.updateEdge(item, 'Highlight'); $event.stopPropagation();"
-                      style="background-color:{{item.color}};"></div>
-                    <div class="markers-button-slider-rect" 
-                      ng-click="vm.updateEdge(item, 'Show'); $event.stopPropagation();"
-                      style="background-color:#3993fa"></div>
-                    <div class="markers-button-slider-rect"
-                      ng-click="vm.updateEdge(item, 'Hide'); $event.stopPropagation();"
-                      style="background-color:#FFF"></div>
-                  </div>
-                </div>
-            </div>
-            <div class="col-xs-12 form-item">
-                <label>Patient Search {{vm.searchPatientResult}}</label>
-                <input type="text" class="form-control" ng-model="vm.searchPatient" placeholder="Patient Id">
-            </div>
-            <div class="col-xs-12 form-item">
-                <label>Gene Search {{vm.searchGeneResult}}</label>
-                <input type="text" class="form-control" ng-model="vm.searchGene" placeholder="Gene Name">
-            </div>
-            <div class="col-xs-12 form-label">
-                    <h2>Cohorts</h2>
-                </div>
-                <!--
-                <div class="col-xs-12 form-item">
-                  <label>Display Mode</label>
-                  <div class="dropdown bs-dropdown">
-                    <button class="btn btn-default dropdown-toggle" type="button" id="dropdownMenu1" data-toggle="dropdown" aria-haspopup="true" aria-expanded="true">
-                     {{vm.optCohortMode.name}}
-                      <span class="caret"></span>
-                    </button>
-                    <ul class="dropdown-menu" aria-labelledby="dropdownMenu1"
-                        style="width:100%">
-                        <li ng-repeat="item in vm.optCohortModes"
-                            ng-click="vm.optCohortMode=item">{{item.name}}</li>
-                    </ul>
-                  </div>
-                </div>
-                -->
-                <div class="col-xs-12 form-item">
-                  <label>Patient Cohorts</label>
-                  <div class="dropdown bs-dropdown">
-                  
-                    <button class="btn btn-default dropdown-toggle" type="button"
-                    style="width: 34px;display: inline-block; margin-right:0px; float:right"
-                    ng-click="vm.addCohortPatient()">+
-                    </button>
-                    
-                    <button class="btn btn-default dropdown-toggle" type="button" id="dropdownMenu1" data-toggle="dropdown" aria-haspopup="true" aria-expanded="true"
-                    style="width: 220px;display: inline-block; margin-right:0px;">
-                        {{vm.optCohortPatient.name}}
-                        <span class="caret"></span>
-                    </button>
-                    
-                    <ul class="dropdown-menu" aria-labelledby="dropdownMenu1" style="width:100%">
-                        <li ng-repeat="item in vm.optCohortPatients" 
-                          ng-click="vm.optCohortPatient=item">{{item.name}}</li>
-                    </ul>
-                  </div>
 
-                </div>
-                <div class="col-xs-12 form-item" style="padding-bottom: 100px;">
-                  <label>Gene Cohorts</label>
-                  <div class="dropdown bs-dropdown">
-                    <button class="btn btn-default dropdown-toggle" type="button"
-                    style="width: 34px;display: inline-block; margin-right:0px; float:right"
-                    ng-click="vm.addCohortGene()">+</button>
-                    <button class="btn btn-default dropdown-toggle" type="button" id="dropdownMenu1" data-toggle="dropdown" aria-haspopup="true" aria-expanded="true"
-                    style="width: 220px;display: inline-block; margin-right:0px;">
-                        {{vm.optCohortGene.name}}
+
+            <div class="col-xs-6 form-item" style="padding-right:5px">
+                <label>Command Mode</label>
+                <div class="dropdown bs-dropdown">
+                    <button class="btn btn-default dropdown-toggle" type="button" id="dropdownMenu1" data-toggle="dropdown" aria-haspopup="true" aria-expanded="true" style="padding-right:30px;">
+                        {{vm.optCommandMode.name}}
                         <span class="caret"></span>
                     </button>
                     <ul class="dropdown-menu" aria-labelledby="dropdownMenu1" style="width:100%">
-                        <li ng-repeat="item in vm.optCohortGenes" 
-                          ng-click="vm.optCohortGene=item">{{item.name}}</li>
+                        <li ng-repeat="item in vm.optCommandModes" ng-click="vm.optCommandMode=item">{{item.name}}</li>
                     </ul>
-                  </div>
                 </div>
+            </div>
+            <div class="col-xs-6 form-item" style="padding-left:5px">
+                <label>Gene Set</label>
+                <div class="dropdown bs-dropdown">
+                    <button class="btn btn-default dropdown-toggle" type="button" id="dropdownMenu1" data-toggle="dropdown" aria-haspopup="true" aria-expanded="true" style="padding-right:30px;">
+                        {{vm.optGeneSet.name}}
+                        <span class="caret"></span>
+                    </button>
+                    <ul class="dropdown-menu" aria-labelledby="dropdownMenu1" style="width:100%">
+                        <li ng-repeat="item in vm.optGeneSets" ng-click="vm.optGeneSet=item">{{item.name}}</li>
+                    </ul>
+                </div>
+            </div>
 
+             <div class="col-xs-12 form-item" ng-if="vm.optCommandMode.name=='Sequential'">
+                <label>Commands</label>
+                <br />
+                <a ng-click="vm.cmd('ShowSelectedEdges')" class="markers-command hvr-sweep-to-right">Show Edges of Selected</a>
+                <a ng-click="vm.cmd('HideSelectedEdges')" class="markers-command hvr-sweep-to-right">Hide Edges of Selected</a>
+                <a ng-click="vm.cmd('HideUnselectedEdges')" class="markers-command hvr-sweep-to-right">Hide Edges of Unselected</a>
+                <a ng-click="vm.cmd('HideAllEdges')" class="markers-command hvr-sweep-to-right">Hide All Edges</a>
+                <a ng-click="vm.cmd('SelectInverse')" class="markers-command hvr-sweep-to-right">Invert Node Selection</a>
+                <a ng-click="vm.cmd('SelectConnected')" class="markers-command hvr-sweep-to-right">Select Connected Nodes</a>
+                <a ng-click="vm.cmd('HideUnselectedNodes')" class="markers-command hvr-sweep-to-right">Hide Unselected Nodes</a>
+                <a ng-click="vm.cmd('ShowAllNodes')" class="markers-command hvr-sweep-to-right">Show All Nodes</a>
+            </div>
+
+            <div class="col-xs-12 form-item" style="padding-left:5px">
+                <label>Lock Selections</label>
+                <div class="btn-group" role="group" style="display: block">
+                    <button class="btn btn-default btn-no-focus" type="button" ng-click="vm.lock('patient')" style="width:50%; font-weight: 300;" title="Patient Selection Lock">
+                        <i class="fa fa-unlock" ng-show="!vm.lockPatients"></i>
+                        <i class="fa fa-lock" ng-show="vm.lockPatients"></i> Patients
+                    </button>
+                    <button class="btn btn-default btn-no-focus" type="button" ng-click="vm.lock('gene')" style="width:50%; font-weight: 300;" title="Gene Selection Lock">
+                        <i class="fa fa-unlock" ng-show="!vm.lockGenes"></i>
+                        <i class="fa fa-lock" ng-show="vm.lockGenes"></i> Genes
+                    </button>
+                </div>
+            </div>
+    
+            <div class="col-xs-12 form-item" style="padding-left:5px">
+                <label>Zoom</label>
+                <div class="btn-group" role="group" style="display: block">
+                    <button class="btn btn-default btn-no-focus" type="button" ng-click="vm.zoom.reset()" style="width:50%; font-weight: 300;" title="Zoom Reset">
+                        Reset
+                    </button>
+                    <button class="btn btn-default btn-no-focus" type="button" ng-click="vm.zoom.fit()" style="width:50%; font-weight: 300;" title="Zoom Selection">
+                        Selected
+                    </button>
+                </div>
+            </div>
+
+            <div class="col-xs-12 form-item">
+                <label>Search</label>
+                <input type="text" class="form-control" ng-model="vm.search" placeholder="Genes or Patients">
+            </div>
         </div>
     </section>
 </os-tray>
@@ -263,55 +112,51 @@
 <!-- Label + Chart -->
 <section class="tray-content-block">
     <div id="markers-chart" class="markers-chart"></div>
-    <div style="position:absolute;top:10px;left:50px;">
-        <h2 class="h2-tool">Patients + Markers</h2>
-        <h3 class="h3-datasource">{{vm.datasource}}</h3>
+    <div style="position:absolute;top:10px;text-align:center;width:100%;">
+        <h2 class="h2-tool">Markers + Patients</h2>
+        <span class="h3-tool">{{vm.datasource.source}} {{vm.datasource.name}}</span>
+        <span class="h3-tool">(Layout: {{vm.optPatientLayout.name}})</span>
     </div>
 </section>
 
-<!-- Gene Context Menu -->
-<ul id="gene-ctx-menu" class="dropdown-menu markers-ctx-menu" role="menu" ng-show="vm.optCtxGeneShow">
-    <li class="title"></li>
-    <li ng-repeat="item in vm.optCommandGene" ng-click="item.cmd()">{{item.name}}</li>
-</ul>
-
-<!-- Patient Context Menu -->
-<ul id="patient-ctx-menu" class="dropdown-menu markers-ctx-menu" role="menu" ng-show="vm.optCtxPatientShow">
-    <li class="title"></li>
-    <li ng-repeat="item in vm.optCommandPatient" ng-click="item.cmd()">{{item.name}}</li>
-</ul>
-
-<!-- Hover Details -->
-<section ng-show="vm.gene" class="container-fluid" style="position:absolute;bottom:0px;margin-right: 300px;z-index: 999;pointer-events: none;">
-    <div class="row">
-        <div class="col-xs-12 legend" style="background-color: rgba(255,255,255,.8)">
-            <ul style="float:left;">
-                <li class="legend-section">{{vm.gene.name}}</li>
-                <li>CnGain.1: {{vm.gene.cng1}}</li>
-                <li>CnGain.2: {{vm.gene.cng2}}</li>
-                <li>CnLoss.1: {{vm.gene.cnl1}}</li>
-                <li>CnLoss.2: {{vm.gene.cnl2}}</li>
-            </ul>
+<!-- Modal To Many Edges -->
+<div id="modalEdge" class="modal fade" tabindex="-1" role="dialog" aria-labelledby="myModalLabel">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-body">
+                <h2 style="margin-top:0px;">Your request would add {{vm.edgeCounts.total}} edges to the graph.</h2>
+                <p>To improve performance + readability you may want to disable some of the edges.</p>
+                <div class="input-group" ng-repeat="item in vm.optEdgeColors | filter:{show:true}">
+                    <label class="switch {{item.class}}">
+                        <input type="checkbox" class="switch-input" ng-model="item.show">
+                        <span class="switch-label" data-on="On" data-off="Off"></span>
+                        <span class="switch-handle"></span>
+                    </label>
+                    <span style="padding-left:20px;">{{item.name}} ({{vm.edgeCounts[item.abv]}})</span>
+                </div>
+            </div>
+            <div style="position:absolute;right:10px;bottom:10px;">
+                <button class="btn btn-default"  ng-click="vm.hideModal()">Cancel</button>
+                <button class="btn btn-primary" ng-click="vm.filterModelEdge()">Continue</button>
+            </div>
         </div>
     </div>
-</section>
-<section ng-show="vm.patient" class="container-fluid" style="position:absolute;bottom:0px;margin-right: 300px;z-index: 999;pointer-events: none;">
-    <div class="row">
-        <div class="col-xs-12 legend"  style="background-color: rgba(255,255,255,.8)">
-            <ul style="float:left;">
-                <li class="legend-section">{{vm.patient[0][0]}}</li>
-                <li>GENDER: {{vm.patient[0][2]}}</li>
-                <li>STATUS: {{vm.patient[0][6]}}</li>
-                <li>DIAGNOSED: {{vm.patient[0][4]}} years old</li>
-                <li>SURVIVED: {{vm.patient[0][3]}} years</li>
-                <li>PROGRESSION: {{vm.patient[0][5]}}</li>
-            </ul>
-            <!--
-            <ul>
-                <li class="legend-section">Genes ({{vm.patientChromosomes.length}})</li>
-                <li><span ng-repeat="item in vm.patientChromosomes">{{item}} | </span></li>
-            </ul>
-            -->
+</div>
+
+<os-color-panel ng-if="vm.showPanelColor" close="vm.showPanelColor=false"></os-color-panel>
+
+<div class="panel panel-default mdi" ng-if="vm.showPanelLayout">
+    <div class="panel-heading">
+        <h3 class="panel-title">Patient Layout</h3>
+        <span class="pull-right clickable" data-effect="fadeOut"
+            ng-click="vm.showPanelLayout=false"><i class="fa fa-times"></i></span>
+  </div>
+  <div class="panel-body">
+        <div><label>Select a layout</label></div>
+        <div class="row">
+            <a class="col-sm-4 markers-command hvr-sweep-to-right"
+             ng-repeat="item in vm.optPatientLayouts" ng-click="vm.optPatientLayout=item">{{item.name}}</a>
         </div>
-    </div>
-</section>
+    
+  </div>
+</div>

@@ -1,0 +1,86 @@
+<os-tray content="tray-content-block" change="vm.resize($event)">
+    <section class="tray-content dataexplorer">
+        <div class="row">
+            <div class="col-xs-12 form-label">
+                <h2>Data Source</h2>
+            </div>
+            <div class="col-xs-12 form-item">
+                <label>Origin</label>
+                <div class="dropdown bs-dropdown">
+                    <button class="btn btn-default dropdown-toggle" type="button" id="dropdownMenu1" data-toggle="dropdown" aria-haspopup="true" aria-expanded="true">
+                        {{vm.dataSource.name}}
+                        <span class="caret"></span>
+                    </button>
+                    <ul class="dropdown-menu" aria-labelledby="dropdownMenu1" style="width:100%">
+                        <li ng-repeat="item in vm.dataSources" ng-click="vm.dataSource = item">{{item.name}}</li>
+                    </ul>
+                </div>
+            </div>
+            <div class="col-xs-12 form-item">
+                <label>Disease</label>
+                <div class="dropdown bs-dropdown">
+                    <button class="btn btn-default dropdown-toggle" type="button" id="dropdownMenu1" data-toggle="dropdown" aria-haspopup="true" aria-expanded="true">
+                        {{vm.dataDisease.name}}
+                        <span class="caret"></span>
+                    </button>
+                    <ul class="dropdown-menu" aria-labelledby="dropdownMenu1" style="width:100%">
+                        <li ng-repeat="item in vm.dataDiseases" ng-click="vm.dataDisease = item">{{item.name}}</li>
+                    </ul>
+                </div>
+            </div>
+            <div class="col-xs-12 form-item">
+                <label>Table</label>
+                <div class="dropdown bs-dropdown">
+                    <button class="btn btn-default dropdown-toggle" type="button" id="dropdownMenu1" data-toggle="dropdown" aria-haspopup="true" aria-expanded="true">
+                        {{vm.dataTable.name}}
+                        <span class="caret"></span>
+                    </button>
+                    <ul class="dropdown-menu" aria-labelledby="dropdownMenu1" style="width:100%">
+                        <li ng-repeat="item in vm.dataTables" ng-click="vm.dataTable = item">{{item.name}}</li>
+                    </ul>
+                </div>
+            </div>
+            <div class="col-xs-12 form-item">
+                <label>Field</label>
+                <div class="dropdown bs-dropdown">
+                    <button class="btn btn-default dropdown-toggle" type="button" id="dropdownMenu1" data-toggle="dropdown" aria-haspopup="true" aria-expanded="true">
+                        {{vm.dataField.key}}
+                        <span class="caret"></span>
+                    </button>
+                    <ul class="dropdown-menu" aria-labelledby="dropdownMenu1" style="width:100%">
+                        <li ng-repeat="item in vm.dataFields" ng-click="vm.dataField = item">{{item.key}}</li>
+                    </ul>
+                </div>
+            </div>
+            <div class="col-xs-12 form-label">
+                <h2>Table Info</h2>
+                <dl>
+                    <dt>Date Uploaded</dt>
+                    <dd>{{vm.dataTable.created}}</dd>
+                    <dt>Record Count</dt>
+                    <dd>{{vm.dataTable.records}}</dd>
+                    <dt>Field Count</dt>
+                    <dd>{{vm.dataFields.length}}</dd>
+                </dl>
+            </div>
+    </section>
+</os-tray>
+<section class="tray-content-block dataexplorer">
+    <div class="container-fluid">
+        <h2>Data Explorer</h2>
+        <div ng-repeat="item in vm.dataFields" class="data-field">
+            <b>{{item.key}}</b>
+            <div style="width:30%; margin-top:10px">
+                {{item.name}}. {{item.desc}}
+            </div>
+            <nvd3 options="vm.chartOptions" data="item.values"></nvd3>
+            <!--
+        Unique Values: {{item.distinct}}<br>
+        Total Values: {{item.count}}<br>
+        Records Contain: {{item.percent}}<br>
+        Url: {{item.url}}<br>
+        TCGA: {{item.tcga}}<br>
+        -->
+        </div>
+    </div>
+</section>

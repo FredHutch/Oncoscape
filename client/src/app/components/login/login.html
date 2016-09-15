@@ -1,27 +1,10 @@
 <form class="login">
-	<h3 class="login-header">Login</h3>
 	<div class="login-body">
-		<div class="alert alert-danger" role="alert" ng-show="vm.hasError">
-		  <span class="glyphicon glyphicon-exclamation-sign" aria-hidden="true"></span>
-		  <span class="sr-only">Error:</span>
-		  Invalid Credentials
+		<h3 class="login-header">Sign in</h3>
+		<div ng-repeat="item in vm.networks" class="login-option"
+			ng-click="vm.login(item);">
+				<span class="{{item.icon}} login-icon"></span>
+				{{item.name}}
 		</div>
-		<fieldset class="form-group ">
-			<span for="domain" class="small">Affiliation</span>
-			<select id="domain" class="form-control "
-				ng-options="option.name for option in vm.domains track by option.name"
-				ng-model="vm.user.domain"></select>
-		</fieldset>
-			<fieldset class="form-group"> 
-			<span class="form-control-label small" for="username">Username</span>
-			<input id="username" class="form-control input-sm" type="text" placeholder="Username"
-				ng-model="vm.user.name">
-		</fieldset>
-		<fieldset class="form-group" ng-show="vm.user.domain.name!='Guest'">
-			<span class="form-control-label small" for="password">Password</span>
-			<input id="password" class="form-control" type="password" placeholder="Password"
-				ng-model="vm.user.password">
-		</fieldset>
-		<button class="btn btn-default" ng-click="vm.login()">Login</button>
 	</div>
 </form>

@@ -1,15 +1,16 @@
 <section class="datasource container-fluid">
     <div class="row">
-        <div class="col-sm-8 col-md-6">
+        <div class="col-sm-7">
+            <br />
             <h1>Data Sources</h1>
             <p>Oncoscape has analyzed and curated the following datasets hosted by The Cancer Genome Atlas (TCGA). Raw data sets for these and other available disease sites can be found at <a href="https://tcga-data.nci.nih.gov/tcga/">TCGA Data Portal</a>.</p>
         </div>
     </div>
     <div class="row">
         <ul>
-            <li ng-repeat="dataset in vm.datasets" class="col-xs-12 col-sm-6 col-lg-4" ng-click="vm.explore('tools',dataset.id)">
-                <img class="datasource-img" ng-src="/assets/images/datasets/{{dataset.id}}.png">
-                <h3 class="datasource-lbl">{{dataset.name}}</h3>
+            <li ng-repeat="dataset in vm.datasets" class="col-xs-12 col-sm-6 col-lg-4" ng-click="vm.explore('tools',dataset)">
+                <img class="datasource-img" ng-src="/assets/images/{{dataset.img}}">
+                <h3 class="datasource-lbl">{{dataset.name}} ({{dataset.source}})</h3>
                 <nobr>
                     <a href="">Explore</a>
                 </nobr>
