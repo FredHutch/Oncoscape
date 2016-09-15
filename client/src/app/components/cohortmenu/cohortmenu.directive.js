@@ -235,7 +235,7 @@
 
                 sChart.append("path")
                     .attr("class", "line")
-                    .attr("stroke-width", 1.5)
+                    .attr("stroke-width", points.weight)
                     .attr("stroke", points.color)
                     .attr("fill","none")
                     .attr("d", valueline(points.data.line));
@@ -243,7 +243,7 @@
                 for (var i=0; i<points.data.tick.length; i++){
                     sChart.append("line")
                         .attr("class", "line")
-                        .attr("stroke-width", .5)
+                        .attr("stroke-width", points.weight)
                         .attr("stroke", points.color)
                         .attr("x1", sLayout.xScale(points.data.tick[i][0]))
                         .attr("x2", sLayout.xScale(points.data.tick[i][0]))
@@ -269,7 +269,14 @@
 
                         sChart.selectAll(".line").remove();
                         for (var i=0; i<data.cohorts.length; i++){
-                            data.cohorts[i].color = (i<data.cohorts.length-1) ? colors[i] : "#000";
+                            if (i<data.cohorts.length-1){
+                                data.cohorts[i].weight = 1;
+                                data.cohorts[i].color = colors[i];
+                            }
+                            else{
+                                data.cohorts[i].weight = 1.5;
+                                data.cohorts[i].color = "#000";
+                            }
                             addCurve(data.cohorts[i]);
                         }
                         //addCurve(data.cohorts[0]);
@@ -288,9 +295,9 @@
             osCohortService.onPatientsSelect.add(function(obj){
                 vm.cohortName = obj.name;
                 osCohortService.getPatientMetric();
-                var chts =  JSON.parse(JSON.stringify(osCohortService.getPatientCohorts()));
-                chts.push(obj);
-                osCohortService.getSurvivalData(chts,true,"CohortMenuController");
+                var cohorts =  JSON.parse(JSON.stringify(osCohortService.getPatientCohorts()));
+                cohorts.push(obj);
+                osCohortService.getSurvivalData(cohorts,true,"CohortMenuController");
             });
             osCohortService.onGenesSelect.add(function(obj){
                 console.log("GENES");

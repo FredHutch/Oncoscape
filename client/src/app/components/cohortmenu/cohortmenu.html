@@ -30,13 +30,16 @@
                             </ul>
                         </div>
 <br />
-                        <div id="cohortmenu-survival" style="border:1px solid #DDD;width:100%;height:180px;"></div>
-                        <div style="text-align:center">
-                        {{vm.cohortName}} Cohort: {{(vm.patientSelected/vm.patientTotal)*100 | number : 0}}% of patients
+                        <div id="cohortmenu-survival" style="border:0px solid #DDD;width:100%;height:180px;"></div>
+                        <div class="dropdown">
+                            <button class="btn btn-default dropdown-toggle" type="button" data-toggle="dropdown" style="width:100%;">
+                                {{vm.patientChartOption.label}}
+                                <span class="caret"></span></button>
+                            
+                            <ul class="dropdown-menu">
+                                <li style="padding:0px 5px;" ng-repeat="item in vm.patientChartOptions" ng-click="vm.patientChartOption=item">{{item.label}}</li>
+                            </ul>
                         </div>
-
-
-
 
                         <br />
                         
@@ -57,8 +60,9 @@
                                 <button class="btn-xs btn btn-default" style="float:right;" ng-click="vm.addCohort()"
                                     tooltip="Save Cohort"
                                     ><i style="color:#0b97d3" class="glyphicon glyphicon-plus"></i></button>
-                                <label>My Cohorts</label>
+                                <label>Selected Patients</label>
                             </div>
+
                             <div ng-repeat="cohort in vm.cohorts track by $index">
                                 <button class="btn-xs btn btn-default" style="float:right;" ng-click="vm.editCohort(cohort)"
                                     >
@@ -66,7 +70,7 @@
                                 </button>
                                 
                                 <a class="markers-command hvr-sweep-to-right" style="margin-right:25px;" ng-click="vm.setCohort(cohort)">
-                                    {{cohort.name}} 
+                                    {{cohort.name}} ({{cohort.ids.length}})
                                 </a>
                             </div>
                         </div>
