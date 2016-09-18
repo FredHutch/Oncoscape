@@ -251,14 +251,15 @@
                         .attr("y2", sLayout.yScale(points.data.tick[i][2])+10);
                 }
             }
-            var colors = ["#E91E63", "#673AB7","#2196F3","#00BCD4","#4CAF50","#CDDC39","#FFC107","#FF5722","#795548", "#607D8B","#03A9F4","#03A9F4"];//['#004358','#800080','#BEDB39','#FD7400','#1F8A70'];
             osCohortService.onMessage.add(function(result){
                 if (result.data.cmd=="getSurvivalData"){
                     var data = result.data.data;
                     if (data.correlationId=="CohortMenuController"){
+
                         sChart
                             .attr("width", '100%')
                             .attr("height", sLayout.height+10);
+
                         sLayout.xScale = d3.scaleLinear()
                             .domain([result.data.data.min,  result.data.data.max])
                             .range([0, sLayout.width]);
@@ -271,11 +272,9 @@
                         for (var i=0; i<data.cohorts.length; i++){
                             if (i<data.cohorts.length-1){
                                 data.cohorts[i].weight = 1;
-                                data.cohorts[i].color = colors[i];
                             }
                             else{
                                 data.cohorts[i].weight = 1.5;
-                                data.cohorts[i].color = "#000";
                             }
                             addCurve(data.cohorts[i]);
                         }
@@ -293,6 +292,10 @@
 
 
             osCohortService.onPatientsSelect.add(function(obj){
+                if (angular.isUndefined(obj.color)){
+                    obj.color = "#000";
+                }
+                
                 vm.cohortName = obj.name;
                 osCohortService.getPatientMetric();
                 var cohorts =  JSON.parse(JSON.stringify(osCohortService.getPatientCohorts()));

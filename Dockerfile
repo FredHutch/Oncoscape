@@ -59,16 +59,22 @@ RUN \
 RUN truncate -s 0 /etc/apache2/ports.conf
 RUN echo "ServerName localhost" >> /etc/apache2/apache2.conf
 
-
 # Create Application User
 RUN useradd -u 7534 -m -d /home/sttrweb -c "sttr web application" sttrweb && \
 	mkdir /home/sttrweb/Oncoscape
 
-# Copy App Code + Run NPM Install
+# Install Client Code
 COPY client-build /home/sttrweb/Oncoscape/client
+
+# Install Server Code
 COPY server /home/sttrweb/Oncoscape/server
 WORKDIR /home/sttrweb/Oncoscape/server/
 RUN npm install
+
+# Install R Package
+COPY r-package/oncoscape_0.1.0.tgz /home/sttrweb/Oncoscape/oncoscape_0.1.0.tgz
+WORKDIR /home/sttrweb/Oncoscape/
+RUN R CMD INSTALL oncoscape_0.1.0.tgz --library=/usr/local/lib/R/site-library
 
 # Copy Config Files
 WORKDIR /home/sttrweb/Oncoscape/
@@ -81,6 +87,6 @@ COPY /docker-entrypoint.sh /home/sttrweb/Oncoscape/
 EXPOSE 80 8000 8001 8003 8004
 
 # Fire It Up
-RUN chmod +x /home/sttrweb/Oncoscape/docker-entrypoint.sh
-ENTRYPOINT ["/home/sttrweb/Oncoscape/docker-entrypoint.sh"]
-#CMD ["/usr/bin/supervisord", "-n", "-c", "/home/sttrweb/Oncoscape/docker-supervisord.conf"]
+#RUN chmod +x /home/sttrweb/Oncoscape/docker-entrypoint.sh
+#ENTRYPOINT ["/home/sttrweb/Oncoscape/docker-entrypoint.sh"]
+CMD ["/usr/bin/supervisord", "-n", "-c", "/home/sttrweb/Oncoscape/docker-supervisord.conf"]

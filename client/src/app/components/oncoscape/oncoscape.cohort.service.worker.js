@@ -101,7 +101,7 @@ cmd.getSurvivalData = function(data){
 	if (data.all){
 		data.cohorts.unshift(
 			{
-				color:'#000000',
+				color:'#0b97d3',
 				id: "allcohorts",
 				ids: patientData.map(function(f){ return f.patient_ID}),
 				name: 'All',
@@ -130,7 +130,7 @@ cmd.getSurvivalData = function(data){
 							var tmp = this.sd[id];
 							return [tmp[0],tmp[1]]
 						} else{
-							console.log("BAD DATA");
+							//console.log("BAD DATA");
 							return [-1,-1];
 						}
 						
@@ -140,7 +140,7 @@ cmd.getSurvivalData = function(data){
 						// Clean Bad Data
 						if ( (data[0]<0) || (isNaN(data[0])) )
 							{
-								console.log("DATA MISSING");
+								//console.log("DATA MISSING");
 								return false;
 							}
 						return true;

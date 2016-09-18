@@ -30,7 +30,7 @@
             activeGeneCohort;
 
         var allPatientCohorts = [];
-
+        var colors = ["#E91E63", "#673AB7","#4CAF50","#CDDC39","#FFC107","#FF5722","#795548", "#607D8B","#03A9F4","#03A9F4",'#004358','#800080','#BEDB39','#FD7400','#1F8A70'];
         osApi.onDataSource.add(function(datasource){
             
             worker.postMessage({
@@ -40,6 +40,7 @@
 
             allPatientCohorts = localStorage.getItem(osApi.getDataSource().disease+"PatientCohorts");
             allPatientCohorts = (allPatientCohorts==null) ? [] : JSON.parse(allPatientCohorts);
+            for (var i=0; i<allPatientCohorts.length; i++){ allPatientCohorts[i].color = colors[i]; }
             onCohortsChange.dispatch(allPatientCohorts);
         });
 
@@ -77,6 +78,7 @@
         var getPatientCohort = function(){ return activePatientCohort; };
         var addPatientCohort = function(disease){ 
             if (allPatientCohorts.indexOf(activePatientCohort)!=-1) return;
+            activePatientCohort.color = colors[allPatientCohorts.length];
             allPatientCohorts.push(activePatientCohort); 
             localStorage.setItem(osApi.getDataSource().disease+"PatientCohorts", JSON.stringify(allPatientCohorts));
         };

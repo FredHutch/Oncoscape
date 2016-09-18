@@ -31,6 +31,7 @@
             {id:'windows',  name:'Win Live', icon:'fa fa-windows',       key:'caee23ac-d4aa-41c7-9bda-166b86c52de3', mode:'implicit'},
             {id:'dropbox',  name:'Dropbox', icon:'fa fa-dropbox',       key:'dropbox', mode:'implicit'},
             {id:'flickr',   name:'Flickr', icon:'fa fa-flickr',       key:'', mode:'implicit'}
+            //{id:'tinder',   name:'Tinder', icon:'fa fa-fire',       key:'', mode:'implicit'}
         ];
         var getAuthSources = function(){ return authSources; };
 

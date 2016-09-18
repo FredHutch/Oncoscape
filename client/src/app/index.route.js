@@ -16,12 +16,6 @@
                 authenticate: false,
                 datasource: false
             })
-            .state('help', {
-                url: '/help',
-                template: '<os-help>',
-                authenticate: false,
-                datasource: false
-            })
             .state('datasource', {
                 url: '/datasource',
                 template: '<os-datasource>',
@@ -31,12 +25,6 @@
             .state('tools', {
                 url: '/tools/{datasource}',
                 template: '<os-tools>',
-                authenticate: true,
-                datasource: true
-            })
-            .state('metadata', {
-                url: '/metadata/{datasource}',
-                template: '<os-metadata>',
                 authenticate: true,
                 datasource: true
             })
@@ -88,35 +76,23 @@
                 authenticate: true,
                 datasource: true
             })
-            .state('dataexplorer', {
-                url: '/dataexplorer/{datasource}',
-                template: '<os-data-explorer>',
-                authenticate: true,
-                datasource: true
-            })
-            .state('oncoprint', {
-                url: '/oncoprint/{datasource}',
-                template: '<os-oncoprint>',
-                authenticate: true,
-                datasource: true
-            })
-            .state('genesettest', {
-                url: '/genesettest/{datasource}',
-                template: '<os-genesettest>',
-                authenticate: true,
-                datasource: true
-            })
-            .state('cohortbuilder', {
-                url: '/cohortbuilder/{datasource}',
-                template: '<os-cohort-builder>',
-                authenticate: true,
-                datasource: true
-            })
             .state('sunburst', {
                 url: '/sunburst/{datasource}',
                 template: '<os-sunburst>',
                 authenticate: false,
                 datasource: true
+            })
+            .state('heatmap', {
+                url: '/heatmap',
+                template: '<os-heatmap>',
+                authenticate: false,
+                datasource: false
+            })
+            .state('barcharts', {
+                url: '/barchart',
+                template: '<os-barchart>',
+                authenticate: false,
+                datasource: false
             })
            
 

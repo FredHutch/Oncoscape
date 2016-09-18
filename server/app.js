@@ -76,7 +76,7 @@ mongoose.connection.on('connected', function() {
                 delete query.$limit;
             }
 
-            // skipp
+            // Skip
             var skip = null;
             if (query.$skip) {
                 skip = query.$skip;
