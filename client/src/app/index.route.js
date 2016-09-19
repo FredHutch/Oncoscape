@@ -83,17 +83,17 @@
                 datasource: true
             })
             .state('heatmap', {
-                url: '/heatmap',
+                url: '/heatmap/{datasource}',
                 template: '<os-heatmap>',
                 authenticate: false,
-                datasource: false
+                datasource: true
             })
             .state('barcharts', {
-                url: '/barchart',
+                url: '/barchart/{datasource}',
                 template: '<os-barchart>',
                 authenticate: false,
-                datasource: false
-            })
+                datasource: true
+            });
            
 
         $urlRouterProvider.otherwise('/');

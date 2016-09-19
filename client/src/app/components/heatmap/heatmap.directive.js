@@ -38,6 +38,29 @@
                 data = response.data;
                 patients = Object.keys(data[0].patients);
                 genes = data.map(function(v){ return v.gene; });
+                
+
+
+                var d = data.map(function(datum){
+                  var patients = datum.patients;
+                  return Object.keys(patients).map(function(key){ return (this[key]==null) ? 0.00 : this[key]; }, patients);
+                });
+                var c = Object.keys(data[0].patients);
+                var r = data.map(function(datum){ return datum.gene; });
+
+
+
+
+                ocpu.seturl("//localhost/ocpu/library/oncoscape/R");
+                $("#test").rplot("oheatmap", {
+                  data: d,
+                  colnames: c,
+                  rownames: r
+                }, function(e){
+                  debugger;
+                });
+
+
                 draw(data);
             });
 

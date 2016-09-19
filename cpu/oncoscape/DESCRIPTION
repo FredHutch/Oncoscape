@@ -1,0 +1,9 @@
+Package: oncoscape
+Type: Package
+Title: Oncoscape Wrapper
+Version: 0.1.0
+Author: Michael Zager
+Maintainer: <michael.zager@fredhutch.org>
+Description: Wrapper For IOP With Web
+License: GPU
+LazyData: TRUE

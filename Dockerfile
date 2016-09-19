@@ -55,7 +55,7 @@ RUN \
   apt-get install -y software-properties-common && \
   add-apt-repository -y ppa:opencpu/opencpu-1.6 && \
   apt-get update && \
-  apt-get install -y opencpu
+  apt-get install -y opencpu 
 RUN truncate -s 0 /etc/apache2/ports.conf
 RUN echo "ServerName localhost" >> /etc/apache2/apache2.conf
 
@@ -72,9 +72,11 @@ WORKDIR /home/sttrweb/Oncoscape/server/
 RUN npm install
 
 # Install R Package
-COPY r-package/oncoscape_0.1.0.tgz /home/sttrweb/Oncoscape/oncoscape_0.1.0.tgz
+COPY cpu/oncoscape_0.1.0.tgz /home/sttrweb/Oncoscape/oncoscape_0.1.0.tgz
 WORKDIR /home/sttrweb/Oncoscape/
 RUN R CMD INSTALL oncoscape_0.1.0.tgz --library=/usr/local/lib/R/site-library
+RUN echo "r <- getOption('repos'); r['CRAN'] <- 'http://cran.us.r-project.org'; options(repos = r);" > ~/.Rprofile
+RUN Rscript -e "install.packages(c('ggplot2','gridSVG','heatmap3'))"
 
 # Copy Config Files
 WORKDIR /home/sttrweb/Oncoscape/
