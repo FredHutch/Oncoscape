@@ -49,16 +49,18 @@
                 var r = data.map(function(datum){ return datum.gene; });
 
 
+                var x = {data:d, colnames:c, rownames:r};
+                debugger;
 
 
-                ocpu.seturl("//localhost/ocpu/library/oncoscape/R");
-                $("#test").rplot("oheatmap", {
-                  data: d,
-                  colnames: c,
-                  rownames: r
-                }, function(e){
-                  debugger;
-                });
+                // ocpu.seturl("//localhost/ocpu/library/oncoscape/R");
+                // $("#test").rplot("oheatmap", {
+                //   data: d,
+                //   colnames: c,
+                //   rownames: r
+                // }, function(e){
+                //   debugger;
+                // });
 
 
                 draw(data);
