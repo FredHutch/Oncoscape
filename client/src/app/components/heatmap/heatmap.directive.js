@@ -33,7 +33,7 @@
             var genes;
 
             osApi.setBusy(true);
-            osApi.query("brca_psi_bradleylab_miso",{'$limit':545}).then(function(response){
+            osApi.query("brca_psi_bradleylab_miso",{'$limit':50}).then(function(response){
                 osApi.setBusy(false);
                 data = response.data;
                 patients = Object.keys(data[0].patients);
@@ -50,17 +50,15 @@
 
 
                 var x = {data:d, colnames:c, rownames:r};
-                debugger;
+                
 
 
-                // ocpu.seturl("//localhost/ocpu/library/oncoscape/R");
-                // $("#test").rplot("oheatmap", {
-                //   data: d,
-                //   colnames: c,
-                //   rownames: r
-                // }, function(e){
-                //   debugger;
-                // });
+                ocpu.seturl("//localhost/ocpu/library/oncoscape/R");
+                $("#test").rplot("oheatmap", {
+                  data: d
+                }, function(e){
+                  debugger;
+                });
 
 
                 draw(data);

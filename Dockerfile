@@ -9,7 +9,7 @@ ENV KONG_DATABASE=postgres \
 	KONG_PG_PASSWORD=hUDrQe7m5fXKprJC \
 	KONG_PG_DATABASE=OncoGateway \
 	KONG_ADMIN_LISTEN=127.0.0.1:8001 \
-	MONGO_CONNECTION=mongodb://oncoscape-dev-db1.sttrcancer.i1f4d9botHD4xnZ:27017,oncoscape-dev-db2.sttrcancer.io:27017,oncoscape-dev-db3.sttrcancer.io:27017/pancan12?authSource=admin \
+	MONGO_CONNECTION=mongodb://oncoscape-dev-db1.sttrcancer.io:27017,oncoscape-dev-db2.sttrcancer.io:27017,oncoscape-dev-db3.sttrcancer.io:27017/pancan12?authSource=admin \
 	MONGO_USERNAME=oncoscapeRead \
 	MONGO_PASSWORD=i1f4d9botHD4xnZ \
 	MONGO_DOMAIN=https://dev.oncoscape.sttrcancer.io \
@@ -76,7 +76,7 @@ COPY cpu/oncoscape_0.1.0.tgz /home/sttrweb/Oncoscape/oncoscape_0.1.0.tgz
 WORKDIR /home/sttrweb/Oncoscape/
 RUN R CMD INSTALL oncoscape_0.1.0.tgz --library=/usr/local/lib/R/site-library
 RUN echo "r <- getOption('repos'); r['CRAN'] <- 'http://cran.us.r-project.org'; options(repos = r);" > ~/.Rprofile
-RUN Rscript -e "install.packages(c('ggplot2','gridSVG','heatmap3'))"
+RUN Rscript -e "install.packages(c('ggplot2','gridSVG','heatmap3','pheatmap'))"
 
 # Copy Config Files
 WORKDIR /home/sttrweb/Oncoscape/
