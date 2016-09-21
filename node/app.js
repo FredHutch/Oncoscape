@@ -62,7 +62,7 @@ app.all('/api/auth',
 // Connect To Mongo
 var domain = "https://oncoscape.sttrcancer.org";
 mongoose.connect(
-    "mongodb://oncoscape-prod-db1.sttrcancer.io:27017,oncoscape-prod-db1.sttrcancer.io:27017,oncoscape-prod-db1.sttrcancer.io:27017/pancan12?authSource=admin", {
+    "mongodb://oncoscape-prod-db1.sttrcancer.io:27017,oncoscape-prod-db2.sttrcancer.io:27017,oncoscape-prod-db3.sttrcancer.io:27017/pancan12?authSource=admin", {
         db: {
             native_parser: true
         },
