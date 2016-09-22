@@ -2,3 +2,13 @@
 .sunburst{
 
 }
+.tooltip{
+	position: absolute;			
+    text-align: center;			
+    background: #EFEFEF;	
+    border: 0px;		
+    border-radius:3px;
+    pointer-events: none;		
+    padding:5px;
+    cursor: pointer;
+}
