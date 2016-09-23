@@ -5,12 +5,6 @@
 	.navbar-brand{
 		padding:10px 0px;
 	}
-	.navbar{
-		line-height: 70px;
-		.container-fluid{
-			padding:0px 20px;
-		}
-	}
 	.nav{
 		li{
 			color: #FFF;
@@ -30,6 +24,48 @@
 	    z-index: 10000;
 	    margin-bottom: -1px;
 	}
+
+
+	ul.dropdown-menu{
+		padding:25px;
+		position: fixed;
+    	left: 0px;
+    	top: 70px;
+    	border: 0px;
+    	border-radius: 0px;
+	}
+	.header-dropdown-menu-li{
+		display: inline-block;
+		min-width: 250px;
+		margin:5px 20px !important;
+		padding:0px !important;
+		a{
+			margin: 0px;
+			padding: 0px;
+		}
+	}
+	
+
+	.dropdown .dropdown-menu {
+	  display: block;
+	  visibility: hidden;
+	  opacity: 0;
+
+	  transition:         all 0.2s  ease;
+	  -moz-transition:    all 0.2s  ease;
+	  -webkit-transition: all 0.2s  ease;
+	  -o-transition:      all 0.2s  ease;
+	  -ms-transition:     all 0.2s  ease;
+	}
+	.dropdown:hover .dropdown-menu {
+	  visibility: visible;
+	  opacity: 1;
+	  background-color:#FFF;
+	}
+	.dropdown {
+	  display: inline-block;
+	}
+
 }
 .header-link{
 	color:#FEFEFE !important;
@@ -39,11 +75,12 @@
 	color:#FFF !important;
 }
 .header-dropdown-img{
-	width:30px;
-	height:30px;
+	width:60px;
+	height:60px;
 	box-shadow: 3px 3px 10px #888888;
     border-radius: 50%;
     margin-right: 20px;
+    margin-left: 10px;
     margin-top: 3px;
     margin-bottom: 6px;
 

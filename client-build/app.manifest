@@ -48,6 +48,7 @@ CACHE:
 /scripts/app-c2c4c3e7a8.js
 /scripts/app-c38fd50704.js
 /scripts/app-cf3c9fa1de.js
+/scripts/app-d74c0d9243.js
 /scripts/app-dc8aacf1ab.js
 /scripts/app-dcd9eac667.js
 /scripts/app-e16e3e4cc4.js
@@ -74,38 +75,6 @@ CACHE:
 /styles/vendor-965b5df522.css
 /styles/vendor-bfda3f48de.css
 /styles/vendor-fe5182b0e1.css
-/assets/images/DSbladder.png
-/assets/images/DSbrain.png
-/assets/images/DSbreast.png
-/assets/images/DScoadread.png
-/assets/images/DScolorectal.png
-/assets/images/DSdemo.png
-/assets/images/DSheadneck.png
-/assets/images/DSlung.png
-/assets/images/DSovary.png
-/assets/images/DSpancreas.png
-/assets/images/DSprostate.png
-/assets/images/DSsarcoma.png
-/assets/images/arrow_down.png
-/assets/images/barcharts.png
-/assets/images/clusters.jpg
-/assets/images/heatmap.png
-/assets/images/history.png
-/assets/images/logo.png
-/assets/images/markers.png
-/assets/images/pathways.png
-/assets/images/pca.png
-/assets/images/sttr-facebook-out.png
-/assets/images/sttr-google-out.png
-/assets/images/sttr-instagram-out.png
-/assets/images/sttr-linkedin-out.png
-/assets/images/sttr-twitter-out.png
-/assets/images/sttr-youtube-out.png
-/assets/images/sttr_highlight_arrow_up.png
-/assets/images/sunburst.png
-/assets/images/survival.png
-/assets/images/texture.png
-/assets/images/timelines.png
 /maps/scripts/app-03606c7445.js.map
 /maps/scripts/app-18197f3749.js.map
 /maps/scripts/app-214b2aa7dc.js.map
@@ -138,6 +107,7 @@ CACHE:
 /maps/scripts/app-cf3c9fa1de.js.map
 /maps/scripts/app-d00b032e01.js.map
 /maps/scripts/app-d0d5a45ad7.js.map
+/maps/scripts/app-d74c0d9243.js.map
 /maps/scripts/app-dc8aacf1ab.js.map
 /maps/scripts/app-dcd9eac667.js.map
 /maps/scripts/app-e16e3e4cc4.js.map
@@ -169,8 +139,40 @@ CACHE:
 /maps/styles/vendor-965b5df522.css.map
 /maps/styles/vendor-bfda3f48de.css.map
 /maps/styles/vendor-fe5182b0e1.css.map
-/app/components/oncoscape/oncoscape.cohort.service.worker.js
+/assets/images/DSbladder.png
+/assets/images/DSbrain.png
+/assets/images/DSbreast.png
+/assets/images/DScoadread.png
+/assets/images/DScolorectal.png
+/assets/images/DSdemo.png
+/assets/images/DSheadneck.png
+/assets/images/DSlung.png
+/assets/images/DSovary.png
+/assets/images/DSpancreas.png
+/assets/images/DSprostate.png
+/assets/images/DSsarcoma.png
+/assets/images/arrow_down.png
+/assets/images/barcharts.png
+/assets/images/clusters.jpg
+/assets/images/heatmap.png
+/assets/images/history.png
+/assets/images/logo.png
+/assets/images/markers.png
+/assets/images/pathways.png
+/assets/images/pca.png
+/assets/images/sttr-facebook-out.png
+/assets/images/sttr-google-out.png
+/assets/images/sttr-instagram-out.png
+/assets/images/sttr-linkedin-out.png
+/assets/images/sttr-twitter-out.png
+/assets/images/sttr-youtube-out.png
+/assets/images/sttr_highlight_arrow_up.png
+/assets/images/sunburst.png
+/assets/images/survival.png
+/assets/images/texture.png
+/assets/images/timelines.png
 /app/components/markers/markers.worker.js
+/app/components/oncoscape/oncoscape.cohort.service.worker.js
 
 
 NETWORK:
@@ -182,4 +184,4 @@ https://*
 SETTINGS:
 prefer-online
 
-# hash: 751768c65f6154751e038b934576ee46a1c0d776803b028336d70c57f8e3c3bd
+# hash: 9ad6a4414fdcf2d6c511234d1d452ab21180984926694b5bcf778f74f93cea3f
