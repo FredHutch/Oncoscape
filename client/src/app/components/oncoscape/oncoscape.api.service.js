@@ -52,8 +52,16 @@
         // Initialize
         function init(){
             return $q(function(resolve, reject) {
-                query("lookup_oncoscape_datasources",{beta:false}).then(function(response){ 
-                     _dataSources = response.data.sort(function(a,b){ return (b.name < a.name); });
+                //query("lookup_oncoscape_datasources",{beta:false}).then(function(response){ 
+                query("lookup_oncoscape_datasources").then(function(response){ 
+                     _dataSources = response.data
+                        .filter(function(d){ return angular.isDefined(d.img) })
+                        .map(function(d){ d.name = d.name.trim(); return d;})
+                        .sort(function(a,b){ 
+                            if(a.name < b.name) return -1;
+                            if(a.name > b.name) return 1;
+                            return 0;
+                            });
                      resolve(_dataSources);
                 });
             });

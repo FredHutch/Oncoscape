@@ -89,6 +89,6 @@ COPY /docker-entrypoint.sh /home/sttrweb/Oncoscape/
 EXPOSE 80 8000 8001 8003 8004
 
 # Fire It Up
-RUN chmod +x /home/sttrweb/Oncoscape/docker-entrypoint.sh
-ENTRYPOINT ["/home/sttrweb/Oncoscape/docker-entrypoint.sh"]
-#CMD ["/usr/bin/supervisord", "-n", "-c", "/home/sttrweb/Oncoscape/docker-supervisord.conf"]
+#RUN chmod +x /home/sttrweb/Oncoscape/docker-entrypoint.sh
+#ENTRYPOINT ["/home/sttrweb/Oncoscape/docker-entrypoint.sh"]
+CMD ["/usr/bin/supervisord", "-n", "-c", "/home/sttrweb/Oncoscape/docker-supervisord.conf"]
