@@ -22,12 +22,11 @@
         return directive;
 
         /** @ngInject */
-        function ColorPanelController(osApi, osCohortService) {
+        function ColorPanelController(osApi, osCohortService, d3) {
 
             // Properties
             var vm = this;
             vm.showPanelColorRna = false;
-            var table;
 
             var tbl = osApi.getDataSource().category.filter(function(v) {
                 return v.type == 'color';

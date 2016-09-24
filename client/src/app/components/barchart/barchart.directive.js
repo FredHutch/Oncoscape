@@ -19,12 +19,12 @@
         return directive;
 
         /** @ngInject */
-        function BarchartController(d3, osApi, osCohortService, $state, $timeout, $scope, $stateParams, $window) {
+        function BarchartController(d3, osApi, osCohortService, $state, $timeout, $scope, $stateParams) {
 
             var vm = this;
             vm.datasource = osApi.getDataSource();
 
-            var n = 4, // number of layers
+            var n = 5, // number of layers
                 m = 58, // number of samples per layer
                 stack = d3.layout.stack(),
                 layers = stack(d3.range(n).map(function() {

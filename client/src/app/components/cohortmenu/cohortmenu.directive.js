@@ -20,7 +20,7 @@
         return directive;
 
         /** @ngInject */
-        function CohortMenuController(osApi, osCohortService, $state, $scope, $timeout, $rootScope) {
+        function CohortMenuController(osApi, osCohortService, $state, $scope, $timeout, $rootScope, d3) {
 
             var vm = this;
             vm.cohorts = [];
@@ -46,7 +46,7 @@
                 osCohortService.setPatientCohort([],"All Patients")
             });
 
-            $rootScope.$on('$stateChangeStart', function(event, toState, toParams, fromState, fromParams){ 
+            $rootScope.$on('$stateChangeStart', function(event, toState, toParams, fromState){ 
                 switch(toState.name){
                     case "landing":
                     case "tools":
@@ -118,7 +118,7 @@
             }   
 
 
-            var barClick =function(d,i){
+            var barClick =function(d){
                 
                 
                 if (vm.patientChartOption.type=="numeric"){
@@ -156,8 +156,8 @@
                         .append("rect")
                         .attr("class","cohort-menu-chart-bar")
                         .attr("x", function(d, i) { return (barWidth+1) * i; })
-                        .attr("y", function(d, i) { return 150-yScale(d.value); })
-                        .attr("height", function(d, i) { return yScale(d.value); })
+                        .attr("y", function(d) { return 150-yScale(d.value); })
+                        .attr("height", function(d) { return yScale(d.value); })
                         .attr("width", barWidth)
                         .on("click", barClick);
 
@@ -165,8 +165,8 @@
                         .transition()
                             .duration(300)
                             .attr("x", function(d, i) { return (barWidth+1) * i; })
-                            .attr("y", function(d, i) { return 150-yScale(d.value); })
-                            .attr("height", function(d, i) { return yScale(d.value); })
+                            .attr("y", function(d) { return 150-yScale(d.value); })
+                            .attr("height", function(d) { return yScale(d.value); })
                             .attr("width", barWidth)
 
                     bars.exit()
