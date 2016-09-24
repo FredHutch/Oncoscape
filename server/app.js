@@ -16,7 +16,6 @@ app.use(bodyParser.urlencoded({
 // --------------------- //
 // ----- OAuth API ----- //
 // --------------------- //
-/*
 function oauthHandler(req, res, next) {
     // Check that this is a login redirect with an access_token (not a RESTful API call via proxy) 
     if (req.oauthshim &&
@@ -39,7 +38,7 @@ app.all('/api/auth',
 // --------------------- //
 var domain = process.env.MONGO_DOMAIN;
 mongoose.connect(
-    process.env.MONGO_CONNECTION, {
+    'mongodb://oncoscape-dev-db1.sttrcancer.io:27017,oncoscape-dev-db2.sttrcancer.io:27017,oncoscape-dev-db3.sttrcancer.io:27017/pancan12?authSource=admin', {
         db: {
             native_parser: true
         },
@@ -134,7 +133,7 @@ mongoose.connection.on('connected', function() {
     //     });
     // }
 });
-*/
+
 // Ping Method - Used For Testing
 app.get("/api/ping", function(req, res, next) {
     res.send((new Date()).toString());
@@ -146,7 +145,6 @@ app.get("/api/vars", function(req, res, next){
 })
 
 // Start Listening
-//app.listen(process.env.NODE_PORT, function() {
-app.listen(8002, function() {
+app.listen(parseInt(process.env.NODE_PORT), function() {
     console.log("UP");
 });
