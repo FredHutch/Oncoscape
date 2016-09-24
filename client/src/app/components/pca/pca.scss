@@ -1,40 +1,39 @@
 // Namespace
-.pca{
-    //padding-top:20px;
-}
-.axis path,
-.axis line {
-    fill: none;
-    stroke: #000;
-    shape-rendering: crispEdges;
-}
-.axis text {
-    font-family: sans-serif;
-    font-size: 11px;
-    fill: #000;
-}
-// .pca-node:hover{
-// 	stroke: rgb(89, 165, 251);
-// 	stroke-width: 2px;
-// }
-.extent{
-	fill: #0b97d3;
-    fill-opacity: .2;
-}
-.pca-node{
-    stroke: #FFF;
-    stroke-width:  1;
-    //fill: "#FFF"
-    fill: "#000";
-    r: 3;
-}
-.pca-node-selected{
-	//fill: none;
-    stroke: #000;
-    stroke-width: .5;
-}
-.pca-tooltip{
-    pointer-events : none;
-    background-color: rgba(255,255,255,.5); 
-    padding: 5px;
+.pca {
+    .axis path,
+    .axis line {
+        fill: none;
+        stroke: #000;
+        shape-rendering: crispEdges;
+    }
+    .axis text {
+        font-family: sans-serif;
+        font-size: 11px;
+        fill: #000;
+    }
+    // .pca-node:hover{
+    //  stroke: rgb(89, 165, 251);
+    //  stroke-width: 2px;
+    // }
+    .extent {
+        fill: #0b97d3;
+        fill-opacity: .2;
+    }
+    .pca-node {
+        stroke: #FFF;
+        stroke-width: 1;
+        //fill: "#FFF"
+        fill: "#000";
+        r: 3;
+    }
+    .pca-node-selected {
+        //fill: none;
+        stroke: #000;
+        stroke-width: .5;
+    }
+    .pca-tooltip {
+        pointer-events: none;
+        background-color: rgba(255, 255, 255, .5);
+        padding: 5px;
+    }
 }

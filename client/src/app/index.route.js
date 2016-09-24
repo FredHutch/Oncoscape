@@ -8,7 +8,6 @@
     /** @ngInject */
     function routerConfig($stateProvider, $urlRouterProvider) {
 
-
         $stateProvider
             .state('landing', {
                 url: '/',
@@ -94,7 +93,6 @@
                 authenticate: false,
                 datasource: true
             });
-           
 
         $urlRouterProvider.otherwise('/');
     }

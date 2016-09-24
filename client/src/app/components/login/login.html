@@ -1,10 +1,8 @@
 <form class="login">
-	<div class="login-body">
-		<h3 class="login-header">Sign in</h3>
-		<div ng-repeat="item in vm.networks" class="login-option"
-			ng-click="vm.login(item);">
-				<span class="{{item.icon}} login-icon"></span>
-				{{item.name}}
-		</div>
-	</div>
+    <div class="login-body">
+        <h3 class="login-header">Sign in</h3>
+        <div ng-repeat="item in vm.networks" class="login-option" ng-click="vm.login(item);">
+            <span class="{{item.icon}} login-icon"></span> {{item.name}}
+        </div>
+    </div>
 </form>

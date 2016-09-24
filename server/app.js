@@ -9,7 +9,9 @@ const oauthshim = require('oauth-shim');
 
 var app = express();
 app.use(bodyParser.json());
-app.use(bodyParser.urlencoded({extended: true}));
+app.use(bodyParser.urlencoded({
+    extended: true
+}));
 
 // --------------------- //
 // ----- OAuth API ----- //
@@ -38,12 +40,16 @@ app.all('/api/auth',
 var domain = process.env.MONGO_DOMAIN;
 mongoose.connect(
     process.env.MONGO_CONNECTION, {
-        db: { native_parser: true },
+        db: {
+            native_parser: true
+        },
         server: {
             poolSize: 5,
             reconnectTries: Number.MAX_VALUE
         },
-        replset: { rs_name: 'rs0' },
+        replset: {
+            rs_name: 'rs0'
+        },
         user: process.env.MONGO_USERNAME,
         pass: process.env.MONGO_PASSWORD
     });
@@ -109,7 +115,7 @@ mongoose.connection.on('connected', function() {
     app.get('/api/:collection/:query', function(req, res, next) {
         var query = (req.params.query) ? JSON.parse(req.params.query) : {};
         processQuery(req, res, next, query);
-    }); 
+    });
 
     // Query using get querystring (no client cache)
     app.get('/api/:collection*', function(req, res, next) {
@@ -136,4 +142,6 @@ app.get("/api/ping", function(req, res, next) {
 });
 
 // Start Listening
-app.listen(process.env.NODE_PORT, function() { console.log("UP"); });
+app.listen(process.env.NODE_PORT, function() {
+    console.log("UP");
+});

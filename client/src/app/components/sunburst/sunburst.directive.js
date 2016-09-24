@@ -229,7 +229,6 @@
                     // Transform Data To Be Both Tree + List (Bar) Oriented
                     return data.map(function(chart) {
 
-
                         // Get Cartesian Product Of All Tags From Selected Groups 
                         var bars = cartesianProductOf.apply(this, chart.groups
                                 .filter(function(c) {
@@ -261,7 +260,6 @@
                                 if (_.difference(bar.tags, value.tags).length == 0) bar.value += value.data;
                             });
                         });
-
 
                         // Convert Array Into A Tree Structure
                         var tree = bars.reduce(function(p, c) {
@@ -315,32 +313,42 @@
                     // Chart Label
                     chartLayer.append("text").text(el.tree.name)
                         .attr("y", 20)
-                        .attr("x", Math.round( (layout.widthChart-5) / 2) )
+                        .attr("x", Math.round((layout.widthChart - 5) / 2))
                         .attr("text-anchor", "middle");
-
 
                     // Draw Bars
                     var bars = chartLayer.selectAll(".cat-bar").data(el.bars);
-                    var yMax = _.max(el.bars, function(bar){ return bar.value; }).value;
-                    var yMin = _.min(el.bars, function(bar){ return bar.value; }).value;
+                    var yMax = _.max(el.bars, function(bar) {
+                        return bar.value;
+                    }).value;
+                    var yMin = _.min(el.bars, function(bar) {
+                        return bar.value;
+                    }).value;
                     var yScale = d3.scaleLinear();
-                    yScale.range([0,120]);
+                    yScale.range([0, 120]);
                     yScale.domain([yMin, yMax]);
 
-                    var barWidth = Math.floor( (layout.widthChart-1) / el.bars.length);
+                    var barWidth = Math.floor((layout.widthChart - 1) / el.bars.length);
                     var newBars = bars.enter()
-                      .append("rect")
-                      .attr("x", function(d,i) { return barWidth * i})
-                      .attr("y", function(d) { return 160-yScale(d.value) })
-                      .attr("width", barWidth)
-                      .attr("height", function(d) { return yScale(d.value); })
-                      .attr("fill", function(d) { 
-                        return (d.tags[0]=="Normal") ? "#1476b6" : "#adc7ea";
+                        .append("rect")
+                        .attr("x", function(d, i) {
+                            return barWidth * i
+                        })
+                        .attr("y", function(d) {
+                            return 160 - yScale(d.value)
+                        })
+                        .attr("width", barWidth)
+                        .attr("height", function(d) {
+                            return yScale(d.value);
+                        })
+                        .attr("fill", function(d) {
+                            return (d.tags[0] == "Normal") ? "#1476b6" : "#adc7ea";
                         });
 
-
                     // Create Partition Tree Legend 
-                    var tree = d3.hierarchy(el.tree, function(d) { return d.children; });
+                    var tree = d3.hierarchy(el.tree, function(d) {
+                        return d.children;
+                    });
 
                     var chartHeight = (1 / tree.height + 1) * 60;
 
@@ -355,12 +363,24 @@
                     var newNode = node.enter()
                         .append("rect")
                         .attr("class", "cat-node")
-                        .attr("x", function(d) { return d.x0; })
-                        .attr("y", function(d) { return (200 - chartHeight) - (d.y0 - chartHeight); })
-                        .attr("width", function(d) { return d.x1 - d.x0; })
-                        .attr("height", function(d) { return d.y1 - d.y0; })
-                        .attr("fill", function(d) { return d.data.color; })
-                        .style("visibility", function(d) { return d.data.name == 'chart' ? "hidden" : "visible"; });
+                        .attr("x", function(d) {
+                            return d.x0;
+                        })
+                        .attr("y", function(d) {
+                            return (200 - chartHeight) - (d.y0 - chartHeight);
+                        })
+                        .attr("width", function(d) {
+                            return d.x1 - d.x0;
+                        })
+                        .attr("height", function(d) {
+                            return d.y1 - d.y0;
+                        })
+                        .attr("fill", function(d) {
+                            return d.data.color;
+                        })
+                        .style("visibility", function(d) {
+                            return d.data.name == 'chart' ? "hidden" : "visible";
+                        });
 
                 }
                 var getColorMap = function(data) {
@@ -373,7 +393,7 @@
                     }, []);
                     colors.length = tags.length;
                     var colorMap = _.object(tags, colors);
-                    colorMap["Tumor"]  = "#FEFEFE";
+                    colorMap["Tumor"] = "#FEFEFE";
                     colorMap["Normal"] = "#EAEAEA";
                     return colorMap;
 

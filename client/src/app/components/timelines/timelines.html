@@ -2,7 +2,7 @@
     <section class="tray-content">
         <div class="row">
             <br />
-            <div class="col-xs-6 form-item" style="padding-right:5px">            
+            <div class="col-xs-6 form-item" style="padding-right:5px">
                 <label>Align By</label>
                 <div class="dropdown bs-dropdown">
                     <button class="btn btn-default dropdown-toggle" type="button" id="dropdownMenu1" data-toggle="dropdown" aria-haspopup="true" aria-expanded="true">
@@ -37,7 +37,8 @@
                         <li ng-repeat="item in vm.filters" ng-click="vm.filter=item;vm.update();">{{item.name}}</li>
                     </ul>
                 </div>
-            </div><!-- 
+            </div>
+            <!-- 
             <div class="col-xs-6 form-item" style="padding-left:5px">
                 <label>Display Filter</label>
                 <div class="dropdown bs-dropdown">
@@ -64,26 +65,22 @@
             </div>
             <div class="col-xs-12 form-item">
                 <div class="dropdown bs-dropdown">
-                    <button class="btn btn-default dropdown-toggle" type="button"
-                        ng-click="vm.resetZoom()" style="text-align:center;">
+                    <button class="btn btn-default dropdown-toggle" type="button" ng-click="vm.resetZoom()" style="text-align:center;">
                         Clear Selection + Reset Zoom
                     </button>
                 </div>
             </div>
             <div class="col-xs-12 form-item">
-
                 <label>Events</label>
-                <div ng-repeat="item in vm.events track by $index" class="legend-bar" style="border-color:{{item.color}};position:relative;background-color:#FFF;padding:2px 10px;line-height:25px;">{{item.name}} 
+                <div ng-repeat="item in vm.events track by $index" class="legend-bar" style="border-color:{{item.color}};position:relative;background-color:#FFF;padding:2px 10px;line-height:25px;">{{item.name}}
                     <label class="switch {{item.class}}" style="float:right">
-                        <input type="checkbox" class="switch-input"
-                            ng-model="item.selected"    
-                            ng-change="vm.update();">
+                        <input type="checkbox" class="switch-input" ng-model="item.selected" ng-change="vm.update();">
                         <span class="switch-label" data-on="On" data-off="Off"></span>
                         <span class="switch-handle"></span>
                     </label>
                 </div>
             </div>
-            <div class="col-xs-12 form-item" >
+            <div class="col-xs-12 form-item">
                 <div id="timelines-tip" style="min-height:200px;"><b>Rollover Event For Details</b></div>
             </div>
         </div>
@@ -94,10 +91,7 @@
         <h2 class="h2-tool">Timelines</h2>
         <span class="h3-tool">{{vm.datasource.source}} {{vm.datasource.name}}</span>
         <div class="timelines-content" style="margin-top:20px;">
-            
         </div>
-
     </div>
 </section>
-
 <os-color-panel ng-if="vm.showPanelColor" close="vm.showPanelColor=false"></os-color-panel>

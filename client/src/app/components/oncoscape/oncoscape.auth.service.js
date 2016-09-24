@@ -8,7 +8,6 @@
     /** @ngInject */
     function osAuth(osHttp, $http, signals, $location, auth, osApi) {
 
-
         // Events
         var onLogin = new signals.Signal(); // Fired When Data Changes
         var onLogout = new signals.Signal(); // Fired When Selection changes
