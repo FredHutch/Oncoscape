@@ -16,7 +16,7 @@ app.use(bodyParser.urlencoded({
 // --------------------- //
 // ----- OAuth API ----- //
 // --------------------- //
-
+/*
 function oauthHandler(req, res, next) {
     // Check that this is a login redirect with an access_token (not a RESTful API call via proxy) 
     if (req.oauthshim &&
@@ -134,7 +134,7 @@ mongoose.connection.on('connected', function() {
     //     });
     // }
 });
-
+*/
 // Ping Method - Used For Testing
 app.get("/api/ping", function(req, res, next) {
     res.send((new Date()).toString());
