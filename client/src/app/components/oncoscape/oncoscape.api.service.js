@@ -59,8 +59,8 @@
         // Initialize
         function init() {
             return $q(function(resolve, reject) {
-                //query("lookup_oncoscape_datasources",{beta:false}).then(function(response){ 
-                query("lookup_oncoscape_datasources").then(function(response) {
+                query("lookup_oncoscape_datasources",{beta:false}).then(function(response){ 
+                //query("lookup_oncoscape_datasources").then(function(response) {
                     _dataSources = response.data
                         .filter(function(d) {
                             return angular.isDefined(d.img)
