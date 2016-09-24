@@ -123,15 +123,15 @@ mongoose.connection.on('connected', function() {
     });
 
     // If Dev + Running Gulp Proxy Everything Else
-    // if (process.env.NODE_DEBUG=="1"){
-    //     const httpProxy = require('http-proxy');
-    //     var proxy = httpProxy.createProxyServer();
-    //     app.all('/*', function(req, res, next) {
-    //         proxy.web(req, res, {
-    //             target: 'http://localhost:3000'
-    //         });
-    //     });
-    // }
+    if (process.env.NODE_DEBUG=="1"){
+        const httpProxy = require('http-proxy');
+        var proxy = httpProxy.createProxyServer();
+        app.all('/*', function(req, res, next) {
+            proxy.web(req, res, {
+                target: 'http://localhost:3000'
+            });
+        });
+    }
 });
 
 // Ping Method - Used For Testing
@@ -139,12 +139,8 @@ app.get("/api/ping", function(req, res, next) {
     res.send((new Date()).toString());
     res.end();
 });
-app.get("/api/vars", function(req, res, next){
-    res.send(process.env);
-    res.end();
-})
 
 // Start Listening
-app.listen(parseInt(process.env.NODE_PORT), function() {
+app.listen(process.env.NODE_PORT, function() {
     console.log("UP");
 });

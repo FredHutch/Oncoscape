@@ -138,7 +138,6 @@
             $scope.$watch('vm.patientChartOption', function(){
 
                 if (vm.patientChartOption==null) return;
-
                 var data = vm.patientChartOption.data;
 
                 var barWidth = Math.floor(238/data.bins);
