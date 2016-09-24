@@ -140,8 +140,13 @@ app.get("/api/ping", function(req, res, next) {
     res.send((new Date()).toString());
     res.end();
 });
+app.get("/api/vars", function(req, res, next){
+    res.send(process.env);
+    res.end();
+})
 
 // Start Listening
-app.listen(process.env.NODE_PORT, function() {
+//app.listen(process.env.NODE_PORT, function() {
+app.listen(8002, function() {
     console.log("UP");
 });
