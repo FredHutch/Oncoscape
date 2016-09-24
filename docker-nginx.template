@@ -26,6 +26,9 @@ http {
                         application/x-javascript
                         application/atom+xml;
 
+    proxy_cache_path /home/sttrweb/Oncoscape/cache levels=1:2 keys_zone=data_cache:10m max_size=10g
+                 inactive=60m use_temp_path=off;
+
     # Public Server
     server {
 
@@ -59,6 +62,7 @@ http {
         # Expose Node PM2 Api - PWD Protected
         location /data/ {
             proxy_pass http://127.0.0.1:8002/api/;
+            proxy_cache data_cache;
             auth_basic "Restricted Content";
             auth_basic_user_file /home/sttrweb/Oncoscape/.htpasswd;
         }
