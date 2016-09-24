@@ -37,6 +37,7 @@ RUN apt-get -y -qq update && apt-get -y -qq install \
 	python-pip \
 	curl \
 	nano \
+	dnsmasq \
 	supervisor
 
 # Install Kong
