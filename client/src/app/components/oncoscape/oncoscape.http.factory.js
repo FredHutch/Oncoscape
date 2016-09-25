@@ -12,21 +12,24 @@
          //var url = "http://dev.oncoscape.sttrcancer.io/api/";
          var queryString = function(req) {
              var query = url + req.table;
-             if (angular.isDefined(req.query)) query += "/"+encodeURIComponent(JSON.stringify(req.query));
+             if (angular.isDefined(req.query)) query += "/" + encodeURIComponent(JSON.stringify(req.query));
              return query;
          };
 
          var query = function(req) {
-            return $http({
+             return $http({
                  method: 'GET',
-                 url: queryString(req)
+                 url: queryString(req),
+                 headers: {
+                     apikey: 'password'
+                 }
              });
          };
 
          // Return Object
          return {
-            queryString: queryString,
-            query: query
+             queryString: queryString,
+             query: query
          };
      }
  })();

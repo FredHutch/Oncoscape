@@ -1,0 +1,20 @@
+<os-tray content="tray-content-block" change="vm.resize($event)">
+    <section class="tray-content">
+        <div class="row">
+            <div class="col-xs-12 form-item">
+                <br />
+                <label></label>
+            </div>
+        </div>
+    </section>
+</os-tray>
+<section class="tray-content-block">
+    <div style="position:absolute;top:10px;text-align:center;width:100%;">
+        <h2 class="h2-tool">Heatmap</h2>
+        <span class="h3-tool">{{vm.datasource.source}} {{vm.datasource.name}}</span>
+        <div id="heatmap-chart"></div>
+        <div id="tooltip" class="hidden">
+            <p><span id="value"></p>
+</div>
+    </div>
+</section>

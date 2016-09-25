@@ -1,11 +1,33 @@
 # Use Ubuntu 14.04 as the base container
 FROM ubuntu:14.04
 
-# Add the package verification key
-RUN apt-key adv --keyserver keyserver.ubuntu.com --recv-keys 51716619E084DAB9
+# Set Environment Variables - These values are for test environment + are dynamically replaced upon deploy
+ENV KONG_DATABASE=postgres \
+	KONG_PG_HOST=140.107.117.18 \
+	KONG_PG_PORT=32023 \
+	KONG_PG_USER=GBdh62FfCvwtnqey \
+	KONG_PG_PASSWORD=hUDrQe7m5fXKprJC \
+	KONG_PG_DATABASE=OncoGateway \
+	KONG_ADMIN_LISTEN=127.0.0.1:8001 \
+	MONGO_CONNECTION=mongodb://oncoscape-dev-db1.sttrcancer.io:27017,oncoscape-dev-db2.sttrcancer.io:27017,oncoscape-dev-db3.sttrcancer.io:27017/pancan12?authSource=admin \
+	MONGO_USERNAME=oncoscapeRead \
+	MONGO_PASSWORD=i1f4d9botHD4xnZ \
+	MONGO_DOMAIN=https://dev.oncoscape.sttrcancer.io \
+	HT_USERNAME=admin \
+	HT_PASSWORD=password \
+	NODE_PORT=8002 \
+	NODE_DEBUG=0
 
-# Update the system and install packages
+# Add Standard Packages + Verification Key
+RUN apt-key adv --keyserver keyserver.ubuntu.com --recv-keys 51716619E084DAB9
 RUN apt-get -y -qq update && apt-get -y -qq install \
+	netcat \
+	openssl \
+	apache2 \
+	apache2-utils \
+	libpcre3 \
+	dnsmasq \
+	procps \
 	apt-transport-https \
 	make \
 	gcc \
@@ -15,41 +37,59 @@ RUN apt-get -y -qq update && apt-get -y -qq install \
 	python-pip \
 	curl \
 	nano \
-	nginx \
 	supervisor
 
-# Add NGinx Config + Cache Folder
-ADD  /nginx.conf /etc/nginx/
-RUN mkdir /data /data/nginx /data/nginx/cache
+# Install Kong
+RUN curl -sL https://github.com/Mashape/kong/releases/download/0.9.0/kong-0.9.0.trusty_all.deb > kong-0.9.0.trusty_all.deb  && \
+	dpkg -i kong-0.9.0.trusty_all.deb
 
-# Add Supervisord Config
-RUN mkdir /etc/supervisord
-ADD  /supervisord.conf /etc/supervisord/
-
-# Install Node 6.x
+# Install Node 6.x + PM2
 RUN curl -sL https://deb.nodesource.com/setup_6.x | bash -
 RUN apt-get -y -qq install nodejs
-
-# Install PM2
 RUN npm install -g pm2
 
-# Create The "sttrweb" User + Web Directory
+# Install OpenCPU
+RUN \
+  apt-get update && \
+  apt-get -y dist-upgrade && \
+  apt-get install -y software-properties-common && \
+  add-apt-repository -y ppa:opencpu/opencpu-1.6 && \
+  apt-get update && \
+  apt-get install -y opencpu 
+RUN truncate -s 0 /etc/apache2/ports.conf
+RUN echo "ServerName localhost" >> /etc/apache2/apache2.conf
+
+# Create Application User
 RUN useradd -u 7534 -m -d /home/sttrweb -c "sttr web application" sttrweb && \
-	mkdir /home/sttrweb/Oncoscape
+	mkdir /home/sttrweb/Oncoscape && \
+	mkdir /home/sttrweb/Oncoscape/cache
 
-# Set Working Directory + Copy Code Into Container
-WORKDIR /home/sttrweb/Oncoscape/server
-ADD node /home/sttrweb/Oncoscape/server
+# Install Client Code
+COPY client-build /home/sttrweb/Oncoscape/client
 
-# Run NPM Install
+# Install Server Code
+COPY server /home/sttrweb/Oncoscape/server
+WORKDIR /home/sttrweb/Oncoscape/server/
 RUN npm install
 
-WORKDIR /home/sttrweb/Oncoscape/client
-ADD client-build /home/sttrweb/Oncoscape/client
+# Install R Package
+COPY cpu/oncoscape_0.1.0.tgz /home/sttrweb/Oncoscape/oncoscape_0.1.0.tgz
+WORKDIR /home/sttrweb/Oncoscape/
+RUN R CMD INSTALL oncoscape_0.1.0.tgz --library=/usr/local/lib/R/site-library
+RUN echo "r <- getOption('repos'); r['CRAN'] <- 'http://cran.us.r-project.org'; options(repos = r);" > ~/.Rprofile
+RUN Rscript -e "install.packages(c('ggplot2','gridSVG','heatmap3','pheatmap'))"
 
-WORKDIR /home/sttrweb/Oncoscape
+# Copy Config Files
+WORKDIR /home/sttrweb/Oncoscape/
+COPY /docker-kong.conf /home/sttrweb/Oncoscape/
+COPY /docker-nginx.template /home/sttrweb/Oncoscape/
+COPY /docker-supervisord.conf /home/sttrweb/Oncoscape/
+COPY /docker-entrypoint.sh /home/sttrweb/Oncoscape/
 
-# Extenal Port
-EXPOSE 80
+# Expose Ports
+EXPOSE 80 8000 8001 8003 8004
 
-CMD ["/usr/bin/supervisord", "-n", "-c", "/etc/supervisord/supervisord.conf"]
+# Fire It Up
+RUN chmod +x /home/sttrweb/Oncoscape/docker-entrypoint.sh
+ENTRYPOINT ["/home/sttrweb/Oncoscape/docker-entrypoint.sh"]
+#CMD ["/usr/bin/supervisord", "-n", "-c", "/home/sttrweb/Oncoscape/docker-supervisord.conf"]

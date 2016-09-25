@@ -1,12 +1,12 @@
 // Namespace
-.tray{
-	position: fixed;
-	right: 0px;
-	width: 300px;
-	height: 100%;
-	margin-right:0px;
-	margin-top:5px;
-	overflow-y: auto;
+.tray {
+    position: fixed;
+    right: 0px;
+    width: 300px;
+    height: 100%;
+    margin-right: 0px;
+    margin-top: 5px;
+    overflow-y: auto;
     background-color: #EFEFEF;
     z-index: 900;
     padding: 20px;
@@ -16,67 +16,74 @@
     -o-transition: all 0.3s ease;
     transition: all 0.3s ease;
     padding-bottom: 150px;
-    overflow:auto;
-
+    overflow: auto;
 }
+
 ::-webkit-scrollbar {
     width: 0em;
-    
 }
-.tray-left{
-    right:auto;
-    left:0px;
+
+.tray-left {
+    right: auto;
+    left: 0px;
 }
 
 //.tray:hover { overflow-y:auto; }
-
-.tray-sticky-icon{
-	position: absolute;
-	right: 30px;
-	top: 25px;
-}
-.tray-sticky-icon:focus{
-	outline:0;
-}
-.tray-collapsed{
-	margin-right:-280px !important;
-    background-color: rgba(255,255,255,0) !important;
-}
-.tray-collapsed-left{
-    margin-left:-280px !important;
-    background-color: rgba(255,255,255,0) !important;
-}
-.tray-content-block{
- 	width: 100%;
+.tray-sticky-icon {
     position: absolute;
-    padding-top:20px;
+    right: 30px;
+    top: 25px;
+}
+
+.tray-sticky-icon:focus {
+    outline: 0;
+}
+
+.tray-collapsed {
+    margin-right: -280px !important;
+    background-color: rgba(255, 255, 255, 0) !important;
+}
+
+.tray-collapsed-left {
+    margin-left: -280px !important;
+    background-color: rgba(255, 255, 255, 0) !important;
+}
+
+.tray-content-block {
+    width: 100%;
+    position: absolute;
+    padding-top: 20px;
     -webkit-transition: all 0.3s ease;
     -moz-transition: all 0.3s ease;
     -o-transition: all 0.3s ease;
     transition: all 0.3s ease;
     padding-right: 300px;
 }
-.tray-content-block-collapsed{
-	padding-right: 20px;
+
+.tray-content-block-collapsed {
+    padding-right: 20px;
 }
-.tray-label{
+
+.tray-label {
     transform: rotate(90deg);
     transform-origin: 50% 100%;
     position: absolute;
-    color:#000;
-    background-color:#EEE;
+    color: #000;
+    background-color: #EEE;
     width: 100px;
-    height:40px;
+    height: 40px;
     text-align: center;
     line-height: 40px;
     letter-spacing: 2px;
     border-radius: 5px;
 }
-.tray-label-right{
+
+.tray-label-right {
     right: -10px;
     top: 45vh;
 }
-.tray-label-left{
+
+.tray-label-left {
     left: -50px;
     top: 45vh;
 }

@@ -1,32 +1,33 @@
 // Namespace
-.plsr{
-	// Invert Range Slider
-	.ngrs-range-slider .ngrs-join{
-		background-color: #FFF;
-	}
-	.ngrs-runner::after{
-		content: '';
-	    width: 100%;
-	    height: 8px;
-	    display: inline-block;
-	    background-color: #1396de;
-	    position: relative;
-	    top: -1px;
-	}
+.plsr {
+    // Invert Range Slider
+    .ngrs-range-slider .ngrs-join {
+        background-color: #FFF;
+    }
+    .ngrs-runner::after {
+        content: '';
+        width: 100%;
+        height: 8px;
+        display: inline-block;
+        background-color: #1396de;
+        position: relative;
+        top: -1px;
+    }
+}
 
+.plsr-node:hover {
+    stroke: rgb(89, 165, 251);
+    stroke-width: 20px;
 }
-.plsr-node:hover{
-	stroke: rgb(89, 165, 251);
-	stroke-width: 20px;
+
+.plsr-tooltip {
+    pointer-events: none;
+    background-color: rgba(255, 255, 255, .5);
+    padding: 5px;
 }
-.plsr-tooltip{
-	pointer-events : none;
-	background-color: rgba(255,255,255,.5); 
-	padding: 5px;
-}
-.plsr-node-selected{
-	fill: none;
+
+.plsr-node-selected {
+    fill: none;
     stroke: red;
     stroke-width: 3;
 }
-

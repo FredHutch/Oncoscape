@@ -1,5 +1,4 @@
-<os-tool-menu datasource="{{vm.datasource}}"
- change="vm.addCohortGene()"></os-tool-menu>
+<os-tool-menu datasource="{{vm.datasource}}" change="vm.addCohortGene()"></os-tool-menu>
 <os-tray content="tray-content-block" change="vm.resize($event)">
     <section class="tray-content">
         <div class="row">
@@ -20,12 +19,11 @@
             </div>
             <div class="col-xs-12 form-item">
                 <label>Age At Diagnosis</label>
-                <div range-slider min="vm.deathMinValue" model-min="vm.deathMinFilter" max="vm.deathMaxValue" 
-                 model-max="vm.deathMaxFilter" prevent-equal-min-max="true" show-values="true" attach-handle-values="true" on-handle-up="vm.update()"></div>
+                <div range-slider min="vm.deathMinValue" model-min="vm.deathMinFilter" max="vm.deathMaxValue" model-max="vm.deathMaxFilter" prevent-equal-min-max="true" show-values="true" attach-handle-values="true" on-handle-up="vm.update()"></div>
             </div>
             <div class="col-xs-12 form-item">
                 <label>Survival</label>
-                <div range-slider min="vm.survivalMinValue" model-min="vm.survivalMinFilter" max="vm.survivalMaxValue" model-max="vm.survivalMaxFilter" prevent-equal-min-max  show-values="true" attach-handle-values="true" on-handle-up="vm.update()"></div>
+                <div range-slider min="vm.survivalMinValue" model-min="vm.survivalMinFilter" max="vm.survivalMaxValue" model-max="vm.survivalMaxFilter" prevent-equal-min-max show-values="true" attach-handle-values="true" on-handle-up="vm.update()"></div>
             </div>
             <div class="col-xs-12 form-label">
                 <h2>Legend</h2>
@@ -45,13 +43,13 @@
     </div>
 </section>
 <div class="modal fade plsr-webpage" id="plsr-webpage" tabindex="-1" role="dialog" aria-labelledby="myModalLabel">
-  <div class="modal-dialog" role="document">
-    <div class="modal-content">
-      <div class="modal-header">
-        <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
-        <h4 class="modal-title" id="myModalLabel">{{vm.tip}}</h4>
-      </div>
-    <iframe class="modal-iframe" ng-src="{{vm.frame}}" />
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+                <h4 class="modal-title" id="myModalLabel">{{vm.tip}}</h4>
+            </div>
+            <iframe class="modal-iframe" ng-src="{{vm.frame}}" />
+        </div>
     </div>
-  </div>
 </div>

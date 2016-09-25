@@ -14,7 +14,7 @@
             controller: ColorPanelController,
             controllerAs: 'vm',
             bindToController: true,
-            scope:{
+            scope: {
                 close: "&"
             }
         };
@@ -22,45 +22,51 @@
         return directive;
 
         /** @ngInject */
-        function ColorPanelController(osApi, osCohortService) {
+        function ColorPanelController(osApi, osCohortService, d3) {
 
             // Properties
             var vm = this;
             vm.showPanelColorRna = false;
-            var table;
 
-            var tbl = osApi.getDataSource().category.filter(function(v){ return v.type=='color'; })[0].collection;
+            var tbl = osApi.getDataSource().category.filter(function(v) {
+                return v.type == 'color';
+            })[0].collection;
 
             osApi.query(tbl, {
                 type: 'color',
                 dataset: osApi.getDataSource().disease,
-                $fields: ['name','subtype']
+                $fields: ['name', 'subtype']
             }).then(function(v) {
 
-                var data = v.data.reduce(function(p,c){
+                var data = v.data.reduce(function(p, c) {
                     if (!p.hasOwnProperty(c.subtype)) p[c.subtype] = [];
                     p[c.subtype].push(c);
                     return p;
-                },{});
+                }, {});
 
-                vm.optPatientColors = Object.keys(data).map(function(key){
-                    return {name:key, values:this[key].sort(function(a,b){
-                        if (a.name>b.name) return 1;
-                        if (a.name<b.name) return -1;
-                        return 0;
-                    })};
+                vm.optPatientColors = Object.keys(data).map(function(key) {
+                    return {
+                        name: key,
+                        values: this[key].sort(function(a, b) {
+                            if (a.name > b.name) return 1;
+                            if (a.name < b.name) return -1;
+                            return 0;
+                        })
+                    };
                 }, data);
-                // vm.optPatientColors = [{
-                //     name: 'None'
-                // }].concat(v.data);
-
 
             });
 
             vm.setColor = function(item) {
 
-                if (item.name=="None"){
-                    osCohortService.setPatientColor({"dataset":osApi.getDataSource().disease,"type":"color","name":"None","data":[], show:true})
+                if (item.name == "None") {
+                    osCohortService.setPatientColor({
+                        "dataset": osApi.getDataSource().disease,
+                        "type": "color",
+                        "name": "None",
+                        "data": [],
+                        show: true
+                    })
                     return;
                 }
 
@@ -70,21 +76,21 @@
                     name: item.name
                 }).then(function(v) {
                     var data = v.data[0];
-                    data.data = data.data.map(function(v){
+                    data.data = data.data.map(function(v) {
                         var name = v.name.toLowerCase().trim();
-                        if (name=="" || name=="null" || name=="undefined"){
+                        if (name == "" || name == "null" || name == "undefined") {
                             v.name = "Null";
                             v.color = "#DDDDDD";
                         }
-                        v.id = "legend-"+v.color.substr(1);
+                        v.id = "legend-" + v.color.substr(1);
                         return v;
-                    }).sort(function(a,b){
-                        var aname = (parseInt(a.name)!=NaN) ? parseInt(a.name) : a.name;
-                        var bname = (parseInt(b.name)!=NaN) ? parseInt(b.name) : b.name;
+                    }).sort(function(a, b) {
+                        var aname = (parseInt(a.name) != NaN) ? parseInt(a.name) : a.name;
+                        var bname = (parseInt(b.name) != NaN) ? parseInt(b.name) : b.name;
                         if (aname < bname) return -1;
                         if (aname > bname) return 1;
-                        if (a.name=="Null") return 1;
-                        if (b.name=="Null") return -1;
+                        if (a.name == "Null") return 1;
+                        if (b.name == "Null") return -1;
                         return 0;
                     })
 
@@ -148,7 +154,6 @@
 
                         // Color Patients
 
-
                         var values = [{
                             name: 'Q1',
                             color: "#6a32b3"
@@ -199,13 +204,13 @@
                             names: values
                         })
 
-                        data = data.sort(function(a,b){
-                            if(a.name < b.name) return -1;
-                            if(a.name > b.name) return 1;
+                        data = data.sort(function(a, b) {
+                            if (a.name < b.name) return -1;
+                            if (a.name > b.name) return 1;
                             return 0;
                         });
                         data.push({
-                            color:'#DDD',
+                            color: '#DDD',
                             name: 'Null',
                             values: []
                         })

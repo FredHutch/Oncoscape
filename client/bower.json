@@ -27,13 +27,10 @@
     "angular-ui-router-anim-in-out": "^1.0.2",
     "js-signals": "signals#^1.0.0",
     "cytoscape": "^2.6.3",
-    "qtip2": "^2.2.1",
-    "cytoscape-qtip": "^2.3.0",
     "underscore": "^1.8.3",
     "components-font-awesome": "^4.5.0",
-    "angular-bootstrap-contextmenu": "^0.9.7",
-    "angular-nvd3": "^1.0.7",
-    "hello": "^1.13.4"
+    "hello": "^1.13.4",
+    "opencpu.js": "opencpu#*"
   },
   "overrides": {
     "bootstrap-sass": {

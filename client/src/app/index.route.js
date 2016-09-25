@@ -8,17 +8,10 @@
     /** @ngInject */
     function routerConfig($stateProvider, $urlRouterProvider) {
 
-
         $stateProvider
             .state('landing', {
                 url: '/',
                 template: '<os-landing>',
-                authenticate: false,
-                datasource: false
-            })
-            .state('help', {
-                url: '/help',
-                template: '<os-help>',
                 authenticate: false,
                 datasource: false
             })
@@ -31,12 +24,6 @@
             .state('tools', {
                 url: '/tools/{datasource}',
                 template: '<os-tools>',
-                authenticate: true,
-                datasource: true
-            })
-            .state('metadata', {
-                url: '/metadata/{datasource}',
-                template: '<os-metadata>',
                 authenticate: true,
                 datasource: true
             })
@@ -88,31 +75,24 @@
                 authenticate: true,
                 datasource: true
             })
-            .state('dataexplorer', {
-                url: '/dataexplorer/{datasource}',
-                template: '<os-data-explorer>',
-                authenticate: true,
+            .state('sunburst', {
+                url: '/sunburst/{datasource}',
+                template: '<os-sunburst>',
+                authenticate: false,
                 datasource: true
             })
-            .state('oncoprint', {
-                url: '/oncoprint/{datasource}',
-                template: '<os-oncoprint>',
-                authenticate: true,
+            .state('heatmap', {
+                url: '/heatmap/{datasource}',
+                template: '<os-heatmap>',
+                authenticate: false,
                 datasource: true
             })
-            .state('genesettest', {
-                url: '/genesettest/{datasource}',
-                template: '<os-genesettest>',
-                authenticate: true,
+            .state('barcharts', {
+                url: '/barchart/{datasource}',
+                template: '<os-barchart>',
+                authenticate: false,
                 datasource: true
-            })
-            .state('cohortbuilder', {
-                url: '/cohortbuilder/{datasource}',
-                template: '<os-cohort-builder>',
-                authenticate: true,
-                datasource: true
-            })
-           
+            });
 
         $urlRouterProvider.otherwise('/');
     }
