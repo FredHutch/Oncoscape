@@ -38,7 +38,7 @@ app.all('/api/auth',
 // --------------------- //
 var domain = process.env.MONGO_DOMAIN;
 mongoose.connect(
-    'mongodb://oncoscape-dev-db1.sttrcancer.io:27017,oncoscape-dev-db2.sttrcancer.io:27017,oncoscape-dev-db3.sttrcancer.io:27017/pancan12?authSource=admin', {
+    process.env.MONGO_CONNECTION, {
         db: {
             native_parser: true
         },

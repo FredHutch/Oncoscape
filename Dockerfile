@@ -1,23 +1,6 @@
 # Use Ubuntu 14.04 as the base container
 FROM ubuntu:14.04
 
-# Set Environment Variables - These values are for test environment + are dynamically replaced upon deploy
-ENV KONG_DATABASE=postgres \
-	KONG_PG_HOST=140.107.117.18 \
-	KONG_PG_PORT=32023 \
-	KONG_PG_USER=GBdh62FfCvwtnqey \
-	KONG_PG_PASSWORD=hUDrQe7m5fXKprJC \
-	KONG_PG_DATABASE=OncoGateway \
-	KONG_ADMIN_LISTEN=127.0.0.1:8001 \
-	MONGO_CONNECTION=mongodb://oncoscape-dev-db1.sttrcancer.io:27017,oncoscape-dev-db2.sttrcancer.io:27017,oncoscape-dev-db3.sttrcancer.io:27017/pancan12?authSource=admin \
-	MONGO_USERNAME=oncoscapeRead \
-	MONGO_PASSWORD=i1f4d9botHD4xnZ \
-	MONGO_DOMAIN=https://dev.oncoscape.sttrcancer.io \
-	HT_USERNAME=admin \
-	HT_PASSWORD=password \
-	NODE_PORT=8002 \
-	NODE_DEBUG=0
-
 # Add Standard Packages + Verification Key
 RUN apt-key adv --keyserver keyserver.ubuntu.com --recv-keys 51716619E084DAB9
 RUN apt-get -y -qq update && apt-get -y -qq install \
@@ -87,7 +70,7 @@ COPY /docker-supervisord.conf /home/sttrweb/Oncoscape/
 COPY /docker-entrypoint.sh /home/sttrweb/Oncoscape/
 
 # Expose Ports
-EXPOSE 80 8000 8001 8003 8004
+EXPOSE 80 8000 8001 8003 8004 7946 7946/udp
 
 # Fire It Up
 RUN chmod +x /home/sttrweb/Oncoscape/docker-entrypoint.sh
