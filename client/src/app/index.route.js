@@ -78,19 +78,19 @@
             .state('sunburst', {
                 url: '/sunburst/{datasource}',
                 template: '<os-sunburst>',
-                authenticate: false,
+                authenticate: true,
                 datasource: true
             })
             .state('heatmap', {
                 url: '/heatmap/{datasource}',
                 template: '<os-heatmap>',
-                authenticate: false,
+                authenticate: true,
                 datasource: true
             })
             .state('barcharts', {
                 url: '/barchart/{datasource}',
                 template: '<os-barchart>',
-                authenticate: false,
+                authenticate: true,
                 datasource: true
             });
 
