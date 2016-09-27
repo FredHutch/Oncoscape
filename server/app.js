@@ -37,9 +37,8 @@ app.all('/api/auth',
 // ----- Mongo API ----- //
 // --------------------- //
 var domain = process.env.MONGO_DOMAIN;
-
 mongoose.connect(
-    process.env.MONGO_CONNECTION, {
+        process.env.MONGO_CONNECTION, {  
         db: {
             native_parser: true
         },

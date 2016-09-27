@@ -53,19 +53,16 @@
                     v.barcharts.forEach(function(v) {
                         v.groups.forEach(function(v) {
                             v.show = true;
-                            v.tags.map(function(v){
+                            v.tags = v.tags.map(function(v){
                                 return {name:v, color:colorMap[v]};
                             });
                         })
                     })
                 });
-                debugger;
                 vm.patients = response.data;
                 vm.patient = vm.patients[0];
-
-                debugger;
-                sunburst.draw(vm);
-                bars.draw(vm);
+                sunburst.draw(vm, colorMap);
+                bars.draw(vm, colorMap);
             });
 
             // Sunburst
@@ -235,7 +232,7 @@
                     };
                 };
 
-                var getTransformedData = function(data) {
+                var getTransformedData = function(data, colorMap) {
 
                     // Cartesian Product
                     function cartesianProductOf() {
@@ -253,13 +250,14 @@
                     // Transform Data To Be Both Tree + List (Bar) Oriented
                     return data.map(function(chart) {
 
+
                         // Get Cartesian Product Of All Tags From Selected Groups 
                         var bars = cartesianProductOf.apply(this, chart.groups
                                 .filter(function(c) {
                                     return c.show
                                 })
                                 .map(function(c) {
-                                    return c.tags;
+                                    return c.tags.map(function(v){ return v.name; });
                                 }))
                             .map(function(v) {
                                 return {
@@ -291,13 +289,13 @@
                             c.tags.reverse().forEach(function(tag, index) {
                                 var tagIndex = barNode.children.map(function(v) {
                                     return v.name;
-                                }).indexOf(tag);
+                                }).indexOf(tag.name);
                                 if (tagIndex == -1) {
                                     barNode.children.push({
-                                        name: tag.name,
+                                        name: tag,
                                         children: [],
                                         value: 1,
-                                        color: tag.color
+                                        color: colorMap[tag]
                                     });
                                     barNode = barNode.children[barNode.children.length - 1];
                                 } else {
@@ -351,7 +349,6 @@
                     var yScale = d3.scaleLinear();
                     yScale.range([0, 120]);
                     yScale.domain([yMin, yMax]);
-
                     var barWidth = Math.floor((layout.widthChart - 1) / el.bars.length);
                     var newBars = bars.enter()
                         .append("rect")
@@ -363,10 +360,11 @@
                         })
                         .attr("width", barWidth)
                         .attr("height", function(d) {
+                            console.log(d.value);
                             return yScale(d.value);
                         })
                         .attr("fill", function(d) {
-                            return (d.tags[0] == "Normal") ? "#1476b6" : "#adc7ea";
+                            return (d.tags[0].name == "Normal") ? "#1476b6" : "#adc7ea";
                         });
 
                     // Create Partition Tree Legend 
@@ -408,12 +406,12 @@
 
                 }
   
-                var draw = function(data) {
+                var draw = function(data, colorMap) {
 
                     vm.charts = data = vm.patient.barcharts;
                     layout = getLayoutMetrics(data);
-                    colorMap = getColorMap(data);
-                    transformedData = getTransformedData(data);
+                    
+                    transformedData = getTransformedData(data, colorMap);
 
                     // Chart Spaces
                     var chart = charts.selectAll(".sunburst-barchart").data(transformedData);
