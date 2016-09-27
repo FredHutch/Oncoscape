@@ -39,7 +39,7 @@ container_ip
 var domain = process.env.MONGO_DOMAIN;
 //process.env.MONGO_CONNECTION, {
 mongoose.connect(
-    "mongodb://oncoscape-dev-db1.sttrcancer.io:27017,oncoscape-dev-db2.sttrcancer.io:27017,oncoscape-dev-db3.sttrcancer.io:27017",{
+    "mongodb://oncoscape-dev-db1.sttrcancer.io:27017,oncoscape-dev-db2.sttrcancer.io:27017,oncoscape-dev-db3.sttrcancer.io:27017/pancan12?authSource=admin",{
         db: {
             native_parser: true
         },
