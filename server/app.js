@@ -32,7 +32,7 @@ app.all('/api/auth',
     oauthshim.proxy,
     oauthshim.redirect,
     oauthshim.unhandled);
-container_ip
+
 // --------------------- //
 // ----- Mongo API ----- //
 // --------------------- //
