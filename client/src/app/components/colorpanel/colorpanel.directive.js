@@ -168,7 +168,7 @@ debugger;
                             color: "#a9a10a"
                         }];
 
-                        var scale = d3.scale.quantize()
+                        var scale = d3.scaleQuantize()
                             .domain([data.min, data.max])
                             .range(values.map(function(f) {
                                 return f.color;
