@@ -27,18 +27,43 @@
             vm.datasource = osApi.getDataSource();
             vm.charts = [];
 
+
+
+            var getColorMap = function(data) {
+                var colors = ["#F44336", "#E91E63", "#9C27B0", "#673AB7", "#3F51B5", "#2196F3", "#0277BD", "#00BCD4", "#009688", "#4CAF50", "#8BC34A", "#CDDC39", "#FFEB3B", "#FFC107", "#FF9800", "#FF5722", "#795548", "#C51162", "#B388FF"];
+                var tags = data.reduce(function(p, c) {
+                    tags = c.groups.reduce(function(p, c) {
+                        return _.union(p, c.tags)
+                    }, []);
+                    return _.union(p, tags)
+                }, []);
+                colors.length = tags.length;
+                var colorMap = _.object(tags, colors);
+                colorMap["Tumor"] = "#FEFEFE";
+                colorMap["Normal"] = "#EAEAEA";
+                return colorMap;
+            };
+
+
             osApi.setBusy(true);
             osApi.query("biomarker_immune_tree").then(function(response) {
                 osApi.setBusy(false);
+                var colorMap = getColorMap(response.data[0].barcharts);
                 response.data.forEach(function(v) {
                     v.barcharts.forEach(function(v) {
                         v.groups.forEach(function(v) {
                             v.show = true;
+                            v.tags.map(function(v){
+                                return {name:v, color:colorMap[v]};
+                            });
                         })
                     })
                 });
+                debugger;
                 vm.patients = response.data;
                 vm.patient = vm.patients[0];
+
+                debugger;
                 sunburst.draw(vm);
                 bars.draw(vm);
             });
@@ -183,7 +208,6 @@
                 var svg;
                 var data;
                 var charts;
-                var colorMap;
                 var layout, transformedData;
                 var vm;
 
@@ -270,10 +294,10 @@
                                 }).indexOf(tag);
                                 if (tagIndex == -1) {
                                     barNode.children.push({
-                                        name: tag,
+                                        name: tag.name,
                                         children: [],
                                         value: 1,
-                                        color: colorMap[tag]
+                                        color: tag.color
                                     });
                                     barNode = barNode.children[barNode.children.length - 1];
                                 } else {
@@ -383,21 +407,7 @@
                         });
 
                 }
-                var getColorMap = function(data) {
-                    var colors = ["#F44336", "#E91E63", "#9C27B0", "#673AB7", "#3F51B5", "#2196F3", "#0277BD", "#00BCD4", "#009688", "#4CAF50", "#8BC34A", "#CDDC39", "#FFEB3B", "#FFC107", "#FF9800", "#FF5722", "#795548", "#C51162", "#B388FF"];
-                    var tags = data.reduce(function(p, c) {
-                        tags = c.groups.reduce(function(p, c) {
-                            return _.union(p, c.tags)
-                        }, []);
-                        return _.union(p, tags)
-                    }, []);
-                    colors.length = tags.length;
-                    var colorMap = _.object(tags, colors);
-                    colorMap["Tumor"] = "#FEFEFE";
-                    colorMap["Normal"] = "#EAEAEA";
-                    return colorMap;
-
-                }
+  
                 var draw = function(data) {
 
                     vm.charts = data = vm.patient.barcharts;
