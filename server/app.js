@@ -32,13 +32,14 @@ app.all('/api/auth',
     oauthshim.proxy,
     oauthshim.redirect,
     oauthshim.unhandled);
-
+container_ip
 // --------------------- //
 // ----- Mongo API ----- //
 // --------------------- //
 var domain = process.env.MONGO_DOMAIN;
+//process.env.MONGO_CONNECTION, {
 mongoose.connect(
-    process.env.MONGO_CONNECTION, {
+    "mongodb://oncoscape-dev-db1.sttrcancer.io:27017,oncoscape-dev-db2.sttrcancer.io:27017,oncoscape-dev-db3.sttrcancer.io:27017",{
         db: {
             native_parser: true
         },
