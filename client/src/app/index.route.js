@@ -78,7 +78,7 @@
             .state('sunburst', {
                 url: '/sunburst/{datasource}',
                 template: '<os-sunburst>',
-                authenticate: true,
+                authenticate: false,
                 datasource: true
             })
             .state('heatmap', {
