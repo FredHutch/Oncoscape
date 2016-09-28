@@ -27,20 +27,42 @@
             vm.datasource = osApi.getDataSource();
             vm.charts = [];
 
+
+
+            var getColorMap = function(data) {
+                var colors = ["#F44336", "#E91E63", "#9C27B0", "#673AB7", "#3F51B5", "#2196F3", "#0277BD", "#00BCD4", "#009688", "#4CAF50", "#8BC34A", "#CDDC39", "#FFEB3B", "#FFC107", "#FF9800", "#FF5722", "#795548", "#C51162", "#B388FF"];
+                var tags = data.reduce(function(p, c) {
+                    tags = c.groups.reduce(function(p, c) {
+                        return _.union(p, c.tags)
+                    }, []);
+                    return _.union(p, tags)
+                }, []);
+                colors.length = tags.length;
+                var colorMap = _.object(tags, colors);
+                colorMap["Tumor"] = "#FEFEFE";
+                colorMap["Normal"] = "#EAEAEA";
+                return colorMap;
+            };
+
+
             osApi.setBusy(true);
             osApi.query("biomarker_immune_tree").then(function(response) {
                 osApi.setBusy(false);
+                var colorMap = getColorMap(response.data[0].barcharts);
                 response.data.forEach(function(v) {
                     v.barcharts.forEach(function(v) {
                         v.groups.forEach(function(v) {
                             v.show = true;
+                            v.tags = v.tags.map(function(v){
+                                return {name:v, color:colorMap[v]};
+                            });
                         })
                     })
                 });
                 vm.patients = response.data;
                 vm.patient = vm.patients[0];
-                sunburst.draw(vm);
-                bars.draw(vm);
+                sunburst.draw(vm, colorMap);
+                bars.draw(vm, colorMap);
             });
 
             // Sunburst
@@ -183,7 +205,6 @@
                 var svg;
                 var data;
                 var charts;
-                var colorMap;
                 var layout, transformedData;
                 var vm;
 
@@ -211,7 +232,7 @@
                     };
                 };
 
-                var getTransformedData = function(data) {
+                var getTransformedData = function(data, colorMap) {
 
                     // Cartesian Product
                     function cartesianProductOf() {
@@ -229,13 +250,14 @@
                     // Transform Data To Be Both Tree + List (Bar) Oriented
                     return data.map(function(chart) {
 
+
                         // Get Cartesian Product Of All Tags From Selected Groups 
                         var bars = cartesianProductOf.apply(this, chart.groups
                                 .filter(function(c) {
                                     return c.show
                                 })
                                 .map(function(c) {
-                                    return c.tags;
+                                    return c.tags.map(function(v){ return v.name; });
                                 }))
                             .map(function(v) {
                                 return {
@@ -267,7 +289,7 @@
                             c.tags.reverse().forEach(function(tag, index) {
                                 var tagIndex = barNode.children.map(function(v) {
                                     return v.name;
-                                }).indexOf(tag);
+                                }).indexOf(tag.name);
                                 if (tagIndex == -1) {
                                     barNode.children.push({
                                         name: tag,
@@ -327,7 +349,6 @@
                     var yScale = d3.scaleLinear();
                     yScale.range([0, 120]);
                     yScale.domain([yMin, yMax]);
-
                     var barWidth = Math.floor((layout.widthChart - 1) / el.bars.length);
                     var newBars = bars.enter()
                         .append("rect")
@@ -339,10 +360,11 @@
                         })
                         .attr("width", barWidth)
                         .attr("height", function(d) {
+                            console.log(d.value);
                             return yScale(d.value);
                         })
                         .attr("fill", function(d) {
-                            return (d.tags[0] == "Normal") ? "#1476b6" : "#adc7ea";
+                            return (d.tags[0].name == "Normal") ? "#1476b6" : "#adc7ea";
                         });
 
                     // Create Partition Tree Legend 
@@ -383,27 +405,13 @@
                         });
 
                 }
-                var getColorMap = function(data) {
-                    var colors = ["#F44336", "#E91E63", "#9C27B0", "#673AB7", "#3F51B5", "#2196F3", "#0277BD", "#00BCD4", "#009688", "#4CAF50", "#8BC34A", "#CDDC39", "#FFEB3B", "#FFC107", "#FF9800", "#FF5722", "#795548", "#C51162", "#B388FF"];
-                    var tags = data.reduce(function(p, c) {
-                        tags = c.groups.reduce(function(p, c) {
-                            return _.union(p, c.tags)
-                        }, []);
-                        return _.union(p, tags)
-                    }, []);
-                    colors.length = tags.length;
-                    var colorMap = _.object(tags, colors);
-                    colorMap["Tumor"] = "#FEFEFE";
-                    colorMap["Normal"] = "#EAEAEA";
-                    return colorMap;
-
-                }
-                var draw = function(data) {
+  
+                var draw = function(data, colorMap) {
 
                     vm.charts = data = vm.patient.barcharts;
                     layout = getLayoutMetrics(data);
-                    colorMap = getColorMap(data);
-                    transformedData = getTransformedData(data);
+                    
+                    transformedData = getTransformedData(data, colorMap);
 
                     // Chart Spaces
                     var chart = charts.selectAll(".sunburst-barchart").data(transformedData);

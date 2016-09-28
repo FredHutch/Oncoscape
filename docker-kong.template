@@ -106,11 +106,11 @@ database = postgres              # Determines which of PostgreSQL or Cassandra
                                  # Accepted values are `postgres` and
                                  # `cassandra`.
 
-pg_host = 140.107.117.18                   # The PostgreSQL host to connect to.
-pg_port = 32023                  # The port to connect to.
-pg_user = GBdh62FfCvwtnqey       # The username to authenticate if required.
-pg_password = hUDrQe7m5fXKprJC   # The password to authenticate if required.
-pg_database = OncoGateway        # The database name to connect to.
+pg_host = $KONG_PG_HOST          # The PostgreSQL host to connect to.
+pg_port = $KONG_PG_PORT          # The port to connect to.
+pg_user = $KONG_PG_USER          # The username to authenticate if required.
+pg_password = $KONG_PG_PASSWORD  # The password to authenticate if required.
+pg_database = $KONG_PG_DATABASE  # The database name to connect to.
 
 #pg_ssl = off                    # Toggles client-server TLS connections
                                  # between Kong and PostgreSQL.
@@ -183,6 +183,9 @@ pg_database = OncoGateway        # The database name to connect to.
 #
 # See the clustering reference for more informations:
 # https://getkong.org/docs/latest/clustering/
+
+
+cluster_listen = $kong_container_ip:7946
 
 #cluster_listen = 0.0.0.0:7946   # Address and port used to communicate with
                                  # other nodes in the cluster.
