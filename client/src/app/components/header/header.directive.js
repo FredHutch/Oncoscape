@@ -20,7 +20,7 @@
         return directive;
 
         /** @ngInject */
-        function HeaderController(osApi, osAuth, $stateParams, $state, $timeout, $rootScope) {
+        function HeaderController(osApi, osCohortService, osAuth, $stateParams, $state, $timeout, $rootScope) {
 
             osApi.query("lookup_oncoscape_tools", {
                 beta: false
@@ -37,11 +37,14 @@
             });
 
             var vm = this;
-            //vm.showMenu = false;
-            //vm.showTools = false;
-
-            vm.showMenu = false;
-            vm.showTools = false;
+            vm.cohorts = [];
+            vm.addPatientCohort = osCohortService.addPatientCohort;
+            vm.setPatientCohort = osCohortService.setPatientCohort;
+            osCohortService.onCohortsChange.add(function(allCohorts){
+                vm.cohorts = allCohorts;
+            });
+            vm.showMenu = true;
+            vm.showTools = true;
 
             var currentTool;
             $rootScope.$on('$stateChangeStart', function(event, toState, toParams, fromState, fromParams) {
