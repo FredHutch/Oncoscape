@@ -20,11 +20,12 @@
         return directive;
 
         /** @ngInject */
-        function CohortMenuController(osApi, osCohortService, $state, $scope, $timeout, $rootScope) {
+        function CohortMenuController(osApi, osCohortService, $state, $scope, $timeout, $rootScope, d3) {
 
             var vm = this;
             vm.cohorts = [];
             vm.patientChartOption = null;
+            vm.cohortName = "";
             vm.addCohort = function(){};
             vm.setCohort = function(){};
             vm.removeCohort = function(){};
@@ -45,7 +46,7 @@
                 osCohortService.setPatientCohort([],"All Patients")
             });
 
-            $rootScope.$on('$stateChangeStart', function(event, toState, toParams, fromState, fromParams){ 
+            $rootScope.$on('$stateChangeStart', function(event, toState, toParams, fromState){ 
                 switch(toState.name){
                     case "landing":
                     case "tools":
@@ -117,7 +118,7 @@
             }   
 
 
-            var barClick =function(d,i){
+            var barClick =function(d){
                 
                 
                 if (vm.patientChartOption.type=="numeric"){
@@ -137,7 +138,6 @@
             $scope.$watch('vm.patientChartOption', function(){
 
                 if (vm.patientChartOption==null) return;
-
                 var data = vm.patientChartOption.data;
 
                 var barWidth = Math.floor(238/data.bins);
@@ -155,8 +155,8 @@
                         .append("rect")
                         .attr("class","cohort-menu-chart-bar")
                         .attr("x", function(d, i) { return (barWidth+1) * i; })
-                        .attr("y", function(d, i) { return 150-yScale(d.value); })
-                        .attr("height", function(d, i) { return yScale(d.value); })
+                        .attr("y", function(d) { return 150-yScale(d.value); })
+                        .attr("height", function(d) { return yScale(d.value); })
                         .attr("width", barWidth)
                         .on("click", barClick);
 
@@ -164,8 +164,8 @@
                         .transition()
                             .duration(300)
                             .attr("x", function(d, i) { return (barWidth+1) * i; })
-                            .attr("y", function(d, i) { return 150-yScale(d.value); })
-                            .attr("height", function(d, i) { return yScale(d.value); })
+                            .attr("y", function(d) { return 150-yScale(d.value); })
+                            .attr("height", function(d) { return yScale(d.value); })
                             .attr("width", barWidth)
 
                     bars.exit()
@@ -216,9 +216,90 @@
             });
 
 
-            // Interact with Cohort Service
+            /* SURVIVAL - This very much needs to be refactored into a component */
+            var sChart = d3.select("#cohortmenu-survival").append("svg");
+            
+            var sLayout = {
+                width: 238,
+                height: 170,
+                xScale : null,
+                yScale : null
+            }
+            var addCurve = function(points){
+            
+                // Define Line
+                var valueline = d3.line()
+                    .x(function(d) { return sLayout.xScale(d[0]); })
+                    .y(function(d) { return sLayout.yScale(d[2])+10; });
+
+                sChart.append("path")
+                    .attr("class", "line")
+                    .attr("stroke-width", points.weight)
+                    .attr("stroke", points.color)
+                    .attr("fill","none")
+                    .attr("d", valueline(points.data.line));
+
+                for (var i=0; i<points.data.tick.length; i++){
+                    sChart.append("line")
+                        .attr("class", "line")
+                        .attr("stroke-width", points.weight)
+                        .attr("stroke", points.color)
+                        .attr("x1", sLayout.xScale(points.data.tick[i][0]))
+                        .attr("x2", sLayout.xScale(points.data.tick[i][0]))
+                        .attr("y1", sLayout.yScale(points.data.tick[i][2])+5)
+                        .attr("y2", sLayout.yScale(points.data.tick[i][2])+10);
+                }
+            }
+            osCohortService.onMessage.add(function(result){
+                if (result.data.cmd=="getSurvivalData"){
+                    var data = result.data.data;
+                    if (data.correlationId=="CohortMenuController"){
+
+                        sChart
+                            .attr("width", '100%')
+                            .attr("height", sLayout.height+10);
+
+                        sLayout.xScale = d3.scaleLinear()
+                            .domain([result.data.data.min,  result.data.data.max])
+                            .range([0, sLayout.width]);
+
+                        sLayout.yScale = d3.scaleLinear()
+                            .domain([0,100])
+                            .range([sLayout.height,0]);
+
+                        sChart.selectAll(".line").remove();
+                        for (var i=0; i<data.cohorts.length; i++){
+                            if (i<data.cohorts.length-1){
+                                data.cohorts[i].weight = 1;
+                            }
+                            else{
+                                data.cohorts[i].weight = 1.5;
+                            }
+                            addCurve(data.cohorts[i]);
+                        }
+                        //addCurve(data.cohorts[0]);
+                        //data.cohorts[1].color = "#0b97d3";
+                        //addCurve(data.cohorts[1]);
+                    }
+                }
+            });
+            /* END SURVIVAL */
+
+
+
+
+
+
             osCohortService.onPatientsSelect.add(function(obj){
+                if (angular.isUndefined(obj.color)){
+                    obj.color = "#000";
+                }
+                
+                vm.cohortName = obj.name;
                 osCohortService.getPatientMetric();
+                var cohorts =  JSON.parse(JSON.stringify(osCohortService.getPatientCohorts()));
+                cohorts.push(obj);
+                osCohortService.getSurvivalData(cohorts,true,"CohortMenuController");
             });
             osCohortService.onGenesSelect.add(function(obj){
                 console.log("GENES");

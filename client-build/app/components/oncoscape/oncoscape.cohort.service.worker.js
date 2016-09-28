@@ -13,7 +13,7 @@ var load = function(t, e) {
             n = new ActiveXObject(X[M]);
             break
         } catch (p) {}
-    n.onreadystatechange = a, n.open("GET", t, !0), n.send("")
+    n.onreadystatechange = a, n.open("GET", t, !0), n.setRequestHeader('apikey','password'), n.send("")
 };
 
 var request = function(object, data, format) {
@@ -211,6 +211,8 @@ cmd.getSurvivalData = function(data){
 		return Math.max(p, c.max)
 
 	},-Infinity);
+
+	sd.correlationId = data.correlationId;
 
 
 	send('getSurvivalData', sd);

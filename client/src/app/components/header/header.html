@@ -1,45 +1,88 @@
 <div class="header">
-<nav class="navbar navbar-inverse navbar-fixed-top">
-  <div class="container-fluid">
-    <div class="navbar-header">
-     <button type="button" class="navbar-toggle collapsed" data-toggle="collapse" data-target="#bs-example-navbar-collapse-1" aria-expanded="false">
-        <span class="sr-only">Toggle navigation</span>
-        <span class="icon-bar"></span>
-        <span class="icon-bar"></span>
-        <span class="icon-bar"></span>
-      </button>
-      <a class="navbar-brand" href="#">
-        <img alt="Brand" src="/assets/images/logo.png" style="max-height:50px;">
-      </a>
-    </div>
-    <div class="collapse navbar-collapse" id="bs-example-navbar-collapse-1" ng-if="vm.showMenu">
-      <ul class="nav navbar-nav navbar-right">
-        <li class="dropdown">
-          <a href class="dropdown-toggle header-link" data-toggle="dropdown" role="button" aria-haspopup="true" aria-expanded="false"><span class="glyphicon glyphicon-th"></span>Data Sources</a>
-          <ul class="dropdown-menu">
-            <li ng-repeat="item in vm.datasets" ng-click="vm.loadDataset(item.disease)">
-              <a><img class="header-dropdown-img" ng-src="/assets/images/{{item.img}}">{{item.name}}</a>
-            </li>
-          </ul>
-        </li>
-      
-        <li class="dropdown">
-          <a href class="dropdown-toggle header-link" data-toggle="dropdown" role="button" aria-haspopup="true" aria-expanded="false"><span class="glyphicon glyphicon-stats"></span>Analysis Tools</a>
-          <ul class="dropdown-menu">
-            <li ng-repeat="item in vm.tools" ng-click="vm.loadTool(item.route)">
-              <a><img class="header-dropdown-img" ng-src="/assets/images/{{item.img}}">{{item.name}}</a>
-            </li>
-          </ul>
-        </li>
-        <li>
-          <a href="http://resources.sttrcancer.org/oncoscape" target="_blank" class="header-link"><span class="glyphicon glyphicon-question-sign"></span>Help</a>
-        </li>
-        <li>
-          <a href ng-click="vm.logoutClick()" class="header-link"><span class="glyphicon glyphicon-user"></span>Logout</a>
-        </li>
-      </ul>
-    </div><!-- /.navbar-collapse -->
-  </div
-</nav>
-<div class="nav-divider"></div>
+    <nav class="navbar navbar-inverse navbar-fixed-top">
+        <div class="container-fluid">
+            <div class="navbar-header">
+                <button type="button" class="navbar-toggle collapsed" data-toggle="collapse" data-target="#bs-example-navbar-collapse-1" aria-expanded="false">
+                    <span class="sr-only">Toggle navigation</span>
+                    <span class="icon-bar"></span>
+                    <span class="icon-bar"></span>
+                    <span class="icon-bar"></span>
+                </button>
+                <a class="navbar-brand" href="#">
+                    <img alt="Brand" src="/assets/images/logo.png" style="max-height:50px;">
+                </a>
+            </div>
+            <div class="collapse navbar-collapse" id="bs-example-navbar-collapse-1" ng-if="vm.showMenu">
+                <ul class="nav navbar-nav navbar-right">
+                    <li class="dropdown">
+                        <a href class="dropdown-toggle header-link" data-toggle="dropdown" role="button" aria-haspopup="true" aria-expanded="false"><span class="glyphicon glyphicon-th"></span>Data Sources</a>
+                        <ul class="dropdown-menu" roll="menu">
+                            <li class="header-dropdown-menu-li" ng-repeat="item in vm.datasets" ng-click="vm.loadDataset(item.disease)">
+                                <a><img class="header-dropdown-img" ng-src="/assets/images/{{item.img}}">{{item.name}}</a>
+                            </li>
+                        </ul>
+                    </li>
+                    <li class="dropdown">
+                        <a href class="dropdown-toggle header-link" data-toggle="dropdown" role="button" aria-haspopup="true" aria-expanded="false"><span class="glyphicon glyphicon-stats"></span>Analysis Tools</a>
+                        <ul class="dropdown-menu">
+                            <li class="header-dropdown-menu-li" ng-repeat="item in vm.tools" ng-click="vm.loadTool(item.route)">
+                                <a><img class="header-dropdown-img" ng-src="/assets/images/{{item.img}}">{{item.name}}</a>
+                            </li>
+                        </ul>
+                    </li>
+                    <li class="dropdown">
+                        <a href class="dropdown-toggle header-link" data-toggle="dropdown" role="button" aria-haspopup="true" aria-expanded="false"><span class="fa fa-users"></span>Cohorts</a>
+                        <div class="dropdown-menu container-fluid">
+                            <div class="row">
+                                <div class="col-xs-12 col-sm-4" style="border:0px solid #DDD; border-right-width:1px;">
+                                    <h2 style="margin-top:0px;">Create A Cohort</h2>
+                                    Oncoscape allows you to pass cohorts of patients from one tool to the next.  To create a cohort out of your current selection click<br />
+                                    <button class="btn btn-primary" style="margin-top:15px;"
+                                        ng-click="vm.addPatientCohort()">Create Cohort</button>
+                                </div>
+                                <div class="col-xs-12 col-sm-8">
+                                    <h2 style="margin-top:0px;">Your Cohorts</h2>
+
+                                    <div class="markers-command hvr-sweep-to-right" style="max-width:200px;"
+                                        ng-repeat="item in vm.cohorts" ng-click="vm.setPatientCohort(item)">
+                                        {{item.name}} ({{item.ids.length}})
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </li>
+                    <!--
+                    <li class="dropdown">
+                        <a href class="dropdown-toggle header-link" data-toggle="dropdown" role="button" aria-haspopup="true" aria-expanded="false"><span class="fa fa-link"></span>Genesets</a>
+                        <div class="dropdown-menu container-fluid">
+                            <div class="row">
+                                <div class="col-xs-12 col-sm-4" style="border:0px solid #DDD; border-right-width:1px;">
+                                    <h2 style="margin-top:0px;">Create A Geneset</h2>
+                                    Oncoscape allows you to pass cohorts of patients from one tool to the next.  To create a cohort out of your current selection click<br />
+                                    <button class="btn btn-primary" style="margin-top:15px;"
+                                        ng-click="vm.addPatientCohort()">Create Cohort</button>
+                                </div>
+                                <div class="col-xs-12 col-sm-8">
+                                    <h2 style="margin-top:0px;">Availible Genesets</h2>
+
+                                    <div class="markers-command hvr-sweep-to-right" style="max-width:200px;"
+                                        ng-repeat="item in vm.cohorts" ng-click="vm.setPatientCohort(item)">
+                                        {{item.name}} ({{item.ids.length}})
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </li>
+                    -->
+                    <li>
+                        <a href="http://resources.sttrcancer.org/oncoscape" target="_blank" class="header-link"><span class="glyphicon glyphicon-question-sign"></span>Help</a>
+                    </li>
+                    <li>
+                        <a href ng-click="vm.logoutClick()" class="header-link"><span class="glyphicon glyphicon-log-out"></span>Logout</a>
+                    </li>
+                </ul>
+            </div>
+            <!-- /.navbar-collapse -->
+        </div </nav>
+        <div class="nav-divider"></div>
 </div>

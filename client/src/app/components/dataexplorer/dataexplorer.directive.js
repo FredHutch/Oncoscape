@@ -101,8 +101,6 @@
                 }
             }
 
-
-
             vm.xFunction = function() {
                 return function(d) {
                     return d.label;
@@ -114,8 +112,6 @@
                     return d.value;
                 };
             }
-
-
 
             // Load Datasets
             osApi.setBusy(true);

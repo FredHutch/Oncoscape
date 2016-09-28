@@ -1,26 +1,25 @@
 // Namespace
-.tools{
-  ul{
-    list-style: none;
-    margin:0px;
-    padding:0px;
-    margin-top:20px;
-  }
-  li{
-    padding-bottom: 30px;
-  }
-  .tools-img{
-    width: 80px;
-    height: auto;
-    float:left;
-    box-shadow: 3px 3px 10px #888888;
-    border-radius:50%;
-    margin-right:20px;
-  }
-  @media (min-width: 992px) { 
-    .tools-img{
-      width: 100px;
+.tools {
+    ul {
+        list-style: none;
+        margin: 0px;
+        padding: 0px;
+        margin-top: 20px;
     }
-  }
-
+    li {
+        padding-bottom: 30px;
+    }
+    .tools-img {
+        width: 80px;
+        height: auto;
+        float: left;
+        box-shadow: 3px 3px 10px #888888;
+        border-radius: 50%;
+        margin-right: 20px;
+    }
+    @media (min-width: 992px) {
+        .tools-img {
+            width: 100px;
+        }
+    }
 }
