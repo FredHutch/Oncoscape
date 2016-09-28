@@ -350,20 +350,20 @@
                         return bar.value;
                     }).value;
                     var yScale = d3.scaleLinear();
-                    yScale.range([0, 120]);
+                    yScale.range([0, 110]);
                     yScale.domain([yMin, yMax]);
-                    var barWidth = Math.floor((layout.widthChart - 1) / el.bars.length);
+                    var barWidth = layout.widthChart / el.bars.length;
+                    console.log(barWidth)
                     var newBars = bars.enter()
                         .append("rect")
                         .attr("x", function(d, i) {
                             return barWidth * i
                         })
                         .attr("y", function(d) {
-                            return 160 - yScale(d.value)
+                            return 140 - yScale(d.value)
                         })
                         .attr("width", barWidth)
                         .attr("height", function(d) {
-                            console.log(d.value);
                             return yScale(d.value);
                         })
                         .attr("fill", function(d) {
