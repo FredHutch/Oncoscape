@@ -43,8 +43,8 @@
             osCohortService.onCohortsChange.add(function(allCohorts){
                 vm.cohorts = allCohorts;
             });
-            vm.showMenu = true;
-            vm.showTools = true;
+            vm.showMenu = false;
+            vm.showTools = false;
 
             var currentTool;
             $rootScope.$on('$stateChangeStart', function(event, toState, toParams, fromState, fromParams) {
