@@ -64,7 +64,7 @@ RUN Rscript -e "install.packages(c('ggplot2','gridSVG','heatmap3','pheatmap'))"
 
 # Copy Config Files
 WORKDIR /home/sttrweb/Oncoscape/
-COPY /docker-kong.template /home/sttrweb/Oncoscape/
+COPY /docker-kong.conf /home/sttrweb/Oncoscape/
 COPY /docker-nginx.template /home/sttrweb/Oncoscape/
 COPY /docker-supervisord.conf /home/sttrweb/Oncoscape/
 COPY /docker-entrypoint.sh /home/sttrweb/Oncoscape/

@@ -184,6 +184,7 @@ pg_database = $KONG_PG_DATABASE  # The database name to connect to.
 # See the clustering reference for more informations:
 # https://getkong.org/docs/latest/clustering/
 
+
 cluster_listen = $kong_container_ip:7946
 
 #cluster_listen = 0.0.0.0:7946   # Address and port used to communicate with
