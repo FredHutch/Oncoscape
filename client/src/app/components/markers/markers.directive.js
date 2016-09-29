@@ -1109,6 +1109,8 @@
 
             // Destroy
             $scope.$on('$destroy', function() {
+
+                debugger;
                 osCohortService.onPatientColorChange.remove(onPatientColorChange);
                 worker.terminate();
                 signal.clear();
