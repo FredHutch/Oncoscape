@@ -27,8 +27,10 @@
             // Properties
             var vm = this;
             vm.showPanelColorRna = false;
-            vm.colorScales = [{name:"Quantile"},{name:"Quantize"},{name:"Threshold"}];
+            vm.colorScales = [{name:"Quantile"},{name:"Quantize"}];
             vm.colorScale = vm.colorScales[0];
+            vm.colorBins = [2,3,4,5,6,7,8].map(function(v){ return {name:v+" Bins", value:v} });
+            vm.colorBin = vm.colorBins[2];
 
             var tbl = osApi.getDataSource().category.filter(function(v) {
                 return v.type == 'color';
@@ -154,26 +156,32 @@
                         }
 
                         // Color Patients
+                        var colors = ["#9d1cb2","#00a7f7","#3d4eb8","#ff9900","#f7412d","#795548","#E91E63","#673AB7"];
+                        var values = colors.splice(0, vm.colorBin.value);
 
-                        var values = [{
-                            name: 'Q1',
-                            color: "#6a32b3"
-                        }, {
-                            name: 'Q2',
-                            color: "#cd2c8e"
-                        }, {
-                            name: 'Q3',
-                            color: "#e85434"
-                        }, {
-                            name: 'Q4',
-                            color: "#a9a10a"
-                        }];
+                        var scale = (vm.colorScale.name=="Quantile") ? d3.scaleQuantile() : d3.scaleQuantize();
 
-                        var scale = d3.scaleQuantize()
+                        scale
                             .domain([data.min, data.max])
-                            .range(values.map(function(f) {
-                                return f.color;
-                            }));
+                            .range(values);
+
+                        // Combine Colors + Scale Into Name + Value
+                        var labels;
+                        if (vm.colorScale.name=="Quantile"){
+                            labels = scale.quantiles().map(function(v){ return parseFloat(v).toFixed(3); });
+                            labels.unshift("");
+                            labels = labels.map(function(c,i,a){ 
+                              if (i==0){ return "-\u221e \u2194 "+a[1]; }
+                              else if (i==a.length-1){
+                                 return a[i] +" \u2194 +\u221e" //\u226C
+                              } 
+                            return a[i] +" \u2194 " +a[i+1];
+                            });
+                            values = _.zip(values, labels).map(function(v){ return {color:v[0], name:v[1]} });
+                        }else{
+                            labels = scale.ticks(values.length).map(function(v) { return "~"+parseFloat(v).toFixed(2); })
+                            values = _.zip(values, labels).map(function(v){ return {color:v[0], name:v[1]} });
+                        }
 
                         data = Object.keys(data.patients).map(function(id) {
                                 return {

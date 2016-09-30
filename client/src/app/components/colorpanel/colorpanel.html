@@ -1,24 +1,30 @@
 <div class="panel panel-default mdi" style="padding-bottom:30px;">
     <div class="panel-heading">
-        <h3 class="panel-title">Patient Color</h3>
+        <h3 class="panel-title">Patient Color Options</h3>
         <span class="pull-right clickable" data-effect="fadeOut" ng-click="vm.close()"><i class="fa fa-times"></i></span>
     </div>
     <div class="panel-body">
         <div class="row">
-            <div class="col-xs-6">
-                <label>Specify One Or More Genes Seperated By + And - Operators. (eg BRCA1 + BRCA2 - p53)</label>
+            <div class="col-xs-12 col-sm-6">
+                <h3>Enter Hugo Gene(s) Seperated By + And - Operators. (eg BRCA1 + BRCA2 - p53)</h3>
                 <div class="input-group">
                     <div class="input-group-btn">
-                        <button type="button" class="btn btn-default dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">{{vm.colorScale.name}}<span class="caret"></span></button>
+                        <button style="width:100px;" type="button" class="btn btn-default dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">{{vm.colorScale.name}}&nbsp;<span class="caret"></span></button>
                         <ul class="dropdown-menu">
                             <li ng-click="vm.colorScale=item;" ng-repeat="item in vm.colorScales">{{item.name}}</li>
                         </ul>
                     </div>
-                    <!-- /btn-group -->
-                    <input ng-model="vm.geneColor" type="text" class="form-control" placeholder="Hugo Gene Symbol">
+                    <div class="input-group-btn">
+                        <button style="width:100px;border-radius:0px;" type="button" class="btn btn-default dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">{{vm.colorBin.name}}&nbsp;<span class="caret"></span></button>
+                        <ul class="dropdown-menu">
+                            <li ng-click="vm.colorBin=item;" ng-repeat="item in vm.colorBins">{{item.name}}</li>
+                        </ul>
+                    </div>
+                    <input ng-model="vm.geneColor" type="text" class="form-control" placeholder="Hugo Gene Symbol"
+                    style="border-right-width: 0px; border-left-width: 0px; height:33px;">
                     <span class="input-group-btn">
-                    <button class="btn btn-default" type="button" ng-click="vm.setGeneColor()">Submit</button>
-                </span>
+                        <button class="btn btn-default" type="button" ng-click="vm.setGeneColor()">Submit</button>
+                    </span>
                 </div>
             </div>
         </div>
