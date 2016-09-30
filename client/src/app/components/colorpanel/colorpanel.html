@@ -4,14 +4,24 @@
         <span class="pull-right clickable" data-effect="fadeOut" ng-click="vm.close()"><i class="fa fa-times"></i></span>
     </div>
     <div class="panel-body">
-        <label>Specify One Or More Genes Seperated By + And - Operators. (eg BRCA1 + BRCA2 - p53)</label>
-        <div class="input-group">
-            <input ng-model="vm.geneColor" type="text" class="form-control" placeholder="Hugo Gene Symbol">
-            <span class="input-group-btn">
-          <button class="btn btn-default" type="button" ng-click="vm.setGeneColor()">Submit</button>
-        </span>
+        <div class="row">
+            <div class="col-xs-6">
+                <label>Specify One Or More Genes Seperated By + And - Operators. (eg BRCA1 + BRCA2 - p53)</label>
+                <div class="input-group">
+                    <div class="input-group-btn">
+                        <button type="button" class="btn btn-default dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">{{vm.colorScale.name}}<span class="caret"></span></button>
+                        <ul class="dropdown-menu">
+                            <li ng-click="vm.colorScale=item;" ng-repeat="item in vm.colorScales">{{item.name}}</li>
+                        </ul>
+                    </div>
+                    <!-- /btn-group -->
+                    <input ng-model="vm.geneColor" type="text" class="form-control" placeholder="Hugo Gene Symbol">
+                    <span class="input-group-btn">
+                    <button class="btn btn-default" type="button" ng-click="vm.setGeneColor()">Submit</button>
+                </span>
+                </div>
+            </div>
         </div>
-        <br />
         <div class="row">
             <h3 class="col-sm-3" ng-repeat="item in vm.optPatientColors">{{item.name}}<br />
             <div ng-repeat="color in item.values">

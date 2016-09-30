@@ -27,6 +27,8 @@
             // Properties
             var vm = this;
             vm.showPanelColorRna = false;
+            vm.colorScales = [{name:"Quantile"},{name:"Quantize"},{name:"Threshold"}];
+            vm.colorScale = vm.colorScales[0];
 
             var tbl = osApi.getDataSource().category.filter(function(v) {
                 return v.type == 'color';
