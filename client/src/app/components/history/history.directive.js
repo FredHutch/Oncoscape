@@ -10,7 +10,6 @@ e),b=d("<div/>").css({width:1,height:1,overflow:"hidden"}).append(b).insertBefor
 d(c.column(a.column).header());return b.hasClass("control")?"":'<li><span class="dtr-title">'+b.text()+':</span> <span class="dtr-data">'+c.cell(a).data()+"</span></li>"}).toArray().join("");return b?d("<ul/>").append(b):!1},target:0,type:"inline"}};g.version="1.0.0";d.fn.dataTable.Responsive=g;d.fn.DataTable.Responsive=g;d(o).on("init.dt.dtr",function(c,a){if(d(a.nTable).hasClass("responsive")||d(a.nTable).hasClass("dt-responsive")||a.oInit.responsive){var b=a.oInit.responsive;!1!==b&&new g(a,d.isPlainObject(b)?
 b:{})}});return g};"function"===typeof define&&define.amd?define(["jquery","datatables"],k):"object"===typeof exports?k(require("jquery"),require("datatables")):jQuery&&!jQuery.fn.dataTable.Responsive&&k(jQuery,jQuery.fn.dataTable)})(window,document);
 
-
 (function() {
     'use strict';
 
@@ -60,7 +59,6 @@ b:{})}});return g};"function"===typeof define&&define.amd?define(["jquery","data
                 };
             });
             columns[0].renderer = function(data, type, full, meta){
-                console.log(data);
                 return '!!'+data;
             };
 
@@ -93,7 +91,7 @@ b:{})}});return g};"function"===typeof define&&define.amd?define(["jquery","data
 
             var lo = function(){
                 var layout = osApi.getLayout();
-                    $(".history-content").css("margin-left", layout.left).css("margin-right", layout.right);
+                    angular.element(".history-content").css("margin-left", layout.left).css("margin-right", layout.right);
                     table.api().draw();
             };
             osApi.onResize.add(lo);
@@ -101,12 +99,7 @@ b:{})}});return g};"function"===typeof define&&define.amd?define(["jquery","data
                     _.debounce(lo, 300)
                 );
 
-            var initEvents = function(vm, $scope) {
-
-               
-                
-                
-
+            var initEvents = function(vm) {
 
                 // Export CSV Button
                 vm.exportCsv = function() {
@@ -124,7 +117,7 @@ b:{})}});return g};"function"===typeof define&&define.amd?define(["jquery","data
                     csv.unshift(fields.join(","));
                     csv = csv.join("\n");
                     var encodedUri = encodeURI("data:text/csv;charset=utf-8," + csv);
-                    window.open(encodedUri);
+                    $window.open(encodedUri);
                 }
 
 
@@ -178,7 +171,7 @@ b:{})}});return g};"function"===typeof define&&define.amd?define(["jquery","data
                 if(colors.name=="None"){
                     vm.legendCaption = "";
                     table.api().rows().every( function ( rowIdx, tableLoop, rowLoop ) {
-                        $(this.node()).children().first().attr("style","border-left-color:inherit;border-left-width:inherit;");
+                        angular.element(this.node()).children().first().attr("style","border-left-color:inherit;border-left-width:inherit;");
                     });
                     return;
                 }
@@ -194,20 +187,19 @@ b:{})}});return g};"function"===typeof define&&define.amd?define(["jquery","data
                     
                     var pid = this.data().patient_ID;
                     var color = degMap.hasOwnProperty(pid) ? degMap[pid] : "#EEE";
-                    $(this.node()).children().first().attr("style","border-left-color:"+color+";border-left-width:10px;");
+                    angular.element(this.node()).children().first().attr("style","border-left-color:"+color+";border-left-width:10px;");
                     
                 } );
 
                 lo();
-    
+   
             }
             
             osCohortService.onPatientColorChange.add(onPatientColorChange);
 
             // Destroy
             $scope.$on('$destroy', function() {
-                console.log("DEST");
-                osCohortService.onPatientColorChange.remove(onPatientColorChange);
+                osCohortService.onPatientColorhange.remove(onPatientColorChange);
             });
         }
     }

@@ -1,3 +1,4 @@
+/* jshint ignore:start */    
     // Load Data Function (URL, CallBack)
     var load = function(t, e) {
         function a() {
@@ -19,7 +20,8 @@
                 resolve(data);
                 return;
             }
-            var query = "/api/" + object.table;
+            var query = "https://dev.oncoscape.sttrcancer.io/api/" + object.table;
+            //var query = "/api/" + object.table;
             if (object.query) query += "/" + encodeURIComponent(JSON.stringify(object.query));
             load(query, function(response) {
                 resolve(format(JSON.parse(response.responseText)));
@@ -253,8 +255,8 @@ var data = (function() {
             .map(function(key) {
                 return {
                     group: "nodes",
-                    grabbable: false,
-                    locked: true,
+                    grabbable: true,
+                    locked: false,
                     selectable: true,
                     position: this[key],
                     data: {

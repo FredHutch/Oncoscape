@@ -75,9 +75,9 @@
                             return 0;
                         });
                     resolve(_dataSources);
-                });
+                }, reject);
             });
-        };
+        }
 
         // Query Api
         var queryString = function(table, query) {

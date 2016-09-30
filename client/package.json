@@ -21,7 +21,7 @@
     "gulp-angular-templatecache": "~1.8.0",
     "gulp-autoprefixer": "~3.0.2",
     "gulp-eslint": "~1.0.0",
-    "gulp-filter": "~3.0.1",
+    "gulp-filter": "^3.0.1",
     "gulp-flatten": "~0.2.0",
     "gulp-inject": "~3.0.0",
     "gulp-jslint": "^0.2.2",

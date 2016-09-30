@@ -432,6 +432,7 @@
                     id: -2
                 }];
 
+                // Populate Dropdowns + Draw Chromosome
                 $q.all([
                     osApi.query("render_chromosome", {
                         type: 'geneset',
@@ -600,6 +601,7 @@
                     cyChart.endBatch();
                     vm.resize();
 
+                    //---//---//
                     // Initial Node Selection
                     var pc = osCohortService.getPatientCohort();
                     if (pc == null) {
@@ -617,6 +619,7 @@
                         cyChart.zoom(cyChart.zoom() * .4);
                         cyChart.center();
                     }
+                    //---//---//
 
                 };
                 cmd.patients_layout = function(data) {
@@ -795,6 +798,15 @@
             var watch = (function(vm, $scope) {
                 var watches = 1;
 
+                var firstTime = true;
+                var update = function(){
+                    if (firstTime){
+                        firstTime=false;
+                        if (hydrate()) return;    // If Hydration Was Possible
+                    }
+                    setOptions(createOptions());
+                };
+
                 // GeneSet
                 watches += 0;
                 $scope.$watch('vm.optGeneSet', function() {
@@ -805,7 +817,8 @@
                     if (angular.isUndefined(vm.optGeneSet) || angular.isUndefined(vm.optPatientLayout)) return;
                     osApi.setBusy(true);
                     cyChart.$('edge[edgeType="cn"]').remove();
-                    setOptions(createOptions());
+                    update();
+                    
                 });
 
                 // Patient Layout
@@ -815,7 +828,7 @@
                         watches -= 1;
                         return;
                     }
-                    setOptions(createOptions());
+                    update();
                 });
 
                 // Search
@@ -839,7 +852,7 @@
                         watches -= 1;
                         return;
                     }
-                    setOptions(createOptions());
+                    update();
                     vm.resize()
                 });
 
@@ -848,7 +861,7 @@
             var mouseIsOver = "";
             var updatePatientCounts = function() {
 
-                $(".legend-count").text("");
+                angular.element(".legend-count").text("");
                 var selectedPatients = cyChart.$('node[nodeType="patient"]:selected').toArray();
                 if (selectedPatients.length == 0) selectedPatients = cyChart.$('node[nodeType="patient"]').toArray();
 
@@ -860,7 +873,7 @@
                 }, {});
 
                 Object.keys(counts).forEach(function(key) {
-                    $("#legend-" + key.substr(1)).text(" (" + this[key] + ")");
+                    angular.element("#legend-" + key.substr(1)).text(" (" + this[key] + ")");
                 }, counts);
 
             }
@@ -869,11 +882,11 @@
 
                 $scope.$apply(function() {
                     if (e.type == "mouseout") {
-                        $("#cohortmenu-legand").html("");
+                        angular.element("#cohortmenu-legand").html("");
 
                     } else {
                         mouseIsOver = "patient";
-                        $("#cohortmenu-legand").html(e.cyTarget.id() + patientHtml[e.cyTarget.id()]);
+                        angular.element("#cohortmenu-legand").html(e.cyTarget.id() + patientHtml[e.cyTarget.id()]);
                     }
                 });
             };
@@ -881,10 +894,10 @@
 
                 $scope.$apply(function() {
                     if (e.type == "mouseout") {
-                        $("#cohortmenu-legand").html("");
+                        angular.element("#cohortmenu-legand").html("");
                     } else {
                         mouseIsOver = "gene";
-                        $("#cohortmenu-legand").html(e.cyTarget.id()); // + patientHtml[e.cyTarget.id()]);
+                        angular.element("#cohortmenu-legand").html(e.cyTarget.id()); // + patientHtml[e.cyTarget.id()]);
                     }
                 });
             };
@@ -1107,8 +1120,53 @@
 
             osCohortService.onPatientColorChange.add(onPatientColorChange);
 
+            // Hydration
+            var hydrate = function(){
+                var data = localStorage.getItem(osApi.getDataSource().disease + "MarkersPatients");
+                if (data===null) return false;
+                data = JSON.parse(data);
+                cyChart.load(data.elements);
+                vm.resize();
+                var elements = cyChart.nodes('node[nodeType="patient"]');
+                elements.on("select", _.debounce(signal.patients.select.dispatch, 300));
+                elements.on("unselect", _.debounce(signal.patients.unselect.dispatch, 300));
+                elements.on("mouseover", signal.patients.over.dispatch);
+                elements.on("mouseout", signal.patients.out.dispatch);
+
+                //---//---//
+                // Initial Node Selection
+                setTimeout(function(v){
+                var pc = osCohortService.getPatientCohort();
+                if (pc == null) {
+                    osCohortService.setPatientCohort([], "All Patients")
+                } else {
+                    cyChart.startBatch();
+                    cyChart.nodes('node[nodeType="patient"]').forEach(function(node) {
+                        if (pc.ids.indexOf(node.id()) != -1) node.select();
+
+                    }, {
+                        pc: pc
+                    });
+                    cyChart.endBatch();
+                    vm.zoom.reset()
+                    cyChart.zoom(cyChart.zoom() * .4);
+                    cyChart.center();
+                }
+            },3000);
+                //---//---//
+
+
+                osApi.setBusy(false);
+                return true;
+            }
+            var dehydrate = function(){
+                var data = JSON.stringify(cyChart.json());
+                // Geneset / Edge Visibility / Color Option / Layout
+                localStorage.setItem(osApi.getDataSource().disease + "MarkersPatients", data);
+            }
             // Destroy
             $scope.$on('$destroy', function() {
+                dehydrate();
                 osCohortService.onPatientColorChange.remove(onPatientColorChange);
                 worker.terminate();
                 signal.clear();

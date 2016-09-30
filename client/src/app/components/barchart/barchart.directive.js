@@ -19,7 +19,7 @@
         return directive;
 
         /** @ngInject */
-        function BarchartController(d3, osApi, osCohortService, $state, $timeout, $scope, $stateParams) {
+        function BarchartController(d3, osApi, osCohortService, $state, $timeout) {
 
             var vm = this;
             vm.datasource = osApi.getDataSource();
@@ -112,7 +112,7 @@
 
             d3.selectAll("input").on("change", change);
 
-            var timeout = setTimeout(function() {
+            var timeout = $timeout(function() {
                 d3.select("input[value=\"grouped\"]").property("checked", true).each(change);
             }, 2000);
 

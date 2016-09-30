@@ -26,7 +26,7 @@
             vm.networks = osAuth.getAuthSources();
             vm.login = osAuth.login;
 
-            var loginSuccess = function(v) {
+            var loginSuccess = function() {
                 $state.go("datasource");
             };
 

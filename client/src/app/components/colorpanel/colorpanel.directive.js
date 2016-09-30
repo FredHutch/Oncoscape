@@ -85,8 +85,8 @@
                         v.id = "legend-" + v.color.substr(1);
                         return v;
                     }).sort(function(a, b) {
-                        var aname = (parseInt(a.name) != NaN) ? parseInt(a.name) : a.name;
-                        var bname = (parseInt(b.name) != NaN) ? parseInt(b.name) : b.name;
+                        var aname = (isNaN(a.name)) ? a.name : parseInt(a.name);
+                        var bname = (isNaN(b.name)) ? b.name : parseInt(b.name);
                         if (aname < bname) return -1;
                         if (aname > bname) return 1;
                         if (a.name == "Null") return 1;
@@ -114,7 +114,6 @@
                         })
                     }
                 }).then(function(results) {
-debugger;
                     if (results.data.length > 0) {
                         var data;
                         if (results.data.length == 1)
