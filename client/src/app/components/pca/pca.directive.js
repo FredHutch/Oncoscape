@@ -107,15 +107,15 @@
             })(this, osApi);
 
             // Updates PCA Types When Geneset Changes
-            $scope.$watch('vm.geneSet', function(geneset) {
-                try {
-                    // Sort PCA Types Alphabetically Then By Source R-Alpha (to put ucsc first)
-                    vm.pcaTypes = vm.geneSet.types.sort(function(a, b) {
-                        if (a.name != b.name) return a.name > b.name;
-                        else return a.source < b.source;
-                    });
-                    vm.pcaType = vm.pcaTypes[0];
-                } catch (e) {}
+            $scope.$watch('vm.geneSet', function() {
+                if (vm.geneSet==null) return;
+                
+                // Sort PCA Types Alphabetically Then By Source R-Alpha (to put ucsc first)
+                vm.pcaTypes = vm.geneSet.types.sort(function(a, b) {
+                    if (a.name != b.name) return a.name > b.name;
+                    else return a.source < b.source;
+                });
+                vm.pcaType = vm.pcaTypes[0];
             });
 
             // Fetches PCA Data + Calculates Min Max for XYZ
@@ -196,7 +196,7 @@
                 var layout = osApi.getLayout();
                 var width = $window.innerWidth - layout.left - layout.right;
                 var height = $window.innerHeight - 120; //10
-                $("#pca-chart").css({
+                angular.element("#pca-chart").css({
                     "width": width + "px",
                     "padding-left": layout.left + "px"
                 });
@@ -218,7 +218,7 @@
                     .attr("cy", function(d) {
                         return scaleY(d[1]);
                     })
-                    .style("fill", function(d, i) {
+                    .style("fill", function(d) {
                         return d.color;
                     });
                 circles.exit()
@@ -230,7 +230,7 @@
                     .style("fill-opacity", "0")
                     .remove();
                 circles
-                    .style("fill", function(d, i) {
+                    .style("fill", function(d) {
                         return d.color;
                     })
                     .transition()
@@ -244,7 +244,7 @@
                     .attr("cy", function(d) {
                         return scaleY(d[1]);
                     })
-                    .style("fill", function(d, i) {
+                    .style("fill", function(d) {
                         return d.color;
                     })
                     .style("fill-opacity", .8);
@@ -273,7 +273,7 @@
 
                 // Brush
                 var brush = d3.brush()
-                    .on("end", function(e) {
+                    .on("end", function() {
 
                         if (!d3.event.selection) {
                             osCohortService.setPatientCohort([], "PCA");

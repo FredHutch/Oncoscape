@@ -44,7 +44,6 @@
 
             // Properties
             var vm = this;
-            var table;
 
             var rows = 3;
             var cell = {
@@ -52,7 +51,6 @@
                 h: 0
             };
 
-            var brushRect;
 
             var datasource = {
                 "disease": "brain",
@@ -580,7 +578,7 @@
                     });
                 }
 
-                var clear = function(brush) {
+                var clear = function() {
 
                 }
 
@@ -618,13 +616,9 @@
             }
 
             $q.all(
-                clusters
-                .map(function(v) {
-                    console.log(v.collection);
-                    return osApi.query(v.collection)
-                })
+                clusters.map(function(v) { return osApi.query(v.collection)})
             ).then(function(data) {
-                clusters = clusters.map(function(v, i, a) {
+                clusters = clusters.map(function(v, i) {
                     var data = this.data[i].data[0].data;
                     var rv = {
                         name: v,

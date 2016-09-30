@@ -47,14 +47,14 @@
             vm.showTools = false;
 
             var currentTool;
-            $rootScope.$on('$stateChangeStart', function(event, toState, toParams, fromState, fromParams) {
+            $rootScope.$on('$stateChangeStart', function(event, toState) {
                 currentTool = toState.name;
-                console.log(toState.name);
                 switch (toState.name) {
                     case "landing":
                     case "tools":
                     case "datasource":
                         vm.showMenu = false;
+                        vm.showtools = false;
                         break;
                     default:
                         vm.showMenu = true;

@@ -28,6 +28,7 @@
             var d3Chart = elChart.append("svg");
             var gChart = d3Chart.append("g");
 
+
             var data;
             var patients;
             var genes;
@@ -60,12 +61,14 @@
                     rownames: r
                 };
 
-                ocpu.seturl("//localhost/ocpu/library/oncoscape/R");
-                $("#test").rplot("oheatmap", {
-                    data: d
-                }, function(e) {
-                    debugger;
-                });
+                console.log(JSON.stringify(d));
+
+                // ocpu.seturl("//localhost/ocpu/library/oncoscape/R");
+                // $("#test").rplot("oheatmap", {
+                //     data: d
+                // }, function(e) {
+                //     debugger;
+                // });
 
                 draw(data);
             });

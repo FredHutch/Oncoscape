@@ -4,6 +4,7 @@ var path = require('path');
 var gulp = require('gulp');
 var conf = require('./conf');
 var jslint = require('gulp-jslint');
+var filter = require('gulp-filter');
 
 var browserSync = require('browser-sync');
 
@@ -21,6 +22,7 @@ gulp.task('scripts', function() {
 
 function buildScripts() {
   return gulp.src(path.join(conf.paths.src, '/app/**/*.js'))
+  	.pipe(filter(function(v){return v.history[0].indexOf("worker")==-1; }))
     .pipe($.eslint())
     .pipe($.eslint.format())
     .pipe($.size())

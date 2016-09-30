@@ -19,7 +19,7 @@
         return directive;
 
         /** @ngInject */
-        function SurvivalController(d3, osApi, osCohortService, $state, $timeout, $scope, $stateParams, $window) {
+        function SurvivalController(d3, osApi, osCohortService, $state, $timeout, $scope, $stateParams, $window, _) {
 
             // Retrieve Selected Patient Ids From OS Service
             var pc = osCohortService.getPatientCohort();

@@ -46,7 +46,7 @@
                 osCohortService.setPatientCohort([],"All Patients")
             });
 
-            $rootScope.$on('$stateChangeStart', function(event, toState, toParams, fromState){ 
+            $rootScope.$on('$stateChangeStart', function(event, toState){ 
                 switch(toState.name){
                     case "landing":
                     case "tools":
@@ -183,11 +183,11 @@
                     labels.enter()
                         .append("text")
                         .attr("x", function(d, i) { return ((barWidth+1) * i) + (barWidth*.5); })
-                        .attr("y", function(d, i) { 
+                        .attr("y", function(d) { 
                             return 145-yScale(d.value);
                         })
                         .attr("fill", "#000")
-                        .attr("height", function(d, i) { return yScale(d.value); })
+                        .attr("height", function(d) { return yScale(d.value); })
                         .attr("width", barWidth)
                         .attr("font-size", "8px")
                         .attr("text-anchor", "middle")
@@ -197,7 +197,7 @@
                         .transition()
                             .duration(300)
                             .attr("x", function(d, i) { return ((barWidth+1) * i) + (barWidth*.5); })
-                            .attr("y", function(d, i) { 
+                            .attr("y", function(d) { 
                                 var y = 145-yScale(d.value);
                                 if (y<0) y = 20;
                                 return y;
@@ -301,8 +301,8 @@
                 cohorts.push(obj);
                 osCohortService.getSurvivalData(cohorts,true,"CohortMenuController");
             });
-            osCohortService.onGenesSelect.add(function(obj){
-                console.log("GENES");
+            osCohortService.onGenesSelect.add(function(){
+
             });
             osCohortService.onMessage.add(function(obj){
                 if (obj.data.cmd!="setPatientMetric") return;

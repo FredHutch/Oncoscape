@@ -28,12 +28,11 @@
             var patientsAll = [];
             var patientsFiltered = [];
             var patientsDomain = [];
-            var scaleX, scaleY;
+            var scaleX;
             var heightRow = 20;
             var baseZoomX = 1;
             var baseZoomY = 1;
             var xZoom, yZoom, xTran, yTran;
-            var zoom = d3.zoom();
             var axis;
             var brushY = d3.brushY();
             var brushX = d3.brushX();
@@ -52,12 +51,12 @@
             }
             osCohortService.onPatientsSelect.add(onPatientsSelect);
 
-            function setSelected() {
-                selectedIds = chart.bars.selectAll(".timeline-selected")[0].map(function(p) {
-                    return p.__data__.id;
-                })
-                osCohortService.setPatientCohort(selectedIds, "Timelines");
-            }
+            // var setSelected = function() {
+            //     selectedIds = chart.bars.selectAll(".timeline-selected")[0].map(function(p) {
+            //         return p.__data__.id;
+            //     })
+            //     osCohortService.setPatientCohort(selectedIds, "Timelines");
+            // }
 
             // View Model
             var vm = (function(vm) {
@@ -128,7 +127,6 @@
                 rAxis.attr("class", "timeline-axis-bg");
                 var gAxis = d3Chart.append("g");
 
-                var elTip = null;
 
                 return {
                     elChart: angular.element(".timelines-content"),
@@ -150,7 +148,6 @@
                 var align = vm.align.name;
                 var sort = vm.sort.name;
                 var filter = vm.filter.name;
-                var scale = vm.timescale;
                 var events = vm.events.filter(function(e) {
                     return e.selected
                 }).map(function(e) {
@@ -256,7 +253,7 @@
                     });
                 });
                 cols.exit().remove();
-                var colEnter = cols.enter().append("rect")
+                cols.enter().append("rect")
                     .attr('class', 'event')
                     .attr('width', function(d) {
                         return Math.max((scaleX(d.tsEndAligned) - scaleX(d.tsStartAligned)), 3);
@@ -327,7 +324,7 @@
                 });
             };
 
-            var updateZoom = function(height, width) {
+            var updateZoom = function(height) {
                 height -= 70;
                 baseZoomY = height / (patientsFiltered.length * heightRow);
                 baseZoomX = 1;
@@ -360,7 +357,7 @@
                 if (Math.abs(d) < 360) return Math.round((d / 30.4) * 10) / 10 + " Months";
                 return Math.round((d / 365) * 10) / 10 + " Years";
             };
-            var updateAxis = function(height, width) {
+            var updateAxis = function() {
                 axis = d3.axisBottom(scaleX).ticks(7);
                 if (vm.timescale.name == 'Linear') {
                     axis.tickFormat(function(d) {

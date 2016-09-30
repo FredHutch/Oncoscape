@@ -6,7 +6,7 @@
         .service('osCohortService', osCohortService);
 
     /** @ngInject */
-    function osCohortService(osApi, moment, signals) {
+    function osCohortService(osApi, moment, signals, localStorage) {
 
         var onMessage = new signals.Signal();
         var onPatientsSelect = new signals.Signal();
