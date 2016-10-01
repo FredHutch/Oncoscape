@@ -18,10 +18,13 @@
                 <label>Patient {{vm.legendCaption}}</label>
                 <div ng-repeat="item in vm.legendNodes" class="legend-bar legend-bar-button" style="border-color:{{item.color}};">{{item.name}}<span id="{{item.id}}" class="legend-count"></span>
 
-                    <label style="float:right;">
+                    <label style="float:right;padding-top:5px;" class="btn-group">
                         <button 
                         ng-click="vm.deselectColor(item)"
-                        class="btn btn-xs btn-default" style="background-color:#47a8d8;color:#FFF;text-shadow: 0 1px rgba(0, 0, 0, 0.2);padding:3px;font-size:10px;font-weight:300;width:50px;border:none;">CLEAR</button>
+                        class="btn btn-xs btn-default" style="background-color:#47a8d8;color:#FFF;text-shadow: 0 1px rgba(0, 0, 0, 0.2);width:24px;margin-right:1px;"><i class="fa fa-circle-o"></i></button>
+                        <button
+                        ng-click="vm.selectColor(item)"
+                        class="btn btn-xs btn-default" style="background-color:#47a8d8;color:#FFF;text-shadow: 0 1px rgba(0, 0, 0, 0.2);width:24px;margin-left:1px;"><i class="fa fa-dot-circle-o"></i></button>
                     </label>
                 </div>
             </div>

@@ -6,7 +6,7 @@
          .factory('osHttp', oncoscape);
 
      /** @ngInject */
-     function oncoscape($http) {
+     function oncoscape($http, $location) {
 
          //var url = $location.protocol() + "://" + $location.host() + "/api/";
          var url = "https://dev.oncoscape.sttrcancer.io/api/";

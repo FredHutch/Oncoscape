@@ -350,6 +350,17 @@
                     vm.cmd('ShowSelectedEdges');
                 };
 
+                vm.selectColor = function(item) {
+                    var color = item.color;
+                    var nodes = cyChart.$('node[nodeType="patient"]');
+                    cyChart.startBatch();
+                    nodes.forEach(function(node) {
+                        if (node.data().color == this) {
+                            node.select();
+                        }
+                    }, color);
+                    cyChart.endBatch();
+                };
                 vm.deselectColor = function(item) {
                     var color = item.color;
                     var nodes = cyChart.$('node[nodeType="patient"]:selected');
