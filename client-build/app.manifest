@@ -41,6 +41,7 @@ CACHE:
 /scripts/app-6c26bb6bfa.js
 /scripts/app-6fdedbe4b0.js
 /scripts/app-7ab5d4fc25.js
+/scripts/app-7d9d54652b.js
 /scripts/app-7e39016b57.js
 /scripts/app-8287bf4bcf.js
 /scripts/app-836f0e9163.js
@@ -73,6 +74,7 @@ CACHE:
 /scripts/app-ed3f8a20d0.js
 /scripts/app-f360941cb5.js
 /scripts/app-fd2c2e0037.js
+/scripts/vendor-1100e278d6.js
 /scripts/vendor-1d9fb8f6d9.js
 /scripts/vendor-2b1858030b.js
 /scripts/vendor-2decbbd7b0.js
@@ -85,6 +87,7 @@ CACHE:
 /styles/app-12a7f8ad7d.css
 /styles/app-29d10f210f.css
 /styles/app-396255bb19.css
+/styles/app-414ad9e6da.css
 /styles/app-4d8fe73a5d.css
 /styles/app-5026a0987e.css
 /styles/app-541cdab03a.css
@@ -107,6 +110,7 @@ CACHE:
 /styles/vendor-692105e31d.css
 /styles/vendor-965b5df522.css
 /styles/vendor-bfda3f48de.css
+/styles/vendor-e97840d261.css
 /styles/vendor-fe5182b0e1.css
 /assets/images/DSbladder.png
 /assets/images/DSbrain.png
@@ -159,6 +163,7 @@ CACHE:
 /maps/scripts/app-6c26bb6bfa.js.map
 /maps/scripts/app-6fdedbe4b0.js.map
 /maps/scripts/app-7ab5d4fc25.js.map
+/maps/scripts/app-7d9d54652b.js.map
 /maps/scripts/app-7e39016b57.js.map
 /maps/scripts/app-8287bf4bcf.js.map
 /maps/scripts/app-836f0e9163.js.map
@@ -195,6 +200,7 @@ CACHE:
 /maps/scripts/app-ed3f8a20d0.js.map
 /maps/scripts/app-f360941cb5.js.map
 /maps/scripts/app-fd2c2e0037.js.map
+/maps/scripts/vendor-1100e278d6.js.map
 /maps/scripts/vendor-1d9fb8f6d9.js.map
 /maps/scripts/vendor-2b1858030b.js.map
 /maps/scripts/vendor-2decbbd7b0.js.map
@@ -207,6 +213,7 @@ CACHE:
 /maps/styles/app-12a7f8ad7d.css.map
 /maps/styles/app-29d10f210f.css.map
 /maps/styles/app-396255bb19.css.map
+/maps/styles/app-414ad9e6da.css.map
 /maps/styles/app-4d8fe73a5d.css.map
 /maps/styles/app-5026a0987e.css.map
 /maps/styles/app-541cdab03a.css.map
@@ -232,9 +239,10 @@ CACHE:
 /maps/styles/vendor-692105e31d.css.map
 /maps/styles/vendor-965b5df522.css.map
 /maps/styles/vendor-bfda3f48de.css.map
+/maps/styles/vendor-e97840d261.css.map
 /maps/styles/vendor-fe5182b0e1.css.map
-/app/components/oncoscape/oncoscape.cohort.service.worker.js
 /app/components/markers/markers.worker.js
+/app/components/oncoscape/oncoscape.cohort.service.worker.js
 
 
 NETWORK:
@@ -246,4 +254,4 @@ https://*
 SETTINGS:
 prefer-online
 
-# hash: badccbd11d7c5c009d99cec9de3083cc64263ae7db1379fa04c9dd2e70831a89
+# hash: 9aeee0bd1c13ddb06fb1efe83d7fb1e8d14d61496d02ea21e5a1583c101cd2ce
