@@ -8,23 +8,49 @@
                     <button class="btn btn-default" ng-click="vm.exportCsv()">Excel (CSV)</button>
                 </div>
             </div>
-            <div ng-if="vm.legendCaption.length>0" class="col-xs-12 form-item">
-                <label>Patient {{vm.legendCaption}}</label>
-                <div ng-repeat="item in vm.legendNodes" class="legend-bar" style="border-color:{{item.color}};position:relative;background-color:#FFF;padding:2px 10px;line-height:25px;">{{item.name}}</div>
-            </div>
             <div class="col-xs-12 form-item">
                 <label>Patient</label>
                 <button class="btn btn-default btn-no-focus" type="button" style="width:100%;font-weight: 300;" ng-click="vm.showPanelColor = true">Color Options</button>
             </div>
+
+            <div class="col-xs-12 form-item">
+                <label>Clinical Collections</label>
+                <div class="dropdown bs-dropdown">
+                    <button class="btn btn-default dropdown-toggle" type="button" id="dropdownMenu1" data-toggle="dropdown" aria-haspopup="true" aria-expanded="true">
+                        {{vm.collection.name}}
+                        <span class="caret"></span>
+                    </button>
+                    <ul class="dropdown-menu" aria-labelledby="dropdownMenu1">
+                        <li ng-repeat="item in vm.collections" ng-click="vm.collection=item">{{item.name}}</li>
+                    </ul>
+                </div>
+            </div>
+            <div class="col-xs-12 form-item">
+                <label>Fields</label>
+                <div ng-repeat="column in vm.columns track by $index" class="legend-bar" style="position:relative;background-color:#FFF;padding:2px 10px;line-height:25px;border-left-width: 0;"><span style="max-width: 180px;font-size:12px;display: inline-block;">{{column.displayName}}</span>
+                    <label class="switch {{item.class}}" style="float:right">
+                        <input type="checkbox" class="switch-input" ng-model="column.show" ng-change="vm.setColumns(true)">
+                        <span class="switch-label" data-on="On" data-off="Off"></span>
+                        <span class="switch-handle"></span>
+                    </label>
+                </div>
+            </div>
+            <div ng-if="vm.legendCaption.length>0" class="col-xs-12 form-item">
+                <label>Patient {{vm.legendCaption}}</label>
+                <div ng-repeat="item in vm.legendNodes" class="legend-bar" style="border-color:{{item.color}};position:relative;background-color:#FFF;padding:2px 10px;line-height:25px;">{{item.name}}</div>
+            </div>
+            
         </div>
     </section>
 </os-tray>
-<section class="history-content">
+<section class="history-content history-grid-container">
     <div class="container-fluid" style="text-align:center;">
         <h2 class="h2-tool">Patient Data</h2>
         <span class="h3-tool">{{vm.datasource.source}} {{vm.datasource.name}} </span>
-        <table id="history-datatable" class="table table-striped table-bordered dt-responsive nowrap" cellspacing="0" width="100%">
-        </table>
+        
+            <div id="history-grid">
+                
+            </div>
     </div>
 </section>
 <os-color-panel ng-if="vm.showPanelColor" close="vm.showPanelColor=false"></os-color-panel>

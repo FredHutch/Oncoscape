@@ -15,20 +15,22 @@ http {
     include '/usr/local/openresty/nginx/conf/mime.types';
 
     # Enable GZip Compression
-    gzip              on;
+    gzip on;
+    gzip_comp_level 6;
     gzip_http_version 1.0;
-    gzip_proxied      any;
-    gzip_min_length   500;
-    gzip_disable      "MSIE [1-6]\.";
-    gzip_types        text/plain text/xml text/css
-                        text/comma-separated-values
-                        text/javascript
-                        application/x-javascript
-                        application/atom+xml;
+    gzip_proxied any;
+    gzip_min_length 1100;
+    gzip_buffers 16 8k;
+    gzip_types text/plain text/html text/css application/x-javascript text/xml application/xml application/xml+rss text/javascript;
 
+    # Disable for IE < 6 because there are some known problems
+    gzip_disable "MSIE [1-6].(?!.*SV1)";
 
-    proxy_cache_path /home/sttrweb/Oncoscape/cache levels=1:2 keys_zone=data_cache:10m max_size=10g
-                 inactive=60m use_temp_path=off;
+    # Add a vary header for downstream proxies to avoid sending cached gzipped files to IE6
+    gzip_vary on;
+
+    proxy_cache_path  /var/cache/nginx levels=1:2 keys_zone=one:8m max_size=3000m inactive=600m;
+    proxy_temp_path /var/tmp;
 
     # Public Server
     server {
@@ -50,6 +52,8 @@ http {
         location /api/ {
             proxy_pass http://127.0.0.1:8000/;
             proxy_set_header Host $host;
+            proxy_cache one;
+            proxy_cache_key sfs$request_uri$scheme;
         }
 
         # Expose Kong Admin Api - PWD Protected
