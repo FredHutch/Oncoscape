@@ -1,4 +1,4 @@
-/* global d3:false, $:false, signals:false, cytoscape:false, document:false, moment:false, _:false, hello:false, localStorage:false */
+/* global d3:false, $:false, signals:false, cytoscape:false, document:false, moment:false, _:false, hello:false, localStorage:false, Handsontable:false */
 
 (function() {
     'use strict';
@@ -11,6 +11,7 @@
         .constant('signals', signals)
         .constant('$', $)
         .constant('auth', hello)
+        .constant('Handsontable', Handsontable)
         .constant('localStorage', localStorage)
         .constant('_', _);
         

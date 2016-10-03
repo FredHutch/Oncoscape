@@ -5,9 +5,15 @@
     </div>
     <div class="panel-body">
         <div class="row">
-            <div class="col-xs-12 col-sm-6">
+            <div class="col-xs-12 col-sm-9">
                 <h3>Enter Hugo Gene(s) Seperated By + And - Operators. (eg BRCA1 + BRCA2 - p53)</h3>
                 <div class="input-group">
+                    <div class="input-group-btn">
+                        <button style="width:150px;" type="button" class="btn btn-default dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">{{vm.colorOption.name}}&nbsp;<span class="caret"></span></button>
+                        <ul class="dropdown-menu">
+                            <li ng-click="vm.colorOption=item;" ng-repeat="item in vm.colorOptions">{{item.name}}</li>
+                        </ul>
+                    </div>
                     <div class="input-group-btn">
                         <button style="width:100px;" type="button" class="btn btn-default dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">{{vm.colorScale.name}}&nbsp;<span class="caret"></span></button>
                         <ul class="dropdown-menu">
