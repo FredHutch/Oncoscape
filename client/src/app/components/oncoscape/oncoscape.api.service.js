@@ -59,8 +59,10 @@
         // Initialize
         function init() {
             return $q(function(resolve, reject) {
-                query("lookup_oncoscape_datasources",{beta:false}).then(function(response){ 
-                //query("lookup_oncoscape_datasources").then(function(response) {
+                query("lookup_oncoscape_datasources", {
+                    beta: false
+                }).then(function(response) {
+                    //query("lookup_oncoscape_datasources").then(function(response) {
                     _dataSources = response.data
                         .filter(function(d) {
                             return angular.isDefined(d.img)
@@ -93,9 +95,76 @@
             });
         };
 
+        // Returns Promise
+        var _cpuApi;
+        (function(serviceEndpoint) {
+            var server = serviceEndpoint.substring(0, serviceEndpoint.replace("//", "--").indexOf("/"));
+            var createMethod = function(obj, method) {
+                var fnName = 'get' + method.charAt(0).toUpperCase() + method.slice(1).toLowerCase();
+                obj[fnName] = function(options) {
+                    options.data = options.data || {};
+                    options.output = options.output || 'svg';
+                    options.width = options.width || 1000;
+                    options.height = options.height || 1000;
+                    return new Promise(function(resolve, reject) {
+                        $.ajax({
+                            url: serviceEndpoint + "/" + method,
+                            type: "POST",
+                            data: JSON.stringify(options.data),
+                            contentType: "application/json; charset=utf-8",
+                            dataType: "text",
+                            beforeSend: function(xhr, settings) {
+                                settings.xhrFields = settings.xhrFields || {};
+                                settings.xhrFields.withCredentials = true;
+                                settings.crossDomain = true;
+                            }
+                        }).done(function(response) {
+                            var response = response.split("\n");
+                            var url = (options.output == 'svg') ? server + response[1] + "/svg?width=" + options.width + "&height=" + options.height :
+                                (options.output == 'json') ? server + response[0] :
+                                null;
+                            if (url == null) {
+                                alert("Invalid output option: must be svg or json");
+                                return;
+                            }
+                            console.log(url);
+                            $.ajax({
+                                url: url,
+                                type: "GET",
+                                crossDomain: true,
+                                beforeSend: function(xhr, settings) {
+                                    settings.xhrFields = settings.xhrFields || {};
+                                    settings.xhrFields.withCredentials = true;
+                                    settings.crossDomain = true;
+                                }
+                            }).done(function(response) {
+                                resolve(response);
+                            });
+                        });
+                    });
+                }
+            }
+            return new Promise(function(resolve, reject) {
+                $.get(serviceEndpoint).then(function(methods) {
+                    var api = methods.split("\n").reduce(function(obj, method) {
+                        if (method != "") createMethod(obj, method)
+                        return obj;
+                    }, {})
+                    api.getEndpoint = function() {
+                        return serviceEndpoint;
+                    }
+                    resolve(api);
+                });
+            });
+        })("http://dev.oncoscape.sttrcancer.io/ocpu/library/oncoscape/R").then(function(v) {
+            _cpuApi = v;
+        });
+        var getCpuApi = function(){ return _cpuApi; };
+
         return {
             init: init,
             query: query,
+            getCpuApi: getCpuApi,
             queryString: queryString,
             setDataSource: setDataSource,
             getDataSource: getDataSource,

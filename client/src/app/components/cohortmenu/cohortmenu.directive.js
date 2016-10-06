@@ -142,7 +142,7 @@
 
                 var barWidth = Math.floor(238/data.bins);
                 if (data.histRange[0]>0) data.histRange[0] -=2;
-
+                
                 var yScale = d3.scaleLinear()
                     .domain(data.histRange)
                     .range([0,135]);

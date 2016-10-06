@@ -25,9 +25,6 @@
              // Hide Busy Cursor
              osApi.setBusy(false);
 
-             // Reset DataTable Custom Filters
-             angular.element.fn.DataTable.ext.search = [];
-
              // Route unauthenticated users to landing page
              if (toState.authenticate && !osAuth.isAuthenticated()) {
                  $state.transitionTo("landing");

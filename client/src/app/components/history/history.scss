@@ -1,11 +1,38 @@
 // Namespace
-.history {}
 
-.dataTables_filter {
-    display: none;
+#history-grid{
+	margin-top:20px;
+	overflow: hidden;
+	border: 0px solid #DDD;
+	border-left-width: 1px;
+	border-right-width: 1px;
+	border-bottom-width: 1px;
+
+	
+}
+.handsontable th  {
+  padding-top:5px !important;
+  background-color: #FFF;
+  text-align:left;
+  padding-left:10px;
+  
+  text-transform: capitalize;
+  box-shadow: 3px 3px 10px #DDD;
 }
 
-.history-row-selected {
-    background-color: #0093f2 !important;
-    color: #FFF;
+.ht_master tr > td {
+  border: 0px;
+  border-right: 1px solid #F5f5f5;
+  text-align: left;
+  padding-left:10px;
+  text-transform: uppercase;
+}
+
+.handsontable  tr:nth-of-type(odd) > td {
+  background-color: #F5f5f5 !important;
+}
+
+.handsontable tr > td.htSearchResult{
+	background-color:#0b97d3 !important;
+	color:#FFF;
 }

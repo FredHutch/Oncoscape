@@ -6,7 +6,6 @@ const oauthshim = require('oauth-shim');
 // ----------------------- //
 // -----  Middleware ----- //
 // ----------------------- //
-
 var app = express();
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({
