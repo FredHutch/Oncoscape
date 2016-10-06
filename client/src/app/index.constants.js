@@ -13,6 +13,7 @@
         .constant('auth', hello)
         .constant('Handsontable', Handsontable)
         .constant('localStorage', localStorage)
+        .constant('ocpu', ocpu)
         .constant('_', _);
         
     // Util Functions

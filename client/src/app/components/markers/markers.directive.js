@@ -613,24 +613,25 @@
                     vm.resize();
 
                     //---//---//
-                    // Initial Node Selection
-                    var pc = osCohortService.getPatientCohort();
-                    if (pc == null) {
-                        osCohortService.setPatientCohort([], "All Patients")
-                    } else {
-                        cyChart.startBatch();
-                        cyChart.nodes('node[nodeType="patient"]').forEach(function(node) {
-                            if (pc.ids.indexOf(node.id()) != -1) node.select();
+                    //Initial Node Selection
+                    // debugger;
+                    // var pc = osCohortService.getPatientCohort();
+                    // if (pc == null) {
+                    //     osCohortService.setPatientCohort([], "All Patients")
+                    // } else {
+                    //     cyChart.startBatch();
+                    //     cyChart.nodes('node[nodeType="patient"]').forEach(function(node) {
+                    //         if (pc.ids.indexOf(node.id()) != -1) node.select();
 
-                        }, {
-                            pc: pc
-                        });
-                        cyChart.endBatch();
-                        vm.zoom.reset()
-                        cyChart.zoom(cyChart.zoom() * .4);
-                        cyChart.center();
-                    }
-                    //---//---//
+                    //     }, {
+                    //         pc: pc
+                    //     });
+                    //     cyChart.endBatch();
+                    //     vm.zoom.reset()
+                    //     cyChart.zoom(cyChart.zoom() * .4);
+                    //     cyChart.center();
+                    // }
+                    // //---//---//
 
                 };
                 cmd.patients_layout = function(data) {
@@ -1133,8 +1134,10 @@
 
             // Hydration
             var hydrate = function(){
+                
                 var data = localStorage.getItem(osApi.getDataSource().disease + "MarkersPatients");
                 if (data===null) return false;
+                else{
                 data = JSON.parse(data);
                 cyChart.load(data.elements);
                 vm.resize();
@@ -1146,27 +1149,27 @@
 
                 //---//---//
                 // Initial Node Selection
-                setTimeout(function(v){
-                var pc = osCohortService.getPatientCohort();
-                if (pc == null) {
-                    osCohortService.setPatientCohort([], "All Patients")
-                } else {
-                    cyChart.startBatch();
-                    cyChart.nodes('node[nodeType="patient"]').forEach(function(node) {
-                        if (pc.ids.indexOf(node.id()) != -1) node.select();
+            //     setTimeout(function(v){
+            //     var pc = osCohortService.getPatientCohort();
+            //     if (pc == null) {
+            //         osCohortService.setPatientCohort([], "All Patients")
+            //     } else {
+            //         cyChart.startBatch();
+            //         cyChart.nodes('node[nodeType="patient"]').forEach(function(node) {
+            //             if (pc.ids.indexOf(node.id()) != -1) node.select();
 
-                    }, {
-                        pc: pc
-                    });
-                    cyChart.endBatch();
-                    vm.zoom.reset()
-                    cyChart.zoom(cyChart.zoom() * .4);
-                    cyChart.center();
-                }
-            },3000);
+            //         }, {
+            //             pc: pc
+            //         });
+            //         cyChart.endBatch();
+            //         vm.zoom.reset()
+            //         cyChart.zoom(cyChart.zoom() * .4);
+            //         cyChart.center();
+            //     }
+            // },3000);
                 //---//---//
 
-
+                }
                 osApi.setBusy(false);
                 return true;
             }

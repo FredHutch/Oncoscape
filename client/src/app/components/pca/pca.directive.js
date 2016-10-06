@@ -47,6 +47,12 @@
                     });
                 }
             }
+            function zoomed() {
+                
+                d3Points.attr("transform", d3.event.transform);
+                d3xAxis.call(axisX.scale(d3.event.transform.rescaleX(scaleX)))
+                d3yAxis.call(axisY.scale(d3.event.transform.rescaleY(scaleY)))
+            }
 
             // Elements
             var d3Chart = d3.select("#pca-chart").append("svg");
@@ -54,10 +60,17 @@
             var d3xAxis = d3Chart.append("g");
             var d3yAxis = d3Chart.append("g");
             var d3Brush = d3Chart.append("g");
+            // var d3Zoom = d3.zoom()
+            //     .scaleExtent([1, 40])
+            //     .translateExtent([[-100, -100], [width + 90, height + 100]])
+            //     .on("zoom", zoomed);
+            //     d3Chart.call(d3Zoom);
+
 
             // Properties
             var scaleX, scaleY, axisX, axisY;
             var data, minMax;
+            var width, height;
 
             var colors = {
                 data: [],
@@ -194,8 +207,8 @@
 
                 // Size
                 var layout = osApi.getLayout();
-                var width = $window.innerWidth - layout.left - layout.right;
-                var height = $window.innerHeight - 120; //10
+                width = $window.innerWidth - layout.left - layout.right;
+                height = $window.innerHeight - 120; //10
                 angular.element("#pca-chart").css({
                     "width": width + "px",
                     "padding-left": layout.left + "px"
@@ -253,7 +266,7 @@
                 axisX = d3.axisTop().scale(scaleX).ticks(5);
                 axisY = d3.axisLeft().scale(scaleY).ticks(5);
 
-                d3yAxis
+                d3xAxis
                     .attr("class", "axis")
                     .attr("transform", "translate(0, " + scaleY(0) + ")")
                     .call(axisX)
@@ -262,7 +275,7 @@
                     .attr("y", 15)
                     .text("PC1");
 
-                d3xAxis
+                d3yAxis
                     .attr("class", "axis")
                     .attr("transform", "translate(" + scaleX(0) + ", 0)")
                     .call(axisY)
@@ -285,7 +298,7 @@
                         var xMax = bv[1][0];
                         var yMin = bv[0][1];
                         var yMax = bv[1][1];
-
+         
                         var ids = d3Points.selectAll("circle").data().filter(function(d) {
                             var x = scaleX(d[0]);
                             var y = scaleY(d[1]);
@@ -300,6 +313,8 @@
 
                 d3Brush.attr("class", "brush").call(brush)
 
+
+                
                 setSelected();
 
             }
