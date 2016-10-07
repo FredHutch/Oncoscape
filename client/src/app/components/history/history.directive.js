@@ -47,8 +47,6 @@
                     queryMethod: queryMethod
                 },
                 mergeCells: true
-
-
             };
 
 
@@ -126,7 +124,7 @@
                 osApi.query(vm.collection.collection)
                     .then(function(response) {
                         data = response.data.map(function(v){
-                            //v.color = "#0b97d3";
+                            v.color = "#0b97d3";
                             return v;
                         });
 
@@ -144,13 +142,22 @@
                         }
 
                         vm.setSize(false);
-                        vm.setColumns(false);
+                        
                         filterData();
+                        vm.setColumns(false);
                         osApi.setBusy(false);
 
                     });
             };
             
+          
+            var rowRenderer = function(instance, td, row, col, prop, value, cellProperties){
+                Handsontable.TextRenderer.apply(this, arguments);
+
+                td.style['color'] = filteredData[row]['color'];
+            }
+
+
             vm.setColumns = function(render) {
                 var cols = vm.columns.filter(function(v) {
                     return v.show;
@@ -162,6 +169,11 @@
                 settings.columns = cols.map(function(v) {
                     return { data: v.field };
                 });
+                settings.cells = function (row, col, prop) {
+                    var cellProps = {};
+                    cellProps.renderer = rowRenderer;
+                    return cellProps;
+                };
 
                 htGrid.updateSettings(settings);
                 htGrid.render();
@@ -191,122 +203,48 @@
                 } // Should Debounce.
             angular.element($window).bind('resize', resize);
 
-            // var initDataTable = function(vm, columns, data) {
 
-            //     // Override Filter Function
-            //     angular.element.fn.DataTable.ext.search = [function(settings, data) {                    
-            //         if (selectedIds.length != 0) { if (selectedIds.indexOf(data[0]) == -1) return false; }
-            //         return true;
-            //     }];
+            vm.resetFilter = function(){
+                selectedIds = [];
+                filterData();
+            }
 
-            //     // Specify Data
-            //     table = angular.element('#history-datatable').dataTable({
-            //         paging: false,
-            //         columns: columns,
-            //         data: data,
-            //         "scrollY": "60vh",
-            //         "scrollCollapse": true
-            //     });
-            //     table.api().draw();
-            // }
-
-            // var lo = function(){
-            //     var layout = osApi.getLayout();
-            //         angular.element(".history-content").css("margin-left", layout.left).css("margin-right", layout.right);
-            //         table.api().draw();
-            // };
-            // osApi.onResize.add(lo);
-            // angular.element($window).bind('resize',
-            //         _.debounce(lo, 300)
-            //     );
-
-            // var initEvents = function(vm) {
-
-            //     // Export CSV Button
-
-            //     // Apply Fitler
-            //     vm.applyFilter = function(filter) {
-
-            //         selectedIds = [];
-
-            //         table.api().draw();
-
-            //         var o = table._('tr', {
-            //             "filter": "applied"
-            //         }).map(function(item) {
-            //             return item["patient_ID"].toString().toUpperCase()
-            //         });
-            //         o = $.map(o, function(value) {
-            //             return [value];
-            //         });
-            //         osCohortService.setPatientCohort(o, "Patient History");
-            //     };
-
-            
-            //     lo();
-
-            // }
-
-
-
-            osCohortService.onPatientsSelect.add(function(patients){
+            var onPatientSelect = function(patients){
                 selectedIds = patients.ids;
-                filterData()
+                filterData();
+            };
+            osCohortService.onPatientsSelect.add(onPatientSelect);
 
-            });
+
+            var onPatientColorChange = function(colors){
+                vm.legendCaption = colors.name;
+                vm.legendNodes = colors.data;
+                var degMap = colors.data.reduce(function(p, c) {
+                    for (var i = 0; i < c.values.length; i++) {
+                        p[c.values[i]] = c.color;
+                    }
+                    return p;
+                }, {});
+
+
+                data.forEach(function(data){
+                    data.color = this[data.patient_ID]
+                    console.log(data.color);
+
+                }, degMap)
+            };
+            osCohortService.onPatientColorChange.add(onPatientColorChange)
 
             // Load Datasets
             osApi.setBusy(true);
 
-            // osApi.query(vm.datasource.clinical.patient, {
-            //         $fields: fields
-            //     })
-            //     .then(function(response) {
-            //         data = response.data;
-            //         initDataTable(vm, columns, response.data);
-            //         initEvents(vm, $scope, osApi)
-            //         osApi.setBusy(false);
-            //         $timeout(lo, 200);
-
-            //     });
-
-            // var onPatientColorChange = function(colors){
-            //     vm.showPanelColor = false;
-            //     vm.legendCaption = colors.name;
-            //     vm.legendNodes = colors.data;
-
-            //     if(colors.name=="None"){
-            //         vm.legendCaption = "";
-            //         table.api().rows().every( function ( rowIdx, tableLoop, rowLoop ) {
-            //             angular.element(this.node()).children().first().attr("style","border-left-color:inherit;border-left-width:inherit;");
-            //         });
-            //         return;
-            //     }
-
-            //     var degMap =colors.data.reduce(function(p,c){
-            //         for (var i=0; i<c.values.length; i++){
-            //             p[c.values[i]] = c.color;
-            //         }
-            //         return p;
-            //     },{});
-
-            //     table.api().rows().every( function ( rowIdx, tableLoop, rowLoop ) {
-
-            //         var pid = this.data().patient_ID;
-            //         var color = degMap.hasOwnProperty(pid) ? degMap[pid] : "#EEE";
-            //         angular.element(this.node()).children().first().attr("style","border-left-color:"+color+";border-left-width:10px;");
-
-            //     } );
-
-            //     lo();
-
-            // }
-
-            // osCohortService.onPatientColorChange.add(onPatientColorChange);
+         
+            
 
             // Destroy
             $scope.$on('$destroy', function() {
-                //osCohortService.onPatientColorhange.remove(onPatientColorChange);
+                osCohortService.onPatientsSelect.remove(onPatientsSelect);
+                osCohortService.onPatientColorChange.remove(onPatientColorChange)
             });
         }
     }
