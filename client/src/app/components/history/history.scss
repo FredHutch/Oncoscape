@@ -15,9 +15,8 @@
   background-color: #FFF;
   text-align:left;
   padding-left:10px;
-  
   text-transform: capitalize;
-  box-shadow: 3px 3px 10px #DDD;
+  box-shadow: 3px 5px 10px #DDD;
 }
 
 .ht_master tr > td {
@@ -29,7 +28,7 @@
 }
 
 .handsontable  tr:nth-of-type(odd) > td {
-  background-color: #F5f5f5 !important;
+  background-color: #f8f8f8 !important;
 }
 
 .handsontable tr > td.htSearchResult{
