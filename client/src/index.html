@@ -70,7 +70,7 @@
   </div>
 </div>
 <script>
-if (window.location.protocol != "https:" ) {
+if (window.location.protocol != "https:" && window.location.hostname !="localhost") {
     $('#redirectModal').modal({ keyboard: false });
     setTimeout(function(){
         window.location.replace("https://"+window.location.hostname);
