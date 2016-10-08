@@ -43,6 +43,12 @@
             osCohortService.onCohortsChange.add(function(allCohorts){
                 vm.cohorts = allCohorts;
             });
+            vm.importPatientIds = "";
+            vm.importPatientCohort = function(e){
+                var ids = vm.importPatientIds.split(",").map(function(v){ return v.trim(); });
+                osCohortService.importPatientCohort(ids);
+            };
+            vm.showImport = false;
             vm.showMenu = false;
             vm.showTools = false;
 
@@ -67,12 +73,14 @@
                 $state.go(currentTool, {
                     datasource: dataset
                 });
+                $('.navbar-collapse').collapse('hide');
             };
 
             vm.loadTool = function(tool) {
                 $state.go(tool, {
                     datasource: osApi.getDataSource().disease
                 });
+                $('.navbar-collapse').collapse('hide');
             };
 
             vm.logoutClick = function() {

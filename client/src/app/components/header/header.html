@@ -31,18 +31,32 @@
                         </ul>
                     </li>
                     <li class="dropdown">
-                        <a href class="dropdown-toggle header-link" data-toggle="dropdown" role="button" aria-haspopup="true" aria-expanded="false"><span class="fa fa-users"></span>Cohorts</a>
+                        <a href class="dropdown-toggle header-link" data-toggle="dropdown" role="button" aria-haspopup="true" aria-expanded="false"><span class="fa fa-users"></span>My Cohorts</a>
                         <div class="dropdown-menu container-fluid">
                             <div class="row">
-                                <div class="col-xs-12 col-sm-4" style="border:0px solid #DDD; border-right-width:1px;">
+                                <div ng-if="!vm.showImport"
+                                    class="col-xs-12 col-sm-4" style="border:0px solid #DDD; border-right-width:1px;">
                                     <h2 style="margin-top:0px;">Create A Cohort</h2>
                                     Oncoscape allows you to pass cohorts of patients from one tool to the next.  To create a cohort out of your current selection click<br />
                                     <button class="btn btn-primary" style="margin-top:15px;"
-                                        ng-click="vm.addPatientCohort()">Create Cohort</button>
+                                        ng-click="vm.addPatientCohort(); $event.stopPropagation();">Create Cohort</button>
+                                    <button class="btn btn-primary" style="margin-top:15px;"
+                                        ng-click="vm.showImport=true; $event.stopPropagation();">Import Cohort</button>
+                                </div>
+                                <div ng-if="vm.showImport"
+                                    class="col-xs-12 col-sm-4" style="border:0px solid #DDD; border-right-width:1px;">
+                                    <h2 style="margin-top:0px;">Import A Cohort</h2>
+                                    Enter a comma seperated list of patient IDs below and click save<br />
+                                    <input ng-model="vm.importPatientIds" type="text" class="form-control" style="margin-top:5px;"
+                                        placeholder="eg. TCGA-01-0110, TCGA-02-0220">
+                                    <button class="btn btn-primary" style="margin-top:15px;"
+                                        ng-click="vm.importPatientCohort(); $event.stopPropagation();">Save</button>
+                                    <button class="btn btn-primary" style="margin-top:15px;"
+                                        ng-click="vm.showImport=false; $event.stopPropagation();">Cancel</button>
+
                                 </div>
                                 <div class="col-xs-12 col-sm-8">
                                     <h2 style="margin-top:0px;">Your Cohorts</h2>
-
                                     <div class="markers-command hvr-sweep-to-right" style="max-width:200px;"
                                         ng-repeat="item in vm.cohorts" ng-click="vm.setPatientCohort(item)">
                                         {{item.name}} ({{item.ids.length}})
