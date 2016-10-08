@@ -144,7 +144,7 @@
                 if (data.histRange[0]>0) data.histRange[0] -=2;
                 
                 var yScale = d3.scaleLinear()
-                    .domain(data.histRange)
+                    .domain([0,data.histRange[1]])
                     .range([0,135]);
 
                 var bars = svg
@@ -294,7 +294,6 @@
                 if (angular.isUndefined(obj.color)){
                     obj.color = "#000";
                 }
-                
                 vm.cohortName = obj.name;
                 osCohortService.getPatientMetric();
                 var cohorts =  JSON.parse(JSON.stringify(osCohortService.getPatientCohorts()));
@@ -306,11 +305,16 @@
             });
             osCohortService.onMessage.add(function(obj){
                 if (obj.data.cmd!="setPatientMetric") return;
+                
                 $timeout(function(){
-                    vm.patientTotal = obj.data.data.total,
-                    vm.patientSelected = obj.data.data.selected,
+                    vm.patientTotal = obj.data.data.total;
+                    vm.patientSelected = obj.data.data.selected;
                     vm.patientChartOptions = obj.data.data.features;
-                    vm.patientChartOption = vm.patientChartOptions[0];
+                    vm.patientChartOption = (vm.patientChartOption==null) ? 
+                        vm.patientChartOptions[0] :
+                        vm.patientChartOptions.filter(function(v){
+                            return (v.label==this.label)
+                        }, vm.patientChartOption)[0]
                 });                
             });            
 

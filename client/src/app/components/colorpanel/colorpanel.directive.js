@@ -32,7 +32,7 @@
             vm.colorBins = [2,3,4,5,6,7,8].map(function(v){ return {name:v+" Bins", value:v} });
             vm.colorBin = vm.colorBins[2];
             vm.colorOptions = osApi.getDataSource().colors;
-            vm.colorOption = vm.colorOptions[0];
+            if (vm.colorOptions.length!=0) vm.colorOption = vm.colorOptions[0];
 
 
             var tbl = osApi.getDataSource().category.filter(function(v) {
@@ -171,7 +171,6 @@
                         // Combine Colors + Scale Into Name + Value
                         var labels;
                         if (vm.colorScale.name=="Quantile"){
-                            debugger;
                             scale.domain(Object.keys(data).map(function(key){return data[key]},{data:data})).range(values);
                             labels = scale.quantiles().map(function(v){ return parseFloat(v).toFixed(3); });
                             labels.unshift("");
@@ -184,7 +183,6 @@
                             });
                             values = _.zip(values, labels).map(function(v){ return {color:v[0], name:v[1]} });
                         }else{
-                            debugger;
                             scale
                             .domain([data.min, data.max])
                             .range(values);
@@ -236,7 +234,6 @@
                             name: 'Null',
                             values: []
                         })
-                        debugger;
 
                         var colors = {
                             dataset: osApi.getDataSource().disease,

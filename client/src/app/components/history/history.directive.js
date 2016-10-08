@@ -46,10 +46,8 @@
                 search: {
                     queryMethod: queryMethod
                 },
-                mergeCells: true
+                mergeCells: false
             };
-
-
 
 
             elGrid = angular.element("#history-grid");

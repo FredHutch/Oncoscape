@@ -18,7 +18,10 @@
         worker.addEventListener('message', function(msg) {
             if (msg.data.cmd == "filterPatients") {
                 setPatientCohort(msg.data.data, "Filter")
-            } else {
+            }else if (msg.data.cmd == "validatePatientIds"){
+                setPatientCohort(msg.data.data, "Import");
+                addPatientCohort();
+            }else {
                 onMessage.dispatch(msg);
             }
         }, false);
@@ -87,12 +90,19 @@
         var getPatientCohort = function() {
             return activePatientCohort;
         };
-        var addPatientCohort = function(disease) {
+        var addPatientCohort = function() {
             if (allPatientCohorts.indexOf(activePatientCohort) != -1) return;
             activePatientCohort.color = colors[allPatientCohorts.length];
             allPatientCohorts.push(activePatientCohort);
             localStorage.setItem(osApi.getDataSource().disease + "PatientCohorts", JSON.stringify(allPatientCohorts));
         };
+        var importPatientCohort = function(ids){
+            worker.postMessage({
+               cmd: "validatePatientIds",
+               data: ids 
+            });
+            
+        }
 
         var delPatientCohort = function(obj) {
             allPatientCohorts.splice(allPatientCohorts.indexOf(obj), 1);
@@ -159,6 +169,7 @@
             setPatientCohort: setPatientCohort,
             addPatientCohort: addPatientCohort,
             delPatientCohort: delPatientCohort,
+            importPatientCohort: importPatientCohort,
             getPatientMetric: getPatientMetric,
             onGenesSelect: onGenesSelect,
             getGeneCohorts: getGeneCohorts,
