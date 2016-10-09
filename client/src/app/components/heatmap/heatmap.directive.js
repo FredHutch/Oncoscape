@@ -19,7 +19,7 @@
         return directive;
 
         /** @ngInject */
-        function HeatmapController(d3, osApi, osCohortService, $state, $timeout, $scope, $stateParams, $window, ocpu) {
+        function HeatmapController(d3, osApi, osCohortService, $state, $timeout, $scope, $stateParams, $window) {
 
             var vm = this;
             vm.datasource = osApi.getDataSource();
