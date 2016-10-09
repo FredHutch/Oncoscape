@@ -41,13 +41,12 @@
                     }, v.patients);
                 });
                 
-                osApi.getCpuApi().getHeatmap(
+                osApi.getCpuApi().getOheatmap(
                     {output:"svg",width:10,height:10,data:{"data":dataCondensed}}
                 ).then(function(v){ 
-                    debugger;
+                    
                     var svg = v.documentElement;
-                    // svg.attributes['width'] = '100%';
-                    // svg.attributes['height'] = '100%';
+                    
                     var elSvg = $(svg);
                     elSvg.css("width","100%").css("height","100%")
                     elChart.append(svg);
