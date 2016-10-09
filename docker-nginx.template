@@ -70,12 +70,10 @@ http {
         # Expose Node PM2 Api - PWD Protected
         location /data/ {
             proxy_pass http://127.0.0.1:8002/api/;
-
             proxy_cache data_cache;
             proxy_cache_bypass $http_cache_control;
             add_header X-Proxy-Cache $upstream_cache_status;
 
-            #proxy_cache_use_stale error timeout http_500 http_502 http_503 http_504;
             #auth_basic "Restricted Content";
             #auth_basic_user_file /home/sttrweb/Oncoscape/.htpasswd;
         }
