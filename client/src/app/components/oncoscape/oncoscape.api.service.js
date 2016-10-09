@@ -119,6 +119,7 @@
                                 settings.crossDomain = true;
                             }
                         }).done(function(response) {
+                            debugger;
                             var response = response.split("\n");
                             var url = (options.output == 'svg') ? server + response[1] + "/svg?width=" + options.width + "&height=" + options.height :
                                 (options.output == 'json') ? server + response[0] :

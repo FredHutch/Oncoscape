@@ -22,6 +22,7 @@ var load = function(t, e) {
 
 var request = function(object, data, format) {
     return new Promise(function(resolve, reject) {
+    	console.log('%c '+object.table,'background: #333; color: #ffffff');
     	var query = "https://dev.oncoscape.sttrcancer.io/api/" + object.table;
         //var query = "/api/" + object.table;
         if (object.query) query += "/" + encodeURIComponent(JSON.stringify(object.query));
@@ -406,6 +407,19 @@ cmd.getPatientMetric = function(data) {
         send('setPatientMetric', data);
     }
 };
+
+cmd.validatePatientIds = function(data){
+	
+	debugger;
+	var pids = patientData.map( function(p) {return p.patient_ID;} );
+	data = data.filter(function(p){
+		return (pids.indexOf(p)!=-1);
+	},pids);
+
+	debugger;
+
+	send('validatePatientIds', data);
+}
 
 self.addEventListener('message', function(msg) {
     cmd[msg.data.cmd](msg.data.data);

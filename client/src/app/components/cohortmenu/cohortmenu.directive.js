@@ -47,6 +47,7 @@
             });
 
             $rootScope.$on('$stateChangeStart', function(event, toState){ 
+                console.log("HI");
                 switch(toState.name){
                     case "landing":
                     case "tools":
