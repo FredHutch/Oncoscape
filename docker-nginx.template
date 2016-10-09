@@ -28,7 +28,6 @@ http {
 
 
     proxy_cache_path /home/sttrweb/Oncoscape/cache levels=1:2 keys_zone=data_cache:120m max_size=10g inactive=240m use_temp_path=off;
-    proxy_cache_path /var/lib/nginx/cache levels=1:2 keys_zone=backcache:8m max_size=50m;
     proxy_cache_key "$scheme$request_method$host$request_uri$is_args$args";
     proxy_cache_valid 200 302 120m;
     proxy_cache_valid 404 1m;
@@ -54,13 +53,16 @@ http {
         location /api/ {
             proxy_pass http://127.0.0.1:8000/;
             proxy_set_header Host $host;
+            proxy_cache data_cache;
+            proxy_cache_bypass $http_cache_control;
+            add_header X-Proxy-Cache $upstream_cache_status;
         }
 
         # Expose Kong Admin Api - PWD Protected
         location /admin/ {
             proxy_pass http://127.0.0.1:8001/;
             proxy_set_header Host $host;
-            
+
             #auth_basic "Restricted Content";
             #auth_basic_user_file /home/sttrweb/Oncoscape/.htpasswd;
         }
