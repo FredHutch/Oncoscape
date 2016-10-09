@@ -410,13 +410,11 @@ cmd.getPatientMetric = function(data) {
 
 cmd.validatePatientIds = function(data){
 	
-	debugger;
+
 	var pids = patientData.map( function(p) {return p.patient_ID;} );
 	data = data.filter(function(p){
 		return (pids.indexOf(p)!=-1);
 	},pids);
-
-	debugger;
 
 	send('validatePatientIds', data);
 }
