@@ -53,6 +53,7 @@ http {
         location /api/ {
             proxy_pass http://127.0.0.1:8000/;
             proxy_set_header Host $host;
+            proxy_buffering on;
             proxy_cache data_cache;
             proxy_cache_bypass $http_cache_control;
             add_header X-Proxy-Cache $upstream_cache_status;
@@ -70,6 +71,8 @@ http {
         # Expose Node PM2 Api - PWD Protected
         location /data/ {
             proxy_pass http://127.0.0.1:8002/api/;
+
+            proxy_buffering on;
             proxy_cache data_cache;
             proxy_cache_bypass $http_cache_control;
             add_header X-Proxy-Cache $upstream_cache_status;
