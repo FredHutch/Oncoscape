@@ -5,7 +5,8 @@ kmeans = function(x, centers=2, algorithm=c("Hartigan-Wong", "Lloyd", "Forgy","M
 
 
 heatmap = function(data){
-        htmlwidgets::saveWidget(d3heatmap::d3heatmap(data))
+        htmlwidgets::saveWidget(d3heatmap::d3heatmap(data), file = "test.html", selfcontained = FALSE )
+
 }
 
 oheatmap = function(data){
