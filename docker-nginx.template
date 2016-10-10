@@ -15,22 +15,23 @@ http {
     include '/usr/local/openresty/nginx/conf/mime.types';
 
     # Enable GZip Compression
-    gzip              on;
-    gzip_http_version 1.0;
-    gzip_proxied      any;
-    gzip_min_length   500;
-    gzip_disable      "MSIE [1-6]\.";
-    gzip_types        text/plain text/xml text/css
-                        text/comma-separated-values
-                        text/javascript
-                        application/x-javascript
-                        application/atom+xml;
+    gzip on; 
+    gzip_http_version 1.1; 
+    gzip_vary on; 
+    gzip_comp_level 6; 
+    gzip_proxied any; 
+    gzip_types text/plain text/html text/css application/json application/x-javascript text/xml application/xml application/xml+rss text/javascript application/javascript text/x-js; 
+    gzip_buffers 16 8k; 
+    gzip_disable "MSIE [1-6]\.(?!.*SV1)";
+    
 
-
-    proxy_cache_path /home/sttrweb/Oncoscape/cache levels=1:2 keys_zone=data_cache:120m max_size=10g inactive=240m use_temp_path=off;
+    #proxy_cache_path /var/lib/nginx/cache levels=1:2 keys_zone=data_cache:15m max_size=10g inactive=2d use_temp_path=off;
+    #proxy_cache_key "$scheme$request_method$host$request_uri$is_args$args";
+    proxy_cache_path /var/lib/nginx/cache levels=1:2 keys_zone=backcache:8m max_size=50m;
     proxy_cache_key "$scheme$request_method$host$request_uri$is_args$args";
-    proxy_cache_valid 200 302 120m;
+    proxy_cache_valid 200 302 2d;
     proxy_cache_valid 404 1m;
+
 
 
     # Public Server
@@ -51,11 +52,18 @@ http {
 
         # Kong Api
         location /api/ {
-            proxy_pass http://127.0.0.1:8000/;
+            
             proxy_set_header Host $host;
-            proxy_cache data_cache;
-            proxy_cache_bypass $http_cache_control;
+            proxy_buffering on;
+            proxy_cache backcache;
+            #proxy_cache_bypass $http_cache_control;
+            proxy_cache_bypass        $http_secret_header;
+            proxy_cache_methods GET HEAD POST;
+            proxy_cache_min_uses 1;
+            proxy_ignore_headers X-Accel-Expires Expires Cache-Control Set-Cookie;
             add_header X-Proxy-Cache $upstream_cache_status;
+
+            proxy_pass http://127.0.0.1:8000/;
         }
 
         # Expose Kong Admin Api - PWD Protected
@@ -69,11 +77,19 @@ http {
 
         # Expose Node PM2 Api - PWD Protected
         location /data/ {
+
+
+            proxy_buffering on;
+            proxy_cache backcache;
+            #proxy_cache_bypass $http_cache_control;
+            proxy_cache_bypass        $http_secret_header;
+            proxy_cache_methods GET HEAD POST;
+            proxy_cache_min_uses 1;
+            proxy_ignore_headers X-Accel-Expires Expires Cache-Control Set-Cookie;
+            add_header X-Proxy-Cache $upstream_cache_status;
             proxy_pass http://127.0.0.1:8002/api/;
 
-            proxy_cache data_cache;
-            proxy_cache_bypass $http_cache_control;
-            add_header X-Proxy-Cache $upstream_cache_status;
+      
 
             #proxy_cache_use_stale error timeout http_500 http_502 http_503 http_504;
             #auth_basic "Restricted Content";
