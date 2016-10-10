@@ -48,7 +48,7 @@
             .state('comparecluster', {
                 url: '/comparecluster/{datasource}',
                 template: '<os-compare-cluster>',
-                authenticate: false,
+                authenticate: true,
                 datasource: true
             })
             .state('markers', {
@@ -78,13 +78,13 @@
             .state('sunburst', {
                 url: '/sunburst/{datasource}',
                 template: '<os-sunburst>',
-                authenticate: false,
+                authenticate: true,
                 datasource: true
             })
             .state('heatmap', {
                 url: '/heatmap/{datasource}',
                 template: '<os-heatmap>',
-                authenticate: true,
+                authenticate: false,
                 datasource: true
             })
             .state('barcharts', {

@@ -894,11 +894,11 @@
 
                 $scope.$apply(function() {
                     if (e.type == "mouseout") {
-                        angular.element("#cohortmenu-legand").html("");
+                        //angular.element("#cohortmenu-legand").html("");
 
                     } else {
                         mouseIsOver = "patient";
-                        angular.element("#cohortmenu-legand").html(e.cyTarget.id() + patientHtml[e.cyTarget.id()]);
+                        //angular.element("#cohortmenu-legand").html(e.cyTarget.id() + patientHtml[e.cyTarget.id()]);
                     }
                 });
             };
@@ -1133,8 +1133,9 @@
             osCohortService.onPatientColorChange.add(onPatientColorChange);
 
             // Hydration
+            var hydrateDisease;
             var hydrate = function(){
-                
+                hydrateDisease = osApi.getDataSource().disease;
                 var data = localStorage.getItem(osApi.getDataSource().disease + "MarkersPatients");
                 if (data===null) return false;
                 else{
@@ -1147,36 +1148,16 @@
                 elements.on("mouseover", signal.patients.over.dispatch);
                 elements.on("mouseout", signal.patients.out.dispatch);
 
-                //---//---//
-                // Initial Node Selection
-            //     setTimeout(function(v){
-            //     var pc = osCohortService.getPatientCohort();
-            //     if (pc == null) {
-            //         osCohortService.setPatientCohort([], "All Patients")
-            //     } else {
-            //         cyChart.startBatch();
-            //         cyChart.nodes('node[nodeType="patient"]').forEach(function(node) {
-            //             if (pc.ids.indexOf(node.id()) != -1) node.select();
-
-            //         }, {
-            //             pc: pc
-            //         });
-            //         cyChart.endBatch();
-            //         vm.zoom.reset()
-            //         cyChart.zoom(cyChart.zoom() * .4);
-            //         cyChart.center();
-            //     }
-            // },3000);
-                //---//---//
 
                 }
                 osApi.setBusy(false);
                 return true;
             }
             var dehydrate = function(){
+                console.log("!!!");
                 var data = JSON.stringify(cyChart.json());
                 // Geneset / Edge Visibility / Color Option / Layout
-                localStorage.setItem(osApi.getDataSource().disease + "MarkersPatients", data);
+                localStorage.setItem(hydrateDisease + "MarkersPatients", data);
             }
             // Destroy
             $scope.$on('$destroy', function() {
