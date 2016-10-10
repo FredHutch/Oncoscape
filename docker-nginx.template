@@ -57,7 +57,7 @@ http {
             
             proxy_set_header Host $host;
             proxy_buffering on;
-            proxy_cache data_cache;
+            proxy_cache backcache;
             proxy_cache_bypass $http_cache_control;
             add_header X-Proxy-Cache $upstream_cache_status;
 
@@ -78,7 +78,7 @@ http {
             
 
             proxy_buffering on;
-            proxy_cache data_cache;
+            proxy_cache backcache;
             proxy_cache_bypass $http_cache_control;
             add_header X-Proxy-Cache $upstream_cache_status;
 
