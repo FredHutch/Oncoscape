@@ -27,7 +27,7 @@ http {
                         application/atom+xml;
 
 
-    proxy_cache_path /home/sttrweb/Oncoscape/cache levels=1:2 keys_zone=data_cache:2d max_size=10g inactive=2d use_temp_path=off;
+    proxy_cache_path /home/sttrweb/Oncoscape/cache levels=1:2 keys_zone=data_cache:15m max_size=10g inactive=2d use_temp_path=off;
     proxy_cache_key "$scheme$request_method$host$request_uri$is_args$args";
     proxy_cache_valid 200 302 2d;
     proxy_cache_valid 404 1m;
