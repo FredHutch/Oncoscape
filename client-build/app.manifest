@@ -2,6 +2,7 @@ CACHE MANIFEST
 
 
 CACHE:
+/_index.html
 /contribute.html
 /favicon.ico
 /index.html
@@ -24,6 +25,10 @@ CACHE:
 /fonts/glyphicons-halflings-regular.ttf
 /fonts/glyphicons-halflings-regular.woff
 /fonts/glyphicons-halflings-regular.woff2
+/scripts/app-f7adb5466b.js
+/scripts/vendor-cad77081d7.js
+/styles/app-f15b064271.css
+/styles/vendor-6a8c10e325.css
 /assets/images/DSbladder.png
 /assets/images/DSbrain.png
 /assets/images/DSbreast.png
@@ -56,6 +61,10 @@ CACHE:
 /assets/images/survival.png
 /assets/images/texture.png
 /assets/images/timelines.png
+/maps/scripts/app-f7adb5466b.js.map
+/maps/scripts/vendor-cad77081d7.js.map
+/maps/styles/app-f15b064271.css.map
+/maps/styles/vendor-6a8c10e325.css.map
 /app/components/markers/markers.worker.js
 /app/components/oncoscape/oncoscape.cohort.service.worker.js
 
@@ -69,4 +78,4 @@ https://*
 SETTINGS:
 prefer-online
 
-# hash: 4f49d2c19b84f2298c96b8579f217adfad6108270139b2fedc03e6468b64db2f
+# hash: 02dba3383f97201f7aa34606331ce0e0030b705aa2c0b7b8813140c17488334a

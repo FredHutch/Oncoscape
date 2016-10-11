@@ -26,7 +26,7 @@ http {
     gzip_disable "MSIE [1-6]\.(?!.*SV1)";
 
     # Cache
-    proxy_cache_path /home/sttrweb/Oncoscape/cache levels=1:2 keys_zone=data_cache:15m max_size=50m;
+    proxy_cache_path /home/sttrweb/Oncoscape/cache levels=1:2 keys_zone=datacache:15m max_size=50m;
     proxy_cache_key "$scheme$request_method$host$request_uri$is_args$args";
     proxy_cache_valid 200 302 2d;
     proxy_cache_valid 404 1m;
@@ -51,16 +51,18 @@ http {
 
         # Kong Api
         location /api/ {
-            proxy_pass http://127.0.0.1:8000/;
+            
             proxy_set_header Host $host;
             
             proxy_buffering on;
-            proxy_cache data_cache;
-            proxy_cache_bypass $http_secret_header;
+            proxy_cache datacache;
             proxy_cache_methods GET HEAD POST;
             proxy_cache_min_uses 1;
+            proxy_cache_valid 200  1d;
+            proxy_hide_header Set-Cookie;
             proxy_ignore_headers X-Accel-Expires Expires Cache-Control Set-Cookie;
             add_header X-Proxy-Cache $upstream_cache_status;
+            proxy_pass http://127.0.0.1:8000/;
 
         }
 
@@ -75,16 +77,17 @@ http {
 
         # Expose Node PM2 Api - PWD Protected
         location /data/ {
-            proxy_pass http://127.0.0.1:8002/api/;
+            
             
             proxy_buffering on;
-            proxy_cache data_cache;
-            proxy_cache_bypass $http_secret_header;
+            proxy_cache datacache;
             proxy_cache_methods GET HEAD POST;
             proxy_cache_min_uses 1;
+            proxy_cache_valid 200 1d;
+            proxy_hide_header Set-Cookie;
             proxy_ignore_headers X-Accel-Expires Expires Cache-Control Set-Cookie;
             add_header X-Proxy-Cache $upstream_cache_status;
-
+            proxy_pass http://127.0.0.1:8002/api/;
 
             #auth_basic "Restricted Content";
             #auth_basic_user_file /home/sttrweb/Oncoscape/.htpasswd;
