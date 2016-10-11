@@ -29,7 +29,8 @@ http {
     proxy_cache_path /home/sttrweb/Oncoscape/cache levels=1:2 keys_zone=datacache:15m max_size=500m;
     proxy_temp_path /var/tmp;
     proxy_cache_key "$scheme$request_method$host$request_uri$is_args$args";
-    
+    proxy_cache_valid 200 302 2d;
+    proxy_cache_valid 404 1m;
 
 
     # Public Server
@@ -52,13 +53,13 @@ http {
         location /api/ {
             
             proxy_set_header Host $host;
-            
             proxy_buffering on;
             proxy_cache datacache;
             proxy_cache_methods GET HEAD POST;
             proxy_cache_min_uses 1;
             proxy_cache_valid 200  1d;
             proxy_hide_header Set-Cookie;
+            proxy_cache_bypass $http_secret_header;
             proxy_ignore_headers X-Accel-Expires Expires Cache-Control Set-Cookie;
             add_header Cache-Control "public";
             add_header X-Proxy-Cache $upstream_cache_status;
@@ -78,13 +79,13 @@ http {
         # Expose Node PM2 Api - PWD Protected
         location /data/ {
             
-            
             proxy_buffering on;
             proxy_cache datacache;
             proxy_cache_methods GET HEAD POST;
             proxy_cache_min_uses 1;
             proxy_cache_valid 200 1d;
             proxy_hide_header Set-Cookie;
+            proxy_cache_bypass $http_secret_header;
             proxy_ignore_headers X-Accel-Expires Expires Cache-Control Set-Cookie;
             add_header X-Proxy-Cache $upstream_cache_status;
             add_header Cache-Control "public";
