@@ -21,7 +21,7 @@ http {
     gzip_vary on; 
     gzip_comp_level 6; 
     gzip_proxied any; 
-    gzip_types text/plain text/html text/css application/json application/x-javascript text/xml application/xml application/xml+rss text/javascript application/javascript text/x-js; 
+    gzip_types text/plain text/html text/css application/json application/x-javascript text/xml application/xml application/xml+rss text/javascript application/javascript text/x-js image/x-icon; 
     gzip_buffers 16 8k; 
     gzip_disable "MSIE [1-6]\.(?!.*SV1)";
 
@@ -76,7 +76,6 @@ http {
 
         # Expose Node PM2 Api - PWD Protected
         location /data/ {
-            
             proxy_buffering on;
             proxy_cache datacache;
             proxy_cache_methods GET HEAD POST;
