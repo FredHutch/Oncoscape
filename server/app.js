@@ -66,6 +66,7 @@ mongoose.connection.on('connected', function() {
 
     // Generic Method For Querying Mongo
     var processQuery = function(req, res, next, query) {
+        // Add Response header
         res.setHeader("Cache-Control", "public, max-age=86400");
         mongoose.connection.db.collection(req.params.collection, function(err, collection) {
             if (err) {
