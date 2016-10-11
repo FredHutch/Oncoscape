@@ -43,10 +43,8 @@ http {
 
         # Static Assets
         location ~ ^/(assets|fonts|scripts|styles|maps|app)/ {
-          # Hit/Miss Header, Cache Control + Expires
-          add_header X-Cache-Status $upstream_cache_status;
           add_header Cache-Control public;
-          expires 1d;
+          expires 2d;
         }
 
         # Kong Api
@@ -61,8 +59,9 @@ http {
             proxy_hide_header Set-Cookie;
             proxy_cache_bypass $http_secret_header;
             proxy_ignore_headers X-Accel-Expires Expires Cache-Control Set-Cookie;
-            add_header Cache-Control "public";
+            add_header Cache-Control public;
             add_header X-Proxy-Cache $upstream_cache_status;
+            expires 2d;
             proxy_pass http://127.0.0.1:8000/;
 
         }
@@ -70,10 +69,9 @@ http {
         # Expose Kong Admin Api - PWD Protected
         location /admin/ {
             proxy_pass http://127.0.0.1:8001/;
-            proxy_set_header Host $host;
-
-            #auth_basic "Restricted Content";
-            #auth_basic_user_file /home/sttrweb/Oncoscape/.htpasswd;
+            proxy_set_header Host $host
+            auth_basic "Restricted Content";
+            auth_basic_user_file /home/sttrweb/Oncoscape/.htpasswd;
         }
 
         # Expose Node PM2 Api - PWD Protected
@@ -90,9 +88,8 @@ http {
             add_header X-Proxy-Cache $upstream_cache_status;
             add_header Cache-Control "public";
             proxy_pass http://127.0.0.1:8002/api/;
-
-            #auth_basic "Restricted Content";
-            #auth_basic_user_file /home/sttrweb/Oncoscape/.htpasswd;
+            auth_basic "Restricted Content";
+            auth_basic_user_file /home/sttrweb/Oncoscape/.htpasswd;
         }
 
         # Expose Open CPU Api - PWD Protected
@@ -101,7 +98,6 @@ http {
             proxy_set_header X-Forwarded-For $remote_addr;
             proxy_set_header Host $host;
             proxy_pass http://127.0.0.1:8004;
-
             #auth_basic "Restricted Content";
             #auth_basic_user_file /home/sttrweb/Oncoscape/.htpasswd;
         }
