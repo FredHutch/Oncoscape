@@ -2,7 +2,8 @@
 daemon off;
 
 pid pids/nginx.pid;                      # this setting is mandatory
- 
+error_log  /var/log/nginx/nginx_error.log  warn;
+
 events {
     use epoll; # custom setting
     multi_accept on;
