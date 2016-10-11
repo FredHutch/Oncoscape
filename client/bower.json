@@ -27,7 +27,6 @@
     "underscore": "^1.8.3",
     "components-font-awesome": "^4.5.0",
     "hello": "^1.13.4",
-    "opencpu.js": "opencpu#*",
     "handsontable": "^0.28.1"
   },
   "overrides": {

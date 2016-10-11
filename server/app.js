@@ -66,7 +66,7 @@ mongoose.connection.on('connected', function() {
 
     // Generic Method For Querying Mongo
     var processQuery = function(req, res, next, query) {
-
+        res.setHeader("Cache-Control", "public, max-age=86400");
         mongoose.connection.db.collection(req.params.collection, function(err, collection) {
             if (err) {
                 res.status(err.code).send(err.messages);
@@ -112,12 +112,14 @@ mongoose.connection.on('connected', function() {
 
     // Query using file path (client cache)
     app.get('/api/:collection/:query', function(req, res, next) {
+        res.setHeader("Cache-Control", "public, max-age=86400");        
         var query = (req.params.query) ? JSON.parse(req.params.query) : {};
         processQuery(req, res, next, query);
     });
 
     // Query using get querystring (no client cache)
     app.get('/api/:collection*', function(req, res, next) {
+        res.setHeader("Cache-Control", "public, max-age=86400");
         var query = (req.query.q) ? JSON.parse(req.query.q) : {};
         processQuery(req, res, next, query);
     });
@@ -136,6 +138,7 @@ mongoose.connection.on('connected', function() {
 
 // Ping Method - Used For Testing
 app.get("/api/ping", function(req, res, next) {
+    res.setHeader("Cache-Control", "public, max-age=86400");
     res.send((new Date()).toString());
     res.end();
 });
