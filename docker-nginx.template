@@ -1,17 +1,18 @@
-# Manged by SupervisorD - No Daemon
+# Manged by SupervisorD - disable deamon
 daemon off;
+pid pids/nginx.pid;                      
 
-pid pids/nginx.pid;                      # this setting is mandatory
+# Logs
 error_log  /var/log/nginx/nginx_error.log  warn;
 
 events {
-    use epoll; # custom setting
+    use epoll;
     multi_accept on;
 }
 
 http {
 
-    # include default Kong Nginx config
+    # Include default Kong Nginx config
     include 'nginx-kong.conf';
     include '/usr/local/openresty/nginx/conf/mime.types';
 
@@ -32,7 +33,6 @@ http {
     proxy_cache_valid 200 302 2d;
     proxy_cache_valid 404 1m;
 
-
     # Public Server
     server {
 
@@ -49,7 +49,6 @@ http {
 
         # Kong Api
         location /api/ {
-            
             proxy_set_header Host $host;
             proxy_buffering on;
             proxy_cache datacache;
@@ -63,15 +62,14 @@ http {
             add_header X-Proxy-Cache $upstream_cache_status;
             expires 2d;
             proxy_pass http://127.0.0.1:8000/;
-
         }
 
         # Expose Kong Admin Api - PWD Protected
         location /admin/ {
             proxy_pass http://127.0.0.1:8001/;
-            proxy_set_header Host $host
-            auth_basic "Restricted Content";
-            auth_basic_user_file /home/sttrweb/Oncoscape/.htpasswd;
+            proxy_set_header Host $host;
+            #auth_basic "Restricted Content";
+            #auth_basic_user_file /home/sttrweb/Oncoscape/.htpasswd;
         }
 
         # Expose Node PM2 Api - PWD Protected
@@ -87,8 +85,8 @@ http {
             add_header X-Proxy-Cache $upstream_cache_status;
             add_header Cache-Control "public";
             proxy_pass http://127.0.0.1:8002/api/;
-            auth_basic "Restricted Content";
-            auth_basic_user_file /home/sttrweb/Oncoscape/.htpasswd;
+            #auth_basic "Restricted Content";
+            #auth_basic_user_file /home/sttrweb/Oncoscape/.htpasswd;
         }
 
         # Expose Open CPU Api - PWD Protected

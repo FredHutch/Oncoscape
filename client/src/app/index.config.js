@@ -9,4 +9,5 @@
     function config($logProvider) {
         $logProvider.debugEnabled(false);
     }
+    
 })();
