@@ -32,7 +32,6 @@
             osApi.onDataSource.add(function() {
                 $timeout(function() {
                     vm.datasets = osApi.getDataSources();
-                    vm.showTools = true;
                 });
             });
 
@@ -49,22 +48,33 @@
                 osCohortService.importPatientCohort(ids);
             };
             vm.showImport = false;
-            vm.showMenu = false;
             vm.showTools = false;
+            vm.showDatasets = false;
+            vm.showCohorts = false;
+            vm.showHelp = false;
+            vm.showLogout = false;
+
 
             var currentTool;
             $rootScope.$on('$stateChangeStart', function(event, toState) {
                 currentTool = toState.name;
                 switch (toState.name) {
                     case "landing":
-                    case "tools":
-                    case "datasource":
-                        vm.showMenu = false;
-                        vm.showtools = false;
+                        vm.showTools = false;
+                        vm.showDatasets = false;
+                        vm.showLogout = false;
+                        vm.showCohorts = false;
+                        vm.showHelp = false;
                         break;
-                    default:
-                        vm.showMenu = true;
+                    case "tools":
                         vm.showTools = true;
+                        break;
+                    case "datasource":
+                        vm.showHelp = true;
+                        vm.showDatasets = true;
+                        vm.showCohorts = true;
+                        vm.showLogout = true;
+                        vm.showTools = false;
                         break;
                 }
             });

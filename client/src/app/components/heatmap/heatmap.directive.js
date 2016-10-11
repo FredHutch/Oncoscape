@@ -29,13 +29,13 @@
 
             osApi.setBusy(true);
             osApi.query("brca_psi_bradleylab_miso", {
-                '$limit': 200
+                '$limit': 100
             }).then(function(response) {
                 data = response;
                     data = response.data;
                 var dataCondensed = data.map(function(v){ 
                     return Object.keys(v.patients).map(function(key){
-                        console.log("What to do with nulls?")
+                        //console.log("What to do with nulls?")
                         var val = this[key];
                         return (val==null) ? 0 : val;
                     }, v.patients);

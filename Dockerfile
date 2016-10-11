@@ -45,7 +45,9 @@ RUN echo "ServerName localhost" >> /etc/apache2/apache2.conf
 # Create Application User
 RUN useradd -u 7534 -m -d /home/sttrweb -c "sttr web application" sttrweb && \
 	mkdir /home/sttrweb/Oncoscape && \
-	mkdir /home/sttrweb/Oncoscape/cache
+	mkdir /home/sttrweb/Oncoscape/cache && \
+	mkdir /var/log/nginx/
+
 
 # Install Client Code
 COPY client-build /home/sttrweb/Oncoscape/client
@@ -76,4 +78,3 @@ EXPOSE 7946/udp
 # Fire It Up
 RUN chmod +x /home/sttrweb/Oncoscape/docker-entrypoint.sh
 ENTRYPOINT ["/home/sttrweb/Oncoscape/docker-entrypoint.sh"]
-#CMD ["/usr/bin/supervisord", "-n", "-c", "/home/sttrweb/Oncoscape/docker-supervisord.conf"]

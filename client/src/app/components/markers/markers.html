@@ -156,10 +156,11 @@
             ng-click="vm.showPanelLayout=false"><i class="fa fa-times"></i></span>
   </div>
   <div class="panel-body">
-        <div><label>Select a layout</label></div>
+        
         <div class="row">
-            <a class="col-sm-4 markers-command hvr-sweep-to-right"
-             ng-repeat="item in vm.optPatientLayouts" ng-click="vm.optPatientLayout=item">{{item.name}}</a>
+            <div class="col-sm-12"><h3>Select a layout</h3></div>
+            <a class="col-sm-4 markers-command hvr-sweep-to-right" style="padding-left:15px; padding-right:15px;"
+             ng-repeat="item in vm.optPatientLayouts" ng-click="vm.optPatientLayout=item;vm.showPanelLayout=false;">{{item.name}}</a>
         </div>
     
   </div>
