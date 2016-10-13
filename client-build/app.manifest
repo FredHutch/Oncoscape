@@ -2,6 +2,66 @@ CACHE MANIFEST
 
 
 CACHE:
+/_index.html
+/favicon.ico
+/index.html
+/privacy-policy.html
+/terms-of-service.html
+/touch-icon-120.png
+/touch-icon-152.png
+/touch-icon-60.png
+/touch-icon-76.png
+/scripts/app-8cdae8e753.js
+/scripts/vendor-ce8b380ff6.js
+/styles/app-f15b064271.css
+/styles/vendor-6a8c10e325.css
+/fonts/FontAwesome.otf
+/fonts/fontawesome-webfont.eot
+/fonts/fontawesome-webfont.svg
+/fonts/fontawesome-webfont.ttf
+/fonts/fontawesome-webfont.woff
+/fonts/fontawesome-webfont.woff2
+/fonts/glyphicons-halflings-regular.eot
+/fonts/glyphicons-halflings-regular.svg
+/fonts/glyphicons-halflings-regular.ttf
+/fonts/glyphicons-halflings-regular.woff
+/fonts/glyphicons-halflings-regular.woff2
+/maps/styles/app-f15b064271.css.map
+/maps/styles/vendor-6a8c10e325.css.map
+/assets/images/DSbladder.png
+/assets/images/DSbrain.png
+/assets/images/DSbreast.png
+/assets/images/DScoadread.png
+/assets/images/DScolorectal.png
+/assets/images/DSdemo.png
+/assets/images/DSheadneck.png
+/assets/images/DSlung.png
+/assets/images/DSovary.png
+/assets/images/DSpancreas.png
+/assets/images/DSprostate.png
+/assets/images/DSsarcoma.png
+/assets/images/arrow_down.png
+/assets/images/barcharts.png
+/assets/images/clusters.jpg
+/assets/images/heatmap.png
+/assets/images/history.png
+/assets/images/logo.png
+/assets/images/markers.png
+/assets/images/pathways.png
+/assets/images/pca.png
+/assets/images/sttr-facebook-out.png
+/assets/images/sttr-google-out.png
+/assets/images/sttr-instagram-out.png
+/assets/images/sttr-linkedin-out.png
+/assets/images/sttr-twitter-out.png
+/assets/images/sttr-youtube-out.png
+/assets/images/sttr_highlight_arrow_up.png
+/assets/images/sunburst.png
+/assets/images/survival.png
+/assets/images/texture.png
+/assets/images/timelines.png
+/maps/scripts/app-8cdae8e753.js.map
+/maps/scripts/vendor-ce8b380ff6.js.map
 /app/components/markers/markers.worker.js
 /app/components/oncoscape/oncoscape.cohort.service.worker.js
 
@@ -15,4 +75,4 @@ https://*
 SETTINGS:
 prefer-online
 
-# hash: 6b4a3d8a6cd849e71d47dcbdb745d5a5fe4b712c993eab63ecdb3790262da849
+# hash: e06a7170d1133220e81c198c7f007d4900713be6d383ee6d1defe0d0a42452c6
