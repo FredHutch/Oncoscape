@@ -41,11 +41,7 @@ http {
         index index.html index.htm;
         root /home/sttrweb/Oncoscape/client;
 
-        # HTTPS 
-        if ($http_x_forwarded_proto != "https") {
-            return 301 https://$server_name$request_uri;
-        }
-
+ 
 
         # Static Assets
         location ~ ^/(assets|fonts|scripts|styles|maps|app)/ {
