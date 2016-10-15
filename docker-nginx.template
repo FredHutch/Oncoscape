@@ -41,15 +41,26 @@ http {
         index index.html index.htm;
         root /home/sttrweb/Oncoscape/client;
 
-        # Redirect Https
-        if ($http_x_forwarded_proto != 'https') { 
-           return 301 https://$host$request_uri;
+        # ELB Health Check
+        location /health_check {
+            proxy_set_header X-Real-IP $remote_addr;
+            proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+            proxy_set_header Host $http_host;
+            proxy_redirect off;
+            proxy_next_upstream error;
+            proxy_pass http://127.0.0.1:8000/;
+            break;
         }
+
 
         # Static Assets
         location ~ ^/(assets|fonts|scripts|styles|maps|app)/ {
-          add_header Cache-Control public;
-          expires 2d;
+            add_header Cache-Control public;
+            expires 2d;
+            if ($http_x_forwarded_proto != "https") {
+                rewrite ^(.*)$ https://$server_name$1 permanent;
+            }
+            add_header Strict-Transport-Security "max-age=31536000; includeSubDomains;";  
         }
 
         # Kong Api
@@ -67,6 +78,10 @@ http {
             add_header X-Proxy-Cache $upstream_cache_status;
             expires 2d;
             proxy_pass http://127.0.0.1:8000/;
+            if ($http_x_forwarded_proto != "https") {
+                rewrite ^(.*)$ https://$server_name$1 permanent;
+            }
+            add_header Strict-Transport-Security "max-age=31536000; includeSubDomains;";  
         }
 
         # Expose Kong Admin Api - PWD Protected
