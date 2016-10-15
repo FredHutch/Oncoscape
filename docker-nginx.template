@@ -41,10 +41,11 @@ http {
         index index.html index.htm;
         root /home/sttrweb/Oncoscape/client;
 
-        # HTTPS Redirect
+        # HTTPS 
         if ($http_x_forwarded_proto != "https") {
             return 301 https://$server_name$request_uri;
         }
+
 
         # Static Assets
         location ~ ^/(assets|fonts|scripts|styles|maps|app)/ {
@@ -75,8 +76,8 @@ http {
         location /admin/ {
             proxy_pass http://127.0.0.1:8001/;
             proxy_set_header Host $host;
-            auth_basic "Restricted Content";
-            auth_basic_user_file /home/sttrweb/Oncoscape/.htpasswd;
+            #auth_basic "Restricted Content";
+            #auth_basic_user_file /home/sttrweb/Oncoscape/.htpasswd;
         }
 
         # Expose Node PM2 Api - PWD Protected
@@ -92,8 +93,8 @@ http {
             add_header X-Proxy-Cache $upstream_cache_status;
             add_header Cache-Control "public";
             proxy_pass http://127.0.0.1:8002/api/;
-            auth_basic "Restricted Content";
-            auth_basic_user_file /home/sttrweb/Oncoscape/.htpasswd;
+            #auth_basic "Restricted Content";
+            #auth_basic_user_file /home/sttrweb/Oncoscape/.htpasswd;
         }
 
         # Expose Open CPU Api - PWD Protected
