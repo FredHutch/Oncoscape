@@ -11,10 +11,6 @@ CACHE:
 /touch-icon-152.png
 /touch-icon-60.png
 /touch-icon-76.png
-/scripts/app-8cdae8e753.js
-/scripts/vendor-ce8b380ff6.js
-/styles/app-f15b064271.css
-/styles/vendor-6a8c10e325.css
 /fonts/FontAwesome.otf
 /fonts/fontawesome-webfont.eot
 /fonts/fontawesome-webfont.svg
@@ -26,8 +22,12 @@ CACHE:
 /fonts/glyphicons-halflings-regular.ttf
 /fonts/glyphicons-halflings-regular.woff
 /fonts/glyphicons-halflings-regular.woff2
-/maps/styles/app-f15b064271.css.map
-/maps/styles/vendor-6a8c10e325.css.map
+/scripts/app-447b3ada9f.js
+/scripts/app-8cdae8e753.js
+/scripts/vendor-ce8b380ff6.js
+/styles/app-cd489e01f2.css
+/styles/app-f15b064271.css
+/styles/vendor-6a8c10e325.css
 /assets/images/DSbladder.png
 /assets/images/DSbrain.png
 /assets/images/DSbreast.png
@@ -60,8 +60,12 @@ CACHE:
 /assets/images/survival.png
 /assets/images/texture.png
 /assets/images/timelines.png
+/maps/scripts/app-447b3ada9f.js.map
 /maps/scripts/app-8cdae8e753.js.map
 /maps/scripts/vendor-ce8b380ff6.js.map
+/maps/styles/app-cd489e01f2.css.map
+/maps/styles/app-f15b064271.css.map
+/maps/styles/vendor-6a8c10e325.css.map
 /app/components/markers/markers.worker.js
 /app/components/oncoscape/oncoscape.cohort.service.worker.js
 
@@ -75,4 +79,4 @@ https://*
 SETTINGS:
 prefer-online
 
-# hash: e06a7170d1133220e81c198c7f007d4900713be6d383ee6d1defe0d0a42452c6
+# hash: 247f2cb86c10a4ab092f01985480ad3afc7a5a6432b16e8bd4faea5270e47e53
