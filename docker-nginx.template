@@ -41,12 +41,10 @@ http {
         index index.html index.htm;
         root /home/sttrweb/Oncoscape/client;
 
-        # Notes on how to do https redirect using 301's  
-        # Read Env Variable + Determine If Test
-        # set_by_lua $env 'return os.getenv("env")';
-        # if ($env != 'test' && $http_x_forwarded_proto != 'https') { 
-        #    return 301 https://$host$request_uri;
-        # }
+        # Redirect Https
+        if ($http_x_forwarded_proto != 'https') { 
+           return 301 https://$host$request_uri;
+        }
 
         # Static Assets
         location ~ ^/(assets|fonts|scripts|styles|maps|app)/ {
@@ -104,7 +102,6 @@ http {
             proxy_set_header Host $host;
             proxy_redirect http:// https://;
             proxy_pass http://127.0.0.1:8004;
-
             #auth_basic "Restricted Content";
             #auth_basic_user_file /home/sttrweb/Oncoscape/.htpasswd;
         }

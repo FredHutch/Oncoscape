@@ -84,8 +84,8 @@
             .state('heatmap', {
                 url: '/heatmap/{datasource}',
                 template: '<os-heatmap>',
-                authenticate: true,
-                datasource: true
+                authenticate: false,
+                datasource: false
             })
             .state('barcharts', {
                 url: '/barchart/{datasource}',
