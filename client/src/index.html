@@ -58,24 +58,8 @@
     <!-- angular templates will be automatically converted in js and inserted here -->
     <!-- endinject -->
     <!-- endbuild -->
-<div id="redirectModal" class="modal fade" tabindex="-1" role="dialog">
-  <div class="modal-dialog" role="document">
-    <div class="modal-content">
-      <div class="modal-body">
-        <br /><br />
-        <h1 style="text-align: center">Redirecting you to our secure site&hellip;</h1>
-        <br /><br />
-      </div>
-    </div>
-  </div>
-</div>
+
 <script>
-if (window.location.protocol != "https:" && window.location.hostname !="localhost") {
-    $('#redirectModal').modal({ keyboard: false });
-    setTimeout(function(){
-        window.location.replace("https://"+window.location.hostname);
-    }, 3000);
-}
 (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
 (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
 m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)

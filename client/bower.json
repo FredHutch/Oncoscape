@@ -27,7 +27,9 @@
     "underscore": "^1.8.3",
     "components-font-awesome": "^4.5.0",
     "hello": "^1.13.4",
-    "handsontable": "^0.28.1"
+    "handsontable": "^0.28.1",
+    "numeric": "^1.2.6",
+    "plotlyjs": "plotly#^1.16.2"
   },
   "overrides": {
     "bootstrap-sass": {
