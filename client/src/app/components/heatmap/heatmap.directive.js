@@ -30,8 +30,7 @@
             osApi.query("brca_psi_bradleylab_miso", {
                 '$limit': 50
             }).then(function(response) {
-                osApi.setBusy(false);
-
+                osApi.setBusy(false)
 
                 var d = {data:response.data.map(function(v){ 
                     Object.keys(v.patients).forEach(function(key){
@@ -40,8 +39,8 @@
                     return v.patients; 
                 })};
 
-                osApi.getCpuApi().getHeatmap(d).then(function(V){
-                    debugger;
+                osApi.getCpuApi().getHeatmap(d).then(function(v){
+                    
                 })
                 
             });
@@ -75,7 +74,6 @@
 
                 
                 var g = svg.append("g");
-                //g.append("rect").attr("width",width).attr("height",height).style("fill","#EEE");
                 var y = d3.scaleLinear().domain([0, data.length]).range([0, rotated ? width:height]);
 
                 var textAnchor = (rotated) ? "start" : "start";
@@ -151,6 +149,8 @@
             function heatmap(svg, data, width, height,x,y){
                 svg.selectAll("*").remove();
                 svg.attr("width", width).attr("height", height).style("left",x).style("top",y).style("position","absolute");
+                var map = svg.append("g").attr("width", width).attr("height", height).style("left",x).style("top",y).style("position","absolute");
+                var brush = svg.append("g").attr("width", width).attr("height", height).style("left",x).style("top",y).style("position","absolute").attr("class", "brush");
                 var maxValue = Math.max.apply(null, data.data);
                 var minValue = Math.min.apply(null, data.data);
                 
@@ -160,8 +160,26 @@
                 var x = d3.scaleLinear().domain([0, cols]).range([0, width]);
                 var y = d3.scaleLinear().domain([0, rows]).range([0, height]);
                 var grid = (vm.gridlines) ? 1 : -1;
+
+                function brushended() {
+                    if (!d3.event.sourceEvent) return; // Only transition after input.
+                    if (!d3.event.selection) return; // Ignore empty selections.
+                    debugger;
+                    // var d0 = d3.event.selection.map(x.invert),
+                    // d1 = d0.map(d3.timeDay.round);
+
+                    // // If empty when rounded, use floor & ceil instead.
+                    // if (d1[0] >= d1[1]) {
+                    //     d1[0] = d3.timeDay.floor(d0[0]);
+                    //     d1[1] = d3.timeDay.offset(d1[0]);
+                    // }
+
+                    // d3.select(this).transition().call(d3.event.target.move, d1.map(x));
+                }
+
+                brush.call(d3.brush().on("end", brushended));
                 
-                var boxes = svg.selectAll('box').data(data.data);
+                var boxes = map.selectAll('box').data(data.data);
                 boxes
                     .enter().append("rect")
                     .property("colIndex", function(d, i) { return i % cols; })

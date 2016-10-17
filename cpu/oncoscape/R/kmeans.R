@@ -1,5 +1,3 @@
-if (!require("d3heatmap")) install.packages("d3heatmap")
-library(d3heatmap)
 kmeans = function(x, centers=2, algorithm=c("Hartigan-Wong", "Lloyd", "Forgy","MacQueen")) {
         result = stats::kmeans(x, centers, algorithm = algorithm)
         jsonlite::toJSON(result[c("cluster","centers")])
@@ -8,6 +6,8 @@ kmeans = function(x, centers=2, algorithm=c("Hartigan-Wong", "Lloyd", "Forgy","M
 
 
 heatmap = function(data){
+
+        library(d3heatmap)
 
         # Generate Chart
         chart <- d3heatmap::d3heatmap(data, scale = "column", colors = "Blues")$x
