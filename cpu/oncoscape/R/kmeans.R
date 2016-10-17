@@ -1,3 +1,4 @@
+if (!require("d3heatmap")) install.packages("d3heatmap")
 library(d3heatmap)
 kmeans = function(x, centers=2, algorithm=c("Hartigan-Wong", "Lloyd", "Forgy","MacQueen")) {
         result = stats::kmeans(x, centers, algorithm = algorithm)
