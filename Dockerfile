@@ -62,7 +62,7 @@ COPY cpu/oncoscape_0.1.0.tgz /home/sttrweb/Oncoscape/oncoscape_0.1.0.tgz
 WORKDIR /home/sttrweb/Oncoscape/
 RUN R CMD INSTALL oncoscape_0.1.0.tgz --library=/usr/local/lib/R/site-library
 RUN echo "r <- getOption('repos'); r['CRAN'] <- 'http://cran.us.r-project.org'; options(repos = r);" > ~/.Rprofile
-RUN Rscript -e "install.packages(c('ggplot2','gridSVG','d3heatmap','pls'))"
+RUN Rscript -e "install.packages(c('devtools','ggplot2','gridSVG','d3heatmap','pls'))"
 
 # Copy Config Files
 WORKDIR /home/sttrweb/Oncoscape/
