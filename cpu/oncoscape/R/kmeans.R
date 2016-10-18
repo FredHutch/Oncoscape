@@ -3,7 +3,7 @@ kmeans = function(x, centers=2, algorithm=c("Hartigan-Wong", "Lloyd", "Forgy","M
         jsonlite::toJSON(result[c("cluster","centers")])
 }
 
-heatmap = function(data, scale="none", krow=1, kcol=1){
+heatmap = function(data, scale, krow, kcol){
 
         # Case Inputs To Appropriate DataType
         krow =  as.integer(krow);
