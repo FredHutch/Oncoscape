@@ -3,15 +3,11 @@ kmeans = function(x, centers=2, algorithm=c("Hartigan-Wong", "Lloyd", "Forgy","M
         jsonlite::toJSON(result[c("cluster","centers")])
 }
 
-
-
 heatmap = function(data, scale="none", krow=1, kcol=1){
 
-        library(d3heatmap)
-
+        # Case Inputs To Appropriate DataType
         krow =  as.integer(krow);
         kcol = as.integer(kcol)
-
 
         # Generate Chart
         chart <- d3heatmap::d3heatmap(data, scale = scale, colors = "Blues", k_row = krow, k_col = kcol)$x
@@ -23,5 +19,4 @@ heatmap = function(data, scale="none", krow=1, kcol=1){
 
         # Transmit JSON
         htmlwidgets:::toJSON(chart)
-
 }

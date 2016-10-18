@@ -25,8 +25,10 @@
             vm.datasource = osApi.getDataSource();
             vm.rowLabels = vm.colLabels = vm.gridlines = false;
             vm.rowDendrogram = vm.colDendrogram = true;
+            vm.rowGroups = 1;
+            vm.colGroups = 1;
             vm.colorSchemes = [
-            {name:'Blues', value:["#303f9f","#03a9f4"]},
+                {name:'Blues', value:["#303f9f","#03a9f4"]},
                 {name:'Black / Blue', value:["#000000","#1d85cb"]},
                 {name:'Black / Red', value:["#000000","#D32F2F"]},
                 {name:'Red / Yellow', value:["#D32F2F","#FFEB3B"]},
@@ -34,7 +36,7 @@
             vm.colorScheme = vm.colorSchemes[0]
             vm.scales = [{name:'None'},{name:'Row'},{name:'Column'}]
             vm.scale = vm.scales[0];
-            
+
     
             var data;
             osApi.setBusy(true);
