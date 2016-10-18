@@ -147,7 +147,7 @@
                     resolve(api);
                 });
             });
-        })("https://dev.oncoscape.sttrcancer.io/ocpu/library/oncoscape/R").then(function(v) {
+        })("https://oncoscape-test.fhcrc.org/ocpu/library/oncoscape/R").then(function(v) {
             _cpuApi = v;
         });
         var getCpuApi = function(){ return _cpuApi; };
