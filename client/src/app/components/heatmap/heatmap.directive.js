@@ -228,23 +228,23 @@
                 heatmap(colmap, data.matrix, 
                     hmWidth, 
                     hmHeight, 
-                    (vm.rowDendrogram ? 80 : 0)+layout.left, 
+                    (vm.rowDendrogram ? 80 : 0)+layout.left+20, 
                     (vm.colDendrogram ? 80 : 0));
 
                 dendrogram(rowDend, data.rows,    
                     80, hmHeight, 
-                    layout.left, (vm.colDendrogram ? 80 : 0) , false);
+                    layout.left+20, (vm.colDendrogram ? 80 : 0) , false);
 
                 dendrogram(colDend, data.cols,    
                     hmWidth, 80, 
-                    (vm.rowDendrogram ? 80 : 0)+layout.left, 0, true);
+                    (vm.rowDendrogram ? 80 : 0)+layout.left+20, 0, true);
 
                 axis(xaxis, 
                     data.matrix.rows,     
-                    160, hmHeight, hmWidth + (vm.rowDendrogram ? 80 : 0)+layout.left, (vm.colDendrogram ? 80 : 0), false);
+                    160, hmHeight, hmWidth + (vm.rowDendrogram ? 80 : 0)+layout.left+20, (vm.colDendrogram ? 80 : 0), false);
 
                 axis(yaxis, data.matrix.cols,
-                    hmWidth, 160, (vm.rowDendrogram ? 80 : 0)+layout.left, hmHeight + (vm.colDendrogram ? 80 : 0), true);
+                    hmWidth, 160, (vm.rowDendrogram ? 80 : 0)+layout.left+20, hmHeight + (vm.colDendrogram ? 80 : 0), true);
             };
             
         
