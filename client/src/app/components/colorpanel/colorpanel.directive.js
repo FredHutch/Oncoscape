@@ -22,7 +22,7 @@
         return directive;
 
         /** @ngInject */
-        function ColorPanelController(osApi, osCohortService, d3) {
+        function ColorPanelController(osApi, osCohortService, d3, _) {
 
             // Properties
             var vm = this;

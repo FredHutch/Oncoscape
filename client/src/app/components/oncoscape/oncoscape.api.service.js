@@ -14,9 +14,11 @@
 
         // Layout Metrics
         var getLayout = function() {
+            var rt = angular.element(".tray-right").attr("locked");
+            if (angular.isUndefined(rt)) rt = "true";
             return {
                 left: (angular.element('#cohortmenu-lock').attr("locked") == "true") ? 300 : 0,
-                right: (angular.element(".tray-right").attr("locked") === "true") ? 300 : 0
+                right: (rt === "true") ? 300 : 0
             };
         };
         var setBusy = function(value) {
@@ -102,15 +104,11 @@
             var createMethod = function(obj, method) {
                 var fnName = 'get' + method.charAt(0).toUpperCase() + method.slice(1).toLowerCase();
                 obj[fnName] = function(options) {
-                    options.data = options.data || {};
-                    options.output = options.output || 'svg';
-                    options.width = options.width || 1000;
-                    options.height = options.height || 1000;
                     return new Promise(function(resolve, reject) {
                         $.ajax({
                             url: serviceEndpoint + "/" + method,
                             type: "POST",
-                            data: JSON.stringify(options.data),
+                            data: JSON.stringify(options),
                             contentType: "application/json; charset=utf-8",
                             dataType: "text",
                             beforeSend: function(xhr, settings) {
@@ -119,16 +117,8 @@
                                 settings.crossDomain = true;
                             }
                         }).done(function(response) {
-                            debugger;
                             var response = response.split("\n");
-                            var url = (options.output == 'svg') ? server + response[1] + "/svg?width=" + options.width + "&height=" + options.height :
-                                (options.output == 'json') ? server + response[0] :
-                                null;
-                            if (url == null) {
-                                alert("Invalid output option: must be svg or json");
-                                return;
-                            }
-                            console.log(url);
+                            var url = server + response[0];
                             $.ajax({
                                 url: url,
                                 type: "GET",
@@ -157,7 +147,7 @@
                     resolve(api);
                 });
             });
-        })("https://dev.oncoscape.sttrcancer.io/ocpu/library/oncoscape/R").then(function(v) {
+        })("https://oncoscape-test.fhcrc.org/ocpu/library/oncoscape/R").then(function(v) {
             _cpuApi = v;
         });
         var getCpuApi = function(){ return _cpuApi; };

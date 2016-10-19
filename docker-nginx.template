@@ -1,38 +1,27 @@
-# Manged by SupervisorD - No Daemon
+# Manged by SupervisorD - disable deamon
 daemon off;
+pid pids/nginx.pid;                      
 
-pid pids/nginx.pid;                      # this setting is mandatory
- 
+# Logs
+error_log  /var/log/nginx/nginx_error.log  warn;
+
 events {
-    use epoll; # custom setting
+    use epoll;
     multi_accept on;
 }
 
 http {
 
-    # include default Kong Nginx config
+    # Include default Kong Nginx config
     include 'nginx-kong.conf';
     include '/usr/local/openresty/nginx/conf/mime.types';
-
-    # Enable GZip Compression
-    gzip on; 
-    gzip_http_version 1.1; 
-    gzip_vary on; 
-    gzip_comp_level 6; 
-    gzip_proxied any; 
-    gzip_types text/plain text/html text/css application/json application/x-javascript text/xml application/xml application/xml+rss text/javascript application/javascript text/x-js; 
-    gzip_buffers 16 8k; 
-    gzip_disable "MSIE [1-6]\.(?!.*SV1)";
-    
-
-    #proxy_cache_path /var/lib/nginx/cache levels=1:2 keys_zone=data_cache:15m max_size=10g inactive=2d use_temp_path=off;
-    #proxy_cache_key "$scheme$request_method$host$request_uri$is_args$args";
-    proxy_cache_path /var/lib/nginx/cache levels=1:2 keys_zone=backcache:8m max_size=50m;
+ # Enable GZip Compression gzip on; gzip_http_version 1.1; gzip_vary on; gzip_comp_level 6; gzip_proxied any; gzip_types text/plain text/html text/css application/json application/x-javascript text/xml application/xml application/xml+rss text/javascript application/javascript text/x-js image/x-icon; gzip_buffers 16 8k; gzip_disable "MSIE [1-6]\.(?!.*SV1)";
+    # Cache
+    proxy_cache_path /home/sttrweb/Oncoscape/cache levels=1:2 keys_zone=datacache:15m max_size=500m;
+    proxy_temp_path /var/tmp;
     proxy_cache_key "$scheme$request_method$host$request_uri$is_args$args";
     proxy_cache_valid 200 302 2d;
     proxy_cache_valid 404 1m;
-
-
 
     # Public Server
     server {
@@ -42,27 +31,44 @@ http {
         index index.html index.htm;
         root /home/sttrweb/Oncoscape/client;
 
+        # HTTPS 
+        if ($http_x_forwarded_proto != "https") {
+            return 301 https://$server_name$request_uri;
+        }
+
+        # ELB Heath Check
+        location /health_check {
+            proxy_set_header X-Real-IP $remote_addr;
+            proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+            proxy_set_header Host $http_host;
+            proxy_redirect off;
+            proxy_next_upstream error;
+            proxy_pass http://127.0.0.1:8000/;
+            break;
+        }
+
         # Static Assets
         location ~ ^/(assets|fonts|scripts|styles|maps|app)/ {
-          # Hit/Miss Header, Cache Control + Expires
-          add_header X-Cache-Status $upstream_cache_status;
-          add_header Cache-Control public;
-          expires 1d;
+            add_header Cache-Control public;
+            add_header Strict-Transport-Security "max-age=31536000; includeSubDomains;";  
+            expires 2d;
         }
 
         # Kong Api
         location /api/ {
-            
             proxy_set_header Host $host;
             proxy_buffering on;
-            proxy_cache backcache;
-            #proxy_cache_bypass $http_cache_control;
-            proxy_cache_bypass        $http_secret_header;
+            proxy_cache datacache;
             proxy_cache_methods GET HEAD POST;
             proxy_cache_min_uses 1;
+            proxy_cache_valid 200  1d;
+            proxy_hide_header Set-Cookie;
+            proxy_cache_bypass $http_secret_header;
             proxy_ignore_headers X-Accel-Expires Expires Cache-Control Set-Cookie;
+            add_header Strict-Transport-Security "max-age=31536000; includeSubDomains;";  
+            add_header Cache-Control public;
             add_header X-Proxy-Cache $upstream_cache_status;
-
+            expires 2d;
             proxy_pass http://127.0.0.1:8000/;
         }
 
@@ -70,28 +76,23 @@ http {
         location /admin/ {
             proxy_pass http://127.0.0.1:8001/;
             proxy_set_header Host $host;
-
             #auth_basic "Restricted Content";
             #auth_basic_user_file /home/sttrweb/Oncoscape/.htpasswd;
         }
 
         # Expose Node PM2 Api - PWD Protected
         location /data/ {
-
-
             proxy_buffering on;
-            proxy_cache backcache;
-            #proxy_cache_bypass $http_cache_control;
-            proxy_cache_bypass        $http_secret_header;
+            proxy_cache datacache;
             proxy_cache_methods GET HEAD POST;
             proxy_cache_min_uses 1;
+            proxy_cache_valid 200 1d;
+            proxy_hide_header Set-Cookie;
+            proxy_cache_bypass $http_secret_header;
             proxy_ignore_headers X-Accel-Expires Expires Cache-Control Set-Cookie;
             add_header X-Proxy-Cache $upstream_cache_status;
+            add_header Cache-Control "public";
             proxy_pass http://127.0.0.1:8002/api/;
-
-      
-
-            #proxy_cache_use_stale error timeout http_500 http_502 http_503 http_504;
             #auth_basic "Restricted Content";
             #auth_basic_user_file /home/sttrweb/Oncoscape/.htpasswd;
         }
@@ -99,10 +100,11 @@ http {
         # Expose Open CPU Api - PWD Protected
         location /ocpu {
             proxy_set_header X-Real-IP $remote_addr;
-            proxy_set_header X-Forwarded-For $remote_addr;
+            proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+            proxy_set_header X-Forwarded-Proto $scheme;
             proxy_set_header Host $host;
+            proxy_redirect http:// https://;
             proxy_pass http://127.0.0.1:8004;
-
             #auth_basic "Restricted Content";
             #auth_basic_user_file /home/sttrweb/Oncoscape/.htpasswd;
         }

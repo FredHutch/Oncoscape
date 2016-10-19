@@ -12,17 +12,9 @@
                     <img alt="Brand" src="/assets/images/logo.png" style="max-height:50px;">
                 </a>
             </div>
-            <div class="collapse navbar-collapse" id="bs-example-navbar-collapse-1" ng-if="vm.showMenu">
+            <div class="collapse navbar-collapse" id="bs-example-navbar-collapse-1">
                 <ul class="nav navbar-nav navbar-right">
-                    <li class="dropdown">
-                        <a href class="dropdown-toggle header-link" data-toggle="dropdown" role="button" aria-haspopup="true" aria-expanded="false"><span class="glyphicon glyphicon-th"></span>Data Sources</a>
-                        <ul class="dropdown-menu" roll="menu">
-                            <li class="header-dropdown-menu-li" ng-repeat="item in vm.datasets" ng-click="vm.loadDataset(item.disease)">
-                                <a><img class="header-dropdown-img" ng-src="/assets/images/{{item.img}}">{{item.name}}</a>
-                            </li>
-                        </ul>
-                    </li>
-                    <li class="dropdown">
+                    <li class="dropdown" ng-show="vm.showTools">
                         <a href class="dropdown-toggle header-link" data-toggle="dropdown" role="button" aria-haspopup="true" aria-expanded="false"><span class="glyphicon glyphicon-stats"></span>Analysis Tools</a>
                         <ul class="dropdown-menu">
                             <li class="header-dropdown-menu-li" ng-repeat="item in vm.tools" ng-click="vm.loadTool(item.route)">
@@ -30,7 +22,15 @@
                             </li>
                         </ul>
                     </li>
-                    <li class="dropdown">
+                    <li class="dropdown" ng-show="vm.showDatasets">
+                        <a href class="dropdown-toggle header-link" data-toggle="dropdown" role="button" aria-haspopup="true" aria-expanded="false"><span class="glyphicon glyphicon-th"></span>Data Sources</a>
+                        <ul class="dropdown-menu" roll="menu">
+                            <li class="header-dropdown-menu-li" ng-repeat="item in vm.datasets" ng-click="vm.loadDataset(item.disease)">
+                                <a><img class="header-dropdown-img" ng-src="/assets/images/{{item.img}}">{{item.name}}</a>
+                            </li>
+                        </ul>
+                    </li>
+                    <li class="dropdown" ng-show="vm.showCohorts">
                         <a href class="dropdown-toggle header-link" data-toggle="dropdown" role="button" aria-haspopup="true" aria-expanded="false"><span class="fa fa-users"></span>My Cohorts</a>
                         <div class="dropdown-menu container-fluid">
                             <div class="row">
@@ -65,10 +65,10 @@
                             </div>
                         </div>
                     </li>
-                    <li>
+                    <li ng-show="vm.showHelp">
                         <a href="http://resources.sttrcancer.org/oncoscape" target="_blank" class="header-link"><span class="glyphicon glyphicon-question-sign"></span>Help</a>
                     </li>
-                    <li>
+                    <li ng-show="vm.showLogout">
                         <a href ng-click="vm.logoutClick()" class="header-link"><span class="glyphicon glyphicon-user"></span>Logout</a>
                     </li>
                 </ul>

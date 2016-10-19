@@ -612,26 +612,25 @@
                     cyChart.endBatch();
                     vm.resize();
 
-                    //---//---//
+                   
                     //Initial Node Selection
-                    // debugger;
-                    // var pc = osCohortService.getPatientCohort();
-                    // if (pc == null) {
-                    //     osCohortService.setPatientCohort([], "All Patients")
-                    // } else {
-                    //     cyChart.startBatch();
-                    //     cyChart.nodes('node[nodeType="patient"]').forEach(function(node) {
-                    //         if (pc.ids.indexOf(node.id()) != -1) node.select();
+                    var pc = osCohortService.getPatientCohort();
+                    if (pc == null) {
+                        osCohortService.setPatientCohort([], "All Patients")
+                    } else {
+                        cyChart.startBatch();
+                        cyChart.nodes('node[nodeType="patient"]').forEach(function(node) {
+                            if (pc.ids.indexOf(node.id()) != -1) node.select();
 
-                    //     }, {
-                    //         pc: pc
-                    //     });
-                    //     cyChart.endBatch();
-                    //     vm.zoom.reset()
-                    //     cyChart.zoom(cyChart.zoom() * .4);
-                    //     cyChart.center();
-                    // }
-                    // //---//---//
+                        }, {
+                            pc: pc
+                        });
+                        cyChart.endBatch();
+                        vm.zoom.reset()
+                        cyChart.center();
+                        cyChart.fit(cyChart.nodes(), 400);
+                    }
+                    
 
                 };
                 cmd.patients_layout = function(data) {
@@ -851,7 +850,6 @@
                         return;
                     }
                     var needle = vm.search.toUpperCase().trim();
-                    cyChart.$('node').unselect();
                     if (needle.length > 0) cyChart.$('node').filter(function(i, ele) {
                         return (ele.id().toUpperCase().indexOf(needle) == 0);
                     }).select();
@@ -894,11 +892,11 @@
 
                 $scope.$apply(function() {
                     if (e.type == "mouseout") {
-                        angular.element("#cohortmenu-legand").html("");
+                        //angular.element("#cohortmenu-legand").html("");
 
                     } else {
                         mouseIsOver = "patient";
-                        angular.element("#cohortmenu-legand").html(e.cyTarget.id() + patientHtml[e.cyTarget.id()]);
+                        //angular.element("#cohortmenu-legand").html(e.cyTarget.id() + patientHtml[e.cyTarget.id()]);
                     }
                 });
             };
@@ -1133,50 +1131,47 @@
             osCohortService.onPatientColorChange.add(onPatientColorChange);
 
             // Hydration
+            var hydrateDisease;
             var hydrate = function(){
-                
+                hydrateDisease = osApi.getDataSource().disease;
                 var data = localStorage.getItem(osApi.getDataSource().disease + "MarkersPatients");
                 if (data===null) return false;
                 else{
-                data = JSON.parse(data);
-                cyChart.load(data.elements);
-                vm.resize();
-                var elements = cyChart.nodes('node[nodeType="patient"]');
-                elements.on("select", _.debounce(signal.patients.select.dispatch, 300));
-                elements.on("unselect", _.debounce(signal.patients.unselect.dispatch, 300));
-                elements.on("mouseover", signal.patients.over.dispatch);
-                elements.on("mouseout", signal.patients.out.dispatch);
+                    data = JSON.parse(data);
+                    cyChart.load(data.elements);
+                    vm.resize();
+                    var elements = cyChart.nodes('node[nodeType="patient"]');
+                    elements.on("select", _.debounce(signal.patients.select.dispatch, 300));
+                    elements.on("unselect", _.debounce(signal.patients.unselect.dispatch, 300));
+                    elements.on("mouseover", signal.patients.over.dispatch);
+                    elements.on("mouseout", signal.patients.out.dispatch);
+                    cyChart.center();
+                    cyChart.fit(cyChart.nodes(), 400);
+                     
 
-                //---//---//
-                // Initial Node Selection
-            //     setTimeout(function(v){
-            //     var pc = osCohortService.getPatientCohort();
-            //     if (pc == null) {
-            //         osCohortService.setPatientCohort([], "All Patients")
-            //     } else {
-            //         cyChart.startBatch();
-            //         cyChart.nodes('node[nodeType="patient"]').forEach(function(node) {
-            //             if (pc.ids.indexOf(node.id()) != -1) node.select();
+                    var pc = osCohortService.getPatientCohort();
+                    if (pc == null) {
+                        osCohortService.setPatientCohort([], "All Patients")
+                    } else {
+                        cyChart.startBatch();
+                        cyChart.nodes('node[nodeType="patient"]').forEach(function(node) {
+                            if (pc.ids.indexOf(node.id()) != -1) node.select();
 
-            //         }, {
-            //             pc: pc
-            //         });
-            //         cyChart.endBatch();
-            //         vm.zoom.reset()
-            //         cyChart.zoom(cyChart.zoom() * .4);
-            //         cyChart.center();
-            //     }
-            // },3000);
-                //---//---//
-
+                        }, {
+                            pc: pc
+                        });
+                        cyChart.endBatch();
+                    }
+                    
                 }
                 osApi.setBusy(false);
                 return true;
             }
             var dehydrate = function(){
+                console.log("!!!");
                 var data = JSON.stringify(cyChart.json());
                 // Geneset / Edge Visibility / Color Option / Layout
-                localStorage.setItem(osApi.getDataSource().disease + "MarkersPatients", data);
+                localStorage.setItem(hydrateDisease + "MarkersPatients", data);
             }
             // Destroy
             $scope.$on('$destroy', function() {

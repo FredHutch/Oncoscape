@@ -7,6 +7,7 @@
 
     /** @ngInject */
     function config($logProvider) {
-        $logProvider.debugEnabled(true);
+        $logProvider.debugEnabled(false);
     }
+    
 })();

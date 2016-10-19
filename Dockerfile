@@ -44,7 +44,10 @@ RUN echo "ServerName localhost" >> /etc/apache2/apache2.conf
 
 # Create Application User
 RUN useradd -u 7534 -m -d /home/sttrweb -c "sttr web application" sttrweb && \
-	mkdir /home/sttrweb/Oncoscape
+	mkdir /home/sttrweb/Oncoscape && \
+	mkdir /home/sttrweb/Oncoscape/cache && \
+	mkdir /var/log/nginx/
+
 
 # Install Client Code
 COPY client-build /home/sttrweb/Oncoscape/client
@@ -59,7 +62,7 @@ COPY cpu/oncoscape_0.1.0.tgz /home/sttrweb/Oncoscape/oncoscape_0.1.0.tgz
 WORKDIR /home/sttrweb/Oncoscape/
 RUN R CMD INSTALL oncoscape_0.1.0.tgz --library=/usr/local/lib/R/site-library
 RUN echo "r <- getOption('repos'); r['CRAN'] <- 'http://cran.us.r-project.org'; options(repos = r);" > ~/.Rprofile
-RUN Rscript -e "install.packages(c('ggplot2','gridSVG','heatmap3','pheatmap','d3heatmap','pls'))"
+RUN Rscript -e "install.packages(c('devtools','ggplot2','gridSVG','d3heatmap','pls'))"
 
 # Copy Config Files
 WORKDIR /home/sttrweb/Oncoscape/
@@ -72,11 +75,6 @@ COPY /docker-entrypoint.sh /home/sttrweb/Oncoscape/
 EXPOSE 80 7946 8000 8001 8003 8004 
 EXPOSE 7946/udp
 
-# Cache Folder
-RUN mkdir -p /var/lib/nginx/cache
-RUN chown www-data /var/lib/nginx/cache
-Run chmod 700 /var/lib/nginx/cache
-
+# Fire It Up
 RUN chmod +x /home/sttrweb/Oncoscape/docker-entrypoint.sh
 ENTRYPOINT ["/home/sttrweb/Oncoscape/docker-entrypoint.sh"]
-#CMD ["/usr/bin/supervisord", "-n", "-c", "/home/sttrweb/Oncoscape/docker-supervisord.conf"]
