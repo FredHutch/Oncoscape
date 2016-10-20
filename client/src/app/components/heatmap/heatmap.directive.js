@@ -52,7 +52,9 @@
             // Element References
             var elChart = d3.select("#heatmap-chart");
             var colDend = elChart.append("svg").classed("dendrogram colDend", true);
+            var colDendObj;
             var rowDend = elChart.append("svg").classed("dendrogram rowDend", true);
+            var rowDendObj;
             var colmap = elChart.append("svg").classed("colormap", true);
             var xaxis = elChart.append("svg").classed("axis xaxis", true);
             var yaxis = elChart.append("svg").classed("axis yaxis", true);
@@ -87,6 +89,7 @@
                     .attr("font-size","12px")
                     .text( function(d){ return d; });
             }
+
             function dendrogram(svg, data, width, height, xPos, yPos, rotated) {
                 
                 svg.select("g").remove();
@@ -111,9 +114,6 @@
                         edgePar: l.target.data.edgePar
                     };
                 });
-
-
-
                 
                 var dendrG = svg
                     .attr("width", width)
@@ -143,8 +143,12 @@
                         return d.edgePar.col;
                     });
 
+                return {
+                    g:dendrG, 
+                    scale: y,
+                    rotated: rotated
+                }
             }
-
 
             function heatmap(svg, data, width, height,x,y){
                 svg.select("g").remove();
@@ -165,15 +169,7 @@
                     if (!d3.event.sourceEvent) return; // Only transition after input.
                     if (!d3.event.selection) return; // Ignore empty selections.
                     var colSpan = d3.event.selection.map(function(v){ return this.invert(v[0], v[1]); },x);
-                    var rowSpan = d3.event.selection.map(function(v){ return this.invert(v[1], v[0]); },y);
-                    //window.yyy = d3.select(this);
-                    //debugger;
-// d3.select(this).transition().x(0)
-//                    d3.select(this).transition().call(d3.event.target.move, d1.map(x));
-                    // console.log("COLS "+colSpan.join("-"))
-                    // console.log("ROWS "+rowSpan.join("-"))
-
-                    
+                    var rowSpan = d3.event.selection.map(function(v){ return this.invert(v[1], v[0]); },y);                    
                 }
                 brush.call(
                     d3.brush().on("end", brushend)
@@ -189,6 +185,36 @@
                     .attr("width", x(1)-grid)
                     .attr("height", y(1)-grid)
                     .attr("fill", function(d) { return color(d); })
+            }
+
+            function zoom(){
+
+
+                var xZoomBehavior = d3.zoom().scaleExtent([1, Infinity]);
+                var yZoomBehavior = d3.zoom().scaleExtent([1, Infinity]);
+                colDend.call(xZoomBehavior);
+                rowDend.call(yZoomBehavior);
+                xZoomBehavior.on('zoom', function() {
+                    // var t = d3.event.transform;
+                    // t.y = 0;
+                    // debugger;
+                    // colDend.select("g").attr("transform", t);
+                });
+                yZoomBehavior.on('zoom', function() {
+                    var t = d3.event.transform;
+                    var g = rowDend.select("g");
+                    rowDendObj
+                    //rowDendObj.g.call(d3.event.transform.rescaleY(rowDendObj.scale));
+                    // console.log(d3.event.transform.rescaleY(rowDendObj.scale));
+                    // console.log("!!");
+                    //var fn = d3.event.transform.rescaleY(rowDendObj.scale);
+
+                    debugger;
+
+                });
+            
+
+
             }
             
             osApi.setBusy(true);
@@ -231,11 +257,11 @@
                     (vm.rowDendrogram ? 80 : 0)+layout.left+20, 
                     (vm.colDendrogram ? 80 : 0));
 
-                dendrogram(rowDend, data.rows,    
+                rowDendObj = dendrogram(rowDend, data.rows,    
                     80, hmHeight, 
                     layout.left+20, (vm.colDendrogram ? 80 : 0) , false);
 
-                dendrogram(colDend, data.cols,    
+                colDendObj = dendrogram(colDend, data.cols,    
                     hmWidth, 80, 
                     (vm.rowDendrogram ? 80 : 0)+layout.left+20, 0, true);
 
@@ -251,6 +277,7 @@
 
             
             vm.loadData();
+            zoom();
 
 
             osApi.onResize.add(vm.draw);
