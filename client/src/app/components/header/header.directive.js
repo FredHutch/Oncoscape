@@ -54,7 +54,6 @@
             vm.showHelp = false;
             vm.showLogout = false;
 
-
             var currentTool;
             var onStateChangeStart = $rootScope.$on('$stateChangeStart', function(event, toState) {
                 currentTool = toState.name;

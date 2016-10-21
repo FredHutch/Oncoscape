@@ -717,7 +717,7 @@
                                 }, {});
 
                             cyChart.$('node[nodeType="gene"]')
-                                .forEach(function(ele, i, eles) {
+                                .forEach(function(ele) {
                                     var id = ele.id();
                                     var selected = this.hasOwnProperty(id);
                                     ele.data("sizeBdr", (selected) ? 10 : 1);
@@ -803,14 +803,14 @@
                 }
             })(cyChart, vm)
 
-            vm.cmd = function() {}
+            vm.cmd = function() {};
 
             /*
              *  Watch View Model
              *  + vm.optGeneSet
              *  + vm.optPatientLayout
              */
-            var watch = (function(vm, $scope) {
+            (function(vm, $scope) {
                 var watches = 1;
 
                 var firstTime = true;
@@ -869,7 +869,6 @@
                     update();
                     vm.resize()
                 });
-
             })(vm, $scope);
 
             var mouseIsOver = "";
@@ -890,7 +889,7 @@
                     angular.element("#legend-" + key.substr(1)).text(" (" + this[key] + ")");
                 }, counts);
 
-            }
+            };
 
             var setPatientInfo = function(e) {
 
@@ -904,6 +903,7 @@
                     }
                 });
             };
+            
             var setGeneInfo = function(e) {
 
                 $scope.$apply(function() {
@@ -929,7 +929,7 @@
                 setPatientCohortUpdate = true;
             });
 
-            function setPatientCohort(opts) {
+            function setPatientCohort() {
                 setPatientCohortUpdate = false;
                 osCohortService.setPatientCohort(
                     cyChart.$('node[nodeType="patient"]:selected').map(function(p) {
@@ -937,11 +937,11 @@
                     }),
                     "Markers + Patients"
                 );
-            };
+            }
 
-            function setGeneCohort(opts) {
+            function setGeneCohort() {
 
-            };
+            }
 
             // Initialize Commands
             $scope.$watch("vm.optCommandMode", function() {
@@ -952,12 +952,13 @@
                     case "Sequential":
                         //try{ cyChart.$('node').unselect(); setOptions(createOptions()); }catch(e){}
                         vm.cmd = function(cmd) {
+                            var opts;
                             switch (cmd) {
                                 case "ShowSelectedEdges":
                                     var nodes = cyChart.$('node[nodeType="patient"]:selected, node[nodeType="gene"]:selected');
                                     if (nodes.length == 0) return;
                                     nodes.neighborhood("edge").remove();
-                                    var opts = createOptions(cmd);
+                                    opts = createOptions(cmd);
                                     setOptions(opts);
                                     break;
                                 case "HideAllEdges":
@@ -1008,7 +1009,7 @@
                                     cyChart.endBatch();
                                     break;
                                 default:
-                                    var opts = createOptions(cmd);
+                                    opts = createOptions(cmd);
                                     setOptions(opts);
                                     break;
                             }
@@ -1075,7 +1076,7 @@
                             cyChart.startBatch();
                             cyChart.$('edge[edgeType="cn"]').remove();
                             cyChart.$('node[nodeType="gene"]')
-                                .forEach(function(ele, i, eles) {
+                                .forEach(function(ele) {
                                     ele.data("color", "#0096d5");
                                     ele.data("sizeBdr", 1);
                                     ele.data("colorBdr", "#FFFFFF");
@@ -1141,7 +1142,7 @@
                 var data = localStorage.getItem(osApi.getDataSource().disease + "MarkersPatients");
                 if (data===null) return false;
                 else{
-                    data = JSON.parse(data);
+                    data = angular.fromJson(data);
                     cyChart.load(data.elements);
                     vm.resize();
                     var elements = cyChart.nodes('node[nodeType="patient"]');
@@ -1172,8 +1173,7 @@
                 return true;
             }
             var dehydrate = function(){
-                console.log("!!!");
-                var data = JSON.stringify(cyChart.json());
+                var data = angular.toJson(cyChart.json());
                 // Geneset / Edge Visibility / Color Option / Layout
                 localStorage.setItem(hydrateDisease + "MarkersPatients", data);
             }

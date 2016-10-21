@@ -19,7 +19,7 @@
         return directive;
 
         /** @ngInject */
-        function HeatmapController(d3, osApi, osCohortService, $state, $timeout, $scope, $stateParams, $window) {
+        function HeatmapController(d3, osApi, osCohortService, $state, $timeout, $scope, $stateParams, $window, _) {
 
             // view Model
             var vm = this;
@@ -30,7 +30,7 @@
                 {name:'Blues', value:["#303f9f","#03a9f4"]},
                 {name:'Black / Blue', value:["#000000","#1d85cb"]},
                 {name:'Black / Red', value:["#000000","#D32F2F"]},
-                {name:'Red / Yellow', value:["#D32F2F","#FFEB3B"]},
+                {name:'Red / Yellow', value:["#D32F2F","#FFEB3B"]}
             ]
             vm.colorScheme = vm.colorSchemes[0]
             vm.scales = [{name:'None'},{name:'Row'},{name:'Column'}]
@@ -76,7 +76,7 @@
                     .style("top",y);
 
                 var g = svg.append("g");
-                var y = d3.scaleLinear().domain([0, data.length]).range([0, rotated ? width:height]);
+                var yScale = d3.scaleLinear().domain([0, data.length]).range([0, rotated ? width:height]);
 
                 var textAnchor = (rotated) ? "start" : "start";
                 var textX = (rotated) ? 20 : 10;
@@ -84,7 +84,7 @@
                 
                 labels
                     .enter().append("text")
-                    .attr(rotated ? "x" : "y", function(d,i) { return y(i+.8); })
+                    .attr(rotated ? "x" : "y", function(d,i) { return yScale(i+.8); })
                     .attr(rotated ? "y" : "x", textX)
                     .attr("text-anchor", textAnchor)
                     .attr("font-size","12px")
@@ -99,7 +99,7 @@
                 var hierarchy = d3.hierarchy(data);
 
                 var cluster = d3.cluster()
-                    .separation(function(a, b) { return 1; })
+                    .separation(function() { return 1; })
                     .size((rotated) ? [width,height] : [height,width]);
 
                 var x = d3.scaleLinear()
@@ -112,7 +112,7 @@
 
                 var c = cluster(hierarchy);
 
-                var links = c.links().map(function(l,i){
+                var links = c.links().map(function(l){
                     return {
                         source: {x: l.source.x, y:l.source.data.height},
                         target: {x: l.target.x, y:l.target.data.height},
@@ -142,7 +142,7 @@
                 lines
                     .enter().append("polyline")
                     .attr("class", "denolink")
-                    .attr("points", function(d,i){
+                    .attr("points", function(d){
                         return y(d.source.y) + "," + d.source.x + " " +
                         y(d.source.y) + "," + d.target.x + " " +
                         y(d.target.y) + "," + d.target.x;
@@ -171,15 +171,15 @@
                 var color = d3.scaleLinear().domain([minValue, maxValue]).range(vm.colorScheme.value);
                 var cols = data.dim[1];
                 var rows = data.dim[0];
-                var x = d3.scaleLinear().domain([0, cols]).range([0, width]);
-                var y = d3.scaleLinear().domain([0, rows]).range([0, height]);
+                var xScale = d3.scaleLinear().domain([0, cols]).range([0, width]);
+                var yScale = d3.scaleLinear().domain([0, rows]).range([0, height]);
                 var grid = (vm.gridlines) ? 1 : -1;
 
                 function brushend(){
                     if (!d3.event.sourceEvent) return; // Only transition after input.
                     if (!d3.event.selection) return; // Ignore empty selections.
-                    var colSpan = d3.event.selection.map(function(v){ return this.invert(v[0], v[1]); },x);
-                    var rowSpan = d3.event.selection.map(function(v){ return this.invert(v[1], v[0]); },y);                    
+                    d3.event.selection.map(function(v){ return this.invert(v[0], v[1]); },xScale);
+                    d3.event.selection.map(function(v){ return this.invert(v[1], v[0]); },yScale);                    
                 }
                 brush.call(
                     d3.brush().on("end", brushend)
@@ -190,16 +190,16 @@
                     .enter().append("rect")
                     .property("colIndex", function(d, i) { return i % cols; })
                     .property("rowIndex", function(d, i) { return Math.floor(i / cols); })
-                    .attr("x", function(d, i) { return x(i % cols); })
-                    .attr("y", function(d, i) { return y(Math.floor(i / cols)); })
+                    .attr("x", function(d, i) { return xScale(i % cols); })
+                    .attr("y", function(d, i) { return yScale(Math.floor(i / cols)); })
                     .attr("width", x(1)-grid)
                     .attr("height", y(1)-grid)
                     .attr("fill", function(d) { return color(d); });
 
                 return {
                     g: map,
-                    scaleY: y,
-                    scaleX: x,
+                    scaleY: yScale,
+                    scaleX: xScale,
                     data: data
                 }
             }
@@ -214,12 +214,12 @@
                 xZoomBehavior.on('zoom', function() {
 
                     var col = colDendObj;
-                    var colY = d.scaleY;
+                    var colY = col.scaleY;
                     var colX = d3.event.transform.rescaleY(col.scaleX);
                     
-                    d.g.selectAll("polyline")
-                        .data(d.links)
-                        .attr("points", function(d,i){
+                    col.g.selectAll("polyline")
+                        .data(col.links)
+                        .attr("points", function(d){
                             return colY(d.source.y) + "," + colX(d.source.x) + " " +
                             colY(d.source.y)+ "," + colX(d.target.x) + " " +
                             colY(d.target.y)+ "," + colX(d.target.x);
@@ -228,12 +228,12 @@
                 yZoomBehavior.on('zoom', function() {
 
                     var row = rowDendObj;
-                    var rowY = d.scaleY;
+                    var rowY = row.scaleY;
                     var rowX = d3.event.transform.rescaleY(row.scaleX);
                     
-                    d.g.selectAll("polyline")
+                    row.g.selectAll("polyline")
                         .data(row.data)
-                        .attr("points", function(d,i){
+                        .attr("points", function(d){
                             return rowY(d.source.y) + "," + rowX(d.source.x) + " " +
                             rowY(d.source.y)+ "," + rowX(d.target.x) + " " +
                             rowY(d.target.y)+ "," + rowX(d.target.x);
@@ -266,7 +266,7 @@
                 args.scale = vm.scale.name.toLowerCase();
                 args.kcol = args.krow = vm.dendrogramCluster.value;
                 osApi.getCpuApi().getHeatmap(args).then(function(v){
-                    data = JSON.parse(v);
+                    data = angular.fromJson(v);
                     vm.draw();
                     osApi.setBusy(false);
                 });
@@ -278,7 +278,7 @@
                 var height = $window.innerHeight - 160; //10
                 var hmWidth = width - ((vm.rowLabels) ? 160 : 0) - ((vm.rowDendrogram) ? 80 : 0);
                 var hmHeight = height - ((vm.colLabels) ? 160 : 0) - ((vm.colDendrogram) ? 80 : 0);
-                heatmap(colmap, data.matrix, 
+                colmapObj = heatmap(colmap, data.matrix, 
                     hmWidth, 
                     hmHeight, 
                     (vm.rowDendrogram ? 80 : 0)+layout.left+20, 

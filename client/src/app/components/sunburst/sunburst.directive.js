@@ -71,7 +71,7 @@
             // Sunburst
             var sunburst = (function() {
                 var color = d3.scaleOrdinal(d3.schemeCategory20);
-                var formatNumber = d3.format(",d");
+                //var formatNumber = d3.format(",d");
                 var arc,
                     radius,
                     x,
@@ -96,7 +96,7 @@
                     sunburstTumor = svg.append("g");
                 }
 
-                var mousemove = function(d) {
+                var mousemove = function() {
                     tooltip
                         .style('top', (d3.event.layerY + 10) + 'px')
                         .style('left', (d3.event.layerX + 10) + 'px');
@@ -138,7 +138,7 @@
                         });
                 };
 
-                var drawSunburst = function(data, g, x, y) {
+                var drawSunburst = function(data, g) {
 
                     var partition = d3.partition();
                     var root = d3.hierarchy(data);
@@ -206,7 +206,6 @@
 
                 // Elements
                 var svg;
-                var data;
                 var charts;
                 var layout, transformedData;
                 var vm;
@@ -248,7 +247,7 @@
                         }, [
                             []
                         ]);
-                    };
+                    }
 
                     // Transform Data To Be Both Tree + List (Bar) Oriented
                     return data.map(function(chart) {
@@ -279,7 +278,7 @@
                         });
 
                         // Calculate Bar Values
-                        var values = chart.values;
+                        //var values = chart.values;
                         bars.forEach(function(bar) {
                             chart.values.forEach(function(value) {
                                 if (_.difference(bar.tags, value.tags).length == 0) bar.value += value.data;
@@ -289,7 +288,7 @@
                         // Convert Array Into A Tree Structure
                         var tree = bars.reduce(function(p, c) {
                             var barNode = p;
-                            c.tags.reverse().forEach(function(tag, index) {
+                            c.tags.reverse().forEach(function(tag) {
                                 var tagIndex = barNode.children.map(function(v) {
                                     return v.name;
                                 }).indexOf(tag.name);
@@ -353,8 +352,8 @@
                     yScale.range([0, 110]);
                     yScale.domain([yMin, yMax]);
                     var barWidth = layout.widthChart / el.bars.length;
-                    console.log(barWidth)
-                    var newBars = bars.enter()
+                    
+                    bars.enter()
                         .append("rect")
                         .attr("x", function(d, i) {
                             return barWidth * i
@@ -385,7 +384,7 @@
                     var node = chartLayer.selectAll(".cat-node")
                         .data(nodes);
 
-                    var newNode = node.enter()
+                    node.enter()
                         .append("rect")
                         .attr("class", "cat-node")
                         .attr("x", function(d) {
