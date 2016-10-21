@@ -56,6 +56,7 @@
             var rowDend = elChart.append("svg").classed("dendrogram rowDend", true);
             var rowDendObj;
             var colmap = elChart.append("svg").classed("colormap", true);
+            var colmapObj;
             var xaxis = elChart.append("svg").classed("axis xaxis", true);
             var yaxis = elChart.append("svg").classed("axis yaxis", true);
             
@@ -69,10 +70,10 @@
                 if (rotated ? !vm.colLabels : !vm.rowLabels) return;
                     
                 svg
-                .attr("width", width).attr("height", height)
-                .style("position","absolute")
-                .style("left",x)
-                .style("top",y);
+                    .attr("width", width).attr("height", height)
+                    .style("position","absolute")
+                    .style("left",x)
+                    .style("top",y);
 
                 var g = svg.append("g");
                 var y = d3.scaleLinear().domain([0, data.length]).range([0, rotated ? width:height]);
@@ -101,16 +102,20 @@
                     .separation(function(a, b) { return 1; })
                     .size((rotated) ? [width,height] : [height,width]);
 
+                var x = d3.scaleLinear()
+                    .domain([0, (rotated) ? height : width])
+                    .range([0, (rotated) ? height : width]);
+
                 var y = d3.scaleLinear()
-                    .domain([0, data.height+1])
+                    .domain([0, data.height])
                     .range([(rotated) ? height : width,0]);
 
                 var c = cluster(hierarchy);
 
                 var links = c.links().map(function(l,i){
                     return {
-                        source: {x: l.source.x, y:y(l.source.data.height)},
-                        target: {x: l.target.x, y:y(l.target.data.height)},
+                        source: {x: l.source.x, y:l.source.data.height},
+                        target: {x: l.target.x, y:l.target.data.height},
                         edgePar: l.target.data.edgePar
                     };
                 });
@@ -123,21 +128,24 @@
                     .style("top", yPos)
                     .append("g")
 
+                dendrG.append("rect")
+                    .attr("width", (rotated) ? height : width)
+                    .attr("height", (rotated) ? width : height)
+                    .style("fill","#FFF")
 
                 if (rotated){
                     var transform = "rotate(90," + height/2 + "," + height/2 + ") translate(0,"+(-width+height)+")"
                     dendrG.attr("transform", transform);
                 }
-
                 
                 var lines = dendrG.selectAll("polyline").data(links);
                 lines
                     .enter().append("polyline")
                     .attr("class", "denolink")
                     .attr("points", function(d,i){
-                        return d.source.y + "," + d.source.x + " " +
-                        d.source.y + "," + d.target.x + " " +
-                        d.target.y + "," + d.target.x;
+                        return y(d.source.y) + "," + d.source.x + " " +
+                        y(d.source.y) + "," + d.target.x + " " +
+                        y(d.target.y) + "," + d.target.x;
                     })
                     .style("stroke", function(d){
                         return d.edgePar.col;
@@ -145,8 +153,10 @@
 
                 return {
                     g:dendrG, 
-                    scale: y,
-                    rotated: rotated
+                    scaleY: y,
+                    scaleX: x,
+                    rotated: rotated,
+                    data: links
                 }
             }
 
@@ -184,33 +194,50 @@
                     .attr("y", function(d, i) { return y(Math.floor(i / cols)); })
                     .attr("width", x(1)-grid)
                     .attr("height", y(1)-grid)
-                    .attr("fill", function(d) { return color(d); })
+                    .attr("fill", function(d) { return color(d); });
+
+                return {
+                    g: map,
+                    scaleY: y,
+                    scaleX: x,
+                    data: data
+                }
             }
 
             function zoom(){
 
 
-                var xZoomBehavior = d3.zoom().scaleExtent([1, Infinity]);
-                var yZoomBehavior = d3.zoom().scaleExtent([1, Infinity]);
-                colDend.call(xZoomBehavior);
-                rowDend.call(yZoomBehavior);
+                var xZoomBehavior = d3.zoom().scaleExtent([1, 5]);
+                var yZoomBehavior = d3.zoom().scaleExtent([1, 5]);
+                colDendObj.g.call(xZoomBehavior);
+                rowDendObj.g.call(yZoomBehavior);
                 xZoomBehavior.on('zoom', function() {
-                    // var t = d3.event.transform;
-                    // t.y = 0;
-                    // debugger;
-                    // colDend.select("g").attr("transform", t);
+
+                    var col = colDendObj;
+                    var colY = d.scaleY;
+                    var colX = d3.event.transform.rescaleY(col.scaleX);
+                    
+                    d.g.selectAll("polyline")
+                        .data(d.links)
+                        .attr("points", function(d,i){
+                            return colY(d.source.y) + "," + colX(d.source.x) + " " +
+                            colY(d.source.y)+ "," + colX(d.target.x) + " " +
+                            colY(d.target.y)+ "," + colX(d.target.x);
+                        });
                 });
                 yZoomBehavior.on('zoom', function() {
-                    var t = d3.event.transform;
-                    var g = rowDend.select("g");
-                    rowDendObj
-                    //rowDendObj.g.call(d3.event.transform.rescaleY(rowDendObj.scale));
-                    // console.log(d3.event.transform.rescaleY(rowDendObj.scale));
-                    // console.log("!!");
-                    //var fn = d3.event.transform.rescaleY(rowDendObj.scale);
 
-                    debugger;
-
+                    var row = rowDendObj;
+                    var rowY = d.scaleY;
+                    var rowX = d3.event.transform.rescaleY(row.scaleX);
+                    
+                    d.g.selectAll("polyline")
+                        .data(row.data)
+                        .attr("points", function(d,i){
+                            return rowY(d.source.y) + "," + rowX(d.source.x) + " " +
+                            rowY(d.source.y)+ "," + rowX(d.target.x) + " " +
+                            rowY(d.target.y)+ "," + rowX(d.target.x);
+                        });
                 });
             
 
@@ -271,14 +298,11 @@
 
                 axis(yaxis, data.matrix.cols,
                     hmWidth, 160, (vm.rowDendrogram ? 80 : 0)+layout.left+20, hmHeight + (vm.colDendrogram ? 80 : 0), true);
+
+                zoom();
             };
             
-        
-
-            
             vm.loadData();
-            zoom();
-
 
             osApi.onResize.add(vm.draw);
             angular.element($window).bind('resize', _.debounce(vm.draw,300));

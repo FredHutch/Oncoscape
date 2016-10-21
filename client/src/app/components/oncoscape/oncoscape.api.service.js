@@ -113,7 +113,7 @@
                             dataType: "text",
                             beforeSend: function(xhr, settings) {
                                 settings.xhrFields = settings.xhrFields || {};
-                                settings.xhrFields.withCredentials = true;
+                                settings.xhrFields.withCredentials = false;
                                 settings.crossDomain = true;
                             }
                         }).done(function(response) {
@@ -148,6 +148,7 @@
                 });
             });
         })("https://oncoscape-test.fhcrc.org/ocpu/library/oncoscape/R").then(function(v) {
+            console.log("GOT CPU");
             _cpuApi = v;
         });
         var getCpuApi = function(){ return _cpuApi; };
