@@ -23,19 +23,16 @@ CACHE:
 /fonts/glyphicons-halflings-regular.woff
 /fonts/glyphicons-halflings-regular.woff2
 /scripts/app-447b3ada9f.js
+/scripts/app-71b3837041.js
 /scripts/app-8cdae8e753.js
 /scripts/app-d052ef60bf.js
 /scripts/vendor-bb71a6766a.js
 /scripts/vendor-ce8b380ff6.js
+/styles/app-036f78c9c8.css
 /styles/app-9f0cc9ff78.css
 /styles/app-cd489e01f2.css
 /styles/app-f15b064271.css
 /styles/vendor-6a8c10e325.css
-/maps/scripts/app-447b3ada9f.js.map
-/maps/scripts/app-8cdae8e753.js.map
-/maps/scripts/app-d052ef60bf.js.map
-/maps/scripts/vendor-bb71a6766a.js.map
-/maps/scripts/vendor-ce8b380ff6.js.map
 /assets/images/DSbladder.png
 /assets/images/DSbrain.png
 /assets/images/DSbreast.png
@@ -68,11 +65,18 @@ CACHE:
 /assets/images/survival.png
 /assets/images/texture.png
 /assets/images/timelines.png
+/maps/styles/app-036f78c9c8.css.map
 /maps/styles/app-4b2f6527e8.css.map
 /maps/styles/app-9f0cc9ff78.css.map
 /maps/styles/app-cd489e01f2.css.map
 /maps/styles/app-f15b064271.css.map
 /maps/styles/vendor-6a8c10e325.css.map
+/maps/scripts/app-447b3ada9f.js.map
+/maps/scripts/app-71b3837041.js.map
+/maps/scripts/app-8cdae8e753.js.map
+/maps/scripts/app-d052ef60bf.js.map
+/maps/scripts/vendor-bb71a6766a.js.map
+/maps/scripts/vendor-ce8b380ff6.js.map
 /app/components/markers/markers.worker.js
 /app/components/oncoscape/oncoscape.cohort.service.worker.js
 
@@ -86,4 +90,4 @@ https://*
 SETTINGS:
 prefer-online
 
-# hash: ec2ca784f7f1e7f96e26e544c5259aa3b2054e411ebd98b10d90a383ce30a701
+# hash: 594980a3351b2841cb81ddfd225dd51d5518206ec877c6701e821d08d6467b8c
