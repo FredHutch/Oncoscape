@@ -235,7 +235,7 @@
                             values: []
                         })
 
-                        var colors = {
+                        colors = {
                             dataset: osApi.getDataSource().disease,
                             type: 'color',
                             name: genes.reduce(function(p, c) {

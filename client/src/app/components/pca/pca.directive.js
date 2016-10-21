@@ -47,12 +47,7 @@
                     });
                 }
             }
-            function zoomed() {
-                
-                d3Points.attr("transform", d3.event.transform);
-                d3xAxis.call(axisX.scale(d3.event.transform.rescaleX(scaleX)))
-                d3yAxis.call(axisY.scale(d3.event.transform.rescaleY(scaleY)))
-            }
+         
 
             // Elements
             var d3Chart = d3.select("#pca-chart").append("svg");
@@ -60,12 +55,6 @@
             var d3xAxis = d3Chart.append("g");
             var d3yAxis = d3Chart.append("g");
             var d3Brush = d3Chart.append("g");
-            // var d3Zoom = d3.zoom()
-            //     .scaleExtent([1, 40])
-            //     .translateExtent([[-100, -100], [width + 90, height + 100]])
-            //     .on("zoom", zoomed);
-            //     d3Chart.call(d3Zoom);
-
 
             // Properties
             var scaleX, scaleY, axisX, axisY;

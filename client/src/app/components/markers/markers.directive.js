@@ -24,7 +24,7 @@
 
             osApi.setBusy(true);
 
-            var tmpdata, patientHtml, worker;
+            var tmpdata, worker;
 
             var signal = (function() {
                 return {
@@ -340,13 +340,13 @@
                     });
 
                     cyChart.startBatch();
-                    var elements = cyChart.add(edges);
+                    cyChart.add(edges);
                     cyChart.endBatch();
                     tmpdata = null;
 
                 };
 
-                vm.edgeToggle = function(item) {
+                vm.edgeToggle = function() {
                     vm.cmd('ShowSelectedEdges');
                 };
 
@@ -508,7 +508,7 @@
                     reset: reset,
                     fit: fit
                 };
-                cyChart.on('pan', _.debounce(function(e) {
+                cyChart.on('pan', _.debounce(function() {
                     cyChart.startBatch();
                     resizeNodes();
                     cyChart.endBatch();
@@ -572,25 +572,29 @@
                         cyChart.remove(selector);
                         return;
                     }
-                    try {
+
+                    if (data.length==0) return;
                         var items = data.map(function(item) {
                             return this.getElementById(item);
                         }, cyChart);
                         cyChart.collection(items).remove();
-                    } catch (e) {}
-                };
-                cmd.patients_html = function(data) {
-                    patientHtml = data;
-                };
-                cmd.patients_resize = function() {
 
+                    // } catch () {
+
+                    // }
                 };
+                // cmd.patients_html = function(data) {
+                //     patientHtml = data;
+                // };
+                // cmd.patients_resize = function() {
+
+                // };
                 cmd.patients_delete = function(data) {
                     remove('node[nodeType="patient"]', data);
                 };
                 cmd.patients_insert = function(data) {
                     cyChart.startBatch();
-                    var signals = signal.patients;
+                    //var signals = signal.patients;
                     var elements = cyChart.add(data.patients);
                     elements.on("select", _.debounce(signal.patients.select.dispatch, 300));
                     elements.on("unselect", _.debounce(signal.patients.unselect.dispatch, 300));
@@ -641,11 +645,11 @@
 
                     }
                     cyChart.nodes('node[nodeType="patient"]').forEach(function(node) {
-                        try {
+                        //try {
                             var pos = data.data[node.id()];
                             pos.x -= 4000;
                             node.position(pos);
-                        } catch (e) {}
+                        //} catch (e) {}
                     });
                     resizeNodes();
                     cyChart.endBatch();
@@ -659,7 +663,7 @@
                 };
                 cmd.genes_insert = function(data) {
                     cyChart.startBatch();
-                    var signals = signal.genes;
+                    //var signals = signal.genes;
                     var elements = cyChart.add(data.genes);
                     elements.on("select", _.debounce(signal.genes.select.dispatch, 300));
                     elements.on("unselect", _.debounce(signal.genes.unselect.dispatch, 300));

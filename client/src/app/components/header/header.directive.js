@@ -43,7 +43,7 @@
                 vm.cohorts = allCohorts;
             });
             vm.importPatientIds = "";
-            vm.importPatientCohort = function(e){
+            vm.importPatientCohort = function(){
                 var ids = vm.importPatientIds.split(",").map(function(v){ return v.trim(); });
                 osCohortService.importPatientCohort(ids);
             };
@@ -56,7 +56,7 @@
 
 
             var currentTool;
-            $rootScope.$on('$stateChangeStart', function(event, toState) {
+            var onStateChangeStart = $rootScope.$on('$stateChangeStart', function(event, toState) {
                 currentTool = toState.name;
                 switch (toState.name) {
                     case "landing":
@@ -78,19 +78,20 @@
                         break;
                 }
             });
+            $rootScope.$on('$destroy', onStateChangeStart);
 
             vm.loadDataset = function(dataset) {
                 $state.go(currentTool, {
                     datasource: dataset
                 });
-                $('.navbar-collapse').collapse('hide');
+                angular.element('.navbar-collapse').collapse('hide');
             };
 
             vm.loadTool = function(tool) {
                 $state.go(tool, {
                     datasource: osApi.getDataSource().disease
                 });
-                $('.navbar-collapse').collapse('hide');
+                angular.element('.navbar-collapse').collapse('hide');
             };
 
             vm.logoutClick = function() {

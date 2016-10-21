@@ -23,7 +23,7 @@
 
             // Retrieve Selected Patient Ids From OS Service
             var pc = osCohortService.getPatientCohort();
-            var cohorts = JSON.parse(JSON.stringify(osCohortService.getPatientCohorts()));
+            var cohorts = angular.fromJson(angular.toJson(osCohortService.getPatientCohorts()));
             if (pc == null) {
                 osCohortService.setPatientCohort([], "All Patients")
             } else {
