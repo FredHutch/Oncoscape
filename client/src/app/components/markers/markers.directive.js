@@ -463,15 +463,24 @@
 
                     vm.optGeneSets = results[0].data;
 
-                    if (osApi.getDataSource().disease == "brain") {
-                        vm.optGeneSet = vm.optGeneSets.filter(function(v) {
-                            return v.name == "TCGA pancan mutated";
-                            //    "Marker genes 545"; 
-                        })[0]
-                    } else {
-                        vm.optGeneSet = vm.optGeneSets.filter(function(v) {
-                            return v.name == "TCGA pancan mutated";
-                        })[0]
+
+                    var data = localStorage.getItem(osApi.getDataSource().disease + "MarkersPatients");
+                    if (data===null) {
+                        if (osApi.getDataSource().disease == "brain") {
+                            vm.optGeneSet = vm.optGeneSets.filter(function(v) {
+                                return v.name == "Marker genes 545"; 
+                                //  "TCGA pancan mutated";
+                                //  "Marker genes 545"; 
+                            })[0]
+                        } else {
+                            vm.optGeneSet = vm.optGeneSets.filter(function(v) {
+                                return v.name == "TCGA pancan mutated";
+                            })[0]
+                        }
+                    }
+                    else{
+                        data = angular.fromJson(data);
+                        vm.optGeneSet = angular.fromJson(data).geneset;    // This is getting parsed x2.  Need to revisit
                     }
 
                     vm.optPatientLayouts = results[1].data;
@@ -1143,7 +1152,7 @@
                 if (data===null) return false;
                 else{
                     data = angular.fromJson(data);
-                    cyChart.load(data.elements);
+                    cyChart.load(data.chart.elements);
                     vm.resize();
                     var elements = cyChart.nodes('node[nodeType="patient"]');
                     elements.on("select", _.debounce(signal.patients.select.dispatch, 300));
@@ -1173,7 +1182,10 @@
                 return true;
             }
             var dehydrate = function(){
-                var data = angular.toJson(cyChart.json());
+                var data = angular.toJson({
+                    geneset: vm.optGeneSet,
+                    chart: cyChart.json()
+                });
                 // Geneset / Edge Visibility / Color Option / Layout
                 localStorage.setItem(hydrateDisease + "MarkersPatients", data);
             }

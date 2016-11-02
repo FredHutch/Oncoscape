@@ -161,64 +161,107 @@
             }
 
             function heatmap(svg, data, width, height,x,y){
+
+
                 svg.select("g").remove();
                 svg.attr("width", width).attr("height", height).style("left",x).style("top",y).style("position","absolute");
+
                 var map = svg.append("g").attr("width", width).attr("height", height);
                 var brush = svg.append("g").attr("width", width).attr("height", height).attr("class", "brush");
+
                 var maxValue = Math.max.apply(null, data.data);
                 var minValue = Math.min.apply(null, data.data);
                 
                 var color = d3.scaleLinear().domain([minValue, maxValue]).range(vm.colorScheme.value);
-                var cols = data.dim[1];
-                var rows = data.dim[0];
+
+                var cols = data.dim[0];
+                var rows = data.dim[1];
+
                 var xScale = d3.scaleLinear().domain([0, cols]).range([0, width]);
                 var yScale = d3.scaleLinear().domain([0, rows]).range([0, height]);
+
+                console.log(height);
+
                 var grid = (vm.gridlines) ? 1 : -1;
 
                 function brushend(){
+
+                    
                     if (!d3.event.sourceEvent) return; // Only transition after input.
                     if (!d3.event.selection) return; // Ignore empty selections.
-                    d3.event.selection.map(function(v){ return this.invert(v[0], v[1]); },xScale);
-                    d3.event.selection.map(function(v){ return this.invert(v[1], v[0]); },yScale);                    
+                    var colBounds = d3.event.selection.map(function(v){ return this.invert(v[0], v[1]); },xScale).map(Math.round);
+                    var span = colBounds[1] - colBounds[0];
+                    var start = colBounds[0];
+                    var ids = data.cols.splice(start, span);
+                    
+                    var coords = d3.event.selection;
+                    //coords[0][0] = colBounds[0] * width;
+                    coords[0][1] = 0;
+                    //coords[1][0] = colBounds[1] * width;
+                    coords[1][1] = height;
+
+                    d3.select(this)
+                        .transition()
+                        .call(d3.event.target.move, coords);
+
+                    
                 }
                 brush.call(
                     d3.brush().on("end", brushend)
                 )
-                
-                var boxes = map.selectAll('box').data(data.data);
+
+                var boxW = xScale(1)-grid;
+                var boxH = yScale(1)-grid;
+
+                var boxes = map.selectAll('rect').data(data.data);
                 boxes
                     .enter().append("rect")
-                    .property("colIndex", function(d, i) { return i % cols; })
-                    .property("rowIndex", function(d, i) { return Math.floor(i / cols); })
+                    .attr("class", "box")
+                    .attr("colIndex", function(d, i) { return i % cols; })
+                    .attr("rowIndex", function(d, i) { return Math.floor(i / cols); })
                     .attr("x", function(d, i) { return xScale(i % cols); })
-                    .attr("y", function(d, i) { return yScale(Math.floor(i / cols)); })
-                    .attr("width", x(1)-grid)
-                    .attr("height", y(1)-grid)
+                    .attr("y", function(d, i) { return yScale(i % rows); })
+                    .attr("width", boxW)
+                    .attr("height", boxH)
                     .attr("fill", function(d) { return color(d); });
 
                 return {
                     g: map,
                     scaleY: yScale,
                     scaleX: xScale,
-                    data: data
+                    data: data.data,
+                    cols:cols,
+                    rows:rows,
+                    boxW:boxW,
+                    boxH:boxH
                 }
             }
 
             function zoom(){
 
-
+/*
                 var xZoomBehavior = d3.zoom().scaleExtent([1, 5]);
                 var yZoomBehavior = d3.zoom().scaleExtent([1, 5]);
                 colDendObj.g.call(xZoomBehavior);
                 rowDendObj.g.call(yZoomBehavior);
                 xZoomBehavior.on('zoom', function() {
 
+                    var map = colmapObj;
+                    var mapX = d3.event.transform.rescaleY(map.scaleX);
+
+                    var boxW = map.scaleX(1);
+
+                    map.g.selectAll('.box').data(map.data)
+                        .attr("x", function(d, i) { return mapX(i % map.cols); })
+                        .attr("y", function(d, i) { return map.scaleY(i % map.rows); })
+                        .attr("width", boxW)
+
                     var col = colDendObj;
                     var colY = col.scaleY;
                     var colX = d3.event.transform.rescaleY(col.scaleX);
                     
                     col.g.selectAll("polyline")
-                        .data(col.links)
+                        .data(col.data)
                         .attr("points", function(d){
                             return colY(d.source.y) + "," + colX(d.source.x) + " " +
                             colY(d.source.y)+ "," + colX(d.target.x) + " " +
@@ -231,6 +274,17 @@
                     var rowY = row.scaleY;
                     var rowX = d3.event.transform.rescaleY(row.scaleX);
                     
+                    var map = colmapObj;
+                    var mapY = d3.event.transform.rescaleX(map.scaleY);
+
+                    var boxW = scaleX(1);
+                    var boxH = yScale(1)-grid;
+
+                    map.g.selectAll('.box').data(map.data)
+                        .attr("x", function(d, i) { return map.scaleY(i % map.cols); })
+                        .attr("y", function(d, i) { return mapY(i % map.rows); })
+                        .attr("width", boxW)
+                    
                     row.g.selectAll("polyline")
                         .data(row.data)
                         .attr("points", function(d){
@@ -239,9 +293,7 @@
                             rowY(d.target.y)+ "," + rowX(d.target.x);
                         });
                 });
-            
-
-
+*/
             }
             
             osApi.setBusy(true);
