@@ -165,7 +165,7 @@
                             '$in': geneset
                         }
                     }).then(function(results) {
-                        debugger;
+                        
                         if (results.data.length > 0) {
                             var data;
                             if (results.data.length == 1)

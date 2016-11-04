@@ -1,0 +1,13 @@
+<div class="combobox-container" [formGroup]="formCombo">
+  <div [class]="groupClass">
+    <input (blur)="onOut($event)" formControlName="search" type="text" autocomplete="off" [placeholder]="holder" class="combobox form-control">
+    <ul class="typeahead dropdown-menu" [style.display]="visible ? 'block' : 'none'">
+      <li *ngFor="let entry of model">
+        <a (click)="onSelect(entry)">{{entry.name}}</a>
+      </li>
+    </ul>
+    <span class="input-group-addon dropdown-toggle" data-dropdown="dropdown">
+      <a (click)="onList($event)"><span class="caret"></span></a>
+    </span>
+  </div>
+</div>

@@ -1,0 +1,69 @@
+<div class="row">
+  <modal-tag hasClose="true" hasFooter="true" hasAction="true" idSelector="confirm"></modal-tag>
+  <div class="col-md-12">
+    <div class="box">
+      <div class="box-header with-border">
+        <h3 class="box-title">Consumers list</h3>
+        <div class="box-tools">
+          <form class="clearfix" [formGroup]="toolsGroup">
+            <div class="form-group pull-right">
+              <button (click)="goToNewConsumer($event)" class="btn btn-success btn-sm btn-flat">New Consumer</button>
+            </div>
+            <div class="input-group input-group-sm pull-right">
+              <input type="text" class="form-control" placeholder="Search by username" formControlName="search">
+              <span class="input-group-btn">
+                <button type="button" class="btn btn-info btn-flat" (click)="onSearch($event)">
+                  <i class="fa fa-search"></i>
+                </button>
+              </span>
+            </div>
+            <div class="form-group pull-right">
+              <select name="entries" id="controlEntries" class="form-control input-sm" formControlName="entries">
+                <option *ngFor="let length of entriesLength" [value]="length">{{length}}</option>
+              </select>
+            </div>
+          </form>
+        </div>
+      </div>
+      <div class="box-body">
+        <table class="table table-bordered" *ngIf="(consumersModel && consumersModel.length > 0)">
+          <tr>
+            <th>ID</th>
+            <th>Custom ID</th>
+            <th>Username</th>
+            <th>Created At</th>
+            <th>Tools</th>
+          </tr>
+          <tr *ngFor="let model of consumersModel">
+            <td>
+              <a [routerLink]="['/admin/consumers/edit', model.id]">{{model.id}}</a>
+            </td>
+            <td>{{model.custom_id}}</td>
+            <td>{{model.username}}</td>
+            <td>{{model.created_at | date:'d-M-y'}}</td>
+            <td>
+              <a class="btn btn-sm btn-danger" (click)="onDelete($event, model.id, model.username)">
+                <i class="fa fa-eraser"></i>
+              </a>
+            </td>
+          </tr>
+        </table>
+        <div *ngIf="(consumersModel && consumersModel.length === 0)" class="callout callout-info">
+          <h4>Consumers Collection empty!</h4>
+          <p>No results found. Please add a Consumer or redefine your search.</p>
+        </div>
+      </div>
+      <div class="box-footer clearfix" *ngIf="(consumersModel && consumersModel.length > 0)">
+        <p class="pull-left pagination-sm">Showing {{consumersModel.length}} of {{total}}.</p>
+        <ul class="pagination pagination-sm no-margin pull-right">
+          <li *ngIf="pagination.prev > 0">
+            <a (click)="onPrevious($event)">«</a>
+          </li>
+          <li *ngIf="pagination.next > 1">
+            <a (click)="onNext($event)">»</a>
+          </li>
+        </ul>
+      </div>
+    </div>
+  </div>
+</div>

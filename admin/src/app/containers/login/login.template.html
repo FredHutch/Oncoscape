@@ -1,0 +1,43 @@
+<div class="login-box">
+  <div class="login-logo">
+    <img src="assets/img/logo.png">
+  </div>
+  <!-- /.login-logo -->
+  <div class="login-box-body">
+    
+
+    <form (ngSubmit)="onSubmit(loginForm)" [formGroup]="loginForm">
+      <div class="form-group has-feedback" [class.has-error]="!loginForm.controls['mail'].valid && loginForm.controls['mail'].touched">
+        <input type="input" class="form-control" placeholder="Email" name="email" [formControl]="loginForm.controls['mail']">
+        <span class="glyphicon glyphicon-envelope form-control-feedback"></span>
+        <span *ngIf="loginForm.controls['mail'].hasError('required') && loginForm.controls['mail'].touched" class="text-danger">
+          Email is required!
+        </span>
+        <span *ngIf="loginForm.controls['mail'].hasError('validateEmail') && loginForm.controls['mail'].touched" class="text-danger">
+          Email incorrect format!
+        </span>
+      </div>
+      <div class="form-group has-feedback" [class.has-error]="!loginForm.controls['password'].valid && loginForm.controls['password'].touched">
+        <input type="password" class="form-control" placeholder="Password" name="password" [formControl]="loginForm.controls['password']">
+        <span class="glyphicon glyphicon-lock form-control-feedback"></span>
+        <span *ngIf="loginForm.controls['password'].hasError('required') && loginForm.controls['password'].touched" class="text-danger">
+          Password is required!
+        </span>
+      </div>
+      <div class="row">
+        <div class="col-xs-8">
+          <span *ngIf="invalid" class="text-danger">
+            Invalid credentials.
+          </span>
+        </div>
+        <div class="col-xs-4">
+          <button type="submit" class="btn btn-primary btn-block btn-flat" [disabled]="!loginForm.valid">Sign In</button>
+        </div>
+        <!-- /.col -->
+      </div>
+    </form>
+
+  </div>
+  <!-- /.login-box-body -->
+</div>
+<!-- /.login-box -->

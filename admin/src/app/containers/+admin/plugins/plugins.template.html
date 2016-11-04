@@ -1,0 +1,20 @@
+<div class="row">
+  <div class="col-md-3" style="padding-bottom:50px; !important" *ngFor="let plug of available">
+
+              <h5 > 
+              <span *ngIf="plug.active" class="description-header" ><span class="badge bg-green">On</span></span>
+              <span *ngIf="!plug.active" class="description-header"><span class="badge bg-red">Off</span></span>
+              &nbsp;{{plug.data.title}}
+              </h5>
+              
+              <p>{{plug.data.info}}</p>
+
+                   
+                  
+                    <a [routerLink]="['/admin/plugins/schema', plug.id]" class="btn btn-info btn-flat" [tooltip]="'Schema for ' + plug.data.title"><i class="fa fa-file-code-o"></i></a>
+                    <a *ngIf="plug.data.api" [routerLink]="['/admin/plugins/api', plug.id]" class="btn btn-info btn-flat" [tooltip]="'Add plugin ' + plug.data.title + ' to a API.'"><i class="fa fa-gg"></i></a>
+                    <a *ngIf="plug.data.consumer" [routerLink]="['/admin/plugins/consumer', plug.id]" class="btn btn-info btn-flat" [tooltip]="'Add plugin ' + plug.data.title + ' to a Consumer.'"><i class="fa fa-plug"></i></a>
+
+
+  </div>
+</div>

@@ -1,0 +1,27 @@
+body{
+	font-family: 'Lato';
+	background-color: #FFF;
+}
+.skin-purple .main-header .logo{
+	background-color: #000;
+}
+.skin-purple .main-header .navbar{
+	background-color: #000;
+}
+.nav-divider{
+	background-image: url(/assets/img/texture.png);
+    background-size: cover;
+    box-shadow: 3px 3px 10px #000;
+    height: 3px;
+    width: 100%;
+    z-index: 10000;
+    margin-bottom: -1px;
+ 	position: fixed;
+    top: 80px;
+}
+.logout{
+	line-height: 80px !important;
+}
+.sidebar-toggle:hover{
+    background-color:#000 !important;
+}

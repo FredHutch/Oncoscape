@@ -1,0 +1,12 @@
+<div class="small-box bg-black" style="background-color:#0b97d3 !important;">
+  <div class="inner">
+    <h3 *ngIf="model.title">{{model.title}}</h3>
+
+    <p *ngIf="model.info">{{model.info}}</p>
+  </div>
+  <div class="icon" *ngIf="model.icon">
+    <i [class]="model.icon"></i>
+  </div>
+  <div class="small-box-footer"></div>
+  <!--<a href="#" class="small-box-footer">More info <i class="fa fa-arrow-circle-right"></i></a>-->
+</div>

@@ -1,0 +1,53 @@
+<div *ngIf="alertModel">
+  <alert-box [model]="alertModel"></alert-box>
+</div>
+<div class="row">
+  <div class="col-md-8">
+    <div class="box box-primary">
+      <div class="box-header with-border">
+        <h3 class="box-title">{{formTitle}}</h3>
+        <div class="box-tools clearfix">
+          <combo-box holder="Search for API by name." style="width: 30%;" required=true class="pull-right" groupClass="input-group input-group-sm"></combo-box>
+        </div>
+      </div>
+      <form role="form" (ngSubmit)="save()" [formGroup]="pluginForm">
+        <div class="box-body">
+          <div class="form-group" *ngFor="let control of formControls">
+            <span [ngSwitch]="control.type" *ngIf="control.render">
+              <label *ngSwitchCase="'text'" >{{control.label}}</label>
+              <input *ngSwitchCase="'text'" type="text" [formControlName]="control.key" [id]="control.key" class="form-control" [placeholder]="control.holder">
+              <label *ngSwitchCase="'number'" >{{control.label}}</label>
+              <input *ngSwitchCase="'number'" type="number" [formControlName]="control.key" [id]="control.key" class="form-control" min="0">
+              <label *ngSwitchCase="'file'" >{{control.label}}</label>
+              <input *ngSwitchCase="'file'" type="file" [formControlName]="control.key" [id]="control.key" class="form-control" file-select [options]="uploadOptions" (onPreviewData)="preview($event, control.key)" (onUpload)="upload($event, control.key)">
+              <div *ngSwitchCase="'file'" class="progress">
+                <div class="progress-bar" role="progressbar" aria-valuenow="0" aria-valuemin="0" [id]="control.key+'-progress'" aria-valuemax="100">0%</div>
+              </div>
+              <div *ngSwitchCase="'checkbox'" class="checkbox">
+                <label>
+                  <input type="checkbox" [formControlName]="control.key" [id]="control.key" [checked]="control.value"> {{control.label}}
+                </label>
+              </div>
+
+            </span>
+          </div>
+        </div>
+        <div class="box-footer">
+          <button type="submit" class="btn btn-primary" [disabled]="!pluginForm.valid">Save</button>
+          <button (click)="reset($event)" class="btn btn-info">Clear</button>
+          <button (click)="cancel($event)" class="btn btn-default pull-right">Cancel</button>
+        </div>
+      </form>
+    </div>
+  </div>
+  <div class="col-md-4">
+    <div class="box box-info">
+      <div class="box-header">
+        <h3 class="box-title">Help</h3>
+      </div>
+      <div class="box-body">
+        <span [innerHTML]="help"></span>
+      </div>
+    </div>
+  </div>
+</div>

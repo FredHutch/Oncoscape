@@ -1,0 +1,13 @@
+<!-- Main Header -->
+<header class="main-header">
+  <ng-content select="[brand-tag]"></ng-content>
+  <!-- Header Navbar -->
+  <nav class="navbar navbar-static-top" role="navigation">
+    <!-- Sidebar toggle button-->
+    <a (click)="toggle($event)" class="sidebar-toggle" data-toggle="offcanvas" role="button">
+      <span class="sr-only">Toggle navigation</span>
+    </a>
+    <ng-content select="[navleft-tag]"></ng-content>
+    <ng-content select="[navright-tag]"></ng-content>
+  </nav>
+</header>

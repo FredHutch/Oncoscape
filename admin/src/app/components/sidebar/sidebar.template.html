@@ -1,0 +1,34 @@
+<aside class="main-sidebar">
+
+  <!-- sidebar: style can be found in sidebar.less -->
+  <section class="sidebar">
+
+<!-- 
+    <ng-content select="[panel-tag]"></ng-content>
+    <ng-content select="[optional-tag]"></ng-content>
+ -->
+    <!-- Sidebar Menu -->
+    <ul class="sidebar-menu">
+      <li>&nbsp;</li>
+      <li  *ngFor="let item of model">
+        <a (click)="sideBarItem(item)" [routerLink]="item.url">
+          <i [class]="item.icon"></i>
+          <span>{{item.label}}</span>
+          <span *ngIf="item.tree" class="pull-right-container">
+            <i class="fa fa-angle-left pull-right"></i>
+          </span>
+        </a>
+        <ul *ngIf="item.tree" class="treeview-menu">
+          <li *ngFor="let node of item.tree">
+            <a (click)="sideBarItem(node)" [routerLink]="node.url">
+              <i [class]="node.icon"></i>
+              <span>{{node.label}}</span>
+            </a>
+          </li>
+        </ul>
+      </li>
+    </ul>
+    <!-- /.sidebar-menu -->
+  </section>
+  <!-- /.sidebar -->
+</aside>
