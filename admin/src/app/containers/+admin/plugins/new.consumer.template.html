@@ -1,0 +1,49 @@
+<div *ngIf="alertModel">
+  <alert-box [model]="alertModel"></alert-box>
+</div>
+<div class="row">
+  <div class="col-md-8">
+    <div class="box box-primary">
+      <div class="box-header with-border">
+        <h3 class="box-title">{{formTitle}}</h3>
+        <div class="box-tools clearfix">
+          <combo-box holder="Search for Consumer by name." style="width: 35%;" required=true class="pull-right" groupClass="input-group input-group-sm"></combo-box>
+        </div>
+      </div>
+      <form role="form" (ngSubmit)="save()" [formGroup]="consumerForm">
+        <div class="box-body">
+          <div class="form-group" *ngFor="let control of formControls">
+            <span [ngSwitch]="control.type" *ngIf="control.render">
+              <label *ngSwitchCase="'text'" >{{control.label}}</label>
+              <input *ngSwitchCase="'text'" type="text" [formControlName]="control.key" [id]="control.key" class="form-control" [placeholder]="control.holder">
+              <label *ngSwitchCase="'password'" >{{control.label}}</label>
+              <input *ngSwitchCase="'password'" type="password" [formControlName]="control.key" [id]="control.key" class="form-control">
+              <div *ngSwitchCase="'checkbox'" class="checkbox">
+                <label>
+                  <input type="checkbox" [formControlName]="control.key" [id]="control.key" [checked]="control.value"> {{control.label}}
+                </label>
+              </div>
+              <label *ngSwitchCase="'textarea'" >{{control.label}}</label>
+              <textarea *ngSwitchCase="'textarea'" rows="4" [formControlName]="control.key" [id]="control.key" class="form-control"></textarea>
+            </span>
+          </div>
+        </div>
+        <div class="box-footer">
+          <button type="submit" class="btn btn-primary" [disabled]="!consumerForm.valid">Save</button>
+          <button (click)="reset($event)" class="btn btn-info">Clear</button>
+          <button (click)="cancel($event)" class="btn btn-default pull-right">Cancel</button>
+        </div>
+      </form>
+    </div>
+  </div>
+  <div class="col-md-4">
+    <div class="box box-info">
+      <div class="box-header">
+        <h3 class="box-title">Help</h3>
+      </div>
+      <div class="box-body">
+        <span [innerHTML]="help"></span>
+      </div>
+    </div>
+  </div>
+</div>

@@ -81,17 +81,16 @@
 
             vm.exportCsv = function() {
 
-                var header = htGrid.getColHeader();
                 var data = htGrid.getData();
                 var tmpColDelim = String.fromCharCode(11),
                     tmpRowDelim = String.fromCharCode(0),
                     colDelim = '","',
                     rowDelim = '"\r\n"',
-                    csv = '"' + data.map(function(rval, index) {
-                        return rval.map(function(cval, jndex) {
+                    csv = '"' + data.map(function(rval) {
+                        return rval.map(function(cval) {
                             // escape double quotes
                             var out = "";
-                            if (!!cval) {
+                            if (!cval) {
                                 out = cval.toString();
                             }
                             return out;
@@ -149,7 +148,7 @@
             };
             
           
-            var rowRenderer = function(instance, td, row, col, prop, value, cellProperties){
+            var rowRenderer = function(instance, td, row){
                 Handsontable.TextRenderer.apply(this, arguments);
 
                 td.style['color'] = filteredData[row]['color'];
@@ -167,7 +166,7 @@
                 settings.columns = cols.map(function(v) {
                     return { data: v.field };
                 });
-                settings.cells = function (row, col, prop) {
+                settings.cells = function () {
                     var cellProps = {};
                     cellProps.renderer = rowRenderer;
                     return cellProps;
@@ -178,7 +177,7 @@
                 if (render) htGrid.render();
             };
 
-            vm.setSize = function(render) {
+            vm.setSize = function() {
                 var osLayout = osApi.getLayout();
                 elGrid.css("margin-left", (osLayout.left-30) + "px");
                 elGrid.css("width", ($window.innerWidth - osLayout.left - osLayout.right - 80) + "px");
@@ -188,8 +187,8 @@
 
             $scope.$watch("vm.collection", setData);
             $scope.$watch("vm.search", function(v){
-                if (!angular.isDefined(htGrid)) return;
-                var result = htGrid.search.query(v.toUpperCase().trim());
+                if (angular.isUndefined(htGrid)) return;
+                htGrid.search.query(v.toUpperCase().trim());
                 htGrid.render();
             });
 
@@ -227,8 +226,6 @@
 
                 data.forEach(function(data){
                     data.color = this[data.patient_ID]
-                    console.log(data.color);
-
                 }, degMap)
             };
             osCohortService.onPatientColorChange.add(onPatientColorChange)
@@ -237,11 +234,9 @@
             osApi.setBusy(true);
 
          
-            
-
             // Destroy
             $scope.$on('$destroy', function() {
-                osCohortService.onPatientsSelect.remove(onPatientsSelect);
+                //osCohortService.onPatientsSelect.remove(onPatientsSelect);
                 osCohortService.onPatientColorChange.remove(onPatientColorChange)
             });
         }

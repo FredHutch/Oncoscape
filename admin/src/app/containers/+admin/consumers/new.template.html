@@ -1,0 +1,65 @@
+<div *ngIf="alertModel">
+  <alert-box [model]="alertModel"></alert-box>
+</div>
+<div class="row">
+  <div class="col-md-8">
+    <div class="box box-primary">
+      <div class="box-header with-border">
+        <h3 class="box-title">Your new Consumer.</h3>
+      </div>
+      <form role="form" (ngSubmit)="save()" [formGroup]="consumerForm">
+        <div class="box-body">
+          <div class="form-group">
+            <label for="controlName">Username</label>
+            <input type="text" formControlName="username" id="controlName" class="form-control" placeholder="Enter the username.">
+          </div>
+          <div class="form-group">
+            <label for="controlCostumId">Custom ID</label>
+            <input type="text" formControlName="customId" id="controlCustomId" class="form-control" placeholder="Enter a UUID custom ID.">
+            <p class="help-block">Field for storing an existing ID for the consumer.</p>
+          </div>
+        </div>
+        <div class="box-footer">
+          <button type="submit" class="btn btn-primary" [disabled]="!consumerForm.valid">Save</button>
+          <button (click)="reset($event)" class="btn btn-info">Clear</button>
+          <button (click)="cancel($event)" class="btn btn-default pull-right">Cancel</button>
+        </div>
+      </form>
+    </div>
+  </div>
+  <div class="col-md-4">
+    <div class="box box-warning">
+      <div class="box-header with-border">
+        <h3 class="box-title">Generate UUID</h3>
+      </div>
+      <div class="box-body">
+        {{uuid}}
+      </div>
+      <div class="box-footer">
+        <button (click)="generateUUID($event)" class="btn btn-info pull-right">Generate</button>
+      </div>
+    </div>
+
+    <div class="box box-info">
+      <div class="box-header">
+        <h3 class="box-title">Help</h3>
+      </div>
+      <div class="box-body">
+        <table class="table table-hover">
+          <tr>
+            <th>Attribute</th>
+            <th>Description</th>
+          </tr>
+          <tr>
+            <td><span class="badge-highlight">username</span><br><em>semi-optional</em></td>
+            <td><p>The username of the consumer. You must send either this field or <span class="badge-highlight">custom_id</span> with the request.</p></td>
+          </tr>
+          <tr>
+            <td><span class="badge-highlight">custom_id</span><br><em>semi-optional</em></td>
+            <td><p>Field for storing an existing ID for the consumer, useful for mapping Kong with users in your existing database. You must send either this field or <span class="badge-highlight">username</span> with the request.</p></td>
+          </tr>
+        </table>
+      </div>
+    </div>
+  </div>
+</div>

@@ -46,7 +46,7 @@
                 osCohortService.setPatientCohort([],"All Patients")
             });
 
-            $rootScope.$on('$stateChangeStart', function(event, toState){ 
+            var onStateChange = $rootScope.$on('$stateChangeStart', function(event, toState){ 
                 switch(toState.name){
                     case "landing":
                     case "tools":
@@ -58,6 +58,7 @@
                         break;
                 }
             });
+            $rootScope.$on('$destroy', onStateChange);
 
             // Configure Tray
             var elTray = angular.element(".cohort-menu");
@@ -296,7 +297,7 @@
                 }
                 vm.cohortName = obj.name;
                 osCohortService.getPatientMetric();
-                var cohorts =  JSON.parse(JSON.stringify(osCohortService.getPatientCohorts()));
+                var cohorts =  angular.fromJson(angular.toJson(osCohortService.getPatientCohorts()));
                 cohorts.push(obj);
                 osCohortService.getSurvivalData(cohorts,true,"CohortMenuController");
             });

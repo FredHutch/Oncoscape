@@ -1,0 +1,6 @@
+<div *ngIf="visible" [class]="model.classes">
+  <button *ngIf="model.close && !model.autoHide" type="button" class="close" aria-hidden="true" (click)="hide($event)">×</button>
+  <button *ngIf="model.close && model.autoHide" type="button" class="close" data-dismiss="alert" aria-hidden="true" (click)="hide($event)">×</button>
+  <div *ngIf="model.title" [innerHTML]="model.title"></div>
+  <div *ngIf="model.info" [innerHtml]="model.info"></div>
+</div>

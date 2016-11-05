@@ -1,0 +1,65 @@
+<div class="row">
+  <div class="col-md-12">
+    <div class="box">
+      <div class="box-header with-border">
+        <h3 class="box-title">Plugins API list</h3>
+        <div class="box-tools">
+          <form class="clearfix" [formGroup]="toolsGroup">
+            <div class="input-group input-group-sm pull-right">
+              <input type="text" class="form-control" placeholder="Search by name" formControlName="search">
+              <span class="input-group-btn">
+                <button type="button" class="btn btn-info btn-flat" (click)="onSearch($event)">
+                  <i class="fa fa-search"></i>
+                </button>
+              </span>
+            </div>
+            <div class="form-group pull-right">
+              <select name="entries" id="controlEntries" class="form-control input-sm" formControlName="entries">
+                <option *ngFor="let length of entriesLength" [value]="length">{{length}}</option>
+              </select>
+            </div>
+          </form>
+        </div>
+      </div>
+      <div class="box-body">
+        <table class="table table-bordered" *ngIf="(pluginApiModel && pluginApiModel.length > 0)">
+          <tr>
+            <th>ID</th>
+            <th>Name</th>
+            <th>Enabled</th>
+            <th>Created At</th>
+            <th>Tools</th>
+          </tr>
+          <tr *ngFor="let model of pluginApiModel">
+            <td>
+              <a>{{model.id}}</a>
+            </td>
+            <td>{{model.name}}</td>
+            <td>{{model.enabled}}</td>
+            <td>{{model.created_at | date:'d-M-y'}}</td>
+            <td>
+              <a [tooltip]="'Details '+ model.name" class="btn btn-sm btn-danger">
+                <i class="fa fa-eraser"></i>
+              </a>
+            </td>
+          </tr>
+        </table>
+        <div *ngIf="(pluginApiModel && pluginApiModel.length === 0)" class="callout callout-info">
+          <h4>APIS Plugins empty!</h4>
+          <p>No results found. Please add plugin to the API or redefine your search.</p>
+        </div>
+      </div>
+      <div class="box-footer clearfix" *ngIf="(pluginApiModel && pluginApiModel.length > 0)">
+        <p class="pull-left pagination-sm">Showing {{pluginApiModel.length}} of {{total}}.</p>
+        <ul class="pagination pagination-sm no-margin pull-right">
+          <li *ngIf="pagination.prev > 0">
+            <a (click)="onPrevious($event)">«</a>
+          </li>
+          <li *ngIf="pagination.next > 1">
+            <a (click)="onNext($event)">»</a>
+          </li>
+        </ul>
+      </div>
+    </div>
+  </div>
+</div>

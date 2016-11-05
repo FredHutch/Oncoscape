@@ -6,7 +6,7 @@
         .service('osApi', osApi);
 
     /** @ngInject */
-    function osApi(osHttp, $http, signals, $location, $q) {
+    function osApi(osHttp, $http, signals, $location, $q, $) {
 
         // Events
         var onDataSource = new signals.Signal();
@@ -104,20 +104,20 @@
             var createMethod = function(obj, method) {
                 var fnName = 'get' + method.charAt(0).toUpperCase() + method.slice(1).toLowerCase();
                 obj[fnName] = function(options) {
-                    return new Promise(function(resolve, reject) {
+                    return new Promise(function(resolve) {
                         $.ajax({
                             url: serviceEndpoint + "/" + method,
                             type: "POST",
-                            data: JSON.stringify(options),
+                            data: angular.toJson(options),
                             contentType: "application/json; charset=utf-8",
                             dataType: "text",
                             beforeSend: function(xhr, settings) {
                                 settings.xhrFields = settings.xhrFields || {};
-                                settings.xhrFields.withCredentials = true;
+                                settings.xhrFields.withCredentials = false;
                                 settings.crossDomain = true;
                             }
                         }).done(function(response) {
-                            var response = response.split("\n");
+                            response = response.split("\n");
                             var url = server + response[0];
                             $.ajax({
                                 url: url,
@@ -125,7 +125,7 @@
                                 crossDomain: true,
                                 beforeSend: function(xhr, settings) {
                                     settings.xhrFields = settings.xhrFields || {};
-                                    settings.xhrFields.withCredentials = true;
+                                    settings.xhrFields.withCredentials = false;
                                     settings.crossDomain = true;
                                 }
                             }).done(function(response) {
@@ -135,7 +135,7 @@
                     });
                 }
             }
-            return new Promise(function(resolve, reject) {
+            return new Promise(function(resolve) {
                 $.get(serviceEndpoint).then(function(methods) {
                     var api = methods.split("\n").reduce(function(obj, method) {
                         if (method != "") createMethod(obj, method)

@@ -1,0 +1,94 @@
+<div *ngIf="alertModel">
+  <alert-box [model]="alertModel"></alert-box>
+</div>
+<div class="row">
+  <div class="col-md-8">
+    <div class="box box-primary">
+      <div class="box-header with-border">
+        <h3 class="box-title">Your new Rest Api.</h3>
+      </div>
+      <form role="form" (ngSubmit)="save()" [formGroup]="apiForm">
+        <div class="box-body">
+          <div class="form-group">
+            <label for="controlName">Name</label>
+            <input type="text" formControlName="name" id="controlName" class="form-control" placeholder="Enter the API name.">
+          </div>
+          <div class="form-group">
+            <label for="controlRequestHost">Request Host</label>
+            <input type="text" formControlName="requestHost" id="controlRequestHost" class="form-control" placeholder="Enter the request host name.">
+            <p class="help-block">The public DNS address that points to your API.</p>
+          </div>
+          <div class="form-group">
+            <label for="controlRequestPath">Request Path</label>
+            <input type="text" formControlName="requestPath" id="controlRequestPath" class="form-control" placeholder="Enter the request path.">
+            <p class="help-block">The public path that points to your API</p>
+          </div>
+          <div class="form-group">
+            <label>
+              <input type="checkbox" formControlName="stripRequestPath"> Strip request Path
+            </label>
+            <p class="help-block">Strip the request path value before proxying the request to the final API.</p>
+          </div>
+          <div class="form-group">
+            <label>
+              <input type="checkbox" formControlName="preserveHost"> Preserve Host
+            </label>
+            <p class="help-block">Preserves the original Host header sent by the client, instead of replacing it with the hostname of the upstream url.</p>
+          </div>
+          <div class="form-group" [class.has-error]="apiForm.controls['upstreamUrl'].invalid && apiForm.controls['upstreamUrl'].touched">
+            <label for="controlUpstreamUrl">Upstream Url</label>
+            <input type="text" formControlName="upstreamUrl" id="controlUpstreamUrl" class="form-control" placeholder="Enter target url">
+            <span *ngIf="apiForm.controls['upstreamUrl'].hasError('required')" class="text-danger">
+              Upstream url is required!
+            </span>
+            <p class="help-block">The base target URL that points to your API server, this URL will be used for proxying requests.</p>
+          </div>
+        </div>
+        <div class="box-footer">
+          <button type="submit" class="btn btn-primary" [disabled]="!apiForm.valid">Save</button>
+          <button (click)="reset($event)" class="btn btn-info">Clear</button>
+          <button (click)="cancel($event)" class="btn btn-default pull-right">Cancel</button>
+        </div>
+      </form>
+    </div>
+  </div>
+  <div class="col-md-4">
+    <div class="box box-info">
+      <div class="box-header">
+        <h3 class="box-title">Help</h3>
+      </div>
+      <div class="box-body">
+        <table class="table table-hover">
+          <tr>
+            <th>Attribute</th>
+            <th>Description</th>
+          </tr>
+          <tr>
+            <td><span class="badge-highlight">name</span><br><em>optional</em></td>
+            <td><p>The API name. If none is specified, will default to the <span class="badge-highlight">request_host</span> or <span class="badge-highlight">request_path</span>.</p></td>
+          </tr>
+          <tr>
+            <td><span class="badge-highlight">request_host</span><br><em>semi-optional</em></td>
+            <td><p>The public DNS address that points to your API. For example, mockbin.com. At least <span class="badge-highlight">request_host</span> or <span class="badge-highlight">request_path</span> or both should be specified.</p></td>
+          </tr>
+          <tr>
+            <td><span class="badge-highlight">request_path</span><br><em>semi-optional</em></td>
+            <td><p>The public path that points to your API. For example, <span class="badge-highlight">/someservice</span>. At least <span class="badge-highlight">request_host</span> or <span class="badge-highlight">request_path</span> or both should be specified.</p></td>
+          </tr>
+          <tr>
+            <td><span class="badge-highlight">strip_request_path</span><br><em>optional</em></td>
+            <td><p>Strip the <span class="badge-highlight">request_path</span> value before proxying the request to the final API. For example a request made to <span class="badge-highlight">/someservice/hello</span> will be resolved to <span class="badge-highlight">upstream_url/hello</span>. By default is false.</p></td>
+          </tr>
+          <tr>
+            <td><span class="badge-highlight">preserve_host</span><br><em>optional</em></td>
+            <td><p>Preserves the original Host header sent by the client, instead of replacing it with the hostname of the <span class="badge-highlight">upstream_url</span>. By default is false.</p></td>
+          </tr>
+          <tr>
+            <td>upstream_url</td>
+            <td><p>The base target URL that points to your API server, this URL will be used for proxying requests. For example, <span class="badge-highlight">https://mockbin.com</span>.</p></td>
+          </tr>
+        </table>
+      </div>
+    </div>
+  </div>
+</div>

@@ -40,7 +40,7 @@
             });
 
             allPatientCohorts = localStorage.getItem(osApi.getDataSource().disease + "PatientCohorts");
-            allPatientCohorts = (allPatientCohorts == null) ? [] : JSON.parse(allPatientCohorts);
+            allPatientCohorts = (allPatientCohorts == null) ? [] : angular.fromJson(allPatientCohorts);
             for (var i = 0; i < allPatientCohorts.length; i++) {
                 allPatientCohorts[i].color = colors[i];
             }
@@ -56,9 +56,6 @@
             }]
         };
 
-        var getPatientColor = function() {
-            return _patientColor;
-        }
 
         var setPatientColor = function(val) {
             _patientColor = val;
@@ -94,19 +91,18 @@
             if (allPatientCohorts.indexOf(activePatientCohort) != -1) return;
             activePatientCohort.color = colors[allPatientCohorts.length];
             allPatientCohorts.push(activePatientCohort);
-            localStorage.setItem(osApi.getDataSource().disease + "PatientCohorts", JSON.stringify(allPatientCohorts));
+            localStorage.setItem(osApi.getDataSource().disease + "PatientCohorts", angular.toJson(allPatientCohorts));
         };
         var importPatientCohort = function(ids){
             worker.postMessage({
                cmd: "validatePatientIds",
                data: ids 
             });
-            
         }
 
         var delPatientCohort = function(obj) {
             allPatientCohorts.splice(allPatientCohorts.indexOf(obj), 1);
-            localStorage.setItem(osApi.getDataSource().disease + "PatientCohorts", JSON.stringify(allPatientCohorts));
+            localStorage.setItem(osApi.getDataSource().disease + "PatientCohorts", angular.toJson(allPatientCohorts));
         };
 
         var setPatientCohort = function(ids, name) {
@@ -128,7 +124,7 @@
                     ids: activePatientCohort.ids,
                     type: type,
                     bounds: bounds,
-                    prop: prop,
+                    prop: prop
                 }
             });
         }
@@ -150,7 +146,7 @@
             function S4() {
                 return (((1 + Math.random()) * 0x10000) | 0).toString(16).substring(1);
             }
-            activeGeneCohort = (!Array.isArray(ids)) ? ids : {
+            activeGeneCohort = (!angular.isArray(ids)) ? ids : {
                 id: (S4() + S4() + "-" + S4() + "-4" + S4().substr(0, 3) + "-" + S4() + "-" + S4() + S4() + S4()).toLowerCase(),
                 ids: ids,
                 name: name,

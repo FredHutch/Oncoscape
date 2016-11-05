@@ -1,0 +1,15 @@
+<section class="content-header">
+<!--
+  <h1 *ngIf="hasCrumbProperty(activeUrl, 'title')">
+    {{getCrumbProperty(activeUrl, 'title')}}
+    <small *ngIf="hasCrumbProperty(activeUrl, 'info')">{{getCrumbProperty(activeUrl, 'info')}}</small>
+  </h1>
+  -->
+  <h1>&nbsp;</h1>
+  <ol class="breadcrumb">
+    <li *ngFor="let url of urls; let last = last" [ngClass]="{'active': last}">
+      <a *ngIf="!last" [routerLink]="url">{{getCrumbProperty(url, 'label')}}</a>
+      <span *ngIf="last">{{getCrumbProperty(url, 'label')}}</span>
+    </li>
+  </ol>
+</section>
