@@ -10,6 +10,8 @@ htpasswd -b -c /home/sttrweb/Oncoscape/.htpasswd $HT_USERNAME $HT_PASSWORD
 #  "oncoscape-dev-2") export kong_container_ip="172.17.12.120";;
 #esac
 
+export kong_container_ip=$(echo $DOCKERCLOUD_IP_ADDRESS | rev | cut -c 4- | rev)
+
 # Inject Environment Vars Into Config
 envsubst < /home/sttrweb/Oncoscape/docker-kong.template > /home/sttrweb/Oncoscape/docker-kong.conf
 
