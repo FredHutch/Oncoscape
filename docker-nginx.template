@@ -41,9 +41,9 @@ http {
         root /home/sttrweb/Oncoscape/client;
 
         # ELB Heath Check
-        location /health_check {
-           return 200;
-        }
+        #location /health_check {
+        #   return 200;
+        #}
 
         # Index
         location / {
@@ -51,9 +51,9 @@ http {
         }
 
         # HTTPS 
-        if ($http_x_forwarded_proto != "https") {
-            return 301 https://$server_name$request_uri;
-        }
+        #if ($http_x_forwarded_proto != "https") {
+        #    return 301 https://$server_name$request_uri;
+        #}
 
         # Static Assets
         location ~ ^/(assets|fonts|scripts|styles|maps|app)/ {
@@ -127,9 +127,6 @@ http {
             #auth_basic "Restricted Content";
             #auth_basic_user_file /home/sttrweb/Oncoscape/.htpasswd;
         }
-
-
-        
+       
     }
 }
-
