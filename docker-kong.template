@@ -185,10 +185,10 @@ pg_database = $KONG_PG_DATABASE  # The database name to connect to.
 # https://getkong.org/docs/latest/clustering/
 
 
-cluster_listen = $kong_container_ip:7946
+#cluster_listen = $kong_container_ip:7946
 
-# Can't use 0.0.0.0 cuz first ip is not the weave
-#cluster_listen = 0.0.0.0:7946   # Address and port used to communicate with
+
+cluster_listen = 0.0.0.0:7946   # Address and port used to communicate with
                                  # other nodes in the cluster.
                                  # All other Kong nodes in the same cluster
                                  # must be able to communicate over both
