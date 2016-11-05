@@ -200,7 +200,7 @@ cluster_listen_rpc = 127.0.0.1:7373  # Address and port used by this node to
                                       # Only contains TCP traffic over the
                                       # local network.
 
-#cluster_advertise =             # By default, the `cluster_listen` address
+cluster_advertise = $kong_container_ip:7946            # By default, the `cluster_listen` address
                                  # is advertised over the cluster.
                                  # If the `cluster_listen` host is '0.0.0.0',
                                  # then the first local, non-loopback IPv4
@@ -214,7 +214,7 @@ cluster_listen_rpc = 127.0.0.1:7373  # Address and port used by this node to
 #cluster_encrypt_key =           # base64-encoded 16-bytes key to encrypt
                                  # cluster traffic with.
 
-cluster_ttl_on_failure = 3600   # Time to live (in seconds) of a node in the
+#cluster_ttl_on_failure = 3600   # Time to live (in seconds) of a node in the
                                  # cluster when it stops sending healthcheck
                                  # pings, possibly caused by a node or network
                                  # failure.
@@ -224,7 +224,7 @@ cluster_ttl_on_failure = 3600   # Time to live (in seconds) of a node in the
                                  # attempting to connect to it.
                                  # Recommended to be at least `60`.
 
-cluster_profile = wan           # The timing profile for inter-cluster pings
+#cluster_profile = wan           # The timing profile for inter-cluster pings
                                  # and timeouts. If a `lan` or `local` profile
                                  # is used over the Internet, a high rate of
                                  # failures is risked as the timing contraints
