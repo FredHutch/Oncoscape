@@ -185,19 +185,19 @@ pg_database = $KONG_PG_DATABASE  # The database name to connect to.
 # https://getkong.org/docs/latest/clustering/
 
 
-cluster_listen = $kong_container_ip:7946   # Address and port used to communicate with
+#cluster_listen = $kong_container_ip:7946   # Address and port used to communicate with
                                  # other nodes in the cluster.
                                  # All other Kong nodes in the same cluster
                                  # must be able to communicate over both
                                  # TCP and UDP on this address.
                                  # Only IPv4 addresses are supported.
 
-cluster_listen_rpc = $kong_container_ip:7373  # Address and port used by this node to
+#cluster_listen_rpc = $kong_container_ip:7373  # Address and port used by this node to
                                       # communicate with the cluster.
                                       # Only contains TCP traffic over the
                                       # local network.
 
-cluster_advertise = $kong_container_ip:7946            # By default, the `cluster_listen` address
+#cluster_advertise = $kong_container_ip:7946            # By default, the `cluster_listen` address
                                  # is advertised over the cluster.
                                  # If the `cluster_listen` host is '0.0.0.0',
                                  # then the first local, non-loopback IPv4
