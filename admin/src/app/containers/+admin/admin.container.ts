@@ -74,6 +74,11 @@ export class AdminContainer extends Container implements OnInit {
         info: 'Resume view',
         label: 'Control Panel'
       },
+      '/admin/acls':{
+        title: 'ACLS',
+        info: 'Register REST acl',
+        label: 'Acls List'
+      },
       '/admin/apis': {
         title: 'APIS',
         info: 'Register REST apis',

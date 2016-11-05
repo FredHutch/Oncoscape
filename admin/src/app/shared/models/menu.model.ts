@@ -32,6 +32,11 @@ export class MenuModel extends BaseModel {
           icon: 'fa fa-gg'
         },
         {
+          label: 'Acls',
+          url: '/admin/acls',
+          icon: 'fa fa-lock'
+        },
+        {
           label: 'Consumers',
           url: '/admin/consumers',
           icon: 'fa fa-spoon'

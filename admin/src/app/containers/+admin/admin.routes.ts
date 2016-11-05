@@ -7,7 +7,7 @@ import { AdminContainer } from './admin.container';
 import {
   PluginsContainer, PluginDetailContainer, NewPluginContainer, NewConsumerApiContainer
 } from './plugins';
-import { ApisContainer, NewApiContainer, EditApiContainer, ApiPlugsContainer } from './apis';
+import { ApisContainer, NewApiContainer, EditApiContainer, AclsContainer, ApiPlugsContainer } from './apis';
 import { ConsumersContainer, NewConsumerContainer, EditConsumerContainer } from './consumers';
 
 const ROUTES: Routes = [
@@ -17,6 +17,13 @@ const ROUTES: Routes = [
     canActivate: [ GuardService ],
     children: [
       { path: '', component: DashboardContainer },
+      {
+        path: 'acls',
+        pathMath: '',
+        children:[ 
+          {path:'', component: AclsContainer }
+        ]
+      },
       {
         path: 'apis',
         pathMatch: '',

@@ -10,7 +10,7 @@ import {
   PluginsContainer, PluginDetailContainer,
   NewPluginContainer, NewConsumerApiContainer
 } from './plugins';
-import { ApisContainer, NewApiContainer, EditApiContainer, ApiPlugsContainer } from './apis';
+import { ApisContainer, NewApiContainer, EditApiContainer, ApiPlugsContainer, AclsContainer } from './apis';
 import { ConsumersContainer, NewConsumerContainer, EditConsumerContainer } from './consumers';
 
 
