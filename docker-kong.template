@@ -185,8 +185,9 @@ pg_database = $KONG_PG_DATABASE  # The database name to connect to.
 # https://getkong.org/docs/latest/clustering/
 
 
-#cluster_listen = $kong_container_ip:7946
+cluster_listen = $kong_container_ip:7946
 
+# Can't use 0.0.0.0 cuz first ip is not the weave
 #cluster_listen = 0.0.0.0:7946   # Address and port used to communicate with
                                  # other nodes in the cluster.
                                  # All other Kong nodes in the same cluster
@@ -213,7 +214,7 @@ cluster_listen_rpc = 127.0.0.1:7373  # Address and port used by this node to
 #cluster_encrypt_key =           # base64-encoded 16-bytes key to encrypt
                                  # cluster traffic with.
 
-#cluster_ttl_on_failure = 3600   # Time to live (in seconds) of a node in the
+cluster_ttl_on_failure = 3600   # Time to live (in seconds) of a node in the
                                  # cluster when it stops sending healthcheck
                                  # pings, possibly caused by a node or network
                                  # failure.
@@ -223,7 +224,7 @@ cluster_listen_rpc = 127.0.0.1:7373  # Address and port used by this node to
                                  # attempting to connect to it.
                                  # Recommended to be at least `60`.
 
-#cluster_profile = wan           # The timing profile for inter-cluster pings
+cluster_profile = wan           # The timing profile for inter-cluster pings
                                  # and timeouts. If a `lan` or `local` profile
                                  # is used over the Internet, a high rate of
                                  # failures is risked as the timing contraints
