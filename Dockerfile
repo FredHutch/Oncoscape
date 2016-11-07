@@ -23,8 +23,8 @@ RUN apt-get -y -qq update && apt-get -y -qq install \
 	supervisor
 
 # Install Kong
-RUN curl -sL https://github.com/Mashape/kong/releases/download/0.9.0/kong-0.9.0.trusty_all.deb > kong-0.9.0.trusty_all.deb  && \
-	dpkg -i kong-0.9.0.trusty_all.deb
+RUN curl -sL https://github.com/Mashape/kong/releases/download/0.9.4/kong-0.9.4.trusty_all.deb > kong-0.9.4.trusty_all.deb  && \
+	dpkg -i kong-0.9.4.trusty_all.deb
 
 # Install Node 6.x + PM2
 RUN curl -sL https://deb.nodesource.com/setup_6.x | bash -
