@@ -7,8 +7,10 @@ import { AdminContainer } from './admin.container';
 import {
   PluginsContainer, PluginDetailContainer, NewPluginContainer, NewConsumerApiContainer
 } from './plugins';
-import { ApisContainer, NewApiContainer, EditApiContainer, AclsContainer, ApiPlugsContainer } from './apis';
+import { ApisContainer, NewApiContainer, EditApiContainer, ApiPlugsContainer } from './apis';
 import { ConsumersContainer, NewConsumerContainer, EditConsumerContainer } from './consumers';
+import { AclsContainer } from './acls';
+import { ClusterContainer } from './cluster';
 
 const ROUTES: Routes = [
   {
@@ -19,9 +21,9 @@ const ROUTES: Routes = [
       { path: '', component: DashboardContainer },
       {
         path: 'acls',
-        pathMath: '',
-        children:[ 
-          {path:'', component: AclsContainer }
+        pathMatch: '',
+        children: [
+          { path: '', component: AclsContainer },
         ]
       },
       {
@@ -52,7 +54,14 @@ const ROUTES: Routes = [
           { path: 'api/:id', component: NewPluginContainer },
           { path: 'consumer/:id', component: NewConsumerApiContainer }
         ]
-      }
+      },
+      {
+        path: 'cluster',
+        pathMatch: '',
+        children: [
+          { path: '', component: ClusterContainer  },
+        ]
+      },
     ]
   }
 ];

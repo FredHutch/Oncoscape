@@ -4,60 +4,7 @@
   </div>
 </div>
 <div class="row">
-  <!-- APIS -->
-  <div class="col-md-6">
-    <div class="box">
-      <div class="box-header with-border">
-        <h3 class="box-title">APIS</h3>
-      </div>
-      <div class="box-body">
-        <table class="table table-bordered" *ngIf="(apisModel && apisModel.length > 0)">
-          <tbody>
-            <tr>
-              <th>Name</th>
-              <th>Upstream Url</th>
-            </tr>
-            <tr *ngFor="let modelApi of apisModel">
-              <td>{{modelApi.name}}</td>
-              <td>{{modelApi.upstream_url}}</td>
-            </tr>
-          </tbody>
-        </table>
-        <div *ngIf="(apisModel && apisModel.length === 0)" class="callout callout-info">
-          <h4>Apis Empty!</h4>
-          <p>Please start adding new APIS.</p>
-        </div>
-      </div>
-    </div>
-  </div>
-  <!-- CONSUMERS -->
-  <div class="col-md-6">
-    <div class="box">
-      <div class="box-header with-border">
-        <h3 class="box-title">CONSUMERS</h3>
-      </div>
-      <div class="box-body">
-        <table class="table table-bordered" *ngIf="(consumersModel && consumersModel.length > 0)">
-          <tbody>
-            <tr>
-              <th>Username</th>
-              <th>Custom ID</th>
-              <th>ID</th>
-            </tr>
-            <tr *ngFor="let modelConsumer of consumersModel">
-              <td>{{modelConsumer.username}}</td>
-              <td>{{modelConsumer.custom_id}}</td>
-              <td>{{modelConsumer.id}}</td>
-            </tr>
-          </tbody>
-        </table>
-        <div *ngIf="(consumersModel && consumersModel.length === 0)" class="callout callout-info">
-          <h4>Consumers Empty!</h4>
-          <p>Please start adding new Consumers.</p>
-        </div>
-      </div>
-    </div>
-  </div>
+ 
   <!-- GENERAL -->
   <div class="col-md-12" >
     <div class="box">
@@ -76,12 +23,16 @@
               <td>{{kongModel.version}}</td>
             </tr>
             <tr>
+              <td><b>DNS MASQ</b></td>
+              <td>{{kongModel.configuration.dnsmasq}}:  {{kongModel.configuration.dnsmasq_port}}</td>
+            </tr>
+            <tr>
               <td><b>Memory Cache Size</b></td>
-              <td>{{kongModel.configuration.memory_cache_size}}</td>
+              <td>{{kongModel.configuration.mem_cache_size}}</td>
             </tr>
             <tr>
               <td><b>Admin API listen</b></td>
-              <td>{{kongModel.configuration.admin_api_listen}}</td>
+              <td>{{kongModel.configuration.admin_listen}}</td>
             </tr>
             <tr>
               <td><b>Cluster Listen</b></td>
@@ -105,11 +56,11 @@
             </tr>
             <tr>
               <td><b>Available Plugins</b></td>
-              <td>{{pluginsAvailable.join()}}</td>
+              <td>{{pluginsAvailable.join( )}}</td>
             </tr>
             <tr>
               <td><b>Plugin Enable in Cluster</b></td>
-              <td>{{kongModel.plugins.enabled_in_cluster.join()}}</td>
+              <td>{{kongModel.plugins.enabled_in_cluster.join( )}}</td>
             </tr>
           </tbody>
         </table>

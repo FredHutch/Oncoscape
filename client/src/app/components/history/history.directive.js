@@ -179,9 +179,11 @@
 
             vm.setSize = function() {
                 var osLayout = osApi.getLayout();
-                elGrid.css("margin-left", (osLayout.left-30) + "px");
-                elGrid.css("width", ($window.innerWidth - osLayout.left - osLayout.right - 80) + "px");
-                elGrid.css("height", ($window.innerHeight - 170) + "px");
+                
+                elGrid = angular.element(".handsontable")[0];
+                elGrid.style["margin-left"] = (osLayout.left-30) + "px";
+                elGrid.style.width = ($window.innerWidth - osLayout.left - osLayout.right - 80) + "px";
+                elGrid.style.height = ($window.innerHeight - 170) + "px";
                 htGrid.render();
             }
 

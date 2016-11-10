@@ -219,12 +219,16 @@
 
             /* SURVIVAL - This very much needs to be refactored into a component */
             var sChart = d3.select("#cohortmenu-survival").append("svg");
-            
+            var sElXAxis = sChart.append("g").attr("class", "axis");
+            var sElYAxis = sChart.append("g").attr("class", "axis");
+
             var sLayout = {
                 width: 238,
                 height: 170,
                 xScale : null,
-                yScale : null
+                yScale : null,
+                xAxis: d3.axisBottom().ticks(5),
+                yAxis: d3.axisLeft().ticks(5)
             }
             var addCurve = function(points){
             
@@ -267,6 +271,13 @@
                         sLayout.yScale = d3.scaleLinear()
                             .domain([0,100])
                             .range([sLayout.height,0]);
+
+
+                        sLayout.xAxis.scale(sLayout.xScale);
+                        sLayout.yAxis.scale(sLayout.yScale);
+
+                        sElYAxis.attr("transform", "translate(50, 10)").call(sLayout.yAxis);
+                        sElXAxis.attr("transform", "translate(0, " + (sLayout.yScale(0) + 10) + ")").call(sLayout.xAxis);
 
                         sChart.selectAll(".line").remove();
                         for (var i=0; i<data.cohorts.length; i++){

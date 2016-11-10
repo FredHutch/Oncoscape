@@ -79,6 +79,11 @@ export class AdminContainer extends Container implements OnInit {
         info: 'Register REST acl',
         label: 'Acls List'
       },
+      '/admin/cluster':{
+        title: 'Cluster',
+        info: 'Cluster Status',
+        label: 'Cluster Members'
+      },
       '/admin/apis': {
         title: 'APIS',
         info: 'Register REST apis',

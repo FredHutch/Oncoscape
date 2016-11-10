@@ -10,9 +10,10 @@ import {
   PluginsContainer, PluginDetailContainer,
   NewPluginContainer, NewConsumerApiContainer
 } from './plugins';
-import { ApisContainer, NewApiContainer, EditApiContainer, ApiPlugsContainer, AclsContainer } from './apis';
+import { ApisContainer, NewApiContainer, EditApiContainer, ApiPlugsContainer} from './apis';
 import { ConsumersContainer, NewConsumerContainer, EditConsumerContainer } from './consumers';
-
+import { AclsContainer } from './acls';
+import { ClusterContainer } from './cluster';
 
 @NgModule({
   imports: [ ShareModule, ROUTING, ComponentsModule ],
@@ -20,7 +21,8 @@ import { ConsumersContainer, NewConsumerContainer, EditConsumerContainer } from 
     DashboardContainer, AdminContainer, Size, ToolTipDirective, FileSelect,
     ApisContainer, NewApiContainer, EditApiContainer, ApiPlugsContainer,
     PluginsContainer, PluginDetailContainer, NewPluginContainer, NewConsumerApiContainer,
-    ConsumersContainer, NewConsumerContainer, EditConsumerContainer
+    ConsumersContainer, NewConsumerContainer, EditConsumerContainer,
+    AclsContainer, ClusterContainer
   ]
 })
 export default class AdminModule {

@@ -6,15 +6,15 @@ import { FormControl, FormGroup } from '@angular/forms';
 import { Container } from '../../../core';
 import { Modal } from '../../../components';
 import {
-  AclsService,
+  ClusterService,
   SYMBOLS, paginate, ApiGetParameters, PaginateModel
 } from '../../../shared';
 
 @Component({
   moduleId: __filename,
-  selector: 'acls-page',
-  templateUrl: './acls.template.html',
-  providers: [ AclsService, Title ],
+  selector: 'cluster-page',
+  templateUrl: './cluster.template.html',
+  providers: [ ClusterService, Title ],
   styles: [
     `
     .form-group, .input-group {
@@ -29,16 +29,15 @@ import {
     `
   ]
 })
-export class AclsContainer extends Container implements OnInit, OnDestroy {
+export class ClusterContainer extends Container implements OnInit, OnDestroy {
   
-  rolesModel: Array<any>;
-  entriesLength: Array<number> = SYMBOLS.TABLE.ENTRIES;
+  clustersModel: Array<any>;
   toolsGroup: FormGroup;
 
   @ViewChild(Modal) modal: Modal;
 
   constructor(
-    private aclsService: AclsService,
+    private clusterService: ClusterService,
     private router: Router,
     private title: Title
   ) {
@@ -46,11 +45,10 @@ export class AclsContainer extends Container implements OnInit, OnDestroy {
   }
 
   ngOnInit() {
-    this.title.setTitle('Acls List');
-    this.subscriptions = this.getAcls();
+    this.title.setTitle('Cluster List');
+    this.subscriptions = this.getCluster();
     this.toolsGroup = new FormGroup({
-      entries: new FormControl(this.entriesLength[0]),
-      search: new FormControl()
+      
     });
   }
 
@@ -59,10 +57,11 @@ export class AclsContainer extends Container implements OnInit, OnDestroy {
   }
 
 
-  private getAcls() {
-    return this.aclsService.getRoles()
+  private getCluster() {
+    debugger;
+    return this.clusterService.getCluster()
       .subscribe((aclsModel) =>{
-        this.rolesModel = aclsModel.data.data.map((v)=>{
+        this.clustersModel = aclsModel.data.data.map((v)=>{
           return {id:v.id, name:v.group, created_at:v.created_at};
         });
     });

@@ -20,17 +20,13 @@ import {
 })
 export class DashboardContainer extends Container implements OnInit, OnDestroy {
   boxModel: Array<SmallBoxModel>;
-  apisModel: Array<ApisModelResource>;
-  consumersModel: Array<ConsumerModelResource>;
   kongModel: KongModel;
   pluginsAvailable: Array<string>;
 
   constructor(
     private appState: State,
     private title: Title,
-    private apisService: ApisService,
     private statusService: StatusService,
-    private consumerService: ConsumerService
   ) {
     super();
   }
@@ -40,8 +36,6 @@ export class DashboardContainer extends Container implements OnInit, OnDestroy {
     this.title.setTitle('Dashboard');
 
     this.statusSubscription();
-    this.apisSubscription();
-    this.consumerSubscription();
     this.kongSubscription();
   }
 
@@ -108,23 +102,12 @@ export class DashboardContainer extends Container implements OnInit, OnDestroy {
       });
   }
 
-  private apisSubscription(): void {
-    this.subscriptions = this.apisService.apis()
-      .subscribe((apisModel: ApisModel) => {
-        this.apisModel = apisModel.collection.data;
-      });
-  }
 
-  private consumerSubscription(): void {
-    this.subscriptions = this.consumerService.consumers()
-      .subscribe((consumerModel: ConsumersModel) => {
-        this.consumersModel = consumerModel.collection.data;
-      });
-  }
 
   private kongSubscription(): void {
     this.subscriptions = this.statusService.kong()
       .subscribe((kongModel) => {
+        debugger;
         this.kongModel = kongModel;
         this.pluginsAvailable = keys(kongModel.plugins.available_on_server);
       });

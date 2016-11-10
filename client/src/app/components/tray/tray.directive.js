@@ -15,7 +15,6 @@
                 caption: '@',
                 content: '@',
                 change: '&'
-
             },
             controller: TrayController,
             controllerAs: 'vm',
@@ -77,5 +76,4 @@
             }
         }
     }
-
 })();

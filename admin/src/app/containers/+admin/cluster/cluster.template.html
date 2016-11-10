@@ -3,7 +3,7 @@
   <div class="col-md-12">
     <div class="box">
       <div class="box-header with-border">
-        <h3 class="box-title">Acls list</h3>
+        <h3 class="box-title">Clusters</h3>
       </div>
       <div class="box-body">
         <table class="table table-bordered" *ngIf="(rolesModel && rolesModel.length > 0)">
@@ -19,19 +19,9 @@
             <td>{{model.name}}</td>
             
             <td>{{model.created_at | date:'M-d-y'}}</td>
-            <!--<td>
-              <div class="btn-group">
-                <a [tooltip]="'Delete API '+ model.name" class="btn btn-sm btn-danger" (click)="onDelete($event, model.id, model.name)">
-                  <i class="fa fa-eraser"></i>
-                </a>
-                <a [routerLink]="['/admin/apis/plugin', model.id]" [tooltip]="'Plugins on API ' + model.name" class="btn btn-sm btn-danger">
-                  <i class="fa fa-plug"></i>
-                </a>
-              </div>
-            </td>-->
           </tr>
         </table>
-        <div *ngIf="(rolesModel && rolesModel.length === 0)" class="callout callout-info">
+        <div *ngIf="(apisModel && apisModel.length === 0)" class="callout callout-info">
           <h4>ACLS Collection empty!</h4>
           <p>No results found. Please add a API or redefine your search.</p>
         </div>
