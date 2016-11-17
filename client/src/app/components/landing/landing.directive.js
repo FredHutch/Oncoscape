@@ -19,11 +19,27 @@
         return directive;
 
         /** @ngInject */
-        function LandingController($state) {
+        function LandingController($state, $scope, osApi, osAuth) {
             var vm = this;
             vm.login = function() {
                 $state.go("login");
-            }
+            };
+            vm.getStarted = function(){
+                osApi.init().then(function() {
+                    osAuth.loginGuest();
+                });
+            };
+
+            var loginSuccess = function() {
+                $state.go("datasource");
+            };
+
+            osAuth.onLogin.add(loginSuccess);
+
+            // Desotroy
+            $scope.$on('$destroy', function() {
+                osAuth.onLogin.remove(loginSuccess);
+            });
         }
     }
 

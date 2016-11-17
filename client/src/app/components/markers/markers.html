@@ -39,6 +39,18 @@
                 </div>
             </div>
 
+            <div class="col-xs-12 form-item">
+                <label>Gene Set</label>
+                <div class="dropdown bs-dropdown">
+                    <button class="btn btn-default dropdown-toggle" type="button" id="dropdownMenu1" data-toggle="dropdown" aria-haspopup="true" aria-expanded="true" style="padding-right:30px;">
+                        {{vm.optGeneSet.name}}
+                        <span class="caret"></span>
+                    </button>
+                    <ul class="dropdown-menu" aria-labelledby="dropdownMenu1" style="width:100%">
+                        <li ng-repeat="item in vm.optGeneSets" ng-click="vm.optGeneSet=item">{{item.name}}</li>
+                    </ul>
+                </div>
+            </div>
 
             <div class="col-xs-6 form-item" style="padding-right:5px">
                 <label>Command Mode</label>
@@ -52,18 +64,12 @@
                     </ul>
                 </div>
             </div>
-            <div class="col-xs-6 form-item" style="padding-left:5px">
-                <label>Gene Set</label>
-                <div class="dropdown bs-dropdown">
-                    <button class="btn btn-default dropdown-toggle" type="button" id="dropdownMenu1" data-toggle="dropdown" aria-haspopup="true" aria-expanded="true" style="padding-right:30px;">
-                        {{vm.optGeneSet.name}}
-                        <span class="caret"></span>
-                    </button>
-                    <ul class="dropdown-menu" aria-labelledby="dropdownMenu1" style="width:100%">
-                        <li ng-repeat="item in vm.optGeneSets" ng-click="vm.optGeneSet=item">{{item.name}}</li>
-                    </ul>
-                </div>
+
+             <div class="col-xs-6 form-item" style="padding-left:5px">
+                <label>Search</label>
+                <input type="text" class="form-control" ng-model="vm.search" placeholder="Gene or Patient">
             </div>
+
 
              <div class="col-xs-12 form-item" ng-if="vm.optCommandMode.name=='Sequential'">
                 <label>Commands</label>
@@ -104,10 +110,6 @@
                 </div>
             </div>
 
-            <div class="col-xs-12 form-item">
-                <label>Search</label>
-                <input type="text" class="form-control" ng-model="vm.search" placeholder="Genes or Patients">
-            </div>
             
         </div>
     </section>

@@ -15,7 +15,6 @@
                 caption: '@',
                 content: '@',
                 change: '&'
-
             },
             controller: TrayController,
             controllerAs: 'vm',
@@ -40,8 +39,9 @@
 
                 isLocked = !isLocked;
                 elIcon
-                    .addClass(isLocked ? 'glyphicon-menu-hamburger' : 'glyphicon-remove')
-                    .removeClass(isLocked ? 'glyphicon-remove' : 'glyphicon-menu-hamburger');
+                    .addClass(isLocked ? 'fa-lock' : 'fa-unlock-alt')
+                    .removeClass(isLocked ? 'fa-unlock-alt' : 'fa-lock')
+                    .attr("locked", isLocked ? "true" : "false");
 
                 elTray.attr("locked", isLocked ? "true" : "false");
 
@@ -77,5 +77,4 @@
             }
         }
     }
-
 })();

@@ -44,7 +44,7 @@ if ('production' === ENV) {
   let config = {
     ADAPTER: 'REST',
     ENVIRONMENT: 'DEV',
-    'API.URL': 'https://oncoscape-test.fhcrc.org/api/kong',
+    'API.URL': 'https://dev.oncoscape.sttrcancer.io/api/kong',
     UPLOAD: {
       url: 'http://localhost:8001/upload',
       debug: true,

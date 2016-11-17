@@ -50,6 +50,11 @@ export class MenuModel extends BaseModel {
           label: 'Cluster',
           url: '/admin/cluster',
           icon: 'fa fa-cubes'
+        },
+        {
+          label: 'Logging',
+          url: '/admin/logging',
+          icon: 'fa fa-table'
         }
       ];
     }

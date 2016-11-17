@@ -1,6 +1,7 @@
 // Namespace
 .cohort-menu {
     background-color: #EFEFEF;
+    background: url("/assets/images/bg-pattern.png"), linear-gradient(to left, #2eb6f8,  #00236a); /* W3C, IE 10+/ Edge, Firefox 16+, Chrome 26+, Opera 12+, Safari 7+ */
     position: fixed;
     left: 0px;
     width: 300px;

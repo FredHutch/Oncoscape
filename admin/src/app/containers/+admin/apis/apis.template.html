@@ -30,7 +30,6 @@
           <tr>
             <th>ID</th>
             <th>Name</th>
-            <th>Request</th>
             <th>Path</th>
             <th>Upstream</th>
             <th>Created At</th>
@@ -41,7 +40,6 @@
               <a [routerLink]="['/admin/apis/edit', model.id]">{{model.id}}</a>
             </td>
             <td>{{model.name}}</td>
-            <td>{{model.request_host}}</td>
             <td>{{model.request_path}}</td>
             <td>{{model.upstream_url}}</td>
             <td>{{model.created_at | date:'d-M-y'}}</td>

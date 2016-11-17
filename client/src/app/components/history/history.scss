@@ -1,38 +1,57 @@
-// Namespace
 
+// Namespace
 #history-grid{
-	margin-top:20px;
-	overflow: hidden;
-	border: 0px solid #DDD;
+  border: 1px solid #0b97d3;
+}
+/*
+#history-grid{
+	//margin-top:20px;
+	overflow: scroll;
+	border: 0px solid;
 	border-left-width: 1px;
 	border-right-width: 1px;
 	border-bottom-width: 1px;
-
-	
+	::-webkit-scrollbar {
+    width: 10px;
+    height: 10px;
+    border: 0px;
 }
-.handsontable th  {
-  padding-top:5px !important;
-  background-color: #FFF;
-  text-align:left;
-  padding-left:10px;
-  text-transform: capitalize;
-  box-shadow: 3px 5px 10px #DDD;
+::-webkit-scrollbar-thumb {
+    border-radius: 5px;
+    background-color: #000;
+    
+}
+
+::-webkit-scrollbar-track {
+    -webkit-box-shadow: inset 0 0 6px rgba(0,0,0,0.2); 
+} 
 }
 
 .ht_master tr > td {
   border: 0px;
-  border-right: 1px solid #F5f5f5;
+  border-right: 1px solid #EFEFEF;
   text-align: left;
-  padding-left:5px;
-  padding-right:10px;
   text-transform: uppercase;
 }
+.handsontable th{
+  background-color:#666 !important;
+  color:#FFF;
+  border:none;
+  text-transform: capitalize;
+  text-align: left;
 
-.handsontable  tr:nth-of-type(odd) > td {
-  background-color: #f8f8f8 !important;
 }
 
+
+
+*/
+
+.handsontable tr:hover{
+  background-color:#EFEFEF;
+}
 .handsontable tr > td.htSearchResult{
 	background-color:#0b97d3 !important;
 	color:#FFF !important;
 }
+
+

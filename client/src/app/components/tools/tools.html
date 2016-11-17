@@ -1,21 +1,23 @@
-<section class="tools container-fluid">
-    <div class="row">
-        <div class="col-sm-12 col-md-6">
+<section class="datasource container-fluid">
+     <div class="row">
+        <div class="col-sm-12 col-md-8">
             <br />
-            <h1>Step 2: Select An Analysis Tool</h1>
+            <h1>Analysis Tools</h1>
+            <!--
             <p>The list of tools depends upon the data source. If the requisite molecular or clinical data is not availbile for your disease please contact us at <a href="mailto:oncoscape@fredhuth.org">oncoscape@fredhutch.org</a>. Use the navigation in the top right to switch between tools.</p>
+            -->
         </div>
     </div>
+
     <div class="row">
         <ul>
-            <li ng-repeat="tool in vm.tools" class="col-xs-12 col-sm-6 col-md-4 col-lg-3" ng-click="vm.explore(tool.route)">
-                <img class="tools-img" ng-src="/assets/images/{{tool.img}}">
-                <div class="tools-copy">
-                    <h3 class="tools-lbl">{{tool.name}}</h3>
-                    <a href="">Explore</a>
-                    <!--<a href="" ng-if="tool.beta" style="color:red">(Beta)</a>-->
+            <li ng-repeat="tool in vm.tools" class="col-xs-12 col-sm-6 col-lg-4" ng-click="vm.explore(tool.route)">
+                <div class="datasource-btn">
+                <img class="datasource-img" ng-src="/assets/images/{{tool.img}}" style="border-right:1px solid #bebebe;">
+                <p class="datasource-h1" style="font-size:20px;">{{tool.name}}</p>
                 </div>
             </li>
         </ul>
     </div>
+
 </section>

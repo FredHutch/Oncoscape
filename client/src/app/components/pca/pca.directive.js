@@ -74,34 +74,61 @@
                 vm.geneSets = [];
                 vm.geneSet = null;
                 vm.search = "";
+                vm.selectColor = function(e){
+                    var ids = e.values;
+                    var allIds = [];
+                    d3.selectAll("circle").each(function(d,i){
+                         if (ids.indexOf(d.id)!=-1) {
+                             d3.select(this).classed("pca-node-selected", true);
+                             allIds.push(d.id);
+                         }else{
+                             if (d3.select(this).classed("pca-node-selected")) allIds.push(d.id);
+                         }
+                    });
+                    osCohortService.setPatientCohort(allIds, "PCA")
+                    
+
+                }
+                vm.deselectColor = function(e){
+                    var ids = e.values;
+                    var allIds = [];
+                    d3.selectAll("circle").each(function(d,i){
+                        if (ids.indexOf(d.id)!=-1) {
+                            d3.select(this).classed("pca-node-selected", false);
+                        }else{
+                            if (d3.select(this).classed("pca-node-selected")) allIds.push(d.id);
+                        }
+                    });
+                    osCohortService.setPatientCohort(allIds, "PCA")
+                }
                 osApi.query("render_pca", {
                         disease: vm.datasource.disease,
                         $fields: ['type', 'geneset', 'source']
                     })
                     .then(function(response) {
-                        var mr = response.data.reduce(function(p, c) {
-                            if (!p.hasOwnProperty(c.geneset)) p[c.geneset] = [];
-                            p[c.geneset].push({
-                                name: c.type,
-                                source: c.source,
-                                label: (c.type + "-" + c.source).toUpperCase().replace(/-/gi, " - ")
-                            });
-                            return p;
-                        }, {});
-                        vm.geneSets = Object.keys(mr).reduce(function(p, c) {
-                            p.rv.push({
-                                name: c,
-                                types: p.values[c],
-                                label: c.toUpperCase()
-                            });
-                            return p;
-                        }, {
-                            rv: [],
-                            values: mr
-                        }).rv.sort(function(a, b) {
-                            return a.label > b.label;
+                     
+                        var data = response.data.map(function(v){
+                            return {a:v.geneset,b:v.source,c:v.type}
                         });
+                        
+                        var result = _.reduce(data,function(memo, val){ 
+                            var tmp = memo;
+                                _.each(val, function(fldr){
+                                    if(!_.has(tmp, fldr)){
+                                        tmp[fldr] = {}
+                                    }
+                                    tmp = tmp[fldr]
+                                });
+                            return memo
+                        },{});
+                        vm.geneSets = Object.keys(result).map(function(geneset){return {name: geneset, sources:
+                            Object.keys(result[geneset]).map(function(source){ return {name:source, types:
+                                Object.keys(result[geneset][source]).map(function(type) { return {name:type
+                                }})
+                            }})
+                        }});
 
+                      
                         vm.geneSet = vm.geneSets[0];
                     });
                 return vm;
@@ -111,12 +138,12 @@
             // Updates PCA Types When Geneset Changes
             $scope.$watch('vm.geneSet', function() {
                 if (vm.geneSet==null) return;
-                
-                // Sort PCA Types Alphabetically Then By Source R-Alpha (to put ucsc first)
-                vm.pcaTypes = vm.geneSet.types.sort(function(a, b) {
-                    if (a.name != b.name) return a.name > b.name;
-                    else return a.source < b.source;
-                });
+                vm.sources = vm.geneSet.sources;
+                vm.source = vm.sources[0];
+            });
+            $scope.$watch('vm.source', function() {
+                if (vm.geneSet==null) return;
+                vm.pcaTypes = vm.source.types;
                 vm.pcaType = vm.pcaTypes[0];
             });
 
@@ -220,6 +247,7 @@
                     .attr("cy", function(d) {
                         return scaleY(d[1]);
                     })
+                    .attr("r", 3)
                     .style("fill", function(d) {
                         return d.color;
                     });
@@ -240,6 +268,7 @@
                     .delay(function(d, i) {
                         return i / 300 * 100;
                     })
+                    .attr("r", 3)
                     .attr("cx", function(d) {
                         return scaleX(d[0]);
                     })
@@ -302,8 +331,6 @@
 
                 d3Brush.attr("class", "brush").call(brush)
 
-
-                
                 setSelected();
 
             }

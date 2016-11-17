@@ -525,7 +525,7 @@
                 vm.events = Object.keys(events).map(function(v) {
                     return {
                         name: v,
-                        selected: (["Birth", "Drug", "Pathology", "Absent", "Procedure"].indexOf(v) == -1),
+                        selected: (["Birth", "Pathology", "Absent", "Procedure"].indexOf(v) == -1),
                         color: this(v)
                     };
                 }, colorFn);
