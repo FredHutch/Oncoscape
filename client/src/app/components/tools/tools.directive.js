@@ -24,7 +24,10 @@
             var vm = this;
             //osApi.query("lookup_oncoscape_tools",{beta:false}).then(function(response){
             osApi.query("lookup_oncoscape_tools").then(function(response) {
-                vm.tools = response.data.sort(function(a, b) {
+                var tools = osApi.getDataSource().tools;
+                vm.tools = response.data.filter(function(item){
+                    return (tools.indexOf(item.route)!=-1);
+                }).sort(function(a, b) {
                     if (a.name < b.name) return -1;
                     if (a.name > b.name) return 1;
                     return 0;

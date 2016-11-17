@@ -27,7 +27,21 @@
                 id: 'guest',
                 name: 'Guest',
                 icon: 'fa fa-user'
+            },{
+                id: 'google',
+                name: 'Google',
+                icon: 'fa fa-google-plus',
+                key: '428912153446-7c82srcvu1bk1nramiqqctne005epl6s.apps.googleusercontent.com',
+                mode: 'implicit'
             }, {
+                id: 'linkedin',
+                name: 'LinkedIn',
+                icon: 'fa fa-linkedin',
+                key: '7869gkuwwnacez',
+                mode: 'explicit'
+            }];
+            
+            /*}, {
                 id: 'facebook',
                 name: 'Facebook',
                 icon: 'fa fa-facebook',
@@ -39,13 +53,7 @@
                 icon: 'fa fa-github-alt',
                 key: '78b5dbe2ba756151169e',
                 mode: 'explicit'
-            }, {
-                id: 'google',
-                name: 'Google',
-                icon: 'fa fa-google-plus',
-                key: '428912153446-7c82srcvu1bk1nramiqqctne005epl6s.apps.googleusercontent.com',
-                mode: 'implicit'
-            }, {
+            },{
                 id: 'instagram',
                 name: 'Instagram',
                 icon: 'fa fa-instagram',
@@ -81,13 +89,23 @@
                 icon: 'fa fa-flickr',
                 key: '',
                 mode: 'implicit'
-            }
-            //{id:'tinder',   name:'Tinder', icon:'fa fa-fire',       key:'', mode:'implicit'}
-        ];
+            }*/
+        
         var getAuthSources = function() {
             return authSources;
         };
 
+        var loginGuest = function(){
+            user = {
+                    network: 'guest',
+                    id: 'x',
+                    name: 'Guest',
+                    thumb: 'Guest.png'
+                };
+            osApi.init().then(function() {
+                onLogin.dispatch();
+            });
+        }
         var login = function(source) {
             if (source.id == 'guest') {
                 user = {
@@ -143,6 +161,7 @@
 
         return {
             isAuthenticated: isAuthenticated,
+            loginGuest: loginGuest,
             getUser: getUser,
             getAuthSources: getAuthSources,
             login: login,

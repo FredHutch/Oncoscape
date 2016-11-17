@@ -46,7 +46,8 @@
                 osCohortService.setPatientCohort([],"All Patients")
             });
 
-            var onStateChange = $rootScope.$on('$stateChangeStart', function(event, toState){ 
+            var onStateChange = $rootScope.$on('$stateChangeStart', function(event, toState){
+                 
                 switch(toState.name){
                     case "landing":
                     case "tools":
@@ -58,7 +59,9 @@
                         break;
                 }
             });
-            $rootScope.$on('$destroy', onStateChange);
+            $rootScope.$on('$destroy', function(e){
+                vm.show = false;
+            });
 
             // Configure Tray
             var elTray = angular.element(".cohort-menu");
@@ -235,7 +238,7 @@
                 // Define Line
                 var valueline = d3.line()
                     .x(function(d) { return sLayout.xScale(d[0]); })
-                    .y(function(d) { return sLayout.yScale(d[2])+10; });
+                    .y(function(d) { return sLayout.yScale(d[2]); });
 
                 sChart.append("path")
                     .attr("class", "line")
@@ -251,8 +254,8 @@
                         .attr("stroke", points.color)
                         .attr("x1", sLayout.xScale(points.data.tick[i][0]))
                         .attr("x2", sLayout.xScale(points.data.tick[i][0]))
-                        .attr("y1", sLayout.yScale(points.data.tick[i][2])+5)
-                        .attr("y2", sLayout.yScale(points.data.tick[i][2])+10);
+                        .attr("y1", sLayout.yScale(points.data.tick[i][2]))
+                        .attr("y2", sLayout.yScale(points.data.tick[i][2])-5);
                 }
             }
             osCohortService.onMessage.add(function(result){
@@ -262,22 +265,22 @@
 
                         sChart
                             .attr("width", '100%')
-                            .attr("height", sLayout.height+10);
+                            .attr("height", sLayout.height);
 
                         sLayout.xScale = d3.scaleLinear()
                             .domain([result.data.data.min,  result.data.data.max])
-                            .range([0, sLayout.width]);
+                            .range([30, sLayout.width]);
 
                         sLayout.yScale = d3.scaleLinear()
                             .domain([0,100])
-                            .range([sLayout.height,0]);
+                            .range([sLayout.height-20,10]);
 
 
                         sLayout.xAxis.scale(sLayout.xScale);
                         sLayout.yAxis.scale(sLayout.yScale);
 
-                        sElYAxis.attr("transform", "translate(50, 10)").call(sLayout.yAxis);
-                        sElXAxis.attr("transform", "translate(0, " + (sLayout.yScale(0) + 10) + ")").call(sLayout.xAxis);
+                        sElYAxis.attr("transform", "translate(30, 0)").call(sLayout.yAxis);
+                        sElXAxis.attr("transform", "translate(0, " + (sLayout.yScale(0)) + ")").call(sLayout.xAxis);
 
                         sChart.selectAll(".line").remove();
                         for (var i=0; i<data.cohorts.length; i++){

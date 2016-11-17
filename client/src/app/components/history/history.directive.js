@@ -34,12 +34,14 @@
                 manualColumnResize: true,
                 manualColumnMove: true,
                 fixedRowsTop: 0,
-                readonly: true,
-                contextMenu: true,
+                readOnly: true,
+                contextMenu: false,
                 columnSorting: true,
                 sortIndicator: true,
-                comments: true,
+                comments: false,
                 allowEmpty: true,
+                disableVisualSelection: ['current', 'area'],
+                currentRowClassName: 'currentRow',
                 autoColumnSize: {
                     samplingRatio: 23
                 },
@@ -111,11 +113,11 @@
                     }, selectedIds);
                 
                 htGrid.loadData(filteredData);
-                htGrid.render();
+                render();
                 
             }
 
-
+            var render = function(){};
             var setData = function() {
                 osApi.setBusy(true);
                 osApi.query(vm.collection.collection)
@@ -136,12 +138,21 @@
                         if (htGrid == null) {
                             settings.startCols = vm.columns.length;
                             htGrid = new Handsontable(elGrid[0], settings);
+                            render = function(){
+                                for (var i=0; i<5; i++) htGrid.render();
+                            }
+                            Handsontable.hooks.add("afterSelection",
+                            function(r,c,r2,c2){
+                                console.dir(r+":"+r2);
+                            }
+                            ,htGrid);
                         }
 
-                        vm.setSize(false);
+                        
                         
                         filterData();
                         vm.setColumns(false);
+                        vm.setSize(false);
                         osApi.setBusy(false);
 
                     });
@@ -150,12 +161,11 @@
           
             var rowRenderer = function(instance, td, row){
                 Handsontable.TextRenderer.apply(this, arguments);
-
                 td.style['color'] = filteredData[row]['color'];
             }
 
 
-            vm.setColumns = function(render) {
+            vm.setColumns = function(exeRender) {
                 var cols = vm.columns.filter(function(v) {
                     return v.show;
                 });
@@ -164,7 +174,7 @@
                     return v.displayName;
                 });
                 settings.columns = cols.map(function(v) {
-                    return { data: v.field };
+                    return { data: v.field, readOnly:true };
                 });
                 settings.cells = function () {
                     var cellProps = {};
@@ -173,8 +183,7 @@
                 };
 
                 htGrid.updateSettings(settings);
-                htGrid.render();
-                if (render) htGrid.render();
+                if (exeRender) render();
             };
 
             vm.setSize = function() {
@@ -184,14 +193,19 @@
                 elGrid.style["margin-left"] = (osLayout.left-30) + "px";
                 elGrid.style.width = ($window.innerWidth - osLayout.left - osLayout.right - 80) + "px";
                 elGrid.style.height = ($window.innerHeight - 170) + "px";
-                htGrid.render();
+                htGrid.updateSettings({
+                    width: $window.innerWidth - osLayout.left - osLayout.right - 80,
+                    height: $window.innerHeight - 170
+                }, true);
+               render();
+                
             }
 
             $scope.$watch("vm.collection", setData);
             $scope.$watch("vm.search", function(v){
                 if (angular.isUndefined(htGrid)) return;
                 htGrid.search.query(v.toUpperCase().trim());
-                htGrid.render();
+                render();
             });
 
 

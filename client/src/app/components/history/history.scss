@@ -1,7 +1,9 @@
 
 // Namespace
-
-
+#history-grid{
+  border: 1px solid #0b97d3;
+}
+/*
 #history-grid{
 	//margin-top:20px;
 	overflow: scroll;
@@ -40,6 +42,10 @@
 
 }
 
+
+
+*/
+
 .handsontable tr:hover{
   background-color:#EFEFEF;
 }
@@ -47,3 +53,5 @@
 	background-color:#0b97d3 !important;
 	color:#FFF !important;
 }
+
+
