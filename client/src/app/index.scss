@@ -18,6 +18,11 @@ $headings-font-weight:    300 !default;
  */
 // bower:scss
 // endbower
+html {     
+-webkit-font-smoothing: antialiased;
+-webkit-font-smoothing: subpixel-antialiased; 
+} 
+
 body{
 	font-weight:300;
 	-webkit-touch-callout: none;

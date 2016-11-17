@@ -1,9 +1,5 @@
 // Namespace
 .landing{
-
-     a.btn:hover{
-        color:#0980b3 !important;
-    }
 .btn{
 	padding:0px;
 	margin:0px;
@@ -15,14 +11,16 @@
 }
 	
 header {
-   
+    a:hover{
+        color:#0980b3;
+    }
     position: relative;
     width: 100%;
     min-height: auto;
     overflow-y: hidden;
     background: url("/assets/images/bg-pattern.png"), #DDD; /* fallback for old browsers */
     background: url("/assets/images/bg-pattern.png"), -webkit-linear-gradient(to left, #DDD,#BBB); /* Chrome 10-25, Safari 5.1-6 */
-    background: url("/assets/images/bg-pattern.png"), linear-gradient(to left, #2eb6f8,  #00236a); /* W3C, IE 10+/ Edge, Firefox 16+, Chrome 26+, Opera 12+, Safari 7+ */
+    background: url("/assets/images/bg-pattern.png"), linear-gradient(to left, #9abbd9,  #00236a); /* W3C, IE 10+/ Edge, Firefox 16+, Chrome 26+, Opera 12+, Safari 7+ */
     background-attachment: fixed;
     color: white;
 	.btn{
