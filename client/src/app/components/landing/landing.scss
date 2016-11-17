@@ -1,5 +1,9 @@
 // Namespace
 .landing{
+
+     a.btn:hover{
+        color:#0980b3 !important;
+    }
 .btn{
 	padding:0px;
 	margin:0px;
@@ -11,6 +15,7 @@
 }
 	
 header {
+   
     position: relative;
     width: 100%;
     min-height: auto;
