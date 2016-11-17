@@ -18,6 +18,7 @@ header {
     background: url("/assets/images/bg-pattern.png"), #DDD; /* fallback for old browsers */
     background: url("/assets/images/bg-pattern.png"), -webkit-linear-gradient(to left, #DDD,#BBB); /* Chrome 10-25, Safari 5.1-6 */
     background: url("/assets/images/bg-pattern.png"), linear-gradient(to left, #2eb6f8,  #00236a); /* W3C, IE 10+/ Edge, Firefox 16+, Chrome 26+, Opera 12+, Safari 7+ */
+    background-attachment: fixed;
     color: white;
 	.btn{
 		border: 1px solid #FFF;
