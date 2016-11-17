@@ -586,18 +586,18 @@
                         var items = data.map(function(item) {
                             return this.getElementById(item);
                         }, cyChart);
+                        try{
                         cyChart.collection(items).remove();
+                        }catch(e){}
 
-                    // } catch () {
-
-                    // }
+                  
                 };
-                // cmd.patients_html = function(data) {
-                //     patientHtml = data;
-                // };
-                // cmd.patients_resize = function() {
+                cmd.patients_html = function(data) {
+                    
+                };
+                cmd.patients_resize = function() {
 
-                // };
+                };
                 cmd.patients_delete = function(data) {
                     remove('node[nodeType="patient"]', data);
                 };
@@ -654,11 +654,11 @@
 
                     }
                     cyChart.nodes('node[nodeType="patient"]').forEach(function(node) {
-                        //try {
+                        try {
                             var pos = data.data[node.id()];
                             pos.x -= 4000;
                             node.position(pos);
-                        //} catch (e) {}
+                        } catch (e) {}
                     });
                     resizeNodes();
                     cyChart.endBatch();
@@ -740,7 +740,9 @@
 
                     } else {
                         cyChart.startBatch();
+                        try{
                         cyChart.add(data.edges);
+                        }catch(e){}
                         vm.edgeCounts = data.counts;
                         cyChart.endBatch();
                     }

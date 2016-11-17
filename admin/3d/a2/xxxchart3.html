@@ -19,13 +19,6 @@
 
 var types = _.groupBy(data, function(d){ return d.TYPE; })
 
-var colors = {
-    OAS: '#1a6f00',
-    OLIGOS: '#ce9409',
-    GBM: '#7b00cd',
-    ASTROS: '#0000ff'
-};
-
 data = Object.keys(types).map(function(type){
     console.log(types[type]);
     return {
@@ -35,19 +28,16 @@ data = Object.keys(types).map(function(type){
         text: types[type].map(function(t){ return t.ID;}),
         name: type,
         mode: 'markers',
-        color: 'red',
         marker: {
-            color: colors[type],
-            size: 7,
+            size: 5,
             line: {
-            color: 'rgb(204, 204, 204)',
-            width: 0},
-            },
+            color: 'rgba(50, 50, 50, 0.04)',
+            width: 0.5},
+            opacity: 0.8},
         type: 'scatter3d'
     };
 })
 
-alert("!");
 
 
 var layout = {margin: {
