@@ -40,11 +40,6 @@ http {
         
         root /home/sttrweb/Oncoscape/client;
 
-        # ELB Heath Check
-        #location /health_check {
-        #   return 200;
-        #}
-
         # Index
         location / {
             index index.html index.htm;
@@ -62,6 +57,11 @@ http {
             expires 2d;
         }
 
+        # ELB Heath Check
+        location /health_check {
+           return 200;
+        }
+        
         # Kong Api
         location /api/ {
             proxy_set_header Host $host;

@@ -1,0 +1,87 @@
+<html>        
+        <head>
+        <script src="https://cdn.plot.ly/plotly-latest.min.js"></script>
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/underscore.js/1.8.3/underscore-min.js"></script>
+        <style>
+            .plotlyjsicon{
+                display:none !important;
+            }
+        </style>
+        </head>
+        <body>
+        <!-- Plotly chart will be drawn inside this DIV -->
+        <div id="myDiv" style="width:100%;height:100%"></div>
+        <script>
+
+
+var data = {"DoB.Q1":[0.2089,0.3587,0.0901],"DoB.Q2":[0.0757,0.1368,0.0158],"DoB.Q3":[0.0179,-0.0482,-0.0125],"DoB.Q4":[-0.0433,-0.2061,-0.1087],"DoB.Q5":[-0.2078,-0.2713,-0.1555],"Cruise.Vacations.Propensity.Q1":[0.6763,-0.3201,-0.1964],"Cruise.Vacations.Propensity.Q2":[-0.1917,0.1345,-0.0312],"Cruise.Vacations.Propensity.Q3":[-0.2728,0.0809,0.1023],"Cruise.Vacations.Propensity.Q4":[-0.2303,0.0378,0.0921],"Cruise.Vacations.Propensity.Q5":[-0.1456,0.0787,0.0528],"myWealthGrp:01Y:03C:11C":[-0.1705,-0.0228,0.042],"myWealthGrp:02Y:06U:07U":[-0.1356,-0.0154,-0.0609],"myWealthGrp:04X:13C:08C":[-0.1444,-0.0253,-0.0047],"myWealthGrp:04X:13C:11C":[-0.1732,-0.024,0.0507],"myWealthGrp:05X:13C:12C":[-0.1272,-0.0204,0.015],"myWealthGrp:06X:03C:11C":[-0.14,-0.0276,-0.008],"myWealthGrp:07X:06U:07U":[-0.1478,-0.0456,-0.0392],"myWealthGrp:07X:12O:03O":[-0.1063,-0.0193,-0.0512],"myWealthGrp:08X:05C:07U":[-0.1285,-0.0439,-0.0067],"myWealthGrp:08X:08O:03O":[-0.0861,-0.0608,-0.0405],"myWealthGrp:08X:08O:06R":[-0.0767,0.0008,-0.0194],"myWealthGrp:09B:06U:07U":[-0.1215,-0.0176,-0.0278],"myWealthGrp:10B:04C:08C":[-0.1185,-0.0215,0.0232],"myWealthGrp:10B:11R:09C":[-0.1116,0.0277,0.011],"myWealthGrp:11B:01C:01C":[0.2321,-0.3247,-0.2851],"myWealthGrp:11B:08O:02O":[0.0478,-0.1665,-0.1283],"myWealthGrp:12B:01C:01C":[-0.0966,-0.0154,0.0709],"myWealthGrp:12B:05C:07U":[-0.1433,-0.0315,0.0015],"myWealthGrp:13B:05C:08C":[-0.0796,0.0022,0.0303],"myWealthGrp:14B:06U:07U":[-0.1575,0.0397,0.0018],"myWealthGrp:14B:09O:06R":[-0.0304,0.0231,-0.0066],"myWealthGrp:15M:01C:01C":[0.3531,-0.2636,-0.1867],"myWealthGrp:16M:01C:01C":[-0.1085,0.0558,0.0154],"myWealthGrp:16M:09O:05O":[-0.0696,0.0911,0.0288],"myWealthGrp:16M:09O:06R":[-0.057,0.0914,0.0369],"myWealthGrp:17M:02C:08C":[-0.1071,0.055,0.0484],"myWealthGrp:17M:13C:12C":[-0.1639,0.0675,0.0591],"myWealthGrp:18M:10R:10R":[-0.0595,0.1664,0.0783],"myWealthGrp:19M:07C:04C":[0.1066,0.1416,0.0406],"myWealthGrp:19M:09O:02O":[-0.0611,0.0638,-0.0167],"myWealthGrp:19M:09O:05O":[-0.0248,0.0194,-0.0245],"myWealthGrp:20S:07C:04C":[-0.0506,0.2055,0.0683],"myWealthGrp:20S:09O:05O":[-0.0336,0.1687,0.0524],"myWealthGrp:21S:07C:04C":[-0.0587,0.1864,0.0912],"myWealthGrp:21S:10R:10R":[-0.1174,0.1611,0.0948],"CITY:ARLINGTON":[-0.0469,0.0237,-0.0162],"CITY:AUBURN":[-0.0452,-0.0025,0.0164],"CITY:BELLEVUE":[0.0671,-0.1339,-0.1118],"CITY:BELLINGHAM":[-0.031,0.0416,-0.0065],"CITY:BOTHELL":[0.0024,-0.0535,-0.0503],"CITY:BREMERTON":[-0.051,0.0904,0.035],"CITY:BURIEN":[-0.0997,0.0222,0.0438],"CITY:CAMANO.ISLAND":[0.0077,0.0568,-0.0134],"CITY:DES.MOINES":[-0.0939,0.051,0.057],"CITY:EDMONDS":[0.0122,-0.0018,-0.0185],"CITY:EVERETT":[-0.0799,0.0393,0.0174],"CITY:FEDERAL.WAY":[-0.1002,0.0287,0.0486],"CITY:GIG.HARBOR":[0.0322,-0.0345,-0.0693],"CITY:ISSAQUAH":[0.0571,-0.1087,-0.1043],"CITY:KENMORE":[-0.0024,-0.0481,-0.0682],"CITY:KENNEWICK":[0.0342,-0.0112,-0.0238],"CITY:KENT":[-0.082,-0.0162,0.048],"CITY:KIRKLAND":[0.0244,-0.055,-0.0653],"CITY:LAKE.FOREST.PARK":[0.0216,-0.0693,-0.0883],"CITY:LAKE.STEVENS":[-0.0884,0.0066,-0.019],"CITY:LYNNWOOD":[-0.0824,0.0251,0.0106],"CITY:MAPLE.VALLEY":[0.0161,-0.0941,-0.0806],"CITY:MARYSVILLE":[-0.0767,0.0565,0.0145],"CITY:MERCER.ISLAND":[0.1014,-0.1383,-0.1369],"CITY:MILL.CREEK":[0.0105,-0.034,-0.0605],"CITY:MONROE":[-0.0229,-0.0373,-0.0444],"CITY:MOUNT.VERNON":[-0.044,0.0477,-0.0031],"CITY:MOUNTLAKE.TERRACE":[-0.1105,0.0529,0.0085],"CITY:MUKILTEO":[0.023,-0.0608,-0.076],"CITY:NEWCASTLE":[0.0628,-0.1514,-0.1312],"CITY:NORTH.BEND":[0.0038,-0.063,-0.0806],"CITY:OAK.HARBOR":[-0.0227,0.1035,0.0186],"CITY:OLYMPIA":[-0.0031,0.0212,-0.0142],"CITY:PORT.ANGELES":[-0.0731,0.1072,0.0453],"CITY:PORT.ORCHARD":[-0.024,0.0057,-0.0166],"CITY:POULSBO":[-0.0404,0.1163,0.0279],"CITY:PUYALLUP":[-0.0654,0.0509,0.016],"CITY:REDMOND":[0.0529,-0.0908,-0.0826],"CITY:RENTON":[-0.0559,-0.0702,0.0019],"CITY:RICHLAND":[0.0088,0.0419,-0.009],"CITY:SAMMAMISH":[0.1106,-0.2138,-0.1559],"CITY:SEATAC":[-0.1375,0.0412,0.057],"CITY:SEATTLE":[-0.0329,-0.117,0.0243],"CITY:SEQUIM":[-0.0116,0.1747,0.0477],"CITY:SHORELINE":[-0.0291,0.0056,-0.0064],"CITY:SNOHOMISH":[0.0261,-0.0742,-0.0695],"CITY:SNOQUALMIE":[0.0403,-0.1157,-0.1365],"CITY:STANWOOD":[-0.0349,0.0351,-0.0227],"CITY:TACOMA":[-0.0457,0.0449,0.0001],"CITY:TUKWILA":[-0.1389,0.0598,0.0583],"CITY:VASHON":[0.0145,0.0055,-0.0549],"CITY:WOODINVILLE":[0.0794,-0.1305,-0.1368],"CITY:YAKIMA":[-0.003,0.0389,-0.0038],"Country.of.Origin.High.Detail:10":[0.0119,-0.0866,-0.1217],"Country.of.Origin.High.Detail:12":[-0.0096,-0.1174,-0.1581],"Country.of.Origin.High.Detail:16":[-0.0067,-0.0582,-0.0886],"Country.of.Origin.High.Detail:17":[-0.0363,-0.0981,-0.1127],"Country.of.Origin.High.Detail:1B":[-0.1182,-0.0213,-0.0499],"Country.of.Origin.High.Detail:20":[-0.1664,0.0738,-0.0197],"Country.of.Origin.High.Detail:30":[-0.2709,-0.4148,0.3366],"Country.of.Origin.High.Detail:40":[0.0338,0.1082,-0.0828],"Country.of.Origin.High.Detail:4D":[0.0231,0.0015,-0.051],"Country.of.Origin.High.Detail:4G":[0.2114,0.22,0.0012],"Country.of.Origin.High.Detail:4J":[-0.0081,-0.0373,-0.0661],"Country.of.Origin.High.Detail:4K":[0.0774,0.026,-0.0467],"Country.of.Origin.High.Detail:4P":[0.0195,-0.0136,-0.0497],"Country.of.Origin.High.Detail:4Q":[-0.0479,-0.0726,-0.0639],"Country.of.Origin.High.Detail:4R":[-0.0144,-0.0561,-0.0604],"Country.of.Origin.High.Detail:4Y":[-0.0111,-0.0299,-0.0443],"Country.of.Origin.High.Detail:4Z":[-0.0092,-0.0729,-0.0528],"Country.of.Origin.High.Detail:55":[0.0252,0.0001,-0.0466],"Country.of.Origin.High.Detail:5A":[-0.0114,-0.0249,-0.0348],"Country.of.Origin.High.Detail:5E":[-0.0318,-0.0257,-0.0373],"Race.Code.Low.Detail:A":[-0.0389,-0.1109,-0.1981],"Race.Code.Low.Detail:B":[-0.1799,0.0477,-0.0196],"Race.Code.Low.Detail:H":[-0.2851,-0.4432,0.334],"Race.Code.Low.Detail:W":[0.1941,0.2268,-0.1721],"Hispanic.Language.Preference:B":[-0.2984,-0.3292,0.2574],"Hispanic.Language.Preference:E":[-0.1503,-0.3669,0.2296],"Hispanic.Language.Preference:S":[-0.3359,-0.2844,0.3338],"RFM.Dollars.Health.Q1":[0.0653,0.0472,-0.0465],"RFM.Dollars.Health.Q2":[0.0762,0.0244,-0.0537],"RFM.Dollars.Health.Q3":[0.0741,0.0511,-0.0665],"RFM.Dollars.Health.Q4":[0.1141,0.0721,-0.0581],"RFM.Dollars.Health.Q5":[0.1267,0.0795,-0.0654],"Boating.Sailing":[0.2952,-0.0514,0.164],"Food.Wines":[0.3101,-0.052,0.2369],"Travel.Domestic":[0.2948,-0.0181,0.2031],"Travel.International":[0.3652,-0.0586,0.2738],"Health.Nutraceuticals.and.Vitamins":[0.1101,0.1046,-0.0174],"Health.Allergy.Related.Interest.in.HH":[0.1861,-0.0174,-0.0071],"Health.Diabetic.Interest.in.HH":[0.195,0.0262,0.0951],"Health.Orthopedic.Interest.in.HH":[0.1551,0.0639,-0.0904],"Exercise.Running.Jogging":[0.3256,-0.0833,0.2497],"Exercise.Walking":[0.3258,-0.0065,0.3205],"Exercise.Aerobic":[0.1304,0.0284,0.0204],"Dieting.Weight.Loss":[0.258,-0.0061,0.2381],"Camping.Hiking":[0.2883,-0.0339,0.2687],"Biking.Mountain.Biking":[0.3686,-0.0667,0.2931],"Smoker":[0.1885,0.0532,0.2773],"Sporty.Living":[0.4024,-0.0695,0.3475],"Fruits.Vegetables":[0.1413,-0.0234,-0.0188],"Gifts.Holiday.Items.Edibles.Chocolates.Candies":[0.1066,0.0143,-0.0331],"Health.and.Beauty.Medical.Supplies":[0.1836,0.0857,-0.0337],"CITY.BAINBRIDGE":[0.0941,-0.0283,-0.1397]};
+var highlight = ["Dieting.Weight.Loss",                  
+"Biking.Mountain.Biking",              
+"Camping.Hiking",
+"Food.Wines",
+"Boating.Sailing",                      
+"Sporty.Living",
+"Exercise.Walking",                     
+"Exercise.Running.Jogging",
+"CITY.BAINBRIDGE",            
+"Health.Allergy.Related.Interest.in.HH",
+"Fruits.Vegetables",                    
+"Travel.Domestic",
+"Travel.International"].map(function(v){ return v.toLowerCase().trim(); })
+
+
+var one = {
+	x:[], y:[], z:[], text:[],
+    name: "A",
+	mode: 'markers',
+	marker: {
+		size: 12,
+        
+
+		line: {
+		color: 'rgba(217, 217, 217, 0.14)',
+		width: 0.5},
+		opacity: 0.8},
+	type: 'scatter3d'
+};
+
+var two = {
+    x:[], y: [], z: [], text:[],
+	mode: 'markers',
+    name: "B",
+	marker: {
+		size: 12,
+		line: {
+		color: 'rgba(217, 217, 217, 0.14)',
+		width: 0.5},
+		opacity: 0.8},
+	type: 'scatter3d'
+}
+Object.keys(data).forEach(function(v){
+    var datum = data[v];
+    if (highlight.indexOf(v.trim().toLowerCase())!=-1){
+        console.log(v.trim().toLowerCase());
+        one.x.push(datum[0]);
+        one.y.push(datum[1]);
+        one.z.push(datum[2]);
+        one.text.push(v.trim().toLowerCase());
+    }else{
+        two.x.push(datum[0]);
+        two.y.push(datum[1]);
+        two.z.push(datum[2]);
+        two.text.push(v.trim().toLowerCase());
+    }
+});
+
+
+var data = [one, two];
+var layout = {margin: {
+	l: 0,
+	r: 0,
+	b: 0,
+	t: 0
+  }};
+Plotly.newPlot('myDiv', data, layout);
+        </script>
+        </body>
+</html>
