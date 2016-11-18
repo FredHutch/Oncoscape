@@ -10,12 +10,12 @@
 		font-weight: 600;
 }
 .btn:hover{
-        color:#0980b3 !important;
+        color:#1396de !important;
 }
 	
 header {
     a:hover{
-        color:#0980b3;
+        color:#1396de;
     }
     position: relative;
     width: 100%;
@@ -27,37 +27,19 @@ header {
     background-attachment: fixed;
     color: white;
     .btn{
-        background:#0980b3;
-        color:#000;
+        background:#000;
+        color:#1396de;
         border-radius: 5px;
         padding:10px;
         font-weight: 600;
         letter-spacing: 1.5px;
         transition: all .3s;
+        border:solid 3px #1396de;
     }
     .btn:hover{
-        color:#0980b3;
+        color:#FFF !important;
         background:#000 !important;
     }
-	/*.btn{
-		border: 1px solid #FFF;
-		background: #00236a;
-		border: 1 solid #FFF;
-		color:#FFF;
-		font-size: 20px;
-		text-transform: uppercase;
-		letter-spacing: 1.5px;
-		font-weight: 300;
-		padding: 8px 16px;
-		margin:0px;
-		border-radius: 20px;
-		transition: all 0.5s ease;
-	}
-	.btn:hover{
-		background:#FFF;
-		color: #00236a;
-		
-	}*/
     .header-content {
         text-align: center;
         padding: 150px 0 50px;
@@ -97,8 +79,8 @@ header {
                 max-width: none;
                 margin: 0;
                 position: absolute;
-                top: 50%;
-                transform: translateY(-50%);
+                top: 40%;
+                transform: translateY(-40%);
                 h1 {
                     font-size: 35px;
                 }
