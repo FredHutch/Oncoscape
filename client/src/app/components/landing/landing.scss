@@ -7,7 +7,10 @@
 	font-size: 20px;
 		text-transform: uppercase;
 		letter-spacing: 1.5px;
-		font-weight: 300;
+		font-weight: 600;
+}
+.btn:hover{
+        color:#0980b3 !important;
 }
 	
 header {
@@ -20,10 +23,23 @@ header {
     overflow-y: hidden;
     background: url("/assets/images/bg-pattern.png"), #DDD; /* fallback for old browsers */
     background: url("/assets/images/bg-pattern.png"), -webkit-linear-gradient(to left, #DDD,#BBB); /* Chrome 10-25, Safari 5.1-6 */
-    background: url("/assets/images/bg-pattern.png"), linear-gradient(120deg, #00236a, #000);
+    background: url("/assets/images/bg-pattern2.png"), linear-gradient(120deg, #00236a, #000);
     background-attachment: fixed;
     color: white;
-	.btn{
+    .btn{
+        background:#0980b3;
+        color:#000;
+        border-radius: 5px;
+        padding:10px;
+        font-weight: 600;
+        letter-spacing: 1.5px;
+        transition: all .3s;
+    }
+    .btn:hover{
+        color:#0980b3;
+        background:#000 !important;
+    }
+	/*.btn{
 		border: 1px solid #FFF;
 		background: #00236a;
 		border: 1 solid #FFF;
@@ -41,7 +57,7 @@ header {
 		background:#FFF;
 		color: #00236a;
 		
-	}
+	}*/
     .header-content {
         text-align: center;
         padding: 150px 0 50px;
