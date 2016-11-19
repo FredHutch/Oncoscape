@@ -141,11 +141,12 @@
                             render = function(){
                                 for (var i=0; i<5; i++) htGrid.render();
                             }
-                            Handsontable.hooks.add("afterSelection",
-                            function(r,c,r2,c2){
-                                console.dir(r+":"+r2);
-                            }
-                            ,htGrid);
+                            // Handsontable.hooks.add("afterSelectionEnd",
+                            //     function(r,c,r2,c2){
+                            //         debugger;   
+                                         
+                            //     }
+                            //     ,htGrid);
                         }
 
                         

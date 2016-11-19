@@ -154,7 +154,7 @@
                         disease: vm.datasource.disease,
                         geneset: vm.geneSet.name,
                         type: vm.pcaType.name,
-                        source: vm.pcaType.source
+                        source: vm.source.name
                     })
                     .then(function(response) {
                         vm.pc1 = response.data[0].pc1;
