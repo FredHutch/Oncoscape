@@ -22,16 +22,21 @@
         /** @ngInject */
         function HeaderController(osApi, osCohortService, osAuth, $stateParams, $state, $timeout, $rootScope) {
 
-            osApi.query("lookup_oncoscape_tools", {
-                beta: false
-            }).then(function(response) {
-                vm.tools = response.data;
-
-            });
+            
 
             osApi.onDataSource.add(function() {
                 $timeout(function() {
                     vm.datasets = osApi.getDataSources();
+                });
+                osApi.query("lookup_oncoscape_tools").then(function(response) {
+                    var tools = osApi.getDataSource().tools;
+                    vm.tools = response.data.filter(function(item){
+                        return (tools.indexOf(item.route)!=-1);
+                    }).sort(function(a, b) {
+                        if (a.name < b.name) return -1;
+                        if (a.name > b.name) return 1;
+                        return 0;
+                    });
                 });
             });
 

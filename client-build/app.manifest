@@ -28,6 +28,7 @@ CACHE:
 /scripts/app-447b3ada9f.js
 /scripts/app-5718310f2d.js
 /scripts/app-71b3837041.js
+/scripts/app-78e2fe4adb.js
 /scripts/app-7dab62f64d.js
 /scripts/app-83c4692b39.js
 /scripts/app-8cdae8e753.js
@@ -85,6 +86,9 @@ CACHE:
 /assets/images/bg-pattern%20copy.png
 /assets/images/bg-pattern.png
 /assets/images/bg-pattern2.png
+/assets/images/bg-pattern2aa.png
+/assets/images/bg-pattern2ab.png
+/assets/images/bg-pattern2ac.png
 /assets/images/clusters.jpg
 /assets/images/heatmap.png
 /assets/images/history.png
@@ -118,6 +122,7 @@ CACHE:
 /maps/scripts/app-447b3ada9f.js.map
 /maps/scripts/app-5718310f2d.js.map
 /maps/scripts/app-71b3837041.js.map
+/maps/scripts/app-78e2fe4adb.js.map
 /maps/scripts/app-7dab62f64d.js.map
 /maps/scripts/app-83c4692b39.js.map
 /maps/scripts/app-8cdae8e753.js.map
@@ -132,11 +137,13 @@ CACHE:
 /maps/scripts/app-d052ef60bf.js.map
 /maps/scripts/app-dbce1f8575.js.map
 /maps/scripts/app-e3c4bf5816.js.map
+/maps/scripts/app-e48049bc39.js.map
 /maps/scripts/app-f376699986.js.map
 /maps/scripts/vendor-bb71a6766a.js.map
 /maps/scripts/vendor-ccc9cc87f9.js.map
 /maps/scripts/vendor-ce8b380ff6.js.map
 /maps/styles/app-036f78c9c8.css.map
+/maps/styles/app-283c04d42b.css.map
 /maps/styles/app-3228768631.css.map
 /maps/styles/app-36c40f02ef.css.map
 /maps/styles/app-4404a4bd8a.css.map
@@ -163,8 +170,8 @@ CACHE:
 /maps/styles/app-fc2e1c9ea3.css.map
 /maps/styles/vendor-6a8c10e325.css.map
 /maps/styles/vendor-87f1b0d270.css.map
-/app/components/markers/markers.worker.js
 /app/components/oncoscape/oncoscape.cohort.service.worker.js
+/app/components/markers/markers.worker.js
 
 
 NETWORK:
@@ -176,4 +183,4 @@ https://*
 SETTINGS:
 prefer-online
 
-# hash: 9b722811cb0e73f7e897cba228ca8a5c8ef4efe6b39b12a8f778111d8be3d25f
+# hash: 8991b0b15919bb2960494af7bb8df3e6e2f81ec560ee08008d38a22c32d49cb1

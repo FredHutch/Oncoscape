@@ -20,8 +20,9 @@
                 resolve(data);
                 return;
             }
-            //var query = "https://dev.oncoscape.sttrcancer.io/api/" + object.table;
+            
             var query = "/api/" + object.table;
+            query = "https://dev.oncoscape.sttrcancer.io/api/" + object.table;
             console.log('%c '+object.table,'background: #333; color: #ffffff');
             if (object.query) query += "/" + encodeURIComponent(JSON.stringify(object.query));
             load(query, function(response) {

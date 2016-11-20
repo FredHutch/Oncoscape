@@ -56,6 +56,7 @@
                         break;
                     default:
                         vm.show = true;
+                        $("#cohortMenu").css({"display":"block"});
                         break;
                 }
             });
