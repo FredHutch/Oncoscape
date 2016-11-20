@@ -2,7 +2,8 @@
     <nav class="navbar navbar-inverse navbar-fixed-top">
         <div class="container-fluid">
             <div class="navbar-header">
-                <button type="button" class="navbar-toggle collapsed" data-toggle="collapse" data-target="#bs-example-navbar-collapse-1" aria-expanded="false">
+                <button type="button" class="navbar-toggle collapsed" data-toggle="collapse" data-target="#bs-example-navbar-collapse-1"
+                    aria-expanded="false">
                     <span class="sr-only">Toggle navigation</span>
                     <span class="icon-bar"></span>
                     <span class="icon-bar"></span>
@@ -16,49 +17,52 @@
                 <ul class="nav navbar-nav navbar-right">
                     <li class="dropdown" ng-show="vm.showTools">
                         <a href class="dropdown-toggle header-link" data-toggle="dropdown" role="button" aria-haspopup="true" aria-expanded="false"><span class="glyphicon glyphicon-stats"></span>Analysis Tools</a>
-                        <ul class="dropdown-menu">
-                            <li class="header-dropdown-menu-li" ng-repeat="item in vm.tools" ng-click="vm.loadTool(item.route)">
-                                <a><img class="header-dropdown-img" ng-src="/assets/images/{{item.img}}">{{item.name}}</a>
+
+                        <ul class="dropdown-menu row">
+                            <li ng-repeat="item in vm.tools" style="padding-bottom:10px" class="col-xs-12 col-sm-6 col-lg-4" ng-click="vm.loadTool(item.route)">
+                                <div class="datasource-btn" style="color:#000">
+                                    <img class="datasource-img" ng-src="/assets/images/{{item.img}}">
+                                    <p class="datasource-h1">{{item.name}}</p>
+                                    <p class="datasource-h2">{{item.desc}}</p>
+                                </div>
                             </li>
                         </ul>
                     </li>
                     <li class="dropdown" ng-show="vm.showDatasets">
                         <a href class="dropdown-toggle header-link" data-toggle="dropdown" role="button" aria-haspopup="true" aria-expanded="false"><span class="glyphicon glyphicon-th"></span>Disease Datasets</a>
-                        <ul class="dropdown-menu" roll="menu">
-                            <li class="header-dropdown-menu-li" ng-repeat="item in vm.datasets" ng-click="vm.loadDataset(item.disease)">
-                                <a><img class="header-dropdown-img" ng-src="/assets/images/{{item.img}}">{{item.name}}</a>
+                        <ul class="dropdown-menu row">
+                            <li ng-repeat="item in vm.datasets" style="padding-bottom:10px" class="col-xs-12 col-sm-6 col-lg-4" ng-click="vm.loadDataset(item.disease)">
+                                <div class="datasource-btn" style="color:#000">
+                                    <img class="datasource-img" ng-src="/assets/images/{{item.img}}">
+                                    <p class="datasource-h1">{{item.name}}</p>
+                                    <p class="datasource-h2">{{item.source}} | 11-17-2016</p>
+                                </div>
                             </li>
                         </ul>
+
                     </li>
                     <li class="dropdown" ng-show="vm.showCohorts">
                         <a href class="dropdown-toggle header-link" data-toggle="dropdown" role="button" aria-haspopup="true" aria-expanded="false"><span class="fa fa-users"></span>My Cohorts</a>
                         <div class="dropdown-menu container-fluid">
                             <div class="row">
-                                <div ng-if="!vm.showImport"
-                                    class="col-xs-12 col-sm-4" style="border:0px solid #DDD; border-right-width:1px;">
+                                <div ng-if="!vm.showImport" class="col-xs-12 col-sm-4" style="border:0px solid #DDD; border-right-width:1px;">
                                     <h2 style="margin-top:0px;">Create A Cohort</h2>
-                                    Oncoscape allows you to pass cohorts of patients from one tool to the next.  To create a cohort out of your current selection click<br />
-                                    <button class="btn btn-primary" style="margin-top:15px;"
-                                        ng-click="vm.addPatientCohort(); $event.stopPropagation();">Create Cohort</button>
-                                    <button class="btn btn-primary" style="margin-top:15px;"
-                                        ng-click="vm.showImport=true; $event.stopPropagation();">Import Cohort</button>
+                                    Oncoscape allows you to pass cohorts of patients from one tool to the next. To create a cohort out of your current selection
+                                    click<br />
+                                    <button class="btn btn-primary" style="margin-top:15px;" ng-click="vm.addPatientCohort(); $event.stopPropagation();">Create Cohort</button>
+                                    <button class="btn btn-primary" style="margin-top:15px;" ng-click="vm.showImport=true; $event.stopPropagation();">Import Cohort</button>
                                 </div>
-                                <div ng-if="vm.showImport"
-                                    class="col-xs-12 col-sm-4" style="border:0px solid #DDD; border-right-width:1px;">
+                                <div ng-if="vm.showImport" class="col-xs-12 col-sm-4" style="border:0px solid #DDD; border-right-width:1px;">
                                     <h2 style="margin-top:0px;">Import A Cohort</h2>
                                     Enter a comma seperated list of patient IDs below and click save<br />
-                                    <input ng-model="vm.importPatientIds" type="text" class="form-control" style="margin-top:5px;"
-                                        placeholder="eg. TCGA-01-0110, TCGA-02-0220">
-                                    <button class="btn btn-primary" style="margin-top:15px;"
-                                        ng-click="vm.importPatientCohort(); $event.stopPropagation();">Save</button>
-                                    <button class="btn btn-primary" style="margin-top:15px;"
-                                        ng-click="vm.showImport=false; $event.stopPropagation();">Cancel</button>
+                                    <input ng-model="vm.importPatientIds" type="text" class="form-control" style="margin-top:5px;" placeholder="eg. TCGA-01-0110, TCGA-02-0220">
+                                    <button class="btn btn-primary" style="margin-top:15px;" ng-click="vm.importPatientCohort(); $event.stopPropagation();">Save</button>
+                                    <button class="btn btn-primary" style="margin-top:15px;" ng-click="vm.showImport=false; $event.stopPropagation();">Cancel</button>
 
                                 </div>
                                 <div class="col-xs-12 col-sm-8">
                                     <h2 style="margin-top:0px;">Your Cohorts</h2>
-                                    <div class="markers-command hvr-sweep-to-right" style="max-width:200px;"
-                                        ng-repeat="item in vm.cohorts" ng-click="vm.setPatientCohort(item)">
+                                    <div class="markers-command hvr-sweep-to-right" style="max-width:200px;" ng-repeat="item in vm.cohorts" ng-click="vm.setPatientCohort(item)">
                                         {{item.name}} ({{item.ids.length}})
                                     </div>
                                 </div>
@@ -75,6 +79,6 @@
             </div>
             <!-- /.navbar-collapse -->
         </div>
-    <div class="nav-divider"></div>        
+        <div class="nav-divider"></div>
     </nav>
 </div>

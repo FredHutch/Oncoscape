@@ -1,7 +1,6 @@
 // Namespace
 .datasource {
-    background: url("/assets/images/bg-pattern.png"), #f9f9f9;
-    background-attachment: fixed;
+    background: linear-gradient(120deg, #FFF,#DDD);
     min-height: 100vh;
     ul {
         list-style: none;
@@ -11,7 +10,9 @@
     li {
         padding: 10px;
     }
-    .datasource-h1{
+  
+}
+  .datasource-h1{
         font-size:30px;
         margin: 0px;
         padding:0px; 
@@ -46,4 +47,3 @@
             width: 100px;
         }
     }
-}

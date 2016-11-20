@@ -23,12 +23,14 @@ header {
     overflow-y: hidden;
     background: url("/assets/images/bg-pattern.png"), #DDD; /* fallback for old browsers */
     background: url("/assets/images/bg-pattern.png"), -webkit-linear-gradient(to left, #DDD,#BBB); /* Chrome 10-25, Safari 5.1-6 */
-    background: url("/assets/images/bg-pattern2.png"), linear-gradient(120deg, #00236a, #000);
+    background: linear-gradient(120deg, #00236a 20%,  #1396de, #00236a);
     background-attachment: fixed;
+    
+    
     color: white;
     .btn{
         background:#000;
-        color:#1396de;
+        color:#FFF;
         border-radius: 5px;
         padding:10px;
         font-weight: 600;
@@ -37,8 +39,8 @@ header {
         border:solid 3px #1396de;
     }
     .btn:hover{
-        color:#FFF !important;
-        background:#000 !important;
+        color:#000 !important;
+        background:#FFF !important;
     }
     .header-content {
         text-align: center;
