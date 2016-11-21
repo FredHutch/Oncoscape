@@ -46,7 +46,8 @@
                 osCohortService.setPatientCohort([],"All Patients")
             });
 
-            var onStateChange = $rootScope.$on('$stateChangeStart', function(event, toState){
+            //var onStateChange = 
+            $rootScope.$on('$stateChangeStart', function(event, toState){
                  
                 switch(toState.name){
                     case "landing":
@@ -56,11 +57,11 @@
                         break;
                     default:
                         vm.show = true;
-                        $("#cohortMenu").css({"display":"block"});
+                        angular.element("#cohortMenu").css({"display":"block"});
                         break;
                 }
             });
-            $rootScope.$on('$destroy', function(e){
+            $rootScope.$on('$destroy', function(){
                 vm.show = false;
             });
 

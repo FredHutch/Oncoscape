@@ -2,6 +2,14 @@
 .timelines-content {
     position: relative;
 }
+.timeline-zoom-label{
+    z-index: 500;
+    top: 5px;
+    position: absolute;
+    left: 30px;
+    font-size: 10px;
+    pointer-events: none;
+}
 
 .timeline-chart {
     position: absolute;

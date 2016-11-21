@@ -21,7 +21,7 @@
                         <ul class="dropdown-menu row">
                             <li ng-repeat="item in vm.tools" style="padding-bottom:10px" class="col-xs-12 col-sm-6 col-lg-4" ng-click="vm.loadTool(item.route)">
                                 <div class="datasource-btn" style="color:#000">
-                                    <img class="datasource-img" ng-src="/assets/images/{{item.img}}">
+                                    <img class="datasource-img" ng-src="/assets/images/{{item.img}}" style="border-right: 1px solid #DDD">
                                     <p class="datasource-h1">{{item.name}}</p>
                                     <p class="datasource-h2">{{item.desc}}</p>
                                 </div>
