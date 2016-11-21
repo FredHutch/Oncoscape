@@ -40,6 +40,7 @@ CACHE:
 /scripts/app-c1bb28fa16.js
 /scripts/app-c64c3abe46.js
 /scripts/app-d052ef60bf.js
+/scripts/app-d7be9907c4.js
 /scripts/app-dbce1f8575.js
 /scripts/app-e3c4bf5816.js
 /scripts/app-f376699986.js
@@ -51,6 +52,7 @@ CACHE:
 /styles/app-4404a4bd8a.css
 /styles/app-6bae3140eb.css
 /styles/app-704945a68b.css
+/styles/app-7758469f6c.css
 /styles/app-79064e95d4.css
 /styles/app-7970bae211.css
 /styles/app-95a2865d82.css
@@ -81,6 +83,7 @@ CACHE:
 /assets/images/DSpancreas.png
 /assets/images/DSprostate.png
 /assets/images/DSsarcoma.png
+/assets/images/PATTERNITY_YEAR-IN-PATTERN.jpg
 /assets/images/arrow_down.png
 /assets/images/barcharts.png
 /assets/images/bg-pattern%20copy.png
@@ -89,7 +92,13 @@ CACHE:
 /assets/images/bg-pattern2aa.png
 /assets/images/bg-pattern2ab.png
 /assets/images/bg-pattern2ac.png
+/assets/images/bg-pattern2ad.png
+/assets/images/bg-pattern3.png
+/assets/images/bg-pattern4.png
+/assets/images/bg-pattern4a%20copy.png
+/assets/images/bg-pattern4a.png
 /assets/images/clusters.jpg
+/assets/images/gplay.png
 /assets/images/heatmap.png
 /assets/images/history.png
 /assets/images/honeycomb-34985.svg
@@ -100,7 +109,11 @@ CACHE:
 /assets/images/logo.png
 /assets/images/markers.png
 /assets/images/pathways.png
+/assets/images/pattern2%20copy.png
+/assets/images/pattern2.png
 /assets/images/pca.png
+/assets/images/random-grey-variations.png
+/assets/images/shattered.png
 /assets/images/sttr-facebook-out.png
 /assets/images/sttr-google-out.png
 /assets/images/sttr-instagram-out.png
@@ -135,6 +148,7 @@ CACHE:
 /maps/scripts/app-c64c3abe46.js.map
 /maps/scripts/app-c8ceb1384d.js.map
 /maps/scripts/app-d052ef60bf.js.map
+/maps/scripts/app-d7be9907c4.js.map
 /maps/scripts/app-dbce1f8575.js.map
 /maps/scripts/app-e3c4bf5816.js.map
 /maps/scripts/app-e48049bc39.js.map
@@ -150,6 +164,7 @@ CACHE:
 /maps/styles/app-4b2f6527e8.css.map
 /maps/styles/app-6bae3140eb.css.map
 /maps/styles/app-704945a68b.css.map
+/maps/styles/app-7758469f6c.css.map
 /maps/styles/app-79064e95d4.css.map
 /maps/styles/app-7970bae211.css.map
 /maps/styles/app-7f52550619.css.map
@@ -170,8 +185,8 @@ CACHE:
 /maps/styles/app-fc2e1c9ea3.css.map
 /maps/styles/vendor-6a8c10e325.css.map
 /maps/styles/vendor-87f1b0d270.css.map
-/app/components/oncoscape/oncoscape.cohort.service.worker.js
 /app/components/markers/markers.worker.js
+/app/components/oncoscape/oncoscape.cohort.service.worker.js
 
 
 NETWORK:
@@ -183,4 +198,4 @@ https://*
 SETTINGS:
 prefer-online
 
-# hash: 8991b0b15919bb2960494af7bb8df3e6e2f81ec560ee08008d38a22c32d49cb1
+# hash: 3944245f5f35c43b74cbec94e5e930401d4f00d3a0a86320442bfc754e705694
