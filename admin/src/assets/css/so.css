@@ -9,8 +9,9 @@ body{
 	background-color: #000;
 }
 .nav-divider{
-	background-image: url(/assets/img/texture.png);
-    background-size: cover;
+	/*background-image: url(/assets/img/texture.png);
+    background-size: cover;*/
+    background: #1396de;
     box-shadow: 3px 3px 10px #000;
     height: 3px;
     width: 100%;
