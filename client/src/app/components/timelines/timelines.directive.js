@@ -524,6 +524,7 @@
                             v.end = (v.end == null) ? v.start : v.end;
                             v.color = this.colorFn(v.name);
                             v.visible = true;
+                            v.order = 1;
                             return v;
                         }, {
                             events: this.events,
@@ -544,7 +545,21 @@
                     colorFn: colorFn
                 });
 
-                debugger;
+
+                data.forEach(function(patient){
+                    var groups = _.groupBy(patient.events,'name');
+                    var keys = Object.keys(groups).filter(function(prop){
+                        return (this[prop].length>1);
+                    }, groups);
+                    keys.forEach(function(v){
+                        var e = patient.events.filter(function(e){ return e.name==v; });
+                        debugger; 
+
+                    })
+                    
+
+                });
+
 
                 patientsAll = data.filter(function(v) {
                     try {

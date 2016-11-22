@@ -24,7 +24,7 @@ var request = function(object, data, format) {
     return new Promise(function(resolve, reject) {
     	console.log('%c '+object.table,'background: #333; color: #ffffff');
         var query = "/api/" + object.table;
-        query = "https://dev.oncoscape.sttrcancer.io/api/" + object.table;
+        //query = "https://dev.oncoscape.sttrcancer.io/api/" + object.table;
         if (object.query) query += "/" + encodeURIComponent(JSON.stringify(object.query));
         load(query, function(response) {
             resolve(JSON.parse(response.responseText));
