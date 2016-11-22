@@ -38,7 +38,7 @@
             vm.show = false;
             vm.edit = false;
             
-            
+            angular.element("#cohortMenu").css({"display":"none"});
             osCohortService.onCohortsChange.add(function(allCohorts){
                 vm.cohorts = allCohorts;
                 vm.show = true;
@@ -46,8 +46,7 @@
                 osCohortService.setPatientCohort([],"All Patients")
             });
 
-            //var onStateChange = 
-            $rootScope.$on('$stateChangeStart', function(event, toState){
+            var onStateChange = $rootScope.$on('$stateChangeStart', function(event, toState){
                  
                 switch(toState.name){
                     case "landing":
@@ -62,6 +61,8 @@
                 }
             });
             $rootScope.$on('$destroy', function(){
+                onStateChange();
+                angular.element("#cohortMenu").css({"display":"none"});
                 vm.show = false;
             });
 

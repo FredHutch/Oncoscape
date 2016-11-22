@@ -34,6 +34,7 @@
                 manualColumnResize: true,
                 manualColumnMove: true,
                 fixedRowsTop: 0,
+                fixedColumnsLeft: 1,
                 readOnly: true,
                 contextMenu: false,
                 columnSorting: true,
@@ -108,7 +109,6 @@
                 
                 filteredData = (selectedIds.length==0) ? data : data
                     .filter(function(v){
-
                         return (this.indexOf(v.patient_ID)!=-1)
                     }, selectedIds);
                 
@@ -123,17 +123,25 @@
                 osApi.query(vm.collection.collection)
                     .then(function(response) {
                         data = response.data.map(function(v){
+                            v.selected = false;
                             v.color = "#0b97d3";
                             return v;
                         });
 
-                        vm.columns = Object.keys(data[0]).map(function(v) {
+                        var cr = function(instance, td, row, col, prop, value, cellProperties){
+                            console.log("!!!");
+                            td.innerHTML = prop+"!"; 
+                        }
+                        var columns = Object.keys(data[0]).map(function(v) {
                             return {
                                 field: v,
                                 displayName: v.replace(/_/g, " ").toUpperCase(),
                                 show: true
                             };
                         });
+                        columns.unshift({field:'selected', displayName:'',show:true, renderer:cr})
+
+                        vm.columns = columns;
                        
                         if (htGrid == null) {
                             settings.startCols = vm.columns.length;
@@ -141,6 +149,7 @@
                             render = function(){
                                 for (var i=0; i<5; i++) htGrid.render();
                             }
+
                             // Handsontable.hooks.add("afterSelectionEnd",
                             //     function(r,c,r2,c2){
                             //         debugger;   
@@ -170,12 +179,14 @@
                 var cols = vm.columns.filter(function(v) {
                     return v.show;
                 });
-
                 settings.colHeaders = cols.map(function(v) {
                     return v.displayName;
                 });
                 settings.columns = cols.map(function(v) {
-                    return { data: v.field, readOnly:true };
+                    debugger;
+                    vm.columns;
+                        return { data: v.field, readOnly:true };
+                    
                 });
                 settings.cells = function () {
                     var cellProps = {};
