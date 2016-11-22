@@ -38,7 +38,7 @@
             vm.show = false;
             vm.edit = false;
             
-            
+            angular.element("#cohortMenu").css({"display":"none"});
             osCohortService.onCohortsChange.add(function(allCohorts){
                 vm.cohorts = allCohorts;
                 vm.show = true;
@@ -56,11 +56,13 @@
                         break;
                     default:
                         vm.show = true;
-                        $("#cohortMenu").css({"display":"block"});
+                        angular.element("#cohortMenu").css({"display":"block"});
                         break;
                 }
             });
-            $rootScope.$on('$destroy', function(e){
+            $rootScope.$on('$destroy', function(){
+                onStateChange();
+                angular.element("#cohortMenu").css({"display":"none"});
                 vm.show = false;
             });
 

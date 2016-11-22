@@ -77,7 +77,7 @@
                 vm.selectColor = function(e){
                     var ids = e.values;
                     var allIds = [];
-                    d3.selectAll("circle").each(function(d,i){
+                    d3.selectAll("circle").each(function(d){
                          if (ids.indexOf(d.id)!=-1) {
                              d3.select(this).classed("pca-node-selected", true);
                              allIds.push(d.id);
@@ -92,7 +92,7 @@
                 vm.deselectColor = function(e){
                     var ids = e.values;
                     var allIds = [];
-                    d3.selectAll("circle").each(function(d,i){
+                    d3.selectAll("circle").each(function(d){
                         if (ids.indexOf(d.id)!=-1) {
                             d3.select(this).classed("pca-node-selected", false);
                         }else{

@@ -1,4 +1,4 @@
-(function() {
+(function () {
     'use strict';
 
     angular
@@ -26,7 +26,7 @@
 
             var tmpdata, worker;
 
-            var signal = (function() {
+            var signal = (function () {
                 return {
                     patients: {
                         select: new signals.Signal(),
@@ -46,7 +46,7 @@
                         over: new signals.Signal(),
                         out: new signals.Signal()
                     },
-                    clear: function() {
+                    clear: function () {
                         this.edges.select.removeAll();
                         this.edges.unselect.removeAll();
                         this.edges.over.removeAll();
@@ -68,7 +68,7 @@
              *  + Node & Edge Styles
              */
             var elChart = angular.element("#markers-chart");
-            var cyChart = (function(elChart) {
+            var cyChart = (function (elChart) {
                 return cytoscape({
                     container: elChart,
                     style: [{
@@ -127,7 +127,7 @@
                         style: {
                             'border-color': "#000",
                             'border-width': 5
-                                //'background-opacity': '.2'
+                            //'background-opacity': '.2'
                         }
                     }, {
                         selector: 'node[nodeType="centromere"]',
@@ -188,17 +188,17 @@
             /*
              *  Draw Chromosome
              */
-            (function() {
+            (function () {
 
                 osApi.query("render_chromosome", {
                     type: "chromosome"
-                }).then(function(result) {
+                }).then(function (result) {
 
                     // Process Chromosome
                     var chromosomes = result.data[0].data;
                     var elements = [];
 
-                    Object.keys(chromosomes).forEach(function(key) {
+                    Object.keys(chromosomes).forEach(function (key) {
                         var chromosome = this.chromosomes[key];
                         this.elements.push({
                             group: "edges",
@@ -281,9 +281,9 @@
                         });
 
                     }, {
-                        chromosomes: chromosomes,
-                        elements: elements
-                    });
+                            chromosomes: chromosomes,
+                            elements: elements
+                        });
                     cyChart.add(elements);
                 });
             })()
@@ -293,7 +293,7 @@
              * + Initial Data Load
              * + View Port Resize Event
              */
-            var vm = (function(vm, osApi) {
+            var vm = (function (vm, osApi) {
                 vm.showPopupSelection = false;
                 vm.datasource = osApi.getDataSource();
                 vm.detail = {
@@ -320,24 +320,24 @@
                 }];
                 vm.optCommandMode = vm.optCommandModes[0];
 
-                vm.hideModal = function() {
+                vm.hideModal = function () {
                     angular.element('#modalEdge').modal('hide');
                 }
-                vm.filterModelEdge = function() {
+                vm.filterModelEdge = function () {
 
                     angular.element('#modalEdge').modal('hide');
                     var vals = vm.optEdgeColors
-                        .filter(function(c) {
+                        .filter(function (c) {
                             return c.show;
                         })
-                        .map(function(c) {
+                        .map(function (c) {
                             return c.id
                         });
-                    var edges = tmpdata.edges.filter(function(edge) {
+                    var edges = tmpdata.edges.filter(function (edge) {
                         return (vals.indexOf(edge.data.cn) != -1);
                     }, {
-                        vals: vals
-                    });
+                            vals: vals
+                        });
 
                     cyChart.startBatch();
                     cyChart.add(edges);
@@ -346,26 +346,26 @@
 
                 };
 
-                vm.edgeToggle = function() {
+                vm.edgeToggle = function () {
                     vm.cmd('ShowSelectedEdges');
                 };
 
-                vm.selectColor = function(item) {
+                vm.selectColor = function (item) {
                     var color = item.color;
                     var nodes = cyChart.$('node[nodeType="patient"]');
                     cyChart.startBatch();
-                    nodes.forEach(function(node) {
+                    nodes.forEach(function (node) {
                         if (node.data().color == this) {
                             node.select();
                         }
                     }, color);
                     cyChart.endBatch();
                 };
-                vm.deselectColor = function(item) {
+                vm.deselectColor = function (item) {
                     var color = item.color;
                     var nodes = cyChart.$('node[nodeType="patient"]:selected');
                     cyChart.startBatch();
-                    nodes.forEach(function(node) {
+                    nodes.forEach(function (node) {
                         if (node.data().color == this) {
                             node.unselect();
                         }
@@ -375,13 +375,13 @@
 
                 vm.lockPatients = false;
                 vm.lockGenes = false;
-                vm.lock = function(type) {
+                vm.lock = function (type) {
                     switch (type) {
                         case "patient":
                             vm.lockPatients = !vm.lockPatients;
                             cyChart.startBatch();
                             cyChart.$('node[nodeType="patient"]')
-                                .forEach(function(node) {
+                                .forEach(function (node) {
                                     if (vm.lockPatients) node.unselectify();
                                     else node.selectify();
                                 });
@@ -391,7 +391,7 @@
                             vm.lockGenes = !vm.lockGenes;
                             cyChart.startBatch();
                             cyChart.$('node[nodeType="cn"]')
-                                .forEach(function(node) {
+                                .forEach(function (node) {
                                     if (vm.lockGenes) node.unselectify();
                                     else node.selectify();
                                 });
@@ -459,26 +459,26 @@
                         dataset: osApi.getDataSource().disease,
                         $fields: ['name']
                     })
-                ]).then(function(results) {
+                ]).then(function (results) {
 
                     vm.optGeneSets = results[0].data;
 
 
                     var data = localStorage.getItem(osApi.getDataSource().disease + "MarkersPatients");
-                    if (data===null) {
+                    if (data === null) {
                         if (osApi.getDataSource().disease == "brain") {
-                            vm.optGeneSet = vm.optGeneSets.filter(function(v) {
-                                return v.name == "Marker genes 545"; 
+                            vm.optGeneSet = vm.optGeneSets.filter(function (v) {
+                                return v.name == "Marker genes 545";
                                 //  "TCGA pancan mutated";
                                 //  "Marker genes 545"; 
                             })[0]
                         } else {
-                            vm.optGeneSet = vm.optGeneSets.filter(function(v) {
+                            vm.optGeneSet = vm.optGeneSets.filter(function (v) {
                                 return v.name == "TCGA pancan mutated";
                             })[0]
                         }
                     }
-                    else{
+                    else {
                         data = angular.fromJson(data);
                         vm.optGeneSet = angular.fromJson(data).geneset;    // This is getting parsed x2.  Need to revisit
                     }
@@ -486,7 +486,7 @@
                     vm.optPatientLayouts = results[1].data;
                     vm.optPatientLayout = vm.optPatientLayouts[0]
                 });
-                vm.resize = function() {
+                vm.resize = function () {
                     var width = $window.innerWidth;
                     //    if (angular.element(".tray").attr("locked") == "true") width -= 300;
                     elChart.width(width);
@@ -505,19 +505,19 @@
              * - reset
              * - fit
              */
-            var zoom = (function(cyChart, vm) {
-                var reset = function() {
+            var zoom = (function (cyChart, vm) {
+                var reset = function () {
                     cyChart.fit();
                     cyChart.center();
                 };
-                var fit = function() {
+                var fit = function () {
                     cyChart.fit(cyChart.$(':selected'), 50)
                 };
                 vm.zoom = {
                     reset: reset,
                     fit: fit
                 };
-                cyChart.on('pan', _.debounce(function() {
+                cyChart.on('pan', _.debounce(function () {
                     cyChart.startBatch();
                     resizeNodes();
                     cyChart.endBatch();
@@ -530,15 +530,15 @@
             var nodeScale = d3.scaleLog().domain([.005, 20]).range([80, 1]);
             var labelScale = d3.scaleLog().domain([.005, 20]).range([50, 1]);
             var expressionScale = d3.scalePow().range([.01, 2]);
-            var resizeNodes = function() {
+            var resizeNodes = function () {
                 expressionScale.domain(
                     cyChart.$('node[nodeType="patient"],node[nodeType="gene"]').toArray()
-                    .reduce(function(p, c) {
-                        var w = c.data().weight;
-                        p[0] = Math.min(p[0], w);
-                        p[1] = Math.max(p[1], w);
-                        return p;
-                    }, [Infinity, -Infinity])
+                        .reduce(function (p, c) {
+                            var w = c.data().weight;
+                            p[0] = Math.min(p[0], w);
+                            p[1] = Math.max(p[1], w);
+                            return p;
+                        }, [Infinity, -Infinity])
                 );
 
                 var zoom = cyChart.zoom();
@@ -546,18 +546,18 @@
                 var sizeLbl = (zoom < .375) ? 0 : labelScale(zoom);
                 var sizeBdr = borderScale(zoom);
 
-                cyChart.$('node[nodeType="patient"],node[nodeType="gene"]').forEach(function(node) {
+                cyChart.$('node[nodeType="patient"],node[nodeType="gene"]').forEach(function (node) {
                     node.data({
                         'sizeEle': Math.round(this.sizeNode * expressionScale(node.data().weight)),
                         'sizeLbl': this.sizeLbl,
                         'sizeBdr': this.sizeBdr
                     });
                 }, {
-                    sizeNode: sizeNode,
-                    sizeBdr: sizeBdr,
-                    sizeLbl: sizeLbl,
-                    scale: expressionScale
-                });
+                        sizeNode: sizeNode,
+                        sizeBdr: sizeBdr,
+                        sizeLbl: sizeLbl,
+                        scale: expressionScale
+                    });
             }
 
             /* 
@@ -567,41 +567,39 @@
              *  - setDataSource(name:String)
              *  - setOptions(options:Object)
              */
-            var setOptions = (function(cyChart, vm, osApi, $q, zoom, _, signal) {
+            var setOptions = (function (cyChart, vm, osApi, $q, zoom, _, signal) {
 
                 // Instatiate Worker
                 var cmd = {};
                 worker = new Worker("app/components/markers/markers.worker.js");
-                worker.addEventListener('message', function(msg) {
+                worker.addEventListener('message', function (msg) {
                     cmd[msg.data.cmd](msg.data.data);
                 }, false);
 
-                var remove = function(selector, data) {
+                var remove = function (selector, data) {
                     if (angular.isUndefined(data)) {
                         cyChart.remove(selector);
                         return;
                     }
 
-                    if (data.length==0) return;
-                        var items = data.map(function(item) {
-                            return this.getElementById(item);
-                        }, cyChart);
-                        try{
+                    if (data.length == 0) return;
+                    var items = data.map(function (item) {
+                        return this.getElementById(item);
+                    }, cyChart);
+                    try {
                         cyChart.collection(items).remove();
-                        }catch(e){}
-
-                  
+                    } catch (e) { }
                 };
-                cmd.patients_html = function(data) {
-                    
-                };
-                cmd.patients_resize = function() {
+                cmd.patients_html = function () {
 
                 };
-                cmd.patients_delete = function(data) {
+                cmd.patients_resize = function () {
+
+                };
+                cmd.patients_delete = function (data) {
                     remove('node[nodeType="patient"]', data);
                 };
-                cmd.patients_insert = function(data) {
+                cmd.patients_insert = function (data) {
                     cyChart.startBatch();
                     //var signals = signal.patients;
                     var elements = cyChart.add(data.patients);
@@ -609,7 +607,7 @@
                     elements.on("unselect", _.debounce(signal.patients.unselect.dispatch, 300));
                     elements.on("mouseover", signal.patients.over.dispatch);
                     elements.on("mouseout", signal.patients.out.dispatch);
-                    elements.forEach(function(node) {
+                    elements.forEach(function (node) {
                         try {
                             node.data({
                                 'weight': data.degrees[node.id()].weight
@@ -625,52 +623,52 @@
                     cyChart.endBatch();
                     vm.resize();
 
-                   
+
                     //Initial Node Selection
                     var pc = osCohortService.getPatientCohort();
                     if (pc == null) {
                         osCohortService.setPatientCohort([], "All Patients")
                     } else {
                         cyChart.startBatch();
-                        cyChart.nodes('node[nodeType="patient"]').forEach(function(node) {
+                        cyChart.nodes('node[nodeType="patient"]').forEach(function (node) {
                             if (pc.ids.indexOf(node.id()) != -1) node.select();
 
                         }, {
-                            pc: pc
-                        });
+                                pc: pc
+                            });
                         cyChart.endBatch();
                         vm.zoom.reset()
                         cyChart.center();
                         cyChart.fit(cyChart.nodes(), 400);
                     }
-                    
+
 
                 };
-                cmd.patients_layout = function(data) {
+                cmd.patients_layout = function (data) {
                     cyChart.startBatch();
                     cyChart.$("node[nodeType='annotation-text'],edge[nodeType='annotation-line'],node[nodeType='annotation-point']").remove();
                     if (data.annotation) {
                         cyChart.add(data.annotation);
 
                     }
-                    cyChart.nodes('node[nodeType="patient"]').forEach(function(node) {
+                    cyChart.nodes('node[nodeType="patient"]').forEach(function (node) {
                         try {
                             var pos = data.data[node.id()];
                             pos.x -= 4000;
                             node.position(pos);
-                        } catch (e) {}
+                        } catch (e) { }
                     });
                     resizeNodes();
                     cyChart.endBatch();
                 };
 
-                cmd.genes_html = function() {
+                cmd.genes_html = function () {
 
                 };
-                cmd.genes_delete = function(data) {
+                cmd.genes_delete = function (data) {
                     remove('node[nodeType="gene"]', data);
                 };
-                cmd.genes_insert = function(data) {
+                cmd.genes_insert = function (data) {
                     cyChart.startBatch();
                     //var signals = signal.genes;
                     var elements = cyChart.add(data.genes);
@@ -678,7 +676,7 @@
                     elements.on("unselect", _.debounce(signal.genes.unselect.dispatch, 300));
                     elements.on("mouseover", signal.genes.over.dispatch);
                     elements.on("mouseout", signal.genes.out.dispatch);
-                    elements.forEach(function(node) {
+                    elements.forEach(function (node) {
                         try {
                             node.data({
                                 'weight': data.degrees[node.id()].weight
@@ -694,15 +692,15 @@
                     resizeNodes();
                     osApi.setBusy(false);
                 };
-                cmd.edges_delete = function(data) {
+                cmd.edges_delete = function (data) {
                     remove('edge[edgeType="cn"]', data);
 
                 };
-                cmd.edges_insert = function(data) {
+                cmd.edges_insert = function (data) {
                     tmpdata = data;
                     if (data.counts.total > 5000) {
                         angular.element('#modalEdge').modal();
-                        $scope.$apply(function() {
+                        $scope.$apply(function () {
                             vm.edgeCounts = data.counts;
                         });
                         return;
@@ -717,16 +715,16 @@
                         if (mouseIsOver == "patient") {
 
                             var geneColors = elements
-                                .map(function(v) {
+                                .map(function (v) {
                                     return [v.data().source, v.data().color];
                                 })
-                                .reduce(function(p, c) {
+                                .reduce(function (p, c) {
                                     p[c[0]] = c[1];
                                     return p;
                                 }, {});
 
                             cyChart.$('node[nodeType="gene"]')
-                                .forEach(function(ele) {
+                                .forEach(function (ele) {
                                     var id = ele.id();
                                     var selected = this.hasOwnProperty(id);
                                     ele.data("sizeBdr", (selected) ? 10 : 1);
@@ -740,9 +738,9 @@
 
                     } else {
                         cyChart.startBatch();
-                        try{
-                        cyChart.add(data.edges);
-                        }catch(e){}
+                        try {
+                            cyChart.add(data.edges);
+                        } catch (e) { }
                         vm.edgeCounts = data.counts;
                         cyChart.endBatch();
                     }
@@ -750,7 +748,7 @@
                 };
 
                 // Outbound
-                return function(options) {
+                return function (options) {
                     worker.postMessage({
                         cmd: "setOptions",
                         data: options
@@ -759,19 +757,19 @@
             })(cyChart, vm, osApi, $q, zoom, _, signal);
 
             /* Options Factory */
-            var createOptions = (function(cyChart, vm) {
+            var createOptions = (function (cyChart, vm) {
 
-                return function(cmd) {
+                return function (cmd) {
 
                     cmd = cmd || "";
                     var geneset = vm.optGeneSet.name;
 
                     // Could add ability to select from cBio or UCSC for edges
-                    var edges = osApi.getDataSource().edges.filter(function(f) {
+                    var edges = osApi.getDataSource().edges.filter(function (f) {
                         return f.name == this.geneset
                     }, {
-                        geneset: geneset
-                    })[0];
+                            geneset: geneset
+                        })[0];
 
                     var opts = {
                         mode: vm.optCommandMode.name,
@@ -780,13 +778,13 @@
                         patients: {
                             data: vm.datasource.clinical.patient,
                             layout: vm.optPatientLayout.name,
-                            selected: cyChart.$('node[nodeType="patient"]:selected').map(function(p) {
+                            selected: cyChart.$('node[nodeType="patient"]:selected').map(function (p) {
                                 return p.data().id
                             })
                         },
                         genes: {
                             layout: vm.optGeneSet.name,
-                            selected: cyChart.$('node[nodeType="gene"]:selected').map(function(p) {
+                            selected: cyChart.$('node[nodeType="gene"]:selected').map(function (p) {
                                 return p.data().id
                             })
                         },
@@ -794,14 +792,14 @@
                             patientWeights: edges.patientWeights,
                             geneWeights: edges.genesWeights,
                             layout: vm.datasource.edges
-                                .filter(function(v) {
+                                .filter(function (v) {
                                     return (v.name == this)
                                 }, geneset)[0],
                             colors: vm.optEdgeColors
-                                .filter(function(f) {
+                                .filter(function (f) {
                                     return f.show
                                 })
-                                .map(function(f) {
+                                .map(function (f) {
                                     return {
                                         id: f.id,
                                         color: f.color
@@ -814,20 +812,20 @@
                 }
             })(cyChart, vm)
 
-            vm.cmd = function() {};
+            vm.cmd = function () { };
 
             /*
              *  Watch View Model
              *  + vm.optGeneSet
              *  + vm.optPatientLayout
              */
-            (function(vm, $scope) {
+            (function (vm, $scope) {
                 var watches = 1;
 
                 var firstTime = true;
-                var update = function(){
-                    if (firstTime){
-                        firstTime=false;
+                var update = function () {
+                    if (firstTime) {
+                        firstTime = false;
                         if (hydrate()) return;    // If Hydration Was Possible
                     }
                     setOptions(createOptions());
@@ -835,7 +833,7 @@
 
                 // GeneSet
                 watches += 0;
-                $scope.$watch('vm.optGeneSet', function() {
+                $scope.$watch('vm.optGeneSet', function () {
                     if (watches > 0) {
                         watches -= 1;
                         return;
@@ -844,12 +842,12 @@
                     osApi.setBusy(true);
                     cyChart.$('edge[edgeType="cn"]').remove();
                     update();
-                    
+
                 });
 
                 // Patient Layout
                 watches += 1;
-                $scope.$watch('vm.optPatientLayout', function() {
+                $scope.$watch('vm.optPatientLayout', function () {
                     if (watches > 0) {
                         watches -= 1;
                         return;
@@ -859,20 +857,20 @@
 
                 // Search
                 watches += 1;
-                $scope.$watch('vm.search', _.debounce(function() {
+                $scope.$watch('vm.search', _.debounce(function () {
                     if (watches > 0) {
                         watches -= 1;
                         return;
                     }
                     var needle = vm.search.toUpperCase().trim();
-                    if (needle.length > 0) cyChart.$('node').filter(function(i, ele) {
+                    if (needle.length > 0) cyChart.$('node').filter(function (i, ele) {
                         return (ele.id().toUpperCase().indexOf(needle) == 0);
                     }).select();
                 }, 600))
 
                 // Edge Colors
                 watches += 1;
-                $scope.$watch('vm.optEdgeColors.color', function() {
+                $scope.$watch('vm.optEdgeColors.color', function () {
                     if (watches > 0) {
                         watches -= 1;
                         return;
@@ -883,28 +881,28 @@
             })(vm, $scope);
 
             var mouseIsOver = "";
-            var updatePatientCounts = function() {
+            var updatePatientCounts = function () {
 
                 angular.element(".legend-count").text("");
                 var selectedPatients = cyChart.$('node[nodeType="patient"]:selected').toArray();
                 if (selectedPatients.length == 0) selectedPatients = cyChart.$('node[nodeType="patient"]').toArray();
 
-                var counts = selectedPatients.reduce(function(p, c) {
+                var counts = selectedPatients.reduce(function (p, c) {
                     var color = c.data().color;
                     if (!p.hasOwnProperty(color)) p[color] = 0;
                     p[color] += 1;
                     return p;
                 }, {});
 
-                Object.keys(counts).forEach(function(key) {
+                Object.keys(counts).forEach(function (key) {
                     angular.element("#legend-" + key.substr(1)).text(" (" + this[key] + ")");
                 }, counts);
 
             };
 
-            var setPatientInfo = function(e) {
+            var setPatientInfo = function (e) {
 
-                $scope.$apply(function() {
+                $scope.$apply(function () {
                     if (e.type == "mouseout") {
                         //angular.element("#cohortmenu-legand").html("");
 
@@ -914,10 +912,10 @@
                     }
                 });
             };
-            
-            var setGeneInfo = function(e) {
 
-                $scope.$apply(function() {
+            var setGeneInfo = function (e) {
+
+                $scope.$apply(function () {
                     if (e.type == "mouseout") {
                         angular.element("#cohortmenu-legand").html("");
                     } else {
@@ -928,11 +926,11 @@
             };
 
             var setPatientCohortUpdate = true;
-            osCohortService.onPatientsSelect.add(function(patients) {
+            osCohortService.onPatientsSelect.add(function (patients) {
                 if (setPatientCohortUpdate) {
                     cyChart.startBatch();
                     cyChart.$('node[nodeType="patient"]:selected').deselect();
-                    cyChart.$('node[nodeType="patient"]').forEach(function(node) {
+                    cyChart.$('node[nodeType="patient"]').forEach(function (node) {
                         if (patients.ids.indexOf(node.id()) != -1) node.select();
                     });
                     cyChart.endBatch();
@@ -943,7 +941,7 @@
             function setPatientCohort() {
                 setPatientCohortUpdate = false;
                 osCohortService.setPatientCohort(
-                    cyChart.$('node[nodeType="patient"]:selected').map(function(p) {
+                    cyChart.$('node[nodeType="patient"]:selected').map(function (p) {
                         return p.data().id
                     }),
                     "Markers + Patients"
@@ -955,14 +953,14 @@
             }
 
             // Initialize Commands
-            $scope.$watch("vm.optCommandMode", function() {
+            $scope.$watch("vm.optCommandMode", function () {
                 signal.clear();
                 cyChart.$('node').unselect();
                 cyChart.$('edge[edgeType="cn"]').remove();
                 switch (vm.optCommandMode.name) {
                     case "Sequential":
                         //try{ cyChart.$('node').unselect(); setOptions(createOptions()); }catch(e){}
-                        vm.cmd = function(cmd) {
+                        vm.cmd = function (cmd) {
                             var opts;
                             switch (cmd) {
                                 case "ShowSelectedEdges":
@@ -987,14 +985,14 @@
                                     cyChart.startBatch();
                                     cyChart.$('node:selected')
                                         .neighborhood("node")
-                                        .forEach(function(ele) {
+                                        .forEach(function (ele) {
                                             ele.select();
                                         });
                                     cyChart.endBatch();
                                     break;
                                 case "SelectInverse":
                                     cyChart.startBatch();
-                                    cyChart.$('node').forEach(function(ele) {
+                                    cyChart.$('node').forEach(function (ele) {
                                         ele[ele._private.selected ? "deselect" : "select"]();
                                     });
                                     cyChart.endBatch();
@@ -1002,7 +1000,7 @@
                                 case "HideUnselectedNodes":
                                     cyChart.startBatch();
                                     cyChart.$('node[nodeType="patient"]:unselected')
-                                        .forEach(function(item) {
+                                        .forEach(function (item) {
                                             item.style({
                                                 display: 'none'
                                             });
@@ -1012,7 +1010,7 @@
                                 case "ShowAllNodes":
                                     cyChart.startBatch();
                                     cyChart.$('node[nodeType="patient"]:hidden')
-                                        .forEach(function(item) {
+                                        .forEach(function (item) {
                                             item.style({
                                                 display: 'element'
                                             });
@@ -1039,25 +1037,25 @@
                         break;
 
                     case "Set":
-                        var patientsUnselect = function() {
+                        var patientsUnselect = function () {
                             cyChart.$('edge[edgeType="cn"]').remove();
                             var opts = createOptions();
                             if (opts.patients.selected.length > 0 || opts.genes.selected.length > 0) setOptions(opts);
                             setPatientCohort(opts);
                         };
-                        var patientsSelect = function() {
+                        var patientsSelect = function () {
                             cyChart.$('edge[edgeType="cn"]').remove();
                             var opts = createOptions();
                             setOptions(opts);
                             setPatientCohort(opts);
                         };
-                        var genesUnselect = function() {
+                        var genesUnselect = function () {
                             cyChart.$('edge[edgeType="cn"]').remove();
                             var opts = createOptions();
                             if (opts.patients.selected.length > 0 || opts.genes.selected.length > 0) setOptions(opts);
                             setGeneCohort(opts);
                         };
-                        var genesSelect = function() {
+                        var genesSelect = function () {
                             cyChart.$('edge[edgeType="cn"]').remove();
                             var opts = createOptions();
                             setOptions(opts);
@@ -1077,17 +1075,17 @@
                         break;
 
                     case "Ad Hoc":
-                        var over = function(e) {
+                        var over = function (e) {
                             cyChart.nodes().unselect();
                             e.cyTarget.select();
                             setOptions(createOptions());
                         }
-                        var out = function(e) {
+                        var out = function (e) {
                             e.cyTarget.unselect();
                             cyChart.startBatch();
                             cyChart.$('edge[edgeType="cn"]').remove();
                             cyChart.$('node[nodeType="gene"]')
-                                .forEach(function(ele) {
+                                .forEach(function (ele) {
                                     ele.data("color", "#0096d5");
                                     ele.data("sizeBdr", 1);
                                     ele.data("colorBdr", "#FFFFFF");
@@ -1107,7 +1105,7 @@
                 }
             });
 
-            var onPatientColorChange = function(colors) {
+            var onPatientColorChange = function (colors) {
 
                 vm.showPanelColor = false;
                 vm.legendCaption = colors.name;
@@ -1116,7 +1114,7 @@
                 if (colors.name == "None") {
                     vm.legendCaption = "";
                     cyChart.startBatch();
-                    cyChart.nodes('node[nodeType="patient"]').forEach(function(node) {
+                    cyChart.nodes('node[nodeType="patient"]').forEach(function (node) {
                         node.data('color', '#0096d5')
                     });
                     cyChart.endBatch();
@@ -1124,7 +1122,7 @@
                     return;
                 }
 
-                var degMap = colors.data.reduce(function(p, c) {
+                var degMap = colors.data.reduce(function (p, c) {
                     for (var i = 0; i < c.values.length; i++) {
                         p[c.values[i]] = c.color;
                     }
@@ -1132,7 +1130,7 @@
                 }, {});
 
                 cyChart.startBatch();
-                cyChart.nodes('node[nodeType="patient"]').forEach(function(node) {
+                cyChart.nodes('node[nodeType="patient"]').forEach(function (node) {
                     if (degMap.hasOwnProperty(node.id())) {
                         node.data('color', degMap[node.id()]);
                     } else {
@@ -1148,11 +1146,11 @@
 
             // Hydration
             var hydrateDisease;
-            var hydrate = function(){
+            var hydrate = function () {
                 hydrateDisease = osApi.getDataSource().disease;
                 var data = localStorage.getItem(osApi.getDataSource().disease + "MarkersPatients");
-                if (data===null) return false;
-                else{
+                if (data === null) return false;
+                else {
                     data = angular.fromJson(data);
                     cyChart.load(data.chart.elements);
                     vm.resize();
@@ -1163,27 +1161,27 @@
                     elements.on("mouseout", signal.patients.out.dispatch);
                     cyChart.center();
                     cyChart.fit(cyChart.nodes(), 400);
-                     
+
 
                     var pc = osCohortService.getPatientCohort();
                     if (pc == null) {
                         osCohortService.setPatientCohort([], "All Patients")
                     } else {
                         cyChart.startBatch();
-                        cyChart.nodes('node[nodeType="patient"]').forEach(function(node) {
+                        cyChart.nodes('node[nodeType="patient"]').forEach(function (node) {
                             if (pc.ids.indexOf(node.id()) != -1) node.select();
 
                         }, {
-                            pc: pc
-                        });
+                                pc: pc
+                            });
                         cyChart.endBatch();
                     }
-                    
+
                 }
                 osApi.setBusy(false);
                 return true;
             }
-            var dehydrate = function(){
+            var dehydrate = function () {
                 var data = angular.toJson({
                     geneset: vm.optGeneSet,
                     chart: cyChart.json()
@@ -1192,7 +1190,7 @@
                 localStorage.setItem(hydrateDisease + "MarkersPatients", data);
             }
             // Destroy
-            $scope.$on('$destroy', function() {
+            $scope.$on('$destroy', function () {
                 dehydrate();
                 osCohortService.onPatientColorChange.remove(onPatientColorChange);
                 worker.terminate();

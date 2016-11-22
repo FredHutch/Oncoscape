@@ -71,14 +71,20 @@
                         vm.showHelp = false;
                         break;
                     case "tools":
-                        vm.showTools = true;
+                        vm.showCohorts = false;
+                        vm.showTools = false;
                         break;
                     case "datasource":
                         vm.showHelp = true;
-                        vm.showDatasets = true;
-                        vm.showCohorts = true;
+                        vm.showDatasets = false;
+                        vm.showCohorts = false;
                         vm.showLogout = true;
                         vm.showTools = false;
+                        break;
+                    default:
+                    vm.showCohorts = false;
+                        vm.showDatasets = true;
+                        vm.showTools = true;
                         break;
                 }
             });

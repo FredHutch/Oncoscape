@@ -52,11 +52,11 @@
             // Element References
             var elChart = d3.select("#heatmap-chart");
             var colDend = elChart.append("svg").classed("dendrogram colDend", true);
-            var colDendObj;
+            //var colDendObj;
             var rowDend = elChart.append("svg").classed("dendrogram rowDend", true);
-            var rowDendObj;
+            //var rowDendObj;
             var colmap = elChart.append("svg").classed("colormap", true);
-            var colmapObj;
+            //var colmapObj;
             var xaxis = elChart.append("svg").classed("axis xaxis", true);
             var yaxis = elChart.append("svg").classed("axis yaxis", true);
             
@@ -180,8 +180,7 @@
                 var xScale = d3.scaleLinear().domain([0, cols]).range([0, width]);
                 var yScale = d3.scaleLinear().domain([0, rows]).range([0, height]);
 
-                console.log(height);
-
+           
                 var grid = (vm.gridlines) ? 1 : -1;
 
                 function brushend(){
@@ -189,10 +188,11 @@
                     
                     if (!d3.event.sourceEvent) return; // Only transition after input.
                     if (!d3.event.selection) return; // Ignore empty selections.
-                    var colBounds = d3.event.selection.map(function(v){ return this.invert(v[0], v[1]); },xScale).map(Math.round);
-                    var span = colBounds[1] - colBounds[0];
-                    var start = colBounds[0];
-                    var ids = data.cols.splice(start, span);
+                    //var colBounds = 
+                    d3.event.selection.map(function(v){ return this.invert(v[0], v[1]); },xScale).map(Math.round);
+                    //var span = colBounds[1] - colBounds[0];
+                    //var start = colBounds[0];
+                    //var ids = data.cols.splice(start, span);
                     
                     var coords = d3.event.selection;
                     //coords[0][0] = colBounds[0] * width;
@@ -330,17 +330,20 @@
                 var height = $window.innerHeight - 160; //10
                 var hmWidth = width - ((vm.rowLabels) ? 160 : 0) - ((vm.rowDendrogram) ? 80 : 0);
                 var hmHeight = height - ((vm.colLabels) ? 160 : 0) - ((vm.colDendrogram) ? 80 : 0);
-                colmapObj = heatmap(colmap, data.matrix, 
+                //colmapObj = 
+                heatmap(colmap, data.matrix, 
                     hmWidth, 
                     hmHeight, 
                     (vm.rowDendrogram ? 80 : 0)+layout.left+20, 
                     (vm.colDendrogram ? 80 : 0));
 
-                rowDendObj = dendrogram(rowDend, data.rows,    
+                //rowDendObj = 
+                dendrogram(rowDend, data.rows,    
                     80, hmHeight, 
                     layout.left+20, (vm.colDendrogram ? 80 : 0) , false);
 
-                colDendObj = dendrogram(colDend, data.cols,    
+                //colDendObj = 
+                dendrogram(colDend, data.cols,    
                     hmWidth, 80, 
                     (vm.rowDendrogram ? 80 : 0)+layout.left+20, 0, true);
 

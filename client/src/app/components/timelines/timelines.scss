@@ -1,28 +1,67 @@
 // Namespace
+
 .timelines-content {
     position: relative;
-}
-
-.timeline-chart {
-    position: absolute;
-    left: 20px;
-    top: 20px;
-    background-color: #FEFEFE;
-}
-
-.timeline-scroll-y {
-    position: absolute;
-    fill: #EEE;
-    width: 15px;
-    left: 5px;
-    top: 20px;
-    .selection {
+      .selection {
         fill: #47a8d8;
     }
     .handle {
         fill: #0b97d3;
     }
 }
+.timeline-zoom-y-label{
+    z-index: 500;
+    top: 70px;
+    position: absolute;
+    left: -34px;
+    font-size: 10px;
+    pointer-events: none;
+    transform: rotate(90deg);
+    text-align: left;
+}
+.timeline-zoom-x-label{
+    z-index: 500;
+    top: 5px;
+    position: absolute;
+    left: 30px;
+    font-size: 10px;
+    pointer-events: none;
+}
+.timeline-select-label{
+    z-index: 500;
+    top: 70px;
+    position: absolute;
+    right: -60px;
+    font-size: 10px;
+    pointer-events: none;
+    transform: rotate(90deg);
+    text-align: left;
+}
+.timeline-chart {
+    position: absolute;
+    left: 20px;
+    top: 20px;
+    background-color: #FEFEFE;
+}
+.timeline-select{
+    fill:#EEE;
+    .selection {
+        fill: #47a8d8;
+    }
+    .handle {
+        fill: #0b97d3;
+    }
+    
+}
+.timeline-scroll-y {
+    position: absolute;
+    fill: #EEE;
+    width: 15px;
+    left: 5px;
+    top: 20px;
+  
+}
+
 
 .timeline-scroll-x {
     position: absolute;
@@ -37,7 +76,9 @@
         fill: #0b97d3
     }
 }
-
+.timeline-patient-selected{
+    background-color: red;
+}
 .timeline-background {}
 
 .timeline-axis-bg {
@@ -62,7 +103,7 @@
 }
 
 .timeline-patients-hitarea {
-    background-color: pink;
+    background-color: #000;
     width: 100%;
     height: 100%;
 }

@@ -37,6 +37,8 @@
             var brushY = d3.brushY();
             var brushX = d3.brushX();
             var brushSelect = d3.brushY();
+            var selectBox;
+            
 
             // Retrieve Selected Patient Ids From OS Service
             var pc = osCohortService.getPatientCohort();
@@ -57,6 +59,14 @@
             //     })
             //     osCohortService.setPatientCohort(selectedIds, "Timelines");
             // }
+
+            var mouseOverRow = function(){
+                d3.select(this).attr('fill', "#000")
+            }
+            var mouseOutRow = function(e){
+                d3.select(this).attr('fill', e.selected ? "#DDD" : "#FFF");
+            }
+        
 
             // View Model
             var vm = (function(vm) {
@@ -122,6 +132,10 @@
                 var rPatients = d3Chart.append("g");
                 rPatients.attr("class", "timeline-patients-hitarea");
                 var gPatients = d3Chart.append("g");
+
+                selectBox = rPatients.append("rect");
+                selectBox.attr("class", "timeline-select");
+
 
                 var rAxis = d3Chart.append("rect");
                 rAxis.attr("class", "timeline-axis-bg");
@@ -213,6 +227,7 @@
 
                 // Sort Patients
                 patientsFiltered = patientsFiltered.sort(function(a, b) {
+                    
                     if (a.status == b.status) {
                         a = a.hash[sort].tsStartAligned;
                         b = b.hash[sort].tsStartAligned;
@@ -227,7 +242,7 @@
 
             var updateEvents = function(height, width) {
                 height -= 70;
-                width -= 20;
+                width -= 20+15;
 
                 // Scale
                 scaleX = d3.scaleLinear().domain(patientsDomain).range([0, width]).nice();
@@ -241,13 +256,26 @@
                     .duration(500)
                     .style('opacity', 0.0)
                     .remove();
-                var rowEnter = rows.enter().append('g');
-                rowEnter.attr('class', 'patient')
-                rowEnter.attr('transform', function(d, i) {
-                    return "translate(0," + (i * heightRow) + ")";
-                });
+                var rowEnter = rows.enter()
+                    .append('g')
+                    .attr("class","patient")
+                    .attr('transform', function(d, i) {
+                        return "translate(0," + (i * heightRow) + ")";
+                    });
 
-                var cols = rowEnter.selectAll("rect").data(function(d) {
+                rowEnter.append("rect")
+                    .attr('class','highlight')
+                    .attr('height', heightRow+1)
+                    .attr('width',width)
+                    .attr('fill',function(d){
+                        return d.selected ? "#DDD" : "#FFF";
+                    })
+                    .on('mouseover', mouseOverRow)
+                    .on('mouseout', mouseOutRow)
+                    
+            
+               
+                var cols = rowEnter.selectAll(".event").data(function(d) {
                     return d.events.filter(function(v) {
                         return v.visible;
                     });
@@ -338,9 +366,12 @@
             var configSize = function(height, width, layout) {
                 height -= 70;
                 width -= 20;
+                selectBox.attr("height", height).attr("width", 15).attr("transform", function(){
+                    return "translate(" + (width-15)+ ",0)";
+                });
                 chart.elChart.css("margin-left", layout.left + 20).css("margin-right", layout.right + 20).css("width", width).css("height", height + 70);
                 chart.d3ScrollY.attr("height", height);
-                chart.d3ScrollX.attr("width", width);
+                chart.d3ScrollX.attr("width", width-15);
                 chart.d3Chart.attr("height", height + 70).attr("width", width);
                 chart.rPatients.attr("height", height + 70).attr("width", width);
                 chart.gAxis.attr('transform', function() {
@@ -512,6 +543,8 @@
                     events: events,
                     colorFn: colorFn
                 });
+
+                debugger;
 
                 patientsAll = data.filter(function(v) {
                     try {
