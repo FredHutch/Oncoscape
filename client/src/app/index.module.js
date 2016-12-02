@@ -12,7 +12,7 @@
             'ngResource',
             'ui.router',
             'ui.bootstrap',
-            'ui-rangeSlider',
+            'data-table',
             'toastr'
         ]);
 

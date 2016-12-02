@@ -21,10 +21,13 @@ header {
     width: 100%;
     min-height: auto;
     overflow-y: hidden;
-    background: url("/assets/images/bg-pattern.png"), #DDD; /* fallback for old browsers */
-    background: url("/assets/images/bg-pattern.png"), -webkit-linear-gradient(to left, #DDD,#BBB); /* Chrome 10-25, Safari 5.1-6 */
+    //background: url("/assets/images/pattern2.png"), linear-gradient(120deg, #00236a 20%,  #1396de, #00236a);
+    //background-size: cover;
     background: linear-gradient(120deg, #00236a 20%,  #1396de, #00236a);
-    background-attachment: fixed;
+    /*background: url("/assets/images/imgad.jpeg");
+    background-size: cover;
+    background-position: 90%;*/
+    //background-attachment: fixed;
     
     
     color: white;

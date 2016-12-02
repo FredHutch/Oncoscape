@@ -24,7 +24,7 @@ var request = function(object, data, format) {
     return new Promise(function(resolve, reject) {
     	console.log('%c '+object.table,'background: #333; color: #ffffff');
         var query = "/api/" + object.table;
-        //query = "https://dev.oncoscape.sttrcancer.io/api/" + object.table;
+        query = "https://dev.oncoscape.sttrcancer.io/api/" + object.table;
         if (object.query) query += "/" + encodeURIComponent(JSON.stringify(object.query));
         load(query, function(response) {
             resolve(JSON.parse(response.responseText));
@@ -118,7 +118,7 @@ cmd.getSurvivalData = function(data) {
             }),
             name: 'All',
             time: new Date()
-        })
+        });
     }
 
     var sd = {
@@ -136,13 +136,12 @@ cmd.getSurvivalData = function(data) {
                 color: datum.color,
                 data: datum.ids
                     .map(function(id) {
-
                         if (this.sd.hasOwnProperty(id)) {
                             var tmp = this.sd[id];
-                            return [tmp[0], tmp[1]]
+                            return [tmp[0], tmp[1], id]
                         } else {
                             //console.log("BAD DATA");
-                            return [-1, -1];
+                            return [-1, -1, id];
                         }
 
                     }, {
@@ -172,13 +171,14 @@ cmd.getSurvivalData = function(data) {
                 if (v[1] == 1) {
                     this.percent -= (this.percent / this.remainingPopulation);
                 }
-                v.push(this.percent);
+                v[3] = v[2]
+                v[2] = this.percent;
                 this.remainingPopulation -= 1;
             }, {
                 deathIndex: 0,
                 remainingPopulation: (output.data.length + output.alive),
                 percent: 100
-            })
+            });
 
             // Adjust Censored Locations / Since They Occur After Death Percentage Decrement
             var percent = output.data[output.data.length - 1][2];
@@ -197,7 +197,7 @@ cmd.getSurvivalData = function(data) {
                 tick: []
             });
 
-            // // Add Additional Points For Death Angles 
+            // Add Additional Points For Death Angles 
             var line = [];
             points.line.forEach(function(c, i, a) {
                 line.push(c);
@@ -208,13 +208,12 @@ cmd.getSurvivalData = function(data) {
             points.line = line;
 
             // Add Points If Zero To One Death
-            for (var i = points.line.length; i < 2; i++) {
+            for (i = points.line.length; i < 2; i++) {
                 points.line.push([0, 1, 0]);
             }
 
             // Adjust Last Line X Point To Be Max For Collection
-            points.line[points.line.length - 1][0] = output.max; //points.tick[points.tick.length-1][0];
-
+            points.line[points.line.length - 1][0] = output.max;
             output.data = points;
 
             // Adjust Dat To Include Positioning

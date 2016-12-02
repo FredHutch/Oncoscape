@@ -60,7 +60,7 @@
         var setPatientColor = function(val) {
             _patientColor = val;
             onPatientColorChange.dispatch(_patientColor);
-        }
+        };
 
         var getSurvivalData = function(cohorts, all, correlationId) {
             worker.postMessage({
@@ -103,6 +103,7 @@
         var delPatientCohort = function(obj) {
             allPatientCohorts.splice(allPatientCohorts.indexOf(obj), 1);
             localStorage.setItem(osApi.getDataSource().disease + "PatientCohorts", angular.toJson(allPatientCohorts));
+            onPatientsSelect.dispatch(activePatientCohort);
         };
 
         var setPatientCohort = function(ids, name) {
@@ -127,8 +128,7 @@
                     prop: prop
                 }
             });
-        }
-
+        };
         var getGeneMetric = function() {};
         var getGeneCohorts = function() {
             return allGeneCohorts;
