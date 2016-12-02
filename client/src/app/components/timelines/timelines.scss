@@ -1,9 +1,15 @@
 // Namespace
-
+/*.handle--e, .handle--w{
+    width: 3px;
+}
+.handle--n, .handle--s{
+    height: 3px;
+}*/
 .timelines-content {
     position: relative;
       .selection {
         fill: #47a8d8;
+        fill-opacity: 0.9;
     }
     .handle {
         fill: #0b97d3;
@@ -101,7 +107,9 @@
         }
     }
 }
-
+.timeline-highlight{
+    pointer-events: none;
+}
 .timeline-patients-hitarea {
     background-color: #000;
     width: 100%;

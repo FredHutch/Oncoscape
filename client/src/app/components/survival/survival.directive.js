@@ -24,7 +24,7 @@
             // Retrieve Selected Patient Ids From OS Service
             var pc = osCohortService.getPatientCohort();
             var cohorts = angular.fromJson(angular.toJson(osCohortService.getPatientCohorts()));
-            if (pc == null) {
+            if (pc === null) {
                 osCohortService.setPatientCohort([], "All Patients")
             } else {
                 if (pc.ids.length > 0) {
@@ -64,9 +64,32 @@
             };
 
             // Create D3 Elements
+            var brush = d3.brushX();
             var elChart = d3.select("#survival-chart").append("svg");
             var elXAxis = elChart.append("g").attr("class", "axis");
             var elYAxis = elChart.append("g").attr("class", "axis");
+
+            brush.on("end", function(){
+                if (!d3.event.selection) return;
+                var s = d3.event.selection,
+        x0 = s[0][0],
+        y0 = s[0][1],
+        x1 = s[1][0],
+        y1 = s[1][1];
+    console.log("brush coords:", s)
+
+    var ticks = elChart.selectAll(".tick");
+    
+    ticks.each(function(){
+        if (this.attributes.x1==null) return;
+        var xPos = this.attributes.x1.value;
+        d3.select(this).classed("selected", (xPos > x0 && xPos <x1));
+
+        
+
+    });
+
+            })
 
             // Create D3 Axis Objects + Layout
             var data = {};
@@ -81,8 +104,8 @@
             }
 
             var setScale = function(timelineDomain) {
-                var osLayout = osApi.getLayout();
 
+                var osLayout = osApi.getLayout();
                 layout.width = $window.innerWidth - osLayout.left - osLayout.right - 60;
                 layout.height = $window.innerHeight - 160;
                 angular.element("#survival-chart").css("margin-left", osLayout.left + 20);
@@ -100,10 +123,11 @@
 
                 layout.xAxis.scale(layout.xScale);
                 layout.yAxis.scale(layout.yScale);
+                
 
                 elYAxis.attr("transform", "translate(50, 10)").call(layout.yAxis);
                 elXAxis.attr("transform", "translate(0, " + (layout.yScale(0) + 10) + ")").call(layout.xAxis);
-            }
+            };
 
             var onSurvivalData = function(result) {
                 if (result.data.cmd == "getSurvivalData") {
@@ -112,7 +136,8 @@
                         draw();
                     }
                 }
-            }
+            };
+
             osCohortService.onMessage.add(onSurvivalData);
 
             var addCurve = function(points) {
@@ -141,20 +166,27 @@
 
                 for (var i = 0; i < points.data.tick.length; i++) {
                     elChart.append("line")
-                        .attr("class", "line")
-                        .attr("stroke-width", .5)
+                        .attr("class", "tick")
+                        .attr("stroke-width", 1)
                         .attr("stroke", points.color)
+                        .attr("data", points.data.tick[i][3])
                         .attr("x1", layout.xScale(points.data.tick[i][0]))
                         .attr("x2", layout.xScale(points.data.tick[i][0]))
                         .attr("y1", layout.yScale(points.data.tick[i][2]) + 5)
                         .attr("y2", layout.yScale(points.data.tick[i][2]) + 10);
+                        //debugger;
                 }
+                
+                elChart.append("g")
+                    .attr("class", "brush")
+                    .call(brush);
             }
 
             var draw = function() {
 
                 // Clear Lines
                 elChart.selectAll(".line").remove();
+                elChart.selectAll(".tick").remove();
 
                 // Set Scale
                 setScale([data.min, data.max]);

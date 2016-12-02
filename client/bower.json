@@ -29,7 +29,9 @@
     "hello": "^1.13.4",
     "numeric": "^1.2.6",
     "plotlyjs": "plotly#^1.16.2",
-    "handsontable": "^0.29.0"
+    "handsontable": "^0.29.0",
+    "angular-smart-table": "^2.1.8",
+    "angular-data-table": "^0.7.0"
   },
   "overrides": {
     "bootstrap-sass": {
@@ -47,5 +49,8 @@
   "resolutions": {
     "jquery": "~2.1.4",
     "angular": "~1.4.2"
+  },
+  "devDependencies": {
+    "angular-smart-table": "^2.1.8"
   }
 }

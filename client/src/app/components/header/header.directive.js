@@ -82,7 +82,7 @@
                         vm.showTools = false;
                         break;
                     default:
-                    vm.showCohorts = false;
+                        vm.showCohorts = true;
                         vm.showDatasets = true;
                         vm.showTools = true;
                         break;

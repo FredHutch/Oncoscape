@@ -1,2 +1,10 @@
 // Namespace
-.survival {}
+.survival {
+    .tick {
+        stroke-opacity: .2;
+    }
+    .selected{
+        stroke-opacity: 1;
+    }
+
+}

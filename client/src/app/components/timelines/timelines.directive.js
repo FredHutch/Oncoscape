@@ -37,7 +37,7 @@
             var brushY = d3.brushY();
             var brushX = d3.brushX();
             var brushSelect = d3.brushY();
-            var selectBox;
+            brushY.handleSize(3);brushX.handleSize(3); brushSelect.handleSize(1);
             
 
             // Retrieve Selected Patient Ids From OS Service
@@ -59,13 +59,6 @@
             //     })
             //     osCohortService.setPatientCohort(selectedIds, "Timelines");
             // }
-
-            var mouseOverRow = function(){
-                d3.select(this).attr('fill', "#000")
-            }
-            var mouseOutRow = function(e){
-                d3.select(this).attr('fill', e.selected ? "#DDD" : "#FFF");
-            }
         
 
             // View Model
@@ -97,9 +90,9 @@
                 }];
                 vm.mode = vm.modes[0];
                 vm.displayModes = [{
-                    name: 'Selected Patients'
-                }, {
                     name: 'All Patients'
+                },{
+                    name: 'Selected Patients'
                 }];
                 vm.displayMode = vm.displayModes[0];
                 vm.datasource = osApi.getDataSource();
@@ -132,10 +125,6 @@
                 var rPatients = d3Chart.append("g");
                 rPatients.attr("class", "timeline-patients-hitarea");
                 var gPatients = d3Chart.append("g");
-
-                selectBox = rPatients.append("rect");
-                selectBox.attr("class", "timeline-select");
-
 
                 var rAxis = d3Chart.append("rect");
                 rAxis.attr("class", "timeline-axis-bg");
@@ -229,10 +218,14 @@
                 patientsFiltered = patientsFiltered.sort(function(a, b) {
                     
                     if (a.status == b.status) {
-                        a = a.hash[sort].tsStartAligned;
-                        b = b.hash[sort].tsStartAligned;
-                        if (a > b) return 1;
-                        if (b > a) return -1;
+                        
+                        var aTime = a.events.filter(function(e){ return (e.name==sort && e.order==1)})[0].tsStartAligned;
+                        var bTime = b.events.filter(function(e){ return (e.name==sort && e.order==1)})[0].tsStartAligned;
+
+                        
+                        
+                        if (aTime > bTime) return 1;
+                        if (bTime > aTime) return -1;
                         return 0;
                     } else {
                         return (a.status == "dead") ? 1 : -1;
@@ -264,15 +257,12 @@
                     });
 
                 rowEnter.append("rect")
-                    .attr('class','highlight')
+                    .attr('class','timeline-highlight')
                     .attr('height', heightRow+1)
                     .attr('width',width)
                     .attr('fill',function(d){
                         return d.selected ? "#DDD" : "#FFF";
                     })
-                    .on('mouseover', mouseOverRow)
-                    .on('mouseout', mouseOutRow)
-                    
             
                
                 var cols = rowEnter.selectAll(".event").data(function(d) {
@@ -366,9 +356,9 @@
             var configSize = function(height, width, layout) {
                 height -= 70;
                 width -= 20;
-                selectBox.attr("height", height).attr("width", 15).attr("transform", function(){
-                    return "translate(" + (width-15)+ ",0)";
-                });
+                // selectBox.attr("height", height).attr("width", 15).attr("transform", function(){
+                //     return "translate(" + (width-15)+ ",0)";
+                // });
                 chart.elChart.css("margin-left", layout.left + 20).css("margin-right", layout.right + 20).css("width", width).css("height", height + 70);
                 chart.d3ScrollY.attr("height", height);
                 chart.d3ScrollX.attr("width", width-15);
@@ -403,6 +393,7 @@
             };
 
             var configScrollbars = function(height, width) {
+                brushY
                 chart.d3ScrollY.call(
                     brushY
                     .on("end", function() {
@@ -552,12 +543,16 @@
                         return (this[prop].length>1);
                     }, groups);
                     keys.forEach(function(v){
-                        var e = patient.events.filter(function(e){ return e.name==v; });
-                        debugger; 
-
+                        var i = 1;
+                        patient.events
+                        .filter(function(e){ return e.name==v; })
+                        .sort(function(a,b){
+                            return a.tsStart - b.tsStart;
+                        }).forEach(function(v){
+                            v.order = i;
+                            i++;
+                        })
                     })
-                    
-
                 });
 
 
@@ -594,7 +589,7 @@
                 angular.element($window).unbind('resize', resize);
                 brushY.on("end", null);
                 brushX.on("end", null);
-
+                brushSelect.on("end",null);
             });
         }
     }
