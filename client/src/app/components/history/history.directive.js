@@ -19,33 +19,44 @@
         return directive;
 
         /** @ngInject */
-        function HistoryController(osApi, osCohortService, $state, $timeout, $scope, moment, $stateParams, _, $, $q, $window, Handsontable) {
+        function HistoryController(osApi, osCohortService, $state, $timeout, $scope, moment, $stateParams, _, $, $q, $window) {
 
+
+            var rowSelectionChange = function(e){
+                osCohortService.setPatientCohort(
+                    vm.gridApi.grid.api.selection.getSelectedRows().map(function(v) { return v.patient_ID; }),
+                    "Spreadsheet"
+                );
+            }
 
             // Properties
             var vm = this;
             vm.showPanelColor = false;
-            vm.patientsSelected = [];
             vm.options = {
-                rowHeight: 50,
-                headerHeight: 50,
-                footerHeight: false,
-                scrollbarV: true,
-                selectable: true,
-                multiSelect: true,
-                columns: []
+                treeRowHeaderAlwaysVisible: false,
+                enableGridMenu: true,
+                enableSelectAll: true,
+                //enableFullRowSelection: true,
+                //enableFiltering: true,
+                onRegisterApi: function(gridApi){
+                    vm.gridApi = gridApi;
+                    gridApi.selection.on.rowSelectionChanged($scope, rowSelectionChange);
+                    gridApi.selection.on.rowSelectionChangedBatch($scope, rowSelectionChange);
+                }
             };
 
-            vm.clear = function(){
-                vm.patientsSelected = [];
-                osCohortService.setPatientCohort([]);
-            };
 
-            vm.onPatientsSelected = function(){
-                osCohortService.setPatientCohort(vm.patientsSelected.map(function(v){ return v.patient_ID; }), "Spreadsheet");
+        
+            var onPatientSelect = function(patients){
+                var selectedIds = patients.ids;
+                var selected = vm.options.data.filter(function(v){
+                    return selectedIds.indexOf(v.patient_ID) != -1;
+                })
+                selected.forEach(function(i){ vm.gridApi.grid.api.selection.selectRow(i); });
             };
-
+            osCohortService.onPatientsSelect.add(onPatientSelect);
             
+        
             // Intialize View State
             (function(vm) {
                 vm.datasource = osApi.getDataSource();
@@ -64,7 +75,8 @@
                     .filter(function(o) {
                         return o.name != "events";
                     });
-                vm.collection = vm.collections[2];
+                vm.collection = vm.collections[0];
+                
             })(vm);
 
             var setData = function() {
@@ -72,88 +84,46 @@
                 osApi.setBusy(true);
                 osApi.query(vm.collection.collection)
                     .then(function(response) {
-                        vm.data = response.data.map(function(v){
-                            v.selected = false;
-                            return v;
-                        });
-                        vm.columns = Object.keys(vm.data[0])
-                            .filter(function(col){ return (col!='selected') })
-                            .map(function(col){
-                                return {prop:col, name:col.replace(/_/gi,' '), width: 250, show:true}
-                            });
-                        var col = {
-                            frozenLeft: true,
-                            width: 10,
-                            prop: 'color',
-                            name: '',
-                            sortable:false,
-                            cellRenderer: function(scope, elm) {
-                                elm.parent().css("background-color",scope.$cell);
-                            },
-                            headerRenderer: function(elm){
-                                elm.parent().css("background-color","#000");
-                            }
 
-                        };
-                        
-                        vm.columns.push(col);
-                        vm.options.columns = vm.columns;
+                        $(".ui-grid-icon-menu").text("Columns");
+                        var cols = Object.keys(response.data[0])
+                            .map(function(col){
+                                return {field:col, name:col.replace(/_/gi,' '), width: 250, visible:true}
+                            });
+                       
+                        vm.options.columnDefs = cols;
+                        vm.options.data = response.data.map(function(v){
+                                v.color = "#F0DDC0";
+                                v.selected = false;
+                                return v;
+                            });
+                     
                         vm.setSize();
                         osApi.setBusy(false);
 
 
                     });
             };
-            
-            var updateColumns = _.debounce(function(){
-                vm.options.columns = vm.columns.filter(function(v){ return v.show; });
-                console.log("!!");
-            },500);
-            vm.setColumns = function(){
-                updateColumns();   
-            }
-
-            
-          
 
             vm.setSize = function() {
                 var osLayout = osApi.getLayout();
                 var elGrid = angular.element("#history-grid")[0];
                 elGrid.style["margin-left"] = (osLayout.left-30) + "px";
                 elGrid.style.width = ($window.innerWidth - osLayout.left - osLayout.right - 80) + "px";
-                vm.tableHeight = $window.innerHeight - 170;//) + "px";
+                elGrid.style.height = ($window.innerHeight - 170) + "px";
             }
 
             $scope.$watch("vm.collection", setData);
             
-           
-
             // resize
             osApi.onResize.add(vm.setSize);
-            var resize = function() {
-                    vm.setSize(true);
-            };
+            var resize = function() { vm.setSize(true); };
             angular.element($window).bind('resize', resize);
 
-
-            // vm.onSelect = function(x){
-            //     var ids = x.map(function(v){ return v.patient_ID });
-            //     console.log(ids);
-            //     osCohortService.setPatientCohort(ids, "Spread Sheet");
-
-            // }
-            var onPatientSelect = function(patients){
-                //selectedIds = patients.ids;
-                //filterData();
-                console.log(patients);
-                
-            };
-            osCohortService.onPatientsSelect.add(onPatientSelect);
-
             vm.exportCsv = function(){
-                var cols = vm.columns.filter(function(c){ return c.show; }).map(function(v){ return v.prop; })
+                var cols = vm.options.columnDefs.filter(function(c){ return c.visible; }).map(function(v){ return v.field; })
                 var data = "data:text/csv;charset=utf-8,\""+cols.join("\",\"")+"\"\n";
-                vm.data.forEach(function(v){ console.log(v);
+                vm.options.data.forEach(function(v){ console.log(v);
                     var datum = cols.map(function(v){
                         return this[v];
                     },v);
@@ -162,30 +132,14 @@
                 window.open(encodeURI(data));
             }
 
-            var onPatientColorChange = function(colors){
-                vm.legendCaption = colors.name;
-                vm.legendNodes = colors.data;
-                var degMap = colors.data.reduce(function(p, c) {
-                    for (var i = 0; i < c.values.length; i++) {
-                        p[c.values[i]] = c.color;
-                    }
-                    return p;
-                }, {});
-
-                vm.data.forEach(function(data){
-                    data.color = angular.isDefined(this[data.patient_ID]) ? this[data.patient_ID] : '#FFFFFF';
-                }, degMap);
-            };
-            osCohortService.onPatientColorChange.add(onPatientColorChange)
-
             // Load Datasets
             osApi.setBusy(true);
 
-         
             // Destroy
             $scope.$on('$destroy', function() {
-                //osCohortService.onPatientsSelect.remove(onPatientsSelect);
-                osCohortService.onPatientColorChange.remove(onPatientColorChange)
+                osCohortService.onPatientsSelect.remove(onPatientsSelect);
+                angular.element($window).unbind('resize', resize);
+                
             });
         }
     }

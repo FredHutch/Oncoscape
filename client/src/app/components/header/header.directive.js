@@ -22,8 +22,6 @@
         /** @ngInject */
         function HeaderController(osApi, osCohortService, osAuth, $stateParams, $state, $timeout, $rootScope) {
 
-            
-
             osApi.onDataSource.add(function() {
                 $timeout(function() {
                     vm.datasets = osApi.getDataSources();

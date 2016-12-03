@@ -28,10 +28,7 @@
     "components-font-awesome": "^4.5.0",
     "hello": "^1.13.4",
     "numeric": "^1.2.6",
-    "plotlyjs": "plotly#^1.16.2",
-    "handsontable": "^0.29.0",
-    "angular-smart-table": "^2.1.8",
-    "angular-data-table": "^0.7.0"
+    "angular-ui-grid": "^3.2.9"
   },
   "overrides": {
     "bootstrap-sass": {
