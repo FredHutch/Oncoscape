@@ -20,6 +20,7 @@
 
         /** @ngInject */
         function LandingController($state, $scope, osApi, osAuth) {
+            
             var vm = this;
             vm.login = function() {
                 $state.go("login");

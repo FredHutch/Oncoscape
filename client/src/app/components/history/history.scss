@@ -1,35 +1,25 @@
 // Namespace
-#history-grid {
-  path{
-    stroke: steelblue;
-    stroke-width: 1;
-    fill: none;
-  }
-  
-  .dt {
-    box-shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.12), 0 1px 2px 0 rgba(0, 0, 0, 0.24);
-    overflow: hidden !important;
-  }
-  .dt-header-cell{
-    border:solid 0px #FFF;
-    border-right-width: 1px; 
-    min-width: 10px !important;
-  }
-  .dt-header {
-    background-color: #47a8d8;
-    color: #FFF;
-  }
-  .dt-cell-content {
-    line-height: 50px;
-  }
-  .dt-header-cell-label {
-    line-height: 50px;
-    text-transform: uppercase;
-  }
-  .dt-row:hover {
-    background: #EEE;
-  }
-  .selected {
-    background: #DDD;
-  }
+.ui-grid-row.ui-grid-row-selected>[ui-grid-row]>.ui-grid-cell{
+  background-color:#c1e9fe;
+}
+
+.ui-grid-column-menu .ui-grid-menu .ui-grid-menu-mid.ng-hide-add,
+.ui-grid-column-menu .ui-grid-menu .ui-grid-menu-mid.ng-hide-remove {
+  transition: none !important;
+}
+.ui-grid-menu .ui-grid-menu-inner,
+.ui-grid-menu .ui-grid-menu-inner ul li button:hover,
+.ui-grid-menu .ui-grid-menu-inner ul li button:focus,
+.ui-grid-menu .ui-grid-menu-inner .ui-grid-menu-close-button.active {
+   box-shadow: none !important;
+   transition: none !important;
+}
+.ui-grid-menu-button{
+  position: absolute;
+  top: -30px;
+  background-color: inherit;
+  border: none;
+  width: 200px;
+  text-align: right;
+  display:inline;
 }
