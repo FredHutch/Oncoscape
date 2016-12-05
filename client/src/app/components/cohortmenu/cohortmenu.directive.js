@@ -22,6 +22,15 @@
         /** @ngInject */
         function CohortMenuController(osApi, osCohortService, $state, $scope, $timeout, $rootScope, d3) {
 
+            // Force Hide Of Cohort Menu On Load (This is nuts I know...  For some reason IE just won't let go.')
+            angular.element("#cohortMenu").css({"display":"none"});
+            angular.element(document).ready(function(){
+                angular.element("#cohortMenu").css({"display":"none"});
+            })
+            window.onunload = function() {
+                angular.element("#cohortMenu").css({"display":"none"});
+            };
+            
             var vm = this;
             vm.cohorts = [];
             vm.patientChartOption = null;
