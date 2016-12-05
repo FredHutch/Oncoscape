@@ -28,7 +28,8 @@
     "components-font-awesome": "^4.5.0",
     "hello": "^1.13.4",
     "numeric": "^1.2.6",
-    "angular-ui-grid": "^3.2.9"
+    "angular-ui-grid": "^3.2.9",
+    "three.js": "threejs#*"
   },
   "overrides": {
     "bootstrap-sass": {

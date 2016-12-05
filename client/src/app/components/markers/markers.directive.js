@@ -63,6 +63,130 @@
                 };
             })();
 
+            /* State */
+            var mpState = (function (osApi, osCohortService) {
+
+                
+
+                // Retrieve State
+                var mp = localStorage.getItem("MP-" + osApi.getDataSource().disease);
+                var hasState = (mp !== null)
+                if (hasState) mp = angular.fromJson(mp);
+
+               
+
+
+                var _colors = null;
+                var setColors  = function(c){
+                    _colors = c;
+                }
+                var applyState = function(fn, cyChart){
+                    osCohortService.onPatientColorChange.dispatch(mp.optColors)
+                    requestAnimationFrame(function(){
+                        cyChart.startBatch();
+                        cyChart.add(mp.edges);
+                        cyChart.endBatch();
+                    });
+                    
+                }
+
+                var getOptEdgeColors = function () {
+
+                    if (hasState) return mp.optEdgeColors;
+                    return [{
+                        name: 'mutation',
+                        abv: 'm',
+                        show: true,
+                        color: '#9C27B0',
+                        class: 'switch-mutation',
+                        count: '',
+                        id: 0
+                    }, {
+                        name: 'cnGain.1',
+                        abv: 'cnG1',
+                        show: true,
+                        color: '#03A9F4',
+                        class: 'switch-cnG1',
+                        count: '',
+                        id: 1
+                    }, {
+                        name: 'cnGain.2',
+                        abv: 'cnG2',
+                        show: true,
+                        color: '#3F51B5',
+                        class: 'switch-cnG2',
+                        count: '',
+                        id: 2
+                    }, {
+                        name: 'cnLoss.1',
+                        abv: 'cnL1',
+                        show: true,
+                        color: '#FF9800',
+                        class: 'switch-cnL1',
+                        count: '',
+                        id: -1
+                    }, {
+                        name: 'cnLoss.2',
+                        abv: 'cnL2',
+                        show: true,
+                        color: '#F44336',
+                        class: 'switch-cnL2',
+                        count: '',
+                        id: -2
+                    }
+                    ];
+                };
+
+                var getGeneSet = function(genesets){
+                    if (hasState){
+                        return genesets.filter(function(v){
+                            return v.name == mp.optGeneSet.name;
+                        }, mp.optGeneSet.name)[0];
+                    }
+                    if (osApi.getDataSource().disease == "brain") {
+                        return genesets.filter(function (v) {
+                            return v.name == "Marker genes 545"; 
+                        })[0]
+                    } else {
+                        return genesets.filter(function (v) {
+                            return v.name == "TCGA pancan mutated";
+                        })[0]
+                    }
+                };
+
+                var getPatientLayout = function(layouts){
+                    if (hasState){
+                        return layouts.filter(function(v){
+                            return v.name == mp.optPatientLayout.name;
+                        }, mp.optPatientLayout.name)[0];
+                    }else{
+                        return layouts[0];
+                    }
+                };
+                 var save = function (vm, cyChart) {
+                    var s = {};
+                    s.optEdgeColors = vm.optEdgeColors;
+                    s.optGeneSet = vm.optGeneSet;
+                    s.optPatientLayout = vm.optPatientLayout;
+                    s.optColors = _colors;
+                    s.edges = cyChart.$('edge[edgeType="cn"]').jsons();
+                    localStorage.setItem("MP-" + osApi.getDataSource().disease, angular.toJson(s));
+
+                }
+
+                return {
+                    applyState: applyState,
+                    getOptEdgeColors:getOptEdgeColors,
+                    getGeneSet: getGeneSet,
+                    getPatientLayout: getPatientLayout,
+                    setColors: setColors,
+                    save: save
+                }
+            })(osApi, osCohortService);
+
+
+
+
             /*
              *  Cytoscape Chart
              *  + Node & Edge Styles
@@ -84,8 +208,6 @@
                         style: {
                             'background-color': "#3993fa",
                             'display': "data(display)",
-                            //'height': "mapData(sizeEle, 0, 50, 10, 100)",
-                            //'width': "mapData(sizeEle, 0, 50, 10, 100)",
                             'width': 'data(sizeEle)',
                             'height': 'data(sizeEle)',
                             'border-width': 'data(sizeBdr)',
@@ -108,7 +230,6 @@
                         selector: 'node[nodeType="patient"]:selected',
                         style: {
                             'border-color': "#000",
-                            //'border-opacity': .3,
                             'border-width': 5
                         }
                     }, {
@@ -127,7 +248,6 @@
                         style: {
                             'border-color': "#000",
                             'border-width': 5
-                            //'background-opacity': '.2'
                         }
                     }, {
                         selector: 'node[nodeType="centromere"]',
@@ -169,14 +289,12 @@
                     hideLabelsOnViewport: true,
                     textureOnViewport: false,
                     wheelSensitivity: .5,
-                    //motionBlur: true,
-                    //motionBlurOpacity: 0.2,
                     zoom: 0.08,
                     pan: {
                         x: 650,
                         y: 160
                     },
-                    minZoom: .05,
+                    minZoom: 0.05,
                     maxZoom: 20,
                     layout: {
                         name: "preset",
@@ -293,7 +411,7 @@
              * + Initial Data Load
              * + View Port Resize Event
              */
-            var vm = (function (vm, osApi) {
+            var vm = (function (vm, osApi, mpState) {
                 vm.showPopupSelection = false;
                 vm.datasource = osApi.getDataSource();
                 vm.detail = {
@@ -301,7 +419,6 @@
                     html: "",
                     title: ""
                 };
-
                 vm.optGeneSets = [];
                 vm.optGeneSet;
                 vm.optPatientLayouts = [];
@@ -401,47 +518,7 @@
                     }
                 };
 
-                vm.optEdgeColors = [{
-                    name: 'mutation',
-                    abv: 'm',
-                    show: true,
-                    color: '#9C27B0',
-                    class: 'switch-mutation',
-                    count: '',
-                    id: 0
-                }, {
-                    name: 'cnGain.1',
-                    abv: 'cnG1',
-                    show: true,
-                    color: '#03A9F4',
-                    class: 'switch-cnG1',
-                    count: '',
-                    id: 1
-                }, {
-                    name: 'cnGain.2',
-                    abv: 'cnG2',
-                    show: true,
-                    color: '#3F51B5',
-                    class: 'switch-cnG2',
-                    count: '',
-                    id: 2
-                }, {
-                    name: 'cnLoss.1',
-                    abv: 'cnL1',
-                    show: true,
-                    color: '#FF9800',
-                    class: 'switch-cnL1',
-                    count: '',
-                    id: -1
-                }, {
-                    name: 'cnLoss.2',
-                    abv: 'cnL2',
-                    show: true,
-                    color: '#F44336',
-                    class: 'switch-cnL2',
-                    count: '',
-                    id: -2
-                }];
+                vm.optEdgeColors = mpState.getOptEdgeColors();
 
                 // Populate Dropdowns + Draw Chromosome
                 $q.all([
@@ -462,29 +539,9 @@
                 ]).then(function (results) {
 
                     vm.optGeneSets = results[0].data;
-
-
-                    var data = localStorage.getItem(osApi.getDataSource().disease + "MarkersPatients");
-                    if (data === null) {
-                        if (osApi.getDataSource().disease == "brain") {
-                            vm.optGeneSet = vm.optGeneSets.filter(function (v) {
-                                return v.name == "Marker genes 545";
-                                //  "TCGA pancan mutated";
-                                //  "Marker genes 545"; 
-                            })[0]
-                        } else {
-                            vm.optGeneSet = vm.optGeneSets.filter(function (v) {
-                                return v.name == "TCGA pancan mutated";
-                            })[0]
-                        }
-                    }
-                    else {
-                        data = angular.fromJson(data);
-                        vm.optGeneSet = angular.fromJson(data).geneset;    // This is getting parsed x2.  Need to revisit
-                    }
-
+                    vm.optGeneSet = mpState.getGeneSet(vm.optGeneSets);
                     vm.optPatientLayouts = results[1].data;
-                    vm.optPatientLayout = vm.optPatientLayouts[0]
+                    vm.optPatientLayout = mpState.getPatientLayout(vm.optPatientLayouts);
                 });
                 vm.resize = function () {
                     var width = $window.innerWidth;
@@ -498,8 +555,9 @@
                 );
 
                 return vm;
-            })(this, osApi);
+            })(this, osApi, mpState);
 
+           
             /*
              * Zoom Control Functions
              * - reset
@@ -624,7 +682,7 @@
                     vm.resize();
 
 
-                    //Initial Node Selection
+                    //Initial Node Selection & Color
                     var pc = osCohortService.getPatientCohort();
                     if (pc == null) {
                         osCohortService.setPatientCohort([], "All Patients")
@@ -641,7 +699,7 @@
                         cyChart.center();
                         cyChart.fit(cyChart.nodes(), 400);
                     }
-
+                    mpState.applyState(onPatientColorChange, cyChart);
 
                 };
                 cmd.patients_layout = function (data) {
@@ -822,12 +880,7 @@
             (function (vm, $scope) {
                 var watches = 1;
 
-                var firstTime = true;
                 var update = function () {
-                    if (firstTime) {
-                        firstTime = false;
-                        if (hydrate()) return;    // If Hydration Was Possible
-                    }
                     setOptions(createOptions());
                 };
 
@@ -1107,6 +1160,8 @@
 
             var onPatientColorChange = function (colors) {
 
+                mpState.setColors(colors);
+
                 vm.showPanelColor = false;
                 vm.legendCaption = colors.name;
                 vm.legendNodes = colors.data;
@@ -1144,54 +1199,9 @@
 
             osCohortService.onPatientColorChange.add(onPatientColorChange);
 
-            // Hydration
-            var hydrateDisease;
-            var hydrate = function () {
-                hydrateDisease = osApi.getDataSource().disease;
-                var data = localStorage.getItem(osApi.getDataSource().disease + "MarkersPatients");
-                if (data === null) return false;
-                else {
-                    data = angular.fromJson(data);
-                    cyChart.load(data.chart.elements);
-                    vm.resize();
-                    var elements = cyChart.nodes('node[nodeType="patient"]');
-                    elements.on("select", _.debounce(signal.patients.select.dispatch, 300));
-                    elements.on("unselect", _.debounce(signal.patients.unselect.dispatch, 300));
-                    elements.on("mouseover", signal.patients.over.dispatch);
-                    elements.on("mouseout", signal.patients.out.dispatch);
-                    cyChart.center();
-                    cyChart.fit(cyChart.nodes(), 400);
-
-
-                    var pc = osCohortService.getPatientCohort();
-                    if (pc == null) {
-                        osCohortService.setPatientCohort([], "All Patients")
-                    } else {
-                        cyChart.startBatch();
-                        cyChart.nodes('node[nodeType="patient"]').forEach(function (node) {
-                            if (pc.ids.indexOf(node.id()) != -1) node.select();
-
-                        }, {
-                                pc: pc
-                            });
-                        cyChart.endBatch();
-                    }
-
-                }
-                osApi.setBusy(false);
-                return true;
-            }
-            var dehydrate = function () {
-                var data = angular.toJson({
-                    geneset: vm.optGeneSet,
-                    chart: cyChart.json()
-                });
-                // Geneset / Edge Visibility / Color Option / Layout
-                localStorage.setItem(hydrateDisease + "MarkersPatients", data);
-            }
             // Destroy
             $scope.$on('$destroy', function () {
-                dehydrate();
+                mpState.save(vm, cyChart);
                 osCohortService.onPatientColorChange.remove(onPatientColorChange);
                 worker.terminate();
                 signal.clear();

@@ -27,6 +27,12 @@
                 authenticate: true,
                 datasource: true
             })
+            .state('scatter', {
+                url: '/scatter',
+                template: '<os-scatter>',
+                authenticate: true,
+                datasource: false
+            })
             .state('history', {
                 url: '/history/{datasource}',
                 template: '<os-history>',
