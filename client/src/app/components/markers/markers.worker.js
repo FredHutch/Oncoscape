@@ -22,7 +22,7 @@
             }
             
             var query = "/api/" + object.table;
-            query = "https://dev.oncoscape.sttrcancer.io/api/" + object.table;
+            query = "http://oncoscape-test.fhcrc.org/api/" + object.table;
             console.log('%c '+object.table,'background: #333; color: #ffffff');
             if (object.query) query += "/" + encodeURIComponent(JSON.stringify(object.query));
             load(query, function(response) {
@@ -154,7 +154,7 @@ var data = (function() {
                             grabbable: false,
                             locked: true,
                             selectable: false,
-                            position: {x:item.x-4000, y:item.y},
+                            position: {x:item.x-4600, y:item.y},
                             'text-rotation': item.rotation,
                             data: {
                                 id: "annotation"+item.text.replace(/[^\w\s!?]/g,''),

@@ -81,7 +81,8 @@
                     _colors = c;
                 }
                 var applyState = function(fn, cyChart){
-                    osCohortService.onPatientColorChange.dispatch(mp.optColors)
+                    if (!hasState) return;
+                    osCohortService.onPatientColorChange.dispatch(mp.optColors);
                     requestAnimationFrame(function(){
                         cyChart.startBatch();
                         cyChart.add(mp.edges);
