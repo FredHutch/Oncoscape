@@ -29,7 +29,7 @@
             })
             .state('scatter', {
                 url: '/scatter',
-                template: '<os-scatter>',
+                template: '<os-pca>',
                 authenticate: true,
                 datasource: false
             })
