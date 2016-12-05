@@ -22,7 +22,7 @@
             }
             
             var query = "/api/" + object.table;
-            query = "http://oncoscape-test.fhcrc.org/api/" + object.table;
+            //query = "http://oncoscape-test.fhcrc.org/api/" + object.table;
             console.log('%c '+object.table,'background: #333; color: #ffffff');
             if (object.query) query += "/" + encodeURIComponent(JSON.stringify(object.query));
             load(query, function(response) {
