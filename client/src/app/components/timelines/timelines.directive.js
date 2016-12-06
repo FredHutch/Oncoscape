@@ -41,17 +41,17 @@
             
 
             // Retrieve Selected Patient Ids From OS Service
-            var pc = osCohortService.getPatientCohort();
+            var pc = osCohortService.getCohort();
             if (pc == null) {
-                osCohortService.setPatientCohort([], "All Patients");
+                osCohortService.setCohort(null, "All Patients", osCohortService.PATIENT);
             }
             var selectedIds = (pc == null) ? [] : pc.ids;
 
-            var onPatientsSelect = function(patients) {
-                selectedIds = patients.ids;
+            var onCohortChange = function(cohort) {
+                selectedIds = cohort.patientsIds;
                 vm.update();
             }
-            osCohortService.onPatientsSelect.add(onPatientsSelect);
+            osCohortService.onCohortChange.add(onCohortChange);
 
             // var setSelected = function() {
             //     selectedIds = chart.bars.selectAll(".timeline-selected")[0].map(function(p) {
@@ -101,7 +101,7 @@
 
             vm.resetZoom = function() {
                 selectedIds = [];
-                osCohortService.setPatientCohort([], "All Patients");
+                osCohortService.onCohortChange(null, "All Patients", osCohortService.PATIENT);
                 chart.d3ScrollY.call(brushY.move, null);
                 chart.d3ScrollX.call(brushY.move, null);
                 vm.update();
@@ -337,7 +337,7 @@
                     for (var i = lowerIndex; i <= upperIndex; i++) {
                         ids.push(patientsFiltered[i].id);
                     }
-                    osCohortService.setPatientCohort(ids, "All Patients");
+                    osCohortService.setCohort(ids, "All Patients", osCohortService.PATIENT);
                     chart.rPatients.call(d3.event.target.move, null);
                 });
             };
@@ -584,7 +584,7 @@
 
             // Destroy
             $scope.$on('$destroy', function() {
-                osCohortService.onPatientsSelect.remove(onPatientsSelect);
+                osCohortService.onCohortChange.remove(onCohortChange);
                 osApi.onResize.remove(vm.update);
                 angular.element($window).unbind('resize', resize);
                 brushY.on("end", null);

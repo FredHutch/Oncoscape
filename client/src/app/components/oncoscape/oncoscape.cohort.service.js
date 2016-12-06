@@ -1,184 +1,162 @@
-(function() {
-    'use strict';
+(function () {
+  'use strict';
 
-    angular
-        .module('oncoscape')
-        .service('osCohortService', osCohortService);
+  angular
+    .module('oncoscape')
+    .service('osCohortService', osCohortService);
 
-    /** @ngInject */
-    function osCohortService(osApi, moment, signals, localStorage) {
+  /** @ngInject */
+  function osCohortService(osApi, moment, signals, $q, localStorage) {
 
-        var onMessage = new signals.Signal();
-        var onPatientsSelect = new signals.Signal();
-        var onGenesSelect = new signals.Signal();
-        var onCohortsChange = new signals.Signal();
-        var onPatientColorChange = new signals.Signal();
+    // Messages
+    var onCohortChange = new signals.Signal();
+    var onCohortsChange = new signals.Signal();
+    var onPatientColorChange = new signals.Signal();
 
-        var worker = new Worker("app/components/oncoscape/oncoscape.cohort.service.worker.js");
-        worker.addEventListener('message', function(msg) {
-            if (msg.data.cmd == "filterPatients") {
-                setPatientCohort(msg.data.data, "Filter")
-            }else if (msg.data.cmd == "validatePatientIds"){
-                setPatientCohort(msg.data.data, "Import");
-                addPatientCohort();
-            }else {
-                onMessage.dispatch(msg);
-            }
-        }, false);
+    // Cohorts
+    var _cohorts = [];
+    var getCohorts = function () {
+      return _cohorts;
+    };
 
-        var allGeneCohorts = [],
-            activePatientCohort,
-            activeGeneCohort;
-
-        var allPatientCohorts = [];
-        var colors = ["#E91E63", "#673AB7", "#4CAF50", "#CDDC39", "#FFC107", "#FF5722", "#795548", "#607D8B", "#03A9F4", "#03A9F4", '#004358', '#800080', '#BEDB39', '#FD7400', '#1F8A70'];
-        osApi.onDataSource.add(function(datasource) {
-
-            worker.postMessage({
-                cmd: "setPatientDataSource",
-                data: datasource.clinical.patient
-            });
-
-            allPatientCohorts = localStorage.getItem(osApi.getDataSource().disease + "PatientCohorts");
-            allPatientCohorts = (allPatientCohorts == null) ? [] : angular.fromJson(allPatientCohorts);
-            for (var i = 0; i < allPatientCohorts.length; i++) {
-                allPatientCohorts[i].color = colors[i];
-            }
-            onCohortsChange.dispatch(allPatientCohorts);
-        });
-
-        var _patientColor = {
-            name: 'xxx',
-            data: [{
-                name: 'Patient',
-                color: '#1396DE',
-                show: true
-            }]
-        };
-
-
-        var setPatientColor = function(val) {
-            _patientColor = val;
-            onPatientColorChange.dispatch(_patientColor);
-        };
-
-        var getSurvivalData = function(cohorts, all, correlationId) {
-            worker.postMessage({
-                cmd: "getSurvivalData",
-                data: {
-                    cohorts: cohorts,
-                    all: all,
-                    correlationId: correlationId
-                }
-            });
-        };
-
-        var getPatientMetric = function() {
-            if (!activePatientCohort.ids) return;
-            worker.postMessage({
-                cmd: "getPatientMetric",
-                data: activePatientCohort.ids
-            });
-        };
-
-        var getPatientCohorts = function() {
-            return allPatientCohorts;
-        };
-        var getPatientCohort = function() {
-            return activePatientCohort;
-        };
-        var addPatientCohort = function() {
-            if (allPatientCohorts.indexOf(activePatientCohort) != -1) return;
-            activePatientCohort.color = colors[allPatientCohorts.length];
-            allPatientCohorts.push(activePatientCohort);
-            localStorage.setItem(osApi.getDataSource().disease + "PatientCohorts", angular.toJson(allPatientCohorts));
-        };
-        var importPatientCohort = function(ids){
-            worker.postMessage({
-               cmd: "validatePatientIds",
-               data: ids 
-            });
-        }
-
-        var delPatientCohort = function(obj) {
-            allPatientCohorts.splice(allPatientCohorts.indexOf(obj), 1);
-            localStorage.setItem(osApi.getDataSource().disease + "PatientCohorts", angular.toJson(allPatientCohorts));
-            onPatientsSelect.dispatch(activePatientCohort);
-        };
-
-        var setPatientCohort = function(ids, name) {
-            function S4() {
-                return (((1 + Math.random()) * 0x10000) | 0).toString(16).substring(1);
-            }
-            activePatientCohort = (!angular.isArray(ids)) ? ids : {
-                id: (S4() + S4() + "-" + S4() + "-4" + S4().substr(0, 3) + "-" + S4() + "-" + S4() + S4() + S4()).toLowerCase(),
-                ids: ids,
-                name: name,
-                time: new Date()
-            };
-            onPatientsSelect.dispatch(activePatientCohort);
-        };
-        var filterActivePatientCohort = function(bounds, prop, type) {
-            worker.postMessage({
-                cmd: "filterPatients",
-                data: {
-                    ids: activePatientCohort.ids,
-                    type: type,
-                    bounds: bounds,
-                    prop: prop
-                }
-            });
-        };
-        var getGeneMetric = function() {};
-        var getGeneCohorts = function() {
-            return allGeneCohorts;
-        };
-        var getGeneCohort = function() {
-            return activeGeneCohort;
-        };
-        var addGeneCohort = function() {
-            allGeneCohorts.push(activeGeneCohort);
-        };
-        var delGeneCohort = function(obj) {
-            allGeneCohorts.splice(allGeneCohorts.indexOf(obj), 1);
-        };
-        var setGeneCohort = function(ids, name) {
-            function S4() {
-                return (((1 + Math.random()) * 0x10000) | 0).toString(16).substring(1);
-            }
-            activeGeneCohort = (!angular.isArray(ids)) ? ids : {
-                id: (S4() + S4() + "-" + S4() + "-4" + S4().substr(0, 3) + "-" + S4() + "-" + S4() + S4() + S4()).toLowerCase(),
-                ids: ids,
-                name: name,
-                time: new Date()
-            };
-            onGenesSelect.dispatch(activeGeneCohort);
-        };
-
-        var api = {
-            onMessage: onMessage,
-            onPatientsSelect: onPatientsSelect,
-            onCohortsChange: onCohortsChange,
-            onPatientColorChange: onPatientColorChange,
-            getPatientCohorts: getPatientCohorts,
-            getPatientCohort: getPatientCohort,
-            setPatientCohort: setPatientCohort,
-            addPatientCohort: addPatientCohort,
-            delPatientCohort: delPatientCohort,
-            importPatientCohort: importPatientCohort,
-            getPatientMetric: getPatientMetric,
-            onGenesSelect: onGenesSelect,
-            getGeneCohorts: getGeneCohorts,
-            getGeneCohort: getGeneCohort,
-            setGeneCohort: setGeneCohort,
-            addGeneCohort: addGeneCohort,
-            delGeneCohort: delGeneCohort,
-            getGeneMetric: getGeneMetric,
-            getSurvivalData: getSurvivalData,
-            setPatientColor: setPatientColor,
-            filterActivePatientCohort: filterActivePatientCohort
-        };
-
-        return api;
+    // Cohort
+    var _cohort = null;
+    var saveCohort = function () {
+      _cohorts.push(getCohort());
+      onCohortsChange.dispatch(getCohorts());
+      // Save To Local Storage
     }
+    var deleteCohort = function (cohort) {
+      _cohorts = _cohorts.splice(_cohorts.indexOf(cohort), 1);
+      onCohortsChange.dispatch(getCohorts());
+      // Save To Local Storage
+    }
+    var getCohort = function () {
+      return _cohort;
+    }
+    var setCohort = function (ids, name, type) {
+      _cohort = cohortFactory[(type == "PATIENT") ? "createWithPatientIds" : "createWithSampleIds"](name, ids);
+      onCohortChange.dispatch(getCohort());
+    }
+
+
+
+    // Stats Factory
+    var statsFactory = (function () {
+      var createHistogram = function (cohort) {
+        return {};
+      };
+      var createSurvival = function (cohort) {
+        return {};
+      };
+      return {
+        createHistogram: createHistogram,
+        createSurvival: createSurvival
+      };
+    })();
+
+
+
+    // Cohort Factory
+    var cohortFactory = (function (osApi, statsFactory, onCohortsChange, onCohortChange) {
+
+      // Patient + Sample Data
+      var data = {
+        patient: [],
+        patientMap: {},
+        sampleMap: {}
+      }
+
+      // Monitor Data Source
+      osApi.onDataSource.add(function (d) {
+        $q.all([
+          osApi.query(d.clinical.samplemap),
+          osApi.query(d.clinical.patient)
+        ]).then(function (responses) {
+          data.patient = responses[1].data;
+          data.sampleMap = responses[0].data[0];
+          data.patientMap = Object.keys(data.sampleMap).reduce(function (p, c) {
+            var patient = data.sampleMap[c];
+            var sample = c;
+            if (p.hasOwnProperty(patient)) p[patient].push(sample);
+            else p[patient] = [sample];
+            return p;
+          }, {});
+
+          // Load Cohorts
+          var cohorts = [];
+          onCohortsChange.dispatch(cohorts);
+          onCohortChange.dispatch(cohorts[0]);
+        });
+      });
+
+      var createWithSampleIds = function (name, sampleIds) {
+          debugger;
+        var patientIds = [];
+        return create(name, patientIds, sampleIds);
+      };
+
+      var createWithPatientIds = function (name, patientIds) {
+          
+        var ids = patientIds.reduce(function(p,c){
+            var samples = p.map[c];
+            if (samples==null){
+                p.e.push(c);
+            }else{
+                p.p.push(c);
+                p.s.concat(samples);
+            }
+            return p;
+        }, {p:[],s:[], e:[], map:data.patientMap} );
+
+        debugger;
+        return create(name, ids.p, ids.s, ids.e);
+
+      };
+
+      var create = function (name, patientIds, sampleIds, errorIds) {
+
+        var cohort = {
+          name: name,
+          patientIds: patientIds,
+          sampleIds: sampleIds,
+          errorIds: errorIds,
+          stats: {}
+        };
+
+        cohort.stats.survival = statsFactory.createSurvival(cohort);
+        cohort.stats.histogram = statsFactory.createHistogram(cohort);
+
+        return cohort;
+      }
+
+
+      return {
+        createWithSampleIds: createWithSampleIds,
+        createWithPatientIds: createWithPatientIds
+      };
+
+
+    })(osApi, statsFactory, onCohortsChange, onCohortChange);
+
+
+
+
+    var api = {
+      SAMPLE: "SAMPLE",
+      PATIENT: "PATIENT",
+
+      onPatientColorChange: onPatientColorChange,
+      onCohortChange: onCohortChange,
+      onCohortsChange: onCohortsChange,
+
+      setCohort: setCohort,
+      getCohort: getCohort,
+      getCohorts: getCohorts,
+      saveCohort: saveCohort,
+      deleteCohort: deleteCohort
+    };
+
+    return api;
+  }
 })();

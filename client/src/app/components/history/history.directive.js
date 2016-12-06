@@ -23,9 +23,10 @@
 
 
             var rowSelectionChange = function(e){
-                osCohortService.setPatientCohort(
+                osCohortService.setCohort(
                     vm.gridApi.grid.api.selection.getSelectedRows().map(function(v) { return v.patient_ID; }),
-                    "Spreadsheet"
+                    "Spreadsheet",
+                    osCohortService.PATIENT
                 );
             }
 
@@ -47,14 +48,14 @@
 
 
         
-            var onPatientSelect = function(patients){
-                var selectedIds = patients.ids;
+            var onCohortChange = function(cohort){
+                var selectedIds = cohort.patientIds;
                 var selected = vm.options.data.filter(function(v){
                     return selectedIds.indexOf(v.patient_ID) != -1;
                 })
                 selected.forEach(function(i){ vm.gridApi.grid.api.selection.selectRow(i); });
             };
-            osCohortService.onPatientsSelect.add(onPatientSelect);
+            osCohortService.onCohortChange.add(onCohortChange);
             
         
             // Intialize View State
@@ -73,7 +74,7 @@
                         data: vm.datasource.clinical
                     })
                     .filter(function(o) {
-                        return o.name != "events";
+                        return (o.name != "events" && o.name != "samplemap");
                     });
                 vm.collection = vm.collections[0];
                 
@@ -137,7 +138,7 @@
 
             // Destroy
             $scope.$on('$destroy', function() {
-                osCohortService.onPatientsSelect.remove(onPatientsSelect);
+                osCohortService.onCohortChange.remove(onCohortChange);
                 angular.element($window).unbind('resize', resize);
                 
             });

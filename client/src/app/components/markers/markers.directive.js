@@ -686,7 +686,7 @@
                     //Initial Node Selection & Color
                     var pc = osCohortService.getPatientCohort();
                     if (pc == null) {
-                        osCohortService.setPatientCohort([], "All Patients")
+                        osCohortService.setPatientCohort([], "All Patients", osCohortService.SAMPLE);
                     } else {
                         cyChart.startBatch();
                         cyChart.nodes('node[nodeType="patient"]').forEach(function (node) {
@@ -998,7 +998,8 @@
                     cyChart.$('node[nodeType="patient"]:selected').map(function (p) {
                         return p.data().id
                     }),
-                    "Markers + Patients"
+                    "Markers + Patients",
+                    osCohortService.SAMPLE
                 );
             }
 

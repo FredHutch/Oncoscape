@@ -48,7 +48,7 @@
             vm.importPatientIds = "";
             vm.importPatientCohort = function(){
                 var ids = vm.importPatientIds.split(",").map(function(v){ return v.trim(); });
-                osCohortService.importPatientCohort(ids);
+                osCohortService.setPatientCohort(ids, "Import", osCohortService.PATIENT);
             };
             vm.showImport = false;
             vm.showTools = false;

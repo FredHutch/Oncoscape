@@ -22,21 +22,23 @@
         function PcaController($q, osApi, osCohortService, $state, $stateParams, $timeout, $scope, d3, moment, $window, _) {
 
             // Retrieve Selected Patient Ids From OS Service
-            var pc = osCohortService.getPatientCohort();
+            var pc = osCohortService.getCohort();
             if (pc == null) {
-                osCohortService.setPatientCohort([], "All Patients")
+                osCohortService.setCohort(null, "All Patients", osCohortService.SAMPLE)
             }
-            var selectedIds = (pc == null) ? [] : pc.ids;
+            var selectedIds = (pc == null) ? [] : pc.sampleIds;
 
-            var osCohortServiceUpdate = true;
-            osCohortService.onPatientsSelect.add(function(patients) {
+            var onCohortChange = function(cohort) {
                 if (osCohortServiceUpdate) {
-                    selectedIds = patients.ids;
+                    selectedIds = cohort.patientsIds;
                     setSelected();
                 } else {
                     osCohortServiceUpdate = true;
                 }
-            });
+            };
+            
+            var osCohortServiceUpdate = true;
+            osCohortService.onCohortChange.add(onCohortChange);
 
             function setSelected() {
                 if (selectedIds.length == 0) {
@@ -85,7 +87,7 @@
                              if (d3.select(this).classed("pca-node-selected")) allIds.push(d.id);
                          }
                     });
-                    osCohortService.setPatientCohort(allIds, "PCA")
+                    osCohortService.setCohort(allIds, "PCA",osCohortService.SAMPLE)
                     
 
                 }
@@ -99,7 +101,7 @@
                             if (d3.select(this).classed("pca-node-selected")) allIds.push(d.id);
                         }
                     });
-                    osCohortService.setPatientCohort(allIds, "PCA")
+                    osCohortService.setCohort(allIds, "PCA",osCohortService.SAMPLE)
                 }
                 osApi.query("render_pca", {
                         disease: vm.datasource.disease,
@@ -307,7 +309,7 @@
                     .on("end", function() {
 
                         if (!d3.event.selection) {
-                            osCohortService.setPatientCohort([], "PCA");
+                            osCohortService.setCohort([], "PCA",osCohortService.SAMPLE);
                             return;
                         }
 
@@ -325,7 +327,7 @@
                             return d.id;
                         });
 
-                        osCohortService.setPatientCohort(ids, "PCA");
+                        osCohortService.setCohort(ids, "PCA",osCohortService.SAMPLE);
 
                     });
 
@@ -350,6 +352,7 @@
             // Destroy
             $scope.$on('$destroy', function() {
                 osCohortService.onPatientColorChange.remove(onPatientColorChange);
+                osCohortService.onCohortChange.remove(onCohortChange);
             });
         }
     }

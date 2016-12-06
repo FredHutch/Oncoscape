@@ -22,15 +22,16 @@
         function CompareClusterController(osApi, osCohortService, d3, $state, $timeout, $scope, moment, $stateParams, _, $, $q, $window) {
 
             // Retrieve Selected Patient Ids From OS Service
-            var pc = osCohortService.getPatientCohort();
+            var pc = osCohortService.getCohort();
             if (pc == null) {
-                osCohortService.setPatientCohort([], "All Patients")
+                osCohortService.setCohort(null, "All Patients", osCohortService.SAMPLE)
             }
             var selectedIds = (pc == null) ? [] : pc.ids;
-            osCohortService.onPatientsSelect.add(function(patients) {
-                selectedIds = patients.ids;
+            var onCohortChange = function(cohort) {
+                selectedIds = cohort.sampleIds;
                 setSelected();
-            });
+            }
+            osCohortService.onCohortChange.add(onCohortChange);
 
             function setSelected() {
                 if (selectedIds.length == 0) {
@@ -541,7 +542,7 @@
                 };
                 var end = function() {
                     if (d3.event.selection === null) {
-                        osCohortService.setPatientCohort([], "Clusters");
+                        osCohortService.setCohort(null, "Clusters", osCohortService.SAMPLE);
                         return;
                     }
                     var bv = d3.event.selection;
@@ -565,7 +566,7 @@
                         .map(function(d) {
                             return d.id;
                         });
-                    osCohortService.setPatientCohort(ids, "Clusters");
+                    osCohortService.setCohort(ids, "Clusters", osCohortService.SAMPLE);
                 };
 
                 var create = function(rect) {

@@ -25,7 +25,7 @@
             var pc = osCohortService.getPatientCohort();
             var cohorts = angular.fromJson(angular.toJson(osCohortService.getPatientCohorts()));
             if (pc === null) {
-                osCohortService.setPatientCohort([], "All Patients")
+                osCohortService.setPatientCohort([], "All Patients". osCohortService.PATIENT)
             } else {
                 if (pc.ids.length > 0) {
                     cohorts.push({
