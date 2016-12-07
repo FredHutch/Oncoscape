@@ -28,8 +28,8 @@
                 });
                 osApi.query("lookup_oncoscape_tools").then(function(response) {
                     var tools = osApi.getDataSource().tools;
-                    vm.tools = response.data.filter(function(item){
-                        return (tools.indexOf(item.route)!=-1);
+                    vm.tools = response.data.filter(function(item) {
+                        return (tools.indexOf(item.route) != -1);
                     }).sort(function(a, b) {
                         if (a.name < b.name) return -1;
                         if (a.name > b.name) return 1;
@@ -42,12 +42,12 @@
             vm.cohorts = [];
             vm.addPatientCohort = osCohortService.addPatientCohort;
             vm.setPatientCohort = osCohortService.setPatientCohort;
-            osCohortService.onCohortsChange.add(function(allCohorts){
+            osCohortService.onCohortsChange.add(function(allCohorts) {
                 vm.cohorts = allCohorts;
             });
             vm.importPatientIds = "";
-            vm.importPatientCohort = function(){
-                var ids = vm.importPatientIds.split(",").map(function(v){ return v.trim(); });
+            vm.importPatientCohort = function() {
+                var ids = vm.importPatientIds.split(",").map(function(v) { return v.trim(); });
                 osCohortService.setPatientCohort(ids, "Import", osCohortService.PATIENT);
             };
             vm.showImport = false;

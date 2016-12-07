@@ -24,7 +24,7 @@
             // Retrieve Selected Patient Ids From OS Service
             var pc = osCohortService.getCohort();
             if (pc == null) {
-                osCohortService.setCohort(null, "All Patients", osCohortService.SAMPLE)
+                osCohortService.setCohort([], "All Patients", osCohortService.SAMPLE)
             }
             var selectedIds = (pc == null) ? [] : pc.ids;
             var onCohortChange = function(cohort) {
@@ -51,7 +51,6 @@
                 w: 0,
                 h: 0
             };
-
 
             var datasource = {
                 "disease": "brain",
@@ -542,7 +541,7 @@
                 };
                 var end = function() {
                     if (d3.event.selection === null) {
-                        osCohortService.setCohort(null, "Clusters", osCohortService.SAMPLE);
+                        osCohortService.setCohort([], "Clusters", osCohortService.SAMPLE);
                         return;
                     }
                     var bv = d3.event.selection;
@@ -617,7 +616,7 @@
             }
 
             $q.all(
-                clusters.map(function(v) { return osApi.query(v.collection)})
+                clusters.map(function(v) { return osApi.query(v.collection) })
             ).then(function(data) {
                 clusters = clusters.map(function(v, i) {
                     var data = this.data[i].data[0].data;

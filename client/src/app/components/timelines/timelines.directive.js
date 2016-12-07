@@ -43,7 +43,7 @@
             // Retrieve Selected Patient Ids From OS Service
             var pc = osCohortService.getCohort();
             if (pc == null) {
-                osCohortService.setCohort(null, "All Patients", osCohortService.PATIENT);
+                osCohortService.setCohort([], "All Patients", osCohortService.PATIENT);
             }
             var selectedIds = (pc == null) ? [] : pc.ids;
 
@@ -289,7 +289,8 @@
                         return d.color;
                     })
                     .on("mouseover", function() {
-                        var datum = d3.select(this).datum();
+                        var el = d3.select(this);
+                        var datum = el.datum();
 
                         if (datum.html == null) {
                             var data = datum.data;
@@ -303,10 +304,11 @@
                                 }).html;
                         }
                         if (chart.elTip == null) chart.elTip = angular.element("#timelines-tip");
-                        chart.elTip.html(datum.html);
-
+                        chart.elTip.html(datum.html);                        
+                        $(el._groups[0]).siblings().attr("fill","#DDD");
                     }).on("mouseout", function() {
                         chart.elTip.html("<b>Rollover Event For Details</b>");
+                        $(d3.select(this)._groups[0]).siblings().attr("fill","#FFF");
                     });
                 cols
                     .attr('width', function(d) {
@@ -407,18 +409,15 @@
                             yZoom = (baseZoomY / deltaPercent);
                             yTran = (20 * patientsFiltered.length * yZoom) * -lowerPercent;
                         } else {
-
                             if (yZoom == baseZoomY && yTran == 0) return;
                             yZoom = baseZoomY;
                             yTran = 0;
                             chart.d3ScrollY.call(brushY.move, null);
-
                         }
                         chart.gPatients
                             .transition()
                             .duration(750)
                             .attr("transform", "translate(" + xTran + "," + yTran + ") scale(" + xZoom + "," + yZoom + ")");
-
                     })
                 );
                 chart.d3ScrollX.call(
@@ -522,7 +521,11 @@
                             colorFn: this.colorFn
                         });
                     var evtHash = evtArray.reduce(function(p, c) {
-                        p[c.name] = c;
+                        if (p.hasOwnProperty(c.name)){
+                            if (p[c.name].tsStart > c.tsStart) p[c.name] = c;
+                        }else{
+                            p[c.name] = c;
+                        }
                         return p;
                     }, {});
                     return {
