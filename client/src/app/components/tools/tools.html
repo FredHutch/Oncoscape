@@ -1,5 +1,5 @@
 <section class="datasource container-fluid">
-     <div class="row">
+    <div class="row">
         <div class="col-sm-12 col-md-8">
             <br />
             <h1>Analysis Tools</h1>
@@ -11,11 +11,11 @@
 
     <div class="row">
         <ul>
-            <li ng-repeat="tool in vm.tools" class="col-xs-12 col-sm-6 col-lg-4" ng-click="vm.explore(tool.route)">
+            <li ng-repeat="tool in vm.tools" class="col-xs-12 col-sm-6 col-md-4" ng-click="vm.explore(tool.route)">
                 <div class="datasource-btn">
-                <img class="datasource-img" ng-src="/assets/images/{{tool.img}}" style="border-right:1px solid #DDD;">
-                <p class="datasource-h1" style="padding-top:10px;">{{tool.name}}</p>
-                <p class="datasource-h2">{{tool.desc}}</p>
+                    <img class="datasource-img" ng-src="/assets/images/{{tool.img}}" style="border-right:1px solid #DDD;">
+                    <p class="datasource-h1" style="padding-top:10px;">{{tool.name}}</p>
+                    <p class="datasource-h2">{{tool.desc}}</p>
                 </div>
             </li>
         </ul>

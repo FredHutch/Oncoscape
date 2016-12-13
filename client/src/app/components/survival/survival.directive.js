@@ -30,29 +30,27 @@
             vm.cohorts = osCohortService.getCohorts();
 
             var onCohortChange = function(c) {
-                //cohort = c;
-                //setSelected();
-                console.log("cohort change")
+                var co = vm.cohorts.filter(function(v) { return !(v.type == "UNSAVED"); });
+                co.push(c);
+                vm.cohorts = co;
+                draw();
             };
             osCohortService.onCohortChange.add(onCohortChange);
-            var onCohortsChange = function(c) {
-                //cohort = c;
-                //setSelected();
-                console.log("cohorts change")
-            };
-            osCohortService.onCohortsChange.add(onCohortsChange);
+
 
             vm.toggle = function() {
-                // osCohortService.getSurvivalData(vm.cohorts.filter(function(c) {
-                //     return c.show;
-                // }), vm.all.show, "SurvivalController");
+                draw();
             };
 
             // Create D3 Elements
             var elContainer = angular.element("#survival-chart");
             var elChart = d3.select("#survival-chart").append("svg");
+            var elBrush = elChart.append("g").attr("class", "brush");
+            var elSurvival = elChart.append("g");
             var elXAxis = elChart.append("g").attr("class", "axis");
             var elYAxis = elChart.append("g").attr("class", "axis");
+            var brush;
+
 
             // Base Layout
             var layout = {
@@ -64,6 +62,34 @@
                 yAxis: d3.axisLeft().ticks(5)
             };
 
+            var onBrushEnd = function() {
+                if (!d3.event.selection) return;
+                var s = d3.event.selection;
+                var survivalRange = [
+                    Math.round(layout.xScale.invert(s[0])),
+                    Math.round(layout.xScale.invert(s[1]))
+                ];
+
+                // Of Visible Cohorts - Figure out the ids
+                var activeCohorts = vm.cohorts.filter(function(v) { return v.show; }).filter(function(v) { return (v.type !== "UNSAVED"); });
+                var hasAllPatients = activeCohorts.reduce(function(p, c) {
+                    if (c.name == "All Patients + Samples") p = true;
+                    return p;
+                }, false);
+
+                var cohortData = osCohortService.getData();
+                var patientMap = cohortData.patientMap;
+                var ids = (hasAllPatients) ? Object.keys(cohortData.patientMap) : [].concat.apply([], activeCohorts.map(function(v) { return v.patientIds; }));
+                ids = ids.filter(function(v) {
+                    try {
+                        var time = patientMap[v].survival.time;
+                        return (time >= survivalRange[0] && time <= survivalRange[1])
+                    } catch (e) { return false; }
+                });
+                osCohortService.setCohort(ids, "Survival", osCohortService.PATIENT);
+                elBrush.call(brush.move, null);
+
+            };
             // Utility Methods
             var setScale = function(timelineDomain) {
                 var osLayout = osApi.getLayout();
@@ -80,10 +106,21 @@
 
                 layout.yScale = d3.scaleLinear()
                     .domain([0, 100])
-                    .range([layout.height - 50, 0]);
-                // debugger;
-                // elYAxis.attr("transform", "translate(50, 10)").call(layout.yAxis);
-                // elXAxis.attr("transform", "translate(0, " + (layout.yScale(0) + 10) + ")").call(layout.xAxis);
+                    .range([layout.height - 50, 1]);
+
+                layout.xAxis.scale(layout.xScale);
+                layout.yAxis.scale(layout.yScale);
+
+                elYAxis.attr("transform", "translate(50, 10)").call(layout.yAxis);
+                elXAxis.attr("transform", "translate(0, " + (layout.yScale(0) + 10) + ")").call(layout.xAxis);
+
+                brush = d3.brushX().extent([
+                    [50, 10],
+                    [layout.width, layout.height - 40]
+                ]);
+                brush.on("end", onBrushEnd);
+                elBrush.call(brush);
+
             }
 
             var addCurve = function(survivalDatum) {
@@ -91,48 +128,54 @@
                 var data = survivalDatum.survival.data;
                 var color = survivalDatum.color;
 
-
                 var pts = [];
                 for (var i = 0; i < data.line.length; i++) {
+                    var line = data.line[i];
+                    if (line < 0) line = 0;
                     if (i % 2 == 0) {
-                        pts.push(layout.xScale(data.line[i]));
+                        pts.push(layout.xScale(line));
                     } else {
-                        pts.push(layout.yScale(data.line[i]))
+                        pts.push(layout.yScale(line) + 10);
                     }
                 }
                 pts = pts.join(",");
-                elChart.append("polyline")
+                elSurvival.append("polyline")
                     .attr("class", "line")
                     .style("stroke", color)
                     .style("fill", "none")
                     .attr("stroke-width", 1)
-                    .attr("points", pts);
-
+                    .attr("points", pts)
+                    .datum(survivalDatum)
+                    .on("mouseover", function() {
+                        d3.select(this).attr("stroke-width", 4)
+                    })
+                    .on("mouseout", function() {
+                        d3.select(this).attr("stroke-width", 2)
+                    })
+                    .on("mousedown", function() {
+                        osCohortService.setCohort(survivalDatum);
+                    });
 
                 data.ticks.forEach(function(element) {
-                    elChart.append("line")
+                    elSurvival.append("line")
                         .attr("class", "line")
-                        .attr("stroke-width", 0.5)
+                        .attr("stroke-width", 1)
                         .attr("stroke", color)
                         .attr("x1", layout.xScale(element.time))
                         .attr("x2", layout.xScale(element.time))
-                        .attr("y1", layout.yScale(element.percentDead))
-                        .attr("y2", layout.yScale(element.percentDead) - 5);
+                        .attr("y1", layout.yScale(element.percentDead) + 10)
+                        .attr("y2", layout.yScale(element.percentDead) + 2);
                 }, this);
 
-
-
-
-                console.log("ADD CURVE");
-            }
+            };
 
 
             var draw = function() {
                 osApi.setBusy(true);
 
                 // Clear Lines
-                elChart.selectAll(".line").remove();
-                elChart.selectAll(".tick").remove();
+                elSurvival.selectAll(".line").remove();
+                elSurvival.selectAll(".tick").remove();
 
                 var survivalData = vm.cohorts.filter(function(v) { return v.show });
                 var minMax = survivalData.reduce(function(p, c) {
@@ -149,12 +192,6 @@
                     addCurve(survivalData[i]);
                 }
 
-                // Add Brush
-                // elChart.append("g")
-                //     .attr("class", "brush")
-                //     .call(brush);
-
-                console.log(survivalData.length);
                 osApi.setBusy(false);
 
             };
@@ -171,8 +208,6 @@
             // Destroy
             $scope.$on('$destroy', function() {
                 osCohortService.onCohortChange.add(onCohortChange);
-                osCohortService.onCohortsChange.add(onCohortsChange);
-
             });
 
 

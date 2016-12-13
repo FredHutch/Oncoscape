@@ -32,6 +32,7 @@
         // Accessors
         var getCohorts = function() { return _cohorts; };
         var getCohort = function() { return _cohort; };
+        var getData = function() { return _data; };
 
         // Stats Factory
         var statsFactory = (function(jStat) {
@@ -203,7 +204,7 @@
                         if (p.hasOwnProperty(c.time)) {
                             var sum = p[c.time];
                             sum.time = c.time;
-                            sum.dead += (c.censor == 0) ? 1 : 0;
+                            sum.dead += (c.censor === 0) ? 1 : 0;
                             sum.alive += (c.censor === 1) ? 1 : 0;
                             sum.outlived = p.outlived;
                             sum.percentAlive = 100 - Math.round((p.outlived / p.tot) * 100);
@@ -424,6 +425,7 @@
                     } else {
                         _cohorts = [cohortFactory.createWithPatientIds("ALL", [], _data)];
                         _cohort = _cohorts[0];
+                        _cohort.type = "ALL";
                     }
 
                     onCohortsChange.dispatch(_cohorts);
@@ -465,6 +467,7 @@
             onCohortsChange: onCohortsChange,
 
             loadCohorts: loadCohorts,
+            getData: getData,
             getCohorts: getCohorts,
             getCohort: getCohort,
             setCohort: setCohort,
