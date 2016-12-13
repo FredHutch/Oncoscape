@@ -1,7 +1,6 @@
 // Namespace
 .cohort-menu {
-    background-color: #EFEFEF;
-    background: url("/assets/images/bg-pattern.png"), linear-gradient(to left, #2eb6f8,  #00236a); /* W3C, IE 10+/ Edge, Firefox 16+, Chrome 26+, Opera 12+, Safari 7+ */
+    /* W3C, IE 10+/ Edge, Firefox 16+, Chrome 26+, Opera 12+, Safari 7+ */
     position: fixed;
     left: 0px;
     width: 300px;
@@ -21,13 +20,21 @@
     fill: #0b97d3;
 }
 
-.cohort-menu-chart-bar:hover {
-    fill: #000;
+.cohort-chart-hide {
+    display: none;
 }
 
-// .cohortmenu-bar {
-//   fill: #0b97d3;;
-// }
-// .cohortmenu-bar:hover {
-//   fill: #000;
-// }
+.cohortmenu-single-value {
+    padding-top: 25%;
+    height: 150px;
+    font-size: 20px;
+    text-align: center;
+    background-color: #0b97d3;
+    color: #FFF;
+}
+
+.cohortmenu-single-value-numeric {
+    font-size: 50px;
+    line-height: 150px;
+    padding-top: 0px;
+}

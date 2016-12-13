@@ -21,47 +21,21 @@
         /** @ngInject */
         function PcaController($q, osApi, osCohortService, $state, $stateParams, $timeout, $scope, d3, moment, $window, _) {
 
-            // Retrieve Selected Patient Ids From OS Service
-            var pc = osCohortService.getCohort();
-            if (pc === null) {
-                osCohortService.setCohort([], "All Patients", osCohortService.SAMPLE);
-            }
-
-            var selectedIds = (pc === null) ? [] : pc.sampleIds;
-            var onCohortChange = function(cohort) {
-                if (osCohortServiceUpdate) {
-                    selectedIds = cohort.patientsIds;
-                    setSelected();
-                } else {
-                    osCohortServiceUpdate = true;
-                }
-            };
-
-            var osCohortServiceUpdate = true;
-            osCohortService.onCohortChange.add(onCohortChange);
-
-            function setSelected() {
-                if (selectedIds.length === 0) {
-                    d3Points.selectAll(".pca-node-selected").classed("pca-node-selected", false);
-                } else {
-                    d3Points.selectAll("circle").classed("pca-node-selected", function() {
-                        return (selectedIds.indexOf(this.__data__.id) >= 0);
-                    });
-                }
-            }
+            // Loading ...
+            osApi.setBusy(true);
 
             // Elements
             var d3Chart = d3.select("#pca-chart").append("svg");
             var d3Points = d3Chart.append("g");
             var d3xAxis = d3Chart.append("g");
             var d3yAxis = d3Chart.append("g");
+            var brush;
             var d3Brush = d3Chart.append("g");
 
             // Properties
             var scaleX, scaleY, axisX, axisY;
             var data, minMax;
             var width, height;
-
             var colors = {
                 data: [],
                 dataset: osApi.getDataSource().disease,
@@ -100,53 +74,10 @@
                     });
                     osCohortService.setCohort(allIds, "PCA", osCohortService.SAMPLE);
                 };
-                osApi.query("render_pca", {
-                        disease: vm.datasource.disease,
-                        $fields: ['type', 'geneset', 'source']
-                    })
-                    .then(function(response) {
-                        var data = response.data.map(function(v) {
-                            return {
-                                a: v.geneset,
-                                b: v.source,
-                                c: v.type
-                            };
-                        });
-
-                        var result = _.reduce(data, function(memo, val) {
-                            var tmp = memo;
-                            _.each(val, function(fldr) {
-                                if (!_.has(tmp, fldr)) {
-                                    tmp[fldr] = {};
-                                }
-                                tmp = tmp[fldr];
-                            });
-                            return memo;
-                        }, {});
-                        vm.geneSets = Object.keys(result).map(function(geneset) {
-                            return {
-                                name: geneset,
-                                sources: Object.keys(result[geneset]).map(function(source) {
-                                    return {
-                                        name: source,
-                                        types: Object.keys(result[geneset][source]).map(function(type) {
-                                            return {
-                                                name: type
-                                            };
-                                        })
-                                    };
-                                })
-                            };
-                        });
-
-
-                        vm.geneSet = vm.geneSets[0];
-                    });
                 return vm;
-
             })(this, osApi);
 
-            // Updates PCA Types When Geneset Changes
+            // Setup Watches
             $scope.$watch('vm.geneSet', function() {
                 if (vm.geneSet === null) return;
                 vm.sources = vm.geneSet.sources;
@@ -157,11 +88,8 @@
                 vm.pcaTypes = vm.source.types;
                 vm.pcaType = vm.pcaTypes[0];
             });
-
-            // Fetches PCA Data + Calculates Min Max for XYZ
             $scope.$watch('vm.pcaType', function(geneset) {
                 if (angular.isUndefined(geneset)) return;
-
                 osApi.query("render_pca", {
                         disease: vm.datasource.disease,
                         geneset: vm.geneSet.name,
@@ -199,6 +127,14 @@
                         draw();
                     });
             });
+
+            // Utility Functions
+            function setSelected() {
+                var selectedIds = cohort.sampleIds;
+                d3Points.selectAll("circle").classed("pca-node-selected", function() {
+                    return (selectedIds.indexOf(this.__data__.id) >= 0);
+                });
+            }
 
             function setColors() {
 
@@ -315,11 +251,11 @@
                     .text("PC2");
 
                 // Brush
-                var brush = d3.brush()
+                brush = d3.brush()
                     .on("end", function() {
 
                         if (!d3.event.selection) {
-                            osCohortService.setCohort([], "PCA", osCohortService.SAMPLE);
+                            osCohortService.setCohort([], osCohortService.ALL, osCohortService.SAMPLE);
                             return;
                         }
 
@@ -336,31 +272,82 @@
                         }).map(function(d) {
                             return d.id;
                         });
-                        debugger;
                         osCohortService.setCohort(ids, "PCA", osCohortService.SAMPLE);
 
                     });
 
                 d3Brush.attr("class", "brush").call(brush);
-
-                setSelected();
-
+                onCohortChange(osCohortService.getCohort());
+                osApi.setBusy(false);
             }
 
-            // Listen For Resize
+            // App Event :: Resize
             osApi.onResize.add(draw);
             angular.element($window).bind('resize', _.debounce(draw, 300));
 
+            // App Event :: Color change
             var onPatientColorChange = function(value) {
                 colors = value;
                 vm.showPanelColor = false;
                 draw();
             };
-
             osCohortService.onPatientColorChange.add(onPatientColorChange);
+
+            // App Event :: Cohort Change
+            var cohort = osCohortService.getCohorts();
+            var onCohortChange = function(c) {
+                cohort = c;
+                setSelected();
+                console.log("COHORT CHANGE");
+            };
+            osCohortService.onCohortChange.add(onCohortChange);
+
+            // Initialize
+
+            osApi.query("render_pca", {
+                    disease: vm.datasource.disease,
+                    $fields: ['type', 'geneset', 'source']
+                })
+                .then(function(response) {
+                    var data = response.data.map(function(v) {
+                        return {
+                            a: v.geneset,
+                            b: v.source,
+                            c: v.type
+                        };
+                    });
+
+                    var result = _.reduce(data, function(memo, val) {
+                        var tmp = memo;
+                        _.each(val, function(fldr) {
+                            if (!_.has(tmp, fldr)) {
+                                tmp[fldr] = {};
+                            }
+                            tmp = tmp[fldr];
+                        });
+                        return memo;
+                    }, {});
+                    vm.geneSets = Object.keys(result).map(function(geneset) {
+                        return {
+                            name: geneset,
+                            sources: Object.keys(result[geneset]).map(function(source) {
+                                return {
+                                    name: source,
+                                    types: Object.keys(result[geneset][source]).map(function(type) {
+                                        return {
+                                            name: type
+                                        };
+                                    })
+                                };
+                            })
+                        };
+                    });
+                    vm.geneSet = vm.geneSets[0];
+                });
 
             // Destroy
             $scope.$on('$destroy', function() {
+                osApi.onResize.remove(draw);
                 osCohortService.onPatientColorChange.remove(onPatientColorChange);
                 osCohortService.onCohortChange.remove(onCohortChange);
             });

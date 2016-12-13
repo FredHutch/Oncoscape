@@ -24,7 +24,7 @@
             // Retrieve Selected Patient Ids From OS Service
             var pc = osCohortService.getCohort();
             if (pc == null) {
-                osCohortService.setCohort([], "All Patients", osCohortService.SAMPLE)
+                osCohortService.setCohort([], osCohortService.ALL, osCohortService.SAMPLE)
             }
             var selectedIds = (pc == null) ? [] : pc.ids;
             var onCohortChange = function(cohort) {

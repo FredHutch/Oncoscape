@@ -7,9 +7,7 @@
     margin-right: 0px;
     margin-top: 5px;
     overflow-y: auto;
-    background-color: #EFEFEF;
-    //background: url("/assets/images/bg-pattern.png"), #f9f9f9; /* W3C, IE 10+/ Edge, Firefox 16+, Chrome 26+, Opera 12+, Safari 7+ */background:linear-gradient(120deg, #FFF, #CCC);
-    background:#EEE;
+    background-color: #FAFAFA;
     z-index: 900;
     padding: 20px;
     padding-top: 15px;
@@ -19,14 +17,13 @@
     transition: all 0.3s ease;
     padding-bottom: 150px;
     overflow: auto;
-    box-shadow: 0px 2px 7px #666;
+    box-shadow: -1px 0 3px #BBB;
 }
-
 
 .tray-left {
     right: auto;
     left: 0px;
-    box-shadow: 0px 2px 7px #666;
+    box-shadow: 1px 0 3px #BBB;
 }
 
 //.tray:hover { overflow-y:auto; }
@@ -66,7 +63,6 @@
 }
 
 .tray-label {
-    
     position: absolute;
     color: #000;
     background-color: #EEE;
@@ -76,7 +72,7 @@
     line-height: 40px;
     letter-spacing: 2px;
     font-weight: 100;
-    padding-top:52vh;
+    padding-top: 52vh;
 }
 
 .tray-label-right {
