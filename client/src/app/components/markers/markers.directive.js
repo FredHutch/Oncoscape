@@ -653,7 +653,6 @@
                 };
                 cmd.patients_insert = function(data) {
                     cyChart.startBatch();
-                    //var signals = signal.patients;
                     var elements = cyChart.add(data.patients);
                     elements.on("select", _.debounce(signal.patients.select.dispatch, 300));
                     elements.on("unselect", _.debounce(signal.patients.unselect.dispatch, 300));
@@ -967,27 +966,25 @@
                 });
             };
 
-            var dontUpdate = false;
-
-            function onChC(cohort) {
-
-                dontUpdate = true;
+            var _stopLength = 0; // Hack - need to fix
+            function onCohortChange(cohort) {
+                if (cohort.sampleIds.length == _stopLength) return; // Preform more robust check
+                _stopLength = cohort.sampleIds.length;
                 cyChart.startBatch();
                 cyChart.$('node[nodeType="patient"]:selected').deselect();
                 cyChart.$('node[nodeType="patient"]').forEach(function(node) {
                     if (cohort.sampleIds.indexOf(node.id()) != -1) node.select();
                 });
                 cyChart.endBatch();
-                dontUpdate = false;
-
-
             }
-            osCohortService.onCohortChange.add(onChC);
+            osCohortService.onCohortChange.add(onCohortChange);
 
             function setPatientCohort() {
-                if (dontUpdate) return;
+                var cohort = cyChart.$('node[nodeType="patient"]:selected');
+                if (cohort.length == _stopLength) return; // Preform more robust check
+                _stopLength = cohort.length;
                 osCohortService.setCohort(
-                    cyChart.$('node[nodeType="patient"]:selected').map(function(p) {
+                    cohort.map(function(p) {
                         return p.data().id
                     }),
                     "Markers + Patients",
@@ -1070,6 +1067,7 @@
                                     break;
                             }
                         };
+
 
                         signal.patients.select.add(updatePatientCounts);
                         signal.patients.unselect.add(updatePatientCounts);

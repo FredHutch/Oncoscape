@@ -310,6 +310,7 @@
 
             var create = function(name, patientIds, sampleIds) {
                 return {
+                    uuid: Math.random().toString().substr(2),
                     color: '#000',
                     patientIds: patientIds,
                     sampleIds: sampleIds,

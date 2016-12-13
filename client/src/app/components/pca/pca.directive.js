@@ -298,7 +298,6 @@
             var onCohortChange = function(c) {
                 cohort = c;
                 setSelected();
-                console.log("COHORT CHANGE");
             };
             osCohortService.onCohortChange.add(onCohortChange);
 
