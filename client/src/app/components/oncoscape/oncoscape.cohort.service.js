@@ -183,78 +183,44 @@
                     .filter(function(v) { return v !== undefined; })
                     .sort(getSurvivalSort);
 
+
                 // Add 0,0 Point To Line
-                survival.unshift({ time: 0, censor: 1, pid: "" });
+                //survival.unshift({ time: 0, censor: 1, pid: "" });
 
                 // Build Object To Hold Stats
                 var stat = {
+                    total: survival.length,
                     alive: survival.reduce(function(p, c) { return p + c.censor; }, 0),
-                    dead: 0,
+                    dead: survival.reduce(function(p, c) { return p + Math.abs(c.censor - 1); }, 0),
                     min: survival.reduce(function(p, c) { return Math.min(p, c.time); }, Infinity),
                     max: survival.reduce(function(p, c) { return Math.max(p, c.time); }, -Infinity),
                     data: survival
                 };
-                stat.dead = stat.data.length - stat.alive;
 
-                // Roll Up Patients by Time
+
                 var timeMap = stat.data
                     .reduce(function(p, c) {
-                        p.outlived += 1;
-                        // Roll Up Dead + Alive By Time
-                        if (p.hasOwnProperty(c.time)) {
-                            var sum = p[c.time];
-                            sum.time = c.time;
-                            sum.dead += (c.censor === 0) ? 1 : 0;
-                            sum.alive += (c.censor === 1) ? 1 : 0;
-                            sum.outlived = p.outlived;
-                            sum.percentAlive = 100 - Math.round((p.outlived / p.tot) * 100);
-
-                        } else p[c.time] = { time: c.time, outlived: p.outlived, percentAlive: 100 - Math.round((p.outlived / p.tot) * 100), dead: (c.censor == 0) ? 1 : 0, alive: (c.censor == 1) ? 1 : 0 };
+                        var isDead = (c.censor === 0);
+                        if (isDead) p.dead += 1;
+                        var time = (p.hasOwnProperty(c.time)) ? p[c.time] : { survivalFrom: p.survival, time: 0, dead: [], alive: [] };
+                        time.time = c.time;
+                        time.survivalTo = Math.round((1 - (p.dead / p.total)) * 100);
+                        time[isDead ? "dead" : "alive"].push(c.pid);
+                        p[time.time] = time;
+                        p.survival = time.survivalTo;
                         return p;
-                    }, { outlived: 0, tot: stat.data.length });
+                    }, { dead: 0, total: stat.total, survival: 100 });
 
-                // Adjust Percentage Based On Death
-                delete timeMap.outlived;
-                delete timeMap.tot;
-                var timeArray = Object.keys(timeMap)
-                    .map(function(v) {
-                        return this[v]
-                    }, timeMap);
-
-                // Percert Dead + Percent Alive Are Not Great Labels.  Are + Were are perhaps better? 
-                var percent = 100;
-                timeArray.forEach(function(v) {
-                    v.percentDead = percent;
-                    if (v.dead > 0) percent = v.percentAlive;
-                });
-
-
-                stat.data = timeArray.reduce(function(p, c) {
-                    if (c.dead > 0) p.line.push(c);
-                    if (c.alive > 0) p.ticks.push(c);
-                    return p;
-                }, { ticks: [], line: [] });
-
-                if (timeArray.length > 0) {
-                    stat.data.line.unshift({ time: 0, percentDead: 100, percentAlive: 100 });
-                    // Handle If Last Person Was Alive
-                    if (timeArray[timeArray.length - 1].dead == 0) {
-                        stat.data.line.push(timeArray[timeArray.length - 1]);
-                    }
-                }
-
-                // if (stat.data.line.length > 0)
-                //     stat.data.line[0].percentDead = stat.data.line[0].percentAlive = 100;
-
-                stat.data.line = stat.data.line.reduce(function(p, c) {
-                    p.push(c.time);
-                    p.push(c.percentDead);
-                    p.push(c.time);
-                    p.push(c.percentAlive);
-                    return p;
-                }, []);
-
-
+                delete timeMap.survival;
+                delete timeMap.total;
+                delete timeMap.dead;
+                stat.data = Object.keys(timeMap)
+                    .map(function(key) { return this[key]; }, timeMap)
+                    .reduce(function(p, c) {
+                        if (c.dead.length > 0) p.lines.push(c);
+                        if (c.alive.length > 0) p.ticks.push(c);
+                        return p;
+                    }, { ticks: [], lines: [] });
 
 
                 return stat;
@@ -388,12 +354,14 @@
                         if (status == "ALIVE") { // Alive = Sensor 2
                             if (!v.hasOwnProperty("days_to_last_follow_up")) return null;
                             time = parseInt(v.days_to_last_follow_up);
+                            if (time < 0) time = 0;
                             if (isNaN(time)) return null;
                             return { pid: v.patient_ID, censor: 1, time: time };
                         }
                         if (status == "DEAD") { // Dead = Sensor 1
                             if (!v.hasOwnProperty("days_to_death")) return null;
                             time = parseInt(v.days_to_death);
+                            if (time < 0) time = 0;
                             if (isNaN(time)) return null;
                             return { pid: v.patient_ID, censor: 0, time: time };
                         }

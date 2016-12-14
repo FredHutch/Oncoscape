@@ -28,11 +28,10 @@
             var vm = this;
             vm.datasource = osApi.getDataSource();
             vm.cohorts = osCohortService.getCohorts();
+            vm.cohort = osCohortService.getCohort();
 
             var onCohortChange = function(c) {
-                var co = vm.cohorts.filter(function(v) { return !(v.type == "UNSAVED"); });
-                co.push(c);
-                vm.cohorts = co;
+                vm.cohort = c;
                 draw();
             };
             osCohortService.onCohortChange.add(onCohortChange);
@@ -42,6 +41,7 @@
                 draw();
             };
 
+
             // Create D3 Elements
             var elContainer = angular.element("#survival-chart");
             var elChart = d3.select("#survival-chart").append("svg");
@@ -50,6 +50,7 @@
             var elXAxis = elChart.append("g").attr("class", "axis");
             var elYAxis = elChart.append("g").attr("class", "axis");
             var brush;
+
 
 
             // Base Layout
@@ -64,14 +65,15 @@
 
             var onBrushEnd = function() {
                 if (!d3.event.selection) return;
-                var s = d3.event.selection;
+
+                var s = d3.event.selection.sort();
                 var survivalRange = [
-                    Math.round(layout.xScale.invert(s[0])),
+                    Math.max(Math.round(layout.xScale.invert(s[0])), 0),
                     Math.round(layout.xScale.invert(s[1]))
                 ];
 
                 // Of Visible Cohorts - Figure out the ids
-                var activeCohorts = vm.cohorts.filter(function(v) { return v.show; }).filter(function(v) { return (v.type !== "UNSAVED"); });
+                var activeCohorts = vm.cohorts.filter(function(v) { return v.show; });
                 var hasAllPatients = activeCohorts.reduce(function(p, c) {
                     if (c.name == "All Patients + Samples") p = true;
                     return p;
@@ -88,6 +90,7 @@
                 });
                 osCohortService.setCohort(ids, "Survival", osCohortService.PATIENT);
                 elBrush.call(brush.move, null);
+
 
             };
             // Utility Methods
@@ -128,44 +131,58 @@
                 var data = survivalDatum.survival.data;
                 var color = survivalDatum.color;
 
-                var pts = [];
-                for (var i = 0; i < data.line.length; i++) {
-                    var line = data.line[i];
-                    if (line < 0) line = 0;
-                    if (i % 2 == 0) {
-                        pts.push(layout.xScale(line));
-                    } else {
-                        pts.push(layout.yScale(line) + 10);
-                    }
-                }
-                pts = pts.join(",");
-                elSurvival.append("polyline")
-                    .attr("class", "line")
-                    .style("stroke", color)
-                    .style("fill", "none")
-                    .attr("stroke-width", 1)
-                    .attr("points", pts)
-                    .datum(survivalDatum)
-                    .on("mouseover", function() {
-                        d3.select(this).attr("stroke-width", 4)
-                    })
-                    .on("mouseout", function() {
-                        d3.select(this).attr("stroke-width", 2)
-                    })
-                    .on("mousedown", function() {
-                        osCohortService.setCohort(survivalDatum);
-                    });
+
+
+                var time = 0;
+                data.lines.forEach(function(element) {
+
+                    elSurvival.append("line")
+                        .attr("class", "line")
+                        .attr("stroke-width", 0.5)
+                        .attr("stroke", color)
+                        .attr("x1", layout.xScale(element.time))
+                        .attr("x2", layout.xScale(element.time))
+                        .attr("y1", layout.yScale(element.survivalFrom) + 10)
+                        .attr("y2", layout.yScale(element.survivalTo) + 10);
+
+
+                    elSurvival.append("line")
+                        .attr("class", "line")
+                        .attr("stroke-width", 0.5)
+                        .attr("stroke", color)
+                        .attr("x1", layout.xScale(time))
+                        .attr("x2", layout.xScale(element.time))
+                        .attr("y1", layout.yScale(element.survivalFrom) + 10)
+                        .attr("y2", layout.yScale(element.survivalFrom) + 10);
+
+                    time = element.time;
+                });
 
                 data.ticks.forEach(function(element) {
                     elSurvival.append("line")
                         .attr("class", "line")
-                        .attr("stroke-width", 1)
+                        .attr("stroke-width", 0.5)
                         .attr("stroke", color)
                         .attr("x1", layout.xScale(element.time))
                         .attr("x2", layout.xScale(element.time))
-                        .attr("y1", layout.yScale(element.percentDead) + 10)
-                        .attr("y2", layout.yScale(element.percentDead) + 2);
+                        .attr("y1", layout.yScale(element.survivalFrom) + 12)
+                        .attr("y2", layout.yScale(element.survivalFrom) + 8);
                 }, this);
+
+                // If Censor Occurs After Last Death Add line
+                var lastTick = data.ticks[data.ticks.length - 1];
+                var lastLine = data.lines[data.lines.length - 1];
+                if (lastTick.time > lastLine.time) {
+                    elSurvival.append("line")
+                        .attr("class", "line")
+                        .attr("stroke-width", 0.5)
+                        .attr("stroke", color)
+                        .attr("x1", layout.xScale(lastLine.time))
+                        .attr("x2", layout.xScale(lastTick.time))
+                        .attr("y1", layout.yScale(lastTick.survivalFrom) + 10)
+                        .attr("y2", layout.yScale(lastTick.survivalFrom) + 10);
+                }
+
 
             };
 
@@ -184,6 +201,10 @@
                     return p;
                 }, { min: Infinity, max: -Infinity });
 
+                // Add Survival
+                minMax.min = Math.min(minMax.min, vm.cohort.survival.min);
+                minMax.max = Math.max(minMax.max, vm.cohort.survival.max);
+
                 // Set Scale
                 setScale([minMax.min - 1, minMax.max + 1]);
 
@@ -192,15 +213,12 @@
                     addCurve(survivalData[i]);
                 }
 
-                osApi.setBusy(false);
+                if (survivalData.indexOf(vm.cohort) == -1) addCurve(vm.cohort);
 
+                osApi.setBusy(false);
             };
 
             draw();
-
-
-
-
 
             osApi.onResize.add(draw);
             angular.element($window).bind('resize', _.debounce(draw, 300));

@@ -220,25 +220,33 @@
             surSvg.attr("width", '100%').attr("height", surLayout.height);
             var surAddCurve = function(curve, color) {
 
+                // ticks
+
                 var data = curve.data;
 
+                var time = 0;
+                data.lines.forEach(function(element) {
 
-                var pts = [];
-                for (var i = 0; i < data.line.length; i++) {
-                    if (i % 2 == 0) {
-                        pts.push(surLayout.xScale(data.line[i]));
-                    } else {
-                        pts.push(surLayout.yScale(data.line[i]))
-                    }
-                }
-                pts = pts.join(",");
-                surSvg.append("polyline")
-                    .attr("class", "line")
-                    .style("stroke", color)
-                    .style("fill", "none")
-                    .attr("stroke-width", 1)
-                    .attr("points", pts);
+                    surSvg.append("line")
+                        .attr("class", "line")
+                        .attr("stroke-width", 0.5)
+                        .attr("stroke", color)
+                        .attr("x1", surLayout.xScale(element.time))
+                        .attr("x2", surLayout.xScale(element.time))
+                        .attr("y1", surLayout.yScale(element.survivalFrom))
+                        .attr("y2", surLayout.yScale(element.survivalTo));
 
+                    surSvg.append("line")
+                        .attr("class", "line")
+                        .attr("stroke-width", 0.5)
+                        .attr("stroke", color)
+                        .attr("x1", surLayout.xScale(time))
+                        .attr("x2", surLayout.xScale(element.time))
+                        .attr("y1", surLayout.yScale(element.survivalFrom))
+                        .attr("y2", surLayout.yScale(element.survivalFrom));
+
+                    time = element.time;
+                });
 
                 data.ticks.forEach(function(element) {
                     surSvg.append("line")
@@ -247,10 +255,23 @@
                         .attr("stroke", color)
                         .attr("x1", surLayout.xScale(element.time))
                         .attr("x2", surLayout.xScale(element.time))
-                        .attr("y1", surLayout.yScale(element.percentDead))
-                        .attr("y2", surLayout.yScale(element.percentDead) - 5);
+                        .attr("y1", surLayout.yScale(element.survivalFrom))
+                        .attr("y2", surLayout.yScale(element.survivalFrom) - 2);
                 }, this);
 
+                // If Censor Occurs After Last Death Add line
+                var lastTick = data.ticks[data.ticks.length - 1];
+                var lastLine = data.lines[data.lines.length - 1];
+                if (lastTick.time > lastLine.time) {
+                    surSvg.append("line")
+                        .attr("class", "line")
+                        .attr("stroke-width", 0.5)
+                        .attr("stroke", color)
+                        .attr("x1", surLayout.xScale(lastLine.time))
+                        .attr("x2", surLayout.xScale(lastTick.time))
+                        .attr("y1", surLayout.yScale(lastTick.survivalFrom))
+                        .attr("y2", surLayout.yScale(lastTick.survivalFrom));
+                }
             };
 
             var updateSurvival = function(cohorts) {
@@ -273,7 +294,7 @@
 
                 surYAxis.attr("transform", "translate(30, 0)").call(surLayout.yAxis);
                 surXAxis.attr("transform", "translate(0, " + (surLayout.yScale(0)) + ")").call(surLayout.xAxis);
-                // surSvg.selectAll(".line").remove();
+
                 surSvg.selectAll(".line").remove();
                 for (var i = 0; i < cohorts.length; i++) {
                     surAddCurve(cohorts[i].survival, cohorts[i].color);
