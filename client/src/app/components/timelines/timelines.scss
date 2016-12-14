@@ -1,4 +1,39 @@
 // Namespace
+.timeline-tip {
+    line-height: 1.2;
+    font-weight: 300;
+    padding: 12px;
+    background: rgba(0, 0, 0, 0.8);
+    color: #fff;
+    border-radius: 2px;
+    shape-rendering: crispEdges;
+    z-index: 99999;
+}
+
+
+/* Creates a small triangle extender for the tooltip */
+
+.timeline-tip:after {
+    box-sizing: border-box;
+    display: inline;
+    font-size: 10px;
+    width: 100%;
+    line-height: 1;
+    color: rgba(0, 0, 0, 0.8);
+    content: "\25BC";
+    position: absolute;
+    text-align: center;
+}
+
+
+/* Style northward tooltips differently */
+
+.timeline-tip.n:after {
+    margin: -1px 0 0 0;
+    top: 100%;
+    left: 0;
+}
+
 .timelines-content {
     position: relative;
 }

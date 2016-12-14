@@ -77,19 +77,45 @@
             var elScrollY = elContainer.append("svg").attr("class", "timeline-scroll-y");
             var elScrollX = elContainer.append("svg").attr("class", "timeline-scroll-x");
             var elChart = elContainer.append("svg").attr("class", "timeline-chart");
-            var elSelected = elChart.append("g");
             var elPatients = elChart.append("g");
+            var elHitarea = elChart.append("g");
+
+            var elTip = d3.tip().attr("class", "timeline-tip").offset([-8, 0]).html(function(d) { return d.tip; });
+            elChart.call(elTip);
+
+            // Brush
+            // elPatients.call(brushSelect.on("end", function() {
+            //     debugger;
+            // }));
+
+            // elScrollY.call(
+            //         brushY
+            //         .on("end", function() {
+            // brushSelect.on("end", function() {
+            //     debugger;
+            //     // if (d3.event.selection == null) {
+            //     //     return;
+            //     // }
+            //     // var lowerIndex = Math.floor(d3.event.selection[0] / yZoom / 20);
+            //     // var upperIndex = Math.ceil(d3.event.selection[1] / yZoom / 20);
+            //     // var ids = [];
+            //     // for (var i = lowerIndex; i <= upperIndex; i++) {
+            //     //     ids.push(patientsFiltered[i].id);
+            //     // }
+
+            //     // osCohortService.setCohort(ids, "Timelines", osCohortService.PATIENT);
+            //     // chart.rPatients.call(d3.event.target.move, null);
+            // });
+
 
             elContainer = angular.element(".timelines-content");
 
             // Utility
             vm.update = function() {
-                console.log("vmupdate")
-                    // Width + Height Subract 20 For Scoll Bars
+
                 var layout = osApi.getLayout();
                 var width = $window.innerWidth - layout.left - layout.right - 80;
                 var height = $window.innerHeight - 250;
-                console.log(width);
 
                 updateData();
                 updateSize(width, height, layout);
@@ -209,8 +235,9 @@
                 elScrollX.attr("width", width);
                 elChart.attr("height", height).attr("width", width).attr("fill", "blue").attr('transform', 'translate(20,20)');
                 elPatients.attr("height", height).attr("width", width);
-                elAxis.style("top", height + 20).attr("width", "width");
-            }
+                elAxis.style("top", height + 20).attr("width", width);
+                elHitarea.attr("width", width).attr("height", height);
+            };
 
             // Update Zoom
             var updateZoom = function(width, height) {
@@ -271,7 +298,6 @@
                             .transition()
                             .duration(750)
                             .attr("transform", "translate(" + xTran + "," + yTran + ") scale(" + xZoom + "," + yZoom + ")");
-
                     })
                 );
             };
@@ -286,13 +312,15 @@
                     .attr('y', function(d) { return ((d.name == "Radiation") ? rowHeight / 2 : 0); })
                     .attr('x', function(d) { return scaleX(d.tsStartAligned); })
                     .style('fill', function(d) { return d.color; })
+                    .on("mouseover", elTip.show)
+                    .on("mouseout", elTip.hide);
                 evts
                     .attr('width', function(d) { return Math.max((scaleX(d.tsEndAligned) - scaleX(d.tsStartAligned)), 2); })
                     .attr('height', function(d) { return (d.name == "Radiation" || d.name == "Drug") ? rowHeight / 2 : rowHeight; })
                     .attr('y', function(d) { return ((d.name == "Radiation") ? rowHeight / 2 : 0); })
                     .attr('x', function(d) { return scaleX(d.tsStartAligned); })
                     .style('fill', function(d) { return d.color; })
-            }
+            };
             var updatePatients = function(width) {
 
                 // Set Scale
@@ -312,15 +340,33 @@
                         return "translate(0," + (i * rowHeight) + ")";
                     });
 
+
+
                 updateEvents(patients.selectAll(".event").data(function(d) {
                     return d.events.filter(function(v) { return v.visible; });
                 }));
 
-
-
                 updateEvents(patientEnter.selectAll(".event").data(function(d) {
                     return d.events.filter(function(v) { return v.visible; });
                 }));
+
+                elHitarea.call(brushSelect);
+                brushSelect.on("end", function() {
+                    if (d3.event.selection === null) {
+                        return;
+                    }
+                    var lowerIndex = Math.floor(d3.event.selection[0] / yZoom / 20);
+                    var upperIndex = Math.ceil(d3.event.selection[1] / yZoom / 20);
+                    var ids = [];
+                    for (var i = lowerIndex; i <= upperIndex; i++) {
+                        ids.push(patientsFiltered[i].id);
+                    }
+
+                    osCohortService.setCohort(ids, "Timelines", osCohortService.PATIENT);
+                    //chart.rPatients.call(d3.event.target.move, null);
+                });
+
+
 
             };
 
@@ -354,11 +400,30 @@
                         })
                         .map(function(v) {
                             this.events[v.name] = null;
+                            if (v.hasOwnProperty("data")) {
+                                v.tip = Object.keys(v.data).reduce(function(p, c) {
+                                    try {
+                                        if (v.data[c] !== null) {
+                                            p += "<br>" + c
+                                                .replace(/([A-Z])/g, " $1")
+                                                .replace(/\w\S*/g, function(txt) {
+                                                    return txt.charAt(0).toUpperCase() + txt.substr(1).toLowerCase();
+                                                }) + ": " + v.data[c].toString()
+                                                .replace(/\w\S*/g, function(txt) { return txt.charAt(0).toUpperCase() + txt.substr(1).toLowerCase(); });
+                                        }
+                                    } catch (e) {}
+                                    return p;
+                                }, v.name);
+                            } else if (v.hasOwnProperty("name")) {
+                                v.tip = v.name;
+                            } else {
+                                v.tip = "Unknown";
+                            }
                             v.tsStart = moment(v.start, "MM/DD/YYYY").unix();
-                            v.tsEnd = (v.end == null) ? v.tsStart : moment(v.end, "MM/DD/YYYY").unix();
+                            v.tsEnd = (v.end === null) ? v.tsStart : moment(v.end, "MM/DD/YYYY").unix();
                             v.tsStartAligned = "";
                             v.tsEndAligned = "";
-                            v.end = (v.end == null) ? v.start : v.end;
+                            v.end = (v.end === null) ? v.start : v.end;
                             v.color = this.colorFn(v.name);
                             v.visible = true;
                             v.order = 1;
