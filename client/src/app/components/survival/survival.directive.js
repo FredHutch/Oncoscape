@@ -29,7 +29,6 @@
             vm.datasource = osApi.getDataSource();
             vm.cohorts = osCohortService.getCohorts();
             vm.cohort = osCohortService.getCohort();
-
             var onCohortChange = function(c) {
                 vm.cohort = c;
                 draw();
@@ -41,6 +40,15 @@
                 draw();
             };
 
+            var formatPercent = function(d) {
+                return d + "%";
+            }
+            var formatDays = function(d) {
+                if (Math.abs(d) == 0) return d;
+                if (Math.abs(d) < 30) return d + " Days";
+                if (Math.abs(d) < 360) return Math.round((d / 30.4) * 10) / 10 + " Months";
+                return Math.round((d / 365) * 10) / 10 + " Years";
+            };
 
             // Create D3 Elements
             var elContainer = angular.element("#survival-chart");
@@ -59,8 +67,8 @@
                 height: 0,
                 xScale: null,
                 yScale: null,
-                xAxis: d3.axisBottom().ticks(5),
-                yAxis: d3.axisLeft().ticks(5)
+                xAxis: d3.axisBottom().ticks(5).tickFormat(formatDays),
+                yAxis: d3.axisLeft().ticks(5).tickFormat(formatPercent)
             };
 
             var onBrushEnd = function() {
@@ -143,9 +151,14 @@
                         .attr("x1", layout.xScale(element.time))
                         .attr("x2", layout.xScale(element.time))
                         .attr("y1", layout.yScale(element.survivalFrom) + 10)
-                        .attr("y2", layout.yScale(element.survivalTo) + 10);
-
-
+                        .attr("y2", layout.yScale(element.survivalTo) + 10)
+                        .datum(element)
+                        .on("mouseover", function() {
+                            d3.select(this).attr("stroke-width", 5)
+                        })
+                        .on("mouseout", function() {
+                            d3.select(this).attr("stroke-width", .5)
+                        });
                     elSurvival.append("line")
                         .attr("class", "line")
                         .attr("stroke-width", 0.5)
@@ -153,7 +166,7 @@
                         .attr("x1", layout.xScale(time))
                         .attr("x2", layout.xScale(element.time))
                         .attr("y1", layout.yScale(element.survivalFrom) + 10)
-                        .attr("y2", layout.yScale(element.survivalFrom) + 10);
+                        .attr("y2", layout.yScale(element.survivalFrom) + 10)
 
                     time = element.time;
                 });
@@ -166,7 +179,14 @@
                         .attr("x1", layout.xScale(element.time))
                         .attr("x2", layout.xScale(element.time))
                         .attr("y1", layout.yScale(element.survivalFrom) + 12)
-                        .attr("y2", layout.yScale(element.survivalFrom) + 8);
+                        .attr("y2", layout.yScale(element.survivalFrom) + 8)
+                        .datum(element)
+                        .on("mouseover", function() {
+                            d3.select(this).attr("stroke-width", 5)
+                        })
+                        .on("mouseout", function() {
+                            d3.select(this).attr("stroke-width", .5)
+                        });
                 }, this);
 
                 // If Censor Occurs After Last Death Add line

@@ -1,12 +1,48 @@
 // Namespace
 .timelines-content {
     position: relative;
+}
+
+.timeline-scroll-y {
+    position: absolute;
+    fill: #EEE;
+    width: 20px;
+    left: 0px;
+    top: 20px;
+}
+
+.timeline-scroll-x {
+    position: absolute;
+    fill: #EEE;
+    height: 20px;
+    left: 20px;
+    top: 0px;
+}
+
+.timeline-chart {
+    position: absolute;
+    left: 20px;
+    top: 20px;
+}
+
+.timeline-axis {
+    position: absolute;
+    left: 20px;
+    height: 20px;
+    text-anchor: start;
+    shape-rendering: crispEdges;
+}
+
+
+/*
+.timelines-content {
+    position: relative;
+    fill: #EEE;
     .selection {
-        fill: #EEE;
-        fill-opacity: 0.9;
+        fill: #47a8d8;
     }
     .handle {
-        fill: #000;
+        fill: #0b97d3;
     }
 }
 
@@ -116,3 +152,4 @@
     width: 100%;
     height: 100%;
 }
+*/

@@ -76,6 +76,7 @@
                     case "tools":
                     case "datasource":
                         vm.show = false;
+                        angular.element("#cohortMenu").css({ "display": "none" });
                         break;
                     default:
                         vm.show = true;
@@ -202,6 +203,16 @@
             });
 
 
+            var formatPercent = function(d) {
+                if (d == 100) return d;
+                return d + "%";
+            }
+            var formatDays = function(d) {
+                // if (Math.abs(d) == 0) return d;
+                if (Math.abs(d) < 30) return d + " Days";
+                if (Math.abs(d) < 360) return Math.round((d / 30.4) * 10) / 10 + " Mos";
+                return Math.round((d / 365) * 10) / 10 + " Yrs";
+            };
 
 
 
@@ -214,16 +225,14 @@
                 height: 170,
                 xScale: null,
                 yScale: null,
-                xAxis: d3.axisBottom().ticks(5),
-                yAxis: d3.axisLeft().ticks(5)
+                xAxis: d3.axisBottom().ticks(4).tickFormat(formatDays),
+                yAxis: d3.axisLeft().ticks(3).tickFormat(formatPercent)
             };
             surSvg.attr("width", '100%').attr("height", surLayout.height);
             var surAddCurve = function(curve, color) {
 
                 // ticks
-
                 var data = curve.data;
-
                 var time = 0;
                 data.lines.forEach(function(element) {
 
@@ -260,6 +269,7 @@
                 }, this);
 
                 // If Censor Occurs After Last Death Add line
+                if (data.ticks.length === 0 || data.lines.length === 0) return;
                 var lastTick = data.ticks[data.ticks.length - 1];
                 var lastLine = data.lines[data.lines.length - 1];
                 if (lastTick.time > lastLine.time) {
