@@ -77,36 +77,13 @@
             var elScrollY = elContainer.append("svg").attr("class", "timeline-scroll-y");
             var elScrollX = elContainer.append("svg").attr("class", "timeline-scroll-x");
             var elChart = elContainer.append("svg").attr("class", "timeline-chart");
-            var elPatients = elChart.append("g");
+            var elSelected = elChart.append("g");
             var elHitarea = elChart.append("g");
+            var elPatients = elChart.append("g");
+
 
             var elTip = d3.tip().attr("class", "timeline-tip").offset([-8, 0]).html(function(d) { return d.tip; });
             elChart.call(elTip);
-
-            // Brush
-            // elPatients.call(brushSelect.on("end", function() {
-            //     debugger;
-            // }));
-
-            // elScrollY.call(
-            //         brushY
-            //         .on("end", function() {
-            // brushSelect.on("end", function() {
-            //     debugger;
-            //     // if (d3.event.selection == null) {
-            //     //     return;
-            //     // }
-            //     // var lowerIndex = Math.floor(d3.event.selection[0] / yZoom / 20);
-            //     // var upperIndex = Math.ceil(d3.event.selection[1] / yZoom / 20);
-            //     // var ids = [];
-            //     // for (var i = lowerIndex; i <= upperIndex; i++) {
-            //     //     ids.push(patientsFiltered[i].id);
-            //     // }
-
-            //     // osCohortService.setCohort(ids, "Timelines", osCohortService.PATIENT);
-            //     // chart.rPatients.call(d3.event.target.move, null);
-            // });
-
 
             elContainer = angular.element(".timelines-content");
 
@@ -117,9 +94,11 @@
                 var width = $window.innerWidth - layout.left - layout.right - 80;
                 var height = $window.innerHeight - 250;
 
+
                 updateData();
                 updateSize(width, height, layout);
                 updateScrollbars(width, height);
+                updateSelected(width, height);
                 updatePatients(width, height);
                 updateZoom(width, height);
                 updateAxis(width, height);
@@ -155,8 +134,8 @@
                         if ((this.filter == "Only Alive" && status == "Dead") || (this.filter == "Only Dead" && status != "Dead")) {
                             patient.visible = false;
                         } else {
-                            if (vm.displayMode.name == "Selected Patients" && selectedIds.length > 0) {
-                                patient.visible = (selectedIds.indexOf(patient.id) != -1);
+                            if (vm.displayMode.name == "Selected Patients" && patientsSelectedIds.length > 0) {
+                                patient.visible = (patientsSelectedIds.indexOf(patient.id) != -1);
                             } else {
                                 patient.visible = true;
                             }
@@ -214,7 +193,7 @@
                 if (Math.abs(d) < 360) return Math.round((d / 30.4) * 10) / 10 + " Months";
                 return Math.round((d / 365) * 10) / 10 + " Years";
             };
-            var updateAxis = function(width, height) {
+            var updateAxis = function(width) {
                 var axis = d3.axisBottom(scaleX).ticks(7);
                 if (vm.timescale.name == 'Linear') {
                     axis.tickFormat(function(d) {
@@ -235,6 +214,7 @@
                 elScrollX.attr("width", width);
                 elChart.attr("height", height).attr("width", width).attr("fill", "blue").attr('transform', 'translate(20,20)');
                 elPatients.attr("height", height).attr("width", width);
+                elSelected.attr("height", height).attr("width", width);
                 elAxis.style("top", height + 20).attr("width", width);
                 elHitarea.attr("width", width).attr("height", height);
             };
@@ -248,6 +228,7 @@
                 xTran = 0;
                 yTran = 0;
                 elPatients.attr("transform", "translate(" + xTran + "," + yTran + ") scale(" + xZoom + "," + yZoom + ")");
+                elSelected.attr("transform", "translate(" + xTran + "," + yTran + ") scale(" + xZoom + "," + yZoom + ")");
             };
 
             var updateScrollbars = function(width, height) {
@@ -273,6 +254,12 @@
                             .transition()
                             .duration(750)
                             .attr("transform", "translate(" + xTran + "," + yTran + ") scale(" + xZoom + "," + yZoom + ")");
+
+                        elSelected
+                            .transition()
+                            .duration(750)
+                            .attr("transform", "translate(" + xTran + "," + yTran + ") scale(" + xZoom + "," + yZoom + ")");
+
                     })
                 );
                 elScrollX.call(
@@ -321,6 +308,39 @@
                     .attr('x', function(d) { return scaleX(d.tsStartAligned); })
                     .style('fill', function(d) { return d.color; })
             };
+
+            var updateSelected = function() {
+                // Transform Selections Into Index Positions - Don't need to render unselected'
+                var selectedIndexes = patientsFiltered.map(function(v, i) {
+                    return (v.selected) ? i : -1;
+                }).filter(function(v) { return v != -1; });
+
+
+                var selectedRows = elSelected.selectAll("rect").data(selectedIndexes);
+
+                selectedRows.exit()
+                    .transition()
+                    .duration(600)
+                    .attr("width", "0")
+                    .remove();
+
+                selectedRows.enter()
+                    .append('rect')
+                    .attr('width', '0')
+                    .attr('height', rowHeight - 2)
+                    .attr('y', 1)
+                    .attr('transform', function(d) { return "translate(0," + (d * rowHeight) + ")"; })
+                    .style("fill", "black")
+                    .transition()
+                    .duration(600)
+                    .attr("width", "100%")
+
+                selectedRows
+                    .transition()
+                    .duration(600)
+                    .attr('transform', function(d) { return "translate(0," + (d * rowHeight) + ")"; })
+
+            };
             var updatePatients = function(width) {
 
                 // Set Scale
@@ -340,8 +360,6 @@
                         return "translate(0," + (i * rowHeight) + ")";
                     });
 
-
-
                 updateEvents(patients.selectAll(".event").data(function(d) {
                     return d.events.filter(function(v) { return v.visible; });
                 }));
@@ -357,22 +375,25 @@
                     }
                     var lowerIndex = Math.floor(d3.event.selection[0] / yZoom / 20);
                     var upperIndex = Math.ceil(d3.event.selection[1] / yZoom / 20);
+                    lowerIndex = Math.max(lowerIndex, 0);
+                    upperIndex = Math.min(upperIndex, patientsFiltered.length - 1);
                     var ids = [];
                     for (var i = lowerIndex; i <= upperIndex; i++) {
                         ids.push(patientsFiltered[i].id);
                     }
-
                     osCohortService.setCohort(ids, "Timelines", osCohortService.PATIENT);
-                    //chart.rPatients.call(d3.event.target.move, null);
+                    elHitarea.call(d3.event.target.move, null);
                 });
-
-
-
             };
 
 
             // Application Events
-            var onCohortChange = function(c) { vm.cohort = c; };
+            var onCohortChange = function(c) {
+                vm.cohort = c;
+                patientsSelectedIds = vm.cohort.patientIds;
+                vm.update();
+
+            };
             osCohortService.onCohortChange.add(onCohortChange);
 
             // Load + Format Data

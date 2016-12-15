@@ -21,7 +21,7 @@
         /** @ngInject */
         function LandingController($state, $scope, osApi, osAuth) {
 
-            angular.element(".marquee-bg").marquee({
+            angular.element(".marquee-x").marquee({
                 particlesNumber: 49,
                 color: '#1396de',
                 particle: {

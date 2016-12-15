@@ -3,11 +3,18 @@
     height: 100vh;
 }
 
+.marquee-x {
+    position: absolute;
+    height: 100vh;
+    width: 100%;
+}
+
 .landing-h1 {
     font-weight: 200;
     text-transform: uppercase;
     letter-spacing: 10px;
     font-size: 35px;
+    /*pointer-events: none;*/
 }
 
 .landing-h2 {
@@ -17,6 +24,7 @@
     font-size: 12px;
     padding-top: 10px;
     padding-bottom: 100px;
+    /*pointer-events: none;*/
 }
 
 @media (min-width: 550px) {
