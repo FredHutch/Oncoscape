@@ -10,7 +10,7 @@
                         <span class="caret"></span>
                     </button>
                     <ul class="dropdown-menu" aria-labelledby="dropdownMenu1" style="width:100%">
-                        <li ng-repeat="item in vm.events" ng-click="vm.align=item; vm.update(); ">{{item.name}}</li>
+                        <li ng-repeat="item in vm.events track by $index" ng-click="vm.align=item; vm.update(); ">{{item.name}}</li>
                     </ul>
                 </div>
             </div>
@@ -22,7 +22,7 @@
                         <span class="caret"></span>
                     </button>
                     <ul class="dropdown-menu" aria-labelledby="dropdownMenu1" style="width:100%">
-                        <li ng-repeat="item in vm.events" ng-click="vm.sort=item; vm.update();">{{item.name}}</li>
+                        <li ng-repeat="item in vm.events track by $index" ng-click="vm.sort=item; vm.update();">{{item.name}}</li>
                     </ul>
                 </div>
             </div>
@@ -79,9 +79,6 @@
                     </label>
                 </div>
             </div>
-            <div class="col-xs-12 form-item">
-                <div id="timelines-tip" style="min-height:200px;"><b>Rollover Event For Details</b></div>
-            </div>
         </div>
     </section>
 </os-tray>
@@ -90,8 +87,8 @@
         <h2 class="h2-tool">Timelines</h2>
         <span class="h3-tool">{{vm.datasource.source}} {{vm.datasource.name}}</span>
         <div class="timelines-content" style="margin-top:20px;">
-            <!--<label class="timeline-zoom-x-label">Click + Drag To Zoom</label>
-            <label class="timeline-zoom-y-label">Click + Drag To Zoom</label>-->
+            <label class="timeline-zoom-x-label">Click + Drag To Zoom</label>
+            <label class="timeline-zoom-y-label">Click + Drag To Zoom</label>
         </div>
     </div>
 </section>

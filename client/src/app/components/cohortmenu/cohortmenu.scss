@@ -1,4 +1,41 @@
 // Namespace
+.cohortmenu-toggle-btn {
+    width: 100%;
+    background: #fff;
+    text-align: left;
+    padding-top: 10px;
+    margin-top: 10px;
+    padding-left: 1px;
+    border: none;
+    font-weight: 500;
+    i {
+        -webkit-transition: all 0.5s ease 0s;
+        -moz-transition: all 0.5s ease 0s;
+        -o-transition: all 0.5s ease 0s;
+        -ms-transition: all 0.5s ease 0s;
+        transition: all 0.5s ease 0s;
+        margin-right: 10px;
+    }
+}
+
+.cohortmenu-toggle-btn-first {
+    padding-top: 0px;
+    margin-top: 0px;
+}
+
+.collapsed {
+    //margin-top: 0px;
+    margin-bottom: 0px;
+    padding-bottom: 0px;
+    i {
+        -webkit-transform: rotate(270deg);
+        -moz-transform: rotate(270deg);
+        -ms-transform: rotate(270deg);
+        -o-transform: rotate(270deg);
+        transform: rotate(270deg);
+    }
+}
+
 .cohort-menu {
     /* W3C, IE 10+/ Edge, Firefox 16+, Chrome 26+, Opera 12+, Safari 7+ */
     position: fixed;

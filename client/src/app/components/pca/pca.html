@@ -28,7 +28,9 @@
                 </div>
             </div>
             <div class="col-xs-12 form-item">
-                <label>PCA Type</label>
+                <label>Data Type</label>
+                <span class="fa fa-question" style="font-size:12px;color: #000;padding-left: 15px;"></span>
+
                 <div class="dropdown bs-dropdown">
                     <button class="btn btn-default dropdown-toggle" type="button" id="dropdownMenu1" data-toggle="dropdown" aria-haspopup="true" aria-expanded="true">
                         {{vm.pcaType.name}}
@@ -59,8 +61,8 @@
                 <button class="btn btn-default btn-no-focus" type="button" style="width:100%;font-weight: 300;" ng-click="vm.showPanelColor = true">Color Options</button>
             </div>
             <div class="col-xs-12 form-label">
-                <h3>Variance Explained</h3> PC1: {{vm.pc1}}%
-                <br /> PC2: {{vm.pc2}}%
+                <h3>Variance Explained</h3> PC 1: {{vm.pc1}}%
+                <br /> PC 2: {{vm.pc2}}%
             </div>
         </div>
     </section>

@@ -25,8 +25,6 @@
 
             // View Model
             var vm = this;
-            vm.edit = false;
-            vm.editItem = null;
             vm.cohorts = [];
             vm.cohort = null;
             vm.cohortFeatures = [];
@@ -48,20 +46,21 @@
                 });
                 updateSurvival(vm.cohorts.concat([cohort]));
             });
-            vm.addCohort = function() {
-                osCohortService.saveCohort(vm.cohort);
-            }
 
             // Cohort edit
-            vm.editCohort = function(cohort) {
-                vm.edit = true;
-                vm.editCohort = cohort;
-            }
             vm.setCohort = function(cohort) {
                 if (angular.isString(cohort)) {
                     osCohortService.setCohort([], osCohortService.ALL, osCohortService.SAMPLE)
                 } else {
                     osCohortService.setCohort(cohort);
+                }
+            };
+
+            vm.updateCohort = function() {
+                if (vm.cohort.type == "UNSAVED") {
+                    osCohortService.saveCohort(vm.cohort);
+                } else {
+                    osCohortService.deleteCohort(vm.cohort);
                 }
             }
 
@@ -120,6 +119,10 @@
                 .attr("height", 150)
                 .append("g");
             var histSingleValueLabel = angular.element("#cohortmenu-single-value");
+            var elTip = d3.tip().attr("class", "tip").offset([-8, 0]).html(function(d) {
+                return "Range: " + d.label + "<br>Count: " + d.value + " of " + vm.cohortFeature.data.count + "<br>SD: " + parseFloat(vm.cohortFeature.data.sd).toFixed(2)
+            });
+            histSvg.call(elTip);
             $scope.$watch('vm.cohortFeature', function() {
 
                 // Histogram
@@ -155,13 +158,15 @@
                     .attr("y", function(d) { return 150 - yScale(d.value); })
                     .attr("height", function(d) { return yScale(d.value); })
                     .attr("width", barWidth)
+                    .on("mouseover", elTip.show)
+                    .on("mouseout", elTip.hide);
                 bars
                     .transition()
                     .duration(300)
                     .attr("x", function(d, i) { return (barWidth + 1) * i; })
                     .attr("y", function(d) { return 150 - yScale(d.value); })
                     .attr("height", function(d) { return yScale(d.value); })
-                    .attr("width", barWidth)
+                    .attr("width", barWidth);
                 bars.exit()
                     .transition()
                     .duration(300)
@@ -171,10 +176,10 @@
                     .remove();
                 var labels = histSvg
                     .selectAll("text")
-                    .data(data.hist)
+                    .data(data.hist);
                 labels.enter()
                     .append("text")
-                    .attr("x", function(d, i) { return ((barWidth + 1) * i) + (barWidth * .5); })
+                    .attr("x", function(d, i) { return ((barWidth + 1) * i) + (barWidth * 0.5); })
                     .attr("y", function(d) { return 145 - yScale(d.value); })
                     .attr("fill", "#000")
                     .attr("height", function(d) { return yScale(d.value); })
@@ -185,7 +190,7 @@
                 labels
                     .transition()
                     .duration(300)
-                    .attr("x", function(d, i) { return ((barWidth + 1) * i) + (barWidth * .5); })
+                    .attr("x", function(d, i) { return ((barWidth + 1) * i) + (barWidth * 0.5); })
                     .attr("y", function(d) {
                         var y = 145 - yScale(d.value);
                         if (y < 0) y = 20;
@@ -285,7 +290,10 @@
             };
 
             var updateSurvival = function(cohorts) {
-                var minMax = cohorts.reduce(function(p, c) {
+                var visibleCohorts = cohorts.filter(function(v) {
+                    return v.show;
+                });
+                var minMax = visibleCohorts.reduce(function(p, c) {
                     p.max = Math.max(p.max, c.survival.max);
                     p.min = Math.min(p.min, c.survival.min);
                     return p;
@@ -306,8 +314,8 @@
                 surXAxis.attr("transform", "translate(0, " + (surLayout.yScale(0)) + ")").call(surLayout.xAxis);
 
                 surSvg.selectAll(".line").remove();
-                for (var i = 0; i < cohorts.length; i++) {
-                    surAddCurve(cohorts[i].survival, cohorts[i].color);
+                for (var i = 0; i < visibleCohorts.length; i++) {
+                    surAddCurve(visibleCohorts[i].survival, visibleCohorts[i].color);
                 }
             };
 

@@ -1,5 +1,5 @@
 // Namespace
-.timeline-tip {
+.tip {
     line-height: 1.2;
     font-weight: 300;
     padding: 12px;
@@ -13,7 +13,7 @@
 
 /* Creates a small triangle extender for the tooltip */
 
-.timeline-tip:after {
+.tip:after {
     box-sizing: border-box;
     display: inline;
     font-size: 10px;
@@ -25,13 +25,32 @@
     text-align: center;
 }
 
-
-/* Style northward tooltips differently */
-
-.timeline-tip.n:after {
+.tip.n:after {
     margin: -1px 0 0 0;
     top: 100%;
     left: 0;
+}
+
+.tip.e:after {
+    content: "\25C0";
+    margin: -4px 0 0 0;
+    top: 50%;
+    left: -8px;
+}
+
+.tip.s:after {
+    content: "\25B2";
+    margin: 0 0 1px 0;
+    top: -8px;
+    left: 0;
+    text-align: center;
+}
+
+.tip.w:after {
+    content: "\25B6";
+    margin: -4px 0 0 -1px;
+    top: 50%;
+    left: 100%;
 }
 
 .timelines-content {

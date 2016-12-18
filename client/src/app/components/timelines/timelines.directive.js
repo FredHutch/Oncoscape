@@ -82,7 +82,7 @@
             var elPatients = elChart.append("g");
 
 
-            var elTip = d3.tip().attr("class", "timeline-tip").offset([-8, 0]).html(function(d) { return d.tip; });
+            var elTip = d3.tip().attr("class", "tip").offset([-8, 0]).html(function(d) { return d.tip; });
             elChart.call(elTip);
 
             elContainer = angular.element(".timelines-content");
@@ -112,7 +112,7 @@
                 var sort = vm.sort.name;
                 var filter = vm.filter.name;
                 var events = vm.events.filter(function(e) {
-                    return e.selected
+                    return e.selected;
                 }).map(function(e) {
                     return e.name.toLowerCase();
                 });
@@ -193,7 +193,7 @@
                 if (Math.abs(d) < 360) return Math.round((d / 30.4) * 10) / 10 + " Months";
                 return Math.round((d / 365) * 10) / 10 + " Years";
             };
-            var updateAxis = function(width) {
+            var updateAxis = function() {
                 var axis = d3.axisBottom(scaleX).ticks(7);
                 if (vm.timescale.name == 'Linear') {
                     axis.tickFormat(function(d) {
@@ -231,6 +231,8 @@
                 elSelected.attr("transform", "translate(" + xTran + "," + yTran + ") scale(" + xZoom + "," + yZoom + ")");
             };
 
+
+
             var updateScrollbars = function(width, height) {
                 elScrollY.call(
                     brushY
@@ -245,7 +247,7 @@
                             yZoom = (baseZoomY / deltaPercent);
                             yTran = (rowHeight * patientsFiltered.length * yZoom) * -lowerPercent;
                         } else {
-                            if (yZoom == baseZoomY && yTran == 0) return;
+                            if (yZoom == baseZoomY && yTran === 0) return;
                             yZoom = baseZoomY;
                             yTran = 0;
                             elScrollY.call(brushY.move, null);
@@ -289,14 +291,20 @@
                 );
             };
 
+
+
+            brushX.on("end", null);
             // Update Patients
             var updateEvents = function(evts) {
-                evts.exit().remove();
+                evts.exit()
+                    .on("mouseover", null)
+                    .on("mouseout", null)
+                    .remove();
                 evts.enter().append("rect")
                     .attr('class', 'event')
                     .attr('width', function(d) { return Math.max((scaleX(d.tsEndAligned) - scaleX(d.tsStartAligned)), 2); })
-                    .attr('height', function(d) { return (d.name == "Radiation" || d.name == "Drug") ? rowHeight / 2 : rowHeight; })
-                    .attr('y', function(d) { return ((d.name == "Radiation") ? rowHeight / 2 : 0); })
+                    .attr('height', function(d) { return (d.name == "Radiation" || d.name == "Drug") ? (rowHeight - 2) / 2 : rowHeight - 2; })
+                    .attr('y', function(d) { return ((d.name == "Radiation") ? rowHeight / 2 : 1); })
                     .attr('x', function(d) { return scaleX(d.tsStartAligned); })
                     .style('fill', function(d) { return d.color; })
                     .on("mouseover", elTip.show)
@@ -330,10 +338,10 @@
                     .attr('height', rowHeight - 2)
                     .attr('y', 1)
                     .attr('transform', function(d) { return "translate(0," + (d * rowHeight) + ")"; })
-                    .style("fill", "black")
+                    .style("fill", "#cacaca")
                     .transition()
                     .duration(600)
-                    .attr("width", "100%")
+                    .attr("width", "100%");
 
                 selectedRows
                     .transition()
@@ -387,6 +395,7 @@
             };
 
 
+
             // Application Events
             var onCohortChange = function(c) {
                 vm.cohort = c;
@@ -395,6 +404,8 @@
 
             };
             osCohortService.onCohortChange.add(onCohortChange);
+
+
 
             // Load + Format Data
             osApi.query(osApi.getDataSource().clinical.events, {}).then(function(response) {
@@ -490,7 +501,7 @@
                 });
                 patientsAll = data.filter(function(v) {
                     try {
-                        v.status = v.hash["Status"].data.status.toLowerCase();
+                        v.status = v.hash.Status.data.status.toLowerCase();
                         return true;
                     } catch (e) {
                         return false;
@@ -523,7 +534,11 @@
 
             // Destroy
             $scope.$on('$destroy', function() {
-                osCohortService.onCohortChange.add(onCohortChange);
+
+                osCohortService.onCohortChange.remove(onCohortChange);
+                brushX.on("end", null);
+                brushY.on("end", null);
+                brushSelect.on("end", null);
                 osApi.onResize.remove(vm.update);
                 angular.element($window).unbind('resize', resize);
             });

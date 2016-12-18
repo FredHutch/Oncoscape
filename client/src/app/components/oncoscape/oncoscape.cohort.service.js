@@ -66,11 +66,15 @@
                     max: jStat.max(props),
                     range: jStat.range(props),
                     sd: jStat.stdev(props),
+                    count: 0,
                     hist: jStat.histogram(props, bin),
                     histRange: [],
                     bins: bin
                 };
+
                 data.histRange = [jStat.min(data.hist), jStat.max(data.hist)];
+                data.count = data.hist.reduce(function(p, c) { p += c; return p; }, 0);
+
                 bin = Math.round(data.range / bin);
                 data.hist = data.hist.map(function(pt) {
                     var rv = {
@@ -114,12 +118,14 @@
                     min: jStat.min(values),
                     max: jStat.max(values),
                     range: jStat.range(values),
-                    ds: jStat.stdev(values),
+                    sd: jStat.stdev(values),
+                    count: 0,
                     hist: factors,
                     histRange: [],
                     bins: factors.length
                 };
                 data.histRange = [data.min, data.max];
+                data.count = data.hist.reduce(function(p, c) { p += c.value; return p; }, 0);
                 return data;
             }
 
@@ -296,12 +302,17 @@
             };
 
         })(osApi, statsFactory, _data);
-
+        var colors = ["#E91E63", "#673AB7", "#4CAF50", "#CDDC39", "#FFC107", "#FF5722", "#795548", "#607D8B", "#03A9F4", "#03A9F4", '#004358', '#800080', '#BEDB39', '#FD7400', '#1F8A70'];
         var setCohort = function(cohort, name, type) {
             // Create Cohort If Array Passed
             if (angular.isArray(cohort)) {
                 cohort = cohortFactory[(type == "PATIENT") ? "createWithPatientIds" : "createWithSampleIds"](name, cohort, _data);
-                cohort.type = "UNSAVED";
+                cohort.type = (cohort.patientIds.length === 0) ? "ALL" : "UNSAVED";
+                if (cohort.type != "ALL") {
+                    var usedColors = _cohorts.map(function(v) { return v.color; });
+                    var availColors = colors.filter(function(v) { return (usedColors.indexOf(v) == -1); });
+                    cohort.color = availColors[0];
+                }
             }
             _cohort = cohort;
             onCohortChange.dispatch(_cohort);
@@ -403,20 +414,19 @@
             });
         };
 
-        var colors = ["#E91E63", "#673AB7", "#4CAF50", "#CDDC39", "#FFC107", "#FF5722", "#795548", "#607D8B", "#03A9F4", "#03A9F4", '#004358', '#800080', '#BEDB39', '#FD7400', '#1F8A70'];
-        var saveCohort = function() {
 
-            var usedColors = _cohorts.map(function(v) { return v.color; });
-            var availColors = colors.filter(function(v) { return (usedColors.indexOf(v) == -1); });
-            _cohort.color = availColors[0];
+        var saveCohort = function() {
             _cohort.type = "SAVED";
-            _cohorts.push(_cohort)
+            _cohorts.push(_cohort);
             localStorage.setItem(osApi.getDataSource().disease + 'Cohorts', angular.toJson(_cohorts));
             // onCohortChange.dispatch(_cohort);
 
         }
         var deleteCohort = function(cohort) {
-            //_cohorts.push(_cohort)
+            _cohorts.splice(_cohorts.indexOf(cohort), 1);
+
+            localStorage.setItem(osApi.getDataSource().disease + 'Cohorts', angular.toJson(_cohorts));
+            setCohort([], "", "PATIENT");
             // If Curretn Cohort == Cohort -- .. 
 
         }

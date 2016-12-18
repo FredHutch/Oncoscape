@@ -177,6 +177,7 @@
                     "width": width + "px",
                     "padding-left": layout.left + "px"
                 });
+
                 d3Chart.attr("width", width).attr("height", height);
                 d3Brush.attr("width", width).attr("height", height);
                 d3Points.attr("width", width).attr("height", height);
