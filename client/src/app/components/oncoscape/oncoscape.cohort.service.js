@@ -246,6 +246,7 @@
 
             // Set Data Create Internal Reference + Also Calc's Cohort All Group
             var setData = function(data) {
+
                 _data = data;
                 cohortAll = {
                     color: '#0b97d3',
@@ -254,6 +255,9 @@
                     name: 'All Patients + Samples',
                     histogram: statsFactory.createHistogram(Object.keys(data.patientMap), data),
                     survival: statsFactory.createSurvival(Object.keys(data.patientMap), data),
+                    numPatients: Object.keys(_data.patientMap).length,
+                    numSamples: Object.keys(_data.sampleMap).length,
+                    numClinical: Object.keys(_data.patientMap).reduce(function(p, c) { p += (_data.patientMap[c].hasOwnProperty('clinical')) ? 1 : 0; return p; }, 0),
                     show: true,
                     type: 'ALL'
                 };
@@ -282,7 +286,7 @@
             };
 
             var create = function(name, patientIds, sampleIds) {
-                return {
+                var rv = {
                     uuid: Math.random().toString().substr(2),
                     color: '#000',
                     patientIds: patientIds,
@@ -290,9 +294,13 @@
                     name: name,
                     histogram: statsFactory.createHistogram(patientIds, _data),
                     survival: statsFactory.createSurvival(patientIds, _data),
+                    numPatients: patientIds.length,
+                    numSamples: sampleIds.length,
+                    numClinical: patientIds.reduce(function(p, c) { p += (_data.patientMap[c].hasOwnProperty('clinical')) ? 1 : 0; return p; }, 0),
                     show: true,
                     type: 'UNSAVED'
                 };
+                return rv;
             };
 
             return {

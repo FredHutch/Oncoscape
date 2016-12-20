@@ -4,6 +4,7 @@
  */
 
 //#0b97d3 - 0b97d3
+$border-radius-base: 0;
 $navbar-inverse-link-color: #0b97d3;
 $navbar-height: 72px;
 $navbar-inverse-bg: #000;
@@ -57,6 +58,14 @@ button {
     border-color: #cccccc !important;
 }
 
+.btn-help-icon {
+    background-color: #FAFAFA;
+    color: #000;
+    cursor: pointer;
+}
+
+.btn-help-icon:hover {}
+
 .btn-no-focus:hover {
     background-color: #e6e6e6 !important;
     border-color: #adadad !important;
@@ -69,6 +78,10 @@ button {
 .radio label,
 .checkbox label {
     font-weight: 300;
+}
+
+.tooltip {
+    z-index: 99999 !important;
 }
 
 
@@ -133,6 +146,10 @@ h3 {
     display: none !important;
 }
 
+.form-control {
+    height: inherit;
+}
+
 .form-item {
     color: #000;
     margin-bottom: 20px;
@@ -151,6 +168,7 @@ h3 {
     display: block;
     margin-bottom: 1px;
     overflow: hidden;
+    line-height: 25px;
 }
 
 .legend-bar-button {
@@ -172,6 +190,13 @@ h3 {
     margin-right: 10px;
     display: inline-block;
     margin-bottom: 1px;
+}
+
+.tool-container {
+    position: absolute;
+    top: 10px;
+    text-align: center;
+    width: 100%;
 }
 
 

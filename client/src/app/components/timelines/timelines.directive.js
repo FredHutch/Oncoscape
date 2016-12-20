@@ -506,7 +506,6 @@
                     } catch (e) {
                         return false;
                     }
-                    return false;
                 });
                 vm.events = Object.keys(events).map(function(v) {
                     return {
@@ -527,10 +526,6 @@
 
             // Resize Events
             osApi.onResize.add(vm.update);
-
-            function resize() { _.debounce(vm.update, 300); }
-            angular.element($window).bind('resize', resize);
-
 
             // Destroy
             $scope.$on('$destroy', function() {

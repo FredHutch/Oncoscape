@@ -34,8 +34,8 @@
                 datasource: false
             })
             .state('history', {
-                url: '/history/{datasource}',
-                template: '<os-history>',
+                url: '/spreadsheet/{datasource}',
+                template: '<os-spreadsheet>',
                 authenticate: true,
                 datasource: true
             })

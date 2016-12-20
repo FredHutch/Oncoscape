@@ -15,7 +15,7 @@
     -moz-transition: all 0.3s ease;
     -o-transition: all 0.3s ease;
     transition: all 0.3s ease;
-    padding-bottom: 150px;
+    padding-bottom: 75px;
     overflow: auto;
     box-shadow: -1px 0 3px #BBB;
 }
@@ -29,8 +29,8 @@
 //.tray:hover { overflow-y:auto; }
 .tray-sticky-icon {
     position: absolute;
-    right: 30px;
-    top: 25px;
+    right: 35px;
+    top: 15px;
 }
 
 .tray-sticky-icon:focus {
@@ -55,7 +55,6 @@
     -moz-transition: all 0.3s ease;
     -o-transition: all 0.3s ease;
     transition: all 0.3s ease;
-    padding-right: 300px;
 }
 
 .tray-content-block-collapsed {

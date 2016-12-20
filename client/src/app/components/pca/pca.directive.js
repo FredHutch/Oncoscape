@@ -284,7 +284,6 @@
 
             // App Event :: Resize
             osApi.onResize.add(draw);
-            angular.element($window).bind('resize', _.debounce(draw, 300));
 
             // App Event :: Color change
             var onPatientColorChange = function(value) {
@@ -303,6 +302,8 @@
             osCohortService.onCohortChange.add(onCohortChange);
 
             // Initialize
+            var pcaScores = vm.datasource.calculated.filter(function(v) { return v.type == "pcaScores"; });
+
 
             osApi.query("render_pca", {
                     disease: vm.datasource.disease,
@@ -327,6 +328,7 @@
                         });
                         return memo;
                     }, {});
+
                     vm.geneSets = Object.keys(result).map(function(geneset) {
                         return {
                             name: geneset,

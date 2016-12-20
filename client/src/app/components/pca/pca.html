@@ -1,44 +1,50 @@
 <os-tray content="tray-content-block">
     <section class="tray-content">
         <div class="row">
-            <br />
-            <br />
             <div class="col-xs-12 form-item">
                 <label>Gene Set</label>
-                <div class="dropdown bs-dropdown">
-                    <button class="btn btn-default dropdown-toggle" type="button" id="dropdownMenu1" data-toggle="dropdown" aria-haspopup="true" aria-expanded="true">
+                <div class="input-group">
+                    <div class="dropdown bs-dropdown">
+                        <button class="btn btn-default dropdown-toggle" type="button" id="dropdownMenu1" data-toggle="dropdown" aria-haspopup="true" aria-expanded="true">
                         {{vm.geneSet.name}}
                         <span class="caret"></span>
                     </button>
-                    <ul class="dropdown-menu" aria-labelledby="dropdownMenu1">
-                        <li ng-repeat="item in vm.geneSets" ng-click="vm.geneSet=item">{{item.name}}</li>
-                    </ul>
+                        <ul class="dropdown-menu" aria-labelledby="dropdownMenu1">
+                            <li ng-repeat="item in vm.geneSets" ng-click="vm.geneSet=item">{{item.name}}</li>
+                        </ul>
+                    </div>
+                    <div class="input-group-addon btn-help-icon"><i class="glyphicon glyphicon-question-sign"></i></div>
+
                 </div>
             </div>
             <div class="col-xs-12 form-item">
                 <label>Data Source</label>
-                <div class="dropdown bs-dropdown">
-                    <button class="btn btn-default dropdown-toggle" type="button" id="dropdownMenu1" data-toggle="dropdown" aria-haspopup="true" aria-expanded="true">
+                <div class="input-group">
+                    <div class="dropdown bs-dropdown">
+                        <button class="btn btn-default dropdown-toggle" type="button" id="dropdownMenu1" data-toggle="dropdown" aria-haspopup="true" aria-expanded="true">
                         {{vm.source.name}}
                         <span class="caret"></span>
                     </button>
-                    <ul class="dropdown-menu" aria-labelledby="dropdownMenu1">
-                        <li ng-repeat="item in vm.sources" ng-click="vm.source=item">{{item.name}}</li>
-                    </ul>
+                        <ul class="dropdown-menu" aria-labelledby="dropdownMenu1">
+                            <li ng-repeat="item in vm.sources" ng-click="vm.source=item">{{item.name}}</li>
+                        </ul>
+                    </div>
+                    <div class="input-group-addon btn-help-icon"><i class="glyphicon glyphicon-question-sign"></i></div>
                 </div>
             </div>
             <div class="col-xs-12 form-item">
                 <label>Data Type</label>
-                <span class="fa fa-question" style="font-size:12px;color: #000;padding-left: 15px;"></span>
-
-                <div class="dropdown bs-dropdown">
-                    <button class="btn btn-default dropdown-toggle" type="button" id="dropdownMenu1" data-toggle="dropdown" aria-haspopup="true" aria-expanded="true">
+                <div class="input-group">
+                    <div class="dropdown bs-dropdown">
+                        <button class="btn btn-default dropdown-toggle" type="button" id="dropdownMenu1" data-toggle="dropdown" aria-haspopup="true" aria-expanded="true">
                         {{vm.pcaType.name}}
                         <span class="caret"></span>
                     </button>
-                    <ul class="dropdown-menu" aria-labelledby="dropdownMenu1">
-                        <li ng-repeat="item in vm.pcaTypes" ng-click="vm.pcaType=item">{{item.name}}</li>
-                    </ul>
+                        <ul class="dropdown-menu" aria-labelledby="dropdownMenu1">
+                            <li ng-repeat="item in vm.pcaTypes" ng-click="vm.pcaType=item">{{item.name}}</li>
+                        </ul>
+                    </div>
+                    <div class="input-group-addon btn-help-icon"><i class="glyphicon glyphicon-question-sign"></i></div>
                 </div>
             </div>
             <div ng-if="vm.legendCaption.length>0" class="col-xs-12 form-item">
@@ -69,7 +75,7 @@
 </os-tray>
 <!-- Label + Chart -->
 <section class="tray-content-block">
-    <div style="position:absolute;top:10px;text-align:center;width:100%;">
+    <div class="tool-container">
         <h2 class="h2-tool">Principal Component Analysis</h2>
         <span class="h3-tool">{{vm.datasource.source}} {{vm.datasource.name}}</span>
         <div id="pca-chart" class="pca"></div>

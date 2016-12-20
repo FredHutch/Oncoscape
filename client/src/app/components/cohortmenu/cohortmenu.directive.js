@@ -20,7 +20,7 @@
         return directive;
 
         /** @ngInject */
-        function CohortMenuController(osApi, osCohortService, $state, $scope, $timeout, $rootScope, d3) {
+        function CohortMenuController(osApi, osCohortService, $state, $scope, $sce, $timeout, $rootScope, $filter, d3) {
 
 
             // View Model
@@ -29,6 +29,7 @@
             vm.cohort = null;
             vm.cohortFeatures = [];
             vm.cohortFeature = null;
+            vm.cohortSummary = "";
 
 
             // Cohort Service Integration
@@ -37,6 +38,14 @@
                 vm.cohorts = cohorts;
             });
             osCohortService.onCohortChange.add(function(cohort) {
+                var summary =
+
+                    $filter('number')(cohort.numSamples) + " Samples Selected<br /> " +
+                    $filter('number')(cohort.numPatients) + " Patients Selected<br />" +
+                    $filter('number')(cohort.numClinical) + " Patients With Clinical Data<br />" +
+                    $filter('number')(cohort.survival.total) + " Patients With Survival Data<br />";
+                vm.cohortSummary = $sce.trustAsHtml(summary);
+
                 if (angular.isUndefined(cohort)) return;
                 $timeout(function() {
                     var featureIdx = (vm.cohortFeature !== null) ? vm.cohortFeatures.indexOf(vm.cohortFeature) : 0;
@@ -112,10 +121,9 @@
 
 
 
-
             // Histogram 
             var histSvg = d3.select("#cohortmenu-chart").append("svg")
-                .attr("width", 238)
+                .attr("width", 260)
                 .attr("height", 150)
                 .append("g");
             var histSingleValueLabel = angular.element("#cohortmenu-single-value");
@@ -143,7 +151,7 @@
                 }
                 histSingleValueLabel.text('').css("display", "none");
                 histSvg.classed("cohort-chart-hide", false);
-                var barWidth = Math.floor(238 / data.bins);
+                var barWidth = Math.floor(260 / data.bins) - 1;
                 if (data.histRange[0] > 0) data.histRange[0] -= 2;
                 var yScale = d3.scaleLinear()
                     .domain([0, data.histRange[1]])
@@ -213,7 +221,7 @@
                 return d + "%";
             }
             var formatDays = function(d) {
-                // if (Math.abs(d) == 0) return d;
+                if (Math.abs(d) === 0) return d;
                 if (Math.abs(d) < 30) return d + " Days";
                 if (Math.abs(d) < 360) return Math.round((d / 30.4) * 10) / 10 + " Mos";
                 return Math.round((d / 365) * 10) / 10 + " Yrs";
@@ -223,15 +231,15 @@
 
             // Survival
             var surSvg = d3.select("#cohortmenu-survival").append("svg");
-            var surXAxis = surSvg.append("g").attr("class", "axis");
-            var surYAxis = surSvg.append("g").attr("class", "axis");
+            var surXAxis = surSvg.append("g").attr("class", "axisCohort");
+            //var surYAxis = surSvg.append("g").attr("class", "axisCohort");
             var surLayout = {
-                width: 238,
+                width: 250,
                 height: 170,
                 xScale: null,
                 yScale: null,
                 xAxis: d3.axisBottom().ticks(4).tickFormat(formatDays),
-                yAxis: d3.axisLeft().ticks(3).tickFormat(formatPercent)
+                //yAxis: d3.axisLeft().ticks(0).tickFormat(formatPercent)
             };
             surSvg.attr("width", '100%').attr("height", surLayout.height);
             var surAddCurve = function(curve, color) {
@@ -301,17 +309,23 @@
 
                 surLayout.xScale = d3.scaleLinear()
                     .domain([minMax.min, minMax.max])
-                    .range([30, surLayout.width - 1]);
+                    .range([0, surLayout.width - 1]);
 
                 surLayout.yScale = d3.scaleLinear()
                     .domain([0, 100])
-                    .range([surLayout.height - 20, 10]);
+                    .range([surLayout.height - 30, 0]);
 
                 surLayout.xAxis.scale(surLayout.xScale);
-                surLayout.yAxis.scale(surLayout.yScale);
+                //surLayout.yAxis.scale(surLayout.yScale);
 
-                surYAxis.attr("transform", "translate(30, 0)").call(surLayout.yAxis);
-                surXAxis.attr("transform", "translate(0, " + (surLayout.yScale(0)) + ")").call(surLayout.xAxis);
+                //surYAxis.attr("transform", "translate(0, 0)").call(surLayout.yAxis);
+                surXAxis.attr("transform", "translate(0, " + (surLayout.yScale(0)) + ")")
+                    .call(surLayout.xAxis)
+                    .selectAll("text")
+                    .style("text-anchor", function(d, i) {
+
+                        return (i === 0) ? "start" : "center";
+                    });
 
                 surSvg.selectAll(".line").remove();
                 for (var i = 0; i < visibleCohorts.length; i++) {

@@ -21,12 +21,12 @@
         </div>
     </section>
 </os-tray>
-<section class="history-content history-grid-container">
-    <div class="container-fluid" style="text-align:center;">
+<section class="tray-content-block">
+    <div class="tool-container">
         <h2 class="h2-tool">Patient Data</h2>
         <span class="h3-tool">{{vm.datasource.source}} {{vm.datasource.name}} </span>
-        <br /><br /><br />
-        <div class="grid" id="history-grid" ui-grid="vm.options" ui-grid-selection ui-grid-resize-columns ui-grid-move-columns ui-grid-pinning ui-grid-grouping ui-grid-autoResize></div>
+        <div class="grid" id="spreadsheet-grid" ui-grid="vm.options" ui-grid-selection ui-grid-resize-columns ui-grid-move-columns ui-grid-pinning ui-grid-grouping ui-grid-autoResize></div>
     </div>
+
 </section>
 <os-color-panel ng-if="vm.showPanelColor" close="vm.showPanelColor=false"></os-color-panel>

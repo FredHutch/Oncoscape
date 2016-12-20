@@ -3,15 +3,15 @@
 
     angular
         .module('oncoscape')
-        .directive('osHistory', history);
+        .directive('osSpreadsheet', spreadsheet);
 
     /** @ngInject */
-    function history() {
+    function spreadsheet() {
 
         var directive = {
             restrict: 'E',
-            templateUrl: 'app/components/history/history.html',
-            controller: HistoryController,
+            templateUrl: 'app/components/spreadsheet/spreadsheet.html',
+            controller: SpreadsheetController,
             controllerAs: 'vm',
             bindToController: true
         };
@@ -19,8 +19,7 @@
         return directive;
 
         /** @ngInject */
-        function HistoryController(osApi, osCohortService, $state, $timeout, $scope, moment, $stateParams, _, $, $q, $window) {
-
+        function SpreadsheetController(osApi, osCohortService, $state, $timeout, $scope, moment, $stateParams, _, $, $q, $window) {
 
             // Loading ...
             osApi.setBusy(true);
@@ -28,11 +27,16 @@
             // View Model
             var vm = this;
             vm.setSize = function() {
-                var elGrid = angular.element("#history-grid")[0];
+                var elGrid = angular.element("#spreadsheet-grid")[0];
                 var osLayout = osApi.getLayout();
-                elGrid.style["margin-left"] = (osLayout.left) + "px";
-                elGrid.style["margin-right"] = (osLayout.right) + "px";
-                elGrid.style.height = ($window.innerHeight - 200) + "px";
+                var ml = osLayout.left + 5;
+                var mr = osLayout.right + 5;
+                if (ml === 5) ml = 25;
+                if (mr === 5) mr = 25;
+                elGrid.style["margin-left"] = ml + "px";
+                elGrid.style["margin-right"] = mr + "px";
+                elGrid.style.width = ($window.innerWidth - ml - mr - 2) + "px";
+                elGrid.style.height = ($window.innerHeight - 160) + "px";
                 vm.gridApi.core.handleWindowResize();
             };
             vm.collections = Object.keys(osApi.getDataSource().clinical)
@@ -59,6 +63,7 @@
                     gridApi.selection.on.rowSelectionChangedBatch($scope, rowSelectionChange);
                 }
             };
+
             vm.exportCsv = function() {
                 var cols = vm.options.columnDefs.filter(function(c) { return c.visible; }).map(function(v) { return v.field; });
                 var data = "data:text/csv;charset=utf-8,\"" + cols.join("\",\"") + "\"\n";
@@ -71,9 +76,6 @@
                 $window.open(encodeURI(data));
             };
 
-
-
-
             var rowSelectionChange = function(items, e) {
                 if (angular.isUndefined(e)) return; // Programatic Selection
                 osCohortService.setCohort(
@@ -83,15 +85,11 @@
                 );
             };
 
-
             // Initialize
             vm.datasource = osApi.getDataSource();
 
-
             // App Event :: Resize
             osApi.onResize.add(vm.setSize);
-            var resize = function() { vm.setSize(true); };
-            angular.element($window).bind('resize', resize);
 
             // App Event :: Cohort Change
             var onCohortChange = function(cohort) {
@@ -104,10 +102,8 @@
             };
             osCohortService.onCohortChange.add(onCohortChange)
 
-
             // Setup Watches
             $scope.$watch("vm.collection", function() {
-                vm.setSize();
                 osApi.setBusy(true);
                 osApi.query(vm.collection.collection)
                     .then(function(response) {

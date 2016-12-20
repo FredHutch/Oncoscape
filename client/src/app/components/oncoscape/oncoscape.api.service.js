@@ -6,11 +6,14 @@
         .service('osApi', osApi);
 
     /** @ngInject */
-    function osApi(osHttp, $http, signals, $location, $q, $) {
+    function osApi(osHttp, $http, signals, $location, $q, $, $window, _) {
 
         // Events
         var onDataSource = new signals.Signal();
         var onResize = new signals.Signal();
+
+        // Resize
+        angular.element($window).bind('resize', _.debounce(onResize.dispatch, 900));
 
         // Layout Metrics
         var getLayout = function() {
