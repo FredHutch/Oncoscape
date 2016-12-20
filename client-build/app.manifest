@@ -28,6 +28,7 @@ CACHE:
 /fonts/ui-grid.woff
 /scripts/app-0043549c81.js
 /scripts/app-082de83467.js
+/scripts/app-10049b3cff.js
 /scripts/app-23dc0bed19.js
 /scripts/app-2417652415.js
 /scripts/app-2dc0d7c3b6.js
@@ -199,6 +200,7 @@ CACHE:
 /assets/images/xxx.jpg
 /maps/scripts/app-0043549c81.js.map
 /maps/scripts/app-082de83467.js.map
+/maps/scripts/app-10049b3cff.js.map
 /maps/scripts/app-1235e1ad9b.js.map
 /maps/scripts/app-23dc0bed19.js.map
 /maps/scripts/app-2417652415.js.map
@@ -325,4 +327,4 @@ https://*
 SETTINGS:
 prefer-online
 
-# hash: d04dd02071b88910b49933d040068ce7124caf8287b27c284861ddb24a1d7f11
+# hash: 3abe3085b739e6cdd4f506da7ca8432c8a63768b97904e668b419e0e9abe87bc
