@@ -1,4 +1,21 @@
 // Namespace
+.header-logo-img {
+    position: absolute;
+    left: 20px;
+    top: 15px;
+}
+
+.header-logo-text {
+    position: absolute;
+    //left: 66px;
+    left: 10px;
+    top: 26px;
+    font-size: 20px;
+    font-weight: 200;
+    color: #FFF;
+    letter-spacing: 5px;
+}
+
 .header {
     position: absolute;
     .navbar-brand {
@@ -40,6 +57,8 @@
 .header-link {
     color: #FFF !important;
     cursor: hand;
+    font-weight: 200;
+    letter-spacing: 1px;
 }
 
 .header-link:hover {

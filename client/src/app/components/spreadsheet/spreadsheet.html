@@ -22,11 +22,10 @@
     </section>
 </os-tray>
 <section class="tray-content-block">
-    <div class="tool-container">
+    <div class="tool-container" style="position:relative">
         <h2 class="h2-tool">Patient Data</h2>
         <span class="h3-tool">{{vm.datasource.source}} {{vm.datasource.name}} </span>
         <div class="grid" id="spreadsheet-grid" ui-grid="vm.options" ui-grid-selection ui-grid-resize-columns ui-grid-move-columns ui-grid-pinning ui-grid-grouping ui-grid-autoResize></div>
     </div>
-
 </section>
 <os-color-panel ng-if="vm.showPanelColor" close="vm.showPanelColor=false"></os-color-panel>

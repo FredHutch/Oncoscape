@@ -192,6 +192,15 @@ h3 {
     margin-bottom: 1px;
 }
 
+.dropdown-menu {
+    li {
+        padding: 0px 5px;
+    }
+    li:hover {
+        background-color: #eaeaea;
+    }
+}
+
 .tool-container {
     position: absolute;
     top: 10px;

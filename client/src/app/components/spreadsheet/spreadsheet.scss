@@ -7,8 +7,21 @@
     width: 100%;
 }
 
+.ui-grid-menu-item {
+    color: #000;
+}
+
+.ui-grid-menu .ui-grid-menu-inner ul li button:hover,
+.ui-grid-menu .ui-grid-menu-inner ul li button:focus {
+    box-shadow: inherit;
+    background: #FFF;
+}
+
 .ui-grid-menu-button {
-    background: black;
-    color: white;
-    padding: 0px 10px;
+    background: #FFF;
+    color: #000;
+    transform: translate(0px, -35px);
+    line-height: 25px;
+    padding: 0px 10px 0px 5px;
+    box-shadow: inherit;
 }
