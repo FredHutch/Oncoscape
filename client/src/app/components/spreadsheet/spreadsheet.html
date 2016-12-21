@@ -2,16 +2,18 @@
     <section class="tray-content">
         <div class="row">
             <div class="col-xs-12 form-item">
-                <br /><br />
                 <label>Clinical Collections</label>
-                <div class="dropdown bs-dropdown">
-                    <button class="btn btn-default dropdown-toggle" type="button" id="dropdownMenu1" data-toggle="dropdown" aria-haspopup="true" aria-expanded="true">
+                <div class="input-group">
+                    <div class="dropdown bs-dropdown">
+                        <button class="btn btn-default dropdown-toggle" type="button" id="dropdownMenu1" data-toggle="dropdown" aria-haspopup="true" aria-expanded="true">
                         {{vm.collection.name}}
                         <span class="caret"></span>
                     </button>
-                    <ul class="dropdown-menu" aria-labelledby="dropdownMenu1">
-                        <li ng-repeat="item in vm.collections" ng-click="vm.collection=item">{{item.name}}</li>
-                    </ul>
+                        <ul class="dropdown-menu" aria-labelledby="dropdownMenu1">
+                            <li ng-repeat="item in vm.collections" ng-click="vm.collection=item">{{item.name}}</li>
+                        </ul>
+                    </div>
+                    <div class="input-group-addon btn-help-icon"><i class="glyphicon glyphicon-question-sign"></i></div>
                 </div>
             </div>
             <div class="col-xs-12 form-item">
@@ -22,10 +24,11 @@
     </section>
 </os-tray>
 <section class="tray-content-block">
-    <div class="tool-container" style="position:relative">
-        <h2 class="h2-tool">Patient Data</h2>
-        <span class="h3-tool">{{vm.datasource.source}} {{vm.datasource.name}} </span>
+    <div class="tool-container">
+        <h2 class="h2-tool">Spreadsheet</h2>
+        <span class="h3-tool">{{vm.datasource.source}} {{vm.datasource.name}}</span>
         <div class="grid" id="spreadsheet-grid" ui-grid="vm.options" ui-grid-selection ui-grid-resize-columns ui-grid-move-columns ui-grid-pinning ui-grid-grouping ui-grid-autoResize></div>
     </div>
 </section>
+
 <os-color-panel ng-if="vm.showPanelColor" close="vm.showPanelColor=false"></os-color-panel>

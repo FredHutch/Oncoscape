@@ -89,7 +89,6 @@
 
 
                 // Determine Cohorts To Search (If All Patients Cohort Is Included, No Need To Look At Others)
-
                 var cohortsToSearch = vm.cohorts.filter(function(v) { return (v.show); });
                 if (cohortsToSearch.indexOf(vm.cohort) == -1) cohortsToSearch.push(vm.cohort);
 
@@ -118,7 +117,7 @@
                 };
 
                 // Loop Through Cohorts To Add Patient Ids Of Qualifying Lines + Ticks
-                if (cohortsToSearch.length > 3) $timeout(execute, 50);
+                if (cohortsToSearch.length > 2) $timeout(execute, 50);
                 else execute();
 
 

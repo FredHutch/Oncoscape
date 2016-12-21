@@ -379,6 +379,7 @@
                 elHitarea.call(brushSelect);
                 brushSelect.on("end", function() {
                     if (d3.event.selection === null) {
+                        //osCohortService.setCohort([], "Timelines", osCohortService.PATIENT);
                         return;
                     }
                     var lowerIndex = Math.floor(d3.event.selection[0] / yZoom / 20);
