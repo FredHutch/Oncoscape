@@ -57,7 +57,8 @@
             var elSurvival = elChart.append("g");
             var elXAxis = elChart.append("g").attr("class", "axis");
             var elYAxis = elChart.append("g").attr("class", "axis");
-            var brush;
+            var brush = d3.brush();
+
 
 
 
@@ -67,37 +68,60 @@
                 height: 0,
                 xScale: null,
                 yScale: null,
-                xAxis: d3.axisBottom().ticks(5).tickFormat(formatDays),
+                xAxis: d3.axisBottom().ticks(5), //.tickFormat(formatDays),
                 yAxis: d3.axisLeft().ticks(5).tickFormat(formatPercent)
             };
 
             var onBrushEnd = function() {
-                if (!d3.event.selection) return;
 
-                var s = d3.event.selection.sort();
-                var survivalRange = [
-                    Math.max(Math.round(layout.xScale.invert(s[0])), 0),
-                    Math.round(layout.xScale.invert(s[1]))
-                ];
+                if (!d3.event.selection) {
+                    osCohortService.setCohort([], "Survival", osCohortService.PATIENT);
+                    return;
+                }
+                var s = d3.event.selection;
+                osApi.setBusy(true);
 
-                // Of Visible Cohorts - Figure out the ids
-                var activeCohorts = vm.cohorts.filter(function(v) { return v.show; });
-                var hasAllPatients = activeCohorts.reduce(function(p, c) {
-                    if (c.name == "All Patients + Samples") p = true;
-                    return p;
-                }, false);
+                // Map Selection To Time + Percent Ranges
+                var rangeSort = function(a, b) { return a - b; };
 
-                var cohortData = osCohortService.getData();
-                var patientMap = cohortData.patientMap;
-                var ids = (hasAllPatients) ? Object.keys(cohortData.patientMap) : [].concat.apply([], activeCohorts.map(function(v) { return v.patientIds; }));
-                ids = ids.filter(function(v) {
-                    try {
-                        var time = patientMap[v].survival.time;
-                        return (time >= survivalRange[0] && time <= survivalRange[1])
-                    } catch (e) { return false; }
-                });
-                osCohortService.setCohort(ids, "Survival", osCohortService.PATIENT);
-                elBrush.call(brush.move, null);
+                var timeRange = [s[0][0], s[1][0]].map(layout.xScale.invert).sort(rangeSort);
+                var percentRange = [s[0][1] - 10, s[1][1] - 10].map(layout.yScale.invert).sort(rangeSort);
+
+
+                // Determine Cohorts To Search (If All Patients Cohort Is Included, No Need To Look At Others)
+
+                var cohortsToSearch = vm.cohorts.filter(function(v) { return (v.show); });
+                if (cohortsToSearch.indexOf(vm.cohort) == -1) cohortsToSearch.push(vm.cohort);
+
+
+                // Build Patient Ids
+                var patientIds = [];
+                var cohortFilter = function(line) {
+                    return (
+                        (line.time >= timeRange[0]) &&
+                        (line.time <= timeRange[1]) &&
+                        (line.survivalFrom <= percentRange[1]) &&
+                        (line.survivalTo >= percentRange[0])
+                    );
+                };
+                var cohortReduce = function(p, c) {
+                    return _.union(p, c.alive, c.dead);
+                };
+                var execute = function() {
+                    for (var i = 0; i < cohortsToSearch.length; i++) {
+                        var data = cohortsToSearch[i].survival.data;
+                        patientIds = data.lines.filter(cohortFilter).reduce(cohortReduce, patientIds);
+                        patientIds = data.ticks.filter(cohortFilter).reduce(cohortReduce, patientIds);
+
+                    }
+                    osCohortService.setCohort(patientIds, "Survival", osCohortService.PATIENT);
+                };
+
+                // Loop Through Cohorts To Add Patient Ids Of Qualifying Lines + Ticks
+                if (cohortsToSearch.length > 3) $timeout(execute, 50);
+                else execute();
+
+
 
 
             };
@@ -125,7 +149,8 @@
                 elYAxis.attr("transform", "translate(50, 10)").call(layout.yAxis);
                 elXAxis.attr("transform", "translate(0, " + (layout.yScale(0) + 10) + ")").call(layout.xAxis);
 
-                brush = d3.brushX().extent([
+
+                brush.extent([
                     [50, 10],
                     [layout.width, layout.height - 40]
                 ]);
@@ -139,8 +164,6 @@
                 var data = survivalDatum.survival.data;
                 var color = survivalDatum.color;
 
-
-
                 var time = 0;
                 data.lines.forEach(function(element) {
 
@@ -152,13 +175,7 @@
                         .attr("x2", layout.xScale(element.time))
                         .attr("y1", layout.yScale(element.survivalFrom) + 10)
                         .attr("y2", layout.yScale(element.survivalTo) + 10)
-                        .datum(element)
-                        .on("mouseover", function() {
-                            d3.select(this).attr("stroke-width", 5)
-                        })
-                        .on("mouseout", function() {
-                            d3.select(this).attr("stroke-width", .5)
-                        });
+                        .datum(element);
                     elSurvival.append("line")
                         .attr("class", "line")
                         .attr("stroke-width", 0.5)
@@ -180,27 +197,23 @@
                         .attr("x2", layout.xScale(element.time))
                         .attr("y1", layout.yScale(element.survivalFrom) + 12)
                         .attr("y2", layout.yScale(element.survivalFrom) + 8)
-                        .datum(element)
-                        .on("mouseover", function() {
-                            d3.select(this).attr("stroke-width", 5)
-                        })
-                        .on("mouseout", function() {
-                            d3.select(this).attr("stroke-width", .5)
-                        });
+                        .datum(element);
                 }, this);
 
                 // If Censor Occurs After Last Death Add line
-                var lastTick = data.ticks[data.ticks.length - 1];
-                var lastLine = data.lines[data.lines.length - 1];
-                if (lastTick.time > lastLine.time) {
-                    elSurvival.append("line")
-                        .attr("class", "line")
-                        .attr("stroke-width", 0.5)
-                        .attr("stroke", color)
-                        .attr("x1", layout.xScale(lastLine.time))
-                        .attr("x2", layout.xScale(lastTick.time))
-                        .attr("y1", layout.yScale(lastTick.survivalFrom) + 10)
-                        .attr("y2", layout.yScale(lastTick.survivalFrom) + 10);
+                if (data.ticks.length > 1 && data.lines.length > 1) {
+                    var lastTick = data.ticks[data.ticks.length - 1];
+                    var lastLine = data.lines[data.lines.length - 1];
+                    if (lastTick.time > lastLine.time) {
+                        elSurvival.append("line")
+                            .attr("class", "line")
+                            .attr("stroke-width", 0.5)
+                            .attr("stroke", color)
+                            .attr("x1", layout.xScale(lastLine.time))
+                            .attr("x2", layout.xScale(lastTick.time))
+                            .attr("y1", layout.yScale(lastTick.survivalFrom) + 10)
+                            .attr("y2", layout.yScale(lastTick.survivalFrom) + 10);
+                    }
                 }
 
 

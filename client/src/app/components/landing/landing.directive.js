@@ -22,7 +22,7 @@
         function LandingController($state, $scope, osApi, osAuth) {
 
             angular.element(".marquee-x").marquee({
-                particlesNumber: 49,
+                particlesNumber: 69,
                 color: '#1396de',
                 particle: {
                     speed: 40

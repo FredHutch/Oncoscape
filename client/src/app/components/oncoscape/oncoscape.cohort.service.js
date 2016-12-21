@@ -314,6 +314,7 @@
         var setCohort = function(cohort, name, type) {
             // Create Cohort If Array Passed
             if (angular.isArray(cohort)) {
+                name += "  (" + moment().format('hh:mm:ss') + ")";
                 cohort = cohortFactory[(type == "PATIENT") ? "createWithPatientIds" : "createWithSampleIds"](name, cohort, _data);
                 cohort.type = (cohort.patientIds.length === 0) ? "ALL" : "UNSAVED";
                 if (cohort.type != "ALL") {

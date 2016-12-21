@@ -1,24 +1,26 @@
-<section class="datasource container-fluid">
-    <div class="row">
-        <div class="col-sm-12 col-md-8">
-            <br />
-            <h1>Analysis Tools</h1>
-            <!--
+<section class="datasource">
+    <div class="container">
+        <div class="row">
+            <div class="col-sm-12 col-md-8">
+                <br />
+                <h1>Analysis Tools</h1>
+                <!--
             <p>The list of tools depends upon the data source. If the requisite molecular or clinical data is not availbile for your disease please contact us at <a href="mailto:oncoscape@fredhuth.org">oncoscape@fredhutch.org</a>. Use the navigation in the top right to switch between tools.</p>
             -->
+            </div>
         </div>
-    </div>
 
-    <div class="row">
-        <ul>
-            <li ng-repeat="tool in vm.tools" class="col-xs-12 col-sm-6 col-md-4" ng-click="vm.explore(tool.route)">
-                <div class="datasource-btn">
-                    <img class="datasource-img" ng-src="/assets/images/{{tool.img}}" style="border-right:1px solid #DDD;">
-                    <p class="datasource-h1" style="padding-top:10px;">{{tool.name}}</p>
-                    <p class="datasource-h2">{{tool.desc}}</p>
-                </div>
-            </li>
-        </ul>
+        <div class="row">
+            <ul>
+                <li ng-repeat="tool in vm.tools" class="col-xs-12 col-sm-6 col-md-4" ng-click="vm.explore(tool.route)">
+                    <div class="datasource-btn">
+                        <img class="datasource-img" ng-src="/assets/images/{{tool.img}}" style="border-right:1px solid #DDD;">
+                        <p class="datasource-h1" style="padding-top:10px;">{{tool.name}}</p>
+                        <p class="datasource-h2">{{tool.desc}}</p>
+                    </div>
+                </li>
+            </ul>
+        </div>
     </div>
 
 </section>

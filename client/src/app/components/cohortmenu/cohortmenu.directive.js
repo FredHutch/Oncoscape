@@ -39,11 +39,10 @@
             });
             osCohortService.onCohortChange.add(function(cohort) {
                 var summary =
-
-                    $filter('number')(cohort.numSamples) + " Samples Selected<br /> " +
-                    $filter('number')(cohort.numPatients) + " Patients Selected<br />" +
+                    $filter('number')(cohort.numSamples) + " Samples<br /> " +
+                    $filter('number')(cohort.numPatients) + " Patients <br />" +
                     $filter('number')(cohort.numClinical) + " Patients With Clinical Data<br />" +
-                    $filter('number')(cohort.survival.total) + " Patients With Survival Data<br />";
+                    $filter('number')(cohort.survival.total) + " Patients With Survival Outcome<br />";
                 vm.cohortSummary = $sce.trustAsHtml(summary);
 
                 if (angular.isUndefined(cohort)) return;
@@ -128,7 +127,7 @@
                 .append("g");
             var histSingleValueLabel = angular.element("#cohortmenu-single-value");
             var elTip = d3.tip().attr("class", "tip").offset([-8, 0]).html(function(d) {
-                return "Range: " + d.label + "<br>Count: " + d.value + " of " + vm.cohortFeature.data.count + "<br>SD: " + parseFloat(vm.cohortFeature.data.sd).toFixed(2)
+                return "Range: " + d.label + "<br>Count: " + d.value + " of " + vm.cohortFeature.data.count + "<br>Percent: " + $filter('number')((d.value / vm.cohortFeature.data.count) * 100, 2) + "%";
             });
             histSvg.call(elTip);
             $scope.$watch('vm.cohortFeature', function() {
@@ -151,7 +150,9 @@
                 }
                 histSingleValueLabel.text('').css("display", "none");
                 histSvg.classed("cohort-chart-hide", false);
-                var barWidth = Math.floor(260 / data.bins) - 1;
+                var barWidth = Math.floor((250 - data.bins) / data.bins);
+
+
                 if (data.histRange[0] > 0) data.histRange[0] -= 2;
                 var yScale = d3.scaleLinear()
                     .domain([0, data.histRange[1]])
@@ -162,7 +163,7 @@
                 bars.enter()
                     .append("rect")
                     .attr("class", "cohort-menu-chart-bar")
-                    .attr("x", function(d, i) { return (barWidth + 1) * i; })
+                    .attr("x", function(d, i) { return ((barWidth + 1) * i) + 4; })
                     .attr("y", function(d) { return 150 - yScale(d.value); })
                     .attr("height", function(d) { return yScale(d.value); })
                     .attr("width", barWidth)
@@ -187,7 +188,7 @@
                     .data(data.hist);
                 labels.enter()
                     .append("text")
-                    .attr("x", function(d, i) { return ((barWidth + 1) * i) + (barWidth * 0.5); })
+                    .attr("x", function(d, i) { return (4 + (barWidth + 1) * i) + (barWidth * 0.5); })
                     .attr("y", function(d) { return 145 - yScale(d.value); })
                     .attr("fill", "#000")
                     .attr("height", function(d) { return yScale(d.value); })
@@ -231,18 +232,31 @@
 
             // Survival
             var surSvg = d3.select("#cohortmenu-survival").append("svg");
+            var surLines = surSvg.append("g")
+                .selectAll("cohortmenu-survival-percent-line")
+                .data([0.25, 0.5, 0.75]);
+
+            surLines.enter()
+                .append("line").attr("class", "cohortmenu-survival-percent-line")
+                .attr("stroke-width", 1)
+                .attr("stroke", "#EAEAEA")
+                .attr("x1", 0).attr("x2", 250).attr("y1", function(d) {
+                    return (d * 140);
+                }).attr("y2", function(d) {
+                    return (d * 140);
+                });
+
             var surXAxis = surSvg.append("g").attr("class", "axisCohort");
-            //var surYAxis = surSvg.append("g").attr("class", "axisCohort");
             var surLayout = {
                 width: 250,
                 height: 170,
                 xScale: null,
                 yScale: null,
-                xAxis: d3.axisBottom().ticks(4).tickFormat(formatDays),
-                //yAxis: d3.axisLeft().ticks(0).tickFormat(formatPercent)
+                xAxis: d3.axisBottom().ticks(4).tickFormat(formatDays)
             };
             surSvg.attr("width", '100%').attr("height", surLayout.height);
             var surAddCurve = function(curve, color) {
+
 
                 // ticks
                 var data = curve.data;
@@ -298,9 +312,10 @@
             };
 
             var updateSurvival = function(cohorts) {
-                var visibleCohorts = cohorts.filter(function(v) {
-                    return v.show;
-                });
+                var visibleCohorts = cohorts;
+                // .filter(function(v) {
+                //     return v.show;
+                // });
                 var minMax = visibleCohorts.reduce(function(p, c) {
                     p.max = Math.max(p.max, c.survival.max);
                     p.min = Math.min(p.min, c.survival.min);
@@ -316,16 +331,10 @@
                     .range([surLayout.height - 30, 0]);
 
                 surLayout.xAxis.scale(surLayout.xScale);
-                //surLayout.yAxis.scale(surLayout.yScale);
-
-                //surYAxis.attr("transform", "translate(0, 0)").call(surLayout.yAxis);
                 surXAxis.attr("transform", "translate(0, " + (surLayout.yScale(0)) + ")")
                     .call(surLayout.xAxis)
                     .selectAll("text")
-                    .style("text-anchor", function(d, i) {
-
-                        return (i === 0) ? "start" : "center";
-                    });
+                    .style("text-anchor", function(d, i) { return (i === 0) ? "start" : "center"; });
 
                 surSvg.selectAll(".line").remove();
                 for (var i = 0; i < visibleCohorts.length; i++) {

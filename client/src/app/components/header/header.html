@@ -9,16 +9,14 @@
                     <span class="icon-bar"></span>
                 </button>
                 <a class="navbar-brand" href="#" style="position:relative;">
-                    <!--<img alt="Brand" src="/assets/images/logo.png" class="header-logo-img"></img>-->
-                    <span class="header-logo-text">ONCOSCAPE</span>
-
-
+                    <img alt="Brand" src="/assets/images/logo.jpg" class="header-logo-img"></img>
                 </a>
             </div>
             <div class="collapse navbar-collapse" id="bs-example-navbar-collapse-1">
                 <ul class="nav navbar-nav navbar-right">
                     <li class="dropdown" ng-show="vm.showTools">
-                        <a href class="dropdown-toggle header-link" data-toggle="dropdown" role="button" aria-haspopup="true" aria-expanded="false"><span class="glyphicon glyphicon-stats"></span>Analysis Tools</a>
+                        <a href class="dropdown-toggle header-link" data-toggle="dropdown" role="button" aria-haspopup="true" aria-expanded="false">
+                            <span class="glyphicon glyphicon-stats"></span> Analysis Tools</a>
 
                         <ul class="dropdown-menu row" style="max-height:80vh;overflow:scroll;">
                             <li ng-repeat="item in vm.tools" style="padding-bottom:10px" class="col-xs-12 col-sm-6 col-lg-4" ng-click="vm.loadTool(item.route)">

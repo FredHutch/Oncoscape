@@ -1,19 +1,20 @@
 // Namespace
 .header-logo-img {
     position: absolute;
-    left: 20px;
-    top: 15px;
+    left: 0px;
+    top: 20px;
+    max-height: 40px;
+    image-rendering: crisp-edges;
 }
 
 .header-logo-text {
     position: absolute;
-    //left: 66px;
-    left: 10px;
+    left: 57px;
     top: 26px;
-    font-size: 20px;
+    font-size: 25px;
     font-weight: 200;
     color: #FFF;
-    letter-spacing: 5px;
+    letter-spacing: 6px;
 }
 
 .header {
@@ -36,6 +37,7 @@
         width: 100%;
         z-index: 10000;
         margin-bottom: -2px;
+        box-shadow: 0 2px 3px #bbb;
     }
     ul.dropdown-menu,
     div.dropdown-menu {
@@ -65,11 +67,12 @@
     color: #FFF !important;
 }
 
-.header-container {
-    //box-shadow: 1px 0 3px #666;
-}
-
 .header-dropdown-img {
     float: left;
     height: 80px;
+}
+
+.header-container {
+    padding-left: 40px !important;
+    padding-right: 20px !important;
 }

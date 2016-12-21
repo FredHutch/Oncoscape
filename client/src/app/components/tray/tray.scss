@@ -17,13 +17,15 @@
     transition: all 0.3s ease;
     padding-bottom: 75px;
     overflow: auto;
-    box-shadow: -1px 0 3px #BBB;
+    box-shadow: 0 2px 3px #bbb;
+    border: solid 1px#DDD;
 }
 
 .tray-left {
     right: auto;
     left: 0px;
-    box-shadow: 1px 0 3px #BBB;
+    box-shadow: 0 2px 3px #bbb;
+    border: solid 1px#DDD;
 }
 
 //.tray:hover { overflow-y:auto; }
