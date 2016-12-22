@@ -17,15 +17,15 @@
     transition: all 0.3s ease;
     padding-bottom: 75px;
     overflow: auto;
-    box-shadow: 0 2px 3px #bbb;
-    border: solid 1px#DDD;
+    box-shadow: $box-shaddow;
+    border: solid 0px $color-gray-light;
 }
 
 .tray-left {
     right: auto;
     left: 0px;
-    box-shadow: 0 2px 3px #bbb;
-    border: solid 1px#DDD;
+    box-shadow: $box-shaddow;
+    border: solid 0px $color-gray-light;
 }
 
 //.tray:hover { overflow-y:auto; }

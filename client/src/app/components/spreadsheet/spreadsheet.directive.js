@@ -29,14 +29,15 @@
             vm.setSize = function() {
                 var elGrid = angular.element("#spreadsheet-grid")[0];
                 var osLayout = osApi.getLayout();
-                var ml = osLayout.left + 5;
-                var mr = osLayout.right + 5;
-                if (ml === 5) ml = 25;
-                if (mr === 5) mr = 25;
+                var ml = osLayout.left - 1;
+                var mr = osLayout.right - 1;
+                if (ml === -1) ml = 19;
+                if (mr === -1) mr = 19;
                 elGrid.style["margin-left"] = ml + "px";
                 elGrid.style["margin-right"] = mr + "px";
                 elGrid.style.width = ($window.innerWidth - ml - mr - 2) + "px";
-                elGrid.style.height = ($window.innerHeight - 160) + "px";
+
+                elGrid.style.height = ($window.innerHeight - 140) + "px";
                 vm.gridApi.core.handleWindowResize();
             };
             vm.collections = Object.keys(osApi.getDataSource().clinical)

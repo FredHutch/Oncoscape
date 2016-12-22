@@ -1,5 +1,31 @@
 .ui-grid-row.ui-grid-row-selected>[ui-grid-row]>.ui-grid-cell {
-    background-color: #c1e9fe;
+    background-color: $color-blue-light;
+}
+
+.ui-grid {
+    border: 0px solid #bbb;
+}
+
+.ui-grid-header {
+    border-bottom: 0px;
+}
+
+.ui-grid-icon-menu {
+    font-weight: 300;
+    font-style: normal;
+    border-color: #EAEAEA;
+}
+
+.ui-grid-header-cell {
+    background: $color-gray-light;
+    border-color: #d4d4d4 !important;
+    font-weight: 300;
+    box-shadow: $box-shaddow;
+}
+
+.ui-grid-pinned-container.ui-grid-pinned-container-left .ui-grid-cell {
+    border: 0px;
+    border-color: #d4d4d4 !important;
 }
 
 .grid {
@@ -11,6 +37,14 @@
     color: #000;
 }
 
+.ui-grid-row:nth-child(odd) .ui-grid-cell {
+    background-color: #ffffff;
+}
+
+.ui-grid-row:nth-child(even) .ui-grid-cell {
+    background-color: #f3f3f3;
+}
+
 .ui-grid-menu .ui-grid-menu-inner ul li button:hover,
 .ui-grid-menu .ui-grid-menu-inner ul li button:focus {
     box-shadow: inherit;
@@ -20,7 +54,7 @@
 .ui-grid-menu-button {
     background: #FFF;
     color: #000;
-    transform: translate(0px, -35px);
+    transform: translate(-10px, -40px);
     line-height: 25px;
     padding: 0px 10px 0px 5px;
     box-shadow: inherit;

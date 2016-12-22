@@ -27,7 +27,11 @@
     <div class="tool-container">
         <h2 class="h2-tool">Spreadsheet</h2>
         <span class="h3-tool">{{vm.datasource.source}} {{vm.datasource.name}}</span>
-        <div class="grid" id="spreadsheet-grid" ui-grid="vm.options" ui-grid-selection ui-grid-resize-columns ui-grid-move-columns ui-grid-pinning ui-grid-grouping ui-grid-autoResize></div>
+        <button class="btn btn-default" style="position:absolute; left: 310px;top: 30px;">
+            <span class="caret"></span> Selected</button>
+
+        <div class="grid" id="spreadsheet-grid" ui-grid="vm.options" ui-grid-selection ui-grid-resize-columns ui-grid-move-columns ui-grid-pinning ui-grid-autoResize></div>
+        <!-- ui-grid-grouping -->
     </div>
 </section>
 
