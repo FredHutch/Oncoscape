@@ -2,7 +2,7 @@
 .header-logo-img {
     position: absolute;
     left: 0px;
-    top: 19px;
+    top: 10px;
     max-height: 40px;
     image-rendering: crisp-edges;
 }
@@ -10,14 +10,50 @@
 .header-logo-text {
     position: absolute;
     left: 45px;
-    top: 29px;
-    font-size: 22px;
+    top: 0px;
+    font-size: 18px;
     //font-weight: 200;
+    line-height: 60px;
+    vertical-align: middle;
     color: #FFF;
     letter-spacing: 6px;
     text-transform: uppercase;
 }
 
+.nav {
+    li {
+        a {
+            font-size: 12px;
+            span {
+                padding-right: 5px;
+            }
+        }
+    }
+}
+
+.navbar {
+    border: none;
+    box-shadow: $box-shaddow;
+}
+
+.header {
+    position: absolute;
+    width: 100%;
+    ul.dropdown-menu,
+    div.dropdown-menu {
+        padding: 25px;
+        position: fixed !important;
+        left: 1%;
+        top: 60px;
+        border: 0px;
+        border-radius: 0px;
+        width: 98%;
+        transition: all;
+    }
+}
+
+
+/*
 .header {
     position: absolute;
     .navbar-inverse {
@@ -31,36 +67,44 @@
             a {
                 span {
                     padding-right: 5px;
+                    font-size: 18px;
                 }
             }
         }
     }
     .nav-divider {
+        display: none;
         background: #1396de;
-        /*background: #000;*/
-        height: 3px;
-        width: 100%;
-        z-index: 10000;
-        margin-bottom: -2px;
-        box-shadow: 0 2px 3px #bbb;
-    }
-    ul.dropdown-menu,
-    div.dropdown-menu {
-        padding: 25px;
-        position: fixed;
-        left: 0px;
-        top: 75px;
-        border: 0px;
-        border-radius: 0px;
-        color: #000;
-        //background: url("/assets/images/bg-pattern.png"), #f9f9f9;
-        background: #fff;
-    }
-    .dropdown {
-        display: inline-block;
-    }
+        
+
+height: 3px;
+width: 100%;
+z-index: 10000;
+margin-bottom: -2px;
+box-shadow: 0 2px 3px #bbb;
+
+}
+ul.dropdown-menu,
+div.dropdown-menu {
+    padding: 25px;
+    position: fixed;
+    left: 0px;
+    top: 75px;
+    border: 0px;
+    border-radius: 0px;
+    color: #000;
+    //background: url("/assets/images/bg-pattern.png"), #f9f9f9;
+    background: #fff;
+}
+.dropdown {
+    display: inline-block;
 }
 
+}
+*/
+
+
+/*
 .header-link {
     color: #FFF !important;
     cursor: hand;
@@ -78,5 +122,4 @@
 
 .header-container {
     padding-left: 40px !important;
-    padding-right: 20px !important;
-}
+}*/

@@ -1,6 +1,6 @@
 // Namespace
-$bar-color: #ccc;
-$ball-color: #0b97d3;
+$bar-color: $color-blue;
+$ball-color: $color-blue;
 .loader-modal {
     display: none;
     position: absolute;

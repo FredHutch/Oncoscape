@@ -3,15 +3,26 @@
  *  The list of variables are listed here bower_components/bootstrap-sass/assets/stylesheets/bootstrap/_variables.scss
  */
 
+$color-gray-light: #EAEAEA;
+$color-white: #FFFFFF;
+$color-blue: #0b97d3;
+$box-shaddow: 0 2px 3px #bbb;
 //#0b97d3 - 0b97d3
+$input-border: $color-gray-light;
+$btn-default-border: $color-gray-light;
+$btn-primary-bg: $color-blue;
+$input-border-radius: 0;
 $border-radius-base: 0;
-$navbar-inverse-link-color: #0b97d3;
-$navbar-inverse-brand-hover-bg: #0b97d3 !important;
-$navbar-inverse-link-active-bg: #0b97d3 !important;
-$navbar-height: 72px;
-$navbar-inverse-bg: #000;
+$navbar-inverse-bg:$color-blue;
+$navbar-inverse-link-color: $color-white;
+$navbar-inverse-brand-hover-bg: $color-blue !important;
+$navbar-inverse-link-active-bg:$color-blue !important;
+$navbar-inverse-link-hover-bg: $color-blue !important;
+$navbar-inverse-brand-color: $color-white;
+$navbar-inverse-brand-hover-color: $color-white;
+$navbar-height: 60px;
 $icon-font-path: "../../bower_components/bootstrap-sass/assets/fonts/bootstrap/";
-$brand-primary: darken(#0b97d3, 6.5%) !default; // #337ab7
+//$brand-primary: darken(#0b97d3, 6.5%) !default; // #337ab7
 $font-family-sans-serif: 'Lato',
 sans-serif;
 $font-family-serif: 'Lato',
@@ -162,13 +173,21 @@ h3 {
     display: block !important;
 }
 
+.legend-bar-container {
+    border: 1px solid $color-gray-light;
+    border-left-width: 0px;
+    background: $color-white;
+    padding-bottom: 1px;
+}
+
 .legend-bar {
     text-transform: capitalize;
     border: solid 0px;
     border-left-width: 10px;
     padding-left: 10px;
     display: block;
-    margin-bottom: 1px;
+    margin-top: 1px;
+    margin-bottom: 0px;
     overflow: hidden;
     line-height: 25px;
 }
@@ -199,7 +218,7 @@ h3 {
         padding: 0px 5px;
     }
     li:hover {
-        background-color: #eaeaea;
+        background-color: $color-gray-light;
     }
 }
 
@@ -218,6 +237,8 @@ h3 {
     margin-top: 0px !important;
 }
 
+
+/*
 table.dataTable.dtr-inline.collapsed tbody td:first-child:before,
 table.dataTable.dtr-inline.collapsed tbody th:first-child:before {
     background-color: #0b97d3 !important;
@@ -228,7 +249,7 @@ table.dataTable.dtr-inline.collapsed tbody tr.parent td:first-child:before,
 table.dataTable.dtr-inline.collapsed tbody tr.parent th:first-child:before {
     background-color: #FFF !important;
     color: #0b97d3 !important;
-}
+}*/
 
 .bs-dropdown {
     width: 100%;
@@ -260,7 +281,7 @@ table.dataTable.dtr-inline.collapsed tbody tr.parent th:first-child:before {
     height: 100vh;
     //overflow:hidden;
     padding: 0px;
-    padding-top: 70px;
+    padding-top: 59px;
 }
 
 .container-main-full {

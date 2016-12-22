@@ -35,8 +35,15 @@
     width: 100%;
     height: 80px;
     background: #FFF;
-    border: solid 1px#DDD;
+    border: solid 1px $color-gray-light;
     overflow: hidden;
+    margin-bottom: 10px;
+}
+
+.dropdown-menu {
+    li:hover {
+        background: #FFF;
+    }
 }
 
 .datasource-img {
