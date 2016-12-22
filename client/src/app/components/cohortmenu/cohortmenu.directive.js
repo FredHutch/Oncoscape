@@ -41,8 +41,8 @@
                 var summary =
                     $filter('number')(cohort.numSamples) + " Samples<br /> " +
                     $filter('number')(cohort.numPatients) + " Patients <br />" +
-                    $filter('number')(cohort.numClinical) + " Patients With Clinical Data<br />" +
-                    $filter('number')(cohort.survival.total) + " Patients With Survival Outcome<br />";
+                    $filter('number')(cohort.numClinical) + " Patients with Clinical Data<br />" +
+                    $filter('number')(cohort.survival.total) + " Patients with Survival Outcome<br />";
                 vm.cohortSummary = $sce.trustAsHtml(summary);
 
                 if (angular.isUndefined(cohort)) return;
@@ -163,7 +163,7 @@
                 bars.enter()
                     .append("rect")
                     .attr("class", "cohort-menu-chart-bar")
-                    .attr("x", function(d, i) { return ((barWidth + 1) * i) + 4; })
+                    .attr("x", function(d, i) { return ((barWidth + 1) * i); })
                     .attr("y", function(d) { return 150 - yScale(d.value); })
                     .attr("height", function(d) { return yScale(d.value); })
                     .attr("width", barWidth)

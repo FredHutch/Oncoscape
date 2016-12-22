@@ -1,6 +1,6 @@
 <div class="header" ng-if="vm.show">
     <nav class="navbar navbar-inverse navbar-fixed-top">
-        <div class="container-fluid">
+        <div class="container">
             <div class="navbar-header">
                 <button type="button" class="navbar-toggle collapsed" data-toggle="collapse" data-target="#bs-example-navbar-collapse-1" aria-expanded="false">
                     <span class="sr-only">Toggle navigation</span>
@@ -9,7 +9,8 @@
                     <span class="icon-bar"></span>
                 </button>
                 <a class="navbar-brand" href="#" style="position:relative;">
-                    <img alt="Brand" src="/assets/images/logo.jpg" class="header-logo-img"></img>
+                    <img alt="Brand" src="/assets/images/logo-white.png" class="header-logo-img"></img>
+                    <span class="header-logo-text">Oncoscape</span>
                 </a>
             </div>
             <div class="collapse navbar-collapse" id="bs-example-navbar-collapse-1">
@@ -62,7 +63,7 @@
                                 <div class="col-xs-12 col-sm-8">
                                     <h2 style="margin-top:0px;">Your Cohorts</h2>
                                     <div class="markers-command hvr-sweep-to-right" style="max-width:200px;" ng-repeat="item in vm.cohorts" ng-click="vm.setPatientCohort(item)">
-                                        {{item.name}} ({{item.ids.length}})
+                                        {{item.name}}
                                     </div>
                                 </div>
                             </div>

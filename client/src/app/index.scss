@@ -6,6 +6,8 @@
 //#0b97d3 - 0b97d3
 $border-radius-base: 0;
 $navbar-inverse-link-color: #0b97d3;
+$navbar-inverse-brand-hover-bg: #0b97d3 !important;
+$navbar-inverse-link-active-bg: #0b97d3 !important;
 $navbar-height: 72px;
 $navbar-inverse-bg: #000;
 $icon-font-path: "../../bower_components/bootstrap-sass/assets/fonts/bootstrap/";
@@ -14,7 +16,7 @@ $font-family-sans-serif: 'Lato',
 sans-serif;
 $font-family-serif: 'Lato',
 sans-serif;
-$font-size-base: 14px;
+$font-size-base: 12px;
 $headings-font-weight: 300 !default;
 
 /**
@@ -67,8 +69,8 @@ button {
 .btn-help-icon:hover {}
 
 .btn-no-focus:hover {
-    background-color: #e6e6e6 !important;
-    border-color: #adadad !important;
+    /*background-color: #e6e6e6 !important;
+    border-color: #adadad !important;*/
 }
 
 *:focus {

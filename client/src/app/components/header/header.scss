@@ -2,23 +2,27 @@
 .header-logo-img {
     position: absolute;
     left: 0px;
-    top: 20px;
+    top: 19px;
     max-height: 40px;
     image-rendering: crisp-edges;
 }
 
 .header-logo-text {
     position: absolute;
-    left: 57px;
-    top: 26px;
-    font-size: 25px;
-    font-weight: 200;
+    left: 45px;
+    top: 29px;
+    font-size: 22px;
+    //font-weight: 200;
     color: #FFF;
     letter-spacing: 6px;
+    text-transform: uppercase;
 }
 
 .header {
     position: absolute;
+    .navbar-inverse {
+        background: #1396de;
+    }
     .navbar-brand {
         padding: 10px 0px;
     }
@@ -33,6 +37,7 @@
     }
     .nav-divider {
         background: #1396de;
+        /*background: #000;*/
         height: 3px;
         width: 100%;
         z-index: 10000;

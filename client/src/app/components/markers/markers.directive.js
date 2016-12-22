@@ -89,7 +89,7 @@
 
                     if (hasState) return mp.optEdgeColors;
                     return [{
-                        name: 'mutation',
+                        name: 'Mutation',
                         abv: 'm',
                         show: true,
                         color: '#9C27B0',
@@ -97,15 +97,7 @@
                         count: '',
                         id: 0
                     }, {
-                        name: 'cnGain.1',
-                        abv: 'cnG1',
-                        show: true,
-                        color: '#03A9F4',
-                        class: 'switch-cnG1',
-                        count: '',
-                        id: 1
-                    }, {
-                        name: 'cnGain.2',
+                        name: 'Amplification',
                         abv: 'cnG2',
                         show: true,
                         color: '#3F51B5',
@@ -113,7 +105,15 @@
                         count: '',
                         id: 2
                     }, {
-                        name: 'cnLoss.1',
+                        name: 'Gain',
+                        abv: 'cnG1',
+                        show: true,
+                        color: '#03A9F4',
+                        class: 'switch-cnG1',
+                        count: '',
+                        id: 1
+                    }, {
+                        name: 'Loss',
                         abv: 'cnL1',
                         show: true,
                         color: '#FF9800',
@@ -121,7 +121,7 @@
                         count: '',
                         id: -1
                     }, {
-                        name: 'cnLoss.2',
+                        name: 'Deletion',
                         abv: 'cnL2',
                         show: true,
                         color: '#F44336',
