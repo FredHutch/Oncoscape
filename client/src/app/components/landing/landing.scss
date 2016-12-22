@@ -95,11 +95,11 @@
         font-weight: 300;
     }
     .btn:hover {
-        color: #1396de !important;
+        color: $color-blue !important;
     }
     header {
         a:hover {
-            color: #1396de;
+            color: $color-blue;
         }
         position: relative;
         width: 100%;
@@ -108,7 +108,7 @@
         background: linear-gradient(135deg, #1396de 2%, #00236a);
         color: white;
         .btn {
-            background: #1396de;
+            background: $color-blue;
             color: #FFF;
             border-radius: 0px;
             padding: 10px;
