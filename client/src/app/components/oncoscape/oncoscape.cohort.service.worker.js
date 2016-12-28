@@ -24,7 +24,7 @@ var request = function(object, data, format) {
     return new Promise(function(resolve, reject) {
     	console.log('%c '+object.table,'background: #333; color: #ffffff');
         var query = "/api/" + object.table;
-        query = "https://oncoscape-test.fhcrc.org/api/" + object.table;
+        query = "https://dev.oncoscape.sttrcancer.io/api/" + object.table;
         if (object.query) query += "/" + encodeURIComponent(JSON.stringify(object.query));
         load(query, function(response) {
             resolve(JSON.parse(response.responseText));
@@ -32,8 +32,6 @@ var request = function(object, data, format) {
     });
 };
 
-var sampleMap;
-var patientMap;
 var patientData = [];
 var survivalData = {};
 var patientMetric = null;
@@ -48,29 +46,10 @@ var send = function(cmd, data) {
 var cmd = {};
 
 cmd.setPatientDataSource = function(table) {
-    sampleMap = null;
-    patientMap = null;
     patientData = null;
     patientMetric = null;
-    
     request({
-        table: table.sampleMap
-    }).then(function(response){
-        
-        // Save Map of Samples to Patients (1 to 1)
-        sampleMap = response[0];
-        // Save Map of Patients To Samples (1 to Array)
-        var patientMap = Object.keys(sampleMap).reduce(function(p,c){
-            var patient = sampleMap[c];
-            var sample = c;
-            if (p.hasOwnProperty(patient)) p[patient].push(sample);
-            else p[patient] = [sample];
-            return p;
-        }, {});
-    });
-
-    request({
-        table: table.patientData
+        table: table
     }).then(function(response) {
         patientData = response;
         for (var i = 0; i < patientData.length; i++) {
@@ -257,7 +236,7 @@ cmd.getSurvivalData = function(data) {
 
 cmd.getPatientMetric = function(data) {
 
-    if (patientData == null || patientMap == null || sampleMap == null) {
+    if (patientData == null) {
         setTimeout(function() {
             cmd.getPatientMetric(data)
         }, 500);

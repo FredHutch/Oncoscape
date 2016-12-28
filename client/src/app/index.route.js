@@ -34,8 +34,8 @@
                 datasource: false
             })
             .state('history', {
-                url: '/spreadsheet/{datasource}',
-                template: '<os-spreadsheet>',
+                url: '/history/{datasource}',
+                template: '<os-history>',
                 authenticate: true,
                 datasource: true
             })
@@ -52,7 +52,7 @@
                 datasource: true
             })
             .state('comparecluster', {
-                url: '/cc/{datasource}',
+                url: '/comparecluster/{datasource}',
                 template: '<os-compare-cluster>',
                 authenticate: true,
                 datasource: true
