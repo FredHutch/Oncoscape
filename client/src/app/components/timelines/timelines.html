@@ -1,6 +1,7 @@
 <os-tray content="tray-content-block" change="vm.resize($event)">
     <section class="tray-content">
         <div class="row">
+            <br />
             <div class="col-xs-6 form-item" style="padding-right:5px">
                 <label>Align By</label>
                 <div class="dropdown bs-dropdown">
@@ -9,7 +10,7 @@
                         <span class="caret"></span>
                     </button>
                     <ul class="dropdown-menu" aria-labelledby="dropdownMenu1" style="width:100%">
-                        <li ng-repeat="item in vm.events track by $index" ng-click="vm.align=item; vm.update(); ">{{item.name}}</li>
+                        <li ng-repeat="item in vm.events" ng-click="vm.align=item; vm.update(); ">{{item.name}}</li>
                     </ul>
                 </div>
             </div>
@@ -21,7 +22,7 @@
                         <span class="caret"></span>
                     </button>
                     <ul class="dropdown-menu" aria-labelledby="dropdownMenu1" style="width:100%">
-                        <li ng-repeat="item in vm.events track by $index" ng-click="vm.sort=item; vm.update();">{{item.name}}</li>
+                        <li ng-repeat="item in vm.events" ng-click="vm.sort=item; vm.update();">{{item.name}}</li>
                     </ul>
                 </div>
             </div>
@@ -49,7 +50,7 @@
                     </ul>
                 </div>
             </div>
-            <div class="col-xs-12 form-item">
+            <div class="col-xs-12 form-item" >
                 <label>Display Filter</label>
                 <div class="dropdown bs-dropdown">
                     <button class="btn btn-default dropdown-toggle" type="button" id="dropdownMenu1" data-toggle="dropdown" aria-haspopup="true" aria-expanded="true">
@@ -60,7 +61,7 @@
                         <li ng-repeat="item in vm.displayModes" ng-click="vm.displayMode=item;vm.update();">{{item.name}}</li>
                     </ul>
                 </div>
-            </div>
+            </div> 
             <div class="col-xs-12 form-item">
                 <div class="dropdown bs-dropdown">
                     <button class="btn btn-default dropdown-toggle" type="button" ng-click="vm.resetZoom()" style="text-align:center;">
@@ -77,6 +78,9 @@
                         <span class="switch-handle"></span>
                     </label>
                 </div>
+            </div>
+            <div class="col-xs-12 form-item">
+                <div id="timelines-tip" style="min-height:200px;"><b>Rollover Event For Details</b></div>
             </div>
         </div>
     </section>

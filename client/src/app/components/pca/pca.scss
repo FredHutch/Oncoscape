@@ -1,11 +1,4 @@
 // Namespace
-.pca-pc-label {
-    position: absolute;
-    top: 70px;
-    width: 33%;
-    text-align: center;
-}
-
 .pca {
     .axis path,
     .axis line {
@@ -34,7 +27,7 @@
     .pca-node-selected {
         //fill: none;
         stroke: #000;
-        stroke-width: 1.5;
+        stroke-width: .5;
     }
     .pca-tooltip {
         pointer-events: none;

@@ -1,7 +1,6 @@
 // Namespace
 .datasource {
-    /*background: linear-gradient(120deg, #FFF, #DDD);*/
-    background: #FAFAFA;
+    background: linear-gradient(120deg, #FFF,#DDD);
     min-height: 100vh;
     ul {
         list-style: none;
@@ -11,55 +10,40 @@
     li {
         padding: 10px;
     }
+  
 }
+  .datasource-h1{
+        font-size:30px;
+        margin: 0px;
+        padding:0px; 
+        padding-bottom:5px;
+        padding-top:22px;
+        font-size: 21px;
+        
 
-.datasource-h1 {
-    margin: 0px;
-    padding: 0px;
-    //padding-bottom: 5px;
-    padding-top: 15px;
-    font-size: 16px;
-    line-height: 18px;
-    text-transform: capitalize;
-    overflow: hidden;
-    padding-right: 10px;
-}
-
-.datasource-h2 {
-    padding-top: 2px;
-    font-size: 12px;
-    font-weight: 300;
-}
-
-.datasource-btn {
-    width: 100%;
-    height: 80px;
-    background: #FFF;
-    border: solid 1px $color-gray-light;
-    overflow: hidden;
-    margin-bottom: 10px;
-}
-
-.dropdown-menu {
-    li:hover {
-        background: #FFF;
     }
-}
-
-.datasource-img {
-    width: 80px;
-    height: auto;
-    float: left;
-    margin-right: 10px;
-    background: #000;
-}
-
-.btn {
-    font-weight: 300;
-}
-
-@media (min-width: 992px) {
+    .datasource-h2{
+        font-size: 15px;
+        font-weight: 300;
+    }
+    .datasource-btn{
+        width: 100%;
+        height: 100px;
+        background:#FFF;
+        box-shadow: 0px 2px 7px #bbb;
+    }
+   
     .datasource-img {
-        width: 80px;
+        width: 100px;;
+        height: auto;
+        float: left;
+        //box-shadow: 3px 3px 10px #888888;
+        //border-radius: 50%;
+        margin-right: 20px;
+        background: #000;
     }
-}
+    @media (min-width: 992px) {
+        .datasource-img {
+            width: 100px;
+        }
+    }

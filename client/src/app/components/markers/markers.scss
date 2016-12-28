@@ -1,4 +1,5 @@
-.panel-heading span {
+.panel-heading span
+{
     margin-top: -26px;
     font-size: 15px;
     margin-right: -12px;
@@ -11,32 +12,30 @@
     cursor: pointer;
 }
 
-.mdi {
-    position: absolute !important;
-    right: 50px;
-    left: 50px;
-    top: 100px;
+.mdi{
+    position:absolute !important;
+    right:50px;
+    left:50px;
+    top:100px;
     z-index: 9999;
     width: auto;
+    
 }
 
 // Namespace
 .markers-dl {
     font-size: 12px;
 }
-
-.markers-legend {
+.markers-legend{
     font-size: 12px;
-    list-style: none;
+    list-style:none;
 }
-
-.markers-legend-key {
+.markers-legend-key{
     font-weight: bold;
     display: block;
     text-transform: capitalize;
-    padding-top: 3px;
+    padding-top:3px;
 }
-
 .markers-command {
     cursor: pointer;
     display: block;
@@ -46,7 +45,7 @@
     -webkit-transition-property: padding;
     -webkit-transition-duration: .4s;
     transition-property: padding;
-    transition-duration: .4s;
+    transition-duration: .4s;    
 }
 
 .markers-command:hover {
@@ -105,7 +104,7 @@
     margin-top: 2px;
     padding-top: 0px;
     display: inline-block;
-    background-color: $color-blue;
+    background-color: #0b97d3;
     position: relative;
     top: 2px;
 }
@@ -184,8 +183,8 @@ $switchTransition: .15s ease-out;
         text-shadow: 0 1px rgba(black, .2);
         opacity: 0;
     }
-    .switch-input:checked~& {
-        background: $color-blue;
+    .switch-input:checked ~ & {
+        background: #47a8d8;
         box-shadow: inset 0 1px 2px rgba(black, .15), inset 0 0 3px rgba(black, .2);
         &:before {
             opacity: 0;
@@ -243,28 +242,28 @@ $switchTransition: .15s ease-out;
         box-shadow: inset 0 1px rgba(black, .02);
         //  @include linear-gradient(top, #eee, white);
     }
-    .switch-input:checked~& {
+    .switch-input:checked ~ & {
         left: 40px;
         box-shadow: -1px 1px 5px rgba(black, .2);
     }
 }
 
-.switch-mutation>.switch-input:checked~.switch-label {
+.switch-mutation > .switch-input:checked ~ .switch-label {
     background: #004358;
 }
 
-.switch-cnG1>.switch-input:checked~.switch-label {
+.switch-cnG1 > .switch-input:checked ~ .switch-label {
     background: #1F8A70;
 }
 
-.switch-cnG2>.switch-input:checked~.switch-label {
+.switch-cnG2 > .switch-input:checked ~ .switch-label {
     background: #BEDB39;
 }
 
-.switch-cnL1>.switch-input:checked~.switch-label {
+.switch-cnL1 > .switch-input:checked ~ .switch-label {
     background: #800080;
 }
 
-.switch-cnL2>.switch-input:checked~.switch-label {
+.switch-cnL2 > .switch-input:checked ~ .switch-label {
     background: #FD7400;
 }
