@@ -35,15 +35,15 @@
                     .data(scope.data);
                 binding.enter()
                     .append("rect")
+                    .style("width", barWidth + "px")
+                    .style("x", function(d, i) { return (((barWidth + 1) * i) + 5) + "px"; })
+                    .style("height", "0px")
                     .on("mouseover", elTip.show)
                     .on("mouseout", elTip.hide)
                     .transition()
                     .attr("class", "tray-bar")
-                    .style("width", barWidth + "px")
-                    .style("x", function(d, i) { return (((barWidth + 1) * i) + 5) + "px"; })
                     .style("height", function(d) { return (d.value * barHeight) + "px"; })
                     .style("y", function(d) { return (barHeight - (d.value * barHeight) + 5) + "px"; })
-                    .text(function(d) { return d.label; });
                 binding.exit().remove();
                 binding
                     .transition()
