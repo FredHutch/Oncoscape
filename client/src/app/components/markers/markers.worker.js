@@ -1,35 +1,34 @@
-/* jshint ignore:start */    
-    // Load Data Function (URL, CallBack)
-    var load = function(t, e) {
-        function a() {
-            n.readyState < 4 || 200 === n.status && 4 === n.readyState && e(n)
-        }
-        var n;
-        if ("undefined" != typeof XMLHttpRequest) n = new XMLHttpRequest;
-        else
-            for (var X = ["MSXML2.XmlHttp.5.0", "MSXML2.XmlHttp.4.0", "MSXML2.XmlHttp.3.0", "MSXML2.XmlHttp.2.0", "Microsoft.XmlHttp"], M = 0, o = X.length; o > M; M++) 
+/* jshint ignore:start */
+// Load Data Function (URL, CallBack)
+var load = function(t, e) {
+    function a() {
+        n.readyState < 4 || 200 === n.status && 4 === n.readyState && e(n)
+    }
+    var n;
+    if ("undefined" != typeof XMLHttpRequest) n = new XMLHttpRequest;
+    else
+        for (var X = ["MSXML2.XmlHttp.5.0", "MSXML2.XmlHttp.4.0", "MSXML2.XmlHttp.3.0", "MSXML2.XmlHttp.2.0", "Microsoft.XmlHttp"], M = 0, o = X.length; o > M; M++)
             try {
                 n = new ActiveXObject(X[M]);
             } catch (e) {}
-        n.onreadystatechange = a, n.open("GET", t, !0), n.setRequestHeader('apikey','password'), n.send("")
-    };
+    n.onreadystatechange = a, n.open("GET", t, !0), n.setRequestHeader('apikey', 'password'), n.send("")
+};
 
-    var request = function(object, data, format) {
-        return new Promise(function(resolve) {
-            if (data != null) {
-                resolve(data);
-                return;
-            }
-            
-            var query = "/api/" + object.table;
-            query = "https://dev.oncoscape.sttrcancer.io/api/" + object.table;
-            console.log('%c '+object.table,'background: #333; color: #ffffff');
-            if (object.query) query += "/" + encodeURIComponent(JSON.stringify(object.query));
-            load(query, function(response) {
-                resolve(format(JSON.parse(response.responseText)));
-            });
+var request = function(object, data, format) {
+    return new Promise(function(resolve) {
+        if (data != null) {
+            resolve(data);
+            return;
+        }
+
+        var query = "/api/" + object.table;
+        //query = "https://oncoscape-test.fhcrc.org/api/" + object.table;
+        if (object.query) query += "/" + encodeURIComponent(JSON.stringify(object.query));
+        load(query, function(response) {
+            resolve(format(JSON.parse(response.responseText)));
         });
-    };
+    });
+};
 
 
 var state = {
@@ -143,21 +142,21 @@ var data = (function() {
         if (data.length == 1) {
 
             var annotations = data[0].annotation;
-            if (annotations){
+            if (annotations) {
 
 
                 var text = annotations
-                    .filter(function(item){ return item.type=="text"; })
-                    .map(function(item){
+                    .filter(function(item) { return item.type == "text"; })
+                    .map(function(item) {
                         return {
                             group: "nodes",
                             grabbable: false,
                             locked: true,
                             selectable: false,
-                            position: {x:item.x-4000, y:item.y},
+                            position: { x: item.x - 4600, y: item.y },
                             'text-rotation': item.rotation,
                             data: {
-                                id: "annotation"+item.text.replace(/[^\w\s!?]/g,''),
+                                id: "annotation" + item.text.replace(/[^\w\s!?]/g, ''),
                                 color: "rgb(0, 255, 255)",
                                 display: "element",
                                 nodeType: "annotation-text",
@@ -174,24 +173,24 @@ var data = (function() {
 
 
                 var lines = annotations
-                    .filter(function(item){ return item.type=="line"})
-                    .map(function(line){
+                    .filter(function(item) { return item.type == "line" })
+                    .map(function(line) {
 
-                        var id = "annotation-"+Math.random().toString().substring(2);
-                        
+                        var id = "annotation-" + Math.random().toString().substring(2);
+
                         var elements = [];
-                        for (var i=0; i<line.points.length; i++){
+                        for (var i = 0; i < line.points.length; i++) {
 
                             var item = line.points[i];
-                            
+
                             elements.push({
 
                                 group: "nodes",
                                 grabbable: false,
                                 locked: true,
-                                position: {x:item.x-4000, y:item.y},
+                                position: { x: item.x - 4000, y: item.y },
                                 selectable: false,
-                                data:{
+                                data: {
                                     display: "element",
                                     id: id + i.toString(),
                                     nodeType: "annotation-point",
@@ -200,9 +199,9 @@ var data = (function() {
                                     sizeLbl: 0
                                 }
                             });
-                            if (i>0){
+                            if (i > 0) {
                                 elements.push({
-                                    
+
                                     group: "edges",
                                     grabbable: false,
                                     locked: true,
@@ -213,7 +212,7 @@ var data = (function() {
                                         id: id,
                                         nodeType: "annotation-line",
                                         source: id + i.toString(),
-                                        target: id + (i-1).toString(),
+                                        target: id + (i - 1).toString(),
                                         sizeEle: 50,
                                         sizeBdr: 1,
                                         sizeLbl: 0,
@@ -228,10 +227,10 @@ var data = (function() {
 
 
 
-                data[0].annotation = text.concat( [].concat.apply( [], lines ) );
-                
+                data[0].annotation = text.concat([].concat.apply([], lines));
+
             }
-            
+
             send("patients_layout", data[0]);
         }
     };
@@ -359,7 +358,7 @@ var data = (function() {
 
                 request({
                     table: options.patients.data,
-                    query:{
+                    query: {
                         $fields: ['patient_ID', 'gender', 'race', 'age_at_diagnosis', 'status_vital']
                     }
                 }, !update.patientData ? state.patientData : null, formatPatientData),
@@ -369,7 +368,7 @@ var data = (function() {
                     query: {
                         dataset: options.dataset,
                         name: options.patients.layout
-                        //type: 'Cluster'
+                            //type: 'Cluster'
                     }
                 }, !update.patientData ? state.patients : null, formatPatientNodes),
 
@@ -378,7 +377,7 @@ var data = (function() {
                     query: {
                         dataset: options.dataset,
                         name: options.patients.layout
-                        //type: 'Cluster'
+                            //type: 'Cluster'
                     }
                 }, !update.patientLayout ? state.patients : null, formatPatientLayout),
 
@@ -414,7 +413,7 @@ var data = (function() {
                         prev.html[curr.patient_ID] = Object.keys(curr).sort()
                             .reduce(function(prev, curr) {
                                 if (curr != "patient_ID") {
-                                    prev.html += "<li class='markers-legend'><span class='markers-legend-key'>" + curr.replace(/_/g, " ") + ":</span>"+ prev.obj[curr] + "</li>";
+                                    prev.html += "<li class='markers-legend'><span class='markers-legend-key'>" + curr.replace(/_/g, " ") + ":</span>" + prev.obj[curr] + "</li>";
                                 }
                                 return prev;
                             }, {
@@ -611,7 +610,7 @@ var process = function(options, run) {
 
 // Recieve Command
 self.addEventListener('message', function(msg) {
-    
+
     msg = msg.data;
     switch (msg.cmd) {
         case "setOptions":
