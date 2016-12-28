@@ -67,8 +67,19 @@
                 <button class="btn btn-default btn-no-focus" type="button" style="width:100%;font-weight: 300;" ng-click="vm.showPanelColor = true">Color Options</button>
             </div>
             <div class="col-xs-12 form-label">
-                <h3>Variance Explained</h3> PC 1: {{vm.pc1}}%
-                <br /> PC 2: {{vm.pc2}}%
+                <h3>Variance Explained</h3>
+                <div>
+                    <os-tray-barchart chart-data="vm.variance" chart-height="100"></os-tray-barchart>
+                    <div class="pca-pc-label">PC1</div>
+                    <div class="pca-pc-label" style="left:30%">PC2</div>
+                    <div class="pca-pc-label" style="left:60%">PC3</div>
+                </div>
+            </div>
+
+            <div class="col-xs-12 form-label">
+                <h3>Loadings</h3>
+                <os-tray-barchart chart-data="vm.loadings" chart-height="100"></os-tray-barchart>
+
             </div>
         </div>
     </section>

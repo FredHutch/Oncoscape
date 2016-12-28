@@ -163,7 +163,7 @@
                 bars.enter()
                     .append("rect")
                     .attr("class", "cohort-menu-chart-bar")
-                    .attr("x", function(d, i) { return ((barWidth + 1) * i); })
+                    .attr("x", function(d, i) { return ((barWidth + 1) * i) + 5; })
                     .attr("y", function(d) { return 150 - yScale(d.value); })
                     .attr("height", function(d) { return yScale(d.value); })
                     .attr("width", barWidth)
@@ -172,7 +172,7 @@
                 bars
                     .transition()
                     .duration(300)
-                    .attr("x", function(d, i) { return (barWidth + 1) * i; })
+                    .attr("x", function(d, i) { return ((barWidth + 1) * i) + 5; })
                     .attr("y", function(d) { return 150 - yScale(d.value); })
                     .attr("height", function(d) { return yScale(d.value); })
                     .attr("width", barWidth);
@@ -188,7 +188,7 @@
                     .data(data.hist);
                 labels.enter()
                     .append("text")
-                    .attr("x", function(d, i) { return (4 + (barWidth + 1) * i) + (barWidth * 0.5); })
+                    .attr("x", function(d, i) { return ((4 + (barWidth + 1) * i) + (barWidth * 0.5)) + 5; })
                     .attr("y", function(d) { return 145 - yScale(d.value); })
                     .attr("fill", "#000")
                     .attr("height", function(d) { return yScale(d.value); })
@@ -199,7 +199,7 @@
                 labels
                     .transition()
                     .duration(300)
-                    .attr("x", function(d, i) { return ((barWidth + 1) * i) + (barWidth * 0.5); })
+                    .attr("x", function(d, i) { return (((barWidth + 1) * i) + (barWidth * 0.5)) + 5; })
                     .attr("y", function(d) {
                         var y = 145 - yScale(d.value);
                         if (y < 0) y = 20;

@@ -16,9 +16,13 @@
                     <div class="input-group-addon btn-help-icon"><i class="glyphicon glyphicon-question-sign"></i></div>
                 </div>
             </div>
+
             <div class="col-xs-12 form-item">
-                <label>Export</label>
-                <button class="btn btn-default btn-no-focus" type="button" style="width:100%;font-weight: 300;" ng-click="vm.exportCsv()">CSV</button>
+                <label>CSV Export</label>
+                <div class="btn-group" role="group" style="display: block">
+                    <button class="btn btn-default btn-no-focus" type="button" style="width:50%; font-weight: 300;" ng-click="vm.exportCsv('selected')">Selected</button>
+                    <button class="btn btn-default btn-no-focus" type="button" style="width:50%; font-weight: 300;" ng-click="vm.exportCsv('all')">All</button>
+                </div>
             </div>
         </div>
     </section>
@@ -27,11 +31,9 @@
     <div class="tool-container">
         <h2 class="h2-tool">Spreadsheet</h2>
         <span class="h3-tool">{{vm.datasource.source}} {{vm.datasource.name}}</span>
-        <button class="btn btn-default" style="position:absolute; left: 310px;top: 30px;">
-            <span class="caret"></span> Selected</button>
-
+        <button ng-click="vm.sortSelected()" class="btn btn-default" style="position:absolute; left: 310px;top: 30px;" tooltip="Move Selected Rows To The Top Of The Grid" tooltip-placement="right">
+             Selected On Top</button>
         <div class="grid" id="spreadsheet-grid" ui-grid="vm.options" ui-grid-selection ui-grid-resize-columns ui-grid-move-columns ui-grid-pinning ui-grid-autoResize></div>
-        <!-- ui-grid-grouping -->
     </div>
 </section>
 

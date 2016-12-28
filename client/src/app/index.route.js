@@ -52,7 +52,7 @@
                 datasource: true
             })
             .state('comparecluster', {
-                url: '/comparecluster/{datasource}',
+                url: '/cc/{datasource}',
                 template: '<os-compare-cluster>',
                 authenticate: true,
                 datasource: true

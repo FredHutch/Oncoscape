@@ -18,7 +18,7 @@
             'ui.grid.resizeColumns',
             'ui.grid.moveColumns',
             'ui.grid.pinning',
-            'ui.grid.grouping',
+            // 'ui.grid.grouping',
             'ui.grid.autoResize',
             'toastr'
         ]);

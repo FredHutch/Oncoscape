@@ -19,7 +19,7 @@
         return directive;
 
         /** @ngInject */
-        function SpreadsheetController(osApi, osCohortService, $state, $timeout, $scope, moment, $stateParams, _, $, $q, $window) {
+        function SpreadsheetController(osApi, osCohortService, $state, $timeout, $scope, moment, $stateParams, _, $, $q, $window, uiGridConstants) {
 
             // Loading ...
             osApi.setBusy(true);
@@ -36,7 +36,6 @@
                 elGrid.style["margin-left"] = ml + "px";
                 elGrid.style["margin-right"] = mr + "px";
                 elGrid.style.width = ($window.innerWidth - ml - mr - 2) + "px";
-
                 elGrid.style.height = ($window.innerHeight - 140) + "px";
                 vm.gridApi.core.handleWindowResize();
             };
@@ -64,23 +63,49 @@
                     gridApi.selection.on.rowSelectionChangedBatch($scope, rowSelectionChange);
                 }
             };
-
-            vm.exportCsv = function() {
+            vm.exportCsv = function(type) {
                 var cols = vm.options.columnDefs.filter(function(c) { return c.visible; }).map(function(v) { return v.field; });
                 var data = "data:text/csv;charset=utf-8,\"" + cols.join("\",\"") + "\"\n";
-                vm.options.data.forEach(function(v) {
-                    var datum = cols.map(function(v) {
-                        return this[v];
-                    }, v);
-                    data += "\"" + datum.join("\",\"") + "\"\n";
-                });
+                var records = (type == "selected") ? vm.gridApi.grid.api.selection.getSelectedRows() : vm.options.data;
+
+                records
+                    .forEach(function(v) {
+                        var datum = cols.map(function(v) {
+                            return this[v];
+                        }, v);
+                        data += "\"" + datum.join("\",\"") + "\"\n";
+                    });
                 $window.open(encodeURI(data));
             };
 
+            var sortSelectedFn = function(a, b, rowA, rowB, direction) {
+                if (!rowA.hasOwnProperty("isSelected")) rowA.isSelected = false;
+                if (!rowB.hasOwnProperty("isSelected")) rowB.isSelected = false;
+                if (rowA.isSelected === rowB.isSelected) return 0;
+                if (rowA.isSelected) return -1;
+                return 1;
+            };
+
+            vm.sortSelected = function() {
+                var col = vm.gridApi.grid.columns[0];
+                col.sortingAlgorithm = sortSelectedFn;
+                vm.gridApi.grid.sortColumn(col, "asc", false);
+                vm.gridApi.core.notifyDataChange(uiGridConstants.dataChange.OPTIONS);
+                vm.gridApi.core.notifyDataChange(uiGridConstants.dataChange.COLUMN);
+
+
+
+            };
+
+            var selectedIds = [];
             var rowSelectionChange = function(items, e) {
                 if (angular.isUndefined(e)) return; // Programatic Selection
-                osCohortService.setCohort(
-                    vm.gridApi.grid.api.selection.getSelectedRows().map(function(v) { return v.patient_ID; }),
+                if (!angular.isArray(items)) items = [items];
+                items.forEach(function(item) {
+                    if (item.isSelected) selectedIds.push(item.entity.patient_ID);
+                    else selectedIds = selectedIds.filter(function(v) { return v != item.entity.patient_ID; });
+                });
+                osCohortService.setCohort(selectedIds,
                     "Spreadsheet",
                     osCohortService.PATIENT
                 );
@@ -95,13 +120,13 @@
             // App Event :: Cohort Change
             var onCohortChange = function(cohort) {
                 vm.gridApi.grid.api.selection.clearSelectedRows();
-                var selectedIds = cohort.patientIds;
+                selectedIds = cohort.patientIds;
                 var selected = vm.options.data.filter(function(v) {
                     return selectedIds.indexOf(v.patient_ID) != -1;
                 });
                 selected.forEach(function(i) { vm.gridApi.grid.api.selection.selectRow(i); });
             };
-            osCohortService.onCohortChange.add(onCohortChange)
+            osCohortService.onCohortChange.add(onCohortChange);
 
             // Setup Watches
             $scope.$watch("vm.collection", function() {
@@ -131,7 +156,6 @@
             $scope.$on('$destroy', function() {
                 osApi.onResize.remove(vm.setSize);
                 osCohortService.onCohortChange.remove(onCohortChange);
-                angular.element($window).unbind('resize', resize);
             });
         }
     }

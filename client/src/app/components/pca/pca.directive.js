@@ -32,6 +32,18 @@
             var brush;
             var d3Brush = d3Chart.append("g");
 
+            // Add Labels
+            d3xAxis.append("text")
+                .attr("x", 50)
+                .attr("y", 15)
+                .text("PC1");
+
+
+            d3yAxis.append("text")
+                .attr("y", 55)
+                .attr("x", 25)
+                .text("PC2");
+
             // Properties
             var scaleX, scaleY, axisX, axisY;
             var data, minMax;
@@ -45,6 +57,8 @@
 
             // View Model
             var vm = (function(vm, osApi) {
+                vm.loadings = [];
+                vm.variance = [];
                 vm.datasource = osApi.getDataSource();
                 vm.geneSets = [];
                 vm.geneSet = null;
@@ -90,6 +104,24 @@
             });
             $scope.$watch('vm.pcaType', function(geneset) {
                 if (angular.isUndefined(geneset)) return;
+                osApi.query(vm.datasource.disease + "_loadings", { type: 'ucsc_prcomp-allgenes-cnv' }).then(function(response) {
+
+                    var loadings = response.data[0].loadings;
+                    var scale = d3.scaleLinear()
+                        .domain([loadings[loadings.length - 1].max, loadings[0].max])
+                        .range([.1, 1]);
+                    vm.loadings = response.data[0].loadings.map(function(v) {
+                        return {
+                            tip: v.values.reduce(function(p, c) {
+                                p.index += 1;
+                                p.text += "<br>PC" + p.index + ": " + (c * 100).toFixed(2) + "%";
+                                return p;
+                            }, { text: v.gene, index: 0 }).text,
+                            value: this(v.max)
+                        };
+                    }, scale);
+
+                });
                 osApi.query("render_pca", {
                         disease: vm.datasource.disease,
                         geneset: vm.geneSet.name,
@@ -97,14 +129,19 @@
                         source: vm.source.name
                     })
                     .then(function(response) {
-                        vm.pc1 = response.data[0].pc1;
-                        vm.pc2 = response.data[0].pc2;
+                        var d = response.data[0];
+                        vm.variance = [
+                            { tip: 'PC1<br />' + d.pc1 + "%", value: d.pc1 / 100 },
+                            { tip: 'PC2<br />' + d.pc2 + "%", value: d.pc2 / 100 },
+                            { tip: 'PC3<br />' + d.pc3 + "%", value: d.pc3 / 100 }
+                        ];
+
                         var keys = Object.keys(response.data[0].data);
                         data = keys.map(function(key) {
                             this.data[key].id = key;
                             return this.data[key];
                         }, {
-                            data: response.data[0].data
+                            data: d.data
                         });
                         minMax = data.reduce(function(p, c) {
                             p.xMin = Math.min(p.xMin, c[0]);
@@ -127,6 +164,7 @@
                         draw();
                     });
             });
+
 
             // Utility Functions
             function setSelected() {
@@ -236,20 +274,14 @@
                 d3xAxis
                     .attr("class", "axis")
                     .attr("transform", "translate(0, " + scaleY(0) + ")")
-                    .call(axisX)
-                    .append("text")
-                    .attr("x", 50)
-                    .attr("y", 15)
-                    .text("PC1");
+                    .call(axisX);
+
 
                 d3yAxis
                     .attr("class", "axis")
                     .attr("transform", "translate(" + scaleX(0) + ", 0)")
-                    .call(axisY)
-                    .append("text")
-                    .attr("y", 55)
-                    .attr("x", 25)
-                    .text("PC2");
+                    .call(axisY);
+
 
                 // Brush
                 brush = d3.brush()

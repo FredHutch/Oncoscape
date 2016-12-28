@@ -85,3 +85,18 @@
     left: 0px;
     top: 0px
 }
+
+
+/* TRAY BAR CHART */
+
+.tray-chart {
+    padding: 0px;
+    border: 1px solid #EAEAEA;
+    background: #FFF;
+    position: relative;
+    width: 260px;
+}
+
+.tray-chart rect {
+    fill: $color-blue;
+}
