@@ -28,8 +28,8 @@
                 });
                 osApi.query("lookup_oncoscape_tools").then(function(response) {
                     var tools = osApi.getDataSource().tools;
-                    vm.tools = response.data.filter(function(item){
-                        return (tools.indexOf(item.route)!=-1);
+                    vm.tools = response.data.filter(function(item) {
+                        return (tools.indexOf(item.route) != -1);
                     }).sort(function(a, b) {
                         if (a.name < b.name) return -1;
                         if (a.name > b.name) return 1;
@@ -39,16 +39,17 @@
             });
 
             var vm = this;
+            vm.show = false;
             vm.cohorts = [];
             vm.addPatientCohort = osCohortService.addPatientCohort;
             vm.setPatientCohort = osCohortService.setPatientCohort;
-            osCohortService.onCohortsChange.add(function(allCohorts){
+            osCohortService.onCohortsChange.add(function(allCohorts) {
                 vm.cohorts = allCohorts;
             });
             vm.importPatientIds = "";
-            vm.importPatientCohort = function(){
-                var ids = vm.importPatientIds.split(",").map(function(v){ return v.trim(); });
-                osCohortService.importPatientCohort(ids);
+            vm.importPatientCohort = function() {
+                var ids = vm.importPatientIds.split(",").map(function(v) { return v.trim(); });
+                osCohortService.setPatientCohort(ids, "Import", osCohortService.PATIENT);
             };
             vm.showImport = false;
             vm.showTools = false;
@@ -57,6 +58,7 @@
             vm.showHelp = false;
             vm.showLogout = false;
 
+            var elMain = $("#main");
             var currentTool;
             var onStateChangeStart = $rootScope.$on('$stateChangeStart', function(event, toState) {
                 currentTool = toState.name;
@@ -67,10 +69,14 @@
                         vm.showLogout = false;
                         vm.showCohorts = false;
                         vm.showHelp = false;
+                        vm.show = false;
+                        elMain.addClass("container-main-full")
                         break;
                     case "tools":
                         vm.showCohorts = false;
                         vm.showTools = false;
+                        vm.show = true;
+                        elMain.removeClass("container-main-full")
                         break;
                     case "datasource":
                         vm.showHelp = true;
@@ -78,19 +84,27 @@
                         vm.showCohorts = false;
                         vm.showLogout = true;
                         vm.showTools = false;
+                        vm.show = true;
+                        elMain.removeClass("container-main-full")
                         break;
                     default:
                         vm.showCohorts = true;
                         vm.showDatasets = true;
                         vm.showTools = true;
+                        vm.show = true;
+                        elMain.removeClass("container-main-full")
                         break;
                 }
             });
             $rootScope.$on('$destroy', onStateChangeStart);
 
             vm.loadDataset = function(dataset) {
-                $state.go(currentTool, {
-                    datasource: dataset
+                osApi.setBusy(true);
+                osCohortService.loadCohorts().then(function() {
+                    $state.go(currentTool, {
+                        datasource: dataset
+                    });
+                    osApi.setBusy(false);
                 });
                 angular.element('.navbar-collapse').collapse('hide');
             };

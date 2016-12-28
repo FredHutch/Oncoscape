@@ -433,9 +433,6 @@
 
             // Listen For Resize
             osApi.onResize.add(vm.resize);
-            angular.element($window).bind('resize',
-                _.debounce(vm.resize, 300)
-            );
 
         }
     }

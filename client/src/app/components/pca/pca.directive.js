@@ -21,46 +21,33 @@
         /** @ngInject */
         function PcaController($q, osApi, osCohortService, $state, $stateParams, $timeout, $scope, d3, moment, $window, _) {
 
-            // Retrieve Selected Patient Ids From OS Service
-            var pc = osCohortService.getPatientCohort();
-            if (pc == null) {
-                osCohortService.setPatientCohort([], "All Patients")
-            }
-            var selectedIds = (pc == null) ? [] : pc.ids;
-
-            var osCohortServiceUpdate = true;
-            osCohortService.onPatientsSelect.add(function(patients) {
-                if (osCohortServiceUpdate) {
-                    selectedIds = patients.ids;
-                    setSelected();
-                } else {
-                    osCohortServiceUpdate = true;
-                }
-            });
-
-            function setSelected() {
-                if (selectedIds.length == 0) {
-                    d3Points.selectAll(".pca-node-selected").classed("pca-node-selected", false);
-                } else {
-                    d3Points.selectAll("circle").classed("pca-node-selected", function() {
-                        return (selectedIds.indexOf(this.__data__.id) >= 0)
-                    });
-                }
-            }
-         
+            // Loading ...
+            osApi.setBusy(true);
 
             // Elements
             var d3Chart = d3.select("#pca-chart").append("svg");
             var d3Points = d3Chart.append("g");
             var d3xAxis = d3Chart.append("g");
             var d3yAxis = d3Chart.append("g");
+            var brush;
             var d3Brush = d3Chart.append("g");
+
+            // Add Labels
+            d3xAxis.append("text")
+                .attr("x", 50)
+                .attr("y", 15)
+                .text("PC1");
+
+
+            d3yAxis.append("text")
+                .attr("y", 55)
+                .attr("x", 25)
+                .text("PC2");
 
             // Properties
             var scaleX, scaleY, axisX, axisY;
             var data, minMax;
             var width, height;
-
             var colors = {
                 data: [],
                 dataset: osApi.getDataSource().disease,
@@ -70,86 +57,71 @@
 
             // View Model
             var vm = (function(vm, osApi) {
+                vm.loadings = [];
+                vm.variance = [];
                 vm.datasource = osApi.getDataSource();
                 vm.geneSets = [];
                 vm.geneSet = null;
                 vm.search = "";
-                vm.selectColor = function(e){
+                vm.selectColor = function(e) {
                     var ids = e.values;
                     var allIds = [];
-                    d3.selectAll("circle").each(function(d){
-                         if (ids.indexOf(d.id)!=-1) {
-                             d3.select(this).classed("pca-node-selected", true);
-                             allIds.push(d.id);
-                         }else{
-                             if (d3.select(this).classed("pca-node-selected")) allIds.push(d.id);
-                         }
-                    });
-                    osCohortService.setPatientCohort(allIds, "PCA")
-                    
-
-                }
-                vm.deselectColor = function(e){
-                    var ids = e.values;
-                    var allIds = [];
-                    d3.selectAll("circle").each(function(d){
-                        if (ids.indexOf(d.id)!=-1) {
-                            d3.select(this).classed("pca-node-selected", false);
-                        }else{
+                    d3.selectAll("circle").each(function(d) {
+                        if (ids.indexOf(d.id) != -1) {
+                            d3.select(this).classed("pca-node-selected", true);
+                            allIds.push(d.id);
+                        } else {
                             if (d3.select(this).classed("pca-node-selected")) allIds.push(d.id);
                         }
                     });
-                    osCohortService.setPatientCohort(allIds, "PCA")
-                }
-                osApi.query("render_pca", {
-                        disease: vm.datasource.disease,
-                        $fields: ['type', 'geneset', 'source']
-                    })
-                    .then(function(response) {
-                     
-                        var data = response.data.map(function(v){
-                            return {a:v.geneset,b:v.source,c:v.type}
-                        });
-                        
-                        var result = _.reduce(data,function(memo, val){ 
-                            var tmp = memo;
-                                _.each(val, function(fldr){
-                                    if(!_.has(tmp, fldr)){
-                                        tmp[fldr] = {}
-                                    }
-                                    tmp = tmp[fldr]
-                                });
-                            return memo
-                        },{});
-                        vm.geneSets = Object.keys(result).map(function(geneset){return {name: geneset, sources:
-                            Object.keys(result[geneset]).map(function(source){ return {name:source, types:
-                                Object.keys(result[geneset][source]).map(function(type) { return {name:type
-                                }})
-                            }})
-                        }});
-
-                      
-                        vm.geneSet = vm.geneSets[0];
+                    osCohortService.setCohort(allIds, "PCA", osCohortService.SAMPLE);
+                };
+                vm.deselectColor = function(e) {
+                    var ids = e.values;
+                    var allIds = [];
+                    d3.selectAll("circle").each(function(d) {
+                        if (ids.indexOf(d.id) != -1) {
+                            d3.select(this).classed("pca-node-selected", false);
+                        } else {
+                            if (d3.select(this).classed("pca-node-selected")) allIds.push(d.id);
+                        }
                     });
+                    osCohortService.setCohort(allIds, "PCA", osCohortService.SAMPLE);
+                };
                 return vm;
-
             })(this, osApi);
 
-            // Updates PCA Types When Geneset Changes
+            // Setup Watches
             $scope.$watch('vm.geneSet', function() {
-                if (vm.geneSet==null) return;
+                if (vm.geneSet === null) return;
                 vm.sources = vm.geneSet.sources;
                 vm.source = vm.sources[0];
             });
             $scope.$watch('vm.source', function() {
-                if (vm.geneSet==null) return;
+                if (vm.geneSet === null) return;
                 vm.pcaTypes = vm.source.types;
                 vm.pcaType = vm.pcaTypes[0];
             });
-
-            // Fetches PCA Data + Calculates Min Max for XYZ
             $scope.$watch('vm.pcaType', function(geneset) {
-                if (geneset == null) return;
+                if (angular.isUndefined(geneset)) return;
+                osApi.query(vm.datasource.disease + "_loadings", { type: 'ucsc_prcomp-allgenes-cnv' }).then(function(response) {
+
+                    var loadings = response.data[0].loadings;
+                    var scale = d3.scaleLinear()
+                        .domain([loadings[loadings.length - 1].max, loadings[0].max])
+                        .range([.1, 1]);
+                    vm.loadings = response.data[0].loadings.map(function(v) {
+                        return {
+                            tip: v.values.reduce(function(p, c) {
+                                p.index += 1;
+                                p.text += "<br>PC" + p.index + ": " + (c * 100).toFixed(2) + "%";
+                                return p;
+                            }, { text: v.gene, index: 0 }).text,
+                            value: this(v.max)
+                        };
+                    }, scale);
+
+                });
                 osApi.query("render_pca", {
                         disease: vm.datasource.disease,
                         geneset: vm.geneSet.name,
@@ -157,14 +129,19 @@
                         source: vm.source.name
                     })
                     .then(function(response) {
-                        vm.pc1 = response.data[0].pc1;
-                        vm.pc2 = response.data[0].pc2;
+                        var d = response.data[0];
+                        vm.variance = [
+                            { tip: 'PC1<br />' + d.pc1 + "%", value: d.pc1 / 100 },
+                            { tip: 'PC2<br />' + d.pc2 + "%", value: d.pc2 / 100 },
+                            { tip: 'PC3<br />' + d.pc3 + "%", value: d.pc3 / 100 }
+                        ];
+
                         var keys = Object.keys(response.data[0].data);
                         data = keys.map(function(key) {
                             this.data[key].id = key;
                             return this.data[key];
                         }, {
-                            data: response.data[0].data
+                            data: d.data
                         });
                         minMax = data.reduce(function(p, c) {
                             p.xMin = Math.min(p.xMin, c[0]);
@@ -188,6 +165,15 @@
                     });
             });
 
+
+            // Utility Functions
+            function setSelected() {
+                var selectedIds = cohort.sampleIds;
+                d3Points.selectAll("circle").classed("pca-node-selected", function() {
+                    return (selectedIds.indexOf(this.__data__.id) >= 0);
+                });
+            }
+
             function setColors() {
 
                 // Set Legend
@@ -210,7 +196,7 @@
                         return p;
                     }, {});
                     data = data.map(function(v) {
-                        v.color = (this[v.id] != undefined) ? this[v.id] : "#DDD";
+                        v.color = (angular.isDefined(this[v.id])) ? this[v.id] : "#DDD";
                         return v;
                     }, degMap);
                 }
@@ -229,6 +215,7 @@
                     "width": width + "px",
                     "padding-left": layout.left + "px"
                 });
+
                 d3Chart.attr("width", width).attr("height", height);
                 d3Brush.attr("width", width).attr("height", height);
                 d3Points.attr("width", width).attr("height", height);
@@ -278,7 +265,7 @@
                     .style("fill", function(d) {
                         return d.color;
                     })
-                    .style("fill-opacity", .8);
+                    .style("fill-opacity", 0.8);
 
                 // Axis
                 axisX = d3.axisTop().scale(scaleX).ticks(5);
@@ -287,27 +274,21 @@
                 d3xAxis
                     .attr("class", "axis")
                     .attr("transform", "translate(0, " + scaleY(0) + ")")
-                    .call(axisX)
-                    .append("text")
-                    .attr("x", 50)
-                    .attr("y", 15)
-                    .text("PC1");
+                    .call(axisX);
+
 
                 d3yAxis
                     .attr("class", "axis")
                     .attr("transform", "translate(" + scaleX(0) + ", 0)")
-                    .call(axisY)
-                    .append("text")
-                    .attr("y", 55)
-                    .attr("x", 25)
-                    .text("PC2");
+                    .call(axisY);
+
 
                 // Brush
-                var brush = d3.brush()
+                brush = d3.brush()
                     .on("end", function() {
 
                         if (!d3.event.selection) {
-                            osCohortService.setPatientCohort([], "PCA");
+                            osCohortService.setCohort([], osCohortService.ALL, osCohortService.SAMPLE);
                             return;
                         }
 
@@ -316,7 +297,7 @@
                         var xMax = bv[1][0];
                         var yMin = bv[0][1];
                         var yMax = bv[1][1];
-         
+
                         var ids = d3Points.selectAll("circle").data().filter(function(d) {
                             var x = scaleX(d[0]);
                             var y = scaleY(d[1]);
@@ -324,32 +305,85 @@
                         }).map(function(d) {
                             return d.id;
                         });
-
-                        osCohortService.setPatientCohort(ids, "PCA");
+                        osCohortService.setCohort(ids, "PCA", osCohortService.SAMPLE);
 
                     });
 
-                d3Brush.attr("class", "brush").call(brush)
-
-                setSelected();
-
+                d3Brush.attr("class", "brush").call(brush);
+                onCohortChange(osCohortService.getCohort());
+                osApi.setBusy(false);
             }
 
-            // Listen For Resize
+            // App Event :: Resize
             osApi.onResize.add(draw);
-            angular.element($window).bind('resize', _.debounce(draw, 300));
 
+            // App Event :: Color change
             var onPatientColorChange = function(value) {
                 colors = value;
                 vm.showPanelColor = false;
                 draw();
-            }
-
+            };
             osCohortService.onPatientColorChange.add(onPatientColorChange);
+
+            // App Event :: Cohort Change
+            var cohort = osCohortService.getCohorts();
+            var onCohortChange = function(c) {
+                cohort = c;
+                setSelected();
+            };
+            osCohortService.onCohortChange.add(onCohortChange);
+
+            // Initialize
+            var pcaScores = vm.datasource.calculated.filter(function(v) { return v.type == "pcaScores"; });
+
+
+            osApi.query("render_pca", {
+                    disease: vm.datasource.disease,
+                    $fields: ['type', 'geneset', 'source']
+                })
+                .then(function(response) {
+                    var data = response.data.map(function(v) {
+                        return {
+                            a: v.geneset,
+                            b: v.source,
+                            c: v.type
+                        };
+                    });
+
+                    var result = _.reduce(data, function(memo, val) {
+                        var tmp = memo;
+                        _.each(val, function(fldr) {
+                            if (!_.has(tmp, fldr)) {
+                                tmp[fldr] = {};
+                            }
+                            tmp = tmp[fldr];
+                        });
+                        return memo;
+                    }, {});
+
+                    vm.geneSets = Object.keys(result).map(function(geneset) {
+                        return {
+                            name: geneset,
+                            sources: Object.keys(result[geneset]).map(function(source) {
+                                return {
+                                    name: source,
+                                    types: Object.keys(result[geneset][source]).map(function(type) {
+                                        return {
+                                            name: type
+                                        };
+                                    })
+                                };
+                            })
+                        };
+                    });
+                    vm.geneSet = vm.geneSets[0];
+                });
 
             // Destroy
             $scope.$on('$destroy', function() {
+                osApi.onResize.remove(draw);
                 osCohortService.onPatientColorChange.remove(onPatientColorChange);
+                osCohortService.onCohortChange.remove(onCohortChange);
             });
         }
     }

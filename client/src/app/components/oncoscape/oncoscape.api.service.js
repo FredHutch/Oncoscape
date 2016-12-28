@@ -6,11 +6,14 @@
         .service('osApi', osApi);
 
     /** @ngInject */
-    function osApi(osHttp, $http, signals, $location, $q, $) {
+    function osApi(osHttp, $http, signals, $location, $q, $, $window, _) {
 
         // Events
         var onDataSource = new signals.Signal();
         var onResize = new signals.Signal();
+
+        // Resize
+        angular.element($window).bind('resize', _.debounce(onResize.dispatch, 900));
 
         // Layout Metrics
         var getLayout = function() {
@@ -64,7 +67,6 @@
                 query("lookup_oncoscape_datasources", {
                     beta: false
                 }).then(function(response) {
-                    //query("lookup_oncoscape_datasources").then(function(response) {
                     _dataSources = response.data
                         .filter(function(d) {
                             return angular.isDefined(d.img)
@@ -150,7 +152,9 @@
         })("https://oncoscape-test.fhcrc.org/ocpu/library/oncoscape/R").then(function(v) {
             _cpuApi = v;
         });
-        var getCpuApi = function(){ return _cpuApi; };
+        var getCpuApi = function() {
+            return _cpuApi;
+        };
 
         return {
             init: init,
