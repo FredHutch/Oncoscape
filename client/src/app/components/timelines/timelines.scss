@@ -1,106 +1,21 @@
 // Namespace
-.tip {
-    line-height: 1.2;
-    font-weight: 300;
-    padding: 12px;
-    background: rgba(0, 0, 0, 0.8);
-    color: #fff;
-    border-radius: 2px;
-    shape-rendering: crispEdges;
-    z-index: 99999;
+/*.handle--e, .handle--w{
+    width: 3px;
 }
-
-
-/* Creates a small triangle extender for the tooltip */
-
-.tip:after {
-    box-sizing: border-box;
-    display: inline;
-    font-size: 10px;
-    width: 100%;
-    line-height: 1;
-    color: rgba(0, 0, 0, 0.8);
-    content: "\25BC";
-    position: absolute;
-    text-align: center;
-}
-
-.tip.n:after {
-    margin: -1px 0 0 0;
-    top: 100%;
-    left: 0;
-}
-
-.tip.e:after {
-    content: "\25C0";
-    margin: -4px 0 0 0;
-    top: 50%;
-    left: -8px;
-}
-
-.tip.s:after {
-    content: "\25B2";
-    margin: 0 0 1px 0;
-    top: -8px;
-    left: 0;
-    text-align: center;
-}
-
-.tip.w:after {
-    content: "\25B6";
-    margin: -4px 0 0 -1px;
-    top: 50%;
-    left: 100%;
-}
-
+.handle--n, .handle--s{
+    height: 3px;
+}*/
 .timelines-content {
     position: relative;
-}
-
-.timeline-scroll-y {
-    position: absolute;
-    fill: #EEE;
-    width: 20px;
-    left: 0px;
-    top: 20px;
-}
-
-.timeline-scroll-x {
-    position: absolute;
-    fill: #EEE;
-    height: 20px;
-    left: 20px;
-    top: 0px;
-}
-
-.timeline-chart {
-    position: absolute;
-    left: 20px;
-    top: 20px;
-}
-
-.timeline-axis {
-    position: absolute;
-    left: 20px;
-    height: 20px;
-    text-anchor: start;
-    shape-rendering: crispEdges;
-}
-
-
-/*
-.timelines-content {
-    position: relative;
-    fill: #EEE;
-    .selection {
+      .selection {
         fill: #47a8d8;
+        fill-opacity: 0.9;
     }
     .handle {
         fill: #0b97d3;
     }
 }
-
-.timeline-zoom-y-label {
+.timeline-zoom-y-label{
     z-index: 500;
     top: 70px;
     position: absolute;
@@ -110,8 +25,7 @@
     transform: rotate(90deg);
     text-align: left;
 }
-
-.timeline-zoom-x-label {
+.timeline-zoom-x-label{
     z-index: 500;
     top: 5px;
     position: absolute;
@@ -119,8 +33,7 @@
     font-size: 10px;
     pointer-events: none;
 }
-
-.timeline-select-label {
+.timeline-select-label{
     z-index: 500;
     top: 70px;
     position: absolute;
@@ -130,31 +43,31 @@
     transform: rotate(90deg);
     text-align: left;
 }
-
 .timeline-chart {
     position: absolute;
     left: 20px;
     top: 20px;
     background-color: #FEFEFE;
 }
-
-.timeline-select {
-    fill: #EEE;
+.timeline-select{
+    fill:#EEE;
     .selection {
         fill: #47a8d8;
     }
     .handle {
         fill: #0b97d3;
     }
+    
 }
-
 .timeline-scroll-y {
     position: absolute;
     fill: #EEE;
     width: 15px;
     left: 5px;
     top: 20px;
+  
 }
+
 
 .timeline-scroll-x {
     position: absolute;
@@ -169,11 +82,9 @@
         fill: #0b97d3
     }
 }
-
-.timeline-patient-selected {
+.timeline-patient-selected{
     background-color: red;
 }
-
 .timeline-background {}
 
 .timeline-axis-bg {
@@ -186,7 +97,7 @@
 #timelines-tip {
     z-index: 99999;
     border: #BBB solid 1px;
-    font-size: 14px;
+    font-size: 12px;
     text-align: left;
     background-color: #FFF;
     padding: 20px;
@@ -196,14 +107,11 @@
         }
     }
 }
-
-.timeline-highlight {
+.timeline-highlight{
     pointer-events: none;
 }
-
 .timeline-patients-hitarea {
     background-color: #000;
     width: 100%;
     height: 100%;
 }
-*/

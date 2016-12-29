@@ -5,9 +5,11 @@
     width: 300px;
     height: 100%;
     margin-right: 0px;
-    margin-top: 0px;
+    margin-top: 5px;
     overflow-y: auto;
-    background-color: #FAFAFA;
+    background-color: #EFEFEF;
+    //background: url("/assets/images/bg-pattern.png"), #f9f9f9; /* W3C, IE 10+/ Edge, Firefox 16+, Chrome 26+, Opera 12+, Safari 7+ */background:linear-gradient(120deg, #FFF, #CCC);
+    background:#EEE;
     z-index: 900;
     padding: 20px;
     padding-top: 15px;
@@ -15,24 +17,23 @@
     -moz-transition: all 0.3s ease;
     -o-transition: all 0.3s ease;
     transition: all 0.3s ease;
-    padding-bottom: 75px;
+    padding-bottom: 150px;
     overflow: auto;
-    box-shadow: $box-shaddow;
-    border: solid 0px $color-gray-light;
+    box-shadow: 0px 2px 7px #666;
 }
+
 
 .tray-left {
     right: auto;
     left: 0px;
-    box-shadow: $box-shaddow;
-    border: solid 0px $color-gray-light;
+    box-shadow: 0px 2px 7px #666;
 }
 
 //.tray:hover { overflow-y:auto; }
 .tray-sticky-icon {
     position: absolute;
-    right: 35px;
-    top: 15px;
+    right: 30px;
+    top: 25px;
 }
 
 .tray-sticky-icon:focus {
@@ -57,6 +58,7 @@
     -moz-transition: all 0.3s ease;
     -o-transition: all 0.3s ease;
     transition: all 0.3s ease;
+    padding-right: 300px;
 }
 
 .tray-content-block-collapsed {
@@ -64,6 +66,7 @@
 }
 
 .tray-label {
+    
     position: absolute;
     color: #000;
     background-color: #EEE;
@@ -73,7 +76,7 @@
     line-height: 40px;
     letter-spacing: 2px;
     font-weight: 100;
-    padding-top: 52vh;
+    padding-top:52vh;
 }
 
 .tray-label-right {
@@ -84,19 +87,4 @@
 .tray-label-left {
     left: 0px;
     top: 0px
-}
-
-
-/* TRAY BAR CHART */
-
-.tray-chart {
-    padding: 0px;
-    border: 1px solid #EAEAEA;
-    background: #FFF;
-    position: relative;
-    width: 260px;
-}
-
-.tray-chart rect {
-    fill: $color-blue;
 }
