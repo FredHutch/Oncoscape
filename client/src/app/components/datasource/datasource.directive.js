@@ -19,19 +19,14 @@
         return directive;
 
         /** @ngInject */
-        function DatasourceController(osApi, osCohortService, $state) {
+        function DatasourceController(osApi, $state) {
             var vm = this;
             vm.datasets = osApi.getDataSources();
             vm.explore = function(tool, datasource) {
-                osApi.setBusy(true);
                 osApi.setDataSource(datasource);
-                osCohortService.loadCohorts().then(function() {
-                    $state.go(tool, {
-                        datasource: datasource.disease
-                    });
-                    osApi.setBusy(false);
+                $state.go(tool, {
+                    datasource: datasource.disease
                 });
-
             };
 
         }

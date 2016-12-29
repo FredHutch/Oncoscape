@@ -1,12 +1,26 @@
-<section class="datasource">
-    <div class="container">
-        <div class="row">
-            <div class="col-sm-12 col-md-8">
-                <br />
-                <h1>Disease Datasets</h1>
-            </div>
+<section class="datasource container-fluid">
+    <div class="row">
+        <div class="col-sm-12 col-md-8">
+            <br />
+            <h1>Disease Datasets</h1>
+            <!--
+            <p>Oncoscape supports both public and private data sets. If you do not see the dataset you are interested in please contact us at <a href="mailto:oncoscape@fredhuth.org">oncoscape@fredhutch.org</a>.</p>
+            -->
         </div>
+    </div>
 
+<<<<<<< HEAD
+    <div class="row">
+        <ul>
+            <li ng-repeat="dataset in vm.datasets" class="col-xs-12 col-sm-6 col-lg-4" ng-click="vm.explore('tools',dataset)">
+                <div class="datasource-btn">
+                <img class="datasource-img" ng-src="/assets/images/{{dataset.img}}">
+                <p class="datasource-h1">{{dataset.name}}</p>
+                <p class="datasource-h2">{{dataset.source}} | 11-17-2016</p>
+                </div>
+            </li>
+        </ul>
+=======
         <div class="row">
             <ul>
                 <li ng-repeat="dataset in vm.datasets" class="col-xs-12 col-sm-6 col-md-4 col-lg-3" ng-click="vm.explore('tools',dataset)">
@@ -18,5 +32,6 @@
                 </li>
             </ul>
         </div>
+>>>>>>> test
     </div>
 </section>
