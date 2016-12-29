@@ -68,14 +68,10 @@
                 type: "color"
             };
 
-            // View Model
-            var vm = (function(vm, osApi) { <<
-                << << < HEAD
-                    ===
-                    === =
-                    vm.loadings = [];
-                vm.pc1 = vm.pc2 = []; >>>
-                >>> > test
+            // View Model Update
+            var vm = (function(vm, osApi) {
+                vm.loadings = [];
+                vm.pc1 = vm.pc2 = [];
                 vm.datasource = osApi.getDataSource();
                 vm.geneSets = [];
                 vm.geneSet = null;
