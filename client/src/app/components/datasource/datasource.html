@@ -9,6 +9,7 @@
         </div>
     </div>
 
+<<<<<<< HEAD
     <div class="row">
         <ul>
             <li ng-repeat="dataset in vm.datasets" class="col-xs-12 col-sm-6 col-lg-4" ng-click="vm.explore('tools',dataset)">
@@ -19,5 +20,18 @@
                 </div>
             </li>
         </ul>
+=======
+        <div class="row">
+            <ul>
+                <li ng-repeat="dataset in vm.datasets" class="col-xs-12 col-sm-6 col-md-4 col-lg-3" ng-click="vm.explore('tools',dataset)">
+                    <div class="datasource-btn">
+                        <img class="datasource-img" ng-src="/assets/images/{{dataset.img}}">
+                        <p class="datasource-h1">{{dataset.name}}</p>
+                        <p class="datasource-h2">{{dataset.source}} | 11-17-2016</p>
+                    </div>
+                </li>
+            </ul>
+        </div>
+>>>>>>> test
     </div>
 </section>

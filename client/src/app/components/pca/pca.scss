@@ -1,4 +1,33 @@
 // Namespace
+.pca-pc1-label {
+    position: absolute;
+    top: 72px;
+    text-align: center;
+    line-height: 1.2;
+    width: 133px;
+    color: #0b97d3;
+    font-size: 11px;
+    span {
+        font-size: 18px;
+        font-weight: 500;
+    }
+}
+
+.pca-pc2-label {
+    position: absolute;
+    top: 72px;
+    left: 135px;
+    text-align: center;
+    line-height: 1.2;
+    width: 133px;
+    color: #0b97d3;
+    font-size: 11px;
+    span {
+        font-size: 18px;
+        font-weight: 500;
+    }
+}
+
 .pca {
     .axis path,
     .axis line {

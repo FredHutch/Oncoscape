@@ -47,7 +47,7 @@
                     });
                 }
             }
-         
+
 
             // Elements
             var d3Chart = d3.select("#pca-chart").append("svg");
@@ -69,33 +69,39 @@
             };
 
             // View Model
-            var vm = (function(vm, osApi) {
+            var vm = (function(vm, osApi) { <<
+                << << < HEAD
+                    ===
+                    === =
+                    vm.loadings = [];
+                vm.pc1 = vm.pc2 = []; >>>
+                >>> > test
                 vm.datasource = osApi.getDataSource();
                 vm.geneSets = [];
                 vm.geneSet = null;
                 vm.search = "";
-                vm.selectColor = function(e){
+                vm.selectColor = function(e) {
                     var ids = e.values;
                     var allIds = [];
-                    d3.selectAll("circle").each(function(d){
-                         if (ids.indexOf(d.id)!=-1) {
-                             d3.select(this).classed("pca-node-selected", true);
-                             allIds.push(d.id);
-                         }else{
-                             if (d3.select(this).classed("pca-node-selected")) allIds.push(d.id);
-                         }
+                    d3.selectAll("circle").each(function(d) {
+                        if (ids.indexOf(d.id) != -1) {
+                            d3.select(this).classed("pca-node-selected", true);
+                            allIds.push(d.id);
+                        } else {
+                            if (d3.select(this).classed("pca-node-selected")) allIds.push(d.id);
+                        }
                     });
                     osCohortService.setPatientCohort(allIds, "PCA")
-                    
+
 
                 }
-                vm.deselectColor = function(e){
+                vm.deselectColor = function(e) {
                     var ids = e.values;
                     var allIds = [];
-                    d3.selectAll("circle").each(function(d){
-                        if (ids.indexOf(d.id)!=-1) {
+                    d3.selectAll("circle").each(function(d) {
+                        if (ids.indexOf(d.id) != -1) {
                             d3.select(this).classed("pca-node-selected", false);
-                        }else{
+                        } else {
                             if (d3.select(this).classed("pca-node-selected")) allIds.push(d.id);
                         }
                     });
@@ -106,29 +112,38 @@
                         $fields: ['type', 'geneset', 'source']
                     })
                     .then(function(response) {
-                     
-                        var data = response.data.map(function(v){
-                            return {a:v.geneset,b:v.source,c:v.type}
-                        });
-                        
-                        var result = _.reduce(data,function(memo, val){ 
-                            var tmp = memo;
-                                _.each(val, function(fldr){
-                                    if(!_.has(tmp, fldr)){
-                                        tmp[fldr] = {}
-                                    }
-                                    tmp = tmp[fldr]
-                                });
-                            return memo
-                        },{});
-                        vm.geneSets = Object.keys(result).map(function(geneset){return {name: geneset, sources:
-                            Object.keys(result[geneset]).map(function(source){ return {name:source, types:
-                                Object.keys(result[geneset][source]).map(function(type) { return {name:type
-                                }})
-                            }})
-                        }});
 
-                      
+                        var data = response.data.map(function(v) {
+                            return { a: v.geneset, b: v.source, c: v.type }
+                        });
+
+                        var result = _.reduce(data, function(memo, val) {
+                            var tmp = memo;
+                            _.each(val, function(fldr) {
+                                if (!_.has(tmp, fldr)) {
+                                    tmp[fldr] = {}
+                                }
+                                tmp = tmp[fldr]
+                            });
+                            return memo
+                        }, {});
+                        vm.geneSets = Object.keys(result).map(function(geneset) {
+                            return {
+                                name: geneset,
+                                sources: Object.keys(result[geneset]).map(function(source) {
+                                    return {
+                                        name: source,
+                                        types: Object.keys(result[geneset][source]).map(function(type) {
+                                            return {
+                                                name: type
+                                            }
+                                        })
+                                    }
+                                })
+                            }
+                        });
+
+
                         vm.geneSet = vm.geneSets[0];
                     });
                 return vm;
@@ -137,12 +152,12 @@
 
             // Updates PCA Types When Geneset Changes
             $scope.$watch('vm.geneSet', function() {
-                if (vm.geneSet==null) return;
+                if (vm.geneSet == null) return;
                 vm.sources = vm.geneSet.sources;
                 vm.source = vm.sources[0];
             });
             $scope.$watch('vm.source', function() {
-                if (vm.geneSet==null) return;
+                if (vm.geneSet == null) return;
                 vm.pcaTypes = vm.source.types;
                 vm.pcaType = vm.pcaTypes[0];
             });
@@ -157,8 +172,19 @@
                         source: vm.source.name
                     })
                     .then(function(response) {
-                        vm.pc1 = response.data[0].pc1;
-                        vm.pc2 = response.data[0].pc2;
+
+                        var d = response.data[0];
+                        console.log(d.pc1)
+                        vm.pc1 = [
+                            { name: 'PC1', value: d.pc1 },
+                            { name: '', value: 100 - d.pc1 }
+
+                        ];
+                        vm.pc2 = [
+                            { name: 'PC2', value: d.pc2 },
+                            { name: '', value: 100 - d.pc2 }
+                        ];
+
                         var keys = Object.keys(response.data[0].data);
                         data = keys.map(function(key) {
                             this.data[key].id = key;
@@ -316,7 +342,7 @@
                         var xMax = bv[1][0];
                         var yMin = bv[0][1];
                         var yMax = bv[1][1];
-         
+
                         var ids = d3Points.selectAll("circle").data().filter(function(d) {
                             var x = scaleX(d[0]);
                             var y = scaleY(d[1]);
