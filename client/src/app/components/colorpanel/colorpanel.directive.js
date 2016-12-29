@@ -32,7 +32,9 @@
             vm.colorBins = [2,3,4,5,6,7,8].map(function(v){ return {name:v+" Bins", value:v} });
             vm.colorBin = vm.colorBins[2];
             vm.colorOptions = osApi.getDataSource().colors;
-            if (vm.colorOptions.length!=0) vm.colorOption = vm.colorOptions[0];
+            if (angular.isDefined(vm.colorOptions)){
+                if (vm.colorOptions.length!=0) vm.colorOption = vm.colorOptions[0];
+            }
 
 
             var tbl = osApi.getDataSource().category.filter(function(v) {
@@ -111,6 +113,9 @@
                 });
             };
 
+            vm.doClose = function(){
+                alert("HI");
+            }
             vm.setGeneColor = function() {
                 var genes = ("+" + vm.geneColor.replace(/\s/g, '').toUpperCase()).match(/[-+]\w*/gi).map(function(v) {
                     return {

@@ -1,6 +1,6 @@
 // Namespace
-$bar-color: #FFF;
-$ball-color: #FFF;
+$bar-color: $color-blue;
+$ball-color: $color-blue;
 .loader-modal {
     display: none;
     position: absolute;
@@ -8,7 +8,7 @@ $ball-color: #FFF;
     height: 100%;
     left: 0px;
     top: 0px;
-    background-color: rgba(0, 0, 0, .8);
+    background-color: rgba(255, 255, 255, .8);
     z-index: 999;
 }
 
@@ -22,7 +22,7 @@ $ball-color: #FFF;
     &__bar {
         position: absolute;
         bottom: 0;
-        width: 10px;
+        width: 13px;
         height: 50px;
         background: $bar-color;
         transform-origin: center bottom;
@@ -38,8 +38,8 @@ $ball-color: #FFF;
         position: absolute;
         bottom: 10px;
         left: 0;
-        width: 10px;
-        height: 10px;
+        width: 13px;
+        height: 13px;
         background: $ball-color;
         border-radius: 50%;
         animation: ball 4s infinite;

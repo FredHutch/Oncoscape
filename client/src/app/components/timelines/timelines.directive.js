@@ -21,138 +21,98 @@
         /** @ngInject */
         function TimelinesController(osApi, osCohortService, $state, $scope, $stateParams, $window, $document, moment, d3, _) {
 
+
             // Loading . . . 
             osApi.setBusy(true);
 
-            // Data
-            var patientsAll = [];
-            var patientsFiltered = [];
-            var patientsDomain = [];
-            var scaleX;
-            var heightRow = 20;
+            // View Model
+            var patientsAll, patientsFiltered, patientsDomain;
+            var patientsSelectedIds = [];
+            var rowHeight = 20;
             var baseZoomX = 1;
             var baseZoomY = 1;
             var xZoom, yZoom, xTran, yTran;
-            var axis;
-            var brushY = d3.brushY();
-            var brushX = d3.brushX();
-            var brushSelect = d3.brushY();
-            brushY.handleSize(3);brushX.handleSize(3); brushSelect.handleSize(1);
-            
-
-            // Retrieve Selected Patient Ids From OS Service
-            var pc = osCohortService.getPatientCohort();
-            if (pc == null) {
-                osCohortService.setPatientCohort([], "All Patients");
-            }
-            var selectedIds = (pc == null) ? [] : pc.ids;
-
-            var onPatientsSelect = function(patients) {
-                selectedIds = patients.ids;
-                vm.update();
-            }
-            osCohortService.onPatientsSelect.add(onPatientsSelect);
-
-            // var setSelected = function() {
-            //     selectedIds = chart.bars.selectAll(".timeline-selected")[0].map(function(p) {
-            //         return p.__data__.id;
-            //     })
-            //     osCohortService.setPatientCohort(selectedIds, "Timelines");
-            // }
-        
-
-            // View Model
-            var vm = (function(vm) {
-                vm.timescales = [{
-                    name: 'Log',
-                    valFn: function(val) {
-                        return (val < 0 ? -1 : 1) * Math.log(Math.abs((val * 1000) / 86400000) + 1) / Math.log(2)
-                    }
-                }, {
-                    name: 'Linear',
-                    valFn: function(val) {
-                        return moment.duration(val * 1000).asDays()
-                    }
-                }];
-                vm.timescale = vm.timescales[0];
-                vm.filters = [{
-                    name: 'Alive + Dead'
-                }, {
-                    name: 'Only Alive'
-                }, {
-                    name: 'Only Dead'
-                }];
-                vm.filter = vm.filters[2];
-                vm.modes = [{
-                    name: "Highlight"
-                }, {
-                    name: "Filter"
-                }];
-                vm.mode = vm.modes[0];
-                vm.displayModes = [{
-                    name: 'All Patients'
-                },{
-                    name: 'Selected Patients'
-                }];
-                vm.displayMode = vm.displayModes[0];
-                vm.datasource = osApi.getDataSource();
-                return vm;
-            })(this);
-
+            var scaleX;
+            var vm = this;
+            vm.datasource = osApi.getDataSource();
+            vm.cohort = osCohortService.getCohort();
+            vm.timescales = [
+                { name: 'Log', valFn: function(val) { return (val < 0 ? -1 : 1) * Math.log(Math.abs((val * 1000) / 86400000) + 1) / Math.log(2); } },
+                { name: 'Linear', valFn: function(val) { return moment.duration(val * 1000).asDays(); } }
+            ];
+            vm.filters = [
+                { name: 'Alive + Dead' },
+                { name: 'Only Alive' },
+                { name: 'Only Dead' }
+            ];
+            vm.modes = [
+                { name: "Highlight" },
+                { name: "Filter" }
+            ];
+            vm.displayModes = [
+                { name: 'All Patients' },
+                { name: 'Selected Patients' }
+            ];
+            vm.timescale = vm.timescales[0];
+            vm.filter = vm.filters[2];
+            vm.mode = vm.modes[0];
+            vm.displayMode = vm.displayModes[0];
+            vm.events = null;
+            vm.align = null;
+            vm.sort = null;
             vm.resetZoom = function() {
-                selectedIds = [];
-                osCohortService.setPatientCohort([], "All Patients");
-                chart.d3ScrollY.call(brushY.move, null);
-                chart.d3ScrollX.call(brushY.move, null);
+                patientsSelectedIds = [];
+                osCohortService.setCohort([], osCohortService.ALL, osCohortService.PATIENT);
+                elScrollY.call(brushY.move, null);
+                elScrollX.call(brushY.move, null);
                 vm.update();
-
             };
 
-            // Chart Container Components
-            var chart = (function(angular, d3) {
-                var elTip = null;
-                var elChart = d3.select(".timelines-content");
-
-                var d3Chart = elChart.append("svg");
-                d3Chart.attr("class", "timeline-chart");
-
-                var d3ScrollY = elChart.append("svg");
-                d3ScrollY.attr("class", "timeline-scroll-y");
-
-                var d3ScrollX = elChart.append("svg");
-                d3ScrollX.attr("class", "timeline-scroll-x");
-
-                var rPatients = d3Chart.append("g");
-                rPatients.attr("class", "timeline-patients-hitarea");
-                var gPatients = d3Chart.append("g");
-
-                var rAxis = d3Chart.append("rect");
-                rAxis.attr("class", "timeline-axis-bg");
-                var gAxis = d3Chart.append("g");
+            // Elements
+            var brushY = d3.brushY().handleSize(3);
+            var brushX = d3.brushX().handleSize(3);
+            var brushSelect = d3.brushY().handleSize(1);
+            var elContainer = d3.select(".timelines-content");
+            var elAxis = elContainer.append("svg").attr("class", "timeline-axis");
+            var elScrollY = elContainer.append("svg").attr("class", "timeline-scroll-y");
+            var elScrollX = elContainer.append("svg").attr("class", "timeline-scroll-x");
+            var elChart = elContainer.append("svg").attr("class", "timeline-chart");
+            var elSelected = elChart.append("g");
+            var elHitarea = elChart.append("g");
+            var elPatients = elChart.append("g");
 
 
-                return {
-                    elChart: angular.element(".timelines-content"),
-                    elTip: elTip,
-                    d3Chart: d3Chart,
-                    d3ScrollY: d3ScrollY,
-                    d3ScrollX: d3ScrollX,
-                    gPatients: gPatients,
-                    rPatients: rPatients,
-                    gAxis: gAxis,
-                    rAxis: rAxis
-                };
+            var elTip = d3.tip().attr("class", "tip").offset([-8, 0]).html(function(d) { return d.tip; });
+            elChart.call(elTip);
 
-            })(angular, d3);
+            elContainer = angular.element(".timelines-content");
 
+            // Utility
+            vm.update = function() {
+
+                var layout = osApi.getLayout();
+                var width = $window.innerWidth - layout.left - layout.right - 80;
+                var height = $window.innerHeight - 250;
+
+
+                updateData();
+                updateSize(width, height, layout);
+                updateScrollbars(width, height);
+                updateSelected(width, height);
+                updatePatients(width, height);
+                updateZoom(width, height);
+                updateAxis(width, height);
+            };
+
+
+            // Update Data Models
             var updateData = function() {
-
                 // Retrieve State
                 var align = vm.align.name;
                 var sort = vm.sort.name;
                 var filter = vm.filter.name;
                 var events = vm.events.filter(function(e) {
-                    return e.selected
+                    return e.selected;
                 }).map(function(e) {
                     return e.name.toLowerCase();
                 });
@@ -174,8 +134,8 @@
                         if ((this.filter == "Only Alive" && status == "Dead") || (this.filter == "Only Dead" && status != "Dead")) {
                             patient.visible = false;
                         } else {
-                            if (vm.displayMode.name == "Selected Patients" && selectedIds.length > 0) {
-                                patient.visible = (selectedIds.indexOf(patient.id) != -1);
+                            if (vm.displayMode.name == "Selected Patients" && patientsSelectedIds.length > 0) {
+                                patient.visible = (patientsSelectedIds.indexOf(patient.id) != -1);
                             } else {
                                 patient.visible = true;
                             }
@@ -211,19 +171,14 @@
 
                 // Set Selected
                 patientsFiltered.forEach(function(v) {
-                    v.selected = (selectedIds.indexOf(v.id) != -1);
+                    v.selected = (patientsSelectedIds.indexOf(v.id) != -1);
                 });
 
                 // Sort Patients
                 patientsFiltered = patientsFiltered.sort(function(a, b) {
-                    
                     if (a.status == b.status) {
-                        
-                        var aTime = a.events.filter(function(e){ return (e.name==sort && e.order==1)})[0].tsStartAligned;
-                        var bTime = b.events.filter(function(e){ return (e.name==sort && e.order==1)})[0].tsStartAligned;
-
-                        
-                        
+                        var aTime = a.events.filter(function(e) { return (e.name == sort && e.order == 1) })[0].tsStartAligned;
+                        var bTime = b.events.filter(function(e) { return (e.name == sort && e.order == 1) })[0].tsStartAligned;
                         if (aTime > bTime) return 1;
                         if (bTime > aTime) return -1;
                         return 0;
@@ -232,146 +187,6 @@
                     }
                 });
             };
-
-            var updateEvents = function(height, width) {
-                height -= 70;
-                width -= 20+15;
-
-                // Scale
-                scaleX = d3.scaleLinear().domain(patientsDomain).range([0, width]).nice();
-
-                chart.gPatients.selectAll("*").remove();
-
-                var rows = chart.gPatients.selectAll("g.patient").data(patientsFiltered);
-                rows.exit()
-                    .transition()
-                    .delay(200)
-                    .duration(500)
-                    .style('opacity', 0.0)
-                    .remove();
-                var rowEnter = rows.enter()
-                    .append('g')
-                    .attr("class","patient")
-                    .attr('transform', function(d, i) {
-                        return "translate(0," + (i * heightRow) + ")";
-                    });
-
-                rowEnter.append("rect")
-                    .attr('class','timeline-highlight')
-                    .attr('height', heightRow+1)
-                    .attr('width',width)
-                    .attr('fill',function(d){
-                        return d.selected ? "#DDD" : "#FFF";
-                    })
-            
-               
-                var cols = rowEnter.selectAll(".event").data(function(d) {
-                    return d.events.filter(function(v) {
-                        return v.visible;
-                    });
-                });
-                cols.exit().remove();
-                cols.enter().append("rect")
-                    .attr('class', 'event')
-                    .attr('width', function(d) {
-                        return Math.max((scaleX(d.tsEndAligned) - scaleX(d.tsStartAligned)), 3);
-                    })
-                    .attr('height', function(d) {
-                        return (d.name == "Radiation" || d.name == "Drug") ? heightRow / 2 : heightRow;
-                    })
-                    .attr('y', function(d) {
-                        return ((d.name == "Radiation") ? heightRow / 2 : 0);
-                    })
-                    .attr('x', function(d) {
-                        return scaleX(d.tsStartAligned);
-                    })
-                    .style('fill', function(d) {
-                        return d.color;
-                    })
-                    .on("mouseover", function() {
-                        var datum = d3.select(this).datum();
-
-                        if (datum.html == null) {
-                            var data = datum.data;
-                            datum.html =
-                                Object.keys(data).reduce(function(p, c) {
-                                    p.html += "<li>" + c + ":" + p.data[c] + "</li>";
-                                    return p;
-                                }, {
-                                    html: "<b>" + datum.name + "</b>",
-                                    data: data
-                                }).html;
-                        }
-                        if (chart.elTip == null) chart.elTip = angular.element("#timelines-tip");
-                        chart.elTip.html(datum.html);
-
-                    }).on("mouseout", function() {
-                        chart.elTip.html("<b>Rollover Event For Details</b>");
-                    });
-                cols
-                    .attr('width', function(d) {
-                        return Math.max((scaleX(d.tsEndAligned) - scaleX(d.tsStartAligned)), 2);
-                    })
-                    .attr('height', function(d) {
-                        return (d.name == "Radiation" || d.name == "Drug") ? heightRow / 2 : heightRow;
-                    })
-                    .attr('y', function(d) {
-                        return ((d.name == "Radiation") ? heightRow / 2 : 0);
-                    })
-                    .attr('x', function(d) {
-                        return scaleX(d.tsStartAligned);
-                    })
-                    .style('fill', function(d) {
-                        return d.color;
-                    })
-
-                // Brush
-                chart.rPatients.call(brushSelect);
-                brushSelect.on("end", function() {
-                    if (d3.event.selection == null) {
-                        return;
-                    }
-                    var lowerIndex = Math.floor(d3.event.selection[0] / yZoom / 20);
-                    var upperIndex = Math.ceil(d3.event.selection[1] / yZoom / 20);
-                    var ids = [];
-                    for (var i = lowerIndex; i <= upperIndex; i++) {
-                        ids.push(patientsFiltered[i].id);
-                    }
-                    osCohortService.setPatientCohort(ids, "All Patients");
-                    chart.rPatients.call(d3.event.target.move, null);
-                });
-            };
-
-            var updateZoom = function(height) {
-                height -= 70;
-                baseZoomY = height / (patientsFiltered.length * heightRow);
-                baseZoomX = 1;
-                xZoom = baseZoomX;
-                yZoom = baseZoomY;
-                xTran = 0;
-                yTran = 0;
-                chart.gPatients.attr("transform", "translate(" + xTran + "," + yTran + ") scale(" + xZoom + "," + yZoom + ")");
-            };
-
-            var configSize = function(height, width, layout) {
-                height -= 70;
-                width -= 20;
-                // selectBox.attr("height", height).attr("width", 15).attr("transform", function(){
-                //     return "translate(" + (width-15)+ ",0)";
-                // });
-                chart.elChart.css("margin-left", layout.left + 20).css("margin-right", layout.right + 20).css("width", width).css("height", height + 70);
-                chart.d3ScrollY.attr("height", height);
-                chart.d3ScrollX.attr("width", width-15);
-                chart.d3Chart.attr("height", height + 70).attr("width", width);
-                chart.rPatients.attr("height", height + 70).attr("width", width);
-                chart.gAxis.attr('transform', function() {
-                    return "translate(0," + (height) + ")";
-                });
-                chart.rAxis.attr('transform', function() {
-                    return "translate(0," + (height) + ")";
-                }).attr("width", width).attr("fill", "#FFF");
-            };
-
             var daysToUnit = function(d) {
                 if (Math.abs(d) == 0) return d;
                 if (Math.abs(d) < 30) return d + " Days";
@@ -379,7 +194,7 @@
                 return Math.round((d / 365) * 10) / 10 + " Years";
             };
             var updateAxis = function() {
-                axis = d3.axisBottom(scaleX).ticks(7);
+                var axis = d3.axisBottom(scaleX).ticks(7);
                 if (vm.timescale.name == 'Linear') {
                     axis.tickFormat(function(d) {
                         return daysToUnit(d);
@@ -389,42 +204,70 @@
                         return daysToUnit(Math.round((d < 0 ? -1 : 1) * (Math.pow(2, (Math.abs(d))) - 1) * 100) / 100);
                     });
                 }
-                chart.gAxis.call(axis);
+                elAxis.call(axis);
             };
 
-            var configScrollbars = function(height, width) {
-                brushY
-                chart.d3ScrollY.call(
+            // Update Size
+            var updateSize = function(width, height, layout) {
+                elContainer.css("background", "#FAFAFA").css("margin-left", layout.left + 30).css("margin-right", layout.right).css("width", width + 20).css("height", height + 20);
+                elScrollY.attr("height", height);
+                elScrollX.attr("width", width);
+                elChart.attr("height", height).attr("width", width).attr("fill", "blue").attr('transform', 'translate(20,20)');
+                elPatients.attr("height", height).attr("width", width);
+                elSelected.attr("height", height).attr("width", width);
+                elAxis.style("top", height + 20).attr("width", width);
+                elHitarea.attr("width", width).attr("height", height);
+            };
+
+            // Update Zoom
+            var updateZoom = function(width, height) {
+                baseZoomY = height / (patientsFiltered.length * rowHeight);
+                baseZoomX = 1;
+                xZoom = baseZoomX;
+                yZoom = baseZoomY;
+                xTran = 0;
+                yTran = 0;
+                elPatients.attr("transform", "translate(" + xTran + "," + yTran + ") scale(" + xZoom + "," + yZoom + ")");
+                elSelected.attr("transform", "translate(" + xTran + "," + yTran + ") scale(" + xZoom + "," + yZoom + ")");
+            };
+
+
+
+            var updateScrollbars = function(width, height) {
+                elScrollY.call(
                     brushY
                     .on("end", function() {
-                        if (d3.event.selection != null) {
+                        if (d3.event.selection !== null) {
                             var lower = d3.event.selection[0];
                             var upper = d3.event.selection[1];
-                            var domain = height - 70;
+                            var domain = height;
                             var lowerPercent = lower / domain;
                             var upperPercent = upper / domain;
                             var deltaPercent = upperPercent - lowerPercent;
                             yZoom = (baseZoomY / deltaPercent);
-                            yTran = (20 * patientsFiltered.length * yZoom) * -lowerPercent;
+                            yTran = (rowHeight * patientsFiltered.length * yZoom) * -lowerPercent;
                         } else {
-
-                            if (yZoom == baseZoomY && yTran == 0) return;
+                            if (yZoom == baseZoomY && yTran === 0) return;
                             yZoom = baseZoomY;
                             yTran = 0;
-                            chart.d3ScrollY.call(brushY.move, null);
-
+                            elScrollY.call(brushY.move, null);
                         }
-                        chart.gPatients
+                        elPatients
+                            .transition()
+                            .duration(750)
+                            .attr("transform", "translate(" + xTran + "," + yTran + ") scale(" + xZoom + "," + yZoom + ")");
+
+                        elSelected
                             .transition()
                             .duration(750)
                             .attr("transform", "translate(" + xTran + "," + yTran + ") scale(" + xZoom + "," + yZoom + ")");
 
                     })
                 );
-                chart.d3ScrollX.call(
+                elScrollX.call(
                     brushX
                     .on("end", function() {
-                        if (d3.event.selection != null) {
+                        if (d3.event.selection !== null) {
                             var lower = d3.event.selection[0];
                             var upper = d3.event.selection[1];
                             var domain = width - 20;
@@ -437,52 +280,135 @@
                             if (xZoom == baseZoomX && xTran == 0) return;
                             xZoom = baseZoomX;
                             xTran = 0;
-                            chart.d3ScrollX.call(brushX.move, null);
+                            elScrollX.call(brushX.move, null);
 
                         }
-                        chart.gPatients
+                        elPatients
                             .transition()
                             .duration(750)
                             .attr("transform", "translate(" + xTran + "," + yTran + ") scale(" + xZoom + "," + yZoom + ")");
-
-                        var st = d3.zoomIdentity.translate(xTran).scale(xZoom).rescaleX(scaleX);
-                        var axis = d3.axisBottom(st).ticks(7);
-                        if (vm.timescale.name == 'Linear') {
-                            axis.tickFormat(function(d) {
-                                return daysToUnit(d);
-                            });
-                        } else {
-                            axis.tickFormat(function(d) {
-                                return daysToUnit(Math.round((d < 0 ? -1 : 1) * (Math.pow(2, (Math.abs(d))) - 1) * 100) / 100);
-                            });
-                        }
-                        chart.gAxis.call(axis);
-
                     })
                 );
             };
 
-            vm.update = function() {
-                var layout = osApi.getLayout();
-                var height = $window.innerHeight - 180;
-                var width = $window.innerWidth - layout.left - layout.right - 40;
-                updateData();
-                configSize(height, width, layout);
-                configScrollbars(height, width);
-                updateEvents(height, width);
-                updateZoom(height, width);
-                updateAxis(height, width);
-            }
 
-            osApi.onResize.add(vm.update);
 
-            function resize() {
-                _.debounce(vm.update, 300);
-            }
-            angular.element($window).bind('resize', resize);
+            brushX.on("end", null);
+            // Update Patients
+            var updateEvents = function(evts) {
+                evts.exit()
+                    .on("mouseover", null)
+                    .on("mouseout", null)
+                    .remove();
+                evts.enter().append("rect")
+                    .attr('class', 'event')
+                    .attr('width', function(d) { return Math.max((scaleX(d.tsEndAligned) - scaleX(d.tsStartAligned)), 2); })
+                    .attr('height', function(d) { return (d.name == "Radiation" || d.name == "Drug") ? (rowHeight - 2) / 2 : rowHeight - 2; })
+                    .attr('y', function(d) { return ((d.name == "Radiation") ? rowHeight / 2 : 1); })
+                    .attr('x', function(d) { return scaleX(d.tsStartAligned); })
+                    .style('fill', function(d) { return d.color; })
+                    .on("mouseover", elTip.show)
+                    .on("mouseout", elTip.hide);
+                evts
+                    .attr('width', function(d) { return Math.max((scaleX(d.tsEndAligned) - scaleX(d.tsStartAligned)), 2); })
+                    .attr('height', function(d) { return (d.name == "Radiation" || d.name == "Drug") ? rowHeight / 2 : rowHeight; })
+                    .attr('y', function(d) { return ((d.name == "Radiation") ? rowHeight / 2 : 0); })
+                    .attr('x', function(d) { return scaleX(d.tsStartAligned); })
+                    .style('fill', function(d) { return d.color; })
+            };
 
-            /* Init Data */
-            osApi.setBusy(true);
+            var updateSelected = function() {
+                // Transform Selections Into Index Positions - Don't need to render unselected'
+                var selectedIndexes = patientsFiltered.map(function(v, i) {
+                    return (v.selected) ? i : -1;
+                }).filter(function(v) { return v != -1; });
+
+
+                var selectedRows = elSelected.selectAll("rect").data(selectedIndexes);
+
+                selectedRows.exit()
+                    .transition()
+                    .duration(600)
+                    .attr("width", "0")
+                    .remove();
+
+                selectedRows.enter()
+                    .append('rect')
+                    .attr('width', '0')
+                    .attr('height', rowHeight - 2)
+                    .attr('y', 1)
+                    .attr('transform', function(d) { return "translate(0," + (d * rowHeight) + ")"; })
+                    .style("fill", "#cacaca")
+                    .transition()
+                    .duration(600)
+                    .attr("width", "100%");
+
+                selectedRows
+                    .transition()
+                    .duration(600)
+                    .attr('transform', function(d) { return "translate(0," + (d * rowHeight) + ")"; })
+
+            };
+            var updatePatients = function(width) {
+
+                // Set Scale
+                scaleX = d3.scaleLinear().domain(patientsDomain).range([0, width]).nice();
+                var patients = elPatients.selectAll("g.patient").data(patientsFiltered);
+                patients.exit()
+                    .transition()
+                    .delay(200)
+                    .duration(500)
+                    .style('opacity', 0.0)
+                    .remove();
+
+                var patientEnter = patients.enter()
+                    .append('g')
+                    .attr("class", "patient")
+                    .attr('transform', function(d, i) {
+                        return "translate(0," + (i * rowHeight) + ")";
+                    });
+
+                updateEvents(patients.selectAll(".event").data(function(d) {
+                    return d.events.filter(function(v) { return v.visible; });
+                }));
+
+                updateEvents(patientEnter.selectAll(".event").data(function(d) {
+                    return d.events.filter(function(v) { return v.visible; });
+                }));
+
+                elHitarea.call(brushSelect);
+                brushSelect.on("end", function() {
+                    if (d3.event.selection === null) {
+                        //osCohortService.setCohort([], "Timelines", osCohortService.PATIENT);
+                        return;
+                    }
+                    var lowerIndex = Math.floor(d3.event.selection[0] / yZoom / 20);
+                    var upperIndex = Math.ceil(d3.event.selection[1] / yZoom / 20);
+                    lowerIndex = Math.max(lowerIndex, 0);
+                    upperIndex = Math.min(upperIndex, patientsFiltered.length - 1);
+                    var ids = [];
+                    for (var i = lowerIndex; i <= upperIndex; i++) {
+                        ids.push(patientsFiltered[i].id);
+                    }
+                    osCohortService.setCohort(ids, "Timelines", osCohortService.PATIENT);
+                    elHitarea.call(d3.event.target.move, null);
+                });
+            };
+
+
+
+            // Application Events
+            var onCohortChange = function(c) {
+                vm.cohort = c;
+                patientsSelectedIds = vm.cohort.patientIds;
+                vm.update();
+
+            };
+            osCohortService.onCohortChange.add(onCohortChange);
+
+
+
+            // Load + Format Data
             osApi.query(osApi.getDataSource().clinical.events, {}).then(function(response) {
                 var colorFn = function(status) {
                     return (status == "Birth") ? "#E91E63" :
@@ -497,7 +423,6 @@
                         (status == "Drug") ? "#03A9F4" :
                         "black";
                 };
-
                 var data = response.data[0];
                 var events = {};
                 data = Object.keys(data).map(function(key) {
@@ -508,11 +433,30 @@
                         })
                         .map(function(v) {
                             this.events[v.name] = null;
+                            if (v.hasOwnProperty("data")) {
+                                v.tip = Object.keys(v.data).reduce(function(p, c) {
+                                    try {
+                                        if (v.data[c] !== null) {
+                                            p += "<br>" + c
+                                                .replace(/([A-Z])/g, " $1")
+                                                .replace(/\w\S*/g, function(txt) {
+                                                    return txt.charAt(0).toUpperCase() + txt.substr(1).toLowerCase();
+                                                }) + ": " + v.data[c].toString()
+                                                .replace(/\w\S*/g, function(txt) { return txt.charAt(0).toUpperCase() + txt.substr(1).toLowerCase(); });
+                                        }
+                                    } catch (e) {}
+                                    return p;
+                                }, v.name);
+                            } else if (v.hasOwnProperty("name")) {
+                                v.tip = v.name;
+                            } else {
+                                v.tip = "Unknown";
+                            }
                             v.tsStart = moment(v.start, "MM/DD/YYYY").unix();
-                            v.tsEnd = (v.end == null) ? v.tsStart : moment(v.end, "MM/DD/YYYY").unix();
+                            v.tsEnd = (v.end === null) ? v.tsStart : moment(v.end, "MM/DD/YYYY").unix();
                             v.tsStartAligned = "";
                             v.tsEndAligned = "";
-                            v.end = (v.end == null) ? v.start : v.end;
+                            v.end = (v.end === null) ? v.start : v.end;
                             v.color = this.colorFn(v.name);
                             v.visible = true;
                             v.order = 1;
@@ -522,7 +466,11 @@
                             colorFn: this.colorFn
                         });
                     var evtHash = evtArray.reduce(function(p, c) {
-                        p[c.name] = c;
+                        if (p.hasOwnProperty(c.name)) {
+                            if (p[c.name].tsStart > c.tsStart) p[c.name] = c;
+                        } else {
+                            p[c.name] = c;
+                        }
                         return p;
                     }, {});
                     return {
@@ -535,35 +483,30 @@
                     events: events,
                     colorFn: colorFn
                 });
-
-
-                data.forEach(function(patient){
-                    var groups = _.groupBy(patient.events,'name');
-                    var keys = Object.keys(groups).filter(function(prop){
-                        return (this[prop].length>1);
+                data.forEach(function(patient) {
+                    var groups = _.groupBy(patient.events, 'name');
+                    var keys = Object.keys(groups).filter(function(prop) {
+                        return (this[prop].length > 1);
                     }, groups);
-                    keys.forEach(function(v){
+                    keys.forEach(function(v) {
                         var i = 1;
                         patient.events
-                        .filter(function(e){ return e.name==v; })
-                        .sort(function(a,b){
-                            return a.tsStart - b.tsStart;
-                        }).forEach(function(v){
-                            v.order = i;
-                            i++;
-                        })
-                    })
+                            .filter(function(e) { return e.name == v; })
+                            .sort(function(a, b) {
+                                return a.tsStart - b.tsStart;
+                            }).forEach(function(v) {
+                                v.order = i;
+                                i++;
+                            });
+                    });
                 });
-
-
                 patientsAll = data.filter(function(v) {
                     try {
-                        v.status = v.hash["Status"].data.status.toLowerCase();
+                        v.status = v.hash.Status.data.status.toLowerCase();
                         return true;
                     } catch (e) {
                         return false;
                     }
-                    return false;
                 });
                 vm.events = Object.keys(events).map(function(v) {
                     return {
@@ -582,14 +525,18 @@
                 osApi.setBusy(false);
             });
 
+            // Resize Events
+            osApi.onResize.add(vm.update);
+
             // Destroy
             $scope.$on('$destroy', function() {
-                osCohortService.onPatientsSelect.remove(onPatientsSelect);
+
+                osCohortService.onCohortChange.remove(onCohortChange);
+                brushX.on("end", null);
+                brushY.on("end", null);
+                brushSelect.on("end", null);
                 osApi.onResize.remove(vm.update);
                 angular.element($window).unbind('resize', resize);
-                brushY.on("end", null);
-                brushX.on("end", null);
-                brushSelect.on("end",null);
             });
         }
     }
