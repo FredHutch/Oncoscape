@@ -55,25 +55,27 @@
                                 </div>
                                 <div ng-if="vm.showImport" class="col-xs-12 col-sm-4" style="border:0px solid #DDD; border-right-width:1px;">
                                     <h2 style="margin-top:0px;">Import A Cohort</h2>
-                                    Enter a comma seperated list of patient IDs below and click save<br />
-                                    <input ng-model="vm.importPatientIds" type="text" class="form-control" style="margin-top:5px;" placeholder="eg. TCGA-01-0110, TCGA-02-0220">
-                                    <button class="btn btn-primary" style="margin-top:15px;" ng-click="vm.importPatientCohort(); $event.stopPropagation();">Save</button>
-                                    <button class="btn btn-primary" style="margin-top:15px;" ng-click="vm.showImport=false; $event.stopPropagation();">Cancel</button>
+                                    Enter a comma seperated list of patient or sample IDs below and click import<br />
+                                    <input ng-model="vm.importName" type="text" class="form-control" style="margin-top:5px;" placeholder="Enter Cohort Name">
+                                    <input ng-model=" vm.importIds " type="text " class="form-control " style="margin-top:5px; " placeholder="eg. TCGA-01-0110, TCGA-02-0220 ">
+                                    <button class="btn btn-primary " style="margin-top:15px; " ng-click="vm.importCohort(); $event.stopPropagation(); ">Save</button>
+                                    <button class="btn btn-primary " style="margin-top:15px; " ng-click="vm.showImport=false; $event.stopPropagation(); ">Cancel</button>
                                 </div>
-                                <div class="col-xs-12 col-sm-8">
-                                    <h2 style="margin-top:0px;">Your Cohorts</h2>
-                                    <div class="markers-command hvr-sweep-to-right" style="max-width:200px;" ng-repeat="item in vm.cohorts" ng-click="vm.setPatientCohort(item)">
-                                        {{item.name}}
+                                <div class="col-xs-12 col-sm-8 ">
+                                    <h2 style="margin-top:0px; ">Your Cohorts</h2>
+                                    <div class="markers-command hvr-sweep-to-right header-cohort-btn" ng-repeat="item in vm.cohorts " ng-click="vm.setPatientCohort(item) ">
+                                        <p class="datasource-h1">{{item.name}}</p>
+                                        <p class="datasource-h2">{{item.numPatients}} patients <br /> {{item.numSamples}} samples <br /> {{item.numClinical}} clinical records</p>
                                     </div>
                                 </div>
                             </div>
                         </div>
                     </li>
-                    <li ng-show="vm.showHelp">
-                        <a href="http://resources.sttrcancer.org/oncoscape" target="_blank" class="header-link"><span class="glyphicon glyphicon-question-sign"></span>Help</a>
+                    <li ng-show="vm.showHelp ">
+                        <a href="http://resources.sttrcancer.org/oncoscape " target="_blank " class="header-link "><span class="glyphicon glyphicon-question-sign "></span>Help</a>
                     </li>
-                    <li ng-show="vm.showLogout">
-                        <a href ng-click="vm.logoutClick()" class="header-link"><span class="glyphicon glyphicon-user"></span>Logout</a>
+                    <li ng-show="vm.showLogout ">
+                        <a href ng-click="vm.logoutClick() " class="header-link "><span class="glyphicon glyphicon-user "></span>Logout</a>
                     </li>
                 </ul>
             </div>

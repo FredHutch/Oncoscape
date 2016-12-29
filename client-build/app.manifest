@@ -26,14 +26,17 @@ CACHE:
 /fonts/ui-grid.svg
 /fonts/ui-grid.ttf
 /fonts/ui-grid.woff
+/scripts/app-02bbf0b6a7.js
 /scripts/app-2f54e12dc2.js
 /scripts/app-4d9d4f1941.js
 /scripts/app-70da1229dc.js
+/scripts/vendor-fbff3b32ee.js
 /styles/app-2159a84957.css
 /styles/app-8a6c3f36b4.css
 /styles/ui-grid.svg
 /styles/ui-grid.ttf
 /styles/ui-grid.woff
+/styles/vendor-4965d51886.css
 /assets/images/DSbladder.png
 /assets/images/DSbrain.png
 /assets/images/DSbreast.png
@@ -72,11 +75,15 @@ CACHE:
 /assets/images/history.png
 /assets/images/honeycomb-34985.svg
 /assets/images/imgad.jpeg
+/assets/images/logo-black.png
 /assets/images/logo-hutch.jpg
 /assets/images/logo-sarc.jpg
 /assets/images/logo-scca.jpg
 /assets/images/logo-uw.jpg
+/assets/images/logo-white.png
+/assets/images/logo.jpg
 /assets/images/logo.png
+/assets/images/lung-white.png
 /assets/images/markers.png
 /assets/images/pathways.png
 /assets/images/pattern2%20copy.png
@@ -99,13 +106,16 @@ CACHE:
 /assets/images/timelines.png
 /assets/images/xDScolorectal.png
 /assets/images/xxx-bg-pattern.png
+/maps/scripts/app-02bbf0b6a7.js.map
 /maps/scripts/app-2f54e12dc2.js.map
 /maps/scripts/app-4d9d4f1941.js.map
 /maps/scripts/app-70da1229dc.js.map
+/maps/scripts/vendor-fbff3b32ee.js.map
 /maps/styles/app-2159a84957.css.map
 /maps/styles/app-8a6c3f36b4.css.map
 /maps/styles/app-e3f9537438.css.map
 /maps/styles/app-f78892205c.css.map
+/maps/styles/vendor-4965d51886.css.map
 /app/components/markers/markers.worker.js
 /app/components/oncoscape/oncoscape.cohort.service.worker.js
 /app/components/oncoscape/oncoscape.http.factory.js
@@ -120,4 +130,4 @@ https://*
 SETTINGS:
 prefer-online
 
-# hash: 506aa4ff4510ef65ac37ecfcdaaeefc36960728ae1c4ab00ef7f1ffc09293d64
+# hash: e4af1d6165a539c27933d40972a37f1a34fd072dccb83cf885d33b3fca30f639

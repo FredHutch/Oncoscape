@@ -310,7 +310,8 @@
             };
 
         })(osApi, statsFactory, _data);
-        var colors = ["#E91E63", "#673AB7", "#4CAF50", "#CDDC39", "#FFC107", "#FF5722", "#795548", "#607D8B", "#03A9F4", "#03A9F4", '#004358', '#800080', '#BEDB39', '#FD7400', '#1F8A70'];
+
+        var colors = ["#E91E63", "#673AB7", "#4CAF50", "#CDDC39", "#FFC107", "#FF5722", "#795548", "#607D8B", "#03A9F4", "#03A9F4", '#004358', '#800080', '#BEDB39', '#FD7400', '#1F8A70', '#B71C1C', '#880E4F', '#4A148C', '#311B92', '#0D47A1', '#006064', '#1B5E20'];
         var setCohort = function(cohort, name, type) {
             // Create Cohort If Array Passed
             if (angular.isArray(cohort)) {
@@ -423,21 +424,34 @@
             });
         };
 
-
         var saveCohort = function() {
             _cohort.type = "SAVED";
             _cohorts.push(_cohort);
             localStorage.setItem(osApi.getDataSource().disease + 'Cohorts', angular.toJson(_cohorts));
-            // onCohortChange.dispatch(_cohort);
 
-        }
+        };
         var deleteCohort = function(cohort) {
             _cohorts.splice(_cohorts.indexOf(cohort), 1);
-
             localStorage.setItem(osApi.getDataSource().disease + 'Cohorts', angular.toJson(_cohorts));
             setCohort([], "", "PATIENT");
-            // If Curretn Cohort == Cohort -- .. 
+        };
 
+        // Converts Sample Ids To A List of Sample Ids
+        var importIds = function(ids, name) {
+            var sampleIds = _.union.apply(null, ids
+                .map(function(id) { // Convert All Ids to Patient Ids
+                    id = id.toUpperCase().trim(); // Clean input
+                    return _data.sampleMap.hasOwnProperty(id) ? _data.sampleMap[id] : id;
+                })
+                .filter(function(id) { // Remove Invalid Patient Ids
+                    return _data.patientMap.hasOwnProperty(id);
+                })
+                .map(function(id) { // Convert Patient Ids To Sample Arrays
+                    return _data.patientMap[id].samples;
+                })); // Union Merges Arrays + Removes Dups
+
+            setCohort(sampleIds, name, "SAMPLE");
+            saveCohort();
         }
 
 
@@ -453,6 +467,7 @@
             onCohortChange: onCohortChange,
             onCohortsChange: onCohortsChange,
 
+            importIds: importIds,
             loadCohorts: loadCohorts,
             getData: getData,
             getCohorts: getCohorts,

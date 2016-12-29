@@ -40,16 +40,27 @@
 
             var vm = this;
             vm.show = false;
+            vm.cohort = {};
             vm.cohorts = [];
-            vm.addPatientCohort = osCohortService.addPatientCohort;
-            vm.setPatientCohort = osCohortService.setPatientCohort;
+            vm.addPatientCohort = function() {
+                osCohortService.saveCohort();
+            };
+            vm.setPatientCohort = function(cohort) {
+                osCohortService.setCohort(cohort);
+            };
+            osCohortService.onCohortChange.add(function(cohort) {
+                vm.cohort = cohort;
+            })
             osCohortService.onCohortsChange.add(function(allCohorts) {
                 vm.cohorts = allCohorts;
             });
-            vm.importPatientIds = "";
-            vm.importPatientCohort = function() {
-                var ids = vm.importPatientIds.split(",").map(function(v) { return v.trim(); });
-                osCohortService.setPatientCohort(ids, "Import", osCohortService.PATIENT);
+            vm.importIds = "";
+            vm.importCohort = function() {
+                var ids = vm.importIds.split(",").map(function(v) { return v.trim(); });
+                osCohortService.importIds(ids, vm.importName);
+                vm.importIds = "";
+                vm.importName = "";
+                vm.showImport = false;
             };
             vm.showImport = false;
             vm.showTools = false;
