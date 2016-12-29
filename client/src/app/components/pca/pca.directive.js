@@ -55,7 +55,7 @@
                 type: "color"
             };
 
-            // View Model
+            // View Model Update
             var vm = (function(vm, osApi) {
                 vm.loadings = [];
                 vm.pc1 = vm.pc2 = [];
