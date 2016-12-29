@@ -66,20 +66,18 @@
                 <label>Patient</label>
                 <button class="btn btn-default btn-no-focus" type="button" style="width:100%;font-weight: 300;" ng-click="vm.showPanelColor = true">Color Options</button>
             </div>
-            <div class="col-xs-12 form-label">
-                <h3>Variance Explained</h3>
+            <div class="col-xs-12 form-item">
+                <label>Variance Explained</label>
                 <div>
-                    <os-tray-barchart chart-data="vm.variance" chart-height="100"></os-tray-barchart>
-                    <div class="pca-pc-label">PC1</div>
-                    <div class="pca-pc-label" style="left:30%">PC2</div>
-                    <div class="pca-pc-label" style="left:60%">PC3</div>
+                    <os-tray-piechart chart-data1="vm.pc1" chart-data2="vm.pc2" chart-height="130"></os-tray-piechart>
+                    <div class="pca-pc1-label"><span>PC1</span><br />{{vm.pc1[0].value}}%</div>
+                    <div class="pca-pc2-label"><span>PC2</span><br />{{vm.pc2[0].value}}%</div>
                 </div>
             </div>
 
-            <div class="col-xs-12 form-label">
-                <h3>Loadings</h3>
+            <div class="col-xs-12 form-item">
+                <label>Loadings</label>
                 <os-tray-barchart chart-data="vm.loadings" chart-height="100"></os-tray-barchart>
-
             </div>
         </div>
     </section>

@@ -21,7 +21,7 @@
         return directive;
 
         /** @ngInject */
-        function TrayChartLink(scope, element, attrs) {
+        function TrayChartLink(scope, element) {
             var chart = d3.select(element[0]).append("svg").attr("class", "tray-chart").style("height", scope.height + "px");
             var elTip = d3.tip().attr("class", "tip").offset([-8, 0]).html(function(d) {
                 return d.tip;

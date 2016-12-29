@@ -34,8 +34,7 @@
                         <ul class="dropdown-menu row" style="max-height:88vh;overflow:scroll;">
                             <li ng-repeat="item in vm.datasets" style="padding-bottom:10px" class="col-xs-12 col-sm-6 col-lg-4" ng-click="vm.loadDataset(item.disease)">
                                 <div class="datasource-btn" style="color:#000">
-                                    <img class="datasource-img" ng-src="/assets/images/lung-white.png">
-                                    <!--ng-src="/assets/images/{{item.img}}">-->
+                                    <img class="datasource-img" ng-src="/assets/images/{{item.img}}">
                                     <p class="datasource-h1">{{item.name}}</p>
                                     <p class="datasource-h2">{{item.source}} | 11-17-2016</p>
                                 </div>

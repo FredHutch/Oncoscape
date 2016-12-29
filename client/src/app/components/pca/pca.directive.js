@@ -58,7 +58,7 @@
             // View Model
             var vm = (function(vm, osApi) {
                 vm.loadings = [];
-                vm.variance = [];
+                vm.pc1 = vm.pc2 = [];
                 vm.datasource = osApi.getDataSource();
                 vm.geneSets = [];
                 vm.geneSet = null;
@@ -130,10 +130,15 @@
                     })
                     .then(function(response) {
                         var d = response.data[0];
-                        vm.variance = [
-                            { tip: 'PC1<br />' + d.pc1 + "%", value: d.pc1 / 100 },
-                            { tip: 'PC2<br />' + d.pc2 + "%", value: d.pc2 / 100 },
-                            { tip: 'PC3<br />' + d.pc3 + "%", value: d.pc3 / 100 }
+                        console.log(d.pc1)
+                        vm.pc1 = [
+                            { name: 'PC1', value: d.pc1 },
+                            { name: '', value: 100 - d.pc1 }
+
+                        ];
+                        vm.pc2 = [
+                            { name: 'PC2', value: d.pc2 },
+                            { name: '', value: 100 - d.pc2 }
                         ];
 
                         var keys = Object.keys(response.data[0].data);
