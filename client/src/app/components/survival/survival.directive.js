@@ -21,94 +21,115 @@
         /** @ngInject */
         function SurvivalController(d3, osApi, osCohortService, $state, $timeout, $scope, $stateParams, $window, _) {
 
-            // Retrieve Selected Patient Ids From OS Service
-            var pc = osCohortService.getPatientCohort();
-            var cohorts = angular.fromJson(angular.toJson(osCohortService.getPatientCohorts()));
-            if (pc === null) {
-                osCohortService.setPatientCohort([], "All Patients")
-            } else {
-                if (pc.ids.length > 0) {
-                    cohorts.push({
-                        id: "Last Selection",
-                        ids: pc.ids,
-                        name: "Last Selection",
-                        time: new Date()
-                    });
-                }
-            }
-            // var selectedIds = (pc==null) ? [] : pc.ids;
-
             // Loading . . . 
             osApi.setBusy(true);
 
             // View Model
             var vm = this;
             vm.datasource = osApi.getDataSource();
-            vm.cohorts = cohorts;
-
-            vm.all = {
-                show: true,
-                color: '#000'
+            vm.cohorts = osCohortService.getCohorts();
+            vm.cohort = osCohortService.getCohort();
+            var onCohortChange = function(c) {
+                vm.cohort = c;
+                draw();
             };
+            osCohortService.onCohortChange.add(onCohortChange);
 
-            var colors = ["#E91E63", "#673AB7", "#2196F3", "#00BCD4", "#4CAF50", "#CDDC39", "#FFC107", "#FF5722", "#795548", "#607D8B", "#03A9F4", "#03A9F4"]; //['#004358','#800080','#BEDB39','#FD7400','#1F8A70'];
-            for (var i = 0; i < vm.cohorts.length; i++) {
-                vm.cohorts[i].show = true;
-                vm.cohorts[i].color = colors[i];
-            }
 
             vm.toggle = function() {
-                osCohortService.getSurvivalData(vm.cohorts.filter(function(c) {
-                    return c.show;
-                }), vm.all.show, "SurvivalController");
+                draw();
+            };
+
+            var formatPercent = function(d) {
+                return d + "%";
+            }
+            var formatDays = function(d) {
+                if (Math.abs(d) == 0) return d;
+                if (Math.abs(d) < 30) return d + " Days";
+                if (Math.abs(d) < 360) return Math.round((d / 30.4) * 10) / 10 + " Months";
+                return Math.round((d / 365) * 10) / 10 + " Years";
             };
 
             // Create D3 Elements
-            var brush = d3.brushX();
+            var elContainer = angular.element("#survival-chart");
             var elChart = d3.select("#survival-chart").append("svg");
+            var elBrush = elChart.append("g").attr("class", "brush");
+            var elSurvival = elChart.append("g");
             var elXAxis = elChart.append("g").attr("class", "axis");
             var elYAxis = elChart.append("g").attr("class", "axis");
+            var brush = d3.brush();
 
-            brush.on("end", function(){
-                if (!d3.event.selection) return;
-                var s = d3.event.selection,
-        x0 = s[0][0],
-        y0 = s[0][1],
-        x1 = s[1][0],
-        y1 = s[1][1];
-    console.log("brush coords:", s)
 
-    var ticks = elChart.selectAll(".tick");
-    
-    ticks.each(function(){
-        if (this.attributes.x1==null) return;
-        var xPos = this.attributes.x1.value;
-        d3.select(this).classed("selected", (xPos > x0 && xPos <x1));
 
-        
 
-    });
-
-            })
-
-            // Create D3 Axis Objects + Layout
-            var data = {};
-
+            // Base Layout
             var layout = {
                 width: 0,
                 height: 0,
                 xScale: null,
                 yScale: null,
-                xAxis: d3.axisBottom().ticks(5),
-                yAxis: d3.axisLeft().ticks(5)
-            }
+                xAxis: d3.axisBottom().ticks(5), //.tickFormat(formatDays),
+                yAxis: d3.axisLeft().ticks(5).tickFormat(formatPercent)
+            };
 
+            var onBrushEnd = function() {
+
+                if (!d3.event.selection) {
+                    osCohortService.setCohort([], "Survival", osCohortService.PATIENT);
+                    return;
+                }
+                var s = d3.event.selection;
+                osApi.setBusy(true);
+
+                // Map Selection To Time + Percent Ranges
+                var rangeSort = function(a, b) { return a - b; };
+
+                var timeRange = [s[0][0], s[1][0]].map(layout.xScale.invert).sort(rangeSort);
+                var percentRange = [s[0][1] - 10, s[1][1] - 10].map(layout.yScale.invert).sort(rangeSort);
+
+
+                // Determine Cohorts To Search (If All Patients Cohort Is Included, No Need To Look At Others)
+                var cohortsToSearch = vm.cohorts.filter(function(v) { return (v.show); });
+                if (cohortsToSearch.indexOf(vm.cohort) == -1) cohortsToSearch.push(vm.cohort);
+
+
+                // Build Patient Ids
+                var patientIds = [];
+                var cohortFilter = function(line) {
+                    return (
+                        (line.time >= timeRange[0]) &&
+                        (line.time <= timeRange[1]) &&
+                        (line.survivalFrom <= percentRange[1]) &&
+                        (line.survivalTo >= percentRange[0])
+                    );
+                };
+                var cohortReduce = function(p, c) {
+                    return _.union(p, c.alive, c.dead);
+                };
+                var execute = function() {
+                    for (var i = 0; i < cohortsToSearch.length; i++) {
+                        var data = cohortsToSearch[i].survival.data;
+                        patientIds = data.lines.filter(cohortFilter).reduce(cohortReduce, patientIds);
+                        patientIds = data.ticks.filter(cohortFilter).reduce(cohortReduce, patientIds);
+
+                    }
+                    osCohortService.setCohort(patientIds, "Survival", osCohortService.PATIENT);
+                };
+
+                // Loop Through Cohorts To Add Patient Ids Of Qualifying Lines + Ticks
+                if (cohortsToSearch.length > 2) $timeout(execute, 50);
+                else execute();
+
+
+
+
+            };
+            // Utility Methods
             var setScale = function(timelineDomain) {
-
                 var osLayout = osApi.getLayout();
                 layout.width = $window.innerWidth - osLayout.left - osLayout.right - 60;
                 layout.height = $window.innerHeight - 160;
-                angular.element("#survival-chart").css("margin-left", osLayout.left + 20);
+                elContainer.css("margin-left", osLayout.left + 20);
                 elChart
                     .attr("width", '100%')
                     .attr("height", layout.height);
@@ -119,97 +140,126 @@
 
                 layout.yScale = d3.scaleLinear()
                     .domain([0, 100])
-                    .range([layout.height - 50, 0]);
+                    .range([layout.height - 50, 1]);
 
                 layout.xAxis.scale(layout.xScale);
                 layout.yAxis.scale(layout.yScale);
-                
 
                 elYAxis.attr("transform", "translate(50, 10)").call(layout.yAxis);
                 elXAxis.attr("transform", "translate(0, " + (layout.yScale(0) + 10) + ")").call(layout.xAxis);
-            };
 
-            var onSurvivalData = function(result) {
-                if (result.data.cmd == "getSurvivalData") {
-                    if (result.data.data.correlationId == "SurvivalController") {
-                        data = result.data.data;
-                        draw();
-                    }
-                }
-            };
 
-            osCohortService.onMessage.add(onSurvivalData);
+                brush.extent([
+                    [50, 10],
+                    [layout.width, layout.height - 40]
+                ]);
+                brush.on("end", onBrushEnd);
+                elBrush.call(brush);
 
-            var addCurve = function(points) {
-
-                // Define Line
-                var valueline = d3.line()
-                    .x(function(d) {
-                        return layout.xScale(d[0]);
-                    })
-                    .y(function(d) {
-                        return layout.yScale(d[2]) + 10;
-                    });
-
-                elChart.append("path")
-                    .attr("class", "line")
-                    .attr("stroke-width", 1.5)
-                    .attr("stroke", points.color)
-                    .attr("fill", "none")
-                    .attr("d", valueline(points.data.line))
-                    .on("mouseover", function() {
-                        d3.select(this).attr("stroke-width", 3)
-                    })
-                    .on("mouseout", function() {
-                        d3.select(this).attr("stroke-width", 1)
-                    });
-
-                for (var i = 0; i < points.data.tick.length; i++) {
-                    elChart.append("line")
-                        .attr("class", "tick")
-                        .attr("stroke-width", 1)
-                        .attr("stroke", points.color)
-                        .attr("data", points.data.tick[i][3])
-                        .attr("x1", layout.xScale(points.data.tick[i][0]))
-                        .attr("x2", layout.xScale(points.data.tick[i][0]))
-                        .attr("y1", layout.yScale(points.data.tick[i][2]) + 5)
-                        .attr("y2", layout.yScale(points.data.tick[i][2]) + 10);
-                        //debugger;
-                }
-                
-                elChart.append("g")
-                    .attr("class", "brush")
-                    .call(brush);
             }
 
-            var draw = function() {
+            var addCurve = function(survivalDatum) {
 
-                // Clear Lines
-                elChart.selectAll(".line").remove();
-                elChart.selectAll(".tick").remove();
+                var data = survivalDatum.survival.data;
+                var color = survivalDatum.color;
 
-                // Set Scale
-                setScale([data.min, data.max]);
+                var time = 0;
+                data.lines.forEach(function(element) {
 
-                // Draw Lines
-                for (var i = 0; i < data.cohorts.length; i++) {
-                    addCurve(data.cohorts[i]);
+                    elSurvival.append("line")
+                        .attr("class", "line")
+                        .attr("stroke-width", 0.5)
+                        .attr("stroke", color)
+                        .attr("x1", layout.xScale(element.time))
+                        .attr("x2", layout.xScale(element.time))
+                        .attr("y1", layout.yScale(element.survivalFrom) + 10)
+                        .attr("y2", layout.yScale(element.survivalTo) + 10)
+                        .datum(element);
+                    elSurvival.append("line")
+                        .attr("class", "line")
+                        .attr("stroke-width", 0.5)
+                        .attr("stroke", color)
+                        .attr("x1", layout.xScale(time))
+                        .attr("x2", layout.xScale(element.time))
+                        .attr("y1", layout.yScale(element.survivalFrom) + 10)
+                        .attr("y2", layout.yScale(element.survivalFrom) + 10)
+
+                    time = element.time;
+                });
+
+                data.ticks.forEach(function(element) {
+                    elSurvival.append("line")
+                        .attr("class", "line")
+                        .attr("stroke-width", 0.5)
+                        .attr("stroke", color)
+                        .attr("x1", layout.xScale(element.time))
+                        .attr("x2", layout.xScale(element.time))
+                        .attr("y1", layout.yScale(element.survivalFrom) + 12)
+                        .attr("y2", layout.yScale(element.survivalFrom) + 8)
+                        .datum(element);
+                }, this);
+
+                // If Censor Occurs After Last Death Add line
+                if (data.ticks.length > 1 && data.lines.length > 1) {
+                    var lastTick = data.ticks[data.ticks.length - 1];
+                    var lastLine = data.lines[data.lines.length - 1];
+                    if (lastTick.time > lastLine.time) {
+                        elSurvival.append("line")
+                            .attr("class", "line")
+                            .attr("stroke-width", 0.5)
+                            .attr("stroke", color)
+                            .attr("x1", layout.xScale(lastLine.time))
+                            .attr("x2", layout.xScale(lastTick.time))
+                            .attr("y1", layout.yScale(lastTick.survivalFrom) + 10)
+                            .attr("y2", layout.yScale(lastTick.survivalFrom) + 10);
+                    }
                 }
-                osApi.setBusy(false);
+
 
             };
+
+
+            var draw = function() {
+                osApi.setBusy(true);
+
+                // Clear Lines
+                elSurvival.selectAll(".line").remove();
+                elSurvival.selectAll(".tick").remove();
+
+                var survivalData = vm.cohorts.filter(function(v) { return v.show });
+                var minMax = survivalData.reduce(function(p, c) {
+                    p.min = Math.min(p.min, c.survival.min);
+                    p.max = Math.max(p.max, c.survival.max);
+                    return p;
+                }, { min: Infinity, max: -Infinity });
+
+                // Add Survival
+                minMax.min = Math.min(minMax.min, vm.cohort.survival.min);
+                minMax.max = Math.max(minMax.max, vm.cohort.survival.max);
+
+                // Set Scale
+                setScale([minMax.min - 1, minMax.max + 1]);
+
+                // Draw Lines
+                for (var i = 0; i < survivalData.length; i++) {
+                    addCurve(survivalData[i]);
+                }
+
+                if (survivalData.indexOf(vm.cohort) == -1) addCurve(vm.cohort);
+
+                osApi.setBusy(false);
+            };
+
+            draw();
 
             osApi.onResize.add(draw);
             angular.element($window).bind('resize', _.debounce(draw, 300));
 
             // Destroy
             $scope.$on('$destroy', function() {
-                osCohortService.onMessage.remove(onSurvivalData);
-
+                osCohortService.onCohortChange.add(onCohortChange);
             });
 
-            // Load Data
-            vm.toggle();
 
         }
     }
