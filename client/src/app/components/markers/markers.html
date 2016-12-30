@@ -66,8 +66,11 @@
             </div>
 
             <div class="col-xs-6 form-item" style="padding-left:5px">
-                <label>Search</label>
-                <input type="text" class="form-control" ng-model="vm.search" placeholder="Gene or Patient">
+                <label>Search {{vm.searchCount}}</label>
+                <div class="input-group">
+                    <input type="text" class="form-control" ng-model="vm.search" placeholder="">
+                    <div class="input-group-addon btn-help-icon" ng-click="vm.exeSearch()">Go</div>
+                </div>
             </div>
 
 

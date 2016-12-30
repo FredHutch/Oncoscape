@@ -26,9 +26,11 @@ CACHE:
 /fonts/ui-grid.svg
 /fonts/ui-grid.ttf
 /fonts/ui-grid.woff
+/scripts/app-01290808e5.js
 /scripts/app-02bbf0b6a7.js
 /scripts/app-2f54e12dc2.js
 /scripts/app-3d2cb9332c.js
+/scripts/app-400affffd9.js
 /scripts/app-4d9d4f1941.js
 /scripts/app-70da1229dc.js
 /scripts/app-a2812601eb.js
@@ -37,6 +39,8 @@ CACHE:
 /styles/app-365eb16d01.css
 /styles/app-6112ba777e.css
 /styles/app-8a6c3f36b4.css
+/styles/app-ccfa8cbcd8.css
+/styles/app-d9eba8159b.css
 /styles/ui-grid.svg
 /styles/ui-grid.ttf
 /styles/ui-grid.woff
@@ -112,21 +116,24 @@ CACHE:
 /assets/images/xx.png
 /assets/images/xxx-bg-pattern.png
 /assets/images/xxx.png
-/maps/scripts/app-02bbf0b6a7.js.map
-/maps/scripts/app-2f54e12dc2.js.map
-/maps/scripts/app-3d2cb9332c.js.map
-/maps/scripts/app-4d9d4f1941.js.map
-/maps/scripts/app-70da1229dc.js.map
-/maps/scripts/app-a2812601eb.js.map
-/maps/scripts/vendor-fbff3b32ee.js.map
 /maps/styles/app-2159a84957.css.map
 /maps/styles/app-365eb16d01.css.map
 /maps/styles/app-6112ba777e.css.map
 /maps/styles/app-8a6c3f36b4.css.map
 /maps/styles/app-ccfa8cbcd8.css.map
+/maps/styles/app-d9eba8159b.css.map
 /maps/styles/app-e3f9537438.css.map
 /maps/styles/app-f78892205c.css.map
 /maps/styles/vendor-4965d51886.css.map
+/maps/scripts/app-01290808e5.js.map
+/maps/scripts/app-02bbf0b6a7.js.map
+/maps/scripts/app-2f54e12dc2.js.map
+/maps/scripts/app-3d2cb9332c.js.map
+/maps/scripts/app-400affffd9.js.map
+/maps/scripts/app-4d9d4f1941.js.map
+/maps/scripts/app-70da1229dc.js.map
+/maps/scripts/app-a2812601eb.js.map
+/maps/scripts/vendor-fbff3b32ee.js.map
 /app/components/markers/markers.worker.js
 /app/components/oncoscape/oncoscape.cohort.service.worker.js
 /app/components/oncoscape/oncoscape.http.factory.js
@@ -141,4 +148,4 @@ https://*
 SETTINGS:
 prefer-online
 
-# hash: d405d2409c172a59373a2f92274b27aa41cb1ba067deacb0b4afe67296494e42
+# hash: 609fb6ffba28527fa3d8a9c50b96b1ab1b4cafa37a471b539a4243f41b0fe973

@@ -421,6 +421,7 @@
                 vm.showPanelColor = false;
                 vm.showPanelColorRna = false;
                 vm.search = "";
+                vm.searchCount = "";
 
                 vm.optCommandModes = [{
                     name: 'Sequential'
@@ -431,6 +432,18 @@
                 }];
                 vm.optCommandMode = vm.optCommandModes[0];
 
+                vm.exeSearch = function() {
+                    var needle = vm.search.toUpperCase().trim();
+                    var count = 0;
+                    var doSearch = (needle.length > 0);
+                    cyChart.$('node').forEach(function(el) {
+                        var found = (doSearch) ? (el.id().toUpperCase().indexOf(needle) === 0) : false;
+                        if (found) count += 1;
+                        el[found ? "select" : "deselect"]();
+                    });
+                    vm.searchCount = (count === 0) ? "" : "(" + count + " found)";
+                    $timeout(function() { vm.searchCount = ""; }, 3000, true);
+                };
                 vm.hideModal = function() {
                     angular.element('#modalEdge').modal('hide');
                 }
@@ -896,18 +909,6 @@
                     update();
                 });
 
-                // Search
-                watches += 1;
-                $scope.$watch('vm.search', _.debounce(function() {
-                    if (watches > 0) {
-                        watches -= 1;
-                        return;
-                    }
-                    var needle = vm.search.toUpperCase().trim();
-                    if (needle.length > 0) cyChart.$('node').filter(function(i, ele) {
-                        return (ele.id().toUpperCase().indexOf(needle) == 0);
-                    }).select();
-                }, 600))
 
                 // Edge Colors
                 watches += 1;

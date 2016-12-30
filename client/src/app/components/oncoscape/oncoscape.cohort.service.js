@@ -169,9 +169,9 @@
                             prop: "status_vital",
                             type: "factor"
                         }, {
-                            label: "Tumor",
-                            data: getFactorStats(clinical, "status_tumor"),
-                            prop: "Status_tumor",
+                            label: "Disease Status",
+                            data: getFactorStats(clinical, "last_known_disease_status"),
+                            prop: "last_known_disease_status",
                             type: "factor"
                         }
                     ]

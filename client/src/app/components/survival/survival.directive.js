@@ -68,7 +68,7 @@
                 height: 0,
                 xScale: null,
                 yScale: null,
-                xAxis: d3.axisBottom().ticks(5), //.tickFormat(formatDays),
+                xAxis: d3.axisBottom().ticks(5).tickFormat(formatDays),
                 yAxis: d3.axisLeft().ticks(5).tickFormat(formatPercent)
             };
 
@@ -119,16 +119,12 @@
                 // Loop Through Cohorts To Add Patient Ids Of Qualifying Lines + Ticks
                 if (cohortsToSearch.length > 2) $timeout(execute, 50);
                 else execute();
-
-
-
-
             };
             // Utility Methods
             var setScale = function(timelineDomain) {
                 var osLayout = osApi.getLayout();
                 layout.width = $window.innerWidth - osLayout.left - osLayout.right - 60;
-                layout.height = $window.innerHeight - 160;
+                layout.height = $window.innerHeight - 125;
                 elContainer.css("margin-left", osLayout.left + 20);
                 elChart
                     .attr("width", '100%')

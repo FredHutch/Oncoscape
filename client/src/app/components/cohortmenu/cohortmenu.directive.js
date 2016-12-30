@@ -188,7 +188,7 @@
                     .data(data.hist);
                 labels.enter()
                     .append("text")
-                    .attr("x", function(d, i) { return ((4 + (barWidth + 1) * i) + (barWidth * 0.5)) + 5; })
+                    .attr("x", function(d, i) { return ((4 + (barWidth + 1) * i) + (barWidth * 0.5)) + 1; })
                     .attr("y", function(d) { return 145 - yScale(d.value); })
                     .attr("fill", "#000")
                     .attr("height", function(d) { return yScale(d.value); })

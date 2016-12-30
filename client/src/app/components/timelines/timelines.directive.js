@@ -92,7 +92,7 @@
 
                 var layout = osApi.getLayout();
                 var width = $window.innerWidth - layout.left - layout.right - 80;
-                var height = $window.innerHeight - 250;
+                var height = $window.innerHeight - 200;
 
 
                 updateData();
@@ -536,7 +536,6 @@
                 brushY.on("end", null);
                 brushSelect.on("end", null);
                 osApi.onResize.remove(vm.update);
-                angular.element($window).unbind('resize', resize);
             });
         }
     }
