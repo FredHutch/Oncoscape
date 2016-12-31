@@ -22,7 +22,7 @@
                         <ul class="dropdown-menu row" style="max-height:80vh;overflow:scroll;">
                             <li ng-repeat="item in vm.tools" class="col-xs-12 col-sm-6 col-lg-4" ng-click="vm.loadTool(item.route)">
                                 <div class="datasource-btn" style="color:#000">
-                                    <img class="datasource-img" ng-src="/assets/images/{{item.img}}" style="border-right: 1px solid #eaeaea">
+                                    <img class="datasource-img" ng-src="/assets/images/img{{item.img}}" style="border-right: 1px solid #eaeaea">
                                     <p class="datasource-h1">{{item.name}}</p>
                                     <p class="datasource-h2">{{item.desc}}</p>
                                 </div>
