@@ -5348,3 +5348,38 @@ table.dataTable.dtr-inline.collapsed tbody tr.parent th:first-child:before {
 
 // injector
 // endinjector
+@media print {
+    @page {
+        margin: 0;
+        size: A4 landscape;
+    }
+    button {
+        display: none;
+    }
+    #main {
+        padding-top: 0px;
+    }
+    .tray-label {
+        display: none !important;
+    }
+    .header {
+        display: none;
+    }
+    .tray {
+        background: none;
+        border: none;
+        box-shadow: none
+    }
+    .fa-angle-down {
+        display: none;
+    }
+    .fa-lock {
+        display: none;
+    }
+    .caret {
+        display: none;
+    }
+    .tray-right {
+        display: block !important;
+    }
+}

@@ -27,13 +27,14 @@
             // Properties
             var vm = this;
             vm.showPanelColorRna = false;
-            vm.colorScales = [{name:"Quantile"},{name:"Quantize"}];
+            vm.colorScales = [{ name: "Quantile" }, { name: "Quantize" }];
             vm.colorScale = vm.colorScales[0];
-            vm.colorBins = [2,3,4,5,6,7,8].map(function(v){ return {name:v+" Bins", value:v} });
+            vm.colorBins = [2, 3, 4, 5, 6, 7, 8].map(function(v) { return { name: v + " Bins", value: v } });
             vm.colorBin = vm.colorBins[2];
             vm.colorOptions = osApi.getDataSource().colors;
-            if (angular.isDefined(vm.colorOptions)){
-                if (vm.colorOptions.length!=0) vm.colorOption = vm.colorOptions[0];
+
+            if (angular.isDefined(vm.colorOptions)) {
+                if (vm.colorOptions.length != 0) vm.colorOption = vm.colorOptions[0];
             }
 
 
@@ -65,7 +66,7 @@
                 }, data);
 
             });
-            
+
 
 
             vm.setColor = function(item) {
@@ -113,7 +114,7 @@
                 });
             };
 
-            vm.doClose = function(){
+            vm.doClose = function() {
                 alert("HI");
             }
             vm.setGeneColor = function() {
@@ -126,21 +127,21 @@
                     };
                 });
                 osApi.setBusy(true);
-                osApi.query("lookup-genes", {symbols:{$in:genes.map(function(v){ return v.gene;})}}).then(function(result){
+                osApi.query("lookup-genes", { symbols: { $in: genes.map(function(v) { return v.gene; }) } }).then(function(result) {
                     vm.close();
-                    genes.map(function(v){
-                        var gene = this.filter(function(s){
-                            return (s.symbols.indexOf(this)!=-1);
-                        },v.gene);
+                    genes.map(function(v) {
+                        var gene = this.filter(function(s) {
+                            return (s.symbols.indexOf(this) != -1);
+                        }, v.gene);
 
-                        if (gene.length==0){
+                        if (gene.length == 0) {
                             v.message = v.gene.toUpperCase();
                             v.status = "Removed";
-                        }else if (gene.length>1){
+                        } else if (gene.length > 1) {
                             v.message = v.gene.toUpperCase() + " -> " + gene[0].hugo.toUpperCase();
                             v.status = "Converted";
-                        }else if (gene.length==1){
-                            if (v.gene!=gene[0].hugo){
+                        } else if (gene.length == 1) {
+                            if (v.gene != gene[0].hugo) {
                                 v.message = v.gene.toUpperCase() + " -> " + gene[0].hugo.toUpperCase();
                                 v.status = "Converted";
                             }
@@ -148,29 +149,29 @@
                     }, result.data);
 
                     var msgs = _.sortBy(
-                        genes.filter(function(v){ return v.status!=""}), "length");
+                        genes.filter(function(v) { return v.status != "" }), "length");
 
-                    var types = _.groupBy(msgs, function(gene){ return gene.status; });
+                    var types = _.groupBy(msgs, function(gene) { return gene.status; });
 
                     var msg = "";
-                    
-                    if (types.Removed!=undefined && types.Removed.length>0){
-                        msg += "Removed: "+ types.Removed.map(function(v){ return v.message + " - "});
+
+                    if (types.Removed != undefined && types.Removed.length > 0) {
+                        msg += "Removed: " + types.Removed.map(function(v) { return v.message + " - " });
                     }
-                    if (msg.length > 0) msg = msg.substr(0, msg.length-2) + "\r\n";
-                    if (types.Converted!=undefined && types.Converted.length>0){
-                        msg += "Converted: "+ types.Converted.map(function(v){ return v.message + "\r\n"; });
+                    if (msg.length > 0) msg = msg.substr(0, msg.length - 2) + "\r\n";
+                    if (types.Converted != undefined && types.Converted.length > 0) {
+                        msg += "Converted: " + types.Converted.map(function(v) { return v.message + "\r\n"; });
                     }
-                    if (msg.trim().length>0) alert(msg);
-                    var geneset = genes.filter(function(v){ return v.status!="Removed"; }).map(function(v) {
-                                return v.gene.toUpperCase();
-                            });
+                    if (msg.trim().length > 0) alert(msg);
+                    var geneset = genes.filter(function(v) { return v.status != "Removed"; }).map(function(v) {
+                        return v.gene.toUpperCase();
+                    });
                     osApi.query(vm.colorOption.collection, {
                         gene: {
                             '$in': geneset
                         }
                     }).then(function(results) {
-                        
+
                         if (results.data.length > 0) {
                             var data;
                             if (results.data.length == 1)
@@ -209,33 +210,32 @@
                             }
 
                             // Color Patients
-                            var colors = ["#9d1cb2","#00a7f7","#3d4eb8","#ff9900","#f7412d","#795548","#E91E63","#673AB7"];
+                            var colors = ["#9d1cb2", "#00a7f7", "#3d4eb8", "#ff9900", "#f7412d", "#795548", "#E91E63", "#673AB7"];
                             var values = colors.splice(0, vm.colorBin.value);
 
-                            var scale = (vm.colorScale.name=="Quantile") ? d3.scaleQuantile() : d3.scaleQuantize();
+                            var scale = (vm.colorScale.name == "Quantile") ? d3.scaleQuantile() : d3.scaleQuantize();
 
-                            
+
 
                             // Combine Colors + Scale Into Name + Value
                             var labels;
-                            if (vm.colorScale.name=="Quantile"){
-                                scale.domain(Object.keys(data).map(function(key){return data[key]},{data:data})).range(values);
-                                labels = scale.quantiles().map(function(v){ return parseFloat(v).toFixed(3); });
+                            if (vm.colorScale.name == "Quantile") {
+                                scale.domain(Object.keys(data).map(function(key) { return data[key] }, { data: data })).range(values);
+                                labels = scale.quantiles().map(function(v) { return parseFloat(v).toFixed(3); });
                                 labels.unshift("");
-                                labels = labels.map(function(c,i,a){ 
-                                  if (i==0){ return "-\u221e \u2194 "+a[1]; }
-                                  else if (i==a.length-1){
-                                     return a[i] +" \u2194 +\u221e" //\u226C
-                                  } 
-                                return a[i] +" \u2194 " +a[i+1];
+                                labels = labels.map(function(c, i, a) {
+                                    if (i == 0) { return "-\u221e \u2194 " + a[1]; } else if (i == a.length - 1) {
+                                        return a[i] + " \u2194 +\u221e" //\u226C
+                                    }
+                                    return a[i] + " \u2194 " + a[i + 1];
                                 });
-                                values = _.zip(values, labels).map(function(v){ return {color:v[0], name:v[1]} });
-                            }else{
+                                values = _.zip(values, labels).map(function(v) { return { color: v[0], name: v[1] } });
+                            } else {
                                 scale
-                                .domain([data.min, data.max])
-                                .range(values);
-                                labels = scale.ticks(values.length).map(function(v) { return "~"+parseFloat(v).toFixed(2); })
-                                values = _.zip(values, labels).map(function(v){ return {color:v[0], name:v[1]} });
+                                    .domain([data.min, data.max])
+                                    .range(values);
+                                labels = scale.ticks(values.length).map(function(v) { return "~" + parseFloat(v).toFixed(2); })
+                                values = _.zip(values, labels).map(function(v) { return { color: v[0], name: v[1] } });
                             }
                             data = Object.keys(data.patients).map(function(id) {
                                     return {
@@ -269,10 +269,10 @@
                             })
 
                             data = data.sort(function(a, b) {
-                                if (a.name.indexOf("-\u221e")!=-1) return -1;
-                                if (b.name.indexOf("-\u221e")!=-1) return 1;
-                                if (a.name.indexOf("+\u221e")!=-1) return 1;
-                                if (b.name.indexOf("+\u221e")!=-1) return -1;
+                                if (a.name.indexOf("-\u221e") != -1) return -1;
+                                if (b.name.indexOf("-\u221e") != -1) return 1;
+                                if (a.name.indexOf("+\u221e") != -1) return 1;
+                                if (b.name.indexOf("+\u221e") != -1) return -1;
                                 if (a.name < b.name) return -1;
                                 if (a.name > b.name) return 1;
                                 return 0;
