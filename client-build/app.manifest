@@ -36,6 +36,7 @@ CACHE:
 /scripts/app-4d9d4f1941.js
 /scripts/app-70da1229dc.js
 /scripts/app-a2812601eb.js
+/scripts/app-d8ff86a8b6.js
 /scripts/vendor-fbff3b32ee.js
 /styles/app-2159a84957.css
 /styles/app-365eb16d01.css
@@ -44,6 +45,7 @@ CACHE:
 /styles/app-8a6c3f36b4.css
 /styles/app-ccfa8cbcd8.css
 /styles/app-d9eba8159b.css
+/styles/app-ffb0f51179.css
 /styles/ui-grid.svg
 /styles/ui-grid.ttf
 /styles/ui-grid.woff
@@ -85,6 +87,17 @@ CACHE:
 /assets/images/heatmap.png
 /assets/images/history.png
 /assets/images/honeycomb-34985.svg
+/assets/images/imgDSbladder.png
+/assets/images/imgDSbrain.png
+/assets/images/imgDSbreast.png
+/assets/images/imgDScoadread.png
+/assets/images/imgDSdemo.png
+/assets/images/imgDSheadneck.png
+/assets/images/imgDSlung.png
+/assets/images/imgDSovary.png
+/assets/images/imgDSpancreas.png
+/assets/images/imgDSprostate.png
+/assets/images/imgDSsarcoma.png
 /assets/images/imgad.jpeg
 /assets/images/logo-black.png
 /assets/images/logo-hutch.jpg
@@ -129,6 +142,7 @@ CACHE:
 /maps/scripts/app-4d9d4f1941.js.map
 /maps/scripts/app-70da1229dc.js.map
 /maps/scripts/app-a2812601eb.js.map
+/maps/scripts/app-d8ff86a8b6.js.map
 /maps/scripts/vendor-fbff3b32ee.js.map
 /maps/styles/app-2159a84957.css.map
 /maps/styles/app-365eb16d01.css.map
@@ -139,6 +153,7 @@ CACHE:
 /maps/styles/app-d9eba8159b.css.map
 /maps/styles/app-e3f9537438.css.map
 /maps/styles/app-f78892205c.css.map
+/maps/styles/app-ffb0f51179.css.map
 /maps/styles/vendor-4965d51886.css.map
 /app/components/markers/markers.worker.js
 /app/components/oncoscape/oncoscape.cohort.service.worker.js
@@ -154,4 +169,4 @@ https://*
 SETTINGS:
 prefer-online
 
-# hash: 82950d92d1676adeb2d249601b38b22690eef58d9c99abd3ec281dd1862c3930
+# hash: 854dd38db0925bd3c6baf66acca061d18eb15b7fe2c26220403e4ad26ee70949
