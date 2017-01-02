@@ -21,25 +21,11 @@
         /** @ngInject */
         function DatasourceController(osApi, osCohortService, $state) {
             var vm = this;
-            vm.datasets = osApi.getDataSources().sort(function(a, b) {
-                return (a.img < b.img) ? -1 :
-                    (a.img > b.img) ? 1 :
-                    (a.disease < b.disease) ? -1 :
-                    (a.disease > b.disease) ? 1 :
-                    0;
-            });
+            vm.datasets = osApi.getDataSources();
             vm.explore = function(tool, datasource) {
-                osApi.setBusy(true);
-                osApi.setDataSource(datasource);
-                osCohortService.loadCohorts().then(function() {
-                    $state.go(tool, {
-                        datasource: datasource.disease
-                    });
-                    osApi.setBusy(false);
-                });
-
+                $state.go(tool, { datasource: datasource.disease });
             };
-
+            osApi.setBusy(false);
         }
     }
 })();

@@ -22,38 +22,43 @@
         /** @ngInject */
         function HeaderController(osApi, osCohortService, osAuth, $stateParams, $state, $timeout, $rootScope) {
 
-            osApi.onDataSource.add(function() {
-                $timeout(function() {
-                    vm.datasets = osApi.getDataSources();
-                });
-                osApi.query("lookup_oncoscape_tools").then(function(response) {
-                    var tools = osApi.getDataSource().tools;
-                    vm.tools = response.data.filter(function(item) {
-                        return (tools.indexOf(item.route) != -1);
-                    }).sort(function(a, b) {
-                        if (a.name < b.name) return -1;
-                        if (a.name > b.name) return 1;
-                        return 0;
-                    });
-                });
-            });
 
             var vm = this;
-            vm.show = false;
-            vm.cohort = {};
+            vm.showImport = false;
+            vm.showTools = false;
+            vm.showDatasets = false;
+            vm.datasources = [];
+            vm.tools = [];
             vm.cohorts = [];
+
+            osApi.onNavChange.add(function(state) {
+                switch (state) {
+                    case "TOOLS":
+                        vm.showTools = false;
+                        vm.showDatasets = true;
+                        break;
+                    case "TOOL":
+                        vm.showTools = true;
+                        vm.showDatasets = true;
+                        vm.datasources = osApi.getDataSources();
+                        vm.tools = osApi.getTools();
+                        vm.cohorts = osCohortService.getCohorts();
+                        break;
+                    default:
+                        vm.showTools = false;
+                        vm.showDatasets = false;
+                        break;
+                }
+            });
+
             vm.addPatientCohort = function() {
                 osCohortService.saveCohort();
             };
+
             vm.setPatientCohort = function(cohort) {
                 osCohortService.setCohort(cohort);
             };
-            osCohortService.onCohortChange.add(function(cohort) {
-                vm.cohort = cohort;
-            })
-            osCohortService.onCohortsChange.add(function(allCohorts) {
-                vm.cohorts = allCohorts;
-            });
+
             vm.importIds = "";
             vm.importCohort = function() {
                 var ids = vm.importIds.split(",").map(function(v) { return v.trim(); });
@@ -62,76 +67,18 @@
                 vm.importName = "";
                 vm.showImport = false;
             };
-            vm.showImport = false;
-            vm.showTools = false;
-            vm.showDatasets = false;
-            vm.showCohorts = false;
-            vm.showHelp = false;
-            vm.showLogout = false;
 
-            var elMain = $("#main");
-            var currentTool;
-            var onStateChangeStart = $rootScope.$on('$stateChangeStart', function(event, toState) {
-                currentTool = toState.name;
-                switch (toState.name) {
-                    case "landing":
-                        vm.showTools = false;
-                        vm.showDatasets = false;
-                        vm.showLogout = false;
-                        vm.showCohorts = false;
-                        vm.showHelp = false;
-                        vm.show = false;
-                        elMain.addClass("container-main-full")
-                        break;
-                    case "tools":
-                        vm.showCohorts = false;
-                        vm.showTools = false;
-                        vm.show = true;
-                        elMain.removeClass("container-main-full")
-                        break;
-                    case "datasource":
-                        vm.showHelp = true;
-                        vm.showDatasets = false;
-                        vm.showCohorts = false;
-                        vm.showLogout = true;
-                        vm.showTools = false;
-                        vm.show = true;
-                        elMain.removeClass("container-main-full")
-                        break;
-                    default:
-                        vm.showCohorts = true;
-                        vm.showDatasets = true;
-                        vm.showTools = true;
-                        vm.show = true;
-                        elMain.removeClass("container-main-full")
-                        break;
-                }
-            });
-            $rootScope.$on('$destroy', onStateChangeStart);
 
             vm.loadDataset = function(dataset) {
-                osApi.setBusy(true);
-                osCohortService.loadCohorts().then(function() {
-                    $state.go(currentTool, {
-                        datasource: dataset
-                    });
-                    osApi.setBusy(false);
-                });
+                $state.go($state.current.url.split("/")[1], { datasource: dataset });
                 angular.element('.navbar-collapse').collapse('hide');
             };
 
             vm.loadTool = function(tool) {
-                $state.go(tool, {
-                    datasource: osApi.getDataSource().disease
-                });
+                $state.go(tool, { datasource: osApi.getDataSource().disease });
                 angular.element('.navbar-collapse').collapse('hide');
             };
 
-            vm.logoutClick = function() {
-                osAuth.logout();
-                $state.transitionTo("landing");
-            }
         }
     }
-
 })();

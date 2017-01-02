@@ -22,7 +22,7 @@ var request = function(object, data, format) {
         }
 
         var query = "/api/" + object.table;
-        query = "https://oncoscape-test.fhcrc.org/api/" + object.table;
+        query = "https://dev.oncoscape.sttrcancer.io/api/" + object.table;
         if (object.query) query += "/" + encodeURIComponent(JSON.stringify(object.query));
         load(query, function(response) {
             resolve(format(JSON.parse(response.responseText)));

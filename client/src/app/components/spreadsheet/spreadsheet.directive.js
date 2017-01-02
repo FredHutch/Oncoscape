@@ -92,9 +92,6 @@
                 vm.gridApi.grid.sortColumn(col, "asc", false);
                 vm.gridApi.core.notifyDataChange(uiGridConstants.dataChange.OPTIONS);
                 vm.gridApi.core.notifyDataChange(uiGridConstants.dataChange.COLUMN);
-
-
-
             };
 
             var selectedIds = [];

@@ -130,7 +130,6 @@
                     })
                     .then(function(response) {
                         var d = response.data[0];
-                        console.log(d.pc1)
                         vm.pc1 = [
                             { name: 'PC1', value: d.pc1 },
                             { name: '', value: 100 - d.pc1 }

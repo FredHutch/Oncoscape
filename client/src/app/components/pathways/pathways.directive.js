@@ -28,34 +28,6 @@
             var elChart = angular.element("#pathways-chart");
             var csChart;
 
-            // History Integration
-            /*
-            var skipSave = false;
-            var selectedIds = (osHistory.getGeneSelection() == null) ? null : osHistory.getGeneSelection().ids;
-            function saveSelected() {
-                if (skipSave) { skipSave = false; return; }
-                var ids = csChart.$('node[nodeType="gene"]:selected').map(function(ele){ return ele.data().id.toUpperCase() });
-                osHistory.addGeneSelection("Pathways", "Manual Selection", ids );
-            }
-            function setSelected() {
-
-                skipSave = true;
-                csChart.startBatch();
-                if (selectedIds == null) {
-                    csChart.$('node[nodeType="gene"]:selected')
-                        .forEach( function(ele){
-                            ele.deselect();
-                        });
-                } else {
-                    csChart.$('node[nodeType="gene"]')
-                        .forEach( function(ele){
-                            ele[ (this.indexOf(ele.id())==-1) ? "deselect" : "select"]();
-                        }, selectedIds);
-                }
-                csChart.endBatch();
-            }
-            */
-
             vm.datasource = osApi.getDataSource();
             vm.search = "";
             vm.frame;

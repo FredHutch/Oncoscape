@@ -1,4 +1,4 @@
-<div class="header" ng-if="vm.show">
+<div id="header" class="header" style="display:none">
     <nav class="navbar navbar-inverse navbar-fixed-top">
         <div class="container-fluid">
             <div class="navbar-header">
@@ -17,12 +17,12 @@
                 <ul class="nav navbar-nav navbar-right">
                     <li class="dropdown" ng-show="vm.showTools">
                         <a href class="dropdown-toggle header-link" data-toggle="dropdown" role="button" aria-haspopup="true" aria-expanded="false">
-                            <span class="glyphicon glyphicon-stats"></span> Analysis Tools</a>
+                            <span class="glyphicon glyphicon-stats"></span>Tools</a>
 
                         <ul class="dropdown-menu row" style="max-height:80vh;overflow:scroll;">
                             <li ng-repeat="item in vm.tools" class="col-xs-12 col-sm-6 col-lg-4" ng-click="vm.loadTool(item.route)">
                                 <div class="datasource-btn" style="color:#000">
-                                    <img class="datasource-img" ng-src="/assets/images/img{{item.img}}" style="border-right: 1px solid #eaeaea">
+                                    <img class="datasource-img" ng-src="/assets/images/{{item.img}}" style="border-right: 1px solid #eaeaea">
                                     <p class="datasource-h1">{{item.name}}</p>
                                     <p class="datasource-h2">{{item.desc}}</p>
                                 </div>
@@ -30,11 +30,11 @@
                         </ul>
                     </li>
                     <li class="dropdown" ng-show="vm.showDatasets">
-                        <a href class="dropdown-toggle header-link" data-toggle="dropdown" role="button" aria-haspopup="true" aria-expanded="false"><span class="glyphicon glyphicon-th"></span>Disease Datasets</a>
+                        <a href class="dropdown-toggle header-link" data-toggle="dropdown" role="button" aria-haspopup="true" aria-expanded="false"><span class="glyphicon glyphicon-th"></span> Datasets</a>
                         <ul class="dropdown-menu row" style="max-height:88vh;overflow:scroll;">
-                            <li ng-repeat="item in vm.datasets" style="padding-bottom:10px" class="col-xs-12 col-sm-6 col-lg-4" ng-click="vm.loadDataset(item.disease)">
+                            <li ng-repeat="item in vm.datasources" style="padding-bottom:10px" class="col-xs-12 col-sm-6 col-lg-4" ng-click="vm.loadDataset(item.disease)">
                                 <div class="datasource-btn" style="color:#000">
-                                    <img class="datasource-img" ng-src="/assets/images/{{item.img}}">
+                                    <img class="datasource-img" ng-src="/assets/images/img{{item.img}}">
                                     <p class="datasource-h1">{{item.name}}</p>
                                     <p class="datasource-h2">{{item.source}} | 11-17-2016</p>
                                 </div>
@@ -42,8 +42,8 @@
                         </ul>
 
                     </li>
-                    <li class="dropdown" ng-show="vm.showCohorts">
-                        <a href class="dropdown-toggle header-link" data-toggle="dropdown" role="button" aria-haspopup="true" aria-expanded="false"><span class="fa fa-users"></span>My Cohorts</a>
+                    <li class="dropdown" ng-show="vm.showDatasets">
+                        <a href class="dropdown-toggle header-link" data-toggle="dropdown" role="button" aria-haspopup="true" aria-expanded="false"><span class="fa fa-users"></span>Cohorts</a>
                         <div class="dropdown-menu container-fluid">
                             <div class="row">
                                 <div ng-if="!vm.showImport" class="col-xs-12 col-sm-3" style="border:0px solid #DDD; border-right-width:1px;">
@@ -71,11 +71,10 @@
                             </div>
                         </div>
                     </li>
-                    <li ng-show="vm.showHelp ">
-                        <a href="http://resources.sttrcancer.org/oncoscape " target="_blank " class="header-link "><span class="glyphicon glyphicon-question-sign "></span>Help</a>
-                    </li>
-                    <li ng-show="vm.showLogout ">
-                        <a href ng-click="vm.logoutClick() " class="header-link "><span class="glyphicon glyphicon-user "></span>Logout</a>
+                    <li>
+                        <a href="http://resources.sttrcancer.org/oncoscape" target="_blank " class="header-link ">
+                            <span class="glyphicon glyphicon-question-sign"></span> Help
+                        </a>
                     </li>
                 </ul>
             </div>

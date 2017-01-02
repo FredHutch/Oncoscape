@@ -611,6 +611,7 @@
                 var sizeLbl = (zoom < .375) ? 0 : labelScale(zoom);
                 var sizeBdr = borderScale(zoom);
 
+                cyChart.startBatch();
                 cyChart.$('node[nodeType="patient"],node[nodeType="gene"]').forEach(function(node) {
                     node.data({
                         'sizeEle': Math.round(this.sizeNode * expressionScale(node.data().weight)),
@@ -623,6 +624,7 @@
                     sizeLbl: sizeLbl,
                     scale: expressionScale
                 });
+                cyChart.endBatch();
             }
 
             /* 

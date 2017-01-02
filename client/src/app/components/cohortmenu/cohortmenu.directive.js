@@ -33,7 +33,6 @@
 
 
             // Cohort Service Integration
-            angular.element("#cohortMenu").css({ "display": "none" });
             osCohortService.onCohortsChange.add(function(cohorts) {
                 vm.cohorts = cohorts;
             });
@@ -73,24 +72,6 @@
             }
 
 
-
-            // Show Hide Logic
-            vm.show = false;
-            $rootScope.$on('$destroy', function() { vm.show = false; });
-            $rootScope.$on('$stateChangeStart', function(event, toState) {
-                switch (toState.name) {
-                    case "landing":
-                    case "tools":
-                    case "datasource":
-                        vm.show = false;
-                        angular.element("#cohortMenu").css({ "display": "none" });
-                        break;
-                    default:
-                        vm.show = true;
-                        angular.element("#cohortMenu").css({ "display": "block" });
-                        break;
-                }
-            });
 
 
             // Tray Expand / Collapse
