@@ -41,6 +41,7 @@ CACHE:
 /scripts/app-572a54fe34.js
 /scripts/app-6bebd45c62.js
 /scripts/app-70da1229dc.js
+/scripts/app-8b4e082927.js
 /scripts/app-a2812601eb.js
 /scripts/app-d8ff86a8b6.js
 /scripts/vendor-fbff3b32ee.js
@@ -56,6 +57,7 @@ CACHE:
 /styles/app-b66a48014e.css
 /styles/app-ccfa8cbcd8.css
 /styles/app-d9eba8159b.css
+/styles/app-f6262c4164.css
 /styles/app-ffb0f51179.css
 /styles/ui-grid.svg
 /styles/ui-grid.ttf
@@ -73,6 +75,7 @@ CACHE:
 /assets/images/DSprostate.png
 /assets/images/DSsarcoma.png
 /assets/images/PATTERNITY_YEAR-IN-PATTERN.jpg
+/assets/images/Untitled-5.png
 /assets/images/arrow_down.png
 /assets/images/ball.png
 /assets/images/barcharts.png
@@ -172,6 +175,7 @@ CACHE:
 /maps/scripts/app-572a54fe34.js.map
 /maps/scripts/app-6bebd45c62.js.map
 /maps/scripts/app-70da1229dc.js.map
+/maps/scripts/app-8b4e082927.js.map
 /maps/scripts/app-a2812601eb.js.map
 /maps/scripts/app-d8ff86a8b6.js.map
 /maps/scripts/vendor-fbff3b32ee.js.map
@@ -188,6 +192,7 @@ CACHE:
 /maps/styles/app-ccfa8cbcd8.css.map
 /maps/styles/app-d9eba8159b.css.map
 /maps/styles/app-e3f9537438.css.map
+/maps/styles/app-f6262c4164.css.map
 /maps/styles/app-f78892205c.css.map
 /maps/styles/app-ffb0f51179.css.map
 /maps/styles/vendor-4965d51886.css.map
@@ -205,4 +210,4 @@ https://*
 SETTINGS:
 prefer-online
 
-# hash: 9d76e3d638083a9e5c975cfda7ebeb7930adf9e4978801d408c9f8c29e9076f2
+# hash: 1f7843f3b8e4668abe99a96272e3a97613aaaf2a61c82f1b74b4d935b37cac8c
