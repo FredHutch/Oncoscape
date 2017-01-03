@@ -198,10 +198,6 @@
             });
 
 
-            var formatPercent = function(d) {
-                if (d == 100) return d;
-                return d + "%";
-            }
             var formatDays = function(d) {
                 if (Math.abs(d) === 0) return d;
                 if (Math.abs(d) < 30) return d + " Days";

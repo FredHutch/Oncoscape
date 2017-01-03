@@ -19,7 +19,7 @@
         return directive;
 
         /** @ngInject */
-        function LandingController($state, $scope, osApi, osAuth) {
+        function LandingController($state) {
 
             angular.element(".marquee-x").marquee({
                 particlesNumber: 49,

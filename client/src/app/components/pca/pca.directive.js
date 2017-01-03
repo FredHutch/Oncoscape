@@ -338,7 +338,7 @@
             osCohortService.onCohortChange.add(onCohortChange);
 
             // Initialize
-            var pcaScores = vm.datasource.calculated.filter(function(v) { return v.type == "pcaScores"; });
+            // var pcaScores = vm.datasource.calculated.filter(function(v) { return v.type == "pcaScores"; });
 
 
             osApi.query("render_pca", {

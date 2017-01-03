@@ -6,7 +6,7 @@
         .run(runBlock);
 
     /** @ngInject */
-    function runBlock($rootScope, $state, $window, $timeout, $exceptionHandler, osApi, osAuth) { //, $log
+    function runBlock($window, $exceptionHandler) { //, $log
 
         // Force Cohort Menu & Header To Hide On Page Refresh.  Not applying in chrome.
         // $timeout(function() {
@@ -24,32 +24,5 @@
             }
             $exceptionHandler(error);
         };
-
-        // Actions To Take On State Change
-        /* This all needs to be moved into the router */
-        var off = $rootScope.$on('$stateChangeStart', function(event, toState, toParams) {
-
-            // Hide Busy Cursor
-            osApi.setBusy(false);
-
-            // // Route unauthenticated users to landing page
-            // if (toState.authenticate && !osAuth.isAuthenticated()) {
-            //     $state.transitionTo("landing");
-            //     event.preventDefault();
-            //     return;
-            // }
-
-            // //Redirect If Unable To Resolve Data Source
-            // if (toState.datasource && (angular.isUndefined(toParams.datasource) || toParams.datasource === "")) {
-            //     $state.transitionTo("datasource");
-            //     event.preventDefault();
-            //     return;
-            // } else {
-            //     osApi.setDataSource(toParams.datasource);
-            // }
-        });
-
-
-        $rootScope.$on('$destroy', off)
     }
 })();

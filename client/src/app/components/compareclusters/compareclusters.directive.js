@@ -78,16 +78,16 @@
 
             // State Management
             var setSelected = function() {
-                // var selectedIds = cohort.sampleIds;
-                // clusterIndexes.forEach(function(clusterIndex) {
-                //     elPlots[clusterIndex].selectAll("circle").classed("pca-node-selected", function() {
-                //         return (selectedIds.indexOf(this.__data__.id) >= 0);
-                //     });
-                // });
+                var selectedIds = cohort.sampleIds;
+                clusterIndexes.forEach(function(clusterIndex) {
+                    elPlots[clusterIndex].selectAll("circle").classed("pca-node-selected", function() {
+                        return (selectedIds.indexOf(this.__data__.id) >= 0);
+                    });
+                });
             };
-            var saveState = function() {
+            // var saveState = function() {
 
-            }
+            // }
             var loadState = function() {
                 vm.optionLayouts = datasource.calculated.filter(function(v) { return (v.type === "pcaScores" || v.type === "mds"); });
                 return new Promise(function(resolve) {
@@ -122,7 +122,7 @@
             var brushStart = function() {
                 if (d3.event.selection === null) return;
                 var target = d3.event.target;
-                var brushes = elBrushes
+                elBrushes
                     .filter(function(b) {
                         return b.brush !== target;
                     })

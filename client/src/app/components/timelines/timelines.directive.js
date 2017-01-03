@@ -444,7 +444,9 @@
                                                 }) + ": " + v.data[c].toString()
                                                 .replace(/\w\S*/g, function(txt) { return txt.charAt(0).toUpperCase() + txt.substr(1).toLowerCase(); });
                                         }
-                                    } catch (e) {}
+                                    } catch (e) {
+                                        return "";
+                                    }
                                     return p;
                                 }, v.name);
                             } else if (v.hasOwnProperty("name")) {

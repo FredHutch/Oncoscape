@@ -78,7 +78,7 @@
                 $window.open(encodeURI(data));
             };
 
-            var sortSelectedFn = function(a, b, rowA, rowB, direction) {
+            var sortSelectedFn = function(a, b, rowA, rowB) {
                 if (!rowA.hasOwnProperty("isSelected")) rowA.isSelected = false;
                 if (!rowB.hasOwnProperty("isSelected")) rowB.isSelected = false;
                 if (rowA.isSelected === rowB.isSelected) return 0;

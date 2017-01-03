@@ -186,7 +186,7 @@
                         if (patient === null) return null;
                         return patient.survival;
                     }, data.patientMap)
-                    .filter(function(v) { return v !== undefined; })
+                    .filter(function(v) { return angular.isDefined(v); })
                     .sort(getSurvivalSort);
 
 
@@ -239,7 +239,7 @@
         })(jStat);
 
         // Cohort Factory
-        var cohortFactory = (function(osApi, statsFactory, data) {
+        var cohortFactory = (function(osApi, statsFactory) {
 
             var _data = null;
             var cohortAll = null;
