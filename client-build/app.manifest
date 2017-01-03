@@ -28,6 +28,8 @@ CACHE:
 /fonts/ui-grid.woff
 /scripts/app-01290808e5.js
 /scripts/app-02bbf0b6a7.js
+/scripts/app-0db183cba2.js
+/scripts/app-10171301ea.js
 /scripts/app-26cb5f5c4a.js
 /scripts/app-2f54e12dc2.js
 /scripts/app-2f96ced6c7.js
@@ -43,6 +45,8 @@ CACHE:
 /styles/app-365eb16d01.css
 /styles/app-567907be98.css
 /styles/app-6112ba777e.css
+/styles/app-6a66f522e2.css
+/styles/app-796697e41d.css
 /styles/app-8a6c3f36b4.css
 /styles/app-ccfa8cbcd8.css
 /styles/app-d9eba8159b.css
@@ -94,11 +98,14 @@ CACHE:
 /assets/images/imgDScoadread.png
 /assets/images/imgDSdemo.png
 /assets/images/imgDSheadneck.png
+/assets/images/imgDSkidney.png
+/assets/images/imgDSliver.png
 /assets/images/imgDSlung.png
 /assets/images/imgDSovary.png
 /assets/images/imgDSpancreas.png
 /assets/images/imgDSprostate.png
 /assets/images/imgDSsarcoma.png
+/assets/images/imgDSstomach.png
 /assets/images/imgad.jpeg
 /assets/images/logo-black.png
 /assets/images/logo-hutch.jpg
@@ -133,8 +140,23 @@ CACHE:
 /assets/images/xx.png
 /assets/images/xxx-bg-pattern.png
 /assets/images/xxx.png
+/maps/styles/app-2159a84957.css.map
+/maps/styles/app-365eb16d01.css.map
+/maps/styles/app-567907be98.css.map
+/maps/styles/app-6112ba777e.css.map
+/maps/styles/app-6a66f522e2.css.map
+/maps/styles/app-796697e41d.css.map
+/maps/styles/app-8a6c3f36b4.css.map
+/maps/styles/app-ccfa8cbcd8.css.map
+/maps/styles/app-d9eba8159b.css.map
+/maps/styles/app-e3f9537438.css.map
+/maps/styles/app-f78892205c.css.map
+/maps/styles/app-ffb0f51179.css.map
+/maps/styles/vendor-4965d51886.css.map
 /maps/scripts/app-01290808e5.js.map
 /maps/scripts/app-02bbf0b6a7.js.map
+/maps/scripts/app-0db183cba2.js.map
+/maps/scripts/app-10171301ea.js.map
 /maps/scripts/app-26cb5f5c4a.js.map
 /maps/scripts/app-2f54e12dc2.js.map
 /maps/scripts/app-2f96ced6c7.js.map
@@ -146,17 +168,6 @@ CACHE:
 /maps/scripts/app-a2812601eb.js.map
 /maps/scripts/app-d8ff86a8b6.js.map
 /maps/scripts/vendor-fbff3b32ee.js.map
-/maps/styles/app-2159a84957.css.map
-/maps/styles/app-365eb16d01.css.map
-/maps/styles/app-567907be98.css.map
-/maps/styles/app-6112ba777e.css.map
-/maps/styles/app-8a6c3f36b4.css.map
-/maps/styles/app-ccfa8cbcd8.css.map
-/maps/styles/app-d9eba8159b.css.map
-/maps/styles/app-e3f9537438.css.map
-/maps/styles/app-f78892205c.css.map
-/maps/styles/app-ffb0f51179.css.map
-/maps/styles/vendor-4965d51886.css.map
 /app/components/markers/markers.worker.js
 /app/components/oncoscape/oncoscape.cohort.service.worker.js
 /app/components/oncoscape/oncoscape.http.factory.js
@@ -171,4 +182,4 @@ https://*
 SETTINGS:
 prefer-online
 
-# hash: e073985affb38f63946ae9e6fb163007fdf5b57073d3e349ab72f85f42a06f8f
+# hash: 1ad7e61dfe08869c851faf623a62360af7d04a0bddc83315e0cc539e88af7f67
