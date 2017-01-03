@@ -15,9 +15,10 @@
             </div>
             <div class="collapse navbar-collapse" id="header-navbar">
                 <ul class="nav navbar-nav navbar-right">
+
                     <li class="dropdown" ng-show="vm.showTools">
                         <a href class="dropdown-toggle header-link" data-toggle="dropdown" role="button" aria-haspopup="true" aria-expanded="false">
-                            <span class="glyphicon glyphicon-stats"></span> Analysis Tools</a>
+                            <span class="glyphicon glyphicon-stats"></span>Tools</a>
 
                         <ul class="dropdown-menu row" style="max-height:80vh;overflow:scroll;">
                             <li ng-repeat="item in vm.tools" class="col-xs-12 col-sm-6 col-lg-4" ng-click="vm.loadTool(item.route)">
@@ -30,7 +31,7 @@
                         </ul>
                     </li>
                     <li class="dropdown" ng-show="vm.showDatasets">
-                        <a href class="dropdown-toggle header-link" data-toggle="dropdown" role="button" aria-haspopup="true" aria-expanded="false"><span class="glyphicon glyphicon-th"></span> Disease Datasets</a>
+                        <a href class="dropdown-toggle header-link" data-toggle="dropdown" role="button" aria-haspopup="true" aria-expanded="false"><span class="glyphicon glyphicon-th"></span>Datasets</a>
                         <ul class="dropdown-menu row" style="max-height:88vh;overflow:scroll;">
                             <li ng-repeat="item in vm.datasources" style="padding-bottom:10px" class="col-xs-12 col-sm-6 col-lg-4" ng-click="vm.loadDataset(item.disease)">
                                 <div class="datasource-btn" style="color:#000">
@@ -43,7 +44,7 @@
 
                     </li>
                     <li class="dropdown" ng-show="vm.showDatasets">
-                        <a href class="dropdown-toggle header-link" data-toggle="dropdown" role="button" aria-haspopup="true" aria-expanded="false"><span class="fa fa-users"></span> My Cohorts</a>
+                        <a href class="dropdown-toggle header-link" data-toggle="dropdown" role="button" aria-haspopup="true" aria-expanded="false"><span class="fa fa-users"></span>Cohorts</a>
                         <div class="dropdown-menu container-fluid">
                             <div class="row">
                                 <div ng-if="!vm.showImport" class="col-xs-12 col-sm-3" style="border:0px solid #DDD; border-right-width:1px;">
@@ -73,7 +74,12 @@
                     </li>
                     <li>
                         <a href="http://resources.sttrcancer.org/oncoscape" target="_blank " class="header-link ">
-                            <span class="glyphicon glyphicon-question-sign"></span> Help
+                            <span class="glyphicon glyphicon-question-sign"></span>Help
+                        </a>
+                    </li>
+                    <li>
+                        <a href="mailto:contact@oncoscape.org" target="_blank " class="header-link ">
+                            <span class="fa fa-comments"></span>Feedback
                         </a>
                     </li>
                 </ul>
