@@ -27,7 +27,7 @@
 
             // View Model
             var patientsAll, patientsFiltered, patientsDomain;
-            var patientsSelectedIds = [];
+
             var rowHeight = 20;
             var baseZoomX = 1;
             var baseZoomY = 1;
@@ -36,6 +36,8 @@
             var vm = this;
             vm.datasource = osApi.getDataSource();
             vm.cohort = osCohortService.getCohort();
+            var patientsSelectedIds = vm.cohort.patientIds;
+            debugger;
             vm.timescales = [
                 { name: 'Log', valFn: function(val) { return (val < 0 ? -1 : 1) * Math.log(Math.abs((val * 1000) / 86400000) + 1) / Math.log(2); } },
                 { name: 'Linear', valFn: function(val) { return moment.duration(val * 1000).asDays(); } }
