@@ -29,6 +29,7 @@ CACHE:
 /scripts/app-009c5b9b5b.js
 /scripts/app-01290808e5.js
 /scripts/app-02bbf0b6a7.js
+/scripts/app-0b57e923d3.js
 /scripts/app-0db183cba2.js
 /scripts/app-10171301ea.js
 /scripts/app-26cb5f5c4a.js
@@ -44,6 +45,7 @@ CACHE:
 /scripts/vendor-fbff3b32ee.js
 /styles/app-2159a84957.css
 /styles/app-365eb16d01.css
+/styles/app-3f6f358fa4.css
 /styles/app-567907be98.css
 /styles/app-6112ba777e.css
 /styles/app-6a66f522e2.css
@@ -147,9 +149,25 @@ CACHE:
 /assets/images/xx.png
 /assets/images/xxx-bg-pattern.png
 /assets/images/xxx.png
+/maps/styles/app-2159a84957.css.map
+/maps/styles/app-365eb16d01.css.map
+/maps/styles/app-3f6f358fa4.css.map
+/maps/styles/app-567907be98.css.map
+/maps/styles/app-6112ba777e.css.map
+/maps/styles/app-6a66f522e2.css.map
+/maps/styles/app-796697e41d.css.map
+/maps/styles/app-8a6c3f36b4.css.map
+/maps/styles/app-9676874581.css.map
+/maps/styles/app-ccfa8cbcd8.css.map
+/maps/styles/app-d9eba8159b.css.map
+/maps/styles/app-e3f9537438.css.map
+/maps/styles/app-f78892205c.css.map
+/maps/styles/app-ffb0f51179.css.map
+/maps/styles/vendor-4965d51886.css.map
 /maps/scripts/app-009c5b9b5b.js.map
 /maps/scripts/app-01290808e5.js.map
 /maps/scripts/app-02bbf0b6a7.js.map
+/maps/scripts/app-0b57e923d3.js.map
 /maps/scripts/app-0db183cba2.js.map
 /maps/scripts/app-10171301ea.js.map
 /maps/scripts/app-26cb5f5c4a.js.map
@@ -163,23 +181,9 @@ CACHE:
 /maps/scripts/app-a2812601eb.js.map
 /maps/scripts/app-d8ff86a8b6.js.map
 /maps/scripts/vendor-fbff3b32ee.js.map
-/maps/styles/app-2159a84957.css.map
-/maps/styles/app-365eb16d01.css.map
-/maps/styles/app-567907be98.css.map
-/maps/styles/app-6112ba777e.css.map
-/maps/styles/app-6a66f522e2.css.map
-/maps/styles/app-796697e41d.css.map
-/maps/styles/app-8a6c3f36b4.css.map
-/maps/styles/app-9676874581.css.map
-/maps/styles/app-ccfa8cbcd8.css.map
-/maps/styles/app-d9eba8159b.css.map
-/maps/styles/app-e3f9537438.css.map
-/maps/styles/app-f78892205c.css.map
-/maps/styles/app-ffb0f51179.css.map
-/maps/styles/vendor-4965d51886.css.map
+/app/components/markers/markers.worker.js
 /app/components/oncoscape/oncoscape.cohort.service.worker.js
 /app/components/oncoscape/oncoscape.http.factory.js
-/app/components/markers/markers.worker.js
 
 
 NETWORK:
@@ -191,4 +195,4 @@ https://*
 SETTINGS:
 prefer-online
 
-# hash: 7d3297b278f390aaceb5b711b768de2666db640d22df7dc217739ec3f735bfaf
+# hash: 8cbc0ced42e4cc9e6422b46b59f65d06922af500f5eac67af09b2026663e0eb9
