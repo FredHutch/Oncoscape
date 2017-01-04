@@ -39,6 +39,7 @@ CACHE:
 /scripts/app-400affffd9.js
 /scripts/app-4d9d4f1941.js
 /scripts/app-572a54fe34.js
+/scripts/app-6153b99c46.js
 /scripts/app-6b66d97cac.js
 /scripts/app-6bebd45c62.js
 /scripts/app-70da1229dc.js
@@ -46,6 +47,7 @@ CACHE:
 /scripts/app-a2812601eb.js
 /scripts/app-ae0aba3994.js
 /scripts/app-b369097a7e.js
+/scripts/app-b84d8303ea.js
 /scripts/app-d1f7627179.js
 /scripts/app-d8ff86a8b6.js
 /scripts/vendor-fbff3b32ee.js
@@ -70,6 +72,8 @@ CACHE:
 /styles/ui-grid.ttf
 /styles/ui-grid.woff
 /styles/vendor-4965d51886.css
+/assets/images/DSbile.jpg
+/assets/images/DSbrain.jpg
 /assets/images/ball.png
 /assets/images/barcharts.png
 /assets/images/cancer-breast.jpg
@@ -80,6 +84,7 @@ CACHE:
 /assets/images/heatmap.png
 /assets/images/history.png
 /assets/images/imgDSadrenal.png
+/assets/images/imgDSbile.jpg
 /assets/images/imgDSbile.png
 /assets/images/imgDSbladder.png
 /assets/images/imgDSblood.png
@@ -91,14 +96,17 @@ CACHE:
 /assets/images/imgDSeye.png
 /assets/images/imgDSheadneck.png
 /assets/images/imgDSkidney.png
+/assets/images/imgDSliver.jpg
 /assets/images/imgDSliver.png
 /assets/images/imgDSlung.png
 /assets/images/imgDSovary.png
+/assets/images/imgDSpancreas.jpg
 /assets/images/imgDSpancreas.png
 /assets/images/imgDSprostate.png
 /assets/images/imgDSsarc.png
 /assets/images/imgDSsarcoma.png
 /assets/images/imgDSskin.png
+/assets/images/imgDSstomach.jpg
 /assets/images/imgDSstomach.png
 /assets/images/imgDStesticules.png
 /assets/images/imgDSthymus.png
@@ -138,6 +146,7 @@ CACHE:
 /maps/scripts/app-400affffd9.js.map
 /maps/scripts/app-4d9d4f1941.js.map
 /maps/scripts/app-572a54fe34.js.map
+/maps/scripts/app-6153b99c46.js.map
 /maps/scripts/app-6b66d97cac.js.map
 /maps/scripts/app-6bebd45c62.js.map
 /maps/scripts/app-70da1229dc.js.map
@@ -145,6 +154,7 @@ CACHE:
 /maps/scripts/app-a2812601eb.js.map
 /maps/scripts/app-ae0aba3994.js.map
 /maps/scripts/app-b369097a7e.js.map
+/maps/scripts/app-b84d8303ea.js.map
 /maps/scripts/app-d1f7627179.js.map
 /maps/scripts/app-d8ff86a8b6.js.map
 /maps/scripts/vendor-fbff3b32ee.js.map
@@ -182,4 +192,4 @@ https://*
 SETTINGS:
 prefer-online
 
-# hash: 96b2a6618685ea142801c61a9be2f78398b2e7d61b372d39bb560222a48b3924
+# hash: f46ead57cf5849117c801d19e4d9c5f60ff52d6b93570587085fefaccf546819

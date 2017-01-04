@@ -1,0 +1,188 @@
+@@include('./app/partials/header.p')
+<!-- START wrapper -->
+<div class="content-wrapper">
+    <!-- START intro seciton -->
+    <div id="section-intro" class="scrollto">
+        <a class="anchor" id="anchor-intro">x</a>
+        <div class="container">
+            <div id="marquee" class="row">
+                <div class="col-xs-12">
+                    <img class="fadeInDown animated center-block tool-image img-responsive" src="/style/toolImages/survivalcurve.png" alt="M+P">
+                </div>
+            </div>
+            <div class="row">
+                <h1 class="tool-headline">
+                    <span class="header-black">Survival</span>
+                    <span class="header-gray">View survival of saved chorts. Compare Kaplan Meier curves.</span>
+                </h1>
+            </div>
+        </div>
+    </div>
+    <!-- END intro seciton -->
+    <!-- START sticky nav-bar -->
+    <div id="header" class="header">
+        <div class="subnav container">
+            <a class="subnav-item col-xs-12 col-sm-2 col-sm-offset-1" href="#anchor-overview">Overview</a>
+            <a class="subnav-item col-xs-12 col-sm-2" href="#anchor-cases">Use Cases</a>
+            <a class="subnav-item col-xs-12 col-sm-2" href="#anchor-nav">Navigation</a>
+            <a class="subnav-item col-xs-12 col-sm-2" href="#anchor-methods">Methods</a>
+            <a class="subnav-item col-xs-12 col-sm-2" href="#anchor-faq">FAQ</a>
+        </div>
+    </div>
+    <!-- END sticky nav-bar -->
+    <!-- START Overview seciton -->
+    <div class="scrollto" id="section-overview">
+        <a class="anchor" id="anchor-overview">x</a>
+        <div class="container">
+            <div class="row">
+                <div class="col-xs-12 text-center">
+                    <h3 class="section-headline  fadeInDown animated">Overview</h3>
+                </div>
+            </div>
+            <div class="row">
+                <div class="col-xs-12 text-left">
+                    <p>Survival allow users to create patient cohorts in other tabs and view those survival rates of each patient cohort in a single graph. By default, the survival curves are shown for all patients.</p>
+                </div>
+            </div>
+            <div class="row">
+                <div class="col-xs-12">
+                    <img class="center-block img-responsive mp-image" src="/style/survivalNavigation/survival.png" alt="Survival">
+                </div>
+            </div>
+            <div class="row">
+                <div class="col-xs-12 li-margin">
+                    <ul>
+                        <li><em>Survival Curves:</em> Each curve represents a saved patient cohort.
+                        </li>
+                        <li><em>Control Bar:</em> Collection of controls that operate over the graphical area. Each cohort can be toggled on/off of the plot.
+                        </li>
+                        <li><em>Cohorts and Collections:</em> Snapshots of the various collections, either patient or gene (gene coming soon). Different filters include visualizing age at diagnosis, gender, race, ethnicity, vital status or tumor status. Also,
+                            includes the ability to save and push cohorts through the various tools. To learn more visit
+                            <a href="/oncoscape">Oncoscape</a>
+                        </li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </div>
+    <!-- END Overview seciton -->
+    <!-- START Use Cases seciton -->
+    <div class="scrollto" id="section-cases">
+        <a class="anchor" id="anchor-cases">x</a>
+        <div class="container">
+            <div class="row">
+                <div class="col-xs-12 text-center">
+                    <h3 class="section-headline fadeInDown animated">Use Cases</h3>
+                </div>
+            </div>
+            <section class="videoCurrent col-xs-12 col-md-7">
+                <div class="videoPlayerContainer">
+                    <iframe class="videoPlayer" width="560" height="315" frameborder="0" allowfullscreen></iframe>
+                </div>
+                <h3 class="videoCurrentTitle"></h3>
+                <p class="videoCurrentTranscript"></p>
+            </section>
+            <section class="videos noselect col-xs-12 col-md-5">
+                <article class="video">
+                    <div class="videoThumb" style="background-image: url(/style/survivalNavigation/videotwo.png);"></div>
+                    <a class="videoLink" href="https://www.youtube.com/embed/nxB7VgkYXeo?rel=0&amp;controls=0&amp;showinfo=0"></a>
+                    <h4 class="videoTitle">View cohorts survival curves</h4>
+                    <p class="videoParagraph">After cohorts are push to survival view all or selected curves in the graph.</p>
+                    <section class="videoTranscript">
+                        <ol class="video-ol">
+                            <div class="li-margin">
+                                <li>Saved cohorts on left have been pushed from other analysis tools (e.g, Markers + Patients, Timelines).</li>
+                                <li>Each saved cohort generates a survival curve on the graph, including patient information.</li>
+                                <li>Toggle cohort surival curves on/off using the control bar.</li>
+                            </div>
+                        </ol>
+                    </section>
+                </article>
+            </section>
+        </div>
+    </div>
+    <!-- END Use Cases seciton -->
+    <!-- START Nav seciton -->
+    <div class="scrollto" id="section-nav">
+        <a class="anchor" id="anchor-nav">x</a>
+        <div class="container">
+            <div class="row">
+                <div class="col-xs-12 text-center">
+                    <h3 class="section-headline fadeInDown animated">Navigation</h3>
+                </div>
+            </div>
+            <div class="row">
+                <div class="col-xs-12 text-left">
+                    <strong>Cohorts</strong>
+                </div>
+            </div>
+            <div class="row">
+                <div class="col-xs-12 text-left">
+                    <p class="search-para">Switch the survival curves on or off in the <em>Cohorts</em> box.</p>
+                </div>
+            </div>
+            <!-- START cohorts Tween slideshowFactory -->
+            <div class="row">
+                <div class="col-xs-12 img-responsive" id="leftImageSurvival"></div>
+                <div class="col-xs-12 img-responsive" id="rightImageSurvival"></div>
+            </div>
+            <!-- END cohorts Tween slideshowFactory -->
+            <hr>
+            <div class="row">
+                <div class="col-xs-12 text-left">
+                    <strong>Cohorts + Collections (left bar)</strong>
+                </div>
+            </div>
+            <div class="row">
+                <div class="col-xs-12 text-left">
+                    <p class="search-para">Snapshots of the various collections, either patient or gene (gene coming soon). Different filters include visualizing age at diagnosis, gender, race, ethnicity, vital status or tumor status. To learn more visit <a href="/oncoscape">Oncoscape</a>                        </p>
+                </div>
+            </div>
+        </div>
+    </div>
+    <!-- END Nav seciton -->
+    <!-- START Methods+Data seciton -->
+    <div class="scrollto" id="section-methods">
+        <a class="anchor" id="anchor-methods">x</a>
+        <div class="container">
+            <div class="row">
+                <div class="col-xs-12 text-center">
+                    <h3 class="section-headline fadeInDown animated">Methods</h3>
+                </div>
+            </div>
+            <p class="text-left">Data (TCGA) for timelines was downloaded from the University of California Santa Cruz cancer browser <a class="methods-color" href="http://genome.ucsc.edu/" target="_blank">(August 2014 update).</a> More in depth data including the clinical
+                enumerations used can be reviewed at <a class="methods-color" href="http://resources.sttrcancer.org/api" target="_blank">Oncoscape Web api</a></p>
+            <p class="text-left">Generation of the curves achieved by Kaplan-Meier methods, ported to javascript.</p>
+        </div>
+    </div>
+    <!-- END Methods+Data seciton -->
+    <!-- START faq seciton -->
+    <div class="scrollto" id="section-faq">
+        <a class="anchor" id="anchor-faq">x</a>
+        <div class="container">
+            <div class="row">
+                <div class="col-xs-12 text-center">
+                    <h3 class="section-headline fadeInDown animated">Frequently Asked Questions</h3>
+                </div>
+            </div>
+            <div class="container">
+                <div id="divlist">
+                    <a class="faq-color" role="button" data-toggle="collapse" data-target="#collapse-3">How do I export or print my graphs?</a>
+                    <div id="collapse-3" class="collapse">
+                        <p class="collapse-para">Users can push saved cohorts to the spreadsheet tool by clicking the the Analysis Tool button at the top of the screen. Once there click the <em>Export: CSV</em> button. An Excel file will be generated and downloaded to your computer.
+                        </p>
+                    </div>
+                    <hr>
+                    <a class="faq-color" role="button" data-toggle="collapse" data-target="#collapse-4">How do I save my data for a return visit?</a>
+                    <div id="collapse-4" class="collapse">
+                        <p class="collapse-para">All data for selections and cohorts will be automatically saved for a return visit assuming users are on the same computer to login. User logins that allow stored sessions from any device will be deployed in a future release.
+                        </p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <!-- END faq seciton -->
+</div>
+<!-- END wrapper -->
+@@include('./app/partials/footer.p')
