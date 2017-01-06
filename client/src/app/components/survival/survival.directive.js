@@ -19,7 +19,7 @@
         return directive;
 
         /** @ngInject */
-        function SurvivalController(d3, osApi, osCohortService, $state, $timeout, $scope, $stateParams, $window, _) {
+        function SurvivalController(d3, osApi, osCohortService, $state, $timeout, $scope, $stateParams, $window) {
 
             // Loading . . . 
             osApi.setBusy(true);
@@ -125,11 +125,11 @@
 
                 // Get Screen Dimensions
                 var osLayout = osApi.getLayout();
-                layout.width = $window.innerWidth - osLayout.left - osLayout.right - ((osLayout.left == 0) ? 20 : 0) - ((osLayout.right == 0) ? 20 : 0);
+                layout.width = $window.innerWidth - osLayout.left - osLayout.right - ((osLayout.left === 0) ? 20 : 0) - ((osLayout.right === 0) ? 20 : 0);
                 layout.height = $window.innerHeight - 125;
 
                 // Position container
-                elContainer.css({ 'width': layout.width, 'height': layout.height, 'margin-left': (osLayout.left == 0) ? 20 : osLayout.left });
+                elContainer.css({ 'width': layout.width, 'height': layout.height, 'margin-left': (osLayout.left === 0) ? 20 : osLayout.left });
 
                 // Scale Axis
                 layout.xScale.domain(layout.xDomain).range([40, layout.width - 40]);
@@ -157,16 +157,19 @@
                     me.classed("survival-line-selected", selected);
                 });
                 vm.pAll = vm.cohort.survival.logrank.pValue;
-                var lrt = osCohortService.km.logranktest(vm.cohorts.filter(function(v) { return v.show; }).map(function(v) { return v.survival.data; }))
-                vm.pSelected = "P: " + lrt.pValue + " DOF: " + lrt.dof;
+
+                debugger;
+
+
+                vm.pSelected = osCohortService.km.logranktest(vm.cohorts.filter(function(v) { return v.show; }).map(function(v) { return v.survival.data; }));
             };
 
 
             vm.toggle = function() {
                 dataChange();
-                var lrt = osCohortService.km.logranktest(vm.cohorts.filter(function(v) { return v.show; }).map(function(v) { return v.survival.data; }))
+                var lrt = osCohortService.km.logranktest(vm.cohorts.filter(function(v) { return v.show; }).map(function(v) { return v.survival.data; }));
                 vm.pSelected = "P: " + lrt.pValue + " DOF: " + lrt.dof;
-            }
+            };
 
 
             // Create

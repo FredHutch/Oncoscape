@@ -1,4 +1,5 @@
 /* jshint ignore:start */
+/* global ActiveXObject:false, JSON:false  */
 // Load Data Function (URL, CallBack)
 var load = function(t, e) {
     function a() {
@@ -20,9 +21,8 @@ var request = function(object, data, format) {
             resolve(data);
             return;
         }
-
         var query = "/api/" + object.table;
-        //query = "https://oncoscape-test.fhcrc.org/api/" + object.table;
+        query = "https://dev.oncoscape.sttrcancer.io/api/" + object.table;
         if (object.query) query += "/" + encodeURIComponent(JSON.stringify(object.query));
         load(query, function(response) {
             resolve(format(JSON.parse(response.responseText)));
@@ -61,7 +61,6 @@ var data = (function() {
             .map(function(p) {
                 return parseInt(p[Object.keys(p)[0]]);
             });
-
         var min = Math.min.apply(null, range);
         var max = Math.max.apply(null, range)
         return function(value, low, high) {
@@ -71,8 +70,9 @@ var data = (function() {
     };
 
     var clean = function(state) {
+
         // Remove Edges That Don't Have Patients || Genes Assiciated
-        //		console.log("EDGES PRE CLEAN: "+state.edges.length);
+        // console.log("EDGES PRE CLEAN: "+state.edges.length);
         state.edges = state.edges
             .filter(function(item) { // Remove Edges w/ Invalid Gene
                 for (var i = 0; i < this.length; i++) {
@@ -86,8 +86,7 @@ var data = (function() {
                 }
                 return false;
             }, state.patients);
-        //		console.log("EDGES POST CLEAN: "+state.edges.length);
-
+        // console.log("EDGES POST CLEAN: "+state.edges.length);
 
         // Size Nodes :: Eliminate Duplicate Functions
         var rFn = getRangeFn(state.edgePatients);
@@ -138,101 +137,102 @@ var data = (function() {
     };
 
     var formatPatientLayout = function(data) {
-        if (state.patients.length == 0) return;
-        if (data.length == 1) {
 
-            var annotations = data[0].annotation;
-            if (annotations) {
+        // if (state.patients.length == 0) return data;
+        // if (data.length == 1) {
 
+        // var annotations = data[0].annotation;
+        // if (annotations) {
 
-                var text = annotations
-                    .filter(function(item) { return item.type == "text"; })
-                    .map(function(item) {
-                        return {
-                            group: "nodes",
-                            grabbable: false,
-                            locked: true,
-                            selectable: false,
-                            position: { x: item.x - 4600, y: item.y },
-                            'text-rotation': item.rotation,
-                            data: {
-                                id: "annotation" + item.text.replace(/[^\w\s!?]/g, ''),
-                                color: "rgb(0, 255, 255)",
-                                display: "element",
-                                nodeType: "annotation-text",
-                                sizeEle: 800,
-                                weight: 800,
-                                sizeLbl: 500,
-                                degree: 1,
-                                sizeBdr: 50,
-                                'text-rotation': item.rotation,
-                                label: item.text + " (" + item.dataValue + ")"
-                            }
-                        }
-                    });
-
-
-                var lines = annotations
-                    .filter(function(item) { return item.type == "line" })
-                    .map(function(line) {
-
-                        var id = "annotation-" + Math.random().toString().substring(2);
-
-                        var elements = [];
-                        for (var i = 0; i < line.points.length; i++) {
-
-                            var item = line.points[i];
-
-                            elements.push({
-
-                                group: "nodes",
-                                grabbable: false,
-                                locked: true,
-                                position: { x: item.x - 4000, y: item.y },
-                                selectable: false,
-                                data: {
-                                    display: "element",
-                                    id: id + i.toString(),
-                                    nodeType: "annotation-point",
-                                    sizeEle: 100,
-                                    sizeBdr: 1,
-                                    sizeLbl: 0
-                                }
-                            });
-                            if (i > 0) {
-                                elements.push({
-
-                                    group: "edges",
-                                    grabbable: false,
-                                    locked: true,
-                                    position: line.points[i],
-                                    selectable: false,
-                                    data: {
-                                        display: "element",
-                                        id: id,
-                                        nodeType: "annotation-line",
-                                        source: id + i.toString(),
-                                        target: id + (i - 1).toString(),
-                                        sizeEle: 50,
-                                        sizeBdr: 1,
-                                        sizeLbl: 0,
-                                        'color': "#000000"
-                                    }
-                                })
-                            }
-                        }
-                        return elements;
-
-                    });
+        //     var text = annotations
+        //         .filter(function(item) { return item.type == "text"; })
+        //         .map(function(item) {
+        //             return {
+        //                 group: "nodes",
+        //                 grabbable: false,
+        //                 locked: true,
+        //                 selectable: false,
+        //                 position: { x: item.x - 4600, y: item.y },
+        //                 'text-rotation': item.rotation,
+        //                 data: {
+        //                     id: "annotation" + item.text.replace(/[^\w\s!?]/g, ''),
+        //                     color: "rgb(0, 255, 255)",
+        //                     display: "element",
+        //                     nodeType: "annotation-text",
+        //                     sizeEle: 800,
+        //                     weight: 800,
+        //                     sizeLbl: 500,
+        //                     degree: 1,
+        //                     sizeBdr: 50,
+        //                     'text-rotation': item.rotation,
+        //                     label: item.text + " (" + item.dataValue + ")"
+        //                 }
+        //             }
+        //         });
 
 
+        //     var lines = annotations
+        //         .filter(function(item) { return item.type == "line" })
+        //         .map(function(line) {
 
-                data[0].annotation = text.concat([].concat.apply([], lines));
+        //             var id = "annotation-" + Math.random().toString().substring(2);
 
-            }
+        //             var elements = [];
+        //             for (var i = 0; i < line.points.length; i++) {
 
-            send("patients_layout", data[0]);
-        }
+        //                 var item = line.points[i];
+
+        //                 elements.push({
+
+        //                     group: "nodes",
+        //                     grabbable: false,
+        //                     locked: true,
+        //                     position: { x: item.x - 4000, y: item.y },
+        //                     selectable: false,
+        //                     data: {
+        //                         display: "element",
+        //                         id: id + i.toString(),
+        //                         nodeType: "annotation-point",
+        //                         sizeEle: 100,
+        //                         sizeBdr: 1,
+        //                         sizeLbl: 0
+        //                     }
+        //                 });
+        //                 if (i > 0) {
+        //                     elements.push({
+        //                         group: "edges",
+        //                         grabbable: false,
+        //                         locked: true,
+        //                         position: line.points[i],
+        //                         selectable: false,
+        //                         data: {
+        //                             display: "element",
+        //                             id: id,
+        //                             nodeType: "annotation-line",
+        //                             source: id + i.toString(),
+        //                             target: id + (i - 1).toString(),
+        //                             sizeEle: 50,
+        //                             sizeBdr: 1,
+        //                             sizeLbl: 0,
+        //                             'color': "#000000"
+        //                         }
+        //                     })
+        //                 }
+        //             }
+        //             return elements;
+
+        //         });
+        //     data[0].annotation = text.concat([].concat.apply([], lines));
+
+        // }
+
+
+        var rv = data[0].scores.reduce(function(p, c) {
+            p[c.id] = { x: c.d[0], y: c.d[1] };
+            return p;
+        }, {});
+        send("patients_layout", rv);
+
     };
 
     var formatEdgePatients = function(data) {
@@ -299,34 +299,33 @@ var data = (function() {
     };
 
     var formatPatientNodes = function(data) {
+        var rv = data[0].scores.map(function(v) {
+            var position = { x: v.d[0], y: v.d[1] };
+            var data = {
+                color: "#1396DE",
+                id: v.id,
+                display: "element",
+                nodeType: "patient",
+                degree: 1,
+                sizeBdr: 30,
+                sizeEle: 800,
+                weight: 800,
+                sizeLbl: 50,
+                subType: "unassigned"
+            };
+            var node = {
+                group: "nodes",
+                grabbable: true,
+                locked: false,
+                selectable: true,
+                position: position,
+                data: data
+            };
+            node.position.x -= 4000;
+            return node;
+        });
 
-        data = data[0].data;
-        return Object.keys(data)
-            .map(function(key) {
-                var value = this[key];
-                var data = {
-                    color: "#1396DE",
-                    id: key,
-                    display: "element",
-                    nodeType: "patient",
-                    degree: 1,
-                    sizeBdr: 30,
-                    sizeEle: 800,
-                    weight: 800,
-                    sizeLbl: 50,
-                    subType: "unassigned"
-                };
-                var node = {
-                    group: "nodes",
-                    grabbable: true,
-                    locked: false,
-                    selectable: true,
-                    position: value,
-                    data: data
-                };
-                node.position.x -= 4000;
-                return node;
-            }, data);
+        return rv;
     };
 
     var update = function(options, state) {
@@ -336,12 +335,10 @@ var data = (function() {
             // What Changed?
             var update = {
                 patientData: (state.options.patients.data != options.patients.data),
-                patientLayout: (state.options.patients.layout != options.patients.layout),
+                patientLayout: (state.options.patients.layout.name != options.patients.layout.name),
                 edges: (state.options.edges.layout.name != options.edges.layout.name),
                 genes: (state.options.genes.layout != options.genes.layout)
             };
-
-
 
             // Nothing? Return
             if (!update.patientData && !update.patientLayout && !update.patients && !update.edges && !update.genes) {
@@ -351,7 +348,6 @@ var data = (function() {
                 });
                 return;
             }
-
 
             // Fetch New Stuff
             var promises = [
@@ -364,20 +360,22 @@ var data = (function() {
                 }, !update.patientData ? state.patientData : null, formatPatientData),
 
                 request({
-                    table: 'render_patient',
+                    table: options.dataset + "_cluster",
                     query: {
-                        dataset: options.dataset,
-                        name: options.patients.layout
-                            //type: 'Cluster'
+                        source: options.patients.layout.source,
+                        geneset: options.patients.layout.geneset,
+                        dataType: options.patients.layout.dataType,
+                        input: options.patients.layout.input
                     }
                 }, !update.patientData ? state.patients : null, formatPatientNodes),
 
                 request({
-                    table: 'render_patient',
+                    table: options.dataset + "_cluster",
                     query: {
-                        dataset: options.dataset,
-                        name: options.patients.layout
-                            //type: 'Cluster'
+                        source: options.patients.layout.source,
+                        geneset: options.patients.layout.geneset,
+                        dataType: options.patients.layout.dataType,
+                        input: options.patients.layout.input
                     }
                 }, !update.patientLayout ? state.patients : null, formatPatientLayout),
 
@@ -545,6 +543,7 @@ var process = function(options, run) {
         var state = response.state;
         var update = response.update;
         var counts = "";
+        var edges;
         _options = options;
         switch (run) {
             case "sequential":
@@ -567,7 +566,7 @@ var process = function(options, run) {
                 }
                 break;
             case "sequential-showselectededges":
-                var edges = state.edges;
+                edges = state.edges;
                 edges = filter.edges.byPatients(options, edges);
                 edges = filter.edges.byGenes(options, edges);
                 var ids = edges.map(function(edge) {
@@ -583,7 +582,7 @@ var process = function(options, run) {
                 });
                 break;
             case "adhoc":
-                var edges = state.edges;
+                edges = state.edges;
                 edges = filter.edges.byColor(options, edges);
                 edges = filter.edges.byPatients(options, edges);
                 edges = filter.edges.byGenes(options, edges);
@@ -594,7 +593,7 @@ var process = function(options, run) {
                 });
                 break;
             case "set":
-                var edges = state.edges;
+                edges = state.edges;
                 edges = filter.edges.byColor(options, edges);
                 edges = filter.edges.byPatients(options, edges);
                 edges = filter.edges.byGenes(options, edges);

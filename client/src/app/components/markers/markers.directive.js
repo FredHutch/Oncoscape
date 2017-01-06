@@ -755,12 +755,6 @@
                             }
                         });
                     }
-
-
-
-
-
-
                     resizeNodes();
                     cyChart.endBatch();
                 };
