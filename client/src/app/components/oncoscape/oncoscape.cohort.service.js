@@ -59,13 +59,13 @@
                 }
 
                 function timeTable(tte, ev) {
-                    var exits = sortBy(tte.map((x, i) => ({ tte: x, ev: ev[i] })), 'tte'), // sort and collate
+                    var exits = sortBy(tte.map(function(x, i) { return { tte: x, ev: ev[i] }; }), 'tte'), // sort and collate
                         uexits = uniq(pluck(exits, 'tte'), true), // unique tte
-                        gexits = groupBy(exits, x => x.tte); // group by common time of exit
+                        gexits = groupBy(exits, function(x) { return x.tte; }); // group by common time of exit
                     return uexits.reduce(function(a, tte) { // compute d_i, n_i for times t_i (including censor times)
                         var group = gexits[tte],
                             l = last(a) || { n: exits.length, e: 0 },
-                            events = group.filter(x => x.ev);
+                            events = group.filter(function(x) { return x.ev; });
 
                         a.push({
                             n: l.n - l.e, // at risk
@@ -96,10 +96,10 @@
                         observedNumber,
                         dataByTimeTable = [];
 
-                    si = si.filter(item => item.e);
+                    si = si.filter(function(item) { return item.e; });
 
                     expectedNumber = si.reduce(function(memo, item) {
-                        var pointerInData = find(data, x => x.t >= item.t);
+                        var pointerInData = find(data, function(x) { return (x.t >= item.t); });
 
                         if (pointerInData) {
                             var expected = pointerInData.n * item.rate;
@@ -111,7 +111,7 @@
 
                     }, 0);
 
-                    observedNumber = ev.filter(x => x).length;
+                    observedNumber = ev.filter(function(x) { return x; }).length;
 
                     return {
                         expected: expectedNumber,
@@ -161,7 +161,7 @@
                 function allGroupsKm(groups) {
                     var tte = [].concat.apply([], pluck(groups, 'tte')),
                         ev = [].concat.apply([], pluck(groups, 'ev'));
-                    return compute(tte, ev).filter(t => t.e);
+                    return compute(tte, ev).filter(function(t) { return t.e; });
                 }
 
                 // allGroupsRes: km of all groups combined?
@@ -177,12 +177,12 @@
 
                     // Table of observed and expected events, for each group.
                     OETable = groupedDataTable
-                        .map(({ tte, ev }) => expectedObservedEventNumber(allGroupsRes, tte, ev))
-                        .filter(r => r.expected);
+                        .map(function(v) { return expectedObservedEventNumber(allGroupsRes, v.tte, v.ev); })
+                        .filter(function(r) { return r.expected; });
 
                     // Find O-E and covariance, and drop one dimension from each
-                    OMinusEVector = OETable.map(r => r.observed - r.expected).slice(1);
-                    vv = covariance(allGroupsRes, OETable).slice(1).map(r => r.slice(1)); // drop 1st row & 1st column
+                    OMinusEVector = OETable.map(function(r) { return r.observed - r.expected; }).slice(1);
+                    vv = covariance(allGroupsRes, OETable).slice(1).map(function(r) { return r.slice(1); }); // drop 1st row & 1st column
 
                     dof = OETable.length - 1;
 
@@ -199,7 +199,7 @@
                 }
 
                 var exports = {
-                    init: obj => {
+                    init: function(obj) {
                         pluck = obj.pluck;
                         uniq = obj.uniq;
                         sortBy = obj.sortBy;
@@ -370,60 +370,26 @@
                     p.ev.push(c.ev);
                     return p;
                 }, { tte: [], ev: [] });
-                var vo = km.compute(te.tte, te.ev)
-                    .map(r => _.omit(r, ['rate', 'e']));
-                vo.forEach(function(c, i, a) {
 
-                    // Add Previous Survival Rate
-                    c.s *= 100;
-                    c.p = this.survivalPrevious;
-                    this.survivalPrevious = c.s;
-
-                    // Add IDS Back To Times
+                var compute = km.compute(te.tte, te.ev)
+                    .map(function(r) { return _.omit(r, ['rate', 'e', 'n', 'd']); })
+                compute.forEach(function(c) {
                     var cd = this.survival.reduce(function(p, c) {
-
-                        if (p.time == c.tte) {
-                            p[c.ev ? "dead" : "censor"].push(c.pid);
-                        }
+                        if (p.time == c.tte) p[c.ev ? "d" : "c"].push(c.pid);
                         return p;
-                    }, { censor: [], dead: [], time: c.t });
+                    }, { c: [], d: [], time: c.t });
+                    c.c = cd.c;
+                    c.d = cd.d;
+                }, { survival: survival });
 
-                    c.c = cd.censor;
-                    c.d = cd.dead;
-                    return c;
-                }, { length: vo.length - 1, survival: survival, survivalPrevious: 100 });
+                var lrt = (cohortAll === null) ? { "KMStats": "NA", "pValue": "NA", dof: "NA" } :
+                    km.logranktest([te, cohortAll.survival.data]);
 
-                /* Description of VO
-                    t = time in days
-                    c = array of censored patient ids
-                    d = array of dead patient ids
-                    n = numer of patients remaining
-                    s = survival rate
-                    p = previous survival rate 
-                */
-
-                // Convert Result To Ticks + Lines + Calc Stats
-                var rv = vo.reduce(function(p, c) {
-                    var numCensored = c.c.length;
-                    var numDead = c.d.length;
-                    var obj = { alive: c.c, dead: c.d, survivalFrom: c.p, survivalTo: c.s, time: c.t };
-                    if (numCensored > 0) {
-                        p.data.ticks.push(obj);
-                        p.alive += numCensored;
-                    }
-                    if (numDead > 0) {
-                        p.data.lines.push({ alive: c.c, dead: c.d, survivalFrom: c.p, survivalTo: c.s, time: c.t });
-                        p.dead += numDead;
-                    }
-                    p.total += numCensored + numDead;
-                    p.min = Math.min(p.min, c.t);
-                    p.max = Math.max(p.max, c.t);
-                    return p;
-                }, { data: { ticks: [], lines: [] }, total: 0, alive: 0, dead: 0, min: Infinity, max: -Infinity });
-                rv.te = te;
-                rv.logrank = (cohortAll == null) ? null : km.logranktest([rv.te, cohortAll.survival.te]);
-                return rv;
-
+                return {
+                    data: te,
+                    compute: compute,
+                    logrank: lrt
+                };
             };
 
             return {

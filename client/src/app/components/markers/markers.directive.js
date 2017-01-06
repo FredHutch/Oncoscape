@@ -210,7 +210,8 @@
                     }, {
                         'selector': 'node[nodeType="telomere"]',
                         'style': {
-                            'background-color': "#3993fa"
+                            'background-color': "#3993fa",
+                            'border-color': "#3993fa"
                         }
                     }, {
                         'selector': 'node[nodeType="patient"]',
@@ -240,8 +241,9 @@
                     }, {
                         'selector': 'node[nodeType="gene"]:selected',
                         'style': {
-                            'background-color': "#000000",
-                            'border-color': "#000"
+                            'background-color': "#fc8400",
+                            'border-color': "#000000",
+                            'border-width': '5px'
                         }
                     }, {
                         'selector': 'node[nodeType="centromere"]',
@@ -282,7 +284,7 @@
                     hideEdgesOnViewport: false,
                     hideLabelsOnViewport: true,
                     textureOnViewport: false,
-                    wheelSensitivity: .5,
+                    wheelSensitivity: .2,
                     zoom: 0.08,
                     pan: {
                         x: 650,
@@ -528,6 +530,31 @@
                 vm.optEdgeColors = mpState.getOptEdgeColors();
 
                 // Populate Dropdowns + Draw Chromosome
+                // $q.all([
+                //     osApi.query("render_chromosome", {
+                //         type: 'geneset',
+                //         $fields: ['name']
+                //     }),
+                //     osApi.query("render_patient", {
+                //         type: 'cluster',
+                //         dataset: osApi.getDataSource().disease,
+                //         $fields: ['name']
+                //     }),
+                //     osApi.query("render_patient", {
+                //         type: 'color',
+                //         dataset: osApi.getDataSource().disease,
+                //         $fields: ['name']
+                //     })
+                // ]).then(function(results) {
+
+                //     vm.optGeneSets = results[0].data;
+                //     vm.optGeneSet = mpState.getGeneSet(vm.optGeneSets);
+                //     vm.optPatientLayouts = results[1].data;
+                //     vm.optPatientLayout = mpState.getPatientLayout(vm.optPatientLayouts);
+                // });
+
+
+                // Populate Dropdowns + Draw Chromosome
                 $q.all([
                     osApi.query("render_chromosome", {
                         type: 'geneset',
@@ -538,11 +565,11 @@
                         dataset: osApi.getDataSource().disease,
                         $fields: ['name']
                     }),
-                    osApi.query("render_patient", {
-                        type: 'color',
-                        dataset: osApi.getDataSource().disease,
-                        $fields: ['name']
-                    })
+                    // osApi.query("render_patient", {
+                    //     type: 'color',
+                    //     dataset: osApi.getDataSource().disease,
+                    //     $fields: ['name']
+                    // })
                 ]).then(function(results) {
 
                     vm.optGeneSets = results[0].data;
@@ -550,13 +577,15 @@
                     vm.optPatientLayouts = results[1].data;
                     vm.optPatientLayout = mpState.getPatientLayout(vm.optPatientLayouts);
                 });
+
+
                 vm.resize = function() {
                     var width = $window.innerWidth;
                     //    if (angular.element(".tray").attr("locked") == "true") width -= 300;
                     elChart.width(width);
                     elChart.height($window.innerHeight - 90);
                     cyChart.resize();
-                }
+                };
                 angular.element($window).bind('resize',
                     _.debounce(vm.resize, 300)
                 );
@@ -881,7 +910,7 @@
              *  + vm.optPatientLayout
              */
             (function(vm, $scope) {
-                var watches = 1;
+                var watches = 2;
 
                 var update = function() {
                     setOptions(createOptions());
@@ -920,7 +949,7 @@
                         return;
                     }
                     update();
-                    vm.resize()
+                    vm.resize();
                 });
             })(vm, $scope);
 
@@ -948,11 +977,11 @@
 
                 $scope.$apply(function() {
                     if (e.type == "mouseout") {
-                        //angular.element("#cohortmenu-legand").html("");
+                        angular.element("#cohortmenu-legand").html("");
 
                     } else {
                         mouseIsOver = "patient";
-                        //angular.element("#cohortmenu-legand").html(e.cyTarget.id() + patientHtml[e.cyTarget.id()]);
+                        angular.element("#cohortmenu-legand").html(e.cyTarget.id() + patientHtml[e.cyTarget.id()]);
                     }
                 });
             };

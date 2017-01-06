@@ -45,6 +45,7 @@
                 .text("PC2");
 
             // Properties
+            var clusterCollection = osApi.getDataSource().disease + "_cluster";
             var scaleX, scaleY, axisX, axisY;
             var data, minMax;
             var width, height;
@@ -104,49 +105,63 @@
             });
             $scope.$watch('vm.pcaType', function(geneset) {
                 if (angular.isUndefined(geneset)) return;
-                osApi.query(vm.datasource.disease + "_loadings", { type: 'ucsc_prcomp-allgenes-cnv' }).then(function(response) {
 
-                    var loadings = response.data[0].loadings;
-                    var scale = d3.scaleLinear()
-                        .domain([loadings[loadings.length - 1].max, loadings[0].max])
-                        .range([.1, 1]);
-                    vm.loadings = response.data[0].loadings.map(function(v) {
-                        return {
-                            tip: v.values.reduce(function(p, c) {
-                                p.index += 1;
-                                p.text += "<br>PC" + p.index + ": " + (c * 100).toFixed(2) + "%";
-                                return p;
-                            }, { text: v.gene, index: 0 }).text,
-                            value: this(v.max)
-                        };
-                    }, scale);
 
-                });
-                osApi.query("render_pca", {
+                osApi.query(clusterCollection, {
                         disease: vm.datasource.disease,
                         geneset: vm.geneSet.name,
-                        type: vm.pcaType.name,
+                        input: vm.pcaType.name,
                         source: vm.source.name
                     })
                     .then(function(response) {
-                        var d = response.data[0];
-                        vm.pc1 = [
-                            { name: 'PC1', value: d.pc1 },
-                            { name: '', value: 100 - d.pc1 }
 
+
+                        var d = response.data[0];
+
+                        // Process PCA Variance
+                        vm.pc1 = [
+                            { name: 'PC1', value: d.metadata.variance[0] },
+                            { name: '', value: 100 - d.metadata.variance[0] }
                         ];
                         vm.pc2 = [
-                            { name: 'PC2', value: d.pc2 },
-                            { name: '', value: 100 - d.pc2 }
+                            { name: 'PC2', value: d.metadata.variance[1] },
+                            { name: '', value: 100 - d.metadata.variance[1] }
                         ];
 
-                        var keys = Object.keys(response.data[0].data);
-                        data = keys.map(function(key) {
-                            this.data[key].id = key;
-                            return this.data[key];
-                        }, {
-                            data: d.data
-                        });
+                        // Process Loadings
+                        var loadings = response.data[0].loadings
+                            .map(function(v) {
+                                v.max = Math.max.apply(null, v.d.map(function(v) { return Math.abs(v); }));
+                                return v;
+                            })
+                            .sort(function(a, b) {
+                                return a.max - b.max;
+                            })
+                            .slice(0, 50);
+
+                        var scale = d3.scaleLinear()
+                            .domain([loadings[loadings.length - 1].max, loadings[0].max])
+                            .range([.1, 1]);
+
+
+                        vm.loadings = loadings.map(function(v) {
+                            return {
+                                tip: v.d.reduce(function(p, c) {
+                                    p.index += 1;
+                                    p.text += "<br>PC" + p.index + ": " + (c * 100).toFixed(2);
+                                    return p;
+                                }, { text: v.id, index: 0 }).text,
+                                value: this(v.max)
+                            };
+                        }, scale);
+
+
+                        // Process Scores
+                        data = d.scores.map(function(v) {
+                            v.d.id = v.id;
+                            return v.d;
+                        })
+
                         minMax = data.reduce(function(p, c) {
                             p.xMin = Math.min(p.xMin, c[0]);
                             p.xMax = Math.max(p.xMax, c[0]);
@@ -160,15 +175,10 @@
                             yMax: -Infinity
                         });
 
-                        minMax.xMax = Math.max(Math.abs(minMax.xMin), minMax.xMax);
-                        minMax.xMin = -minMax.xMax;
-                        minMax.yMax = Math.max(Math.abs(minMax.yMin), minMax.yMax);
-                        minMax.yMin = -minMax.yMax;
 
                         draw();
                     });
             });
-
 
             // Utility Functions
             function setSelected() {
@@ -272,18 +282,18 @@
                     .style("fill-opacity", 0.8);
 
                 // Axis
-                axisX = d3.axisTop().scale(scaleX).ticks(5);
-                axisY = d3.axisLeft().scale(scaleY).ticks(5);
+                axisX = d3.axisTop().scale(scaleX).ticks(3);
+                axisY = d3.axisLeft().scale(scaleY).ticks(3);
 
                 d3xAxis
                     .attr("class", "axis")
-                    .attr("transform", "translate(0, " + scaleY(0) + ")")
+                    .attr("transform", "translate(0, " + height * .5 + ")")
                     .call(axisX);
 
 
                 d3yAxis
                     .attr("class", "axis")
-                    .attr("transform", "translate(" + scaleX(0) + ", 0)")
+                    .attr("transform", "translate(" + width * .5 + ", 0)")
                     .call(axisY);
 
 
@@ -337,51 +347,46 @@
             };
             osCohortService.onCohortChange.add(onCohortChange);
 
-            // Initialize
-            // var pcaScores = vm.datasource.calculated.filter(function(v) { return v.type == "pcaScores"; });
 
-
-            osApi.query("render_pca", {
-                    disease: vm.datasource.disease,
-                    $fields: ['type', 'geneset', 'source']
-                })
-                .then(function(response) {
-                    var data = response.data.map(function(v) {
-                        return {
-                            a: v.geneset,
-                            b: v.source,
-                            c: v.type
-                        };
-                    });
-
-                    var result = _.reduce(data, function(memo, val) {
-                        var tmp = memo;
-                        _.each(val, function(fldr) {
-                            if (!_.has(tmp, fldr)) {
-                                tmp[fldr] = {};
-                            }
-                            tmp = tmp[fldr];
-                        });
-                        return memo;
-                    }, {});
-
-                    vm.geneSets = Object.keys(result).map(function(geneset) {
-                        return {
-                            name: geneset,
-                            sources: Object.keys(result[geneset]).map(function(source) {
-                                return {
-                                    name: source,
-                                    types: Object.keys(result[geneset][source]).map(function(type) {
-                                        return {
-                                            name: type
-                                        };
-                                    })
-                                };
-                            })
-                        };
-                    });
-                    vm.geneSet = vm.geneSets[0];
+            osApi.query(clusterCollection, {
+                dataType: 'PCA',
+                $fields: ['input', 'geneset', 'source']
+            }).then(function(response) {
+                var data = response.data.map(function(v) {
+                    return {
+                        a: v.geneset,
+                        b: v.source,
+                        c: v.input
+                    };
                 });
+                var result = _.reduce(data, function(memo, val) {
+                    var tmp = memo;
+                    _.each(val, function(fldr) {
+                        if (!_.has(tmp, fldr)) {
+                            tmp[fldr] = {};
+                        }
+                        tmp = tmp[fldr];
+                    });
+                    return memo;
+                }, {});
+
+                vm.geneSets = Object.keys(result).map(function(geneset) {
+                    return {
+                        name: geneset,
+                        sources: Object.keys(result[geneset]).map(function(source) {
+                            return {
+                                name: source,
+                                types: Object.keys(result[geneset][source]).map(function(type) {
+                                    return {
+                                        name: type
+                                    };
+                                })
+                            };
+                        })
+                    };
+                });
+                vm.geneSet = vm.geneSets[0];
+            });
 
             // Destroy
             $scope.$on('$destroy', function() {

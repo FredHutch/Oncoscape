@@ -26,31 +26,7 @@ CACHE:
 /fonts/ui-grid.svg
 /fonts/ui-grid.ttf
 /fonts/ui-grid.woff
-/scripts/app-009c5b9b5b.js
-/scripts/app-01290808e5.js
-/scripts/app-02bbf0b6a7.js
-/scripts/app-0b57e923d3.js
-/scripts/app-0db183cba2.js
-/scripts/app-10171301ea.js
-/scripts/app-26cb5f5c4a.js
-/scripts/app-2f54e12dc2.js
-/scripts/app-2f96ced6c7.js
-/scripts/app-3d2cb9332c.js
-/scripts/app-400affffd9.js
-/scripts/app-4d9d4f1941.js
-/scripts/app-572a54fe34.js
-/scripts/app-6153b99c46.js
-/scripts/app-6b66d97cac.js
-/scripts/app-6bebd45c62.js
-/scripts/app-70da1229dc.js
-/scripts/app-8b4e082927.js
-/scripts/app-a2812601eb.js
-/scripts/app-ae0aba3994.js
-/scripts/app-b369097a7e.js
-/scripts/app-b84d8303ea.js
-/scripts/app-d1f7627179.js
-/scripts/app-d8ff86a8b6.js
-/scripts/vendor-fbff3b32ee.js
+/styles/app-0095bb5c77.css
 /styles/app-211b122f49.css
 /styles/app-2159a84957.css
 /styles/app-365eb16d01.css
@@ -72,6 +48,32 @@ CACHE:
 /styles/ui-grid.ttf
 /styles/ui-grid.woff
 /styles/vendor-4965d51886.css
+/scripts/app-009c5b9b5b.js
+/scripts/app-01290808e5.js
+/scripts/app-02bbf0b6a7.js
+/scripts/app-0b57e923d3.js
+/scripts/app-0db183cba2.js
+/scripts/app-10171301ea.js
+/scripts/app-14a6a80ce0.js
+/scripts/app-26cb5f5c4a.js
+/scripts/app-2f54e12dc2.js
+/scripts/app-2f96ced6c7.js
+/scripts/app-3d2cb9332c.js
+/scripts/app-400affffd9.js
+/scripts/app-4d9d4f1941.js
+/scripts/app-572a54fe34.js
+/scripts/app-6153b99c46.js
+/scripts/app-6b66d97cac.js
+/scripts/app-6bebd45c62.js
+/scripts/app-70da1229dc.js
+/scripts/app-8b4e082927.js
+/scripts/app-a2812601eb.js
+/scripts/app-ae0aba3994.js
+/scripts/app-b369097a7e.js
+/scripts/app-b84d8303ea.js
+/scripts/app-d1f7627179.js
+/scripts/app-d8ff86a8b6.js
+/scripts/vendor-fbff3b32ee.js
 /assets/images/DSbile.jpg
 /assets/images/DSbrain.jpg
 /assets/images/ball.png
@@ -139,6 +141,7 @@ CACHE:
 /maps/scripts/app-0b57e923d3.js.map
 /maps/scripts/app-0db183cba2.js.map
 /maps/scripts/app-10171301ea.js.map
+/maps/scripts/app-14a6a80ce0.js.map
 /maps/scripts/app-26cb5f5c4a.js.map
 /maps/scripts/app-2f54e12dc2.js.map
 /maps/scripts/app-2f96ced6c7.js.map
@@ -158,6 +161,7 @@ CACHE:
 /maps/scripts/app-d1f7627179.js.map
 /maps/scripts/app-d8ff86a8b6.js.map
 /maps/scripts/vendor-fbff3b32ee.js.map
+/maps/styles/app-0095bb5c77.css.map
 /maps/styles/app-211b122f49.css.map
 /maps/styles/app-2159a84957.css.map
 /maps/styles/app-365eb16d01.css.map
@@ -192,4 +196,4 @@ https://*
 SETTINGS:
 prefer-online
 
-# hash: f46ead57cf5849117c801d19e4d9c5f60ff52d6b93570587085fefaccf546819
+# hash: e24bdf9ee4d23fd5ce8f1b2a5142d594a9ba2574beffd46fa4eab14cf84c9c70

@@ -41,7 +41,8 @@
                     $filter('number')(cohort.numSamples) + " Samples<br /> " +
                     $filter('number')(cohort.numPatients) + " Patients <br />" +
                     $filter('number')(cohort.numClinical) + " Patients with Clinical Data<br />" +
-                    $filter('number')(cohort.survival.total) + " Patients with Survival Outcome<br />";
+                    $filter('number')(cohort.survival.data.tte.length) + " Patients with Survival Outcome<br />";
+
                 vm.cohortSummary = $sce.trustAsHtml(summary);
 
                 if (angular.isUndefined(cohort)) return;
@@ -232,80 +233,27 @@
                 xAxis: d3.axisBottom().ticks(4).tickFormat(formatDays)
             };
             surSvg.attr("width", '100%').attr("height", surLayout.height);
-            var surAddCurve = function(curve, color) {
-
-
-                // ticks
-                var data = curve.data;
-                var time = 0;
-                data.lines.forEach(function(element) {
-
-                    surSvg.append("line")
-                        .attr("class", "line")
-                        .attr("stroke-width", 0.5)
-                        .attr("stroke", color)
-                        .attr("x1", surLayout.xScale(element.time))
-                        .attr("x2", surLayout.xScale(element.time))
-                        .attr("y1", surLayout.yScale(element.survivalFrom))
-                        .attr("y2", surLayout.yScale(element.survivalTo));
-
-                    surSvg.append("line")
-                        .attr("class", "line")
-                        .attr("stroke-width", 0.5)
-                        .attr("stroke", color)
-                        .attr("x1", surLayout.xScale(time))
-                        .attr("x2", surLayout.xScale(element.time))
-                        .attr("y1", surLayout.yScale(element.survivalFrom))
-                        .attr("y2", surLayout.yScale(element.survivalFrom));
-
-                    time = element.time;
-                });
-
-                data.ticks.forEach(function(element) {
-                    surSvg.append("line")
-                        .attr("class", "line")
-                        .attr("stroke-width", 0.5)
-                        .attr("stroke", color)
-                        .attr("x1", surLayout.xScale(element.time))
-                        .attr("x2", surLayout.xScale(element.time))
-                        .attr("y1", surLayout.yScale(element.survivalFrom))
-                        .attr("y2", surLayout.yScale(element.survivalFrom) - 2);
-                }, this);
-
-                // If Censor Occurs After Last Death Add line
-                if (data.ticks.length === 0 || data.lines.length === 0) return;
-                var lastTick = data.ticks[data.ticks.length - 1];
-                var lastLine = data.lines[data.lines.length - 1];
-                if (lastTick.time > lastLine.time) {
-                    surSvg.append("line")
-                        .attr("class", "line")
-                        .attr("stroke-width", 0.5)
-                        .attr("stroke", color)
-                        .attr("x1", surLayout.xScale(lastLine.time))
-                        .attr("x2", surLayout.xScale(lastTick.time))
-                        .attr("y1", surLayout.yScale(lastTick.survivalFrom))
-                        .attr("y2", surLayout.yScale(lastTick.survivalFrom));
-                }
-            };
 
             var updateSurvival = function(cohorts) {
-                var visibleCohorts = cohorts;
-                // .filter(function(v) {
-                //     return v.show;
-                // });
-                var minMax = visibleCohorts.reduce(function(p, c) {
-                    p.max = Math.max(p.max, c.survival.max);
-                    p.min = Math.min(p.min, c.survival.min);
+
+                var xDomain = cohorts.reduce(function(p, c) {
+                    p[0] = Math.min(p[0], c.survival.compute[0].t);
+                    p[1] = Math.max(p[1], c.survival.compute[c.survival.compute.length - 1].t);
                     return p;
-                }, { max: -Infinity, min: Infinity });
+                }, [Infinity, -Infinity]);
 
                 surLayout.xScale = d3.scaleLinear()
-                    .domain([minMax.min, minMax.max])
+                    .domain(xDomain)
                     .range([0, surLayout.width - 1]);
 
                 surLayout.yScale = d3.scaleLinear()
-                    .domain([0, 100])
+                    .domain([0, 1])
                     .range([surLayout.height - 30, 0]);
+
+                var lineFunction = d3.line()
+                    .curve(d3.curveStepBefore)
+                    .x(function(d) { return Math.round(surLayout.xScale(d.t)); })
+                    .y(function(d) { return Math.round(surLayout.yScale(d.s)); });
 
                 surLayout.xAxis.scale(surLayout.xScale);
                 surXAxis.attr("transform", "translate(0, " + (surLayout.yScale(0)) + ")")
@@ -313,10 +261,17 @@
                     .selectAll("text")
                     .style("text-anchor", function(d, i) { return (i === 0) ? "start" : "center"; });
 
-                surSvg.selectAll(".line").remove();
-                for (var i = 0; i < visibleCohorts.length; i++) {
-                    surAddCurve(visibleCohorts[i].survival, visibleCohorts[i].color);
+                surSvg.selectAll(".survival-line").remove();
+
+                for (var i = 0; i < cohorts.length; i++) {
+                    var cohort = cohorts[i];
+                    surSvg.append("path")
+                        .datum(cohort.survival.compute)
+                        .attr("class", "survival-line")
+                        .style("stroke", cohort.color)
+                        .attr("d", lineFunction);
                 }
+
             };
 
         }
