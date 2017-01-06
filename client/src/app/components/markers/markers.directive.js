@@ -268,16 +268,16 @@
                     }, {
                         'selector': 'node[nodeType="annotation-text"]',
                         'style': {
-                            'font-size': '400px',
+                            'font-size': '50px',
                             'text-halign': 'right',
                             'text-valign': 'bottom',
-                            'background-color': "#FFF",
+                            'background-color': "#FFFFFF",
                             'color': "#000",
-                            'border-color': '#FFF',
-                            'height': '0px',
-                            'width': '0px',
+                            'border-color': '#FFFFFF',
+                            'height': '50px',
+                            'width': '50px',
                             'shape': 'round',
-                            'label': "data(label)",
+                            'label': 'data(label)',
                             'text-transform': 'uppercase'
                         }
                     }],
@@ -529,30 +529,6 @@
 
                 vm.optEdgeColors = mpState.getOptEdgeColors();
 
-                // Populate Dropdowns + Draw Chromosome
-                // $q.all([
-                //     osApi.query("render_chromosome", {
-                //         type: 'geneset',
-                //         $fields: ['name']
-                //     }),
-                //     osApi.query("render_patient", {
-                //         type: 'cluster',
-                //         dataset: osApi.getDataSource().disease,
-                //         $fields: ['name']
-                //     }),
-                //     osApi.query("render_patient", {
-                //         type: 'color',
-                //         dataset: osApi.getDataSource().disease,
-                //         $fields: ['name']
-                //     })
-                // ]).then(function(results) {
-
-                //     vm.optGeneSets = results[0].data;
-                //     vm.optGeneSet = mpState.getGeneSet(vm.optGeneSets);
-                //     vm.optPatientLayouts = results[1].data;
-                //     vm.optPatientLayout = mpState.getPatientLayout(vm.optPatientLayouts);
-                // });
-
 
                 // Populate Dropdowns + Draw Chromosome
                 $q.all([
@@ -560,21 +536,18 @@
                         type: 'geneset',
                         $fields: ['name']
                     }),
-                    osApi.query("render_patient", {
-                        type: 'cluster',
-                        dataset: osApi.getDataSource().disease,
-                        $fields: ['name']
-                    }),
-                    // osApi.query("render_patient", {
-                    //     type: 'color',
-                    //     dataset: osApi.getDataSource().disease,
-                    //     $fields: ['name']
-                    // })
-                ]).then(function(results) {
+                    osApi.query(osApi.getDataSource().disease + "_cluster", {
+                        $fields: ['input', 'geneset', 'dataType', 'source']
+                    })
 
+                ]).then(function(results) {
+                    var layouts = results[1].data.map(function(v) {
+                        v.name = v.dataType + " " + v.input + " " + v.geneset;
+                        return v;
+                    });
                     vm.optGeneSets = results[0].data;
                     vm.optGeneSet = mpState.getGeneSet(vm.optGeneSets);
-                    vm.optPatientLayouts = results[1].data;
+                    vm.optPatientLayouts = layouts;
                     vm.optPatientLayout = mpState.getPatientLayout(vm.optPatientLayouts);
                 });
 
@@ -736,18 +709,58 @@
                 };
                 cmd.patients_layout = function(data) {
                     cyChart.startBatch();
-                    cyChart.$("node[nodeType='annotation-text'],edge[nodeType='annotation-line'],node[nodeType='annotation-point']").remove();
-                    if (data.annotation) {
-                        cyChart.add(data.annotation);
+                    //cyChart.$("node[nodeType='annotation-text'],edge[nodeType='annotation-line'],node[nodeType='annotation-point']").remove();
+                    // if (data.annotation) {
+                    //     cyChart.add(data.annotation);
+                    // }
+                    cyChart.$("node[nodeType='annotation-text']").remove();
 
-                    }
+                    var posX = 100;
+                    var posY = 3000;
+                    var numMissing = 0;
                     cyChart.nodes('node[nodeType="patient"]').forEach(function(node) {
-                        try {
-                            var pos = data.data[node.id()];
+                        if (data.hasOwnProperty(node.id())) {
+                            var pos = data[node.id()];
                             pos.x -= 4000;
                             node.position(pos);
-                        } catch (e) {}
+                        } else {
+                            node.position({ x: posX, y: posY });
+                            posX += 80;
+                            if (posX > 3000) {
+                                posX = 100;
+                                posY += 80;
+                            }
+                            numMissing += 1;
+                        }
                     });
+
+                    if (numMissing > 0) {
+                        cyChart.add({
+                            group: "nodes",
+                            grabbable: false,
+                            locked: true,
+                            selectable: false,
+                            position: { x: 50, y: 2850 },
+                            data: {
+                                id: "annotation",
+                                color: "rgb(0, 0, 0)",
+                                display: "element",
+                                nodeType: "annotation-text",
+                                sizeEle: 800,
+                                weight: 0,
+                                sizeLbl: 500,
+                                degree: 0,
+                                sizeBdr: 50,
+                                label: "The following " + numMissing + " samples lacked the requisite data to be clustered."
+                            }
+                        });
+                    }
+
+
+
+
+
+
                     resizeNodes();
                     cyChart.endBatch();
                 };
@@ -856,7 +869,7 @@
 
                     // Could add ability to select from cBio or UCSC for edges
                     var edges = osApi.getDataSource().edges.filter(function(f) {
-                        return f.name == this.geneset
+                        return f.name == this.geneset;
                     }, {
                         geneset: geneset
                     })[0];
@@ -867,15 +880,15 @@
                         dataset: osApi.getDataSource().disease,
                         patients: {
                             data: vm.datasource.clinical.patient,
-                            layout: vm.optPatientLayout.name,
+                            layout: vm.optPatientLayout,
                             selected: cyChart.$('node[nodeType="patient"]:selected').map(function(p) {
-                                return p.data().id
+                                return p.data().id;
                             })
                         },
                         genes: {
                             layout: vm.optGeneSet.name,
                             selected: cyChart.$('node[nodeType="gene"]:selected').map(function(p) {
-                                return p.data().id
+                                return p.data().id;
                             })
                         },
                         edges: {
@@ -977,11 +990,11 @@
 
                 $scope.$apply(function() {
                     if (e.type == "mouseout") {
-                        angular.element("#cohortmenu-legand").html("");
+                        //angular.element("#cohortmenu-legand").html("");
 
                     } else {
                         mouseIsOver = "patient";
-                        angular.element("#cohortmenu-legand").html(e.cyTarget.id() + patientHtml[e.cyTarget.id()]);
+                        //angular.element("#cohortmenu-legand").html(e.cyTarget.id() + patientHtml[e.cyTarget.id()]);
                     }
                 });
             };
@@ -990,10 +1003,10 @@
 
                 $scope.$apply(function() {
                     if (e.type == "mouseout") {
-                        angular.element("#cohortmenu-legand").html("");
+                        //angular.element("#cohortmenu-legand").html("");
                     } else {
                         mouseIsOver = "gene";
-                        angular.element("#cohortmenu-legand").html(e.cyTarget.id()); // + patientHtml[e.cyTarget.id()]);
+                        //angular.element("#cohortmenu-legand").html(e.cyTarget.id()); // + patientHtml[e.cyTarget.id()]);
                     }
                 });
             };

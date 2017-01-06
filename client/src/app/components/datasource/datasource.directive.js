@@ -22,6 +22,10 @@
         function DatasourceController(osApi, osCohortService, $state) {
             var vm = this;
             vm.datasets = osApi.getDataSources();
+            // .map(function(v) {
+            //     v.img = v.img.replace("png", "jpg");
+            //     return v;
+            // });
             vm.explore = function(tool, datasource) {
                 $state.go(tool, { datasource: datasource.disease });
             };
