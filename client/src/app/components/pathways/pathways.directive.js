@@ -30,7 +30,6 @@
 
             vm.datasource = osApi.getDataSource();
             vm.search = "";
-            vm.frame;
             vm.tip = null;
             vm.linkTitle = "";
             vm.links = [];
@@ -42,15 +41,15 @@
                     csChart.resize();
                     csChart.center();
                 }
-            }
+            };
 
             $scope.$watch('vm.search', function() {
                 if (angular.isUndefined(csChart)) return;
                 var term = vm.search.toUpperCase();
                 var len = term.length;
-                csChart.startBatch()
+                csChart.startBatch();
                 csChart.nodes().map(function(ele) {
-                    if (len == 0) {
+                    if (len === 0) {
                         ele.unselect();
                     } else if (ele.attr("name").substr(0, len) === term) {
                         ele.select();
@@ -67,25 +66,22 @@
                 markersNetwork = result.data[0];
 
                 csChart = cytoscape({
-                    container: elChart,
-                    elements: markersNetwork.elements,
-                    style: getStyle(),
-                    minZoom: .1,
-                    maxZoom: 5,
-                    zoom: 0.2,
-                    wheelSensitivity: .5,
-                    layout: {
-                        name: "preset",
-                        fit: true
-                    }
-                })
-
-                //.on('select', 'node', _.debounce(saveSelected, 300))
-                .on('click', 'node', function(e) {
+                        container: elChart,
+                        elements: markersNetwork.elements,
+                        style: getStyle(),
+                        minZoom: 0.1,
+                        maxZoom: 5,
+                        zoom: 0.2,
+                        wheelSensitivity: 0.5,
+                        layout: {
+                            name: "preset",
+                            fit: true
+                        }
+                    })
+                    .on('click', 'node', function(e) {
                         if (e.cyTarget.data().nodeType != "gene") return;
                         angular.element('#gbm-webpage').modal();
                         $scope.$apply(function() {
-                            //vm.frame = $sce.trustAsResourceUrl("https://resources.sttrcancer.org/markers-patients");
                             vm.frame = $sce.trustAsResourceUrl("https://www.genecards.org/cgi-bin/carddisp.pl?gene=" + e.cyTarget.data().id);
                         });
                     })
@@ -130,16 +126,8 @@
                         $scope.$apply(function() {
                             vm.tip = null;
                         });
-                    })
+                    });
 
-                // Register History Component
-                /*
-                osHistory.onGeneSelectionChange.add(function(selection){
-                    selectedIds = selection.ids;
-                    setSelected();
-                });
-                setSelected();
-                */
                 vm.resize();
                 osApi.setBusy(false);
             });

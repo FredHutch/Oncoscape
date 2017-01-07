@@ -23,7 +23,7 @@
             var vm = this;
             vm.datasets = osApi.getDataSources();
             // .map(function(v) {
-            //     v.img = v.img.replace("png", "jpg");
+            //     v.img = "DSlung.jpg";
             //     return v;
             // });
             vm.explore = function(tool, datasource) {

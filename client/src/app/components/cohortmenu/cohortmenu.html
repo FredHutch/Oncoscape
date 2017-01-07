@@ -7,7 +7,7 @@
                 <div class="col-xs-12 form-item cohortmenu-hr">
                     <label>Selected Cohort</label>
                     <div class="input-group">
-                        <input class="form-control" aria-label="Text input with segmented button dropdown" ng-model="vm.cohort.name" onfocus="this.select();">
+                        <input style="border-left-width:10px;border-left-color:{{vm.cohort.color}};" class="form-control" aria-label="Text input with segmented button dropdown" ng-model="vm.cohort.name" onfocus="this.select();">
                         <div class="input-group-btn">
                             <button type="button" class="btn btn-default" tooltip="{{vm.cohort.type == 'UNSAVED' ? 'Save Cohort' : 'Delete Cohort'}}" tooltip-placement="left" ng-if="vm.cohort.type!='ALL'" ng-click="vm.updateCohort()">
                                 <span class="fa {{vm.cohort.type == 'UNSAVED' ? 'fa-plus' : 'fa-times'}}" aria-hidden="true"></span>

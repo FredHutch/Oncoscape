@@ -28,8 +28,10 @@
             var vm = this;
             vm.datasource = osApi.getDataSource();
             vm.cohorts = osCohortService.getCohorts();
-            vm.pAll = "";
-            vm.pSelected = "";
+            vm.pValues = [];
+            vm.setCohort = function(cohort) {
+                osCohortService.setCohort(cohort);
+            };
 
 
             // Format Elements
@@ -104,6 +106,8 @@
                     });
             };
 
+
+
             // Drawing Methods
             var dataChange = function() {
 
@@ -156,12 +160,22 @@
                     var selected = (d3.select(this).select(".survival-line").style("stroke") == selectedColor);
                     me.classed("survival-line-selected", selected);
                 });
-                vm.pAll = vm.cohort.survival.logrank.pValue;
 
-                debugger;
+                var pValues = vm.cohorts.filter(function(v) { return v != vm.cohort; }).map(function(v) {
+                    return {
+                        c: [vm.cohort.color, v.color],
+                        n: v.name,
+                        p: osCohortService.km.logranktest([vm.cohort.survival.data, v.survival.data]).pValue
+                    };
 
+                });
+                pValues.unshift({
+                    c: vm.cohorts.filter(function(v) { return v.show; }).map(function(v) { return v.color; }),
+                    n: 'Visible Cohorts',
+                    p: osCohortService.km.logranktest(vm.cohorts.filter(function(v) { return v.show; }).map(function(v) { return v.survival.data; })).pValue
+                });
+                vm.pValues = pValues;
 
-                vm.pSelected = osCohortService.km.logranktest(vm.cohorts.filter(function(v) { return v.show; }).map(function(v) { return v.survival.data; }));
             };
 
 

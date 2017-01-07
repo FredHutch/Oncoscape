@@ -115,7 +115,6 @@
                     })
                     .then(function(response) {
 
-
                         var d = response.data[0];
 
                         // Process PCA Variance
@@ -141,7 +140,7 @@
 
                         var scale = d3.scaleLinear()
                             .domain([loadings[loadings.length - 1].max, loadings[0].max])
-                            .range([.1, 1]);
+                            .range([0.1, 1]);
 
 
                         vm.loadings = loadings.map(function(v) {
@@ -160,7 +159,7 @@
                         data = d.scores.map(function(v) {
                             v.d.id = v.id;
                             return v.d;
-                        })
+                        });
 
                         minMax = data.reduce(function(p, c) {
                             p.xMin = Math.min(p.xMin, c[0]);
@@ -287,13 +286,13 @@
 
                 d3xAxis
                     .attr("class", "axis")
-                    .attr("transform", "translate(0, " + height * .5 + ")")
+                    .attr("transform", "translate(0, " + height * 0.5 + ")")
                     .call(axisX);
 
 
                 d3yAxis
                     .attr("class", "axis")
-                    .attr("transform", "translate(" + width * .5 + ", 0)")
+                    .attr("transform", "translate(" + width * 0.5 + ", 0)")
                     .call(axisY);
 
 

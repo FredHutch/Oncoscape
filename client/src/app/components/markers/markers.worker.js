@@ -223,7 +223,6 @@ var data = (function() {
 
         //         });
         //     data[0].annotation = text.concat([].concat.apply([], lines));
-
         // }
 
 
