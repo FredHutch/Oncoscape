@@ -40,8 +40,8 @@
                 var summary =
                     $filter('number')(cohort.numSamples) + " Samples<br /> " +
                     $filter('number')(cohort.numPatients) + " Patients <br />" +
-                    $filter('number')(cohort.numClinical) + " Patients with Clinical Data<br />" +
-                    $filter('number')(cohort.survival.data.tte.length) + " Patients with Survival Outcome<br />";
+                    $filter('number')(cohort.numClinical) + " Patients with Clinical Data<br />";
+                //$filter('number')(cohort.survival.data.tte.length) + " Patients with Survival Outcome<br />";
 
                 vm.cohortSummary = $sce.trustAsHtml(summary);
 

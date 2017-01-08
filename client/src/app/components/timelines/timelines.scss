@@ -84,5 +84,12 @@
     left: 20px;
     height: 20px;
     text-anchor: start;
+    fill: none;
+}
+
+.timeline-axis path,
+.timeline-axis line {
+    fill: none;
+    stroke: #BBB;
     shape-rendering: crispEdges;
 }
