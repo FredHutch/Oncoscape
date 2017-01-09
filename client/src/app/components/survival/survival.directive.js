@@ -27,7 +27,11 @@
             // View Model
             var vm = this;
             vm.datasource = osApi.getDataSource();
-            vm.cohorts = osCohortService.getCohorts();
+            vm.cohort = osCohortService.getCohort();
+            vm.cohorts = (osCohortService.getCohorts().indexOf(vm.cohort) == -1) ?
+                osCohortService.getCohorts().concat([vm.cohort]) : osCohortService.getCohorts();
+
+
             vm.pValues = [];
             vm.setCohort = function(cohort) {
                 osCohortService.setCohort(cohort);
@@ -193,6 +197,11 @@
                     .filter(function(v) { return v.show; })
                     .map(addCurve);
 
+                // try {
+                //     addCurve(vm.cohort);
+                // } catch (e) {}
+
+
                 brush.extent([
                     [40, 20],
                     [layout.width - 40, layout.height - 30]
@@ -205,6 +214,8 @@
 
             var onCohortChange = function(cohort) {
                 vm.cohort = cohort;
+                vm.cohorts.concat([cohort])
+                resize();
                 var selectedColor = d3.rgb(vm.cohort.color).toString();
                 elCurves.selectAll(".curve").each(function() {
                     var me = d3.select(this);
