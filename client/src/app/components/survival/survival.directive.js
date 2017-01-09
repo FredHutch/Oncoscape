@@ -50,6 +50,8 @@
             var elCurves = elChart.append("g");
             var elXAxis = elChart.append("g").attr("class", "axis");
             var elYAxis = elChart.append("g").attr("class", "axis").attr("transform", "translate(50, 10)");
+            var brush = d3.brush();
+
 
             // Base Layout
             var layout = {
@@ -125,6 +127,46 @@
 
             };
 
+
+            var onBrushEnd = function() {
+
+                if (!d3.event.selection) {
+                    osCohortService.setCohort(vm.cohorts.filter(function(c) { return c.type == "ALL"; })[0]);
+                    return;
+                }
+                var s = d3.event.selection;
+                osApi.setBusy(true);
+
+                // Calculate Bounds Of Selection
+                var rangeSort = function(a, b) { return a - b; };
+                var timeRange = [s[0][0], s[1][0]].map(layout.xScale.invert).sort(rangeSort);
+                var percentRange = [s[0][1] - 10, s[1][1] - 10].map(layout.yScale.invert).sort(rangeSort);
+
+                var patientIds = _.union.apply(null,
+                    vm.cohorts.filter(function(v) {
+                        return v.show;
+                    }).map(function(v) {
+                        return v.survival.compute.filter(function(v) {
+                                var rv = (
+                                    (v.t >= this.tr[0]) &&
+                                    (v.t <= this.tr[1]) &&
+                                    (v.s >= this.pr[0]) &&
+                                    (v.s <= this.pr[1])
+                                );
+                                return rv;
+                            }, this)
+                            .map(function(v) {
+                                return v.c.concat(v.d);
+                            })
+                            .reduce(function(p, c) {
+                                return p.concat(c);
+                            }, []);
+                    }, { tr: timeRange, pr: percentRange }));
+                osCohortService.setCohort(patientIds, "Survival", osCohortService.PATIENT);
+                osApi.setBusy(false);
+
+            };
+
             var resize = function() {
 
                 // Get Screen Dimensions
@@ -150,7 +192,16 @@
                 vm.cohorts
                     .filter(function(v) { return v.show; })
                     .map(addCurve);
+
+                brush.extent([
+                    [40, 20],
+                    [layout.width - 40, layout.height - 30]
+                ]);
+                // brush.on("end", onBrushEnd);
+                // elBrush.call(brush);
             };
+
+
 
             var onCohortChange = function(cohort) {
                 vm.cohort = cohort;
@@ -189,6 +240,7 @@
             // Create
             osApi.onResize.add(resize);
             osCohortService.onCohortChange.add(onCohortChange);
+
             dataChange();
             onCohortChange(osCohortService.getCohort());
             osApi.setBusy(false);

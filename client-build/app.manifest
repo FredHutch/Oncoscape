@@ -27,6 +27,7 @@ CACHE:
 /fonts/ui-grid.ttf
 /fonts/ui-grid.woff
 /scripts/app-20365d1eea.js
+/scripts/app-2bf44353f6.js
 /scripts/app-d6f685f687.js
 /scripts/vendor-fbff3b32ee.js
 /styles/app-0095bb5c77.css
@@ -45,6 +46,7 @@ CACHE:
 /styles/app-8a6c3f36b4.css
 /styles/app-9452ccc8fd.css
 /styles/app-9676874581.css
+/styles/app-b469613ecc.css
 /styles/app-b66a48014e.css
 /styles/app-b814b7e0fe.css
 /styles/app-ccfa8cbcd8.css
@@ -59,6 +61,7 @@ CACHE:
 /styles/vendor-4965d51886.css
 /assets/images/DSbile.jpg
 /assets/images/DSbrain.jpg
+/assets/images/Untitled-17.png
 /assets/images/ball.png
 /assets/images/barcharts.png
 /assets/images/cancer-breast.jpg
@@ -123,6 +126,7 @@ CACHE:
 /assets/images/timelines.png
 /assets/images/white.png
 /maps/scripts/app-20365d1eea.js.map
+/maps/scripts/app-2bf44353f6.js.map
 /maps/scripts/app-d6f685f687.js.map
 /maps/scripts/vendor-fbff3b32ee.js.map
 /maps/styles/app-0095bb5c77.css.map
@@ -141,6 +145,7 @@ CACHE:
 /maps/styles/app-8a6c3f36b4.css.map
 /maps/styles/app-9452ccc8fd.css.map
 /maps/styles/app-9676874581.css.map
+/maps/styles/app-b469613ecc.css.map
 /maps/styles/app-b66a48014e.css.map
 /maps/styles/app-b814b7e0fe.css.map
 /maps/styles/app-ccfa8cbcd8.css.map
@@ -153,9 +158,9 @@ CACHE:
 /maps/styles/app-fdc9411eae.css.map
 /maps/styles/app-ffb0f51179.css.map
 /maps/styles/vendor-4965d51886.css.map
-/app/components/markers/markers.worker.js
 /app/components/oncoscape/oncoscape.cohort.service.worker.js
 /app/components/oncoscape/oncoscape.http.factory.js
+/app/components/markers/markers.worker.js
 
 
 NETWORK:
@@ -167,4 +172,4 @@ https://*
 SETTINGS:
 prefer-online
 
-# hash: e922d6b54ea8afcddd057fea0e2b243cd69182d0f1507fc0994807052c247370
+# hash: 1d87babf1ed40e612b714d59715630073510fe18b6d31266bdd0aa02846c0460
