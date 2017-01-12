@@ -73,10 +73,12 @@
             };
 
             vm.logout = function() {
-                alert("H");
-                localStorage.clear();
-                $window.reload(true);
-            }
+                var deleteState = $window.confirm('Logging out will reset oncoscape. To save your cohorts click cancel and simply close your browser window.');
+                if (deleteState) {
+                    localStorage.clear();
+                    $window.reload(true);
+                }
+            };
 
             // Update Cohorts When Datasource Changes
             osCohortService.onCohortsChange.add(function() {
