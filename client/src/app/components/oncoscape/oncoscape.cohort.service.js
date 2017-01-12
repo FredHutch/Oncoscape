@@ -382,14 +382,23 @@
                     c.d = cd.d;
                 }, { survival: survival });
 
+
                 var lrt = (cohortAll === null) ? { "KMStats": "NA", "pValue": "NA", dof: "NA" } :
                     km.logranktest([te, cohortAll.survival.data]);
 
-                return {
+                var rv = {
                     data: te,
                     compute: compute,
                     logrank: lrt
                 };
+
+                var firstEvent = rv.compute[0];
+                if (firstEvent.s !== 1 || firstEvent.t !== 0) {
+                    rv.compute.unshift({ c: [], d: [], s: 1, t: firstEvent.t });
+                    rv.compute.unshift({ c: [], d: [], s: 1, t: 0 });
+                }
+
+                return rv;
             };
 
             return {

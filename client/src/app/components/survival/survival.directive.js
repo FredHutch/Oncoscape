@@ -192,30 +192,14 @@
 
                 // Draw Cohorts
                 elCurves.selectAll(".curve").remove();
-
                 vm.cohorts
                     .filter(function(v) { return v.show; })
                     .map(addCurve);
+                if (vm.cohorts.indexOf(vm.cohort) == -1) {
+                    addCurve(vm.cohort);
+                }
 
-                // try {
-                //     addCurve(vm.cohort);
-                // } catch (e) {}
-
-
-                brush.extent([
-                    [40, 20],
-                    [layout.width - 40, layout.height - 30]
-                ]);
-                // brush.on("end", onBrushEnd);
-                // elBrush.call(brush);
-            };
-
-
-
-            var onCohortChange = function(cohort) {
-                vm.cohort = cohort;
-                vm.cohorts.concat([cohort])
-                resize();
+                // Set Selected + Set P Values
                 var selectedColor = d3.rgb(vm.cohort.color).toString();
                 elCurves.selectAll(".curve").each(function() {
                     var me = d3.select(this);
@@ -231,15 +215,51 @@
                     };
 
                 });
+
+                var all = vm.cohorts.filter(function(v) { return v.show; });
+                if (all.length !== 1) {
+
+
+                    if (vm.cohorts.indexOf(vm.cohort) == -1) {
+                        all.unshift(vm.cohort);
+                    }
+                    all.sort(function(a, b) {
+                        if (vm.cohort.color == a.color) return -1;
+                        if (a.color == "#E91E63") return -1;
+                        return 0;
+                    });
+                }
+
+
+
+
                 pValues.unshift({
-                    c: vm.cohorts.filter(function(v) { return v.show; }).map(function(v) { return v.color; }),
+                    c: all.map(function(v) { return v.color; }),
                     n: 'Visible Cohorts',
-                    p: osCohortService.km.logranktest(vm.cohorts.filter(function(v) { return v.show; }).map(function(v) { return v.survival.data; })).pValue
+                    p: osCohortService.km.logranktest(all.map(function(v) { return v.survival.data; })).pValue
                 });
                 vm.pValues = pValues;
 
+
+                brush.extent([
+                    [40, 20],
+                    [layout.width - 40, layout.height - 30]
+                ]);
+                brush.on("end", onBrushEnd);
+                elBrush.call(brush);
             };
 
+            var onCohortsChange = function() {
+                vm.cohorts = osCohortService.getCohorts();
+                vm.cohort = osCohortService.getCohort();
+                vm.cohort.show = true;
+                vm.cohortsLegend = vm.cohorts.filter(function(v) { return v != vm.cohort; });
+                resize();
+            };
+
+            var onCohortChange = function() {
+                onCohortsChange();
+            };
 
             vm.toggle = function() {
                 dataChange();
@@ -251,7 +271,7 @@
             // Create
             osApi.onResize.add(resize);
             osCohortService.onCohortChange.add(onCohortChange);
-
+            osCohortService.onCohortsChange.add(onCohortsChange);
             dataChange();
             onCohortChange(osCohortService.getCohort());
             osApi.setBusy(false);
