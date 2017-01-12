@@ -123,8 +123,8 @@
     <div id="markers-chart" class="markers-chart"></div>
     <div style="position:absolute;top:10px;text-align:center;width:100%;">
         <h2 class="h2-tool">Markers + Patients</h2>
-        <span class="h3-tool">{{vm.datasource.source}} {{vm.datasource.name}}</span>
-        <!--<span class="h3-tool">(Layout: {{vm.optPatientLayout.name}})</span>-->
+        <span class="h3-tool">{{vm.datasource.source}} {{vm.datasource.name}}</span> &mdash;
+        <span class="h3-tool">{{vm.optPatientLayout.name}}</span>
     </div>
 </section>
 
@@ -159,13 +159,26 @@
         <h3 class="panel-title">Patient Layout</h3>
         <span class="pull-right clickable" data-effect="fadeOut" ng-click="vm.showPanelLayout=false"><i class="fa fa-times"></i></span>
     </div>
-    <div class="panel-body">
+    <div class="panel-body" style="padding-top:0px;">
 
-        <div class="row">
-            <div class="col-sm-12">
-                <h3>Select a layout</h3>
-            </div>
-            <a class="col-sm-4 markers-command hvr-sweep-to-right" style="padding-left:15px; padding-right:15px;" ng-repeat="item in vm.optPatientLayouts" ng-click="vm.optPatientLayout=item;vm.showPanelLayout=false;">{{item.name}}</a>
+        <div class=" row ">
+
+            <table class="tbl ">
+                <thead>
+                    <th>Method</th>
+                    <th>Input Data</th>
+                    <th>Gene Set</th>
+                    <th>Data Source</th>
+                </thead>
+                <tr ng-repeat="item in vm.optPatientLayouts " ng-click="vm.optPatientLayout=item;vm.showPanelLayout=false; ">
+                    <td>{{item.dataType}}</td>
+                    <td>{{item.geneset}}</td>
+                    <td>{{item.input}}</td>
+                    <td>{{item.source}}</td>
+                </tr>
+            </table>
+
+
         </div>
 
     </div>

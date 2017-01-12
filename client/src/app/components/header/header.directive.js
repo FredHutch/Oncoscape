@@ -71,7 +71,6 @@
                 vm.importName = "";
                 vm.showImport = false;
             };
-
             vm.logout = function() {
                 var deleteState = $window.confirm('Logging out will reset oncoscape. To save your cohorts click cancel and simply close your browser window.');
                 if (deleteState) {

@@ -1,3 +1,25 @@
+.tbl {
+    width: 100%;
+    td {
+        padding-left: 10px;
+    }
+    th {
+        background: #f1f1f1;
+        font-weight: 300;
+        text-align: left;
+        padding-left: 10px;
+        padding-top: 7px;
+        padding-bottom: 7px;
+    }
+    tr:nth-child(even) {
+        background: #f7f7f7;
+    }
+    tr:hover {
+        background: $color-blue;
+        color: #FFF;
+    }
+}
+
 .panel-heading span {
     margin-top: -26px;
     font-size: 15px;
@@ -13,11 +35,13 @@
 
 .mdi {
     position: absolute !important;
-    right: 50px;
-    left: 50px;
-    top: 100px;
+    right: 30px;
+    left: 30px;
+    top: 5vh;
+    bottom: 5vh;
     z-index: 9999;
     width: auto;
+    overflow: scroll;
 }
 
 // Namespace

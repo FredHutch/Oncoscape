@@ -54,10 +54,16 @@
                     return p;
                 }, {});
 
+                var regx = /(\d+%)/i;
                 vm.optPatientColors = Object.keys(data).map(function(key) {
                     return {
                         name: key,
-                        values: this[key].sort(function(a, b) {
+                        values: this[key].filter(function(v) {
+                            var result = v.name.match(regx);
+                            if (result === null) return true;
+                            // 30% Threashold
+                            if (parseInt(result[0]) > 30) return true;
+                        }).sort(function(a, b) {
                             if (a.name > b.name) return 1;
                             if (a.name < b.name) return -1;
                             return 0;
@@ -66,8 +72,15 @@
                 }, data);
 
             });
-
-
+            vm.resetColor = function() {
+                osCohortService.setPatientColor({
+                    "dataset": osApi.getDataSource().disease,
+                    "type": "color",
+                    "name": "None",
+                    "data": [],
+                    show: true
+                });
+            }
 
             vm.setColor = function(item) {
                 osApi.setBusy(true);
@@ -79,7 +92,7 @@
                         "name": "None",
                         "data": [],
                         show: true
-                    })
+                    });
                     return;
                 }
 
@@ -113,10 +126,6 @@
                     vm.close();
                 });
             };
-
-            vm.doClose = function() {
-                alert("HI");
-            }
             vm.setGeneColor = function() {
                 var genes = ("+" + vm.geneColor.replace(/\s/g, '').toUpperCase()).match(/[-+]\w*/gi).map(function(v) {
                     return {

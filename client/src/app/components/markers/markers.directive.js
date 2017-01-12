@@ -544,6 +544,10 @@
                     var layouts = results[1].data.map(function(v) {
                         v.name = v.dataType + " " + v.input + " " + v.geneset;
                         return v;
+                    }).sort(function(a, b) {
+                        var x = a.name.toLowerCase();
+                        var y = b.name.toLowerCase();
+                        return x < y ? -1 : x > y ? 1 : 0;
                     });
                     vm.optGeneSets = results[0].data;
                     vm.optGeneSet = mpState.getGeneSet(vm.optGeneSets);
