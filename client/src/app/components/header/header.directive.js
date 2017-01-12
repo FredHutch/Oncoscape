@@ -20,7 +20,7 @@
         return directive;
 
         /** @ngInject */
-        function HeaderController(osApi, osCohortService, osAuth, $stateParams, $state) {
+        function HeaderController(osApi, osCohortService, osAuth, $stateParams, $state, $window) {
 
             // View Model
             var vm = this;
@@ -71,6 +71,12 @@
                 vm.importName = "";
                 vm.showImport = false;
             };
+
+            vm.logout = function() {
+                alert("H");
+                localStorage.clear();
+                $window.reload(true);
+            }
 
             // Update Cohorts When Datasource Changes
             osCohortService.onCohortsChange.add(function() {
