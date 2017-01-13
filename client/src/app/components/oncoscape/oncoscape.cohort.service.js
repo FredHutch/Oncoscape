@@ -357,14 +357,15 @@
                     }, data.patientMap)
                     .filter(function(v) { return angular.isDefined(v); });
 
-                /* Transform Survival Records Into KM Data The Result Is A Value Object Containing The Following
-                    t = time in days
-                    c = array of censored patient ids
-                    d = array of dead patient ids
-                    n = numer of patients remaining
-                    s = survival rate
-                    p = previous survival rate 
-                    */
+                /* 
+                Transform Survival Records Into KM Data The Result Is A Value Object Containing The Following
+                t = time in days
+                c = array of censored patient ids
+                d = array of dead patient ids
+                n = numer of patients remaining
+                s = survival rate
+                p = previous survival rate 
+                */
                 var te = survival.reduce(function(p, c) {
                     p.tte.push(c.tte);
                     p.ev.push(c.ev);

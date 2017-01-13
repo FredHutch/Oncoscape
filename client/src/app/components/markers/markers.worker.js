@@ -247,11 +247,11 @@ var data = (function() {
     var formatGeneNodes = function(data) {
         data = data[0].data;
         return Object.keys(data)
-            .filter(function(key) {
-                // Remove Genes That Are Not Positioned On Chromosome
-                var value = this[key];
-                return (value.x != 0 & value.y != 0)
-            }, data)
+            // .filter(function(key) {
+            //     // Remove Genes That Are Not Positioned On Chromosome
+            //     var value = this[key];
+            //     return (value.x != 0 & value.y != 0)
+            // }, data)
             .map(function(key) {
                 return {
                     group: "nodes",
@@ -429,7 +429,47 @@ var data = (function() {
                 }
 
                 state.patientLayout = data[2];
-                state.genes = data[3];
+
+                var g = data[3].sort(function(a, b) {
+                    var rv = (a.position.x - b.position.x);
+                    return (rv == 0) ? (a.position.y - b.position.y) : rv;
+                });
+
+
+                g.forEach(function(c) {
+                    var jitter = 10 * (this.isPositive ? -1 : 1);
+                    if (c.position.x != this.xPos) {
+                        this.chromosome += 1;
+                        this.xPos = c.position.x;
+                    }
+                    c.position.x += jitter;
+                    c.position.jitter = jitter;
+                    c.data.halign = (jitter < 0) ? "left" : "right";
+                    c.data.padding = (jitter < 0) ? "-5" : "5";
+                    c.data.chrome = this.chromosome;
+                    this.isPositive = !this.isPositive;
+                }, { isPositive: false, chromosome: 0, xPos: 0 });
+
+
+                // for (var i = 0; i < 24; i++) {
+                //     var pts = g.filter(function(v) {
+                //         return (v.data.chrome == i);
+                //     });
+
+
+                // }
+
+
+
+
+
+
+
+
+
+
+
+                state.genes = g;
                 state.edges = data[4];
                 state.edgeGenes = data[5];
                 state.edgePatients = data[6];

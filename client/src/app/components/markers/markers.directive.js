@@ -232,10 +232,11 @@
                         'style': {
                             'background-color': "data(color)",
                             'border-color': "data(colorBdr)",
-                            'text-halign': "right",
-                            'text-margin-x': 5,
+                            'text-halign': "data(halign)",
+                            'text-margin-x': "data(padding)",
+                            'font-size': '8px',
                             'color': '#000',
-                            'label': "data(id)",
+                            'label': "data(chrome)",
                             'border-width': "data(sizeBdr)"
                         }
                     }, {
