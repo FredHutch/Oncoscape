@@ -236,7 +236,7 @@
                             'text-margin-x': "data(padding)",
                             'font-size': '8px',
                             'color': '#000',
-                            'label': "data(chrome)",
+                            'label': "data(id)",
                             'border-width': "data(sizeBdr)"
                         }
                     }, {
