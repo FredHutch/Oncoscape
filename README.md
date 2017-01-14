@@ -1,4 +1,5 @@
-[![Circle CI](https://circleci.com/gh/FredHutch/Oncoscape/tree/develop.svg?style=shield&circle-token=:circle-token)](https://circleci.com/gh/FredHutch/Oncoscape/tree/develop)  [![Join the chat at https://gitter.im/FredHutch/Oncoscape](https://badges.gitter.im/FredHutch/Oncoscape.svg)](https://gitter.im/FredHutch/Oncoscape?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge&utm_content=badge)
+[![Circle CI](https://circleci.com/gh/FredHutch/Oncoscape/tree/develop.svg?style=shield&circle-token=:circle-token)](https://circleci.com/gh/FredHutch/Oncoscape/tree/develop)  [![Join the chat at https://fredhutch-sttr.slack.com/messages/community/](https://img.shields.io/badge/chat-On%20Slack!-blue.svg)](https://fredhutch-sttr.slack.com/messages/community/)
+
 
 [<img src="img/STTR%20Cancer%20Binder_spine_horizontal.png">](http://www.sttrcancer.org/en.html)
 
