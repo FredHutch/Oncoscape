@@ -130,8 +130,8 @@ http {
         }
 
         # Documentation Site
-        location /docs {
-            alias /home/sttrweb/Oncoscape/documentation;
+        location /docs/ {
+            alias /home/sttrweb/Oncoscape/documentation/;
         }
        
     }
