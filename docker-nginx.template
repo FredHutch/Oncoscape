@@ -33,17 +33,6 @@ http {
     proxy_cache_valid 404 1m;
 
 
-    # Docs Server
-    server {
-        server_name docs.oncoscape
-        listen  80;
-        
-        root /home/sttrweb/Oncoscape/documentation;
-
-        location / {
-            index index.html index.htm;
-        }
-    }
     # Public Server
     server {
 
@@ -74,6 +63,11 @@ http {
            return 200;
         }
         
+        location /docs/ {
+            alias /home/sttrweb/Oncoscape/documentation;
+            index index.html index.htm;
+        }
+
         # Kong Api
         location /api/ {
             proxy_set_header Host $host;
