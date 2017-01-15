@@ -1,0 +1,1419 @@
+/***********************/
+/*START main body */
+/************************/
+
+main {
+    min-height: 60vh;
+    background-color: #FFF;
+    padding: 0px;
+    margin: 0px;
+}
+body,
+h1,
+h2,
+h3,
+h4 {
+    font-family: 'Lato', sans-serif;
+    font-weight: 300;
+}
+body {
+    background-color: #000;
+    font-size: 16px;
+    position: relative;
+    padding-top: 79px;
+}
+/************************/
+/*END main body */
+/************************/
+/************************/
+/* START blade sections*/
+/**********************/
+
+#section-intro {
+    background: linear-gradient(45deg, #1396de  2%, #00236a );
+    /*background: linear-gradient(135deg, #86969e 2%, #efefef );*/
+    background-attachment: fixed;
+    width: 100%;
+    min-height: 100%;
+    height: auto;
+    margin: 0 auto;
+    text-align: center;
+
+}
+#section-overview {
+    min-height: 100%;
+    height: auto;
+    padding: 2%;
+    margin: 0 auto;
+    text-align: center;
+    background: #EFEFEF;
+    box-shadow: 0 2px 7px #666;
+
+}
+#section-cases {
+    background: #fff;
+    min-height: 100%;
+    height: auto;
+    padding: 2%;
+    margin: 0 auto;
+    text-align: center;
+    padding-bottom: 100px;
+}
+#section-nav {
+    min-height: 100%;
+    height: auto;
+    padding: 2%;
+    margin: 0 auto;
+    text-align: center;
+    background: #EFEFEF;
+    box-shadow: 0 2px 7px #666;
+}
+#section-methods {
+    background: #fff;
+    min-height: 100%;
+    height: auto;
+    padding: 2%;
+    margin: 0 auto;
+    text-align: center;
+}
+#section-faq {
+    min-height: 100%;
+    height: auto;
+    padding: 2%;
+    margin: 0 auto;
+    padding-bottom: 100px;
+    background: #EFEFEF;
+    box-shadow: 0 2px 7px #666;
+}
+/****************************/
+/*END body sections*/
+/****************************/
+/*************************************************************************/
+/*START blade section wrappings,headlines, headline padding, bullet spacing*/
+/*************************************************************************/
+
+.section-headline {
+    padding-bottom: 40px;
+    padding-top: 40px;
+    font-size: 35px;
+}
+a.anchor {
+    display: block;
+    visibility: hidden;
+    position: relative;
+    top: -20px;
+}
+.content-wrapper {
+    opacity: 0;
+}
+.navbar-inverse .navbar-nav>li>a {
+    color: #fff;
+    font-size: 14px;
+}
+.li-margin {
+    margin: 0 0 10px 0px;
+    padding: 0px;
+    text-align: left;
+    float: left;
+}
+.li-margin li {
+    margin: 0 0 5px 0;
+    text-align: left;
+}
+.methods-color{
+    text-decoration: none;
+    color: #0b97d3;
+}
+.methods-color:hover{
+    text-decoration: none;
+    color: #0b97d3;
+}
+
+
+/****************************/
+/*END blade section wrapping*/
+/***************************/
+/*********************/
+/*START main-navbar*/
+/*********************/
+
+.navbar-inverse {
+    background-color: #0b97d3;
+    border-color: #0b97d3;
+    height: 79px;
+}
+
+li.panel {
+    margin-bottom: 20px;
+    background-color: #EEE;
+    border: 1px solid transparent;
+    border-radius: 4px;
+    -webkit-box-shadow: 0 1px 1px rgba(0, 0, 0, .05);
+    box-shadow: 0 1px 1px rgba(0, 0, 0, .05);
+}
+
+ul.dropdown-menu {
+    background: #0b97d3;
+}
+ul.dropdown-menu a {
+    color: #fff;
+}
+.navbar-inverse .navbar-nav>.open>a, 
+.navbar-inverse .navbar-nav>.open>a:focus, 
+.navbar-inverse .navbar-nav>.open>a:hover {
+    color: #fff;
+    background-color: #0b97d3;
+}
+.navbar-inverse .navbar-toggle:hover {
+    background-color: #0b97d3;
+}
+.navbar-inverse .navbar-toggle {
+    border-color: #fff;
+}
+
+
+/*.navbar-link {
+    height: 79px;
+    line-height: 79px; 
+    padding-bottom: 0px; 
+    padding-top: 0px; 
+}*/
+
+.header-logo-text {
+    position: absolute;
+    left: 60px;
+    top: 0;
+    font-size: 18px;
+    line-height: 60px;
+    vertical-align: middle;
+    color: #FFF;
+    letter-spacing: 6px;
+    text-transform: uppercase;
+    padding-top: 10px;
+}
+
+
+.header-logo-img {
+    position: absolute;
+    left: 0;
+    top: 19px;
+    max-height: 40px;
+    image-rendering: crisp-edges;
+    margin-left: 10px;
+}
+  
+
+/*********************/
+/* END main-navbar*/
+/*********************/
+/*********************/
+/*START sticky-navbar*/
+/*********************/
+
+.header {
+    background: #fff;
+    width: 100%;
+    display: block;
+    margin: 0;
+    height: auto;
+    position: relative;
+    border-bottom: #ddd 1px solid;
+    border-top: #ddd 1px solid;
+    top: 0px;
+}
+.subnav {
+    text-align: center;
+}
+.subnav-item {
+    color: #000;
+}
+a.subnav-item {
+    padding: 25px;
+}
+.subnav-fixed {
+    position: fixed;
+    top: 75px;
+    z-index: 1000;
+    background: #fff;
+    border-bottom: #ddd 1px solid;
+}
+.header a:focus,
+.header a:hover {
+    border-bottom: #0b97d3;
+    border-style: solid;
+    border-width: 0px;
+    border-bottom-width: 5px;
+    text-decoration: none;
+    color: #000;
+}
+/*in javascript*/
+.highlight {
+    border-bottom: #0b97d3;
+    border-style: solid;
+    border-width: 0px;
+    border-bottom-width: 5px;
+    text-decoration: none;
+}
+/*********************/
+/*END-stickey-navbar*/
+/*********************/
+/**********************************/
+/*START page load section copy & style*/
+/*********************************/
+
+.tool-image {
+    width: 30%;
+    height: auto;
+    border: 4px solid rgba(275,275,275,0.6);
+    border-radius: 50%;
+    box-shadow: 0 4px 8px 0 rgba(0, 0, 0, 0.2), 0 6px 20px 0 rgba(0, 0, 0, 0.19);
+}
+.intro {
+    margin: 0 auto;
+    text-align: center;
+    padding-top: 25px;
+    line-height: 1.3542;
+    font-weight: 200;
+    font-size: 18px;
+}
+.tool-headline {
+    margin: 0.24em auto 0.2em;
+    text-align: center;
+    line-height: 1.0625;
+    font-weight: 200;
+    letter-spacing: -0.02em;
+}
+span.header-black {
+    display: block;
+    color: #fff;
+    padding-top: 30px;
+    padding-bottom: 30px;
+    font-size: 50px;
+    letter-spacing: 2px;
+}
+span.header-gray {
+    color: #fff;
+    padding-top: 15px;
+    font-size: 35px;
+}
+a.tool-link {
+    text-decoration: none;
+}
+.tool-div {
+    padding-top: 15px;
+    margin: 0 auto;
+    text-align: center;
+    padding-top: 25px;
+    line-height: 1.3542;
+    font-weight: 200;
+    font-size: 18px;
+}
+/**********************************/
+/*END page load  section copy & style*/
+/**********************************/
+/*************************************/
+/*START overview section copy & style*/
+/************************************/
+
+.mp-image {
+    margin-bottom: 40px;
+    margin-top: 40px;
+    width: 100%;
+    box-shadow: 0 4px 8px 0 rgba(0, 0, 0, 0.2), 0 6px 20px 0 rgba(0, 0, 0, 0.19);
+}
+/*************************************/
+/*END overview section copy & style*/
+/************************************/
+/*************************************/
+/*START use case section copy & style*/
+/************************************/
+/* Video Player */
+
+.videoPlayerContainer {
+    position: relative;
+    padding-bottom: 56%;
+    height: 0;
+    overflow: hidden;
+
+}
+.videoPlayerContainer iframe {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+
+}
+/* Video links */
+
+.videos {
+    max-height: 600px;
+    overflow-x: none;
+    overflow-y: auto;
+    padding: 10px;
+}
+.video {
+    height: 100px;
+    overflow: hidden;
+    margin-bottom: 20px;
+    text-align: left;
+    cursor: pointer;
+    background-color: #FFF;
+}
+.videoThumb {
+    float: left;
+    width: 20%;
+    height: 100px;
+    margin-right: 20px;
+    box-shadow: 0 4px 8px 0 rgba(0, 0, 0, 0.2), 0 6px 20px 0 rgba(0, 0, 0, 0.19);
+
+}
+.videoTitle {
+    margin: 0px;
+    padding: 0px;
+    float: center;
+    padding-top: 10px;
+}
+.videoCurrentTitle {
+    float: left;
+}
+.videoLink {
+    display: none;
+}
+.video-ol {
+    padding: 20px;
+}
+.videoTranscript {
+    display: -webkit-box;
+    -webkit-line-clamp: 2;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+    padding-top: 5px;
+    padding-bottom: 5px;
+}
+.noselect {
+    -webkit-touch-callout: none;
+    -webkit-user-select: none;
+    -khtml-user-select: none;
+    -moz-user-select: none;
+    -ms-user-select: none;
+}
+.videoInstructions {
+    overflow: hidden;
+    padding-top: 10px;
+}
+.videoParagraph {
+    padding-top: 11px;
+}
+/************************************/
+/*END use case section copy & style*/
+/************************************/
+/*************************************/
+/*START use nav section copy & style*/
+/************************************/
+
+p.nav-areas {
+    padding-bottom: 50px;
+}
+.search-para {
+    padding-top: 20px;
+    padding-bottom: 20px;
+}
+.para-indent {
+    list-style-type: disc;
+    list-style-position: inside;
+    text-indent: -1em;
+    padding-left: 1em;
+}
+.edges {
+    position: absolute;
+    left: 0px;
+    top: 0px;
+    display: inline-block;
+    width: 100%;
+    box-shadow: 0 4px 8px 0 rgba(0, 0, 0, 0.2), 0 6px 20px 0 rgba(0, 0, 0, 0.19);
+}
+/*Markers and Patients Slideshows*/
+#leftImage {
+    width: 300px;
+    height: 180px;
+    position: relative;
+    float: left;
+    display: inline-block;
+    margin-top: 60px;
+}
+#rightImage {
+    width: 600px;
+    height: 275px;
+    position: relative;
+    float: left;
+    display: inline-block;
+    margin-left: 15px;
+}
+#patientcolors1 {
+    width: 350px;
+    height: 200px;
+    position: relative;
+    margin-top: 30px;
+}
+#patientcolors2 {
+    width: 350px;
+    height: 200px;
+    position: relative;
+    margin-top: 30px;
+}
+#patientcolors3 {
+    width: 350px;
+    height: 200px;
+    position: relative;
+    margin-top: 30px;
+}
+.patientColorText {
+    position: absolute;
+    left: 0px;
+    top: 0px;
+    display: inline-block;
+    width: 100%;
+    font-style: italic;
+}
+/* END Markers and Patients Slideshows*/
+/* START Timelines Slideshows*/
+#leftImageTimeline {
+    width: 300px;
+    height: 180px;
+    position: relative;
+    float: left;
+    display: inline-block;
+    margin-top: 20px;
+}
+#rightImageTimeline {
+    width: 600px;
+    height: 385px;
+    position: relative;
+    float: left;
+    display: inline-block;
+    margin-left: 15px;
+}
+#patientevents1 {
+    width: 350px;
+    height: 300px;
+    position: relative;
+    margin-top: 30px;
+}
+#patientevents2 {
+    width: 350px;
+    height: 300px;
+    position: relative;
+    margin-top: 30px;
+}
+#patientevents3 {
+    width: 350px;
+    height: 300px;
+    position: relative;
+    margin-top: 30px;
+}
+/* PCA Slideshows*/
+#patientPCA1 {
+    width: 350px;
+    height: 250px;
+    position: relative;
+    margin-top: 30px;
+}
+#patientPCA2 {
+    width: 350px;
+    height: 250px;
+    position: relative;
+    margin-top: 30px;
+}
+#patientPCA3 {
+    width: 350px;
+    height: 250px;
+    position: relative;
+    margin-top: 30px;
+}
+/* END Timelines Slideshows*/
+/* START Survival Slideshows*/
+#leftImageSurvival {
+    width: 300px;
+    height: 180px;
+    position: relative;
+    float: left;
+    display: inline-block;
+    margin-top: 20px;
+}
+#rightImageSurvival {
+    width: 600px;
+    height: 385px;
+    position: relative;
+    float: left;
+    display: inline-block;
+    margin-left: 15px;
+}
+/* END Survival Slideshows*/
+
+#zoom-img {
+    width: 50%;
+    height: auto;
+    float: left;
+    border-bottom: 0 none;
+    box-shadow: 0 4px 8px 0 rgba(0, 0, 0, 0.2), 0 6px 20px 0 rgba(0, 0, 0, 0.19);
+}
+.zoom-selected-button {
+    margin-top: 150px;
+}
+strong.modes {
+    padding-bottom: 10px;
+    float: left;
+}
+.threeModes {
+    padding-top: 40px;
+    float: left;
+    font-weight: bold;
+    font-style: italic;
+    padding-bottom: 5px;
+}
+.mode-margin li {
+    margin: 0 0 10px 0;
+    text-align: left;
+}
+.mode-margins {
+    margin-left: -20px;
+}
+.zoomButtons {
+    display: inline-block;
+    margin-bottom: 0;
+    margin-right: 20px;
+    text-align: center;
+    vertical-align: middle;
+    -ms-touch-action: manipulation;
+    touch-action: manipulation;
+    cursor: pointer;
+    border: 1px solid transparent;
+    white-space: nowrap;
+    padding: 6px 12px;
+    font-size: 14px;
+    line-height: 1.42857;
+    border-radius: 4px;
+    -moz-user-select: none;
+    -ms-user-select: none;
+    user-select: none;
+    width: auto;
+    font-weight: 300;
+    color: #333;
+    background-color: #fff;
+    border-color: #ccc;
+}
+.zoomButtons:hover {
+    background: #eee;
+}
+
+.image-wrapper {
+    position: relative;
+    width: 370px;
+    padding-top: 20px;
+}
+.image-wrapper p {
+    position: absolute;
+    left: 0;
+    top: 0;
+    margin-left: 140px;
+    margin-top: 10px;
+    font-style: italic;
+}
+.searchbox {
+    width: 50%;
+    height: auto;
+    border-bottom: 0 none;
+    box-shadow: 0 4px 8px 0 rgba(0, 0, 0, 0.2), 0 6px 20px 0 rgba(0, 0, 0, 0.19);
+}
+    
+.dropdownButtonsTimeline{
+    text-align: left;
+    height: 34px;
+    line-height: 14px;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    font-weight: 300;
+    position: relative;
+    color: #333;
+    background-color: #fff;
+    border-radius: 4px;
+    cursor: pointer;
+    border: 1px solid transparent #ccc;
+    white-space: nowrap;
+    padding: 6px 12px;
+    display: inline-block;
+    margin-bottom: 0;
+    text-align: center;
+    vertical-align: middle;
+ 
+}
+.docCaret {
+    display: inline-block;
+    width: 0;
+    height: 0;
+    margin-left: 14px;
+    vertical-align: middle;
+    border-top: 4px dashed;
+    border-top: 4px solid\9;
+    border-right: 4px solid transparent;
+    border-left: 4px solid transparent;
+}
+.generalPadding{
+    padding-top: 50px;
+}
+.roundBorder {
+    border-radius: 5px;
+    -webkit-box-shadow: rgba(0, 0, 0, 0.3) 0 1px 3px;
+    -moz-box-shadow: rgba(0,0,0,0.3) 0 1px 3px;
+    box-shadow: rgba(0, 0, 0, 0.3) 0 1px 3px;
+    padding: 30px;
+}
+ul.dropdown-menu li {
+    padding: 5px;
+}
+
+
+/************************************/
+/*END use nav section copy & style*/
+/************************************/
+/************************************/
+/*START faq section copy & style*/
+/************************************/
+
+#divlist h5:hover {
+    cursor: pointer;
+}
+hr {
+    margin-top: 20px;
+    margin-bottom: 20px;
+    border: 0;
+    border-top: 1px solid #CCC;
+}
+.collapse-para {
+    padding-top: 20px;
+    text-decoration: none;
+}
+.faq-color a:focus, a:hover {
+    text-decoration: none;
+}
+.container-intro {
+    padding-top: 40px;
+}
+p.container-intro {
+    padding-top: 40px;
+}
+/*******************************/
+/*END faq section copy & style*/
+/******************************/
+/*****************/
+/* START footer */
+/****************/
+
+.footer {
+    background-color: #000;
+    color: #FFF;
+    padding: 20px;
+    text-align: center;
+}
+.footer-legal,
+.footer-legal a {
+    font-size: 10px;
+    padding-top: 10px;
+    color: #888;
+}
+/***************/
+/* END footer */
+/**************/
+/******************************/
+/* START Tool Dropdown button */
+/******************************/
+
+/*.navbar-inverse .navbar-nav>li>a {
+    color: #fff;
+    margin-right: 10px;
+}*/
+.header-dropdown-img {
+    width: 60px;
+    height: 60px;
+    box-shadow: 0 4px 8px 0 rgba(0, 0, 0, 0.2), 0 6px 20px 0 rgba(0, 0, 0, 0.19);
+   /* border-radius: 50%;*/
+    margin-right: 20px;
+    margin-top: 3px;
+    margin-bottom: 6px;
+
+}
+
+
+/**********************/
+/* END Tool Dropdown */
+/*********************/
+/******************************/
+/* START Contact Us Link*/
+/******************************/
+
+label {
+    display: inline-block;
+    max-width: 100%;
+    margin-bottom: 5px;
+    font-weight: 300;
+}
+
+.oncoscape-team {
+    padding-top: 50px;
+    padding-bottom: 50px;
+}
+/**********************/
+/* END Contact Us Link */
+/*********************/
+/******************************/
+/* START Oncoscape Homepage*/
+/******************************/ 
+
+.node {
+  stroke: #000;
+  stroke-width: 0.2px;
+}
+
+.link {
+  stroke: #fff;
+  stroke-width: .9px;
+  stroke-linecap: round;
+  stroke-dasharray: 5,5; 
+}
+
+.svg-wrap {
+    height: 100%;
+    padding-top:35%;
+    position: relative;
+    width: 100%;
+}
+
+svg {
+    height: 100%;
+    display:block;
+    width: 100%;
+    position: absolute;
+    top:0;
+    left:0;
+}
+.oncoscapeHome-img{
+    width: 100%;
+    height: auto;
+    box-shadow: 0 4px 8px 0 rgba(0, 0, 0, 0.2), 0 6px 20px 0 rgba(0, 0, 0, 0.19);
+    margin-bottom: 40px;
+    margin-top: 40px;
+}
+
+span.header-homepage {
+    color: #fff;
+    padding-top: 15px;
+    font-size: 45px;
+    font-weight: 200;
+    letter-spacing: 2px;
+
+}
+
+.about-headline {
+    padding-top: 40px;
+    font-size: 50px;
+    padding-bottom: 20px;
+
+}
+.about-headline-h4 {
+    color:#777;
+    padding-bottom: 100px;
+    
+}
+.toolsource {
+    list-style: none;
+    text-decoration: none;
+}
+
+
+.toolsource li {
+    padding: 10px;
+    text-decoration: none;
+   
+}
+.toolsource-btn {
+    width: 100%;
+    height: 120px;
+    background: #FFF;
+    box-shadow: 0 2px 7px #bbb;
+    margin-bottom: 40px;
+
+}
+.toolsource-img {
+    width: 120px;
+    height: auto;
+    float: left;
+    margin-right: 20px;
+    background: #000;
+    border-right:1px solid #DDD;
+    box-shadow: 0 4px 8px 0 rgba(0, 0, 0, 0.2), 0 6px 20px 0 rgba(0, 0, 0, 0.19);
+
+}
+p.toolsource-h1 {
+    margin: 0;
+    padding: 22px 0 5px;
+    padding-top:10px;
+    text-decoration: none;  
+    color: #1396de;  
+    font-size: 20px;
+    padding-bottom: 10px;
+    text-decoration: none;
+}
+p.toolsource-h2 {
+    font-size: 15px;
+    text-decoration: none;  
+    color: #000;    
+}
+a.toolsource-link{
+    text-decoration: none;
+    color:#000;
+}
+.photo-grid img {
+    display: block;
+    height: auto;
+    -webkit-transition: all 300ms;
+    -moz-transition: all 300ms;
+    transition: all 300ms;
+    max-width: 100%;
+}
+
+.photo-grid li:hover img {
+    -webkit-transform: scale(1.2);
+    -moz-transform: scale(1.2);
+    transform: scale(1.2);
+}
+
+.who-container {
+    padding-top: 40px;
+}
+
+
+.grid {
+    padding-bottom: 40px;
+}
+
+.box-size {
+    width: 390px;
+    height: 500px;
+}
+
+.grid-h3 {
+    padding-bottom: 40px;
+    font-size: 27px;
+/*    font-weight: 400;*/
+    /*color: #717577;*/
+    color: #000;
+}
+
+.grid-p {
+    padding-bottom: 20px;
+    padding-top: 40px;
+}
+
+a.btn-outline {
+    /*background: transparent;*/
+    background: #fff;  
+    border: 1.5px solid #fff; 
+    border-radius: 4px; 
+    padding: 10px; 
+    /*color: #1396de;*/
+    color: #000;
+    text-align: center;
+    text-decoration: none;
+    font-size: 16px;
+    letter-spacing: 1.2px;
+    font-weight: 600;
+    margin-top: 8px;
+    margin-bottom: 8px; 
+    position: relative;
+}
+a.btn-outline:hover {
+    text-decoration: none;
+    color: #1396de;
+}
+.fa-inverse {
+    color: #717577;
+   /* color: #000;*/
+
+}
+
+
+.box-line::after {
+    content: "";
+    position: absolute;
+    top: 20px;
+    left: 0px;
+    width: 1px;
+    height: 393px;
+    background-color: #ccc;
+}
+
+
+.text-primary {
+ /*   color: #337ab7;*/
+    color: #fff;
+}
+/* centered columns styles */
+.row-centered {
+    text-align:center;
+}
+.col-centered {
+    display:inline-block;
+    float:none;
+    /* reset the text-align */
+    text-align:center;
+    /* inline-block space fix */
+    margin-right:-4px;
+}
+.header-font {
+    font-size: 20px;
+}
+
+.cohort-statement {
+    font-weight: 400;
+    font-size: 18px;
+}  
+.cohort-panel {
+    /*padding-bottom: 40px;*/
+}     
+
+p.cohort-descriptions-1 {
+   
+    padding-bottom: 15px;
+    padding-top: 15px;
+}
+p.cohort-descriptions-2 {
+    padding-bottom: 110px;
+    padding-top: 40px;
+}
+p.cohort-descriptions-3 {
+    
+    padding-bottom: 150px;
+}
+p.cohort-descriptions-4 {
+   
+    padding-bottom: 160px;
+}
+
+.circle1 {
+    margin-left:125px;
+    border-radius: 50%;
+    width: 100px;
+    height: 100px;
+    background-image: url("/style/math.png");
+ /*   border: 1px solid #717577;*/
+    box-shadow: 0 4px 8px 0 rgba(0, 0, 0, 0.2), 0 6px 20px 0 rgba(0, 0, 0, 0.19);
+}
+.circle2{
+    margin-left:125px;
+    border-radius: 50%;
+    width: 100px;
+    height: 100px;
+    background-image: url("/style/mpNavigation/videotwo.png");
+/*    border: 1px solid #717577;*/
+    box-shadow: 0 4px 8px 0 rgba(0, 0, 0, 0.2), 0 6px 20px 0 rgba(0, 0, 0, 0.19);
+}
+.circle3 {
+    margin-left:125px;
+    border-radius: 50%;
+    width: 100px;
+    height: 100px;
+    background-image: url("/style/pcaNavigation/pcavideo1.png");
+/*    border: 1px solid #717577;*/
+    box-shadow: 0 4px 8px 0 rgba(0, 0, 0, 0.2), 0 6px 20px 0 rgba(0, 0, 0, 0.19);
+}
+.dev-tools{
+    text-align:center;
+}
+.dev-tools a {
+    display:inline-block; 
+    width:140px;
+    padding-top: 40px;
+}
+/**********************/
+/* START media query */
+/********************/
+/*disable header zoom*/
+/*ipad*/
+
+@media (max-width: 768px) {
+    .subnav-fixed {
+        position: relative;
+        top: auto;
+    }
+    .tool-image {
+        width: 50%;
+        height: auto;
+        border: 6px solid rgba(255,255,255,.6);
+        border-radius: 50%;
+        box-shadow: 0 4px 8px 0 rgba(0, 0, 0, 0.2), 0 6px 20px 0 rgba(0, 0, 0, 0.19);
+    }
+    span.header-black {
+        display: block;
+        color: #fff;
+        padding-top: 15px;
+        padding-bottom: 15px;
+        font-size: 35px;
+    }
+    span.header-gray {
+        color: #fff;
+        padding-top: 15px;
+        font-size: 22px;
+    }
+  
+    #section-intro {
+        background: #0c6db5;
+        background-attachment: fixed;
+        width: 100%;
+        min-height: 100%;
+        height: auto;
+        margin: 0 auto;
+        text-align: center;
+        padding-top: 50px;
+    }
+
+    #rightImage {
+        width: 600px;
+        height: 275px;
+        position: relative;
+        display: inline-block;
+        margin: 0px;
+    }
+    .searchbox {
+        width: 100%;
+        box-shadow: 0 4px 8px 0 rgba(0, 0, 0, 0.2), 0 6px 20px 0 rgba(0, 0, 0, 0.19);
+    }
+    #zoom-img {
+        width: 100%;
+        box-shadow: 0 4px 8px 0 rgba(0, 0, 0, 0.2), 0 6px 20px 0 rgba(0, 0, 0, 0.19);
+    }
+    .zoomButtons {
+        display: inline-block;
+        margin-bottom: 0;
+        margin-right: 20px;
+        text-align: center;
+        vertical-align: middle;
+        -ms-touch-action: manipulation;
+        touch-action: manipulation;
+        cursor: pointer;
+        border: 1px solid transparent;
+        white-space: nowrap;
+        padding: 6px 12px;
+        font-size: 14px;
+        line-height: 1.42857;
+        border-radius: 4px;
+        -moz-user-select: none;
+        -ms-user-select: none;
+        user-select: none;
+        width: 100%;
+        font-weight: 300;
+        color: #333;
+        background-color: #fff;
+        border-color: #ccc;
+        margin-top: 20px;
+    }
+    #patientcolors2 {
+        width: 350px;
+        height: 200px;
+        position: relative;
+        margin-top: 30px;
+        margin-left: 0px;
+    }
+    #patientcolors3 {
+        width: 350px;
+        height: 200px;
+        position: relative;
+        margin-top: 30px;
+        margin-left: 0px;
+    }
+    span.header-homepage {
+        color: #fff;
+        padding-top: 15px;
+        font-size: 25px;
+    }
+    .svg-wrap {
+        height:0;
+        padding-top:70%;
+        position: relative;
+        width: 100%;
+    }
+     p.cohort-descriptions-1 {
+        padding-bottom: 0px;
+        padding-top: 35px;
+    }
+    p.cohort-descriptions-2 {
+        padding-bottom: 0px;
+        padding-top: 40px;
+    }
+    p.cohort-descriptions-3 {
+         padding-top: 40px;
+        padding-bottom: 0px;
+    }
+    p.cohort-descriptions-4 {
+        padding-top: 40px;
+        padding-bottom: 40px;
+    }
+    .box-line::after {
+        visibility: hidden;
+    }
+   
+
+}
+/*iphone5*/
+
+@media (max-width: 412px) {
+    .videoParagraph {
+        visibility: hidden;
+    }
+    .videoTitle {
+        padding-top: 30px;
+    }
+    .searchbox {
+        width: 100%;
+        box-shadow: 0 4px 8px 0 rgba(0, 0, 0, 0.2), 0 6px 20px 0 rgba(0, 0, 0, 0.19);
+    }
+    #zoom-img {
+        width: 100%;
+        box-shadow: 0 4px 8px 0 rgba(0, 0, 0, 0.2), 0 6px 20px 0 rgba(0, 0, 0, 0.19);
+    }
+    .zoomButtons {
+        display: inline-block;
+        margin-bottom: 0;
+        margin-right: 20px;
+        text-align: center;
+        vertical-align: middle;
+        -ms-touch-action: manipulation;
+        touch-action: manipulation;
+        cursor: pointer;
+        border: 1px solid transparent;
+        white-space: nowrap;
+        padding: 6px 12px;
+        font-size: 14px;
+        line-height: 1.42857;
+        border-radius: 4px;
+        -moz-user-select: none;
+        -ms-user-select: none;
+        user-select: none;
+        width: 100%;
+        font-weight: 300;
+        color: #333;
+        background-color: #fff;
+        border-color: #ccc;
+        margin-top: 20px;
+    }
+    #rightImage {
+        width: 600px;
+        height: 175px;
+        position: relative;
+        display: inline-block;
+        margin: 0px;
+    }
+    .tool-image {
+        width: 70%;
+        height: auto;
+        border: 2px solid rgba(255,255,255,.6);
+        border-radius: 50%;
+        box-shadow: 0 4px 8px 0 rgba(0, 0, 0, 0.2), 0 6px 20px 0 rgba(0, 0, 0, 0.19);
+    }
+    #patientcolors2 {
+        width: 350px;
+        height: 200px;
+        position: relative;
+        margin-top: 30px;
+        margin-left: 0px;
+    }
+    #patientcolors3 {
+        width: 350px;
+        height: 200px;
+        position: relative;
+        margin-top: 30px;
+        margin-left: 0px;
+    }
+    .image-wrapper {
+        position: relative;
+        width: 100%;
+        padding-top: 20px;
+    }
+    .image-wrapper p {
+        position: absolute;
+        left: 0;
+        top: 0;
+        margin-top: 10px;
+    }
+    p.toolsource-h2{
+        display: none;
+    }
+    p.toolsource-h1 {
+        margin: 0;
+        padding: 22px 0 5px;
+        padding-top: 40px;
+        text-decoration: none;
+        color: #1396de;
+        font-size: 20px;
+        padding-bottom: 10px;
+    }
+    .toolsource-img {
+        margin-right: 0px;
+
+    }
+    .grid-h3 {
+        padding-bottom: 20px;
+        padding-top: 0px;
+    }
+    .about-headline-h4{
+        padding-bottom: 0px;
+    }
+    .box-size {
+        width: 300px;
+        height: 300px;
+        text-align: center;
+    }
+    .box-line::after {
+        visibility: hidden;
+    }
+    .circle1,.circle2,.circle3{
+        margin-left: 85px;
+    }
+  
+    p.cohort-descriptions-1 {
+        padding-bottom: 0px;
+        padding-top: 35px;
+    }
+    p.cohort-descriptions-2 {
+        padding-bottom: 0px;
+        padding-top: 40px;
+    }
+    p.cohort-descriptions-3 {
+         padding-top: 40px;
+        padding-bottom: 0px;
+    }
+    p.cohort-descriptions-4 {
+        padding-top: 40px;
+        padding-bottom: 40px;
+    }
+    .header-dropdown-img {
+        width: 30px;
+        height: 30px;
+        box-shadow: 0 4px 8px 0 rgba(0, 0, 0, 0.2), 0 6px 20px 0 rgba(0, 0, 0, 0.19);
+        margin-right: 20px;
+        margin-top: 3px;
+        margin-bottom: 6px;
+    }
+   
+  
+   
+    
+
+   
+
+}
+/*nexus*/
+
+@media (max-width: 414px) {
+    .searchbox {
+        width: 100%;
+        box-shadow: 0 4px 8px 0 rgba(0, 0, 0, 0.2), 0 6px 20px 0 rgba(0, 0, 0, 0.19);
+    }
+    #zoom-img {
+        width: 100%;
+        box-shadow: 0 4px 8px 0 rgba(0, 0, 0, 0.2), 0 6px 20px 0 rgba(0, 0, 0, 0.19);
+    }
+    .zoomButtons {
+        display: inline-block;
+        margin-bottom: 0;
+        margin-right: 20px;
+        text-align: center;
+        vertical-align: middle;
+        -ms-touch-action: manipulation;
+        touch-action: manipulation;
+        cursor: pointer;
+        border: 1px solid transparent;
+        white-space: nowrap;
+        padding: 6px 12px;
+        font-size: 14px;
+        line-height: 1.42857;
+        border-radius: 4px;
+        -moz-user-select: none;
+        -ms-user-select: none;
+        user-select: none;
+        width: 100%;
+        font-weight: 300;
+        color: #333;
+        background-color: #fff;
+        border-color: #ccc;
+        margin-top: 20px;
+    }
+    #rightImage {
+        width: 600px;
+        height: 175px;
+        position: relative;
+        display: inline-block;
+        margin: 0px;
+    }
+    #patientcolors2 {
+        width: 350px;
+        height: 200px;
+        position: relative;
+        margin-top: 30px;
+    }
+    #patientcolors3 {
+        width: 350px;
+        height: 200px;
+        position: relative;
+        margin-top: 30px;
+    }
+    .grid-h3 {
+        padding-bottom: 20px;
+        padding-top: 75px;
+    }
+     .box-line::after {
+        visibility: hidden;
+   }
+    p.cohort-descriptions-1 {
+        padding-bottom: 0px;
+        padding-top: 35px;
+    }
+    p.cohort-descriptions-2 {
+        padding-bottom: 0px;
+        padding-top: 40px;
+    }
+    p.cohort-descriptions-3 {
+         padding-top: 40px;
+        padding-bottom: 0px;
+    }
+    p.cohort-descriptions-4 {
+        padding-top: 40px;
+        padding-bottom: 40px;
+    }
+    .about-headline-h4{
+        padding-bottom: 0px;
+    }
+      .header-dropdown-img {
+        width: 30px;
+        height: 30px;
+        box-shadow: 0 4px 8px 0 rgba(0, 0, 0, 0.2), 0 6px 20px 0 rgba(0, 0, 0, 0.19);
+        margin-right: 20px;
+        margin-top: 3px;
+        margin-bottom: 6px;
+    }
+   
+      
+}
+@media (max-width: 1199px) {
+    .box-line::after {
+    visibility: hidden;
+   }
+}
+@media (max-width: 767px) {
+.navbar-inverse .navbar-nav .open .dropdown-menu>li>a {
+    color: #fff;
+}
+}
+/**********************/
+/* END media query */
+/*******************

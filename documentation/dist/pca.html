@@ -1,0 +1,414 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <meta charset="utf-8">
+    <title>Oncoscape</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <link rel="stylesheet" href="http://maxcdn.bootstrapcdn.com/bootstrap/3.3.6/css/bootstrap.min.css">
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.12.4/jquery.min.js"></script>
+    <script src="https://ajax.googleapis.com/ajax/libs/jqueryui/1.11.4/jquery-ui.min.js"></script>
+    <script src="http://maxcdn.bootstrapcdn.com/bootstrap/3.3.6/js/bootstrap.min.js"></script>
+    <script src="https://use.fontawesome.com/08ee93173f.js"></script>
+    <link href='/styles/oncoscape.css' rel='stylesheet' type='text/css'>
+    <link href="https://fonts.googleapis.com/css?family=Lato:400,300,200,100" rel="stylesheet" type="text/css">
+    <link href="//cdnjs.cloudflare.com/ajax/libs/animate.css/3.0.0/animate.min.css" rel="stylesheet" type="text/css">
+    <!--CDN link for  TweenMax-->
+    <script src="http://cdnjs.cloudflare.com/ajax/libs/gsap/1.19.0/TweenMax.min.js"></script>
+    <!--CDN link for  d3j-->
+    <script src="https://d3js.org/d3.v4.min.js"></script>
+    <script src="/scripts/oncoscape.js"></script>
+    <script src="/scripts/oncoscapeHomepage.js"></script>
+    
+    <!-- FOUC correction -->
+    <style type="text/css">
+        .js #fouc {
+            display: none;
+        }
+    </style>
+    <script type="text/javascript">
+        document.documentElement.className = 'js';
+    </script>
+</head>
+
+<body data-spy="scroll" data-target="#header">
+
+
+    <!-- FOUC correction -->
+    <div id="fouc">
+        <nav id="nav-bar" class="navbar navbar-inverse navbar-fixed-top" role="navigation">
+            <div class="container-fluid">
+
+                <div class="navbar-header">
+                    <button type="button" class="navbar-toggle collapsed" data-toggle="collapse" data-target="#bs-example-navbar-collapse-1" aria-expanded="false">
+        <span class="sr-only">Toggle navigation</span>
+        <span class="icon-bar"></span>
+        <span class="icon-bar"></span>
+        <span class="icon-bar"></span>
+      </button>
+                    <img alt="Brand" src="/style/logo-white.png" class="header-logo-img">
+                    <a class="navbar-brand" href="https://dev.oncoscape.sttrcancer.io/#/" target="_blank">
+                        <span class="header-logo-text">Oncoscape</span> </a>
+                </div>
+
+                <div class="collapse navbar-collapse" id="bs-example-navbar-collapse-1">
+                    <ul class="nav navbar-nav navbar-right" style="padding-top: 10px;">
+                        <li class="dropdown">
+                            <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-haspopup="true" aria-expanded="false">Tools</a>
+                            <ul class="dropdown-menu">
+                                <li>
+                                    <a href="/timelines.html"><img class="header-dropdown-img" src="/style/toolImages/timelines.png">Timelines</a>
+                                </li>
+                                <li>
+                                    <a href="/spreadsheet.html"><img class="header-dropdown-img" src="/style/toolImages/spreadsheet.png">Spreadsheet</a>
+                                </li>
+                                <li>
+                                    <a href="/pca.html"><img class="header-dropdown-img" src="/style/toolImages/pca.png">PCA</a>
+                                </li>
+                                <li>
+                                    <a href="/markerspatients.html"><img class="header-dropdown-img" src="/style/toolImages/mp.png">Markers + Patients</a>
+                                </li>
+                                <li>
+                                    <a href="/survival.html"><img class="header-dropdown-img" src="/style/toolImages/survivalcurve.png">Survival</a>
+                                </li>
+                            </ul>
+                        </li>
+                        <li><a href="http://resources.sttrcancer.org/api/">Data + API</a></li>
+                        <li><a href="http://resources.sttrcancer.org/oncoscape-contact">Feedback</a></li>
+                        <li><a href="http://oncoscape.sttrcancer.org" target="_blank">Try Oncoscape</a></li>
+                    </ul>
+                </div>
+            </div>
+        </nav>
+        <main>
+<!-- START wrapper -->
+<div class="content-wrapper">
+    <!-- START intro seciton -->
+    <div id="section-intro" class="scrollto">
+        <a class="anchor" id="anchor-intro">x</a>
+        <div class="container">
+            <div id="marquee" class="row">
+                <div class="col-xs-12">
+                    <img class="fadeInDown animated center-block tool-image img-responsive" src="/style/toolImages/pca.png" alt="PCA">
+                </div>
+            </div>
+            <div class="row">
+                <h1 class="tool-headline">
+                    <span class="header-black">Principal Component Analysis</span>
+                    <span class="header-gray">Explore high-dimensional data sets. Color-code cohorts.</span>
+                </h1>
+            </div>
+        </div>
+    </div>
+    <!-- END intro seciton -->
+    <!-- START sticky nav-bar -->
+    <div id="header" class="header">
+        <div class="subnav container">
+            <a class="subnav-item col-xs-12 col-sm-2 col-sm-offset-1" href="#anchor-overview">Overview</a>
+            <a class="subnav-item col-xs-12 col-sm-2" href="#anchor-cases">Use Cases</a>
+            <a class="subnav-item col-xs-12 col-sm-2" href="#anchor-nav">Navigation</a>
+            <a class="subnav-item col-xs-12 col-sm-2" href="#anchor-methods">Methods</a>
+            <a class="subnav-item col-xs-12 col-sm-2" href="#anchor-faq">FAQ</a>
+        </div>
+    </div>
+    <!-- END sticky nav-bar -->
+    <!-- START Overview seciton -->
+    <div class="scrollto" id="section-overview">
+        <a class="anchor" id="anchor-overview">x</a>
+        <div class="container">
+            <div class="row">
+                <div class="col-xs-12 text-center">
+                    <h3 class="section-headline  fadeInDown animated">Overview</h3>
+                </div>
+            </div>
+            <div class="row">
+                <div class="col-xs-12 text-left">
+                    <p>Principle Component Analysis (PCA) provides a two dimensional view of sample similarity based on given molecular and gene sets, e.g. patterns in RNA expression for patients using all available genes. Users explore expression data in
+                        the PCA window. The PCA window allows users to visualize cohorts of patients by specific gene sets and/or expression data. Buttons in the control bars show or hide different areas of the application.</p>
+                </div>
+            </div>
+            <div class="row">
+                <div class="col-xs-12">
+                    <img class="center-block img-responsive mp-image" src="/style/pcaNavigation/pca.png" alt="PCA">
+                </div>
+            </div>
+            <div class="row">
+                <div class="col-xs-12 li-margin">
+                    <ul>
+                        <li><em>Patient Nodes:</em> Select nodes by holding down the <em>Shift</em> key and selecting either individual or larger node groupings.
+                        </li>
+                        <li><em>Control Bar:</em> Collection of controls that operate over the patient areas.
+                        </li>
+                        <li><em>Survival Curves:</em> Survival curves correlate to each saved cohort above.
+                        </li>
+                        <li><em>Cohorts and Collections:</em> Snapshots of the various collections, either patient or gene (gene coming soon). Different filters include visualizing age at diagnosis, gender, race, ethnicity, vital status or tumor status. Also,
+                            includes the ability to save and push cohorts through the various tools. To learn more visit
+                            <a href="/oncoscape">Oncoscape</a>
+                        </li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </div>
+    <!-- END Overview seciton -->
+    <!-- START Use Cases seciton -->
+    <div class="scrollto" id="section-cases">
+        <a class="anchor" id="anchor-cases">x</a>
+        <div class="container">
+            <div class="row">
+                <div class="col-xs-12 text-center">
+                    <h3 class="section-headline fadeInDown animated">Use Cases</h3>
+                </div>
+            </div>
+            <section class="videoCurrent col-xs-12 col-md-7">
+                <div class="videoPlayerContainer">
+                    <iframe class="videoPlayer" width="560" height="315" frameborder="0" allowfullscreen></iframe>
+                </div>
+                <h3 class="videoCurrentTitle"></h3>
+                <p class="videoCurrentTranscript"></p>
+            </section>
+            <section class="videos noselect col-xs-12 col-md-5">
+                <article class="video">
+                    <div class="videoThumb" style="background-image: url(/style/pcaNavigation/pcavideo1.png);"></div>
+                    <a class="videoLink" href="https://www.youtube.com/embed/YQ5f2P1mLog?rel=0&amp;controls=1&amp;showinfo=0"></a>
+                    <h4 class="videoTitle">Show PCA plot of RNA expression colored by HPV status</h4>
+                    <p class="videoParagraph">Save and view cohorts with RNA expression colored by HPV status.</p>
+                    <section class="videoTranscript">
+                        <ol class="video-ol">
+                            <div class="li-margin">
+                                <li>PCA for Head and Neck: Default for H & N: PCA using CNV gistic scores for all genes based on UCSC data pipeline</li>
+                                <li>Change Input type to update Plot Layout: Load the PCA scores based on RNA expression data</li>
+                                <li>Color Patients by Clinical Indicator: Choose HPV Status P16 to color patients within the plot</li>
+                                <li>View Patterns among Patients: Refer to the legend to see patient categories</li>
+                            </div>
+                        </ol>
+                    </section>
+                </article>
+            </section>
+        </div>
+    </div>
+    <!-- END Use Cases seciton -->
+    <!-- START Nav seciton -->
+    <div class="scrollto" id="section-nav">
+        <a class="anchor" id="anchor-nav">x</a>
+        <div class="container">
+            <div class="row">
+                <div class="col-xs-12 text-center">
+                    <h3 class="section-headline fadeInDown animated">Navigation</h3>
+                </div>
+            </div>
+            <section class="roundBorder">
+                <div class="row">
+                    <div class="col-xs-6 text-left">
+                        <strong>Gene Set</strong>
+                    </div>
+                    <div class="col-xs-6 text-left">
+                        <strong>Data Source</strong>
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="col-xs-6 text-left">
+                        <p class="search-para">Provides users the ability to select a gene set to operate over. More detail about the various genesets can be found in the Methods section. To apply a new geneset locate the <em>Gene Set</em> dropdown menu and make a selection.</p>
+                    </div>
+                    <div class="col-xs-6 text-left">
+                        <p class="search-para">Provides users the ability to select a data source. More information about the UCSC dataset can be found in the "Methods" section. To apply an a new data source locate the <em>Data Source</em> dropdown menu and make a selection.</p>
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="col-xs-6 text-left">
+                        <div class="dropdown">
+                            <button class="zoomButtons" type="button" data-toggle="dropdown">All Genes
+              <span class="docCaret"></span></button>
+                            <ul class="dropdown-menu">
+                                <li>All Genes</li>
+                                <li>Marker genes 545</li>
+                                <li>TCGA pancan mutated</li>
+                                <li>oncoVogel274</li>
+                                <li>TCGA GBM classifiers</li>
+                            </ul>
+                        </div>
+                    </div>
+                    <div class="col-xs-6 text-left">
+                        <div class="dropdown">
+                            <button class="zoomButtons" type="button" data-toggle="dropdown">ucsc
+              <span class="docCaret"></span></button>
+                            <ul class="dropdown-menu">
+                                <li>ucsc</li>
+                                <li>cBio</li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="col-xs-6 text-left generalPadding">
+                        <strong>PCA Type</strong>
+                    </div>
+                    <div class="col-xs-6 text-left generalPadding">
+                        <strong>Variance</strong>
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="col-xs-6 text-left">
+                        <p class="search-para">Provides users the ability to select a PCA type. To apply a type other than the default (cnv) find the <em>PCA Type</em> dropdown menu and make a selection.</p>
+                    </div>
+                    <div class="col-xs-6 text-left">
+                        <p class="search-para">PCA, <em>variance</em> means summative variance or multivariate variability or overall variability or total variability. Below is the covariance matrix of some 2 variables.</p>
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="col-xs-6 text-left">
+                        <div class="dropdown">
+                            <button class="zoomButtons" type="button" data-toggle="dropdown">cnv
+              <span class="docCaret"></span></button>
+                            <ul class="dropdown-menu">
+                                <li>cnv</li>
+                            </ul>
+                        </div>
+                    </div>
+                    <div class="col-xs-1 text-left">
+                        <img src="/style/pcaNavigation/pcaVariance.png">
+                    </div>
+                </div>
+            </section>
+            <hr>
+            <div class="row">
+                <div class="col-xs-12 text-left">
+                    <strong>Patient Colors</strong>
+                </div>
+            </div>
+            <div class="row">
+                <div class="col-xs-6 text-left">
+                    <p class="search-para">By clicking the <em>Color Options</em> button users are able to color code patient nodes based on several unique operators. A popup list will appear on the screen. Selections include the percentages of patient nodes that include the
+                        selection e.g. 100% of patient nodes have gender specified.</p>
+                </div>
+                <div class="col-xs-6">
+                    <img class="img-responsive" src="/style/pcaNavigation/colorOptions.png" alt="Patient Colors">
+                </div>
+            </div>
+            <!-- color + layout Tween slideshowFactory -->
+            <div class="image-wrapper col-xs-12 col-lg-4">
+                <p>Diagnosis</p>
+                <div id="patientPCA1" class="col-xs-12 col-lg-4 img-responsive">
+                </div>
+            </div>
+            <div class="image-wrapper col-xs-12 col-lg-4">
+                <p>Gender</p>
+                <div id="patientPCA2" class="col-xs-12 col-lg-4 img-responsive">
+                </div>
+            </div>
+            <div class="image-wrapper col-xs-12 col-lg-4">
+                <p>Tumor Grade</p>
+                <div id="patientPCA3" class="col-xs-12 col-lg-4 img-responsive">
+                </div>
+            </div>
+            <div class="row">
+                <p id="layoutTextPCA" class="col-xs-12"></p>
+            </div>
+            <!-- END color + layout Tween slideshowFactory -->
+            <!-- container -->
+        </div>
+    </div>
+    <!-- END nav seciton -->
+    <!-- START Methods+Data seciton -->
+    <div class="scrollto" id="section-methods">
+        <a class="anchor" id="anchor-methods">x</a>
+        <div class="container">
+            <div class="row">
+                <div class="col-xs-12 text-center">
+                    <h3 class="section-headline fadeInDown animated">Methods</h3>
+                </div>
+            </div>
+            <div class="row">
+                <div class=" col-xs-12 text-left">
+                    <p class="text-left">Oncoscape hosts <a class="methods-color" href="https://wiki.nci.nih.gov/display/TCGA/Data+level#Datalevel-RelationshipsBetweenDataTypeandDataLevel" target="_blank">level 3</a> public TCGA datasets representing gene and patient data
+                        downloaded from <a class="methods-color" href="https://xenabrowser.net/datapages/?host=https://tcga.xenahubs.net" target="_blank">UCSC Xena.</a> To review this data in depth visit our <a class="methods-color" href="http://resources.sttrcancer.org/api"
+                            target="_blank">data API. </a>User planning to publish on the provided data must adhere to all publishing guideline set by the <a class="methods-color" href="https://cancergenome.nih.gov/publications/publicationguidelines" target="_blank">NIH</a>.
+                        Datasets in Oncoscape are classified by disease type according to TCGA studies. </p>
+                    <p class="text-left">Data was generated using the R-package<a class="methods-color" href="https://stat.ethz.ch/R-manual/R-devel/library/stats/html/prcomp.html" target="_blank">
+          Principal Components Analysis</a>
+                </div>
+            </div>
+        </div>
+    </div>
+    <!-- END Methods seciton -->
+    <!-- START faq seciton -->
+    <div class="scrollto" id="section-faq">
+        <a class="anchor" id="anchor-faq">x</a>
+        <div class="container">
+            <div class="row">
+                <div class="col-xs-12 text-center">
+                    <h3 class="section-headline fadeInDown animated">Frequently Asked Questions</h3>
+                </div>
+            </div>
+            <div class="container">
+                <div id="divlist">
+                    <a class="methods-color" role="button" data-toggle="collapse" data-target="#collapse-3">How do I export or print my graphs?</a>
+                    <div id="collapse-3" class="collapse">
+                        <p class="collapse-para">Currently, the export feature is only available on the Spreadsheet tool. Users can push saved cohorts to the spreadsheet tool by clicking the the Analysis Tool button at the top of the screen. Once there click the <em>Export</em>                            button. An Excel file will get generated.
+                        </p>
+                    </div>
+                    <hr>
+                    <a class="methods-color" role="button" data-toggle="collapse" data-target="#collapse-4">How do I save my data for a return visit?</a>
+                    <div id="collapse-4" class="collapse">
+                        <p class="collapse-para">All data for selections and cohorts will be automatically saved for a return visit assuming users are on the same computer to login. User logins that allow stored sessions from any device will be deployed in a future release.
+                        </p>
+                    </div>
+                    <hr>
+                </div>
+            </div>
+        </div>
+    </div>
+    <!-- END faq seciton -->
+</div>
+<!-- END wrapper -->
+</main>
+<footer class="footer" id="footer">
+    <div class="container ">
+        <div class="row ">
+            <div class="col-xs-12 col-sm-4 ">
+                <a href="http://www.fredhutch.org/en.html" target="_blank">
+                    <img src="/photos/logo-hutch.png ">
+                </a>
+            </div>
+            <div class="col-xs-12 col-sm-4 ">
+                <a href="http://www.uwmedicine.org/">
+                    <img src="/photos/logo-uw.png ">
+                </a>
+            </div>
+            <div class="col-xs-12 col-sm-4 ">
+                <a href="http://www.seattlecca.org/">
+                    <img src="/photos/logo-scca.png ">
+                </a>
+            </div>
+        </div>
+        <div class="row footer-legal ">
+            <div col="col-xs-12 ">
+                &copy;2014 Fred Hutchinson Cancer Research Center 1100 Fairview Ave. N., P.O. Box 19024, Seattle, WA 98109
+            </div>
+            <div class="col-xs-12 ">
+                <a href="http://www.fredhutch.org/en/util/terms-privacy.html ">Terms of Use &amp; Privacy Policy</a>
+            </div>
+        </div>
+    </div>
+</footer>
+<script>
+    (function(i, s, o, g, r, a, m) {
+        i['GoogleAnalyticsObject'] = r;
+        i[r] = i[r] || function() {
+            (i[r].q = i[r].q || []).push(arguments)
+        }, i[r].l = 1 * new Date();
+        a = s.createElement(o),
+            m = s.getElementsByTagName(o)[0];
+        a.async = 1;
+        a.src = g;
+        m.parentNode.insertBefore(a, m)
+    })(window, document, 'script', 'https://www.google-analytics.com/analytics.js', 'ga');
+
+    ga('create', 'UA-79332506-1', 'auto');
+    ga('send', 'pageview');
+</script>
+<!-- FOUC correction -->
+</div>
+</body>
+
+</html>

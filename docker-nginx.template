@@ -63,11 +63,6 @@ http {
            return 200;
         }
         
-        location /docs/ {
-            alias /home/sttrweb/Oncoscape/documentation;
-            index index.html index.htm;
-        }
-
         # Kong Api
         location /api/ {
             proxy_set_header Host $host;
@@ -132,6 +127,12 @@ http {
             proxy_pass http://127.0.0.1:8004;
             #auth_basic "Restricted Content";
             #auth_basic_user_file /home/sttrweb/Oncoscape/.htpasswd;
+        }
+
+        # Documentation Site
+        location /docs/ {
+            alias /home/sttrweb/Oncoscape/documentation;
+            index index.html index.htm;
         }
        
     }

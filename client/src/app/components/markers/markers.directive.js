@@ -444,7 +444,7 @@
                         if (found) count += 1;
                         el[found ? "select" : "deselect"]();
                     });
-                    vm.searchCount = (count === 0) ? "" : "(" + count + " found)";
+                    vm.searchCount = "(" + count + " found)";
                     $timeout(function() { vm.searchCount = ""; }, 3000, true);
                 };
                 vm.hideModal = function() {
