@@ -38,7 +38,7 @@ http {
         server_name docs.oncoscape
         listen  80;
         
-        root /home/sttrweb/Oncoscape/client;
+        root /home/sttrweb/Oncoscape/documentation;
 
         location / {
             index index.html index.htm;

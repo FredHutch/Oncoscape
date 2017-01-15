@@ -48,22 +48,39 @@ gulp.task('lint', lint('app/scripts/**/*.js'));
 gulp.task('lint:test', lint('test/spec/**/*.js', testLintOptions));
 
 gulp.task('html', ['styles'], () => {
-    //    const assets = $.useref.assets({ searchPath: ['.tmp', 'app', '.'] });
-
+    //const assets = $.useref.assets({ searchPath: ['.tmp', 'app', '.'] });
     return gulp.src('app/*.html')
         .pipe($.if('*.html', fileinclude({ prefix: '@@', basepath: '@root' })))
-        //      .pipe(assets)
+        //.pipe($.if('*.html', $.minifyHtml({ conditionals: true, loose: true })))
+        //.pipe(assets)
         //.pipe($.if('*.js', $.uglify()))
         //.pipe($.if('*.css', $.minifyCss({ compatibility: '*' })))
-        //    .pipe(assets.restore())
-        //        .pipe($.useref())
-        .pipe(useref())
-        .pipe($.if('*.html', $.minifyHtml({ conditionals: true, loose: true })))
+        //.pipe(assets.restore())
+        .pipe($.useref())
         .pipe(gulp.dest('dist'));
+
+
+});
+
+gulp.task('copyStyleFolder', () => {
+    return gulp.src('app/style/**/*')
+        .pipe(gulp.dest('dist/style'));
+
+});
+gulp.task('copyScriptsFolder', () => {
+    return gulp.src('app/scripts/**/*')
+        .pipe(gulp.dest('dist/scripts'));
+
+});
+gulp.task('copyStylesFolder', () => {
+    return gulp.src('app/styles/**/*')
+        .pipe(gulp.dest('dist/styles'));
 });
 
 gulp.task('images', () => {
-    return gulp.src('app/images/**/*')
+
+
+    return gulp.src('app/photos/**/*')
         .pipe($.if($.if.isFile, $.cache($.imagemin({
                 progressive: true,
                 interlaced: true,
@@ -75,7 +92,7 @@ gulp.task('images', () => {
                 console.log(err);
                 this.end();
             })))
-        .pipe(gulp.dest('dist/images'));
+        .pipe(gulp.dest('dist/photos'));
 });
 
 gulp.task('fonts', () => {
@@ -97,7 +114,7 @@ gulp.task('extras', () => {
 
 gulp.task('clean', del.bind(null, ['.tmp', 'dist']));
 
-gulp.task('serve', ['files', 'styles', 'fonts'], () => {
+gulp.task('serve', ['files', 'styles', 'style', 'scripts', 'fonts'], () => {
     browserSync({
         notify: false,
         port: 9000,
@@ -165,7 +182,7 @@ gulp.task('wiredep', () => {
         .pipe(gulp.dest('app'));
 });
 
-gulp.task('build', ['html', 'images', 'fonts', 'extras'], () => {
+gulp.task('build', ['html', 'images', 'copyStyleFolder', 'copyStylesFolder', 'copyScriptsFolder', 'fonts', 'extras'], () => {
     return gulp.src('dist/**/*').pipe($.size({ title: 'build', gzip: true }));
 });
 

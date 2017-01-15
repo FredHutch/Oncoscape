@@ -44,13 +44,13 @@ RUN echo "ServerName localhost" >> /etc/apache2/apache2.conf
 
 # Create Application User
 RUN useradd -u 7534 -m -d /home/sttrweb -c "sttr web application" sttrweb && \
-	mkdir /home/sttrweb/Documentation && \
 	mkdir /home/sttrweb/Oncoscape && \
 	mkdir /home/sttrweb/Oncoscape/cache && \
 	mkdir /var/log/nginx/
 
 # Install Client Code
 COPY client-build /home/sttrweb/Oncoscape/client
+COPY ../documentation/dist /home/sttrweb/Oncoscape/documentation
 
 # Install Server Code
 COPY server /home/sttrweb/Oncoscape/server
