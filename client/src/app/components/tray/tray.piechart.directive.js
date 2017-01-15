@@ -52,7 +52,7 @@
 
 
                 el.attr("transform", "translate(" + [(scope.height / 2) + offset, scope.height / 2] + ")");
-                var colors = ["#0b97d3", "#EAEAEA"];
+                var colors = ["#039BE5", "#EAEAEA"];
                 var block = el.selectAll(".arc")
                     .data(arcs)
                     .attr("d", arc)

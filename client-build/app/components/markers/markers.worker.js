@@ -69,6 +69,11 @@ var data = (function() {
         }
     };
 
+
+    function convertRange(value, r1, r2) {
+        return (value - r1[0]) * (r2[1] - r2[0]) / (r1[1] - r1[0]) + r2[0];
+    };
+
     var clean = function(state) {
 
         // Remove Edges That Don't Have Patients || Genes Assiciated
@@ -89,17 +94,23 @@ var data = (function() {
         // console.log("EDGES POST CLEAN: "+state.edges.length);
 
         // Size Nodes :: Eliminate Duplicate Functions
-        var rFn = getRangeFn(state.edgePatients);
+
+
+        var domain = state.edgePatients.reduce(function(p, c) {
+            var v = c[Object.keys(c)[0]];
+            p[0] = Math.min(p[0], v);
+            p[1] = Math.max(p[0], v);
+            return p;
+        }, [Infinity, -Infinity]);
+
         var patientEdgeDegrees = state.edgePatients
             .map(function(obj) {
                 var key = Object.keys(obj)[0];
-                var val = this.fn(obj[key], 400, 1200);
+                var val = convertRange(obj[key], domain, [20, 200]);
                 return {
                     'id': key,
                     'val': val
                 };
-            }, {
-                fn: rFn
             })
             .reduce(function(previousValue, currentValue) {
                 previousValue[currentValue.id] = {
@@ -108,18 +119,21 @@ var data = (function() {
                 return previousValue;
             }, {});
 
+        domain = state.edgeGenes.reduce(function(p, c) {
+            var v = c[Object.keys(c)[0]];
+            p[0] = Math.min(p[0], v);
+            p[1] = Math.max(p[0], v);
+            return p;
+        }, [Infinity, -Infinity]);
 
-        rFn = getRangeFn(state.edgeGenes);
         var geneEdgeDegrees = state.edgeGenes
             .map(function(obj) {
                 var key = Object.keys(obj)[0];
-                var val = this.fn(obj[key], 50, 1500);
+                var val = convertRange(obj[key], domain, [20, 200]);
                 return {
                     'id': key,
                     'val': val
                 };
-            }, {
-                fn: rFn
             })
             .reduce(function(previousValue, currentValue) {
                 previousValue[currentValue.id] = {
@@ -327,6 +341,50 @@ var data = (function() {
         return rv;
     };
 
+    var distributePoints = function(pts, spread) {
+
+
+        // Pt Objects
+        var ptObjs = pts.sort(function(a, b) { return a - b; }).map(function(c, i) {
+            return {
+                o: c, // Original value
+                v: c, // Currenct Value
+                s: 1, // State [0=confirmed, 1=unconfirmed]
+                i: i, // Index
+                ip: (i + 1 === pts.length) ? null : i + 1, // Index Plus 1 or Null 
+                im: (i === 0) ? null : i - 1 // Index Minus 1 or Null
+            };
+        });
+
+        var unconfirmed = true;
+        while (unconfirmed) {
+
+            // Get unconfirmed
+            var unconfirmedPts = ptObjs.filter(function(p) { return p.s && p.ip !== null && p.im !== null; });
+            if (unconfirmedPts.length === 0) {
+                unconfirmed = false;
+                break;
+            }
+            var center = unconfirmedPts[0],
+                left = ptObjs[center.im],
+                right = ptObjs[center.ip],
+                c2l = Math.abs(center.v - left.v),
+                c2r = Math.abs(right.v - center.v);
+
+            if (c2l < spread) {
+                left.v -= spread - c2l;
+                left.s = 1;
+            }
+            if (c2r < spread) {
+                right.v += spread - c2r;
+                right.s = 1;
+            }
+            center.s = 0;
+        }
+        return ptObjs.map(function(v) { return { o: v.o, v: v.v }; })
+    }
+
+
     var update = function(options, state) {
 
         return new Promise(function(resolve) {
@@ -451,22 +509,20 @@ var data = (function() {
                 }, { isPositive: false, chromosome: 0, xPos: 0 });
 
 
-                // for (var i = 0; i < 24; i++) {
-                //     var pts = g.filter(function(v) {
-                //         return (v.data.chrome == i);
-                //     });
+                for (var i = 1; i < 24; i++) {
+                    var dist, pts = g.reduce(function(p, c) {
+                        if (c.data.chrome === i) {
+                            p[c.data.halign].push(c);
+                        }
+                        return p;
+                    }, { left: [], right: [] });
 
+                    dist = distributePoints(pts.left.map(function(v) { return v.position.y; }), 30).map(function(v) { return v.v; });
+                    pts.left.forEach(function(c, i) { c.position.y = dist[i]; });
 
-                // }
-
-
-
-
-
-
-
-
-
+                    dist = distributePoints(pts.right.map(function(v) { return v.position.y; }), 30).map(function(v) { return v.v; });
+                    pts.right.forEach(function(c, i) { c.position.y = dist[i]; });
+                }
 
 
                 state.genes = g;

@@ -235,7 +235,7 @@
                             'text-halign': "data(halign)",
                             'text-margin-x': "data(padding)",
                             'font-size': '8px',
-                            'color': '#000',
+                            'color': '#aaa',
                             'label': "data(id)",
                             'border-width': "data(sizeBdr)"
                         }
@@ -244,7 +244,7 @@
                         'style': {
                             'background-color': "#fc8400",
                             'border-color': "#000000",
-                            'border-width': '5px'
+                            'color': '#000'
                         }
                     }, {
                         'selector': 'node[nodeType="centromere"]',
@@ -784,9 +784,11 @@
                                 'weight': data.degrees[node.id()].weight
                             });
 
+                            console.log(data.degrees[node.id()].weight);
+
                         } catch (e) {
                             node.data({
-                                'weight': 500
+                                'weight': 0
                             });
                         }
                     });

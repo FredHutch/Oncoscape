@@ -420,7 +420,7 @@
 
                 _data = data;
                 cohortAll = {
-                    color: '#0b97d3',
+                    color: '#039BE5',
                     patientIds: [],
                     sampleIds: [],
                     name: 'All Patients + Samples',
