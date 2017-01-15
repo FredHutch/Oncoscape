@@ -50,7 +50,7 @@ RUN useradd -u 7534 -m -d /home/sttrweb -c "sttr web application" sttrweb && \
 
 # Install Client Code
 COPY client-build /home/sttrweb/Oncoscape/client
-COPY ../documentation/dist /home/sttrweb/Oncoscape/documentation
+COPY documentation/dist /home/sttrweb/Oncoscape/documentation
 
 # Install Server Code
 COPY server /home/sttrweb/Oncoscape/server
