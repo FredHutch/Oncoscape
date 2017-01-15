@@ -131,7 +131,7 @@ http {
 
         # Documentation Site
         location /docs {
-            root /home/sttrweb/Oncoscape/documentation;
+            alias /home/sttrweb/Oncoscape/documentation;
         }
        
     }
