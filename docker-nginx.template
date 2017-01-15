@@ -32,6 +32,18 @@ http {
     proxy_cache_valid 200 302 2d;
     proxy_cache_valid 404 1m;
 
+
+    # Docs Server
+    server {
+        server_name docs.oncoscape
+        listen  80;
+        
+        root /home/sttrweb/Oncoscape/client;
+
+        location / {
+            index index.html index.htm;
+        }
+    }
     # Public Server
     server {
 
@@ -46,9 +58,9 @@ http {
         }
 
         # HTTPS 
-        #if ($http_x_forwarded_proto != "https") {
-        #    return 301 https://$server_name$request_uri;
-        #}
+        if ($http_x_forwarded_proto != "https") {
+            return 301 https://$server_name$request_uri;
+        }
 
         # Static Assets
         location ~ ^/(assets|fonts|scripts|styles|maps|app)/ {
