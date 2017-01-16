@@ -191,7 +191,7 @@
                     'style': [{
                         'selector': 'core',
                         'style': {
-                            'selection-box-color': '#3993fa',
+                            'selection-box-color': '#039BE5',
                             'selection-box-border-color': '#3993fa',
                             'selection-box-border-width': '1px',
                             'selection-box-opacity': '.2'
@@ -199,7 +199,7 @@
                     }, {
                         'selector': 'node',
                         'style': {
-                            'background-color': "#3993fa",
+                            'background-color': "#039BE5",
                             'display': "data(display)",
                             'width': 'data(sizeEle)',
                             'height': 'data(sizeEle)',
@@ -210,8 +210,8 @@
                     }, {
                         'selector': 'node[nodeType="telomere"]',
                         'style': {
-                            'background-color': "#3993fa",
-                            'border-color': "#3993fa"
+                            'background-color': "#039BE5",
+                            'border-color': "#039BE5"
                         }
                     }, {
                         'selector': 'node[nodeType="patient"]',
@@ -251,7 +251,7 @@
                         'style': {
                             'font-size': '20px',
                             'text-halign': 'center',
-                            'background-color': "#3993fa",
+                            'background-color': "#039BE5",
                             'color': "#FFFFFF",
                             'border-color': 'rgb(19, 150, 222)',
                             'height': '40px',
@@ -321,7 +321,7 @@
                             locked: true,
                             selectable: false,
                             data: {
-                                color: "#3993fa",
+                                color: "#039BE5",
                                 id: "ce" + key, // Chromosome Edge (CE)
                                 display: "element",
                                 edgeType: "chromosome",

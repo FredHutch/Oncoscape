@@ -32,6 +32,7 @@ CACHE:
 /scripts/app-3d86201448.js
 /scripts/app-3e58e6dff3.js
 /scripts/app-65f213f0ce.js
+/scripts/app-6d5f433ea9.js
 /scripts/app-7da41e97e9.js
 /scripts/app-c0084f80ec.js
 /scripts/app-cca95a3dd8.js
@@ -52,6 +53,7 @@ CACHE:
 /styles/app-567907be98.css
 /styles/app-6112ba777e.css
 /styles/app-6a66f522e2.css
+/styles/app-77ac19304c.css
 /styles/app-796697e41d.css
 /styles/app-7dbc749faf.css
 /styles/app-804ba55f2c.css
@@ -145,6 +147,7 @@ CACHE:
 /maps/scripts/app-3d86201448.js.map
 /maps/scripts/app-3e58e6dff3.js.map
 /maps/scripts/app-65f213f0ce.js.map
+/maps/scripts/app-6d5f433ea9.js.map
 /maps/scripts/app-7da41e97e9.js.map
 /maps/scripts/app-c0084f80ec.js.map
 /maps/scripts/app-cca95a3dd8.js.map
@@ -165,6 +168,7 @@ CACHE:
 /maps/styles/app-567907be98.css.map
 /maps/styles/app-6112ba777e.css.map
 /maps/styles/app-6a66f522e2.css.map
+/maps/styles/app-77ac19304c.css.map
 /maps/styles/app-796697e41d.css.map
 /maps/styles/app-7dbc749faf.css.map
 /maps/styles/app-804ba55f2c.css.map
@@ -186,9 +190,9 @@ CACHE:
 /maps/styles/app-fdc9411eae.css.map
 /maps/styles/app-ffb0f51179.css.map
 /maps/styles/vendor-4965d51886.css.map
+/app/components/markers/markers.worker.js
 /app/components/oncoscape/oncoscape.cohort.service.worker.js
 /app/components/oncoscape/oncoscape.http.factory.js
-/app/components/markers/markers.worker.js
 
 
 NETWORK:
@@ -200,4 +204,4 @@ https://*
 SETTINGS:
 prefer-online
 
-# hash: 2d56a4e57f2d902a72ea474f94a88f685d53e3ed733dcd0edf7f5d9880e0e0f1
+# hash: a7e2df4839ba3603c436869b6451f32181549ee071830d85339228846cd6aa45

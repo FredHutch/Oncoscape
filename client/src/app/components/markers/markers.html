@@ -20,12 +20,12 @@
                     <div ng-repeat="item in vm.legendNodes" class="legend-bar legend-bar-button" style="border-color:{{item.color}};">{{item.name}}<span id="{{item.id}}" class="legend-count"></span>
 
                         <label style="float:right;padding-top:5px;" class="btn-group">
-                        <button tooltip="Deselect {{item.name}}" tooltip-placement="left"
+                        <button tooltip="Deselect" tooltip-placement="left"
                         ng-click="vm.deselectColor(item)"
-                        class="btn btn-xs btn-default" style="background-color:#47a8d8;color:#FFF;text-shadow: 0 1px rgba(0, 0, 0, 0.2);width:24px;margin-right:1px;"><i class="fa fa-circle-o"></i></button>
-                        <button tooltip="Select {{item.name}}" tooltip-placement="left"
+                        class="btn btn-xs btn-default" style="background-color:#039BE5;color:#FFF;text-shadow: 0 1px rgba(0, 0, 0, 0.2);width:24px;margin-right:1px;"><i class="fa fa-circle-o"></i></button>
+                        <button tooltip="Select" tooltip-placement="left"
                         ng-click="vm.selectColor(item)"
-                        class="btn btn-xs btn-default" style="background-color:#47a8d8;color:#FFF;text-shadow: 0 1px rgba(0, 0, 0, 0.2);width:24px;margin-left:1px;"><i class="fa fa-dot-circle-o"></i></button>
+                        class="btn btn-xs btn-default" style="background-color:#039BE5;color:#FFF;text-shadow: 0 1px rgba(0, 0, 0, 0.2);width:24px;margin-left:1px;"><i class="fa fa-dot-circle-o"></i></button>
                     </label>
                     </div>
                 </div>
@@ -53,73 +53,73 @@
                     </div>
 
 
-                    <div class="input-group-addon btn-help-icon"><a href="http://resources.sttrcancer.org/api/#gene-sets" target="_blank"><i class="glyphicon glyphicon-question-sign"></i></a>/div>
-                    </div>
+                    <div class="input-group-addon btn-help-icon"><a href="http://resources.sttrcancer.org/api/#gene-sets" target="_blank"><i style="color:#000" class="glyphicon glyphicon-question-sign"></i></a></div>
                 </div>
+            </div>
 
-                <div class="col-xs-6 form-item" style="padding-right:5px">
-                    <label>Command Mode</label>
-                    <div class="dropdown bs-dropdown">
-                        <button class="btn btn-default dropdown-toggle" type="button" id="dropdownMenu1" data-toggle="dropdown" aria-haspopup="true" aria-expanded="true" style="padding-right:30px;">
+            <div class="col-xs-6 form-item" style="padding-right:5px">
+                <label>Command Mode</label>
+                <div class="dropdown bs-dropdown">
+                    <button class="btn btn-default dropdown-toggle" type="button" id="dropdownMenu1" data-toggle="dropdown" aria-haspopup="true" aria-expanded="true" style="padding-right:30px;">
                         {{vm.optCommandMode.name}}
                         <span class="caret"></span>
                     </button>
-                        <ul class="dropdown-menu" aria-labelledby="dropdownMenu1" style="width:100%">
-                            <li ng-repeat="item in vm.optCommandModes" ng-click="vm.optCommandMode=item">{{item.name}}</li>
-                        </ul>
-                    </div>
+                    <ul class="dropdown-menu" aria-labelledby="dropdownMenu1" style="width:100%">
+                        <li ng-repeat="item in vm.optCommandModes" ng-click="vm.optCommandMode=item">{{item.name}}</li>
+                    </ul>
                 </div>
+            </div>
 
-                <div class="col-xs-6 form-item" style="padding-left:5px">
-                    <label>Search {{vm.searchCount}}</label>
-                    <div class="input-group">
-                        <input type="text" class="form-control" ng-model="vm.search" placeholder="">
-                        <div class="input-group-addon btn-help-icon" ng-click="vm.exeSearch()">Go</div>
-                    </div>
+            <div class="col-xs-6 form-item" style="padding-left:5px">
+                <label>Search {{vm.searchCount}}</label>
+                <div class="input-group">
+                    <input type="text" class="form-control" ng-model="vm.search" placeholder="">
+                    <div class="input-group-addon btn-help-icon" ng-click="vm.exeSearch()">Go</div>
                 </div>
+            </div>
 
 
-                <div class="col-xs-12 form-item" ng-if="vm.optCommandMode.name=='Sequential'">
-                    <label>Commands</label>
-                    <br />
-                    <a ng-click="vm.cmd('ShowSelectedEdges')" class="markers-command hvr-sweep-to-right">Show Edges of Selected</a>
-                    <a ng-click="vm.cmd('HideSelectedEdges')" class="markers-command hvr-sweep-to-right">Hide Edges of Selected</a>
-                    <a ng-click="vm.cmd('HideUnselectedEdges')" class="markers-command hvr-sweep-to-right">Hide Edges of Unselected</a>
-                    <a ng-click="vm.cmd('HideAllEdges')" class="markers-command hvr-sweep-to-right">Hide All Edges</a>
-                    <a ng-click="vm.cmd('SelectInverse')" class="markers-command hvr-sweep-to-right">Invert Node Selection</a>
-                    <a ng-click="vm.cmd('SelectConnected')" class="markers-command hvr-sweep-to-right">Select Connected Nodes</a>
-                    <a ng-click="vm.cmd('HideUnselectedNodes')" class="markers-command hvr-sweep-to-right">Hide Unselected Nodes</a>
-                    <a ng-click="vm.cmd('ShowAllNodes')" class="markers-command hvr-sweep-to-right">Show All Nodes</a>
-                </div>
+            <div class="col-xs-12 form-item" ng-if="vm.optCommandMode.name=='Sequential'">
+                <label>Commands</label>
+                <br />
+                <a ng-click="vm.cmd('ShowSelectedEdges')" class="markers-command hvr-sweep-to-right">Show Edges of Selected</a>
+                <a ng-click="vm.cmd('HideSelectedEdges')" class="markers-command hvr-sweep-to-right">Hide Edges of Selected</a>
+                <a ng-click="vm.cmd('HideUnselectedEdges')" class="markers-command hvr-sweep-to-right">Hide Edges of Unselected</a>
+                <a ng-click="vm.cmd('HideAllEdges')" class="markers-command hvr-sweep-to-right">Hide All Edges</a>
+                <a ng-click="vm.cmd('SelectInverse')" class="markers-command hvr-sweep-to-right">Invert Node Selection</a>
+                <a ng-click="vm.cmd('SelectConnected')" class="markers-command hvr-sweep-to-right">Select Connected Nodes</a>
+                <a ng-click="vm.cmd('HideUnselectedNodes')" class="markers-command hvr-sweep-to-right">Hide Unselected Nodes</a>
+                <a ng-click="vm.cmd('ShowAllNodes')" class="markers-command hvr-sweep-to-right">Show All Nodes</a>
+            </div>
 
-                <div class="col-xs-12 form-item">
-                    <label>Lock Selections</label>
-                    <div class="btn-group" role="group" style="display: block">
-                        <button class="btn btn-default btn-no-focus" type="button" ng-click="vm.lock('patient')" style="width:50%; font-weight: 300;" title="Patient Selection Lock">
+            <div class="col-xs-12 form-item">
+                <label>Lock Selections</label>
+                <div class="btn-group" role="group" style="display: block">
+                    <button class="btn btn-default btn-no-focus" type="button" ng-click="vm.lock('patient')" style="width:50%; font-weight: 300;" title="Patient Selection Lock">
                         <i class="fa fa-unlock" ng-show="!vm.lockPatients"></i>
                         <i class="fa fa-lock" ng-show="vm.lockPatients"></i> Patients
                     </button>
-                        <button class="btn btn-default btn-no-focus" type="button" ng-click="vm.lock('gene')" style="width:50%; font-weight: 300;" title="Gene Selection Lock">
+                    <button class="btn btn-default btn-no-focus" type="button" ng-click="vm.lock('gene')" style="width:50%; font-weight: 300;" title="Gene Selection Lock">
                         <i class="fa fa-unlock" ng-show="!vm.lockGenes"></i>
                         <i class="fa fa-lock" ng-show="vm.lockGenes"></i> Genes
                     </button>
-                    </div>
                 </div>
+            </div>
 
-                <div class="col-xs-12 form-item">
-                    <label>Zoom</label>
-                    <div class="btn-group" role="group" style="display: block">
-                        <button class="btn btn-default btn-no-focus" type="button" ng-click="vm.zoom.reset()" style="width:50%; font-weight: 300;" title="Zoom Reset">
+            <div class="col-xs-12 form-item">
+                <label>Zoom</label>
+                <div class="btn-group" role="group" style="display: block">
+                    <button class="btn btn-default btn-no-focus" type="button" ng-click="vm.zoom.reset()" style="width:50%; font-weight: 300;" title="Zoom Reset">
                         Fit
                     </button>
-                        <button class="btn btn-default btn-no-focus" type="button" ng-click="vm.zoom.fit()" style="width:50%; font-weight: 300;" title="Zoom Selection">
+                    <button class="btn btn-default btn-no-focus" type="button" ng-click="vm.zoom.fit()" style="width:50%; font-weight: 300;" title="Zoom Selection">
                         Selected
                     </button>
-                    </div>
                 </div>
-
-
             </div>
+
+
+        </div>
     </section>
 </os-tray>
 

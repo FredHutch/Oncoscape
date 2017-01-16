@@ -96,12 +96,22 @@
             $scope.$watch('vm.geneSet', function() {
                 if (vm.geneSet === null) return;
                 vm.sources = vm.geneSet.sources;
-                vm.source = vm.sources[0];
+                if (!angular.isDefined(vm.source)) {
+                    vm.source = vm.sources[0];
+                } else {
+                    var newSource = vm.sources.filter(function(v) { return (v.name === vm.source.name); });
+                    vm.source = (newSource.length === 1) ? newSource[0] : vm.sources[0];
+                }
             });
             $scope.$watch('vm.source', function() {
                 if (vm.geneSet === null) return;
                 vm.pcaTypes = vm.source.types;
-                vm.pcaType = vm.pcaTypes[0];
+                if (!angular.isDefined(vm.pcaType)) {
+                    vm.pcaType = vm.pcaTypes[0];
+                } else {
+                    var newSource = vm.pcaTypes.filter(function(v) { return (v.name === vm.pcaType.name); });
+                    vm.pcaType = (newSource.length === 1) ? newSource[0] : vm.pcaTypes[0];
+                }
             });
             $scope.$watch('vm.pcaType', function(geneset) {
                 if (angular.isUndefined(geneset)) return;

@@ -56,18 +56,7 @@ var state = {
 // Load Data
 var data = (function() {
 
-    var getRangeFn = function(data) {
-        var range = data
-            .map(function(p) {
-                return parseInt(p[Object.keys(p)[0]]);
-            });
-        var min = Math.min.apply(null, range);
-        var max = Math.max.apply(null, range)
-        return function(value, low, high) {
-            value = parseInt(value);
-            return Math.round(((value - min) / (max - min)) * (high - low) + low);
-        }
-    };
+
 
 
     function convertRange(value, r1, r2) {
@@ -106,7 +95,7 @@ var data = (function() {
         var patientEdgeDegrees = state.edgePatients
             .map(function(obj) {
                 var key = Object.keys(obj)[0];
-                var val = convertRange(obj[key], domain, [20, 200]);
+                var val = convertRange(obj[key], domain, [20, 150]);
                 return {
                     'id': key,
                     'val': val
@@ -129,7 +118,7 @@ var data = (function() {
         var geneEdgeDegrees = state.edgeGenes
             .map(function(obj) {
                 var key = Object.keys(obj)[0];
-                var val = convertRange(obj[key], domain, [20, 200]);
+                var val = convertRange(obj[key], domain, [20, 150]);
                 return {
                     'id': key,
                     'val': val
@@ -276,7 +265,7 @@ var data = (function() {
                     data: {
                         sizeBdr: 1,
                         colorBdr: '#FFF',
-                        color: "#0096d5",
+                        color: "#039BE5",
                         id: key,
                         display: "element",
                         nodeType: "gene",
@@ -315,7 +304,7 @@ var data = (function() {
         var rv = data[0].scores.map(function(v) {
             var position = { x: v.d[0], y: v.d[1] };
             var data = {
-                color: "#1396DE",
+                color: "#039BE5",
                 id: v.id,
                 display: "element",
                 nodeType: "patient",
