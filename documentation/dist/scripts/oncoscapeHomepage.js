@@ -152,35 +152,35 @@ $(document).ready(function() {
     var root = {
         "nodes": [{
             "id": "thumb",
-            "image": "/style/thumb.jpg",
+            "image": "style/thumb.jpg",
             "r": 70
         }, {
             "id": "mp",
-            "image": "/style/toolImages/mp.png",
+            "image": "style/toolImages/mp.png",
             "r": 50
         }, {
             "id": "timelines",
-            "image": "/style/toolImages/timelines.png",
+            "image": "style/toolImages/timelines.png",
             "r": 50
         }, {
             "id": "dataexplorer",
-            "image": "/style/toolImages/dataexplorer.png",
+            "image": "style/toolImages/dataexplorer.png",
             "r": 50
         }, {
             "id": "survivalcurve",
-            "image": "/style/toolImages/survivalcurve.png",
+            "image": "style/toolImages/survivalcurve.png",
             "r": 50
         }, {
             "id": "spreadsheet",
-            "image": "/style/toolImages/spreadsheet.png",
+            "image": "style/toolImages/spreadsheet.png",
             "r": 50
         }, {
             "id": "pca",
-            "image": "/style/toolImages/pca.png",
+            "image": "style/toolImages/pca.png",
             "r": 50
         }, {
             "id": "api",
-            "image": "/style/toolImages/api.png",
+            "image": "style/toolImages/api.png",
             "r": 50
         }],
         // The `links` array contains objects with a `source` and a `target`
