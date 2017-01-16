@@ -26,6 +26,12 @@
 
             // View Model
             var vm = this;
+            vm.showPanelColumns = false;
+            vm.closePanelColumns = function() {
+                vm.showPanelColumns = false;
+                vm.gridApi.grid.refresh();
+            }
+
             vm.setSize = function() {
                 var elGrid = angular.element("#spreadsheet-grid")[0];
                 var osLayout = osApi.getLayout();
@@ -55,7 +61,7 @@
             vm.collection = vm.collections[0];
             vm.options = {
                 treeRowHeaderAlwaysVisible: false,
-                enableGridMenu: true,
+                enableGridMenu: false,
                 enableSelectAll: true,
                 onRegisterApi: function(gridApi) {
                     vm.gridApi = gridApi;
@@ -76,6 +82,14 @@
                         data += "\"" + datum.join("\",\"") + "\"\n";
                     });
                 $window.open(encodeURI(data));
+            };
+            vm.showColumns = function() {
+                vm.options.columnDefs.forEach(function(v) { v.visible = true; });
+                vm.gridApi.grid.refresh();
+            };
+            vm.hideColumns = function() {
+                vm.options.columnDefs.forEach(function(v) { v.visible = false; });
+                vm.gridApi.grid.refresh();
             };
 
             var sortSelectedFn = function(a, b, rowA, rowB) {

@@ -96,7 +96,7 @@
             $scope.$watch('vm.geneSet', function() {
                 if (vm.geneSet === null) return;
                 vm.sources = vm.geneSet.sources;
-                if (!angular.isDefined(vm.source)) {
+                if (angular.isUndefined(vm.source)) {
                     vm.source = vm.sources[0];
                 } else {
                     var newSource = vm.sources.filter(function(v) { return (v.name === vm.source.name); });
@@ -106,7 +106,7 @@
             $scope.$watch('vm.source', function() {
                 if (vm.geneSet === null) return;
                 vm.pcaTypes = vm.source.types;
-                if (!angular.isDefined(vm.pcaType)) {
+                if (angular.isUndefined(vm.pcaType)) {
                     vm.pcaType = vm.pcaTypes[0];
                 } else {
                     var newSource = vm.pcaTypes.filter(function(v) { return (v.name === vm.pcaType.name); });

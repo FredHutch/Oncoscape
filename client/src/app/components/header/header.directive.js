@@ -78,6 +78,9 @@
                     $window.reload(true);
                 }
             };
+            vm.showHelp = function() {
+                $window.open("\\documentation" + $state.current.help.toString());
+            }
 
             // Update Cohorts When Datasource Changes
             osCohortService.onCohortsChange.add(function() {

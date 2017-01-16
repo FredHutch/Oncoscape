@@ -70,6 +70,7 @@
                 url: '/',
                 template: '<os-landing>',
                 datasource: false,
+                help: "/",
                 resolve: {
                     resolveLanding: resolveLanding
                 }
@@ -78,6 +79,7 @@
                 url: '/datasource',
                 template: '<os-datasource>',
                 datasource: false,
+                help: "/",
                 resolve: {
                     resolveDatasource: resolveDatasource
                 }
@@ -86,6 +88,7 @@
                 url: '/tools/{datasource}',
                 template: '<os-tools>',
                 datasource: true,
+                help: "/",
                 resolve: {
                     resolveTools: resolveTools
                 }
@@ -94,6 +97,7 @@
                 url: '/scatter',
                 template: '<os-scatter>',
                 datasource: false,
+                help: "/",
                 resolve: {
                     resolveTool: resolveTool
                 }
@@ -102,6 +106,7 @@
                 url: '/spreadsheet/{datasource}',
                 template: '<os-spreadsheet>',
                 datasource: true,
+                help: "/spreadsheet.html",
                 resolve: {
                     resolveTool: resolveTool
                 }
@@ -110,6 +115,7 @@
                 url: '/plsr/{datasource}',
                 template: '<os-plsr>',
                 datasource: true,
+                help: "/",
                 resolve: {
                     resolveTool: resolveTool
                 }
@@ -118,6 +124,7 @@
                 url: '/pca/{datasource}',
                 template: '<os-pca>',
                 datasource: true,
+                help: "/pca.html",
                 resolve: {
                     resolveTool: resolveTool
                 }
@@ -126,6 +133,7 @@
                 url: '/cc/{datasource}',
                 template: '<os-compare-cluster>',
                 datasource: true,
+                help: "/",
                 resolve: {
                     resolveTool: resolveTool
                 }
@@ -134,6 +142,7 @@
                 url: '/markers/{datasource}',
                 template: '<os-markers>',
                 datasource: true,
+                help: "/markerspatients.html",
                 resolve: {
                     resolveTool: resolveTool
                 }
@@ -142,6 +151,7 @@
                 url: '/pathways/{datasource}',
                 template: '<os-pathways>',
                 datasource: true,
+                help: "/pathways.html",
                 resolve: {
                     resolveTool: resolveTool
                 }
@@ -150,6 +160,7 @@
                 url: '/timelines/{datasource}',
                 template: '<os-timelines>',
                 datasource: true,
+                help: "/timelines.html",
                 resolve: {
                     resolveTool: resolveTool
                 }
@@ -158,6 +169,7 @@
                 url: '/survival/{datasource}',
                 template: '<os-survival>',
                 datasource: true,
+                help: "/survival.html",
                 resolve: {
                     resolveTool: resolveTool
                 }
@@ -166,6 +178,7 @@
                 url: '/sunburst/{datasource}',
                 template: '<os-sunburst>',
                 datasource: true,
+                help: "/",
                 resolve: {
                     resolveTool: resolveTool
                 }
@@ -174,6 +187,7 @@
                 url: '/heatmap/{datasource}',
                 template: '<os-heatmap>',
                 datasource: false,
+                help: "/",
                 resolve: {
                     resolveTool: resolveTool
                 }
@@ -182,6 +196,7 @@
                 url: '/barchart/{datasource}',
                 template: '<os-barchart>',
                 datasource: true,
+                help: "/",
                 resolve: {
                     resolveTool: resolveTool
                 }

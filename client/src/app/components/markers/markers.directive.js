@@ -783,9 +783,6 @@
                             node.data({
                                 'weight': data.degrees[node.id()].weight
                             });
-
-                            console.log(data.degrees[node.id()].weight);
-
                         } catch (e) {
                             node.data({
                                 'weight': 0

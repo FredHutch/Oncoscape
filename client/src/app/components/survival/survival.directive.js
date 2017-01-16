@@ -19,7 +19,7 @@
         return directive;
 
         /** @ngInject */
-        function SurvivalController(d3, osApi, osCohortService, $state, $timeout, $scope, $stateParams, $window) {
+        function SurvivalController(d3, osApi, osCohortService, $state, $timeout, $scope, $stateParams, $window, _) {
 
             // Loading . . . 
             osApi.setBusy(true);
@@ -223,7 +223,7 @@
                     if (vm.cohorts.indexOf(vm.cohort) == -1) {
                         all.unshift(vm.cohort);
                     }
-                    all.sort(function(a, b) {
+                    all.sort(function(a) {
                         if (vm.cohort.color == a.color) return -1;
                         if (a.color == "#E91E63") return -1;
                         return 0;
