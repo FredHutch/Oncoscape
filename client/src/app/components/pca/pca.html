@@ -30,7 +30,7 @@
                 <label>Data Type</label>
                 <div class="input-group">
                     <div class="dropdown bs-dropdown">
-                        <button style="max-width:100%" class="btn btn-default dropdown-toggle" type="button" id="dropdownMenu1" data-toggle="dropdown" aria-haspopup="true" aria-expanded="true">{{vm.pcaType.name}}<span class="caret"></span></button>
+                        <button style="max-width:220px" class="btn btn-default dropdown-toggle" type="button" id="dropdownMenu1" data-toggle="dropdown" aria-haspopup="true" aria-expanded="true">{{vm.pcaType.name}}<span class="caret"></span></button>
                         <ul class="dropdown-menu" aria-labelledby="dropdownMenu1">
                             <li ng-repeat="item in vm.pcaTypes" ng-click="vm.pcaType=item">{{item.name}}</li>
                         </ul>
@@ -40,9 +40,7 @@
             </div>
             <div ng-if="vm.legendCaption.length>0" class="col-xs-12 form-item">
                 <label>Patient {{vm.legendCaption}}</label>
-
                 <div ng-repeat="item in vm.legendNodes" class="legend-bar legend-bar-button" style="border-color:{{item.color}};">{{item.name}}<span id="{{item.id}}" class="legend-count"></span>
-
                     <label style="float:right;padding-top:5px;" class="btn-group">
                         <button 
                         ng-click="vm.deselectColor(item)"

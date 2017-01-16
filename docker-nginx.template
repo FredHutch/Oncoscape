@@ -61,6 +61,11 @@ http {
         location /health_check {
            return 200;
         }
+
+        # Documentation Site
+        location ~ ^/documentation/(.*)$ {
+            alias /home/sttrweb/Oncoscape/documentation/$1;
+        }
         
         # Kong Api
         location /api/ {
