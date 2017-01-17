@@ -31,11 +31,11 @@
 
                 // Renderer
                 var renderer = new THREE.WebGLRenderer({ antialias: true });
-                renderer.setPixelRatio(window.devicePixelRatio);
+                renderer.setPixelRatio($window.devicePixelRatio);
                 renderer.setSize(500, 560);
                 renderer.setClearColor(0xFFFFFF, 1.0);
                 renderer.clear();
-                $("#scatter-chart").append(renderer.domElement);
+                angular.element("#scatter-chart").append(renderer.domElement);
 
                 // Raycaster
                 var raycaster = new THREE.Raycaster();
@@ -50,11 +50,9 @@
                         color: { value: new THREE.Color(0xffffff) },
                         texture: { value: new THREE.TextureLoader().load("assets/images/disc.png") }
                     },
-                    vertexShader: document.getElementById('vertexshader').textContent,
-                    fragmentShader: document.getElementById('fragmentshader').textContent,
-
-                    alphaTest: 0.3,
-
+                    vertexShader: angular.element('#vertexshader').textContent,
+                    fragmentShader: angular.element('#fragmentshader').textContent,
+                    alphaTest: 0.3
                 });
 
                 // geometry
@@ -65,7 +63,7 @@
                 var scene = new THREE.Scene();
 
                 // Camera
-                var camera = new THREE.PerspectiveCamera(45, window.innerWidth / window.innerHeight, 1, 10000);
+                var camera = new THREE.PerspectiveCamera(45, $window.innerWidth / $window.innerHeight, 1, 10000);
                 camera.position.z = 250;
 
                 var controls = new THREE.OrbitControls(camera, renderer.domElement);
@@ -80,19 +78,19 @@
 
                 // Track mouseunction 
                 function onMouseMove(event) {
-                    mouse.x = (event.clientX / window.innerWidth) * 2 - 1;
-                    mouse.y = -(event.clientY / window.innerHeight) * 2 + 1;
+                    mouse.x = (event.clientX / $window.innerWidth) * 2 - 1;
+                    mouse.y = -(event.clientY / $window.innerHeight) * 2 + 1;
                 }
-                window.addEventListener('mousemove', onMouseMove, false);
+                $window.addEventListener('mousemove', onMouseMove, false);
 
                 function onWindowResize() {
-                    camera.aspect = window.innerWidth / window.innerHeight;
+                    camera.aspect = $window.innerWidth / $window.innerHeight;
                     camera.updateProjectionMatrix();
-                    renderer.setSize(window.innerWidth, window.innerHeight);
+                    renderer.setSize($window.innerWidth, $window.innerHeight);
                 }
-                window.addEventListener('resize', onWindowResize, false);
+                $window.addEventListener('resize', onWindowResize, false);
 
-                var setData = function(data, minMax) {
+                var setData = function(data) {
                     var positions = new Float32Array(data.length * 3);
                     var colors = new Float32Array(data.length * 3);
                     var sizes = new Float32Array(data.length);
@@ -112,15 +110,14 @@
                     geometry.addAttribute('size', new THREE.BufferAttribute(sizes, 1));
 
                     particles = new THREE.Points(geometry, material);
-                    debugger;
                     scene.add(particles);
                     animate();
                 }
-                var setSelected = function(ids) {
-
+                var setSelected = function() {
+                    // arg ids
                 }
 
-                var selectedColor = new THREE.Color(0xff0000);
+                //var selectedColor = new THREE.Color(0xff0000);
 
                 function render() {
                     //                    	particles.rotation.x += 0.0005;
@@ -198,7 +195,6 @@
 
             // Properties
             var clusterCollection = osApi.getDataSource().disease + "_cluster";
-            var scaleX, scaleY, axisX, axisY;
             var data, minMax;
             var width, height;
             var colors = {
@@ -216,8 +212,8 @@
                 vm.geneSets = [];
                 vm.geneSet = null;
                 vm.search = "";
-                vm.selectColor = function(e) {};
-                vm.deselectColor = function(e) {};
+                vm.selectColor = function() {};
+                vm.deselectColor = function() {};
                 return vm;
             })(this, osApi);
 
