@@ -46,7 +46,7 @@ body {
     padding: 2%;
     margin: 0 auto;
     text-align: center;
-    background: #EFEFEF;
+    background: #FAFAFA;
     box-shadow: 0 2px 7px #666;
 
 }
@@ -65,7 +65,7 @@ body {
     padding: 2%;
     margin: 0 auto;
     text-align: center;
-    background: #EFEFEF;
+    background: #FAFAFA;
     box-shadow: 0 2px 7px #666;
 }
 #section-methods {
@@ -82,7 +82,8 @@ body {
     padding: 2%;
     margin: 0 auto;
     padding-bottom: 100px;
-    background: #EFEFEF;
+ /*   background: #EFEFEF; saving old background*/
+    background: #FAFAFA;
     box-shadow: 0 2px 7px #666;
 }
 /****************************/
@@ -122,13 +123,16 @@ a.anchor {
 }
 .methods-color{
     text-decoration: none;
-    color: #0b97d3;
+    color: #039BE5;
 }
 .methods-color:hover{
     text-decoration: none;
-    color: #0b97d3;
+    color: #039BE5;
 }
-
+.methods-color:after{
+    text-decoration: none;
+    color: #039BE5;
+}
 
 /****************************/
 /*END blade section wrapping*/
@@ -136,10 +140,9 @@ a.anchor {
 /*********************/
 /*START main-navbar*/
 /*********************/
-
 .navbar-inverse {
-    background-color: #0b97d3;
-    border-color: #0b97d3;
+    background-color: #039BE5;
+    border-color: #039BE5;
     height: 79px;
 }
 
@@ -153,31 +156,29 @@ li.panel {
 }
 
 ul.dropdown-menu {
-    background: #0b97d3;
+    background: #039BE5;
 }
 ul.dropdown-menu a {
     color: #fff;
 }
+
 .navbar-inverse .navbar-nav>.open>a, 
 .navbar-inverse .navbar-nav>.open>a:focus, 
 .navbar-inverse .navbar-nav>.open>a:hover {
     color: #fff;
-    background-color: #0b97d3;
+    background-color: #039BE5;
 }
 .navbar-inverse .navbar-toggle:hover {
-    background-color: #0b97d3;
+    background-color: #039BE5;
 }
 .navbar-inverse .navbar-toggle {
     border-color: #fff;
+    margin-top: 20px;
 }
-
-
-/*.navbar-link {
-    height: 79px;
-    line-height: 79px; 
-    padding-bottom: 0px; 
-    padding-top: 0px; 
-}*/
+.navbar-inverse .navbar-collapse, .navbar-inverse .navbar-form {
+    border-color: #039BE5;
+    background: #039BE5;
+}
 
 .header-logo-text {
     position: absolute;
@@ -191,7 +192,6 @@ ul.dropdown-menu a {
     text-transform: uppercase;
     padding-top: 10px;
 }
-
 
 .header-logo-img {
     position: absolute;
@@ -239,7 +239,7 @@ a.subnav-item {
 }
 .header a:focus,
 .header a:hover {
-    border-bottom: #0b97d3;
+    border-bottom: #039BE5;
     border-style: solid;
     border-width: 0px;
     border-bottom-width: 5px;
@@ -248,7 +248,7 @@ a.subnav-item {
 }
 /*in javascript*/
 .highlight {
-    border-bottom: #0b97d3;
+    border-bottom: #039BE5;
     border-style: solid;
     border-width: 0px;
     border-bottom-width: 5px;
@@ -539,11 +539,11 @@ p.nav-areas {
     position: relative;
     float: left;
     display: inline-block;
-    margin-top: 20px;
+    margin-top: 0px;
 }
 #rightImageSurvival {
     width: 600px;
-    height: 385px;
+    height: 430px;
     position: relative;
     float: left;
     display: inline-block;
@@ -663,14 +663,18 @@ strong.modes {
     padding-top: 50px;
 }
 .roundBorder {
-    border-radius: 5px;
+  /*  border-radius: 5px;
     -webkit-box-shadow: rgba(0, 0, 0, 0.3) 0 1px 3px;
     -moz-box-shadow: rgba(0,0,0,0.3) 0 1px 3px;
-    box-shadow: rgba(0, 0, 0, 0.3) 0 1px 3px;
+    box-shadow: rgba(0, 0, 0, 0.3) 0 1px 3px;*/
     padding: 30px;
 }
 ul.dropdown-menu li {
     padding: 5px;
+}
+p.color-opitions {
+    padding-top: 45px;
+    padding-bottom: 20px;
 }
 
 
@@ -776,10 +780,10 @@ label {
 }
 
 .link {
-  stroke: #fff;
+  stroke: #039BE5;
   stroke-width: .9px;
   stroke-linecap: round;
-  stroke-dasharray: 5,5; 
+
 }
 
 .svg-wrap {
@@ -1005,7 +1009,7 @@ p.cohort-descriptions-4 {
     border-radius: 50%;
     width: 100px;
     height: 100px;
-    background-image: url("/style/math.png");
+    background-image: url("../photos/oncoscapeDocHomepage/math.png");
  /*   border: 1px solid #717577;*/
     box-shadow: 0 4px 8px 0 rgba(0, 0, 0, 0.2), 0 6px 20px 0 rgba(0, 0, 0, 0.19);
 }
@@ -1014,7 +1018,7 @@ p.cohort-descriptions-4 {
     border-radius: 50%;
     width: 100px;
     height: 100px;
-    background-image: url("/style/mpNavigation/videotwo.png");
+    background-image: url("../photos/mpNavigation/videotwo.png");
 /*    border: 1px solid #717577;*/
     box-shadow: 0 4px 8px 0 rgba(0, 0, 0, 0.2), 0 6px 20px 0 rgba(0, 0, 0, 0.19);
 }
@@ -1023,7 +1027,7 @@ p.cohort-descriptions-4 {
     border-radius: 50%;
     width: 100px;
     height: 100px;
-    background-image: url("/style/pcaNavigation/pcavideo1.png");
+    background-image: url("../photos/pcaNavigation/pcavideo1.png");
 /*    border: 1px solid #717577;*/
     box-shadow: 0 4px 8px 0 rgba(0, 0, 0, 0.2), 0 6px 20px 0 rgba(0, 0, 0, 0.19);
 }
@@ -1034,6 +1038,9 @@ p.cohort-descriptions-4 {
     display:inline-block; 
     width:140px;
     padding-top: 40px;
+}
+.overview-li-padding {
+    padding-bottom: 10px;
 }
 /**********************/
 /* START media query */
@@ -1304,13 +1311,6 @@ p.cohort-descriptions-4 {
         margin-top: 3px;
         margin-bottom: 6px;
     }
-   
-  
-   
-    
-
-   
-
 }
 /*nexus*/
 
@@ -1401,6 +1401,7 @@ p.cohort-descriptions-4 {
         margin-top: 3px;
         margin-bottom: 6px;
     }
+
    
       
 }

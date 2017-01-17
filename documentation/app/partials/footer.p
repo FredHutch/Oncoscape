@@ -4,17 +4,17 @@
         <div class="row ">
             <div class="col-xs-12 col-sm-4 ">
                 <a href="http://www.fredhutch.org/en.html" target="_blank">
-                    <img src="/photos/logo-hutch.png ">
+                    <img src="photos/footer/logo-hutch.png ">
                 </a>
             </div>
-            <div class="col-xs-12 col-sm-4 ">
+            <div class="col-xs-12 col-sm-4">
                 <a href="http://www.uwmedicine.org/">
-                    <img src="/photos/logo-uw.png ">
+                    <img src="photos/footer/logo-uw.png">
                 </a>
             </div>
             <div class="col-xs-12 col-sm-4 ">
                 <a href="http://www.seattlecca.org/">
-                    <img src="/photos/logo-scca.png ">
+                    <img src="photos/footer/logo-scca.png">
                 </a>
             </div>
         </div>

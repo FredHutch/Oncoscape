@@ -5,20 +5,19 @@
     <meta charset="utf-8">
     <title>Oncoscape</title>
     <meta name="viewport" content="width=device-width, initial-scale=1">
-    
-    <link rel="stylesheet" href="//maxcdn.bootstrapcdn.com/bootstrap/3.3.6/css/bootstrap.min.css">
+    <link rel="stylesheet" href="http://maxcdn.bootstrapcdn.com/bootstrap/3.3.6/css/bootstrap.min.css">
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.12.4/jquery.min.js"></script>
+    <script src="https://ajax.googleapis.com/ajax/libs/jqueryui/1.11.4/jquery-ui.min.js"></script>
+    <script src="http://maxcdn.bootstrapcdn.com/bootstrap/3.3.6/js/bootstrap.min.js"></script>
+    <script src="https://use.fontawesome.com/08ee93173f.js"></script>
     <link href='styles/oncoscape.css' rel='stylesheet' type='text/css'>
-    <link href="//fonts.googleapis.com/css?family=Lato:400,300,200,100" rel="stylesheet" type="text/css">
+    <link href="https://fonts.googleapis.com/css?family=Lato:400,300,200,100" rel="stylesheet" type="text/css">
     <link href="//cdnjs.cloudflare.com/ajax/libs/animate.css/3.0.0/animate.min.css" rel="stylesheet" type="text/css">
-
-    <script src="//ajax.googleapis.com/ajax/libs/jquery/1.12.4/jquery.min.js"></script>
-    <script src="//ajax.googleapis.com/ajax/libs/jqueryui/1.11.4/jquery-ui.min.js"></script>
-    <script src="//maxcdn.bootstrapcdn.com/bootstrap/3.3.6/js/bootstrap.min.js"></script>
-    <script src="//use.fontawesome.com/08ee93173f.js"></script>
-    <script src="//cdnjs.cloudflare.com/ajax/libs/gsap/1.19.0/TweenMax.min.js"></script>
-    <script src="//d3js.org/d3.v4.min.js"></script>
+    <!--CDN link for  TweenMax-->
+    <script src="http://cdnjs.cloudflare.com/ajax/libs/gsap/1.19.0/TweenMax.min.js"></script>
+    <!--CDN link for  d3j-->
+    <script src="https://d3js.org/d3.v4.min.js"></script>
     <script src="scripts/oncoscape.js"></script>
-    <script src="scripts/oncoscapeHomepage.js"></script>
     
     <!-- FOUC correction -->
     <style type="text/css">
@@ -46,36 +45,36 @@
         <span class="icon-bar"></span>
         <span class="icon-bar"></span>
       </button>
-                    <img alt="Brand" src="style/logo-white.png" class="header-logo-img">
-                    <a class="navbar-brand" href="https://dev.oncoscape.sttrcancer.io/#/" target="_blank">
+                    <img alt="Brand" src="photos/header/logo-white.png" class="header-logo-img">
+                    <a class="navbar-brand" href="/" target="_blank">
                         <span class="header-logo-text">Oncoscape</span> </a>
                 </div>
 
                 <div class="collapse navbar-collapse" id="bs-example-navbar-collapse-1">
                     <ul class="nav navbar-nav navbar-right" style="padding-top: 10px;">
                         <li class="dropdown">
-                            <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-haspopup="true" aria-expanded="false">Tools</a>
+                            <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-haspopup="true" aria-expanded="false"><span class="glyphicon glyphicon-stats"></span> Tools</a>
                             <ul class="dropdown-menu">
                                 <li>
-                                    <a href="timelines.html"><img class="header-dropdown-img" src="style/toolImages/timelines.png">Timelines</a>
+                                    <a href="timelines.html"><img class="header-dropdown-img" src="photos/toolImages/timelines.png">Timelines</a>
                                 </li>
                                 <li>
-                                    <a href="spreadsheet.html"><img class="header-dropdown-img" src="style/toolImages/spreadsheet.png">Spreadsheet</a>
+                                    <a href="spreadsheet.html"><img class="header-dropdown-img" src="photos/toolImages/spreadsheet.png">Spreadsheet</a>
                                 </li>
                                 <li>
-                                    <a href="pca.html"><img class="header-dropdown-img" src="style/toolImages/pca.png">PCA</a>
+                                    <a href="pca.html"><img class="header-dropdown-img" src="photos/toolImages/pca.png">PCA</a>
                                 </li>
                                 <li>
-                                    <a href="markerspatients.html"><img class="header-dropdown-img" src="style/toolImages/mp.png">Markers + Patients</a>
+                                    <a href="markerspatients.html"><img class="header-dropdown-img" src="photos/toolImages/mp.png">Markers + Patients</a>
                                 </li>
                                 <li>
-                                    <a href="survival.html"><img class="header-dropdown-img" src="style/toolImages/survivalcurve.png">Survival</a>
+                                    <a href="survival.html"><img class="header-dropdown-img" src="photos/toolImages/survivalcurve.png">Survival</a>
                                 </li>
                             </ul>
                         </li>
-                        <li><a href="http://resources.sttrcancer.org/api/">Data + API</a></li>
-                        <li><a href="http://resources.sttrcancer.org/oncoscape-contact">Feedback</a></li>
-                        <li><a href="http://oncoscape.sttrcancer.org" target="_blank">Try Oncoscape</a></li>
+                        <li><a href="http://resources.sttrcancer.org/api/"><span class="fa fa-database"></span> Data + API</a></li>
+                        <li><a href="http://resources.sttrcancer.org/oncoscape-contact"><span class="fa fa-comments"></span> Feedback</a></li>
+                        <li><a href="http://oncoscape.sttrcancer.org" target="_blank" style="letter-spacing: 2px;">Try Oncoscape</a></li>
                     </ul>
                 </div>
             </div>
@@ -89,7 +88,7 @@
         <div class="container">
             <div id="marquee" class="row">
                 <div class="col-xs-12">
-                    <img class="fadeInDown animated center-block tool-image img-responsive" src="style/toolImages/timelines.png" alt="Timelines">
+                    <img class="fadeInDown animated center-block tool-image img-responsive" src="photos/toolImages/timelines.png" alt="Timelines">
                 </div>
             </div>
             <div class="row">
@@ -123,34 +122,33 @@
             </div>
             <div class="row">
                 <div class="col-xs-12 text-left">
-                    <p>Timelines allows users to visualize clinical information linearly (or log) to help establish patient treatment timelines. Patient timelines can be aligned and ordered by different patient events. Timelines can operate over specific
-                        events, various patient cohorts and different plotting mechanisms. Buttons and dropdowns in the control bar show or hide different areas of the application.</p>
+                    <p>Timelines allows users to visualize clinical information linearly (or log) to help establish patient treatment timelines. Patient timelines can be aligned and ordered by different patient events. Timelines can operate over specific events, various patient cohorts and different plotting mechanisms. All operations are accomplished through the cohort panel (left) or control bar (right).</p>
                 </div>
             </div>
             <div class="row">
                 <div class="col-xs-12 ">
-                    <img class="center-block mp-image img-responsive" src="style/timelineNavigation/timelinesOverview.png" alt="Timelines">
+                    <img class="center-block mp-image img-responsive" src="photos/timelineNavigation/timelinesOverview.png" alt="Timelines">
                 </div>
             </div>
             <div class="row">
                 <div class="col-xs-12 li-margin">
                     <ul>
+                        <li class="overview-li-padding"><em>Panel Lock:</em> Lock and unlock the panels for a wider screen view.
+                        </li>
+                        <li class="overview-li-padding"><em>Selected Cohort:</em> Add, edit or delete cohorts. Click the "+" to save, "x" to delete or click the down arrow to select a cohort for edits.</li>
+                        <li class="overview-li-padding"><em>Clinical Histogram:</em> Snapshot of clinical information, per cohort. The histogram will adjust with each cohort selection. &nbsp; Click the down arrow to view other filters. e.g. &nbsp; Age At Diagnosis, Gender, Race, Ethnicity, Vital, Tumor.</li>
+                        <li class="overview-li-padding"><em>Survival Curve:</em> Snapshot of Kaplan Meier survival curves, per cohort. For more in depth analysis push the saved cohorts to the survival tool.</li>
+                        <li class="overview-li-padding"><em>Cohorts:</em> All saved cohorts are listed in this area. Each cohort is clickable and will highlight the selections on the main window, as well as adjust any survival curves or clinical histograms that are associated. The last line will always show your current selection, which will also update in the <strong>Selected Cohort</strong> box at the top of the cohort panel. All cohorts are color coded for easy identification. To learn more visit <a href="" target="_blank">Oncoscape</a></li>
+                        <li class="overview-li-padding"><em>Cohort Summary:</em> Every cohort includes a summary of available information based on patients and samples.</li>
                         <li><em>Events:</em> Events represent a clinical event in the pateint history. All events in the Timelines widow can be toggled on/off in the events control bar.
                         </li>
-                        <li><em>Patients Events:</em> Are color coded on the graph. Each row is an individual patient. Each dot or line represents an event in that patient’s history. Patient events can be toggled on/off and ordered or aligned by a particular
-                            event. To view different ordering or alignments view the <em>Order by</em> or <em>Align by</em> dropdowns.
+                        <li><em>Patients Events:</em> Are color coded on the graph. Each row is an individual patient. Each dot or line represents an event in that patient’s history. Patient events can be toggled on/off and ordered or aligned by a particular event. To view different ordering or alignments view the <em>Order by</em> or <em>Align by</em> dropdowns.
                         </li>
                         <li><em>Event Window:</em> Information correlating to a particular patient event is displayed in the Event Window box. To view hover over a dot or line in the graph, information on that particular even will appear in the window.
                         </li>
                         <li><em>Timeline:</em> Patient event timespan linearly from months to years.
                         </li>
                         <li><em>Control Bar:</em> Collection of controls that operate over the patient and chromosome areas.
-                        </li>
-                        <li><em>Survival Curves:</em> Survival curves correlate to each saved cohort above.
-                        </li>
-                        <li><em>Cohorts and Collections:</em> Snapshots of the various collections, either patient or gene (gene coming soon). Different filters include visualizing age at diagnosis, gender, race, ethnicity, vital status or tumor status. Also,
-                            includes the ability to save and push cohorts through the various tools. To learn more visit
-                            <a href="oncoscape">Oncoscape</a>
                         </li>
                     </ul>
                 </div>
@@ -176,7 +174,7 @@
             </section>
             <section class="videos noselect col-xs-12 col-md-5">
                 <article class="video">
-                    <div class="videoThumb" style="background-image: url(/style/mpNavigation/videotwo.png);"></div>
+                    <div class="videoThumb" style="background-image: url(photos/mpNavigation/videotwo.png);"></div>
                     <a class="videoLink" href="https://www.youtube.com/embed/0Y8v0iRqtIU?rel=0&amp;controls=0&amp;showinfo=0"></a>
                     <h4 class="videoTitle">Define patient cohorts with particular events</h4>
                     <p class="videoParagraph">Save and view cohorts with particular patient events</p>
@@ -195,7 +193,7 @@
                     </section>
                 </article>
                 <article class="video">
-                    <div class="videoThumb" style="background-image: url(/style/timelineNavigation/videotwo.png);"></div>
+                    <div class="videoThumb" style="background-image: url(photos/timelineNavigation/videotwo.png);"></div>
                     <a class="videoLink" href="https://www.youtube.com/embed/ugktOfp6tzo?rel=0&amp;controls=0&amp;showinfo=0"></a>
                     <h4 class="videoTitle">Zoom, order and align different events</h4>
                     <p class="videoParagraph">Zoom order and align different saved cohorts </p>
@@ -243,40 +241,6 @@
                     </div>
                 </div>
                 <div class="row">
-                    <div class="col-xs-6 text-left">
-                        <div class="dropdown">
-                            <button class="zoomButtons" type="button" data-toggle="dropdown">Diagnosis
-            <span class="docCaret"></span></button>
-                            <ul class="dropdown-menu">
-                                <li>Birth</li>
-                                <li>Drug</li>
-                                <li>Status</li>
-                                <li>Progression</li>
-                                <li>Radiation</li>
-                                <li>Pathology</li>
-                                <li>Absent</li>
-                                <li>Procedure</li>
-                            </ul>
-                        </div>
-                    </div>
-                    <div class="col-xs-6 text-left">
-                        <div class="dropdown">
-                            <button class="zoomButtons" type="button" data-toggle="dropdown">Status
-            <span class="docCaret"></span></button>
-                            <ul class="dropdown-menu">
-                                <li>Birth</li>
-                                <li>Drug</li>
-                                <li>Status</li>
-                                <li>Progression</li>
-                                <li>Radiation</li>
-                                <li>Pathology</li>
-                                <li>Absent</li>
-                                <li>Procedure</li>
-                            </ul>
-                        </div>
-                    </div>
-                </div>
-                <div class="row">
                     <div class="col-xs-6 text-left generalPadding">
                         <strong>Patient Status</strong>
                     </div>
@@ -293,49 +257,13 @@
                     </div>
                 </div>
                 <div class="row">
-                    <div class="col-xs-6 text-left">
-                        <div class="dropdown">
-                            <button class="zoomButtons" type="button" data-toggle="dropdown">Dead Only
-            <span class="docCaret"></span></button>
-                            <ul class="dropdown-menu">
-                                <li>Alive + Dead</li>
-                                <li>Only Alive</li>
-                                <li>Only Dead</li>
-                            </ul>
-                        </div>
-                    </div>
-                    <div class="col-xs-6 text-left">
-                        <div class="dropdown">
-                            <button class="zoomButtons" type="button" data-toggle="dropdown">Log
-            <span class="docCaret"></span></button>
-                            <ul class="dropdown-menu">
-                                <li>Log</li>
-                                <li>Linear</li>
-                            </ul>
-                        </div>
-                    </div>
-                </div>
-                <div class="row">
                     <div class="col-xs-6 text-left generalPadding">
                         <strong>Display Filter</strong>
                     </div>
                 </div>
                 <div class="row">
                     <div class="col-xs-6 text-left">
-                        <p class="search-para">Provides users the ability to view either all patients for that particular disease set or only selected cohorts. To apply an alignment other than the default (Selected Patients) find the <em>Display Filter</em> dropdown menu and
-                            make a selction.</p>
-                    </div>
-                </div>
-                <div class="row">
-                    <div class="col-xs-6 text-left">
-                        <div class="dropdown">
-                            <button class="zoomButtons" type="button" data-toggle="dropdown">Selected Patients
-            <span class="docCaret"></span></button>
-                            <ul class="dropdown-menu">
-                                <li>Selected Patients</li>
-                                <li>All Patients</li>
-                            </ul>
-                        </div>
+                        <p class="search-para">Provides users the ability to view either all patients for that particular disease set or only selected cohorts. To apply an alignment other than the default (Selected Patients) find the <em>Display Filter</em> dropdown menu and make a selction.</p>
                     </div>
                 </div>
             </section>
@@ -396,14 +324,13 @@
             </div>
             <div class="row">
                 <div class="col-xs-12 text-left">
-                    <p class="search-para">The timeline window can be reset to default by clicking the <em>Clear Selection + Reset Zoom </em> button. Zooming in on event timeline can be achieved by hovering over the timeline window until the crosshairs appear. Using the mouse
-                        or trackpad drag the crosshairs to the area of choice.</p>
+                    <p class="search-para">The timeline window can be reset to default by clicking the <em>Clear Selection + Reset Zoom </em> button. Zooming in on event timeline can be achieved by hovering over the timeline window until the crosshairs appear. Using the mouse or trackpad drag the crosshairs to the area of choice.</p>
                 </div>
             </div>
             <div class="row">
-                <img id="zoom-img" src="style/timelineNavigation/timelineZoom.png">
+                <img id="zoom-img" src="photos/timelineNavigation/timelineZoom.png">
                 <div class="zoom-selected-button">
-                    <button class="zoomButtons" onclick="document.getElementById('zoom-img').src='/style/timelineNavigation/timelineDefault.png'">Clear Selection + Reset Zoom</button>
+                    <button class="zoomButtons" onclick="document.getElementById('zoom-img').src='/photos/timelineNavigation/timelineDefault.png'">Clear Selection + Reset Zoom</button>
                 </div>
             </div>
             <hr>
@@ -419,10 +346,7 @@
                     <h3 class="section-headline fadeInDown animated">Methods</h3>
                 </div>
             </div>
-            <p class="text-left">Oncoscape hosts <a class="methods-color" href="https://wiki.nci.nih.gov/display/TCGA/Data+level#Datalevel-RelationshipsBetweenDataTypeandDataLevel" target="_blank">level 3</a> public TCGA datasets representing gene and patient data downloaded
-                from <a class="methods-color" href="https://xenabrowser.net/datapages/?host=https://tcga.xenahubs.net" target="_blank">UCSC Xena.</a> To review this data in depth visit our <a class="methods-color" href="http://resources.sttrcancer.org/api"
-                    target="_blank">data API. </a>User planning to publish on the provided data must adhere to all publishing guideline set by the <a class="methods-color" href="https://cancergenome.nih.gov/publications/publicationguidelines" target="_blank">NIH</a>.
-                Datasets in Oncoscape are classified by disease type according to TCGA studies. </p>
+            <p class="text-left">Oncoscape hosts <a class="methods-color" href="https://wiki.nci.nih.gov/display/TCGA/Data+level#Datalevel-RelationshipsBetweenDataTypeandDataLevel" target="_blank">level 3</a> public TCGA datasets representing gene and patient data downloaded from <a class="methods-color" href="https://xenabrowser.net/datapages/?host=https://tcga.xenahubs.net" target="_blank">UCSC Xena.</a> To review this data in depth visit our <a class="methods-color" href="http://resources.sttrcancer.org/api" target="_blank">data API. </a>User planning to publish on the provided data must adhere to all publishing guideline set by the <a class="methods-color" href="https://cancergenome.nih.gov/publications/publicationguidelines" target="_blank">NIH</a>. Datasets in Oncoscape are classified by disease type according to TCGA studies. </p>
         </div>
     </div>
     <!-- END Methods+Data seciton -->
@@ -445,7 +369,7 @@
                     <hr>
                     <a class="faq-color" role="button" data-toggle="collapse" data-target="#collapse-3">How do I export or print my graphs?</a>
                     <div id="collapse-3" class="collapse">
-                        <p class="collapse-para">Currently, the export feature is only available on the Spreadsheet tool. Users can push saved cohorts to the spreadsheet tool by clicking the the Analysis Tool button at the top of the screen. Once there click the <em>Export</em>                            button. An Excel file will get generated.
+                        <p class="collapse-para">Currently, the export feature is only available on the Spreadsheet tool. Users can push saved cohorts to the spreadsheet tool by clicking the the Analysis Tool button at the top of the screen. Once there click the <em>CSV Export</em> button of either all the data or only the selected data. An Excel file will be generated.
                         </p>
                     </div>
                     <hr>
@@ -457,8 +381,7 @@
                     <hr>
                     <a class="faq-color" role="button" data-toggle="collapse" data-target="#collapse-5"> How do I zoom in on my event selections?</a>
                     <div id="collapse-5" class="collapse">
-                        <p class="collapse-para">The timeline window can be reset to default by clicking the <em>Clear Selection + Reset Zoom </em> button. Zooming in on event timeline can be achieved by hovering over the timeline window until the crosshairs appear. Using the
-                            mouse or trackpad drag the crosshairs to the area of choice.
+                        <p class="collapse-para">The timeline window can be reset to default by clicking the <em>Clear Selection + Reset Zoom </em> button. Zooming in on event timeline can be achieved by hovering over the timeline window until the crosshairs appear. Using the mouse or trackpad drag the crosshairs to the area of choice.
                         </p>
                     </div>
                 </div>
@@ -474,17 +397,17 @@
         <div class="row ">
             <div class="col-xs-12 col-sm-4 ">
                 <a href="http://www.fredhutch.org/en.html" target="_blank">
-                    <img src="/photos/logo-hutch.png ">
+                    <img src="photos/footer/logo-hutch.png ">
                 </a>
             </div>
-            <div class="col-xs-12 col-sm-4 ">
+            <div class="col-xs-12 col-sm-4">
                 <a href="http://www.uwmedicine.org/">
-                    <img src="/photos/logo-uw.png ">
+                    <img src="photos/footer/logo-uw.png">
                 </a>
             </div>
             <div class="col-xs-12 col-sm-4 ">
                 <a href="http://www.seattlecca.org/">
-                    <img src="/photos/logo-scca.png ">
+                    <img src="photos/footer/logo-scca.png">
                 </a>
             </div>
         </div>

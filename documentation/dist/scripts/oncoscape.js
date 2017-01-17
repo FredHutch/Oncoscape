@@ -189,7 +189,7 @@ $(document).ready(function() {
     // START markerPatients
     var ss1 = slideshowFactory({
         container: $("#leftImage"),
-        urls: ["style/mpNavigation/edgesAll.png", "style/mpNavigation/edgesCnLoss.png", "style/mpNavigation/edgesMinus2.png"],
+        urls: ["photos/mpNavigation/edgesAll.png", "photos/mpNavigation/edgesCnLoss.png", "photos/mpNavigation/edgesMinus2.png"],
         speed: .3,
         delay: 3
     });
@@ -197,7 +197,7 @@ $(document).ready(function() {
 
     var ss2 = slideshowFactory({
         container: $("#rightImage"),
-        urls: ["style/mpNavigation/mpEdgesAll.png", "style/mpNavigation/mpEdgesCnLoss.png", "style/mpNavigation/mpEdgesMinus2.png"],
+        urls: ["photos/mpNavigation/mpEdgesAll.png", "photos/mpNavigation/mpEdgesCnLoss.png", "photos/mpNavigation/mpEdgesMinus2.png"],
         speed: .3,
         delay: 3
     });
@@ -205,7 +205,7 @@ $(document).ready(function() {
 
     var ss3 = slideshowFactory({
         container: $("#patientcolors1"),
-        urls: ["style/mpNavigation/UCSCGender.png", "style/mpNavigation/panCanGender.png", "style/mpNavigation/oncoVogelGender.png"],
+        urls: ["photos/mpNavigation/UCSCGender.png", "photos/mpNavigation/panCanGender.png", "photos/mpNavigation/oncoVogelGender.png"],
         speed: .3,
         delay: 3
     });
@@ -213,7 +213,7 @@ $(document).ready(function() {
 
     var ss4 = slideshowFactory({
         container: $("#patientcolors2"),
-        urls: ["style/mpNavigation/UCSCDx.png", "style/mpNavigation/panCanDx.png", "style/mpNavigation/oncoVogelDx.png"],
+        urls: ["photos/mpNavigation/UCSCDx.png", "photos/mpNavigation/panCanDx.png", "photos/mpNavigation/oncoVogelDx.png"],
         speed: .3,
         delay: 3
     });
@@ -221,7 +221,7 @@ $(document).ready(function() {
 
     var ss5 = slideshowFactory({
         container: $("#patientcolors3"),
-        urls: ["style/mpNavigation/UCSCTumorSite.png", "style/mpNavigation/panCanTumorSite.png", "style/mpNavigation/oncoVogelTumorSite.png"],
+        urls: ["photos/mpNavigation/UCSCTumorSite.png", "photos/mpNavigation/panCanTumorSite.png", "photos/mpNavigation/oncoVogelTumorSite.png"],
         speed: .3,
         delay: 3
     });
@@ -230,7 +230,7 @@ $(document).ready(function() {
     // START Timelines
     var ss6 = slideshowFactory({
         container: $("#leftImageTimeline"),
-        urls: ["style/timelineNavigation/layer1Toggle.png", "style/timelineNavigation/layer2Toggle.png", "style/timelineNavigation/layer3Toggle.png"],
+        urls: ["photos/timelineNavigation/layer1Toggle.png", "photos/timelineNavigation/layer2Toggle.png", "photos/timelineNavigation/layer3Toggle.png"],
         speed: .3,
         delay: 3
     });
@@ -238,7 +238,7 @@ $(document).ready(function() {
 
     var ss7 = slideshowFactory({
         container: $("#rightImageTimeline"),
-        urls: ["style/timelineNavigation/layer3.png", "style/timelineNavigation/layer2.png", "style/timelineNavigation/layer1.png"],
+        urls: ["photos/timelineNavigation/layer3.png", "photos/timelineNavigation/layer2.png", "photos/timelineNavigation/layer1.png"],
         speed: .3,
         delay: 3
     });
@@ -246,7 +246,7 @@ $(document).ready(function() {
 
     var ss8 = slideshowFactory({
         container: $("#patientevents1"),
-        urls: ["style/timelineNavigation/patientDrug.png", "style/timelineNavigation/patient2Drug.png", "style/timelineNavigation/patient3Drug.png"],
+        urls: ["photos/timelineNavigation/patientDrug.png", "photos/timelineNavigation/patient2Drug.png", "photos/timelineNavigation/patient3Drug.png"],
         speed: .3,
         delay: 3
     });
@@ -254,7 +254,7 @@ $(document).ready(function() {
 
     var ss9 = slideshowFactory({
         container: $("#patientevents2"),
-        urls: ["style/timelineNavigation/patientProgression.png", "style/timelineNavigation/patient2Progression.png", "style/timelineNavigation/patient3Progression.png"],
+        urls: ["photos/timelineNavigation/patientProgression.png", "photos/timelineNavigation/patient2Progression.png", "photos/timelineNavigation/patient3Progression.png"],
         speed: .3,
         delay: 3
     });
@@ -262,7 +262,7 @@ $(document).ready(function() {
 
     var ss10 = slideshowFactory({
         container: $("#patientevents3"),
-        urls: ["style/timelineNavigation/patientStatus.png", "style/timelineNavigation/patient2Status.png", "style/timelineNavigation/patient3Status.png"],
+        urls: ["photos/timelineNavigation/patientStatus.png", "photos/timelineNavigation/patient2Status.png", "photos/timelineNavigation/patient3Status.png"],
         speed: .3,
         delay: 3
     });
@@ -271,7 +271,7 @@ $(document).ready(function() {
     // START PCA
     var ss11 = slideshowFactory({
         container: $("#patientPCA1"),
-        urls: ["style/pcaNavigation/allGeneDx.png", "style/pcaNavigation/markerGenesDx.png", "style/pcaNavigation/oncoVDx.png"],
+        urls: ["photos/pcaNavigation/allGeneDx.png", "photos/pcaNavigation/markerGenesDx.png", "photos/pcaNavigation/oncoVDx.png"],
         speed: .3,
         delay: 3
     });
@@ -279,7 +279,7 @@ $(document).ready(function() {
 
     var ss12 = slideshowFactory({
         container: $("#patientPCA2"),
-        urls: ["style/pcaNavigation/allGeneGender.png", "style/pcaNavigation/markerGenesGender.png", "style/pcaNavigation/oncoVGender.png"],
+        urls: ["photos/pcaNavigation/allGeneGender.png", "photos/pcaNavigation/markerGenesGender.png", "photos/pcaNavigation/oncoVGender.png"],
         speed: .3,
         delay: 3
     });
@@ -287,7 +287,7 @@ $(document).ready(function() {
 
     var ss13 = slideshowFactory({
         container: $("#patientPCA3"),
-        urls: ["style/pcaNavigation/allGeneTumorGrade.png", "style/pcaNavigation/markerGenesTumorGrade.png", "style/pcaNavigation/oncoVTumorGrade.png"],
+        urls: ["photos/pcaNavigation/allGeneTumorGrade.png", "photos/pcaNavigation/markerGenesTumorGrade.png", "photos/pcaNavigation/oncoVTumorGrade.png"],
         speed: .3,
         delay: 3
     });
@@ -296,7 +296,7 @@ $(document).ready(function() {
     // START Survival
     var ss14 = slideshowFactory({
         container: $("#leftImageSurvival"),
-        urls: ["style/survivalNavigation/allToggle.png", "style/survivalNavigation/12Toggle.png", "style/survivalNavigation/345Toggle.png"],
+        urls: ["photos/survivalNavigation/allOn.png", "photos/survivalNavigation/TumorG2Off.png", "photos/survivalNavigation/TumorG4Off.png"],
         speed: .3,
         delay: 3
     });
@@ -304,7 +304,7 @@ $(document).ready(function() {
 
     var ss15 = slideshowFactory({
         container: $("#rightImageSurvival"),
-        urls: ["style/survivalNavigation/all.png", "style/survivalNavigation/cohort12.png", "style/survivalNavigation/cohort345.png"],
+        urls: ["photos/survivalNavigation/allCurve.png", "photos/survivalNavigation/minus1Curve.png", "photos/survivalNavigation/minus2Curve.png"],
         speed: .3,
         delay: 3
     });

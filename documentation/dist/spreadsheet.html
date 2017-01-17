@@ -5,20 +5,19 @@
     <meta charset="utf-8">
     <title>Oncoscape</title>
     <meta name="viewport" content="width=device-width, initial-scale=1">
-    
-    <link rel="stylesheet" href="//maxcdn.bootstrapcdn.com/bootstrap/3.3.6/css/bootstrap.min.css">
+    <link rel="stylesheet" href="http://maxcdn.bootstrapcdn.com/bootstrap/3.3.6/css/bootstrap.min.css">
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.12.4/jquery.min.js"></script>
+    <script src="https://ajax.googleapis.com/ajax/libs/jqueryui/1.11.4/jquery-ui.min.js"></script>
+    <script src="http://maxcdn.bootstrapcdn.com/bootstrap/3.3.6/js/bootstrap.min.js"></script>
+    <script src="https://use.fontawesome.com/08ee93173f.js"></script>
     <link href='styles/oncoscape.css' rel='stylesheet' type='text/css'>
-    <link href="//fonts.googleapis.com/css?family=Lato:400,300,200,100" rel="stylesheet" type="text/css">
+    <link href="https://fonts.googleapis.com/css?family=Lato:400,300,200,100" rel="stylesheet" type="text/css">
     <link href="//cdnjs.cloudflare.com/ajax/libs/animate.css/3.0.0/animate.min.css" rel="stylesheet" type="text/css">
-
-    <script src="//ajax.googleapis.com/ajax/libs/jquery/1.12.4/jquery.min.js"></script>
-    <script src="//ajax.googleapis.com/ajax/libs/jqueryui/1.11.4/jquery-ui.min.js"></script>
-    <script src="//maxcdn.bootstrapcdn.com/bootstrap/3.3.6/js/bootstrap.min.js"></script>
-    <script src="//use.fontawesome.com/08ee93173f.js"></script>
-    <script src="//cdnjs.cloudflare.com/ajax/libs/gsap/1.19.0/TweenMax.min.js"></script>
-    <script src="//d3js.org/d3.v4.min.js"></script>
+    <!--CDN link for  TweenMax-->
+    <script src="http://cdnjs.cloudflare.com/ajax/libs/gsap/1.19.0/TweenMax.min.js"></script>
+    <!--CDN link for  d3j-->
+    <script src="https://d3js.org/d3.v4.min.js"></script>
     <script src="scripts/oncoscape.js"></script>
-    <script src="scripts/oncoscapeHomepage.js"></script>
     
     <!-- FOUC correction -->
     <style type="text/css">
@@ -46,36 +45,36 @@
         <span class="icon-bar"></span>
         <span class="icon-bar"></span>
       </button>
-                    <img alt="Brand" src="style/logo-white.png" class="header-logo-img">
-                    <a class="navbar-brand" href="https://dev.oncoscape.sttrcancer.io/#/" target="_blank">
+                    <img alt="Brand" src="photos/header/logo-white.png" class="header-logo-img">
+                    <a class="navbar-brand" href="/" target="_blank">
                         <span class="header-logo-text">Oncoscape</span> </a>
                 </div>
 
                 <div class="collapse navbar-collapse" id="bs-example-navbar-collapse-1">
                     <ul class="nav navbar-nav navbar-right" style="padding-top: 10px;">
                         <li class="dropdown">
-                            <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-haspopup="true" aria-expanded="false">Tools</a>
+                            <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-haspopup="true" aria-expanded="false"><span class="glyphicon glyphicon-stats"></span> Tools</a>
                             <ul class="dropdown-menu">
                                 <li>
-                                    <a href="timelines.html"><img class="header-dropdown-img" src="style/toolImages/timelines.png">Timelines</a>
+                                    <a href="timelines.html"><img class="header-dropdown-img" src="photos/toolImages/timelines.png">Timelines</a>
                                 </li>
                                 <li>
-                                    <a href="spreadsheet.html"><img class="header-dropdown-img" src="style/toolImages/spreadsheet.png">Spreadsheet</a>
+                                    <a href="spreadsheet.html"><img class="header-dropdown-img" src="photos/toolImages/spreadsheet.png">Spreadsheet</a>
                                 </li>
                                 <li>
-                                    <a href="pca.html"><img class="header-dropdown-img" src="style/toolImages/pca.png">PCA</a>
+                                    <a href="pca.html"><img class="header-dropdown-img" src="photos/toolImages/pca.png">PCA</a>
                                 </li>
                                 <li>
-                                    <a href="markerspatients.html"><img class="header-dropdown-img" src="style/toolImages/mp.png">Markers + Patients</a>
+                                    <a href="markerspatients.html"><img class="header-dropdown-img" src="photos/toolImages/mp.png">Markers + Patients</a>
                                 </li>
                                 <li>
-                                    <a href="survival.html"><img class="header-dropdown-img" src="style/toolImages/survivalcurve.png">Survival</a>
+                                    <a href="survival.html"><img class="header-dropdown-img" src="photos/toolImages/survivalcurve.png">Survival</a>
                                 </li>
                             </ul>
                         </li>
-                        <li><a href="http://resources.sttrcancer.org/api/">Data + API</a></li>
-                        <li><a href="http://resources.sttrcancer.org/oncoscape-contact">Feedback</a></li>
-                        <li><a href="http://oncoscape.sttrcancer.org" target="_blank">Try Oncoscape</a></li>
+                        <li><a href="http://resources.sttrcancer.org/api/"><span class="fa fa-database"></span> Data + API</a></li>
+                        <li><a href="http://resources.sttrcancer.org/oncoscape-contact"><span class="fa fa-comments"></span> Feedback</a></li>
+                        <li><a href="http://oncoscape.sttrcancer.org" target="_blank" style="letter-spacing: 2px;">Try Oncoscape</a></li>
                     </ul>
                 </div>
             </div>
@@ -89,7 +88,7 @@
         <div class="container">
             <div id="marquee" class="row">
                 <div class="col-xs-12">
-                    <img class="fadeInDown animated center-block tool-image img-responsive" src="style/toolImages/spreadsheet.png" alt="M+P">
+                    <img class="fadeInDown animated center-block tool-image img-responsive" src="photos/toolImages/spreadsheet.png" alt="M+P">
                 </div>
             </div>
             <div class="row">
@@ -128,20 +127,23 @@
             </div>
             <div class="row">
                 <div class="col-xs-12 ">
-                    <img class="center-block mp-image img-responsive" src="style/spreadsheetNavigation/spreadsheetOverview.png" alt="M+P">
+                    <img class="center-block mp-image img-responsive" src="photos/spreadsheetNavigation/spreadsheetOverview.png" alt="M+P">
                 </div>
             </div>
             <div class="row">
                 <div class="col-xs-12 li-margin">
                     <ul>
-                        <li><em>Selected Columns:</em> List of column names in that particular collection.
+                        <li class="overview-li-padding"><em>Panel Lock:</em> Lock and unlock the panels for a wider screen view.
                         </li>
-                        <li><em>Selected:</em> Clickable button to show all the current selections.
+                        <li class="overview-li-padding"><em>Selected Cohort:</em> Add, edit or delete cohorts. Click the "+" to save, "x" to delete or click the down arrow to select a cohort for edits.</li>
+                        <li class="overview-li-padding"><em>Clinical Histogram:</em> Snapshot of clinical information, per cohort. The histogram will adjust with each cohort selection. &nbsp; Click the down arrow to view other filters. e.g. &nbsp; Age At Diagnosis, Gender, Race, Ethnicity, Vital, Tumor.</li>
+                        <li class="overview-li-padding"><em>Survival Curve:</em> Snapshot of Kaplan Meier survival curves, per cohort. For more in depth analysis push the saved cohorts to the survival tool.</li>
+                        <li class="overview-li-padding"><em>Cohorts:</em> All saved cohorts are listed in this area. Each cohort is clickable and will highlight the selections on the main window, as well as adjust any survival curves or clinical histograms that are associated. The last line will always show your current selection, which will also update in the <strong>Selected Cohort</strong> box at the top of the cohort panel. To learn more visit <a href="">Oncoscape</a></li>
+                        <li class="overview-li-padding"><em>Cohort Summary:</em> Every cohort includes a summary of available information based on patients and samples.</li>
+                        <li><em>Columns:</em> List of column names in that particular collection.
                         </li>
-                        <li><em>Clinical Collections:</em> Various database collections
-                            <li><em>Cohorts:</em> Give the users the ability to save and push cohorts through the various tools. To learn more visit
-                                <a href="oncoscape">Oncoscape</a>
-                            </li>
+                        <li><em>Selected On Top:</em> Clickable button to move all selections to the top.
+                        </li>
                     </ul>
                 </div>
             </div>
@@ -166,8 +168,8 @@
             </section>
             <section class="videos noselect col-xs-12 col-md-5">
                 <article class="video">
-                    <div class="videoThumb" style="background-image: url(/style/mpNavigation/videotwo.png);"></div>
-                    <a class="videoLink" href="https://www.youtube.com/embed/S7enyMCD1mc?rel=0&controls=1&showinfo=0&autohide=1"></a>
+                    <div class="videoThumb" style="background-image: url(photos/mpNavigation/videotwo.png);"></div>
+                    <a class="videoLink" href="https://www.youtube.com/embed/h-x8VrTgyVY?rel=0&controls=1&showinfo=0&autohide=1"></a>
                     <h4 class="videoTitle">Define patient cohorts with multiple clincial factors.</h4>
                     <p class="videoParagraph">Save and view cohorts using spreadsheets to select different clincial factors.</p>
                     <section class="videoTranscript">
@@ -203,7 +205,7 @@
                 </div>
                 <div class="row">
                     <div class="col-xs-6 text-left">
-                        <p class="search-para">Provides users the ability to select a particular clinical collections to view. Selections can vary by disease set. Collections from TCGA include:</p>
+                        <p class="search-para">Provides users the ability to select a particular clinical collections to view. Selections can vary by disease set. Collections from currently from TCGA datasets.</p>
                     </div>
                     <div class="col-xs-6 text-left">
                         <p class="search-para">Users can export cohort selections into a csv format that will be downloaded to the desktop.
@@ -211,27 +213,7 @@
                 </div>
                 <div class="row">
                     <div class="col-xs-6 text-left">
-                        <div class="dropdown">
-                            <button class="zoomButtons" type="button" data-toggle="dropdown">patient
-                  <span class="docCaret"></span></button>
-                            <ul class="dropdown-menu">
-                                <li>drug</li>
-                                <li>radiation</li>
-                                <li>follow-up tables</li>
-                                <li>new tumor</li>
-                                <li>other maglinincy</li>
-                            </ul>
-                        </div>
-                    </div>
-                    <div class="col-xs-6 text-left">
-                        <button type="button" class="btn btn-default">csv</button>
-                    </div>
-                </div>
-                <br>
-                <br>
-                <div class="row">
-                    <div class="col-xs-6 text-left">
-                        <strong>Selected</strong>
+                        <strong>Selected On Top</strong>
                     </div>
                     <div class="col-xs-6 text-left">
                         <strong>Columns</strong>
@@ -243,15 +225,6 @@
                     </div>
                     <div class="col-xs-6 text-left">
                         <p class="search-para">Each column in the spreadsheet can be sorted ASC/DESC, hidden or pinned to the left/right.
-                    </div>
-                </div>
-                <div class="row">
-                    <div class="col-xs-6 text-left">
-                        <button class="zoomButtons" type="button">Selected
-                  </button>
-                    </div>
-                    <div class="col-xs-6 text-left">
-                        <button type="button" class="btn btn-default"><span class="fa fa-bars"></span>&nbsp; Columns</button>
                     </div>
                 </div>
             </section>
@@ -270,10 +243,7 @@
             </div>
             <div class="row">
                 <div class="col-xs-12">
-                    <p class="text-left">Oncoscape hosts <a class="methods-color" href="https://wiki.nci.nih.gov/display/TCGA/Data+level#Datalevel-RelationshipsBetweenDataTypeandDataLevel" target="_blank">level 3</a> public TCGA datasets representing gene and patient data
-                        downloaded from <a class="methods-color" href="https://xenabrowser.net/datapages/?host=https://tcga.xenahubs.net" target="_blank">UCSC Xena.</a> To review this data in depth visit our <a class="methods-color" href="http://resources.sttrcancer.org/api"
-                            target="_blank">data API. </a>User planning to publish on the provided data must adhere to all publishing guideline set by the <a class="methods-color" href="https://cancergenome.nih.gov/publications/publicationguidelines" target="_blank">NIH</a>.
-                        Datasets in Oncoscape are classified by disease type according to TCGA studies. </p>
+                    <p class="text-left">Oncoscape hosts <a class="methods-color" href="https://wiki.nci.nih.gov/display/TCGA/Data+level#Datalevel-RelationshipsBetweenDataTypeandDataLevel" target="_blank">level 3</a> public TCGA datasets representing gene and patient data downloaded from <a class="methods-color" href="https://xenabrowser.net/datapages/?host=https://tcga.xenahubs.net" target="_blank">UCSC Xena.</a> To review this data in depth visit our <a class="methods-color" href="http://resources.sttrcancer.org/api" target="_blank">data API. </a>User planning to publish on the provided data must adhere to all publishing guideline set by the <a class="methods-color" href="https://cancergenome.nih.gov/publications/publicationguidelines" target="_blank">NIH</a>. Datasets in Oncoscape are classified by disease type according to TCGA studies. </p>
                 </div>
             </div>
         </div>
@@ -290,12 +260,6 @@
             </div>
             <div class="container">
                 <div id="divlist">
-                    <a class="methods-color" role="button" data-toggle="collapse" data-target="#collapse-2">How do I find a particular value in the spreadsheet?</a>
-                    <div id="collapse-2" class="collapse">
-                        <p class="collapse-para">Start by entering the value of choice into the <em>Highlight</em> box on the control bar, selections will automatically begin to highlight in blue.
-                        </p>
-                    </div>
-                    <hr>
                     <a class="methods-color" role="button" data-toggle="collapse" data-target="#collapse-3">How do I export or print my graphs?</a>
                     <div id="collapse-3" class="collapse">
                         <p class="collapse-para">Users can push saved cohorts to the spreadsheet tool by clicking the the Analysis Tool button at the top of the screen. Once there click the <em>Export: CSV</em> button. An Excel file will be generated and downloaded to your computer.
@@ -326,17 +290,17 @@
         <div class="row ">
             <div class="col-xs-12 col-sm-4 ">
                 <a href="http://www.fredhutch.org/en.html" target="_blank">
-                    <img src="/photos/logo-hutch.png ">
+                    <img src="photos/footer/logo-hutch.png ">
                 </a>
             </div>
-            <div class="col-xs-12 col-sm-4 ">
+            <div class="col-xs-12 col-sm-4">
                 <a href="http://www.uwmedicine.org/">
-                    <img src="/photos/logo-uw.png ">
+                    <img src="photos/footer/logo-uw.png">
                 </a>
             </div>
             <div class="col-xs-12 col-sm-4 ">
                 <a href="http://www.seattlecca.org/">
-                    <img src="/photos/logo-scca.png ">
+                    <img src="photos/footer/logo-scca.png">
                 </a>
             </div>
         </div>

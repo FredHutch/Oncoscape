@@ -7,7 +7,7 @@
         <div class="container">
             <div id="marquee" class="row">
                 <div class="col-xs-12">
-                    <img class="fadeInDown animated center-block tool-image img-responsive" src="style/toolImages/spreadsheet.png" alt="M+P">
+                    <img class="fadeInDown animated center-block tool-image img-responsive" src="photos/toolImages/spreadsheet.png" alt="M+P">
                 </div>
             </div>
             <div class="row">
@@ -46,20 +46,23 @@
             </div>
             <div class="row">
                 <div class="col-xs-12 ">
-                    <img class="center-block mp-image img-responsive" src="style/spreadsheetNavigation/spreadsheetOverview.png" alt="M+P">
+                    <img class="center-block mp-image img-responsive" src="photos/spreadsheetNavigation/spreadsheetOverview.png" alt="M+P">
                 </div>
             </div>
             <div class="row">
                 <div class="col-xs-12 li-margin">
                     <ul>
-                        <li><em>Selected Columns:</em> List of column names in that particular collection.
+                        <li class="overview-li-padding"><em>Panel Lock:</em> Lock and unlock the panels for a wider screen view.
                         </li>
-                        <li><em>Selected:</em> Clickable button to show all the current selections.
+                        <li class="overview-li-padding"><em>Selected Cohort:</em> Add, edit or delete cohorts. Click the "+" to save, "x" to delete or click the down arrow to select a cohort for edits.</li>
+                        <li class="overview-li-padding"><em>Clinical Histogram:</em> Snapshot of clinical information, per cohort. The histogram will adjust with each cohort selection. &nbsp; Click the down arrow to view other filters. e.g. &nbsp; Age At Diagnosis, Gender, Race, Ethnicity, Vital, Tumor.</li>
+                        <li class="overview-li-padding"><em>Survival Curve:</em> Snapshot of Kaplan Meier survival curves, per cohort. For more in depth analysis push the saved cohorts to the survival tool.</li>
+                        <li class="overview-li-padding"><em>Cohorts:</em> All saved cohorts are listed in this area. Each cohort is clickable and will highlight the selections on the main window, as well as adjust any survival curves or clinical histograms that are associated. The last line will always show your current selection, which will also update in the <strong>Selected Cohort</strong> box at the top of the cohort panel. To learn more visit <a href="">Oncoscape</a></li>
+                        <li class="overview-li-padding"><em>Cohort Summary:</em> Every cohort includes a summary of available information based on patients and samples.</li>
+                        <li><em>Columns:</em> List of column names in that particular collection.
                         </li>
-                        <li><em>Clinical Collections:</em> Various database collections
-                            <li><em>Cohorts:</em> Give the users the ability to save and push cohorts through the various tools. To learn more visit
-                                <a href="oncoscape">Oncoscape</a>
-                            </li>
+                        <li><em>Selected On Top:</em> Clickable button to move all selections to the top.
+                        </li>
                     </ul>
                 </div>
             </div>
@@ -84,8 +87,8 @@
             </section>
             <section class="videos noselect col-xs-12 col-md-5">
                 <article class="video">
-                    <div class="videoThumb" style="background-image: url(/style/mpNavigation/videotwo.png);"></div>
-                    <a class="videoLink" href="https://www.youtube.com/embed/S7enyMCD1mc?rel=0&controls=1&showinfo=0&autohide=1"></a>
+                    <div class="videoThumb" style="background-image: url(photos/mpNavigation/videotwo.png);"></div>
+                    <a class="videoLink" href="https://www.youtube.com/embed/h-x8VrTgyVY?rel=0&controls=1&showinfo=0&autohide=1"></a>
                     <h4 class="videoTitle">Define patient cohorts with multiple clincial factors.</h4>
                     <p class="videoParagraph">Save and view cohorts using spreadsheets to select different clincial factors.</p>
                     <section class="videoTranscript">
@@ -121,7 +124,7 @@
                 </div>
                 <div class="row">
                     <div class="col-xs-6 text-left">
-                        <p class="search-para">Provides users the ability to select a particular clinical collections to view. Selections can vary by disease set. Collections from TCGA include:</p>
+                        <p class="search-para">Provides users the ability to select a particular clinical collections to view. Selections can vary by disease set. Collections from currently from TCGA datasets.</p>
                     </div>
                     <div class="col-xs-6 text-left">
                         <p class="search-para">Users can export cohort selections into a csv format that will be downloaded to the desktop.
@@ -129,27 +132,7 @@
                 </div>
                 <div class="row">
                     <div class="col-xs-6 text-left">
-                        <div class="dropdown">
-                            <button class="zoomButtons" type="button" data-toggle="dropdown">patient
-                  <span class="docCaret"></span></button>
-                            <ul class="dropdown-menu">
-                                <li>drug</li>
-                                <li>radiation</li>
-                                <li>follow-up tables</li>
-                                <li>new tumor</li>
-                                <li>other maglinincy</li>
-                            </ul>
-                        </div>
-                    </div>
-                    <div class="col-xs-6 text-left">
-                        <button type="button" class="btn btn-default">csv</button>
-                    </div>
-                </div>
-                <br>
-                <br>
-                <div class="row">
-                    <div class="col-xs-6 text-left">
-                        <strong>Selected</strong>
+                        <strong>Selected On Top</strong>
                     </div>
                     <div class="col-xs-6 text-left">
                         <strong>Columns</strong>
@@ -161,15 +144,6 @@
                     </div>
                     <div class="col-xs-6 text-left">
                         <p class="search-para">Each column in the spreadsheet can be sorted ASC/DESC, hidden or pinned to the left/right.
-                    </div>
-                </div>
-                <div class="row">
-                    <div class="col-xs-6 text-left">
-                        <button class="zoomButtons" type="button">Selected
-                  </button>
-                    </div>
-                    <div class="col-xs-6 text-left">
-                        <button type="button" class="btn btn-default"><span class="fa fa-bars"></span>&nbsp; Columns</button>
                     </div>
                 </div>
             </section>
@@ -188,10 +162,7 @@
             </div>
             <div class="row">
                 <div class="col-xs-12">
-                    <p class="text-left">Oncoscape hosts <a class="methods-color" href="https://wiki.nci.nih.gov/display/TCGA/Data+level#Datalevel-RelationshipsBetweenDataTypeandDataLevel" target="_blank">level 3</a> public TCGA datasets representing gene and patient data
-                        downloaded from <a class="methods-color" href="https://xenabrowser.net/datapages/?host=https://tcga.xenahubs.net" target="_blank">UCSC Xena.</a> To review this data in depth visit our <a class="methods-color" href="http://resources.sttrcancer.org/api"
-                            target="_blank">data API. </a>User planning to publish on the provided data must adhere to all publishing guideline set by the <a class="methods-color" href="https://cancergenome.nih.gov/publications/publicationguidelines" target="_blank">NIH</a>.
-                        Datasets in Oncoscape are classified by disease type according to TCGA studies. </p>
+                    <p class="text-left">Oncoscape hosts <a class="methods-color" href="https://wiki.nci.nih.gov/display/TCGA/Data+level#Datalevel-RelationshipsBetweenDataTypeandDataLevel" target="_blank">level 3</a> public TCGA datasets representing gene and patient data downloaded from <a class="methods-color" href="https://xenabrowser.net/datapages/?host=https://tcga.xenahubs.net" target="_blank">UCSC Xena.</a> To review this data in depth visit our <a class="methods-color" href="http://resources.sttrcancer.org/api" target="_blank">data API. </a>User planning to publish on the provided data must adhere to all publishing guideline set by the <a class="methods-color" href="https://cancergenome.nih.gov/publications/publicationguidelines" target="_blank">NIH</a>. Datasets in Oncoscape are classified by disease type according to TCGA studies. </p>
                 </div>
             </div>
         </div>
@@ -208,12 +179,6 @@
             </div>
             <div class="container">
                 <div id="divlist">
-                    <a class="methods-color" role="button" data-toggle="collapse" data-target="#collapse-2">How do I find a particular value in the spreadsheet?</a>
-                    <div id="collapse-2" class="collapse">
-                        <p class="collapse-para">Start by entering the value of choice into the <em>Highlight</em> box on the control bar, selections will automatically begin to highlight in blue.
-                        </p>
-                    </div>
-                    <hr>
                     <a class="methods-color" role="button" data-toggle="collapse" data-target="#collapse-3">How do I export or print my graphs?</a>
                     <div id="collapse-3" class="collapse">
                         <p class="collapse-para">Users can push saved cohorts to the spreadsheet tool by clicking the the Analysis Tool button at the top of the screen. Once there click the <em>Export: CSV</em> button. An Excel file will be generated and downloaded to your computer.
