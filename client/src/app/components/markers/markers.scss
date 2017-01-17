@@ -66,11 +66,12 @@
     display: block;
     padding: 0px !important;
     padding-left: 10px !important;
+    padding-right: 10px !important;
     -webkit-transition-property: padding;
     -webkit-transition-duration: .4s;
     transition-property: padding;
     transition-duration: .4s;
-    height: 25px;
+    min-height: 25px;
     line-height: 25px;
 }
 

@@ -6,8 +6,8 @@
                 <div class="input-group">
                     <div class="dropdown bs-dropdown">
                         <button class="btn btn-default dropdown-toggle" type="button" id="dropdownMenu1" data-toggle="dropdown" aria-haspopup="true" aria-expanded="true">{{vm.geneSet.name}}<span class="caret"></span></button>
-                        <ul class="dropdown-menu" aria-labelledby="dropdownMenu1">
-                            <li ng-repeat="item in vm.geneSets" ng-click="vm.geneSet=item">{{item.name}}</li>
+                        <ul class="dropdown-menu" aria-labelledby="dropdownMenu1" style="width:260px;">
+                            <li class="markers-command hvr-sweep-to-right" ng-repeat="item in vm.geneSets" ng-click="vm.geneSet=item">{{item.name}}</li>
                         </ul>
                     </div>
                     <div class="input-group-addon btn-help-icon"><a href="http://resources.sttrcancer.org/api/#gene-sets" target="_blank"><i style="color:#000" class="glyphicon glyphicon-question-sign"></i></a></div>
@@ -18,8 +18,8 @@
                 <div class="input-group">
                     <div class="dropdown bs-dropdown">
                         <button class="btn btn-default dropdown-toggle" type="button" id="dropdownMenu1" data-toggle="dropdown" aria-haspopup="true" aria-expanded="true">{{vm.source.name}}<span class="caret"></span></button>
-                        <ul class="dropdown-menu" aria-labelledby="dropdownMenu1">
-                            <li ng-repeat="item in vm.sources" ng-click="vm.source=item">{{item.name}}</li>
+                        <ul class="dropdown-menu" aria-labelledby="dropdownMenu1" style="width:260px;">
+                            <li class="markers-command hvr-sweep-to-right" ng-repeat="item in vm.sources" ng-click="vm.source=item">{{item.name}}</li>
                         </ul>
                     </div>
                     <div class="input-group-addon btn-help-icon"><a href="http://resources.sttrcancer.org/api/#data-content" target="_blank"><i style="color:#000" class="glyphicon glyphicon-question-sign"></i></a></div>
@@ -31,8 +31,8 @@
                 <div class="input-group">
                     <div class="dropdown bs-dropdown">
                         <button style="max-width:220px" class="btn btn-default dropdown-toggle" type="button" id="dropdownMenu1" data-toggle="dropdown" aria-haspopup="true" aria-expanded="true">{{vm.pcaType.name}}<span class="caret"></span></button>
-                        <ul class="dropdown-menu" aria-labelledby="dropdownMenu1">
-                            <li ng-repeat="item in vm.pcaTypes" ng-click="vm.pcaType=item">{{item.name}}</li>
+                        <ul class="dropdown-menu" aria-labelledby="dropdownMenu1" style="width:260px;">
+                            <li class="markers-command hvr-sweep-to-right" ng-repeat="item in vm.pcaTypes" ng-click="vm.pcaType=item">{{item.name}}</li>
                         </ul>
                     </div>
                     <div class="input-group-addon btn-help-icon"><a href="http://resources.sttrcancer.org/api/#cluster" target="_blank"><i style="color:#000" class="glyphicon glyphicon-question-sign"></i></a></div>
