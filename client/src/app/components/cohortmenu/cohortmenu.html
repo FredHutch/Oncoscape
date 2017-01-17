@@ -42,10 +42,10 @@
                     <div id="cohortmenu-survival-box" class="collapse in" style="background:#FFF;border:1px solid #EAEAEA;padding:5px;">
                         <div id="cohortmenu-survival"></div>
                         <label>Cohorts</label>
-                        <div ng-repeat="item in vm.cohorts" class="legend-bar markers-command" style="border-color:{{item.color}};padding-left:10px;" ng-click="vm.setCohort(item)">{{item.name}}
+                        <div ng-repeat="item in vm.cohorts" class="legend-bar markers-command hvr-sweep-to-right" style="border-color:{{item.color}};padding-left:10px;" ng-click="vm.setCohort(item)">{{item.name}}
                         </div>
                         <label>Selected Cohort</label>
-                        <div class="legend-bar" style="height:25px;border-color:{{vm.cohort.color}};">{{vm.cohort.name}} ({{vm.cohort.type}})
+                        <div class="legend-bar markers-command hvr-sweep-to-right" style="height:25px;border-color:{{vm.cohort.color}};padding-left:10px;">{{vm.cohort.name}} ({{vm.cohort.type}})
 
                         </div>
                     </div>

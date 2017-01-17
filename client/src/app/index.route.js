@@ -94,7 +94,7 @@
                 }
             })
             .state('scatter', {
-                url: '/scatter',
+                url: '/scatter/{datasource}',
                 template: '<os-scatter>',
                 datasource: false,
                 help: "/",
