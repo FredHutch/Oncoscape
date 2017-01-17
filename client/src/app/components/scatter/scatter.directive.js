@@ -378,7 +378,6 @@
                     zMax: -Infinity
                 });
 
-
                 minMax.xMax = Math.max(Math.abs(minMax.xMin), minMax.xMax);
                 minMax.xMin = -minMax.xMax;
                 minMax.yMax = Math.max(Math.abs(minMax.yMin), minMax.yMax);

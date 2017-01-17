@@ -33,12 +33,10 @@
             vm.login = function() {
                 $state.go("login");
             };
+
             vm.getStarted = function() {
                 $state.go("datasource");
             };
-
-
         }
     }
-
 })();
