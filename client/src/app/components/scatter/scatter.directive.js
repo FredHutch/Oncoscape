@@ -19,7 +19,7 @@
         return directive;
 
         /** @ngInject */
-        function ScatterController($q, osApi, osCohortService, $state, $stateParams, $timeout, $scope, d3, moment, $window, _) {
+        function ScatterController($q, osApi, osCohortService, $state, $stateParams, $timeout, $scope, d3, moment, $window, _, THREE) {
 
             // Loading ...
             osApi.setBusy(true);
