@@ -68,13 +68,13 @@
             var mpState = (function(osApi, osCohortService) {
                 // Retrieve State
                 var mp = localStorage.getItem("MP-" + osApi.getDataSource().disease);
-                var hasState = (mp !== null)
+                var hasState = (mp !== null);
                 if (hasState) mp = angular.fromJson(mp);
 
                 var _colors = null;
                 var setColors = function(c) {
                     _colors = c;
-                }
+                };
                 var applyState = function(fn, cyChart) {
                     if (!hasState) return;
                     osCohortService.onPatientColorChange.dispatch(mp.optColors);
@@ -1010,8 +1010,11 @@
             };
 
             var _stopLength = 0; // Hack - need to fix
+            var skipCohortRefresh = false;
+
             function onCohortChange(cohort) {
                 if (cohort.sampleIds.length == _stopLength) return; // Preform more robust check
+                skipCohortRefresh = true;
                 _stopLength = cohort.sampleIds.length;
                 cyChart.startBatch();
                 cyChart.$('node[nodeType="patient"]:selected').deselect();
@@ -1026,13 +1029,15 @@
                 var cohort = cyChart.$('node[nodeType="patient"]:selected');
                 if (cohort.length == _stopLength) return; // Preform more robust check
                 _stopLength = cohort.length;
-                osCohortService.setCohort(
-                    cohort.map(function(p) {
-                        return p.data().id
-                    }),
-                    "Markers + Patients",
-                    osCohortService.SAMPLE
-                );
+                if (!skipCohortRefresh)
+                    osCohortService.setCohort(
+                        cohort.map(function(p) {
+                            return p.data().id
+                        }),
+                        "Markers + Patients",
+                        osCohortService.SAMPLE
+                    );
+                skipCohortRefresh = false;
             }
 
             function setGeneCohort() {
