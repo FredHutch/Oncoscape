@@ -1,0 +1,373 @@
+@@include('./app/partials/header.p')
+<!-- START wrapper -->
+<div class="content-wrapper">
+    <!-- START intro seciton -->
+    <div id="section-intro" class="scrollto">
+        <a class="anchor" id="anchor-intro">x</a>
+        <div class="container">
+            <div id="marquee" class="row">
+                <div class="col-xs-12">
+                    <img class="fadeInDown animated center-block tool-image img-responsive " src="photos/toolImages/mp.png" alt="M+P">
+                </div>
+            </div>
+            <div class="row">
+                <h1 class="tool-headline">
+                    <span class="header-black">Markers + Patients</span>
+                    <span class="header-gray">Visualize genetic relationships. Explore patient cohorts.</span>
+                </h1>
+            </div>
+        </div>
+    </div>
+    <!-- END intro seciton -->
+    <!-- START sticky nav-bar -->
+    <div id="header" class="header">
+        <div class="subnav container">
+            <a class="subnav-item col-xs-12 col-sm-2 col-sm-offset-1" href="#anchor-overview">Overview</a>
+            <a class="subnav-item col-xs-12 col-sm-2" href="#anchor-cases ">Use Cases</a>
+            <a class="subnav-item col-xs-12 col-sm-2" href="#anchor-nav ">Navigation</a>
+            <a class="subnav-item col-xs-12 col-sm-2" href="#anchor-methods ">Methods</a>
+            <a class="subnav-item col-xs-12 col-sm-2" href="#anchor-faq ">FAQ</a>
+        </div>
+    </div>
+    <!-- END sticky nav-bar -->
+    <!-- START overview seciton -->
+    <div class="scrollto" id="section-overview">
+        <a class="anchor" id="anchor-overview">x</a>
+        <div class="container">
+            <div class="row">
+                <div class="col-xs-12 text-center">
+                    <h3 class="section-headline  fadeInDown animated">Overview</h3>
+                </div>
+            </div>
+            <div class="row">
+                <div class="col-xs-12 text-left">
+                    <p>Markers and Patients (M+P) allows users to explore the relationship between genetic alterations and patients clusters. Users create and explore data in the M+P window. The M+P window is organized into different areas to help focus on different aspects of research, such as specific genes, various patient cohorts, and different plotting mechanisms. All operations are accomplished through the cohort panel (left) or control bar (right).</p>
+                </div>
+            </div>
+            <div class="row">
+                <div class="col-xs-12 ">
+                    <img class="center-block mp-image img-responsive" src="photos/mpNavigation/fullmp.png" alt="M+P">
+                </div>
+            </div>
+            <div class="row">
+                <div class="col-xs-12 li-margin">
+                    <ul>
+                        <li class="overview-li-padding"><em>Panel Lock:</em> Lock and unlock the panels for a wider screen view.
+                        </li>
+                        <li class="overview-li-padding"><em>Selected Cohort:</em> Add, edit or delete cohorts. Click the "+" to save, "x" to delete or click the down arrow to select a cohort for edits.</li>
+                        <li class="overview-li-padding"><em>Clinical Histogram:</em> Snapshot of clinical information, per cohort. The histogram will adjust with each cohort selection. &nbsp; Click the down arrow to view other filters. e.g. &nbsp; Age At Diagnosis, Gender, Race, Ethnicity, Vital, Tumor.</li>
+                        <li class="overview-li-padding"><em>Survival Curve:</em> Snapshot of Kaplan Meier survival curves, per cohort. For more in depth analysis push the saved cohorts to the survival tool.</li>
+                        <li class="overview-li-padding"><em>Cohorts:</em> All saved cohorts are listed in this area. Each cohort is clickable and will highlight the selections on the main window, as well as adjust any survival curves or clinical histograms that are associated. The last line will always show your current selection, which will also update in the <strong>Selected Cohort</strong> box at the top of the cohort panel. All cohorts are color coded for easy identification. To learn more visit <a href="" target="_blank">Oncoscape</a></li>
+                        <li class="overview-li-padding"><em>Cohort Summary:</em> Every cohort includes a summary of available information based on patients and samples.</li>
+                        <li class="overview-li-padding"><em>Patient Nodes:</em> Select nodes by holding down the <em>Shift</em> key and selecting either individual or larger node groupings. The variation in node sizing represents the number of mutations a patient or gene carries, e.g. the larger the node the greater the mutation number. Hovering over an individual patient will provide clinical information on the left side of the tool.
+                        </li>
+                        <li class="overview-li-padding"><em>Edges:</em> Lines that connect the patient and gene nodes. These lines are color-coded and can be toggled on/off in the <em>Edge Visibility</em> box.
+                        </li>
+                        <li class="overview-li-padding"><em>Gene Nodes:</em> Chromosomes contain known gene mutations for each disease set.
+                        </li>
+                        <li class="overview-li-padding"><em>Chromosome Area:</em> Includes the chromosomes that correlate to the patient area. The 23rd chromosome is labeled as either "X" or "Y".
+                        </li>
+                        <li class="overview-li-padding"><em>Edge Toggles:</em> Toggle box that turn the different mutation edges on or off.
+                        </li>
+                        <li class="overview-li-padding"><em>Color Option Selector:</em> The ablity to select or deselect cohorts based on clinical factors.
+                        </li>
+                        <li class="overview-li-padding"><em>Control Bar:</em> Collection of controls that operate over the patient and chromosome areas.
+                        </li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </div>
+    <!-- END overview seciton -->
+    <!-- START Use Cases seciton -->
+    <div class="scrollto" id="section-cases">
+        <a class="anchor" id="anchor-cases">x</a>
+        <div class="container">
+            <div class="row">
+                <div class="col-xs-12 text-center">
+                    <h3 class="section-headline fadeInDown animated">Use Cases</h3>
+                </div>
+            </div>
+            <section class="videoCurrent col-xs-12 col-md-7">
+                <div class="videoPlayerContainer">
+                    <iframe class="videoPlayer" width="560" height="315" frameborder="0" allowfullscreen></iframe>
+                </div>
+                <h3 class="videoCurrentTitle"></h3>
+                <p class="videoCurrentTranscript"></p>
+            </section>
+            <section class="videos noselect col-xs-12 col-md-5">
+                <article class="video">
+                    <div class="videoThumb" style="background-image: url(photos/mpNavigation/videotwo.png);"></div>
+                    <a class="videoLink" href="https://www.youtube.com/embed/PZirvU3olxg?rel=0&controls=1&showinfo=0&autohide=1"></a>
+                    <h4 class="videoTitle">Define patient cohorts with multiple genetic alterations</h4>
+                    <p class="videoParagraph">Save and view cohorts with multiple genetic alterations.</p>
+                    <section class="videoTranscript">
+                        <ol class="video-ol">
+                            <div class="li-margin">
+                                <li>Show Edges: Search/Select the IDH1 gene, then click "Show Edges of Selected"</li>
+                                <li>Select patients with IDH1 mutation: Click "Select Connected Nodes"</li>
+                                <li>Link patients to new alteration: First, "Hide Edges of Selected" to remove visible edges</li>
+                                <li>Select New Gene while retaining Patient Selection: Hold down the shift key while clicking on IDH1, then (still holding down shift) click on EGFR</li>
+                                <li>Show Alterations of selected patients and EGFR: With EGFR and patients selected, click "Show Edges of Selected" to see the common alterations</li>
+                                <li>Remove All Selections: Click on any open whitespace to deselect all nodes</li>
+                                <li>Select Patients with EGFR and IDH1 mutations: Reselect EGFR and click "Select Connected Nodes"</li>
+                                <li>Patient Cohort with both IDH1 and EGFR genetic alterations</li>
+                            </div>
+                        </ol>
+                    </section>
+                </article>
+                <article class="video">
+                    <div class="videoThumb" style="background-image: url(photos/mpNavigation/videoone.png);"></div>
+                    <a class="videoLink" href="https://www.youtube.com/embed/Eo6fMcTEwnA?rel=0&controls=1&showinfo=1"></a>
+                    <h4 class="videoTitle">Find patients with certain genetic alterations</h4>
+                    <p class="videoParagraph">Find patients with certain genetic alterations</p>
+                    <section class="videoTranscript">
+                        <ol class="video-ol">
+                            <div class="li-margin">
+                                <li>Search/Select the gene of choice, example PTEN, then click "Go", above the search bar a count of found will appear.</li>
+                                <li>Click "Show Edges of Selected"</li>
+                                <li>Click "Select Connected Nodes" to highlight the patients with PTEN mutations</li>
+                                <li>On the Cohort Panel (left) save the cohort by renaming it (option to keep default name and military time) and click the "+" to save</li>
+                            </div>
+                        </ol>
+                    </section>
+                </article>
+            </section>
+        </div>
+    </div>
+    <!-- END Use Cases seciton -->
+    <!-- START Nav seciton -->
+    <div class="scrollto" id="section-nav">
+        <a class="anchor" id="anchor-nav">x</a>
+        <div class="container">
+            <div class="row">
+                <div class="col-xs-12 text-center">
+                    <h3 class="section-headline fadeInDown animated">Navigation</h3>
+                </div>
+            </div>
+            <div class="row">
+                <div class="col-xs-12 ">
+                    <strong class="modes">Command Modes</strong>
+                </div>
+            </div>
+            <div class="row">
+                <div class="col-xs-12 text-left">
+                    <p>M+P can operate in three different modes. That can be selected form the dropdown. Each mode allows users to view or build cohorts in different ways.</p>
+                </div>
+            </div>
+            <div class="row">
+                <div class="col-xs-12 ">
+                    <p class="threeModes">Sequential Mode (Default)</p>
+                </div>
+            </div>
+            <p class="text-left">Sequential Mode provides a list of different ways the nodes can be connected via the<em>
+        Edge Visibility</em> box. In this mode utilize the commands below as it relates to the next selection, e.g. selections are made sequentially.
+            </p>
+            <ul class="mode-margins">
+                <div class="mode-margin">
+                    <li><em>Show Edges of Selected:</em> Shows all possible edges from the edge visibility box.</li>
+                    <li><em>Hide Edges of Selected:</em> Hides edges of selected nodes.</li>
+                    <li><em>Hide Edges of Unselected:</em> Hides edge of patients or genes that have not been selected.</li>
+                    <li><em>Hide all Edges:</em> Will hide all edges whether selections have been made or not.</li>
+                    <li><em>Invert Node Selection:</em> Will inverse the selection.</li>
+                    <li><em>Select Connected Nodes:</em> Select nodes that have both visible edges and selected counterparts.</li>
+                    <li><em>Hide Unselected Nodes:</em> Hides nodes that are not in current selection.</li>
+                    <li><em>Show all Nodes:</em> If nodes are hidden, this function will reveal them.</li>
+                </div>
+            </ul>
+            <div class="row">
+                <div class="col-xs-12 ">
+                    <p class="threeModes">Set</p>
+                </div>
+            </div>
+            <p class="text-left">Set Mode provides the user the ability to visualize groups over individual selections. While holding the <em>Shift Key</em> users can select a group of patients and then select a chromosome or gene of interest and visualize the correlation between the two selections.</p>
+            <div class="row">
+                <div class="col-xs-12 ">
+                    <p class="threeModes">Ad Hoc</p>
+                </div>
+            </div>
+            <p class="text-left">Ad Hoc Mode allows the users to make individual rollover selections. It is intended to provide a quick grab of information and not necessarily build working plots.</p>
+            <hr>
+            <div class="row">
+                <div class="col-xs-12 text-left">
+                    <strong>Edge Visibility</strong>
+                </div>
+            </div>
+            <div class="row">
+                <div class="col-xs-12 text-left">
+                    <p class="search-para">The node connections can be manipulated in the M+P window by selecting or unselecting the various edges. The line colors represent the mutation, gain or loss view in the <em>Edge Visibility</em> box.</p>
+                </div>
+            </div>
+            <!-- edges Tween slideshowFactory -->
+            <div class="row">
+                <div class="col-xs-12 img-responsive" id="leftImage"></div>
+                <div class="col-xs-12 img-responsive" id="rightImage"></div>
+            </div>
+            <!-- END edges Tween slideshowFactory -->
+            <hr>
+            <div class="row">
+                <div class="col-xs-12 text-left">
+                    <strong>Patient Options</strong>
+                </div>
+            </div>
+            <div class="row">
+                <div class="col-xs-12 text-left">
+                    <p class="search-para">Patients areas can be viewed using different clustering techniques and layout options, including color-coding by RNA expression, gene selection or clinical factors. To apply these features find the <em>Patient Options</em> header in the control bar. Clicking the <em>Layouts</em> button will expose a list of different clustering techniques and layouts. Select an option to apply it to the patient area. Clicking the <em>Colors</em> button will expose a list of categories that color code the nodes by category type. Select an option to apply it to the patient area.</p>
+                </div>
+            </div>
+            <div class="row">
+                <div class="col-xs-12 col-sm-12 col-md-8 col-lg-8 text-left">
+                    <p class="color-opitions">After a color-coding selection has been made a color key will appear. This key allows patient selections to be made based on a particular option. To select a cohort of patients click the bullseye (right side). To deselect the selection click the open circle (left side). Each selection includes a patient count and the overall percentage of patients who have that option available.</p>
+                </div>
+                <div class="col-xs-12 col-sm-12 col-md-4 col-lg-4 text-left">
+                    <img src="photos/mpNavigation/colorOptions.png">
+                </div>
+            </div>
+            <br>
+            <!-- color + layout Tween slideshowFactory -->
+            <div class="image-wrapper col-xs-12 col-lg-4">
+                <p>Gender</p>
+                <div id="patientcolors1" class="col-xs-12 col-lg-4 img-responsive">
+                </div>
+            </div>
+            <div class="image-wrapper col-xs-12 col-lg-4">
+                <p>Diagnosis</p>
+                <div id="patientcolors2" class="col-xs-12 col-lg-4 img-responsive">
+                </div>
+            </div>
+            <div class="image-wrapper col-xs-12 col-lg-4">
+                <p>Tumor Site</p>
+                <div id="patientcolors3" class="col-xs-12 col-lg-4 img-responsive">
+                </div>
+            </div>
+            <div class="row">
+                <p id="layoutText" class="col-xs-12"></p>
+            </div>
+            <!-- END color + layout Tween slideshowFactory -->
+            <br>
+            <hr>
+            <div class="row">
+                <div class="col-xs-12 text-left">
+                    <strong>Patient and Gene Sizes</strong>
+                </div>
+            </div>
+            <div class="row">
+                <div class="col-xs-12 text-left">
+                    <p class="search-para">The variation in node sizing represents the number of mutations a patient or gene carries, e.g. the larger the node the greater the mutation number. More about patient and node degrees can be found in our <a  href="http://resources.sttrcancer.org/api/#network" target="_blank"> data API </a></p>
+                </div>
+            </div>
+             <hr>
+            <div class="row">
+                <div class="col-xs-12 text-left">
+                    <strong>Gene and Patient Search</strong>
+                </div>
+            </div>
+            <div class="row">
+                <div class="col-xs-12 text-left">
+                    <p class="search-para">Specific patients or genes can be selected by using the "Search" box. Enter the patient or gene of interest and click <em>Go</em>. Above the search bar a count of found will appear. The node selection will appear highlighted in either the patient or chromosome area.</p>
+                </div>
+            </div>
+            <div class="row">
+                <div class="col-xs-12 text-left">
+                    <img class="searchbox img-responsive" src="photos/mpNavigation/searchbox.png" alt="Search Box">
+                </div>
+            </div>
+            <br>
+            <hr>
+            <div class="row">
+                <div class="col-xs-12 text-left">
+                    <strong>Zoom Commands</strong>
+                </div>
+            </div>
+            <div class="row">
+                <div class="col-xs-12 text-left">
+                    <p class="search-para">The patient and chromosome area can be zoomed in by clicking the <em>Fit</em> button. The <em>Selected</em> button will zoom on node selections. Alternatively, zooming in on different areas can be achieved by using the scroll wheel or trackpad.</p>
+                </div>
+            </div>
+            <!-- zoom section -->
+            <div class="row">
+                <img id="zoom-img" src="photos/mpNavigation/zoomOut.png">
+                <div class="zoom-selected-button">
+                    <button class="zoomButtons" onclick="document.getElementById('zoom-img').src='/photos/mpNavigation/zoom.png'">Fit</button>
+                    <button class="zoomButtons" onclick="document.getElementById('zoom-img').src='/photos/mpNavigation/selected.png'">Selected</button>
+                </div>
+            </div>
+            <hr>
+            <div class="row">
+                <div class="col-xs-12 text-left">
+                    <strong>Lock Selections</strong>
+                </div>
+            </div>
+            <div class="row">
+                <div class="col-xs-12 text-left">
+                    <p class="search-para">Locking either set of data will isolate all further commands to operate only over those selections. Locking patient or gene nodes can be done utilizing the lock selections box. To lock a group of patients, select the desired node grouping and click the <em>Patients</em> button. The same can be repeated for genes by clicking the <em>Genes</em> button.</p>
+                </div>
+            </div>
+        </div>
+    </div>
+    <!-- END Nav seciton -->
+    <!-- START Methods+Data seciton -->
+    <div class="scrollto" id="section-methods">
+        <a class="anchor" id="anchor-methods">x</a>
+        <div class="container">
+            <div class="row">
+                <div class="col-xs-12 text-center">
+                    <h3 class="section-headline fadeInDown animated">Methods</h3>
+                </div>
+            </div>
+            <div class="row">
+                <div class="col-xs-12 text-left">
+                    <p>M+P utilizes Multidimensional Scaling (MDS) as means of visualizing the level of similarity of individual patient nodes in a given dataset. M+P can be applied to multiple data types including sequence, expression, DNA methylation. For a deeper analysis please see <a class="methods-color" href="http://www.ncbi.nlm.nih.gov/pmc/articles/PMC4868421/" target="_blank">
+            "Big data visualization identifies the multidimensional molecular landscape of human gliomas"</a> publication by Bolouri H, Zhao L, Holland, E. Links to the genesets used for M+P can be view in the api documentation at <a class="methods-color" href="http://resources.sttrcancer.org/api/#gene-sets" target="_blank">Geneset Details.</a>
+                    </p>
+                    <p class="text-left">Oncoscape hosts <a class="methods-color" href="https://wiki.nci.nih.gov/display/TCGA/Data+level#Datalevel-RelationshipsBetweenDataTypeandDataLevel" target="_blank">level 3</a> public TCGA datasets representing gene and patient data downloaded from <a class="methods-color" href="https://xenabrowser.net/datapages/?host=https://tcga.xenahubs.net" target="_blank">UCSC Xena.</a> To review this data in depth visit our <a class="methods-color" href="http://resources.sttrcancer.org/api" target="_blank">data API. </a>User planning to publish on the provided data must adhere to all publishing guideline set by the <a class="methods-color" href="https://cancergenome.nih.gov/publications/publicationguidelines" target="_blank">NIH</a>. Datasets in Oncoscape are classified by disease type according to TCGA studies. </p>
+                    <p>Data was generated using the R-package<a class="methods-color" href="https://stat.ethz.ch/R-manual/R-devel/library/stats/html/cmdscale.html" target="_blank">
+            Classical (Metric) Multidimensional Scaling</a>
+                    </p>
+                </div>
+            </div>
+        </div>
+    </div>
+    <!-- END Methods+Data seciton -->
+    <!-- START faq seciton -->
+    <div class="scrollto" id="section-faq">
+        <a class="anchor" id="anchor-faq">x</a>
+        <div class="container">
+            <div class="row">
+                <div class="col-xs-12 text-center">
+                    <h3 class="section-headline fadeInDown animated">Frequently Asked Questions</h3>
+                </div>
+            </div>
+            <div class="container">
+                <div id="divlist">
+                    <a class="methods-color" role="button" data-toggle="collapse" data-target="#collapse-2">How do I find patients with an alteration in my gene of choice?</a>
+                    <div id="collapse-2" class="collapse">
+                        <p class="collapse-para">Specific genes can be selected by using the <em>Search</em> box. Enter the gene of interest and click <em>Go</em>. Above the search bar a count of found will appear. The node selection will appear orange and black highlighted in chromosome area. Next, make sure <em>Command</em> Mode is set to "Sequential" then under the <em>Commands</em> section, click "Show Edges of Selected". All patient nodes with the chosen gene node will now be connected.
+                        </p>
+                    </div>
+                    <hr>
+                    <a class="methods-color" role="button" data-toggle="collapse" data-target="#collapse-3">How do I export or print my graphs?</a>
+                    <div id="collapse-3" class="collapse">
+                        <p class="collapse-para">Currently, the export feature is only available on the Spreadsheet tool. Users can push saved cohorts to the spreadsheet tool by clicking the the Analysis Tool button at the top of the screen. Once there click the <em>CSV Export</em> button of either all the data or only the selected data. An Excel file will be generated.
+                        </p>
+                    </div>
+                    <hr>
+                    <a class="methods-color" role="button" data-toggle="collapse" data-target="#collapse-4">How do I save my data for a return visit?</a>
+                    <div id="collapse-4" class="collapse">
+                        <p class="collapse-para">All data for selections and cohorts will be automatically saved for a return visit assuming users are on the same computer to login. User logins that allow stored sessions from any device will be deployed in a future release.
+                        </p>
+                    </div>
+                    <hr>
+                    <a class="methods-color" role="button" data-toggle="collapse" data-target="#collapse-5"> How do I zoom in on my selections?</a>
+                    <div id="collapse-5" class="collapse">
+                        <p class="collapse-para">The patient and chromosome area can be zoomed in by finding the <em>Zoom</em> buttons and clicking the "Fit" button. The "Selected" button will zoom on node selections. Alternatively, zooming in on different areas can be achieved by using the scroll wheel or trackpad.
+                        </p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <!-- END faq seciton -->
+</div>
+<!-- END wrapper -->
+@@include('./app/partials/footer.p')
