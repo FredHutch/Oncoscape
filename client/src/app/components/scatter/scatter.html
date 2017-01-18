@@ -1,10 +1,38 @@
 <script type="x-shader/x-vertex" id="vertexshader">
-    uniform float pointSize; uniform vec3 color; uniform float alpha; uniform int shouldResize; varying vec4 vColor; void main() { vec4 mvPosition = modelViewMatrix * vec4(position, 1.0); if (shouldResize == 1) { gl_PointSize = pointSize * ( mvPosition.z
-    + 30.0) / 10.0 + 10.0; } else { gl_PointSize = pointSize; } gl_Position = projectionMatrix * mvPosition; if (shouldResize == 1) { vColor = vec4(color, ( mvPosition.z + 30.0) / 10.0 + 0.0); } else { vColor = vec4(color, alpha); } }
-</script>
-<script type="x-shader/x-fragment" id="fragmentshader">
-    varying vec4 vColor; void main() { float f = 0.5; float d = abs(distance(gl_PointCoord - f, vec2(0.0, 0.0) ) ); if(d
-    < f) { gl_FragColor=v Color; } else { discard; } } </script>
+    uniform float pointSize;
+    uniform vec3 color;
+    uniform float alpha;
+    uniform int shouldResize;
+    varying vec4 vColor;
+    void main() {
+      vec4 mvPosition = modelViewMatrix * vec4(position, 1.0);
+      if (shouldResize == 1) {
+        gl_PointSize = pointSize * ( mvPosition.z + 30.0) / 10.0 + 10.0;
+      } else {
+        gl_PointSize = pointSize;
+      }
+      gl_Position = projectionMatrix * mvPosition;
+      if (shouldResize == 1) {
+        vColor = vec4(color, ( mvPosition.z + 30.0) / 10.0 + 0.0);
+        // vColor = vec4(color, 0.8);
+      } else {
+        vColor = vec4(color, alpha);
+      }
+    }
+    
+  </script>
+  <script type="x-shader/x-fragment" id="fragmentshader">
+    varying vec4 vColor;
+    void main() {
+      float f = 0.5;
+      float d = abs(distance(gl_PointCoord - f, vec2(0.0, 0.0) ) );
+      if(d < f) {
+        gl_FragColor = vColor;
+      } else {
+        discard;
+      }
+    }
+  </script>
         <os-tray content="tray-content-block">
             <section class="tray-content">
                 <div class="row">
