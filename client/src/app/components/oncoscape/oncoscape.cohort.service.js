@@ -11,9 +11,23 @@
         // There are three types of cohorts: ALL = All users, SAVED: Saved, UNSAVED
 
         // Messages
+        var onCohortToolInfo = new signals.Signal();
         var onCohortChange = new signals.Signal();
         var onCohortsChange = new signals.Signal();
         var onPatientColorChange = new signals.Signal();
+
+        // Cohort Info
+        var _cohortDatasetInfo = { 'numSamples': 0, 'numPatients': 0 };
+        var getCohortDatasetInfo = function() {
+            return _cohortDatasetInfo;
+        };
+
+        var _cohortToolInfo = { 'numSamples': 500, 'numPatients': 500 };
+        var getCohortToolInfo = function() { return _cohortToolInfo; };
+        var setCohortToolInfo = function(cohortToolData) {
+            _cohortToolInfo = cohortToolData;
+            onCohortToolInfo.dispatch(_cohortToolInfo);
+        };
 
         // Patient Color
         var _patientColor;
@@ -533,6 +547,9 @@
                         return p;
                     }, data.patientMap);
 
+                    _cohortDatasetInfo.numSamples = Object.keys(data.sampleMap).length;
+                    _cohortDatasetInfo.numPatients = Object.keys(data.patientMap).length;
+
                     // Survival Data 
                     responses[1].data.map(function(v) {
 
@@ -623,7 +640,7 @@
 
             setCohort(sampleIds, name, "SAMPLE");
             saveCohort();
-        }
+        };
 
 
         var api = {
@@ -636,6 +653,11 @@
             onPatientColorChange: onPatientColorChange,
             setPatientColor: setPatientColor,
             getPatientColor: getPatientColor,
+
+            onCohortToolInfo: onCohortToolInfo,
+            setCohortToolInfo: setCohortToolInfo,
+            getCohortToolInfo: getCohortToolInfo,
+            getCohortDatasetInfo: getCohortDatasetInfo,
 
             onCohortChange: onCohortChange,
             onCohortsChange: onCohortsChange,

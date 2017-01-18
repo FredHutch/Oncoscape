@@ -31,17 +31,22 @@
             vm.cohortFeature = null;
             vm.cohortSummary = "";
 
-
             // Cohort Service Integration
             osCohortService.onCohortsChange.add(function(cohorts) {
                 vm.cohorts = cohorts;
             });
             osCohortService.onCohortChange.add(function(cohort) {
+                var toolInfo = osCohortService.getCohortToolInfo();
+                var dataInfo = osCohortService.getCohortDatasetInfo();
                 var summary =
-                    $filter('number')(cohort.numSamples) + " Samples<br /> " +
-                    $filter('number')(cohort.numPatients) + " Patients <br />" +
-                    $filter('number')(cohort.numClinical) + " Patients with Clinical Data<br />";
-                //$filter('number')(cohort.survival.data.tte.length) + " Patients with Survival Outcome<br />";
+                    $filter('number')(dataInfo.numSamples) + " Samples In Dataset<br /> " +
+                    $filter('number')(dataInfo.numPatients) + " Patients In Dataset<br /> " +
+                    $filter('number')(cohort.numSamples) + " Samples In Current Cohort<br /> " +
+                    $filter('number')(cohort.numPatients) + " Patients In Current Cohort<br />" +
+                    $filter('number')(cohort.numClinical) + " Patients with Clinical Data<br />" +
+                    $filter('number')(cohort.survival.data.tte.length) + " Patients with Survival Outcome<br />";
+                //$filter('number')(toolInfo.numSamplesVisible) + " Samples In Current Cohort Showing<br />" +
+                //$filter('number')(toolInfo.numPatients) + " Patients In Current Cohort Showing<br />";
 
                 vm.cohortSummary = $sce.trustAsHtml(summary);
 
