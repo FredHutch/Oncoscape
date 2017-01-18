@@ -26,170 +26,81 @@
 
             // Elements
 
-            var gl = (function() {
+            var plot = (function(osApi, el, $window) {
+
+                var data;
+                var width, height;
+                var svg = el.append('svg');
+                var scene1 = new THREE.Scene();
+                var scene2 = new THREE.Scene();
+                var renderer1 = new THREE.WebGLRenderer({ alpha: true, antialias: true });
+                var renderer2 = new THREE.WebGLRenderer({ alpha: true, antialias: true });
+                renderer1.setPixelRatio($window.devicePixelRatio);
+                renderer2.setPixelRatio($window.devicePixelRatio);
 
 
-                // Renderer
-                var renderer = new THREE.WebGLRenderer({ antialias: true });
-                renderer.setPixelRatio($window.devicePixelRatio);
-                renderer.setSize(500, 560);
-                renderer.setClearColor(0xFFFFFF, 1.0);
-                renderer.clear();
-                angular.element("#scatter-chart").append(renderer.domElement);
+                resize();
 
-                // Raycaster
-                var raycaster = new THREE.Raycaster();
-                var mouse = new THREE.Vector2();
-                var intersects, INTERSECTED;
-                var PARTICLE_SIZE = 3;
 
-                // Material
-                var material = new THREE.ShaderMaterial({
 
-                    uniforms: {
-                        color: { value: new THREE.Color(0xffffff) },
-                        texture: { value: new THREE.TextureLoader().load("assets/images/disc.png") }
-                    },
-                    vertexShader: angular.element('#vertexshader').textContent,
-                    fragmentShader: angular.element('#fragmentshader').textContent,
-                    alphaTest: 0.3
-                });
+                function setData(value) {
+                    osApi.setBusy(true);
+                    data = value;
 
-                // geometry
-                var particles;
-                var geometry = new THREE.BufferGeometry();
-
-                // Scene
-                var scene = new THREE.Scene();
-
-                // Camera
-                var camera = new THREE.PerspectiveCamera(45, $window.innerWidth / $window.innerHeight, 1, 10000);
-                camera.position.z = 250;
-
-                var controls = new THREE.OrbitControls(camera, renderer.domElement);
-                controls.enableDamping = true;
-                controls.dampingFactor = 0.25;
-                controls.enableZoom = true;
-
-                function animate() {
-                    requestAnimationFrame(animate);
-                    render();
+                    osApi.setBusy(false);
                 }
 
-                // Track mouseunction 
-                function onMouseMove(event) {
-                    mouse.x = (event.clientX / $window.innerWidth) * 2 - 1;
-                    mouse.y = -(event.clientY / $window.innerHeight) * 2 + 1;
-                }
-                $window.addEventListener('mousemove', onMouseMove, false);
+                function setColors(value) {
 
-                function onWindowResize() {
-                    camera.aspect = $window.innerWidth / $window.innerHeight;
-                    camera.updateProjectionMatrix();
-                    renderer.setSize($window.innerWidth, $window.innerHeight);
-                }
-                $window.addEventListener('resize', onWindowResize, false);
-
-                var setData = function(data) {
-                    var positions = new Float32Array(data.length * 3);
-                    var colors = new Float32Array(data.length * 3);
-                    var sizes = new Float32Array(data.length);
-                    var color = new THREE.Color();
-                    for (var i = 0, l = data.length; i < l; i++) {
-                        var si = i * 3;
-                        positions[si] = data[i][0];
-                        positions[si + 1] = data[i][1];
-                        positions[si + 2] = data[i][2];
-                        color.setRGB(.5, .5, .5);
-                        color.toArray(colors, i * 3);
-                        sizes[i] = 200; //PARTICLE_SIZE;
-                    }
-
-                    geometry.addAttribute('position', new THREE.BufferAttribute(positions, 3));
-                    geometry.addAttribute('customColor', new THREE.BufferAttribute(colors, 3));
-                    geometry.addAttribute('size', new THREE.BufferAttribute(sizes, 1));
-
-                    particles = new THREE.Points(geometry, material);
-                    scene.add(particles);
-                    animate();
-                }
-                var setSelected = function() {
-                    // arg ids
                 }
 
-                //var selectedColor = new THREE.Color(0xff0000);
+                function setSelected() {
 
-                function render() {
-                    //                    	particles.rotation.x += 0.0005;
-                    //				particles.rotation.y += 0.001;
-
-                    var geometry = particles.geometry;
-                    var attributes = geometry.attributes;
-
-                    raycaster.setFromCamera(mouse, camera);
-
-                    intersects = raycaster.intersectObject(particles);
-
-                    if (intersects.length > 0) {
-
-                        if (INTERSECTED != intersects[0].index) {
-
-                            attributes.size.array[INTERSECTED] = PARTICLE_SIZE;
-
-                            INTERSECTED = intersects[0].index;
-
-                            attributes.size.array[INTERSECTED] = PARTICLE_SIZE * 1.25;
-                            attributes.size.needsUpdate = true;
-
-                        }
-
-                    } else if (INTERSECTED !== null) {
-
-                        attributes.size.array[INTERSECTED] = PARTICLE_SIZE;
-                        attributes.size.needsUpdate = true;
-                        INTERSECTED = null;
-
-                    }
-                    //     //particles.rotation.x += 0.0005;
-                    //     //particles.rotation.y += 0.001;
+                }
 
 
-                    //     raycaster.setFromCamera( mouse, camera );
+                function resize() {
 
-                    //     intersects = raycaster.intersectObject( particles );
+                    var layout = osApi.getLayout();
+                    width = $window.innerWidth - layout.left - layout.right;
+                    height = $window.innerHeight - 120; //10
+                    svg.style("width", width + "px");
+                    svg.style("height", "200px");
+                    svg.style('background-color', 'rgba(0, 0, 0, 0.1)')
+                    renderer1.setSize(Math.floor(width * 0.5), height - 200);
+                    renderer2.setSize(Math.floor(width * 0.5), height - 200);
 
-                    //     if (intersects.length>0){
-                    //         intersects[0].object.material.color = selectedColor;
-                    //     }
-                    //     // if ( intersects.length > 0 ) {
-
-                    //     //     if ( INTERSECTED != intersects[ 0 ].index ) {
-
-                    //     //         //attributes.size.array[ INTERSECTED ] = PARTICLE_SIZE;
-
-                    //     //         INTERSECTED = intersects[ 0 ].index;
-
-                    //     //         //attributes.size.array[ INTERSECTED ] = PARTICLE_SIZE * 1.25;
-                    //     //         //attributes.size.needsUpdate = true;
-
-                    //     //     }
-
-                    //     // } else if ( INTERSECTED !== null ) {
-
-                    //     //     //attributes.size.array[ INTERSECTED ] = PARTICLE_SIZE;
-                    //     //     //attributes.size.needsUpdate = true;
-                    //     //     INTERSECTED = null;
-
-                    //     // }
-
-                    renderer.render(scene, camera);
                 }
 
                 return {
+                    resize: resize,
                     setData: setData,
-                    setSelected: setSelected
-                }
-            })();
+                    setSelected: setSelected,
+                    setColors: setColors
+                };
+            })(osApi, d3.select(angular.element("#scatter-chart")[0]), $window);
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
@@ -211,9 +122,6 @@
                 vm.datasource = osApi.getDataSource();
                 vm.geneSets = [];
                 vm.geneSet = null;
-                vm.search = "";
-                vm.selectColor = function() {};
-                vm.deselectColor = function() {};
                 return vm;
             })(this, osApi);
 
@@ -295,21 +203,8 @@
                             return v.d;
                         });
 
-                        minMax = data.reduce(function(p, c) {
-                            p.xMin = Math.min(p.xMin, c[0]);
-                            p.xMax = Math.max(p.xMax, c[0]);
-                            p.yMin = Math.min(p.yMin, c[1]);
-                            p.yMax = Math.max(p.yMax, c[1]);
-                            return p;
-                        }, {
-                            xMin: Infinity,
-                            yMin: Infinity,
-                            xMax: -Infinity,
-                            yMax: -Infinity
-                        });
+                        plot.setData(data);
 
-
-                        draw();
                     });
             });
 
@@ -318,94 +213,14 @@
 
             }
 
-            function setColors() {
-
-                // Set Legend
-                vm.legendCaption = colors.name;
-                vm.legendNodes = colors.data;
-
-                // If No Color Specified
-                if (colors.name == "None") {
-                    vm.legendCaption = "";
-                    data.forEach(function(v) {
-                        v.color = '#0096d5';
-                    });
-
-                    // Color Based On V
-                } else {
-                    var degMap = colors.data.reduce(function(p, c) {
-                        for (var i = 0; i < c.values.length; i++) {
-                            p[c.values[i]] = c.color;
-                        }
-                        return p;
-                    }, {});
-                    data = data.map(function(v) {
-                        v.color = (angular.isDefined(this[v.id])) ? this[v.id] : "#DDD";
-                        return v;
-                    }, degMap);
-                }
-            }
-
-            function draw() {
-
-                // Colorize
-                setColors();
-
-                // Size
-                var layout = osApi.getLayout();
-                width = $window.innerWidth - layout.left - layout.right;
-                height = $window.innerHeight - 120; //10
-                angular.element("#pca-chart").css({
-                    "width": width + "px",
-                    "padding-left": layout.left + "px"
-                });
-
-
-                minMax = data.reduce(function(p, c) {
-                    p.xMin = Math.min(p.xMin, c[0]);
-                    p.xMax = Math.max(p.xMax, c[0]);
-                    p.yMin = Math.min(p.yMin, c[1]);
-                    p.yMax = Math.max(p.yMax, c[1]);
-                    p.zMin = Math.min(p.zMin, c[2]);
-                    p.zMax = Math.max(p.zMax, c[2]);
-                    return p;
-                }, {
-                    xMin: Infinity,
-                    yMin: Infinity,
-                    zMin: Infinity,
-                    xMax: -Infinity,
-                    yMax: -Infinity,
-                    zMax: -Infinity
-                });
-
-                minMax.xMax = Math.max(Math.abs(minMax.xMin), minMax.xMax);
-                minMax.xMin = -minMax.xMax;
-                minMax.yMax = Math.max(Math.abs(minMax.yMin), minMax.yMax);
-                minMax.yMin = -minMax.yMax;
-                minMax.zMax = Math.max(Math.abs(minMax.zMin), minMax.zMax);
-                minMax.zMin = -minMax.zMax;
-
-                gl.setData(data, minMax);
-
-                osApi.setBusy(false);
-            }
-
             // App Event :: Resize
-            osApi.onResize.add(draw);
-
-            // App Event :: Color change
-            var onPatientColorChange = function(value) {
-                colors = value;
-                vm.showPanelColor = false;
-                draw();
-            };
-            osCohortService.onPatientColorChange.add(onPatientColorChange);
+            osApi.onResize.add(plot.resize);
 
             // App Event :: Cohort Change
             var cohort = osCohortService.getCohorts();
             var onCohortChange = function(c) {
                 cohort = c;
-                setSelected();
+                plot.setSelected(cohort);
             };
             osCohortService.onCohortChange.add(onCohortChange);
 
@@ -452,8 +267,7 @@
 
             // Destroy
             $scope.$on('$destroy', function() {
-                osApi.onResize.remove(draw);
-                osCohortService.onPatientColorChange.remove(onPatientColorChange);
+                osApi.onResize.remove(plot.resize);
                 osCohortService.onCohortChange.remove(onCohortChange);
             });
         }

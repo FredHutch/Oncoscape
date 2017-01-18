@@ -26,8 +26,8 @@
                 elPlots.forEach(function(plot) {
                     plot.attr("transform", d3.event.transform);
                 });
-
             }
+
             var layout = osApi.getLayout();
             var width = ($window.innerWidth - layout.left - layout.right);
             var height = ($window.innerHeight - 120);
@@ -168,7 +168,9 @@
                 return new Promise(function(resolve) {
 
                     var collection = clusterLayouts[clusterIndex].name;
+                    debugger;
                     osApi.query(collection).then(function(result) {
+                        debugger;
                         var data = result.data[0].data;
                         result.data[0].domain = Object.keys(data).reduce(function(p, c) {
                             var datum = data[c];
