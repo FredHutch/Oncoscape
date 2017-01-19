@@ -115,8 +115,6 @@
             });
             $scope.$watch('vm.pcaType', function(geneset) {
                 if (angular.isUndefined(geneset)) return;
-
-
                 osApi.query(clusterCollection, {
                         disease: vm.datasource.disease,
                         geneset: vm.geneSet.name,
@@ -144,7 +142,7 @@
                                 return v;
                             })
                             .sort(function(a, b) {
-                                return a.max - b.max;
+                                return b.max - a.max;
                             })
                             .slice(0, 50);
 

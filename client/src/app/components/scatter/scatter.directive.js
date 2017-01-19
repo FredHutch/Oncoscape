@@ -19,7 +19,7 @@
         return directive;
 
         /** @ngInject */
-        function ScatterController($q, osApi, osCohortService, $state, $stateParams, $timeout, $scope, d3, moment, $window, _, THREE) {
+        function ScatterController($q, osApi, osCohortService, $state, $stateParams, $timeout, $scope, d3, moment, $window, signals, _, THREE) {
 
             // Loading ...
             osApi.setBusy(true);
@@ -76,8 +76,7 @@
                     return geometry;
                 }
 
-
-
+                var pts = float32ArrayToVec3Array(positions);
 
 
                 var chartSpin = (function(el, geometry) {
@@ -163,7 +162,9 @@
                 })(el, particleGeometry());
 
 
-                var chartDrag = (function(el, geometry) {
+                var chartDrag = (function(el, geometry, signals, _) {
+
+                    var onChange = new signals.Signal();
 
                     var layout = osApi.getLayout();
                     width = $window.innerWidth - layout.left - layout.right;
@@ -187,11 +188,13 @@
                     );
                     camera.position.z = 10;
 
-                    var controls = new THREE.OrthographicTrackballControls(camera, renderer.domElement)
+                    var controls = new THREE.OrthographicTrackballControls(camera, renderer.domElement);
                     controls.dynamicDampingFactor = 0.4;
                     controls.noZoom = true;
                     controls.noPan = true;
                     controls.noRoll = true;
+
+                    controls.addEventListener("change", _.debounce(onChange.dispatch, 300));
 
                     var cloudMat = new THREE.ShaderMaterial({
                         uniforms: {
@@ -221,7 +224,7 @@
                         0.5,
                         0.5
                     );
-                    scene.add(pc1)
+                    scene.add(pc1);
                     var pc2 = new THREE.ArrowHelper(
                         new THREE.Vector3(1, 0, 0),
                         new THREE.Vector3(0, 0, 0),
@@ -230,7 +233,7 @@
                         0.5,
                         0.5
                     );
-                    scene.add(pc2)
+                    scene.add(pc2);
                     var pc3 = new THREE.ArrowHelper(
                         new THREE.Vector3(1, 0, 0),
                         new THREE.Vector3(0, 0, 0),
@@ -242,6 +245,7 @@
                     scene.add(pc3);
 
                     return {
+                        onChange: onChange,
                         scene: scene,
                         renderer: renderer,
                         node: node,
@@ -252,7 +256,7 @@
                         pc2: pc2,
                         pc3: pc3
                     };
-                })(el, particleGeometry());
+                })(el, particleGeometry(), signals, _);
 
 
                 var chart2d = (function(el, geometry) {
@@ -264,29 +268,113 @@
                     width = Math.floor(width * 0.5);
                     height = height - 255;
                     var xScale = d3.scaleLinear().domain([-10, 10]).range([0, width]);
-                    var yScale = d3.scaleLinear().domain([10, -10]).range([0, height]);
+
 
 
                     var svg = el.append('svg');
-                    var xTicks = xScale.ticks(5),
-                        yTicks = yScale.ticks(5);
-
-                    var xAxis = d3.svg.axis().scale(xScale).tickValues(xTicks);
-                    var yAxis = d3.svg.axis().scale(yScale).orient('left').tickValues(yTicks);
-                    var xAxisG = svg.append('g')
-                        .call(xAxis)
-                        .attr('transform', 'translate(' + [0, yScale.range()[1]] + ')');
-
-                    xAxisG.append('text')
-                        .attr('transform', 'translate(' + [d3.mean(xScale.range()), 35] + ')')
-                        .attr('text-anchor', 'middle')
-                        .style('font-size', 12)
-                        .text('pc1')
-                        .style('fill', color.primary)
+                    var gState = svg.append("g");
+                    var gDynamic = svg.append("g");
 
 
+                    function render(pts) {
 
-                })(el, geometry);
+
+                        var layout = osApi.getLayout();
+                        width = $window.innerWidth - layout.left - layout.right;
+                        height = $window.innerHeight - 30; //10
+                        width = Math.floor(width * 0.5);
+
+
+                        var ranges = pts.reduce(function(p, c) {
+                            p[0].min = Math.min(p[0].min, c[0]);
+                            p[0].max = Math.max(p[0].max, c[0]);
+                            p[1].min = Math.min(p[1].min, c[1]);
+                            p[1].max = Math.max(p[1].max, c[1]);
+                            p[2].min = Math.min(p[2].min, c[2]);
+                            p[2].max = Math.max(p[2].max, c[2]);
+                            return p;
+                        }, [
+                            { min: Infinity, max: -Infinity },
+                            { min: Infinity, max: -Infinity },
+                            { min: Infinity, max: -Infinity }
+                        ]).map(function(v) {
+                            return d3.scaleLinear().domain([v.min, v.max]).range([10, (width * 2) - 20]);
+                        }, width);
+
+
+                        // var range = d3.scaleLinear().domain(
+                        //     pts.reduce(function(p, c) {
+                        //         p[0] = Math.min(p[0], c[0]);
+                        //         p[0] = Math.min(p[0], c[1]);
+                        //         p[0] = Math.min(p[0], c[2]);
+                        //         p[1] = Math.max(p[1], c[0]);
+                        //         p[1] = Math.max(p[1], c[1]);
+                        //         p[1] = Math.max(p[1], c[2]);
+                        //         return p;
+                        //     }, [Infinity, -Infinity])
+                        // ).range([10, (width * 2) - 20]);
+
+
+
+                        var circleX = gDynamic.selectAll("circle.xPcaCircle").data(pts);
+                        circleX.exit().remove();
+                        circleX
+                            .enter()
+                            .append("circle")
+                            .attr("class", "xPcaCircle")
+                            .attr("cx", function(d) { return ranges[0](d[0]); })
+                            .attr("cy", 50)
+                            .attr("r", 1)
+                            .style("fill", color.primary);
+                        circleX
+                            .attr("cx", function(d) { return ranges[0](d[0]); });
+
+
+
+                        var circleY = gDynamic.selectAll("circle.yPcaCircle").data(pts);
+                        circleY.exit().remove();
+                        circleY
+                            .enter()
+                            .append("circle")
+                            .attr("class", "yPcaCircle")
+                            .attr("cx", function(d) { return ranges[1](d[1]); })
+                            .attr("cy", 70)
+                            .attr("r", 1)
+                            .style("fill", color.secondary);
+                        circleY
+                            .attr("cx", function(d) { return ranges[1](d[1]); })
+
+                        var circleZ = gDynamic.selectAll("circle.zPcaCircle").data(pts);
+                        circleZ.exit().remove();
+                        circleZ
+                            .enter()
+                            .append("circle")
+                            .attr("class", "zPcaCircle")
+                            .attr("cx", function(d) { return ranges[2](d[2]); })
+                            .attr("cy", 90)
+                            .attr("r", 1)
+                            .style("fill", color.tertiary);
+
+                        circleZ
+                            .attr("cx", function(d) { return ranges[2](d[2]); })
+
+
+
+
+
+
+
+                    }
+
+
+
+                    return {
+                        svg: svg,
+                        render: render
+                    };
+
+
+                })(el, particleGeometry());
 
 
 
@@ -301,11 +389,27 @@
 
 
 
-
-
-
                 var rotY = 0;
-                var didDrawOriginalPoints = false
+
+                function toScreenXY(pos3D) {
+                    var v = pos3D.project(chartDrag.camera);
+                    var percX = (v.x + 1) / 2;
+                    var percY = (-v.y + 1) / 2;
+                    var percZ = (v.z + 1) / 2;
+                    var left = percX * width;
+                    var top = percY * height;
+                    var z = 40 + percZ * 1400 // magic!
+                    return [left, top, z]
+                }
+
+                function updateChart2d() {
+                    var projectedPoints = pts.map(toScreenXY);
+                    console.dir(projectedPoints);
+                    chart2d.render(projectedPoints);
+                }
+                chartDrag.onChange.add(updateChart2d);
+
+
 
                 function update() {
                     requestAnimationFrame(update)
@@ -349,8 +453,6 @@
                     chartDrag.renderer.render(chartDrag.scene, chartDrag.camera);
 
                     if (!shouldUpdate) return;
-
-
                 }
 
                 update();
@@ -379,12 +481,12 @@
                     var layout = osApi.getLayout();
                     width = $window.innerWidth - layout.left - layout.right;
                     height = $window.innerHeight - 30; //10
-                    svg.style("position", "absolute");
-                    svg.style("top", height - 200 + "px");
-                    svg.style("left", layout.left + "px");
-                    svg.style("width", width + "px");
-                    svg.style("height", "160px");
-                    svg.style('background-color', 'rgba(0, 0, 0, 0.1)')
+                    chart2d.svg.style("position", "absolute");
+                    chart2d.svg.style("top", height - 200 + "px");
+                    chart2d.svg.style("left", layout.left + "px");
+                    chart2d.svg.style("width", width + "px");
+                    chart2d.svg.style("height", "160px");
+                    //chart2d.svg.style('background-color', 'rgba(0, 0, 0, 0.1)')
                     width = Math.floor(width * 0.5);
                     height = height - 255;
                     chartSpin.camera.aspect = width / height;
@@ -396,6 +498,7 @@
                     chartDrag.camera.near = 1;
                     chartDrag.camera.far = 100;
                     chartDrag.renderer.setSize(width, height);
+                    chartDrag.controls.handleResize();
                 }
 
                 return {
@@ -502,7 +605,7 @@
                                 return v;
                             })
                             .sort(function(a, b) {
-                                return a.max - b.max;
+                                return b.max - a.max;
                             })
                             .slice(0, 50);
 
