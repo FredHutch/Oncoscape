@@ -1,95 +1,29 @@
-<script type="x-shader/x-vertex" id="vertexshader">
-    uniform float pointSize;
-    uniform vec3 color;
-    uniform float alpha;
-    uniform int shouldResize;
-    varying vec4 vColor;
-    void main() {
-      vec4 mvPosition = modelViewMatrix * vec4(position, 1.0);
-      if (shouldResize == 1) {
-        gl_PointSize = pointSize * ( mvPosition.z + 30.0) / 10.0 + 10.0;
-      } else {
-        gl_PointSize = pointSize;
-      }
-      gl_Position = projectionMatrix * mvPosition;
-      if (shouldResize == 1) {
-        vColor = vec4(color, ( mvPosition.z + 30.0) / 10.0 + 0.0);
-        // vColor = vec4(color, 0.8);
-      } else {
-        vColor = vec4(color, alpha);
-      }
-    }
-    
-  </script>
-  <script type="x-shader/x-fragment" id="fragmentshader">
-    varying vec4 vColor;
-    void main() {
-      float f = 0.5;
-      float d = abs(distance(gl_PointCoord - f, vec2(0.0, 0.0) ) );
-      if(d < f) {
-        gl_FragColor = vColor;
-      } else {
-        discard;
-      }
-    }
-  </script>
         <os-tray content="tray-content-block">
             <section class="tray-content">
                 <div class="row">
-                    <div class="col-xs-12 form-item">
-                        <label>Gene Set</label>
+                <div class="col-xs-12 form-item">
+                        <label>Cluster</label>
                         <div class="input-group">
                             <div class="dropdown bs-dropdown">
-                                <button class="btn btn-default dropdown-toggle" type="button" id="dropdownMenu1" data-toggle="dropdown" aria-haspopup="true" aria-expanded="true">{{vm.geneSet.name}}<span class="caret"></span></button>
+                                <button class="btn btn-default dropdown-toggle" 
+                                style="max-width: 220px;"
+                                type="button" id="dropdownMenu1" data-toggle="dropdown" aria-haspopup="true" aria-expanded="true">{{vm.layout.name}}<span class="caret"></span></button>
                                 <ul class="dropdown-menu" aria-labelledby="dropdownMenu1">
-                                    <li ng-repeat="item in vm.geneSets" ng-click="vm.geneSet=item">{{item.name}}</li>
+                                    <li ng-repeat="item in vm.layouts" ng-click="vm.setLayout(item)">{{item.name}}</li>
                                 </ul>
                             </div>
                             <div class="input-group-addon btn-help-icon"><a href="http://resources.sttrcancer.org/api/#gene-sets" target="_blank"><i style="color:#000" class="glyphicon glyphicon-question-sign"></i></a></div>
                         </div>
                     </div>
                     <div class="col-xs-12 form-item">
-                        <label>Data Source</label>
-                        <div class="input-group">
-                            <div class="dropdown bs-dropdown">
-                                <button class="btn btn-default dropdown-toggle" type="button" id="dropdownMenu1" data-toggle="dropdown" aria-haspopup="true" aria-expanded="true">{{vm.source.name}}<span class="caret"></span></button>
-                                <ul class="dropdown-menu" aria-labelledby="dropdownMenu1">
-                                    <li ng-repeat="item in vm.sources" ng-click="vm.source=item">{{item.name}}</li>
-                                </ul>
-                            </div>
-                            <div class="input-group-addon btn-help-icon"><a href="http://resources.sttrcancer.org/api/#data-content" target="_blank"><i style="color:#000" class="glyphicon glyphicon-question-sign"></i></a></div>
-
+                        <label>Drag Cluster To Orient + Brush Ticks To Select</label>
+                        <div style="background-color:#FFF; border: 1px solid #EAEAEA;cursor: hand;position: relative;width:260px;height:260px;">
+                        <div id="scatter-select-controller" style="position:absolute;width:260px;height: 260px;"></div>
+                        <div id="scatter-axis-controller" style="position:absolute;width:240px;height: 240px;top:10px;left:10px;"></div>
+                            
                         </div>
                     </div>
-                    <div class="col-xs-12 form-item">
-                        <label>Data Type</label>
-                        <div class="input-group">
-                            <div class="dropdown bs-dropdown">
-                                <button style="max-width:220px" class="btn btn-default dropdown-toggle" type="button" id="dropdownMenu1" data-toggle="dropdown" aria-haspopup="true" aria-expanded="true">{{vm.pcaType.name}}<span class="caret"></span></button>
-                                <ul class="dropdown-menu" aria-labelledby="dropdownMenu1">
-                                    <li ng-repeat="item in vm.pcaTypes" ng-click="vm.pcaType=item">{{item.name}}</li>
-                                </ul>
-                            </div>
-                            <div class="input-group-addon btn-help-icon"><a href="http://resources.sttrcancer.org/api/#cluster" target="_blank"><i style="color:#000" class="glyphicon glyphicon-question-sign"></i></a></div>
-                        </div>
-                    </div>
-                    <div ng-if="vm.legendCaption.length>0" class="col-xs-12 form-item">
-                        <label>Patient {{vm.legendCaption}}</label>
-                        <div ng-repeat="item in vm.legendNodes" class="legend-bar legend-bar-button" style="border-color:{{item.color}};">{{item.name}}<span id="{{item.id}}" class="legend-count"></span>
-                            <label style="float:right;padding-top:5px;" class="btn-group">
-                        <button 
-                        ng-click="vm.deselectColor(item)"
-                        class="btn btn-xs btn-default" style="background-color:#47a8d8;color:#FFF;text-shadow: 0 1px rgba(0, 0, 0, 0.2);width:24px;margin-right:1px;"><i class="fa fa-circle-o"></i></button>
-                        <button
-                        ng-click="vm.selectColor(item)"
-                        class="btn btn-xs btn-default" style="background-color:#47a8d8;color:#FFF;text-shadow: 0 1px rgba(0, 0, 0, 0.2);width:24px;margin-left:1px;"><i class="fa fa-dot-circle-o"></i></button>
-                    </label>
-                        </div>
-                    </div>
-                    <div class="col-xs-12 form-item">
-                        <label>Patient</label>
-                        <button class="btn btn-default btn-no-focus" type="button" style="width:100%;font-weight: 300;" ng-click="vm.showPanelColor = true">Color Options</button>
-                    </div>
+                  
                     <div class="col-xs-12 form-item">
                         <label>Variance Explained</label>
                         <div>

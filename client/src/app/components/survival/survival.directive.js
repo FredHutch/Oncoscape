@@ -71,9 +71,11 @@
 
             // Curve Functions + Events
             var curveFunction = d3.line()
-                .curve(d3.curveStepBefore)
+                .curve(d3.curveStepAfter)
                 .x(function(d) { return Math.round(layout.xScale(d.t)); })
-                .y(function(d) { return Math.round(layout.yScale(d.s)); });
+                .y(function(d) {
+                    return layout.yScale(d.s);
+                });
             var onCurveMouseOver = function() {}; // d3.event.target.style.strokeWidth = "3px"; };
             var onCurveMouseOut = function() {}; // d3.event.target.style.strokeWidth = "1px"; };
 
@@ -182,6 +184,7 @@
                 elContainer.css({ 'width': layout.width, 'height': layout.height, 'margin-left': (osLayout.left === 0) ? 20 : osLayout.left });
 
                 // Scale Axis
+
                 layout.xScale.domain(layout.xDomain).range([40, layout.width - 40]);
                 layout.yScale.domain(layout.yDomain).range([layout.height - 40, 10]);
 

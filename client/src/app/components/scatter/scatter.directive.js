@@ -25,178 +25,125 @@
             osApi.setBusy(true);
 
             // Elements
+            var color = {
+                difference: "#cbcbcb",
+                eigen: "#cbcbcb",
+                primary: "#FF9800",
+                quaternary: "#f1c40f",
+                quinary: "#2c3e50",
+                secondary: "#673AB7",
+                senary: "#039BE5",
+                shy: "rgba(0, 0, 0, 0.2)",
+                tertiary: "#4CAF50"
+            };
 
-            var plot = (function(osApi, el, $window) {
-
-                var data;
-                var width, height;
-                var clock = new THREE.Clock();
-                var color = {
-                    difference: "#cbcbcb",
-                    eigen: "#cbcbcb",
-                    primary: "#FF9800",
-                    quaternary: "#f1c40f",
-                    quinary: "#2c3e50",
-                    secondary: "#673AB7",
-                    senary: "#039BE5",
-                    shy: "rgba(0, 0, 0, 0.2)",
-                    tertiary: "#4CAF50"
-                };
-
-
-                var particles = 500;
-                var positions = new Float32Array(particles * 3)
-                var shouldUpdate = true;
-                var dx = 2;
-                var norm = d3.randomNormal(0, 0.7);
-                var means = [0, 0, 0];
-                var i;
-                for (i = 0; i < positions.length; i += 3) {
-                    var x = norm(),
-                        y = norm(),
-                        z = norm();
-                    if (i / 3 < particles / 3) x -= 0.5, y += 1, z -= 0.5;
-                    else if (i / 3 < particles / 3 * 2) x += dx, y += dx, z += dx;
-                    else x -= dx, y -= dx, z -= dx;
-                    positions[i] = x, positions[i + 1] = y, positions[i + 2] = z
-                    means[0] += x / particles;
-                    means[1] += y / particles;
-                    means[2] += z / particles;
+            function float32ArrayToVec3Array(arr) {
+                var res = [];
+                for (var i = 0; i < arr.length; i += 3) {
+                    res[i / 3] = new THREE.Vector3(arr[i], arr[i + 1], arr[i + 2])
                 }
-                for (i = 0; i < positions.length; i += 3) {
-                    positions[i] -= means[0];
-                    positions[i + 1] -= means[1];
-                    positions[i + 2] -= means[2];
+                return res;
+            }
+
+
+            var positions;
+            var pts;
+            var geom;
+
+
+
+            function particleGeometry() {
+                var geometry = new THREE.BufferGeometry()
+                geometry.addAttribute('position', new THREE.BufferAttribute(positions, 3));
+                geometry.computeBoundingSphere()
+                return geometry;
+            }
+
+
+
+
+            //     function resize() {
+
+            //         var layout = osApi.getLayout();
+            //         width = $window.innerWidth - layout.left - layout.right;
+            //         height = $window.innerHeight - 30; //10
+            //         chart2d.svg.style("position", "absolute");
+            //         chart2d.svg.style("top", height - 200 + "px");
+            //         chart2d.svg.style("left", layout.left + "px");
+            //         chart2d.svg.style("width", width + "px");
+            //         chart2d.svg.style("height", "160px");
+            //         //chart2d.svg.style('background-color', 'rgba(0, 0, 0, 0.1)')
+            //         width = Math.floor(width * 0.5);
+            //         height = height - 255;
+            //         chartSpin.camera.aspect = width / height;
+            //         chartSpin.renderer.setSize(width, height);
+            // chartDrag.camera.left = width / -2;
+            // chartDrag.camera.right = width / 2;
+            // chartDrag.camera.top = height / 2;
+            // chartDrag.camera.bottom = height / -2;
+            // chartDrag.camera.near = 1;
+            // chartDrag.camera.far = 100;
+            // chartDrag.renderer.setSize(width, height);
+            // chartDrag.controls.handleResize();
+            //     }
+
+
+            var orbitControl = (function() {
+                var onChange = new signals.Signal();
+                var scene, renderer, camera, material, controls;
+                var pc1, pc2, pc3;
+                var width, height, xScale, yScale;
+
+                function update() {
+
+                    requestAnimationFrame(update);
+
+                    controls.update();
+                    camera.updateMatrixWorld(true);
+
+                    // Orient Arrows
+                    var pc1Dir = new THREE.Vector3(1, 0, -9 / 11).unproject(camera);
+                    var pc2Dir = new THREE.Vector3(0, 1, -9 / 11).unproject(camera);
+                    pc1.setDirection(pc1Dir.clone().normalize());
+                    pc1.setLength(4, 1, 0.5);
+                    pc2.setDirection(pc2Dir.clone().normalize());
+                    pc2.setLength(4, 1, 0.5);
+                    pc3.setDirection(getCamera().position.clone().normalize());
+                    pc3.setLength(4, 1, 0.5);
+                    renderer.render(scene, camera);
                 }
 
-                function particleGeometry() {
-                    var geometry = new THREE.BufferGeometry()
-                    geometry.addAttribute('position', new THREE.BufferAttribute(positions, 3))
-                    geometry.computeBoundingSphere()
-                    return geometry;
-                }
+                function init(el, color, geometry) {
 
-                var pts = float32ArrayToVec3Array(positions);
+                    width = 240;
+                    height = 240;
+                    xScale = d3.scaleLinear().domain([-10, 10]).range([0, width]);
+                    yScale = d3.scaleLinear().domain([10, -10]).range([0, height]);
 
-
-                var chartSpin = (function(el, geometry) {
-
-                    // Scene
-                    var scene = new THREE.Scene();
-                    var renderer = new THREE.WebGLRenderer({ alpha: true, antialias: true });
+                    scene = new THREE.Scene();
+                    renderer = new THREE.WebGLRenderer({ alpha: true, antialias: true });
                     renderer.setPixelRatio($window.devicePixelRatio);
-                    var node = el.node().append(renderer.domElement);
-                    var camera = new THREE.PerspectiveCamera(75, 1, 0.1, 1000);
-                    camera.setLens(50);
-                    camera.matrixAutoUpdate = false;
 
-                    // Material
-                    var cloudMat = new THREE.ShaderMaterial({
-                        uniforms: {
-                            color: {
-                                type: 'c',
-                                value: new THREE.Color(color.senary)
-                            },
-                            alpha: { type: 'f', value: 0.4 },
-                            pointSize: { type: 'f', value: 10 },
-                            shouldResize: { type: '1i', value: 1 }
-                        },
-                        vertexShader: d3.select('#vertexshader').node().textContent,
-                        fragmentShader: d3.select('#fragmentshader').node().textContent,
-                        transparent: true
-                    });
-
-                    // Particles
-                    var particles = new THREE.PointCloud(geometry, cloudMat);
-                    scene.add(particles);
-
-                    // Arrows
-                    var pc1 = new THREE.ArrowHelper(
-                        new THREE.Vector3(1, 0, 0),
-                        new THREE.Vector3(0, 0, 0),
-                        2.5,
-                        new THREE.Color(color.primary).getHex(),
-                        0.5,
-                        0.5
-                    );
-                    scene.add(pc1);
-
-                    var pc2 = new THREE.ArrowHelper(
-                        new THREE.Vector3(1, 0, 0),
-                        new THREE.Vector3(0, 0, 0),
-                        2.5,
-                        new THREE.Color(color.secondary).getHex(),
-                        0.5,
-                        10
-                    );
-                    scene.add(pc2);
-                    var pc3 = new THREE.ArrowHelper(
-                        new THREE.Vector3(1, 0, 0),
-                        new THREE.Vector3(0, 0, 0),
-                        2.5,
-                        new THREE.Color(color.tertiary).getHex(),
-                        0.5,
-                        0.5
-                    );
-                    scene.add(pc3);
-
-                    // Grid
-                    var axisOffset = { x: -2, y: -2, z: -3 };
-                    var gridHelper = new THREE.GridHelper(10, 10, 0xBBBBBB, 0xBBBBBB);
-                    gridHelper.position.x = axisOffset.x;
-                    gridHelper.position.z = axisOffset.y;
-                    gridHelper.position.y = axisOffset.z;
-                    scene.add(gridHelper);
-
-                    return {
-                        scene: scene,
-                        renderer: renderer,
-                        node: node,
-                        camera: camera,
-                        particles: particles,
-                        pc1: pc1,
-                        pc2: pc2,
-                        pc3: pc3
-                    };
-
-                })(el, particleGeometry());
-
-
-                var chartDrag = (function(el, geometry, signals, _) {
-
-                    var onChange = new signals.Signal();
-
-                    var layout = osApi.getLayout();
-                    width = $window.innerWidth - layout.left - layout.right;
-                    height = $window.innerHeight - 30; //10
-                    width = Math.floor(width * 0.5);
-                    height = height - 255;
-                    var xScale = d3.scaleLinear().domain([-10, 10]).range([0, width]);
-                    var yScale = d3.scaleLinear().domain([10, -10]).range([0, height]);
-
-                    var scene = new THREE.Scene();
-                    var renderer = new THREE.WebGLRenderer({ alpha: true, antialias: true });
-                    renderer.setPixelRatio($window.devicePixelRatio);
-                    var node = el.node().append(renderer.domElement);
+                    el.node().append(renderer.domElement);
                     d3.select(renderer.domElement).style('cursor', 'move');
 
-                    var camera = new THREE.OrthographicCamera(
+                    camera = new THREE.OrthographicCamera(
                         xScale.invert(0), xScale.invert(width),
                         yScale.invert(0), yScale.invert(height),
                         1,
                         100
                     );
                     camera.position.z = 10;
+                    camera.zoom = 1.5;
+                    camera.updateProjectionMatrix();
 
-                    var controls = new THREE.OrthographicTrackballControls(camera, renderer.domElement);
+                    controls = new THREE.OrthographicTrackballControls(camera, renderer.domElement);
                     controls.dynamicDampingFactor = 0.4;
                     controls.noZoom = true;
                     controls.noPan = true;
                     controls.noRoll = true;
-
                     controls.addEventListener("change", _.debounce(onChange.dispatch, 300));
-
-                    var cloudMat = new THREE.ShaderMaterial({
+                    material = new THREE.ShaderMaterial({
                         uniforms: {
                             color: {
                                 type: 'c',
@@ -211,12 +158,11 @@
                         transparent: true
                     });
 
-                    var particles = new THREE.PointCloud(geometry, cloudMat);
+                    var particles = new THREE.PointCloud(geometry, material);
                     scene.add(particles);
 
-
                     // Add Arrows
-                    var pc1 = new THREE.ArrowHelper(
+                    pc1 = new THREE.ArrowHelper(
                         new THREE.Vector3(1, 0, 0),
                         new THREE.Vector3(0, 0, 0),
                         2.5,
@@ -225,7 +171,7 @@
                         0.5
                     );
                     scene.add(pc1);
-                    var pc2 = new THREE.ArrowHelper(
+                    pc2 = new THREE.ArrowHelper(
                         new THREE.Vector3(1, 0, 0),
                         new THREE.Vector3(0, 0, 0),
                         2.5,
@@ -234,7 +180,7 @@
                         0.5
                     );
                     scene.add(pc2);
-                    var pc3 = new THREE.ArrowHelper(
+                    pc3 = new THREE.ArrowHelper(
                         new THREE.Vector3(1, 0, 0),
                         new THREE.Vector3(0, 0, 0),
                         2.5,
@@ -244,172 +190,42 @@
                     );
                     scene.add(pc3);
 
-                    return {
-                        onChange: onChange,
-                        scene: scene,
-                        renderer: renderer,
-                        node: node,
-                        camera: camera,
-                        particles: particles,
-                        controls: controls,
-                        pc1: pc1,
-                        pc2: pc2,
-                        pc3: pc3
-                    };
-                })(el, particleGeometry(), signals, _);
 
+                    camera.left = width / -2;
+                    camera.right = width / 2;
+                    camera.top = height / 2;
+                    camera.bottom = height / -2;
+                    camera.near = 1;
+                    camera.far = 100;
+                    renderer.setSize(width, height);
+                    controls.handleResize();
 
-                var chart2d = (function(el, geometry) {
-
-
-                    var layout = osApi.getLayout();
-                    width = $window.innerWidth - layout.left - layout.right;
-                    height = $window.innerHeight - 30; //10
-                    width = Math.floor(width * 0.5);
-                    height = height - 255;
-                    var xScale = d3.scaleLinear().domain([-10, 10]).range([0, width]);
-
-
-
-                    var svg = el.append('svg');
-                    var gState = svg.append("g");
-                    var gDynamic = svg.append("g");
-
-
-                    function render(pts) {
-
-
-                        var layout = osApi.getLayout();
-                        width = $window.innerWidth - layout.left - layout.right;
-                        height = $window.innerHeight - 30; //10
-                        width = Math.floor(width * 0.5);
-
-
-                        var ranges = pts.reduce(function(p, c) {
-                            p[0].min = Math.min(p[0].min, c[0]);
-                            p[0].max = Math.max(p[0].max, c[0]);
-                            p[1].min = Math.min(p[1].min, c[1]);
-                            p[1].max = Math.max(p[1].max, c[1]);
-                            p[2].min = Math.min(p[2].min, c[2]);
-                            p[2].max = Math.max(p[2].max, c[2]);
-                            return p;
-                        }, [
-                            { min: Infinity, max: -Infinity },
-                            { min: Infinity, max: -Infinity },
-                            { min: Infinity, max: -Infinity }
-                        ]).map(function(v) {
-                            return d3.scaleLinear().domain([v.min, v.max]).range([10, (width * 2) - 20]);
-                        }, width);
-
-
-                        // var range = d3.scaleLinear().domain(
-                        //     pts.reduce(function(p, c) {
-                        //         p[0] = Math.min(p[0], c[0]);
-                        //         p[0] = Math.min(p[0], c[1]);
-                        //         p[0] = Math.min(p[0], c[2]);
-                        //         p[1] = Math.max(p[1], c[0]);
-                        //         p[1] = Math.max(p[1], c[1]);
-                        //         p[1] = Math.max(p[1], c[2]);
-                        //         return p;
-                        //     }, [Infinity, -Infinity])
-                        // ).range([10, (width * 2) - 20]);
-
-
-
-                        var circleX = gDynamic.selectAll("circle.xPcaCircle").data(pts);
-                        circleX.exit().remove();
-                        circleX
-                            .enter()
-                            .append("circle")
-                            .attr("class", "xPcaCircle")
-                            .attr("cx", function(d) { return ranges[0](d[0]); })
-                            .attr("cy", 50)
-                            .attr("r", 1)
-                            .style("fill", color.primary);
-                        circleX
-                            .attr("cx", function(d) { return ranges[0](d[0]); });
-
-
-
-                        var circleY = gDynamic.selectAll("circle.yPcaCircle").data(pts);
-                        circleY.exit().remove();
-                        circleY
-                            .enter()
-                            .append("circle")
-                            .attr("class", "yPcaCircle")
-                            .attr("cx", function(d) { return ranges[1](d[1]); })
-                            .attr("cy", 70)
-                            .attr("r", 1)
-                            .style("fill", color.secondary);
-                        circleY
-                            .attr("cx", function(d) { return ranges[1](d[1]); })
-
-                        var circleZ = gDynamic.selectAll("circle.zPcaCircle").data(pts);
-                        circleZ.exit().remove();
-                        circleZ
-                            .enter()
-                            .append("circle")
-                            .attr("class", "zPcaCircle")
-                            .attr("cx", function(d) { return ranges[2](d[2]); })
-                            .attr("cy", 90)
-                            .attr("r", 1)
-                            .style("fill", color.tertiary);
-
-                        circleZ
-                            .attr("cx", function(d) { return ranges[2](d[2]); })
-
-
-
-
-
-
-
-                    }
-
-
-
-                    return {
-                        svg: svg,
-                        render: render
-                    };
-
-
-                })(el, particleGeometry());
-
-
-
-
-                function float32ArrayToVec3Array(arr) {
-                    var res = [];
-                    for (var i = 0; i < arr.length; i += 3) {
-                        res[i / 3] = new THREE.Vector3(arr[i], arr[i + 1], arr[i + 2])
-                    }
-                    return res;
+                    update();
                 }
 
+                function getCamera() {
+                    return camera;
+                }
+
+                function setData() {
+
+                }
+
+                return {
+                    onChange: onChange,
+                    init: init,
+                    getCamera: getCamera,
+                    setData: setData
+                };
+            })(signals);
 
 
+            var chart = (function() {
+
+                var onChange = new signals.Signal();
+                var scene, renderer, camera, orbitCamera, material, particles, pc1, pc2, pc3;
                 var rotY = 0;
-
-                function toScreenXY(pos3D) {
-                    var v = pos3D.project(chartDrag.camera);
-                    var percX = (v.x + 1) / 2;
-                    var percY = (-v.y + 1) / 2;
-                    var percZ = (v.z + 1) / 2;
-                    var left = percX * width;
-                    var top = percY * height;
-                    var z = 40 + percZ * 1400 // magic!
-                    return [left, top, z]
-                }
-
-                function updateChart2d() {
-                    var projectedPoints = pts.map(toScreenXY);
-                    console.dir(projectedPoints);
-                    chart2d.render(projectedPoints);
-                }
-                chartDrag.onChange.add(updateChart2d);
-
-
+                var clock = new THREE.Clock();
 
                 function update() {
                     requestAnimationFrame(update)
@@ -428,166 +244,235 @@
                     var cameraPosCenter = new THREE.Matrix4()
                     cameraMat = cameraPosCenter.multiplyMatrices(cameraPosCenter, cameraMat)
 
-                    chartSpin.camera.matrix = cameraMat;
-                    chartSpin.camera.updateMatrixWorld(true);
-                    chartSpin.renderer.render(chartSpin.scene, chartSpin.camera);
-
-                    chartDrag.controls.update();
-                    chartDrag.camera.updateMatrixWorld(true);
+                    camera.matrix = cameraMat;
+                    camera.updateMatrixWorld(true);
+                    renderer.render(scene, camera);
 
                     // Orient Arrows
-                    var pc1Dir = new THREE.Vector3(1, 0, -9 / 11).unproject(chartDrag.camera);
-                    var pc2Dir = new THREE.Vector3(0, 1, -9 / 11).unproject(chartDrag.camera);
-                    chartSpin.pc1.setDirection(pc1Dir.clone().normalize());
-                    chartSpin.pc1.setLength(4, 1, 0.5);
-                    chartSpin.pc2.setDirection(pc2Dir.clone().normalize());
-                    chartSpin.pc2.setLength(4, 1, 0.5);
-                    chartSpin.pc3.setDirection(chartDrag.camera.position.clone().normalize());
-                    chartSpin.pc3.setLength(4, 1, 0.5);
-                    chartDrag.pc1.setDirection(pc1Dir.clone().normalize());
-                    chartDrag.pc1.setLength(4, 1, 0.5);
-                    chartDrag.pc2.setDirection(pc2Dir.clone().normalize());
-                    chartDrag.pc2.setLength(4, 1, 0.5);
-                    chartDrag.pc3.setDirection(chartDrag.camera.position.clone().normalize());
-                    chartDrag.pc3.setLength(4, 1, 0.5);
-                    chartDrag.renderer.render(chartDrag.scene, chartDrag.camera);
-
-                    if (!shouldUpdate) return;
+                    var pc1Dir = new THREE.Vector3(1, 0, -9 / 11).unproject(orbitCamera);
+                    var pc2Dir = new THREE.Vector3(0, 1, -9 / 11).unproject(orbitCamera);
+                    pc1.setDirection(pc1Dir.clone().normalize());
+                    pc1.setLength(4, 1, 0.5);
+                    pc2.setDirection(pc2Dir.clone().normalize());
+                    pc2.setLength(4, 1, 0.5);
+                    pc3.setDirection(camera.position.clone().normalize());
+                    pc3.setLength(4, 1, 0.5);
+                    pc1.setDirection(pc1Dir.clone().normalize());
+                    pc1.setLength(4, 1, 0.5);
+                    pc2.setDirection(pc2Dir.clone().normalize());
+                    pc2.setLength(4, 1, 0.5);
+                    pc3.setDirection(orbitCamera.position.clone().normalize());
+                    pc3.setLength(4, 1, 0.5);
                 }
 
-                update();
-                resize();
+                function init(el, color, geometry, orbitControl) {
 
-                function setData(value) {
-                    osApi.setBusy(true);
-                    data = value;
+                    orbitCamera = orbitControl.getCamera();
+                    scene = new THREE.Scene();
+                    renderer = new THREE.WebGLRenderer({ alpha: true, antialias: true });
+                    renderer.setPixelRatio($window.devicePixelRatio);
+                    el.node().append(renderer.domElement);
+                    camera = new THREE.PerspectiveCamera(50, 1, 0.1, 1000);
+                    camera.zoom = 1.2;
+                    camera.setLens(50);
+                    camera.matrixAutoUpdate = false;
 
-                    osApi.setBusy(false);
+                    // Material
+                    material = new THREE.ShaderMaterial({
+                        uniforms: {
+                            color: {
+                                type: 'c',
+                                value: new THREE.Color(color.senary)
+                            },
+                            alpha: { type: 'f', value: 0.4 },
+                            pointSize: { type: 'f', value: 10 },
+                            shouldResize: { type: '1i', value: 1 }
+                        },
+                        vertexShader: d3.select('#vertexshader').node().textContent,
+                        fragmentShader: d3.select('#fragmentshader').node().textContent,
+                        transparent: true
+                    });
+
+                    // Particles
+                    particles = new THREE.PointCloud(geometry, material);
+                    scene.add(particles);
+
+                    // Arrows
+                    pc1 = new THREE.ArrowHelper(
+                        new THREE.Vector3(1, 0, 0),
+                        new THREE.Vector3(0, 0, 0),
+                        2.5,
+                        new THREE.Color(color.primary).getHex(),
+                        0.5,
+                        0.5
+                    );
+                    scene.add(pc1);
+
+                    pc2 = new THREE.ArrowHelper(
+                        new THREE.Vector3(1, 0, 0),
+                        new THREE.Vector3(0, 0, 0),
+                        2.5,
+                        new THREE.Color(color.secondary).getHex(),
+                        0.5,
+                        10
+                    );
+                    scene.add(pc2);
+                    pc3 = new THREE.ArrowHelper(
+                        new THREE.Vector3(1, 0, 0),
+                        new THREE.Vector3(0, 0, 0),
+                        2.5,
+                        new THREE.Color(color.tertiary).getHex(),
+                        0.5,
+                        0.5
+                    );
+                    scene.add(pc3);
+
+                    // Grid
+                    var axisOffset = { x: -2, y: -2, z: -3 };
+                    var gridHelper = new THREE.GridHelper(10, 10, 0xBBBBBB, 0xBBBBBB);
+                    gridHelper.position.x = axisOffset.x;
+                    gridHelper.position.z = axisOffset.y;
+                    gridHelper.position.y = axisOffset.z;
+                    scene.add(gridHelper);
+
+
+
+
+
+                    // Start Update Loop
+                    update();
                 }
 
-                function setColors(value) {
-
+                function resize(width, height) {
+                    camera.aspect = width / height;
+                    renderer.setSize(width, height);
                 }
 
-                function setSelected() {
+                function setData() {
 
-                }
-
-
-
-
-                function resize() {
-
-                    var layout = osApi.getLayout();
-                    width = $window.innerWidth - layout.left - layout.right;
-                    height = $window.innerHeight - 30; //10
-                    chart2d.svg.style("position", "absolute");
-                    chart2d.svg.style("top", height - 200 + "px");
-                    chart2d.svg.style("left", layout.left + "px");
-                    chart2d.svg.style("width", width + "px");
-                    chart2d.svg.style("height", "160px");
-                    //chart2d.svg.style('background-color', 'rgba(0, 0, 0, 0.1)')
-                    width = Math.floor(width * 0.5);
-                    height = height - 255;
-                    chartSpin.camera.aspect = width / height;
-                    chartSpin.renderer.setSize(width, height);
-                    chartDrag.camera.left = width / -2;
-                    chartDrag.camera.right = width / 2;
-                    chartDrag.camera.top = height / 2;
-                    chartDrag.camera.bottom = height / -2;
-                    chartDrag.camera.near = 1;
-                    chartDrag.camera.far = 100;
-                    chartDrag.renderer.setSize(width, height);
-                    chartDrag.controls.handleResize();
                 }
 
                 return {
-                    resize: resize,
+                    onChange: onChange,
+                    init: init, // Element, Colors, Geometry
                     setData: setData,
-                    setSelected: setSelected,
-                    setColors: setColors
+                    resize: resize
                 };
-            })(osApi, d3.select(angular.element("#scatter-chart")[0]), $window);
+            })();
 
 
+            var selectControl = (function() {
+                var onChange = new signals.Signal();
+                var svg, groupLines, groupBrushes, orbitCamera, pts;
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-            // Properties
-            var clusterCollection = osApi.getDataSource().disease + "_cluster";
-            var data, minMax;
-            var width, height;
-            var colors = {
-                data: [],
-                dataset: osApi.getDataSource().disease,
-                name: "None",
-                type: "color"
-            };
-
-            // View Model Update
-            var vm = (function(vm, osApi) {
-                vm.loadings = [];
-                vm.pc1 = vm.pc2 = [];
-                vm.datasource = osApi.getDataSource();
-                vm.geneSets = [];
-                vm.geneSet = null;
-                return vm;
-            })(this, osApi);
-
-            // Setup Watches
-            $scope.$watch('vm.geneSet', function() {
-                if (vm.geneSet === null) return;
-                vm.sources = vm.geneSet.sources;
-                if (angular.isUndefined(vm.source)) {
-                    vm.source = vm.sources[0];
-                } else {
-                    var newSource = vm.sources.filter(function(v) { return (v.name === vm.source.name); });
-                    vm.source = (newSource.length === 1) ? newSource[0] : vm.sources[0];
+                function toScreenXY(pos3D) {
+                    var v = pos3D.clone().project(orbitCamera);
+                    var percX = (v.x + 1) / 2;
+                    var percY = (-v.y + 1) / 2;
+                    var percZ = (v.z + 1) / 2;
+                    var left = percX * 120;
+                    var top = percY * 120;
+                    var z = percZ * (120 * 6) // magic!
+                    return [left * 2, top * 2, z * 2];
                 }
-            });
-            $scope.$watch('vm.source', function() {
-                if (vm.geneSet === null) return;
-                vm.pcaTypes = vm.source.types;
-                if (angular.isUndefined(vm.pcaType)) {
-                    vm.pcaType = vm.pcaTypes[0];
-                } else {
-                    var newSource = vm.pcaTypes.filter(function(v) { return (v.name === vm.pcaType.name); });
-                    vm.pcaType = (newSource.length === 1) ? newSource[0] : vm.pcaTypes[0];
-                }
-            });
-            $scope.$watch('vm.pcaType', function(geneset) {
-                if (angular.isUndefined(geneset)) return;
 
-                osApi.query(clusterCollection, {
+                function draw() {
+                    var data = pts.map(toScreenXY);
+
+                    var lines = groupLines.selectAll(".scatter-bottom").data(data);
+                    lines.exit().remove();
+                    lines.enter().append("rect").attr("width", 1).attr("height", 10).style("fill", color.primary).attr("class", "scatter-bottom")
+                        .attr("y", 250).attr("x", function(d) { return d[0]; });
+                    lines.transition(500).duration(500).attr("x", function(d) { return d[0]; });
+
+                    lines = groupLines.selectAll(".scatter-left").data(data);
+                    lines.exit().remove();
+                    lines.enter().append("rect").attr("width", 10).attr("height", 1).style("fill", color.secondary).attr("class", "scatter-left")
+                        .attr("x", 0).attr("y", function(d) { return d[1]; });
+                    lines.transition(500).duration(500).attr("y", function(d) { return d[1]; });
+
+                    lines = groupLines.selectAll(".scatter-right").data(data);
+                    lines.exit().remove();
+                    lines.enter().append("rect").attr("width", 10).attr("height", 1).style("fill", color.tertiary).attr("class", "scatter-right")
+                        .attr("x", 250).attr("y", function(d) { return d[2]; });
+                    lines.transition(500).duration(500).attr("y", function(d) { return d[2]; });
+                }
+
+
+
+                function init(el, color, points, orbitControl) {
+                    pts = points;
+                    orbitCamera = orbitControl.getCamera();
+                    orbitControl.onChange.add(draw)
+                    svg = el.append('svg');
+                    svg.attr("height", "260px");
+                    svg.attr("width", "260px");
+                    svg.append("rect").attr("width", 259.5).attr("height", 259.5).style("shape-rendering", "crispEdges").style("stroke-width", 1).style("stroke", "#EAEAEA").style("fill", "#FFF").attr("x", 0).attr("y", 0);
+                    svg.append("rect").attr("width", 239.5).attr("height", 249.5).style("shape-rendering", "crispEdges").style("stroke-width", 1).style("stroke", "#EAEAEA").style("fill", "#FFF").attr("x", 10).attr("y", 0);
+
+                    groupLines = svg.append("g");
+
+                    groupBrushes = svg.append("g");
+                    var x = groupBrushes.append("g");
+                    var y = groupBrushes.append("g");
+                    var z = groupBrushes.append("g");
+
+                    var brushX = d3.brushX().extent([
+                        [10, 250],
+                        [250, 260]
+                    ]).handleSize(3);
+                    x.call(brushX);
+
+                    var brushY = d3.brushY().extent([
+                        [0, 10],
+                        [10, 250]
+                    ]).handleSize(3);
+                    y.call(brushY);
+
+                    var brushZ = d3.brushY().extent([
+                        [250, 10],
+                        [260, 250]
+                    ]).handleSize(3);
+                    z.call(brushZ);
+                    draw(pts);
+
+                }
+
+                function setData(pts) {
+
+
+                }
+
+                return {
+                    onChange: onChange,
+                    init: init,
+                    setData: setData
+                };
+            })(signals);
+
+
+
+
+
+
+
+            // View Model
+            var vm = this;
+            vm.datasource = osApi.getDataSource();
+            vm.loadings = vm.pc1 = vm.pc2 = vm.layouts = [];
+            vm.layout = {};
+
+            // View Model Call Backs
+            vm.setLayout = function(layout) {
+                vm.layout = layout;
+                osApi.query(osApi.getDataSource().disease + "_cluster", {
                         disease: vm.datasource.disease,
-                        geneset: vm.geneSet.name,
-                        input: vm.pcaType.name,
-                        source: vm.source.name
+                        geneset: vm.layout.geneset,
+                        input: vm.layout.input,
+                        source: vm.layout.source
                     })
                     .then(function(response) {
-
                         var d = response.data[0];
-
                         // Process PCA Variance
                         vm.pc1 = [
                             { name: 'PC1', value: d.metadata.variance[0] },
@@ -625,79 +510,58 @@
                             };
                         }, scale);
 
-
                         // Process Scores
-                        data = d.scores.map(function(v) {
-                            v.d.id = v.id;
-                            return v.d;
+                        var range = [-5, 5];
+                        var domain = d.scores.reduce(function(p, c) {
+                            p[0] = Math.min(p[0], c.d[0], c.d[1], c.d[2]);
+                            p[1] = Math.max(p[1], c.d[0], c.d[1], c.d[2]);
+                            return p;
+                        }, [Infinity, -Infinity]);
+                        var scaleLinear = d3.scaleLinear().range(range).domain(domain);
+
+                        positions = new Float32Array(d.scores.length * 3);
+                        d.scores.forEach(function(c, i) {
+                            var posIndex = i * 3;
+                            positions[posIndex] = scaleLinear(c.d[0]);
+                            positions[posIndex + 1] = scaleLinear(c.d[1]);
+                            positions[posIndex + 2] = scaleLinear(c.d[2]);
                         });
+                        pts = float32ArrayToVec3Array(positions);
+                        geom = particleGeometry();
 
-                        plot.setData(data);
 
+
+                        orbitControl.init(d3.select(angular.element("#scatter-axis-controller")[0]), color, geom);
+                        selectControl.init(d3.select(angular.element("#scatter-select-controller")[0]), color, pts, orbitControl);
+                        chart.init(d3.select(angular.element("#scatter-chart")[0]), color, geom, orbitControl);
+                        var layout = osApi.getLayout();
+                        var width = $window.innerWidth - layout.left - layout.right;
+                        var height = $window.innerHeight - 130; //10
+                        chart.resize(width, height);
+
+                        osApi.setBusy(false);
                     });
-            });
-
-            // Utility Functions
-            function setSelected() {
-
-            }
-
-            // App Event :: Resize
-            osApi.onResize.add(plot.resize);
-
-            // App Event :: Cohort Change
-            var cohort = osCohortService.getCohorts();
-            var onCohortChange = function(c) {
-                cohort = c;
-                plot.setSelected(cohort);
             };
-            osCohortService.onCohortChange.add(onCohortChange);
 
             // Load Data
-            osApi.query(clusterCollection, {
+            osApi.query(osApi.getDataSource().disease + "_cluster", {
                 dataType: 'PCA',
                 $fields: ['input', 'geneset', 'source']
             }).then(function(response) {
-                var data = response.data.map(function(v) {
-                    return {
-                        a: v.geneset,
-                        b: v.source,
-                        c: v.input
-                    };
+                vm.layouts = response.data.map(function(v) {
+                    v.name = v.geneset + " " + v.input + " " + v.source;
+                    return v;
                 });
-                var result = _.reduce(data, function(memo, val) {
-                    var tmp = memo;
-                    _.each(val, function(fldr) {
-                        if (!_.has(tmp, fldr)) {
-                            tmp[fldr] = {};
-                        }
-                        tmp = tmp[fldr];
-                    });
-                    return memo;
-                }, {});
+                vm.setLayout(vm.layouts[2]);
 
-                vm.geneSets = Object.keys(result).map(function(geneset) {
-                    return {
-                        name: geneset,
-                        sources: Object.keys(result[geneset]).map(function(source) {
-                            return {
-                                name: source,
-                                types: Object.keys(result[geneset][source]).map(function(type) {
-                                    return {
-                                        name: type
-                                    };
-                                })
-                            };
-                        })
-                    };
-                });
-                vm.geneSet = vm.geneSets[0];
+
+
             });
 
             // Destroy
             $scope.$on('$destroy', function() {
-                osApi.onResize.remove(plot.resize);
-                osCohortService.onCohortChange.remove(onCohortChange);
+                // osApi.onResize.remove(plot.resize);
+                // osCohortService.onCohortChange.remove(onCohortChange);
             });
         }
     }
