@@ -373,27 +373,42 @@
                 <article class="video">
                     <div class="videoThumb" style="background-image: url(photos/mpNavigation/videotwo.png);"></div>
                     <a class="videoLink" href="https://www.youtube.com/embed/nKDk2V-Ia8s?rel=0&amp;controls=1&amp;showinfo=0"></a>
-                    <h4 class="videoTitle">Oncoscape Cohorts</h4>
-                    <p class="videoParagraph">Watch how to select, transfer and save Oncoscape cohorts.</p>
+                    <h4 class="videoTitle">Introduction to selecting, saving and transferring cohorts</h4>
+                    <p class="videoParagraph">Watch how to select EGFR cohorts with/without Amplification</p>
                     <section class="videoTranscript">
-                        <ol class="video-ol">
+                        <ol class="video-ol list-group">
                             <div class="li-margin">
-                                <li>Click Get Started.</li>
-                                <li>Choose a disease set. Example: Brain.</li>
-                                <li>Select a tool. Example:Markers + Patients.</li>
-                                <li>Once in Markers + Patients zoom in using mouse or trackpad.</li>
-                                <li>Using the <em>Search</em> box select a patient or gene or choice and hit Enter. Example: BRAF.</li>
-                                <li>Click "Show Edges of Selected".</li>
-                                <li>The edge connecting the BRAF selection and the patients will be shown.</li>
-                                <li>Click "Select Connected Nodes". Patients will now be highlighted.</li>
-                                <li>To view the demographics of this population use the cohorts dropdown menu on the left control bar.</li>
-                                <li>To save, click the "+" button.</li>
-                                <li>Name the cohort and click "Done".</li>
-                                <li>The BRAF cohort is now saved and can be pushed to the other tools.</li>
-                                <li>In the header find the <em>Analysis Tools</em> dropdown menu and select a new tool. Example: Survival Curves.</li>
-                                <li>Selection in survival can be toggled on or off.</li>
-                                <li>Push to Timelines.</li>
-                                <li>Push Cohorts will show in grey. To view the select closer zoom by using the grey "Click + Drag" bars on the side.</li>
+                                <li class="list-group-item">Getting Started:
+                                    <ol>Login <a href="https://oncoscape.sttrcancer.org/#/">Oncoscape</a></ol>
+                                    <ol>To get started with Cancer Explorer, click the EXPLORE button</ol>
+                                    <ol>Choose disease dataset Brain. Brain = (Glioblastoma + Lower Grade Glioma)</ol>
+                                    <ol>Select an analysis tool. Example: Markers + Patients (M+P)</ol>
+                                </li>
+                                <li class="list-group-item">Selecting & Saving Cohorts:
+                                    <ol>In M+P, if needed, adjust the layout so all parts are visible and centered using the mouse scroll or track pad </ol>
+                                    <ol>In the <em>Edge Visibility</em> box on the Control Bar (right side), toggle Amplification to “OFF” </ol>
+                                    <ol>Using the <em>Search box</em> on the Control Bar (right side) type EGFR and click Go</ol>
+                                    <ol>Above the Search box a count of selected will appear and the gene will be highlighted orange with a black boarder</ol>
+                                    <ol>To see the associated patient nodes click <strong>Show Edges of Selected</strong> from the <em>Commands</em> list on the Control Bar (right side)</ol>
+                                    <ol>The edges (Mutation, Gain, Loss, Deletion) connecting the EGFR selection and the patient nodes will be visualized</ol>
+                                    <ol>To grab the patient nodes to create a cohort, click <strong>Select Connected Nodes</strong> from the <em>Commands list</em>. Patient nodes will now be outlined in black. NOTE: To create cohorts with more than one mutation see <a href="https://oncoscape.sttrcancer.org/documentation/markerspatients.html">M+P Use Cases </a></ol>
+                                    <ol>To view a snapshot of clinical information from the selected cohort use the <em>Clinical Histogram</em> dropdown on the cohort panel (left side)</ol>
+                                    <ol>To save the EGFR cohort, name the cohort in the <em>Selected Cohort</em> box on the cohort panel and click the "+" button. Example Name: EGFR Edges minus Amplification. The new cohort will now be color-coded and appear under <em>Cohorts</em></ol>
+                                    <ol>Click anywhere on the M+P window white space to deselect the last cohort </ol>
+                                    <ol>Click <strong>Hide All Edges</strong> from the Commands list</ol>
+                                    <ol>In the Edge Visibility box, toggle Amplification to “ON” and turn all other sections to “OFF”</ol>
+                                    <ol>Search for EGFR</ol>
+                                    <ol>To see the associated patient nodes click <strong>Show Edges of Selected</strong> from the Commands list</ol>
+                                    <ol>To grab the patient nodes to create a cohort, click <strong>Select Connected Nodes</strong> from the Commands list. Patient nodes will now be outlined in black</ol>
+                                    <ol>To save the EGFR cohort, name the cohort in the <em>Selected Cohort</em> box and click the "+" button. Example Name: EGFR Edges Amplification ONLY. The new cohort will now be color-coded and appear under Cohorts</ol>
+                                    <ol>Users are able to toggle between cohorts by selecting from either the <em>Selected Cohorts</em> dropdown or by clicking on the desired cohort in the <em>Cohorts</em> section</ol>
+                                </li>
+                                <li class="list-group-item">Transferring Cohorts:
+                                    <ol>Saved cohorts can be visualized in other analysis tools</ol>
+                                    <ol>In the header click Tools, from the dropdown select Survival</ol>
+                                    <ol>Selections in Survival can be toggled ON or OFF in the same manor as the <em>Edge Visibility</em> box in M+P</ol>
+                                    <ol>In survival view the P-values for the cohort with EGFR Amplification vs the cohort without EGFR Amplification</ol>
+                                </li>
                             </div>
                         </ol>
                     </section>
