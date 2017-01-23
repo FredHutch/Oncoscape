@@ -137,13 +137,14 @@
                             return v.name == mp.optGeneSet.name;
                         }, mp.optGeneSet.name)[0];
                     }
+
                     if (osApi.getDataSource().disease == "brain") {
                         return genesets.filter(function(v) {
-                            return v.name == "Marker genes 545";
+                            return v.name == "Glioma Markers";
                         })[0];
                     } else {
                         return genesets.filter(function(v) {
-                            return v.name == "TCGA pancan mutated";
+                            return v.name == "TCGA Pancan Mutated";
                         })[0];
                     }
                 };
@@ -532,8 +533,9 @@
 
 
                 // Populate Dropdowns + Draw Chromosome
+                //hg19_geneset
                 $q.all([
-                    osApi.query("render_chromosome", {
+                    osApi.query("hg19_geneset", {
                         type: 'geneset',
                         $fields: ['name']
                     }),
@@ -724,41 +726,46 @@
                     var posY = 3000;
                     var numMissing = 0;
                     cyChart.nodes('node[nodeType="patient"]').forEach(function(node) {
+
+                        node.position(-10000, -10000);
+                    });
+                    cyChart.nodes('node[nodeType="patient"]').forEach(function(node) {
                         if (data.hasOwnProperty(node.id())) {
                             var pos = data[node.id()];
                             pos.x -= 4000;
                             node.position(pos);
                         } else {
-                            node.position({ x: posX, y: posY });
-                            posX += 80;
-                            if (posX > 3000) {
-                                posX = 100;
-                                posY += 80;
-                            }
-                            numMissing += 1;
+                            node.position({ x: -10000, y: -10000 });
+                            // node.position({ x: posX, y: posY });
+                            // posX += 80;
+                            // if (posX > 3000) {
+                            //     posX = 100;
+                            //     posY += 80;
+                            // }
+                            // numMissing += 1;
                         }
                     });
 
                     if (numMissing > 0) {
-                        cyChart.add({
-                            group: "nodes",
-                            grabbable: false,
-                            locked: true,
-                            selectable: false,
-                            position: { x: 50, y: 2850 },
-                            data: {
-                                id: "annotation",
-                                color: "rgb(0, 0, 0)",
-                                display: "element",
-                                nodeType: "annotation-text",
-                                sizeEle: 800,
-                                weight: 0,
-                                sizeLbl: 500,
-                                degree: 0,
-                                sizeBdr: 50,
-                                label: "The following " + numMissing + " samples lacked the requisite data to be clustered."
-                            }
-                        });
+                        // cyChart.add({
+                        //     group: "nodes",
+                        //     grabbable: false,
+                        //     locked: true,
+                        //     selectable: false,
+                        //     position: { x: 50, y: 2850 },
+                        //     data: {
+                        //         id: "annotation",
+                        //         color: "rgb(0, 0, 0)",
+                        //         display: "element",
+                        //         nodeType: "annotation-text",
+                        //         sizeEle: 800,
+                        //         weight: 0,
+                        //         sizeLbl: 500,
+                        //         degree: 0,
+                        //         sizeBdr: 50,
+                        //         label: "The following " + numMissing + " samples lacked the requisite data to be clustered."
+                        //     }
+                        // });
                     }
                     resizeNodes();
                     cyChart.endBatch();

@@ -46,53 +46,33 @@
             }
 
 
-            var positions;
-            var pts;
-            var geom;
+            var positions; // Float32Array of adjusted points
+            var colors;
+            var geom; // Three Buffer of Points Based on 'positions'
+            var pts; // Vec 3 Array of Adjusted points  
+            var ids; // Array of Ids
+
 
 
 
             function particleGeometry() {
                 var geometry = new THREE.BufferGeometry()
                 geometry.addAttribute('position', new THREE.BufferAttribute(positions, 3));
-                geometry.computeBoundingSphere()
+                geometry.addAttribute('color', new THREE.BufferAttribute(colors, 3));
+                geometry.computeBoundingSphere();
                 return geometry;
             }
 
 
 
 
-            //     function resize() {
-
-            //         var layout = osApi.getLayout();
-            //         width = $window.innerWidth - layout.left - layout.right;
-            //         height = $window.innerHeight - 30; //10
-            //         chart2d.svg.style("position", "absolute");
-            //         chart2d.svg.style("top", height - 200 + "px");
-            //         chart2d.svg.style("left", layout.left + "px");
-            //         chart2d.svg.style("width", width + "px");
-            //         chart2d.svg.style("height", "160px");
-            //         //chart2d.svg.style('background-color', 'rgba(0, 0, 0, 0.1)')
-            //         width = Math.floor(width * 0.5);
-            //         height = height - 255;
-            //         chartSpin.camera.aspect = width / height;
-            //         chartSpin.renderer.setSize(width, height);
-            // chartDrag.camera.left = width / -2;
-            // chartDrag.camera.right = width / 2;
-            // chartDrag.camera.top = height / 2;
-            // chartDrag.camera.bottom = height / -2;
-            // chartDrag.camera.near = 1;
-            // chartDrag.camera.far = 100;
-            // chartDrag.renderer.setSize(width, height);
-            // chartDrag.controls.handleResize();
-            //     }
-
-
             var orbitControl = (function() {
+
                 var onChange = new signals.Signal();
-                var scene, renderer, camera, material, controls;
+                var scene, renderer, camera, material, controls, particles;
                 var pc1, pc2, pc3;
                 var width, height, xScale, yScale;
+                var element;
 
                 function update() {
 
@@ -114,7 +94,7 @@
                 }
 
                 function init(el, color, geometry) {
-
+                    element = el;
                     width = 240;
                     height = 240;
                     xScale = d3.scaleLinear().domain([-10, 10]).range([0, width]);
@@ -143,6 +123,12 @@
                     controls.noPan = true;
                     controls.noRoll = true;
                     controls.addEventListener("change", _.debounce(onChange.dispatch, 300));
+                    // debugger;
+                    // material = new THREE.PointCloudMaterial({
+                    //     size: 0.1,
+                    //     vertexColors: THREE.VertexColors
+                    // });
+
                     material = new THREE.ShaderMaterial({
                         uniforms: {
                             color: {
@@ -158,7 +144,7 @@
                         transparent: true
                     });
 
-                    var particles = new THREE.PointCloud(geometry, material);
+                    particles = new THREE.Points(geometry, material);
                     scene.add(particles);
 
                     // Add Arrows
@@ -207,15 +193,41 @@
                     return camera;
                 }
 
-                function setData() {
+                function setSelected(data) {
 
+                }
+
+                function setData(data) {
+                    scene.remove(particles);
+                    particles = new THREE.Points(data, material);
+                    scene.add(particles);
+                }
+
+
+                function resize(w, h, l) {
+                    width = w;
+                    height = h;
+                    // camera.aspect = width / height;
+                    camera.left = width / -2;
+                    camera.right = width / 2;
+                    camera.top = height / 2;
+                    camera.bottom = height / -2;
+                    renderer.setSize(width, height);
+                    element.style({ left: l + "px" });
+
+                    xScale.range([0, width]);
+                    yScale.range([0, height]);
+                    update();
+                    debugger;
                 }
 
                 return {
                     onChange: onChange,
                     init: init,
+                    setSelected: setSelected,
                     getCamera: getCamera,
-                    setData: setData
+                    setData: setData,
+                    resize: resize
                 };
             })(signals);
 
@@ -271,10 +283,12 @@
                     scene = new THREE.Scene();
                     renderer = new THREE.WebGLRenderer({ alpha: true, antialias: true });
                     renderer.setPixelRatio($window.devicePixelRatio);
+                    renderer.setSize(260, 260);
                     el.node().append(renderer.domElement);
                     camera = new THREE.PerspectiveCamera(50, 1, 0.1, 1000);
                     camera.zoom = 1.2;
                     camera.setLens(50);
+                    camera.aspect = 1;
                     camera.matrixAutoUpdate = false;
 
                     // Material
@@ -294,7 +308,7 @@
                     });
 
                     // Particles
-                    particles = new THREE.PointCloud(geometry, material);
+                    particles = new THREE.Points(geometry, material);
                     scene.add(particles);
 
                     // Arrows
@@ -328,8 +342,8 @@
                     scene.add(pc3);
 
                     // Grid
-                    var axisOffset = { x: -2, y: -2, z: -3 };
-                    var gridHelper = new THREE.GridHelper(10, 10, 0xBBBBBB, 0xBBBBBB);
+                    var axisOffset = { x: -2, y: -2, z: -4 };
+                    var gridHelper = new THREE.GridHelper(20, 20, 0xBBBBBB, 0xEAEAEA);
                     gridHelper.position.x = axisOffset.x;
                     gridHelper.position.z = axisOffset.y;
                     gridHelper.position.y = axisOffset.z;
@@ -343,27 +357,29 @@
                     update();
                 }
 
-                function resize(width, height) {
-                    camera.aspect = width / height;
-                    renderer.setSize(width, height);
+
+                function setSelected(data) {
+
                 }
 
-                function setData() {
-
+                function setData(data) {
+                    scene.remove(particles);
+                    particles = new THREE.PointCloud(data, material);
+                    scene.add(particles);
                 }
 
                 return {
                     onChange: onChange,
                     init: init, // Element, Colors, Geometry
-                    setData: setData,
-                    resize: resize
+                    setSelected: setSelected,
+                    setData: setData
                 };
             })();
 
 
             var selectControl = (function() {
                 var onChange = new signals.Signal();
-                var svg, groupLines, groupBrushes, orbitCamera, pts;
+                var svg, groupLines, groupBrushes, orbitCamera, pts, data;
 
                 function toScreenXY(pos3D) {
                     var v = pos3D.clone().project(orbitCamera);
@@ -377,7 +393,7 @@
                 }
 
                 function draw() {
-                    var data = pts.map(toScreenXY);
+                    data = pts.map(toScreenXY);
 
                     var lines = groupLines.selectAll(".scatter-bottom").data(data);
                     lines.exit().remove();
@@ -398,7 +414,15 @@
                     lines.transition(500).duration(500).attr("y", function(d) { return d[2]; });
                 }
 
+                var selections = { x: null, y: null, z: null };
 
+
+                function onBrush(brush, selection) {
+                    if (!d3.event.selection) return;
+                    selections[brush] = selection;
+                    data;
+                    if (selection !== null) debugger;
+                }
 
                 function init(el, color, points, orbitControl) {
                     pts = points;
@@ -413,40 +437,56 @@
                     groupLines = svg.append("g");
 
                     groupBrushes = svg.append("g");
-                    var x = groupBrushes.append("g");
-                    var y = groupBrushes.append("g");
-                    var z = groupBrushes.append("g");
+                    var groupX = groupBrushes.append("g");
+                    var groupY = groupBrushes.append("g");
+                    var groupZ = groupBrushes.append("g");
 
                     var brushX = d3.brushX().extent([
-                        [10, 250],
-                        [250, 260]
-                    ]).handleSize(3);
-                    x.call(brushX);
+                            [10, 250],
+                            [250, 260]
+                        ]).handleSize(3)
+                        .on("start", function() { onBrush("x", null); })
+                        .on("end", function() { onBrush("x", d3.event.selection); });
+
+                    groupX.call(brushX);
 
                     var brushY = d3.brushY().extent([
-                        [0, 10],
-                        [10, 250]
-                    ]).handleSize(3);
-                    y.call(brushY);
+                            [0, 10],
+                            [10, 250]
+                        ]).handleSize(3)
+                        .on("start", function() { onBrush("y", null); })
+                        .on("end", function() { onBrush("y", d3.event.selection); });
+                    groupY.call(brushY);
 
                     var brushZ = d3.brushY().extent([
-                        [250, 10],
-                        [260, 250]
-                    ]).handleSize(3);
-                    z.call(brushZ);
+                            [250, 10],
+                            [260, 250]
+                        ]).handleSize(3)
+                        .on("start", function() { onBrush("z", null); })
+                        .on("end", function() { onBrush("z", d3.event.selection); });
+                    groupZ.call(brushZ);
+
                     draw(pts);
 
                 }
 
-                function setData(pts) {
+                function setData(points) {
 
+                    // Clear Brushes
+                    selections = { x: null, y: null, z: null };
+                    pts = points;
+                    draw();
+                }
+
+                function resize(width, height) {
 
                 }
 
                 return {
                     onChange: onChange,
                     init: init,
-                    setData: setData
+                    setData: setData,
+                    resize: resize
                 };
             })(signals);
 
@@ -463,6 +503,7 @@
             vm.layout = {};
 
             // View Model Call Backs
+            var initialized = false;
             vm.setLayout = function(layout) {
                 vm.layout = layout;
                 osApi.query(osApi.getDataSource().disease + "_cluster", {
@@ -520,24 +561,38 @@
                         var scaleLinear = d3.scaleLinear().range(range).domain(domain);
 
                         positions = new Float32Array(d.scores.length * 3);
+                        colors = new Float32Array(d.scores.length * 3);
                         d.scores.forEach(function(c, i) {
                             var posIndex = i * 3;
                             positions[posIndex] = scaleLinear(c.d[0]);
                             positions[posIndex + 1] = scaleLinear(c.d[1]);
                             positions[posIndex + 2] = scaleLinear(c.d[2]);
+                            colors[posIndex] = 90;
+                            colors[posIndex + 1] = 90;
+                            colors[posIndex + 2] = 90;
                         });
                         pts = float32ArrayToVec3Array(positions);
+
+
                         geom = particleGeometry();
 
 
+                        if (!initialized) {
+                            orbitControl.init(d3.select(angular.element("#scatter-axis-controller")[0]), color, geom);
+                            selectControl.init(d3.select(angular.element("#scatter-select-controller")[0]), color, pts, orbitControl);
+                            chart.init(d3.select(angular.element("#scatter-chart")[0]), color, geom, orbitControl);
+                            var layout = osApi.getLayout();
+                            var width = $window.innerWidth - layout.left - layout.right;
+                            var height = $window.innerHeight - 130; //10
+                            orbitControl.resize(width, height, layout.left);
+                            selectControl.resize(width, height, layout.left);
 
-                        orbitControl.init(d3.select(angular.element("#scatter-axis-controller")[0]), color, geom);
-                        selectControl.init(d3.select(angular.element("#scatter-select-controller")[0]), color, pts, orbitControl);
-                        chart.init(d3.select(angular.element("#scatter-chart")[0]), color, geom, orbitControl);
-                        var layout = osApi.getLayout();
-                        var width = $window.innerWidth - layout.left - layout.right;
-                        var height = $window.innerHeight - 130; //10
-                        chart.resize(width, height);
+                            initialized = true;
+                        } else {
+                            orbitControl.setData(geom);
+                            selectControl.setData(pts);
+                            chart.setData(geom);
+                        }
 
                         osApi.setBusy(false);
                     });
@@ -553,9 +608,6 @@
                     return v;
                 });
                 vm.setLayout(vm.layouts[2]);
-
-
-
             });
 
             // Destroy
@@ -565,4 +617,31 @@
             });
         }
     }
+
+
+    //     function resize() {
+
+    //         var layout = osApi.getLayout();
+    //         width = $window.innerWidth - layout.left - layout.right;
+    //         height = $window.innerHeight - 30; //10
+    //         chart2d.svg.style("position", "absolute");
+    //         chart2d.svg.style("top", height - 200 + "px");
+    //         chart2d.svg.style("left", layout.left + "px");
+    //         chart2d.svg.style("width", width + "px");
+    //         chart2d.svg.style("height", "160px");
+    //         //chart2d.svg.style('background-color', 'rgba(0, 0, 0, 0.1)')
+    //         width = Math.floor(width * 0.5);
+    //         height = height - 255;
+    //         chartSpin.camera.aspect = width / height;
+    //         chartSpin.renderer.setSize(width, height);
+    // chartDrag.camera.left = width / -2;
+    // chartDrag.camera.right = width / 2;
+    // chartDrag.camera.top = height / 2;
+    // chartDrag.camera.bottom = height / -2;
+    // chartDrag.camera.near = 1;
+    // chartDrag.camera.far = 100;
+    // chartDrag.renderer.setSize(width, height);
+    // chartDrag.controls.handleResize();
+    //     }
+
 })();

@@ -1,12 +1,8 @@
 rect.selection {
     fill: $color-blue;
-    fill-opacity: .5;
-    stroke-width: 0px;
-}
-
-rect.handle {
+    fill-opacity: .2;
     stroke: $color-blue;
-    fill: $color-blue;
+    shape-rendering: crispEdges;
 }
 
 .scatter {}

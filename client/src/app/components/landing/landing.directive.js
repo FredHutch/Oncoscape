@@ -22,10 +22,10 @@
         function LandingController($state) {
 
             angular.element(".marquee-x").marquee({
-                particlesNumber: 69,
+                particlesNumber: 79,
                 color: '#1396de',
                 particle: {
-                    speed: 69
+                    speed: 39
                 }
             });
 

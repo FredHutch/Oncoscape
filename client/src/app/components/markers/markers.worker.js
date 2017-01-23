@@ -61,7 +61,7 @@ var data = (function() {
 
     function convertRange(value, r1, r2) {
         return (value - r1[0]) * (r2[1] - r2[0]) / (r1[1] - r1[0]) + r2[0];
-    };
+    }
 
     var clean = function(state) {
 
@@ -83,19 +83,16 @@ var data = (function() {
         // console.log("EDGES POST CLEAN: "+state.edges.length);
 
         // Size Nodes :: Eliminate Duplicate Functions
-
-
-        var domain = state.edgePatients.reduce(function(p, c) {
-            var v = c[Object.keys(c)[0]];
+        var domain = Object.keys(state.edgePatients).reduce(function(p, c) {
+            var v = state.edgePatients[c];
             p[0] = Math.min(p[0], v);
             p[1] = Math.max(p[0], v);
             return p;
         }, [Infinity, -Infinity]);
 
-        var patientEdgeDegrees = state.edgePatients
-            .map(function(obj) {
-                var key = Object.keys(obj)[0];
-                var val = convertRange(obj[key], domain, [20, 150]);
+        var patientEdgeDegrees = Object.keys(state.edgePatients)
+            .map(function(key) {
+                var val = convertRange(state.edgePatients[key], domain, [20, 150]);
                 return {
                     'id': key,
                     'val': val
@@ -108,17 +105,16 @@ var data = (function() {
                 return previousValue;
             }, {});
 
-        domain = state.edgeGenes.reduce(function(p, c) {
-            var v = c[Object.keys(c)[0]];
+        domain = Object.keys(state.edgeGenes).reduce(function(p, c) {
+            var v = state.edgeGenes[c];
             p[0] = Math.min(p[0], v);
             p[1] = Math.max(p[0], v);
             return p;
         }, [Infinity, -Infinity]);
 
-        var geneEdgeDegrees = state.edgeGenes
-            .map(function(obj) {
-                var key = Object.keys(obj)[0];
-                var val = convertRange(obj[key], domain, [20, 150]);
+        var geneEdgeDegrees = Object.keys(state.edgeGenes)
+            .map(function(key) {
+                var val = convertRange(state.edgeGenes[key], domain, [20, 150]);
                 return {
                     'id': key,
                     'val': val
@@ -238,10 +234,10 @@ var data = (function() {
     };
 
     var formatEdgePatients = function(data) {
-        return data;
+        return data[0].d.reduce(function(p, c) { p[c.p] = c.w; return p; }, {});
     };
     var formatEdgeGenes = function(data) {
-        return data;
+        return data[0].d.reduce(function(p, c) { p[c.g] = c.w; return p; }, {});
     };
     var formatPatientData = function(data) {
         return data;
@@ -250,11 +246,6 @@ var data = (function() {
     var formatGeneNodes = function(data) {
         data = data[0].data;
         return Object.keys(data)
-            // .filter(function(key) {
-            //     // Remove Genes That Are Not Positioned On Chromosome
-            //     var value = this[key];
-            //     return (value.x != 0 & value.y != 0)
-            // }, data)
             .map(function(key) {
                 return {
                     group: "nodes",
@@ -279,25 +270,42 @@ var data = (function() {
             }, data)
     };
 
+    var createEdgeNode = function(g, p, m) {
+        return {
+            group: "edges",
+            grabbable: false,
+            locked: true,
+            data: {
+                color: "#FF0000",
+                id: "mp_" + g + "_" + p + "_" + m,
+                display: "element",
+                edgeType: "cn",
+                sizeEle: 1,
+                sizeBdr: 0,
+                cn: parseInt(m),
+                source: g,
+                target: p
+            }
+        };
+    }
+    var mutationMap = {
+        "deletion": -2,
+        "loss": -1,
+        "mutation": 0,
+        "gain": 1,
+        "alteration": 2
+    }
     var formatEdgeNodes = function(data) {
-        return data.map(function(item) {
-            return {
-                group: "edges",
-                grabbable: false,
-                locked: true,
-                data: {
-                    color: "#FF0000",
-                    id: "mp_" + item.g + "_" + item.p + "_" + item.m,
-                    display: "element",
-                    edgeType: "cn",
-                    sizeEle: 1,
-                    sizeBdr: 0,
-                    cn: parseInt(item.m),
-                    source: item.g,
-                    target: item.p
-                }
-            };
+
+
+        var xxx = data.map(function(alteration) {
+            return alteration.d.map(function(edge) {
+                return createEdgeNode(edge.g, edge.p, mutationMap[alteration.alteration]);
+            });
         });
+
+        return [].concat.apply(this, xxx);
+
     };
 
     var formatPatientNodes = function(data) {
@@ -426,23 +434,55 @@ var data = (function() {
                 }, !update.patientLayout ? state.patients : null, formatPatientLayout),
 
                 request({
-                    table: 'render_chromosome',
+                    table: 'hg19_geneset',
                     query: {
                         name: options.genes.layout
                     }
                 }, !update.genes ? state.genes : null, formatGeneNodes),
 
+                // deletion, loss, gain, amplification, mutation
                 request({
-                    table: options.edges.layout.edges
+                    table: options.dataset + "_network",
+                    query: {
+                        geneset: options.genes.layout,
+                        dataType: 'edges',
+                        $or: [{
+                                alteration: {
+                                    $in: [
+                                        'deletion', 'loss', 'gain', 'amplification'
+                                    ]
+                                }
+                            },
+                            {
+                                $and: [
+                                    { alteration: 'mutation' },
+                                    { default: true }
+                                ]
+                            }
+                        ]
+                    }
                 }, !update.edges ? state.edges : null, formatEdgeNodes),
 
+
                 request({
-                    table: options.edges.geneWeights
+                    table: options.dataset + "_network",
+                    query: {
+                        geneset: options.genes.layout,
+                        dataType: 'genedegree',
+                        default: true
+                    }
                 }, !update.edges ? state.edgeGenes : null, formatEdgeGenes),
 
                 request({
-                    table: options.edges.patientWeights
-                }, !update.edges ? state.edgePatients : null, formatEdgePatients)
+                    table: options.dataset + "_network",
+                    query: {
+                        geneset: options.genes.layout,
+                        dataType: 'ptdegree',
+                        default: true
+                    }
+                }, !update.edges ? state.edgePatients : null, formatEdgePatients),
+
+
 
             ];
 
