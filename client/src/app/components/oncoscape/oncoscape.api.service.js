@@ -38,6 +38,7 @@
         var _dataSource;
         var _tools;
         var getTools = function() {
+
             return _tools.filter(function(item) {
                 return (_dataSource.tools.indexOf(item.route) !== -1);
             }).sort(function(a, b) {

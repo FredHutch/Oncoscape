@@ -102,7 +102,7 @@
                     resolveTool: resolveTool
                 }
             })
-            .state('history', {
+            .state('spreadsheet', {
                 url: '/spreadsheet/{datasource}',
                 template: '<os-spreadsheet>',
                 datasource: true,
