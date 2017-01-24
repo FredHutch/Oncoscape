@@ -143,20 +143,18 @@
                             return v.name == "Glioma Markers";
                         })[0];
                     } else {
-                        return genesets.filter(function(v) {
-                            return v.name == "TCGA Pancan Mutated";
-                        })[0];
+                        return genesets[0];
                     }
                 };
 
                 var getPatientLayout = function(layouts) {
-                    if (hasState) {
-                        return layouts.filter(function(v) {
-                            return v.name == mp.optPatientLayout.name;
-                        }, mp.optPatientLayout.name)[0];
-                    } else {
-                        return layouts[0];
-                    }
+                    // if (hasState) {
+                    //     return layouts.filter(function(v) {
+                    //         return v.name == mp.optPatientLayout.name;
+                    //     }, mp.optPatientLayout.name)[0];
+                    // } else {
+                    return layouts[0];
+                    //}
                 };
                 var save = function(vm, cyChart) {
                     var s = {};
@@ -873,12 +871,12 @@
                     var geneset = vm.optGeneSet.name;
 
                     // Could add ability to select from cBio or UCSC for edges
-                    var edges = osApi.getDataSource().edges.filter(function(f) {
-                        return f.name == this.geneset;
-                    }, {
-                        geneset: geneset
-                    })[0];
-
+                    // var edges = osApi.getDataSource().edges.filter(function(f) {
+                    //     return f.name == this.geneset;
+                    // }, {
+                    //     geneset: geneset
+                    // })[0];
+                    // debugger;
                     var opts = {
                         mode: vm.optCommandMode.name,
                         cmd: cmd,
@@ -897,8 +895,8 @@
                             })
                         },
                         edges: {
-                            patientWeights: edges.patientWeights,
-                            geneWeights: edges.genesWeights,
+                            //patientWeights: edges.patientWeights,
+                            //geneWeights: edges.genesWeights,
                             layout: vm.datasource.edges
                                 .filter(function(v) {
                                     return (v.name == this)

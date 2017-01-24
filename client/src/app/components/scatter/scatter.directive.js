@@ -379,7 +379,7 @@
 
             var selectControl = (function() {
                 var onChange = new signals.Signal();
-                var svg, groupLines, groupBrushes, orbitCamera, pts, data;
+                var svg, rect1, rect2, groupLines, groupBrushes, orbitCamera, pts, data;
 
                 function toScreenXY(pos3D) {
                     var v = pos3D.clone().project(orbitCamera);
@@ -429,10 +429,10 @@
                     orbitCamera = orbitControl.getCamera();
                     orbitControl.onChange.add(draw)
                     svg = el.append('svg');
-                    svg.attr("height", "260px");
-                    svg.attr("width", "260px");
-                    svg.append("rect").attr("width", 259.5).attr("height", 259.5).style("shape-rendering", "crispEdges").style("stroke-width", 1).style("stroke", "#EAEAEA").style("fill", "#FFF").attr("x", 0).attr("y", 0);
-                    svg.append("rect").attr("width", 239.5).attr("height", 249.5).style("shape-rendering", "crispEdges").style("stroke-width", 1).style("stroke", "#EAEAEA").style("fill", "#FFF").attr("x", 10).attr("y", 0);
+                    //rect1 = svg.append("rect").attr("width", 259.5).attr("height", 259.5).style("shape-rendering", "crispEdges").style("stroke-width", 1).style("stroke", "#EAEAEA").style("fill", "#FFF").attr("x", 0).attr("y", 0);
+                    //rect2 = svg.append("rect").attr("width", 239.5).attr("height", 249.5).style("shape-rendering", "crispEdges").style("stroke-width", 1).style("stroke", "#EAEAEA").style("fill", "#FFF").attr("x", 10).attr("y", 0);
+                    rect1 = svg.append("rect").style("shape-rendering", "crispEdges").style("stroke-width", 1).style("stroke", "#EAEAEA").style("fill", "#FFF").attr("x", 0).attr("y", 0);
+                    rect2 = svg.append("rect").style("shape-rendering", "crispEdges").style("stroke-width", 1).style("stroke", "#EAEAEA").style("fill", "#FFF").attr("x", 10).attr("y", 0);
 
                     groupLines = svg.append("g");
 
@@ -478,8 +478,14 @@
                     draw();
                 }
 
-                function resize(width, height) {
-
+                function resize(width, height, left) {
+                    //width, height, layout.left
+                    console.log(width + ":" + height);
+                    svg.attr("height", height + "px");
+                    svg.attr("width", width + "px");
+                    rect1.attr("width", width).attr("height", height);
+                    rect2.attr("width", width - 20).attr("height", height - 10);
+                    draw();
                 }
 
                 return {

@@ -26,6 +26,8 @@ CACHE:
 /fonts/ui-grid.svg
 /fonts/ui-grid.ttf
 /fonts/ui-grid.woff
+/scripts/app-061cac7b03.js
+/scripts/app-0c07d2b961.js
 /scripts/app-20365d1eea.js
 /scripts/app-26c7355163.js
 /scripts/app-2bf44353f6.js
@@ -169,6 +171,8 @@ CACHE:
 /assets/images/thumb.png
 /assets/images/timelines.png
 /assets/images/white.png
+/maps/scripts/app-061cac7b03.js.map
+/maps/scripts/app-0c07d2b961.js.map
 /maps/scripts/app-20365d1eea.js.map
 /maps/scripts/app-26c7355163.js.map
 /maps/scripts/app-2bf44353f6.js.map
@@ -260,4 +264,4 @@ https://*
 SETTINGS:
 prefer-online
 
-# hash: 8525a9f3790e71d661113ad44d57a156fbafbdbe5337ef94ae69105049bc6364
+# hash: 39546284aa2920c7efbe6ed00ca681d3e6d81def9c2e38ad10529102a8b8ca35
