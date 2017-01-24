@@ -205,6 +205,7 @@
 
 
                 function resize(w, h, l) {
+
                     width = w;
                     height = h;
                     // camera.aspect = width / height;
@@ -218,7 +219,6 @@
                     xScale.range([0, width]);
                     yScale.range([0, height]);
                     update();
-                    debugger;
                 }
 
                 return {
@@ -388,7 +388,7 @@
                     var percZ = (v.z + 1) / 2;
                     var left = percX * 120;
                     var top = percY * 120;
-                    var z = percZ * (120 * 6) // magic!
+                    var z = percZ * (120 * 6); // magic!
                     return [left * 2, top * 2, z * 2];
                 }
 
