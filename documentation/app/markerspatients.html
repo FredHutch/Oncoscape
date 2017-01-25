@@ -104,35 +104,40 @@
                     <section class="videoTranscript">
                         <ol class="video-ol">
                             <div class="li-margin">
-                                <li>Show Edges: Search/Select the IDH1 gene, then click "Show Edges of Selected"</li>
-                                <li>Select patients with IDH1 mutation: Click "Select Connected Nodes"</li>
-                                <li>Link patients to new alteration: First, "Hide Edges of Selected" to remove visible edges</li>
-                                <li>Select New Gene while retaining Patient Selection: Hold down the shift key while clicking on IDH1, then (still holding down shift) click on EGFR</li>
-                                <li>Show Alterations of selected patients and EGFR: With EGFR and patients selected, click "Show Edges of Selected" to see the common alterations</li>
-                                <li>Remove All Selections: Click on any open whitespace to deselect all nodes</li>
-                                <li>Select Patients with EGFR and IDH1 mutations: Reselect EGFR and click "Select Connected Nodes"</li>
-                                <li>Patient Cohort with both IDH1 and EGFR genetic alterations</li>
-                            </div>
-                        </ol>
-                    </section>
-                </article>
-                <article class="video">
-                    <div class="videoThumb" style="background-image: url(photos/mpNavigation/videoone.png);"></div>
-                    <a class="videoLink" href="https://www.youtube.com/embed/Eo6fMcTEwnA?rel=0&controls=1&showinfo=1"></a>
-                    <h4 class="videoTitle">Find patients with certain genetic alterations</h4>
-                    <p class="videoParagraph">Find patients with certain genetic alterations</p>
-                    <section class="videoTranscript">
-                        <ol class="video-ol">
-                            <div class="li-margin">
-                                <li>Search/Select the gene of choice, example PTEN, then click "Go", above the search bar a count of found will appear.</li>
-                                <li>Click "Show Edges of Selected"</li>
-                                <li>Click "Select Connected Nodes" to highlight the patients with PTEN mutations</li>
-                                <li>On the Cohort Panel (left) save the cohort by renaming it (option to keep default name and military time) and click the "+" to save</li>
+                                <li>Using the <em>Search box</em> on the Control Bar (right middle side) type EGFR and click Go</li>
+                                <li>Above the Search box a count of selected will appear and the gene will be highlighted orange with a black boarder</li>
+                                <li>To see the associated patient nodes, click <strong>Show Edges of Selected</strong>from the Commands list (right middle side, blue text) on the Control Bar</li>
+                                <li>The edges (Mutation, Amplification, Gain, Loss, Deletion) connecting the EGFR selection and the patient nodes will be visualized</li>
+                                <li>To grab the patient nodes, click <strong>Select Connected Nodes</strong> from the Commands list. Patient nodes will now be outlined in black</li>
+                                <li>Click <strong>Hide Unselected Nodes</strong> to remove any patient nodes that are not associated with EGFR</li>
+                                <li>Click on the open white space on the window to deselect the patient nodes</li>
+                                <li>Using the <em>Search box</em> on the Control Bar (right middle side) type IDH1 and click Go</li>
+                                <li>To see the associated patient nodes, click Show Edges of Selected from the Commands list on the Control Bar </li>
+                                <li>Click <strong>Select Connected Nodes</strong> from the Commands list. Patient nodes will now be outlined in black</li>
+                                <li>Click <strong>Hide Unselected Nodes</strong> to remove any patient nodes that are not associated with EGFR and IDH1</li>
+                                <li>To save the EGFR + IDH1 cohort, name the cohort in the <em>Selected Cohort</em> box and click the "+" button. Example Name: EGFR + IDH1 Mutations. The new cohort will now be color-coded and appear under <em>Cohorts</em></li>
+                                <li>Users are able to toggle between cohorts by selecting from either the <em>Selected Cohorts</em> dropdown or by clicking on the desired cohort in the <em>Cohorts</em> section</li>
                             </div>
                         </ol>
                     </section>
                 </article>
             </section>
+            <article class="video">
+                <div class="videoThumb" style="background-image: url(photos/mpNavigation/videoone.png);"></div>
+                <a class="videoLink" href="https://www.youtube.com/embed/Eo6fMcTEwnA?rel=0&controls=1&showinfo=1"></a>
+                <h4 class="videoTitle">Find patients with certain genetic alterations</h4>
+                <p class="videoParagraph">Find patients with certain genetic alterations</p>
+                <section class="videoTranscript">
+                    <ol class="video-ol">
+                        <div class="li-margin">
+                            <li>Search/Select the gene of choice, example PTEN, then click "Go", above the search bar a count of found will appear.</li>
+                            <li>Click "Show Edges of Selected"</li>
+                            <li>Click "Select Connected Nodes" to highlight the patients with PTEN mutations</li>
+                            <li>On the Cohort Panel (left) save the cohort by renaming it (option to keep default name and military time) and click the "+" to save</li>
+                        </div>
+                    </ol>
+                </section>
+            </article>
         </div>
     </div>
     <!-- END Use Cases seciton -->
@@ -253,10 +258,10 @@
             </div>
             <div class="row">
                 <div class="col-xs-12 text-left">
-                    <p class="search-para">The variation in node sizing represents the number of mutations a patient or gene carries, e.g. the larger the node the greater the mutation number. More about patient and node degrees can be found in our <a  href="http://resources.sttrcancer.org/api/#network" target="_blank"> data API </a></p>
+                    <p class="search-para">The variation in node sizing represents the number of mutations a patient or gene carries, e.g. the larger the node the greater the mutation number. More about patient and node degrees can be found in our <a href="http://resources.sttrcancer.org/api/#network" target="_blank"> data API </a></p>
                 </div>
             </div>
-             <hr>
+            <hr>
             <div class="row">
                 <div class="col-xs-12 text-left">
                     <strong>Gene and Patient Search</strong>

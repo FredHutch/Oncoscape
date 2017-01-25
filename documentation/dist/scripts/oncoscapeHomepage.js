@@ -1,6 +1,7 @@
 
 $(document).ready(function() {
 
+
     // js for url, hide following if embeded
     if (window.location.href.indexOf("embed=true") != -1) {
 
@@ -334,9 +335,6 @@ $(document).ready(function() {
         d.fx = null;
         d.fy = null;
     }
-
-    
-
 
 
     // document ready close
