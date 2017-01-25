@@ -24,7 +24,7 @@
         </div>
     </div>
     <!-- END sticky nav-bar -->
-    <!-- START about seciton -->
+    <!-- START about section -->
     <div class="scrollto" id="section-overview">
         <a class="anchor" id="anchor-overview">x</a>
         <div class="container">
@@ -272,6 +272,7 @@
             </section>
         </div>
     </div>
+    <!-- END about section -->
     <!-- START Use Cases seciton -->
     <div class="scrollto" id="section-cases">
         <a class="anchor" id="anchor-cases">x</a>
@@ -292,42 +293,96 @@
                 <article class="video">
                     <div class="videoThumb" style="background-image: url(photos/mpNavigation/videotwo.png);"></div>
                     <a class="videoLink" href="https://www.youtube.com/embed/nKDk2V-Ia8s?rel=0&amp;controls=1&amp;showinfo=0"></a>
-                    <h4 class="videoTitle">Introduction to selecting, saving and transferring cohorts</h4>
-                    <p class="videoParagraph">Watch how to select EGFR cohorts with/without Amplification</p>
+                    <h4 class="videoTitle">Selecting, saving and transferring cohorts</h4>
+                    <p class="videoParagraph">Select EGFR cohorts with/without Amplification</p>
                     <section class="videoTranscript">
-                        <ol class="video-ol list-group">
+                        <ol class="video-ol">
                             <div class="li-margin">
-                                <li class="list-group-item">Getting Started:
-                                    <ol>Login <a href="https://oncoscape.sttrcancer.org/#/">Oncoscape</a></ol>
-                                    <ol>To get started with Cancer Explorer, click the EXPLORE button</ol>
-                                    <ol>Choose disease dataset Brain. Brain = (Glioblastoma + Lower Grade Glioma)</ol>
-                                    <ol>Select an analysis tool. Example: Markers + Patients (M+P)</ol>
-                                </li>
-                                <li class="list-group-item">Selecting & Saving Cohorts:
-                                    <ol>In M+P, if needed, adjust the layout so all parts are visible and centered using the mouse scroll or track pad </ol>
-                                    <ol>In the <em>Edge Visibility</em> box on the Control Bar (right side), toggle Amplification to “OFF” </ol>
-                                    <ol>Using the <em>Search box</em> on the Control Bar (right side) type EGFR and click Go</ol>
-                                    <ol>Above the Search box a count of selected will appear and the gene will be highlighted orange with a black boarder</ol>
-                                    <ol>To see the associated patient nodes click <strong>Show Edges of Selected</strong> from the <em>Commands</em> list on the Control Bar (right side)</ol>
-                                    <ol>The edges (Mutation, Gain, Loss, Deletion) connecting the EGFR selection and the patient nodes will be visualized</ol>
-                                    <ol>To grab the patient nodes to create a cohort, click <strong>Select Connected Nodes</strong> from the <em>Commands list</em>. Patient nodes will now be outlined in black. NOTE: To create cohorts with more than one mutation see <a href="https://oncoscape.sttrcancer.org/documentation/markerspatients.html">M+P Use Cases </a></ol>
-                                    <ol>To view a snapshot of clinical information from the selected cohort use the <em>Clinical Histogram</em> dropdown on the cohort panel (left side)</ol>
-                                    <ol>To save the EGFR cohort, name the cohort in the <em>Selected Cohort</em> box on the cohort panel and click the "+" button. Example Name: EGFR Edges minus Amplification. The new cohort will now be color-coded and appear under <em>Cohorts</em></ol>
-                                    <ol>Click anywhere on the M+P window white space to deselect the last cohort </ol>
-                                    <ol>Click <strong>Hide All Edges</strong> from the Commands list</ol>
-                                    <ol>In the Edge Visibility box, toggle Amplification to “ON” and turn all other sections to “OFF”</ol>
-                                    <ol>Search for EGFR</ol>
-                                    <ol>To see the associated patient nodes click <strong>Show Edges of Selected</strong> from the Commands list</ol>
-                                    <ol>To grab the patient nodes to create a cohort, click <strong>Select Connected Nodes</strong> from the Commands list. Patient nodes will now be outlined in black</ol>
-                                    <ol>To save the EGFR cohort, name the cohort in the <em>Selected Cohort</em> box and click the "+" button. Example Name: EGFR Edges Amplification ONLY. The new cohort will now be color-coded and appear under Cohorts</ol>
-                                    <ol>Users are able to toggle between cohorts by selecting from either the <em>Selected Cohorts</em> dropdown or by clicking on the desired cohort in the <em>Cohorts</em> section</ol>
-                                </li>
-                                <li class="list-group-item">Transferring Cohorts:
-                                    <ol>Saved cohorts can be visualized in other analysis tools</ol>
-                                    <ol>In the header click Tools, from the dropdown select Survival</ol>
-                                    <ol>Selections in Survival can be toggled ON or OFF in the same manor as the <em>Edge Visibility</em> box in M+P</ol>
-                                    <ol>In survival view the P-values for the cohort with EGFR Amplification vs the cohort without EGFR Amplification</ol>
-                                </li>
+                                <p><strong>Getting Started</strong></p>
+                                <ol>
+                                    <li>Login <a href="https://oncoscape.sttrcancer.org/#/" target="_blank">Oncoscape</a></li>
+                                    <li>To get started with Cancer Explorer, click the EXPLORE button</li>
+                                    <li>Choose disease dataset Brain (Brain is a combination of Glioblastoma + Lower Grade Glioma)</li>
+                                    <li>Select the analysis tool Markers + Patients (M+P)</li>
+                                </ol>
+                                <p style="padding-top: 20px;"><strong>Selecting & Saving Cohorts</strong></p>
+                                <ol>
+                                    <li>In M+P, if needed, adjust the layout so all parts are visible and centered using the mouse scroll or track pad</li>
+                                    <li>In the <em>Edge Visibility</em> box on the Control Bar (right upper side), toggle Amplification to “OFF”</li>
+                                    <li>Using the <em>Search box</em> on the Control Bar (right middle side) type EGFR and click Go</li>
+                                    <li>Above the Search box a count of selected will appear and the gene will be highlighted orange with a black boarder</li>
+                                    <li>To see the associated patient nodes, click Show <strong>Edges of Selected</strong> from the Commands list (right middle side, blue text) on the Control Bar</li>
+                                    <li>The edges (Mutation, Gain, Loss, Deletion) connecting the EGFR selection and the patient nodes will be visualized</li>
+                                    <li>To grab the patient nodes to create a cohort, click <strong>Select Connected Nodes</strong> from the Commands list (right middle side, blue text). Patient nodes will now be outlined in black. NOTE: To create cohorts with more than one mutation see <a href="https://oncoscape.sttrcancer.org/documentation/markerspatients.html" target="_blank">M+P Use Cases </a></li>
+                                    <li>To view a snapshot of clinical information from the selected cohort use the <em>Clinical Histogram</em> dropdown (upper left side) on the cohort panel </li>
+                                    <li>To save the EGFR cohort, name the cohort in the <em>Selected Cohort</em> box (upper left side) on the cohort panel and click the "+" button. Example Name: EGFR Edges minus Amplification. The new cohort will now be color-coded and appear under Cohorts</li>
+                                    <li>Click anywhere on the M+P window white space to deselect the last cohort</li>
+                                    <li>Click <strong>Hide All Edges</strong> from the Commands list (right middle side, blue text)</li>
+                                    <li>In the <em>Edge Visibility</em> box (right upper side), toggle Amplification to “ON” and turn all other sections to “OFF” </li>
+                                    <li>Using the <em>Search box</em> on the Control Bar (right middle side) type EGFR and click Go</li>
+                                    <li>To see the associated patient nodes, click <strong>Show Edges of Selected</strong> from the Commands list (right middle side, blue text)</li>
+                                    <li>To grab the patient nodes to create a cohort, click <strong>Select Connected Nodes</strong> from the Commands list (right middle side, blue text). Patient nodes will now be outlined in black</li>
+                                    <li>To save the EGFR cohort, name the cohort in the <em>Selected Cohort</em> box(upper left side) on the cohort panel and click the "+" button. Example Name: EGFR Edges Amplification ONLY. The new cohort will now be color-coded and appear under Cohorts</li>
+                                    <li>Users are able to toggle between cohorts by selecting from either the Selected Cohorts dropdown or by clicking on the desired cohort in the Cohorts section</li>
+                                </ol>
+                                <p style="padding-top: 20px; "><strong>Transferring Cohorts</strong></p>
+                                <ol>
+                                    <li>Saved cohorts can be visualized in other analysis tools</li>
+                                    <li>In the header click Tools, from the dropdown select Survival</li>
+                                    <li>Selections in Survival can be toggled ON or OFF in the same manor as the <em>Edge Visibility</em> box in M+P</li>
+                                    <li>In survival view the P-values for the cohort with EGFR Amplification vs the cohort without EGFR Amplification</li>
+                                </ol>
+                            </div>
+                        </ol>
+                    </section>
+                </article>
+            </section>
+            <section class="videos noselect col-xs-12 col-md-5">
+                <article class="video">
+                    <div class="videoThumb" style="background-image: url(photos/mpNavigation/videotwo.png);"></div>
+                    <a class="videoLink" href="https://www.youtube.com/embed/nKDk2V-Ia8s?rel=0&amp;controls=1&amp;showinfo=0"></a>
+                    <h4 class="videoTitle">Building cohorts in Spreadsheet and analyzing in other tools</h4>
+                    <p class="videoParagraph">Build Triple Negative and Luminal A Cohorts</p>
+                    <section class="videoTranscript">
+                        <ol class="video-ol">
+                            <div class="li-margin">
+                                <p><strong>Getting Started</strong></p>
+                                <ol>
+                                    <li>Login <a href="https://oncoscape.sttrcancer.org/#/" target="_blank">Oncoscape</a></li>
+                                    <li>To get started with Cancer Explorer, click the EXPLORE button</li>
+                                    <li>Choose disease dataset Breast</li>
+                                    <li>Select an analysis tool. </li>
+                                </ol>
+                                <p style="padding-top: 20px;"><strong>Selecting & Saving Cohorts</strong></p>
+                                <ol>
+                                    <li>In spreadsheet, by default all the columns will be selected and the Clinical Collection will be the patient table. To select the appropriate columns for specific cohorts, click on the <em>Select Columns</em> button (right, top of the spreadsheet)</li>
+                                    <li>The pop-up will list all the available columns, click the <em>Deselect All</em> button, then select patient ID, breast carcinoma estrogen receptor status, breast carcinoma progesterone receptor status and lab proc her2 immunohistochemistry receptor status</li>
+                                    <li>Click the “x” to close</li>
+                                    <li>On the patient ID column, click the down arrow and pin the column to the left</li>
+                                    <li>On the breast carcinoma estrogen receptor status column, click the down arrow and select group. All the options will now be grouped</li>
+                                    <li>Within the estrogen receptor status column, expand “(+)” the Negative row. All selections shown will be ER Negative and a mix of PR +/- and HER2 +/-</li>
+                                    <li>On the breast carcinoma progesterone receptor status column, click the down arrow and click group</li>
+                                    <li>Follow the same steps as the estrogen receptor status and expand the Negative row. All selections shown will be ER Negative and PR Negative with a mix of HER2 +/-</li>
+                                    <li>Repeat this step for the lab proc her2 immunohistochemistry receptor status column</li>
+                                    <li>The expanded rows will now be a subset of the breast datasets representing ER-, PR- and HER2- (Triple Negative)</li>
+                                    <li>Within the triple negative subset, click on the first √ line and while holding the Shift key and select the last √ line. This will select all the triple negative patients</li>
+                                    <li>To save the cohort, name the cohort in the Selected Cohort box and click the "+" button. Example Name: Breast: Triple Negative. The new cohort will now be color-coded and appear under Cohorts</li>
+                                    <li>To select the Luminal A cohort, close all the extended rows by clicking the “-“ buttons and ungroup all the columns. </li>
+                                    <li>From the cohort panel, select “All Patients + Samples”</li>
+                                    <li>The spreadsheet should be back to default to create the next cohort, Luminal A where the above steps will be repeated</li>
+                                    <li>On the breast carcinoma estrogen receptor status column, click the down arrow and click group</li>
+                                    <li>Expand the Positive row. All selections shown will be ER Positive and a mix of PR +/- & HER2 +/-</li>
+                                    <li>Repeat this grouping/expanding step for the lab proc her2 immunohistochemistry receptor status column, only expanding the Negative row</li>
+                                    <li>The expanded rows will now be a subset of the breast datasets representing ER+, HER2- and a mix of PR-/+ (Luminal A)</li>
+                                    <li>Within the Luminal A subset, click on the first √ line and while holding the Shift key and select the last √ line. This will select all the Luminal A patients</li>
+                                    <li>To save the cohort, name the cohort in the Selected Cohort box and click the "+" button. Example Name: Breast: Luminal A. The new cohort will now be color-coded and appear under Cohorts</li>
+                                </ol>
+                                <p style="padding-top: 20px; "><strong>Transferring Cohorts</strong></p>
+                                <ol>
+                                    <li>Saved cohorts can be visualized in other analysis tools</li>
+                                    <li>In the header click Tools, from the dropdown select PCA</li>
+                                    <li>View pattern among patients by toggling between cohorts either by selecting from either the Selected Cohorts dropdown or by clicking on the desired cohort in the Cohorts section</li>
+                                </ol>
                             </div>
                         </ol>
                     </section>
@@ -342,89 +397,90 @@
         <div class="container">
             <div class="row">
                 <div class="col-xs-12 text-center">
-                    <h3 class="section-headline fadeInDown animated">Get Started</h3>
+                    <h3 class="section-headline fadeInDown animated ">Get Started</h3>
                 </div>
             </div>
-            <div class="row">
-                <div class="col-xs-12">
-                    <p class="cohort-statement text-left">The power of Oncoscape lies in the ability to create and move cohorts through the various tools.</p>
-                    <p class="text-left">Creating a saved cohort is easy. On the left side of all tools is the cohort panel. All functions related to cohorts are preformed here. Summaries for the various sections are below. It is important to note that as cohorts are selected and toggled between the clinical histograms, survival curves and summaries will update.</p>
-                </div>
-            </div>
-            <br>
-            <div class="row">
-                <div class="col-xs-12 col-sm-12 col-md-4 col-lg-4 text-left">
-                    <img class="img-responsive cohort-panel" src="photos/oncoscapeDocHomepage/selectedCohort.jpg">
-                </div>
-                <div class="col-xs-8 text-left cohort-descriptions">
-                    <p class="cohort-descriptions-1"><strong>Selected Cohort:</strong> Add, edit or delete cohorts. Click the "+" to save, "x" to delete or click the down arrow to select a cohort for edits.</p>
-                    <p class="cohort-descriptions-2"><strong>Clinical Histogram:</strong> Snapshot of clinical information, per cohort. The histogram will adjust with each cohort selection.Click the down arrow to view other filters. &nbsp; e.g. &nbsp; Age At Diagnosis, Gender, Race, Ethnicity, Vital, Tumor.</p>
-                    <p class="cohort-descriptions-3"><strong>Survival Curve:</strong> Snapshot of Kaplan Meier survival curves, per cohort. For more in depth analysis push the saved cohorts to the survival tool.</p>
-                    <p class="cohort-descriptions-4"><strong>Cohorts:</strong> All saved cohorts are listed in this area. Each cohort is clickable and will highlight the selections on the main window, as well as adjust any survival curves or clinical histograms that are associated. The last line will always show your current selection, which will also update in the <strong>Selected Cohort</strong> box at the top of the cohort panel.</p>
-                    <p class="cohort-descriptions-5"><strong>Cohort Summary:</strong> Every cohort includes a summary of available information based on patients and samples.</p>
+            <div class="row ">
+                <div class="col-xs-12 ">
+                    <p class="cohort-statement text-left ">The power of Oncoscape lies in the ability to create and move cohorts through the various tools.</p>
+                    <p class="text-left ">Creating a saved cohort is easy. On the left side of all tools is the cohort panel. All functions related to cohorts are preformed here. Summaries for the various sections are below. It is important to note that as cohorts are selected and toggled between the clinical histograms, survival curves and summaries will update.</p>
                 </div>
             </div>
             <br>
-            <div class="row text-left">
-                <div class="col-xs-12">
-                    <h4 class="generalPadding header-font">Transfer Cohorts</h4>
+            <div class="row ">
+                <div class="col-xs-12 col-sm-12 col-md-4 col-lg-4 text-left ">
+                    <img class="img-responsive cohort-panel " src="photos/oncoscapeDocHomepage/selectedCohort.jpg ">
+                </div>
+                <div class="col-xs-8 text-left cohort-descriptions ">
+                    <p class="cohort-descriptions-1 "><strong>Selected Cohort:</strong> Add, edit or delete cohorts. Click the "+ " to save, "x " to delete or click the down arrow to select a cohort for edits.</p>
+                    <p class="cohort-descriptions-2 "><strong>Clinical Histogram:</strong> Snapshot of clinical information, per cohort. The histogram will adjust with each cohort selection.Click the down arrow to view other filters. &nbsp; e.g. &nbsp; Age At Diagnosis, Gender, Race, Ethnicity, Vital, Tumor.</p>
+                    <p class="cohort-descriptions-3 "><strong>Survival Curve:</strong> Snapshot of Kaplan Meier survival curves, per cohort. For more in depth analysis push the saved cohorts to the survival tool.</p>
+                    <p class="cohort-descriptions-4 "><strong>Cohorts:</strong> All saved cohorts are listed in this area. Each cohort is clickable and will highlight the selections on the main window, as well as adjust any survival curves or clinical histograms that are associated. The last line will always show your current selection, which will also update in the <strong>Selected Cohort</strong> box at the top of the cohort panel.</p>
+                    <p class="cohort-descriptions-5 "><strong>Cohort Summary:</strong> Every cohort includes a summary of available information based on patients and samples.</p>
+                </div>
+            </div>
+            <br>
+            <div class="row text-left ">
+                <div class="col-xs-12 ">
+                    <h4 class="generalPadding header-font ">Transfer Cohorts</h4>
                 </div>
             </div>
             <hr>
-            <p class="text-left"><strong>Transfer cohorts at the click of a button.</strong></p>
-            <p class="text-left">Once cohorts have been created it is easy to move them to different tools for additional analysis. In the main header find the <em>Analysis Tools</em> button and select a new tool. The left cohort panel will appear in each tool. Additional help for individual tools can be found in the <a href="#tools">Available Tools</a> section.</p>
-            <p class="text-left"></p>
+            <p class="text-left "><strong>Transfer cohorts at the click of a button.</strong></p>
+            <p class="text-left ">Once cohorts have been created it is easy to move them to different tools for additional analysis. In the main header find the <em>Analysis Tools</em> button and select a new tool. The left cohort panel will appear in each tool. Additional help for individual tools can be found in the <a href="#tools ">Available Tools</a> section.</p>
+            <p class="text-left "></p>
             <!-- scroll and container end -->
         </div>
     </div>
-    <!-- START faq seciton -->
-    <!-- START Nav seciton -->
+     <!-- END Nav seciton -->
+    <!-- START methods seciton -->
     <div class="scrollto" id="section-methods">
         <a class="anchor" id="anchor-methods">x</a>
         <div class="container">
             <div class="row">
-                <div class="col-xs-12 text-center">
-                    <h3 class="section-headline fadeInDown animated">Data</h3>
+                <div class="col-xs-12 text-center ">
+                    <h3 class="section-headline fadeInDown animated ">Data</h3>
                 </div>
             </div>
-            <div class="row">
-                <div class="col-xs-12">
-                    <p class="text-left">All genesets used in Oncoscape can be viewed at <a class="methods-color" href="http://resources.sttrcancer.org/api/#genesets-details" target="_blank">Geneset Details.</a></p>
+            <div class="row ">
+                <div class="col-xs-12 ">
+                    <p class="text-left ">All genesets used in Oncoscape can be viewed at <a class="methods-color " href="http://resources.sttrcancer.org/api/#genesets-details " target="_blank ">Geneset Details.</a></p>
                 </div>
             </div>
-            <div class="row">
-                <div class="col-xs-12">
-                    <p class="text-left">Oncoscape's data is based on a gene/patient relationship as defined: “non-silent somatic mutation (nonsense, missense, frame-shift indels, splice site mutations, stop codon readthroughs, change of start codon, inframe indels) was identified in the protein coding region of a gene, or any mutation identified in a non-coding gene”. Credit to <a class="methods-color" href="http://xena.ucsc.edu/how-we-characterize-mutations/">Xena UCSC</a>.</p>
+            <div class="row ">
+                <div class="col-xs-12 ">
+                    <p class="text-left ">Oncoscape's data is based on a gene/patient relationship as defined: “non-silent somatic mutation (nonsense, missense, frame-shift indels, splice site mutations, stop codon readthroughs, change of start codon, inframe indels) was identified in the protein coding region of a gene, or any mutation identified in a non-coding gene”. Credit to <a class="methods-color " href="http://xena.ucsc.edu/how-we-characterize-mutations/ ">Xena UCSC</a>.</p>
                 </div>
             </div>
         </div>
     </div>
+    <!-- END methods seciton -->
     <!-- START faq seciton -->
     <div class="scrollto" id="section-faq">
         <a class="anchor" id="anchor-faq">x</a>
         <div class="container">
             <div class="row">
-                <div class="col-xs-12 text-center">
-                    <h3 class="section-headline fadeInDown animated">Frequently Asked Questions</h3>
+                <div class="col-xs-12 text-center ">
+                    <h3 class="section-headline fadeInDown animated ">Frequently Asked Questions</h3>
                 </div>
             </div>
-            <div class="container">
-                <div id="divlist">
-                    <a class="methods-color" role="button" data-toggle="collapse" data-target="#collapse-1">What tools have export features?</a>
-                    <div id="collapse-1" class="collapse">
-                        <p class="collapse-para">Currently, the export feature is only available on the Spreadsheet tool. Users can push saved cohorts to the spreadsheet tool by clicking the the Analysis Tool button at the top of the screen. Once there click the <em>Export</em> button. An Excel file will get generated.
+            <div class="container ">
+                <div id="divlist ">
+                    <a class="methods-color " role="button " data-toggle="collapse " data-target="#collapse-1 ">What tools have export features?</a>
+                    <div id="collapse-1 " class="collapse ">
+                        <p class="collapse-para ">Currently, the export feature is only available on the Spreadsheet tool. Users can push saved cohorts to the spreadsheet tool by clicking the the Analysis Tool button at the top of the screen. Once there click the <em>Export</em> button. An Excel file will get generated.
                         </p>
                     </div>
                     <hr>
-                    <a class="methods-color" role="button" data-toggle="collapse" data-target="#collapse-2">How is data saved for return visits?</a>
-                    <div id="collapse-2" class="collapse">
-                        <p class="collapse-para">All data for selections and cohorts will be automatically saved for a return visit assuming users are on the same computer to login. User logins that allow stored sessions from any device will be deployed in a future release.
+                    <a class="methods-color " role="button " data-toggle="collapse " data-target="#collapse-2 ">How is data saved for return visits?</a>
+                    <div id="collapse-2 " class="collapse ">
+                        <p class="collapse-para ">All data for selections and cohorts will be automatically saved for a return visit assuming users are on the same computer to login. User logins that allow stored sessions from any device will be deployed in a future release.
                         </p>
                     </div>
                     <hr>
-                    <a class="methods-color" role="button" data-toggle="collapse" data-target="#collapse-3">How to contact the Oncoscape team directly?</a>
-                    <div id="collapse-3" class="collapse">
-                        <p class="collapse-para">On the homepage header, click the contact link, fill out the form and someone from the Oncoscape team will contact you shortly.
+                    <a class="methods-color " role="button " data-toggle="collapse " data-target="#collapse-3 ">How to contact the Oncoscape team directly?</a>
+                    <div id="collapse-3 " class="collapse ">
+                        <p class="collapse-para ">On the homepage header, click the contact link, fill out the form and someone from the Oncoscape team will contact you shortly.
                         </p>
                     </div>
                 </div>
