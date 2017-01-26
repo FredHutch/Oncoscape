@@ -385,7 +385,7 @@ var data = (function() {
             var update = {
                 patientData: (state.options.patients.data != options.patients.data),
                 patientLayout: (state.options.patients.layout.name != options.patients.layout.name),
-                edges: (state.options.edges.layout.name != options.edges.layout.name),
+                edges: (state.options.edges.layout.geneset != options.edges.layout.geneset),
                 genes: (state.options.genes.layout != options.genes.layout)
             };
 
@@ -441,13 +441,7 @@ var data = (function() {
                     query: {
                         geneset: options.genes.layout,
                         dataType: 'edges',
-                        $and: [{
-                            alteration: {
-                                $in: [
-                                    'deletion', 'loss', 'gain', 'amplification', 'mutation'
-                                ]
-                            }
-                        }, { default: true }]
+                        default: true
                     }
                 }, !update.genes ? state.edges : null, formatEdgeNodes),
 

@@ -293,19 +293,14 @@ var data = (function() {
         "loss": -1,
         "mutation": 0,
         "gain": 1,
-        "alteration": 2
+        "amplification": 2
     }
     var formatEdgeNodes = function(data) {
-
-
-        var xxx = data.map(function(alteration) {
+        return [].concat.apply(this, data.map(function(alteration) {
             return alteration.d.map(function(edge) {
                 return createEdgeNode(edge.g, edge.p, mutationMap[alteration.alteration]);
             });
-        });
-
-        return [].concat.apply(this, xxx);
-
+        }));
     };
 
     var formatPatientNodes = function(data) {
@@ -390,7 +385,7 @@ var data = (function() {
             var update = {
                 patientData: (state.options.patients.data != options.patients.data),
                 patientLayout: (state.options.patients.layout.name != options.patients.layout.name),
-                edges: (state.options.edges.layout.name != options.edges.layout.name),
+                edges: (state.options.edges.layout.geneset != options.edges.layout.geneset),
                 genes: (state.options.genes.layout != options.genes.layout)
             };
 
@@ -446,22 +441,9 @@ var data = (function() {
                     query: {
                         geneset: options.genes.layout,
                         dataType: 'edges',
-                        $or: [{
-                                alteration: {
-                                    $in: [
-                                        'deletion', 'loss', 'gain', 'amplification'
-                                    ]
-                                }
-                            },
-                            {
-                                $and: [
-                                    { alteration: 'mutation' },
-                                    { default: true }
-                                ]
-                            }
-                        ]
+                        default: true
                     }
-                }, !update.edges ? state.edges : null, formatEdgeNodes),
+                }, !update.genes ? state.edges : null, formatEdgeNodes),
 
 
                 request({
@@ -471,7 +453,7 @@ var data = (function() {
                         dataType: 'genedegree',
                         default: true
                     }
-                }, !update.edges ? state.edgeGenes : null, formatEdgeGenes),
+                }, !update.genes ? state.edgeGenes : null, formatEdgeGenes),
 
                 request({
                     table: options.dataset + "_network",
@@ -480,10 +462,7 @@ var data = (function() {
                         dataType: 'ptdegree',
                         default: true
                     }
-                }, !update.edges ? state.edgePatients : null, formatEdgePatients),
-
-
-
+                }, !update.genes ? state.edgePatients : null, formatEdgePatients)
             ];
 
             Promise.all(promises).then(function(data) {
