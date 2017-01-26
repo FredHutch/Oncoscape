@@ -90,7 +90,6 @@
 
             // Load Dataset Command - Navigation
             vm.loadDataset = function(dataset) {
-                debugger;
                 $state.go($state.current.url.split("/")[1], { datasource: dataset });
                 angular.element('.navbar-collapse').collapse('hide');
             };

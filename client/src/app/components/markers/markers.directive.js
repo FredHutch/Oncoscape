@@ -148,13 +148,13 @@
                 };
 
                 var getPatientLayout = function(layouts) {
-                    // if (hasState) {
-                    //     return layouts.filter(function(v) {
-                    //         return v.name == mp.optPatientLayout.name;
-                    //     }, mp.optPatientLayout.name)[0];
-                    // } else {
-                    return layouts[0];
-                    //}
+                    if (hasState) {
+                        return layouts.filter(function(v) {
+                            return v.name == mp.optPatientLayout.name;
+                        }, mp.optPatientLayout.name)[0];
+                    } else {
+                        return layouts[0];
+                    }
                 };
                 var save = function(vm, cyChart) {
                     var s = {};
@@ -284,7 +284,7 @@
                     hideEdgesOnViewport: false,
                     hideLabelsOnViewport: true,
                     textureOnViewport: false,
-                    wheelSensitivity: .2,
+                    wheelSensitivity: 0.2,
                     zoom: 0.08,
                     pan: {
                         x: 650,
@@ -895,15 +895,13 @@
                             })
                         },
                         edges: {
-                            //patientWeights: edges.patientWeights,
-                            //geneWeights: edges.genesWeights,
                             layout: vm.datasource.edges
                                 .filter(function(v) {
-                                    return (v.name == this)
+                                    return (v.geneset == this)
                                 }, geneset)[0],
                             colors: vm.optEdgeColors
                                 .filter(function(f) {
-                                    return f.show
+                                    return f.show;
                                 })
                                 .map(function(f) {
                                     return {

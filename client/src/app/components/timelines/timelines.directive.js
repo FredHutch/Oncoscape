@@ -229,8 +229,9 @@
                 yZoom = baseZoomY;
                 xTran = 0;
                 yTran = 0;
-                elPatients.attr("transform", "translate(" + xTran + "," + yTran + ") scale(" + xZoom + "," + yZoom + ")");
-                elSelected.attr("transform", "translate(" + xTran + "," + yTran + ") scale(" + xZoom + "," + yZoom + ")");
+                if (baseZoomY == Infinity) baseZoomY = 10;
+                // elPatients.attr("transform", "translate(" + xTran + "," + yTran + ") scale(" + xZoom + "," + yZoom + ")");
+                // elSelected.attr("transform", "translate(" + xTran + "," + yTran + ") scale(" + xZoom + "," + yZoom + ")");
             };
 
 
@@ -408,10 +409,9 @@
             };
             osCohortService.onCohortChange.add(onCohortChange);
 
-
-
             // Load + Format Data
             osApi.query(osApi.getDataSource().clinical.events, {}).then(function(response) {
+
                 var colorFn = function(status) {
                     return (status == "Birth") ? "#E91E63" :
                         (status == "Diagnosis") ? "#673AB7" :

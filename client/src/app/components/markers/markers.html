@@ -140,7 +140,7 @@
             <div class="modal-body">
                 <h2 style="margin-top:0px;">Your request would add {{vm.edgeCounts.total}} edges to the graph.</h2>
                 <p>To improve performance + readability you may want to disable some of the edges.</p>
-                <div class="input-group" ng-repeat="item in vm.optEdgeColors | filter:{show:true}">
+                <div class="legend" ng-repeat="item in vm.optEdgeColors | filter:{show:true}" style="border-color:{{item.color}};">
                     <label class="switch {{item.class}}">
                         <input type="checkbox" class="switch-input" ng-model="item.show">
                         <span class="switch-label" data-on="On" data-off="Off"></span>
