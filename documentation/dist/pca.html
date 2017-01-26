@@ -174,16 +174,26 @@
             <section class="videos noselect col-xs-12 col-md-5">
                 <article class="video">
                     <div class="videoThumb" style="background-image: url(photos/pcaNavigation/pcavideo1.png);"></div>
-                    <a class="videoLink" href="https://www.youtube.com/embed/YQ5f2P1mLog?rel=0&amp;controls=1&amp;showinfo=0"></a>
-                    <h4 class="videoTitle">Show PCA plot of RNA expression colored by HPV status</h4>
-                    <p class="videoParagraph">Save and view cohorts with RNA expression colored by HPV status.</p>
+                    <a class="videoLink" href="https://www.youtube.com/embed/fc8DjvxN6UE?rel=0&amp;controls=1&amp;showinfo=0"></a>
+                    <h4 class="videoTitle">Build patient cohorts with color options within Gilomas</h4> 
+                    <p class="videoParagraph">Define and save different cohorts based on tumor grades</p>  
                     <section class="videoTranscript">
                         <ol class="video-ol">
                             <div class="li-margin">
-                                <li>PCA for Head and Neck: Default for H & N: PCA using CNV gistic scores for all genes based on UCSC data pipeline</li>
-                                <li>Change Input type to update Plot Layout: Load the PCA scores based on RNA expression data</li>
-                                <li>Color Patients by Clinical Indicator: Choose HPV Status P16 to color patients within the plot</li>
-                                <li>View Patterns among Patients: Refer to the legend to see patient categories</li>
+                                <li>Click on the <em>Color Options</em> button on the Control Bar (middle right side)</li>
+                                <li>A list of possible color options will pop up. <strong>Select Tumor Grade</strong> under the Core grouping</li>
+                                <li>PCA will load with the different color options visible</li> 
+                                <li>On the Control Bar find the Patient Tumor Grade color-key menu (middle right side)</li>
+                                <li>Each color will have a select (circle with dot) and deselect (empty circle) button associated with it </li>
+                                <li>Create a cohort for each tumor grade, on green G2 click the select button</li>
+                                <li>All the patient nodes associated with the Tumor Grade G2 will be outlined in black</li>
+                                <li>To save the G2 cohort, name the cohort in the <em>Selected Cohort</em> box on the Cohort Panel (upper left side) and click the "+" button. Example Name: G2 Tumors. The new cohort will now be color-coded and appear under Cohorts</li>
+                                <li>Return to the Patient Tumor Grade color-key menu (middle right side) and on the green G2 Tumor grade, click the deselect button</li>
+                                <li>All outlined G2 selections should deselect</li>
+                                <li>Repeat these steps and create cohorts for each Tumor Grade (G3, G4 and NA)</li>
+                                <li>Once all 4 cohorts have been created they can be transferred to Survival</li>
+                                <li>In the header click Tools, from the dropdown select Survival</li>
+                                <li>In survival compare the the P-values for the each of the Patient Tumor Grade cohorts in the Giloma disease dataset</li> 
                             </div>
                         </ol>
                     </section>
