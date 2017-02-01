@@ -71,6 +71,7 @@
                 var hasState = (mp !== null);
                 if (hasState) mp = angular.fromJson(mp);
 
+
                 var _colors = null;
                 var setColors = function(c) {
                     _colors = c;
@@ -81,8 +82,21 @@
                     requestAnimationFrame(function() {
                         cyChart.startBatch();
                         cyChart.add(mp.edges);
+                        cyChart.$('node[nodeType="patient"]').forEach(function(node){ 
+                            if (
+                                mp.moved.hasOwnProperty(node.id())
+                                )
+                            {
+                                node.position(
+                                    mp.moved[node.id()]
+                                );
+                            }
+                        });
                         cyChart.endBatch();
                     });
+                    
+                    
+                    
                 };
 
                 var getOptEdgeColors = function() {
@@ -148,6 +162,7 @@
                 };
 
                 var getPatientLayout = function(layouts) {
+
                     if (hasState) {
                         return layouts.filter(function(v) {
                             return v.name == mp.optPatientLayout.name;
@@ -156,8 +171,16 @@
                         return layouts[0];
                     }
                 };
+
+
                 var save = function(vm, cyChart) {
                     var s = {};
+                     s.moved = {};
+                    cyChart.$('node[nodeType="patient"]').forEach(function(v){ 
+                        if (!_.isMatch(v.data().position, v.position())){
+                            s.moved[v.id()] = v.position();
+                        }
+                    });
                     s.optEdgeColors = vm.optEdgeColors;
                     s.optGeneSet = vm.optGeneSet;
                     s.optPatientLayout = vm.optPatientLayout;
@@ -714,26 +737,21 @@
                 };
                 cmd.patients_layout = function(data) {
                     cyChart.startBatch();
-                    //cyChart.$("node[nodeType='annotation-text'],edge[nodeType='annotation-line'],node[nodeType='annotation-point']").remove();
-                    // if (data.annotation) {
-                    //     cyChart.add(data.annotation);
-                    // }
                     cyChart.$("node[nodeType='annotation-text']").remove();
 
                     var posX = 100;
                     var posY = 3000;
                     var numMissing = 0;
-                    cyChart.nodes('node[nodeType="patient"]').forEach(function(node) {
-
-                        node.position(-10000, -10000);
-                    });
+                                  
                     cyChart.nodes('node[nodeType="patient"]').forEach(function(node) {
                         if (data.hasOwnProperty(node.id())) {
                             var pos = data[node.id()];
-                            pos.x -= 4000;
+                            node.data().position = {x:pos.x, y:pos.y};
                             node.position(pos);
+                            node.style({display: 'element'});
                         } else {
-                            node.position({ x: -10000, y: -10000 });
+                            node.style({display: 'none'});
+                            //node.position({ x: -10000, y: -10000 });
                             // node.position({ x: posX, y: posY });
                             // posX += 80;
                             // if (posX > 3000) {
@@ -744,7 +762,7 @@
                         }
                     });
 
-                    if (numMissing > 0) {
+                    if (numMissing > 0) {   // uncomment to show grid of missing
                         // cyChart.add({
                         //     group: "nodes",
                         //     grabbable: false,
