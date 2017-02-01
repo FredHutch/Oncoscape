@@ -11,7 +11,6 @@
          var url = $location.protocol() + "://" + $location.host() + "/api/";
          url = "https://dev.oncoscape.sttrcancer.io/api/";
          var queryString = function(req) {
-             console.log(req.table);
              var query = url + req.table;
              if (angular.isDefined(req.query)) query += "/" + encodeURIComponent(angular.toJson(req.query));
              return query;
