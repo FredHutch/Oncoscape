@@ -82,11 +82,10 @@
                     requestAnimationFrame(function() {
                         cyChart.startBatch();
                         cyChart.add(mp.edges);
-                        cyChart.$('node[nodeType="patient"]').forEach(function(node){ 
+                        cyChart.$('node[nodeType="patient"]').forEach(function(node) {
                             if (
                                 mp.moved.hasOwnProperty(node.id())
-                                )
-                            {
+                            ) {
                                 node.position(
                                     mp.moved[node.id()]
                                 );
@@ -94,9 +93,9 @@
                         });
                         cyChart.endBatch();
                     });
-                    
-                    
-                    
+
+
+
                 };
 
                 var getOptEdgeColors = function() {
@@ -168,16 +167,21 @@
                             return v.name == mp.optPatientLayout.name;
                         }, mp.optPatientLayout.name)[0];
                     } else {
-                        return layouts[0];
+                        return layouts.reduce(function(p, c) {
+                            if (c.hasOwnProperty("default")) {
+                                if (c.default) p = c;
+                            }
+                            return p;
+                        }, layouts[0]);
                     }
                 };
 
 
                 var save = function(vm, cyChart) {
                     var s = {};
-                     s.moved = {};
-                    cyChart.$('node[nodeType="patient"]').forEach(function(v){ 
-                        if (!_.isMatch(v.data().position, v.position())){
+                    s.moved = {};
+                    cyChart.$('node[nodeType="patient"]').forEach(function(v) {
+                        if (!_.isMatch(v.data().position, v.position())) {
                             s.moved[v.id()] = v.position();
                         }
                     });
@@ -561,7 +565,7 @@
                         $fields: ['name']
                     }),
                     osApi.query(osApi.getDataSource().disease + "_cluster", {
-                        $fields: ['input', 'geneset', 'dataType', 'source']
+                        $fields: ['input', 'geneset', 'dataType', 'source', 'default']
                     })
 
                 ]).then(function(results) {
@@ -742,15 +746,15 @@
                     var posX = 100;
                     var posY = 3000;
                     var numMissing = 0;
-                                  
+
                     cyChart.nodes('node[nodeType="patient"]').forEach(function(node) {
                         if (data.hasOwnProperty(node.id())) {
                             var pos = data[node.id()];
-                            node.data().position = {x:pos.x, y:pos.y};
+                            node.data().position = { x: pos.x, y: pos.y };
                             node.position(pos);
-                            node.style({display: 'element'});
+                            node.style({ display: 'element' });
                         } else {
-                            node.style({display: 'none'});
+                            node.style({ display: 'none' });
                             //node.position({ x: -10000, y: -10000 });
                             // node.position({ x: posX, y: posY });
                             // posX += 80;
@@ -762,7 +766,7 @@
                         }
                     });
 
-                    if (numMissing > 0) {   // uncomment to show grid of missing
+                    if (numMissing > 0) { // uncomment to show grid of missing
                         // cyChart.add({
                         //     group: "nodes",
                         //     grabbable: false,
