@@ -168,6 +168,7 @@
                     });
             });
 
+
             // Destroy
             $scope.$on('$destroy', function() {
                 osApi.onResize.remove(vm.setSize);

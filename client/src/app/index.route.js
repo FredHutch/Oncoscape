@@ -37,17 +37,18 @@
             return new Promise(function(resolve) {
                 resolveTools(osApi, $stateParams).then(function() {
 
-                    if (osCohortService.getCohort() === null) {
+                    //if (osCohortService.getCohort() === null) {
+                        osApi.setDataSource($stateParams.datasource);
                         osCohortService.loadCohorts().then(function() {
                             resolve();
                             angular.element("#cohortMenu").css({ display: "block" });
                             osApi.onNavChange.dispatch("TOOL");
                         });
-                    } else {
-                        angular.element("#cohortMenu").css({ display: "block" });
-                        osApi.onNavChange.dispatch("TOOL");
-                        resolve();
-                    }
+                    // } else {
+                    //     angular.element("#cohortMenu").css({ display: "block" });
+                    //     osApi.onNavChange.dispatch("TOOL");
+                    //     resolve();
+                    // }
 
                 });
             });

@@ -371,6 +371,8 @@
                     }, data.patientMap)
                     .filter(function(v) { return angular.isDefined(v); });
 
+                if (survival.length==0) return null;
+
                 /* 
                 Transform Survival Records Into KM Data The Result Is A Value Object Containing The Following
                 t = time in days
@@ -471,6 +473,7 @@
             };
 
             var create = function(name, patientIds, sampleIds) {
+                var survival = statsFactory.createSurvival(patientIds, _data, cohortAll);
                 var rv = {
                     uuid: Math.random().toString().substr(2),
                     color: '#000',
@@ -478,7 +481,7 @@
                     sampleIds: sampleIds,
                     name: name,
                     histogram: statsFactory.createHistogram(patientIds, _data),
-                    survival: statsFactory.createSurvival(patientIds, _data, cohortAll),
+                    survival: (survival==null) ? cohortAll.survival : survival,
                     numPatients: patientIds.length,
                     numSamples: sampleIds.length,
                     numClinical: patientIds.reduce(function(p, c) { p += (_data.patientMap[c].hasOwnProperty('clinical')) ? 1 : 0; return p; }, 0),
