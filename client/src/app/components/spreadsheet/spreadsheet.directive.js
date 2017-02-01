@@ -58,7 +58,12 @@
                 .filter(function(o) {
                     return (o.name != "events" && o.name != "samplemap");
                 });
-            vm.collection = vm.collections[0];
+
+
+            vm.collection = vm.collections.reduce(function(p,c){
+                if (c.name=="patient") p = c;
+                return p;
+            },vm.collections[0]);
             vm.options = {
                 treeRowHeaderAlwaysVisible: false,
                 enableGridMenu: false,

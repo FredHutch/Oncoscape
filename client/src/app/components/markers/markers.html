@@ -164,23 +164,26 @@
         <h3 class="panel-title">Patient Layout</h3>
         <span class="pull-right clickable" data-effect="fadeOut" ng-click="vm.showPanelLayout=false"><i class="fa fa-times"></i></span>
     </div>
-    <div class="panel-body" style="padding-top:0px;">
-
-        <div class=" row ">
-
+    <div class="panel-body" >
+        <div class="row">
             <table class="tbl ">
                 <thead>
+                <tr>
                     <th>Method</th>
                     <th>Gene Set</th>
                     <th>Input Data</th>
                     <th>Data Source</th>
+                </tr>
+
                 </thead>
+                <tbody>
                 <tr ng-repeat="item in vm.optPatientLayouts " ng-click="vm.optPatientLayout=item;vm.showPanelLayout=false; ">
                     <td>{{item.dataType}}</td>
                     <td>{{item.geneset}}</td>
                     <td>{{item.input}}</td>
                     <td>{{item.source}}</td>
                 </tr>
+                </tbody>
             </table>
 
 

@@ -226,7 +226,7 @@ var data = (function() {
 
 
         var rv = data[0].scores.reduce(function(p, c) {
-            p[c.id] = { x: c.d[0], y: c.d[1] };
+            p[c.id] = { x: c.d[0]-4000, y: c.d[1] };
             return p;
         }, {});
         send("patients_layout", rv);
@@ -264,7 +264,8 @@ var data = (function() {
                         sizeEle: 200,
                         weight: 200,
                         sizeLbl: 10,
-                        subType: "unassigned"
+                        subType: "unassigned",
+                        position: {}
                     }
                 };
             }, data)
@@ -305,7 +306,7 @@ var data = (function() {
 
     var formatPatientNodes = function(data) {
         var rv = data[0].scores.map(function(v) {
-            var position = { x: v.d[0], y: v.d[1] };
+            var position = { x: v.d[0]-4000, y: v.d[1] };
             var data = {
                 color: "#039BE5",
                 id: v.id,
@@ -316,7 +317,8 @@ var data = (function() {
                 sizeEle: 800,
                 weight: 800,
                 sizeLbl: 50,
-                subType: "unassigned"
+                subType: "unassigned",
+                position: {x:position.x, y:position.y}
             };
             var node = {
                 group: "nodes",
@@ -326,7 +328,6 @@ var data = (function() {
                 position: position,
                 data: data
             };
-            node.position.x -= 4000;
             return node;
         });
 
@@ -435,7 +436,6 @@ var data = (function() {
                     }
                 }, !update.genes ? state.genes : null, formatGeneNodes),
 
-                // deletion, loss, gain, amplification, mutation
                 request({
                     table: options.dataset + "_network",
                     query: {
@@ -444,7 +444,6 @@ var data = (function() {
                         default: true
                     }
                 }, !update.genes ? state.edges : null, formatEdgeNodes),
-
 
                 request({
                     table: options.dataset + "_network",
@@ -510,6 +509,10 @@ var data = (function() {
                     }
                     c.position.x += jitter;
                     c.position.jitter = jitter;
+                    c.data.position.x = c.position.x;
+                    c.data.position.y = c.position.y;
+                    c.position.jitter = c.position.jitter;
+
                     c.data.halign = (jitter < 0) ? "left" : "right";
                     c.data.padding = (jitter < 0) ? "-5" : "5";
                     c.data.chrome = this.chromosome;

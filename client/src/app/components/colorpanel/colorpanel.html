@@ -33,14 +33,21 @@
                 </div>
             </div>
         </div>
-        <button class="btn btn-default" ng-click="vm.resetColor()">Reset Color Options</button>
         <div class="row">
-            <h3 class="col-sm-3" ng-repeat="item in vm.optPatientColors">{{item.name}}<br />
-                <div ng-repeat="color in item.values">
-                    <a href style="font-size:12px;" class="hvr-sweep-to-right markers-command" ng-click="vm.setColor(color)">{{color.name}}</a>
-                </div>
-            </h3>
+            <div class="col-xs-12">
+            <button class="btn btn-default" ng-click="vm.resetColor()">Reset Color Options</button>
+            </div>
         </div>
+        <div ng-repeat="item in vm.optPatientColors">
+        <br />
+            <div class="row"><div class="col-xs-12">{{item.name}}</div></div>
+            <div class="row">
+                <div class="col-xs-4" ng-repeat="color in item.values"><a class="hvr-sweep-to-right markers-command" ng-click="vm.setColor(color)">{{color.name}}</a></div>
+            </div>
+        </div>
+
     </div>
-    <div style="position:absolute;bottom:0px;width:100%;padding:10px;font-size:10px;text-align:center;">Percentages Indicate Data Availibility</div>
+
+    </div>
+
 </div>

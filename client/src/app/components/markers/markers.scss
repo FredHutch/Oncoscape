@@ -1,23 +1,45 @@
 .tbl {
     width: 100%;
+    
     td {
         padding-left: 10px;
     }
-    th {
-        background: #f1f1f1;
-        font-weight: 300;
-        text-align: left;
+    th{
         padding-left: 10px;
-        padding-top: 7px;
-        padding-bottom: 7px;
+        background-color:#f7f7f7;
     }
-    tr:nth-child(even) {
+    thead {
+        tr:hover{
+        color:#000;
+    }
+            
+    }
+    tr:nth-child(odd) {
         background: #f7f7f7;
     }
     tr:hover {
         background: $color-blue;
         color: #FFF;
     }
+}
+.panel-heading{
+    position:absolute;
+    left:0px;
+    top:0px;
+    width:100%;
+}
+.panel-body{
+    margin-top:30px;
+
+}
+.mdi {
+    position:absolute;
+    z-index: 9999;
+    width: 80vw;
+    height:85vh;
+    margin-left:10vw;
+    margin-top:2vh;
+    overflow:scroll;
 }
 
 .panel-heading span {
@@ -33,16 +55,6 @@
     cursor: pointer;
 }
 
-.mdi {
-    position: absolute !important;
-    right: 30px;
-    left: 30px;
-    top: 5vh;
-    bottom: 5vh;
-    z-index: 9999;
-    width: auto;
-    overflow: scroll;
-}
 
 // Namespace
 .markers-dl {
