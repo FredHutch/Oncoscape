@@ -136,12 +136,14 @@
                     <ul>
                         <li class="overview-li-padding"><em>Panel Lock:</em> Lock and unlock the panels for a wider screen view.
                         </li>
-                        <li class="overview-li-padding"><em>Selected Cohort:</em> Add, edit or delete cohorts. Click the "+" to save, "x" to delete or click the down arrow to select a cohort for edits.</li>
+                        <li class="overview-li-padding"><em>Cohort Panel:</em> All cohort related commands are handled within this panel.
+                        </li>
+                        <li class="overview-li-padding"><em>Selected Cohort Box & Dropdown:</em> Add, edit or delete cohorts. Click the "+" to save, "x" to delete or click the down arrow to select a cohort for edits.</li>
                         <li class="overview-li-padding"><em>Clinical Histogram:</em> Snapshot of clinical information, per cohort. The histogram will adjust with each cohort selection. &nbsp; Click the down arrow to view other filters. e.g. &nbsp; Age At Diagnosis, Gender, Race, Ethnicity, Vital, Tumor.</li>
                         <li class="overview-li-padding"><em>Survival Curve:</em> Snapshot of Kaplan Meier survival curves, per cohort. For more in depth analysis push the saved cohorts to the survival tool.</li>
-                        <li class="overview-li-padding"><em>Cohorts:</em> All saved cohorts are listed in this area. Each cohort is clickable and will highlight the selections on the main window, as well as adjust any survival curves or clinical histograms that are associated. The last line will always show your current selection, which will also update in the <strong>Selected Cohort</strong> box at the top of the cohort panel. All cohorts are color coded for easy identification. To learn more visit <a href="" target="_blank">Oncoscape</a></li>
+                        <li class="overview-li-padding"><em>Cohorts Section:</em> All saved cohorts are listed in this area. Each cohort is clickable and will highlight the selections on the main window, as well as adjust any survival curves or clinical histograms that are associated. The last line will always show your current selection, which will also update in the <strong>Selected Cohort</strong> box at the top of the cohort panel. All cohorts are color coded for easy identification. To learn more visit <a href="" target="_blank">Oncoscape</a></li>
                         <li class="overview-li-padding"><em>Cohort Summary:</em> Every cohort includes a summary of available information based on patients and samples.</li>
-                        <li class="overview-li-padding"><em>Patient Nodes:</em> Select nodes by holding down the <em>Shift</em> key and selecting either individual or larger node groupings. The variation in node sizing represents the number of mutations a patient or gene carries, e.g. the larger the node the greater the mutation number. Hovering over an individual patient will provide clinical information on the left side of the tool.
+                        <li class="overview-li-padding"><em>Tumor Nodes:</em> Select nodes by holding down the <em>Shift</em> key and selecting either individual or larger node groupings. The variation in node sizing represents the number of mutations a patient or gene carries, e.g. the larger the node the greater the mutation number. Hovering over an individual patient will provide clinical information on the left side of the tool.
                         </li>
                         <li class="overview-li-padding"><em>Control Bar:</em> Collection of controls that operate over the patient and chromosome areas.
                         </li>
@@ -174,16 +176,26 @@
             <section class="videos noselect col-xs-12 col-md-5">
                 <article class="video">
                     <div class="videoThumb" style="background-image: url(photos/pcaNavigation/pcavideo1.png);"></div>
-                    <a class="videoLink" href="https://www.youtube.com/embed/YQ5f2P1mLog?rel=0&amp;controls=1&amp;showinfo=0"></a>
-                    <h4 class="videoTitle">Show PCA plot of RNA expression colored by HPV status</h4>
-                    <p class="videoParagraph">Save and view cohorts with RNA expression colored by HPV status.</p>
+                    <a class="videoLink" href="https://www.youtube.com/embed/fc8DjvxN6UE?rel=0&amp;controls=1&amp;showinfo=0"></a>
+                    <h4 class="videoTitle">Build patient cohorts with color options within Gilomas</h4> 
+                    <p class="videoParagraph">Define and save different cohorts based on tumor grades</p>  
                     <section class="videoTranscript">
                         <ol class="video-ol">
                             <div class="li-margin">
-                                <li>PCA for Head and Neck: Default for H & N: PCA using CNV gistic scores for all genes based on UCSC data pipeline</li>
-                                <li>Change Input type to update Plot Layout: Load the PCA scores based on RNA expression data</li>
-                                <li>Color Patients by Clinical Indicator: Choose HPV Status P16 to color patients within the plot</li>
-                                <li>View Patterns among Patients: Refer to the legend to see patient categories</li>
+                                <li>Click on the <em>Color Options</em> button on the Control Bar (middle right side)</li>
+                                <li>A list of possible options for color-coding data will pop up. Select <strong>Tumor Grade</strong> under the Core grouping</li>
+                                <li>PCA will reload the color-coded data by Tumor Grade</li> 
+                                <li>On the Control Bar find the Patient Tumor Grade color-key menu (middle right side)</li>
+                                <li>Each color will have a select (circle with dot) and deselect (empty circle) button associated with it, the default setting will have zero patient nodes selected</li>
+                                <li>Create a cohort for each tumor grade, on green G2 click the select button</li>
+                                <li>All the patient nodes associated with the Tumor Grade G2 will be outlined in black</li>
+                                <li>To save the G2 cohort, type the name of the cohort in the <em>Selected Cohort</em> box on the Cohort Panel (upper left side) and click the "+" button. Example Name: G2 Tumors. The new cohort will now be color-coded and appear under Cohorts</li>
+                                <li>Return to the Patient Tumor Grade color-key menu (middle right side) and on the green G2 Tumor grade, click the deselect button</li>
+                                <li>All outlined G2 selections will deselect</li>
+                                <li>Repeat these steps and create cohorts for each Tumor Grade (G3, G4 and NA)</li>
+                                <li>Once all 4 cohorts have been created they can be transferred to Survival (or any of the selected tools)</li>
+                                <li>In the header click Tools, from the dropdown select Survival</li>
+                                <li>Survival will show the P-values on the Control Bar (upper right side) for each of the Patient Tumor Grade cohorts created in PCA</li> 
                             </div>
                         </ol>
                     </section>
