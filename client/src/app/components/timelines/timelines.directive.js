@@ -132,7 +132,7 @@
                     } else {
 
                         // Filter Alive + Dead
-                        var status = patient.hash["Status"].data.status;
+                        var status = patient.hash.Status.data.status;
                         if ((this.filter == "Only Alive" && status == "Dead") || (this.filter == "Only Dead" && status != "Dead")) {
                             patient.visible = false;
                         } else {
@@ -179,8 +179,8 @@
                 // Sort Patients
                 patientsFiltered = patientsFiltered.sort(function(a, b) {
                     if (a.status == b.status) {
-                        var aTime = a.events.filter(function(e) { return (e.name == sort && e.order == 1) })[0].tsStartAligned;
-                        var bTime = b.events.filter(function(e) { return (e.name == sort && e.order == 1) })[0].tsStartAligned;
+                        var aTime = a.events.filter(function(e) { return (e.name == sort && e.order == 1); })[0].tsStartAligned;
+                        var bTime = b.events.filter(function(e) { return (e.name == sort && e.order == 1); })[0].tsStartAligned;
                         if (aTime > bTime) return 1;
                         if (bTime > aTime) return -1;
                         return 0;
@@ -280,7 +280,7 @@
                             xZoom = (baseZoomX / deltaPercent);
                             xTran = (width * xZoom) * -lowerPercent;
                         } else {
-                            if (xZoom == baseZoomX && xTran == 0) return;
+                            if (xZoom == baseZoomX && xTran === 0) return;
                             xZoom = baseZoomX;
                             xTran = 0;
                             elScrollX.call(brushX.move, null);
@@ -317,7 +317,7 @@
                     .attr('height', function(d) { return (d.name == "Radiation" || d.name == "Drug") ? rowHeight / 2 : rowHeight; })
                     .attr('y', function(d) { return ((d.name == "Radiation") ? rowHeight / 2 : 0); })
                     .attr('x', function(d) { return scaleX(d.tsStartAligned); })
-                    .style('fill', function(d) { return d.color; })
+                    .style('fill', function(d) { return d.color; });
             };
 
             var updateSelected = function() {
@@ -349,7 +349,7 @@
                 selectedRows
                     .transition()
                     .duration(600)
-                    .attr('transform', function(d) { return "translate(0," + (d * rowHeight) + ")"; })
+                    .attr('transform', function(d) { return "translate(0," + (d * rowHeight) + ")"; });
 
             };
             var updatePatients = function(width) {
@@ -431,7 +431,7 @@
                     // Loop Throug Events
                     var evtArray = this.data[key]
                         .filter(function(v) {
-                            return v.start != null;
+                            return v.start !== null;
                         })
                         .map(function(v) {
                             this.events[v.name] = null;

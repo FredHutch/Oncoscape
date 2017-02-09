@@ -52,7 +52,7 @@
 
             var x = d3.scaleOrdinal()
                 .domain(d3.range(m))
-                .rangeRoundBands([0, width], .08);
+                .rangeRoundBands([0, width], 0.08);
 
             var y = d3.scaleLinear()
                 .domain([0, yStackMax])
@@ -168,9 +168,9 @@
             function bumpLayer(n, o) {
 
                 function bump(a) {
-                    var x = 1 / (.1 + Math.random()),
-                        y = 2 * Math.random() - .5,
-                        z = 10 / (.1 + Math.random());
+                    var x = 1 / (0.1 + Math.random()),
+                        y = 2 * Math.random() - 0.5,
+                        z = 10 / (0.1 + Math.random());
                     for (var i = 0; i < n; i++) {
                         var w = (i / n - y) * z;
                         a[i] += x * Math.exp(-w * w);

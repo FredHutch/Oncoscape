@@ -722,8 +722,15 @@
 
         return {
 
+            // Constants
+            ALL: "All Patients",
+            SAMPLE: "SAMPLE",
+            PATIENT: "PATIENT",
+
+            // Init
             init: init,
 
+            // RPC
             query: query,
             queryString: queryString,
 

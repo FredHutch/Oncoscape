@@ -202,7 +202,7 @@
             var draw = function() {
                 drawLines();
                 clusterIndexes.forEach(drawCluster);
-            }
+            };
 
             var drawLines = function() {
                 var layout = osApi.getLayout();

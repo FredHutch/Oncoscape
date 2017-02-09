@@ -22,7 +22,7 @@ var request = function(object, data, format) {
             return;
         }
         var query = "/api/" + object.table;
-        query = "https://dev.oncoscape.sttrcancer.io/api/" + object.table;
+        //query = "https://dev.oncoscape.sttrcancer.io/api/" + object.table;
         if (object.query) query += "/" + encodeURIComponent(JSON.stringify(object.query));
         load(query, function(response) {
             resolve(format(JSON.parse(response.responseText)));
@@ -80,7 +80,6 @@ var data = (function() {
                 }
                 return false;
             }, state.patients);
-        // console.log("EDGES POST CLEAN: "+state.edges.length);
 
         // Size Nodes :: Eliminate Duplicate Functions
         var domain = Object.keys(state.edgePatients).reduce(function(p, c) {
@@ -104,6 +103,7 @@ var data = (function() {
                 };
                 return previousValue;
             }, {});
+
 
         domain = Object.keys(state.edgeGenes).reduce(function(p, c) {
             var v = state.edgeGenes[c];
@@ -226,7 +226,7 @@ var data = (function() {
 
 
         var rv = data[0].scores.reduce(function(p, c) {
-            p[c.id] = { x: c.d[0]-4000, y: c.d[1] };
+            p[c.id] = { x: c.d[0] - 4000, y: c.d[1] };
             return p;
         }, {});
         send("patients_layout", rv);
@@ -306,7 +306,7 @@ var data = (function() {
 
     var formatPatientNodes = function(data) {
         var rv = data[0].scores.map(function(v) {
-            var position = { x: v.d[0]-4000, y: v.d[1] };
+            var position = { x: v.d[0] - 4000, y: v.d[1] };
             var data = {
                 color: "#039BE5",
                 id: v.id,
@@ -318,7 +318,7 @@ var data = (function() {
                 weight: 800,
                 sizeLbl: 50,
                 subType: "unassigned",
-                position: {x:position.x, y:position.y}
+                position: { x: position.x, y: position.y }
             };
             var node = {
                 group: "nodes",

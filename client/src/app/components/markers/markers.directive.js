@@ -427,7 +427,7 @@
                     });
                     cyChart.add(elements);
                 });
-            })()
+            })();
 
             /*
              * View Model + Initial Data Load 
@@ -475,7 +475,7 @@
                 };
                 vm.hideModal = function() {
                     angular.element('#modalEdge').modal('hide');
-                }
+                };
                 vm.filterModelEdge = function() {
 
                     angular.element('#modalEdge').modal('hide');
@@ -484,7 +484,7 @@
                             return c.show;
                         })
                         .map(function(c) {
-                            return c.id
+                            return c.id;
                         });
                     var edges = tmpdata.edges.filter(function(edge) {
                         return (vals.indexOf(edge.data.cn) != -1);
@@ -614,7 +614,7 @@
                     cyChart.center();
                 };
                 var fit = function() {
-                    cyChart.fit(cyChart.$(':selected'), 50)
+                    cyChart.fit(cyChart.$(':selected'), 50);
                 };
                 vm.zoom = {
                     reset: reset,
@@ -629,10 +629,10 @@
                 return vm.zoom;
             })(cyChart, vm);
 
-            var borderScale = d3.scaleLog().domain([.005, 20]).range([5, 1])
-            var nodeScale = d3.scaleLog().domain([.005, 20]).range([80, 1]);
-            var labelScale = d3.scaleLog().domain([.005, 20]).range([50, 1]);
-            var expressionScale = d3.scalePow().range([.01, 2]);
+            var borderScale = d3.scaleLog().domain([0.005, 20]).range([5, 1]);
+            var nodeScale = d3.scaleLog().domain([0.005, 20]).range([80, 1]);
+            var labelScale = d3.scaleLog().domain([0.005, 20]).range([50, 1]);
+            var expressionScale = d3.scalePow().range([0.01, 2]);
 
 
             var resizeNodesByType = function(type) {
@@ -648,7 +648,7 @@
 
                 var zoom = cyChart.zoom();
                 var sizeNode = nodeScale(zoom);
-                var sizeLbl = (zoom < .375) ? 0 : labelScale(zoom);
+                var sizeLbl = (zoom < 0.375) ? 0 : labelScale(zoom);
                 var sizeBdr = borderScale(zoom);
 
                 cyChart.startBatch();
@@ -694,7 +694,7 @@
                         return;
                     }
 
-                    if (data.length == 0) return;
+                    if (data.length === 0) return;
                     var items = data.map(function(item) {
                         return this.getElementById(item);
                     }, cyChart);
@@ -930,7 +930,7 @@
                         edges: {
                             layout: vm.datasource.edges
                                 .filter(function(v) {
-                                    return (v.geneset == this)
+                                    return (v.geneset == this);
                                 }, geneset)[0],
                             colors: vm.optEdgeColors
                                 .filter(function(f) {
@@ -946,8 +946,8 @@
                     };
 
                     return opts;
-                }
-            })(cyChart, vm)
+                };
+            })(cyChart, vm);
 
             vm.cmd = function() {};
 
@@ -1005,7 +1005,7 @@
 
                 angular.element(".legend-count").text("");
                 var selectedPatients = cyChart.$('node[nodeType="patient"]:selected').toArray();
-                if (selectedPatients.length == 0) selectedPatients = cyChart.$('node[nodeType="patient"]').toArray();
+                if (selectedPatients.length === 0) selectedPatients = cyChart.$('node[nodeType="patient"]').toArray();
 
                 var counts = selectedPatients.reduce(function(p, c) {
                     var color = c.data().color;

@@ -46,11 +46,6 @@
                             angular.element("#cohortMenu").css({ display: "block" });
                             osApi.onNavChange.dispatch("TOOL");
                         });
-                        // osApi.loadData().then(function() {
-                        //     osApi.loadCohorts().then(function() {
-
-                        //     });
-                        // });
 
                     } else {
                         angular.element("#cohortMenu").css({ display: "block" });
@@ -71,7 +66,7 @@
                 angular.element("#cohortMenu").css({ display: "none" });
                 osApi.onNavChange.dispatch("");
             }, 200);
-        }
+        };
 
 
         // States

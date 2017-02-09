@@ -35,19 +35,17 @@
         </div>
         <div class="row">
             <div class="col-xs-12">
-            <button class="btn btn-default" ng-click="vm.resetColor()">Reset Color Options</button>
+                <button class="btn btn-default" ng-click="vm.resetColor()">Reset Color Options</button>
             </div>
         </div>
         <div ng-repeat="item in vm.optPatientColors">
-        <br />
-            <div class="row"><div class="col-xs-12">{{item.name}}</div></div>
+            <br />
+            <div class="row">
+                <div class="col-xs-12">{{item.name}}</div>
+            </div>
             <div class="row">
                 <div class="col-xs-4" ng-repeat="color in item.values"><a class="hvr-sweep-to-right markers-command" ng-click="vm.setColor(color)">{{color.name}}</a></div>
             </div>
         </div>
-
     </div>
-
-    </div>
-
 </div>

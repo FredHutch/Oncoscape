@@ -3,7 +3,6 @@
     <div class="cohort-menu tray tray-left">
         <section>
             <div class="row">
-
                 <div class="col-xs-12 form-item cohortmenu-hr">
                     <label>Selected Cohort</label>
                     <div class="input-group">
@@ -19,7 +18,6 @@
                         </div>
                     </div>
                 </div>
-
                 <div class="col-xs-12 form-item cohortmenu-hr">
                     <label class="cohortmenu-toggle-btn" data-toggle="collapse" data-target="#cohortmenu-histogram" tooltip="Show / Hide" tooltip-placement="right">Clinical Histogram <i class="fa fa-angle-down" aria-hidden="true"></i></label>
                     <div id="cohortmenu-histogram" class="collapse in" style="background:#FFF;border:1px solid #EAEAEA;">
@@ -36,7 +34,6 @@
                         </div>
                     </div>
                 </div>
-
                 <div class="col-xs-12 form-item cohortmenu-hr">
                     <label class="cohortmenu-toggle-btn" data-toggle="collapse" data-target="#cohortmenu-survival-box" tooltip="Show / Hide" tooltip-placement="right">Survival Curve <i class="fa fa-angle-down" aria-hidden="true"></i></label>
                     <div id="cohortmenu-survival-box" class="collapse in" style="background:#FFF;border:1px solid #EAEAEA;padding:5px;">
@@ -49,14 +46,11 @@
                         </div>
                     </div>
                 </div>
-
                 <div class="col-xs-12 form-item">
                     <label class="cohortmenu-toggle-btn" data-toggle="collapse" data-target="#cohortmenu-summary-box" tooltip="Show / Hide" tooltip-placement="right">Cohort Summary <i class="fa fa-angle-down" aria-hidden="true"></i></label>
                     <div id="cohortmenu-summary-box" class="collapse in" style="background:#FFF;border:1px solid #EAEAEA;padding:5px;" ng-bind-html="vm.cohortSummary"></div>
                 </div>
-
                 <div id="cohortmenu-legand"></div>
-
             </div>
             <i id="cohortmenu-lock" class="fa fa-lock tray-sticky-icon" ng-click="vm.toggle()" locked="true" tooltip="Show / Hide" tooltip-placement="left"></i>
         </section>

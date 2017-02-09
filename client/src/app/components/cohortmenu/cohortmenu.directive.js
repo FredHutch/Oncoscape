@@ -37,7 +37,7 @@
                 updateSurvival(cohorts);
             });
             osApi.onCohortChange.add(function(cohort) {
-                var toolInfo = osApi.getCohortToolInfo();
+
                 var dataInfo = osApi.getCohortDatasetInfo();
                 var summary =
                     $filter('number')(dataInfo.numSamples) + " Samples In Dataset<br /> " +
@@ -64,7 +64,7 @@
             // Cohort edit
             vm.setCohort = function(cohort) {
                 if (angular.isString(cohort)) {
-                    osApi.setCohort([], osApi.ALL, osApi.SAMPLE)
+                    osApi.setCohort([], osApi.ALL, osApi.SAMPLE);
                 } else {
                     osApi.setCohort(cohort);
                 }
@@ -76,10 +76,7 @@
                 } else {
                     osApi.deleteCohort(vm.cohort);
                 }
-            }
-
-
-
+            };
 
             // Tray Expand / Collapse
             var elTray = angular.element(".cohort-menu");
@@ -105,8 +102,6 @@
                 }
                 osApi.onResize.dispatch();
             };
-
-
 
             // Histogram 
             var histSvg = d3.select("#cohortmenu-chart").append("svg")
