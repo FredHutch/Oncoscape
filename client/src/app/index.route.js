@@ -25,27 +25,33 @@
         var resolveTools = function(osApi, $stateParams) {
             return new Promise(function(resolve) {
                 resolveDatasource(osApi).then(function() {
-                    osApi.setDataSource($stateParams.datasource);
-                    resolve();
-                    angular.element("#cohortMenu").css({ display: "none" });
-                    osApi.onNavChange.dispatch("TOOLS");
+                    osApi.setDataSource($stateParams.datasource).then(function() {
+                        resolve();
+                        angular.element("#cohortMenu").css({ display: "none" });
+                        osApi.onNavChange.dispatch("TOOLS");
+                    });
+
                 });
             });
         };
 
 
         var prevDatasource = "";
-        var resolveTool = function(osApi, osCohortService, $stateParams) {
+        var resolveTool = function(osApi, $stateParams) {
             return new Promise(function(resolve) {
                 resolveTools(osApi, $stateParams).then(function() {
-
-                    if (osCohortService.getCohort() === null || $stateParams.datasource!==prevDatasource) {
-                        osApi.setDataSource($stateParams.datasource);
-                        osCohortService.loadCohorts().then(function() {
+                    if (osApi.getCohort() === null || $stateParams.datasource !== prevDatasource) {
+                        osApi.setDataSource($stateParams.datasource).then(function() {
                             resolve();
                             angular.element("#cohortMenu").css({ display: "block" });
                             osApi.onNavChange.dispatch("TOOL");
                         });
+                        // osApi.loadData().then(function() {
+                        //     osApi.loadCohorts().then(function() {
+
+                        //     });
+                        // });
+
                     } else {
                         angular.element("#cohortMenu").css({ display: "block" });
                         osApi.onNavChange.dispatch("TOOL");

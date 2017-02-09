@@ -19,7 +19,7 @@
         return directive;
 
         /** @ngInject */
-        function SurvivalController(d3, osApi, osCohortService, $state, $timeout, $scope, $stateParams, $window, _) {
+        function SurvivalController(d3, osApi, $state, $timeout, $scope, $stateParams, $window, _) {
 
             // Loading . . . 
             osApi.setBusy(true);
@@ -27,14 +27,16 @@
             // View Model
             var vm = this;
             vm.datasource = osApi.getDataSource();
-            vm.cohort = osCohortService.getCohort();
-            vm.cohorts = (osCohortService.getCohorts().indexOf(vm.cohort) == -1) ?
-                osCohortService.getCohorts().concat([vm.cohort]) : osCohortService.getCohorts();
+
+
+            vm.cohort = osApi.getCohort();
+            vm.cohorts = (osApi.getCohorts().indexOf(vm.cohort) == -1) ?
+                osApi.getCohorts().concat([vm.cohort]) : osApi.getCohorts();
 
 
             vm.pValues = [];
             vm.setCohort = function(cohort) {
-                osCohortService.setCohort(cohort);
+                osApi.setCohort(cohort);
             };
 
 
@@ -110,7 +112,7 @@
                     .on("mouseover", onCurveMouseOver)
                     .on("mouseout", onCurveMouseOut)
                     .on("click", function() {
-                        osCohortService.setCohort(cohort);
+                        osApi.setCohort(cohort);
                     });
             };
 
@@ -137,7 +139,7 @@
             var onBrushEnd = function() {
 
                 if (!d3.event.selection) {
-                    osCohortService.setCohort(vm.cohorts.filter(function(c) { return c.type == "ALL"; })[0]);
+                    osApi.setCohort(vm.cohorts.filter(function(c) { return c.type == "ALL"; })[0]);
                     return;
                 }
                 var s = d3.event.selection;
@@ -168,7 +170,7 @@
                                 return p.concat(c);
                             }, []);
                     }, { tr: timeRange, pr: percentRange }));
-                osCohortService.setCohort(patientIds, "Survival", osCohortService.PATIENT);
+                osApi.setCohort(patientIds, "Survival", osApi.PATIENT);
                 osApi.setBusy(false);
 
             };
@@ -214,7 +216,7 @@
                     return {
                         c: [vm.cohort.color, v.color],
                         n: v.name,
-                        p: osCohortService.km.logranktest([vm.cohort.survival.data, v.survival.data]).pValue
+                        p: osApi.km.logranktest([vm.cohort.survival.data, v.survival.data]).pValue
                     };
 
                 });
@@ -239,7 +241,7 @@
                 pValues.unshift({
                     c: all.map(function(v) { return v.color; }),
                     n: 'Visible Cohorts',
-                    p: osCohortService.km.logranktest(all.map(function(v) { return v.survival.data; })).pValue
+                    p: osApi.km.logranktest(all.map(function(v) { return v.survival.data; })).pValue
                 });
                 vm.pValues = pValues;
 
@@ -253,8 +255,8 @@
             };
 
             var onCohortsChange = function() {
-                vm.cohorts = osCohortService.getCohorts();
-                vm.cohort = osCohortService.getCohort();
+                vm.cohorts = osApi.getCohorts();
+                vm.cohort = osApi.getCohort();
                 vm.cohort.show = true;
                 vm.cohortsLegend = vm.cohorts.filter(function(v) { return v != vm.cohort; });
                 resize();
@@ -264,25 +266,30 @@
                 onCohortsChange();
             };
 
-            vm.toggle = function() {
+            vm.toggle = function(cohort) {
+                if (vm.cohorts.reduce(function(p, c) { p += c.show ? 1 : 0; return p; }, 0) === 0) {
+                    alert("You must have at least one cohort visible");
+                    cohort.show = true;
+                    return;
+                }
                 dataChange();
-                var lrt = osCohortService.km.logranktest(vm.cohorts.filter(function(v) { return v.show; }).map(function(v) { return v.survival.data; }));
+                var lrt = osApi.km.logranktest(vm.cohorts.filter(function(v) { return v.show; }).map(function(v) { return v.survival.data; }));
                 vm.pSelected = "P: " + lrt.pValue + " DOF: " + lrt.dof;
             };
 
 
             // Create
             osApi.onResize.add(resize);
-            osCohortService.onCohortChange.add(onCohortChange);
-            osCohortService.onCohortsChange.add(onCohortsChange);
+            osApi.onCohortChange.add(onCohortChange);
+            osApi.onCohortsChange.add(onCohortsChange);
             dataChange();
-            onCohortChange(osCohortService.getCohort());
+            onCohortChange(osApi.getCohort());
             osApi.setBusy(false);
 
             // Destroy
             $scope.$on('$destroy', function() {
                 osApi.onResize.remove(resize);
-                osCohortService.onCohortChange.remove(onCohortChange);
+                osApi.onCohortChange.remove(onCohortChange);
             });
         }
     }

@@ -20,7 +20,7 @@
         return directive;
 
         /** @ngInject */
-        function CohortMenuController(osApi, osCohortService, $state, $scope, $sce, $timeout, $rootScope, $filter, d3) {
+        function CohortMenuController(osApi, $state, $scope, $sce, $timeout, $rootScope, $filter, d3) {
 
 
             // View Model
@@ -32,12 +32,13 @@
             vm.cohortSummary = "";
 
             // Cohort Service Integration
-            osCohortService.onCohortsChange.add(function(cohorts) {
+            osApi.onCohortsChange.add(function(cohorts) {
                 vm.cohorts = cohorts;
+                updateSurvival(cohorts);
             });
-            osCohortService.onCohortChange.add(function(cohort) {
-                var toolInfo = osCohortService.getCohortToolInfo();
-                var dataInfo = osCohortService.getCohortDatasetInfo();
+            osApi.onCohortChange.add(function(cohort) {
+                var toolInfo = osApi.getCohortToolInfo();
+                var dataInfo = osApi.getCohortDatasetInfo();
                 var summary =
                     $filter('number')(dataInfo.numSamples) + " Samples In Dataset<br /> " +
                     $filter('number')(dataInfo.numPatients) + " Patients In Dataset<br /> " +
@@ -63,17 +64,17 @@
             // Cohort edit
             vm.setCohort = function(cohort) {
                 if (angular.isString(cohort)) {
-                    osCohortService.setCohort([], osCohortService.ALL, osCohortService.SAMPLE)
+                    osApi.setCohort([], osApi.ALL, osApi.SAMPLE)
                 } else {
-                    osCohortService.setCohort(cohort);
+                    osApi.setCohort(cohort);
                 }
             };
 
             vm.updateCohort = function() {
                 if (vm.cohort.type == "UNSAVED") {
-                    osCohortService.saveCohort(vm.cohort);
+                    osApi.saveCohort(vm.cohort);
                 } else {
-                    osCohortService.deleteCohort(vm.cohort);
+                    osApi.deleteCohort(vm.cohort);
                 }
             }
 

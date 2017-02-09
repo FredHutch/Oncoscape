@@ -1,4 +1,4 @@
-/* global d3:false, $:false, signals:false, cytoscape:false, document:false, moment:false, _:false, hello:false, localStorage:false, jStat:false, THREE:false*/
+/* global d3:false, $:false, signals:false, cytoscape:false, document:false, moment:false, _:false, hello:false, localStorage:false, jStat:false, THREE:false*, saveAs:false, TextEncoder:false */
 
 (function() {
     'use strict';
@@ -14,6 +14,8 @@
         .constant('auth', hello)
         .constant('jStat', jStat)
         .constant('localStorage', localStorage)
+        .constant('saveAs', saveAs)
+        .constant('TextEncoder', TextEncoder)
         .constant('_', _);
 
 })();

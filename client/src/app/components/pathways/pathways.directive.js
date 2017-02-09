@@ -19,7 +19,7 @@
         return directive;
 
         /** @ngInject */
-        function PathwaysController(osApi, osCohortService, $state, $stateParams, $scope, $sce, $window, moment, cytoscape) {
+        function PathwaysController(osApi, $state, $stateParams, $scope, $sce, $window, moment, cytoscape) {
 
             var markersNetwork;
             var vm = this;
@@ -387,8 +387,7 @@
                             'width': '1px'
                         }
                     }
-                ]
-
+                ];
             }
 
             // Listen For Resize

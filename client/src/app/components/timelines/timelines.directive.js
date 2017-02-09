@@ -19,7 +19,7 @@
         return directive;
 
         /** @ngInject */
-        function TimelinesController(osApi, osCohortService, $state, $scope, $stateParams, $window, $document, moment, d3, _) {
+        function TimelinesController(osApi, $state, $scope, $stateParams, $window, $document, moment, d3, _) {
 
 
             // Loading . . . 
@@ -35,7 +35,7 @@
             var scaleX;
             var vm = this;
             vm.datasource = osApi.getDataSource();
-            vm.cohort = osCohortService.getCohort();
+            vm.cohort = osApi.getCohort();
             var patientsSelectedIds = vm.cohort.patientIds;
 
             vm.timescales = [
@@ -64,7 +64,7 @@
             vm.sort = null;
             vm.resetZoom = function() {
                 patientsSelectedIds = [];
-                osCohortService.setCohort([], osCohortService.ALL, osCohortService.PATIENT);
+                osApi.setCohort([], osApi.ALL, osApi.PATIENT);
                 elScrollY.call(brushY.move, null);
                 elScrollX.call(brushY.move, null);
                 vm.update();
@@ -190,7 +190,7 @@
                 });
             };
             var daysToUnit = function(d) {
-                if (Math.abs(d) == 0) return d;
+                if (Math.abs(d) === 0) return d;
                 if (Math.abs(d) < 30) return d + " Days";
                 if (Math.abs(d) < 360) return Math.round((d / 30.4) * 10) / 10 + " Months";
                 return Math.round((d / 365) * 10) / 10 + " Years";
@@ -382,7 +382,7 @@
                 elHitarea.call(brushSelect);
                 brushSelect.on("end", function() {
                     if (d3.event.selection === null) {
-                        //osCohortService.setCohort([], "Timelines", osCohortService.PATIENT);
+                        //osApi.setCohort([], "Timelines", osApi.PATIENT);
                         return;
                     }
                     var lowerIndex = Math.floor(d3.event.selection[0] / yZoom / 20);
@@ -393,7 +393,7 @@
                     for (var i = lowerIndex; i <= upperIndex; i++) {
                         ids.push(patientsFiltered[i].id);
                     }
-                    osCohortService.setCohort(ids, "Timelines", osCohortService.PATIENT);
+                    osApi.setCohort(ids, "Timelines", osApi.PATIENT);
                     elHitarea.call(d3.event.target.move, null);
                 });
             };
@@ -407,7 +407,7 @@
                 vm.update();
 
             };
-            osCohortService.onCohortChange.add(onCohortChange);
+            osApi.onCohortChange.add(onCohortChange);
 
             // Load + Format Data
             osApi.query(osApi.getDataSource().clinical.events, {}).then(function(response) {
@@ -535,7 +535,7 @@
             // Destroy
             $scope.$on('$destroy', function() {
 
-                osCohortService.onCohortChange.remove(onCohortChange);
+                osApi.onCohortChange.remove(onCohortChange);
                 brushX.on("end", null);
                 brushY.on("end", null);
                 brushSelect.on("end", null);

@@ -19,7 +19,7 @@
         return directive;
 
         /** @ngInject */
-        function SpreadsheetController(osApi, osCohortService, $state, $timeout, $scope, moment, $stateParams, _, $, $q, $window, uiGridConstants) {
+        function SpreadsheetController(osApi, $state, $timeout, $scope, moment, $stateParams, _, $, $q, $window, uiGridConstants, saveAs, TextEncoder) {
 
             // Loading ...
             osApi.setBusy(true);
@@ -60,10 +60,10 @@
                 });
 
 
-            vm.collection = vm.collections.reduce(function(p,c){
-                if (c.name=="patient") p = c;
+            vm.collection = vm.collections.reduce(function(p, c) {
+                if (c.name == "patient") p = c;
                 return p;
-            },vm.collections[0]);
+            }, vm.collections[0]);
             vm.options = {
                 treeRowHeaderAlwaysVisible: false,
                 enableGridMenu: false,
@@ -76,7 +76,8 @@
             };
             vm.exportCsv = function(type) {
                 var cols = vm.options.columnDefs.filter(function(c) { return c.visible; }).map(function(v) { return v.field; });
-                var data = "data:text/csv;charset=utf-8,\"" + cols.join("\",\"") + "\"\n";
+                var data = "\"" + cols.join("\",\"") + "\"\n";
+
                 var records = (type == "selected") ? vm.gridApi.grid.api.selection.getSelectedRows() : vm.options.data;
 
                 records
@@ -86,7 +87,10 @@
                         }, v);
                         data += "\"" + datum.join("\",\"") + "\"\n";
                     });
-                $window.open(encodeURI(data));
+
+                var blob = new Blob([data], { type: 'text/csv;charset=windows-1252;' });
+                saveAs(blob, 'oncoscape.csv');
+
             };
             vm.showColumns = function() {
                 vm.options.columnDefs.forEach(function(v) { v.visible = true; });
@@ -121,9 +125,9 @@
                     if (item.isSelected) selectedIds.push(item.entity.patient_ID);
                     else selectedIds = selectedIds.filter(function(v) { return v != item.entity.patient_ID; });
                 });
-                osCohortService.setCohort(selectedIds,
+                osApi.setCohort(selectedIds,
                     "Spreadsheet",
-                    osCohortService.PATIENT
+                    osApi.PATIENT
                 );
             };
 
@@ -142,7 +146,7 @@
                 });
                 selected.forEach(function(i) { vm.gridApi.grid.api.selection.selectRow(i); });
             };
-            osCohortService.onCohortChange.add(onCohortChange);
+            osApi.onCohortChange.add(onCohortChange);
 
             // Setup Watches
             $scope.$watch("vm.collection", function() {
@@ -161,7 +165,7 @@
                             return v;
                         });
                         $timeout(function() {
-                            onCohortChange(osCohortService.getCohort());
+                            onCohortChange(osApi.getCohort());
                         }, 1);
                         vm.setSize();
                         osApi.setBusy(false);
@@ -171,8 +175,9 @@
 
             // Destroy
             $scope.$on('$destroy', function() {
+
                 osApi.onResize.remove(vm.setSize);
-                osCohortService.onCohortChange.remove(onCohortChange);
+                osApi.onCohortChange.remove(onCohortChange);
             });
         }
     }

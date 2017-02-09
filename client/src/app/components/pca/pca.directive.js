@@ -19,7 +19,7 @@
         return directive;
 
         /** @ngInject */
-        function PcaController($q, osApi, osCohortService, $state, $stateParams, $timeout, $scope, d3, moment, $window, _) {
+        function PcaController($q, osApi, $state, $stateParams, $timeout, $scope, d3, moment, $window, _) {
 
             // Loading ...
             osApi.setBusy(true);
@@ -75,7 +75,7 @@
                             if (d3.select(this).classed("pca-node-selected")) allIds.push(d.id);
                         }
                     });
-                    osCohortService.setCohort(allIds, "PCA", osCohortService.SAMPLE);
+                    osApi.setCohort(allIds, "PCA", osApi.SAMPLE);
                 };
                 vm.deselectColor = function(e) {
                     var ids = e.values;
@@ -87,7 +87,7 @@
                             if (d3.select(this).classed("pca-node-selected")) allIds.push(d.id);
                         }
                     });
-                    osCohortService.setCohort(allIds, "PCA", osCohortService.SAMPLE);
+                    osApi.setCohort(allIds, "PCA", osApi.SAMPLE);
                 };
                 return vm;
             })(this, osApi);
@@ -309,7 +309,7 @@
                     .on("end", function() {
 
                         if (!d3.event.selection) {
-                            osCohortService.setCohort([], osCohortService.ALL, osCohortService.SAMPLE);
+                            osApi.setCohort([], osApi.ALL, osApi.SAMPLE);
                             return;
                         }
 
@@ -326,12 +326,12 @@
                         }).map(function(d) {
                             return d.id;
                         });
-                        osCohortService.setCohort(ids, "PCA", osCohortService.SAMPLE);
+                        osApi.setCohort(ids, "PCA", osApi.SAMPLE);
 
                     });
 
                 d3Brush.attr("class", "brush").call(brush);
-                onCohortChange(osCohortService.getCohort());
+                onCohortChange(osApi.getCohort());
                 osApi.setBusy(false);
             }
 
@@ -344,15 +344,15 @@
                 vm.showPanelColor = false;
                 draw();
             };
-            osCohortService.onPatientColorChange.add(onPatientColorChange);
+            osApi.onPatientColorChange.add(onPatientColorChange);
 
             // App Event :: Cohort Change
-            var cohort = osCohortService.getCohorts();
+            var cohort = osApi.getCohorts();
             var onCohortChange = function(c) {
                 cohort = c;
                 setSelected();
             };
-            osCohortService.onCohortChange.add(onCohortChange);
+            osApi.onCohortChange.add(onCohortChange);
 
 
             osApi.query(clusterCollection, {
@@ -398,8 +398,8 @@
             // Destroy
             $scope.$on('$destroy', function() {
                 osApi.onResize.remove(draw);
-                osCohortService.onPatientColorChange.remove(onPatientColorChange);
-                osCohortService.onCohortChange.remove(onCohortChange);
+                osApi.onPatientColorChange.remove(onPatientColorChange);
+                osApi.onCohortChange.remove(onCohortChange);
             });
         }
     }

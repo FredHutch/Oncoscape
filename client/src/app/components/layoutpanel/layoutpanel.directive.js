@@ -22,18 +22,18 @@
         return directive;
 
         /** @ngInject */
-        function LayoutPanelController(osApi, osCohortService, d3, _) {
+        function LayoutPanelController(osApi, d3, _) {
 
             // Properties
             var vm = this;
             vm.showPanelColorRna = false;
             vm.colorScales = [{ name: "Quantile" }, { name: "Quantize" }];
             vm.colorScale = vm.colorScales[0];
-            vm.colorBins = [2, 3, 4, 5, 6, 7, 8].map(function(v) { return { name: v + " Bins", value: v } });
+            vm.colorBins = [2, 3, 4, 5, 6, 7, 8].map(function(v) { return { name: v + " Bins", value: v }; });
             vm.colorBin = vm.colorBins[2];
             vm.colorOptions = osApi.getDataSource().colors;
             if (angular.isDefined(vm.colorOptions)) {
-                if (vm.colorOptions.length != 0) vm.colorOption = vm.colorOptions[0];
+                if (vm.colorOptions.length !== 0) vm.colorOption = vm.colorOptions[0];
             }
 
 
@@ -72,13 +72,13 @@
                 osApi.setBusy(true);
                 vm.close();
                 if (item.name == "None") {
-                    osCohortService.setPatientColor({
+                    osApi.setPatientColor({
                         "dataset": osApi.getDataSource().disease,
                         "type": "color",
                         "name": "None",
                         "data": [],
                         show: true
-                    })
+                    });
                     return;
                 }
 
@@ -90,7 +90,7 @@
                     var data = v.data[0];
                     data.data = data.data.map(function(v) {
                         var name = v.name.toLowerCase().trim();
-                        if (name == "" || name == "null" || name == "undefined") {
+                        if (name === "" || name == "null" || name == "undefined") {
                             v.name = "Null";
                             v.color = "#DDDDDD";
                         }
@@ -104,18 +104,15 @@
                         if (a.name == "Null") return 1;
                         if (b.name == "Null") return -1;
                         return 0;
-                    })
+                    });
 
-                    // debugger;
-                    osCohortService.setPatientColor(v.data[0]);
+                    osApi.setPatientColor(v.data[0]);
                     osApi.setBusy(false);
                     vm.close();
                 });
             };
 
-            vm.doClose = function() {
-                alert("HI");
-            }
+
             vm.setGeneColor = function() {
                 var genes = ("+" + vm.geneColor.replace(/\s/g, '').toUpperCase()).match(/[-+]\w*/gi).map(function(v) {
                     return {
@@ -133,7 +130,7 @@
                             return (s.symbols.indexOf(this) != -1);
                         }, v.gene);
 
-                        if (gene.length == 0) {
+                        if (gene.length === 0) {
                             v.message = v.gene.toUpperCase();
                             v.status = "Removed";
                         } else if (gene.length > 1) {
@@ -148,17 +145,17 @@
                     }, result.data);
 
                     var msgs = _.sortBy(
-                        genes.filter(function(v) { return v.status != "" }), "length");
+                        genes.filter(function(v) { return v.status !== ""; }), "length");
 
                     var types = _.groupBy(msgs, function(gene) { return gene.status; });
 
                     var msg = "";
 
-                    if (types.Removed != undefined && types.Removed.length > 0) {
-                        msg += "Removed: " + types.Removed.map(function(v) { return v.message + " - " });
+                    if (angular.isDefined(types.Removed) && types.Removed.length > 0) {
+                        msg += "Removed: " + types.Removed.map(function(v) { return v.message + " - "; });
                     }
                     if (msg.length > 0) msg = msg.substr(0, msg.length - 2) + "\r\n";
-                    if (types.Converted != undefined && types.Converted.length > 0) {
+                    if (angular.isDefined(types.Converted) && types.Converted.length > 0) {
                         msg += "Converted: " + types.Converted.map(function(v) { return v.message + "\r\n"; });
                     }
                     if (msg.trim().length > 0) alert(msg);
@@ -219,22 +216,22 @@
                             // Combine Colors + Scale Into Name + Value
                             var labels;
                             if (vm.colorScale.name == "Quantile") {
-                                scale.domain(Object.keys(data).map(function(key) { return data[key] }, { data: data })).range(values);
+                                scale.domain(Object.keys(data).map(function(key) { return data[key]; }, { data: data })).range(values);
                                 labels = scale.quantiles().map(function(v) { return parseFloat(v).toFixed(3); });
                                 labels.unshift("");
                                 labels = labels.map(function(c, i, a) {
-                                    if (i == 0) { return "-\u221e \u2194 " + a[1]; } else if (i == a.length - 1) {
-                                        return a[i] + " \u2194 +\u221e" //\u226C
+                                    if (i === 0) { return "-\u221e \u2194 " + a[1]; } else if (i == a.length - 1) {
+                                        return a[i] + " \u2194 +\u221e";
                                     }
                                     return a[i] + " \u2194 " + a[i + 1];
                                 });
-                                values = _.zip(values, labels).map(function(v) { return { color: v[0], name: v[1] } });
+                                values = _.zip(values, labels).map(function(v) { return { color: v[0], name: v[1] }; });
                             } else {
                                 scale
                                     .domain([data.min, data.max])
                                     .range(values);
-                                labels = scale.ticks(values.length).map(function(v) { return "~" + parseFloat(v).toFixed(2); })
-                                values = _.zip(values, labels).map(function(v) { return { color: v[0], name: v[1] } });
+                                labels = scale.ticks(values.length).map(function(v) { return "~" + parseFloat(v).toFixed(2); });
+                                values = _.zip(values, labels).map(function(v) { return { color: v[0], name: v[1] }; });
                             }
                             data = Object.keys(data.patients).map(function(id) {
                                     return {
@@ -256,7 +253,7 @@
                                 return {
                                     color: key,
                                     name: this.names.filter(function(f) {
-                                        return f.color == this.color
+                                        return f.color == this.color;
                                     }, {
                                         color: key
                                     })[0].name,
@@ -265,7 +262,7 @@
                             }, {
                                 data: data,
                                 names: values
-                            })
+                            });
 
                             data = data.sort(function(a, b) {
                                 if (a.name.indexOf("-\u221e") != -1) return -1;
@@ -280,7 +277,7 @@
                                 color: '#DDD',
                                 name: 'Null',
                                 values: []
-                            })
+                            });
 
                             colors = {
                                 dataset: osApi.getDataSource().disease,
@@ -291,13 +288,13 @@
                                 }, ""),
                                 data: data
                             };
-                            osCohortService.setPatientColor(colors);
+                            osApi.setPatientColor(colors);
                         }
                         osApi.setBusy(false);
                     });
                 });
 
-            }
+            };
         }
     }
 })();

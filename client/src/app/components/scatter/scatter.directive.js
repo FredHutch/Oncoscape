@@ -19,7 +19,7 @@
         return directive;
 
         /** @ngInject */
-        function ScatterController($q, osApi, osCohortService, $state, $stateParams, $timeout, $scope, d3, moment, $window, signals, _, THREE) {
+        function ScatterController($q, osApi, $state, $stateParams, $timeout, $scope, d3, moment, $window, signals, _, THREE) {
 
             // Loading ...
             osApi.setBusy(true);
@@ -619,7 +619,7 @@
             // Destroy
             $scope.$on('$destroy', function() {
                 // osApi.onResize.remove(plot.resize);
-                // osCohortService.onCohortChange.remove(onCohortChange);
+                // osApi.onCohortChange.remove(onCohortChange);
             });
         }
     }

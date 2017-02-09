@@ -19,7 +19,7 @@
         return directive;
 
         /** @ngInject */
-        function BarchartController(d3, osApi, osCohortService, $state, $timeout) {
+        function BarchartController(d3, osApi, $state, $timeout) {
 
             var vm = this;
             vm.datasource = osApi.getDataSource();
@@ -28,7 +28,7 @@
                 m = 58, // number of samples per layer
                 stack = d3.layout.stack(),
                 layers = stack(d3.range(n).map(function() {
-                    return bumpLayer(m, .1);
+                    return bumpLayer(m, 0.1);
                 })),
                 yGroupMax = d3.max(layers, function(layer) {
                     return d3.max(layer, function(d) {

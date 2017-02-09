@@ -22,7 +22,7 @@
         return directive;
 
         /** @ngInject */
-        function ColorPanelController(osApi, osCohortService, d3, _) {
+        function ColorPanelController(osApi, d3, _) {
 
             // Properties
             var vm = this;
@@ -59,23 +59,23 @@
                     return {
                         name: key,
                         values: this[key]
-                        // .filter(function(v) {
-                        //     var result = v.name.match(regx);
-                        //     if (result === null) return true;
-                        //     // 30% Threashold
-                        //     //if (parseInt(result[0]) > 30) return true;
-                        // })
-                        .sort(function(a, b) {
-                            if (a.name > b.name) return 1;
-                            if (a.name < b.name) return -1;
-                            return 0;
-                        })
+                            .filter(function(v) {
+                                var result = v.name.match(regx);
+                                if (result === null) return true;
+                                // 30% Threashold
+                                if (parseInt(result[0]) > 10) return true;
+                            })
+                            .sort(function(a, b) {
+                                if (a.name > b.name) return 1;
+                                if (a.name < b.name) return -1;
+                                return 0;
+                            })
                     };
                 }, data);
 
             });
             vm.resetColor = function() {
-                osCohortService.setPatientColor({
+                osApi.setPatientColor({
                     "dataset": osApi.getDataSource().disease,
                     "type": "color",
                     "name": "None",
@@ -88,7 +88,7 @@
                 osApi.setBusy(true);
                 vm.close();
                 if (item.name == "None") {
-                    osCohortService.setPatientColor({
+                    osApi.setPatientColor({
                         "dataset": osApi.getDataSource().disease,
                         "type": "color",
                         "name": "None",
@@ -123,7 +123,7 @@
                     })
 
                     // debugger;
-                    osCohortService.setPatientColor(v.data[0]);
+                    osApi.setPatientColor(v.data[0]);
                     osApi.setBusy(false);
                     vm.close();
                 });
@@ -303,7 +303,7 @@
                                 }, ""),
                                 data: data
                             };
-                            osCohortService.setPatientColor(colors);
+                            osApi.setPatientColor(colors);
                         }
                         osApi.setBusy(false);
                     });

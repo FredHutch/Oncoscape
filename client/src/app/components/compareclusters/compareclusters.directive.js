@@ -19,7 +19,7 @@
         return directive;
 
         /** @ngInject */
-        function CompareClusterController(osApi, osCohortService, d3, $state, $timeout, $scope, moment, $stateParams, _, $, $q, $window) {
+        function CompareClusterController(osApi, d3, $state, $timeout, $scope, moment, $stateParams, _, $, $q, $window) {
 
 
             function zoomed() {
@@ -40,12 +40,12 @@
                 .on("zoom", zoomed);
 
             // Cohort
-            var cohort = osCohortService.getCohort();
+            var cohort = osApi.getCohort();
             var onCohortChange = function(c) {
                 cohort = c;
                 setSelected();
             };
-            osCohortService.onCohortChange.add(onCohortChange);
+            osApi.onCohortChange.add(onCohortChange);
 
             // Datasource
             var datasource = osApi.getDataSource();
@@ -136,7 +136,6 @@
 
                     elChart.selectAll("circle")
                         .classed("pca-node-selected", false);
-                    //    osCohortService.setCohort([], "Clusters", osCohortService.SAMPLE);
                     return;
                 }
                 var target = d3.event.target;
@@ -160,7 +159,6 @@
 
                 // elPlots[target.index].call(elBrushes[target.index].move, null);
 
-                // osCohortService.setCohort(sids, "Clusters", osCohortService.SAMPLE)
             };
 
             // Layout Methods
@@ -168,9 +166,9 @@
                 return new Promise(function(resolve) {
 
                     var collection = clusterLayouts[clusterIndex].name;
-                    debugger;
+
                     osApi.query(collection).then(function(result) {
-                        debugger;
+
                         var data = result.data[0].data;
                         result.data[0].domain = Object.keys(data).reduce(function(p, c) {
                             var datum = data[c];
