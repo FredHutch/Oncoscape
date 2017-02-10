@@ -8,7 +8,7 @@
      /** @ngInject */
      function oncoscape($http, $location) {
 
-         var url = $location.protocol + "://" + $location.host() + "/api/";
+         var url = "/api/";
          //url = "https://dev.oncoscape.sttrcancer.io/api/";
          var queryString = function(req) {
              var query = url + req.table;
