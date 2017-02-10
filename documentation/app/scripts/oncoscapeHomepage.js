@@ -157,31 +157,31 @@ $(document).ready(function() {
             "r": 50
         }, {
             "id": "mp",
-            "image": "photos/toolImages/mp.png",
+            "image": "photos/toolImages/mp-copy.jpg",
             "r": 50
         }, {
             "id": "timelines",
-            "image": "photos/toolImages/timelines.png",
+            "image": "photos/toolImages/timelines-copy.jpg",
             "r": 50
         }, {
             "id": "dataexplorer",
-            "image": "photos/toolImages/dataexplorer.png",
+            "image": "photos/toolImages/dataexplorer-copy.jpg",
             "r": 50
         }, {
             "id": "survivalcurve",
-            "image": "photos/toolImages/survivalcurve.png",
+            "image": "photos/toolImages/survivalcurve-copy.jpg",
             "r": 50
         }, {
             "id": "spreadsheet",
-            "image": "photos/toolImages/spreadsheet.png",
+            "image": "photos/toolImages/spreadsheet-copy.jpg",
             "r": 50
         }, {
             "id": "pca",
-            "image": "photos/toolImages/pca.png",
+            "image": "photos/toolImages/pca-copy.jpg",
             "r": 50
         }, {
             "id": "api",
-            "image": "photos/toolImages/api.png",
+            "image": "photos/toolImages/api-copy.jpg",
             "r": 50
         }],
         // The `links` array contains objects with a `source` and a `target`
