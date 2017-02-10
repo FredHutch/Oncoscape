@@ -21,8 +21,8 @@ var request = function(object, data, format) {
             resolve(data);
             return;
         }
-        var query = "/api/" + object.table;
-        //query = "https://dev.oncoscape.sttrcancer.io/api/" + object.table;
+        //var query = "/api/" + object.table;
+        query = "https://dev.oncoscape.sttrcancer.io/api/" + object.table;
         if (object.query) query += "/" + encodeURIComponent(JSON.stringify(object.query));
         load(query, function(response) {
             resolve(format(JSON.parse(response.responseText)));
@@ -94,7 +94,7 @@ var data = (function() {
                 var val = convertRange(state.edgePatients[key], domain, [20, 150]);
                 return {
                     'id': key,
-                    'val': val
+                    'val': state.edgePatients[key]
                 };
             })
             .reduce(function(previousValue, currentValue) {

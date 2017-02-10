@@ -146,18 +146,19 @@
 
                 var getGeneSet = function(genesets) {
                     if (hasState) {
+                        console.dir(hasState);
                         return genesets.filter(function(v) {
                             return v.name == mp.optGeneSet.name;
                         }, mp.optGeneSet.name)[0];
                     }
 
-                    if (osApi.getDataSource().disease == "brain") {
-                        return genesets.filter(function(v) {
-                            return v.name == "Glioma Markers";
-                        })[0];
-                    } else {
-                        return genesets[0];
-                    }
+                    var datasetGeneset = osApi.getDataSource().geneset;
+                    var gs = genesets.reduce(function(p, c) {
+                        if (c.name === datasetGeneset) { p = c; }
+                        return p;
+                    }, genesets[0]);
+                    console.dir(gs);
+                    return gs;
                 };
 
                 var getPatientLayout = function(layouts) {
@@ -636,6 +637,7 @@
 
 
             var resizeNodesByType = function(type) {
+
                 expressionScale.domain(
                     cyChart.$('node[nodeType="' + type + '"]').toArray()
                     .reduce(function(p, c) {
@@ -645,6 +647,9 @@
                         return p;
                     }, [Infinity, -Infinity])
                 );
+
+
+
 
                 var zoom = cyChart.zoom();
                 var sizeNode = nodeScale(zoom);
@@ -718,8 +723,6 @@
                     elements.on("unselect", _.debounce(signal.patients.unselect.dispatch, 300));
                     elements.on("mouseover", signal.patients.over.dispatch);
                     elements.on("mouseout", signal.patients.out.dispatch);
-
-
                     elements.forEach(function(node) {
                         try {
                             node.data({
@@ -727,15 +730,13 @@
                             });
                         } catch (e) {
                             node.data({
-                                'weight': 100
+                                'weight': 10
                             });
                         }
                     });
                     resizeNodes();
                     cyChart.endBatch();
                     vm.resize();
-
-
 
                     //Initial Node Selection & Color
                     var cohort = osApi.getCohort();

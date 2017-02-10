@@ -454,10 +454,16 @@
 
                 // Set Data Source Object Using String or Object
                 if (angular.isObject(value)) {
-                    if (_dataSource === value) resolveDataSource();
+                    if (_dataSource === value) {
+                        resolveDataSource();
+                        return;
+                    }
                     _dataSource = value;
                 } else if (angular.isString(value)) {
-                    if (_dataSource.disease === value) resolveDataSource();
+                    if (_dataSource.disease === value) {
+                        resolveDataSource();
+                        return;
+                    }
                     _dataSource = _dataSources.filter(function(v) {
                         return v.disease == this.key;
                     }, {
@@ -629,7 +635,7 @@
                     cohort.color = availColors[0];
                 }
             }
-            if (_cohort === cohort) return;
+            //if (_cohort === cohort) return;
             _cohort = cohort;
             onCohortChange.dispatch(_cohort);
         };
