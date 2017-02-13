@@ -26,18 +26,18 @@
             osApi.setBusy(true);
 
             // View Model
-            var patientsAll, patientsFiltered, patientsDomain;
-
+            var patientsAll = []; // All Patient Data
+            var patientsVisible = []; // Visible Patient Data
+            var patientsDomain = []; // Min + Max Times
             var rowHeight = 20;
             var baseZoomX = 1;
             var baseZoomY = 1;
             var xZoom, yZoom, xTran, yTran;
             var scaleX;
+
             var vm = this;
             vm.datasource = osApi.getDataSource();
             vm.cohort = osApi.getCohort();
-            var patientsSelectedIds = vm.cohort.patientIds;
-
             vm.timescales = [
                 { name: 'Log', valFn: function(val) { return (val < 0 ? -1 : 1) * Math.log(Math.abs((val * 1000) / 86400000) + 1) / Math.log(2); } },
                 { name: 'Linear', valFn: function(val) { return moment.duration(val * 1000).asDays(); } }
@@ -56,18 +56,16 @@
                 { name: 'Selected Patients' }
             ];
             vm.timescale = vm.timescales[0];
-            vm.filter = vm.filters[2];
+            vm.filter = vm.filters[0];
             vm.mode = vm.modes[0];
             vm.displayMode = vm.displayModes[0];
             vm.events = null;
             vm.align = null;
             vm.sort = null;
             vm.resetZoom = function() {
-                patientsSelectedIds = [];
                 osApi.setCohort([], osApi.ALL, osApi.PATIENT);
                 elScrollY.call(brushY.move, null);
-                elScrollX.call(brushY.move, null);
-                vm.update();
+                elScrollX.call(brushX.move, null);
             };
 
             // Elements
@@ -83,160 +81,15 @@
             var elHitarea = elChart.append("g");
             var elPatients = elChart.append("g");
 
-
             var elTip = d3.tip().attr("class", "tip").offset([-8, 0]).html(function(d) { return d.tip; });
             elChart.call(elTip);
 
             elContainer = angular.element(".timelines-content");
 
-            // Utility
-            vm.update = function() {
-
+            var drawScrollbars = function() {
                 var layout = osApi.getLayout();
                 var width = $window.innerWidth - layout.left - layout.right - 80;
                 var height = $window.innerHeight - 200;
-
-
-                updateData();
-                updateSize(width, height, layout);
-                updateScrollbars(width, height);
-                updateSelected(width, height);
-                updatePatients(width, height);
-                updateZoom(width, height);
-                updateAxis(width, height);
-            };
-
-
-            // Update Data Models
-            var updateData = function() {
-                // Retrieve State
-                var align = vm.align.name;
-                var sort = vm.sort.name;
-                var filter = vm.filter.name;
-                var events = vm.events.filter(function(e) {
-                    return e.selected;
-                }).map(function(e) {
-                    return e.name.toLowerCase();
-                });
-
-                // Filter Event Data
-                patientsFiltered = patientsAll;
-
-                // Filter
-                patientsDomain = [Infinity, -Infinity];
-                patientsFiltered.forEach(function(patient) {
-
-                    // Filter Patients W/O Align, Sort or Filter
-                    if (!patient.hash.hasOwnProperty(this.align) || !patient.hash.hasOwnProperty(this.sort) || !patient.hash.hasOwnProperty("Status")) {
-                        patient.visible = false;
-                    } else {
-
-                        // Filter Alive + Dead
-                        var status = patient.hash.Status.data.status;
-                        if ((this.filter == "Only Alive" && status == "Dead") || (this.filter == "Only Dead" && status != "Dead")) {
-                            patient.visible = false;
-                        } else {
-                            if (vm.displayMode.name == "Selected Patients" && patientsSelectedIds.length > 0) {
-                                patient.visible = (patientsSelectedIds.indexOf(patient.id) != -1);
-                            } else {
-                                patient.visible = true;
-                            }
-                            if (patient.visible) {
-                                this.offset = 0 - patient.hash[this.align].tsStart;
-                                // Filter Events
-                                patient.events.forEach(function(event) {
-                                    event.visible = (this.events.indexOf(event.name.toLowerCase()) != -1);
-                                    // Calculate Start + End Based On Alignment
-                                    if (event.visible) {
-                                        event.tsStartAligned = vm.timescale.valFn(event.tsStart + this.offset);
-                                        event.tsEndAligned = vm.timescale.valFn(event.tsEnd + this.offset);
-                                        this.domain[0] = Math.min(this.domain[0], event.tsStartAligned);
-                                        this.domain[1] = Math.max(this.domain[1], event.tsEndAligned);
-                                    }
-                                }, this);
-                            }
-                        }
-                    }
-                }, {
-                    align: align,
-                    sort: sort,
-                    filter: filter,
-                    events: events,
-                    domain: patientsDomain,
-                    offset: 0
-                });
-
-                // Remove Patients That Do Not Have Alignment Property
-                patientsFiltered = patientsFiltered.filter(function(p) {
-                    return p.visible;
-                });
-
-                // Set Selected
-                patientsFiltered.forEach(function(v) {
-                    v.selected = (patientsSelectedIds.indexOf(v.id) != -1);
-                });
-
-                // Sort Patients
-                patientsFiltered = patientsFiltered.sort(function(a, b) {
-                    if (a.status == b.status) {
-                        var aTime = a.events.filter(function(e) { return (e.name == sort && e.order == 1); })[0].tsStartAligned;
-                        var bTime = b.events.filter(function(e) { return (e.name == sort && e.order == 1); })[0].tsStartAligned;
-                        if (aTime > bTime) return 1;
-                        if (bTime > aTime) return -1;
-                        return 0;
-                    } else {
-                        return (a.status == "dead") ? 1 : -1;
-                    }
-                });
-            };
-            var daysToUnit = function(d) {
-                if (Math.abs(d) === 0) return d;
-                if (Math.abs(d) < 30) return d + " Days";
-                if (Math.abs(d) < 360) return Math.round((d / 30.4) * 10) / 10 + " Months";
-                return Math.round((d / 365) * 10) / 10 + " Years";
-            };
-            var updateAxis = function() {
-                var axis = d3.axisBottom(scaleX).ticks(7);
-                if (vm.timescale.name == 'Linear') {
-                    axis.tickFormat(function(d) {
-                        return daysToUnit(d);
-                    });
-                } else {
-                    axis.tickFormat(function(d) {
-                        return daysToUnit(Math.round((d < 0 ? -1 : 1) * (Math.pow(2, (Math.abs(d))) - 1) * 100) / 100);
-                    });
-                }
-                elAxis.call(axis);
-            };
-
-            // Update Size
-            var updateSize = function(width, height, layout) {
-                elContainer.css("background", "#FAFAFA").css("margin-left", layout.left + 30).css("margin-right", layout.right).css("width", width + 20).css("height", height + 20);
-                elScrollY.attr("height", height);
-                elScrollX.attr("width", width);
-                elChart.attr("height", height).attr("width", width).attr("fill", "blue").attr('transform', 'translate(20,20)');
-                elPatients.attr("height", height).attr("width", width);
-                elSelected.attr("height", height).attr("width", width);
-                elAxis.style("top", height + 20).attr("width", width);
-                elHitarea.attr("width", width).attr("height", height);
-            };
-
-            // Update Zoom
-            var updateZoom = function(width, height) {
-                baseZoomY = height / (patientsFiltered.length * rowHeight);
-                baseZoomX = 1;
-                xZoom = baseZoomX;
-                yZoom = baseZoomY;
-                xTran = 0;
-                yTran = 0;
-                if (baseZoomY == Infinity) baseZoomY = 10;
-                // elPatients.attr("transform", "translate(" + xTran + "," + yTran + ") scale(" + xZoom + "," + yZoom + ")");
-                // elSelected.attr("transform", "translate(" + xTran + "," + yTran + ") scale(" + xZoom + "," + yZoom + ")");
-            };
-
-
-
-            var updateScrollbars = function(width, height) {
                 elScrollY.call(
                     brushY
                     .on("end", function() {
@@ -248,7 +101,7 @@
                             var upperPercent = upper / domain;
                             var deltaPercent = upperPercent - lowerPercent;
                             yZoom = (baseZoomY / deltaPercent);
-                            yTran = (rowHeight * patientsFiltered.length * yZoom) * -lowerPercent;
+                            yTran = (rowHeight * patientsVisible.length * yZoom) * -lowerPercent;
                         } else {
                             if (yZoom == baseZoomY && yTran === 0) return;
                             yZoom = baseZoomY;
@@ -270,6 +123,9 @@
                 elScrollX.call(
                     brushX
                     .on("end", function() {
+
+
+
                         if (d3.event.selection !== null) {
                             var lower = d3.event.selection[0];
                             var upper = d3.event.selection[1];
@@ -290,42 +146,67 @@
                             .transition()
                             .duration(750)
                             .attr("transform", "translate(" + xTran + "," + yTran + ") scale(" + xZoom + "," + yZoom + ")");
+
+
+
+                        drawAxis();
+
                     })
                 );
             };
 
 
-
-            brushX.on("end", null);
-            // Update Patients
-            var updateEvents = function(evts) {
-                evts.exit()
-                    .on("mouseover", null)
-                    .on("mouseout", null)
-                    .remove();
-                evts.enter().append("rect")
-                    .attr('class', 'event')
-                    .attr('width', function(d) { return Math.max((scaleX(d.tsEndAligned) - scaleX(d.tsStartAligned)), 2); })
-                    .attr('height', function(d) { return (d.name == "Radiation" || d.name == "Drug") ? (rowHeight - 2) / 2 : rowHeight - 2; })
-                    .attr('y', function(d) { return ((d.name == "Radiation") ? rowHeight / 2 : 1); })
-                    .attr('x', function(d) { return scaleX(d.tsStartAligned); })
-                    .style('fill', function(d) { return d.color; })
-                    .on("mouseover", elTip.show)
-                    .on("mouseout", elTip.hide);
-                evts
-                    .attr('width', function(d) { return Math.max((scaleX(d.tsEndAligned) - scaleX(d.tsStartAligned)), 2); })
-                    .attr('height', function(d) { return (d.name == "Radiation" || d.name == "Drug") ? rowHeight / 2 : rowHeight; })
-                    .attr('y', function(d) { return ((d.name == "Radiation") ? rowHeight / 2 : 0); })
-                    .attr('x', function(d) { return scaleX(d.tsStartAligned); })
-                    .style('fill', function(d) { return d.color; });
+            var daysToUnit = function(d) {
+                if (Math.abs(d) === 0) return d;
+                if (Math.abs(d) < 30) return d + " Days";
+                if (Math.abs(d) < 360) return Math.round((d / 30.4) * 10) / 10 + " Months";
+                return Math.round((d / 365) * 10) / 10 + " Years";
             };
 
-            var updateSelected = function() {
-                // Transform Selections Into Index Positions - Don't need to render unselected'
-                var selectedIndexes = patientsFiltered.map(function(v, i) {
+            var drawAxis = function() {
+                var zi = d3.zoomIdentity.translate(xTran).scale(xZoom);
+                var ns = zi.rescaleX(scaleX);
+                var axis = d3.axisBottom(ns).ticks(5);
+
+                if (vm.timescale.name == 'Linear') {
+                    axis.tickFormat(function(d) {
+                        return daysToUnit(d);
+                    });
+                } else {
+                    axis.tickFormat(function(d) {
+                        return daysToUnit(Math.round((d < 0 ? -1 : 1) * (Math.pow(2, (Math.abs(d))) - 1) * 100) / 100);
+                    });
+                }
+                elAxis.transition().duration(900).call(axis);
+            };
+
+
+            function onCohortChange() {
+                updatePatientsVisible();
+                drawSelected();
+            }
+
+            function calculateSelection() {
+                if (d3.event.selection === null) return;
+                var lowerIndex = Math.round(Math.round(d3.event.selection[0] - yTran) / yZoom / 20);
+                var upperIndex = Math.round(Math.round(d3.event.selection[1] - yTran) / yZoom / 20);
+                if (lowerIndex < 0) lowerIndex = 0;
+                if (upperIndex >= patientsVisible.length) upperIndex = patientsVisible.length - 1;
+                if (lowerIndex == upperIndex) upperIndex = lowerIndex + 1;
+                var ids = [];
+                for (var i = lowerIndex; i <= upperIndex; i++) {
+                    ids.push(patientsVisible[i].id);
+                }
+                osApi.setCohort(ids, "Timelines", osApi.PATIENT);
+                elHitarea.call(d3.event.target.move, null);
+            }
+
+            function drawSelected() {
+
+                // Transform Selections Into Index Positions - Don't need to render unselected
+                var selectedIndexes = patientsVisible.map(function(v, i) {
                     return (v.selected) ? i : -1;
                 }).filter(function(v) { return v != -1; });
-
 
                 var selectedRows = elSelected.selectAll("rect").data(selectedIndexes);
 
@@ -350,13 +231,16 @@
                     .transition()
                     .duration(600)
                     .attr('transform', function(d) { return "translate(0," + (d * rowHeight) + ")"; });
+            }
 
-            };
-            var updatePatients = function(width) {
+            function drawPatients() {
+
+                var layout = osApi.getLayout();
+                var width = $window.innerWidth - layout.left - layout.right - 80;
 
                 // Set Scale
                 scaleX = d3.scaleLinear().domain(patientsDomain).range([0, width]).nice();
-                var patients = elPatients.selectAll("g.patient").data(patientsFiltered);
+                var patients = elPatients.selectAll("g.patient").data(patientsVisible);
                 patients.exit()
                     .transition()
                     .delay(200)
@@ -371,45 +255,146 @@
                         return "translate(0," + (i * rowHeight) + ")";
                     });
 
-                updateEvents(patients.selectAll(".event").data(function(d) {
+                drawEvents(patients.selectAll(".event").data(function(d) {
                     return d.events.filter(function(v) { return v.visible; });
                 }));
 
-                updateEvents(patientEnter.selectAll(".event").data(function(d) {
+                drawEvents(patientEnter.selectAll(".event").data(function(d) {
                     return d.events.filter(function(v) { return v.visible; });
                 }));
 
-                elHitarea.call(brushSelect);
-                brushSelect.on("end", function() {
-                    if (d3.event.selection === null) {
-                        //osApi.setCohort([], "Timelines", osApi.PATIENT);
+
+            }
+
+            // Gets called by Draw Patients Don't call manually
+            function drawEvents(evts) {
+                evts.exit()
+                    .on("mouseover", null)
+                    .on("mouseout", null)
+                    .remove();
+                evts.enter().append("rect")
+                    .attr('class', 'event')
+                    .attr('width', function(d) { return Math.max((scaleX(d.tsEndAligned) - scaleX(d.tsStartAligned)), 2); })
+                    .attr('height', function(d) { return (d.name == "Radiation" || d.name == "Drug") ? (rowHeight - 2) / 2 : rowHeight - 2; })
+                    .attr('y', function(d) { return ((d.name == "Radiation") ? rowHeight / 2 : 1); })
+                    .attr('x', function(d) { return scaleX(d.tsStartAligned); })
+                    .style('fill', function(d) { return d.color; })
+                    .on("mouseover", elTip.show)
+                    .on("mouseout", elTip.hide);
+                evts
+                    .attr('width', function(d) { return Math.max((scaleX(d.tsEndAligned) - scaleX(d.tsStartAligned)), 2); })
+                    .attr('height', function(d) { return (d.name == "Radiation" || d.name == "Drug") ? rowHeight / 2 : rowHeight; })
+                    .attr('y', function(d) { return ((d.name == "Radiation") ? rowHeight / 2 : 0); })
+                    .attr('x', function(d) { return scaleX(d.tsStartAligned); })
+                    .style('fill', function(d) { return d.color; });
+            }
+
+            function updateScale() {
+                var layout = osApi.getLayout();
+                var width = $window.innerWidth - layout.left - layout.right - 80;
+                var height = $window.innerHeight - 200;
+                elContainer.css("background", "#FAFAFA").css("margin-left", layout.left + 30).css("margin-right", layout.right).css("width", width + 20).css("height", height + 20);
+                elScrollY.attr("height", height);
+                elScrollX.attr("width", width);
+                elChart.attr("height", height).attr("width", width).attr("fill", "blue").attr('transform', 'translate(20,20)');
+                elPatients.attr("height", height).attr("width", width);
+                elSelected.attr("height", height).attr("width", width);
+                elAxis.style("top", height + 20).attr("width", width);
+                elHitarea.attr("width", width).attr("height", height);
+
+                // Set Zoom + Transition Data
+                baseZoomY = height / (patientsVisible.length * rowHeight);
+                baseZoomX = 1;
+                xZoom = baseZoomX;
+                yZoom = baseZoomY;
+                xTran = 0;
+                yTran = 0;
+                if (baseZoomY == Infinity) baseZoomY = 10;
+
+                // Scale + Transform
+                elPatients.attr("transform", "translate(" + xTran + "," + yTran + ") scale(" + xZoom + "," + yZoom + ")");
+                elSelected.attr("transform", "translate(" + xTran + "," + yTran + ") scale(" + xZoom + "," + yZoom + ")");
+            }
+
+            // Filter + Sort Patients = Set patientsFiltered
+            function updatePatientsVisible() {
+
+                vm.cohort = osApi.getCohort();
+                var align = vm.align.name;
+                var sort = vm.sort.name;
+                var filter = vm.filter.name;
+                var events = vm.events.filter(function(e) {
+                    return e.selected;
+                }).map(function(e) {
+                    return e.name.toLowerCase();
+                });
+
+                // Filter Dataset + Calculate Domain
+                patientsDomain = [Infinity, -Infinity];
+                patientsAll.forEach(function(patient) {
+
+                    // Set Selected
+                    patient.selected = (vm.cohort.patientIds.indexOf(patient.id) !== -1);
+                    patient.visible = true;
+
+                    // Filter Patients W/O Align, Sort or Filter
+                    if (!patient.hash.hasOwnProperty(this.align) || !patient.hash.hasOwnProperty(this.sort) || !patient.hash.hasOwnProperty("Status")) {
+                        patient.visible = false;
                         return;
                     }
-                    var lowerIndex = Math.floor(d3.event.selection[0] / yZoom / 20);
-                    var upperIndex = Math.ceil(d3.event.selection[1] / yZoom / 20);
-                    lowerIndex = Math.max(lowerIndex, 0);
-                    upperIndex = Math.min(upperIndex, patientsFiltered.length - 1);
-                    var ids = [];
-                    for (var i = lowerIndex; i <= upperIndex; i++) {
-                        ids.push(patientsFiltered[i].id);
+
+                    // Filter Based On Alive Dead Status
+                    var status = patient.hash.Status.data.status;
+                    if ((this.filter == "Only Alive" && status == "Dead") || (this.filter == "Only Dead" && status != "Dead")) {
+                        patient.visible = false;
+                        return;
                     }
-                    osApi.setCohort(ids, "Timelines", osApi.PATIENT);
-                    elHitarea.call(d3.event.target.move, null);
+
+                    // Filter Selected
+                    if (vm.displayMode.name == "Selected Patients" && !patient.selected) {
+                        patient.visible = false;
+                        return;
+                    }
+
+                    this.offset = 0 - patient.hash[this.align].tsStart;
+
+                    // Filter Events
+                    patient.events.forEach(function(event) {
+                        event.visible = (this.events.indexOf(event.name.toLowerCase()) != -1);
+                        // Calculate Start + End Based On Alignment
+                        if (event.visible) {
+                            event.tsStartAligned = vm.timescale.valFn(event.tsStart + this.offset);
+                            event.tsEndAligned = vm.timescale.valFn(event.tsEnd + this.offset);
+                            this.domain[0] = Math.min(this.domain[0], event.tsStartAligned);
+                            this.domain[1] = Math.max(this.domain[1], event.tsEndAligned);
+                        }
+                    }, this);
+
+                }, {
+                    align: align,
+                    sort: sort,
+                    filter: filter,
+                    events: events,
+                    domain: patientsDomain,
+                    offset: 0
                 });
-            };
 
+                // Sort Patients
+                patientsVisible = patientsAll.filter(function(v) { return v.visible; }).sort(function(a, b) {
+                    if (a.status == b.status) {
+                        var aTime = a.events.filter(function(e) { return (e.name == sort && e.order == 1); })[0].tsStartAligned;
+                        var bTime = b.events.filter(function(e) { return (e.name == sort && e.order == 1); })[0].tsStartAligned;
+                        if (aTime > bTime) return 1;
+                        if (bTime > aTime) return -1;
+                        return 0;
+                    } else {
+                        return (a.status == "dead") ? 1 : -1;
+                    }
+                });
 
+            }
 
-            // Application Events
-            var onCohortChange = function(c) {
-                vm.cohort = c;
-                patientsSelectedIds = vm.cohort.patientIds;
-                vm.update();
-
-            };
-            osApi.onCohortChange.add(onCohortChange);
-
-            // Load + Format Data
+            // Load Data
             osApi.query(osApi.getDataSource().clinical.events, {}).then(function(response) {
 
                 var colorFn = function(status) {
@@ -525,16 +510,36 @@
                 vm.sort = vm.events.filter(function(v) {
                     if (v.name == "Status") return true;
                 })[0];
-                vm.update();
+
+                updatePatientsVisible();
+                updateScale(); // Depends on Visible Patients
+
+                drawPatients();
+                drawSelected();
+                drawScrollbars();
+                drawAxis();
+                elHitarea.call(brushSelect);
+                brushSelect.on("end", calculateSelection);
+                osApi.onCohortChange.add(onCohortChange);
                 osApi.setBusy(false);
             });
 
-            // Resize Events
+            vm.update = function() {
+
+                elScrollY.call(brushY.move, null);
+                elScrollX.call(brushX.move, null);
+
+                updatePatientsVisible();
+                updateScale(); // Depends on Visible Patients
+                drawAxis();
+                drawPatients();
+                drawScrollbars();
+                drawSelected();
+            };
             osApi.onResize.add(vm.update);
 
             // Destroy
             $scope.$on('$destroy', function() {
-
                 osApi.onCohortChange.remove(onCohortChange);
                 brushX.on("end", null);
                 brushY.on("end", null);
