@@ -146,7 +146,6 @@
 
                 var getGeneSet = function(genesets) {
                     if (hasState) {
-                        console.dir(hasState);
                         return genesets.filter(function(v) {
                             return v.name == mp.optGeneSet.name;
                         }, mp.optGeneSet.name)[0];
@@ -157,7 +156,6 @@
                         if (c.name === datasetGeneset) { p = c; }
                         return p;
                     }, genesets[0]);
-                    console.dir(gs);
                     return gs;
                 };
 

@@ -480,7 +480,6 @@
 
                 function resize(width, height, left) {
                     //width, height, layout.left
-                    console.log(width + ":" + height);
                     svg.attr("height", height + "px");
                     svg.attr("width", width + "px");
                     rect1.attr("width", width).attr("height", height);

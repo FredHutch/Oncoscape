@@ -118,24 +118,7 @@
 
             var selectedIds = [];
             var supressCohortEvent = false;
-            var rowSelectionChange = function(row, e) {
-                console.log("HI");
-                //          if(row.internalRow==true && row.isSelected==true){
-                //     var childRows   = row.treeNode.children;
-                //     for (var j = 0, length = childRows.length; j < length; j++) {
-                //         var rowEntity   = childRows[j].row.entity;
-                //         $scope.gridApi.selection.selectRow(rowEntity);
-                //     }
-                // }
-
-                // if(row.internalRow==true && row.isSelected==false){
-                //     var childRows   = row.treeNode.children;
-                //     for (var j = 0, length = childRows.length; j < length; j++) {
-                //         var rowEntity   = childRows[j].row.entity;
-                //         $scope.gridApi.selection.unSelectRow(rowEntity);
-                //     }
-                // }
-
+            var rowSelectionChange = function() {
 
                 selectedIds = vm.gridApi.grid.api.selection.getSelectedRows().map(function(v) { return v.patient_ID; });
                 supressCohortEvent = true;

@@ -66,7 +66,6 @@ var data = (function() {
     var clean = function(state) {
 
         // Remove Edges That Don't Have Patients || Genes Assiciated
-        // console.log("EDGES PRE CLEAN: "+state.edges.length);
         state.edges = state.edges
             .filter(function(item) { // Remove Edges w/ Invalid Gene
                 for (var i = 0; i < this.length; i++) {
