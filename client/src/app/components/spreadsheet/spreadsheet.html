@@ -54,7 +54,7 @@
             </div>
         </div>
         <div class="row ">
-            <div class="col-md-4" ng-repeat="col in vm.options.columnDefs" style="text-transform:capitalize;">
+            <div class="col-md-4" ng-repeat="col in vm.options.columnDefs | orderBy:'name'" style="text-transform:capitalize;">
                 <div class="checkbox" style="margin-bottom:0px">
                     <label><input type="checkbox" ng-model="col.visible" >{{col.name}}</label>
                 </div>

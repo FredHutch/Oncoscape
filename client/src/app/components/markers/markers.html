@@ -73,7 +73,7 @@
             <div class="col-xs-6 form-item" style="padding-left:5px">
                 <label>Search {{vm.searchCount}}</label>
                 <div class="input-group">
-                    <input type="text" class="form-control" ng-model="vm.search" placeholder="">
+                    <input type="text" class="form-control" ng-model="vm.search" ng-enter="vm.exeSearch()" placeholder="">
                     <div class="input-group-addon btn-help-icon" ng-click="vm.exeSearch()">Go</div>
                 </div>
             </div>
@@ -140,8 +140,8 @@
             <div class="modal-body">
                 <h2 style="margin-top:0px;">Your request would add {{vm.edgeCounts.total}} edges to the graph.</h2>
                 <p>To improve performance + readability you may want to disable some of the edges.</p>
-                <div class="legend" ng-repeat="item in vm.optEdgeColors | filter:{show:true}" style="border-color:{{item.color}};">
-                    <label class="switch {{item.class}}">
+                <div class="legend" ng-repeat="item in vm.optEdgeColors | filter:{show:true}">
+                    <label class="switch">
                         <input type="checkbox" class="switch-input" ng-model="item.show">
                         <span class="switch-label" data-on="On" data-off="Off"></span>
                         <span class="switch-handle"></span>
@@ -164,25 +164,25 @@
         <h3 class="panel-title">Patient Layout</h3>
         <span class="pull-right clickable" data-effect="fadeOut" ng-click="vm.showPanelLayout=false"><i class="fa fa-times"></i></span>
     </div>
-    <div class="panel-body" >
+    <div class="panel-body">
         <div class="row">
             <table class="tbl ">
                 <thead>
-                <tr>
-                    <th>Method</th>
-                    <th>Gene Set</th>
-                    <th>Input Data</th>
-                    <th>Data Source</th>
-                </tr>
+                    <tr>
+                        <th>Method</th>
+                        <th>Gene Set</th>
+                        <th>Input Data</th>
+                        <th>Data Source</th>
+                    </tr>
 
                 </thead>
                 <tbody>
-                <tr ng-repeat="item in vm.optPatientLayouts " ng-click="vm.optPatientLayout=item;vm.showPanelLayout=false; ">
-                    <td>{{item.dataType}}</td>
-                    <td>{{item.geneset}}</td>
-                    <td>{{item.input}}</td>
-                    <td>{{item.source}}</td>
-                </tr>
+                    <tr ng-repeat="item in vm.optPatientLayouts " ng-click="vm.optPatientLayout=item;vm.showPanelLayout=false; ">
+                        <td>{{item.dataType}}</td>
+                        <td>{{item.geneset}}</td>
+                        <td>{{item.input}}</td>
+                        <td>{{item.source}}</td>
+                    </tr>
                 </tbody>
             </table>
 

@@ -150,30 +150,56 @@
                 var rangeSort = function(a, b) { return a - b; };
                 var timeRange = [s[0][0], s[1][0]].map(layout.xScale.invert).sort(rangeSort);
                 var percentRange = [s[0][1] - 10, s[1][1] - 10].map(layout.yScale.invert).sort(rangeSort);
+                var visibleCohorts = vm.cohorts.filter(function(v) { return v.show; });
+                var visibleCompute = visibleCohorts.reduce(function(p, c) { return p.concat(c.survival.compute); }, []);
+                var computeInRange = visibleCompute.filter(function(v) {
+                    return (
+                        (v.t >= this.timeRange[0]) &&
+                        (v.t <= this.timeRange[1]) &&
+                        (v.s >= this.percentRange[0]) &&
+                        (v.s <= this.percentRange[1])
+                    );
+                }, { timeRange: timeRange, percentRange: percentRange });
 
-                var patientIds = _.union.apply(null,
-                    vm.cohorts.filter(function(v) {
-                        return v.show;
-                    }).map(function(v) {
-                        return v.survival.compute.filter(function(v) {
-                                var rv = (
-                                    (v.t >= this.tr[0]) &&
-                                    (v.t <= this.tr[1]) &&
-                                    (v.s >= this.pr[0]) &&
-                                    (v.s <= this.pr[1])
-                                );
-                                return rv;
-                            }, this)
-                            .map(function(v) {
-                                return v.c.concat(v.d);
-                            })
-                            .reduce(function(p, c) {
-                                return p.concat(c);
-                            }, []);
-                    }, { tr: timeRange, pr: percentRange }));
+                var combinedIds = computeInRange.reduce(function(p, c) { return p.concat(c.c, c.d); }, []);
+                var uniqueIds = _.unique(combinedIds);
+                osApi.setCohort(uniqueIds, "Survival", osApi.PATIENT);
 
 
-                osApi.setCohort(patientIds, "Survival", osApi.PATIENT);
+                //     vm.cohorts[0].survival.compute.filter(function(v) {
+                //                 var rv = (
+                //                     (v.t >= this.timeRange[0]) &&
+                //                     (v.t <= this.timeRange[1]) &&
+                //                     (v.s >= this.percentRange[0]) &&
+                //                     (v.s <= this.percentRange[1])
+                //                 );
+                //                 return rv;
+                //             }, { timeRange: timeRange, percentRange: percentRange }).reduce(function(p,c){ return p.concat(c.c, c.d); },[]);
+
+                // var patientIds = _.union.apply(null,
+                //     vm.cohorts.filter(function(v) {
+                //         return v.show;
+                //     }).map(function(v) {
+                //         return v.survival.compute.filter(function(v) {
+                //                 var rv = (
+                //                     (v.t >= this.timeRange[0]) &&
+                //                     (v.t <= this.timeRange[1]) &&
+                //                     (v.s >= this.percentRange[0]) &&
+                //                     (v.s <= this.percentRange[1])
+                //                 );
+                //                 return rv;
+                //             }, this)
+                //             .map(function(v) {
+                //                 return v.c.concat(v.d);
+                //             })
+                //             .reduce(function(p, c) {
+                //                 return p.concat(c);
+                //             }, []);
+                //     }, { timeRange: timeRange, percentRange: percentRange }));
+
+                // debugger;
+
+                // osApi.setCohort(patientIds, "Survival", osApi.PATIENT);
                 osApi.setBusy(false);
             };
 
@@ -244,7 +270,7 @@
 
                 brush.extent([
                     [40, 20],
-                    [layout.width - 40, layout.height - 30]
+                    [layout.width - 30, layout.height - 30]
                 ]);
                 brush.on("end", onBrushEnd);
                 elBrush.call(brush);

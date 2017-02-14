@@ -30,7 +30,7 @@
             vm.closePanelColumns = function() {
                 vm.showPanelColumns = false;
                 vm.gridApi.grid.refresh();
-            }
+            };
 
             vm.setSize = function() {
                 var elGrid = angular.element("#spreadsheet-grid")[0];
@@ -54,8 +54,7 @@
                     };
                 }, {
                     data: osApi.getDataSource().clinical
-                })
-                .filter(function(o) {
+                }).filter(function(o) {
                     return (o.name != "events" && o.name != "samplemap");
                 });
 
@@ -66,12 +65,12 @@
             }, vm.collections[0]);
             vm.options = {
                 treeRowHeaderAlwaysVisible: false,
+                enableSelectionBatchEvent: false,
                 enableGridMenu: false,
                 enableSelectAll: true,
                 onRegisterApi: function(gridApi) {
                     vm.gridApi = gridApi;
-                    gridApi.selection.on.rowSelectionChanged($scope, rowSelectionChange);
-                    gridApi.selection.on.rowSelectionChangedBatch($scope, rowSelectionChange);
+                    gridApi.selection.on.rowSelectionChanged($scope, _.debounce(rowSelectionChange, 300));
                 }
             };
             vm.exportCsv = function(type) {
@@ -118,17 +117,33 @@
             };
 
             var selectedIds = [];
-            var rowSelectionChange = function(items, e) {
-                if (angular.isUndefined(e)) return; // Programatic Selection
-                if (!angular.isArray(items)) items = [items];
-                items.forEach(function(item) {
-                    if (item.isSelected) selectedIds.push(item.entity.patient_ID);
-                    else selectedIds = selectedIds.filter(function(v) { return v != item.entity.patient_ID; });
-                });
-                osApi.setCohort(selectedIds,
-                    "Spreadsheet",
-                    osApi.PATIENT
-                );
+            var supressCohortEvent = false;
+            var rowSelectionChange = function(row, e) {
+                console.log("HI");
+                //          if(row.internalRow==true && row.isSelected==true){
+                //     var childRows   = row.treeNode.children;
+                //     for (var j = 0, length = childRows.length; j < length; j++) {
+                //         var rowEntity   = childRows[j].row.entity;
+                //         $scope.gridApi.selection.selectRow(rowEntity);
+                //     }
+                // }
+
+                // if(row.internalRow==true && row.isSelected==false){
+                //     var childRows   = row.treeNode.children;
+                //     for (var j = 0, length = childRows.length; j < length; j++) {
+                //         var rowEntity   = childRows[j].row.entity;
+                //         $scope.gridApi.selection.unSelectRow(rowEntity);
+                //     }
+                // }
+
+
+                selectedIds = vm.gridApi.grid.api.selection.getSelectedRows().map(function(v) { return v.patient_ID; });
+                supressCohortEvent = true;
+                if (selectedIds.length == vm.options.data.length || selectedIds.length == 0) {
+                    osApi.setCohort([], osApi.ALL, osApi.PATIENT);
+                } else {
+                    osApi.setCohort(selectedIds, "Spreadsheet", osApi.PATIENT);
+                }
             };
 
             // Initialize
@@ -139,6 +154,10 @@
 
             // App Event :: Cohort Change
             var onCohortChange = function(cohort) {
+                if (supressCohortEvent) {
+                    supressCohortEvent = false;
+                    return;
+                }
                 vm.gridApi.grid.api.selection.clearSelectedRows();
                 selectedIds = cohort.patientIds;
                 var selected = vm.options.data.filter(function(v) {
@@ -175,7 +194,6 @@
 
             // Destroy
             $scope.$on('$destroy', function() {
-
                 osApi.onResize.remove(vm.setSize);
                 osApi.onCohortChange.remove(onCohortChange);
             });

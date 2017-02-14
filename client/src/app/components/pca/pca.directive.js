@@ -189,7 +189,6 @@
 
             // Utility Functions
             function setSelected() {
-                debugger;
                 var selectedIds = cohort.sampleIds;
                 d3Points.selectAll("circle").classed("pca-node-selected", function() {
                     return (selectedIds.indexOf(this.__data__.id) >= 0);

@@ -254,6 +254,7 @@
                     .attr('transform', function(d, i) {
                         return "translate(0," + (i * rowHeight) + ")";
                     });
+                //.on("mouseover", function(d) { console.dir(d); });
 
                 drawEvents(patients.selectAll(".event").data(function(d) {
                     return d.events.filter(function(v) { return v.visible; });
@@ -396,7 +397,7 @@
 
             // Load Data
             osApi.query(osApi.getDataSource().clinical.events, {}).then(function(response) {
-
+                console.log(osApi.getDataSource().clinical.events + "!!!");
                 var colorFn = function(status) {
                     return (status == "Birth") ? "#E91E63" :
                         (status == "Diagnosis") ? "#673AB7" :
@@ -491,6 +492,7 @@
                 });
                 patientsAll = data.filter(function(v) {
                     try {
+
                         v.status = v.hash.Status.data.status.toLowerCase();
                         return true;
                     } catch (e) {
@@ -510,6 +512,8 @@
                 vm.sort = vm.events.filter(function(v) {
                     if (v.name == "Status") return true;
                 })[0];
+
+
 
                 updatePatientsVisible();
                 updateScale(); // Depends on Visible Patients
