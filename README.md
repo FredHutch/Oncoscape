@@ -6,7 +6,7 @@
 
 --
 
-[Oncoscape](http://oncoscape.sttrcancer.org) A data visualization platform that empowers researchers to discover novel patterns and relationships between clinical and molecular data. Through a suite of interoperable tools, Oncoscape offers a unique and intuitive approach to hypothesis refinement. For more detailed information, please read [Oncoscape Documentation](http://oncoscape.sttrcancer.org/documentation/).
+[Oncoscape](http://oncoscape.sttrcancer.org) is a data visualization platform that empowers researchers to discover novel patterns and relationships between clinical and molecular data. Through a suite of interoperable tools, Oncoscape offers a unique and intuitive approach to hypothesis refinement. For more detailed information, please read [Oncoscape Documentation](http://oncoscape.sttrcancer.org/documentation/).
 
 [![Oncoscape OctoTales](http://img.youtube.com/vi/LreQfx5x740/0.jpg)](https://youtu.be/LreQfx5x740 "OctoTales Fred Hutch")
 
