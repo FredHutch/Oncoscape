@@ -200,7 +200,7 @@ The above command will create a new container running the development version of
 If you'd rather run the stable version (master branch) of Oncoscape 
 
 ```
-docker pull oncoscape
+docker pull fredhutch/oncoscape:latest
 docker run -d --name oncoscapemaster -p 80:7777 fredhutch/oncoscape:latest  
 ```
 
