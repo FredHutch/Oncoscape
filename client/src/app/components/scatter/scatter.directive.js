@@ -52,9 +52,6 @@
             var pts; // Vec 3 Array of Adjusted points  
             var ids; // Array of Ids
 
-
-
-
             function particleGeometry() {
                 var geometry = new THREE.BufferGeometry()
                 geometry.addAttribute('position', new THREE.BufferAttribute(positions, 3));
@@ -62,8 +59,6 @@
                 geometry.computeBoundingSphere();
                 return geometry;
             }
-
-
 
 
             var orbitControl = (function() {
@@ -95,8 +90,8 @@
 
                 function init(el, color, geometry) {
                     element = el;
-                    width = 240;
-                    height = 240;
+                    width = 500;
+                    height = 500;
                     xScale = d3.scaleLinear().domain([-10, 10]).range([0, width]);
                     yScale = d3.scaleLinear().domain([10, -10]).range([0, height]);
 
@@ -117,17 +112,13 @@
                     camera.zoom = 1.5;
                     camera.updateProjectionMatrix();
 
+
                     controls = new THREE.OrthographicTrackballControls(camera, renderer.domElement);
                     controls.dynamicDampingFactor = 0.4;
                     controls.noZoom = true;
                     controls.noPan = true;
                     controls.noRoll = true;
                     controls.addEventListener("change", _.debounce(onChange.dispatch, 300));
-                    // debugger;
-                    // material = new THREE.PointCloudMaterial({
-                    //     size: 0.1,
-                    //     vertexColors: THREE.VertexColors
-                    // });
 
                     material = new THREE.ShaderMaterial({
                         uniforms: {
@@ -208,7 +199,8 @@
 
                     width = w;
                     height = h;
-                    // camera.aspect = width / height;
+
+                    camera.aspect = width / height;
                     camera.left = width / -2;
                     camera.right = width / 2;
                     camera.top = height / 2;
@@ -230,7 +222,6 @@
                     resize: resize
                 };
             })(signals);
-
 
             var chart = (function() {
 
@@ -376,7 +367,6 @@
                 };
             })();
 
-
             var selectControl = (function() {
                 var onChange = new signals.Signal();
                 var svg, rect1, rect2, groupLines, groupBrushes, orbitCamera, pts, data;
@@ -395,23 +385,28 @@
                 function draw() {
                     data = pts.map(toScreenXY);
 
-                    var lines = groupLines.selectAll(".scatter-bottom").data(data);
-                    lines.exit().remove();
-                    lines.enter().append("rect").attr("width", 1).attr("height", 10).style("fill", color.primary).attr("class", "scatter-bottom")
-                        .attr("y", 250).attr("x", function(d) { return d[0]; });
-                    lines.transition(500).duration(500).attr("x", function(d) { return d[0]; });
+                    var layout = osApi.getLayout();
+                    var width = $window.innerWidth - layout.left - layout.right;
+                    var height = $window.innerHeight - 120; //10
 
-                    lines = groupLines.selectAll(".scatter-left").data(data);
-                    lines.exit().remove();
-                    lines.enter().append("rect").attr("width", 10).attr("height", 1).style("fill", color.secondary).attr("class", "scatter-left")
-                        .attr("x", 0).attr("y", function(d) { return d[1]; });
-                    lines.transition(500).duration(500).attr("y", function(d) { return d[1]; });
+                    // var lines = groupLines.selectAll(".scatter-bottom").data(data);
+                    // lines.exit().remove();
+                    // lines.enter()
+                    //     .append("rect").attr("width", 1).attr("height", 10).style("fill", color.primary).attr("class", "scatter-bottom")
+                    //     .attr("y", height).attr("x", function(d) { return d[0]; });
+                    // lines.transition(500).duration(500).attr("x", function(d) { return d[0]; });
 
-                    lines = groupLines.selectAll(".scatter-right").data(data);
-                    lines.exit().remove();
-                    lines.enter().append("rect").attr("width", 10).attr("height", 1).style("fill", color.tertiary).attr("class", "scatter-right")
-                        .attr("x", 250).attr("y", function(d) { return d[2]; });
-                    lines.transition(500).duration(500).attr("y", function(d) { return d[2]; });
+                    // lines = groupLines.selectAll(".scatter-left").data(data);
+                    // lines.exit().remove();
+                    // lines.enter().append("rect").attr("width", 10).attr("height", 1).style("fill", color.secondary).attr("class", "scatter-left")
+                    //     .attr("x", 0).attr("y", function(d) { return d[1]; });
+                    // lines.transition(500).duration(500).attr("y", function(d) { return d[1]; });
+
+                    // lines = groupLines.selectAll(".scatter-right").data(data);
+                    // lines.exit().remove();
+                    // lines.enter().append("rect").attr("width", 10).attr("height", 1).style("fill", color.tertiary).attr("class", "scatter-right")
+                    //     .attr("x", width - 10).attr("y", function(d) { return d[2]; });
+                    // lines.transition(500).duration(500).attr("y", function(d) { return d[2]; });
                 }
 
                 var selections = { x: null, y: null, z: null };
@@ -429,8 +424,8 @@
                     orbitCamera = orbitControl.getCamera();
                     orbitControl.onChange.add(draw)
                     svg = el.append('svg');
-                    //rect1 = svg.append("rect").attr("width", 259.5).attr("height", 259.5).style("shape-rendering", "crispEdges").style("stroke-width", 1).style("stroke", "#EAEAEA").style("fill", "#FFF").attr("x", 0).attr("y", 0);
-                    //rect2 = svg.append("rect").attr("width", 239.5).attr("height", 249.5).style("shape-rendering", "crispEdges").style("stroke-width", 1).style("stroke", "#EAEAEA").style("fill", "#FFF").attr("x", 10).attr("y", 0);
+                    // rect1 = svg.append("rect").attr("width", 259.5).attr("height", 259.5).style("shape-rendering", "crispEdges").style("stroke-width", 1).style("stroke", "#EAEAEA").style("fill", "#FFF").attr("x", 0).attr("y", 0);
+                    // rect2 = svg.append("rect").attr("width", 239.5).attr("height", 249.5).style("shape-rendering", "crispEdges").style("stroke-width", 1).style("stroke", "#EAEAEA").style("fill", "#FFF").attr("x", 10).attr("y", 0);
                     rect1 = svg.append("rect").style("shape-rendering", "crispEdges").style("stroke-width", 1).style("stroke", "#EAEAEA").style("fill", "#FFF").attr("x", 0).attr("y", 0);
                     rect2 = svg.append("rect").style("shape-rendering", "crispEdges").style("stroke-width", 1).style("stroke", "#EAEAEA").style("fill", "#FFF").attr("x", 10).attr("y", 0);
 
@@ -494,12 +489,6 @@
                     resize: resize
                 };
             })(signals);
-
-
-
-
-
-
 
             // View Model
             var vm = this;
@@ -590,12 +579,12 @@
                             var width = $window.innerWidth - layout.left - layout.right;
                             var height = $window.innerHeight - 130; //10
                             orbitControl.resize(width, height, layout.left);
-                            selectControl.resize(width, height, layout.left);
+                            //selectControl.resize(width, height, layout.left);
 
                             initialized = true;
                         } else {
                             orbitControl.setData(geom);
-                            selectControl.setData(pts);
+                            //selectControl.setData(pts);
                             chart.setData(geom);
                         }
 
@@ -626,9 +615,9 @@
 
     //     function resize() {
 
-    //         var layout = osApi.getLayout();
-    //         width = $window.innerWidth - layout.left - layout.right;
-    //         height = $window.innerHeight - 30; //10
+    // var layout = osApi.getLayout();
+    // width = $window.innerWidth - layout.left - layout.right;
+    // height = $window.innerHeight - 30; //10
     //         chart2d.svg.style("position", "absolute");
     //         chart2d.svg.style("top", height - 200 + "px");
     //         chart2d.svg.style("left", layout.left + "px");
