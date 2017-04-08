@@ -53,7 +53,7 @@ RUN useradd -u 7534 -m -d /home/sttrweb -c "sttr web application" sttrweb && \
 RUN apt-get -y -qq update && apt-get -y -qq install \
 	python3 \
 	python3-dev \
-	python3-pip 
+	python3-pip \ 
 	git
 
 RUN git clone https://github.com/dtenenba/oncoscape_algorithm_wrapper
