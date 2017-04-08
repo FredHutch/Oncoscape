@@ -56,8 +56,9 @@ RUN apt-get -y -qq update && apt-get -y -qq install \
 	python3-pip \ 
 	git
 
-RUN git clone https://github.com/dtenenba/oncoscape_algorithm_wrapper
-WORKDIR oncoscape_algorithm_wrapper
+WORKDIR /home/sttrweb/Oncoscape/
+RUN git clone https://github.com/dtenenba/oncoscape_plsr.git
+WORKDIR oncoscape_plsr
 RUN pip3 install -r requirements.txt
 
 # Install Client Code
