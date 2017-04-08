@@ -42,11 +42,23 @@ RUN \
 RUN truncate -s 0 /etc/apache2/ports.conf
 RUN echo "ServerName localhost" >> /etc/apache2/apache2.conf
 
+
 # Create Application User
 RUN useradd -u 7534 -m -d /home/sttrweb -c "sttr web application" sttrweb && \
 	mkdir /home/sttrweb/Oncoscape && \
 	mkdir /home/sttrweb/Oncoscape/cache && \
 	mkdir /var/log/nginx/
+
+# Install Flask
+RUN apt-get -y -qq update && apt-get -y -qq install \
+	python3 \
+	python3-dev \
+	python3-pip 
+	git
+
+RUN git clone https://github.com/dtenenba/oncoscape_algorithm_wrapper
+WORKDIR oncoscape_algorithm_wrapper
+RUN pip3 install -r requirements.txt
 
 # Install Client Code
 COPY client-build /home/sttrweb/Oncoscape/client

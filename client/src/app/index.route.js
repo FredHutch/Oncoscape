@@ -152,6 +152,14 @@
                     resolveTool: resolveTool
                 }
             })
+            .state('ms', {
+                url: '/ms/{datasource}',
+                template: '<os-ms>',
+                datasource: true,
+                resolve: {
+                    resolveTool: resolveTool
+                }
+            })
             .state('pathways', {
                 url: '/pathways/{datasource}',
                 template: '<os-pathways>',

@@ -207,14 +207,20 @@
         ga('create', 'UA-55684588-2', 'auto');
         ga('send', 'pageview');
     </script>
-    <script type="x-shader/x-vertex" id="vertexshader">
+
+	<script type="x-shader/x-vertex" id="vertexshader">
+
+	attribute vec3 color;
     uniform float pointSize;
-    uniform vec3 color;
+    //uniform vec3 color;
     uniform float alpha;
     uniform int shouldResize;
     varying vec4 vColor;
     void main() {
+
+
       vec4 mvPosition = modelViewMatrix * vec4(position, 1.0);
+      //vec3 myColor = modelViewMatrix * vec3(color);
       if (shouldResize == 1) {
         gl_PointSize = pointSize * ( mvPosition.z + 30.0) / 10.0 + 10.0;
       } else {
@@ -222,7 +228,7 @@
       }
       gl_Position = projectionMatrix * mvPosition;
       if (shouldResize == 1) {
-        vColor = vec4(color, ( mvPosition.z + 30.0) / 10.0 + 0.0);
+        vColor = vec4(color, ( mvPosition.z + 30.0) / 5.0 + 0.0);
         // vColor = vec4(color, 0.8);
       } else {
         vColor = vec4(color, alpha);
@@ -230,6 +236,7 @@
     }
     
   </script>
+
   <script type="x-shader/x-fragment" id="fragmentshader">
     varying vec4 vColor;
     void main() {
@@ -242,6 +249,7 @@
       }
     }
   </script>
+
 </body>
 
 </html>
