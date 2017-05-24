@@ -29,8 +29,7 @@
             var d3Points = d3Chart.append("g");
             var d3xAxis = d3Chart.append("g");
             var d3yAxis = d3Chart.append("g");
-            var brush;
-            var d3Brush = d3Chart.append("g");
+            var circles;
 
             // Add Labels
             d3xAxis.append("text")
@@ -193,6 +192,7 @@
                 d3Points.selectAll("circle").classed("pca-node-selected", function() {
                     return (selectedIds.indexOf(this.__data__.id) >= 0);
                 });
+
             }
 
             function setColors() {
@@ -223,6 +223,50 @@
                 }
             }
 
+            var lasso_start = function() {
+
+                lasso.items()
+                    .attr("r", 3.5) // reset size
+                    .classed("not_possible", true)
+                    .classed("selected", false);
+            };
+
+            var lasso_draw = function() {
+
+
+                // Style the possible dots
+                lasso.possibleItems()
+                    .classed("not_possible", false)
+                    .classed("possible", true);
+
+                // Style the not possible dot
+                lasso.notPossibleItems()
+                    .classed("not_possible", true)
+                    .classed("possible", false);
+            };
+
+            var lasso_end = function() {
+
+                // Reset the color of all dots
+                lasso.items()
+                    .classed("not_possible", false)
+                    .classed("possible", false);
+
+                var ids = lasso.selectedItems().data().map(function(d) {
+                    return d.id;
+                });
+                osApi.setCohort(ids, "PCA", osApi.SAMPLE);
+
+            };
+
+            var lasso = d3.lasso()
+                .closePathSelect(true)
+                .closePathDistance(100)
+                .targetArea(d3Chart)
+                .on("start", lasso_start)
+                .on("draw", lasso_draw)
+                .on("end", lasso_end);
+
             function draw() {
 
                 // Colorize
@@ -238,7 +282,6 @@
                 });
 
                 d3Chart.attr("width", width).attr("height", height);
-                d3Brush.attr("width", width).attr("height", height);
                 d3Points.attr("width", width).attr("height", height);
 
                 // Scale
@@ -246,8 +289,8 @@
                 scaleY = d3.scaleLinear().domain([minMax.yMin, minMax.yMax]).range([50, height - 50]).nice();
 
                 // Draw
-                var circles = d3Points.selectAll("circle").data(data);
-                circles.enter().append("svg:circle")
+                circles = d3Points.selectAll("circle").data(data);
+                circles.enter().append("circle")
                     .attr("class", "pca-node")
                     .attr("cx", function(d) {
                         return scaleX(d[0]);
@@ -259,6 +302,7 @@
                     .style("fill", function(d) {
                         return d.color;
                     });
+
                 circles.exit()
                     .transition()
                     .duration(200)
@@ -304,36 +348,15 @@
                     .call(axisY);
 
 
-                // Brush
-                brush = d3.brush()
-                    .on("end", function() {
+                lasso.items(d3Points.selectAll("circle"));
+                d3Chart.call(lasso);
 
-                        if (!d3.event.selection) {
-                            osApi.setCohort([], osApi.ALL, osApi.SAMPLE);
-                            return;
-                        }
-
-                        var bv = d3.event.selection;
-                        var xMin = bv[0][0];
-                        var xMax = bv[1][0];
-                        var yMin = bv[0][1];
-                        var yMax = bv[1][1];
-
-                        var ids = d3Points.selectAll("circle").data().filter(function(d) {
-                            var x = scaleX(d[0]);
-                            var y = scaleY(d[1]);
-                            return (x > xMin && x < xMax && y > yMin && y < yMax);
-                        }).map(function(d) {
-                            return d.id;
-                        });
-                        osApi.setCohort(ids, "PCA", osApi.SAMPLE);
-
-                    });
-
-                d3Brush.attr("class", "brush").call(brush);
                 onCohortChange(osApi.getCohort());
                 osApi.setBusy(false);
+
+
             }
+
 
             // App Event :: Resize
             osApi.onResize.add(draw);
@@ -393,6 +416,8 @@
                     };
                 });
                 vm.geneSet = vm.geneSets[0];
+
+
             });
 
             // Destroy

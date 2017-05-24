@@ -6,11 +6,12 @@
          .factory('osHttp', oncoscape);
 
      /** @ngInject */
-     function oncoscape($http, $location) {
-
+     function oncoscape($http) {
+         //window.collections = {};
          var url = "/api/";
          url = "https://dev.oncoscape.sttrcancer.io/api/";
          var queryString = function(req) {
+             //window.collections[req.table] = 1;
              var query = url + req.table;
              if (angular.isDefined(req.query)) query += "/" + encodeURIComponent(angular.toJson(req.query));
              return query;

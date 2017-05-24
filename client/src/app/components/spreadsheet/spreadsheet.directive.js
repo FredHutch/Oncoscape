@@ -24,6 +24,8 @@
             // Loading ...
             osApi.setBusy(true);
 
+            var selectHandler;
+
             // View Model
             var vm = this;
             vm.showPanelColumns = false;
@@ -57,8 +59,6 @@
                 }).filter(function(o) {
                     return (o.name != "events" && o.name != "samplemap");
                 });
-
-
             vm.collection = vm.collections.reduce(function(p, c) {
                 if (c.name == "patient") p = c;
                 return p;
@@ -70,7 +70,7 @@
                 enableSelectAll: true,
                 onRegisterApi: function(gridApi) {
                     vm.gridApi = gridApi;
-                    gridApi.selection.on.rowSelectionChanged($scope, _.debounce(rowSelectionChange, 300));
+                    selectHandler = gridApi.selection.on.rowSelectionChanged($scope, _.debounce(rowSelectionChange, 300));
                 }
             };
             vm.exportCsv = function(type) {
@@ -117,16 +117,23 @@
             };
 
             var selectedIds = [];
-            var supressCohortEvent = false;
+
+
+            var supressEvents = false;
+
             var rowSelectionChange = function() {
 
+                if (supressEvents) return;
                 selectedIds = vm.gridApi.grid.api.selection.getSelectedRows().map(function(v) { return v.patient_ID; });
-                supressCohortEvent = true;
+
+
+                osApi.onCohortChange.remove(onCohortChange);
                 if (selectedIds.length == vm.options.data.length || selectedIds.length == 0) {
                     osApi.setCohort([], osApi.ALL, osApi.PATIENT);
                 } else {
-                    osApi.setCohort(selectedIds, "Spreadsheet", osApi.PATIENT);
+                    osApi.setCohort(_.unique(selectedIds), "Spreadsheet", osApi.PATIENT);
                 }
+                osApi.onCohortChange.add(onCohortChange);
             };
 
             // Initialize
@@ -137,16 +144,18 @@
 
             // App Event :: Cohort Change
             var onCohortChange = function(cohort) {
-                if (supressCohortEvent) {
-                    supressCohortEvent = false;
-                    return;
-                }
+                selectHandler();
+
+
                 vm.gridApi.grid.api.selection.clearSelectedRows();
                 selectedIds = cohort.patientIds;
                 var selected = vm.options.data.filter(function(v) {
                     return selectedIds.indexOf(v.patient_ID) != -1;
                 });
                 selected.forEach(function(i) { vm.gridApi.grid.api.selection.selectRow(i); });
+                selectHandler = vm.gridApi.selection.on.rowSelectionChanged($scope, _.debounce(rowSelectionChange, 300));
+
+
             };
             osApi.onCohortChange.add(onCohortChange);
 

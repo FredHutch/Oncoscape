@@ -2,7 +2,12 @@
     <section class="tray-content">
         <div class="row">
             <div class="col-xs-12 form-item">
-                <h3>Samples</h3>
+                <h3>PCA</h3>
+                <button ng-click="vm.click()">Generate Random 500 Genes</button>
+            </div>
+            <div class="col-xs-12 form-item">
+                <h3>Controls</h3>
+                <button ng-click="vm.toggle()">Toggle</button>
             </div>
             <div class="col-xs-12 form-item">
                 <label>Layout</label>
@@ -89,10 +94,10 @@
 </os-tray>
 <!-- Label + Chart -->
 <section class="tray-content-block">
-    <div class="tool-container">
-        <h2 class="h2-tool">Markers + Samples</h2>
-        <span class="h3-tool">{{vm.datasource.source}} {{vm.datasource.name}}</span>
-        <canvas id="renderCanvas" style="width:100%;height:100%;touch-action:none;"></canvas>
+    <div class="tool-container" id="tool-container">
+        <!--<h2 class="h2-tool">Markers + Samples</h2>
+        <span class="h3-tool">{{vm.datasource.source}} {{vm.datasource.name}}</span>-->
+        <!--<canvas id="renderCanvas" style="width:100%;height:100%;touch-action:none;"></canvas>-->
     </div>
 </section>
 <os-color-panel ng-if="vm.showPanelColor" close="vm.showPanelColor=false"></os-color-panel>

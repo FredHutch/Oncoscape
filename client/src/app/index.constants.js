@@ -1,4 +1,4 @@
-/* global BABYLON:false, d3:false, $:false, signals:false, cytoscape:false, document:false, moment:false, _:false, hello:false, localStorage:false, jStat:false, THREE:false*, saveAs:false, TextEncoder:false */
+/* global ML:false, jStat:false, TWEEN:false, d3:false, $:false, signals:false, cytoscape:false, document:false, moment:false, _:false, hello:false, localStorage:false, jStat:false, THREE:false*, saveAs:false, TextEncoder:false */
 
 (function() {
     'use strict';
@@ -6,7 +6,8 @@
     angular
         .module('oncoscape')
         .constant('THREE', THREE)
-        .constant('BABYLON', BABYLON)
+        .constant('ML', ML)
+        .constant('TWEEN', TWEEN)
         .constant('moment', moment)
         .constant('d3', d3)
         .constant('cytoscape', cytoscape)
@@ -17,6 +18,7 @@
         .constant('localStorage', localStorage)
         .constant('saveAs', saveAs)
         .constant('TextEncoder', TextEncoder)
+        .constant('jStat', jStat)
         .constant('_', _);
 
 })();

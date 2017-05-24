@@ -1,3 +1,5 @@
+
+
 (function() {
     'use strict';
 
@@ -430,6 +432,7 @@
                     camera.setLens(50);
                     camera.aspect = 1;
                     camera.matrixAutoUpdate = false;
+                    debugger;
 
                     // Material
                     material = new THREE.ShaderMaterial({
@@ -501,6 +504,8 @@
                 }
 
                 function resize(w, h) {
+                    if (angular.isUndefined(camera)) return;
+
                     camera.aspect = w / h;
                     camera.updateProjectionMatrix();
                     renderer.setSize(w, h);

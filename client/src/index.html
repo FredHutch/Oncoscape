@@ -32,10 +32,7 @@
       <p class="browsehappy">You are using an <strong>outdated</strong> browser. Please <a href="http://browsehappy.com/">upgrade your browser</a> to improve your experience.</p>
     <![endif]-->
 
-
-
     <os-header></os-header>
-
 
     <div id="main" class="container-main container-main-full">
         <os-cohort-menu></os-cohort-menu>
@@ -43,8 +40,6 @@
     </div>
 
     <os-loader></os-loader>
-
-    <!--<os-help></os-help>-->
 
     <!-- build:js(src) scripts/vendor.js -->
     <!-- bower:js -->
@@ -61,6 +56,9 @@
     <!-- angular templates will be automatically converted in js and inserted here -->
     <!-- endinject -->
     <!-- endbuild -->
+
+    <script src="app/three.min.js"></script>
+    <script src="assets/lasso.js"></script>
 
     <script>
         ! function(e) {
@@ -208,17 +206,14 @@
         ga('send', 'pageview');
     </script>
 
-	<script type="x-shader/x-vertex" id="vertexshader">
-
-	attribute vec3 color;
+    <script type="x-shader/x-vertex" id="vertexshader">
+    attribute vec3 color;
     uniform float pointSize;
     //uniform vec3 color;
     uniform float alpha;
     uniform int shouldResize;
     varying vec4 vColor;
     void main() {
-
-
       vec4 mvPosition = modelViewMatrix * vec4(position, 1.0);
       //vec3 myColor = modelViewMatrix * vec3(color);
       if (shouldResize == 1) {
@@ -249,6 +244,7 @@
       }
     }
   </script>
+
 
 </body>
 

@@ -81,10 +81,11 @@ var data = (function() {
             }, state.patients);
 
         // Size Nodes :: Eliminate Duplicate Functions
+
         var domain = Object.keys(state.edgePatients).reduce(function(p, c) {
             var v = state.edgePatients[c];
             p[0] = Math.min(p[0], v);
-            p[1] = Math.max(p[0], v);
+            p[1] = Math.max(p[1], v);
             return p;
         }, [Infinity, -Infinity]);
 
@@ -107,7 +108,7 @@ var data = (function() {
         domain = Object.keys(state.edgeGenes).reduce(function(p, c) {
             var v = state.edgeGenes[c];
             p[0] = Math.min(p[0], v);
-            p[1] = Math.max(p[0], v);
+            p[1] = Math.max(p[1], v);
             return p;
         }, [Infinity, -Infinity]);
 
