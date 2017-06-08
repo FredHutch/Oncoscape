@@ -71,6 +71,9 @@
                 vm.importName = "";
                 vm.showImport = false;
             };
+            vm.login = function() {
+                $state.go("login");
+            };
             vm.logout = function() {
 
 

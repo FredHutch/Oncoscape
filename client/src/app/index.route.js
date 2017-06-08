@@ -152,14 +152,14 @@
                     resolveTool: resolveTool
                 }
             })
-            .state('ms', {
-                url: '/ms/{datasource}',
-                template: '<os-ms>',
-                datasource: true,
-                resolve: {
-                    resolveTool: resolveTool
-                }
-            })
+            // .state('ms', {
+            //     url: '/ms/{datasource}',
+            //     template: '<os-ms>',
+            //     datasource: true,
+            //     resolve: {
+            //         resolveTool: resolveTool
+            //     }
+            // })
             .state('pathways', {
                 url: '/pathways/{datasource}',
                 template: '<os-pathways>',
@@ -204,6 +204,13 @@
                 resolve: {
                     resolveTool: resolveTool
                 }
+            })
+            .state('login', {
+                url: '/login/',
+                template: '<os-login>',
+                datasource: false,
+                help: "/",
+                resolve: {}
             })
             .state('barcharts', {
                 url: '/barchart/{datasource}',

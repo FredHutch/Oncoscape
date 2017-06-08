@@ -1,8 +1,24 @@
-<form class="login">
-    <div class="login-body">
-        <h3 class="login-header">Sign in</h3>
-        <div ng-repeat="item in vm.networks" class="login-option" ng-click="vm.login(item);">
-            <span class="{{item.icon}} login-icon"></span> {{item.name}}
+<section class="datasource">
+    <div class="container">
+        <div class="row">
+            <div class="col-sm-12 col-md-12">
+                <br />
+                <h1>Login</h1>
+                <button ng-click="vm.login();"> Grant Permission</button>
+                
+            </div>
+
         </div>
+        <!--<div class="row">
+            <ul>
+                <li ng-repeat="dataset in vm.datasets" class="col-xs-12 col-sm-6 col-md-4 col-lg-3" ng-click="vm.explore('tools',dataset)">
+                    <div class="datasource-btn">
+                        <img class="datasource-img" ng-src="/assets/images/img{{dataset.img}}">
+                        <p class="datasource-h1">{{dataset.name}}</p>
+                        <p class="datasource-h2">{{dataset.source}} | 11-17-2016</p>
+                    </div>
+                </li>
+            </ul>
+        </div>-->
     </div>
-</form>
+</section>
