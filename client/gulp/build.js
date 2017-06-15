@@ -1,5 +1,5 @@
 'use strict';
-
+var gutil = require('gulp-util');
 var path = require('path');
 var gulp = require('gulp');
 var conf = require('./conf');
@@ -59,7 +59,7 @@ gulp.task('html', ['inject', 'partials'], function() {
         .pipe(jsFilter)
         .pipe($.sourcemaps.init())
         .pipe($.ngAnnotate())
-        //.pipe($.uglify({ preserveComments: $.uglifySaveLicense })).on('error', conf.errorHandler('Uglify'))
+        .pipe($.uglify({ preserveComments: $.uglifySaveLicense })).on('error', gutil.log)
         .pipe($.sourcemaps.write('maps'))
         .pipe(jsFilter.restore)
         .pipe(cssFilter)
