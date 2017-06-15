@@ -62,6 +62,7 @@ WORKDIR oncoscape_plsr
 #RUN pip3 install -r requirements.txt
 
 # Install Client Code
+WORKDIR /home/sttrweb/Oncoscape/
 COPY client-build /home/sttrweb/Oncoscape/client
 COPY documentation/dist /home/sttrweb/Oncoscape/documentation
 
