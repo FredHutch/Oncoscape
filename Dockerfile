@@ -20,7 +20,9 @@ RUN apt-get -y -qq update && apt-get -y -qq install \
 	python-pip \
 	curl \
 	nano \
-	supervisor
+	supervisor \
+	python3-numpy \
+	python3-scipy
 
 # Install Kong
 RUN curl -sL https://github.com/Mashape/kong/releases/download/0.9.4/kong-0.9.4.trusty_all.deb > kong-0.9.4.trusty_all.deb  && \
@@ -59,6 +61,7 @@ RUN apt-get -y -qq update && apt-get -y -qq install \
 WORKDIR /home/sttrweb/Oncoscape/
 RUN git clone https://github.com/dtenenba/oncoscape_plsr.git
 WORKDIR oncoscape_plsr
+
 #RUN pip3 install -r requirements.txt
 
 # Install Client Code

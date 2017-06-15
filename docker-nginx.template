@@ -127,7 +127,7 @@ http {
         #}
 
         # Expose Flask API - Not PWD Protected
-        location /cpu {
+        location /cpu/ {
             proxy_set_header X-Real-IP $remote_addr;
             proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
             proxy_set_header X-Forwarded-Proto $scheme;
