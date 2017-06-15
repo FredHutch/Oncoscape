@@ -59,7 +59,7 @@ RUN apt-get -y -qq update && apt-get -y -qq install \
 WORKDIR /home/sttrweb/Oncoscape/
 RUN git clone https://github.com/dtenenba/oncoscape_plsr.git
 WORKDIR oncoscape_plsr
-RUN pip3 install -r requirements.txt
+#RUN pip3 install -r requirements.txt
 
 # Install Client Code
 COPY client-build /home/sttrweb/Oncoscape/client

@@ -219,6 +219,8 @@
 
             // Move To Service 
             function query(disease, genes, samples, features, molecular_collection, clinical_collection, n_components) {
+   
+                
                 var data = { disease: disease, genes: genes, samples: samples, features: features, molecular_collection: molecular_collection, clinical_collection: clinical_collection, n_components: n_components };
 
                 return $http({
@@ -229,6 +231,7 @@
                         apikey: 'password'
                     }
                 });
+                
 
             }
 
