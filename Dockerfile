@@ -21,6 +21,7 @@ RUN apt-get -y -qq update && apt-get -y -qq install \
 	curl \
 	nano \
 	supervisor \
+	gunicorn \
 	python3-numpy \
 	python3-scipy
 
@@ -61,8 +62,7 @@ RUN apt-get -y -qq update && apt-get -y -qq install \
 WORKDIR /home/sttrweb/Oncoscape/
 RUN git clone https://github.com/dtenenba/oncoscape_plsr.git
 WORKDIR oncoscape_plsr
-
-#RUN pip3 install -r requirements.txt
+RUN pip3 install -r requirements.txt
 
 # Install Client Code
 WORKDIR /home/sttrweb/Oncoscape/
