@@ -57,6 +57,8 @@ RUN apt-get -y -qq update && apt-get -y -qq install \
 	python3 \
 	python3-dev \
 	python3-pip \ 
+	zlib1g-dev \
+	libpng-dev \
 	git
 
 WORKDIR /home/sttrweb/Oncoscape/
