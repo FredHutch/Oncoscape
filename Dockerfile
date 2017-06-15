@@ -23,7 +23,8 @@ RUN apt-get -y -qq update && apt-get -y -qq install \
 	supervisor \
 	gunicorn \
 	python3-numpy \
-	python3-scipy
+	python3-scipy \ 
+	python-imaging
 
 # Install Kong
 RUN curl -sL https://github.com/Mashape/kong/releases/download/0.9.4/kong-0.9.4.trusty_all.deb > kong-0.9.4.trusty_all.deb  && \
