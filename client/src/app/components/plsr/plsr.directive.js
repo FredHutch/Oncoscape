@@ -225,7 +225,7 @@
 
                 return $http({
                     method: 'POST',
-                    url: "http://localhost:11111/plsr",
+                    url: "/cpu/plsr",
                     data: data,
                     headers: {
                         apikey: 'password'
