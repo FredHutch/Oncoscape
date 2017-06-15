@@ -22,6 +22,10 @@ RUN apt-get -y -qq update && apt-get -y -qq install \
 	nano \
 	supervisor \
 	gunicorn \
+	python3-pip \
+	zlib1g-dev \
+	libpng-dev \
+	git \
 	python3 \ 
 	python3-dev \
 	python3-pip \
@@ -29,7 +33,6 @@ RUN apt-get -y -qq update && apt-get -y -qq install \
 	python3-scipy \ 
 	python-imaging
 	
-
 # Install Kong
 RUN curl -sL https://github.com/Mashape/kong/releases/download/0.9.4/kong-0.9.4.trusty_all.deb > kong-0.9.4.trusty_all.deb  && \
 	dpkg -i kong-0.9.4.trusty_all.deb
@@ -57,14 +60,7 @@ RUN useradd -u 7534 -m -d /home/sttrweb -c "sttr web application" sttrweb && \
 	mkdir /home/sttrweb/Oncoscape/cache && \
 	mkdir /var/log/nginx/
 
-# Install Flask
-RUN apt-get -y -qq update && apt-get -y -qq install \
-	python3 \
-	python3-dev \
-	python3-pip \ 
-	zlib1g-dev \
-	libpng-dev \
-	git
+
 
 WORKDIR /home/sttrweb/Oncoscape/
 RUN git clone https://github.com/dtenenba/oncoscape_plsr.git
