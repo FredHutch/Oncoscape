@@ -27,7 +27,7 @@ RUN apt-get -y -qq update && apt-get -y -qq install \
 	python3-pip \
 	python3-numpy \
 	python3-scipy \ 
-	python-imaging \ 
+	python-imaging
 	
 
 # Install Kong
