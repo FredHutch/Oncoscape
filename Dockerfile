@@ -1,5 +1,5 @@
 # Use Ubuntu 14.04 as the base container
-FROM ubuntu:14.04
+FROM ubuntu:16.04
 
 # Add Standard Packages + Verification Key
 RUN apt-key adv --keyserver keyserver.ubuntu.com --recv-keys 51716619E084DAB9
@@ -22,9 +22,13 @@ RUN apt-get -y -qq update && apt-get -y -qq install \
 	nano \
 	supervisor \
 	gunicorn \
+	python3 \ 
+	python3-dev \
+	python3-pip \
 	python3-numpy \
 	python3-scipy \ 
-	python-imaging
+	python-imaging \ 
+	
 
 # Install Kong
 RUN curl -sL https://github.com/Mashape/kong/releases/download/0.9.4/kong-0.9.4.trusty_all.deb > kong-0.9.4.trusty_all.deb  && \
