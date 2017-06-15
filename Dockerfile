@@ -89,7 +89,7 @@ COPY /docker-supervisord.conf /home/sttrweb/Oncoscape/
 COPY /docker-entrypoint.sh /home/sttrweb/Oncoscape/
 
 # Expose Ports
-EXPOSE 80 7946 8000 8001 8003 8004 
+EXPOSE 80 7946 8000 8001 8003 8004 10001
 EXPOSE 7946/udp
 
 # Fire It Up
