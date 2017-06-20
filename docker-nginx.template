@@ -133,7 +133,7 @@ http {
             proxy_set_header X-Forwarded-Proto $scheme;
             proxy_set_header Host $host;
             proxy_redirect http:// https://;
-            proxy_pass http://127.0.0.1:10001;
+            proxy_pass http://0.0.0.0:10001;
             #auth_basic "Restricted Content";
             #auth_basic_user_file /home/sttrweb/Oncoscape/.htpasswd;
         }
