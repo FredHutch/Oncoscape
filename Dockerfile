@@ -61,7 +61,7 @@ RUN useradd -u 7534 -m -d /home/sttrweb -c "sttr web application" sttrweb && \
 	mkdir /var/log/nginx/
 
 
-
+# Python Server
 WORKDIR /home/sttrweb/Oncoscape/
 RUN git clone https://github.com/dtenenba/oncoscape_plsr.git
 WORKDIR oncoscape_plsr
