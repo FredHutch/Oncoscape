@@ -296,8 +296,8 @@
                 var samples = osApi.getCohort().sampleIds;
                 if (samples.length === 0) samples = Object.keys(osApi.getData().sampleMap);
 
-                query("brain", vm.geneset.genes, samples, ["age_at_diagnosis", "days_to_death"],
-                    "tcga_gbmlgg_exp_hiseqv2_ucsc-xena",
+                query(vm.datasource.disease, vm.geneset.genes, samples, ["age_at_diagnosis", "days_to_death"],
+                    vm.collection.collection,//"tcga_gbmlgg_exp_hiseqv2_ucsc-xena",
                     osApi.getDataSource().clinical.patient,
                     2
                 ).then(function(response) {

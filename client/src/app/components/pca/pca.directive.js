@@ -66,7 +66,7 @@
                 vm.selectColor = function(e) {
                     var ids = e.values;
                     var allIds = [];
-                    d3.selectAll("circle").each(function(d) {
+                    d3.selectAll("circle.pca-node").each(function(d) {
                         if (ids.indexOf(d.id) != -1) {
                             d3.select(this).classed("pca-node-selected", true);
                             allIds.push(d.id);
@@ -79,7 +79,7 @@
                 vm.deselectColor = function(e) {
                     var ids = e.values;
                     var allIds = [];
-                    d3.selectAll("circle").each(function(d) {
+                    d3.selectAll("circle.pca-node").each(function(d) {
                         if (ids.indexOf(d.id) != -1) {
                             d3.select(this).classed("pca-node-selected", false);
                         } else {
@@ -88,6 +88,7 @@
                     });
                     osApi.setCohort(allIds, "PCA", osApi.SAMPLE);
                 };
+                
                 return vm;
             })(this, osApi);
 
@@ -186,6 +187,28 @@
                     });
             });
 
+            var updatePatientCounts = function() {
+
+                angular.element(".legend-count").text("");
+                var selectedPatients = osApi.getCohort().sampleIds;
+
+                if (selectedPatients.length === 0) 
+                   selectedPatients = data.map(function(d){
+                    return d.id})
+
+                var counts = data.filter(function(d){return selectedPatients.indexOf(d.id) !== -1}).reduce(function(p, c) {
+                    var color = c.color;
+                    if (!p.hasOwnProperty(color)) p[color] = 0;
+                    p[color] += 1;
+                    return p;
+                }, {});
+
+                Object.keys(counts).forEach(function(key) {
+                    angular.element("#legend-" + key.substr(1)).text(" (" + this[key] + ")");
+                }, counts);
+
+            };
+
             // Utility Functions
             function setSelected() {
                 var selectedIds = cohort.sampleIds;
@@ -221,6 +244,8 @@
                         return v;
                     }, degMap);
                 }
+                $timeout(updatePatientCounts);
+                 
             }
 
             var lasso_start = function() {
@@ -271,6 +296,7 @@
 
                 // Colorize
                 setColors();
+                
 
                 // Size
                 var layout = osApi.getLayout();
@@ -376,6 +402,7 @@
                 setSelected();
             };
             osApi.onCohortChange.add(onCohortChange);
+            osApi.onCohortChange.add(updatePatientCounts)
 
 
             osApi.query(clusterCollection, {

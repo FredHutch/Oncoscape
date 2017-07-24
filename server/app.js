@@ -58,11 +58,11 @@ mongoose.connection.on('connected', function() {
     // Pull OAuth Networks From Databas + Init OAuth
     mongoose.connection.db.collection("lookup_oncoscape_authentication").find().toArray(function(err, response) {
         var networks = response.map(function(v) {
-            v.domain = domain;
-            return v;
-        });
-        oauthshim.init(networks);
-    });
+           v.domain = domain;
+           return v;
+       });
+       oauthshim.init(networks);
+   });
 
     // Generic Method For Querying Mongo
     var processQuery = function(req, res, next, query) {
