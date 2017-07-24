@@ -10,6 +10,7 @@ CACHE:
 /touch-icon-152.png
 /touch-icon-60.png
 /touch-icon-76.png
+/assets/lasso.js
 /fonts/FontAwesome.otf
 /fonts/fontawesome-webfont.eot
 /fonts/fontawesome-webfont.svg
@@ -25,25 +26,13 @@ CACHE:
 /fonts/ui-grid.svg
 /fonts/ui-grid.ttf
 /fonts/ui-grid.woff
-/assets/lasso.js
-/styles/app-223cb898a1.css
-/styles/app-2df1347999.css
-/styles/app-38c6276e56.css
-/styles/app-43db47ef26.css
-/styles/app-9660c42934.css
-/styles/app-b38574a7f9.css
-/styles/app-c9498601ed.css
-/styles/app-d30c0bb9aa.css
-/styles/ui-grid.svg
-/styles/ui-grid.ttf
-/styles/ui-grid.woff
-/styles/vendor-c668aa093a.css
 /scripts/app-09c600e2af.js
 /scripts/app-4cf76d3a0d.js
 /scripts/app-71a48f62c3.js
 /scripts/app-84efc4a291.js
 /scripts/app-8951b64218.js
 /scripts/app-9c86be8306.js
+/scripts/app-b8a97e781f.js
 /scripts/app-bccfdd0f61.js
 /scripts/app-c42162f15d.js
 /scripts/app-c781a50797.js
@@ -54,6 +43,19 @@ CACHE:
 /scripts/vendor-7cab04b52f.js
 /scripts/vendor-8e40b42e98.js
 /scripts/vendor-94658f6c2e.js
+/styles/app-223cb898a1.css
+/styles/app-2df1347999.css
+/styles/app-38c6276e56.css
+/styles/app-43db47ef26.css
+/styles/app-9660c42934.css
+/styles/app-b38574a7f9.css
+/styles/app-c9498601ed.css
+/styles/app-d30c0bb9aa.css
+/styles/app-fa641d9e20.css
+/styles/ui-grid.svg
+/styles/ui-grid.ttf
+/styles/ui-grid.woff
+/styles/vendor-c668aa093a.css
 /assets/images/DSbile.jpg
 /assets/images/DSbrain.jpg
 /assets/images/Untitled-17.png
@@ -178,6 +180,7 @@ CACHE:
 /maps/styles/app-ee9c4db9a3.css.map
 /maps/styles/app-f6262c4164.css.map
 /maps/styles/app-f78892205c.css.map
+/maps/styles/app-fa641d9e20.css.map
 /maps/styles/app-fc39e65a2f.css.map
 /maps/styles/app-fdc9411eae.css.map
 /maps/styles/app-ffb0f51179.css.map
@@ -220,6 +223,7 @@ CACHE:
 /maps/scripts/app-92bbb55d92.js.map
 /maps/scripts/app-9c86be8306.js.map
 /maps/scripts/app-b742ef980b.js.map
+/maps/scripts/app-b8a97e781f.js.map
 /maps/scripts/app-b94359ca4c.js.map
 /maps/scripts/app-bccfdd0f61.js.map
 /maps/scripts/app-c0084f80ec.js.map
@@ -270,4 +274,4 @@ https://*
 SETTINGS:
 prefer-online
 
-# hash: 331d6e4a9c4f196b3c7f0bb8d6d29207e96ca67f32c958c60b8b7a1ba03112ac
+# hash: c895f4e5498d47b3b3fa9f5ab918993cc5461e9a7bebce0b8528b57ebf8d7282

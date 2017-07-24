@@ -225,11 +225,9 @@
 
                 return $http({
                     method: 'POST',
-                    url: "/cpu/plsr",
-                    data: data,
-                    headers: {
-                        apikey: 'password'
-                    }
+                    url: "https://dev.oncoscape.sttrcancer.io/cpu/plsr",
+                    data: data
+                    
                 });
                 
 
