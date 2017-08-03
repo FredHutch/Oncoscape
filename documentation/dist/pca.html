@@ -83,273 +83,267 @@
         <main>
 <!-- START wrapper -->
 <div class="content-wrapper">
-    <!-- START intro seciton -->
-    <div id="section-intro" class="scrollto">
-        <a class="anchor" id="anchor-intro">x</a>
-        <div class="container">
-            <div id="marquee" class="row">
-                <div class="col-xs-12">
-                    <img class="fadeInDown animated center-block tool-image img-responsive" src="photos/toolImages/pca.png" alt="PCA">
-                </div>
-            </div>
-            <div class="row">
-                <h1 class="tool-headline">
+  <!-- START intro seciton -->
+  <div id="section-intro" class="scrollto">
+    <a class="anchor" id="anchor-intro">x</a>
+    <div class="container">
+      <div id="marquee" class="row">
+        <div class="col-xs-12">
+          <img class="fadeInDown animated center-block tool-image img-responsive" src="photos/toolImages/pca.png" alt="PCA">
+        </div>
+      </div>
+      <div class="row">
+        <h1 class="tool-headline">
                     <span class="header-black">Principal Component Analysis</span>
                     <span class="header-gray">Explore high-dimensional data sets. Color-code cohorts.</span>
                 </h1>
-            </div>
-        </div>
+      </div>
     </div>
-    <!-- END intro seciton -->
-    <!-- START sticky nav-bar -->
-    <div id="header" class="header">
-        <div class="subnav container">
-            <a class="subnav-item col-xs-12 col-sm-2 col-sm-offset-1" href="#anchor-overview">Overview</a>
-            <a class="subnav-item col-xs-12 col-sm-2" href="#anchor-cases">Use Cases</a>
-            <a class="subnav-item col-xs-12 col-sm-2" href="#anchor-nav">Navigation</a>
-            <a class="subnav-item col-xs-12 col-sm-2" href="#anchor-methods">Methods</a>
-            <a class="subnav-item col-xs-12 col-sm-2" href="#anchor-faq">FAQ</a>
-        </div>
+  </div>
+  <!-- END intro seciton -->
+  <!-- START sticky nav-bar -->
+  <div id="header" class="header">
+    <div class="subnav container">
+      <a class="subnav-item col-xs-12 col-sm-2 col-sm-offset-1" href="#anchor-overview">Overview</a>
+      <a class="subnav-item col-xs-12 col-sm-2" href="#anchor-cases">Use Cases</a>
+      <a class="subnav-item col-xs-12 col-sm-2" href="#anchor-nav">Navigation</a>
+      <a class="subnav-item col-xs-12 col-sm-2" href="#anchor-methods">Methods</a>
+      <a class="subnav-item col-xs-12 col-sm-2" href="#anchor-faq">FAQ</a>
     </div>
-    <!-- END sticky nav-bar -->
-    <!-- START Overview seciton -->
-    <div class="scrollto" id="section-overview">
-        <a class="anchor" id="anchor-overview">x</a>
-        <div class="container">
-            <div class="row">
-                <div class="col-xs-12 text-center">
-                    <h3 class="section-headline  fadeInDown animated">Overview</h3>
-                </div>
-            </div>
-            <div class="row">
-                <div class="col-xs-12 text-left">
-                    <p>Principle Component Analysis (PCA) provides a two dimensional view of sample similarity based on given molecular and gene sets, e.g. patterns in RNA expression for patients using all available genes. Users explore expression data in the PCA window. The PCA window allows users to visualize cohorts of patients by specific gene sets and/or expression data. All operations are accomplished through the cohort panel (left) or control bar (right).</p>
-                </div>
-            </div>
-            <div class="row">
-                <div class="col-xs-12">
-                    <img class="center-block img-responsive mp-image" src="photos/pcaNavigation/pca.png" alt="PCA">
-                </div>
-            </div>
-            <div class="row">
-                <div class="col-xs-12 li-margin">
-                    <ul>
-                        <li class="overview-li-padding"><em>Panel Lock:</em> Lock and unlock the panels for a wider screen view.
-                        </li>
-                        <li class="overview-li-padding"><em>Cohort Panel:</em> All cohort related commands are handled within this panel.
-                        </li>
-                        <li class="overview-li-padding"><em>Selected Cohort Box & Dropdown:</em> Add, edit or delete cohorts. Click the "+" to save, "x" to delete or click the down arrow to select a cohort for edits.</li>
-                        <li class="overview-li-padding"><em>Clinical Histogram:</em> Snapshot of clinical information, per cohort. The histogram will adjust with each cohort selection. &nbsp; Click the down arrow to view other filters. e.g. &nbsp; Age At Diagnosis, Gender, Race, Ethnicity, Vital, Tumor.</li>
-                        <li class="overview-li-padding"><em>Survival Curve:</em> Snapshot of Kaplan Meier survival curves, per cohort. For more in depth analysis push the saved cohorts to the survival tool.</li>
-                        <li class="overview-li-padding"><em>Cohorts Section:</em> All saved cohorts are listed in this area. Each cohort is clickable and will highlight the selections on the main window, as well as adjust any survival curves or clinical histograms that are associated. The last line will always show your current selection, which will also update in the <strong>Selected Cohort</strong> box at the top of the cohort panel. All cohorts are color coded for easy identification. To learn more visit <a href="" target="_blank">Oncoscape</a></li>
-                        <li class="overview-li-padding"><em>Cohort Summary:</em> Every cohort includes a summary of available information based on patients and samples.</li>
-                        <li class="overview-li-padding"><em>Tumor Nodes:</em> Select nodes by holding down the <em>Shift</em> key and selecting either individual or larger node groupings. The variation in node sizing represents the number of mutations a patient or gene carries, e.g. the larger the node the greater the mutation number. Hovering over an individual patient will provide clinical information on the left side of the tool.
-                        </li>
-                        <li class="overview-li-padding"><em>Control Bar:</em> Collection of controls that operate over the patient and chromosome areas.
-                        </li>
-                        <li class="overview-li-padding"><em>Variance Explained:</em> Shows the variance explained by PC1 and PC2.
-                        </li>
-                        <li class="overview-li-padding"><em>PCA Loadings:</em> PCA loadings shows the 50 most impactful genes for that given layout.
-                        </li>
-                    </ul>
-                </div>
-            </div>
+  </div>
+  <!-- END sticky nav-bar -->
+  <!-- START Overview seciton -->
+  <div class="scrollto" id="section-overview">
+    <a class="anchor" id="anchor-overview">x</a>
+    <div class="container">
+      <div class="row">
+        <div class="col-xs-12 text-center">
+          <h3 class="section-headline  fadeInDown animated">Overview</h3>
         </div>
-    </div>
-    <!-- END Overview seciton -->
-    <!-- START Use Cases seciton -->
-    <div class="scrollto" id="section-cases">
-        <a class="anchor" id="anchor-cases">x</a>
-        <div class="container">
-            <div class="row">
-                <div class="col-xs-12 text-center">
-                    <h3 class="section-headline fadeInDown animated">Use Cases</h3>
-                </div>
-            </div>
-            <section class="videoCurrent col-xs-12 col-md-7">
-                <div class="videoPlayerContainer">
-                    <iframe class="videoPlayer" width="560" height="315" frameborder="0" allowfullscreen></iframe>
-                </div>
-                <h3 class="videoCurrentTitle"></h3>
-                <p class="videoCurrentTranscript"></p>
-            </section>
-            <section class="videos noselect col-xs-12 col-md-5">
-                <article class="video">
-                    <div class="videoThumb" style="background-image: url(photos/pcaNavigation/pcavideo1.png);"></div>
-                    <a class="videoLink" href="https://www.youtube.com/embed/fc8DjvxN6UE?rel=0&amp;controls=1&amp;showinfo=0"></a>
-                    <h4 class="videoTitle">Build patient cohorts with color options within Gilomas</h4> 
-                    <p class="videoParagraph">Define and save different cohorts based on tumor grades</p>  
-                    <section class="videoTranscript">
-                        <ol class="video-ol">
-                            <div class="li-margin">
-                                <li>Click on the <em>Color Options</em> button on the Control Bar (middle right side)</li>
-                                <li>A list of possible options for color-coding data will pop up. Select <strong>Tumor Grade</strong> under the Core grouping</li>
-                                <li>PCA will reload the color-coded data by Tumor Grade</li> 
-                                <li>On the Control Bar find the Patient Tumor Grade color-key menu (middle right side)</li>
-                                <li>Each color will have a select (circle with dot) and deselect (empty circle) button associated with it, the default setting will have zero patient nodes selected</li>
-                                <li>Create a cohort for each tumor grade, on green G2 click the select button</li>
-                                <li>All the patient nodes associated with the Tumor Grade G2 will be outlined in black</li>
-                                <li>To save the G2 cohort, type the name of the cohort in the <em>Selected Cohort</em> box on the Cohort Panel (upper left side) and click the "+" button. Example Name: G2 Tumors. The new cohort will now be color-coded and appear under Cohorts</li>
-                                <li>Return to the Patient Tumor Grade color-key menu (middle right side) and on the green G2 Tumor grade, click the deselect button</li>
-                                <li>All outlined G2 selections will deselect</li>
-                                <li>Repeat these steps and create cohorts for each Tumor Grade (G3, G4 and NA)</li>
-                                <li>Once all 4 cohorts have been created they can be transferred to Survival (or any of the selected tools)</li>
-                                <li>In the header click Tools, from the dropdown select Survival</li>
-                                <li>Survival will show the P-values on the Control Bar (upper right side) for each of the Patient Tumor Grade cohorts created in PCA</li> 
-                            </div>
-                        </ol>
-                    </section>
-                </article>
-            </section>
+      </div>
+      <div class="row">
+        <div class="col-xs-12 text-left">
+          <p>Principle Component Analysis (PCA) provides a two dimensional view of sample similarity based on given molecular and gene sets, e.g. patterns in RNA expression for patients using all available genes. Users explore expression data in the PCA window. The PCA window allows users to visualize cohorts of patients by specific gene sets and/or expression data. All operations are accomplished through the cohort panel (left) or control bar (right).</p>
         </div>
-    </div>
-    <!-- END Use Cases seciton -->
-    <!-- START Nav seciton -->
-    <div class="scrollto" id="section-nav">
-        <a class="anchor" id="anchor-nav">x</a>
-        <div class="container">
-            <div class="row">
-                <div class="col-xs-12 text-center">
-                    <h3 class="section-headline fadeInDown animated">Navigation</h3>
-                </div>
-            </div>
-            <section>
-                <div class="row">
-                    <div class="col-xs-6 text-left">
-                        <strong>Gene Set</strong>
-                    </div>
-                    <div class="col-xs-6 text-left">
-                        <strong>Data Source</strong>
-                    </div>
-                </div>
-                <div class="row">
-                    <div class="col-xs-6 text-left">
-                        <p class="search-para">Provides users the ability to select a gene set to operate over. More detail about the various genesets can be found in the Methods section. To apply a new geneset locate the <em>Gene Set</em> dropdown menu and make a selection.</p>
-                    </div>
-                    <div class="col-xs-6 text-left">
-                        <p class="search-para">Provides users the ability to select a data source. More information about the UCSC dataset can be found in the "Methods" section below. To apply an a new data source locate the <em>Data Source</em> dropdown menu and make a selection.</p>
-                    </div>
-                </div>
-                <div class="row">
-                    <div class="col-xs-6 text-left generalPadding">
-                        <strong>Variance</strong>
-                    </div>
-                    <div class="col-xs-6 text-left generalPadding">
-                        <strong>PCA Loadings</strong>
-                    </div>
-                </div>
-                <div class="row">
-                    <div class="col-xs-6 text-left">
-                        <p class="search-para">PCA, <em>variance</em> shows the variance explained by PC1 and PC2.</p>
-                    </div>
-                    <div class="col-xs-6 text-left">
-                        <p class="search-para">PCA loadings shows the 50 most impactful genes for that given layout.</p>
-                    </div>
-                </div>
-                <div class="row">
-                    <div class="col-xs-12 col-sm-12 col-md-6 col-lg-6 text-left">
-                        <img src="photos/pcaNavigation/pcaVariance.png" style="padding-top: 20px;">
-                    </div>
-                    <div class="col-xs-12 col-sm-12 col-md-6 col-lg-6 text-left">
-                        <img src="photos/pcaNavigation/pcaloadings.jpg">
-                    </div>
-                </div>
-                <div class="row">
-                    <div class="col-xs-6 text-left generalPadding">
-                        <strong>Data Type</strong>
-                    </div>
-                </div>
-                <div class="row">
-                    <div class="col-xs-6 text-left">
-                        <p class="search-para">Provides users the ability to select a data type. To apply a type other than the default (copy number (gistic2) ) find the <em>Data Type</em> dropdown menu and make a selection.</p>
-                    </div>
-                </div>
-            </section>
-            <hr>
-            <div class="row">
-                <div class="col-xs-12 text-left">
-                    <strong>Patient Colors</strong>
-                </div>
-            </div>
-            <div class="row">
-                <div class="col-xs-6 text-left">
-                    <p class="search-para">By clicking the <em>Color Options</em> button users are able to color code patient nodes based on several unique operators. A popup list will appear on the screen. Selections include the percentages of patient nodes that are include the selection e.g. 100% of patient nodes have gender specified.</p>
-                </div>
-                <div class="col-xs-6">
-                    <img class="img-responsive" src="photos/pcaNavigation/colorOptions.png" alt="Patient Colors">
-                </div>
-            </div>
-            <!-- color + layout Tween slideshowFactory -->
-            <div class="image-wrapper col-xs-12 col-lg-4">
-                <p>Diagnosis</p>
-                <div id="patientPCA1" class="col-xs-12 col-lg-4 img-responsive">
-                </div>
-            </div>
-            <div class="image-wrapper col-xs-12 col-lg-4">
-                <p>Gender</p>
-                <div id="patientPCA2" class="col-xs-12 col-lg-4 img-responsive">
-                </div>
-            </div>
-            <div class="image-wrapper col-xs-12 col-lg-4">
-                <p>Tumor Grade</p>
-                <div id="patientPCA3" class="col-xs-12 col-lg-4 img-responsive">
-                </div>
-            </div>
-            <div class="row">
-                <p id="layoutTextPCA" class="col-xs-12"></p>
-            </div>
-            <!-- END color + layout Tween slideshowFactory -->
-            <!-- container -->
+      </div>
+      <div class="row">
+        <div class="col-xs-12">
+          <img class="center-block img-responsive mp-image" src="photos/pcaNavigation/pca.png" alt="PCA">
         </div>
+      </div>
+      <div class="row">
+        <div class="col-xs-12 li-margin">
+          <ul>
+            <li class="overview-li-padding"><em>Panel Lock:</em> Lock and unlock the panels for a wider screen view.
+            </li>
+            <li class="overview-li-padding"><em>Cohort Panel:</em> All cohort related commands are handled within this panel.
+            </li>
+            <li class="overview-li-padding"><em>Selected Cohort Box & Dropdown:</em> Add, edit or delete cohorts. Click the "+" to save, "x" to delete or click the down arrow to select a cohort for edits.</li>
+            <li class="overview-li-padding"><em>Clinical Histogram:</em> Snapshot of clinical information, per cohort. The histogram will adjust with each cohort selection. &nbsp; Click the down arrow to view other filters. e.g. &nbsp; Age At Diagnosis, Gender, Race, Ethnicity, Vital, Tumor.</li>
+            <li class="overview-li-padding"><em>Survival Curve:</em> Snapshot of Kaplan Meier survival curves, per cohort. For more in depth analysis push the saved cohorts to the survival tool.</li>
+            <li class="overview-li-padding"><em>Cohorts Section:</em> All saved cohorts are listed in this area. Each cohort is clickable and will highlight the selections on the main window, as well as adjust any survival curves or clinical histograms that are associated. The last line will always show your current selection, which will also update in the <strong>Selected Cohort</strong> box at the top of the cohort panel. All cohorts are color coded for easy identification. To learn more visit <a href="" target="_blank">Oncoscape</a></li>
+            <li class="overview-li-padding"><em>Cohort Summary:</em> Every cohort includes a summary of available information based on patients and samples.</li>
+            <li class="overview-li-padding"><em>Tumor Nodes:</em> Select nodes by holding down the <em>Shift</em> key and selecting either individual or larger node groupings. The variation in node sizing represents the number of mutations a patient or gene carries, e.g. the larger the node the greater the mutation number. Hovering over an individual patient will provide clinical information on the left side of the tool.
+            </li>
+            <li class="overview-li-padding"><em>Control Bar:</em> Collection of controls that operate over the patient and chromosome areas.
+            </li>
+            <li class="overview-li-padding"><em>Variance Explained:</em> Shows the variance explained by PC1 and PC2.
+            </li>
+            <li class="overview-li-padding"><em>PCA Loadings:</em> PCA loadings shows the 50 most impactful genes for that given layout.
+            </li>
+          </ul>
+        </div>
+      </div>
     </div>
-    <!-- END nav seciton -->
-    <!-- START Methods+Data seciton -->
-    <div class="scrollto" id="section-methods">
-        <a class="anchor" id="anchor-methods">x</a>
-        <div class="container">
-            <div class="row">
-                <div class="col-xs-12 text-center">
-                    <h3 class="section-headline fadeInDown animated">Methods</h3>
-                </div>
-            </div>
-            <div class="row">
-                <div class=" col-xs-12 text-left">
-                    <p class="text-left">Oncoscape hosts <a class="methods-color" href="https://wiki.nci.nih.gov/display/TCGA/Data+level#Datalevel-RelationshipsBetweenDataTypeandDataLevel" target="_blank">level 3</a> public TCGA datasets representing gene and patient data downloaded from <a class="methods-color" href="https://xenabrowser.net/datapages/?host=https://tcga.xenahubs.net" target="_blank">UCSC Xena.</a> To review this data in depth visit our <a class="methods-color" href="http://resources.sttrcancer.org/api" target="_blank">data API. </a>User planning to publish on the provided data must adhere to all publishing guideline set by the <a class="methods-color" href="https://cancergenome.nih.gov/publications/publicationguidelines" target="_blank">NIH</a>. Datasets in Oncoscape are classified by disease type according to TCGA studies. </p>
-                    <p class="text-left">Data was generated using the R-package<a class="methods-color" href="https://stat.ethz.ch/R-manual/R-devel/library/stats/html/prcomp.html" target="_blank">
+  </div>
+  <!-- END Overview seciton -->
+  <!-- START Use Cases seciton -->
+  <div class="scrollto" id="section-cases">
+    <a class="anchor" id="anchor-cases">x</a>
+    <div class="container">
+      <div class="row">
+        <div class="col-xs-12 text-center">
+          <h3 class="section-headline fadeInDown animated">Use Cases</h3>
+        </div>
+      </div>
+      <section class="videoCurrent col-xs-12 col-md-7">
+        <div class="videoPlayerContainer">
+          <iframe class="videoPlayer" width="560" height="315" frameborder="0" allowfullscreen></iframe>
+        </div>
+        <h3 class="videoCurrentTitle"></h3>
+        <p class="videoCurrentTranscript"></p>
+      </section>
+      <section class="videos noselect col-xs-12 col-md-5">
+        <article class="video">
+          <div class="videoThumb" style="background-image: url(photos/pcaNavigation/pcavideo1.png);"></div>
+          <a class="videoLink" href="https://www.youtube.com/embed/G7wRCMsJeBs?rel=0&amp;controls=1&amp;showinfo=0"></a>
+          <h4 class="videoTitle">Build patient cohorts with color options within TCGA Breast</h4>
+          <p class="videoParagraph">Define and save different cohorts based on PR Status</p>
+          <section class="videoTranscript">
+            <ol class="video-ol">
+              <div class="li-margin">
+                <li>Tool Selection: From the Oncoscape header, click Datasets and select Breast, then click Tools and select PCA</li>
+                <li>Color Options: From the Control Bar (middle right side), click the Color Options button. A pop up of color options will appear</li>
+                <li>Color Code: Select PR IHC Status PCA will reload the color-coded data by PR IHC Status and a legend with a color-key selector (right middle side), will appear in the Control Bar</li>
+                <li>Select: From the color-key selector in the Control Bar, click the select button (circle with dot) next to the purple Negative value. All tumor samples associated with a Negative PR status will be selected and outlined in black</li>
+                <li>Save Cohort: From the Cohort Panel, type a name in the Selected Cohort box (e.g. PR Negative) and click the “+” button. The PR IHC cohort will be renamed and saved in the Cohorts Section</li>
+                <li>Deselect: From the PR IHC Status color-key selector, click the deselect (open circle) button next to the purple Negative value. All outlined Negative PR samples should deselect</li>
+                <li>Additional Cohorts (optional): Repeat steps 5-7 to create cohorts for PR Status Positive and Indeterminate</li>
+                <li>Integrate Analysis: From the Oncoscape header, click Tools and select Survival Survival will show the pairwise log-rank p-values on the Control Bar (upper right side) for each cohort. NOTE: Cohorts can be created and accessed in all tools</li>
+              </div>
+            </ol>
+          </section>
+        </article>
+      </section>
+    </div>
+  </div>
+  <!-- END Use Cases seciton -->
+  <!-- START Nav seciton -->
+  <div class="scrollto" id="section-nav">
+    <a class="anchor" id="anchor-nav">x</a>
+    <div class="container">
+      <div class="row">
+        <div class="col-xs-12 text-center">
+          <h3 class="section-headline fadeInDown animated">Navigation</h3>
+        </div>
+      </div>
+      <section>
+        <div class="row">
+          <div class="col-xs-6 text-left">
+            <strong>Gene Set</strong>
+          </div>
+          <div class="col-xs-6 text-left">
+            <strong>Data Source</strong>
+          </div>
+        </div>
+        <div class="row">
+          <div class="col-xs-6 text-left">
+            <p class="search-para">Provides users the ability to select a gene set to operate over. More detail about the various genesets can be found in the Methods section. To apply a new geneset locate the <em>Gene Set</em> dropdown menu and make a selection.</p>
+          </div>
+          <div class="col-xs-6 text-left">
+            <p class="search-para">Provides users the ability to select a data source. More information about the UCSC dataset can be found in the "Methods" section below. To apply an a new data source locate the <em>Data Source</em> dropdown menu and make a selection.</p>
+          </div>
+        </div>
+        <div class="row">
+          <div class="col-xs-6 text-left generalPadding">
+            <strong>Variance</strong>
+          </div>
+          <div class="col-xs-6 text-left generalPadding">
+            <strong>PCA Loadings</strong>
+          </div>
+        </div>
+        <div class="row">
+          <div class="col-xs-6 text-left">
+            <p class="search-para">PCA, <em>variance</em> shows the variance explained by PC1 and PC2.</p>
+          </div>
+          <div class="col-xs-6 text-left">
+            <p class="search-para">PCA loadings shows the 50 most impactful genes for that given layout.</p>
+          </div>
+        </div>
+        <div class="row">
+          <div class="col-xs-12 col-sm-12 col-md-6 col-lg-6 text-left">
+            <img src="photos/pcaNavigation/pcaVariance.png" style="padding-top: 20px;">
+          </div>
+          <div class="col-xs-12 col-sm-12 col-md-6 col-lg-6 text-left">
+            <img src="photos/pcaNavigation/pcaloadings.jpg">
+          </div>
+        </div>
+        <div class="row">
+          <div class="col-xs-6 text-left generalPadding">
+            <strong>Data Type</strong>
+          </div>
+        </div>
+        <div class="row">
+          <div class="col-xs-6 text-left">
+            <p class="search-para">Provides users the ability to select a data type. To apply a type other than the default (copy number (gistic2) ) find the <em>Data Type</em> dropdown menu and make a selection.</p>
+          </div>
+        </div>
+      </section>
+      <hr>
+      <div class="row">
+        <div class="col-xs-12 text-left">
+          <strong>Patient Colors</strong>
+        </div>
+      </div>
+      <div class="row">
+        <div class="col-xs-6 text-left">
+          <p class="search-para">By clicking the <em>Color Options</em> button users are able to color code patient nodes based on several unique operators. A popup list will appear on the screen. Selections include the percentages of patient nodes that are include the selection e.g. 100% of patient nodes have gender specified.</p>
+        </div>
+        <div class="col-xs-6">
+          <img class="img-responsive" src="photos/pcaNavigation/colorOptions.png" alt="Patient Colors">
+        </div>
+      </div>
+      <!-- color + layout Tween slideshowFactory -->
+      <div class="image-wrapper col-xs-12 col-lg-4">
+        <p>Diagnosis</p>
+        <div id="patientPCA1" class="col-xs-12 col-lg-4 img-responsive">
+        </div>
+      </div>
+      <div class="image-wrapper col-xs-12 col-lg-4">
+        <p>Gender</p>
+        <div id="patientPCA2" class="col-xs-12 col-lg-4 img-responsive">
+        </div>
+      </div>
+      <div class="image-wrapper col-xs-12 col-lg-4">
+        <p>Tumor Grade</p>
+        <div id="patientPCA3" class="col-xs-12 col-lg-4 img-responsive">
+        </div>
+      </div>
+      <div class="row">
+        <p id="layoutTextPCA" class="col-xs-12"></p>
+      </div>
+      <!-- END color + layout Tween slideshowFactory -->
+      <!-- container -->
+    </div>
+  </div>
+  <!-- END nav seciton -->
+  <!-- START Methods+Data seciton -->
+  <div class="scrollto" id="section-methods">
+    <a class="anchor" id="anchor-methods">x</a>
+    <div class="container">
+      <div class="row">
+        <div class="col-xs-12 text-center">
+          <h3 class="section-headline fadeInDown animated">Methods</h3>
+        </div>
+      </div>
+      <div class="row">
+        <div class=" col-xs-12 text-left">
+          <p class="text-left">Oncoscape hosts <a class="methods-color" href="https://wiki.nci.nih.gov/display/TCGA/Data+level#Datalevel-RelationshipsBetweenDataTypeandDataLevel" target="_blank">level 3</a> public TCGA datasets representing gene and patient data downloaded from <a class="methods-color" href="https://xenabrowser.net/datapages/?host=https://tcga.xenahubs.net" target="_blank">UCSC Xena.</a> To review this data in depth visit our <a class="methods-color" href="http://resources.sttrcancer.org/api" target="_blank">data API. </a>User planning to publish on the provided data must adhere to all publishing guideline set by the <a class="methods-color" href="https://cancergenome.nih.gov/publications/publicationguidelines" target="_blank">NIH</a>. Datasets in Oncoscape are classified by disease type according to TCGA studies. </p>
+          <p class="text-left">Data was generated using the R-package<a class="methods-color" href="https://stat.ethz.ch/R-manual/R-devel/library/stats/html/prcomp.html" target="_blank">
           Principal Components Analysis</a>
-                </div>
-            </div>
         </div>
+      </div>
     </div>
-    <!-- END Methods seciton -->
-    <!-- START faq seciton -->
-    <div class="scrollto" id="section-faq">
-        <a class="anchor" id="anchor-faq">x</a>
-        <div class="container">
-            <div class="row">
-                <div class="col-xs-12 text-center">
-                    <h3 class="section-headline fadeInDown animated">Frequently Asked Questions</h3>
-                </div>
-            </div>
-            <div class="container">
-                <div id="divlist">
-                    <a class="methods-color" role="button" data-toggle="collapse" data-target="#collapse-3">How do I export or print my graphs?</a>
-                    <div id="collapse-3" class="collapse">
-                        <p class="collapse-para">Currently, the export feature is only available on the Spreadsheet tool. Users can push saved cohorts to the spreadsheet tool by clicking the the Analysis Tool button at the top of the screen. Once there click the <em>CSV Export</em> button of either all the data or only the selected data. An Excel file will be generated.
-                        </p>
-                    </div>
-                    <hr>
-                    <a class="methods-color" role="button" data-toggle="collapse" data-target="#collapse-4">How do I save my data for a return visit?</a>
-                    <div id="collapse-4" class="collapse">
-                        <p class="collapse-para">All data for selections and cohorts will be automatically saved for a return visit assuming users are on the same computer to login. User logins that allow stored sessions from any device will be deployed in a future release.
-                        </p>
-                    </div>
-                    <hr>
-                </div>
-            </div>
+  </div>
+  <!-- END Methods seciton -->
+  <!-- START faq seciton -->
+  <div class="scrollto" id="section-faq">
+    <a class="anchor" id="anchor-faq">x</a>
+    <div class="container">
+      <div class="row">
+        <div class="col-xs-12 text-center">
+          <h3 class="section-headline fadeInDown animated">Frequently Asked Questions</h3>
         </div>
+      </div>
+      <div class="container">
+        <div id="divlist">
+          <a class="methods-color" role="button" data-toggle="collapse" data-target="#collapse-3">How do I export or print my graphs?</a>
+          <div id="collapse-3" class="collapse">
+            <p class="collapse-para">Currently, the export feature is only available on the Spreadsheet tool. Users can push saved cohorts to the spreadsheet tool by clicking the the Analysis Tool button at the top of the screen. Once there click the <em>CSV Export</em> button of either all the data or only the selected data. An Excel file will be generated.
+            </p>
+          </div>
+          <hr>
+          <a class="methods-color" role="button" data-toggle="collapse" data-target="#collapse-4">How do I save my data for a return visit?</a>
+          <div id="collapse-4" class="collapse">
+            <p class="collapse-para">All data for selections and cohorts will be automatically saved for a return visit assuming users are on the same computer to login. User logins that allow stored sessions from any device will be deployed in a future release.
+            </p>
+          </div>
+          <hr>
+        </div>
+      </div>
     </div>
-    <!-- END faq seciton -->
+  </div>
+  <!-- END faq seciton -->
 </div>
 <!-- END wrapper -->
 </main>
