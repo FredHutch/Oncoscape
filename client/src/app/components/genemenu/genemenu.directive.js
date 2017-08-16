@@ -32,20 +32,20 @@
             vm.geneSummary = "";
 
             // Gene Service Integration
-            osApi.onGenesChange.add(function(genes) {
+            osApi.onGenesetsChange.add(function(genes) {
                 vm.genes = genes;
-                updateSurvival(genes);
+             //   updateSurvival(genes);
             });
-            osApi.onGeneChange.add(function(gene) {
+            osApi.onGenesetChange.add(function(gene) {
 
-                var dataInfo = osApi.getGeneDatasetInfo();
-                var summary =
-                    $filter('number')(dataInfo.numSamples) + " Samples In Dataset<br /> " +
-                    $filter('number')(dataInfo.numPatients) + " Patients In Dataset<br /> " +
-                    $filter('number')(gene.numSamples) + " Samples In Current Gene<br /> " +
-                    $filter('number')(gene.numPatients) + " Patients In Current Gene<br />" +
-                    $filter('number')(gene.numClinical) + " Patients with Clinical Data<br />" +
-                    $filter('number')(gene.survival.data.tte.length) + " Patients with Survival Outcome<br />";
+                var dataInfo = osApi.getGenesetDatasetInfo();
+                var summary = "###Place Holder"
+                    // $filter('number')(dataInfo.numSamples) + " Samples In Dataset<br /> " +
+                    // $filter('number')(dataInfo.numPatients) + " Patients In Dataset<br /> " +
+                    // $filter('number')(gene.numSamples) + " Samples In Current Gene<br /> " +
+                    // $filter('number')(gene.numPatients) + " Patients In Current Gene<br />" +
+                    // $filter('number')(gene.numClinical) + " Patients with Clinical Data<br />" +
+                    // $filter('number')(gene.survival.data.tte.length) + " Patients with Survival Outcome<br />";
                 //$filter('number')(toolInfo.numSamplesVisible) + " Samples In Current Gene Showing<br />" +
                 //$filter('number')(toolInfo.numPatients) + " Patients In Current Gene Showing<br />";
 
@@ -55,26 +55,26 @@
                 $timeout(function() {
                     var featureIdx = (vm.geneFeature !== null) ? vm.geneFeatures.indexOf(vm.geneFeature) : 0;
                     vm.gene = gene;
-                    vm.geneFeatures = gene.histogram.features;
-                    vm.geneFeature = gene.histogram.features[featureIdx];
+                    // vm.geneFeatures = gene.histogram.features;
+                    // vm.geneFeature = gene.histogram.features[featureIdx];
                 });
-                updateSurvival(vm.genes.concat([gene]));
+             //   updateSurvival(vm.genes.concat([gene]));
             });
 
             // Gene edit
-            vm.setGene = function(gene) {
-                if (angular.isString(gene)) {
-                    osApi.setGene([], osApi.ALL, osApi.SAMPLE);
+            vm.setGeneset = function(geneset) {
+                if (angular.isString(geneset)) {
+                    osApi.setGeneset([], osApi.ALL, osApi.SAMPLE);
                 } else {
-                    osApi.setGene(gene);
+                    osApi.setGeneset(geneset);
                 }
             };
 
-            vm.updateGene = function() {
-                if (vm.gene.type == "UNSAVED") {
-                    osApi.saveGene(vm.gene);
+            vm.updateGeneset = function() {
+                if (vm.geneset.type == "UNSAVED") {
+                    osApi.saveGeneset(vm.gene);
                 } else {
-                    osApi.deleteGene(vm.gene);
+                    osApi.deleteGeneset(vm.gene);
                 }
             };
 
@@ -113,7 +113,7 @@
                 return "Range: " + d.label + "<br>Count: " + d.value + " of " + vm.geneFeature.data.count + "<br>Percent: " + $filter('number')((d.value / vm.geneFeature.data.count) * 100, 2) + "%";
             });
             histSvg.call(elTip);
-            $scope.$watch('vm.geneFeature', function() {
+            $scope.$watch('vm.genesetFeature', function() {
 
                 // Histogram
                 if (vm.geneFeature === null) return;

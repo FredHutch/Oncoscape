@@ -15,6 +15,9 @@
         var onCohortToolInfo = new signals.Signal();
         var onCohortChange = new signals.Signal();
         var onCohortsChange = new signals.Signal();
+        var onGenesetToolInfo = new signals.Signal();
+        var onGenesetChange = new signals.Signal();
+        var onGenesetsChange = new signals.Signal();
         var onPatientColorChange = new signals.Signal();
 
         // Resize
@@ -425,9 +428,14 @@
         var _cohortAll; // Precalculated Cohort of All Patients / Samples 
         var _cohorts = null; // Collection of Cohorts
         var _cohort = null; // Selected Cohorts
+        var _genesetAll; // Precalculated Geneset of All Symbols
+        var _genesets = null; // Collection of Genesets
+        var _geneset = null; // Selected Genesets
         var _patientColor;
         var _cohortToolInfo = { 'numSamples': 500, 'numPatients': 500 };
         var _cohortDatasetInfo = { 'numSamples': 0, 'numPatients': 0 };
+        var _genesetToolInfo = { 'numSamples': 500, 'numPatients': 500 };
+        var _genesetDatasetInfo = { 'numSamples': 0, 'numPatients': 0 };
 
 
 
@@ -436,6 +444,10 @@
         var getCohort = function() { return _cohort; };
         var getCohortToolInfo = function() { return _cohortToolInfo; };
         var getCohortDatasetInfo = function() { return _cohortDatasetInfo; };
+        var getGenesets = function() { return _genesets; };
+        var getGeneset = function() { return _geneset; };
+        var getGenesetToolInfo = function() { return _genesetToolInfo; };
+        var getGenesetDatasetInfo = function() { return _genesetDatasetInfo; };
         var getData = function() { return _data; };
         var getPatientColor = function() { return _patientColor; };
         var getDataSources = function() { return _dataSources; };
@@ -447,6 +459,10 @@
         var setCohortToolInfo = function(cohortToolData) {
             _cohortToolInfo = cohortToolData;
             onCohortToolInfo.dispatch(_cohortToolInfo);
+        };
+        var setGenesetToolInfo = function(genesetToolData) {
+            _genesetToolInfo = genesetToolData;
+            onGenesetToolInfo.dispatch(_genesetToolInfo);
         };
         var setDataSource = function(value) {
 
@@ -558,6 +574,19 @@
                         type: 'ALL'
                     };
 
+                    _genesetAll = {
+                        color: '#039BE5',
+                        symbolIds: [],
+                        name: 'All Gene Symbols',
+                        // histogram: statsFactory.createHistogram(Object.keys(data.patientMap), data),
+                        // survival: statsFactory.createSurvival(Object.keys(data.patientMap), data, null),
+                        // numPatients: Object.keys(_data.patientMap).length,
+                        // numSamples: Object.keys(_data.sampleMap).length,
+                        // numClinical: Object.keys(_data.patientMap).reduce(function(p, c) { p += (_data.patientMap[c].hasOwnProperty('clinical')) ? 1 : 0; return p; }, 0),
+                        show: true,
+                        type: 'ALL'
+                    };
+
                     _cohorts = localStorage.getItem(_dataSource.disease + 'Cohorts');
 
                     if (_cohorts !== null) {
@@ -568,9 +597,21 @@
                         setCohort(_cohortAll);
                     }
 
+                    _genesets = localStorage.getItem(_dataSource.disease + 'GeneSets');
+                    
+                                        if (_genesets !== null) {
+                                            _genesets = angular.fromJson(_genesets);
+                                            setGeneset(_genesets[0]);
+                                        } else {
+                                            _genesets = [_genesetAll];
+                                            setGeneset(_genesetAll);
+                                        }
+
                     // Let everyone know what happened
                     onCohortsChange.dispatch(_cohorts);
                     onCohortChange.dispatch(_cohort);
+                    onGenesetsChange.dispatch(_genesets);
+                    onGenesetChange.dispatch(_geneset);
                     onDataSource.dispatch(_dataSource);
 
                     // Resolve The Promise
@@ -640,16 +681,45 @@
             onCohortChange.dispatch(_cohort);
         };
 
+        var setGeneset = function(geneset, name, type) {
+            // Create Cohort If Array Passed
+            if (angular.isArray(geneset)) {
+                name += "  (" + moment().format('hh:mm:ss') + ")";
+                geneset = (type == "SYMBOL") ? createWithPatientIds(name, geneset, _data) : createWithSampleIds(name, geneset, _data);
+                geneset.type = (geneset.patientIds.length === 0) ? "ALL" : "UNSAVED";
+                if (geneset.type != "ALL") {
+                    var usedColors = _genesets.map(function(v) { return v.color; });
+                    var availColors = ["#E91E63", "#673AB7", "#4CAF50", "#CDDC39", "#FFC107", "#FF5722", "#795548", "#607D8B", "#03A9F4", "#03A9F4", '#004358', '#800080', '#BEDB39', '#FD7400', '#1F8A70', '#B71C1C', '#880E4F', '#4A148C', '#311B92', '#0D47A1', '#006064', '#1B5E20'].filter(function(v) { return (usedColors.indexOf(v) == -1); });
+                    geneset.color = availColors[0];
+                }
+            }
+            //if (_cohort === cohort) return;
+            _geneset = geneset;
+            onGenesetChange.dispatch(_geneset);
+        };
+
+
         var saveCohort = function() {
             _cohort.type = "SAVED";
             _cohorts.push(_cohort);
             localStorage.setItem(_dataSource.disease + 'Cohorts', angular.toJson(_cohorts));
 
         };
+        var saveGeneset = function() {
+            _geneset.type = "SAVED";
+            _genesets.push(_geneset);
+            localStorage.setItem(_dataSource.disease + 'GeneSets', angular.toJson(_genesets));
+
+        };
         var deleteCohort = function(cohort) {
             _cohorts.splice(_cohorts.indexOf(cohort), 1);
             localStorage.setItem(_dataSource.disease + 'Cohorts', angular.toJson(_cohorts));
             setCohort([], "", "PATIENT");
+        };
+        var deleteGeneset = function(geneset) {
+            _genesets.splice(_cohorts.indexOf(geneset), 1);
+            localStorage.setItem(_dataSource.disease + 'GeneSets', angular.toJson(_genesets));
+            setGeneSet([], "", "SYMBOL");
         };
 
         // Converts Sample Ids To A List of Sample Ids
@@ -732,6 +802,7 @@
             ALL: "All Patients",
             SAMPLE: "SAMPLE",
             PATIENT: "PATIENT",
+            SYMBOL: "SYMBOL",
 
             // Init
             init: init,
@@ -767,14 +838,30 @@
             deleteCohort: deleteCohort,
             importIds: importIds,
 
+            // Geneset Tool Info
+            setGenesetToolInfo: setGenesetToolInfo,
+            getGenesetToolInfo: getGenesetToolInfo,
+            getGenesetDatasetInfo: getGenesetDatasetInfo,
+
+
+            // Geneset Management
+            getGenesets: getGenesets,
+            getGeneset: getGeneset,
+            setGeneset: setGeneset,
+            saveGeneset: saveGeneset,
+            deleteGeneset: deleteGeneset,
+            
             // Signals
             onPatientColorChange: onPatientColorChange,
             onCohortToolInfo: onCohortToolInfo,
+            onGenesetToolInfo: onGenesetToolInfo,
             onNavChange: onNavChange,
             onDataSource: onDataSource,
             onResize: onResize,
             onCohortChange: onCohortChange,
             onCohortsChange: onCohortsChange,
+            onGenesetChange: onGenesetChange,
+            onGenesetsChange: onGenesetsChange,
 
             // Random
             setBusy: setBusy,
