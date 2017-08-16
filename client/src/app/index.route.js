@@ -17,6 +17,7 @@
                     angular.element("#main").removeClass("container-main-full");
                     angular.element("#header").css({ display: "block" });
                     angular.element("#cohortMenu").css({ display: "none" });
+                    angular.element("#geneMenu").css({ display: "none" });
                     osApi.onNavChange.dispatch("");
                 });
             });
@@ -28,6 +29,7 @@
                     osApi.setDataSource($stateParams.datasource).then(function() {
                         resolve();
                         angular.element("#cohortMenu").css({ display: "none" });
+                        angular.element("#geneMenu").css({ display: "none" });
                         osApi.onNavChange.dispatch("TOOLS");
                     });
 
@@ -44,11 +46,13 @@
                         osApi.setDataSource($stateParams.datasource).then(function() {
                             resolve();
                             angular.element("#cohortMenu").css({ display: "block" });
+                            angular.element("#geneMenu").css({ display: "block" });
                             osApi.onNavChange.dispatch("TOOL");
                         });
 
                     } else {
                         angular.element("#cohortMenu").css({ display: "block" });
+                        angular.element("#geneMenu").css({ display: "block" });
                         osApi.onNavChange.dispatch("TOOL");
                         resolve();
                     }
