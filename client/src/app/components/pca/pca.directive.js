@@ -60,8 +60,11 @@
                 vm.loadings = [];
                 vm.pc1 = vm.pc2 = [];
                 vm.datasource = osApi.getDataSource();
+               
                 vm.geneSets = [];
                 vm.geneSet = null;
+                //vm.geneSets = osApi.getGenesets();
+                //vm.geneSet = osApi.getGeneset();
                 vm.search = "";
                 vm.selectColor = function(e) {
                     var ids = e.values;
@@ -94,6 +97,7 @@
 
             // Setup Watches
             $scope.$watch('vm.geneSet', function() {
+              
                 if (vm.geneSet === null) return;
                 vm.sources = vm.geneSet.sources;
                 if (angular.isUndefined(vm.source)) {
@@ -378,6 +382,7 @@
                 d3Chart.call(lasso);
 
                 onCohortChange(osApi.getCohort());
+                //onGenesetChange(osApi.getGeneset());
                 osApi.setBusy(false);
 
 
@@ -404,6 +409,12 @@
             osApi.onCohortChange.add(onCohortChange);
             osApi.onCohortChange.add(updatePatientCounts)
 
+            var geneset = osApi.getGeneset();
+            var onGenesetChange = function(c) {
+                geneset = c;
+               // setSelected();
+            };
+            osApi.onGenesetChange.add(onGenesetChange);
 
             osApi.query(clusterCollection, {
                 dataType: 'PCA',

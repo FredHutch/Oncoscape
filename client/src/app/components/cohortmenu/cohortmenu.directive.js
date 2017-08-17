@@ -78,30 +78,6 @@
                 }
             };
 
-            // Tray Expand / Collapse
-            var elTray = angular.element(".cohort-menu");
-            var isLocked = true;
-            var mouseOver = function() { elTray.removeClass("tray-collapsed-left"); };
-            var mouseOut = function() { elTray.addClass("tray-collapsed-left"); };
-            vm.toggle = function() {
-                isLocked = !isLocked;
-                angular.element("#cohortmenu-lock")
-                    .addClass(isLocked ? 'fa-lock' : 'fa-unlock-alt')
-                    .removeClass(isLocked ? 'fa-unlock-alt' : 'fa-lock')
-                    .attr("locked", isLocked ? "true" : "false");
-                if (isLocked) {
-                    elTray
-                        .unbind("mouseover", mouseOver)
-                        .unbind("mouseout", mouseOut)
-                        .removeClass("tray-collapsed-left");
-                } else {
-                    elTray
-                        .addClass("tray-collapsed-left")
-                        .bind("mouseover", mouseOver)
-                        .bind("mouseout", mouseOut);
-                }
-                osApi.onResize.dispatch();
-            };
 
             // Histogram 
             var histSvg = d3.select("#cohortmenu-chart").append("svg")

@@ -49,6 +49,7 @@
                         .bind("mouseover", mouseOver)
                         .bind("mouseout", mouseOut);
                 }
+          
                 osApi.onResize.dispatch();
             };
 
