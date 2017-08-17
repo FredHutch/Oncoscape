@@ -598,13 +598,13 @@
                         setCohort(_cohortAll);
                     }
 
-                    _genesets = localStorage.getItem(_dataSource.disease + 'GeneSets');
-                    
-                    if (_genesets !== null) {
-                        _genesets = angular.fromJson(_genesets);
+                    var localGenesets = localStorage.getItem(_dataSource.disease + 'GeneSets');
+
+                    if (localGenesets !== null) {
+                        _genesets.unshift(angular.fromJson(localGenesets));
                         setGeneset(_genesets[0]);
                     } else {
-                        _genesets = [_genesetAll];
+                        _genesets.unshift(_genesetAll);
                         setGeneset(_genesetAll);
                     }
 
@@ -806,7 +806,6 @@
                         var result = response.data;
                         _genesets = result.map(function(d){
                             return loadGenesets(d); });
-                        debugger;
                         _geneset = _genesets[0];
                     
                         resolve();

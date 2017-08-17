@@ -61,10 +61,9 @@
                 vm.pc1 = vm.pc2 = [];
                 vm.datasource = osApi.getDataSource();
                
-                vm.geneSets = [];
-                vm.geneSet = null;
-                //vm.geneSets = osApi.getGenesets();
-                //vm.geneSet = osApi.getGeneset();
+                vm.sources = [];
+                vm.source = null;
+                
                 vm.search = "";
                 vm.selectColor = function(e) {
                     var ids = e.values;
@@ -95,20 +94,16 @@
                 return vm;
             })(this, osApi);
 
-            // Setup Watches
-            $scope.$watch('vm.geneSet', function() {
-              
-                if (vm.geneSet === null) return;
-                vm.sources = vm.geneSet.sources;
-                if (angular.isUndefined(vm.source)) {
-                    vm.source = vm.sources[0];
-                } else {
-                    var newSource = vm.sources.filter(function(v) { return (v.name === vm.source.name); });
-                    vm.source = (newSource.length === 1) ? newSource[0] : vm.sources[0];
-                }
+            // Gene Service Integration
+            osApi.onGenesetChange.add(function(geneset) {
+                vm.geneSet = geneset;
             });
+
+            // Setup Watches
+            
             $scope.$watch('vm.source', function() {
-                if (vm.geneSet === null) return;
+                
+                if (vm.source === null) return;
                 vm.pcaTypes = vm.source.types;
                 if (angular.isUndefined(vm.pcaType)) {
                     vm.pcaType = vm.pcaTypes[0];
@@ -117,8 +112,25 @@
                     vm.pcaType = (newSource.length === 1) ? newSource[0] : vm.pcaTypes[0];
                 }
             });
-            $scope.$watch('vm.pcaType', function(geneset) {
+            $scope.$watch('vm.pcaType', function() {
+                
+                if (vm.source === null) return;
+
+                var geneSets = osApi.getGenesets();
+                var geneSet = osApi.getGeneset();
+
+                vm.geneSets = vm.pcaType.genesets;
+                if (angular.isUndefined(vm.geneSets)) {
+                    vm.geneSet = vm.geneSets[0];
+                } else {
+                    var newSource = vm.geneSets.filter(function(v) { return (v.name === vm.geneSets.name); });
+                    vm.geneSet = (newSource.length === 1) ? newSource[0] : vm.geneSets[0];
+                }
+            });
+             $scope.$watch('vm.geneSet', function(geneset) {
+                
                 if (angular.isUndefined(geneset)) return;
+
                 osApi.query(clusterCollection, {
                         disease: vm.datasource.disease,
                         geneset: vm.geneSet.name,
@@ -189,7 +201,17 @@
 
                         draw();
                     });
-            });
+
+            //     var geneset = vm.geneSetsInDB.filter(function(d){return d.name == vm.geneSet.name})
+            //     debugger;
+            //     vm.sources = geneset.sources;
+            //     if (angular.isUndefined(vm.source)) {
+            //         vm.source = vm.sources[0];
+            //     } else {
+            //         var newSource = vm.sources.filter(function(v) { return (v.name === vm.source.name); });
+            //         vm.source = (newSource.length === 1) ? newSource[0] : vm.sources[0];
+            //     }
+             });
 
             var updatePatientCounts = function() {
 
@@ -409,12 +431,12 @@
             osApi.onCohortChange.add(onCohortChange);
             osApi.onCohortChange.add(updatePatientCounts)
 
-            var geneset = osApi.getGeneset();
-            var onGenesetChange = function(c) {
-                geneset = c;
-               // setSelected();
-            };
-            osApi.onGenesetChange.add(onGenesetChange);
+            // var geneset = osApi.getGeneset();
+            // var onGenesetChange = function(c) {
+            //     geneset = c;
+            //    // setSelected();
+            // };
+            // osApi.onGenesetChange.add(onGenesetChange);
 
             osApi.query(clusterCollection, {
                 dataType: 'PCA',
@@ -422,9 +444,9 @@
             }).then(function(response) {
                 var data = response.data.map(function(v) {
                     return {
-                        a: v.geneset,
-                        b: v.source,
-                        c: v.input
+                        a: v.source,
+                        b: v.input,
+                        c: v.geneset
                     };
                 });
                 var result = _.reduce(data, function(memo, val) {
@@ -438,22 +460,22 @@
                     return memo;
                 }, {});
 
-                vm.geneSets = Object.keys(result).map(function(geneset) {
+                vm.sources = Object.keys(result).map(function(source) {
                     return {
-                        name: geneset,
-                        sources: Object.keys(result[geneset]).map(function(source) {
+                        name: source,
+                        types: Object.keys(result[source]).map(function(type) {
                             return {
-                                name: source,
-                                types: Object.keys(result[geneset][source]).map(function(type) {
+                                name: type,
+                                genesets: Object.keys(result[source][type]).map(function(geneset) {
                                     return {
-                                        name: type
+                                        name: geneset
                                     };
                                 })
                             };
                         })
                     };
                 });
-                vm.geneSet = vm.geneSets[0];
+                vm.source = vm.sources[0];
 
 
             });
