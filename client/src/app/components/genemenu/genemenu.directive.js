@@ -37,14 +37,16 @@
              //   updateSurvival(genes);
             });
             osApi.onGenesetChange.add(function(geneset) {
-debugger;
+
                // var dataInfo = osApi.getGenesetDatasetInfo();
-                var website = ""
+                var website = ""; var genecounts = "";
                 if(geneset.url.length >0) website = "  <a href='"+geneset.url+"' target='_blank'> [website]</a>"
-                var summary =    
-                    geneset.desc +website +"<br/><br/>Contains:<br/>" + 
+                if(geneset.geneIds !=0){
+                    genecounts = "<br/><br/>Contains:<br/>" + 
                     $filter('number')(geneset.geneIds.length) + " Markers<br /> " +
-                    $filter('number')(geneset.hugoIds.length) + " Hugo Symbols<br />";
+                    $filter('number')(geneset.hugoIds.length) + " Hugo Symbols (###TODO) <br />";    
+                } 
+                var summary =   geneset.desc +website + genecounts;
                 //$filter('number')(toolInfo.numGenes) + " Genes In Current Tool Showing<br />" +
                 //$filter('number')(toolInfo.numSymbols) + " Hugo Symbols In Current Tool Showing<br />";
 

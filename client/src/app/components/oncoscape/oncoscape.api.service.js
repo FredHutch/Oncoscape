@@ -886,7 +886,7 @@
             // Geneset Tool Info
             setGenesetToolInfo: setGenesetToolInfo,
             getGenesetToolInfo: getGenesetToolInfo,
-            getGenesetDatasetInfo: getGenesetDatasetInfo,
+            //getGenesetDatasetInfo: getGenesetDatasetInfo,
 
 
             // Geneset Management
