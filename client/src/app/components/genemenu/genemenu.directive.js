@@ -37,17 +37,16 @@
              //   updateSurvival(genes);
             });
             osApi.onGenesetChange.add(function(geneset) {
-
-                var dataInfo = osApi.getGenesetDatasetInfo();
-                var summary = "###Place Holder"
-                    // $filter('number')(dataInfo.numSamples) + " Samples In Dataset<br /> " +
-                    // $filter('number')(dataInfo.numPatients) + " Patients In Dataset<br /> " +
-                    // $filter('number')(gene.numSamples) + " Samples In Current Gene<br /> " +
-                    // $filter('number')(gene.numPatients) + " Patients In Current Gene<br />" +
-                    // $filter('number')(gene.numClinical) + " Patients with Clinical Data<br />" +
-                    // $filter('number')(gene.survival.data.tte.length) + " Patients with Survival Outcome<br />";
-                //$filter('number')(toolInfo.numSamplesVisible) + " Samples In Current Gene Showing<br />" +
-                //$filter('number')(toolInfo.numPatients) + " Patients In Current Gene Showing<br />";
+debugger;
+               // var dataInfo = osApi.getGenesetDatasetInfo();
+                var website = ""
+                if(geneset.url.length >0) website = "  <a href='"+geneset.url+"' target='_blank'> [website]</a>"
+                var summary =    
+                    geneset.desc +website +"<br/><br/>Contains:<br/>" + 
+                    $filter('number')(geneset.geneIds.length) + " Markers<br /> " +
+                    $filter('number')(geneset.hugoIds.length) + " Hugo Symbols<br />";
+                //$filter('number')(toolInfo.numGenes) + " Genes In Current Tool Showing<br />" +
+                //$filter('number')(toolInfo.numSymbols) + " Hugo Symbols In Current Tool Showing<br />";
 
                 vm.genesetSummary = $sce.trustAsHtml(summary);
 

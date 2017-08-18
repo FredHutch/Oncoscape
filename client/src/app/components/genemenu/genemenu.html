@@ -3,7 +3,7 @@
         <section>
             <div class="row">
                 <div class="col-xs-12 form-item genemenu-hr">
-                    <label>Selected Gene Set</label>
+                    <label>Available Gene Sets</label>
                     <div class="input-group">
                         <input ng-readonly="vm.geneset.type=='ALLGENES'" style="background:#FFF;" class="form-control" aria-label="Text input with segmented button dropdown" ng-model="vm.geneset.name" onfocus="this.select();">
                         <div class="input-group-btn">
@@ -35,7 +35,7 @@
                 </div>
                
                 <div class="col-xs-12 form-item">
-                    <label class="genemenu-toggle-btn" data-toggle="collapse" data-target="#genemenu-summary-box" tooltip="Show / Hide" tooltip-placement="right">Gene Summary <i class="fa fa-angle-down" aria-hidden="true"></i></label>
+                    <label class="genemenu-toggle-btn" data-toggle="collapse" data-target="#genemenu-summary-box" tooltip="Show / Hide" tooltip-placement="right">Geneset Summary <i class="fa fa-angle-down" aria-hidden="true"></i></label>
                     <div id="genemenu-summary-box" class="collapse in" style="background:#FFF;border:1px solid #EAEAEA;padding:5px;" ng-bind-html="vm.genesetSummary"></div>
                 </div>
                 <div id="genemenu-legand"></div>

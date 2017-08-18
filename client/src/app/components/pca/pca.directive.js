@@ -19,7 +19,7 @@
         return directive;
 
         /** @ngInject */
-        function PcaController($q, osApi, $state, $stateParams, $timeout, $scope, d3, moment, $window, _) {
+        function PcaController($q, osApi, $state, $stateParams, $timeout, $scope, d3, moment, $window,$http,  _) {
 
             // Loading ...
             osApi.setBusy(true);
@@ -95,9 +95,82 @@
             })(this, osApi);
 
             // Gene Service Integration
-            osApi.onGenesetChange.add(function(geneset) {
-                vm.geneSet = geneset;
-            });
+            // osApi.onGenesetChange.add(function(geneset) {
+            //     vm.geneSet = geneset;
+            // });
+
+            // Move To Service 
+            function PCAquery(disease, genes, samples, molecular_collection, n_components) {
+                var data = { disease: disease, genes: genes, samples: samples, molecular_collection: molecular_collection, n_components: n_components };
+                return $http({
+                    method: 'POST',
+                    url: "https://dev.oncoscape.sttrcancer.io/cpu/pca",
+                    data: data
+                    
+                });
+            }
+
+            function processPCA(response){
+
+                var d = response.data[0];
+                // Process PCA Variance
+                vm.pc1 = [
+                    { name: 'PC1', value: d.metadata.variance[0] },
+                    { name: '', value: 100 - d.metadata.variance[0] }
+                ];
+                vm.pc2 = [
+                    { name: 'PC2', value: d.metadata.variance[1] },
+                    { name: '', value: 100 - d.metadata.variance[1] }
+                ];
+
+                // Process Loadings
+                var loadings = response.data[0].loadings
+                    .map(function(v) {
+                        v.max = Math.max.apply(null, v.d.map(function(v) { return Math.abs(v); }));
+                        return v;
+                    })
+                    .sort(function(a, b) {
+                        return b.max - a.max;
+                    })
+                    .slice(0, 50);
+
+                var scale = d3.scaleLinear()
+                    .domain([loadings[loadings.length - 1].max, loadings[0].max])
+                    .range([0.1, 1]);
+
+
+                vm.loadings = loadings.map(function(v) {
+                    return {
+                        tip: v.d.reduce(function(p, c) {
+                            p.index += 1;
+                            p.text += "<br>PC" + p.index + ": " + (c * 100).toFixed(2);
+                            return p;
+                        }, { text: v.id, index: 0 }).text,
+                        value: this(v.max)
+                    };
+                }, scale);
+
+
+                // Process Scores
+                data = d.scores.map(function(v) {
+                    v.d.id = v.id;
+                    return v.d;
+                });
+
+                minMax = data.reduce(function(p, c) {
+                    p.xMin = Math.min(p.xMin, c[0]);
+                    p.xMax = Math.max(p.xMax, c[0]);
+                    p.yMin = Math.min(p.yMin, c[1]);
+                    p.yMax = Math.max(p.yMax, c[1]);
+                    return p;
+                }, {
+                    xMin: Infinity,
+                    yMin: Infinity,
+                    xMax: -Infinity,
+                    yMax: -Infinity
+                });
+
+            }
 
             // Setup Watches
             
@@ -116,19 +189,20 @@
                 
                 if (vm.source === null) return;
 
-                var geneSets = osApi.getGenesets();
-                var geneSet = osApi.getGeneset();
-
                 vm.geneSets = vm.pcaType.genesets;
-                if (angular.isUndefined(vm.geneSets)) {
+                
+                vm.globalGeneSets = osApi.getGenesets().filter(function(d){ return !_.contains(_.pluck(vm.geneSets, "name"),d.name); });
+                //vm.globalGeneSets.forEach(function(d){     d.status = "open" })
+
+                if (angular.isUndefined(vm.geneSet)) {
                     vm.geneSet = vm.geneSets[0];
                 } else {
-                    var newSource = vm.geneSets.filter(function(v) { return (v.name === vm.geneSets.name); });
+                    var newSource = vm.geneSets.filter(function(v) { return (v.name === vm.geneSet.name); });
                     vm.geneSet = (newSource.length === 1) ? newSource[0] : vm.geneSets[0];
                 }
             });
              $scope.$watch('vm.geneSet', function(geneset) {
-                
+       
                 if (angular.isUndefined(geneset)) return;
 
                 osApi.query(clusterCollection, {
@@ -139,78 +213,33 @@
                     })
                     .then(function(response) {
 
-                        var d = response.data[0];
-
-                        // Process PCA Variance
-                        vm.pc1 = [
-                            { name: 'PC1', value: d.metadata.variance[0] },
-                            { name: '', value: 100 - d.metadata.variance[0] }
-                        ];
-                        vm.pc2 = [
-                            { name: 'PC2', value: d.metadata.variance[1] },
-                            { name: '', value: 100 - d.metadata.variance[1] }
-                        ];
-
-                        // Process Loadings
-                        var loadings = response.data[0].loadings
-                            .map(function(v) {
-                                v.max = Math.max.apply(null, v.d.map(function(v) { return Math.abs(v); }));
-                                return v;
-                            })
-                            .sort(function(a, b) {
-                                return b.max - a.max;
-                            })
-                            .slice(0, 50);
-
-                        var scale = d3.scaleLinear()
-                            .domain([loadings[loadings.length - 1].max, loadings[0].max])
-                            .range([0.1, 1]);
-
-
-                        vm.loadings = loadings.map(function(v) {
-                            return {
-                                tip: v.d.reduce(function(p, c) {
-                                    p.index += 1;
-                                    p.text += "<br>PC" + p.index + ": " + (c * 100).toFixed(2);
-                                    return p;
-                                }, { text: v.id, index: 0 }).text,
-                                value: this(v.max)
-                            };
-                        }, scale);
-
-
-                        // Process Scores
-                        data = d.scores.map(function(v) {
-                            v.d.id = v.id;
-                            return v.d;
-                        });
-
-                        minMax = data.reduce(function(p, c) {
-                            p.xMin = Math.min(p.xMin, c[0]);
-                            p.xMax = Math.max(p.xMax, c[0]);
-                            p.yMin = Math.min(p.yMin, c[1]);
-                            p.yMax = Math.max(p.yMax, c[1]);
-                            return p;
-                        }, {
-                            xMin: Infinity,
-                            yMin: Infinity,
-                            xMax: -Infinity,
-                            yMax: -Infinity
-                        });
-
-
+                        processPCA(response)
                         draw();
                     });
 
-            //     var geneset = vm.geneSetsInDB.filter(function(d){return d.name == vm.geneSet.name})
-            //     debugger;
-            //     vm.sources = geneset.sources;
-            //     if (angular.isUndefined(vm.source)) {
-            //         vm.source = vm.sources[0];
-            //     } else {
-            //         var newSource = vm.sources.filter(function(v) { return (v.name === vm.source.name); });
-            //         vm.source = (newSource.length === 1) ? newSource[0] : vm.sources[0];
-            //     }
+            
+             });
+             $scope.$watch('vm.globalGeneSet', function(geneset) {
+             
+                if (angular.isUndefined(geneset)) return;
+                //osApi.setBusy(true);
+
+                osApi.query("lookup_oncoscape_datasources", {
+                    disease: vm.datasource.disease//, 'molecular.type': vm.pcaType.name, default:true
+                }).then(function(response){
+                    var molecular = response.data[0].molecular.filter(function(d){return d.type == vm.pcaType.name})
+                    if(molecular.length ==1)
+                        var molecular_collection = molecular[0].collection
+                    var samples = osApi.getCohort().sampleIds;
+                    if (samples.length === 0) samples = Object.keys(osApi.getData().sampleMap);
+
+                    PCAquery(vm.datasource.disease, geneset.geneIds, samples, molecular_collection, 3).then(function(response) {
+                        debugger;
+                        data = response.data;
+                        processPCA(d);
+                        draw();
+                    });
+                })
              });
 
             var updatePatientCounts = function() {
@@ -431,12 +460,6 @@
             osApi.onCohortChange.add(onCohortChange);
             osApi.onCohortChange.add(updatePatientCounts)
 
-            // var geneset = osApi.getGeneset();
-            // var onGenesetChange = function(c) {
-            //     geneset = c;
-            //    // setSelected();
-            // };
-            // osApi.onGenesetChange.add(onGenesetChange);
 
             osApi.query(clusterCollection, {
                 dataType: 'PCA',

@@ -434,8 +434,8 @@
         var _patientColor;
         var _cohortToolInfo = { 'numSamples': 500, 'numPatients': 500 };
         var _cohortDatasetInfo = { 'numSamples': 0, 'numPatients': 0 };
-        var _genesetToolInfo = { 'numSamples': 500, 'numPatients': 500 };
-        var _genesetDatasetInfo = { 'numSamples': 0, 'numPatients': 0 };
+        var _genesetToolInfo = { 'numGenes': 0, 'numSymbols': 0 };
+     //   var _genesetDatasetInfo = { 'numGenes': 0, 'numSymbols': 0, 'url': '', 'desc':''  };
 
 
 
@@ -447,7 +447,7 @@
         var getGenesets = function() { return _genesets; };
         var getGeneset = function() { return _geneset; };
         var getGenesetToolInfo = function() { return _genesetToolInfo; };
-        var getGenesetDatasetInfo = function() { return _genesetDatasetInfo; };
+    //    var getGenesetDatasetInfo = function() { return _genesetDatasetInfo; };
         var getData = function() { return _data; };
         var getPatientColor = function() { return _patientColor; };
         var getDataSources = function() { return _dataSources; };
@@ -579,6 +579,8 @@
                         hugoIds: [],
                         geneIds: [],
                         name: 'All Genes',
+                        url: '',
+                        desc: "All available molecular markers will be used in analysis.",
                         // histogram: statsFactory.createHistogram(Object.keys(data.patientMap), data),
                         // survival: statsFactory.createSurvival(Object.keys(data.patientMap), data, null),
                         // numPatients: Object.keys(_data.patientMap).length,
@@ -601,8 +603,11 @@
                     var localGenesets = localStorage.getItem(_dataSource.disease + 'GeneSets');
 
                     if (localGenesets !== null) {
-                        _genesets.unshift(angular.fromJson(localGenesets));
-                        setGeneset(_genesets[0]);
+                        var localGenesetsArray = angular.fromJson(localGenesets)
+                        if(localGenesetsArray.length != 0){
+                            _genesets.unshift(localGenesetsArray);
+                            setGeneset(_genesets[0]);
+                        }
                     } else {
                         _genesets.unshift(_genesetAll);
                         setGeneset(_genesetAll);
@@ -679,6 +684,8 @@
                 hugoIds: result.genes,
                 geneIds: result.genes,
                 name: result.name,
+                url:result.url,
+                desc:result.desc,
                 show: true,
                 type: 'SAVED'
             };
@@ -801,12 +808,17 @@
                 }),
                 new Promise(function(resolve, reject) { 
                     query("lookup_genesets", {
-                        $fields: ['name', 'genes']
+  //                      $fields: ['name', 'genes']
                     }).then(function(response) {
                         var result = response.data;
                         _genesets = result.map(function(d){
                             return loadGenesets(d); });
                         _geneset = _genesets[0];
+
+                        // _genesetDatasetInfo.numGenes = _geneset.geneIds.length;
+                        // _genesetDatasetInfo.numSymbols = _geneset.hugoIds.length;
+                        // _genesetDatasetInfo.url = _geneset.url;
+                        // _genesetDatasetInfo.desc = _geneset.desc;
                     
                         resolve();
                     }, reject);
