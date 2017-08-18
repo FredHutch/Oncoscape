@@ -95,9 +95,10 @@
             })(this, osApi);
 
             // Gene Service Integration
-            // osApi.onGenesetChange.add(function(geneset) {
-            //     vm.geneSet = geneset;
-            // });
+             osApi.onGenesetsChange.add(function(genesets) {
+                debugger; 
+                vm.globalGeneSets =  genesets.filter(function(d){ return !_.contains(_.pluck(vm.geneSets, "name"),d.name); });
+             });
 
             // Move To Service 
             function PCAquery(disease, genes, samples, molecular_collection, n_components) {
@@ -203,20 +204,23 @@
             });
              $scope.$watch('vm.geneSet', function(geneset) {
        
+                debugger;
+                
                 if (angular.isUndefined(geneset)) return;
+             //   if(geneset.type == "IMPORT"){
+                    osApi.query(clusterCollection, {
+                            disease: vm.datasource.disease,
+                            geneset: vm.geneSet.name,
+                            input: vm.pcaType.name,
+                            source: vm.source.name
+                        })
+                        .then(function(response) {
 
-                osApi.query(clusterCollection, {
-                        disease: vm.datasource.disease,
-                        geneset: vm.geneSet.name,
-                        input: vm.pcaType.name,
-                        source: vm.source.name
-                    })
-                    .then(function(response) {
-
-                        processPCA(response)
-                        draw();
-                    });
-
+                            processPCA(response)
+                            draw();
+                        });
+                     
+                    //else if (geneset.type == "SAVED" {})
             
              });
              $scope.$watch('vm.globalGeneSet', function(geneset) {
