@@ -32,9 +32,9 @@
                     <div class="dropdown bs-dropdown">
                         <button class="btn btn-default dropdown-toggle" type="button" id="dropdownMenu1" data-toggle="dropdown" aria-haspopup="true" aria-expanded="true">{{vm.geneSet.name}}<span class="caret"></span></button>
                         <ul class="dropdown-menu" aria-labelledby="dropdownMenu1" style="width:260px;">
-                            <li class="dropdown-header">Precomputed</li>
+                            <li class="dropdown-header" style="color:#47a8d8;">Precomputed</li>
                             <li class="markers-command hvr-sweep-to-right" ng-repeat="item in vm.geneSets" ng-click="vm.geneSet=item">{{item.name}}</li>
-                            <li class="dropdown-header">Other Available</li>
+                            <li class="dropdown-header" style="color:#47a8d8;">Other Available</li>
                             <li class="markers-command hvr-sweep-to-right" ng-repeat="item in vm.globalGeneSets" ng-click="vm.globalGeneSet=item">{{item.name}}</li>
                         </ul>
                     </div>

@@ -96,7 +96,7 @@
 
             // Gene Service Integration
              osApi.onGenesetsChange.add(function(genesets) {
-                debugger; 
+                
                 vm.globalGeneSets =  genesets.filter(function(d){ return !_.contains(_.pluck(vm.geneSets, "name"),d.name); });
              });
 
@@ -205,9 +205,10 @@
                 }
             });
              $scope.$watch('vm.geneSet', function(geneset) {
-                
+                debugger;
                 if (angular.isUndefined(geneset)) return;
-             //   if(geneset.type == "IMPORT"){
+                if(geneset.type == "SAVED") return;
+
                     osApi.query(clusterCollection, {
                             disease: vm.datasource.disease,
                             geneset: vm.geneSet.name,
@@ -220,7 +221,7 @@
                             draw();
                         });
                      
-                    //else if (geneset.type == "SAVED" {})
+                    
             
              });
              $scope.$watch('vm.globalGeneSet', function(geneset) {
@@ -240,10 +241,19 @@
                     PCAquery(vm.datasource.disease, geneset.geneIds, samples, molecular_collection, 3).then(function(PCAresponse) {
                         
                         var d = PCAresponse.data;
+                       
+debugger;
+                        if(d.reason !== undefined){
+                            //vm.globalGeneSets[vm.globalGeneSets.findIndex(function(gs){return gs.uuid == geneset.uuid})].reason = d.reason;
+                            console.log(geneset.name +": " + d.reason)
+                            //console.log(geneset)
+                            return;
+                        }
                         //TO DO:: ### Update result names from oncoscape_wrapper so values -> d, and make variance values into percentages (ie *100)
                         d.loadings = d.loadings.map(function(result){ return {id: result.id, d:result.value}});
                         d.scores = d.scores.map(function(result){ return {id: result.id, d:result.value}});
                         d.metadata.variance = d.metadata.variance.map(function(result) {return 100* result})
+                        vm.geneSet = geneset
                         processPCA(d);
                         draw();
                     });

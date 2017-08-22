@@ -704,7 +704,6 @@
 
         };
         var saveGeneset = function() {
-            
             _geneset.type = "SAVED";
             _genesets.push(_geneset);
             localStorage.setItem( 'GeneSets', angular.toJson(_genesets.filter(function(d){return d.type == "SAVED"})));
@@ -716,11 +715,11 @@
             localStorage.setItem(_dataSource.disease + 'Cohorts', angular.toJson(_cohorts));
             setCohort([], "", "PATIENT");
         };
-        var deleteGeneset = function(geneset) {
-            debugger;
+        var deleteGeneset = function(geneset) { 
             _genesets.splice(_genesets.indexOf(geneset), 1);
             localStorage.setItem( 'GeneSets', angular.toJson(_genesets.filter(function(d){return d.type == "SAVED"})));
             setGeneset([], "", "SYMBOL");
+            onGenesetsChange.dispatch(_genesets);
         };
 
         // Converts Sample Ids To A List of Sample Ids
@@ -801,7 +800,7 @@
                 new Promise(function(resolve, reject) { 
                     query("lookup_genesets", {
                     }).then(function(response) {
-                        debugger;
+                        
                         var result = response.data;
                         _genesets = result.map(function(d){
                             d.type = "IMPORT"
@@ -824,6 +823,7 @@
                             type: 'ALLGENES'
                         };
   
+                        _genesets.unshift(_genesetAll);
                         var localGenesets = localStorage.getItem('GeneSets');
                         
                         if (localGenesets !== null) {
@@ -832,12 +832,12 @@
                             if(localGenesetsArray.length != 0){
                                 _genesets.concat(localGenesetsArray);
                                 setGeneset(_genesets[0]);
+                            } else {
+                                setGeneset(_genesetAll);
                             }
-                        } else {
+                        } 
                             
-                            _genesets.unshift(_genesetAll);
-                            setGeneset(_genesetAll);
-                        }
+                        
                         
                         onGenesetsChange.dispatch(_genesets);
                         onGenesetChange.dispatch(_geneset);
@@ -851,7 +851,7 @@
                     query("lookup_oncoscape_genes", {
                     }).then(function(response) { 
                         _hugoMap = response.data
-debugger;
+
                         resolve();
                     }, reject);
                 })

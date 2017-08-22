@@ -90,11 +90,11 @@
                 return "Range: " + d.label + "<br>Count: " + d.value + " of " + vm.geneFeature.data.count + "<br>Percent: " + $filter('number')((d.value / vm.genesetFeature.data.count) * 100, 2) + "%";
             });
             histSvg.call(elTip);
-            // $scope.$watch('vm.genesetFeature', function() {
+             $scope.$watch('vm.genesetFeature', function() {
 
-            //     // Histogram
-            //     if (vm.geneFeature === null) return;
-            //     var data = vm.genesetFeature.data;
+                 // Histogram
+                 if (vm.geneFeature === null) return;
+           //      var data = vm.genesetFeature.data;
             //     if (data.type == "factor") {
             //         if (data.hist.length == 1) {
             //             histSingleValueLabel.text(data.hist[0].label).css("display", "block").removeClass("genemenu-single-value-numeric");
@@ -174,7 +174,7 @@
             //         .style('fill-opacity', 1e-6)
             //         .remove();
 
-            // });
+             });
 
 
             var formatDays = function(d) {
