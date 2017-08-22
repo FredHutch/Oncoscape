@@ -616,7 +616,7 @@
         };
 
         var createWithHugoIds = function(name, hugoIds, data) {
-            debugger;
+            
             if (hugoIds.length === 0) return _genesetAll;
             // var geneIds = [].concat
             //     .apply([], hugoIds
@@ -685,7 +685,7 @@
         };
 
         var setGeneset = function(geneset, name, type) {
-            debugger;
+            
             // Create Cohort If Array Passed
             if (angular.isArray(geneset)) {
                // name += "  (" + moment().format('hh:mm:ss') + ")";
@@ -704,7 +704,7 @@
 
         };
         var saveGeneset = function() {
-            debugger;
+            
             _geneset.type = "SAVED";
             _genesets.push(_geneset);
             localStorage.setItem( 'GeneSets', angular.toJson(_genesets.filter(function(d){return d.type == "SAVED"})));
@@ -743,7 +743,7 @@
 
         // Converts Sample Ids To A List of Sample Ids
         var importGeneIds = function(ids, name) {
-            debugger;
+            
             //  var geneIds = _.union.apply(null, ids
             //     .map(function(id) { // Convert All Ids to Patient Ids
             //         id = id.trim(); // Clean input
@@ -801,7 +801,7 @@
                 new Promise(function(resolve, reject) { 
                     query("lookup_genesets", {
                     }).then(function(response) {
-                        
+                        debugger;
                         var result = response.data;
                         _genesets = result.map(function(d){
                             d.type = "IMPORT"
@@ -823,18 +823,18 @@
                             show: true,
                             type: 'ALLGENES'
                         };
-  debugger;
+  
                         var localGenesets = localStorage.getItem('GeneSets');
                         
                         if (localGenesets !== null) {
-                            debugger;
+                            
                             var localGenesetsArray = angular.fromJson(localGenesets)
                             if(localGenesetsArray.length != 0){
-                                _genesets.unshift(localGenesetsArray);
+                                _genesets.concat(localGenesetsArray);
                                 setGeneset(_genesets[0]);
                             }
                         } else {
-                            debugger;
+                            
                             _genesets.unshift(_genesetAll);
                             setGeneset(_genesetAll);
                         }
@@ -851,7 +851,7 @@
                     query("lookup_oncoscape_genes", {
                     }).then(function(response) { 
                         _hugoMap = response.data
-
+debugger;
                         resolve();
                     }, reject);
                 })

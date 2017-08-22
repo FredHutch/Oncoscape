@@ -106,26 +106,28 @@
                 return $http({
                     method: 'POST',
                     url: "https://dev.oncoscape.sttrcancer.io/cpu/pca",
-                    data: data
+                 //   url: "http://localhost:8000/pca",
+                    data: data,
+                    //headers: { apikey: 'password' }
                     
                 });
             }
 
-            function processPCA(response){
+            function processPCA(d){
 
-                var d = response.data[0];
+                //var d = response.data;
                 // Process PCA Variance
                 vm.pc1 = [
-                    { name: 'PC1', value: d.metadata.variance[0] },
+                    { name: 'PC1', value: d.metadata.variance[0].toFixed(2) },
                     { name: '', value: 100 - d.metadata.variance[0] }
                 ];
                 vm.pc2 = [
-                    { name: 'PC2', value: d.metadata.variance[1] },
+                    { name: 'PC2', value: d.metadata.variance[1].toFixed(2) },
                     { name: '', value: 100 - d.metadata.variance[1] }
                 ];
 
                 // Process Loadings
-                var loadings = response.data[0].loadings
+                var loadings = d.loadings
                     .map(function(v) {
                         v.max = Math.max.apply(null, v.d.map(function(v) { return Math.abs(v); }));
                         return v;
@@ -203,8 +205,6 @@
                 }
             });
              $scope.$watch('vm.geneSet', function(geneset) {
-       
-                debugger;
                 
                 if (angular.isUndefined(geneset)) return;
              //   if(geneset.type == "IMPORT"){
@@ -216,7 +216,7 @@
                         })
                         .then(function(response) {
 
-                            processPCA(response)
+                            processPCA(response.data[0])
                             draw();
                         });
                      
@@ -237,9 +237,13 @@
                     var samples = osApi.getCohort().sampleIds;
                     if (samples.length === 0) samples = Object.keys(osApi.getData().sampleMap);
 
-                    PCAquery(vm.datasource.disease, geneset.geneIds, samples, molecular_collection, 3).then(function(response) {
-                        debugger;
-                        data = response.data;
+                    PCAquery(vm.datasource.disease, geneset.geneIds, samples, molecular_collection, 3).then(function(PCAresponse) {
+                        
+                        var d = PCAresponse.data;
+                        //TO DO:: ### Update result names from oncoscape_wrapper so values -> d, and make variance values into percentages (ie *100)
+                        d.loadings = d.loadings.map(function(result){ return {id: result.id, d:result.value}});
+                        d.scores = d.scores.map(function(result){ return {id: result.id, d:result.value}});
+                        d.metadata.variance = d.metadata.variance.map(function(result) {return 100* result})
                         processPCA(d);
                         draw();
                     });
