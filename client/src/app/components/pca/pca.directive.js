@@ -19,7 +19,7 @@
         return directive;
 
         /** @ngInject */
-        function PcaController($q, osApi, $state, $stateParams, $timeout, $scope, d3, moment, $window,$http,  _) {
+        function PcaController($q, osApi, $state, $stateParams, $timeout, $scope, d3, moment, $window,$http,  _, ML) {
 
             // Loading ...
             osApi.setBusy(true);
@@ -95,20 +95,19 @@
             })(this, osApi);
 
             // Gene Service Integration
-             osApi.onGenesetsChange.add(function(genesets) {
-                
-                vm.globalGeneSets =  genesets.filter(function(d){ return !_.contains(_.pluck(vm.geneSets, "name"),d.name); });
-             });
+              osApi.onGenesetChange.add(function(geneset) {
+                 vm.geneSet =  geneset
+              });
 
             // Move To Service 
             function PCAquery(disease, genes, samples, molecular_collection, n_components) {
                 var data = { disease: disease, genes: genes, samples: samples, molecular_collection: molecular_collection, n_components: n_components };
                 return $http({
                     method: 'POST',
-                    url: "https://dev.oncoscape.sttrcancer.io/cpu/pca",
-                 //   url: "http://localhost:8000/pca",
+                 //   url: "https://dev.oncoscape.sttrcancer.io/cpu/pca",
+                    url: "http://localhost:8000/pca",
                     data: data,
-                    //headers: { apikey: 'password' }
+                    
                     
                 });
             }
@@ -129,7 +128,8 @@
                 // Process Loadings
                 var loadings = d.loadings
                     .map(function(v) {
-                        v.max = Math.max.apply(null, v.d.map(function(v) { return Math.abs(v); }));
+                        //v.max = Math.max.apply(null, v.d.map(function(v) { return Math.abs(v); }));
+                        v.max = Math.max.apply(null, v.map(function(v) { return Math.abs(v); }));
                         return v;
                     })
                     .sort(function(a, b) {
@@ -192,39 +192,39 @@
                 
                 if (vm.source === null) return;
 
-                vm.geneSets = vm.pcaType.genesets;
-                
-                vm.globalGeneSets = osApi.getGenesets().filter(function(d){ return !_.contains(_.pluck(vm.geneSets, "name"),d.name); });
+                vm.geneSet = osApi.getGeneset()
+                //vm.geneSets = vm.pcaType.genesets;
+                //vm.globalGeneSets = osApi.getGenesets().filter(function(d){ return !_.contains(_.pluck(vm.geneSets, "name"),d.name); });
                 //vm.globalGeneSets.forEach(function(d){     d.status = "open" })
 
-                if (angular.isUndefined(vm.geneSet)) {
-                    vm.geneSet = vm.geneSets[0];
-                } else {
-                    var newSource = vm.geneSets.filter(function(v) { return (v.name === vm.geneSet.name); });
-                    vm.geneSet = (newSource.length === 1) ? newSource[0] : vm.geneSets[0];
-                }
+                // if (angular.isUndefined(vm.geneSet)) {
+                //     vm.geneSet = vm.geneSets[0];
+                // } else {
+                //     var newSource = vm.geneSets.filter(function(v) { return (v.name === vm.geneSet.name); });
+                //     vm.geneSet = (newSource.length === 1) ? newSource[0] : vm.geneSets[0];
+                // }
             });
-             $scope.$watch('vm.geneSet', function(geneset) {
-                debugger;
-                if (angular.isUndefined(geneset)) return;
-                if(geneset.type == "SAVED") return;
+            //  $scope.$watch('vm.geneSet', function(geneset) {
+            //     debugger;
+            //     if (angular.isUndefined(geneset)) return;
+            //     if(geneset.type == "SAVED") return;
 
-                    osApi.query(clusterCollection, {
-                            disease: vm.datasource.disease,
-                            geneset: vm.geneSet.name,
-                            input: vm.pcaType.name,
-                            source: vm.source.name
-                        })
-                        .then(function(response) {
+            //         osApi.query(clusterCollection, {
+            //                 disease: vm.datasource.disease,
+            //                 geneset: vm.geneSet.name,
+            //                 input: vm.pcaType.name,
+            //                 source: vm.source.name
+            //             })
+            //             .then(function(response) {
 
-                            processPCA(response.data[0])
-                            draw();
-                        });
+            //                 processPCA(response.data[0])
+            //                 draw();
+            //             });
                      
                     
             
-             });
-             $scope.$watch('vm.globalGeneSet', function(geneset) {
+            //  });
+             $scope.$watch('vm.geneSet', function(geneset) {
              
                 if (angular.isUndefined(geneset)) return;
                 //osApi.setBusy(true);
@@ -238,27 +238,58 @@
                     var samples = osApi.getCohort().sampleIds;
                     if (samples.length === 0) samples = Object.keys(osApi.getData().sampleMap);
 
-                    PCAquery(vm.datasource.disease, geneset.geneIds, samples, molecular_collection, 3).then(function(PCAresponse) {
+                    runPCA(vm.datasource.disease, geneset.geneIds, samples, molecular_collection, 3);
+
+//                     PCAquery(vm.datasource.disease, geneset.geneIds, samples, molecular_collection, 3).then(function(PCAresponse) {
                         
-                        var d = PCAresponse.data;
-                       
-debugger;
-                        if(d.reason !== undefined){
-                            //vm.globalGeneSets[vm.globalGeneSets.findIndex(function(gs){return gs.uuid == geneset.uuid})].reason = d.reason;
-                            console.log(geneset.name +": " + d.reason)
-                            //console.log(geneset)
-                            return;
-                        }
-                        //TO DO:: ### Update result names from oncoscape_wrapper so values -> d, and make variance values into percentages (ie *100)
-                        d.loadings = d.loadings.map(function(result){ return {id: result.id, d:result.value}});
-                        d.scores = d.scores.map(function(result){ return {id: result.id, d:result.value}});
-                        d.metadata.variance = d.metadata.variance.map(function(result) {return 100* result})
-                        vm.geneSet = geneset
-                        processPCA(d);
-                        draw();
-                    });
+//                         var d = PCAresponse.data;
+// debugger;
+//                         if(d.reason !== undefined){
+//                             //vm.globalGeneSets[vm.globalGeneSets.findIndex(function(gs){return gs.uuid == geneset.uuid})].reason = d.reason;
+//                             console.log(geneset.name +": " + d.reason)
+//                             //console.log(geneset)
+//                             return;
+//                         }
+//                         //TO DO:: ### Update result names from oncoscape_wrapper so values -> d, and make variance values into percentages (ie *100)
+//                         d.loadings = d.loadings.map(function(result){ return {id: result.id, d:result.value}});
+//                         d.scores = d.scores.map(function(result){ return {id: result.id, d:result.value}});
+//                         d.metadata.variance = d.metadata.variance.map(function(result) {return 100* result})
+//                         //vm.geneSet = geneset
+//                         processPCA(d);
+//                         draw();
+//                     });
                 })
              });
+
+             var runPCA = function(disease, geneIds, samples, collection, dimensions) {
+
+                var options = {isCovarianceMatrix: false, center : true, scale: false};
+
+                var geneQuery = {"id": {"$in": geneIds}}
+                if(geneIds.length == 0) geneQuery = {}
+
+                osApi.query(collection, geneQuery
+                ).then(function(response){
+                    debugger;
+                    
+                    // Subset samples to those available in the collection
+                    samples = samples.filter(function(s){ return _.has(response.data[0].data,s) })
+
+                    // create 2d array of samples x features (genes)
+                    var molecular = samples.map(function(s){ return response.data.map(function(g){ return g.data[s]})  })
+                    //var molecular = response.data.map(function(g){ return samples.map(function(s){ return g.data[s]})  })
+
+                    var d = new ML.Stat.PCA(molecular, options)
+                    d.metadata = {}
+                    d.metadata.variance = d.getExplainedVariance()
+                    d.loadings = d.getLoadings() // [[PC1 loadings (for coefficients for each gene)], [PC2 loadings], [...#PC = # samples]]
+                    var z = molecular.map(function(m){return jStat.subtract(m, d.means)}) //, scale = Array(d.means.length).fill(1)
+                    d.scores = z.map(function(m){ return d.getLoadings().map(function(ev) { return jStat.dot(m, ev)})});
+
+                    processPCA(d);
+                    draw();
+                })
+            }
 
             var updatePatientCounts = function() {
 

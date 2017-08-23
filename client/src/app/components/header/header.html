@@ -85,7 +85,7 @@
                                 </div>
                                 <div class="col-xs-12 col-sm-9 " style="max-height:inherit !important; overflow-y:scroll">
                                     <h2 style="margin-top:0px; ">Your Genesets</h2>
-                                    <div class="markers-command hvr-sweep-to-right header-geneset-btn" ng-repeat="item in vm.genesets " ng-show="item.type=='SAVED'" ng-click="vm.setGenesetList(item) ">
+                                    <div class="markers-command hvr-sweep-to-right header-geneset-btn" ng-repeat="item in vm.genesets "  ng-click="vm.setGenesetList(item) ">
                                         <p class="datasource-h1">{{item.name}}</p>
                                         <p class="datasource-h2">{{item.geneIds.length}} Genes <br /> {{item.hugoIds.length}} HUGO symbols </p>
                                     </div>
