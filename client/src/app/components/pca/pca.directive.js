@@ -44,7 +44,7 @@
                 .text("PC2");
 
             // Properties
-            var clusterCollection = osApi.getDataSource().disease + "_cluster";
+            //var clusterCollection = osApi.getDataSource().disease + "_cluster";
             var scaleX, scaleY, axisX, axisY;
             var data, minMax;
             var width, height;
@@ -54,6 +54,7 @@
                 name: "None",
                 type: "color"
             };
+            var acceptableDatatypes = [];
 
             // View Model Update
             var vm = (function(vm, osApi) {
@@ -119,12 +120,12 @@
                 
                 // Process PCA Variance
                 vm.pc1 = [
-                    { name: 'PC1', value: d.metadata.variance[0].toFixed(2) },
-                    { name: '', value: 100 - d.metadata.variance[0] }
+                    { name: 'PC1', value: (d.metadata.variance[0] * 100).toFixed(2) },
+                    { name: '', value: 100 - (d.metadata.variance[0]*100) }
                 ];
                 vm.pc2 = [
-                    { name: 'PC2', value: d.metadata.variance[1].toFixed(2) },
-                    { name: '', value: 100 - d.metadata.variance[1] }
+                    { name: 'PC2', value: (d.metadata.variance[1] *100).toFixed(2) },
+                    { name: '', value: 100 - (d.metadata.variance[1] *100) }
                 ];
 
 
@@ -154,11 +155,14 @@
             $scope.$watch('vm.source', function() {
                 
                 if (vm.source === null) return;
-                vm.pcaTypes = vm.source.types;
+                
+                vm.pcaTypes = _.uniq(_.pluck(vm.molecularTables.filter(function(d) {return d.source == vm.source}), "type"))
+                vm.pcaTypes = _.intersection(vm.pcaTypes, acceptableDatatypes)
+
                 if (angular.isUndefined(vm.pcaType)) {
                     vm.pcaType = vm.pcaTypes[0];
                 } else {
-                    var newSource = vm.pcaTypes.filter(function(v) { return (v.name === vm.pcaType.name); });
+                    var newSource = vm.pcaTypes.filter(function(v) { return (v === vm.pcaType); });
                     vm.pcaType = (newSource.length === 1) ? newSource[0] : vm.pcaTypes[0];
                 }
             });
@@ -166,40 +170,60 @@
                 
                 if (vm.source === null) return;
 
-                vm.geneSet = osApi.getGeneset()
-
-                osApi.query("lookup_oncoscape_datasources", {
-                    disease: vm.datasource.disease//, 'molecular.type': vm.pcaType.name, default:true
-                }).then(function(response){
-                    var molecular = response.data[0].molecular.filter(function(d){return d.type == vm.pcaType.name})
-                    if(molecular.length ==1)
-                        var molecular_collection = molecular[0].collection
-                    
-
-                    osApi.query(molecular_collection, {}
-                    ).then(function(response){
-                        vm.molecular = response.data
-
-                        if (angular.isUndefined(vm.geneSet)) return;
-                        runPCA(vm.geneSet.geneIds);
-                    });
-                });
+                vm.geneSet = osApi.getGeneset()                    
+                var molecular_matches = vm.molecularTables.filter(function(d){return d.type == vm.pcaType & d.source == vm.source})
                 
+                if(molecular_matches.length ==1){
+                    var molecular_collection = molecular_matches[0].collection
                 
+                    var simulate = true;
+                    if(simulate){
+                        var numGenes = [100,200,500,1000, 5000, 10000,15000, 20000, 25000]; var numSamples = [100,200,500];
+                        for(var i=0;i<numSamples.length;i++){
+                            for(var j=0;j<numGenes.length;j++){
+                                console.log("Genes: "+ numGenes[j] + " Samples: "+ numSamples[i])
+                                runPCAsimulation(numGenes[j], numSamples[i]);
+                            }
+                        }
+                        
+                    }else {
+                        osApi.query(molecular_collection
+                        ).then(function(response){
+                            debugger;
+                            vm.molecular = response.data
+
+                            if (angular.isUndefined(vm.geneSet)) return;
+                            runPCA(vm.geneSet.geneIds);
+                        });
+                    }
+                }
 
             });
              $scope.$watch('vm.geneSet', function(geneset) {
              
                 if (angular.isUndefined(geneset)) return;
                 if (angular.isUndefined(vm.molecular)) return;
-                
+                debugger;
                 console.log("PCA: started")
                 runPCA(geneset.geneIds);
 
              });
 
 
+             var runPCAsimulation = function(numGenes, numSamples) {
 
+                var options = {isCovarianceMatrix: false, center : true, scale: false};
+                // create 2d array of samples x features (genes)
+                var molecular = Array.apply(null, {length: numSamples}).map(function(s){ return Array.apply(null, {length: numGenes}).map(Function.call, Math.random)});
+                
+                var then = Date.now();
+                //console.log("PCA: Running " + Date())
+                var d = new ML.Stat.PCA(molecular, options)
+                var now = Date.now()
+                //console.log("PCA: transforming scores " + Date())
+                console.log("Genes: "+ numGenes + " Samples: "+numSamples+ "Diff: " + (now-then)/1000)
+
+             }
 
              var runPCA = function(geneIds) {
 
@@ -453,48 +477,25 @@
             osApi.onCohortChange.add(onCohortChange);
             osApi.onCohortChange.add(updatePatientCounts)
 
-
-            osApi.query(clusterCollection, {
-                dataType: 'PCA',
-                $fields: ['input', 'geneset', 'source']
+            osApi.query("lookup_dataTypes", {
+                class: {$in : ["expr", "cnv", "mut01", "meth_thd", "meth", "cnv_thd"]},
+                schema: "hugo_sample"
             }).then(function(response) {
-                var data = response.data.map(function(v) {
-                    return {
-                        a: v.source,
-                        b: v.input,
-                        c: v.geneset
-                    };
-                });
-                var result = _.reduce(data, function(memo, val) {
-                    var tmp = memo;
-                    _.each(val, function(fldr) {
-                        if (!_.has(tmp, fldr)) {
-                            tmp[fldr] = {};
-                        }
-                        tmp = tmp[fldr];
-                    });
-                    return memo;
-                }, {});
-
-                vm.sources = Object.keys(result).map(function(source) {
-                    return {
-                        name: source,
-                        types: Object.keys(result[source]).map(function(type) {
-                            return {
-                                name: type,
-                                genesets: Object.keys(result[source][type]).map(function(geneset) {
-                                    return {
-                                        name: geneset
-                                    };
-                                })
-                            };
-                        })
-                    };
-                });
-                vm.source = vm.sources[0];
-
-
+                acceptableDatatypes = _.uniq(_.pluck(response.data, "dataType"))
             });
+
+            osApi.query("lookup_oncoscape_datasources", {
+                disease: vm.datasource.disease
+            }).then(function(response){
+                vm.molecularTables = response.data[0].molecular
+            
+                vm.sources = _.uniq(_.pluck(vm.molecularTables, "source"))
+                vm.source = vm.sources[0]
+            });
+
+            
+           
+        
 
             // Destroy
             $scope.$on('$destroy', function() {
