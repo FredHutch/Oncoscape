@@ -54,7 +54,7 @@
 
                 if (angular.isUndefined(geneset)) return;
                 $timeout(function() {
-                    var featureIdx = (vm.genesetFeature !== null) ? vm.genesetFeatures.indexOf(vm.genesetFeature) : 0;
+                   // var featureIdx = (vm.genesetFeature !== null) ? vm.genesetFeatures.indexOf(vm.genesetFeature) : 0;
                     vm.geneset = geneset;
                     // vm.genesetFeatures = geneset.histogram.features;
                     // vm.genesetFeature = geneset.histogram.features[featureIdx];
@@ -85,7 +85,7 @@
                 .attr("width", 260)
                 .attr("height", 150)
                 .append("g");
-            var histSingleValueLabel = angular.element("#genemenu-single-value");
+            //var histSingleValueLabel = angular.element("#genemenu-single-value");
             var elTip = d3.tip().attr("class", "tip").offset([-8, 0]).html(function(d) {
                 return "Range: " + d.label + "<br>Count: " + d.value + " of " + vm.geneFeature.data.count + "<br>Percent: " + $filter('number')((d.value / vm.genesetFeature.data.count) * 100, 2) + "%";
             });
@@ -177,12 +177,12 @@
              });
 
 
-            var formatDays = function(d) {
-                if (Math.abs(d) === 0) return d;
-                if (Math.abs(d) < 30) return d + " Days";
-                if (Math.abs(d) < 360) return Math.round((d / 30.4) * 10) / 10 + " Mos";
-                return Math.round((d / 365) * 10) / 10 + " Yrs";
-            };
+            // var formatDays = function(d) {
+            //     if (Math.abs(d) === 0) return d;
+            //     if (Math.abs(d) < 30) return d + " Days";
+            //     if (Math.abs(d) < 360) return Math.round((d / 30.4) * 10) / 10 + " Mos";
+            //     return Math.round((d / 365) * 10) / 10 + " Yrs";
+            // };
 
         }
     }

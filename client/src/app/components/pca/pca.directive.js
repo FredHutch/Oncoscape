@@ -102,17 +102,17 @@
               });
 
             // Move To Service 
-            // function PCAquery(disease, genes, samples, molecular_collection, n_components) {
-            //     var data = { disease: disease, genes: genes, samples: samples, molecular_collection: molecular_collection, n_components: n_components };
-            //     return $http({
-            //         method: 'POST',
-            //      //   url: "https://dev.oncoscape.sttrcancer.io/cpu/pca",
-            //         url: "http://localhost:8000/pca",
-            //         data: data,
+            function PCAquery(disease, genes, samples, molecular_collection, n_components) {
+                var data = { disease: disease, genes: genes, samples: samples, molecular_collection: molecular_collection, n_components: n_components };
+                return $http({
+                    method: 'POST',
+                 //   url: "https://dev.oncoscape.sttrcancer.io/cpu/pca",
+                    url: "http://localhost:8000/pca",
+                    data: data,
                     
                     
-            //     });
-            // }
+                });
+            }
 
             function processPCA(d, geneIds, samples){
 
@@ -176,8 +176,8 @@
                 if(molecular_matches.length ==1){
                     var molecular_collection = molecular_matches[0].collection
                 
-                    var simulate = true;
-                    if(simulate){
+                    var runType = "python";
+                    if(runType == "simulate"){
                         var numGenes = [100,200,500,1000, 5000, 10000,15000, 20000, 25000]; var numSamples = [100,200,500];
                         for(var i=0;i<numSamples.length;i++){
                             for(var j=0;j<numGenes.length;j++){
@@ -186,7 +186,7 @@
                             }
                         }
                         
-                    }else {
+                    }else if(runType == "JS") {
                         osApi.query(molecular_collection
                         ).then(function(response){
                             debugger;
@@ -194,6 +194,38 @@
 
                             if (angular.isUndefined(vm.geneSet)) return;
                             runPCA(vm.geneSet.geneIds);
+                        });
+                    }else if(runType == "python") {
+                        if (angular.isUndefined(vm.geneSet)) return;
+
+                        var samples = osApi.getCohort().sampleIds;
+                        if (samples.length === 0) samples = Object.keys(osApi.getData().sampleMap);
+
+                        var geneSetIds = vm.geneSet.geneIds
+                        if(geneSetIds.length == 0) 
+                            osApi.query(molecular_collection, {"$fields":["id"]}).then(function(response){
+                                debugger;
+                                geneSetIds = _.pluck(response.data, "id")
+                            })
+                            
+
+                        PCAquery(vm.datasource.disease, geneSetIds, samples, molecular_collection, 3).then(function(PCAresponse) {
+                            
+                            var d = PCAresponse.data;
+                            if(d.reason !== undefined){
+                                //vm.globalGeneSets[vm.globalGeneSets.findIndex(function(gs){return gs.uuid == geneset.uuid})].reason = d.reason;
+                                console.log(vm.geneSet.name +": " + d.reason)
+                                //console.log(geneset)
+                                osApi.setBusy(false)
+                                return;
+                            }
+                            
+                            //TO DO:: ### Update result names from oncoscape_wrapper so values -> d, and make variance values into percentages (ie *100)
+                            d.loadings = d.loadings.map(function(result){ return {id: result.id, d:result.value}});
+                            d.scores = d.scores.map(function(result){ return {id: result.id, d:result.value}});
+                            d.metadata.variance = d.metadata.variance.map(function(result) {return 100* result})
+                            processPCA(d);
+                            draw();
                         });
                     }
                 }
