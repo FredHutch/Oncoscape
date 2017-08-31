@@ -24,6 +24,8 @@
             // Loading ...
             osApi.setBusy(true);
 
+            var runType = "python"
+
             // Elements
             var d3Chart = d3.select("#pca-chart").append("svg");
             var d3Points = d3Chart.append("g");
@@ -98,7 +100,9 @@
             // Gene Service Integration
               osApi.onGenesetChange.add(function(geneset) {
                 osApi.setBusy(true);
-                vm.geneSet =  geneset
+                if(angular.isUndefined(vm.geneSet) | geneset.name != vm.geneSet.name){
+                    callPCA(runType, geneset)
+                }
               });
 
             // Move To Service 
@@ -170,77 +174,102 @@
                 
                 if (vm.source === null) return;
 
-                vm.geneSet = osApi.getGeneset()                    
+               // vm.geneSet = osApi.getGeneset()                    
                 var molecular_matches = vm.molecularTables.filter(function(d){return d.type == vm.pcaType & d.source == vm.source})
                 
                 if(molecular_matches.length ==1){
-                    var molecular_collection = molecular_matches[0].collection
-                
-                    var runType = "python";
-                    if(runType == "simulate"){
-                        var numGenes = [100,200,500,1000, 5000, 10000,15000, 20000, 25000]; var numSamples = [100,200,500];
-                        for(var i=0;i<numSamples.length;i++){
-                            for(var j=0;j<numGenes.length;j++){
-                                console.log("Genes: "+ numGenes[j] + " Samples: "+ numSamples[i])
-                                runPCAsimulation(numGenes[j], numSamples[i]);
-                            }
-                        }
-                        
-                    }else if(runType == "JS") {
-                        osApi.query(molecular_collection
-                        ).then(function(response){
-                            debugger;
-                            vm.molecular = response.data
-
-                            if (angular.isUndefined(vm.geneSet)) return;
-                            runPCA(vm.geneSet.geneIds);
-                        });
-                    }else if(runType == "python") {
-                        if (angular.isUndefined(vm.geneSet)) return;
-
-                        var samples = osApi.getCohort().sampleIds;
-                        if (samples.length === 0) samples = Object.keys(osApi.getData().sampleMap);
-
-                        var geneSetIds = vm.geneSet.geneIds
-                        if(geneSetIds.length == 0) 
-                            osApi.query(molecular_collection, {"$fields":["id"]}).then(function(response){
-                                debugger;
-                                geneSetIds = _.pluck(response.data, "id")
-                            })
-                            
-
-                        PCAquery(vm.datasource.disease, geneSetIds, samples, molecular_collection, 3).then(function(PCAresponse) {
-                            
-                            var d = PCAresponse.data;
-                            if(d.reason !== undefined){
-                                //vm.globalGeneSets[vm.globalGeneSets.findIndex(function(gs){return gs.uuid == geneset.uuid})].reason = d.reason;
-                                console.log(vm.geneSet.name +": " + d.reason)
-                                //console.log(geneset)
-                                osApi.setBusy(false)
-                                return;
-                            }
-                            
-                            //TO DO:: ### Update result names from oncoscape_wrapper so values -> d, and make variance values into percentages (ie *100)
-                            d.loadings = d.loadings.map(function(result){ return {id: result.id, d:result.value}});
-                            d.scores = d.scores.map(function(result){ return {id: result.id, d:result.value}});
-                            d.metadata.variance = d.metadata.variance.map(function(result) {return 100* result})
-                            processPCA(d);
-                            draw();
-                        });
-                    }
+                    vm.molecular_collection = molecular_matches[0].collection
                 }
 
+                // reactivate disabled genesets
+                osApi.getGenesets().filter(function(gs) {return gs.show & gs.disable}).forEach(function(gs){ osApi.toggleGenesetDisable(gs)})
+                
+                
+                callPCA(runType, osApi.getGeneset())
+                
+
             });
-             $scope.$watch('vm.geneSet', function(geneset) {
+            //  $scope.$watch('vm.geneSet', function(geneset) {
              
-                if (angular.isUndefined(geneset)) return;
-                if (angular.isUndefined(vm.molecular)) return;
-                debugger;
-                console.log("PCA: started")
-                runPCA(geneset.geneIds);
+            //     if (angular.isUndefined(geneset)) return;
+                
+            //     callPCA(runType, geneset);
 
-             });
+            //  });
 
+
+             var callPCA = function(runType, geneset){
+                if(runType == "simulate"){
+                    var numGenes = [100,200,500,1000, 5000, 10000,15000, 20000, 25000]; var numSamples = [100,200,500];
+                    for(var i=0;i<numSamples.length;i++){
+                        for(var j=0;j<numGenes.length;j++){
+                            console.log("Genes: "+ numGenes[j] + " Samples: "+ numSamples[i])
+                            runPCAsimulation(numGenes[j], numSamples[i]);
+                        }
+                    }
+                    
+                }else if(runType == "JS") {
+                    if (angular.isUndefined(vm.molecular_collection)) return;
+                    if (angular.isUndefined(geneset)) return;
+                    osApi.query(vm.molecular_collection
+                    ).then(function(response){
+                        debugger;
+                        vm.molecular = response.data
+
+                        runPCA(geneset.geneIds);
+                    });
+                }else if(runType == "python") {
+                    if (angular.isUndefined(geneset)) return;
+                    if (angular.isUndefined(vm.molecular_collection)) return;
+
+                    var geneSetIds = geneset.geneIds
+                    
+                    var samples = osApi.getCohort().sampleIds;
+                    // if (samples.length === 0) //samples = Object.keys(osApi.getData().sampleMap);
+                    //     osApi.query(molecular_collection, {"$limit":1}).then(function(response){
+                    //         debugger;
+                    //         samples = Object.keys(response.data[0].data)
+                    //     })
+                        
+                    osApi.setBusy(true)
+                    PCAquery(vm.datasource.disease, geneSetIds, samples, vm.molecular_collection, 3).then(function(PCAresponse) {
+                        
+                        var d = PCAresponse.data;
+                        if(d.reason !== undefined){
+                            console.log(geneset.name +": " + d.reason)
+                            // PCA could not be calculated on geneset given current settings
+                            
+                            //add to blacklist to disable from future selection/calculation
+                            osApi.toggleGenesetDisable(geneset);
+
+                            // revert/update display
+                            if(angular.isUndefined(vm.geneSet)){
+                                //load geneset anyways - nothing to fall back on
+                                //display null page
+                            }else{
+                                //rollback to previous definition
+                                window.alert("Sorry, PCA could not be calculated\n"+ geneset.name +": " + d.reason)
+                                osApi.setGeneset(vm.geneSet)
+                            }
+
+                            osApi.setBusy(false)
+                            return;
+                        }
+                        
+                        vm.geneSet = geneset
+                        
+                        //TO DO:: ### Update result names from oncoscape_wrapper so values -> d, and make variance values into percentages (ie *100)
+                        geneSetIds = _.pluck(d.loadings,"id")
+                        samples = _.pluck(d.scores,"id")
+                        d.scores  = d.scores.map(function(result){ return result.d});
+                        processPCA(d, geneSetIds, samples);
+                        draw();
+                    });
+                }
+                
+            }
+
+            
 
              var runPCAsimulation = function(numGenes, numSamples) {
 

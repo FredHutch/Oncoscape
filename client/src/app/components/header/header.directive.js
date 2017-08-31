@@ -67,6 +67,7 @@
                 osApi.setCohort(cohort);
             };
             vm.setGenesetList = function(geneset) {
+                geneset.show=true
                 osApi.setGeneset(geneset);
             };
 
