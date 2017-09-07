@@ -16,22 +16,12 @@ co(function *() {
     var host = 'mongodb://'+user+":"+pw+"@oncoscape-dev-db1.sttrcancer.io:27017,oncoscape-dev-db2.sttrcancer.io:27017,oncoscape-dev-db3.sttrcancer.io:27017/"+repo+"?authSource=admin&replicaSet=rs0"
     var db = yield comongo.client.connect(host);
 
-     
-    var source = "TCGA"
-    var json_meta = require("./tcga_molecular_lookup.json")
-    json_meta = json_meta.filter(function(d){ return d.schema == "hugo_sample"})
+    var json_meta = require("./tool_requirements.json")
 
     for(i=0;i<json_meta.length; i++){
-        var j = json_meta[i]
+        var t = json_meta[i]
         
-        var meta = {    "dataset" : "",
-                        "source" : "",
-                        "beta" : false,
-                        "name" : "",
-                        "img" : "DSdefault.png",
-                        "tools" : [ ],
-                        "collections" : []
-        }
+        
     //read from JSON object
     //read from lookup collection
     //  -- if dataset not found - add document with default metadata 
@@ -40,18 +30,23 @@ co(function *() {
     //-- req params per collection.  {collection: collection name, name: user readable collection name, type: }
     //-- optional defaults: {default:False, schema: hugo_sample}
         var lookup = yield comongo.db.collection(db, "lookup_oncoscape_datasources");    
-        var ds = yield lookup.find({dataset: j.dataset}).toArray()
-        if( ds.length  == 0){
-            ds = [meta]
-            ds[0].dataset = j.dataset
-            ds[0].source = typeof j.source == "undefined" ? source : j.source
-            ds[0].name =   j.dataset
+        var ds = yield lookup.find().toArray()
+        for(j=0;j<ds.length; j++){
+            var d = ds[j]
+            var collections = d.collections
+            //if( d.collections.length  == 0){        }
+            for(r=0;r<t.req.length;r++){
+                collections = collections.filter(function(c){ return _.contains(t.req[r].value,c[t.req[r].field])})
+            }
+            if(collections.length >0){
+                var res = yield lookup.update({dataset:d.dataset}, {$addToSet:{"tools": t.name}}, {writeConcern:{w:"majority"}})
+            } else{
+                if(_.contains(d.tools, t.name)){
+                    d.tools = _.without(d.tools, t.name);
+                    yield lookup.update({dataset: d.dataset}, {$set:{"tools": d.tools}}, {writeConcern:{w:"majority"}})
+                }
+            }
         }
-        schema = typeof j.schema == "undefined" ? "hugo_sample" : j.schema
-        def_coll = typeof j.default == "undefined" ? false : j.default
-        ds[0].collections.push({name: j.name, collection:j.collection, type: j.type, schema:schema, default:def_coll})
-        
-        var res = yield lookup.update({dataset: j.dataset}, ds[0], {upsert: true, writeConcern: {w:"majority"}})
         
     } 
 

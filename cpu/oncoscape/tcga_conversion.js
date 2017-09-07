@@ -1,5 +1,5 @@
-// add dataset to database for v2 compliance
-// 1. add dataset to lookup_datasources
+// read TCGA db lookup table to aggregate info on molecular collections
+// then save JSON file with collection metadata for adding to v2 database
 
 const comongo = require('co-mongodb');
 const co = require('co');

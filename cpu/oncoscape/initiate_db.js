@@ -20,10 +20,10 @@ var repo = "v2"
 var host = 'mongodb://'+user+":"+pw+"@oncoscape-dev-db1.sttrcancer.io:27017,oncoscape-dev-db2.sttrcancer.io:27017,oncoscape-dev-db3.sttrcancer.io:27017/"+repo+"?authSource=admin&replicaSet=rs0"
 var db = yield comongo.client.connect(host);
 
-// Create Datasources Lookup Collection
-collection = yield comongo.db.collection(db, "lookup_oncoscape_datasources");
-var count = yield collection.count();
-if(count == 0){    yield collection.insert({}); }
+// Create Datasources Lookup Collection --- unnecessary; add_dataset script handles creation if necessary
+// collection = yield comongo.db.collection(db, "lookup_oncoscape_datasources");
+// var count = yield collection.count();
+// if(count == 0){    yield collection.insert({}); }
 
 // Create Tools Lookup Collection
 collection = yield comongo.db.collection(db, "lookup_oncoscape_tools");
