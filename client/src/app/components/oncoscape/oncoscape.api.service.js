@@ -366,14 +366,14 @@
 
                 if (survival.length == 0) return null;
 
-                /* 
+                /*
                 Transform Survival Records Into KM Data The Result Is A Value Object Containing The Following
                 t = time in days
                 c = array of censored patient ids
                 d = array of dead patient ids
                 n = numer of patients remaining
                 s = survival rate
-                p = previous survival rate 
+                p = previous survival rate
                 */
                 var te = survival.reduce(function(p, c) {
                     p.tte.push(c.tte);
@@ -426,7 +426,7 @@
         var _tools; // List of Tools For DataSource
         var _data = null; // This is the clinical and sample to patient mapping data.
         var _hugoMap = null; // Hugo Gene sybol map to alias
-        var _cohortAll; // Precalculated Cohort of All Patients / Samples 
+        var _cohortAll; // Precalculated Cohort of All Patients / Samples
         var _cohorts = null; // Collection of Cohorts
         var _cohort = null; // Selected Cohorts
         var _genesetAll; // Precalculated Geneset of All Symbols
@@ -526,14 +526,14 @@
                     _cohortDatasetInfo.numSamples = Object.keys(data.sampleMap).length;
                     _cohortDatasetInfo.numPatients = Object.keys(data.patientMap).length;
 
-                    // Survival Data 
+                    // Survival Data
                     responses[1].data.map(function(v) {
 
                         // No Status - Exclude
                         if (!v.hasOwnProperty("status_vital")) return null;
                         if (v.status_vital === null) return null;
 
-                        // Get Time - Or Exclude    
+                        // Get Time - Or Exclude
                         var status = v.status_vital.toString().trim().toUpperCase();
                         var time;
                         if (status == "ALIVE") { // Alive = Sensor 2
@@ -615,8 +615,8 @@
             return create(name, patientIds, sampleIds);
         };
 
-        var createWithHugoIds = function(name, hugoIds, data) {
-            
+        var createWithHugoIds = function(name, hugoIds) {
+
             if (hugoIds.length === 0) return _genesetAll;
             var geneIds = hugoIds;
             var result = {
@@ -747,7 +747,7 @@
 
         // Adds gene Ids to geneset and stores in localStorage
         var importGeneIds = function(ids, name) {
-                
+
             //  var geneIds = _.union.apply(null, ids
             //     .map(function(id) { // Convert All Ids to Patient Ids
             //         id = id.trim(); // Clean input
@@ -758,7 +758,7 @@
             //      })
             //); // Union Merges Arrays + Removes Dups
             var geneIds = ids;
-            
+
             setGeneset(geneIds, name, "SYMBOL");
             saveGeneset();
         };
@@ -799,7 +799,7 @@
                         resolve();
                     }, reject);
                 }),
-                new Promise(function(resolve, reject) { 
+                new Promise(function(resolve, reject) {
                     query("lookup_genesets", {
   //                      $fields: ['name', 'genes']
                     }).then(function(response) {
@@ -825,12 +825,12 @@
                                 disable: false,
                                 type: 'ALLGENES'
                         };
-        
+
                         _genesets.unshift(_genesetAll);
                         var localGenesets = localStorage.getItem('GeneSets');
-                        
+
                         if (localGenesets !== null) {
-                            
+
                             var localGenesetsArray = angular.fromJson(localGenesets)
                             if(localGenesetsArray.length != 0){
                                 _genesets.concat(localGenesetsArray);
@@ -838,21 +838,21 @@
                             } else {
                                 setGeneset(_genesetAll);
                             }
-                        } 
-                                    
+                        }
+
                         onGenesetsChange.dispatch(_genesets);
                         onGenesetChange.dispatch(_geneset);
-    
+
                             resolve();
                         }, reject);
-                    
+
                     }),
-    
-                new Promise(function(resolve, reject) { 
+
+                new Promise(function(resolve, reject) {
                     query("lookup_oncoscape_genes", {
-                    }).then(function(response) { 
+                    }).then(function(response) {
                         _hugoMap = response.data
-                
+
                     resolve();
                     }, reject);
                 })
@@ -930,7 +930,7 @@
             saveGeneset: saveGeneset,
             deleteGeneset: deleteGeneset,
             toggleGenesetDisable: toggleGenesetDisable,
-            
+
             // Signals
             onPatientColorChange: onPatientColorChange,
             onCohortToolInfo: onCohortToolInfo,
