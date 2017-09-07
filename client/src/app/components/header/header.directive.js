@@ -20,107 +20,111 @@
         return directive;
 
         /** @ngInject */
-        function HeaderController(osApi, osCohortService, osAuth, $stateParams, $state, $timeout, $rootScope) {
+        function HeaderController(osApi, osAuth, $stateParams, $state, $window) {
 
-            osApi.onDataSource.add(function() {
-                $timeout(function() {
-                    vm.datasets = osApi.getDataSources();
-                });
-                osApi.query("lookup_oncoscape_tools").then(function(response) {
-                    var tools = osApi.getDataSource().tools;
-                    vm.tools = response.data.filter(function(item) {
-                        return (tools.indexOf(item.route) != -1);
-                    }).sort(function(a, b) {
-                        if (a.name < b.name) return -1;
-                        if (a.name > b.name) return 1;
-                        return 0;
-                    });
-                });
-            });
-
+            // View Model
             var vm = this;
-            vm.show = false;
-            vm.cohorts = [];
-            vm.addPatientCohort = osCohortService.addPatientCohort;
-            vm.setPatientCohort = osCohortService.setPatientCohort;
-            osCohortService.onCohortsChange.add(function(allCohorts) {
-                vm.cohorts = allCohorts;
-            });
-            vm.importPatientIds = "";
-            vm.importPatientCohort = function() {
-                var ids = vm.importPatientIds.split(",").map(function(v) { return v.trim(); });
-                osCohortService.setPatientCohort(ids, "Import", osCohortService.PATIENT);
-            };
             vm.showImport = false;
             vm.showTools = false;
             vm.showDatasets = false;
-            vm.showCohorts = false;
-            vm.showHelp = false;
-            vm.showLogout = false;
+            vm.datasources = [];
+            vm.tools = [];
+            vm.cohorts = [];
+            vm.genesets = [];
 
-            var elMain = $("#main");
-            var currentTool;
-            var onStateChangeStart = $rootScope.$on('$stateChangeStart', function(event, toState) {
-                currentTool = toState.name;
-                switch (toState.name) {
-                    case "landing":
+            // State Management
+            osApi.onNavChange.add(function(state) {
+                switch (state) {
+                    case "TOOLS":
                         vm.showTools = false;
                         vm.showDatasets = false;
-                        vm.showLogout = false;
-                        vm.showCohorts = false;
-                        vm.showHelp = false;
-                        vm.show = false;
-                        elMain.addClass("container-main-full")
                         break;
-                    case "tools":
-                        vm.showCohorts = false;
-                        vm.showTools = false;
-                        vm.show = true;
-                        elMain.removeClass("container-main-full")
-                        break;
-                    case "datasource":
-                        vm.showHelp = true;
-                        vm.showDatasets = false;
-                        vm.showCohorts = false;
-                        vm.showLogout = true;
-                        vm.showTools = false;
-                        vm.show = true;
-                        elMain.removeClass("container-main-full")
+                    case "TOOL":
+                        vm.showTools = true;
+                        vm.showDatasets = true;
+                        vm.datasources = osApi.getDataSources();
+                        vm.tools = osApi.getTools();
+                        vm.cohorts = osApi.getCohorts();
+                        vm.genesets = osApi.getGenesets();
                         break;
                     default:
-                        vm.showCohorts = true;
-                        vm.showDatasets = true;
-                        vm.showTools = true;
-                        vm.show = true;
-                        elMain.removeClass("container-main-full")
+                        vm.showTools = false;
+                        vm.showDatasets = false;
                         break;
                 }
             });
-            $rootScope.$on('$destroy', onStateChangeStart);
 
+            // Cohort Commands
+            vm.addPatientCohort = function() {
+                osApi.saveCohort();
+            };
+            vm.addGenesetList = function() {
+                osApi.saveGeneset();
+            };
+
+            // State Command
+            vm.setPatientCohort = function(cohort) {
+                osApi.setCohort(cohort);
+            };
+            vm.setGenesetList = function(geneset) {
+                geneset.show=true
+                osApi.setGeneset(geneset);
+            };
+
+            // Import Cohorts Command 
+            vm.importIds = "";
+            vm.importCohort = function() {
+                var ids = vm.importIds.split(",").map(function(v) { return v.trim(); });
+                osApi.importIds(ids, vm.importName);
+                vm.importIds = "";
+                vm.importName = "";
+                vm.showImport = false;
+            };
+
+            // Import Cohorts Command 
+            vm.importGeneIds = "";
+            vm.importGeneset = function() {
+                var ids = vm.importGeneIds.split(",").map(function(v) { return v.trim(); });
+                osApi.importGeneIds(ids, vm.importGenesetName);
+                vm.importGeneIds = "";
+                vm.importGenesetName = "";
+                vm.showGeneImport = false;
+            };
+            
+            
+            vm.login = function() {
+                $state.go("login");
+            };
+            vm.logout = function() {
+
+
+                localStorage.clear();
+                //$window.reload(true);
+                $window.location.href = "#";
+                //$window.reload();
+            };
+            vm.showHelp = function() {
+                $window.open("\\documentation" + $state.current.help.toString());
+            };
+
+            // Update Cohorts When Datasource Changes
+            osApi.onCohortsChange.add(function() {
+                vm.cohorts = osApi.getCohorts();
+            });
+
+            // Load Dataset Command - Navigation
             vm.loadDataset = function(dataset) {
-                osApi.setBusy(true);
-                osCohortService.loadCohorts().then(function() {
-                    $state.go(currentTool, {
-                        datasource: dataset
-                    });
-                    osApi.setBusy(false);
-                });
                 angular.element('.navbar-collapse').collapse('hide');
+                $state.go($state.current.url.split("/")[1], { datasource: dataset });
+
             };
 
+            // Load Tool Command - Navigation
             vm.loadTool = function(tool) {
-                $state.go(tool, {
-                    datasource: osApi.getDataSource().disease
-                });
+                $state.go(tool, { datasource: osApi.getDataSource().disease });
                 angular.element('.navbar-collapse').collapse('hide');
             };
 
-            vm.logoutClick = function() {
-                osAuth.logout();
-                $state.transitionTo("landing");
-            }
         }
     }
-
 })();

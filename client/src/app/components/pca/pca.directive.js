@@ -19,18 +19,19 @@
         return directive;
 
         /** @ngInject */
-        function PcaController($q, osApi, osCohortService, $state, $stateParams, $timeout, $scope, d3, moment, $window, _) {
+        function PcaController($q, osApi, $state, $stateParams, $timeout, $scope, d3, moment, $window,$http,  _, ML) {
 
             // Loading ...
             osApi.setBusy(true);
+
+            var runType = "python"
 
             // Elements
             var d3Chart = d3.select("#pca-chart").append("svg");
             var d3Points = d3Chart.append("g");
             var d3xAxis = d3Chart.append("g");
             var d3yAxis = d3Chart.append("g");
-            var brush;
-            var d3Brush = d3Chart.append("g");
+            var circles;
 
             // Add Labels
             d3xAxis.append("text")
@@ -45,6 +46,7 @@
                 .text("PC2");
 
             // Properties
+            //var clusterCollection = osApi.getDataSource().disease + "_cluster";
             var scaleX, scaleY, axisX, axisY;
             var data, minMax;
             var width, height;
@@ -54,19 +56,22 @@
                 name: "None",
                 type: "color"
             };
+            var acceptableDatatypes = [];
 
             // View Model Update
             var vm = (function(vm, osApi) {
                 vm.loadings = [];
                 vm.pc1 = vm.pc2 = [];
                 vm.datasource = osApi.getDataSource();
-                vm.geneSets = [];
-                vm.geneSet = null;
+               
+                vm.sources = [];
+                vm.source = null;
+                
                 vm.search = "";
                 vm.selectColor = function(e) {
                     var ids = e.values;
                     var allIds = [];
-                    d3.selectAll("circle").each(function(d) {
+                    d3.selectAll("circle.pca-node").each(function(d) {
                         if (ids.indexOf(d.id) != -1) {
                             d3.select(this).classed("pca-node-selected", true);
                             allIds.push(d.id);
@@ -74,102 +79,268 @@
                             if (d3.select(this).classed("pca-node-selected")) allIds.push(d.id);
                         }
                     });
-                    osCohortService.setCohort(allIds, "PCA", osCohortService.SAMPLE);
+                    osApi.setCohort(allIds, "PCA", osApi.SAMPLE);
                 };
                 vm.deselectColor = function(e) {
                     var ids = e.values;
                     var allIds = [];
-                    d3.selectAll("circle").each(function(d) {
+                    d3.selectAll("circle.pca-node").each(function(d) {
                         if (ids.indexOf(d.id) != -1) {
                             d3.select(this).classed("pca-node-selected", false);
                         } else {
                             if (d3.select(this).classed("pca-node-selected")) allIds.push(d.id);
                         }
                     });
-                    osCohortService.setCohort(allIds, "PCA", osCohortService.SAMPLE);
+                    osApi.setCohort(allIds, "PCA", osApi.SAMPLE);
                 };
+                
                 return vm;
             })(this, osApi);
 
-            // Setup Watches
-            $scope.$watch('vm.geneSet', function() {
-                if (vm.geneSet === null) return;
-                vm.sources = vm.geneSet.sources;
-                vm.source = vm.sources[0];
-            });
-            $scope.$watch('vm.source', function() {
-                if (vm.geneSet === null) return;
-                vm.pcaTypes = vm.source.types;
-                vm.pcaType = vm.pcaTypes[0];
-            });
-            $scope.$watch('vm.pcaType', function(geneset) {
-                if (angular.isUndefined(geneset)) return;
-                osApi.query(vm.datasource.disease + "_loadings", { type: 'ucsc_prcomp-allgenes-cnv' }).then(function(response) {
+            // Gene Service Integration
+              osApi.onGenesetChange.add(function(geneset) {
+                osApi.setBusy(true);
+                if(angular.isUndefined(vm.geneSet) | geneset.name != vm.geneSet.name){
+                    callPCA(runType, geneset)
+                }
+              });
 
-                    var loadings = response.data[0].loadings;
-                    var scale = d3.scaleLinear()
-                        .domain([loadings[loadings.length - 1].max, loadings[0].max])
-                        .range([.1, 1]);
-                    vm.loadings = response.data[0].loadings.map(function(v) {
-                        return {
-                            tip: v.values.reduce(function(p, c) {
-                                p.index += 1;
-                                p.text += "<br>PC" + p.index + ": " + (c * 100).toFixed(2) + "%";
-                                return p;
-                            }, { text: v.gene, index: 0 }).text,
-                            value: this(v.max)
-                        };
-                    }, scale);
-
+            // Move To Service 
+            function PCAquery(disease, genes, samples, molecular_collection, n_components) {
+                var data = { disease: disease, genes: genes, samples: samples, molecular_collection: molecular_collection, n_components: n_components };
+                return $http({
+                    method: 'POST',
+                 //   url: "https://dev.oncoscape.sttrcancer.io/cpu/pca",
+                    url: "http://localhost:8000/pca",
+                    data: data,
+                    
+                    
                 });
-                osApi.query("render_pca", {
-                        disease: vm.datasource.disease,
-                        geneset: vm.geneSet.name,
-                        type: vm.pcaType.name,
-                        source: vm.source.name
-                    })
-                    .then(function(response) {
-                        var d = response.data[0];
-                        console.log(d.pc1)
-                        vm.pc1 = [
-                            { name: 'PC1', value: d.pc1 },
-                            { name: '', value: 100 - d.pc1 }
+            }
 
-                        ];
-                        vm.pc2 = [
-                            { name: 'PC2', value: d.pc2 },
-                            { name: '', value: 100 - d.pc2 }
-                        ];
+            function processPCA(d, geneIds, samples){
 
-                        var keys = Object.keys(response.data[0].data);
-                        data = keys.map(function(key) {
-                            this.data[key].id = key;
-                            return this.data[key];
-                        }, {
-                            data: d.data
-                        });
-                        minMax = data.reduce(function(p, c) {
-                            p.xMin = Math.min(p.xMin, c[0]);
-                            p.xMax = Math.max(p.xMax, c[0]);
-                            p.yMin = Math.min(p.yMin, c[1]);
-                            p.yMax = Math.max(p.yMax, c[1]);
-                            return p;
-                        }, {
-                            xMin: Infinity,
-                            yMin: Infinity,
-                            xMax: -Infinity,
-                            yMax: -Infinity
-                        });
+                console.log("PCA: processing results " + Date())
+                
+                // Process PCA Variance
+                vm.pc1 = [
+                    { name: 'PC1', value: (d.metadata.variance[0] * 100).toFixed(2) },
+                    { name: '', value: 100 - (d.metadata.variance[0]*100) }
+                ];
+                vm.pc2 = [
+                    { name: 'PC2', value: (d.metadata.variance[1] *100).toFixed(2) },
+                    { name: '', value: 100 - (d.metadata.variance[1] *100) }
+                ];
 
-                        minMax.xMax = Math.max(Math.abs(minMax.xMin), minMax.xMax);
-                        minMax.xMin = -minMax.xMax;
-                        minMax.yMax = Math.max(Math.abs(minMax.yMin), minMax.yMax);
-                        minMax.yMin = -minMax.yMax;
 
+                // Process Scores
+                data = d.scores.map(function(v,i) {
+                    v.id = samples[i];
+                    return v;
+                });
+
+                minMax = data.reduce(function(p, c) {
+                    p.xMin = Math.min(p.xMin, c[0]);
+                    p.xMax = Math.max(p.xMax, c[0]);
+                    p.yMin = Math.min(p.yMin, c[1]);
+                    p.yMax = Math.max(p.yMax, c[1]);
+                    return p;
+                }, {
+                    xMin: Infinity,
+                    yMin: Infinity,
+                    xMax: -Infinity,
+                    yMax: -Infinity
+                });
+
+            }
+
+            // Setup Watches
+            
+            $scope.$watch('vm.source', function() {
+                
+                if (vm.source === null) return;
+                
+                vm.pcaTypes = _.uniq(_.pluck(vm.molecularTables.filter(function(d) {return d.source == vm.source}), "type"))
+                vm.pcaTypes = _.intersection(vm.pcaTypes, acceptableDatatypes)
+
+                if (angular.isUndefined(vm.pcaType)) {
+                    vm.pcaType = vm.pcaTypes[0];
+                } else {
+                    var newSource = vm.pcaTypes.filter(function(v) { return (v === vm.pcaType); });
+                    vm.pcaType = (newSource.length === 1) ? newSource[0] : vm.pcaTypes[0];
+                }
+            });
+            $scope.$watch('vm.pcaType', function() {
+                
+                if (vm.source === null) return;
+
+               // vm.geneSet = osApi.getGeneset()                    
+                var molecular_matches = vm.molecularTables.filter(function(d){return d.type == vm.pcaType & d.source == vm.source})
+                
+                if(molecular_matches.length ==1){
+                    vm.molecular_collection = molecular_matches[0].collection
+                }
+
+                // reactivate disabled genesets
+                osApi.getGenesets().filter(function(gs) {return gs.show & gs.disable}).forEach(function(gs){ osApi.toggleGenesetDisable(gs)})
+                
+                
+                callPCA(runType, osApi.getGeneset())
+                
+
+            });
+            //  $scope.$watch('vm.geneSet', function(geneset) {
+             
+            //     if (angular.isUndefined(geneset)) return;
+                
+            //     callPCA(runType, geneset);
+
+            //  });
+
+
+             var callPCA = function(runType, geneset){
+                if(runType == "simulate"){
+                    var numGenes = [100,200,500,1000, 5000, 10000,15000, 20000, 25000]; var numSamples = [100,200,500];
+                    for(var i=0;i<numSamples.length;i++){
+                        for(var j=0;j<numGenes.length;j++){
+                            console.log("Genes: "+ numGenes[j] + " Samples: "+ numSamples[i])
+                            runPCAsimulation(numGenes[j], numSamples[i]);
+                        }
+                    }
+                    
+                }else if(runType == "JS") {
+                    if (angular.isUndefined(vm.molecular_collection)) return;
+                    if (angular.isUndefined(geneset)) return;
+                    osApi.query(vm.molecular_collection
+                    ).then(function(response){
+                        debugger;
+                        vm.molecular = response.data
+
+                        runPCA(geneset.geneIds);
+                    });
+                }else if(runType == "python") {
+                    if (angular.isUndefined(geneset)) return;
+                    if (angular.isUndefined(vm.molecular_collection)) return;
+
+                    var geneSetIds = geneset.geneIds
+                    
+                    var samples = osApi.getCohort().sampleIds;
+                    // if (samples.length === 0) //samples = Object.keys(osApi.getData().sampleMap);
+                    //     osApi.query(molecular_collection, {"$limit":1}).then(function(response){
+                    //         debugger;
+                    //         samples = Object.keys(response.data[0].data)
+                    //     })
+                        
+                    osApi.setBusy(true)
+                    PCAquery(vm.datasource.disease, geneSetIds, samples, vm.molecular_collection, 3).then(function(PCAresponse) {
+                        
+                        var d = PCAresponse.data;
+                        if(d.reason !== undefined){
+                            console.log(geneset.name +": " + d.reason)
+                            // PCA could not be calculated on geneset given current settings
+                            
+                            //add to blacklist to disable from future selection/calculation
+                            osApi.toggleGenesetDisable(geneset);
+
+                            // revert/update display
+                            if(angular.isUndefined(vm.geneSet)){
+                                //load geneset anyways - nothing to fall back on
+                                //display null page
+                            }else{
+                                //rollback to previous definition
+                                window.alert("Sorry, PCA could not be calculated\n"+ geneset.name +": " + d.reason)
+                                osApi.setGeneset(vm.geneSet)
+                            }
+
+                            osApi.setBusy(false)
+                            return;
+                        }
+                        
+                        vm.geneSet = geneset
+                        
+                        //TO DO:: ### Update result names from oncoscape_wrapper so values -> d, and make variance values into percentages (ie *100)
+                        geneSetIds = _.pluck(d.loadings,"id")
+                        samples = _.pluck(d.scores,"id")
+                        d.scores  = d.scores.map(function(result){ return result.d});
+                        processPCA(d, geneSetIds, samples);
                         draw();
                     });
-            });
+                }
+                
+            }
 
+            
+
+             var runPCAsimulation = function(numGenes, numSamples) {
+
+                var options = {isCovarianceMatrix: false, center : true, scale: false};
+                // create 2d array of samples x features (genes)
+                var molecular = Array.apply(null, {length: numSamples}).map(function(s){ return Array.apply(null, {length: numGenes}).map(Function.call, Math.random)});
+                
+                var then = Date.now();
+                //console.log("PCA: Running " + Date())
+                var d = new ML.Stat.PCA(molecular, options)
+                var now = Date.now()
+                //console.log("PCA: transforming scores " + Date())
+                console.log("Genes: "+ numGenes + " Samples: "+numSamples+ "Diff: " + (now-then)/1000)
+
+             }
+
+             var runPCA = function(geneIds) {
+
+                var options = {isCovarianceMatrix: false, center : true, scale: false};
+
+                // Subset samples to those available in the collection
+                var samples = osApi.getCohort().sampleIds;
+                if (samples.length === 0) samples = Object.keys(osApi.getData().sampleMap);
+                samples = samples.filter(function(s){ return _.has(vm.molecular[0].data,s) })
+
+                //subset geneIds to be only those returned from query
+                geneIds = _.intersection( _.pluck(vm.molecular,"id"), geneIds)
+                
+                
+
+                // create 2d array of samples x features (genes)
+                var molecular = samples.map(function(s){ return vm.molecular.map(function(g){ return g.data[s]})  })
+                //var molecular = response.data.map(function(g){ return samples.map(function(s){ return g.data[s]})  })
+                
+                console.log("PCA: Running " + Date())
+                var d = new ML.Stat.PCA(molecular, options)
+                console.log("PCA: transforming scores " + Date())
+                d.metadata = {}
+                d.metadata.variance = d.getExplainedVariance()
+                d.loadings = d.getLoadings() // [[PC1 loadings (for coefficients for each gene)], [PC2 loadings], [...#PC = # samples]]
+                
+                d.scores = d.predict(molecular)
+                // var z = molecular.map(function(m){return jStat.subtract(m, d.means)}) //, scale = Array(d.means.length).fill(1)
+                // d.scores = z.map(function(m){ return d.getLoadings().map(function(ev) { return jStat.dot(m, ev)})});
+
+                processPCA(d, geneIds, samples);
+                draw();
+                
+            }
+
+            var updatePatientCounts = function() {
+
+                angular.element(".legend-count").text("");
+                var selectedPatients = osApi.getCohort().sampleIds;
+
+                if (selectedPatients.length === 0) 
+                   selectedPatients = data.map(function(d){
+                    return d.id})
+
+                var counts = data.filter(function(d){return selectedPatients.indexOf(d.id) !== -1}).reduce(function(p, c) {
+                    var color = c.color;
+                    if (!p.hasOwnProperty(color)) p[color] = 0;
+                    p[color] += 1;
+                    return p;
+                }, {});
+
+                Object.keys(counts).forEach(function(key) {
+                    angular.element("#legend-" + key.substr(1)).text(" (" + this[key] + ")");
+                }, counts);
+
+            };
 
             // Utility Functions
             function setSelected() {
@@ -177,6 +348,7 @@
                 d3Points.selectAll("circle").classed("pca-node-selected", function() {
                     return (selectedIds.indexOf(this.__data__.id) >= 0);
                 });
+
             }
 
             function setColors() {
@@ -205,12 +377,59 @@
                         return v;
                     }, degMap);
                 }
+                $timeout(updatePatientCounts);
+                 
             }
+
+            var lasso_start = function() {
+
+                lasso.items()
+                    .attr("r", 3.5) // reset size
+                    .classed("not_possible", true)
+                    .classed("selected", false);
+            };
+
+            var lasso_draw = function() {
+
+
+                // Style the possible dots
+                lasso.possibleItems()
+                    .classed("not_possible", false)
+                    .classed("possible", true);
+
+                // Style the not possible dot
+                lasso.notPossibleItems()
+                    .classed("not_possible", true)
+                    .classed("possible", false);
+            };
+
+            var lasso_end = function() {
+
+                // Reset the color of all dots
+                lasso.items()
+                    .classed("not_possible", false)
+                    .classed("possible", false);
+
+                var ids = lasso.selectedItems().data().map(function(d) {
+                    return d.id;
+                });
+                osApi.setCohort(ids, "PCA", osApi.SAMPLE);
+
+            };
+
+            var lasso = d3.lasso()
+                .closePathSelect(true)
+                .closePathDistance(100)
+                .targetArea(d3Chart)
+                .on("start", lasso_start)
+                .on("draw", lasso_draw)
+                .on("end", lasso_end);
 
             function draw() {
 
                 // Colorize
                 setColors();
+                
 
                 // Size
                 var layout = osApi.getLayout();
@@ -222,7 +441,6 @@
                 });
 
                 d3Chart.attr("width", width).attr("height", height);
-                d3Brush.attr("width", width).attr("height", height);
                 d3Points.attr("width", width).attr("height", height);
 
                 // Scale
@@ -230,8 +448,8 @@
                 scaleY = d3.scaleLinear().domain([minMax.yMin, minMax.yMax]).range([50, height - 50]).nice();
 
                 // Draw
-                var circles = d3Points.selectAll("circle").data(data);
-                circles.enter().append("svg:circle")
+                circles = d3Points.selectAll("circle").data(data);
+                circles.enter().append("circle")
                     .attr("class", "pca-node")
                     .attr("cx", function(d) {
                         return scaleX(d[0]);
@@ -243,6 +461,7 @@
                     .style("fill", function(d) {
                         return d.color;
                     });
+
                 circles.exit()
                     .transition()
                     .duration(200)
@@ -273,51 +492,31 @@
                     .style("fill-opacity", 0.8);
 
                 // Axis
-                axisX = d3.axisTop().scale(scaleX).ticks(5);
-                axisY = d3.axisLeft().scale(scaleY).ticks(5);
+                axisX = d3.axisTop().scale(scaleX).ticks(3);
+                axisY = d3.axisLeft().scale(scaleY).ticks(3);
 
                 d3xAxis
                     .attr("class", "axis")
-                    .attr("transform", "translate(0, " + scaleY(0) + ")")
+                    .attr("transform", "translate(0, " + height * 0.5 + ")")
                     .call(axisX);
 
 
                 d3yAxis
                     .attr("class", "axis")
-                    .attr("transform", "translate(" + scaleX(0) + ", 0)")
+                    .attr("transform", "translate(" + width * 0.5 + ", 0)")
                     .call(axisY);
 
 
-                // Brush
-                brush = d3.brush()
-                    .on("end", function() {
+                lasso.items(d3Points.selectAll("circle"));
+                d3Chart.call(lasso);
 
-                        if (!d3.event.selection) {
-                            osCohortService.setCohort([], osCohortService.ALL, osCohortService.SAMPLE);
-                            return;
-                        }
-
-                        var bv = d3.event.selection;
-                        var xMin = bv[0][0];
-                        var xMax = bv[1][0];
-                        var yMin = bv[0][1];
-                        var yMax = bv[1][1];
-
-                        var ids = d3Points.selectAll("circle").data().filter(function(d) {
-                            var x = scaleX(d[0]);
-                            var y = scaleY(d[1]);
-                            return (x > xMin && x < xMax && y > yMin && y < yMax);
-                        }).map(function(d) {
-                            return d.id;
-                        });
-                        osCohortService.setCohort(ids, "PCA", osCohortService.SAMPLE);
-
-                    });
-
-                d3Brush.attr("class", "brush").call(brush);
-                onCohortChange(osCohortService.getCohort());
+                onCohortChange(osApi.getCohort());
+                //onGenesetChange(osApi.getGeneset());
                 osApi.setBusy(false);
+
+
             }
+
 
             // App Event :: Resize
             osApi.onResize.add(draw);
@@ -328,67 +527,42 @@
                 vm.showPanelColor = false;
                 draw();
             };
-            osCohortService.onPatientColorChange.add(onPatientColorChange);
+            osApi.onPatientColorChange.add(onPatientColorChange);
 
             // App Event :: Cohort Change
-            var cohort = osCohortService.getCohorts();
+            var cohort = osApi.getCohorts();
             var onCohortChange = function(c) {
                 cohort = c;
                 setSelected();
             };
-            osCohortService.onCohortChange.add(onCohortChange);
+            osApi.onCohortChange.add(onCohortChange);
+            osApi.onCohortChange.add(updatePatientCounts)
 
-            // Initialize
-            var pcaScores = vm.datasource.calculated.filter(function(v) { return v.type == "pcaScores"; });
+            osApi.query("lookup_dataTypes", {
+                class: {$in : ["expr", "cnv", "mut01", "meth_thd", "meth", "cnv_thd"]},
+                schema: "hugo_sample"
+            }).then(function(response) {
+                acceptableDatatypes = _.uniq(_.pluck(response.data, "dataType"))
+            });
 
+            osApi.query("lookup_oncoscape_datasources", {
+                disease: vm.datasource.disease
+            }).then(function(response){
+                vm.molecularTables = response.data[0].molecular
+            
+                vm.sources = _.uniq(_.pluck(vm.molecularTables, "source"))
+                vm.source = vm.sources[0]
+            });
 
-            osApi.query("render_pca", {
-                    disease: vm.datasource.disease,
-                    $fields: ['type', 'geneset', 'source']
-                })
-                .then(function(response) {
-                    var data = response.data.map(function(v) {
-                        return {
-                            a: v.geneset,
-                            b: v.source,
-                            c: v.type
-                        };
-                    });
-
-                    var result = _.reduce(data, function(memo, val) {
-                        var tmp = memo;
-                        _.each(val, function(fldr) {
-                            if (!_.has(tmp, fldr)) {
-                                tmp[fldr] = {};
-                            }
-                            tmp = tmp[fldr];
-                        });
-                        return memo;
-                    }, {});
-
-                    vm.geneSets = Object.keys(result).map(function(geneset) {
-                        return {
-                            name: geneset,
-                            sources: Object.keys(result[geneset]).map(function(source) {
-                                return {
-                                    name: source,
-                                    types: Object.keys(result[geneset][source]).map(function(type) {
-                                        return {
-                                            name: type
-                                        };
-                                    })
-                                };
-                            })
-                        };
-                    });
-                    vm.geneSet = vm.geneSets[0];
-                });
+            
+           
+        
 
             // Destroy
             $scope.$on('$destroy', function() {
                 osApi.onResize.remove(draw);
-                osCohortService.onPatientColorChange.remove(onPatientColorChange);
-                osCohortService.onCohortChange.remove(onCohortChange);
+                osApi.onPatientColorChange.remove(onPatientColorChange);
+                osApi.onCohortChange.remove(onCohortChange);
             });
         }
     }

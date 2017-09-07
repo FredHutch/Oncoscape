@@ -1,6 +1,5 @@
 // Namespace
 .datasource {
-    /*background: linear-gradient(120deg, #FFF, #DDD);*/
     background: #FAFAFA;
     min-height: 100vh;
     ul {
@@ -16,7 +15,6 @@
 .datasource-h1 {
     margin: 0px;
     padding: 0px;
-    //padding-bottom: 5px;
     padding-top: 15px;
     font-size: 16px;
     line-height: 18px;
@@ -38,6 +36,12 @@
     border: solid 1px $color-gray-light;
     overflow: hidden;
     margin-bottom: 10px;
+    transition: border-color .3s, box-shaddow .3s;
+}
+
+.datasource-btn:hover {
+    border-color: $color-blue;
+    box-shadow: $box-shaddow;
 }
 
 .dropdown-menu {
@@ -51,7 +55,7 @@
     height: auto;
     float: left;
     margin-right: 10px;
-    background: #000;
+    background: #FFF;
 }
 
 .btn {

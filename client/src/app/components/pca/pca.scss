@@ -1,11 +1,24 @@
 // Namespace
+.axis path,
+.axis line {
+    fill: none;
+    stroke: #BBB;
+    shape-rendering: crispEdges;
+}
+
+.axis text {
+    font-family: sans-serif;
+    font-size: 11px;
+    fill: #000;
+}
+
 .pca-pc1-label {
     position: absolute;
     top: 72px;
     text-align: center;
     line-height: 1.2;
     width: 133px;
-    color: #0b97d3;
+    color: #039BE5;
     font-size: 11px;
     span {
         font-size: 18px;
@@ -20,7 +33,7 @@
     text-align: center;
     line-height: 1.2;
     width: 133px;
-    color: #0b97d3;
+    color: #039BE5;
     font-size: 11px;
     span {
         font-size: 18px;
@@ -29,23 +42,8 @@
 }
 
 .pca {
-    .axis path,
-    .axis line {
-        fill: none;
-        stroke: #000;
-        shape-rendering: crispEdges;
-    }
-    .axis text {
-        font-family: sans-serif;
-        font-size: 11px;
-        fill: #000;
-    }
-    // .pca-node:hover{
-    //  stroke: rgb(89, 165, 251);
-    //  stroke-width: 2px;
-    // }
     .extent {
-        fill: #0b97d3;
+        fill: #039BE5;
         fill-opacity: .2;
     }
     .pca-node {
@@ -54,7 +52,6 @@
         fill: "#000";
     }
     .pca-node-selected {
-        //fill: none;
         stroke: #000;
         stroke-width: 1.5;
     }
@@ -62,5 +59,29 @@
         pointer-events: none;
         background-color: rgba(255, 255, 255, .5);
         padding: 5px;
+    }
+    .lasso path {
+        stroke: rgb(80, 80, 80);
+        stroke-width: 1px;
+    }
+    .lasso .drawn {
+        fill-opacity: .05;
+    }
+    .lasso .loop_close {
+        fill: none;
+        stroke-dasharray: 4, 4;
+    }
+    .lasso .origin {
+        fill: #FF0000;
+        fill-opacity: 0;
+    }
+    .not_possible {
+        fill: rgb(200, 200, 200) !important;
+    }
+    .possible {
+        fill: #FF0000 !important;
+    }
+    .selected {
+        fill: steelblue;
     }
 }

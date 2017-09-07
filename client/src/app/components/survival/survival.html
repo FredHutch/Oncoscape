@@ -1,11 +1,12 @@
 <os-tray content="tray-content-block" change="vm.resize($event)">
     <section class="tray-content">
         <div class="row">
-            <div class="col-xs-12 form-item">
+            <div class="col-xs-12 form-item" ng-if="vm.cohortsLegend.length>0">
                 <label>Cohorts</label>
-                <div ng-repeat="cohort in vm.cohorts track by $index" class="legend-bar" style="border-color:{{cohort.color}};position:relative;background-color:#FFF;padding:2px 10px;line-height:25px;">{{cohort.name}}
+                <div ng-repeat="cohort in vm.cohortsLegend track by $index" class="legend-bar" style="border-color:{{cohort.color}};position:relative;background-color:#FFF;padding:2px 10px;line-height:25px;">
+                    <span>{{cohort.name}}</span>
                     <label class="switch {{item.class}}" style="float:right">
-                        <input type="checkbox" class="switch-input" ng-model="cohort.show" ng-change="vm.toggle()">
+                        <input type="checkbox" class="switch-input" ng-model="cohort.show" ng-change="vm.toggle(cohort)">
                         <span class="switch-label" data-on="On" data-off="Off"></span>
                         <span class="switch-handle"></span>
                     </label>
@@ -13,9 +14,19 @@
             </div>
             <div class="col-xs-12 form-item">
                 <label>Selected Cohort</label>
+                <div class="legend-bar" style="border-color:{{vm.cohort.color}};position:relative;background-color:#FFF;padding:2px 10px;line-height:25px;">
+                    <span>{{vm.cohort.name}} (selected)</span>
+                </div><br />
 
-                <div class="legend-bar" style="border-color:{{vm.cohort.color}};position:relative;background-color:#FFF;padding:2px 10px;line-height:25px;">{{vm.cohort.name}}
+                <label>P-Values for Selected Cohort</label>
+
+                <div class="tray-chart">
+                    <div ng-repeat="p in vm.pValues track by $index" style="height:25px;line-height:25px;margin-bottom:1px;">
+                        &nbsp; {{p.p}}
+                        <div ng-repeat="c in p.c track by $index" style="background-color:{{c}};width:10px;height:25px;margin-right:1px;display:inline-block;float:left;"></div>
+                    </div>
                 </div>
+
             </div>
         </div>
     </section>

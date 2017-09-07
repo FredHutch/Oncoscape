@@ -19,13 +19,21 @@
         return directive;
 
         /** @ngInject */
-        function SpreadsheetController(osApi, osCohortService, $state, $timeout, $scope, moment, $stateParams, _, $, $q, $window, uiGridConstants) {
+        function SpreadsheetController(osApi, $state, $timeout, $scope, moment, $stateParams, _, $, $q, $window, uiGridConstants, saveAs) {
 
             // Loading ...
             osApi.setBusy(true);
 
+            var selectHandler;
+
             // View Model
             var vm = this;
+            vm.showPanelColumns = false;
+            vm.closePanelColumns = function() {
+                vm.showPanelColumns = false;
+                vm.gridApi.grid.refresh();
+            };
+
             vm.setSize = function() {
                 var elGrid = angular.element("#spreadsheet-grid")[0];
                 var osLayout = osApi.getLayout();
@@ -48,24 +56,27 @@
                     };
                 }, {
                     data: osApi.getDataSource().clinical
-                })
-                .filter(function(o) {
+                }).filter(function(o) {
                     return (o.name != "events" && o.name != "samplemap");
                 });
-            vm.collection = vm.collections[0];
+            vm.collection = vm.collections.reduce(function(p, c) {
+                if (c.name == "patient") p = c;
+                return p;
+            }, vm.collections[0]);
             vm.options = {
                 treeRowHeaderAlwaysVisible: false,
-                enableGridMenu: true,
+                enableSelectionBatchEvent: false,
+                enableGridMenu: false,
                 enableSelectAll: true,
                 onRegisterApi: function(gridApi) {
                     vm.gridApi = gridApi;
-                    gridApi.selection.on.rowSelectionChanged($scope, rowSelectionChange);
-                    gridApi.selection.on.rowSelectionChangedBatch($scope, rowSelectionChange);
+                    selectHandler = gridApi.selection.on.rowSelectionChanged($scope, _.debounce(rowSelectionChange, 300));
                 }
             };
             vm.exportCsv = function(type) {
                 var cols = vm.options.columnDefs.filter(function(c) { return c.visible; }).map(function(v) { return v.field; });
-                var data = "data:text/csv;charset=utf-8,\"" + cols.join("\",\"") + "\"\n";
+                var data = "\"" + cols.join("\",\"") + "\"\n";
+
                 var records = (type == "selected") ? vm.gridApi.grid.api.selection.getSelectedRows() : vm.options.data;
 
                 records
@@ -75,10 +86,21 @@
                         }, v);
                         data += "\"" + datum.join("\",\"") + "\"\n";
                     });
-                $window.open(encodeURI(data));
+
+                var blob = new Blob([data], { type: 'text/csv;charset=windows-1252;' });
+                saveAs(blob, 'oncoscape.csv');
+
+            };
+            vm.showColumns = function() {
+                vm.options.columnDefs.forEach(function(v) { v.visible = true; });
+                vm.gridApi.grid.refresh();
+            };
+            vm.hideColumns = function() {
+                vm.options.columnDefs.forEach(function(v) { v.visible = false; });
+                vm.gridApi.grid.refresh();
             };
 
-            var sortSelectedFn = function(a, b, rowA, rowB, direction) {
+            var sortSelectedFn = function(a, b, rowA, rowB) {
                 if (!rowA.hasOwnProperty("isSelected")) rowA.isSelected = false;
                 if (!rowB.hasOwnProperty("isSelected")) rowB.isSelected = false;
                 if (rowA.isSelected === rowB.isSelected) return 0;
@@ -92,23 +114,26 @@
                 vm.gridApi.grid.sortColumn(col, "asc", false);
                 vm.gridApi.core.notifyDataChange(uiGridConstants.dataChange.OPTIONS);
                 vm.gridApi.core.notifyDataChange(uiGridConstants.dataChange.COLUMN);
-
-
-
             };
 
             var selectedIds = [];
-            var rowSelectionChange = function(items, e) {
-                if (angular.isUndefined(e)) return; // Programatic Selection
-                if (!angular.isArray(items)) items = [items];
-                items.forEach(function(item) {
-                    if (item.isSelected) selectedIds.push(item.entity.patient_ID);
-                    else selectedIds = selectedIds.filter(function(v) { return v != item.entity.patient_ID; });
-                });
-                osCohortService.setCohort(selectedIds,
-                    "Spreadsheet",
-                    osCohortService.PATIENT
-                );
+
+
+            var supressEvents = false;
+
+            var rowSelectionChange = function() {
+
+                if (supressEvents) return;
+                selectedIds = vm.gridApi.grid.api.selection.getSelectedRows().map(function(v) { return v.patient_ID; });
+
+
+                osApi.onCohortChange.remove(onCohortChange);
+                if (selectedIds.length == vm.options.data.length || selectedIds.length == 0) {
+                    osApi.setCohort([], osApi.ALL, osApi.PATIENT);
+                } else {
+                    osApi.setCohort(_.unique(selectedIds), "Spreadsheet", osApi.PATIENT);
+                }
+                osApi.onCohortChange.add(onCohortChange);
             };
 
             // Initialize
@@ -119,14 +144,20 @@
 
             // App Event :: Cohort Change
             var onCohortChange = function(cohort) {
+                selectHandler();
+
+
                 vm.gridApi.grid.api.selection.clearSelectedRows();
                 selectedIds = cohort.patientIds;
                 var selected = vm.options.data.filter(function(v) {
                     return selectedIds.indexOf(v.patient_ID) != -1;
                 });
                 selected.forEach(function(i) { vm.gridApi.grid.api.selection.selectRow(i); });
+                selectHandler = vm.gridApi.selection.on.rowSelectionChanged($scope, _.debounce(rowSelectionChange, 300));
+
+
             };
-            osCohortService.onCohortChange.add(onCohortChange);
+            osApi.onCohortChange.add(onCohortChange);
 
             // Setup Watches
             $scope.$watch("vm.collection", function() {
@@ -145,17 +176,18 @@
                             return v;
                         });
                         $timeout(function() {
-                            onCohortChange(osCohortService.getCohort());
+                            onCohortChange(osApi.getCohort());
                         }, 1);
                         vm.setSize();
                         osApi.setBusy(false);
                     });
             });
 
+
             // Destroy
             $scope.$on('$destroy', function() {
                 osApi.onResize.remove(vm.setSize);
-                osCohortService.onCohortChange.remove(onCohortChange);
+                osApi.onCohortChange.remove(onCohortChange);
             });
         }
     }

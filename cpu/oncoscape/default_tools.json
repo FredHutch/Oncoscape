@@ -1,0 +1,95 @@
+[{
+        "name" : "Timelines",
+    "route" : "timelines",
+    "img" : "timelines.png",
+    "beta" : false,
+    "desc" : "Comparative view of patient histories"
+}
+
+,{
+        "name" : "Spreadsheet",
+    "route" : "spreadsheet",
+    "img" : "history.png",
+    "beta" : false,
+    "desc" : "Interactive table of clinical fields"
+}
+
+,{
+        "name" : "PCA",
+    "route" : "pca",
+    "img" : "pca.png",
+    "beta" : false,
+    "desc" : "Principal Component Analysis: two dimensional view of sample similarity."
+}
+
+,{
+        "name" : "Markers + Patients",
+    "route" : "markers",
+    "img" : "markers.png",
+    "beta" : false,
+    "desc" : "Link copy number variation and mutation data to patients."
+}
+
+,{
+        "name" : "Survival",
+    "route" : "survival",
+    "img" : "survival.png",
+    "beta" : false,
+    "desc" : "Kaplan Meier curves of overall survival for patient cohorts"
+}
+
+,{
+        "name" : "Pathways",
+    "route" : "pathways",
+    "img" : "pathways.png",
+    "beta" : false,
+    "desc" : "Map patient specific expression levels on a hand curated network of genes."
+}
+
+,{
+        "name" : "Clusters (beta)",
+    "route" : "comparecluster",
+    "img" : "clusters.jpg",
+    "beta" : false,
+    "desc" : ""
+}
+
+,{
+        "name" : "Sunburst (beta)",
+    "route" : "sunburst",
+    "img" : "sunburst.png",
+    "beta" : false,
+    "desc" : ""
+}
+
+,{
+        "name" : "Heatmap (beta)",
+    "route" : "heatmap",
+    "img" : "heatmap.png",
+    "beta" : false,
+    "desc" : ""
+}
+
+,{
+        "name" : "Scatter",
+    "route" : "scatter",
+    "img" : "scatter.png",
+    "beta" : false,
+    "desc" : "3d Scatter"
+}
+
+,{
+        "name" : "Markers + Samples",
+    "route" : "ms",
+    "img" : "ms.png",
+    "beta" : false,
+    "desc" : "Markers + Patients 2.0"
+}
+
+,{
+        "name" : "PLSR",
+    "route" : "plsr",
+    "img" : "plsr.png",
+    "beta" : false,
+    "desc" : "Partial Least Squares Regression"
+}]

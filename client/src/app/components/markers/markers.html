@@ -20,12 +20,12 @@
                     <div ng-repeat="item in vm.legendNodes" class="legend-bar legend-bar-button" style="border-color:{{item.color}};">{{item.name}}<span id="{{item.id}}" class="legend-count"></span>
 
                         <label style="float:right;padding-top:5px;" class="btn-group">
-                        <button tooltip="Deselect {{item.name}}" tooltip-placement="left"
+                        <button tooltip="Deselect" tooltip-placement="left"
                         ng-click="vm.deselectColor(item)"
-                        class="btn btn-xs btn-default" style="background-color:#47a8d8;color:#FFF;text-shadow: 0 1px rgba(0, 0, 0, 0.2);width:24px;margin-right:1px;"><i class="fa fa-circle-o"></i></button>
-                        <button tooltip="Select {{item.name}}" tooltip-placement="left"
+                        class="btn btn-xs btn-default" style="background-color:#039BE5;color:#FFF;text-shadow: 0 1px rgba(0, 0, 0, 0.2);width:24px;margin-right:1px;"><i class="fa fa-circle-o"></i></button>
+                        <button tooltip="Select" tooltip-placement="left"
                         ng-click="vm.selectColor(item)"
-                        class="btn btn-xs btn-default" style="background-color:#47a8d8;color:#FFF;text-shadow: 0 1px rgba(0, 0, 0, 0.2);width:24px;margin-left:1px;"><i class="fa fa-dot-circle-o"></i></button>
+                        class="btn btn-xs btn-default" style="background-color:#039BE5;color:#FFF;text-shadow: 0 1px rgba(0, 0, 0, 0.2);width:24px;margin-left:1px;"><i class="fa fa-dot-circle-o"></i></button>
                     </label>
                     </div>
                 </div>
@@ -41,14 +41,19 @@
 
             <div class="col-xs-12 form-item">
                 <label>Gene Set</label>
-                <div class="dropdown bs-dropdown">
-                    <button class="btn btn-default dropdown-toggle" type="button" id="dropdownMenu1" data-toggle="dropdown" aria-haspopup="true" aria-expanded="true" style="padding-right:30px;">
+                <div class="input-group">
+                    <div class="dropdown bs-dropdown">
+                        <button class="btn btn-default dropdown-toggle" type="button" id="dropdownMenu1" data-toggle="dropdown" aria-haspopup="true" aria-expanded="true" style="padding-right:30px;">
                         {{vm.optGeneSet.name}}
                         <span class="caret"></span>
                     </button>
-                    <ul class="dropdown-menu" aria-labelledby="dropdownMenu1" style="width:100%">
-                        <li ng-repeat="item in vm.optGeneSets" ng-click="vm.optGeneSet=item">{{item.name}}</li>
-                    </ul>
+                        <ul class="dropdown-menu" aria-labelledby="dropdownMenu1" style="width:100%">
+                            <li class="markers-command hvr-sweep-to-right" ng-repeat="item in vm.optGeneSets" ng-click="vm.optGeneSet=item">{{item.name}}</li>
+                        </ul>
+                    </div>
+
+
+                    <div class="input-group-addon btn-help-icon"><a href="http://resources.sttrcancer.org/api/#gene-sets" target="_blank"><i style="color:#000" class="glyphicon glyphicon-question-sign"></i></a></div>
                 </div>
             </div>
 
@@ -60,14 +65,17 @@
                         <span class="caret"></span>
                     </button>
                     <ul class="dropdown-menu" aria-labelledby="dropdownMenu1" style="width:100%">
-                        <li ng-repeat="item in vm.optCommandModes" ng-click="vm.optCommandMode=item">{{item.name}}</li>
+                        <li class="markers-command hvr-sweep-to-right" ng-repeat="item in vm.optCommandModes" ng-click="vm.optCommandMode=item">{{item.name}}</li>
                     </ul>
                 </div>
             </div>
 
             <div class="col-xs-6 form-item" style="padding-left:5px">
-                <label>Search</label>
-                <input type="text" class="form-control" ng-model="vm.search" placeholder="Gene or Patient">
+                <label>Search {{vm.searchCount}}</label>
+                <div class="input-group">
+                    <input type="text" class="form-control" ng-model="vm.search" ng-enter="vm.exeSearch()" placeholder="">
+                    <div class="input-group-addon btn-help-icon" ng-click="vm.exeSearch()">Go</div>
+                </div>
             </div>
 
 
@@ -120,8 +128,8 @@
     <div id="markers-chart" class="markers-chart"></div>
     <div style="position:absolute;top:10px;text-align:center;width:100%;">
         <h2 class="h2-tool">Markers + Patients</h2>
-        <span class="h3-tool">{{vm.datasource.source}} {{vm.datasource.name}}</span>
-        <span class="h3-tool">(Layout: {{vm.optPatientLayout.name}})</span>
+        <span class="h3-tool">{{vm.datasource.source}} {{vm.datasource.name}}</span> &mdash;
+        <span class="h3-tool">{{vm.optPatientLayout.name}}</span>
     </div>
 </section>
 
@@ -132,8 +140,8 @@
             <div class="modal-body">
                 <h2 style="margin-top:0px;">Your request would add {{vm.edgeCounts.total}} edges to the graph.</h2>
                 <p>To improve performance + readability you may want to disable some of the edges.</p>
-                <div class="input-group" ng-repeat="item in vm.optEdgeColors | filter:{show:true}">
-                    <label class="switch {{item.class}}">
+                <div class="legend" ng-repeat="item in vm.optEdgeColors | filter:{show:true}">
+                    <label class="switch">
                         <input type="checkbox" class="switch-input" ng-model="item.show">
                         <span class="switch-label" data-on="On" data-off="Off"></span>
                         <span class="switch-handle"></span>
@@ -157,12 +165,28 @@
         <span class="pull-right clickable" data-effect="fadeOut" ng-click="vm.showPanelLayout=false"><i class="fa fa-times"></i></span>
     </div>
     <div class="panel-body">
-
         <div class="row">
-            <div class="col-sm-12">
-                <h3>Select a layout</h3>
-            </div>
-            <a class="col-sm-4 markers-command hvr-sweep-to-right" style="padding-left:15px; padding-right:15px;" ng-repeat="item in vm.optPatientLayouts" ng-click="vm.optPatientLayout=item;vm.showPanelLayout=false;">{{item.name}}</a>
+            <table class="tbl ">
+                <thead>
+                    <tr>
+                        <th>Method</th>
+                        <th>Gene Set</th>
+                        <th>Input Data</th>
+                        <th>Data Source</th>
+                    </tr>
+
+                </thead>
+                <tbody>
+                    <tr ng-repeat="item in vm.optPatientLayouts " ng-click="vm.optPatientLayout=item;vm.showPanelLayout=false; ">
+                        <td>{{item.dataType}}</td>
+                        <td>{{item.geneset}}</td>
+                        <td>{{item.input}}</td>
+                        <td>{{item.source}}</td>
+                    </tr>
+                </tbody>
+            </table>
+
+
         </div>
 
     </div>

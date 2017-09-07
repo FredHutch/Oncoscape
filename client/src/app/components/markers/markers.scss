@@ -1,3 +1,47 @@
+.tbl {
+    width: 100%;
+    
+    td {
+        padding-left: 10px;
+    }
+    th{
+        padding-left: 10px;
+        background-color:#f7f7f7;
+    }
+    thead {
+        tr:hover{
+        color:#000;
+    }
+            
+    }
+    tr:nth-child(odd) {
+        background: #f7f7f7;
+    }
+    tr:hover {
+        background: $color-blue;
+        color: #FFF;
+    }
+}
+.panel-heading{
+    position:absolute;
+    left:0px;
+    top:0px;
+    width:100%;
+}
+.panel-body{
+    margin-top:30px;
+
+}
+.mdi {
+    position:absolute;
+    z-index: 9999;
+    width: 80vw;
+    height:85vh;
+    margin-left:10vw;
+    margin-top:2vh;
+    overflow:scroll;
+}
+
 .panel-heading span {
     margin-top: -26px;
     font-size: 15px;
@@ -11,14 +55,6 @@
     cursor: pointer;
 }
 
-.mdi {
-    position: absolute !important;
-    right: 50px;
-    left: 50px;
-    top: 100px;
-    z-index: 9999;
-    width: auto;
-}
 
 // Namespace
 .markers-dl {
@@ -40,13 +76,15 @@
 .markers-command {
     cursor: pointer;
     display: block;
-    padding: 0px;
-    padding-top: 2px;
-    padding-bottom: 2px;
+    padding: 0px !important;
+    padding-left: 10px !important;
+    padding-right: 10px !important;
     -webkit-transition-property: padding;
     -webkit-transition-duration: .4s;
     transition-property: padding;
     transition-duration: .4s;
+    min-height: 25px;
+    line-height: 25px;
 }
 
 .markers-command:hover {
@@ -108,11 +146,6 @@
     background-color: $color-blue;
     position: relative;
     top: 2px;
-}
-
-.gene {
-    background-color: #FFF;
-    border: solid 3px rgb(56, 52, 123);
 }
 
 .markers-chart {

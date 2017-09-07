@@ -9,7 +9,7 @@
                         <span class="caret"></span>
                     </button>
                     <ul class="dropdown-menu" aria-labelledby="dropdownMenu1" style="width:100%">
-                        <li ng-repeat="item in vm.events track by $index" ng-click="vm.align=item; vm.update(); ">{{item.name}}</li>
+                        <li class="markers-command hvr-sweep-to-right" ng-repeat="item in vm.events track by $index" ng-click="vm.align=item; vm.update(); ">{{item.name}}</li>
                     </ul>
                 </div>
             </div>
@@ -20,8 +20,8 @@
                         {{vm.sort.name}}
                         <span class="caret"></span>
                     </button>
-                    <ul class="dropdown-menu" aria-labelledby="dropdownMenu1" style="width:100%">
-                        <li ng-repeat="item in vm.events track by $index" ng-click="vm.sort=item; vm.update();">{{item.name}}</li>
+                    <ul class="dropdown-menu dropdown-menu-right" aria-labelledby="dropdownMenu1" style="width:100%">
+                        <li class="markers-command hvr-sweep-to-right" ng-repeat="item in vm.events track by $index" ng-click="vm.sort=item; vm.update();">{{item.name}}</li>
                     </ul>
                 </div>
             </div>
@@ -33,7 +33,7 @@
                         <span class="caret"></span>
                     </button>
                     <ul class="dropdown-menu" aria-labelledby="dropdownMenu1" style="width:100%">
-                        <li ng-repeat="item in vm.filters" ng-click="vm.filter=item;vm.update();">{{item.name}}</li>
+                        <li class="markers-command hvr-sweep-to-right" ng-repeat="item in vm.filters" ng-click="vm.filter=item;vm.update();">{{item.name}}</li>
                     </ul>
                 </div>
             </div>
@@ -44,8 +44,8 @@
                         {{vm.timescale.name}}
                         <span class="caret"></span>
                     </button>
-                    <ul class="dropdown-menu" aria-labelledby="dropdownMenu1" style="width:100%">
-                        <li ng-repeat="item in vm.timescales" ng-click="vm.timescale=item;vm.update();">{{item.name}}</li>
+                    <ul class="dropdown-menu dropdown-menu-right" aria-labelledby="dropdownMenu1" style="width:100%">
+                        <li class="markers-command hvr-sweep-to-right" ng-repeat="item in vm.timescales" ng-click="vm.timescale=item;vm.update();">{{item.name}}</li>
                     </ul>
                 </div>
             </div>
@@ -57,7 +57,7 @@
                         <span class="caret"></span>
                     </button>
                     <ul class="dropdown-menu" aria-labelledby="dropdownMenu1" style="width:100%">
-                        <li ng-repeat="item in vm.displayModes" ng-click="vm.displayMode=item;vm.update();">{{item.name}}</li>
+                        <li class="markers-command hvr-sweep-to-right" ng-repeat="item in vm.displayModes" ng-click="vm.displayMode=item;vm.update();">{{item.name}}</li>
                     </ul>
                 </div>
             </div>
@@ -85,10 +85,6 @@
     <div style="position:absolute;top:10px;text-align:center;width:100%;">
         <h2 class="h2-tool">Timelines</h2>
         <span class="h3-tool">{{vm.datasource.source}} {{vm.datasource.name}}</span>
-        <div class="timelines-content" style="margin-top:20px;">
-            <label class="timeline-zoom-x-label">Click + Drag To Zoom</label>
-            <label class="timeline-zoom-y-label">Click + Drag To Zoom</label>
-        </div>
+        <div class="timelines-content" style="margin-top:20px;"></div>
     </div>
 </section>
-<os-color-panel ng-if="vm.showPanelColor" close="vm.showPanelColor=false"></os-color-panel>

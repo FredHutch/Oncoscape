@@ -19,15 +19,15 @@
         return directive;
 
         /** @ngInject */
-        function CompareClusterController(osApi, osCohortService, d3, $state, $timeout, $scope, moment, $stateParams, _, $, $q, $window) {
+        function CompareClusterController(osApi, d3, $state, $timeout, $scope, moment, $stateParams, _, $, $q, $window) {
 
 
             function zoomed() {
                 elPlots.forEach(function(plot) {
                     plot.attr("transform", d3.event.transform);
                 });
-
             }
+
             var layout = osApi.getLayout();
             var width = ($window.innerWidth - layout.left - layout.right);
             var height = ($window.innerHeight - 120);
@@ -40,12 +40,12 @@
                 .on("zoom", zoomed);
 
             // Cohort
-            var cohort = osCohortService.getCohort();
+            var cohort = osApi.getCohort();
             var onCohortChange = function(c) {
                 cohort = c;
                 setSelected();
             };
-            osCohortService.onCohortChange.add(onCohortChange);
+            osApi.onCohortChange.add(onCohortChange);
 
             // Datasource
             var datasource = osApi.getDataSource();
@@ -78,16 +78,16 @@
 
             // State Management
             var setSelected = function() {
-                // var selectedIds = cohort.sampleIds;
-                // clusterIndexes.forEach(function(clusterIndex) {
-                //     elPlots[clusterIndex].selectAll("circle").classed("pca-node-selected", function() {
-                //         return (selectedIds.indexOf(this.__data__.id) >= 0);
-                //     });
-                // });
+                var selectedIds = cohort.sampleIds;
+                clusterIndexes.forEach(function(clusterIndex) {
+                    elPlots[clusterIndex].selectAll("circle").classed("pca-node-selected", function() {
+                        return (selectedIds.indexOf(this.__data__.id) >= 0);
+                    });
+                });
             };
-            var saveState = function() {
+            // var saveState = function() {
 
-            }
+            // }
             var loadState = function() {
                 vm.optionLayouts = datasource.calculated.filter(function(v) { return (v.type === "pcaScores" || v.type === "mds"); });
                 return new Promise(function(resolve) {
@@ -122,7 +122,7 @@
             var brushStart = function() {
                 if (d3.event.selection === null) return;
                 var target = d3.event.target;
-                var brushes = elBrushes
+                elBrushes
                     .filter(function(b) {
                         return b.brush !== target;
                     })
@@ -136,7 +136,6 @@
 
                     elChart.selectAll("circle")
                         .classed("pca-node-selected", false);
-                    //    osCohortService.setCohort([], "Clusters", osCohortService.SAMPLE);
                     return;
                 }
                 var target = d3.event.target;
@@ -160,7 +159,6 @@
 
                 // elPlots[target.index].call(elBrushes[target.index].move, null);
 
-                // osCohortService.setCohort(sids, "Clusters", osCohortService.SAMPLE)
             };
 
             // Layout Methods
@@ -168,7 +166,9 @@
                 return new Promise(function(resolve) {
 
                     var collection = clusterLayouts[clusterIndex].name;
+
                     osApi.query(collection).then(function(result) {
+
                         var data = result.data[0].data;
                         result.data[0].domain = Object.keys(data).reduce(function(p, c) {
                             var datum = data[c];
@@ -202,7 +202,7 @@
             var draw = function() {
                 drawLines();
                 clusterIndexes.forEach(drawCluster);
-            }
+            };
 
             var drawLines = function() {
                 var layout = osApi.getLayout();

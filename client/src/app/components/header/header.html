@@ -1,4 +1,4 @@
-<div class="header" ng-if="vm.show">
+<div id="header" class="header" style="display:none">
     <nav class="navbar navbar-inverse navbar-fixed-top">
         <div class="container-fluid">
             <div class="navbar-header">
@@ -15,14 +15,15 @@
             </div>
             <div class="collapse navbar-collapse" id="header-navbar">
                 <ul class="nav navbar-nav navbar-right">
+
                     <li class="dropdown" ng-show="vm.showTools">
                         <a href class="dropdown-toggle header-link" data-toggle="dropdown" role="button" aria-haspopup="true" aria-expanded="false">
-                            <span class="glyphicon glyphicon-stats"></span> Analysis Tools</a>
+                            <span class="glyphicon glyphicon-stats"></span>Tools</a>
 
                         <ul class="dropdown-menu row" style="max-height:80vh;overflow:scroll;">
                             <li ng-repeat="item in vm.tools" class="col-xs-12 col-sm-6 col-lg-4" ng-click="vm.loadTool(item.route)">
                                 <div class="datasource-btn" style="color:#000">
-                                    <img class="datasource-img" ng-src="/assets/images/{{item.img}}" style="border-right: 1px solid #eaeaea">
+                                    <img class="datasource-img" ng-src="/assets/images/{{item.img}}">
                                     <p class="datasource-h1">{{item.name}}</p>
                                     <p class="datasource-h2">{{item.desc}}</p>
                                 </div>
@@ -30,50 +31,82 @@
                         </ul>
                     </li>
                     <li class="dropdown" ng-show="vm.showDatasets">
-                        <a href class="dropdown-toggle header-link" data-toggle="dropdown" role="button" aria-haspopup="true" aria-expanded="false"><span class="glyphicon glyphicon-th"></span>Disease Datasets</a>
+                        <a href class="dropdown-toggle header-link" data-toggle="dropdown" role="button" aria-haspopup="true" aria-expanded="false"><span class="glyphicon glyphicon-th"></span>Datasets</a>
                         <ul class="dropdown-menu row" style="max-height:88vh;overflow:scroll;">
-                            <li ng-repeat="item in vm.datasets" style="padding-bottom:10px" class="col-xs-12 col-sm-6 col-lg-4" ng-click="vm.loadDataset(item.disease)">
+                            <li ng-repeat="item in vm.datasources" style="padding-bottom:10px" class="col-xs-12 col-sm-6 col-lg-4" ng-click="vm.loadDataset(item.disease)">
                                 <div class="datasource-btn" style="color:#000">
-                                    <img class="datasource-img" ng-src="/assets/images/{{item.img}}">
+                                    <img class="datasource-img" ng-src="/assets/images/img{{item.img}}">
                                     <p class="datasource-h1">{{item.name}}</p>
                                     <p class="datasource-h2">{{item.source}} | 11-17-2016</p>
                                 </div>
                             </li>
                         </ul>
-
                     </li>
-                    <li class="dropdown" ng-show="vm.showCohorts">
-                        <a href class="dropdown-toggle header-link" data-toggle="dropdown" role="button" aria-haspopup="true" aria-expanded="false"><span class="fa fa-users"></span>My Cohorts</a>
+                    <li class="dropdown" ng-show="vm.showDatasets">
+                        <a href class="dropdown-toggle header-link" data-toggle="dropdown" role="button" aria-haspopup="true" aria-expanded="false"><span class="fa fa-users"></span>Cohorts</a>
                         <div class="dropdown-menu container-fluid">
                             <div class="row">
-                                <div ng-if="!vm.showImport" class="col-xs-12 col-sm-4" style="border:0px solid #DDD; border-right-width:1px;">
+                                <div ng-if="!vm.showImport" class="col-xs-12 col-sm-3" style="border:0px solid #DDD; border-right-width:1px;">
                                     <h2 style="margin-top:0px;">Create A Cohort</h2>
-                                    Oncoscape allows you to pass cohorts of patients from one tool to the next. To create a cohort out of your current selection click
+                                    Oncoscape allows you to pass cohorts of patients from one tool to the next. To create a cohort out of your current selection click create cohort.
                                     <br />
                                     <button class="btn btn-primary" style="margin-top:15px;" ng-click="vm.addPatientCohort(); $event.stopPropagation();">Create Cohort</button>
                                     <button class="btn btn-primary" style="margin-top:15px;" ng-click="vm.showImport=true; $event.stopPropagation();">Import Cohort</button>
                                 </div>
-                                <div ng-if="vm.showImport" class="col-xs-12 col-sm-4" style="border:0px solid #DDD; border-right-width:1px;">
+                                <div ng-if="vm.showImport" class="col-xs-12 col-sm-3" style="border:0px solid #DDD; border-right-width:1px;">
                                     <h2 style="margin-top:0px;">Import A Cohort</h2>
-                                    Enter a comma seperated list of patient IDs below and click save<br />
-                                    <input ng-model="vm.importPatientIds" type="text" class="form-control" style="margin-top:5px;" placeholder="eg. TCGA-01-0110, TCGA-02-0220">
-                                    <button class="btn btn-primary" style="margin-top:15px;" ng-click="vm.importPatientCohort(); $event.stopPropagation();">Save</button>
-                                    <button class="btn btn-primary" style="margin-top:15px;" ng-click="vm.showImport=false; $event.stopPropagation();">Cancel</button>
+                                    Enter a comma seperated list of patient or sample IDs below and click import<br />
+                                    <input ng-model="vm.importName" type="text" class="form-control" style="margin-top:5px;" placeholder="Enter Cohort Name">
+                                    <input ng-model=" vm.importIds " type="text " class="form-control " style="margin-top:5px; " placeholder="eg. TCGA-01-0110, TCGA-02-0220 ">
+                                    <button class="btn btn-primary " style="margin-top:15px; " ng-click="vm.importCohort(); $event.stopPropagation(); ">Save</button>
+                                    <button class="btn btn-primary " style="margin-top:15px; " ng-click="vm.showImport=false; $event.stopPropagation(); ">Cancel</button>
                                 </div>
-                                <div class="col-xs-12 col-sm-8">
-                                    <h2 style="margin-top:0px;">Your Cohorts</h2>
-                                    <div class="markers-command hvr-sweep-to-right" style="max-width:200px;" ng-repeat="item in vm.cohorts" ng-click="vm.setPatientCohort(item)">
-                                        {{item.name}}
+                                <div class="col-xs-12 col-sm-9 ">
+                                    <h2 style="margin-top:0px; ">Your Cohorts</h2>
+                                    <div class="markers-command hvr-sweep-to-right header-cohort-btn" ng-repeat="item in vm.cohorts " ng-click="vm.setPatientCohort(item) ">
+                                        <p class="datasource-h1">{{item.name}}</p>
+                                        <p class="datasource-h2">{{item.numPatients}} patients <br /> {{item.numSamples}} samples <br /> {{item.numClinical}} clinical records</p>
                                     </div>
                                 </div>
                             </div>
                         </div>
                     </li>
-                    <li ng-show="vm.showHelp">
-                        <a href="http://resources.sttrcancer.org/oncoscape" target="_blank" class="header-link"><span class="glyphicon glyphicon-question-sign"></span>Help</a>
+                    <li class="dropdown" ng-show="vm.showDatasets">
+                        <a href class="dropdown-toggle header-link" data-toggle="dropdown" role="button" aria-haspopup="true" aria-expanded="false"><span class="glyphicon glyphicon-th-list"></span>Genesets</a>
+                        <div class="dropdown-menu container-fluid">
+                            <div class="row" style="max-height:80vh !important">
+                                <div class="col-xs-12 col-sm-3" style="border:0px solid #DDD; border-right-width:1px;">
+                                    <h2 style="margin-top:0px;">Create A Geneset</h2>
+                                    Enter a comma seperated list of HUGO gene IDs or a weighted signature below and click save<br />
+                                    <input ng-model="vm.importGenesetName" type="text" class="form-control" style="margin-top:5px;" placeholder="Enter Geneset Name">
+                                    <input ng-model=" vm.importGeneIds " type="text " class="form-control " style="margin-top:5px; " placeholder="eg MLX,MAX or 0.9*MYC+1.5*MNT">
+                                    <button class="btn btn-primary " style="margin-top:15px; " ng-click="vm.importGeneset(); $event.stopPropagation(); ">Save</button>
+                                    <button class="btn btn-primary " style="margin-top:15px; " ng-click="vm.showGeneImport=false; $event.stopPropagation(); ">Cancel</button>
+                                </div>
+                                <div class="col-xs-12 col-sm-9 " style="max-height:inherit !important; overflow-y:scroll">
+                                    <h2 style="margin-top:0px; ">Your Genesets</h2>
+                                    <div class="markers-command hvr-sweep-to-right header-geneset-btn" ng-repeat="item in vm.genesets "  ng-click="vm.setGenesetList(item) ">
+                                        <p class="datasource-h1">{{item.name}}</p>
+                                        <p class="datasource-h2">{{item.geneIds.length}} Genes <br /> {{item.hugoIds.length}} HUGO symbols </p>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
                     </li>
-                    <li ng-show="vm.showLogout">
-                        <a href ng-click="vm.logoutClick()" class="header-link"><span class="glyphicon glyphicon-user"></span>Logout</a>
+                    <li>
+                        <a href="" ng-click="vm.showHelp()" target="_blank " class="header-link ">
+                            <span class="glyphicon glyphicon-question-sign"></span>Help
+                        </a>
+                    </li>
+                    <li>
+                        <a href="http://resources.sttrcancer.org/oncoscape-contact" class="header-link ">
+                            <span class="fa fa-comments"></span>Feedback
+                        </a>
+                    </li>
+                    <li>
+                        <a href="" ng-click="vm.login()" class="header-link ">
+                            <span class="fa fa-user-circle"></span>Login
+                        </a>
                     </li>
                 </ul>
             </div>

@@ -19,7 +19,7 @@
         return directive;
 
         /** @ngInject */
-        function SunburstController(d3, osApi, osCohortService, $state, $timeout, $scope, $stateParams, $window, _) {
+        function SunburstController(d3, osApi, $state, $timeout, $scope, $stateParams, $window, _) {
 
             var colorMap;
             var vm = this;
@@ -43,7 +43,7 @@
                 return colorMap;
             };
 
-            
+
             osApi.setBusy(true);
             osApi.query("biomarker_immune_tree").then(function(response) {
                 osApi.setBusy(false);
@@ -52,8 +52,8 @@
                     v.barcharts.forEach(function(v) {
                         v.groups.forEach(function(v) {
                             v.show = true;
-                            v.tags = v.tags.map(function(v){
-                                return {name:v, color:colorMap[v]};
+                            v.tags = v.tags.map(function(v) {
+                                return { name: v, color: colorMap[v] };
                             });
                         })
                     })
@@ -63,7 +63,7 @@
                 vm.draw()
             });
 
-            vm.draw = function(){
+            vm.draw = function() {
                 sunburst.draw(vm, colorMap);
                 bars.draw(vm, colorMap);
             }
@@ -259,7 +259,7 @@
                                     return c.show
                                 })
                                 .map(function(c) {
-                                    return c.tags.map(function(v){ return v.name; });
+                                    return c.tags.map(function(v) { return v.name; });
                                 }))
                             .map(function(v) {
                                 return {
@@ -352,7 +352,7 @@
                     yScale.range([0, 110]);
                     yScale.domain([yMin, yMax]);
                     var barWidth = layout.widthChart / el.bars.length;
-                    
+
                     bars.enter()
                         .append("rect")
                         .attr("x", function(d, i) {
@@ -407,12 +407,12 @@
                         });
 
                 }
-  
+
                 var draw = function(data, colorMap) {
 
                     vm.charts = data = vm.patient.barcharts;
                     layout = getLayoutMetrics(data);
-                    
+
                     transformedData = getTransformedData(data, colorMap);
 
                     // Chart Spaces

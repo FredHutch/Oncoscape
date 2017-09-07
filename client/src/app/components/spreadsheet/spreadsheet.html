@@ -9,11 +9,11 @@
                         {{vm.collection.name}}
                         <span class="caret"></span>
                     </button>
-                        <ul class="dropdown-menu" aria-labelledby="dropdownMenu1">
-                            <li ng-repeat="item in vm.collections" ng-click="vm.collection=item">{{item.name}}</li>
+                        <ul class="dropdown-menu" aria-labelledby="dropdownMenu1" style="width:260px;">
+                            <li class="markers-command hvr-sweep-to-right" ng-repeat="item in vm.collections" ng-click="vm.collection=item">{{item.name}}</li>
                         </ul>
                     </div>
-                    <div class="input-group-addon btn-help-icon"><i class="glyphicon glyphicon-question-sign"></i></div>
+                    <div class="input-group-addon btn-help-icon"><a style="color:#000;" href="http://resources.sttrcancer.org/api/#clinical-data" target="_blank"><i class="glyphicon glyphicon-question-sign"></i></a></div>
                 </div>
             </div>
 
@@ -33,8 +33,32 @@
         <span class="h3-tool">{{vm.datasource.source}} {{vm.datasource.name}}</span>
         <button ng-click="vm.sortSelected()" class="btn btn-default" style="position:absolute; left: 310px;top: 30px;" tooltip="Move Selected Rows To The Top Of The Grid" tooltip-placement="right">
              Selected On Top</button>
-        <div class="grid" id="spreadsheet-grid" ui-grid="vm.options" ui-grid-selection ui-grid-resize-columns ui-grid-move-columns ui-grid-pinning ui-grid-autoResize></div>
+        <button ng-click="vm.showPanelColumns=true" class="btn btn-default" style="position:absolute; right: 310px;top: 30px;" tooltip="Toggle Columns On + Off" tooltip-placement="right">
+             Select Columns</button>
+        <div class="grid" id="spreadsheet-grid" ui-grid="vm.options" ui-grid-selection ui-grid-resize-columns ui-grid-move-columns ui-grid-pinning ui-grid-autoResize ui-grid-grouping></div>
     </div>
 </section>
 
-<os-color-panel ng-if="vm.showPanelColor" close="vm.showPanelColor=false"></os-color-panel>
+<div class="panel panel-default mdi" ng-if="vm.showPanelColumns">
+    <div class="panel-heading">
+        <h3 class="panel-title">Visible Columns</h3>
+        <span class="pull-right clickable" data-effect="fadeOut" ng-click="vm.closePanelColumns()"><i class="fa fa-times"></i></span>
+    </div>
+    <div class="panel-body" style="padding-top:0px;">
+
+        <div class="row">
+            <br />
+            <div class="col-xs-12">
+                <button class="btn btn-default btn-no-focus" type="button" ng-click="vm.showColumns()">Select All</button>
+                <button class="btn btn-default btn-no-focus" type="button" ng-click="vm.hideColumns()">Deselect All</button>
+            </div>
+        </div>
+        <div class="row ">
+            <div class="col-md-4" ng-repeat="col in vm.options.columnDefs | orderBy:'name'" style="text-transform:capitalize;">
+                <div class="checkbox" style="margin-bottom:0px">
+                    <label><input type="checkbox" ng-model="col.visible" >{{col.name}}</label>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

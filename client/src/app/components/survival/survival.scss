@@ -1,10 +1,33 @@
-// Namespace
-.survival {
-    .tick {
-        stroke-opacity: .2;
+    // Namespace
+    .survival {
+        .tick {
+            stroke-opacity: .2;
+        }
+        .selected {
+            stroke-opacity: 1;
+        }
     }
-    .selected{
-        stroke-opacity: 1;
+    
+    .survival-tick {
+        fill: none;
+        shape-rendering: crispEdges;
+        stroke-width: 1px;
     }
-
-}
+    
+    .survival-line {
+        fill: none;
+        shape-rendering: crispEdges;
+        cursor: pointer;
+        stroke-width: 1px;
+        stroke-opacity: .8;
+    }
+    
+    .survival-line-selected {
+        .survival-line {
+            stroke-opacity: 1;
+            stroke-width: 2px;
+        }
+        .survival-tick {
+            stroke-width: 1px;
+        }
+    }

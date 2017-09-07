@@ -17,15 +17,12 @@
 }
 
 .ui-grid-header-cell {
-    background: $color-gray-light;
-    border-color: #d4d4d4 !important;
+    background: #F1f1f1;
     font-weight: 300;
-    box-shadow: $box-shaddow;
 }
 
 .ui-grid-pinned-container.ui-grid-pinned-container-left .ui-grid-cell {
     border: 0px;
-    border-color: #d4d4d4 !important;
 }
 
 .grid {
@@ -42,7 +39,7 @@
 }
 
 .ui-grid-row:nth-child(even) .ui-grid-cell {
-    background-color: #f3f3f3;
+    background-color: #F7f7f7;
 }
 
 .ui-grid-menu .ui-grid-menu-inner ul li button:hover,

@@ -19,7 +19,7 @@
         return directive;
 
         /** @ngInject */
-        function BarchartController(d3, osApi, osCohortService, $state, $timeout) {
+        function BarchartController(d3, osApi, $state, $timeout) {
 
             var vm = this;
             vm.datasource = osApi.getDataSource();
@@ -28,7 +28,7 @@
                 m = 58, // number of samples per layer
                 stack = d3.layout.stack(),
                 layers = stack(d3.range(n).map(function() {
-                    return bumpLayer(m, .1);
+                    return bumpLayer(m, 0.1);
                 })),
                 yGroupMax = d3.max(layers, function(layer) {
                     return d3.max(layer, function(d) {
@@ -52,7 +52,7 @@
 
             var x = d3.scaleOrdinal()
                 .domain(d3.range(m))
-                .rangeRoundBands([0, width], .08);
+                .rangeRoundBands([0, width], 0.08);
 
             var y = d3.scaleLinear()
                 .domain([0, yStackMax])
@@ -168,9 +168,9 @@
             function bumpLayer(n, o) {
 
                 function bump(a) {
-                    var x = 1 / (.1 + Math.random()),
-                        y = 2 * Math.random() - .5,
-                        z = 10 / (.1 + Math.random());
+                    var x = 1 / (0.1 + Math.random()),
+                        y = 2 * Math.random() - 0.5,
+                        z = 10 / (0.1 + Math.random());
                     for (var i = 0; i < n; i++) {
                         var w = (i / n - y) * z;
                         a[i] += x * Math.exp(-w * w);

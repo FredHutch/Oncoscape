@@ -20,7 +20,7 @@
         return directive;
 
         /** @ngInject */
-        function MarkersController(osApi, d3, osCohortService, $state, $timeout, $scope, $stateParams, cytoscape, signals, moment, $window, _, $q) {
+        function MarkersController(osApi, d3, $state, $timeout, $scope, $stateParams, cytoscape, signals, moment, $window, _, $q) {
 
             osApi.setBusy(true);
 
@@ -65,24 +65,37 @@
 
 
             // State
-            var mpState = (function(osApi, osCohortService) {
+            var mpState = (function(osApi) {
                 // Retrieve State
                 var mp = localStorage.getItem("MP-" + osApi.getDataSource().disease);
-                var hasState = (mp !== null)
+                var hasState = (mp !== null);
                 if (hasState) mp = angular.fromJson(mp);
+
 
                 var _colors = null;
                 var setColors = function(c) {
                     _colors = c;
-                }
+                };
                 var applyState = function(fn, cyChart) {
                     if (!hasState) return;
-                    osCohortService.onPatientColorChange.dispatch(mp.optColors);
+                    osApi.onPatientColorChange.dispatch(mp.optColors);
                     requestAnimationFrame(function() {
                         cyChart.startBatch();
                         cyChart.add(mp.edges);
+                        cyChart.$('node[nodeType="patient"]').forEach(function(node) {
+                            if (
+                                mp.moved.hasOwnProperty(node.id())
+                            ) {
+                                node.position(
+                                    mp.moved[node.id()]
+                                );
+                            }
+                        });
                         cyChart.endBatch();
                     });
+
+
+
                 };
 
                 var getOptEdgeColors = function() {
@@ -137,28 +150,40 @@
                             return v.name == mp.optGeneSet.name;
                         }, mp.optGeneSet.name)[0];
                     }
-                    if (osApi.getDataSource().disease == "brain") {
-                        return genesets.filter(function(v) {
-                            return v.name == "Marker genes 545";
-                        })[0];
-                    } else {
-                        return genesets.filter(function(v) {
-                            return v.name == "TCGA pancan mutated";
-                        })[0];
-                    }
+
+                    var datasetGeneset = osApi.getDataSource().geneset;
+                    var gs = genesets.reduce(function(p, c) {
+                        if (c.name === datasetGeneset) { p = c; }
+                        return p;
+                    }, genesets[0]);
+                    return gs;
                 };
 
                 var getPatientLayout = function(layouts) {
+
                     if (hasState) {
                         return layouts.filter(function(v) {
                             return v.name == mp.optPatientLayout.name;
                         }, mp.optPatientLayout.name)[0];
                     } else {
-                        return layouts[0];
+                        return layouts.reduce(function(p, c) {
+                            if (c.hasOwnProperty("default")) {
+                                if (c.default) p = c;
+                            }
+                            return p;
+                        }, layouts[0]);
                     }
                 };
+
+
                 var save = function(vm, cyChart) {
                     var s = {};
+                    s.moved = {};
+                    cyChart.$('node[nodeType="patient"]').forEach(function(v) {
+                        if (!_.isMatch(v.data().position, v.position())) {
+                            s.moved[v.id()] = v.position();
+                        }
+                    });
                     s.optEdgeColors = vm.optEdgeColors;
                     s.optGeneSet = vm.optGeneSet;
                     s.optPatientLayout = vm.optPatientLayout;
@@ -175,7 +200,7 @@
                     setColors: setColors,
                     save: save
                 };
-            })(osApi, osCohortService);
+            })(osApi);
 
 
 
@@ -191,7 +216,7 @@
                     'style': [{
                         'selector': 'core',
                         'style': {
-                            'selection-box-color': '#3993fa',
+                            'selection-box-color': '#039BE5',
                             'selection-box-border-color': '#3993fa',
                             'selection-box-border-width': '1px',
                             'selection-box-opacity': '.2'
@@ -199,7 +224,7 @@
                     }, {
                         'selector': 'node',
                         'style': {
-                            'background-color': "#3993fa",
+                            'background-color': "#039BE5",
                             'display': "data(display)",
                             'width': 'data(sizeEle)',
                             'height': 'data(sizeEle)',
@@ -210,7 +235,8 @@
                     }, {
                         'selector': 'node[nodeType="telomere"]',
                         'style': {
-                            'background-color': "#3993fa"
+                            'background-color': "#039BE5",
+                            'border-color': "#039BE5"
                         }
                     }, {
                         'selector': 'node[nodeType="patient"]',
@@ -231,24 +257,26 @@
                         'style': {
                             'background-color': "data(color)",
                             'border-color': "data(colorBdr)",
-                            'text-halign': "right",
-                            'text-margin-x': 5,
-                            'color': '#000',
+                            'text-halign': "data(halign)",
+                            'text-margin-x': "data(padding)",
+                            'font-size': '8px',
+                            'color': '#aaa',
                             'label': "data(id)",
                             'border-width': "data(sizeBdr)"
                         }
                     }, {
                         'selector': 'node[nodeType="gene"]:selected',
                         'style': {
-                            'background-color': "#000000",
-                            'border-color': "#000"
+                            'background-color': "#fc8400",
+                            'border-color': "#000000",
+                            'color': '#000'
                         }
                     }, {
                         'selector': 'node[nodeType="centromere"]',
                         'style': {
                             'font-size': '20px',
                             'text-halign': 'center',
-                            'background-color': "#3993fa",
+                            'background-color': "#039BE5",
                             'color': "#FFFFFF",
                             'border-color': 'rgb(19, 150, 222)',
                             'height': '40px',
@@ -266,23 +294,23 @@
                     }, {
                         'selector': 'node[nodeType="annotation-text"]',
                         'style': {
-                            'font-size': '400px',
+                            'font-size': '50px',
                             'text-halign': 'right',
                             'text-valign': 'bottom',
-                            'background-color': "#FFF",
+                            'background-color': "#FFFFFF",
                             'color': "#000",
-                            'border-color': '#FFF',
-                            'height': '0px',
-                            'width': '0px',
+                            'border-color': '#FFFFFF',
+                            'height': '50px',
+                            'width': '50px',
                             'shape': 'round',
-                            'label': "data(label)",
+                            'label': 'data(label)',
                             'text-transform': 'uppercase'
                         }
                     }],
                     hideEdgesOnViewport: false,
                     hideLabelsOnViewport: true,
                     textureOnViewport: false,
-                    wheelSensitivity: .5,
+                    wheelSensitivity: 0.2,
                     zoom: 0.08,
                     pan: {
                         x: 650,
@@ -318,7 +346,7 @@
                             locked: true,
                             selectable: false,
                             data: {
-                                color: "#3993fa",
+                                color: "#039BE5",
                                 id: "ce" + key, // Chromosome Edge (CE)
                                 display: "element",
                                 edgeType: "chromosome",
@@ -398,7 +426,7 @@
                     });
                     cyChart.add(elements);
                 });
-            })()
+            })();
 
             /*
              * View Model + Initial Data Load 
@@ -421,6 +449,7 @@
                 vm.showPanelColor = false;
                 vm.showPanelColorRna = false;
                 vm.search = "";
+                vm.searchCount = "";
 
                 vm.optCommandModes = [{
                     name: 'Sequential'
@@ -431,9 +460,21 @@
                 }];
                 vm.optCommandMode = vm.optCommandModes[0];
 
+                vm.exeSearch = function() {
+                    var needle = vm.search.toUpperCase().trim();
+                    var count = 0;
+                    var doSearch = (needle.length > 0);
+                    cyChart.$('node').forEach(function(el) {
+                        var found = (doSearch) ? (el.id().toUpperCase().indexOf(needle) === 0) : false;
+                        if (found) count += 1;
+                        el[found ? "select" : "deselect"]();
+                    });
+                    vm.searchCount = "(" + count + " found)";
+                    $timeout(function() { vm.searchCount = ""; }, 3000, true);
+                };
                 vm.hideModal = function() {
                     angular.element('#modalEdge').modal('hide');
-                }
+                };
                 vm.filterModelEdge = function() {
 
                     angular.element('#modalEdge').modal('hide');
@@ -442,7 +483,7 @@
                             return c.show;
                         })
                         .map(function(c) {
-                            return c.id
+                            return c.id;
                         });
                     var edges = tmpdata.edges.filter(function(edge) {
                         return (vals.indexOf(edge.data.cn) != -1);
@@ -514,36 +555,45 @@
 
                 vm.optEdgeColors = mpState.getOptEdgeColors();
 
+
                 // Populate Dropdowns + Draw Chromosome
+                //hg19_geneset
                 $q.all([
-                    osApi.query("render_chromosome", {
+                    osApi.query("hg19_geneset", {
                         type: 'geneset',
                         $fields: ['name']
                     }),
-                    osApi.query("render_patient", {
-                        type: 'cluster',
-                        dataset: osApi.getDataSource().disease,
-                        $fields: ['name']
-                    }),
-                    osApi.query("render_patient", {
-                        type: 'color',
-                        dataset: osApi.getDataSource().disease,
-                        $fields: ['name']
+                    osApi.query(osApi.getDataSource().disease + "_cluster", {
+                        $fields: ['input', 'geneset', 'dataType', 'source', 'default']
                     })
+
                 ]).then(function(results) {
 
-                    vm.optGeneSets = results[0].data;
+                    var layouts = results[1].data.map(function(v) {
+                        v.name = v.dataType + " " + v.input + " " + v.geneset;
+                        return v;
+                    }).sort(function(a, b) {
+                        var x = a.name.toLowerCase();
+                        var y = b.name.toLowerCase();
+                        return x < y ? -1 : x > y ? 1 : 0;
+                    });
+
+                    vm.optGeneSets = _.uniq(osApi.getDataSource().edges.map(function(e) { return { name: e.geneset }; }), function(item) { return item.name; });
                     vm.optGeneSet = mpState.getGeneSet(vm.optGeneSets);
-                    vm.optPatientLayouts = results[1].data;
-                    vm.optPatientLayout = mpState.getPatientLayout(vm.optPatientLayouts);
+                    vm.optPatientLayouts = layouts;
+                    var patientLayout = mpState.getPatientLayout(vm.optPatientLayouts);
+                    vm.optPatientLayout = angular.isDefined(patientLayout) ? patientLayout : layouts[0];
+
                 });
+
+
                 vm.resize = function() {
                     var width = $window.innerWidth;
                     //    if (angular.element(".tray").attr("locked") == "true") width -= 300;
                     elChart.width(width);
                     elChart.height($window.innerHeight - 90);
                     cyChart.resize();
-                }
+                };
                 angular.element($window).bind('resize',
                     _.debounce(vm.resize, 300)
                 );
@@ -563,7 +613,7 @@
                     cyChart.center();
                 };
                 var fit = function() {
-                    cyChart.fit(cyChart.$(':selected'), 50)
+                    cyChart.fit(cyChart.$(':selected'), 50);
                 };
                 vm.zoom = {
                     reset: reset,
@@ -578,13 +628,16 @@
                 return vm.zoom;
             })(cyChart, vm);
 
-            var borderScale = d3.scaleLog().domain([.005, 20]).range([5, 1])
-            var nodeScale = d3.scaleLog().domain([.005, 20]).range([80, 1]);
-            var labelScale = d3.scaleLog().domain([.005, 20]).range([50, 1]);
-            var expressionScale = d3.scalePow().range([.01, 2]);
-            var resizeNodes = function() {
+            var borderScale = d3.scaleLog().domain([0.005, 20]).range([5, 1]);
+            var nodeScale = d3.scaleLog().domain([0.005, 20]).range([80, 1]);
+            var labelScale = d3.scaleLog().domain([0.005, 20]).range([50, 1]);
+            var expressionScale = d3.scalePow().range([0.01, 2]);
+
+
+            var resizeNodesByType = function(type) {
+
                 expressionScale.domain(
-                    cyChart.$('node[nodeType="patient"],node[nodeType="gene"]').toArray()
+                    cyChart.$('node[nodeType="' + type + '"]').toArray()
                     .reduce(function(p, c) {
                         var w = c.data().weight;
                         p[0] = Math.min(p[0], w);
@@ -593,12 +646,16 @@
                     }, [Infinity, -Infinity])
                 );
 
+
+
+
                 var zoom = cyChart.zoom();
                 var sizeNode = nodeScale(zoom);
-                var sizeLbl = (zoom < .375) ? 0 : labelScale(zoom);
+                var sizeLbl = (zoom < 0.375) ? 0 : labelScale(zoom);
                 var sizeBdr = borderScale(zoom);
 
-                cyChart.$('node[nodeType="patient"],node[nodeType="gene"]').forEach(function(node) {
+                cyChart.startBatch();
+                cyChart.$('node[nodeType="' + type + '"]').forEach(function(node) {
                     node.data({
                         'sizeEle': Math.round(this.sizeNode * expressionScale(node.data().weight)),
                         'sizeLbl': this.sizeLbl,
@@ -610,7 +667,13 @@
                     sizeLbl: sizeLbl,
                     scale: expressionScale
                 });
-            }
+                cyChart.endBatch();
+            };
+
+            var resizeNodes = function() {
+                resizeNodesByType('patient');
+                resizeNodesByType('gene');
+            };
 
             /* 
              *  Interop Between UI and Worker Thread
@@ -634,7 +697,7 @@
                         return;
                     }
 
-                    if (data.length == 0) return;
+                    if (data.length === 0) return;
                     var items = data.map(function(item) {
                         return this.getElementById(item);
                     }, cyChart);
@@ -663,10 +726,9 @@
                             node.data({
                                 'weight': data.degrees[node.id()].weight
                             });
-
                         } catch (e) {
                             node.data({
-                                'weight': 100
+                                'weight': 10
                             });
                         }
                     });
@@ -674,17 +736,15 @@
                     cyChart.endBatch();
                     vm.resize();
 
-
-
                     //Initial Node Selection & Color
-                    var cohort = osCohortService.getCohort();
+                    var cohort = osApi.getCohort();
                     cyChart.startBatch();
                     cyChart.nodes('node[nodeType="patient"]').forEach(function(node) {
                         if (this.indexOf(node.id()) != -1) node.select();
 
                     }, cohort.sampleIds);
                     cyChart.endBatch();
-                    vm.zoom.reset()
+                    vm.zoom.reset();
                     cyChart.center();
                     cyChart.fit(cyChart.nodes(), 400);
                     mpState.applyState(onPatientColorChange, cyChart);
@@ -692,18 +752,52 @@
                 };
                 cmd.patients_layout = function(data) {
                     cyChart.startBatch();
-                    cyChart.$("node[nodeType='annotation-text'],edge[nodeType='annotation-line'],node[nodeType='annotation-point']").remove();
-                    if (data.annotation) {
-                        cyChart.add(data.annotation);
+                    cyChart.$("node[nodeType='annotation-text']").remove();
 
-                    }
+                    var posX = 100;
+                    var posY = 3000;
+                    var numMissing = 0;
+
                     cyChart.nodes('node[nodeType="patient"]').forEach(function(node) {
-                        try {
-                            var pos = data.data[node.id()];
-                            pos.x -= 4000;
+                        if (data.hasOwnProperty(node.id())) {
+                            var pos = data[node.id()];
+                            node.data().position = { x: pos.x, y: pos.y };
                             node.position(pos);
-                        } catch (e) {}
+                            node.style({ display: 'element' });
+                        } else {
+                            node.style({ display: 'none' });
+                            //node.position({ x: -10000, y: -10000 });
+                            // node.position({ x: posX, y: posY });
+                            // posX += 80;
+                            // if (posX > 3000) {
+                            //     posX = 100;
+                            //     posY += 80;
+                            // }
+                            // numMissing += 1;
+                        }
                     });
+
+                    if (numMissing > 0) { // uncomment to show grid of missing
+                        // cyChart.add({
+                        //     group: "nodes",
+                        //     grabbable: false,
+                        //     locked: true,
+                        //     selectable: false,
+                        //     position: { x: 50, y: 2850 },
+                        //     data: {
+                        //         id: "annotation",
+                        //         color: "rgb(0, 0, 0)",
+                        //         display: "element",
+                        //         nodeType: "annotation-text",
+                        //         sizeEle: 800,
+                        //         weight: 0,
+                        //         sizeLbl: 500,
+                        //         degree: 0,
+                        //         sizeBdr: 50,
+                        //         label: "The following " + numMissing + " samples lacked the requisite data to be clustered."
+                        //     }
+                        // });
+                    }
                     resizeNodes();
                     cyChart.endBatch();
                 };
@@ -727,10 +821,9 @@
                             node.data({
                                 'weight': data.degrees[node.id()].weight
                             });
-
                         } catch (e) {
                             node.data({
-                                'weight': 500
+                                'weight': 0
                             });
                         }
                     });
@@ -811,39 +904,36 @@
                     var geneset = vm.optGeneSet.name;
 
                     // Could add ability to select from cBio or UCSC for edges
-                    var edges = osApi.getDataSource().edges.filter(function(f) {
-                        return f.name == this.geneset
-                    }, {
-                        geneset: geneset
-                    })[0];
-
+                    // var edges = osApi.getDataSource().edges.filter(function(f) {
+                    //     return f.name == this.geneset;
+                    // }, {
+                    //     geneset: geneset
+                    // })[0];
                     var opts = {
                         mode: vm.optCommandMode.name,
                         cmd: cmd,
                         dataset: osApi.getDataSource().disease,
                         patients: {
                             data: vm.datasource.clinical.patient,
-                            layout: vm.optPatientLayout.name,
+                            layout: vm.optPatientLayout,
                             selected: cyChart.$('node[nodeType="patient"]:selected').map(function(p) {
-                                return p.data().id
+                                return p.data().id;
                             })
                         },
                         genes: {
                             layout: vm.optGeneSet.name,
                             selected: cyChart.$('node[nodeType="gene"]:selected').map(function(p) {
-                                return p.data().id
+                                return p.data().id;
                             })
                         },
                         edges: {
-                            patientWeights: edges.patientWeights,
-                            geneWeights: edges.genesWeights,
                             layout: vm.datasource.edges
                                 .filter(function(v) {
-                                    return (v.name == this)
+                                    return (v.geneset == this);
                                 }, geneset)[0],
                             colors: vm.optEdgeColors
                                 .filter(function(f) {
-                                    return f.show
+                                    return f.show;
                                 })
                                 .map(function(f) {
                                     return {
@@ -855,8 +945,8 @@
                     };
 
                     return opts;
-                }
-            })(cyChart, vm)
+                };
+            })(cyChart, vm);
 
             vm.cmd = function() {};
 
@@ -866,7 +956,7 @@
              *  + vm.optPatientLayout
              */
             (function(vm, $scope) {
-                var watches = 1;
+                var watches = 2;
 
                 var update = function() {
                     setOptions(createOptions());
@@ -896,18 +986,6 @@
                     update();
                 });
 
-                // Search
-                watches += 1;
-                $scope.$watch('vm.search', _.debounce(function() {
-                    if (watches > 0) {
-                        watches -= 1;
-                        return;
-                    }
-                    var needle = vm.search.toUpperCase().trim();
-                    if (needle.length > 0) cyChart.$('node').filter(function(i, ele) {
-                        return (ele.id().toUpperCase().indexOf(needle) == 0);
-                    }).select();
-                }, 600))
 
                 // Edge Colors
                 watches += 1;
@@ -917,7 +995,7 @@
                         return;
                     }
                     update();
-                    vm.resize()
+                    vm.resize();
                 });
             })(vm, $scope);
 
@@ -926,7 +1004,7 @@
 
                 angular.element(".legend-count").text("");
                 var selectedPatients = cyChart.$('node[nodeType="patient"]:selected').toArray();
-                if (selectedPatients.length == 0) selectedPatients = cyChart.$('node[nodeType="patient"]').toArray();
+                if (selectedPatients.length === 0) selectedPatients = cyChart.$('node[nodeType="patient"]').toArray();
 
                 var counts = selectedPatients.reduce(function(p, c) {
                     var color = c.data().color;
@@ -958,17 +1036,20 @@
 
                 $scope.$apply(function() {
                     if (e.type == "mouseout") {
-                        angular.element("#cohortmenu-legand").html("");
+                        //angular.element("#cohortmenu-legand").html("");
                     } else {
                         mouseIsOver = "gene";
-                        angular.element("#cohortmenu-legand").html(e.cyTarget.id()); // + patientHtml[e.cyTarget.id()]);
+                        //angular.element("#cohortmenu-legand").html(e.cyTarget.id()); // + patientHtml[e.cyTarget.id()]);
                     }
                 });
             };
 
             var _stopLength = 0; // Hack - need to fix
+            var skipCohortRefresh = false;
+
             function onCohortChange(cohort) {
                 if (cohort.sampleIds.length == _stopLength) return; // Preform more robust check
+                skipCohortRefresh = true;
                 _stopLength = cohort.sampleIds.length;
                 cyChart.startBatch();
                 cyChart.$('node[nodeType="patient"]:selected').deselect();
@@ -977,19 +1058,21 @@
                 });
                 cyChart.endBatch();
             }
-            osCohortService.onCohortChange.add(onCohortChange);
+            osApi.onCohortChange.add(onCohortChange);
 
             function setPatientCohort() {
                 var cohort = cyChart.$('node[nodeType="patient"]:selected');
                 if (cohort.length == _stopLength) return; // Preform more robust check
                 _stopLength = cohort.length;
-                osCohortService.setCohort(
-                    cohort.map(function(p) {
-                        return p.data().id
-                    }),
-                    "Markers + Patients",
-                    osCohortService.SAMPLE
-                );
+                if (!skipCohortRefresh)
+                    osApi.setCohort(
+                        cohort.map(function(p) {
+                            return p.data().id;
+                        }),
+                        "Markers + Patients",
+                        osApi.SAMPLE
+                    );
+                skipCohortRefresh = false;
             }
 
             function setGeneCohort() {
@@ -1009,7 +1092,7 @@
                             switch (cmd) {
                                 case "ShowSelectedEdges":
                                     var nodes = cyChart.$('node[nodeType="patient"]:selected, node[nodeType="gene"]:selected');
-                                    if (nodes.length == 0) return;
+                                    if (nodes.length === 0) return;
                                     nodes.neighborhood("edge").remove();
                                     opts = createOptions(cmd);
                                     setOptions(opts);
@@ -1124,7 +1207,7 @@
                             cyChart.nodes().unselect();
                             e.cyTarget.select();
                             setOptions(createOptions());
-                        }
+                        };
                         var out = function(e) {
                             e.cyTarget.unselect();
                             cyChart.startBatch();
@@ -1136,8 +1219,7 @@
                                     ele.data("colorBdr", "#FFFFFF");
                                 });
                             cyChart.endBatch();
-
-                        }
+                        };
                         signal.genes.over.add(setGeneInfo);
                         signal.genes.out.add(setGeneInfo);
                         signal.patients.over.add(setPatientInfo);
@@ -1163,7 +1245,7 @@
                     vm.legendCaption = "";
                     cyChart.startBatch();
                     cyChart.nodes('node[nodeType="patient"]').forEach(function(node) {
-                        node.data('color', '#0096d5')
+                        node.data('color', '#0096d5');
                     });
                     cyChart.endBatch();
 
@@ -1190,12 +1272,12 @@
                 $timeout(updatePatientCounts);
             };
 
-            osCohortService.onPatientColorChange.add(onPatientColorChange);
+            osApi.onPatientColorChange.add(onPatientColorChange);
 
             // Destroy
             $scope.$on('$destroy', function() {
                 mpState.save(vm, cyChart);
-                osCohortService.onPatientColorChange.remove(onPatientColorChange);
+                osApi.onPatientColorChange.remove(onPatientColorChange);
                 worker.terminate();
                 signal.clear();
             });

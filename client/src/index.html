@@ -34,14 +34,12 @@
 
     <os-header></os-header>
 
-
     <div id="main" class="container-main container-main-full">
-        <os-cohort-menu></os-cohort-menu>
+        <os-collection-panel></os-collection-panel>
         <div ui-view></div>
     </div>
 
     <os-loader></os-loader>
-
 
     <!-- build:js(src) scripts/vendor.js -->
     <!-- bower:js -->
@@ -58,6 +56,8 @@
     <!-- angular templates will be automatically converted in js and inserted here -->
     <!-- endinject -->
     <!-- endbuild -->
+
+    <script src="assets/lasso.js"></script>
 
     <script>
         ! function(e) {
@@ -204,6 +204,8 @@
         ga('create', 'UA-55684588-2', 'auto');
         ga('send', 'pageview');
     </script>
+
+
 </body>
 
 </html>

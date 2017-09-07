@@ -1,4 +1,5 @@
 /* jshint ignore:start */
+/* global ActiveXObject:false, JSON:false  */
 // Load Data Function (URL, CallBack)
 var load = function(t, e) {
     function a() {
@@ -20,9 +21,8 @@ var request = function(object, data, format) {
             resolve(data);
             return;
         }
-
         var query = "/api/" + object.table;
-        //query = "https://oncoscape-test.fhcrc.org/api/" + object.table;
+        //query = "https://dev.oncoscape.sttrcancer.io/api/" + object.table;
         if (object.query) query += "/" + encodeURIComponent(JSON.stringify(object.query));
         load(query, function(response) {
             resolve(format(JSON.parse(response.responseText)));
@@ -56,23 +56,17 @@ var state = {
 // Load Data
 var data = (function() {
 
-    var getRangeFn = function(data) {
-        var range = data
-            .map(function(p) {
-                return parseInt(p[Object.keys(p)[0]]);
-            });
 
-        var min = Math.min.apply(null, range);
-        var max = Math.max.apply(null, range)
-        return function(value, low, high) {
-            value = parseInt(value);
-            return Math.round(((value - min) / (max - min)) * (high - low) + low);
-        }
-    };
+
+
+    function convertRange(value, r1, r2) {
+        return (value - r1[0]) * (r2[1] - r2[0]) / (r1[1] - r1[0]) + r2[0];
+    }
 
     var clean = function(state) {
+
         // Remove Edges That Don't Have Patients || Genes Assiciated
-        //		console.log("EDGES PRE CLEAN: "+state.edges.length);
+        // console.log("EDGES PRE CLEAN: "+state.edges.length);
         state.edges = state.edges
             .filter(function(item) { // Remove Edges w/ Invalid Gene
                 for (var i = 0; i < this.length; i++) {
@@ -86,21 +80,22 @@ var data = (function() {
                 }
                 return false;
             }, state.patients);
-        //		console.log("EDGES POST CLEAN: "+state.edges.length);
-
 
         // Size Nodes :: Eliminate Duplicate Functions
-        var rFn = getRangeFn(state.edgePatients);
-        var patientEdgeDegrees = state.edgePatients
-            .map(function(obj) {
-                var key = Object.keys(obj)[0];
-                var val = this.fn(obj[key], 400, 1200);
+        var domain = Object.keys(state.edgePatients).reduce(function(p, c) {
+            var v = state.edgePatients[c];
+            p[0] = Math.min(p[0], v);
+            p[1] = Math.max(p[0], v);
+            return p;
+        }, [Infinity, -Infinity]);
+
+        var patientEdgeDegrees = Object.keys(state.edgePatients)
+            .map(function(key) {
+                var val = convertRange(state.edgePatients[key], domain, [20, 150]);
                 return {
                     'id': key,
                     'val': val
                 };
-            }, {
-                fn: rFn
             })
             .reduce(function(previousValue, currentValue) {
                 previousValue[currentValue.id] = {
@@ -110,17 +105,20 @@ var data = (function() {
             }, {});
 
 
-        rFn = getRangeFn(state.edgeGenes);
-        var geneEdgeDegrees = state.edgeGenes
-            .map(function(obj) {
-                var key = Object.keys(obj)[0];
-                var val = this.fn(obj[key], 50, 1500);
+        domain = Object.keys(state.edgeGenes).reduce(function(p, c) {
+            var v = state.edgeGenes[c];
+            p[0] = Math.min(p[0], v);
+            p[1] = Math.max(p[0], v);
+            return p;
+        }, [Infinity, -Infinity]);
+
+        var geneEdgeDegrees = Object.keys(state.edgeGenes)
+            .map(function(key) {
+                var val = convertRange(state.edgeGenes[key], domain, [20, 150]);
                 return {
                     'id': key,
                     'val': val
                 };
-            }, {
-                fn: rFn
             })
             .reduce(function(previousValue, currentValue) {
                 previousValue[currentValue.id] = {
@@ -138,108 +136,108 @@ var data = (function() {
     };
 
     var formatPatientLayout = function(data) {
-        if (state.patients.length == 0) return;
-        if (data.length == 1) {
 
-            var annotations = data[0].annotation;
-            if (annotations) {
+        // if (state.patients.length == 0) return data;
+        // if (data.length == 1) {
 
+        // var annotations = data[0].annotation;
+        // if (annotations) {
 
-                var text = annotations
-                    .filter(function(item) { return item.type == "text"; })
-                    .map(function(item) {
-                        return {
-                            group: "nodes",
-                            grabbable: false,
-                            locked: true,
-                            selectable: false,
-                            position: { x: item.x - 4600, y: item.y },
-                            'text-rotation': item.rotation,
-                            data: {
-                                id: "annotation" + item.text.replace(/[^\w\s!?]/g, ''),
-                                color: "rgb(0, 255, 255)",
-                                display: "element",
-                                nodeType: "annotation-text",
-                                sizeEle: 800,
-                                weight: 800,
-                                sizeLbl: 500,
-                                degree: 1,
-                                sizeBdr: 50,
-                                'text-rotation': item.rotation,
-                                label: item.text + " (" + item.dataValue + ")"
-                            }
-                        }
-                    });
-
-
-                var lines = annotations
-                    .filter(function(item) { return item.type == "line" })
-                    .map(function(line) {
-
-                        var id = "annotation-" + Math.random().toString().substring(2);
-
-                        var elements = [];
-                        for (var i = 0; i < line.points.length; i++) {
-
-                            var item = line.points[i];
-
-                            elements.push({
-
-                                group: "nodes",
-                                grabbable: false,
-                                locked: true,
-                                position: { x: item.x - 4000, y: item.y },
-                                selectable: false,
-                                data: {
-                                    display: "element",
-                                    id: id + i.toString(),
-                                    nodeType: "annotation-point",
-                                    sizeEle: 100,
-                                    sizeBdr: 1,
-                                    sizeLbl: 0
-                                }
-                            });
-                            if (i > 0) {
-                                elements.push({
-
-                                    group: "edges",
-                                    grabbable: false,
-                                    locked: true,
-                                    position: line.points[i],
-                                    selectable: false,
-                                    data: {
-                                        display: "element",
-                                        id: id,
-                                        nodeType: "annotation-line",
-                                        source: id + i.toString(),
-                                        target: id + (i - 1).toString(),
-                                        sizeEle: 50,
-                                        sizeBdr: 1,
-                                        sizeLbl: 0,
-                                        'color': "#000000"
-                                    }
-                                })
-                            }
-                        }
-                        return elements;
-
-                    });
+        //     var text = annotations
+        //         .filter(function(item) { return item.type == "text"; })
+        //         .map(function(item) {
+        //             return {
+        //                 group: "nodes",
+        //                 grabbable: false,
+        //                 locked: true,
+        //                 selectable: false,
+        //                 position: { x: item.x - 4600, y: item.y },
+        //                 'text-rotation': item.rotation,
+        //                 data: {
+        //                     id: "annotation" + item.text.replace(/[^\w\s!?]/g, ''),
+        //                     color: "rgb(0, 255, 255)",
+        //                     display: "element",
+        //                     nodeType: "annotation-text",
+        //                     sizeEle: 800,
+        //                     weight: 800,
+        //                     sizeLbl: 500,
+        //                     degree: 1,
+        //                     sizeBdr: 50,
+        //                     'text-rotation': item.rotation,
+        //                     label: item.text + " (" + item.dataValue + ")"
+        //                 }
+        //             }
+        //         });
 
 
+        //     var lines = annotations
+        //         .filter(function(item) { return item.type == "line" })
+        //         .map(function(line) {
 
-                data[0].annotation = text.concat([].concat.apply([], lines));
+        //             var id = "annotation-" + Math.random().toString().substring(2);
 
-            }
+        //             var elements = [];
+        //             for (var i = 0; i < line.points.length; i++) {
 
-            send("patients_layout", data[0]);
-        }
+        //                 var item = line.points[i];
+
+        //                 elements.push({
+
+        //                     group: "nodes",
+        //                     grabbable: false,
+        //                     locked: true,
+        //                     position: { x: item.x - 4000, y: item.y },
+        //                     selectable: false,
+        //                     data: {
+        //                         display: "element",
+        //                         id: id + i.toString(),
+        //                         nodeType: "annotation-point",
+        //                         sizeEle: 100,
+        //                         sizeBdr: 1,
+        //                         sizeLbl: 0
+        //                     }
+        //                 });
+        //                 if (i > 0) {
+        //                     elements.push({
+        //                         group: "edges",
+        //                         grabbable: false,
+        //                         locked: true,
+        //                         position: line.points[i],
+        //                         selectable: false,
+        //                         data: {
+        //                             display: "element",
+        //                             id: id,
+        //                             nodeType: "annotation-line",
+        //                             source: id + i.toString(),
+        //                             target: id + (i - 1).toString(),
+        //                             sizeEle: 50,
+        //                             sizeBdr: 1,
+        //                             sizeLbl: 0,
+        //                             'color': "#000000"
+        //                         }
+        //                     })
+        //                 }
+        //             }
+        //             return elements;
+
+        //         });
+        //     data[0].annotation = text.concat([].concat.apply([], lines));
+        // }
+
+
+        var rv = data[0].scores.reduce(function(p, c) {
+            p[c.id] = { x: c.d[0] - 4000, y: c.d[1] };
+            return p;
+        }, {});
+        send("patients_layout", rv);
+
     };
 
     var formatEdgePatients = function(data) {
-        return data;
+        return data[0].d.reduce(function(p, c) { p[c.p] = c.w; return p; }, {});
     };
     var formatEdgeGenes = function(data) {
-        return data;
+        return data[0].d.reduce(function(p, c) { p[c.g] = c.w; return p; }, {});
     };
     var formatPatientData = function(data) {
         return data;
@@ -248,11 +246,6 @@ var data = (function() {
     var formatGeneNodes = function(data) {
         data = data[0].data;
         return Object.keys(data)
-            .filter(function(key) {
-                // Remove Genes That Are Not Positioned On Chromosome
-                var value = this[key];
-                return (value.x != 0 & value.y != 0)
-            }, data)
             .map(function(key) {
                 return {
                     group: "nodes",
@@ -263,7 +256,7 @@ var data = (function() {
                     data: {
                         sizeBdr: 1,
                         colorBdr: '#FFF',
-                        color: "#0096d5",
+                        color: "#039BE5",
                         id: key,
                         display: "element",
                         nodeType: "gene",
@@ -271,63 +264,119 @@ var data = (function() {
                         sizeEle: 200,
                         weight: 200,
                         sizeLbl: 10,
-                        subType: "unassigned"
+                        subType: "unassigned",
+                        position: {}
                     }
                 };
             }, data)
     };
 
+    var createEdgeNode = function(g, p, m) {
+        return {
+            group: "edges",
+            grabbable: false,
+            locked: true,
+            data: {
+                color: "#FF0000",
+                id: "mp_" + g + "_" + p + "_" + m,
+                display: "element",
+                edgeType: "cn",
+                sizeEle: 1,
+                sizeBdr: 0,
+                cn: parseInt(m),
+                source: g,
+                target: p
+            }
+        };
+    }
+    var mutationMap = {
+        "deletion": -2,
+        "loss": -1,
+        "mutation": 0,
+        "gain": 1,
+        "amplification": 2
+    }
     var formatEdgeNodes = function(data) {
-        return data.map(function(item) {
-            return {
-                group: "edges",
-                grabbable: false,
-                locked: true,
-                data: {
-                    color: "#FF0000",
-                    id: "mp_" + item.g + "_" + item.p + "_" + item.m,
-                    display: "element",
-                    edgeType: "cn",
-                    sizeEle: 1,
-                    sizeBdr: 0,
-                    cn: parseInt(item.m),
-                    source: item.g,
-                    target: item.p
-                }
-            };
-        });
+        return [].concat.apply(this, data.map(function(alteration) {
+            return alteration.d.map(function(edge) {
+                return createEdgeNode(edge.g, edge.p, mutationMap[alteration.alteration]);
+            });
+        }));
     };
 
     var formatPatientNodes = function(data) {
+        var rv = data[0].scores.map(function(v) {
+            var position = { x: v.d[0] - 4000, y: v.d[1] };
+            var data = {
+                color: "#039BE5",
+                id: v.id,
+                display: "element",
+                nodeType: "patient",
+                degree: 1,
+                sizeBdr: 30,
+                sizeEle: 800,
+                weight: 800,
+                sizeLbl: 50,
+                subType: "unassigned",
+                position: { x: position.x, y: position.y }
+            };
+            var node = {
+                group: "nodes",
+                grabbable: true,
+                locked: false,
+                selectable: true,
+                position: position,
+                data: data
+            };
+            return node;
+        });
 
-        data = data[0].data;
-        return Object.keys(data)
-            .map(function(key) {
-                var value = this[key];
-                var data = {
-                    color: "#1396DE",
-                    id: key,
-                    display: "element",
-                    nodeType: "patient",
-                    degree: 1,
-                    sizeBdr: 30,
-                    sizeEle: 800,
-                    weight: 800,
-                    sizeLbl: 50,
-                    subType: "unassigned"
-                };
-                var node = {
-                    group: "nodes",
-                    grabbable: true,
-                    locked: false,
-                    selectable: true,
-                    position: value,
-                    data: data
-                };
-                node.position.x -= 4000;
-                return node;
-            }, data);
+        return rv;
     };
+
+    var distributePoints = function(pts, spread) {
+
+
+        // Pt Objects
+        var ptObjs = pts.sort(function(a, b) { return a - b; }).map(function(c, i) {
+            return {
+                o: c, // Original value
+                v: c, // Currenct Value
+                s: 1, // State [0=confirmed, 1=unconfirmed]
+                i: i, // Index
+                ip: (i + 1 === pts.length) ? null : i + 1, // Index Plus 1 or Null 
+                im: (i === 0) ? null : i - 1 // Index Minus 1 or Null
+            };
+        });
+
+        var unconfirmed = true;
+        while (unconfirmed) {
+
+            // Get unconfirmed
+            var unconfirmedPts = ptObjs.filter(function(p) { return p.s && p.ip !== null && p.im !== null; });
+            if (unconfirmedPts.length === 0) {
+                unconfirmed = false;
+                break;
+            }
+            var center = unconfirmedPts[0],
+                left = ptObjs[center.im],
+                right = ptObjs[center.ip],
+                c2l = Math.abs(center.v - left.v),
+                c2r = Math.abs(right.v - center.v);
+
+            if (c2l < spread) {
+                left.v -= spread - c2l;
+                left.s = 1;
+            }
+            if (c2r < spread) {
+                right.v += spread - c2r;
+                right.s = 1;
+            }
+            center.s = 0;
+        }
+        return ptObjs.map(function(v) { return { o: v.o, v: v.v }; })
+    }
+
 
     var update = function(options, state) {
 
@@ -336,12 +385,10 @@ var data = (function() {
             // What Changed?
             var update = {
                 patientData: (state.options.patients.data != options.patients.data),
-                patientLayout: (state.options.patients.layout != options.patients.layout),
-                edges: (state.options.edges.layout.name != options.edges.layout.name),
+                patientLayout: (state.options.patients.layout.name != options.patients.layout.name),
+                edges: (state.options.edges.layout.geneset != options.edges.layout.geneset),
                 genes: (state.options.genes.layout != options.genes.layout)
             };
-
-
 
             // Nothing? Return
             if (!update.patientData && !update.patientLayout && !update.patients && !update.edges && !update.genes) {
@@ -351,7 +398,6 @@ var data = (function() {
                 });
                 return;
             }
-
 
             // Fetch New Stuff
             var promises = [
@@ -364,42 +410,58 @@ var data = (function() {
                 }, !update.patientData ? state.patientData : null, formatPatientData),
 
                 request({
-                    table: 'render_patient',
+                    table: options.dataset + "_cluster",
                     query: {
-                        dataset: options.dataset,
-                        name: options.patients.layout
-                            //type: 'Cluster'
+                        source: options.patients.layout.source,
+                        geneset: options.patients.layout.geneset,
+                        dataType: options.patients.layout.dataType,
+                        input: options.patients.layout.input
                     }
                 }, !update.patientData ? state.patients : null, formatPatientNodes),
 
                 request({
-                    table: 'render_patient',
+                    table: options.dataset + "_cluster",
                     query: {
-                        dataset: options.dataset,
-                        name: options.patients.layout
-                            //type: 'Cluster'
+                        source: options.patients.layout.source,
+                        geneset: options.patients.layout.geneset,
+                        dataType: options.patients.layout.dataType,
+                        input: options.patients.layout.input
                     }
                 }, !update.patientLayout ? state.patients : null, formatPatientLayout),
 
                 request({
-                    table: 'render_chromosome',
+                    table: 'hg19_geneset',
                     query: {
                         name: options.genes.layout
                     }
                 }, !update.genes ? state.genes : null, formatGeneNodes),
 
                 request({
-                    table: options.edges.layout.edges
-                }, !update.edges ? state.edges : null, formatEdgeNodes),
+                    table: options.dataset + "_network",
+                    query: {
+                        geneset: options.genes.layout,
+                        dataType: 'edges',
+                        default: true
+                    }
+                }, !update.genes ? state.edges : null, formatEdgeNodes),
 
                 request({
-                    table: options.edges.geneWeights
-                }, !update.edges ? state.edgeGenes : null, formatEdgeGenes),
+                    table: options.dataset + "_network",
+                    query: {
+                        geneset: options.genes.layout,
+                        dataType: 'genedegree',
+                        default: true
+                    }
+                }, !update.genes ? state.edgeGenes : null, formatEdgeGenes),
 
                 request({
-                    table: options.edges.patientWeights
-                }, !update.edges ? state.edgePatients : null, formatEdgePatients)
-
+                    table: options.dataset + "_network",
+                    query: {
+                        geneset: options.genes.layout,
+                        dataType: 'ptdegree',
+                        default: true
+                    }
+                }, !update.genes ? state.edgePatients : null, formatEdgePatients)
             ];
 
             Promise.all(promises).then(function(data) {
@@ -432,7 +494,49 @@ var data = (function() {
                 }
 
                 state.patientLayout = data[2];
-                state.genes = data[3];
+
+                var g = data[3].sort(function(a, b) {
+                    var rv = (a.position.x - b.position.x);
+                    return (rv == 0) ? (a.position.y - b.position.y) : rv;
+                });
+
+
+                g.forEach(function(c) {
+                    var jitter = 10 * (this.isPositive ? -1 : 1);
+                    if (c.position.x != this.xPos) {
+                        this.chromosome += 1;
+                        this.xPos = c.position.x;
+                    }
+                    c.position.x += jitter;
+                    c.position.jitter = jitter;
+                    c.data.position.x = c.position.x;
+                    c.data.position.y = c.position.y;
+                    c.position.jitter = c.position.jitter;
+
+                    c.data.halign = (jitter < 0) ? "left" : "right";
+                    c.data.padding = (jitter < 0) ? "-5" : "5";
+                    c.data.chrome = this.chromosome;
+                    this.isPositive = !this.isPositive;
+                }, { isPositive: false, chromosome: 0, xPos: 0 });
+
+
+                for (var i = 1; i < 24; i++) {
+                    var dist, pts = g.reduce(function(p, c) {
+                        if (c.data.chrome === i) {
+                            p[c.data.halign].push(c);
+                        }
+                        return p;
+                    }, { left: [], right: [] });
+
+                    dist = distributePoints(pts.left.map(function(v) { return v.position.y; }), 30).map(function(v) { return v.v; });
+                    pts.left.forEach(function(c, i) { c.position.y = dist[i]; });
+
+                    dist = distributePoints(pts.right.map(function(v) { return v.position.y; }), 30).map(function(v) { return v.v; });
+                    pts.right.forEach(function(c, i) { c.position.y = dist[i]; });
+                }
+
+
+                state.genes = g;
                 state.edges = data[4];
                 state.edgeGenes = data[5];
                 state.edgePatients = data[6];
@@ -545,6 +649,7 @@ var process = function(options, run) {
         var state = response.state;
         var update = response.update;
         var counts = "";
+        var edges;
         _options = options;
         switch (run) {
             case "sequential":
@@ -567,7 +672,7 @@ var process = function(options, run) {
                 }
                 break;
             case "sequential-showselectededges":
-                var edges = state.edges;
+                edges = state.edges;
                 edges = filter.edges.byPatients(options, edges);
                 edges = filter.edges.byGenes(options, edges);
                 var ids = edges.map(function(edge) {
@@ -583,7 +688,7 @@ var process = function(options, run) {
                 });
                 break;
             case "adhoc":
-                var edges = state.edges;
+                edges = state.edges;
                 edges = filter.edges.byColor(options, edges);
                 edges = filter.edges.byPatients(options, edges);
                 edges = filter.edges.byGenes(options, edges);
@@ -594,7 +699,7 @@ var process = function(options, run) {
                 });
                 break;
             case "set":
-                var edges = state.edges;
+                edges = state.edges;
                 edges = filter.edges.byColor(options, edges);
                 edges = filter.edges.byPatients(options, edges);
                 edges = filter.edges.byGenes(options, edges);

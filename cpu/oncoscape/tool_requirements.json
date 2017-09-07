@@ -1,0 +1,5 @@
+[{ "name": "PCA",
+	"req": [	{"field":"type",  "value":["expr", "cnv","cnv_thd", "mut01"]},
+			{"field":"schema", "value":["hugo_sample"]}
+	]
+}]

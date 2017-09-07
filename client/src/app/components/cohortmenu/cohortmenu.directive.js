@@ -20,7 +20,7 @@
         return directive;
 
         /** @ngInject */
-        function CohortMenuController(osApi, osCohortService, $state, $scope, $sce, $timeout, $rootScope, $filter, d3) {
+        function CohortMenuController(osApi, $state, $scope, $sce, $timeout, $rootScope, $filter, d3) {
 
 
             // View Model
@@ -31,18 +31,24 @@
             vm.cohortFeature = null;
             vm.cohortSummary = "";
 
-
             // Cohort Service Integration
-            angular.element("#cohortMenu").css({ "display": "none" });
-            osCohortService.onCohortsChange.add(function(cohorts) {
+            osApi.onCohortsChange.add(function(cohorts) {
                 vm.cohorts = cohorts;
+                updateSurvival(cohorts);
             });
-            osCohortService.onCohortChange.add(function(cohort) {
+            osApi.onCohortChange.add(function(cohort) {
+
+                var dataInfo = osApi.getCohortDatasetInfo();
                 var summary =
-                    $filter('number')(cohort.numSamples) + " Samples<br /> " +
-                    $filter('number')(cohort.numPatients) + " Patients <br />" +
+                    $filter('number')(dataInfo.numSamples) + " Samples In Dataset<br /> " +
+                    $filter('number')(dataInfo.numPatients) + " Patients In Dataset<br /> " +
+                    $filter('number')(cohort.numSamples) + " Samples In Current Cohort<br /> " +
+                    $filter('number')(cohort.numPatients) + " Patients In Current Cohort<br />" +
                     $filter('number')(cohort.numClinical) + " Patients with Clinical Data<br />" +
-                    $filter('number')(cohort.survival.total) + " Patients with Survival Outcome<br />";
+                    $filter('number')(cohort.survival.data.tte.length) + " Patients with Survival Outcome<br />";
+                //$filter('number')(toolInfo.numSamplesVisible) + " Samples In Current Cohort Showing<br />" +
+                //$filter('number')(toolInfo.numPatients) + " Patients In Current Cohort Showing<br />";
+
                 vm.cohortSummary = $sce.trustAsHtml(summary);
 
                 if (angular.isUndefined(cohort)) return;
@@ -58,66 +64,19 @@
             // Cohort edit
             vm.setCohort = function(cohort) {
                 if (angular.isString(cohort)) {
-                    osCohortService.setCohort([], osCohortService.ALL, osCohortService.SAMPLE)
+                    osApi.setCohort([], osApi.ALL, osApi.SAMPLE);
                 } else {
-                    osCohortService.setCohort(cohort);
+                    osApi.setCohort(cohort);
                 }
             };
 
             vm.updateCohort = function() {
                 if (vm.cohort.type == "UNSAVED") {
-                    osCohortService.saveCohort(vm.cohort);
+                    osApi.saveCohort(vm.cohort);
                 } else {
-                    osCohortService.deleteCohort(vm.cohort);
+                    osApi.deleteCohort(vm.cohort);
                 }
-            }
-
-
-
-            // Show Hide Logic
-            vm.show = false;
-            $rootScope.$on('$destroy', function() { vm.show = false; });
-            $rootScope.$on('$stateChangeStart', function(event, toState) {
-                switch (toState.name) {
-                    case "landing":
-                    case "tools":
-                    case "datasource":
-                        vm.show = false;
-                        angular.element("#cohortMenu").css({ "display": "none" });
-                        break;
-                    default:
-                        vm.show = true;
-                        angular.element("#cohortMenu").css({ "display": "block" });
-                        break;
-                }
-            });
-
-
-            // Tray Expand / Collapse
-            var elTray = angular.element(".cohort-menu");
-            var isLocked = true;
-            var mouseOver = function() { elTray.removeClass("tray-collapsed-left"); };
-            var mouseOut = function() { elTray.addClass("tray-collapsed-left"); };
-            vm.toggle = function() {
-                isLocked = !isLocked;
-                angular.element("#cohortmenu-lock")
-                    .addClass(isLocked ? 'fa-lock' : 'fa-unlock-alt')
-                    .removeClass(isLocked ? 'fa-unlock-alt' : 'fa-lock')
-                    .attr("locked", isLocked ? "true" : "false");
-                if (isLocked) {
-                    elTray
-                        .unbind("mouseover", mouseOver)
-                        .unbind("mouseout", mouseOut)
-                        .removeClass("tray-collapsed-left");
-                } else {
-                    elTray
-                        .addClass("tray-collapsed-left")
-                        .bind("mouseover", mouseOver)
-                        .bind("mouseout", mouseOut);
-                }
-                osApi.onResize.dispatch();
             };
-
 
 
             // Histogram 
@@ -188,7 +147,7 @@
                     .data(data.hist);
                 labels.enter()
                     .append("text")
-                    .attr("x", function(d, i) { return ((4 + (barWidth + 1) * i) + (barWidth * 0.5)) + 5; })
+                    .attr("x", function(d, i) { return ((4 + (barWidth + 1) * i) + (barWidth * 0.5)) + 1; })
                     .attr("y", function(d) { return 145 - yScale(d.value); })
                     .attr("fill", "#000")
                     .attr("height", function(d) { return yScale(d.value); })
@@ -217,10 +176,6 @@
             });
 
 
-            var formatPercent = function(d) {
-                if (d == 100) return d;
-                return d + "%";
-            }
             var formatDays = function(d) {
                 if (Math.abs(d) === 0) return d;
                 if (Math.abs(d) < 30) return d + " Days";
@@ -255,80 +210,27 @@
                 xAxis: d3.axisBottom().ticks(4).tickFormat(formatDays)
             };
             surSvg.attr("width", '100%').attr("height", surLayout.height);
-            var surAddCurve = function(curve, color) {
-
-
-                // ticks
-                var data = curve.data;
-                var time = 0;
-                data.lines.forEach(function(element) {
-
-                    surSvg.append("line")
-                        .attr("class", "line")
-                        .attr("stroke-width", 0.5)
-                        .attr("stroke", color)
-                        .attr("x1", surLayout.xScale(element.time))
-                        .attr("x2", surLayout.xScale(element.time))
-                        .attr("y1", surLayout.yScale(element.survivalFrom))
-                        .attr("y2", surLayout.yScale(element.survivalTo));
-
-                    surSvg.append("line")
-                        .attr("class", "line")
-                        .attr("stroke-width", 0.5)
-                        .attr("stroke", color)
-                        .attr("x1", surLayout.xScale(time))
-                        .attr("x2", surLayout.xScale(element.time))
-                        .attr("y1", surLayout.yScale(element.survivalFrom))
-                        .attr("y2", surLayout.yScale(element.survivalFrom));
-
-                    time = element.time;
-                });
-
-                data.ticks.forEach(function(element) {
-                    surSvg.append("line")
-                        .attr("class", "line")
-                        .attr("stroke-width", 0.5)
-                        .attr("stroke", color)
-                        .attr("x1", surLayout.xScale(element.time))
-                        .attr("x2", surLayout.xScale(element.time))
-                        .attr("y1", surLayout.yScale(element.survivalFrom))
-                        .attr("y2", surLayout.yScale(element.survivalFrom) - 2);
-                }, this);
-
-                // If Censor Occurs After Last Death Add line
-                if (data.ticks.length === 0 || data.lines.length === 0) return;
-                var lastTick = data.ticks[data.ticks.length - 1];
-                var lastLine = data.lines[data.lines.length - 1];
-                if (lastTick.time > lastLine.time) {
-                    surSvg.append("line")
-                        .attr("class", "line")
-                        .attr("stroke-width", 0.5)
-                        .attr("stroke", color)
-                        .attr("x1", surLayout.xScale(lastLine.time))
-                        .attr("x2", surLayout.xScale(lastTick.time))
-                        .attr("y1", surLayout.yScale(lastTick.survivalFrom))
-                        .attr("y2", surLayout.yScale(lastTick.survivalFrom));
-                }
-            };
 
             var updateSurvival = function(cohorts) {
-                var visibleCohorts = cohorts;
-                // .filter(function(v) {
-                //     return v.show;
-                // });
-                var minMax = visibleCohorts.reduce(function(p, c) {
-                    p.max = Math.max(p.max, c.survival.max);
-                    p.min = Math.min(p.min, c.survival.min);
+
+                var xDomain = cohorts.reduce(function(p, c) {
+                    p[0] = Math.min(p[0], c.survival.compute[0].t);
+                    p[1] = Math.max(p[1], c.survival.compute[c.survival.compute.length - 1].t);
                     return p;
-                }, { max: -Infinity, min: Infinity });
+                }, [Infinity, -Infinity]);
 
                 surLayout.xScale = d3.scaleLinear()
-                    .domain([minMax.min, minMax.max])
+                    .domain(xDomain)
                     .range([0, surLayout.width - 1]);
 
                 surLayout.yScale = d3.scaleLinear()
-                    .domain([0, 100])
+                    .domain([0, 1])
                     .range([surLayout.height - 30, 0]);
+
+                var lineFunction = d3.line()
+                    .curve(d3.curveStepBefore)
+                    .x(function(d) { return Math.round(surLayout.xScale(d.t)); })
+                    .y(function(d) { return Math.round(surLayout.yScale(d.s)); });
 
                 surLayout.xAxis.scale(surLayout.xScale);
                 surXAxis.attr("transform", "translate(0, " + (surLayout.yScale(0)) + ")")
@@ -336,10 +238,17 @@
                     .selectAll("text")
                     .style("text-anchor", function(d, i) { return (i === 0) ? "start" : "center"; });
 
-                surSvg.selectAll(".line").remove();
-                for (var i = 0; i < visibleCohorts.length; i++) {
-                    surAddCurve(visibleCohorts[i].survival, visibleCohorts[i].color);
+                surSvg.selectAll(".survival-line").remove();
+
+                for (var i = 0; i < cohorts.length; i++) {
+                    var cohort = cohorts[i];
+                    surSvg.append("path")
+                        .datum(cohort.survival.compute)
+                        .attr("class", "survival-line")
+                        .style("stroke", cohort.color)
+                        .attr("d", lineFunction);
                 }
+
             };
 
         }

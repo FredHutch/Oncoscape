@@ -1,4 +1,14 @@
 // Namespace
+.plsr-line {
+    stroke: #000;
+    stroke-width: 3px;
+    fill: none;
+}
+
+.plsr-node {
+    fill: #039BE5;
+}
+
 .plsr {
     // Invert Range Slider
     .ngrs-range-slider .ngrs-join {

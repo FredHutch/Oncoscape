@@ -12,7 +12,6 @@
     left: 45px;
     top: 0px;
     font-size: 18px;
-    //font-weight: 200;
     line-height: 60px;
     vertical-align: middle;
     color: #FFF;
@@ -20,20 +19,12 @@
     text-transform: uppercase;
 }
 
-.nav {
-    li {
-        a {
-            font-size: 12px;
-            span {
-                padding-right: 5px;
-            }
-        }
-    }
+.navbar-inverse {
+    border: none !important;
 }
 
-.navbar {
-    border: none;
-    box-shadow: $box-shaddow;
+.navbar-inverse .navbar-toggle {
+    border: none !important;
 }
 
 .header {
@@ -49,5 +40,36 @@
         border-radius: 0px;
         width: 98%;
         transition: all;
+        max-height: 85vh !important;
     }
 }
+
+.nav {
+    li {
+        a {
+            font-size: 14px;
+            span {
+                padding-right: 5px;
+            }
+        }
+    }
+}
+
+.navbar {
+    border: none;
+    box-shadow: $box-shaddow;
+}
+
+.header-cohort-btn {
+    display: inline-block !important;
+    width: 260px;
+}
+
+
+/*
+
+
+
+
+
+*/
