@@ -36,6 +36,7 @@ app.all('/api/auth',
 // ----- Mongo API ----- //
 // --------------------- //
 var domain = process.env.MONGO_DOMAIN;
+debugger;
 mongoose.connect(
         "mongodb://oncoscape-dev-db1.sttrcancer.io:27017,oncoscape-dev-db2.sttrcancer.io:27017,oncoscape-dev-db3.sttrcancer.io:27017/v2?authSource=admin",{
         // process.env.MONGO_CONNECTION, {  
@@ -145,6 +146,6 @@ app.get("/api/ping", function(req, res, next) {
 });
 
 // Start Listening
-app.listen(process.env.NODE_PORT, function() {
+app.listen(10000, function() {
     console.log("UP");
 });
