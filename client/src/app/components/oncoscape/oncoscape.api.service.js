@@ -475,12 +475,12 @@
                     }
                     _dataSource = value;
                 } else if (angular.isString(value)) {
-                    if (_dataSource.disease === value) {
+                    if (_dataSource.dataset === value) {
                         resolveDataSource();
                         return;
                     }
                     _dataSource = _dataSources.filter(function(v) {
-                        return v.disease == this.key;
+                        return v.dataset == this.key;
                     }, {
                         key: value
                     })[0];
@@ -497,7 +497,7 @@
 
 
                 // Load Sample Maps
-                Promise.all([query(_dataSource.clinical.samplemap), query(_dataSource.clinical.patient)]).then(function(responses) {
+                Promise.all([query(_dataSource.dataset +"_samplemap"), query(_dataSource.dataset + "_ptdashboard")]).then(function(responses) {
                     var data = {};
 
                     // Map of Samples To Patients
@@ -573,7 +573,7 @@
                         type: 'ALL'
                     };
 
-                    _cohorts = localStorage.getItem(_dataSource.disease + 'Cohorts');
+                    _cohorts = localStorage.getItem(_dataSource.dataset + 'Cohorts');
 
                     if (_cohorts !== null) {
                         _cohorts = angular.fromJson(_cohorts);
@@ -701,7 +701,7 @@
         var saveCohort = function() {
             _cohort.type = "SAVED";
             _cohorts.push(_cohort);
-            localStorage.setItem(_dataSource.disease + 'Cohorts', angular.toJson(_cohorts));
+            localStorage.setItem(_dataSource.dataset + 'Cohorts', angular.toJson(_cohorts));
 
         };
         var saveGeneset = function() {
@@ -713,7 +713,7 @@
         };
         var deleteCohort = function(cohort) {
             _cohorts.splice(_cohorts.indexOf(cohort), 1);
-            localStorage.setItem(_dataSource.disease + 'Cohorts', angular.toJson(_cohorts));
+            localStorage.setItem(_dataSource.dataset + 'Cohorts', angular.toJson(_cohorts));
             setCohort([], "", "PATIENT");
         };
         var deleteGeneset = function(geneset) {
@@ -780,7 +780,7 @@
                     query("lookup_oncoscape_datasources", {
                         beta: false
                     }).then(function(response) {
-                        _dataSource = { disease: '' };
+                        _dataSource = { dataset: '' };
                         _dataSources = response.data
                             .filter(function(d) {
                                 return angular.isDefined(d.img);
@@ -792,8 +792,8 @@
                             .sort(function(a, b) {
                                 return (a.img < b.img) ? -1 :
                                     (a.img > b.img) ? 1 :
-                                    (a.disease < b.disease) ? -1 :
-                                    (a.disease > b.disease) ? 1 :
+                                    (a.dataset < b.dataset) ? -1 :
+                                    (a.dataset > b.dataset) ? 1 :
                                     0;
                             });
                         resolve();
@@ -846,16 +846,16 @@
                             resolve();
                         }, reject);
 
-                    }),
+                    })//,
 
-                new Promise(function(resolve, reject) {
-                    query("lookup_oncoscape_genes", {
-                    }).then(function(response) {
-                        _hugoMap = response.data
+                // new Promise(function(resolve, reject) {
+                //     query("lookup_oncoscape_genes", {
+                //     }).then(function(response) {
+                //         _hugoMap = response.data
 
-                    resolve();
-                    }, reject);
-                })
+                //     resolve();
+                //     }, reject);
+                // })
             ]);
         }
 

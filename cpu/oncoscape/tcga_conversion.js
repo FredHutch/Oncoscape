@@ -29,7 +29,7 @@ co(function *() {
             d.molecular.forEach(function(m){
                 console.log(m.collection)
                 var category = dataTypes.filter(function(x){return x.dataType == m.type})[0]
-                molecular.push({dataset: d.disease, name:m.type, collection:m.collection, default:m.default, type:category.class, schema:category.schema})
+                molecular.push({dataset: d.dataset, name:m.type, collection:m.collection, default:m.default, type:category.class, schema:category.schema})
         })}
     })
 

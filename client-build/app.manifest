@@ -27,8 +27,11 @@ CACHE:
 /fonts/ui-grid.ttf
 /fonts/ui-grid.woff
 /scripts/app-33010de103.js
+/scripts/app-9e24740f47.js
+/scripts/vendor-badfbf33c8.js
 /scripts/vendor-f340df8778.js
 /styles/app-2df1347999.css
+/styles/app-5daa7f610e.css
 /styles/vendor-c668aa093a.css
 /assets/images/DSbile.jpg
 /assets/images/DSbrain.jpg
@@ -103,6 +106,7 @@ CACHE:
 /assets/images/white.png
 /maps/scripts/app-33010de103.js.map
 /maps/scripts/app-9e24740f47.js.map
+/maps/scripts/vendor-badfbf33c8.js.map
 /maps/scripts/vendor-f340df8778.js.map
 /maps/styles/app-2df1347999.css.map
 /maps/styles/app-5daa7f610e.css.map
@@ -119,4 +123,4 @@ https://*
 SETTINGS:
 prefer-online
 
-# hash: 53cdebdd6195be433dc197e252c9cae090811228e4fd8e9d66cfb48748cf316b
+# hash: 01c7b12702c8aa59b299952894e0f83ea09ccb9e545f97e070bf693cc8c4f7e4

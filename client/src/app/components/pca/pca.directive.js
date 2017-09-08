@@ -19,7 +19,7 @@
         return directive;
 
         /** @ngInject */
-        function PcaController($q, osApi, $state, $stateParams, $timeout, $scope, d3, moment, $window,$http,  _, ML, $log) {
+        function PcaController($q, osApi, $state, $stateParams, $timeout, $scope, d3, moment, $window,$http,  _, ML) {
 
             // Loading ...
             osApi.setBusy(true);
@@ -46,17 +46,17 @@
                 .text("PC2");
 
             // Properties
-            //var clusterCollection = osApi.getDataSource().disease + "_cluster";
+            //var clusterCollection = osApi.getDataSource().dataset + "_cluster";
             var scaleX, scaleY, axisX, axisY;
             var data, minMax;
             var width, height;
             var colors = {
                 data: [],
-                dataset: osApi.getDataSource().disease,
+                dataset: osApi.getDataSource().dataset,
                 name: "None",
                 type: "color"
             };
-            var acceptableDatatypes = [];
+            var acceptableDatatypes = ["expr", "cnv", "mut01", "meth_thd", "meth", "cnv_thd"];
 
             // View Model Update
             var vm = (function(vm, osApi) {
@@ -106,8 +106,8 @@
               });
 
             // Move To Service
-            function PCAquery(disease, genes, samples, molecular_collection, n_components) {
-                var data = { disease: disease, genes: genes, samples: samples, molecular_collection: molecular_collection, n_components: n_components };
+            function PCAquery(dataset, genes, samples, molecular_collection, n_components) {
+                var data = { dataset: dataset, genes: genes, samples: samples, molecular_collection: molecular_collection, n_components: n_components };
                 return $http({
                     method: 'POST',
                  //   url: "https://dev.oncoscape.sttrcancer.io/cpu/pca",
@@ -120,7 +120,7 @@
 
             function processPCA(d, geneIds, samples){
 
-                $log("PCA: processing results " + Date())
+                console.log("PCA: processing results " + Date())
 
                 // Process PCA Variance
                 vm.pc1 = [
@@ -160,8 +160,9 @@
 
                 if (vm.source === null) return;
 
-                vm.pcaTypes = _.uniq(_.pluck(vm.molecularTables.filter(function(d) {return d.source == vm.source}), "type"))
-                vm.pcaTypes = _.intersection(vm.pcaTypes, acceptableDatatypes)
+                vm.pcaTypes = _.uniq(_.pluck(vm.molecularTables, "name"))
+               // vm.pcaTypes = _.uniq(_.pluck(vm.molecularTables.filter(function(d) {return d.source == vm.source}), "type"))
+               // vm.pcaTypes = _.intersection(vm.pcaTypes, acceptableDatatypes)
 
                 if (angular.isUndefined(vm.pcaType)) {
                     vm.pcaType = vm.pcaTypes[0];
@@ -175,8 +176,8 @@
                 if (vm.source === null) return;
 
                // vm.geneSet = osApi.getGeneset()
-                var molecular_matches = vm.molecularTables.filter(function(d){return d.type == vm.pcaType & d.source == vm.source})
-
+               
+               var molecular_matches = vm.molecularTables.filter(function(d){return d.name == vm.pcaType })
                 if(molecular_matches.length ==1){
                     vm.molecular_collection = molecular_matches[0].collection
                 }
@@ -203,7 +204,7 @@
                     var numGenes = [100,200,500,1000, 5000, 10000,15000, 20000, 25000]; var numSamples = [100,200,500];
                     for(var i=0;i<numSamples.length;i++){
                         for(var j=0;j<numGenes.length;j++){
-                            $log("Genes: "+ numGenes[j] + " Samples: "+ numSamples[i])
+                            console.log("Genes: "+ numGenes[j] + " Samples: "+ numSamples[i])
                             runPCAsimulation(numGenes[j], numSamples[i]);
                         }
                     }
@@ -231,11 +232,11 @@
                     //     })
 
                     osApi.setBusy(true)
-                    PCAquery(vm.datasource.disease, geneSetIds, samples, vm.molecular_collection, 3).then(function(PCAresponse) {
+                    PCAquery(vm.datasource.dataset, geneSetIds, samples, vm.molecular_collection, 3).then(function(PCAresponse) {
 
                         var d = PCAresponse.data;
                         if(angular.isDefined(d.reason)){
-                            $log(geneset.name +": " + d.reason)
+                            console.log(geneset.name +": " + d.reason)
                             // PCA could not be calculated on geneset given current settings
 
                             //add to blacklist to disable from future selection/calculation
@@ -281,7 +282,7 @@
                 var d = new ML.Stat.PCA(molecular, options)
                 var now = Date.now()
                 //console.log("PCA: transforming scores " + Date())
-                $log("Genes: "+ numGenes + " Samples: "+numSamples+ "Diff: " + (now-then)/1000)
+                console.log("Genes: "+ numGenes + " Samples: "+numSamples+ "Diff: " + (now-then)/1000)
 
              }
 
@@ -303,9 +304,9 @@
                 var molecular = samples.map(function(s){ return vm.molecular.map(function(g){ return g.data[s]})  })
                 //var molecular = response.data.map(function(g){ return samples.map(function(s){ return g.data[s]})  })
 
-                $log("PCA: Running " + Date())
+                console.log("PCA: Running " + Date())
                 var d = new ML.Stat.PCA(molecular, options)
-                $log("PCA: transforming scores " + Date())
+                console.log("PCA: transforming scores " + Date())
                 d.metadata = {}
                 d.metadata.variance = d.getExplainedVariance()
                 d.loadings = d.getLoadings() // [[PC1 loadings (for coefficients for each gene)], [PC2 loadings], [...#PC = # samples]]
@@ -537,19 +538,19 @@
             osApi.onCohortChange.add(onCohortChange);
             osApi.onCohortChange.add(updatePatientCounts)
 
-            osApi.query("lookup_dataTypes", {
-                class: {$in : ["expr", "cnv", "mut01", "meth_thd", "meth", "cnv_thd"]},
-                schema: "hugo_sample"
-            }).then(function(response) {
-                acceptableDatatypes = _.uniq(_.pluck(response.data, "dataType"))
-            });
+            // osApi.query("lookup_dataTypes", {
+            //     class: {$in : ["expr", "cnv", "mut01", "meth_thd", "meth", "cnv_thd"]},
+            //     schema: "hugo_sample"
+            // }).then(function(response) {
+            //     acceptableDatatypes = _.uniq(_.pluck(response.data, "dataType"))
+            // });
 
             osApi.query("lookup_oncoscape_datasources", {
-                disease: vm.datasource.disease
+                dataset: vm.datasource.dataset
             }).then(function(response){
-                vm.molecularTables = response.data[0].molecular
+                vm.molecularTables = response.data[0].collections.filter(function(d){ return _.contains(acceptableDatatypes, d.type)})
 
-                vm.sources = _.uniq(_.pluck(vm.molecularTables, "source"))
+                vm.sources = [vm.datasource.dataset]  //_.uniq(_.pluck(vm.molecularTables, "source"))
                 vm.source = vm.sources[0]
             });
 

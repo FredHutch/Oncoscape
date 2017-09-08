@@ -146,6 +146,6 @@ app.get("/api/ping", function(req, res, next) {
 });
 
 // Start Listening
-app.listen(10000, function() {
+app.listen(process.env.NODE_PORT, function() {
     console.log("UP");
 });
