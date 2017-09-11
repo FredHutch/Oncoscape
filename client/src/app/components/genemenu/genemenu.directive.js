@@ -40,7 +40,7 @@
 
                // var dataInfo = osApi.getGenesetDatasetInfo();
                 var website = ""; var genecounts = "";
-                if(geneset.url.length >0) website = "  <a href='"+geneset.url+"' target='_blank'> [website]</a>"
+                if(geneset.url.length >0) website = "  <a href='"+geneset.url+"' target='_blank'> [ref]</a>"
                 if(geneset.geneIds !=0){
                     genecounts = "<br/><br/>Contains:<br/>" + 
                     $filter('number')(geneset.geneIds.length) + " Markers<br /> " +

@@ -57,6 +57,7 @@
                 type: "color"
             };
             var acceptableDatatypes = ["expr", "cnv", "mut01", "meth_thd", "meth", "cnv_thd"];
+            var NA_runs = []
 
             // View Model Update
             var vm = (function(vm, osApi) {
@@ -182,13 +183,31 @@
                     vm.molecular_collection = molecular_matches[0].collection
                 }
 
-                // reactivate disabled genesets
-                osApi.getGenesets().filter(function(gs) {return gs.show & gs.disable}).forEach(function(gs){ osApi.toggleGenesetDisable(gs)})
+                // determine geneset accessibility for given pcaType
+                osApi.getGenesets().filter(function(gs) {return gs.show}).forEach(function(gs){ 
+                    var payload = {dataset:vm.datasource.dataset,collection:vm.molecular_collection, geneset:gs, samples: osApi.getCohort().sampleIds }
+                    var na_run = _.where(NA_runs,payload).length > 0 // true if run parameters gives NA result
+                    
+                    // reactivate disabled genesets not registered as unable to run for given collection name,sample,geneset
+                    // or disable active genesets known to not to give result
+                    if((gs.disable &  !na_run) | (!gs.disable & na_run)) 
+                        osApi.toggleGenesetDisable(gs)
+                })
 
 
                 callPCA(runType, osApi.getGeneset())
 
 
+            });
+            $scope.$watch('vm.optRunParams.color', function() {
+                // if (watches > 0) {
+                //     watches -= 1;
+                //     return;
+                // }
+                //update();
+
+                callPCA(runType, osApi.getGeneset())
+                
             });
             //  $scope.$watch('vm.geneSet', function(geneset) {
 
@@ -241,6 +260,7 @@
 
                             //add to blacklist to disable from future selection/calculation
                             osApi.toggleGenesetDisable(geneset);
+                            NA_runs.push({"dataset":vm.datasource.dataset, "collection":vm.molecular_collection, "geneset": geneset, "samples":samples})
 
                             // revert/update display
                             if(angular.isUndefined(vm.geneSet)){
@@ -518,6 +538,30 @@
             }
 
 
+            var getOptRunParams = function() {
+                
+               // if (hasState) return mp.optRunParams;
+                return [{
+                    name: 'Subselect by Geneset',
+                    abv: 'sub_gs',
+                    show: true,
+                    color: '#9C27B0',
+                    class: 'switch-subgeneset',
+                    count: '',
+                    id: 0
+                }, {
+                    name: 'Subselect by Cohort',
+                    abv: 'sub_ch',
+                    show: false,
+                    color: '#3F51B5',
+                    class: 'switch-subcohort',
+                    count: '',
+                    id: 1
+                }];
+            };
+
+
+
             // App Event :: Resize
             osApi.onResize.add(draw);
 
@@ -549,6 +593,8 @@
                 dataset: vm.datasource.dataset
             }).then(function(response){
                 vm.molecularTables = response.data[0].collections.filter(function(d){ return _.contains(acceptableDatatypes, d.type)})
+
+                vm.optRunParams = getOptRunParams();
 
                 vm.sources = [vm.datasource.dataset]  //_.uniq(_.pluck(vm.molecularTables, "source"))
                 vm.source = vm.sources[0]

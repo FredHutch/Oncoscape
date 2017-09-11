@@ -26,6 +26,14 @@ co(function *() {
         var j = json_meta[i]
         console.log(j.dataset +" "+j.collection)
 
+        var m = yield comongo.db.collection(db, j.collection)
+        var count = yield m.count({})
+        if(count == 0){
+            console.log("---not yet stored")
+            continue;
+        }
+            
+
         var meta = {    "dataset" : "",
                         "source" : "",
                         "beta" : false,
@@ -78,13 +86,14 @@ co(function *() {
 
     //create/add to patient reference collection
         var ptdashboard = yield comongo.db.collection(db, j.dataset+"_ptdashboard");    
-        var def_pt = {patient_ID:null, gender:null, status_vital:null, days_to_death:null,"days_to_last_follow_up":null};
+    //    var def_pt = {patient_ID:null, gender:null, status_vital:null, days_to_death:null,"days_to_last_follow_up":null};
         var ptIDs = yield ptdashboard.distinct("patient_ID")
 
-        //var new_ptIDs = _.difference(patients, ptIDs)
-        var new_ptIDs = patients
+        var new_ptIDs = _.difference(patients, ptIDs)
+        //var new_ptIDs = patients
         for(var p=0;p<new_ptIDs.length;p++){
-            var res = yield ptdashboard.update({patient_ID: new_ptIDs[p]}, 
+            var res = yield ptdashboard.update(
+                {patient_ID: new_ptIDs[p]}, 
                 {patient_ID:new_ptIDs[p], gender:null, status_vital:null, days_to_death:null, "days_to_last_follow_up": null}, 
                 {upsert: true, writeConcern: {w:"majority"}})
         }

@@ -10,7 +10,7 @@
                             <button type="button" class="btn btn-default" tooltip="{{vm.geneset.type == 'UNSAVED' ? 'Save Geneset' : 'Delete Geneset'}}" tooltip-placement="left" ng-if="vm.geneset.type!='ALLGENES'" ng-click="vm.updateGeneset()">
                                 <span class="fa {{vm.geneset.type == 'UNSAVED' ? 'fa-plus' : 'fa-times'}}" aria-hidden="true"></span>
                             </button>
-                            <button type="button" class="btn btn-default dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false" tooltip="Change Gene" tooltip-placement="left"> <span class="caret"></span> <span class="sr-only">Toggle Dropdown</span></button>
+                            <button type="button" class="btn btn-default dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false" tooltip="Change Geneset" tooltip-placement="left"> <span class="caret"></span> <span class="sr-only">Toggle Dropdown</span></button>
                             <ul class="dropdown-menu dropdown-menu-right" style="width:260px;padding:0px;">
                                 <li class="markers-command hvr-sweep-to-right" ng-class=" item.disable ? 'genemenu-strikethrough' : 'null'" style="height:25px;width:100%;padding-left:10px;" ng-repeat="item in vm.genesets | filter:{ show:true}" ng-click="vm.setGeneset(item)">{{item.name}}</li>
                             </ul>

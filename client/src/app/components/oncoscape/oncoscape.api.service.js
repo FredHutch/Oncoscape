@@ -807,7 +807,6 @@
                         _genesets = result.map(function(d){
                             d.type = "IMPORT"
                             return loadGeneset(d); });
-                        _geneset = _genesets[0];
 
                         _genesetAll = {
                                 color: '#039BE5',
@@ -827,6 +826,8 @@
                         };
 
                         _genesets.unshift(_genesetAll);
+                        _geneset = _genesets[0];
+
                         var localGenesets = localStorage.getItem('GeneSets');
 
                         if (localGenesets !== null) {
@@ -834,9 +835,9 @@
                             var localGenesetsArray = angular.fromJson(localGenesets)
                             if(localGenesetsArray.length != 0){
                                 _genesets.concat(localGenesetsArray);
-                                setGeneset(_genesets[0]);
+                //                setGeneset(_genesets[0]);
                             } else {
-                                setGeneset(_genesetAll);
+                  //              setGeneset(_genesetAll);
                             }
                         }
 
