@@ -219,6 +219,10 @@
 
 
              var callPCA = function(runType, geneset){
+
+                if(!vm.optRunParams[0].show)
+                    geneset = osApi.getGeneset(_genesetAll)
+                
                 if(runType == "simulate"){
                     var numGenes = [100,200,500,1000, 5000, 10000,15000, 20000, 25000]; var numSamples = [100,200,500];
                     for(var i=0;i<numSamples.length;i++){
