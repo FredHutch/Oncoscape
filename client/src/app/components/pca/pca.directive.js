@@ -94,6 +94,9 @@
                     });
                     osApi.setCohort(allIds, "PCA", osApi.SAMPLE);
                 };
+                vm.runParamsToggle = function() {
+                    callPCA(runType, osApi.getGeneset())
+                };
 
                 return vm;
             })(this, osApi);
@@ -185,7 +188,7 @@
 
                 // determine geneset accessibility for given pcaType
                 osApi.getGenesets().filter(function(gs) {return gs.show}).forEach(function(gs){ 
-                    var payload = {dataset:vm.datasource.dataset,collection:vm.molecular_collection, geneset:gs, samples: osApi.getCohort().sampleIds }
+                    var payload = {dataset:vm.datasource.dataset,collection:vm.molecular_collection, geneset:gs.name, samples: osApi.getCohort().sampleIds }
                     var na_run = _.where(NA_runs,payload).length > 0 // true if run parameters gives NA result
                     
                     // reactivate disabled genesets not registered as unable to run for given collection name,sample,geneset
@@ -198,30 +201,13 @@
                 callPCA(runType, osApi.getGeneset())
 
 
-            });
-            $scope.$watch('vm.optRunParams.color', function() {
-                // if (watches > 0) {
-                //     watches -= 1;
-                //     return;
-                // }
-                //update();
-
-                callPCA(runType, osApi.getGeneset())
-                
-            });
-            //  $scope.$watch('vm.geneSet', function(geneset) {
-
-            //     if (angular.isUndefined(geneset)) return;
-
-            //     callPCA(runType, geneset);
-
-            //  });
+            });        
 
 
              var callPCA = function(runType, geneset){
 
                 if(!vm.optRunParams[0].show)
-                    geneset = osApi.getGeneset(_genesetAll)
+                    geneset = osApi.getGenesets()[0]
                 
                 if(runType == "simulate"){
                     var numGenes = [100,200,500,1000, 5000, 10000,15000, 20000, 25000]; var numSamples = [100,200,500];
@@ -246,8 +232,9 @@
                     if (angular.isUndefined(vm.molecular_collection)) return;
 
                     var geneSetIds = geneset.geneIds
-
-                    var samples = osApi.getCohort().sampleIds;
+                    var samples = [];
+                    if(vm.optRunParams[1].show)
+                        samples = osApi.getCohort().sampleIds;
                     // if (samples.length === 0) //samples = Object.keys(osApi.getData().sampleMap);
                     //     osApi.query(molecular_collection, {"$limit":1}).then(function(response){
                     //         debugger;
@@ -264,7 +251,7 @@
 
                             //add to blacklist to disable from future selection/calculation
                             osApi.toggleGenesetDisable(geneset);
-                            NA_runs.push({"dataset":vm.datasource.dataset, "collection":vm.molecular_collection, "geneset": geneset, "samples":samples})
+                            NA_runs.push({"dataset":vm.datasource.dataset, "collection":vm.molecular_collection, "geneset": geneset.name, "samples":samples})
 
                             // revert/update display
                             if(angular.isUndefined(vm.geneSet)){
@@ -315,7 +302,10 @@
                 var options = {isCovarianceMatrix: false, center : true, scale: false};
 
                 // Subset samples to those available in the collection
-                var samples = osApi.getCohort().sampleIds;
+                var samples = [];
+                if(vm.optRunParams[1].show)
+                    samples = osApi.getCohort().sampleIds;
+                
                 if (samples.length === 0) samples = Object.keys(osApi.getData().sampleMap);
                 samples = samples.filter(function(s){ return _.has(vm.molecular[0].data,s) })
 
@@ -582,6 +572,10 @@
             var onCohortChange = function(c) {
                 cohort = c;
                 setSelected();
+                if (vm.optRunParams[1].show){
+                    callPCA(runType, osApi.getGeneset())
+                }
+
             };
             osApi.onCohortChange.add(onCohortChange);
             osApi.onCohortChange.add(updatePatientCounts)
