@@ -101,6 +101,24 @@
                 return vm;
             })(this, osApi);
 
+            // var state = (function(state, osApi){
+            //     state.geneset = vm.geneset
+            //     state.cohort = vm.cohort
+            //     state.source = vm.source
+                
+            //     state.update = function(o){
+            //         state.geneset = o.geneset
+            //         state.cohort = o.cohort
+            //         state.source = o.source
+            //     }
+            //     state.revert = function(){
+            //         vm.geneset = state.geneset
+            //         vm.cohort = state.cohort
+            //         vm.source = state.source
+            //     }
+            // })(this, osApi);
+
+
             // Gene Service Integration
               osApi.onGenesetChange.add(function(geneset) {
                 osApi.setBusy(true);
@@ -174,11 +192,12 @@
                     var newSource = vm.pcaTypes.filter(function(v) { return (v === vm.pcaType); });
                     vm.pcaType = (newSource.length === 1) ? newSource[0] : vm.pcaTypes[0];
                 }
+                vm.statePcaType = vm.pcaType
             });
             $scope.$watch('vm.pcaType', function() {
 
                 if (vm.source === null) return;
-
+                
                // vm.geneSet = osApi.getGeneset()
                
                var molecular_matches = vm.molecularTables.filter(function(d){return d.name == vm.pcaType })
@@ -186,10 +205,14 @@
                     vm.molecular_collection = molecular_matches[0].collection
                 }
 
+                var samples = "None";
+                if(vm.optRunParams[1].show)
+                    samples = osApi.getCohort().sampleIds;
                 // determine geneset accessibility for given pcaType
                 osApi.getGenesets().filter(function(gs) {return gs.show}).forEach(function(gs){ 
-                    var payload = {dataset:vm.datasource.dataset,collection:vm.molecular_collection, geneset:gs.name, samples: osApi.getCohort().sampleIds }
-                    var na_run = _.where(NA_runs,payload).length > 0 // true if run parameters gives NA result
+                    var payload = {dataset:vm.datasource.dataset,collection:vm.molecular_collection, geneset:gs.name, samples: samples }
+                    //var na_run = _.intersect(NA_runs
+                     var na_run = _.where(NA_runs,payload).length > 0 // true if run parameters gives NA result
                     
                     // reactivate disabled genesets not registered as unable to run for given collection name,sample,geneset
                     // or disable active genesets known to not to give result
@@ -249,8 +272,10 @@
                             console.log(geneset.name +": " + d.reason)
                             // PCA could not be calculated on geneset given current settings
 
+                            vm.pcaType = vm.statePcaType
                             //add to blacklist to disable from future selection/calculation
                             osApi.toggleGenesetDisable(geneset);
+                            if(samples.length ==0) samples = "None"
                             NA_runs.push({"dataset":vm.datasource.dataset, "collection":vm.molecular_collection, "geneset": geneset.name, "samples":samples})
 
                             // revert/update display
@@ -268,6 +293,7 @@
                         }
 
                         vm.geneSet = geneset
+                        vm.statePcaType = vm.pcaType
 
                         //TO DO:: ### Update result names from oncoscape_wrapper so values -> d, and make variance values into percentages (ie *100)
                         geneSetIds = _.pluck(d.loadings,"id")
@@ -359,9 +385,11 @@
             // Utility Functions
             function setSelected() {
                 var selectedIds = cohort.sampleIds;
-                d3Points.selectAll("circle").classed("pca-node-selected", function() {
-                    return (selectedIds.indexOf(this.__data__.id) >= 0);
-                });
+                if(typeof selectedIds != "undefined"){
+                   d3Points.selectAll("circle").classed("pca-node-selected", function() {
+                        return (selectedIds.indexOf(this.__data__.id) >= 0);
+                    });
+            }
 
             }
 
@@ -523,8 +551,9 @@
 
                 lasso.items(d3Points.selectAll("circle"));
                 d3Chart.call(lasso);
-
-                onCohortChange(osApi.getCohort());
+                
+                setSelected();
+                //onCohortChange(osApi.getCohort());
                 //onGenesetChange(osApi.getGeneset());
                 osApi.setBusy(false);
 
