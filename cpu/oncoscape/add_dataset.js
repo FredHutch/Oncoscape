@@ -21,6 +21,21 @@ co(function *() {
     var json_meta = require("./tcga_molecular_lookup.json")
     json_meta = json_meta.filter(function(d){ return d.schema == "hugo_sample"})
 
+    //clear Collections
+    var lookup = yield comongo.db.collection(db, "lookup_oncoscape_datasources");    
+    var ds = yield lookup.find().toArray()
+    for(var i=0;i<ds.length; i++){
+        console.log(ds[i].dataset)
+        ds[i].collections = []
+        yield lookup.update({dataset:ds[i].dataset}, ds[i], {upsert: true, writeConcern: {w:"majority"}})
+
+        var ptdashboard = yield comongo.db.collection(db, ds[i].dataset+"_ptdashboard");  
+        var exists = yield ptdashboard.count()
+        if(exists != 0)
+            yield ptdashboard.drop()  
+    }
+    
+
     //read from JSON object
     for(i=0;i<json_meta.length; i++){
         var j = json_meta[i]
@@ -59,11 +74,7 @@ co(function *() {
         }
         schema = typeof j.schema == "undefined" ? "hugo_sample" : j.schema
         def_coll = typeof j.default == "undefined" ? false : j.default
-        var new_collection = {name: j.name, collection:j.collection, type: j.type, schema:schema, default:def_coll}
-        if(_.where(ds[0].collections, new_collection).length ==0)
-            ds[0].collections.push(new_collection)
-        
-        var res = yield lookup.update({dataset: j.dataset}, ds[0], {upsert: true, writeConcern: {w:"majority"}})
+
         
 
     //create/add to samplemap
@@ -81,11 +92,20 @@ co(function *() {
         }
         keyval = _.object(samples, patients)
         var res = yield samplemap.update({}, {$set: keyval}, {upsert: true, writeConcern: {w:"majority"}})
-    
+        var res = yield lookup.update({dataset: j.dataset}, {$set: keyval}, {upsert: true, writeConcern: {w:"majority"}})
+
+        // insert into lookup collection
+        var numDocs = yield collection.count()
+        var counts = {"samples": samples.length, "markers": numDocs}
+        var new_collection = {name: j.name, collection:j.collection, type: j.type, schema:schema,counts:counts, default:def_coll}
+        if(_.where(ds[0].collections, new_collection).length ==0)
+            ds[0].collections.push(new_collection)
+        
+        var res = yield lookup.update({dataset: j.dataset}, ds[0], {upsert: true, writeConcern: {w:"majority"}})
 
 
     //create/add to patient reference collection
-        var ptdashboard = yield comongo.db.collection(db, j.dataset+"_ptdashboard");    
+     
     //    var def_pt = {patient_ID:null, gender:null, status_vital:null, days_to_death:null,"days_to_last_follow_up":null};
         var ptIDs = yield ptdashboard.distinct("patient_ID")
 

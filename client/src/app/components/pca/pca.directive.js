@@ -24,7 +24,7 @@
             // Loading ...
             osApi.setBusy(true);
 
-            var runType = "python"
+            var runType = "JS"
 
             // Elements
             var d3Chart = d3.select("#pca-chart").append("svg");
@@ -95,7 +95,7 @@
                     osApi.setCohort(allIds, "PCA", osApi.SAMPLE);
                 };
                 vm.runParamsToggle = function() {
-                    callPCA(runType, osApi.getGeneset())
+                    callPCA(osApi.getGeneset())
                 };
 
                 return vm;
@@ -123,7 +123,7 @@
               osApi.onGenesetChange.add(function(geneset) {
                 osApi.setBusy(true);
                 if(angular.isUndefined(vm.geneSet) | geneset.name != vm.geneSet.name){
-                    callPCA(runType, geneset)
+                    callPCA(geneset)
                 }
               });
 
@@ -203,6 +203,7 @@
                var molecular_matches = vm.molecularTables.filter(function(d){return d.name == vm.pcaType })
                 if(molecular_matches.length ==1){
                     vm.molecular_collection = molecular_matches[0].collection
+                    vm.counts = molecular_matches[0].counts
                 }
 
                 var samples = "None";
@@ -221,17 +222,56 @@
                 })
 
 
-                callPCA(runType, osApi.getGeneset())
+                callPCA(osApi.getGeneset())
 
 
             });        
 
 
-             var callPCA = function(runType, geneset){
+             var callPCA = function(geneset){
 
-                if(!vm.optRunParams[0].show)
-                    geneset = osApi.getGenesets()[0]
+                var samples = [], numSamples = vm.counts.samples, numGenes = vm.counts.markers;
                 
+                if(!vm.optRunParams[0].show){
+                    geneset = osApi.getGenesets()[0]
+                    if(geneset.geneIds.length != 0)
+                        numGenes = geneset.geneIds.length
+                }
+                if(vm.optRunParams[1].show){
+                    samples = osApi.getCohort().sampleIds;
+                    if(samples.length != 0)
+                        numSamples = samples.length
+                }
+                // if (samples.length === 0) //samples = Object.keys(osApi.getData().sampleMap);
+                //     osApi.query(molecular_collection, {"$limit":1}).then(function(response){
+                //         debugger;
+                //         samples = Object.keys(response.data[0].data)
+                //     })
+               
+
+                //Check if in Mongo
+                // osApi.query().then(function(resp){
+                //     if(resp.data defined){
+                //         var d = resp.data
+                //         console.log("PCA: retreived from Mongo " + Date())
+                        
+                //         processPCA(d, geneset.geneIds, samples);
+                //         draw();
+                //     }
+                // })
+                //else:
+                if (runType == "JS" & numSamples  * numGenes > 100) {
+                    
+                    runType = "python"
+
+                    angular.element('#modalRun').modal();
+                    // $scope.$apply(function() {
+                    //     vm.edgeCounts = getOptRunParams().counts;
+                    // });
+                    return;
+                }
+
+
                 if(runType == "simulate"){
                     var numGenes = [100,200,500,1000, 5000, 10000,15000, 20000, 25000]; var numSamples = [100,200,500];
                     for(var i=0;i<numSamples.length;i++){
@@ -255,14 +295,7 @@
                     if (angular.isUndefined(vm.molecular_collection)) return;
 
                     var geneSetIds = geneset.geneIds
-                    var samples = [];
-                    if(vm.optRunParams[1].show)
-                        samples = osApi.getCohort().sampleIds;
-                    // if (samples.length === 0) //samples = Object.keys(osApi.getData().sampleMap);
-                    //     osApi.query(molecular_collection, {"$limit":1}).then(function(response){
-                    //         debugger;
-                    //         samples = Object.keys(response.data[0].data)
-                    //     })
+                   
 
                     osApi.setBusy(true)
                     PCAquery(vm.datasource.dataset, geneSetIds, samples, vm.molecular_collection, 3).then(function(PCAresponse) {
@@ -288,6 +321,7 @@
                                 osApi.setGeneset(vm.geneSet)
                             }
 
+                            angular.element('#modalRun').modal('hide');
                             osApi.setBusy(false)
                             return;
                         }
@@ -299,6 +333,7 @@
                         geneSetIds = _.pluck(d.loadings,"id")
                         samples = _.pluck(d.scores,"id")
                         d.scores  = d.scores.map(function(result){ return result.d});
+                        angular.element('#modalRun').modal('hide');
                         processPCA(d, geneSetIds, samples);
                         draw();
                     });
@@ -602,7 +637,7 @@
                 cohort = c;
                 setSelected();
                 if (vm.optRunParams[1].show){
-                    callPCA(runType, osApi.getGeneset())
+                    callPCA(osApi.getGeneset())
                 }
 
             };

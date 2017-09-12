@@ -59,6 +59,29 @@
         </div>
     </section>
 </os-tray>
+
+<div id="modalRun" class="modal fade" tabindex="-1" role="dialog" aria-labelledby="myModalLabel">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-body">
+                <h2 style="margin-top:0px;">Estimated runtime is approximately {{vm.runTime}}.</h2>
+                <p>Would you like to update the run parameters?</p>
+                <div class="legend" ng-repeat="item in vm.optRunParams ">
+                    <label class="switch">
+                        <input type="checkbox" class="switch-input" ng-model="item.show">
+                        <span class="switch-label" data-on="On" data-off="Off"></span>
+                        <span class="switch-handle"></span>
+                    </label>
+                    <span style="padding-left:20px;">{{item.name}} ({{vm.edgeCounts[item.abv]}})</span>
+                </div>
+            </div>
+            <div style="position:absolute;right:10px;bottom:10px;">
+                <button class="btn btn-default" ng-click="vm.hideModal()">Cancel</button>
+                <button class="btn btn-primary" ng-click="vm.runParamsToggle()">Continue</button>
+            </div>
+        </div>
+    </div>
+</div>
 <!-- Label + Chart -->
 <section class="tray-content-block">
     <div class="tool-container">
