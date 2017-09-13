@@ -250,94 +250,100 @@
                
 
                 //Check if in Mongo
-                // osApi.query().then(function(resp){
-                //     if(resp.data defined){
-                //         var d = resp.data
-                //         console.log("PCA: retreived from Mongo " + Date())
+                
+                osApi.query(vm.datasource.dataset +"_cluster", {geneset: geneset.name, disease: vm.datasource.dataset, dataType: "PCA", input:vm.pcaType, scores:{$size:numSamples}}
+                ).then(function(response){
+                    var d = response.data
+                    if(d.length >0){
                         
-                //         processPCA(d, geneset.geneIds, samples);
-                //         draw();
-                //     }
-                // })
-                //else:
-                if (runType == "JS" & numSamples  * numGenes > 100) {
-                    
-                    runType = "python"
+                        console.log("PCA: retreived from Mongo " + Date())
+                        
+                        processPCA(d, geneset.geneIds, samples);
+                        draw();
+                        return
+                    }
+                
+                
+                    if (runType == "JS" & numSamples  * numGenes > 100) {
+                        
+                        runType = "python"
 
-                    angular.element('#modalRun').modal();
-                    // $scope.$apply(function() {
-                    //     vm.edgeCounts = getOptRunParams().counts;
-                    // });
-                    return;
-                }
-
-
-                if(runType == "simulate"){
-                    var numGenes = [100,200,500,1000, 5000, 10000,15000, 20000, 25000]; var numSamples = [100,200,500];
-                    for(var i=0;i<numSamples.length;i++){
-                        for(var j=0;j<numGenes.length;j++){
-                            console.log("Genes: "+ numGenes[j] + " Samples: "+ numSamples[i])
-                            runPCAsimulation(numGenes[j], numSamples[i]);
-                        }
+                        angular.element('#modalRun').modal();
+                        // $scope.$apply(function() {
+                        //     vm.edgeCounts = getOptRunParams().counts;
+                        // });
+                        return;
                     }
 
-                }else if(runType == "JS") {
-                    if (angular.isUndefined(vm.molecular_collection)) return;
-                    if (angular.isUndefined(geneset)) return;
-                    osApi.query(vm.molecular_collection
-                    ).then(function(response){
-                        vm.molecular = response.data
 
-                        runPCA(geneset.geneIds);
-                    });
-                }else if(runType == "python") {
-                    if (angular.isUndefined(geneset)) return;
-                    if (angular.isUndefined(vm.molecular_collection)) return;
-
-                    var geneSetIds = geneset.geneIds
-                   
-
-                    osApi.setBusy(true)
-                    PCAquery(vm.datasource.dataset, geneSetIds, samples, vm.molecular_collection, 3).then(function(PCAresponse) {
-
-                        var d = PCAresponse.data;
-                        if(angular.isDefined(d.reason)){
-                            console.log(geneset.name +": " + d.reason)
-                            // PCA could not be calculated on geneset given current settings
-
-                            vm.pcaType = vm.statePcaType
-                            //add to blacklist to disable from future selection/calculation
-                            osApi.toggleGenesetDisable(geneset);
-                            if(samples.length ==0) samples = "None"
-                            NA_runs.push({"dataset":vm.datasource.dataset, "collection":vm.molecular_collection, "geneset": geneset.name, "samples":samples})
-
-                            // revert/update display
-                            if(angular.isUndefined(vm.geneSet)){
-                                //load geneset anyways - nothing to fall back on
-                                //display null page
-                            }else{
-                                //rollback to previous definition
-                                window.alert("Sorry, PCA could not be calculated\n"+ geneset.name +": " + d.reason)
-                                osApi.setGeneset(vm.geneSet)
+                    if(runType == "simulate"){
+                        var numGenes = [100,200,500,1000, 5000, 10000,15000, 20000, 25000]; var numSamples = [100,200,500];
+                        for(var i=0;i<numSamples.length;i++){
+                            for(var j=0;j<numGenes.length;j++){
+                                console.log("Genes: "+ numGenes[j] + " Samples: "+ numSamples[i])
+                                runPCAsimulation(numGenes[j], numSamples[i]);
                             }
-
-                            angular.element('#modalRun').modal('hide');
-                            osApi.setBusy(false)
-                            return;
                         }
 
-                        vm.geneSet = geneset
-                        vm.statePcaType = vm.pcaType
+                    }else if(runType == "JS") {
+                        if (angular.isUndefined(vm.molecular_collection)) return;
+                        if (angular.isUndefined(geneset)) return;
+                        osApi.query(vm.molecular_collection
+                        ).then(function(response){
+                            vm.molecular = response.data
 
-                        //TO DO:: ### Update result names from oncoscape_wrapper so values -> d, and make variance values into percentages (ie *100)
-                        geneSetIds = _.pluck(d.loadings,"id")
-                        samples = _.pluck(d.scores,"id")
-                        d.scores  = d.scores.map(function(result){ return result.d});
-                        angular.element('#modalRun').modal('hide');
-                        processPCA(d, geneSetIds, samples);
-                        draw();
-                    });
-                }
+                            runPCA(geneset.geneIds);
+                        });
+                    }else if(runType == "python") {
+                        if (angular.isUndefined(geneset)) return;
+                        if (angular.isUndefined(vm.molecular_collection)) return;
+
+                        var geneSetIds = geneset.geneIds
+                    
+
+                        osApi.setBusy(true)
+                        PCAquery(vm.datasource.dataset, geneSetIds, samples, vm.molecular_collection, 3).then(function(PCAresponse) {
+
+                            var d = PCAresponse.data;
+                            if(angular.isDefined(d.reason)){
+                                console.log(geneset.name +": " + d.reason)
+                                // PCA could not be calculated on geneset given current settings
+
+                                vm.pcaType = vm.statePcaType
+                                //add to blacklist to disable from future selection/calculation
+                                osApi.toggleGenesetDisable(geneset);
+                                if(samples.length ==0) samples = "None"
+                                NA_runs.push({"dataset":vm.datasource.dataset, "collection":vm.molecular_collection, "geneset": geneset.name, "samples":samples})
+
+                                // revert/update display
+                                if(angular.isUndefined(vm.geneSet)){
+                                    //load geneset anyways - nothing to fall back on
+                                    //display null page
+                                }else{
+                                    //rollback to previous definition
+                                    window.alert("Sorry, PCA could not be calculated\n"+ geneset.name +": " + d.reason)
+                                    osApi.setGeneset(vm.geneSet)
+                                }
+
+                                angular.element('#modalRun').modal('hide');
+                                osApi.setBusy(false)
+                                return;
+                            }
+
+                            vm.geneSet = geneset
+                            vm.statePcaType = vm.pcaType
+                            runType = "JS"
+
+                            //TO DO:: ### Update result names from oncoscape_wrapper so values -> d, and make variance values into percentages (ie *100)
+                            geneSetIds = _.pluck(d.loadings,"id")
+                            samples = _.pluck(d.scores,"id")
+                            d.scores  = d.scores.map(function(result){ return result.d});
+                            angular.element('#modalRun').modal('hide');
+                            processPCA(d, geneSetIds, samples);
+                            draw();
+                        });
+                    }
+                })
 
             }
 
@@ -347,7 +353,7 @@
 
                 var options = {isCovarianceMatrix: false, center : true, scale: false};
                 // create 2d array of samples x features (genes)
-                var molecular = Array.apply(null, {length: numSamples}).map(function(s){ return Array.apply(null, {length: numGenes}).map(Function.call, Math.random)});
+                var molecular = Array.apply(null, {length: numSamples}).map(function(){ return Array.apply(null, {length: numGenes}).map(Function.call, Math.random)});
 
                 var then = Date.now();
                 //console.log("PCA: Running " + Date())
@@ -363,23 +369,39 @@
                 var options = {isCovarianceMatrix: false, center : true, scale: false};
 
                 // Subset samples to those available in the collection
-                var samples = [];
+                var samples = []; var sampleIdx = _.range(0,vm.molecular[0].m.length)
                 if(vm.optRunParams[1].show)
                     samples = osApi.getCohort().sampleIds;
                 
-                if (samples.length === 0) samples = Object.keys(osApi.getData().sampleMap);
-                samples = samples.filter(function(s){ return _.has(vm.molecular[0].data,s) })
+                if(samples.length !=0){ 
+                    sampleIdx = vm.molecular[0].m.map(function(s, i){
+                        var matchS = _.contains(samples, s) ? i : -1
+                        return matchS})
+                }
+
+                // if (samples.length === 0) samples = Object.keys(osApi.getData().sampleMap);
+                // samples = samples.filter(function(s){ return _.contains(vm.molecular[0].m,s) })
 
                 //subset geneIds to be only those returned from query
                 geneIds = _.intersection( _.pluck(vm.molecular,"id"), geneIds)
-
-
-
+                
+                var molecular = vm.molecular
+                if(geneIds.length != 0){
+                    molecular = molecular.filter(function(g){return _.contains(geneIds,g.id)})
+                }
+                
                 // create 2d array of samples x features (genes)
-                var molecular = samples.map(function(s){ return vm.molecular.map(function(g){ return g.data[s]})  })
+                molecular = molecular.map(function(s){return  s.d.filter(function(r, i){return _.contains(sampleIdx, i)})})
+                //var molecular = samples.map(function(s){ return vm.molecular.map(function(g){ return g.m[s]})  })
                 //var molecular = response.data.map(function(g){ return samples.map(function(s){ return g.data[s]})  })
 
+                // remove any genes that have NA values
+                
+                molecular = molecular.filter(function(v){return _.intersection(v, [NaN,"NaN"]).length == 0 })
+                
+                
                 console.log("PCA: Running " + Date())
+                //NOTE: If there are null values in molecular, PCA runs in an infinite loop!
                 var d = new ML.Stat.PCA(molecular, options)
                 console.log("PCA: transforming scores " + Date())
                 d.metadata = {}
