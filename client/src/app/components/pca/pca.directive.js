@@ -19,7 +19,7 @@
         return directive;
 
         /** @ngInject */
-        function PcaController($q, osApi, $state, $stateParams, $timeout, $scope, d3, moment, $window,$http,  _, ML) {
+        function PcaController($q, osApi, $state, $stateParams, $timeout, $scope, d3, moment, $window,$http,  _, ML, $) {
 
             // Loading ...
             osApi.setBusy(true);
@@ -63,7 +63,11 @@
             var vm = (function(vm, osApi) {
                 vm.loadings = [];
                 vm.pc1 = vm.pc2 = [];
+                
+                vm.showOverlayForm = false;
+                vm.datasources= osApi.getDataSources(); 
                 vm.datasource = osApi.getDataSource();
+                vm.overlay = []
 
                 vm.sources = [];
                 vm.source = null;
@@ -225,7 +229,83 @@
                 callPCA(osApi.getGeneset())
 
 
-            });        
+            });   
+            $scope.$watch('vm.newOverlay', function() {
+                
+
+                osApi.query("lookup_oncoscape_datasources", {
+                    dataset: vm.overlaySource
+                }).then(function(response){
+                    
+                    vm.overlay_molecularTables = response.data[0].collections.filter(function(d){ return _.contains(acceptableDatatypes, d.type)})
+                    vm.overlayTypes = _.uniq(_.pluck(vm.overlay_molecularTables, "name"))
+
+                    if (angular.isUndefined(vm.overlayType)) {
+                        vm.overlayType = vm.overlayTypes[0];
+                    } else {
+                        var newSource = vm.overlayTypes.filter(function(v) { return (v === vm.overlayType); });
+                        vm.overlayType = (newSource.length === 1) ? newSource[0] : vm.overlayTypes[0];
+                    }
+                    vm.overlaySource = vm.newOverlay
+                })
+            });
+            $scope.$watch('vm.overlayType', function() {
+                if (angular.isUndefined(vm.overlaySource)) return;
+                if(angular.isUndefined(vm.overlay_molecularTables)) return;
+               
+               var molecular_matches = vm.overlay_molecularTables.filter(function(d){return d.name == vm.overlayType })
+                if(molecular_matches.length ==1){
+                    vm.overlay_collection = molecular_matches[0].collection
+                    vm.overlay_counts = molecular_matches[0].counts
+                }
+
+                var samples = "None";
+                if(vm.optRunParams[1].show)
+                    samples = osApi.getCohort().sampleIds;
+                
+                callOverlay(osApi.getGeneset())
+            
+            
+            })
+
+            var callOverlay = function(geneset){
+
+                if (angular.isUndefined(vm.overlay_collection)) return;
+                if (angular.isUndefined(geneset)) return;
+                osApi.query(vm.overlay_collection
+                ).then(function(response){
+                    vm.overlay_molecular = response.data
+
+                    runOverlay(geneset.geneIds);
+                });
+
+            }
+
+            var runOverlay = function(geneset){
+                
+                // Subset samples to those available in the collection
+                //var samples = []; var sampleIdx = _.range(0,vm.overlay_molecular[0].m.length)
+
+                //subset geneIds to be only those returned from query
+                var geneIds = _.intersection( _.pluck(vm.overlay_molecular,"id"), geneset.geneIds)
+                
+                var molecular = vm.overlay_molecular
+                if(geneIds.length != 0){
+                    molecular = molecular.filter(function(g){return _.contains(geneIds,g.id)})
+                }
+                
+                // create 2d array of samples x features (genes)
+                molecular = molecular.map(function(s){return  s.d})
+               
+                //for each new sample:
+                    // find nearest 3 samples to triangulate
+
+                    // get coordinates of those 3 samples
+                    
+                    // centroid <- colSums(neighborCoords)/3
+
+                //add centroid positions to plot
+            }
 
 
              var callPCA = function(geneset){
@@ -347,8 +427,6 @@
 
             }
 
-
-
              var runPCAsimulation = function(numGenes, numSamples) {
 
                 var options = {isCovarianceMatrix: false, center : true, scale: false};
@@ -446,7 +524,7 @@
                    d3Points.selectAll("circle").classed("pca-node-selected", function() {
                         return (selectedIds.indexOf(this.__data__.id) >= 0);
                     });
-            }
+                }
 
             }
 
@@ -523,6 +601,7 @@
                 .on("start", lasso_start)
                 .on("draw", lasso_draw)
                 .on("end", lasso_end);
+
 
             function draw() {
 
@@ -616,7 +695,22 @@
 
 
             }
-
+            
+            var tilt_direction = function(item) {
+                var left_pos = item.position().left,
+                    move_handler = function (e) {
+                        if (e.pageX >= left_pos) {
+                            item.addClass("right");
+                            item.removeClass("left");
+                        } else {
+                            item.addClass("left");
+                            item.removeClass("right");
+                        }
+                        left_pos = e.pageX;
+                    };
+                $("html").bind("mousemove", move_handler);
+                item.data("move_handler", move_handler);
+            }  
 
             var getOptRunParams = function() {
                 
@@ -639,6 +733,7 @@
                     id: 1
                 }];
             };
+
 
 
 
@@ -679,7 +774,36 @@
                 vm.molecularTables = response.data[0].collections.filter(function(d){ return _.contains(acceptableDatatypes, d.type)})
 
                 vm.optRunParams = getOptRunParams();
-
+                
+                
+                $( ".kanban-column" ).sortable({
+                    connectWith: ".kanban-column",
+                    handle: ".portlet-header",
+                    cancel: ".portlet-toggle",
+                    start: function (event, ui) {
+                        ui.item.addClass('tilt');
+                        tilt_direction(ui.item);
+                    },
+                    stop: function (event, ui) {
+                        ui.item.removeClass("tilt");
+                        $("html").unbind('mousemove', ui.item.data("move_handler"));
+                        ui.item.removeData("move_handler");
+                    }
+                });
+                
+                
+                $( ".portlet" )
+                    .addClass( "ui-widget ui-widget-content ui-helper-clearfix ui-corner-all" )
+                    .find( ".portlet-header" )
+                    .addClass( "ui-widget-header ui-corner-all" )
+                    .prepend( "<span class='ui-icon ui-icon-minusthick portlet-toggle'></span>");
+                
+                $( ".portlet-toggle" ).click(function() {
+                    var icon = $( this );
+                    icon.toggleClass( "ui-icon-minusthick ui-icon-plusthick" );
+                    icon.closest( ".portlet" ).find( ".portlet-content" ).toggle();
+                });
+    
                 vm.sources = [vm.datasource.dataset]  //_.uniq(_.pluck(vm.molecularTables, "source"))
                 vm.source = vm.sources[0]
             });
