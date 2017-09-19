@@ -324,12 +324,12 @@
                     //distances = _.pluck(d.D,"id")
                     angular.element('#modalRun').modal('hide');
                     var newData = calculateCentroid(d);
-                    data = data.concat(newData)
-                    draw()
+                    //data = data.concat(newData)
+                    draw(newData)
                     // update plot with new points
                 });
             }
-            function findIndicesOfMax(inp, count) {
+            var findIndicesOfMax = function(inp, count) {
                 var outp = [];
                 for (var i = 0; i < inp.length; i++) {
                     outp.push(i); // add index to output array
@@ -346,8 +346,20 @@
                 
                 // for each new overlay id, get ids for closest 3
                 var num_compare = 3
-                var indices = findIndicesOfMax(scoreByPattern, 3);
-                var top3 = dist.D.map(function(s){ return {"id":s.id, "match": s.d.sort().slice(-1*num_compare,).map(function(maxMatch){return s.m[_.indexOf(s.d,maxMatch)]} )}})
+                
+                // var usedColors = _cohorts.map(function(v) { return v.color; });
+                // var availColors = ["#E91E63", "#673AB7", "#4CAF50", "#CDDC39", "#FFC107", "#FF5722", "#795548", "#607D8B", "#03A9F4", "#03A9F4", '#004358', '#800080', '#BEDB39', '#FD7400', '#1F8A70', '#B71C1C', '#880E4F', '#4A148C', '#311B92', '#0D47A1', '#006064', '#1B5E20'].filter(function(v) { return (usedColors.indexOf(v) == -1); });
+                // cohort.color = availColors[0];
+
+                 var top3 = dist.D.map(function(s){ 
+                    var indices = findIndicesOfMax(s.d, 3);
+                    var match_ids = indices.map(function(i){return s.m[i]})
+                    return {id:s.id, match: match_ids}
+                //    return {"id":s.id, "match": s.m[]
+                //         s.d.sort().slice((-1*num_compare),)
+                //             .map(function(maxMatch){return s.m[_.indexOf(s.d,maxMatch)]} )}
+                })
+                
                 
                 // find positions in current plot & calculate centroid
                 var scores = top3.map(function(s){ 
@@ -364,6 +376,7 @@
                     return d
                 })
 
+                //osApi.setCohort(_.pluck(scores, "id"), "centroid", "SAMPLE")
                 return scores;
 
             }
@@ -400,7 +413,7 @@
                         console.log("PCA: retreived from Mongo " + Date())
                         
                         processPCA(d, geneset.geneIds, samples);
-                        draw();
+                        draw(data);
                         return
                     }
                 
@@ -481,7 +494,7 @@
                             d.scores  = d.scores.map(function(result){ return result.d});
                             angular.element('#modalRun').modal('hide');
                             processPCA(d, geneSetIds, samples);
-                            draw();
+                            draw(data);
                         });
                     }
                 })
@@ -552,7 +565,7 @@
                 // d.scores = z.map(function(m){ return d.getLoadings().map(function(ev) { return jStat.dot(m, ev)})});
 
                 processPCA(d, geneIds, samples);
-                draw();
+                draw(data);
 
             }
 
@@ -664,7 +677,7 @@
                 .on("end", lasso_end);
 
 
-            function draw() {
+            function draw(data_scores) {
 
                 // Colorize
                 setColors();
@@ -687,7 +700,7 @@
                 scaleY = d3.scaleLinear().domain([minMax.yMin, minMax.yMax]).range([50, height - 50]).nice();
 
                 // Draw
-                circles = d3Points.selectAll("circle").data(data);
+                circles = d3Points.selectAll("circle").data(data_scores);
                 circles.enter().append("circle")
                     .attr("class", "pca-node")
                     .attr("cx", function(d) {
@@ -805,7 +818,7 @@
             var onPatientColorChange = function(value) {
                 colors = value;
                 vm.showPanelColor = false;
-                draw();
+                draw(data);
             };
             osApi.onPatientColorChange.add(onPatientColorChange);
 
