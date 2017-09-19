@@ -32,15 +32,15 @@
                         <div class="portlet-content">
                             <div>Dataset   <div class="input-group" style="width:100%">
                                         <div class="dropdown bs-dropdown">
-                                            <button  class="btn btn-default dropdown-toggle" type="button" id="dropdownMenu1" data-toggle="dropdown" aria-haspopup="true" aria-expanded="true">{{vm.datasource.name}}<span class="caret"></span></button>
+                                            <button  class="btn btn-default dropdown-toggle" type="button" id="dropdownMenu1" data-toggle="dropdown" aria-haspopup="true" aria-expanded="true">{{vm.overlaySource}}<span class="caret"></span></button>
                                             <ul class="dropdown-menu" aria-labelledby="dropdownMenu1" style="width:260px;max-height:250px;overflow-y:scroll">
-                                                <li class="markers-command hvr-sweep-to-right" ng-repeat="item in vm.datasources" ng-click="vm.overlaySource=item">{{item.name}}</li>
+                                                <li class="markers-command hvr-sweep-to-right" ng-repeat="item in vm.datasources" ng-click="vm.overlaySource=item.name">{{item.name}}</li>
                                             </ul>
                                         </div>
                                 </div> </div> 
                             <div>Type   <div class="input-group" style="width:100%">
                                         <div class="dropdown bs-dropdown">
-                                            <button  class="btn btn-default dropdown-toggle" type="button" id="dropdownMenu1" data-toggle="dropdown" aria-haspopup="true" aria-expanded="true">{{vm.overlayType}}<span class="caret"></span></button>
+                                            <button  class="btn btn-default dropdown-toggle" type="button" id="dropdownMenu1" data-toggle="dropdown" aria-haspopup="true" aria-expanded="true" style="max-width: 212px;">{{vm.overlayType}}<span class="caret"></span></button>
                                             <ul class="dropdown-menu" aria-labelledby="dropdownMenu1" style="width:260px;max-height:250px;overflow-y:scroll">
                                                 <li class="markers-command hvr-sweep-to-right" ng-repeat="item in vm.overlayTypes" ng-click="vm.overlayType=item">{{item}}</li>
                                             </ul>

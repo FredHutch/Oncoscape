@@ -266,6 +266,8 @@
             $scope.$watch('vm.overlaySource', function() {
                 
                  if(!vm.showOverlayForm) return;
+                 if(typeof vm.overlaySource == "object")
+                    vm.overlaySource = vm.overlaySource.name
 
                 osApi.query("lookup_oncoscape_datasources", {
                     dataset: vm.overlaySource
@@ -312,7 +314,7 @@
 
                     var d = Dresponse.data;
                     if(angular.isDefined(d.reason)){
-                        console.log(vm.molecular_collection +"+ "+vm.molecular_collection2+": " + d.reason)
+                        console.log(vm.molecular_collection +"+ "+vm.overlay_collection+": " + d.reason)
                         // Distance could not be calculated on geneset given current settings
                             window.alert("Sorry, Distance could not be calculated\n" + d.reason)
 
@@ -324,8 +326,8 @@
                     //distances = _.pluck(d.D,"id")
                     angular.element('#modalRun').modal('hide');
                     var newData = calculateCentroid(d);
-                    //data = data.concat(newData)
-                    draw(newData)
+                    data = data.concat(newData)
+                    draw(data)
                     // update plot with new points
                 });
             }
@@ -347,9 +349,10 @@
                 // for each new overlay id, get ids for closest 3
                 var num_compare = 3
                 
-                // var usedColors = _cohorts.map(function(v) { return v.color; });
-                // var availColors = ["#E91E63", "#673AB7", "#4CAF50", "#CDDC39", "#FFC107", "#FF5722", "#795548", "#607D8B", "#03A9F4", "#03A9F4", '#004358', '#800080', '#BEDB39', '#FD7400', '#1F8A70', '#B71C1C', '#880E4F', '#4A148C', '#311B92', '#0D47A1', '#006064', '#1B5E20'].filter(function(v) { return (usedColors.indexOf(v) == -1); });
-                // cohort.color = availColors[0];
+                 var usedColors = _.uniq(_.pluck(data, "color"))
+                 var availColors = [ "#E91E63", "#673AB7", "#4CAF50", "#CDDC39", "#FFC107", "#FF5722", "#795548", "#607D8B", "#03A9F4", "#03A9F4",
+                                     '#004358', '#800080', '#BEDB39', '#FD7400', '#1F8A70', '#B71C1C', '#880E4F', '#4A148C', '#311B92', '#0D47A1', 
+                                     '#006064', '#1B5E20'].filter(function(v) { return (usedColors.indexOf(v) == -1); });
 
                  var top3 = dist.D.map(function(s){ 
                     var indices = findIndicesOfMax(s.d, 3);
@@ -372,6 +375,7 @@
                     }
                     var d = cent_scores.map(function(x){ return x/num_compare})
                     d.id = s.id;
+                    d.color= availColors[0]
 
                     return d
                 })
@@ -612,7 +616,7 @@
                 if (colors.name == "None") {
                     vm.legendCaption = "";
                     data.forEach(function(v) {
-                        v.color = '#0096d5';
+                        if(angular.isUndefined(v.color)) v.color = '#0096d5';
                     });
 
                     // Color Based On V
