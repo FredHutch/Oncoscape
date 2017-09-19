@@ -58,6 +58,7 @@
             };
             var acceptableDatatypes = ["expr", "cnv", "mut01", "meth_thd", "meth", "cnv_thd"];
             var NA_runs = []
+            
 
             // View Model Update
             var vm = (function(vm, osApi) {
@@ -67,7 +68,8 @@
                 vm.showOverlayForm = false;
                 vm.datasources= osApi.getDataSources(); 
                 vm.datasource = osApi.getDataSource();
-                vm.overlay = []
+                vm.numSamples =0;
+                vm.numGenes=0;
 
                 vm.sources = [];
                 vm.source = null;
@@ -101,6 +103,14 @@
                 vm.runParamsToggle = function() {
                     callPCA(osApi.getGeneset())
                 };
+                vm.callOverlay = function(){
+                    
+                    var geneset = osApi.getGeneset()
+                    if (angular.isUndefined(vm.overlay_collection)) return;
+                    if (angular.isUndefined(geneset)) return;
+
+                    runOverlay(geneset);
+                };
 
                 return vm;
             })(this, osApi);
@@ -124,26 +134,37 @@
 
 
             // Gene Service Integration
-              osApi.onGenesetChange.add(function(geneset) {
+            osApi.onGenesetChange.add(function(geneset) {
                 osApi.setBusy(true);
-                if(angular.isUndefined(vm.geneSet) | geneset.name != vm.geneSet.name){
+                if(angular.isUndefined(vm.geneSet) | (angular.isDefined(vm.geneSet) && geneset.name != vm.geneSet.name)){
                     callPCA(geneset)
                 }
-              });
+            });
 
             // Move To Service
             function PCAquery(dataset, genes, samples, molecular_collection, n_components) {
-                var data = { dataset: dataset, genes: genes, samples: samples, molecular_collection: molecular_collection, n_components: n_components };
+                var payload = { dataset: dataset, genes: genes, samples: samples, molecular_collection: molecular_collection, n_components: n_components };
                 return $http({
                     method: 'POST',
                  //   url: "https://dev.oncoscape.sttrcancer.io/cpu/pca",
                     url: "http://localhost:8000/pca",
-                    data: data
+                    data: payload
 
 
                 });
             }
+            // Move To Service
+            function Dquery(collection1, collection2) {
+                var payload = { molecular_collection: collection1,molecular_collection2: collection2};
+                return $http({
+                    method: 'POST',
+                 //   url: "https://dev.oncoscape.sttrcancer.io/cpu/pca",
+                    url: "http://localhost:8000/distance",
+                    data: payload
 
+
+                });
+            }
             function processPCA(d, geneIds, samples){
 
                 console.log("PCA: processing results " + Date())
@@ -230,15 +251,28 @@
 
 
             });   
-            $scope.$watch('vm.newOverlay', function() {
+            $scope.$watch('vm.showOverlayForm', function() {
                 
+                if(!vm.showOverlayForm) return;
+
+                if (angular.isUndefined(vm.overlaySource)) {
+                    vm.overlaySource = vm.sources[0];
+                } else {
+                    var newSource = vm.sources.filter(function(v) { return (v === vm.overlaySource); });
+                    vm.overlaySource = (newSource.length === 1) ? newSource[0] : vm.sources[0];
+                }
+
+            });
+            $scope.$watch('vm.overlaySource', function() {
+                
+                 if(!vm.showOverlayForm) return;
 
                 osApi.query("lookup_oncoscape_datasources", {
                     dataset: vm.overlaySource
                 }).then(function(response){
                     
                     vm.overlay_molecularTables = response.data[0].collections.filter(function(d){ return _.contains(acceptableDatatypes, d.type)})
-                    vm.overlayTypes = _.uniq(_.pluck(vm.overlay_molecularTables, "name"))
+                    vm.overlayTypes = _.pluck(vm.overlay_molecularTables, "name")
 
                     if (angular.isUndefined(vm.overlayType)) {
                         vm.overlayType = vm.overlayTypes[0];
@@ -246,7 +280,6 @@
                         var newSource = vm.overlayTypes.filter(function(v) { return (v === vm.overlayType); });
                         vm.overlayType = (newSource.length === 1) ? newSource[0] : vm.overlayTypes[0];
                     }
-                    vm.overlaySource = vm.newOverlay
                 })
             });
             $scope.$watch('vm.overlayType', function() {
@@ -263,64 +296,92 @@
                 if(vm.optRunParams[1].show)
                     samples = osApi.getCohort().sampleIds;
                 
-                callOverlay(osApi.getGeneset())
+                // vm.callOverlay()
             
             
             })
 
-            var callOverlay = function(geneset){
-
-                if (angular.isUndefined(vm.overlay_collection)) return;
-                if (angular.isUndefined(geneset)) return;
-                osApi.query(vm.overlay_collection
-                ).then(function(response){
-                    vm.overlay_molecular = response.data
-
-                    runOverlay(geneset.geneIds);
-                });
-
-            }
 
             var runOverlay = function(geneset){
                 
-                // Subset samples to those available in the collection
-                //var samples = []; var sampleIdx = _.range(0,vm.overlay_molecular[0].m.length)
-
-                //subset geneIds to be only those returned from query
-                var geneIds = _.intersection( _.pluck(vm.overlay_molecular,"id"), geneset.geneIds)
                 
-                var molecular = vm.overlay_molecular
-                if(geneIds.length != 0){
-                    molecular = molecular.filter(function(g){return _.contains(geneIds,g.id)})
+                //var geneIds = _.intersection( _.pluck(vm.overlay_molecular,"id"), geneset.geneIds)
+                
+                osApi.setBusy(true)
+                Dquery(vm.molecular_collection, vm.overlay_collection).then(function(Dresponse) {
+
+                    var d = Dresponse.data;
+                    if(angular.isDefined(d.reason)){
+                        console.log(vm.molecular_collection +"+ "+vm.molecular_collection2+": " + d.reason)
+                        // Distance could not be calculated on geneset given current settings
+                            window.alert("Sorry, Distance could not be calculated\n" + d.reason)
+
+                        angular.element('#modalRun').modal('hide');
+                        osApi.setBusy(false)
+                        return;
+                    }
+
+                    //distances = _.pluck(d.D,"id")
+                    angular.element('#modalRun').modal('hide');
+                    var newData = calculateCentroid(d);
+                    data = data.concat(newData)
+                    draw()
+                    // update plot with new points
+                });
+            }
+            function findIndicesOfMax(inp, count) {
+                var outp = [];
+                for (var i = 0; i < inp.length; i++) {
+                    outp.push(i); // add index to output array
+                    if (outp.length > count) {
+                        outp.sort(function(a, b) { return inp[b] - inp[a]; }); // descending sort the output array
+                        outp.pop(); // remove the last index (index of smallest element in output array)
+                    }
                 }
-                
-                // create 2d array of samples x features (genes)
-                molecular = molecular.map(function(s){return  s.d})
-               
-                //for each new sample:
-                    // find nearest 3 samples to triangulate
-
-                    // get coordinates of those 3 samples
-                    
-                    // centroid <- colSums(neighborCoords)/3
-
-                //add centroid positions to plot
+                return outp;
             }
 
+            var calculateCentroid = function(dist){
+                //data= {id: overlay sample , d: [distance values], m:[mol_df ids]}
+                
+                // for each new overlay id, get ids for closest 3
+                var num_compare = 3
+                var indices = findIndicesOfMax(scoreByPattern, 3);
+                var top3 = dist.D.map(function(s){ return {"id":s.id, "match": s.d.sort().slice(-1*num_compare,).map(function(maxMatch){return s.m[_.indexOf(s.d,maxMatch)]} )}})
+                
+                // find positions in current plot & calculate centroid
+                var scores = top3.map(function(s){ 
+                    var match_scores = data.filter(function(p){ return _.contains(s.match,p.id)})
+                    var cent_scores = [0,0,0]
+                    for(var i=0;i<match_scores.length;i++){
+                        cent_scores[0] += match_scores[i][0]
+                        cent_scores[1] += match_scores[i][1]
+                        cent_scores[2] += match_scores[i][2]
+                    }
+                    var d = cent_scores.map(function(x){ return x/num_compare})
+                    d.id = s.id;
 
+                    return d
+                })
+
+                return scores;
+
+            }
              var callPCA = function(geneset){
 
-                var samples = [], numSamples = vm.counts.samples, numGenes = vm.counts.markers;
+                var samples = [];
+                vm.numSamples = vm.counts.samples
+                vm.numGenes = vm.counts.markers;
                 
                 if(!vm.optRunParams[0].show){
                     geneset = osApi.getGenesets()[0]
                     if(geneset.geneIds.length != 0)
-                        numGenes = geneset.geneIds.length
+                        vm.numGenes = geneset.geneIds.length
                 }
                 if(vm.optRunParams[1].show){
                     samples = osApi.getCohort().sampleIds;
                     if(samples.length != 0)
-                        numSamples = samples.length
+                        vm.numSamples = samples.length
                 }
                 // if (samples.length === 0) //samples = Object.keys(osApi.getData().sampleMap);
                 //     osApi.query(molecular_collection, {"$limit":1}).then(function(response){
@@ -331,7 +392,7 @@
 
                 //Check if in Mongo
                 
-                osApi.query(vm.datasource.dataset +"_cluster", {geneset: geneset.name, disease: vm.datasource.dataset, dataType: "PCA", input:vm.pcaType, scores:{$size:numSamples}}
+                osApi.query(vm.datasource.dataset +"_cluster", {geneset: geneset.name, disease: vm.datasource.dataset, dataType: "PCA", input:vm.pcaType, scores:{$size:vm.numSamples}}
                 ).then(function(response){
                     var d = response.data
                     if(d.length >0){
@@ -344,7 +405,7 @@
                     }
                 
                 
-                    if (runType == "JS" & numSamples  * numGenes > 100) {
+                    if (runType == "JS" & vm.numSamples  * vm.numGenes > 100) {
                         
                         runType = "python"
 
