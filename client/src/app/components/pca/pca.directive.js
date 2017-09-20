@@ -330,7 +330,7 @@
                     angular.element('#modalRun').modal('hide');
                     var newData = calculateCentroid(d);
                     data = data.concat(newData)
-                    draw(data)
+                    draw()
                     // update plot with new points
                 });
             }
@@ -422,7 +422,7 @@
                         var score_samples = _.pluck(d[0].scores, "id")
                         d[0].scores = d[0].scores.map(function(x){ return x.d})
                         processPCA(d[0], geneset.geneIds, score_samples);
-                        draw(data);
+                        draw();
                         return
                     }
                 
@@ -503,7 +503,7 @@
                             d.scores  = d.scores.map(function(result){ return result.d});
                             angular.element('#modalRun').modal('hide');
                             processPCA(d, geneSetIds, samples);
-                            draw(data);
+                            draw();
                         });
                     }
                 })
@@ -574,7 +574,7 @@
                 // d.scores = z.map(function(m){ return d.getLoadings().map(function(ev) { return jStat.dot(m, ev)})});
 
                 processPCA(d, geneIds, samples);
-                draw(data);
+                draw();
 
             }
 
@@ -686,7 +686,7 @@
                 .on("end", lasso_end);
 
 
-            function draw(data_scores) {
+            function draw() {
 
                 // Colorize
                 setColors();
@@ -709,7 +709,7 @@
                 scaleY = d3.scaleLinear().domain([minMax.yMin, minMax.yMax]).range([50, height - 50]).nice();
 
                 // Draw
-                circles = d3Points.selectAll("circle").data(data_scores);
+                circles = d3Points.selectAll("circle").data(data);
                 circles.enter().append("circle")
                     .attr("class", "pca-node")
                     .attr("cx", function(d) {
@@ -827,7 +827,7 @@
             var onPatientColorChange = function(value) {
                 colors = value;
                 vm.showPanelColor = false;
-                draw(data);
+                draw();
             };
             osApi.onPatientColorChange.add(onPatientColorChange);
 
