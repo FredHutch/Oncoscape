@@ -21,28 +21,39 @@ co(function *() {
     var json_meta = require("./tcga_molecular_lookup.json")
     json_meta = json_meta.filter(function(d){ return d.schema == "hugo_sample"})
 
-    //clear Collections
+    // Clean Project 
+    // 1. clear Collections & Tools list in lookup table 
+    // 2. drop ptdashboard collection
+    // 3. drop samplemap collection
     var lookup = yield comongo.db.collection(db, "lookup_oncoscape_datasources");    
     var ds = yield lookup.find().toArray()
     for(var i=0;i<ds.length; i++){
         console.log(ds[i].dataset)
         ds[i].collections = []
+        ds[i].tools = []
         yield lookup.update({dataset:ds[i].dataset}, ds[i], {upsert: true, writeConcern: {w:"majority"}})
-
+       
         var ptdashboard = yield comongo.db.collection(db, ds[i].dataset+"_ptdashboard");  
         var exists = yield ptdashboard.count()
         if(exists != 0)
             yield ptdashboard.drop()  
+        var smplmap = yield comongo.db.collection(db, ds[i].dataset+"_samplemap");  
+        var exists = yield smplmap.count()
+        if(exists != 0)
+            yield smplmap.drop()  
     }
     
 
-    //read from JSON object
+    // add new collection to lookup table for each JSON object
+    // skip if collection not yet written
     for(i=0;i<json_meta.length; i++){
         var j = json_meta[i]
         console.log(j.dataset +" "+j.collection)
 
-        var m = yield comongo.db.collection(db, j.collection)
-        var count = yield m.count({})
+        var m = yield comongo.db.collection(db, j.dataset +"_molecular")
+        var count = yield m.count({name: j.name})
+        // var m = yield comongo.db.collection(db, j.collection)
+        // var count = yield m.count({})
         if(count == 0){
             console.log("---not yet stored")
             continue;
@@ -59,7 +70,7 @@ co(function *() {
         }
     
     //Add to lookup collection
-    //  -- if dataset not found - add document with default metadata 
+    //  -- if project/dataset new or not found - add document with default metadata 
     //  -- req params first time. {dataset: projectID, source: [File, TCGA, GEO, ...], name: user readable dataset name}
     //insert collection metadata into lookup_datasources based on dataset name
     //-- req params per collection.  {collection: collection name, name: user readable collection name, type: }
