@@ -269,12 +269,14 @@
                  if(typeof vm.overlaySource == "object")
                     vm.overlaySource = vm.overlaySource.name
 
+                 vm.overlayType = null
                 osApi.query("lookup_oncoscape_datasources", {
                     dataset: vm.overlaySource
                 }).then(function(response){
                     
                     vm.overlay_molecularTables = response.data[0].collections.filter(function(d){ return _.contains(acceptableDatatypes, d.type)})
                     vm.overlayTypes = _.pluck(vm.overlay_molecularTables, "name")
+                    
 
                     if (angular.isUndefined(vm.overlayType)) {
                         vm.overlayType = vm.overlayTypes[0];
@@ -287,6 +289,7 @@
             $scope.$watch('vm.overlayType', function() {
                 if (angular.isUndefined(vm.overlaySource)) return;
                 if(angular.isUndefined(vm.overlay_molecularTables)) return;
+                if(vm.overlayType == null) return;
                
                var molecular_matches = vm.overlay_molecularTables.filter(function(d){return d.name == vm.overlayType })
                 if(molecular_matches.length ==1){
@@ -416,7 +419,9 @@
                         
                         console.log("PCA: retreived from Mongo " + Date())
                         
-                        processPCA(d, geneset.geneIds, samples);
+                        var score_samples = _.pluck(d[0].scores, "id")
+                        d[0].scores = d[0].scores.map(function(x){ return x.d})
+                        processPCA(d[0], geneset.geneIds, score_samples);
                         draw(data);
                         return
                     }
