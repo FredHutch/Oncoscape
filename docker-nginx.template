@@ -71,6 +71,15 @@ http {
             expires 2d;
         }
         
+        # Upload Tool Directory
+        location /upload/ {
+            alias /home/sttrweb/UploadTool/$1;
+            index index.html index.htm;
+            add_header Cache-Control public;
+            add_header Strict-Transport-Security "max-age=31536000; includeSubDomains;";  
+            expires 2d;
+        }
+
         # Kong Api
         location /api/ {
             proxy_set_header Host $host;
