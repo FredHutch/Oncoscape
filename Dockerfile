@@ -74,6 +74,7 @@ WORKDIR /home/sttrweb/UploadTool/
 RUN git clone https://github.com/canaantt/NG4-Data-Upload.git
 WORKDIR NG4-Data-Upload
 COPY client-build /home/sttrweb/UploadTool
+RUN chmod +x /home/sttrweb/UploadTool
 #RUN rm -fR /home/sttrweb/UploadTool/NG4-Data-Upload
 
 
