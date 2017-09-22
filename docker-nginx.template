@@ -72,7 +72,7 @@ http {
         }
         
         # Upload Tool Directory
-        location /upload/ {
+        location ~ ^/upload/(.*)$ {
             alias /home/sttrweb/UploadTool/NG4-Data-Upload/client-build/$1;
             index index.html index.htm;
             add_header Cache-Control public;
