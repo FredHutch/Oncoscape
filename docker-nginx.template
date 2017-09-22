@@ -73,7 +73,7 @@ http {
         
         # Upload Tool Directory
         location ~ ^/upload/(.*)$ {
-            alias /home/sttrweb/UploadTool/NG4-Data-Upload/$1;
+            alias /home/sttrweb/Oncoscape/NG4-Data-Upload/$1;
             index index.html index.htm;
             add_header Cache-Control public;
             add_header Strict-Transport-Security "max-age=31536000; includeSubDomains;";  
