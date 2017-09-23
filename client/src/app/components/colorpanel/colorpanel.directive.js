@@ -38,7 +38,7 @@
             }
 
 
-            var tbl = osApi.getDataSource().category.filter(function(v) {
+            var tbl = osApi.getDataSource().collections.filter(function(v) {
                 return v.type == 'color';
             })[0].collection;
 

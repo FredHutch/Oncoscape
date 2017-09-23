@@ -18,30 +18,35 @@ co(function *() {
 
      
     var source = "TCGA"
-    var json_meta = require("./tcga_molecular_lookup.json")
-    json_meta = json_meta.filter(function(d){ return d.schema == "hugo_sample"})
-
-    // Clean Project 
-    // 1. clear Collections & Tools list in lookup table 
-    // 2. drop ptdashboard collection
-    // 3. drop samplemap collection
-    var lookup = yield comongo.db.collection(db, "lookup_oncoscape_datasources");    
-    var ds = yield lookup.find().toArray()
-    for(var i=0;i<ds.length; i++){
-        console.log(ds[i].dataset)
-        ds[i].collections = []
-        ds[i].tools = []
-        yield lookup.update({dataset:ds[i].dataset}, ds[i], {upsert: true, writeConcern: {w:"majority"}})
+    //var json_meta = require("./tcga_molecular_lookup.json")
+    //json_meta = json_meta.filter(function(d){ return d.schema == "hugo_sample"})
+    var json_meta = require("./tcga_clinical_lookup.json")
+    
+    // // Clean Project 
+    // // 1. drop collections, and clear Collections & Tools list in lookup table 
+    // // 2. drop ptdashboard collection
+    // // 3. drop samplemap collection
+    // var lookup = yield comongo.db.collection(db, "lookup_oncoscape_datasources");    
+    // var ds = yield lookup.find().toArray()
+    // for(var i=0;i<ds.length; i++){
+    //     console.log(ds[i].dataset)
+    //     for(var c=0;c<ds[i].collections.length;c++){
+    //         var coll = yield comongo.db.collection(db, ds[i].collections[c].collection);  
+    //         yield coll.drop()  
+    //     }
+    //     ds[i].collections = []
+    //     ds[i].tools = []
+    //     yield lookup.update({dataset:ds[i].dataset}, ds[i], {upsert: true, writeConcern: {w:"majority"}})
        
-        var ptdashboard = yield comongo.db.collection(db, ds[i].dataset+"_ptdashboard");  
-        var exists = yield ptdashboard.count()
-        if(exists != 0)
-            yield ptdashboard.drop()  
-        var smplmap = yield comongo.db.collection(db, ds[i].dataset+"_samplemap");  
-        var exists = yield smplmap.count()
-        if(exists != 0)
-            yield smplmap.drop()  
-    }
+    //     // var ptdashboard = yield comongo.db.collection(db, ds[i].dataset+"_ptdashboard");  
+    //     // var exists = yield ptdashboard.count()
+    //     // if(exists != 0)
+    //     //     yield ptdashboard.drop()  
+    //     var smplmap = yield comongo.db.collection(db, ds[i].dataset+"_samplemap");  
+    //     var exists = yield smplmap.count()
+    //     if(exists != 0)
+    //         yield smplmap.drop()  
+    // }
     
 
     // add new collection to lookup table for each JSON object
@@ -50,86 +55,98 @@ co(function *() {
         var j = json_meta[i]
         console.log(j.dataset +" "+j.collection)
 
-        var m = yield comongo.db.collection(db, j.dataset +"_molecular")
-        var count = yield m.count({name: j.name})
-        // var m = yield comongo.db.collection(db, j.collection)
-        // var count = yield m.count({})
-        if(count == 0){
-            console.log("---not yet stored")
-            continue;
-        }
+        // var m = yield comongo.db.collection(db, j.dataset +"_molecular_matrix")
+        // var count = yield m.count({"name": j.name})
+        // // var m = yield comongo.db.collection(db, j.collection)
+        // // var count = yield m.count({})
+        // if(count == 0){
+        //     console.log("---not yet stored")
+        //     continue;
+        // }
             
 
-        var meta = {    "dataset" : "",
-                        "source" : "",
-                        "beta" : false,
-                        "name" : "",
-                        "img" : "DSdefault.png",
-                        "tools" : [ ],
-                        "collections" : []
-        }
+        // var meta = {    "dataset" : "",
+        //                 "source" : "",
+        //                 "beta" : false,
+        //                 "name" : "",
+        //                 "img" : "DSdefault.png",
+        //                 "tools" : [ ],
+        //                 "collections" : []
+        // }
     
-    //Add to lookup collection
-    //  -- if project/dataset new or not found - add document with default metadata 
-    //  -- req params first time. {dataset: projectID, source: [File, TCGA, GEO, ...], name: user readable dataset name}
-    //insert collection metadata into lookup_datasources based on dataset name
-    //-- req params per collection.  {collection: collection name, name: user readable collection name, type: }
-    //-- optional defaults: {default:False, schema: hugo_sample}
-        var lookup = yield comongo.db.collection(db, "lookup_oncoscape_datasources");    
-        var ds = yield lookup.find({dataset: j.dataset}).toArray()
-        if( ds.length  == 0){
-            ds = [meta]
-            ds[0].dataset = j.dataset
-            ds[0].source = typeof j.source == "undefined" ? source : j.source
-            ds[0].name =   j.dataset
-        }
-        schema = typeof j.schema == "undefined" ? "hugo_sample" : j.schema
-        def_coll = typeof j.default == "undefined" ? false : j.default
+    // //Add to lookup collection
+    // //  -- if project/dataset new or not found - add document with default metadata 
+    // //  -- req params first time. {dataset: projectID, source: [File, TCGA, GEO, ...], name: user readable dataset name}
+    // //insert collection metadata into lookup_datasources based on dataset name
+    // //-- req params per collection.  {collection: collection name, name: user readable collection name, type: }
+    // //-- optional defaults: {default:False, schema: hugo_sample}
+    //     var lookup = yield comongo.db.collection(db, "lookup_oncoscape_datasources");    
+    //     var ds = yield lookup.find({dataset: j.dataset}).toArray()
+    //     if( ds.length  == 0){
+    //         ds = [meta]
+    //         ds[0].dataset = j.dataset
+    //         ds[0].source = typeof j.source == "undefined" ? source : j.source
+    //         ds[0].name =   j.dataset
+    //     }
+    //     schema = typeof j.schema == "undefined" ? "hugo_sample" : j.schema
+    //     def_coll = typeof j.default == "undefined" ? false : j.default
 
         
 
-    //create/add to samplemap
-        var samplemap = yield comongo.db.collection(db, j.dataset+"_samplemap");    
-        var collection = yield comongo.db.collection(db, j.collection);   
-        var keyval = {};
+    // //create/add to samplemap
+    //     var samplemap = yield comongo.db.collection(db, j.dataset+"_samplemap");    
         
-        if(j.schema == "hugo_sample"){
-            samples = yield collection.findOne({}, {"m":1})
-            samples = samples.m
-
-            if(j.source = "TCGA"){
-                patients = samples.map(function(s){return s.replace(/\-\w{2}$/,"")})
-            }
-        }
-        keyval = _.object(samples, patients)
-        var res = yield samplemap.update({}, {$set: keyval}, {upsert: true, writeConcern: {w:"majority"}})
-        var res = yield lookup.update({dataset: j.dataset}, {$set: keyval}, {upsert: true, writeConcern: {w:"majority"}})
-
-        // insert into lookup collection
-        var numDocs = yield collection.count()
-        var counts = {"samples": samples.length, "markers": numDocs}
-        var new_collection = {name: j.name, collection:j.collection, type: j.type, schema:schema,counts:counts, default:def_coll}
-        if(_.where(ds[0].collections, new_collection).length ==0)
-            ds[0].collections.push(new_collection)
+    //     var keyval = {};
         
-        var res = yield lookup.update({dataset: j.dataset}, ds[0], {upsert: true, writeConcern: {w:"majority"}})
+    //     if(j.schema == "hugo_sample"){
+    //         var collection = yield comongo.db.collection(db, j.dataset+"_molecular_matrix");   
+    //         samples = yield collection.findOne({"name":j.name}, {"s":1})
+    //         samples = samples.s
+
+    //         if(j.source = "TCGA"){
+    //             patients = samples.map(function(s){return s.replace(/\-\w{2}$/,"")})
+    //         }
+    //     }
+    //     keyval = _.object(samples, patients)
+    //     var res = yield samplemap.update({}, {$set: keyval}, {upsert: true, writeConcern: {w:"majority"}})
+    //         // res = yield lookup.update({dataset: j.dataset}, {$set: keyval}, {upsert: true, writeConcern: {w:"majority"}})
+
+    //     // insert into lookup collection
+    //     var markers = yield collection.distinct("m", {"name":j.name})
+    //     var new_collection = {name: j.name, type: j.type, schema:schema, default:def_coll, s:samples, m:markers}
+    //     if(_.where(ds[0].collections, new_collection).length ==0)
+    //         ds[0].collections.push(new_collection)
+        
+    //     var res = yield lookup.update({dataset: j.dataset}, ds[0], {upsert: true, writeConcern: {w:"majority"}})
 
 
     //create/add to patient reference collection
      
     //    var def_pt = {patient_ID:null, gender:null, status_vital:null, days_to_death:null,"days_to_last_follow_up":null};
-        var ptIDs = yield ptdashboard.distinct("patient_ID")
+        // var ptIDs = yield ptdashboard.distinct("patient_ID")
 
-        var new_ptIDs = _.difference(patients, ptIDs)
-        //var new_ptIDs = patients
-        for(var p=0;p<new_ptIDs.length;p++){
-            var res = yield ptdashboard.update(
-                {patient_ID: new_ptIDs[p]}, 
-                {patient_ID:new_ptIDs[p], gender:null, status_vital:null, days_to_death:null, "days_to_last_follow_up": null}, 
-                {upsert: true, writeConcern: {w:"majority"}})
+        // var new_ptIDs = _.difference(patients, ptIDs)
+        // //var new_ptIDs = patients
+        // for(var p=0;p<new_ptIDs.length;p++){
+        //     var res = yield ptdashboard.update(
+        //         {patient_ID: new_ptIDs[p]}, 
+        //         {patient_ID:new_ptIDs[p], gender:null, status_vital:null, days_to_death:null, "days_to_last_follow_up": null}, 
+        //         {upsert: true, writeConcern: {w:"majority"}})
+        // }
+
+
+        // add clinical data to phenotype wrapper
+        if(j.schema == "clinical"){
+            var collection = yield comongo.db.collection(db, j.dataset+"_phenotype");   
+            var pheno_data = yield collection.find()
+            samples = samples.s
+
+            if(j.source = "TCGA"){
+                patients = samples.map(function(s){return s.replace(/\-\w{2}$/,"")})
+            }
         }
 
-    }
+    } //end json_meta loop
 
 
 yield comongo.db.close(db);
