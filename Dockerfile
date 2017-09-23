@@ -57,7 +57,7 @@ RUN npm install -g pm2
 # Create Application User
 RUN useradd -u 7534 -m -d /home/sttrweb -c "sttr web application" sttrweb && \
 	mkdir /home/sttrweb/Oncoscape && \
-	mkdir /home/sttrweb/UploadTool && \
+	# mkdir /home/sttrweb/UploadTool && \
 	mkdir /home/sttrweb/Oncoscape/cache && \
 	mkdir /var/log/nginx/
 
@@ -70,10 +70,10 @@ RUN pip3 install -r requirements.txt
 
 
 # Upload Tool
-WORKDIR /home/sttrweb/UploadTool/
+WORKDIR /home/sttrweb/Oncoscape/
 RUN git clone https://github.com/canaantt/NG4-Data-Upload.git
 WORKDIR NG4-Data-Upload
-COPY client-build /home/sttrweb/UploadTool
+COPY client-build /home/sttrweb/Oncoscape/NG4-Data-Upload
 #RUN rm -fR /home/sttrweb/UploadTool/NG4-Data-Upload
 
 
