@@ -31,48 +31,67 @@ hugo_sample_types = subset(datatypes, schema == "hugo_sample")
 mol_df = fromJSON("~/Desktop/Oncoscape/cpu/oncoscape/tcga_molecular_lookup.json")
 mol_df = subset(mol_df, schema == "hugo_sample")
 
-### Copy individual Molecular tables of Hugo_Sample type into common molecular collection
-  for(j in 1:nrow(mol_df)){
-    mol = mol_df[j,]
-    m_type = "hugo"
-    if(grepl( "protein", mol[["name"]]))
-      m_type = "protein"
+# ### Copy individual Molecular tables of Hugo_Sample type into common molecular collection
+#   for(j in 1:nrow(mol_df)){
+#     mol = mol_df[j,]
+#     m_type = "hugo"
+#     if(grepl( "protein", mol[["name"]]))
+#       m_type = "protein"
     
-    # Original data not yet copied over
-    if(mongo(mol[["collection"]],db="v2", url=host)$count() == 0){
-      iterate_transformation(mol[["collection"]],paste(mol$dataset, "molecular_matrix", sep="_") ,mol[["name"]] ,mol[["type"]], in_db="tcga", out_db="v2")
-    } else { # data copied over but not in final form
+#     print(mol[["collection"]])
+#     # Original data not yet copied over
+#     if(nrow(mongo(paste(mol[["dataset"]],"_molecular_matrix",sep=""),db="v2", url=host)$find(toJSON(list("name"=mol[["name"]]),auto_unbox=T), limit=1)) == 0) { # data not copied into molecular table
+#       iterate_transformation(mol[["collection"]],paste(mol$dataset, "molecular_matrix", sep="_") ,mol[["name"]] ,mol[["type"]], in_db="tcga", out_db="v2")
+#     }
+#     mongo(paste(mol[["dataset"]],"_molecular_matrix",sep=""), db="v2",url=host)$index(toJSON(list("name"=1, "m"=1), auto_unbox = T))
+#   }
 
-    }
-  }
 
 ### Copy over clinical tables
 for(i in 1:nrow(datasets)){
   ds = datasets[i,]
   print(ds$disease)
   out_collection_name = paste(ds$disease, "phenotype",sep="_")
-  for(j in 1:length(ds$clinical)){
-    print(names(ds$clinical[j]))
-    if(names(ds$clinical[j]) %in% c("samplemap", "patient", "events"))
-      next
-    con = mongo(ds$clinical[[j]],db="tcga", url=host)
-    cursor = con$iterate()
-    if(names(ds$clinical[j]) %in% c("diagnosis")){
-      while(!is.null(x <- cursor$one())){
-          mongo(out_collection_name, db="v2",url=host)$update(toJSON(list("patient_ID"=x$patient_ID),auto_unbox=T), gsub("\\{\\}","null",toJSON(list("$set"= x), auto_unbox=T)), upsert= TRUE)
-      }
-    } else{
-      while(!is.null(x <- cursor$one())){
-          category = gsub("\\s+","_",names(ds$clinical[j]))
-          y = list(); query = list("patient_ID"=x$patient_ID); query[[category]]= list("$exists"=TRUE)
-          res = mongo(out_collection_name, db="v2",url=host)$find(toJSON(query,auto_unbox=T))
-          if(nrow(res) > 0 ){
-           y[[category]]=list(as.list(res[[category]]),x)
-          } else { y[[category]] = list(x) }
-          mongo(out_collection_name, db="v2",url=host)$update(toJSON(list("patient_ID"=x$patient_ID),auto_unbox=T), gsub("\\{\\}","null",toJSON(list("$set"= y), auto_unbox=T)), upsert= TRUE)
-      }
-    }
-  }
+  # for(j in 1:length(ds$clinical)){
+  #   print(names(ds$clinical[j]))
+  #   if(names(ds$clinical[j]) %in% c("samplemap", "patient", "events"))
+  #     next
+  #   con = mongo(ds$clinical[[j]],db="tcga", url=host)
+  #   cursor = con$iterate()
+  #   if(names(ds$clinical[j]) %in% c("diagnosis")){
+  #     while(!is.null(x <- cursor$one())){
+  #         names(x) = gsub("\\.", "\\-", names(x))
+  #         mongo(out_collection_name, db="v2",url=host)$update(toJSON(list("patient_ID"=x$patient_ID),auto_unbox=T), gsub("\\{\\}","null",toJSON(list("$set"= x), auto_unbox=T)), upsert= TRUE)
+  #     }
+  #   } else{
+  #     category = gsub("\\s+","_",names(ds$clinical[j]))
+  #     eventID = "followup"
+  #     if(category =="drug" ){ eventID = "drug"
+  #     } else if(category =="radiation" ){ eventID = "radiation"
+  #     } else if(category =="other_malignancy" ){ eventID = "omf"}
+  #     while(!is.null(x <- cursor$one())){
+  #         names(x) = gsub("\\.", "\\-", names(x))
+          
+  #         y = list(); query = list("patient_ID"=x$patient_ID); query[[category]]= list("$exists"=TRUE)
+  #         res = mongo(out_collection_name, db="v2",url=host)$find(toJSON(query,auto_unbox=T))
+          
+  #         if(nrow(res) > 0 ){
+  #           uid_col = paste("bcr",eventID,"barcode", sep="_")
+  #           if(category != "new_tumor" && x[uid_col] %in% unlist(res[[category]][[1]][uid_col]))
+  #             next; #event item already inserted
+  #           currVal <- apply(res[[category]][[1]],1, function(x) as.list(x)); 
+  #           currVal[[length(currVal)+1]] =x
+  #           names(currVal) <- NULL
+  #           y[[category]]=currVal
+  #         } else { 
+  #           y[[category]] = list(x) }
+  #         mongo(out_collection_name, db="v2",url=host)$update(toJSON(list("patient_ID"=x$patient_ID),auto_unbox=T), gsub("\\{\\}","null",toJSON(list("$set"= y), auto_unbox=T)), upsert= TRUE)
+  #     }
+  #   }
+  # }
+    
+   clin_json = list("dataset"= ds$disease, "req"=list("patient_id"="patient_ID","days_to_death"="days_to_death","days_to_last_followup"="days_to_last_follow_up" ), schema="clinical")
+   write(toJSON(clin_json, auto_unbox=T),'~/Desktop/Oncoscape/cpu/oncoscape/tcga_clinical_lookup.json', append=T);
 }
 
 ### Copy over cluster collections for cached lookup
