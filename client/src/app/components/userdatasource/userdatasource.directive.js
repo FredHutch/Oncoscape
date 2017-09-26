@@ -24,9 +24,9 @@
             vm.getDataSources = function() {
                 $state.go("datasource");
             };
-            vm.login = function() {
-                $state.go("login");
-            };
+            // vm.login = function() {
+            //     $state.go("login");
+            // };
             vm.datasets = osApi.getDataSources();
             vm.explore = function(tool, datasource) {
                 $state.go(tool, { datasource: datasource.disease });
