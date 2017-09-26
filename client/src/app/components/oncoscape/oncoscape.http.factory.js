@@ -9,7 +9,8 @@
      function oncoscape($http) {
          //window.collections = {};
          var url = "/api/";
-         url = "https://dev.oncoscape.sttrcancer.io/api/";
+         //url = "https://dev.oncoscape.sttrcancer.io/api/";
+           url = "https://oncoscape-test.fhcrc.org/api/";
          var queryString = function(req) {
              //window.collections[req.table] = 1;
              var query = url + req.table;
