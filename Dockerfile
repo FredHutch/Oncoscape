@@ -57,6 +57,7 @@ RUN npm install -g pm2
 # Create Application User
 RUN useradd -u 7534 -m -d /home/sttrweb -c "sttr web application" sttrweb && \
 	mkdir /home/sttrweb/Oncoscape && \
+	# mkdir /home/sttrweb/UploadTool && \
 	mkdir /home/sttrweb/Oncoscape/cache && \
 	mkdir /var/log/nginx/
 
@@ -66,6 +67,11 @@ WORKDIR /home/sttrweb/Oncoscape/
 RUN git clone https://github.com/dtenenba/oncoscape_plsr.git
 WORKDIR oncoscape_plsr
 RUN pip3 install -r requirements.txt
+
+
+# Upload Tool
+WORKDIR /home/sttrweb/Oncoscape/
+RUN git clone https://github.com/canaantt/NG4-Data-Upload.git
 
 # Install Client Code
 WORKDIR /home/sttrweb/Oncoscape/
