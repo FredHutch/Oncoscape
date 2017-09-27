@@ -23,7 +23,7 @@ var Permission = require("./models/permission");
 var GeneSymbolLookupTable;
 var HugoGenes;
 const jwtToken = 'temp jwt token characters';
-
+var ObjectId = mongoose.Types.ObjectId; 
 // ----------------------- //
 // -----  Middleware ----- //
 // ----------------------- //
@@ -45,7 +45,7 @@ const corsOptions = {
 }
 app.use(cors(corsOptions));
 
-processToken(req) {
+function processToken(req) {
 
     if (req && req.headers.hasOwnProperty('jwt')) {
         try {
@@ -288,7 +288,7 @@ db.once("open", function (callback) {
     // ----- Oncoscape Mongo API ----- //
     //  ------------------------------ //
     // Pull OAuth Networks From Databas + Init OAuth
-    mongoose.connection.db.collection("lookup_oncoscape_authentication").find().toArray(function(err, response) {
+    db.db.collection("lookup_oncoscape_authentication").find().toArray(function(err, response) {
         var networks = response.map(function(v) {
            v.domain = domain;
            return v;
@@ -300,7 +300,7 @@ db.once("open", function (callback) {
     var processQuery = function(req, res, next, query) {
         // Add Response header
         res.setHeader("Cache-Control", "public, max-age=86400");
-        mongoose.connection.db.collection(req.params.collection, function(err, collection) {
+        db.db.collection(req.params.collection, function(err, collection) {
             if (err) {
                 res.status(err.code).send(err.messages);
                 res.end();
@@ -342,7 +342,75 @@ db.once("open", function (callback) {
             });
         });
     };
-
+    var fetchDBCollection = function(collectionName, query){
+        return new Promise(function(resolve, reject){
+            db.db.collection(collectionName).find(query).toArray(function(err, response){
+                resolve(response);
+            });
+        });
+    };
+    app.post('/api/token', function(req, res, next) {
+        
+            // Pull Token Out Of Request Body
+            var token = req.body.token;
+            // Send Token To Google To See Who It Belongs Too
+            request({ url: 'https://www.googleapis.com/oauth2/v3/userinfo', qs: { access_token: token }, method: 'POST', json: true },
+                function (err, response, body) {
+                    // Google Returns Email Address For Token
+                    var usersGmailAddress = body.email;
+        
+                    // Query Database To Findout Users Permissions
+        
+                    /* Step 1: Query Accounts_Users To Find User_id
+                    db.db.collection("Accounts_Users").find({'Gmail':usersGmailAddress},{_id:1}).toArray(function(err, response) {
+                      console.log('User ID is : ', response);
+                    });
+                    Step 2: Query Acconts_Permissions To Find Permissions + Projects
+                    Step 3: Query Projects To Get Details
+                    Step 4: Put All This Information Into a JSON Array of Projects with Permisson + Project Detail
+                    */
+                    var user_ID;
+                    var permissions = [];
+                    var projectIDs = [];
+                    var projects = [];
+                    var userProjectsJson = [];
+                    fetchDBCollection("Accounts_Users", {'Gmail': usersGmailAddress}, {_id:1}).then(function(response){
+                        user_ID = response[0]._id;
+                    });
+                    fetchDBCollection("Accounts_Permissions", {'User': ObjectId.valueOf(user_ID)}).then(function(response){
+                        permissions = response;
+                        projectIDs = permissions.map(function(p){
+                            return ObjectId.valueOf(p.Project);
+                        });
+                        console.log('&&' + projectIDs);
+                    });
+                    fetchDBCollection("Accounts_Projects", {'_id': {$in: projectIDs}}).then(function(response){
+                        projects = response;
+                        console.log('projects are: ');
+                        console.dir(projects);
+                        userProjectsJson = permissions.map(function(m){
+                            var proj = projects.filter(function(p){
+                                return p.Project = m.Project;
+                            })[0];
+                            console.log('m is:', m);
+                            console.log('proj is: ', proj);
+                            console.log(_.extend(proj, m));
+                            return _.extend(proj, m);
+                        })
+                    });
+                    console.log(userProjectsJson);
+                    // var userProjectsJson = [
+                    //     {projectId:'', name:'', description:'', date:'', role:''},
+                    //     {projectId:'', name:'', description:'', date:'', role:''},
+                    //     {projectId:'', name:'', description:'', date:'', role:''},
+                    //     {projectId:'', name:'', description:'', date:'', role:''}
+                    // ];
+                    // var jwtToken = jwt.sign(userProjectsJson, jwtToken);
+                    // res.send({ jwtToken: token }).end();
+            });
+        
+        })
+        
     // Query using file path (client cache)
     app.get('/api/:collection/:query', function(req, res, next) {
         res.setHeader("Cache-Control", "public, max-age=86400");        
@@ -369,39 +437,6 @@ db.once("open", function (callback) {
     }
   
 });
-
-
-app.post('/api/token', function(req, res, next) {
-
-    // Pull Token Out Of Request Body
-    var token = req.body.token;
-
-    // Send Token To Google To See Who It Belongs Too
-    http.get({ url: 'https://www.googleapis.com/oauth2/v3/userinfo', qs: { access_token: token }, json: true },
-        function (err, response, body) {
-
-            // Google Returns Email Address For Token
-            var usersGmailAddress = body.email;
-
-            // Query Database To Findout Users Permissions
-            /* 
-                Step 1: Query Accounts_Users To Find UserID
-                Step 2: Query Actouns_Permissions To Find Permissions + Projects
-                Step 3: Query Projects To Get Details
-                Step 4: Put All This Information Into a Json Array Of Projects With Permission + Project Detail
-            */ 
-            
-            var userProjectsJson = [
-                {projectId:'', name:'', description:'', date:'', role:''},
-                {projectId:'', name:'', description:'', date:'', role:''},
-                {projectId:'', name:'', description:'', date:'', role:''},
-                {projectId:'', name:'', description:'', date:'', role:''}
-            ];
-            var jwtToken = jwt.sign(userProjectsJson, jwtToken);
-            res.send({ jwtToken: token }).end();
-    });
-
-})
 
 
 // -------------------------------- //
