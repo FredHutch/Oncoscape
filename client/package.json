@@ -5,7 +5,8 @@
     "angular-nvd3": "^1.0.7",
     "eslint": "^4.6.1",
     "gulp-appcache": "0.0.4",
-    "gulp-asset-manifest": "0.0.6"
+    "gulp-asset-manifest": "0.0.6",
+    "jstat": "^1.7.0"
   },
   "scripts": {
     "test": "gulp test"

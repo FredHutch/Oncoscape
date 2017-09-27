@@ -1,5 +1,6 @@
 const express = require('express');
 const oauthshim = require('oauth-shim'); //used by Oncoscape
+const jwt = require('jsonwebtoken');
 const { fork } = require('child_process');
 const request = require('request');
 const _ = require("underscore");
@@ -21,7 +22,7 @@ var IRB = require("./models/irb");
 var Permission = require("./models/permission");
 var GeneSymbolLookupTable;
 var HugoGenes;
-
+const jwtToken = 'temp jwt token characters';
 
 // ----------------------- //
 // -----  Middleware ----- //
@@ -43,6 +44,24 @@ const corsOptions = {
 	origin: ['http://localhost:4200','http://localhost:8080', 'http://localhost:8080']
 }
 app.use(cors(corsOptions));
+
+processToken(req) {
+
+    if (req && req.headers.hasOwnProperty('jwt')) {
+        try {
+            // Pull Toekn From Header - Not 
+            var projectsJson = req.headers;
+            jwt.verify(projectsJson, jwtToken);
+            req.projectsJson = jwt.decode(projectsJson);
+            return true;
+        } catch (e) {
+            return false;
+        }
+    }
+}
+
+
+
 // ------------- Begin Data Upload Functions ------------- //
 request('http://dev.oncoscape.sttrcancer.io/api/lookup_oncoscape_genes/?q=&apikey=password', function(err, resp, body){
     GeneSymbolLookupTable = JSON.parse(body);
@@ -351,6 +370,40 @@ db.once("open", function (callback) {
   
 });
 
+
+app.post('/api/token', function(req, res, next) {
+
+    // Pull Token Out Of Request Body
+    var token = req.body.token;
+
+    // Send Token To Google To See Who It Belongs Too
+    http.get({ url: 'https://www.googleapis.com/oauth2/v3/userinfo', qs: { access_token: token }, json: true },
+        function (err, response, body) {
+
+            // Google Returns Email Address For Token
+            var usersGmailAddress = body.email;
+
+            // Query Database To Findout Users Permissions
+            /* 
+                Step 1: Query Accounts_Users To Find UserID
+                Step 2: Query Actouns_Permissions To Find Permissions + Projects
+                Step 3: Query Projects To Get Details
+                Step 4: Put All This Information Into a Json Array Of Projects With Permission + Project Detail
+            */ 
+            
+            var userProjectsJson = [
+                {projectId:'', name:'', description:'', date:'', role:''},
+                {projectId:'', name:'', description:'', date:'', role:''},
+                {projectId:'', name:'', description:'', date:'', role:''},
+                {projectId:'', name:'', description:'', date:'', role:''}
+            ];
+            var jwtToken = jwt.sign(userProjectsJson, jwtToken);
+            res.send({ jwtToken: token }).end();
+    });
+
+})
+
+
 // -------------------------------- //
 // ----- Data Upload Functions ---- //
 // -------------------------------- // 
@@ -360,7 +413,14 @@ app.use('/api/files', fileRouterFactory());
 app.use('/api/irbs', routerFactory(IRB));
 app.use('/api/permissions', routerFactory(Permission));
 app.use('/api/upload/', express.static('./uploads'));
-app.post('/api/upload/:id/:email', function (req, res) {
+app.post('/api/upload/:id/:email', processToken, function (req, res) {
+
+    /*
+        Step I: Add Process Token To Pipeline
+        Step II: We now have req.projectsJson == JSON 
+        Step III:  Verify That the req.params.id (projectsJson) is in the req.projectsJson
+        Step IV: If Not Send 404
+    */
     console.log('................');
     console.log(req.params.id);
     var projectID = req.params.id;
