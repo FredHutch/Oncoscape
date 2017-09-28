@@ -30,6 +30,7 @@ CACHE:
 /scripts/app-33010de103.js
 /scripts/app-817f97333e.js
 /scripts/app-9e24740f47.js
+/scripts/vendor-37afdc9179.js
 /scripts/vendor-4ec3236b68.js
 /scripts/vendor-badfbf33c8.js
 /scripts/vendor-f340df8778.js
@@ -112,6 +113,7 @@ CACHE:
 /maps/scripts/app-33010de103.js.map
 /maps/scripts/app-817f97333e.js.map
 /maps/scripts/app-9e24740f47.js.map
+/maps/scripts/vendor-37afdc9179.js.map
 /maps/scripts/vendor-4ec3236b68.js.map
 /maps/scripts/vendor-badfbf33c8.js.map
 /maps/scripts/vendor-f340df8778.js.map
@@ -131,4 +133,4 @@ https://*
 SETTINGS:
 prefer-online
 
-# hash: 6721befc17930b4432fcc1547bdda9fd8962203a18bfba5a42ae78123e6304ec
+# hash: 6c0055e903a1708d7184d37cf3e5c486e4b8bf58f5563e8746b28fdc5c8f2a6a
