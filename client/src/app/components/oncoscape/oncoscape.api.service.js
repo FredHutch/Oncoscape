@@ -497,7 +497,9 @@
 
 
                 // Load Sample Maps
-                Promise.all([query(_dataSource.dataset +"_samplemap"), query(_dataSource.dataset + "_ptdashboard")]).then(function(responses) {
+                Promise.all([query(_dataSource.dataset +"_samplemap", {}),
+                             query("phenotype_wrapper",{"dataset":_dataSource.dataset}), 
+                             query(_dataSource.dataset + "_phenotype", {})]).then(function(responses) {
                     var data = {};
 
                     // Map of Samples To Patients
@@ -514,11 +516,16 @@
                         }
                         return p;
                     }, {});
-                    responses[1].data.reduce(function(p, c) {
-                        if (p.hasOwnProperty(c.patient_ID)) {
-                            p[c.patient_ID].clinical = c;
+
+                    // wrapper configuration
+                    data.wrapper = responses[1].data[0]
+
+                    // add phenotype data to patient map
+                    responses[2].data.reduce(function(p, c) {
+                        if (p.hasOwnProperty(c[data.wrapper.req.patient_id])) {
+                            p[c[data.wrapper.req.patient_id]].clinical = c;
                         } else {
-                            p[c.patient_ID] = { clinical: c, samples: [] };
+                            p[c[data.wrapper.req.patient_id]] = { clinical: c, samples: [] };
                         }
                         return p;
                     }, data.patientMap);
@@ -527,28 +534,28 @@
                     _cohortDatasetInfo.numPatients = Object.keys(data.patientMap).length;
 
                     // Survival Data
-                    responses[1].data.map(function(v) {
+                    responses[2].data.map(function(v) {
 
                         // No Status - Exclude
-                        if (!v.hasOwnProperty("status_vital")) return null;
-                        if (v.status_vital === null) return null;
+                        if (!v.hasOwnProperty(data.wrapper.req.status_vital)) return null;
+                        if (v[data.wrapper.req.status_vital] === null) return null;
 
                         // Get Time - Or Exclude
-                        var status = v.status_vital.toString().trim().toUpperCase();
+                        var status = v[data.wrapper.req.status_vital].toString().trim().toUpperCase();
                         var time;
                         if (status == "ALIVE") { // Alive = Sensor 2
-                            if (!v.hasOwnProperty("days_to_last_follow_up")) return null;
-                            time = parseInt(v.days_to_last_follow_up);
+                            if (!v.hasOwnProperty(data.wrapper.req.days_to_last_follow_up)) return null;
+                            time = parseInt(v[data.wrapper.req.days_to_last_follow_up]);
                             if (time < 0) time = 0;
                             if (isNaN(time)) return null;
-                            return { pid: v.patient_ID, ev: false, tte: time };
+                            return { pid: v[data.wrapper.req.patient_id], ev: false, tte: time };
                         }
                         if (status == "DEAD") { // Dead = Sensor 1
-                            if (!v.hasOwnProperty("days_to_death")) return null;
-                            time = parseInt(v.days_to_death);
+                            if (!v.hasOwnProperty(data.wrapper.req.days_to_death)) return null;
+                            time = parseInt(v[data.wrapper.req.days_to_death]);
                             if (time < 0) time = 0;
                             if (isNaN(time)) return null;
-                            return { pid: v.patient_ID, ev: true, tte: time };
+                            return { pid: v[data.wrapper.req.patient_id], ev: true, tte: time };
                         }
                         return null;
                     }).reduce(function(p, c) {
@@ -777,7 +784,7 @@
                     }, reject);
                 }),
                 new Promise(function(resolve, reject) {
-                    query("lookup_oncoscape_datasources", {
+                    query("lookup_oncoscape_datasources_v2", {
                         beta: false
                     }).then(function(response) {
                         _dataSource = { dataset: '' };

@@ -12,7 +12,7 @@ co(function *() {
 
     var user = "oncoscape"
     var pw= process.env.dev_oncoscape_pw
-    var repo = "v2"
+    var repo = "tcga"
     var host = 'mongodb://'+user+":"+pw+"@oncoscape-dev-db1.sttrcancer.io:27017,oncoscape-dev-db2.sttrcancer.io:27017,oncoscape-dev-db3.sttrcancer.io:27017/"+repo+"?authSource=admin&replicaSet=rs0"
     var db = yield comongo.client.connect(host);
 
@@ -29,7 +29,7 @@ co(function *() {
     //insert collection metadata into lookup_datasources based on dataset name
     //-- req params per collection.  {collection: collection name, name: user readable collection name, type: }
     //-- optional defaults: {default:False, schema: hugo_sample}
-        var lookup = yield comongo.db.collection(db, "lookup_oncoscape_datasources");    
+        var lookup = yield comongo.db.collection(db, "lookup_oncoscape_datasources_v2");    
         var ds = yield lookup.find().toArray()
         for(j=0;j<ds.length; j++){
             var d = ds[j]

@@ -109,12 +109,6 @@
                     if (angular.isUndefined(vm.overlay_collection)) return;
                     if (angular.isUndefined(geneset)) return;
 
-                    // var geneIds = _.intersection(
-                    //     _.intersection( _.pluck(vm.overlay_molecular,"id"), geneset.geneIds),
-                    //                                      _.pluck(vm.molecular_collection,"id"))
-                    // if(geneIds.length < 3)
-    
-
                     runOverlay(geneset);
                 };
 
@@ -276,7 +270,7 @@
                     vm.overlaySource = vm.overlaySource.name
 
                  vm.overlayType = null
-                osApi.query("lookup_oncoscape_datasources", {
+                osApi.query("lookup_oncoscape_datasources_v2", {
                     dataset: vm.overlaySource
                 }).then(function(response){
                     
@@ -315,10 +309,10 @@
 
             var runOverlay = function(geneset){
                 
-                                
+                
+                //var geneIds = _.intersection( _.pluck(vm.overlay_molecular,"id"), geneset.geneIds)
+                
                 osApi.setBusy(true)
-
-
                 Dquery(vm.molecular_collection, vm.overlay_collection).then(function(Dresponse) {
 
                     var d = Dresponse.data;
@@ -617,18 +611,19 @@
 
             }
 
-            function calculateMetrics() {
+            function calculatMetrics(){
 
-                // 1. Cluster number, density, and separation
-                // - k-nearest neighbors
+                // 1. Number, Density, and Separation of Clusters
+                //  - k-nearest neighbors
+                // data
 
-                // 2. Association/ Significant Enrichment with Features
-
-
+                // 2. association with clinical features
 
                 // 3. Confidence in positioning of new sample
-            }
 
+
+
+            }
 
             function setColors() {
 
@@ -709,9 +704,6 @@
 
                 // Colorize
                 setColors();
-
-                // Stats
-                calculateMetrics();
 
 
                 // Size
@@ -873,7 +865,7 @@
             //     acceptableDatatypes = _.uniq(_.pluck(response.data, "dataType"))
             // });
 
-            osApi.query("lookup_oncoscape_datasources", {
+            osApi.query("lookup_oncoscape_datasources_v2", {
                 dataset: vm.datasource.dataset
             }).then(function(response){
                 vm.molecularTables = response.data[0].collections.filter(function(d){ return _.contains(acceptableDatatypes, d.type)})

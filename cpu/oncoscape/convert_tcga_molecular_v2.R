@@ -7,44 +7,45 @@ user="oncoscape"
 host<- paste("mongodb://",user,":",password,"@oncoscape-dev-db1.sttrcancer.io:27017,oncoscape-dev-db2.sttrcancer.io:27017,oncoscape-dev-db3.sttrcancer.io:27017",sep="")
 
 
-lookup = mongo("lookup_oncoscape_datasources", db="tcga", url=host)
-dataType = mongo("lookup_dataTypes", db="tcga", url=host)
-
-
-datasets = lookup$find()
-datatypes = dataType$find()
-hugo_sample_types = subset(datatypes, schema == "hugo_sample")
-
-### Use cursor to copy over rows for each dataset from TCGA db
-# for(i in 1:nrow(datasets)){
-#   ds = datasets[i,]
-#   print(ds$disease)
-#   mol_df = subset(ds$molecular[[1]], type %in% hugo_sample_types$dataType)
-#   print(nrow(mol_df))
-#   for(j in 1:nrow(mol_df)){
-#     mol = mol_df[j,]
-#     if(mongo(mol[["collection"]],db="v2", url=host)$count() == 0)
-#       iterate_transformation(mol[["collection"]], in_db="tcga", out_db="v2")
-#   }
-# }
-
 mol_df = fromJSON("~/Desktop/Oncoscape/cpu/oncoscape/tcga_molecular_lookup.json")
-mol_df = subset(mol_df, schema == "hugo_sample")
 
-# ### Copy individual Molecular tables of Hugo_Sample type into common molecular collection
-#   for(j in 1:nrow(mol_df)){
-#     mol = mol_df[j,]
-#     m_type = "hugo"
-#     if(grepl( "protein", mol[["name"]]))
-#       m_type = "protein"
+mol_df = subset(mol_df, schema == "hugo_sample")
+mol_df = subset(mol_df, dataset %in% c("brain", "gbm", "lgg", "brca"))
+
+
+### Use aggregate fn in Mongo to copy collections into new format
+for(j in 1:nrow(mol_df)){
+    mol = mol_df[j,]
+    m_type = "hugo"
+    if(grepl( "protein", mol[["name"]]))
+      m_type = "protein"
+    print(mol[["collection"]])
     
-#     print(mol[["collection"]])
-#     # Original data not yet copied over
-#     if(nrow(mongo(paste(mol[["dataset"]],"_molecular_matrix",sep=""),db="v2", url=host)$find(toJSON(list("name"=mol[["name"]]),auto_unbox=T), limit=1)) == 0) { # data not copied into molecular table
-#       iterate_transformation(mol[["collection"]],paste(mol$dataset, "molecular_matrix", sep="_") ,mol[["name"]] ,mol[["type"]], in_db="tcga", out_db="v2")
-#     }
-#     mongo(paste(mol[["dataset"]],"_molecular_matrix",sep=""), db="v2",url=host)$index(toJSON(list("name"=1, "m"=1), auto_unbox = T))
-#   }
+    # Original data not yet copied over into combined molecular collection
+    merge_collection_name = paste(mol[["dataset"]], "molecular_matrix", sep="_")
+    idx = mongo(merge_collection_name, db="tcga", url=host)$index()
+    if(! "name" %in% idx$name)
+      mongo(merge_collection_name, db="tcga", url=host)$index(add="name")
+    
+    finddocs = toJSON(list("name"=mol[["name"]]),auto_unbox=T)
+    if(nrow(mongo(merge_collection_name,db="tcga", url=host)$find(finddocs, limit=1)) == 0) { 
+        
+      # copy over into distinct collection, if not already there
+        out_collection_name = gsub("tcga_", "", mol[["collection"]])
+        if(mongo(out_collection_name,db="tcga", url=host)$count() == 0)
+          copy_samedb_transformation(in_collection_name=mol[["collection"]],out_collection_name, name=mol[["name"]], type=mol[["type"]], m_type=m_type, db="tcga")
+      
+      ###NO NO NO  # then copy documents into merged collection --- DOESN"T WORK - $out clobbers previous insert
+#        mongo(out_collection_name, db="tcga", url=host)$aggregate(
+#          toJSON(list(list("$out"=merge_collection_name)), auto_unbox = T)
+#        )
+    }
+    
+}
+
+lookup = mongo("lookup_oncoscape_datasources", db="tcga", url=host)
+datasets = lookup$find()
+datasets = subset(datasets, disease %in% c("brca", "lgg", "gbm", "brain"))
 
 
 ### Copy over clinical tables
@@ -52,43 +53,32 @@ for(i in 1:nrow(datasets)){
   ds = datasets[i,]
   print(ds$disease)
   out_collection_name = paste(ds$disease, "phenotype",sep="_")
-  # for(j in 1:length(ds$clinical)){
-  #   print(names(ds$clinical[j]))
-  #   if(names(ds$clinical[j]) %in% c("samplemap", "patient", "events"))
-  #     next
-  #   con = mongo(ds$clinical[[j]],db="tcga", url=host)
-  #   cursor = con$iterate()
-  #   if(names(ds$clinical[j]) %in% c("diagnosis")){
-  #     while(!is.null(x <- cursor$one())){
-  #         names(x) = gsub("\\.", "\\-", names(x))
-  #         mongo(out_collection_name, db="v2",url=host)$update(toJSON(list("patient_ID"=x$patient_ID),auto_unbox=T), gsub("\\{\\}","null",toJSON(list("$set"= x), auto_unbox=T)), upsert= TRUE)
-  #     }
-  #   } else{
-  #     category = gsub("\\s+","_",names(ds$clinical[j]))
-  #     eventID = "followup"
-  #     if(category =="drug" ){ eventID = "drug"
-  #     } else if(category =="radiation" ){ eventID = "radiation"
-  #     } else if(category =="other_malignancy" ){ eventID = "omf"}
-  #     while(!is.null(x <- cursor$one())){
-  #         names(x) = gsub("\\.", "\\-", names(x))
-          
-  #         y = list(); query = list("patient_ID"=x$patient_ID); query[[category]]= list("$exists"=TRUE)
-  #         res = mongo(out_collection_name, db="v2",url=host)$find(toJSON(query,auto_unbox=T))
-          
-  #         if(nrow(res) > 0 ){
-  #           uid_col = paste("bcr",eventID,"barcode", sep="_")
-  #           if(category != "new_tumor" && x[uid_col] %in% unlist(res[[category]][[1]][uid_col]))
-  #             next; #event item already inserted
-  #           currVal <- apply(res[[category]][[1]],1, function(x) as.list(x)); 
-  #           currVal[[length(currVal)+1]] =x
-  #           names(currVal) <- NULL
-  #           y[[category]]=currVal
-  #         } else { 
-  #           y[[category]] = list(x) }
-  #         mongo(out_collection_name, db="v2",url=host)$update(toJSON(list("patient_ID"=x$patient_ID),auto_unbox=T), gsub("\\{\\}","null",toJSON(list("$set"= y), auto_unbox=T)), upsert= TRUE)
-  #     }
-  #   }
-  # }
+  collections = sort(ds$clinical)  #hack so diagnosis is first and '$out' doesn't clobber others
+  
+  for(j in 1:length(collections)){
+    print(names(collections[j]))
+    if(names(collections[j]) %in% c("samplemap", "patient", "events"))
+      next
+ 
+    if(names(collections[j]) %in% c("diagnosis")){
+      con = mongo(collections[[j]],db="tcga", url=host)
+      cmds = list(list("$out"=out_collection_name))
+      con$aggregate(toJSON(cmds, auto_unbox=T))
+    } else{
+      con = mongo(out_collection_name,db="tcga", url=host)
+      cmds = list(
+        list("$lookup"= list(
+          "from"= collections[[j]],
+          "localField"= "patient_ID",
+          "foreignField"= "patient_ID",
+          "as"= names(collections[j])
+          )),
+        list("$out"=out_collection_name))
+       
+      con$aggregate(toJSON(cmds, auto_unbox=T))
+      
+    }
+  }
     
    clin_json = list("dataset"= ds$disease, "req"=list("patient_id"="patient_ID","days_to_death"="days_to_death","days_to_last_followup"="days_to_last_follow_up" ), schema="clinical")
    write(toJSON(clin_json, auto_unbox=T),'~/Desktop/Oncoscape/cpu/oncoscape/tcga_clinical_lookup.json', append=T);
@@ -107,7 +97,23 @@ for(i in 1:nrow(datasets)){
 # }
 
 ###### FUNCTIONS ######
-
+copy_samedb_transformation <- function(in_collection_name,out_collection_name, name, type,m_type, db){
+  con = mongo(in_collection_name, db=db, url=host)
+  el = con$find(limit=1)
+  smpls = names(el$data)
+  print(paste(in_collection_name,Sys.time()))
+  then = Sys.time()
+  
+  query = list("$project"= list( "m"= "$id", d= paste("$data", smpls, sep=".")))
+  cmd = list(query,list("$out"=out_collection_name))
+  mongo(in_collection_name, db=db,url=host)$aggregate(toJSON(cmd, auto_unbox=T))
+  
+  constants = list("$set"= list("name"=name,"m_type"=m_type,s=smpls, d_type=type))
+  mongo(out_collection_name, db=db,url=host)$update(query="{}",update=toJSON(constants, auto_unbox=T), multiple=T)
+  
+  print(Sys.time() -then)
+  
+}
 
 iterate_transformation <- function(in_collection_name,out_collection_name, name, type, in_db, out_db){
   con = mongo(in_collection_name, db=in_db, url=host)
