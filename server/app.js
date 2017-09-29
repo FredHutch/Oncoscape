@@ -22,7 +22,7 @@ var IRB = require("./models/irb");
 var Permission = require("./models/permission");
 var GeneSymbolLookupTable;
 var HugoGenes;
-const jwtToken = 'temp jwt token characters';
+const jwtToken = 'OncoscapeSecrete';
 var ObjectId = mongoose.Types.ObjectId; 
 // ----------------------- //
 // -----  Middleware ----- //
@@ -46,19 +46,30 @@ const corsOptions = {
 app.use(cors(corsOptions));
 
 function processToken(req) {
-
-    if (req && req.headers.hasOwnProperty('jwt')) {
+    console.log('PROCESSTOKEN is being called........');
+    console.log(req.headers);
+    // if (req && req.headers.hasOwnProperty('Bearer')) {
+    if (req ) {
         try {
             // Pull Toekn From Header - Not 
             var projectsJson = req.headers;
             jwt.verify(projectsJson, jwtToken);
             req.projectsJson = jwt.decode(projectsJson);
+            console.log('***********************************');
+            console.log(res.projectsJson.length);
             return true;
         } catch (e) {
             return false;
         }
     }
 }
+
+// app.get("/api/getProjectSecret", processToken, function(req, res, next) {
+//     req.projectId = 1234;
+//      var validRequest = false;
+//     foreach (project in req.projectsJson){ if (projectId === req.projectId)  validRequset = true }
+//     if (value) 
+// })
 
 
 
@@ -380,35 +391,29 @@ db.once("open", function (callback) {
                     fetchDBCollection("Accounts_Permissions", {'User': ObjectId.valueOf(user_ID)}).then(function(response){
                         permissions = response;
                         projectIDs = permissions.map(function(p){
-                            return ObjectId.valueOf(p.Project);
+                            return mongoose.Types.ObjectId(p.Project);
                         });
-                        console.log('&&' + projectIDs);
+                        // console.log(projectIDs);
                     });
-                    fetchDBCollection("Accounts_Projects", {'_id': {$in: projectIDs}}).then(function(response){
+                    fetchDBCollection("Accounts_Projects", {'_id':{$in:[ObjectId("59b8482060a4f375f43af09a"), ObjectId("59ca9cc97162b949e9e1fa03")]}}).then(function(response){
+                    // fetchDBCollection("Accounts_Projects", {'_id':{$in:projectIDs}}).then(function(response){
                         projects = response;
-                        console.log('projects are: ');
-                        console.dir(projects);
+                        // console.log('projects are: ');
+                        // console.dir(projects);
                         userProjectsJson = permissions.map(function(m){
                             var proj = projects.filter(function(p){
                                 return p.Project = m.Project;
                             })[0];
-                            console.log('m is:', m);
-                            console.log('proj is: ', proj);
-                            console.log(_.extend(proj, m));
                             return _.extend(proj, m);
                         })
-                    });
-                    console.log(userProjectsJson);
-                    // var userProjectsJson = [
-                    //     {projectId:'', name:'', description:'', date:'', role:''},
-                    //     {projectId:'', name:'', description:'', date:'', role:''},
-                    //     {projectId:'', name:'', description:'', date:'', role:''},
-                    //     {projectId:'', name:'', description:'', date:'', role:''}
-                    // ];
-                    // var jwtToken = jwt.sign(userProjectsJson, jwtToken);
-                    // res.send({ jwtToken: token }).end();
+                        // console.log(userProjectsJson);
+                        // console.log(jwtToken);
+                        var jwtTokens = jwt.sign(JSON.stringify(userProjectsJson), jwtToken);
+                        // console.log('What is jwtTokens ');
+                        // console.dir(jwtTokens);
+                        res.send({token: jwtTokens }).end();
+                    });        
             });
-        
         })
         
     // Query using file path (client cache)
@@ -448,7 +453,7 @@ app.use('/api/files', fileRouterFactory());
 app.use('/api/irbs', routerFactory(IRB));
 app.use('/api/permissions', routerFactory(Permission));
 app.use('/api/upload/', express.static('./uploads'));
-app.post('/api/upload/:id/:email', processToken, function (req, res) {
+app.post('/api/upload/:id/:email', function (req, res) {
 
     /*
         Step I: Add Process Token To Pipeline
