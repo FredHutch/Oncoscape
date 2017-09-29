@@ -38,42 +38,42 @@
             }
 
 
-            var tbl = osApi.getDataSource().collections.filter(function(v) {
-                return v.type == 'color';
-            })[0].collection;
+            // var tbl = osApi.getDataSource().collections.filter(function(v) {
+            //     return v.type == 'color';
+            // })[0].collection;
 
-            osApi.query(tbl, {
-                type: 'color',
-                dataset: osApi.getDataSource().dataset,
-                $fields: ['name', 'subtype']
-            }).then(function(v) {
+            // osApi.query(tbl, {
+            //     type: 'color',
+            //     dataset: osApi.getDataSource().dataset,
+            //     $fields: ['name', 'subtype']
+            // }).then(function(v) {
 
-                var data = v.data.reduce(function(p, c) {
-                    if (!p.hasOwnProperty(c.subtype)) p[c.subtype] = [];
-                    p[c.subtype].push(c);
-                    return p;
-                }, {});
+            //     var data = v.data.reduce(function(p, c) {
+            //         if (!p.hasOwnProperty(c.subtype)) p[c.subtype] = [];
+            //         p[c.subtype].push(c);
+            //         return p;
+            //     }, {});
 
-                var regx = /(\d+%)/i;
-                vm.optPatientColors = Object.keys(data).map(function(key) {
-                    return {
-                        name: key,
-                        values: this[key]
-                            .filter(function(v) {
-                                var result = v.name.match(regx);
-                                if (result === null) return true;
-                                // 30% Threashold
-                                if (parseInt(result[0]) > 10) return true;
-                            })
-                            .sort(function(a, b) {
-                                if (a.name > b.name) return 1;
-                                if (a.name < b.name) return -1;
-                                return 0;
-                            })
-                    };
-                }, data);
-
-            });
+            //     var regx = /(\d+%)/i;
+            //     vm.optPatientColors = Object.keys(data).map(function(key) {
+            //         return {
+            //             name: key,
+            //             values: this[key]
+            //                 .filter(function(v) {
+            //                     var result = v.name.match(regx);
+            //                     if (result === null) return true;
+            //                     // 30% Threashold
+            //                     if (parseInt(result[0]) > 10) return true;
+            //                 })
+            //                 .sort(function(a, b) {
+            //                     if (a.name > b.name) return 1;
+            //                     if (a.name < b.name) return -1;
+            //                     return 0;
+            //                 })
+            //         };
+            //     }, data);
+            //
+            //});
             vm.resetColor = function() {
                 osApi.setPatientColor({
                     "dataset": osApi.getDataSource().dataset,

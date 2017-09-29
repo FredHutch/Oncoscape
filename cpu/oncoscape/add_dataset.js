@@ -21,23 +21,25 @@ co(function *() {
     var json_mol = require("./tcga_molecular_lookup.json")
     json_mol = json_mol.filter(function(d){ return d.schema == "hugo_sample"})
     var json_clin = require("./tcga_clinical_lookup.json")
-    var json_meta = json_clin.concat(json_mol)
+    //var json_meta = json_clin.concat(json_mol)
+    var json_meta = json_clin;
 
     // // Clean Project 
     // // 1. drop collections, and clear Collections & Tools list in lookup table 
     // // 2. drop ptdashboard collection
     // // 3. drop samplemap collection
-    // var lookup = yield comongo.db.collection(db, "lookup_oncoscape_datasources");    
-    // var ds = yield lookup.find().toArray()
-    // for(var i=0;i<ds.length; i++){
-    //     console.log(ds[i].dataset)
-    //     for(var c=0;c<ds[i].collections.length;c++){
-    //         var coll = yield comongo.db.collection(db, ds[i].collections[c].collection);  
-    //         yield coll.drop()  
-    //     }
-    //     ds[i].collections = []
-    //     ds[i].tools = []
-    //     yield lookup.update({dataset:ds[i].dataset}, ds[i], {upsert: true, writeConcern: {w:"majority"}})
+    // // 4. drop phenotype_wrapper
+    var lookup = yield comongo.db.collection(db, "lookup_oncoscape_datasources_v2");    
+    var ds = yield lookup.find().toArray()
+    for(var i=0;i<ds.length; i++){
+        console.log(ds[i].dataset)
+        // for(var c=0;c<ds[i].collections.length;c++){
+        //     var coll = yield comongo.db.collection(db, ds[i].collections[c].collection);  
+        //     yield coll.drop()  
+        // }
+        //ds[i].collections = []
+        // ds[i].tools = []
+        //yield lookup.update({dataset:ds[i].dataset}, ds[i], {upsert: true, writeConcern: {w:"majority"}})
        
     //     // var ptdashboard = yield comongo.db.collection(db, ds[i].dataset+"_ptdashboard");  
     //     // var exists = yield ptdashboard.count()
@@ -47,7 +49,12 @@ co(function *() {
     //     var exists = yield smplmap.count()
     //     if(exists != 0)
     //         yield smplmap.drop()  
-    // }
+       var pheno = yield comongo.db.collection(db, "phenotype_wrapper");  
+       var exists = yield pheno.count()
+       if(exists != 0)
+            yield pheno.drop()  
+
+    }
     
 
     // add new collection to lookup table for each JSON object
@@ -124,7 +131,7 @@ co(function *() {
 
             // insert into lookup collection
             var markers = yield collection.distinct("m", {"name":j.name})
-            var new_collection = {name: j.name, type: j.type, schema:schema, default:isdefault, s:samples, m:markers}
+            var new_collection = {name: j.name, type: j.type, schema:schema, collection: j.collection_transformed, default:isdefault, s:samples, m:markers}
             if(_.where(ds[0].collections,(({ name, type, schema,  }) => ({ name, type, schema }))(new_collection)).length ==0){
                 console.log("lookup adding dataset: ", j.collection_transformed)
                 ds[0].collections.push(new_collection)
@@ -140,7 +147,7 @@ co(function *() {
             //samples = samples.s
             var wrapper_collection = yield comongo.db.collection(db, "phenotype_wrapper");  
             var req = typeof j.req == "undefined" ?  "null" : j.req
-            var pheno_wrapper = {dataset: j.dataset, req:req, enums:[],time:[], nums:[], boolean:[], events: [] }
+            var pheno_wrapper = {dataset: j.dataset, req:req, enums:[],time:[], nums:[], boolean:[], events: [], strings: [] }
 
             var fields = pheno_data.map(function(elem){return Object.keys(elem);}).reduce(function(p,c){
                 keys = c.filter(function(f){
@@ -159,7 +166,7 @@ co(function *() {
                 
                 // Count Distinct Field Values (Factors Only @ This Point)
                 var field = fields[fieldIndex];
-                //		console.log("---",field)
+                		console.log("---",field)
         
                 var factors = pheno_data.reduce(function(p,c){
                     var f = p.field;
@@ -191,6 +198,8 @@ co(function *() {
                     pheno_wrapper.events.push({path: field, name:field})
                 } else if (factorCount<10 ){
                     pheno_wrapper.enums.push({path: field, name:field})
+                } else {
+                    pheno_wrapper.strings.push({path: field, name:field})
                 }
                 // NOTE: "date" not actually an type - how to declare time?
                 //  & fields with >10 factor types not currently documented in wrapper - where do they belong?

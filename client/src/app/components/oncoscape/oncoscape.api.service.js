@@ -544,8 +544,8 @@
                         var status = v[data.wrapper.req.status_vital].toString().trim().toUpperCase();
                         var time;
                         if (status == "ALIVE") { // Alive = Sensor 2
-                            if (!v.hasOwnProperty(data.wrapper.req.days_to_last_follow_up)) return null;
-                            time = parseInt(v[data.wrapper.req.days_to_last_follow_up]);
+                            if (!v.hasOwnProperty(data.wrapper.req.days_to_last_followup)) return null;
+                            time = parseInt(v[data.wrapper.req.days_to_last_followup]);
                             if (time < 0) time = 0;
                             if (isNaN(time)) return null;
                             return { pid: v[data.wrapper.req.patient_id], ev: false, tte: time };

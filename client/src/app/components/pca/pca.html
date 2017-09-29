@@ -103,12 +103,38 @@
                         <span class="switch-label" data-on="On" data-off="Off"></span>
                         <span class="switch-handle"></span>
                     </label>
-                    <span style="padding-left:20px;">{{item.name}} ({{vm.edgeCounts[item.abv]}})</span>
+                    <span style="padding-left:20px;">{{item.name}}</span>
                 </div>
             </div>
             <div style="position:absolute;right:10px;bottom:10px;">
                 <button class="btn btn-default" ng-click="vm.hideModal()">Cancel</button>
                 <button class="btn btn-primary" ng-click="vm.runParamsToggle()">Continue</button>
+            </div>
+        </div>
+    </div>
+</div>
+<div id="modal_intersection" class="modal fade" tabindex="-1" role="dialog" aria-labelledby="myModalLabel">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-body">
+                <div style="margin-top:0px;margin-bottom:20px">Sorry, the datasets chosen have no intersecting markers.  Correlation calculation is impossible using {{vm.geneSet.name}}.</div>
+                <div style="position:absolute;right:10px;bottom:10px;">
+                    <button class="btn btn-default" ng-click="vm.hideModal()">Return</button>
+                </div>
+            </div>
+            
+            
+        </div>
+    </div>
+</div>
+<div id="modal_NArun" class="modal fade" tabindex="-1" role="dialog" aria-labelledby="myModalLabel">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-body">
+                <span style="margin-top:0px;"><h3>Sorry, PCA could not be calculated.</h3><br/> Geneset: {{vm.geneSet.name}} <br/> Reason: {{vm.error}}</span>
+            </div>
+            <div style="position:absolute;right:10px;bottom:10px;">
+                <button class="btn btn-default" ng-click="vm.hideModal()">Return</button>
             </div>
         </div>
     </div>

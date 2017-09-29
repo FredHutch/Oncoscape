@@ -80,7 +80,11 @@ for(i in 1:nrow(datasets)){
     }
   }
     
-   clin_json = list("dataset"= ds$disease, "req"=list("patient_id"="patient_ID","days_to_death"="days_to_death","days_to_last_followup"="days_to_last_follow_up" ), schema="clinical")
+   clin_json = list("dataset"= ds$disease, 
+                    "req"=list( "patient_id"="patient_ID",
+                                "days_to_death"="days_to_death",
+                                "days_to_last_followup"="days_to_last_follow_up",
+                                "status_vital"="status_vital" ), schema="clinical")
    write(toJSON(clin_json, auto_unbox=T),'~/Desktop/Oncoscape/cpu/oncoscape/tcga_clinical_lookup.json', append=T);
 }
 

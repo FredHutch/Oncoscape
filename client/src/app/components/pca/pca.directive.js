@@ -105,11 +105,23 @@
                 };
                 vm.callOverlay = function(){
                     
+                    vm.error = ""
                     var geneset = osApi.getGeneset()
-                    if (angular.isUndefined(vm.overlay_collection)) return;
+                    if (angular.isUndefined(vm.overlay)) return;
                     if (angular.isUndefined(geneset)) return;
 
+                    var common_m = _.intersection(vm.overlay.m, vm.molecular.m)
+                    if(common_m.length == 0){
+                        angular.element('#modal_intersection').modal();
+                        return;
+                    }
+
                     runOverlay(geneset);
+                };
+                vm.hideModal = function() {
+                    angular.element('#modalRun').modal('hide');
+                    angular.element('#modal_NArun').modal('hide');
+                    angular.element('#modal_intersection').modal('hide');
                 };
 
                 return vm;
@@ -227,8 +239,8 @@
                
                var molecular_matches = vm.molecularTables.filter(function(d){return d.name == vm.pcaType })
                 if(molecular_matches.length ==1){
-                    vm.molecular_collection = molecular_matches[0].collection
-                    vm.counts = molecular_matches[0].counts
+                    vm.molecular = molecular_matches[0]
+                    
                 }
 
                 var samples = "None";
@@ -236,7 +248,7 @@
                     samples = osApi.getCohort().sampleIds;
                 // determine geneset accessibility for given pcaType
                 osApi.getGenesets().filter(function(gs) {return gs.show}).forEach(function(gs){ 
-                    var payload = {dataset:vm.datasource.dataset,collection:vm.molecular_collection, geneset:gs.name, samples: samples }
+                    var payload = {dataset:vm.datasource.dataset,collection:vm.molecular.collection, geneset:gs.name, samples: samples }
                     //var na_run = _.intersect(NA_runs
                      var na_run = _.where(NA_runs,payload).length > 0 // true if run parameters gives NA result
                     
@@ -293,8 +305,8 @@
                
                var molecular_matches = vm.overlay_molecularTables.filter(function(d){return d.name == vm.overlayType })
                 if(molecular_matches.length ==1){
-                    vm.overlay_collection = molecular_matches[0].collection
-                    vm.overlay_counts = molecular_matches[0].counts
+                    vm.overlay = molecular_matches[0]
+                    
                 }
 
                 var samples = "None";
@@ -313,11 +325,11 @@
                 //var geneIds = _.intersection( _.pluck(vm.overlay_molecular,"id"), geneset.geneIds)
                 
                 osApi.setBusy(true)
-                Dquery(vm.molecular_collection, vm.overlay_collection).then(function(Dresponse) {
+                Dquery(vm.molecular.collection, vm.overlay.collection).then(function(Dresponse) {
 
                     var d = Dresponse.data;
                     if(angular.isDefined(d.reason)){
-                        console.log(vm.molecular_collection +"+ "+vm.overlay_collection+": " + d.reason)
+                        console.log(vm.molecular.collection +"+ "+vm.overlay.collection+": " + d.reason)
                         // Distance could not be calculated on geneset given current settings
                             window.alert("Sorry, Distance could not be calculated\n" + d.reason)
 
@@ -389,9 +401,10 @@
             }
              var callPCA = function(geneset){
 
+                vm.error = ""
                 var samples = [];
-                vm.numSamples = vm.counts.samples
-                vm.numGenes = vm.counts.markers;
+                vm.numSamples = vm.molecular.s.length
+                vm.numGenes = vm.molecular.m.length;
                 
                 if(!vm.optRunParams[0].show){
                     geneset = osApi.getGenesets()[0]
@@ -449,9 +462,9 @@
                         }
 
                     }else if(runType == "JS") {
-                        if (angular.isUndefined(vm.molecular_collection)) return;
+                        if (angular.isUndefined(vm.molecular.collection)) return;
                         if (angular.isUndefined(geneset)) return;
-                        osApi.query(vm.molecular_collection
+                        osApi.query(vm.molecular.collection
                         ).then(function(response){
                             vm.molecular = response.data
 
@@ -459,24 +472,24 @@
                         });
                     }else if(runType == "python") {
                         if (angular.isUndefined(geneset)) return;
-                        if (angular.isUndefined(vm.molecular_collection)) return;
+                        if (angular.isUndefined(vm.molecular.collection)) return;
 
                         var geneSetIds = geneset.geneIds
                     
 
                         osApi.setBusy(true)
-                        PCAquery(vm.datasource.dataset, geneSetIds, samples, vm.molecular_collection, 3).then(function(PCAresponse) {
+                        PCAquery(vm.datasource.dataset, geneSetIds, samples, vm.molecular.collection, 3).then(function(PCAresponse) {
 
                             var d = PCAresponse.data;
                             if(angular.isDefined(d.reason)){
                                 console.log(geneset.name +": " + d.reason)
                                 // PCA could not be calculated on geneset given current settings
-
+                                vm.error = d.reason;
                                 vm.pcaType = vm.statePcaType
                                 //add to blacklist to disable from future selection/calculation
                                 osApi.toggleGenesetDisable(geneset);
                                 if(samples.length ==0) samples = "None"
-                                NA_runs.push({"dataset":vm.datasource.dataset, "collection":vm.molecular_collection, "geneset": geneset.name, "samples":samples})
+                                NA_runs.push({"dataset":vm.datasource.dataset, "collection":vm.molecular.collection, "geneset": geneset.name, "samples":samples})
 
                                 // revert/update display
                                 if(angular.isUndefined(vm.geneSet)){
@@ -484,7 +497,8 @@
                                     //display null page
                                 }else{
                                     //rollback to previous definition
-                                    window.alert("Sorry, PCA could not be calculated\n"+ geneset.name +": " + d.reason)
+                                    angular.element('#modal_NArun').modal();
+                                   // window.alert("Sorry, PCA could not be calculated\n"+ geneset.name +": " + d.reason)
                                     osApi.setGeneset(vm.geneSet)
                                 }
 
