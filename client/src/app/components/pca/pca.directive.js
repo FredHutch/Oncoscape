@@ -159,7 +159,8 @@
                 return $http({
                     method: 'POST',
                  //   url: "https://dev.oncoscape.sttrcancer.io/cpu/pca",
-                    url: "http://localhost:8000/pca",
+                 //   url: "http://localhost:8000/pca",
+                 url: "https://oncoscape-test.fhcrc.org/cpu/pca",
                     data: payload
 
 
