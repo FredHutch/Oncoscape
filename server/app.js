@@ -31,8 +31,8 @@ var app = express();
 app.use(function (req, res, next) { //allow cross origin requests
     res.setHeader("Access-Control-Allow-Methods", "POST, PUT, OPTIONS, DELETE, GET");
     res.header("Access-Control-Allow-Origin", "http://localhost:" + process.env.NODE_PORT + "/");
-    res.header("Access-Control-Allow-Headers", "Origin, X-Requested-With, Content-Type, Accept");
-    res.header("Access-Control-Allow-Credentials", true);
+    res.header("Access-Control-Allow-Headers", "Origin, X-Requested-With, Content-Type, Accept, Authorization");
+    // res.header("Access-Control-Allow-Credentials", true);
     next();
 });
 app.use(bodyParser.urlencoded({
@@ -46,17 +46,12 @@ const corsOptions = {
 app.use(cors(corsOptions));
 
 function processToken(req) {
-    console.log('PROCESSTOKEN is being called........');
-    console.log(req.headers);
-    // if (req && req.headers.hasOwnProperty('Bearer')) {
-    if (req ) {
+    if (req && req.headers.obj.hasOwnProperty("authorization")) {
         try {
             // Pull Toekn From Header - Not 
-            var projectsJson = req.headers;
+            var projectsJson = req.headers.authorization.replace('Bearer ', '');
             jwt.verify(projectsJson, jwtToken);
             req.projectsJson = jwt.decode(projectsJson);
-            console.log('***********************************');
-            console.log(res.projectsJson.length);
             return true;
         } catch (e) {
             return false;
@@ -105,13 +100,19 @@ function routerFactory(Model) {
     router.use(bodyParser.urlencoded({ extended: true }));
 
     router.get('/', function(req, res){	
+        console.log('BACKEND routerFactory: ');
+        console.log(req.projectsJson);
         Model.find({}, processResult(req,res));
     });
     router.post('/', function(req, res) {
+        console.log('BACKEND routerFactory 2: ');
+        console.log(req.projectsJson);
         Model.create(req.body, processResult(req,res));
     });
     router.route('/:id')
     .get(function(req, res){
+        console.log('BACKEND routerFactory 3: ');
+        console.log(req.projectsJson);
         Model.findById(req.params.id, processResult(req,res));
     })
     .put(function(req, res){
@@ -254,22 +255,22 @@ var upload = multer({
 // --------------------- //
 // ----- OAuth API ----- //
 // --------------------- //
-function oauthHandler(req, res, next) {
-    // Check that this is a login redirect with an access_token (not a RESTful API call via proxy) 
-    if (req.oauthshim &&
-        req.oauthshim.redirect &&
-        req.oauthshim.data &&
-        req.oauthshim.data.access_token &&
-        req.oauthshim.options &&
-        !req.oauthshim.options.path) {}
-    next()
-}
-app.all('/api/auth',
-    oauthshim.interpret,
-    oauthHandler,
-    oauthshim.proxy,
-    oauthshim.redirect,
-    oauthshim.unhandled);
+// function oauthHandler(req, res, next) {
+//     // Check that this is a login redirect with an access_token (not a RESTful API call via proxy) 
+//     if (req.oauthshim &&
+//         req.oauthshim.redirect &&
+//         req.oauthshim.data &&
+//         req.oauthshim.data.access_token &&
+//         req.oauthshim.options &&
+//         !req.oauthshim.options.path) {}
+//     next()
+// }
+// app.all('/api/auth',
+//     oauthshim.interpret,
+//     oauthHandler,
+//     oauthshim.proxy,
+//     oauthshim.redirect,
+//     oauthshim.unhandled);
 
 // --------------------- //
 // ----- Mongo API ----- //
@@ -503,6 +504,9 @@ app.post('/api/upload/:id/:email', function (req, res) {
     });
     res.status(200).end();
 });
+app.all('/api/users/*', processToken);
+app.all('/api/projects/*', processToken);
+app.all('/api/permissions/*', processToken);
 
 // Ping Method - Used For Testing
 app.get("/api/ping", function(req, res, next) {
