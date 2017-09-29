@@ -39,13 +39,14 @@
             osApi.onCohortChange.add(function(cohort) {
 
                 var dataInfo = osApi.getCohortDatasetInfo();
+                var cohortSurvival = cohort.survival == null ? 0 : cohort.survival.data.tte.length;
                 var summary =
                     $filter('number')(dataInfo.numSamples) + " Samples In Dataset<br /> " +
                     $filter('number')(dataInfo.numPatients) + " Patients In Dataset<br /> " +
                     $filter('number')(cohort.numSamples) + " Samples In Current Cohort<br /> " +
                     $filter('number')(cohort.numPatients) + " Patients In Current Cohort<br />" +
                     $filter('number')(cohort.numClinical) + " Patients with Clinical Data<br />" +
-                    $filter('number')(cohort.survival.data.tte.length) + " Patients with Survival Outcome<br />";
+                    $filter('number')(cohortSurvival) + " Patients with Survival Outcome<br />";
                 //$filter('number')(toolInfo.numSamplesVisible) + " Samples In Current Cohort Showing<br />" +
                 //$filter('number')(toolInfo.numPatients) + " Patients In Current Cohort Showing<br />";
 
@@ -212,6 +213,9 @@
             surSvg.attr("width", '100%').attr("height", surLayout.height);
 
             var updateSurvival = function(cohorts) {
+
+                cohorts = cohorts.filter(function(c){return c.survival != null})
+                if(cohorts.length == 0) return;
 
                 var xDomain = cohorts.reduce(function(p, c) {
                     p[0] = Math.min(p[0], c.survival.compute[0].t);

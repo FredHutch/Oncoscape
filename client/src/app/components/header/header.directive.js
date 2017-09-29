@@ -121,7 +121,7 @@
 
             // Load Tool Command - Navigation
             vm.loadTool = function(tool) {
-                $state.go(tool, { datasource: osApi.getDataSource().disease });
+                $state.go(tool, { datasource: osApi.getDataSource().dataset });
                 angular.element('.navbar-collapse').collapse('hide');
             };
 

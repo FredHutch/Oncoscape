@@ -366,14 +366,14 @@
 
                 if (survival.length == 0) return null;
 
-                /* 
+                /*
                 Transform Survival Records Into KM Data The Result Is A Value Object Containing The Following
                 t = time in days
                 c = array of censored patient ids
                 d = array of dead patient ids
                 n = numer of patients remaining
                 s = survival rate
-                p = previous survival rate 
+                p = previous survival rate
                 */
                 var te = survival.reduce(function(p, c) {
                     p.tte.push(c.tte);
@@ -426,7 +426,7 @@
         var _tools; // List of Tools For DataSource
         var _data = null; // This is the clinical and sample to patient mapping data.
         var _hugoMap = null; // Hugo Gene sybol map to alias
-        var _cohortAll; // Precalculated Cohort of All Patients / Samples 
+        var _cohortAll; // Precalculated Cohort of All Patients / Samples
         var _cohorts = null; // Collection of Cohorts
         var _cohort = null; // Selected Cohorts
         var _genesetAll; // Precalculated Geneset of All Symbols
@@ -475,12 +475,12 @@
                     }
                     _dataSource = value;
                 } else if (angular.isString(value)) {
-                    if (_dataSource.disease === value) {
+                    if (_dataSource.dataset === value) {
                         resolveDataSource();
                         return;
                     }
                     _dataSource = _dataSources.filter(function(v) {
-                        return v.disease == this.key;
+                        return v.dataset == this.key;
                     }, {
                         key: value
                     })[0];
@@ -497,9 +497,13 @@
 
 
                 // Load Sample Maps
-                Promise.all([query(_dataSource.clinical.samplemap), query(_dataSource.clinical.patient)]).then(function(responses) {
+                Promise.all([query(_dataSource.dataset +"_samplemap", {}),
+                             query("phenotype_wrapper",{"dataset":_dataSource.dataset}), 
+                             query(_dataSource.dataset + "_phenotype", {}),
+                             query("lookup_oncoscape_datasources_v2", {"dataset":_dataSource.dataset})]).then(function(responses) {
                     var data = {};
 
+                    _dataSource.collections = responses[3].data[0].collections
                     // Map of Samples To Patients
                     data.sampleMap = responses[0].data[0];
 
@@ -514,11 +518,16 @@
                         }
                         return p;
                     }, {});
-                    responses[1].data.reduce(function(p, c) {
-                        if (p.hasOwnProperty(c.patient_ID)) {
-                            p[c.patient_ID].clinical = c;
+
+                    // wrapper configuration
+                    data.wrapper = responses[1].data[0]
+
+                    // add phenotype data to patient map
+                    responses[2].data.reduce(function(p, c) {
+                        if (p.hasOwnProperty(c[data.wrapper.req.patient_id])) {
+                            p[c[data.wrapper.req.patient_id]].clinical = c;
                         } else {
-                            p[c.patient_ID] = { clinical: c, samples: [] };
+                            p[c[data.wrapper.req.patient_id]] = { clinical: c, samples: [] };
                         }
                         return p;
                     }, data.patientMap);
@@ -526,29 +535,29 @@
                     _cohortDatasetInfo.numSamples = Object.keys(data.sampleMap).length;
                     _cohortDatasetInfo.numPatients = Object.keys(data.patientMap).length;
 
-                    // Survival Data 
-                    responses[1].data.map(function(v) {
+                    // Survival Data
+                    responses[2].data.map(function(v) {
 
                         // No Status - Exclude
-                        if (!v.hasOwnProperty("status_vital")) return null;
-                        if (v.status_vital === null) return null;
+                        if (!v.hasOwnProperty(data.wrapper.req.status_vital)) return null;
+                        if (v[data.wrapper.req.status_vital] === null) return null;
 
-                        // Get Time - Or Exclude    
-                        var status = v.status_vital.toString().trim().toUpperCase();
+                        // Get Time - Or Exclude
+                        var status = v[data.wrapper.req.status_vital].toString().trim().toUpperCase();
                         var time;
                         if (status == "ALIVE") { // Alive = Sensor 2
-                            if (!v.hasOwnProperty("days_to_last_follow_up")) return null;
-                            time = parseInt(v.days_to_last_follow_up);
+                            if (!v.hasOwnProperty(data.wrapper.req.days_to_last_followup)) return null;
+                            time = parseInt(v[data.wrapper.req.days_to_last_followup]);
                             if (time < 0) time = 0;
                             if (isNaN(time)) return null;
-                            return { pid: v.patient_ID, ev: false, tte: time };
+                            return { pid: v[data.wrapper.req.patient_id], ev: false, tte: time };
                         }
                         if (status == "DEAD") { // Dead = Sensor 1
-                            if (!v.hasOwnProperty("days_to_death")) return null;
-                            time = parseInt(v.days_to_death);
+                            if (!v.hasOwnProperty(data.wrapper.req.days_to_death)) return null;
+                            time = parseInt(v[data.wrapper.req.days_to_death]);
                             if (time < 0) time = 0;
                             if (isNaN(time)) return null;
-                            return { pid: v.patient_ID, ev: true, tte: time };
+                            return { pid: v[data.wrapper.req.patient_id], ev: true, tte: time };
                         }
                         return null;
                     }).reduce(function(p, c) {
@@ -573,7 +582,7 @@
                         type: 'ALL'
                     };
 
-                    _cohorts = localStorage.getItem(_dataSource.disease + 'Cohorts');
+                    _cohorts = localStorage.getItem(_dataSource.dataset + 'Cohorts');
 
                     if (_cohorts !== null) {
                         _cohorts = angular.fromJson(_cohorts);
@@ -615,8 +624,8 @@
             return create(name, patientIds, sampleIds);
         };
 
-        var createWithHugoIds = function(name, hugoIds, data) {
-            
+        var createWithHugoIds = function(name, hugoIds) {
+
             if (hugoIds.length === 0) return _genesetAll;
             var geneIds = hugoIds;
             var result = {
@@ -701,7 +710,7 @@
         var saveCohort = function() {
             _cohort.type = "SAVED";
             _cohorts.push(_cohort);
-            localStorage.setItem(_dataSource.disease + 'Cohorts', angular.toJson(_cohorts));
+            localStorage.setItem(_dataSource.dataset + 'Cohorts', angular.toJson(_cohorts));
 
         };
         var saveGeneset = function() {
@@ -713,7 +722,7 @@
         };
         var deleteCohort = function(cohort) {
             _cohorts.splice(_cohorts.indexOf(cohort), 1);
-            localStorage.setItem(_dataSource.disease + 'Cohorts', angular.toJson(_cohorts));
+            localStorage.setItem(_dataSource.dataset + 'Cohorts', angular.toJson(_cohorts));
             setCohort([], "", "PATIENT");
         };
         var deleteGeneset = function(geneset) {
@@ -747,7 +756,7 @@
 
         // Adds gene Ids to geneset and stores in localStorage
         var importGeneIds = function(ids, name) {
-                
+
             //  var geneIds = _.union.apply(null, ids
             //     .map(function(id) { // Convert All Ids to Patient Ids
             //         id = id.trim(); // Clean input
@@ -758,7 +767,7 @@
             //      })
             //); // Union Merges Arrays + Removes Dups
             var geneIds = ids;
-            
+
             setGeneset(geneIds, name, "SYMBOL");
             saveGeneset();
         };
@@ -777,10 +786,10 @@
                     }, reject);
                 }),
                 new Promise(function(resolve, reject) {
-                    query("lookup_oncoscape_datasources", {
-                        beta: false
+                    query("lookup_oncoscape_datasources_v2", {
+                        beta: false, "$fields": ["dataset","source", "beta", "name","img", "tools"]
                     }).then(function(response) {
-                        _dataSource = { disease: '' };
+                        _dataSource = { dataset: '' };
                         _dataSources = response.data
                             .filter(function(d) {
                                 return angular.isDefined(d.img);
@@ -792,14 +801,14 @@
                             .sort(function(a, b) {
                                 return (a.img < b.img) ? -1 :
                                     (a.img > b.img) ? 1 :
-                                    (a.disease < b.disease) ? -1 :
-                                    (a.disease > b.disease) ? 1 :
+                                    (a.dataset < b.dataset) ? -1 :
+                                    (a.dataset > b.dataset) ? 1 :
                                     0;
                             });
                         resolve();
                     }, reject);
                 }),
-                new Promise(function(resolve, reject) { 
+                new Promise(function(resolve, reject) {
                     query("lookup_genesets", {
   //                      $fields: ['name', 'genes']
                     }).then(function(response) {
@@ -807,7 +816,6 @@
                         _genesets = result.map(function(d){
                             d.type = "IMPORT"
                             return loadGeneset(d); });
-                        _geneset = _genesets[0];
 
                         _genesetAll = {
                                 color: '#039BE5',
@@ -825,37 +833,39 @@
                                 disable: false,
                                 type: 'ALLGENES'
                         };
-        
+
                         _genesets.unshift(_genesetAll);
+                        _geneset = _genesets[0];
+
                         var localGenesets = localStorage.getItem('GeneSets');
-                        
+
                         if (localGenesets !== null) {
-                            
+
                             var localGenesetsArray = angular.fromJson(localGenesets)
                             if(localGenesetsArray.length != 0){
                                 _genesets.concat(localGenesetsArray);
-                                setGeneset(_genesets[0]);
+                //                setGeneset(_genesets[0]);
                             } else {
-                                setGeneset(_genesetAll);
+                  //              setGeneset(_genesetAll);
                             }
-                        } 
-                                    
+                        }
+
                         onGenesetsChange.dispatch(_genesets);
                         onGenesetChange.dispatch(_geneset);
-    
+
                             resolve();
                         }, reject);
-                    
-                    }),
-    
-                new Promise(function(resolve, reject) { 
-                    query("lookup_oncoscape_genes", {
-                    }).then(function(response) { 
-                        _hugoMap = response.data
-                
-                    resolve();
-                    }, reject);
-                })
+
+                    })//,
+
+                // new Promise(function(resolve, reject) {
+                //     query("lookup_oncoscape_genes", {
+                //     }).then(function(response) {
+                //         _hugoMap = response.data
+
+                //     resolve();
+                //     }, reject);
+                // })
             ]);
         }
 
@@ -930,7 +940,7 @@
             saveGeneset: saveGeneset,
             deleteGeneset: deleteGeneset,
             toggleGenesetDisable: toggleGenesetDisable,
-            
+
             // Signals
             onPatientColorChange: onPatientColorChange,
             onCohortToolInfo: onCohortToolInfo,

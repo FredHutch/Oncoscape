@@ -20,12 +20,12 @@
         return directive;
 
         /** @ngInject */
-        function CollectionPanelController(osApi, $state, $scope, $sce, $timeout, $rootScope, $filter, d3) {
+        function CollectionPanelController(osApi) {
 
 
             // View Model
             var vm = this;
-          
+
 
             // Tray Expand / Collapse
             var elTray = angular.element(".collection-panel");
@@ -49,11 +49,11 @@
                         .bind("mouseover", mouseOver)
                         .bind("mouseout", mouseOut);
                 }
-          
+
                 osApi.onResize.dispatch();
             };
 
-            
+
 
         }
     }

@@ -23,18 +23,20 @@ co(function *() {
     var datasets = yield collection.find().toArray()
 
     var molecular = []
+    var clinical = []
 
     datasets.forEach(function(d){
         if(d.source =="TCGA"){
             d.molecular.forEach(function(m){
                 console.log(m.collection)
                 var category = dataTypes.filter(function(x){return x.dataType == m.type})[0]
-                molecular.push({dataset: d.disease, name:m.type, collection:m.collection, default:m.default, type:category.class, schema:category.schema})
+                molecular.push({dataset: d.dataset, name:m.type, collection:m.collection, default:m.default, type:category.class, schema:category.schema})
         })}
     })
-
+ 
     var json = JSON.stringify(molecular);
     fs.writeFile('./tcga_molecular_lookup.json', json);
+
 
 yield comongo.db.close(db);
 }).catch(onError);
