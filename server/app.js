@@ -45,19 +45,22 @@ const corsOptions = {
 }
 app.use(cors(corsOptions));
 
-function processToken(req) {
-    if (req && req.headers.obj.hasOwnProperty("authorization")) {
-        try {
-            // Pull Toekn From Header - Not 
-            var projectsJson = req.headers.authorization.replace('Bearer ', '');
-            jwt.verify(projectsJson, jwtToken);
-            req.projectsJson = jwt.decode(projectsJson);
-            return true;
-        } catch (e) {
-            return false;
-        }
-    }
-}
+// function processToken(req) {
+//     if (req && req.headers.hasOwnProperty("authorization")) {
+//         try {
+//             // Pull Toekn From Header - Not 
+//             var projectsJson = req.headers.authorization.replace('Bearer ', '');
+//             jwt.verify(projectsJson, jwtToken);
+//             req.projectsJson = jwt.decode(projectsJson);
+//             console.log("%%%%%%%");
+//             // next();
+//             //return true;
+//         } catch (e) {
+//             console.error(e);
+//             //return false;
+//         }
+//     }
+// }
 
 // app.get("/api/getProjectSecret", processToken, function(req, res, next) {
 //     req.projectId = 1234;
@@ -99,26 +102,35 @@ function routerFactory(Model) {
     router.use(bodyParser.json()); 
     router.use(bodyParser.urlencoded({ extended: true }));
 
-    router.get('/', function(req, res){	
+    router.get('/', function(req, res, next){	
         console.log('BACKEND routerFactory: ');
-        console.log(req.projectsJson);
         Model.find({}, processResult(req,res));
     });
-    router.post('/', function(req, res) {
+    router.post('/', function(req, res, next) {
         console.log('BACKEND routerFactory 2: ');
-        console.log(req.projectsJson);
         Model.create(req.body, processResult(req,res));
     });
-    router.route('/:id')
-    .get(function(req, res){
-        console.log('BACKEND routerFactory 3: ');
-        console.log(req.projectsJson);
+    // router.route('/:id')
+    // .get(function(req, res){
+    //     console.log('BACKEND routerFactory 3: ');
+    //     Model.findById(req.params.id, processResult(req,res));
+    // })
+    // .put(function(req, res){
+    //     Model.findOneAndUpdate({_id: req.params.id}, req.body, {upsert: false}, processResult(req,res));
+    // })
+    // .delete(function(req, res){
+    //     Model.remove({_id: req.params.id}, processResult(req,res));
+    // });
+    router.get('/:id', function(req, res, next) {
+        console.log('BACKEND routerFactory 3: ', req.params.id);
         Model.findById(req.params.id, processResult(req,res));
-    })
-    .put(function(req, res){
+    });
+    router.put('/:id', function(req, res, next) {
+        console.log('BACKEND routerFactory 4: ', req.params.id);
         Model.findOneAndUpdate({_id: req.params.id}, req.body, {upsert: false}, processResult(req,res));
-    })
-    .delete(function(req, res){
+    });
+    router.delete('/:id', function(req, res, next) {
+        console.log('BACKEND routerFactory 5: ', req.params.id);
         Model.remove({_id: req.params.id}, processResult(req,res));
     });
     return router;
@@ -136,8 +148,7 @@ function fileRouterFactory(){
     router.post('/', function(req, res) {
         console.log("in post");
     });
-    router.route('/:id')
-    .get(function(req, res){
+    router.get('/:id', function(req, res){
         console.log("Getting Project-Related Collections...");
         console.log(req.params.id);
         var projectID = req.params.id;
@@ -205,7 +216,8 @@ function fileRouterFactory(){
                 }  
             }
         });
-    }).delete(function(req, res){
+    })
+    router.delete('/:id', function(req, res){
         console.log("in delete");
         console.log(req.params.id);
         var projectID = req.params.id;
@@ -354,69 +366,7 @@ db.once("open", function (callback) {
             });
         });
     };
-    var fetchDBCollection = function(collectionName, query){
-        return new Promise(function(resolve, reject){
-            db.db.collection(collectionName).find(query).toArray(function(err, response){
-                resolve(response);
-            });
-        });
-    };
-    app.post('/api/token', function(req, res, next) {
-        
-            // Pull Token Out Of Request Body
-            var token = req.body.token;
-            // Send Token To Google To See Who It Belongs Too
-            request({ url: 'https://www.googleapis.com/oauth2/v3/userinfo', qs: { access_token: token }, method: 'POST', json: true },
-                function (err, response, body) {
-                    // Google Returns Email Address For Token
-                    var usersGmailAddress = body.email;
-        
-                    // Query Database To Findout Users Permissions
-        
-                    /* Step 1: Query Accounts_Users To Find User_id
-                    db.db.collection("Accounts_Users").find({'Gmail':usersGmailAddress},{_id:1}).toArray(function(err, response) {
-                      console.log('User ID is : ', response);
-                    });
-                    Step 2: Query Acconts_Permissions To Find Permissions + Projects
-                    Step 3: Query Projects To Get Details
-                    Step 4: Put All This Information Into a JSON Array of Projects with Permisson + Project Detail
-                    */
-                    var user_ID;
-                    var permissions = [];
-                    var projectIDs = [];
-                    var projects = [];
-                    var userProjectsJson = [];
-                    fetchDBCollection("Accounts_Users", {'Gmail': usersGmailAddress}, {_id:1}).then(function(response){
-                        user_ID = response[0]._id;
-                    });
-                    fetchDBCollection("Accounts_Permissions", {'User': ObjectId.valueOf(user_ID)}).then(function(response){
-                        permissions = response;
-                        projectIDs = permissions.map(function(p){
-                            return mongoose.Types.ObjectId(p.Project);
-                        });
-                        // console.log(projectIDs);
-                    });
-                    fetchDBCollection("Accounts_Projects", {'_id':{$in:[ObjectId("59b8482060a4f375f43af09a"), ObjectId("59ca9cc97162b949e9e1fa03")]}}).then(function(response){
-                    // fetchDBCollection("Accounts_Projects", {'_id':{$in:projectIDs}}).then(function(response){
-                        projects = response;
-                        // console.log('projects are: ');
-                        // console.dir(projects);
-                        userProjectsJson = permissions.map(function(m){
-                            var proj = projects.filter(function(p){
-                                return p.Project = m.Project;
-                            })[0];
-                            return _.extend(proj, m);
-                        })
-                        // console.log(userProjectsJson);
-                        // console.log(jwtToken);
-                        var jwtTokens = jwt.sign(JSON.stringify(userProjectsJson), jwtToken);
-                        // console.log('What is jwtTokens ');
-                        // console.dir(jwtTokens);
-                        res.send({token: jwtTokens }).end();
-                    });        
-            });
-        })
-        
+    
     // Query using file path (client cache)
     app.get('/api/:collection/:query', function(req, res, next) {
         res.setHeader("Cache-Control", "public, max-age=86400");        
@@ -444,15 +394,91 @@ db.once("open", function (callback) {
   
 });
 
+var fetchDBCollection = function(collectionName, query){
+    return new Promise(function(resolve, reject){
+        db.db.collection(collectionName).find(query).toArray(function(err, response){
+            resolve(response);
+        });
+    });
+};
+app.post('/api/token', function(req, res, next) {
+    // Pull Token Out Of Request Body
+    var token = req.body.token;
+    // Send Token To Google To See Who It Belongs Too
+    request({ url: 'https://www.googleapis.com/oauth2/v3/userinfo', qs: { access_token: token }, method: 'POST', json: true },
+        function (err, response, body) {
+            // Google Returns Email Address For Token
+            var usersGmailAddress = body.email;
 
+            // Query Database To Findout Users Permissions
+
+            /* Step 1: Query Accounts_Users To Find User_id
+            db.db.collection("Accounts_Users").find({'Gmail':usersGmailAddress},{_id:1}).toArray(function(err, response) {
+                console.log('User ID is : ', response);
+            });
+            Step 2: Query Acconts_Permissions To Find Permissions + Projects
+            Step 3: Query Projects To Get Details
+            Step 4: Put All This Information Into a JSON Array of Projects with Permisson + Project Detail
+            */
+            var user_ID;
+            var permissions = [];
+            var projectIDs = [];
+            var projects = [];
+            var userProjectsJson = [];
+            fetchDBCollection("Accounts_Users", {'Gmail': usersGmailAddress}, {_id:1}).then(function(response){
+                user_ID = response[0]._id;
+            });
+            fetchDBCollection("Accounts_Permissions", {'User': ObjectId.valueOf(user_ID)}).then(function(response){
+                permissions = response;
+                projectIDs = permissions.map(function(p){
+                    return mongoose.Types.ObjectId(p.Project);
+                });
+                // console.log(projectIDs);
+            });
+            fetchDBCollection("Accounts_Projects", {'_id':{$in:[ObjectId("59b8482060a4f375f43af09a"), ObjectId("59ca9cc97162b949e9e1fa03")]}}).then(function(response){
+            // fetchDBCollection("Accounts_Projects", {'_id':{$in:projectIDs}}).then(function(response){
+                projects = response;
+                // console.log('projects are: ');
+                // console.dir(projects);
+                userProjectsJson = permissions.map(function(m){
+                    var proj = projects.filter(function(p){
+                        return p.Project = m.Project;
+                    })[0];
+                    return _.extend(proj, m);
+                })
+                // console.log(userProjectsJson);
+                // console.log(jwtToken);
+                var jwtTokens = jwt.sign(JSON.stringify(userProjectsJson), jwtToken);
+                // console.log('What is jwtTokens ');
+                // console.dir(jwtTokens);
+                res.send({token: jwtTokens }).end();
+            });        
+    });
+})
+app.use(function(req,res, next) {
+    if (req && req.headers.hasOwnProperty("authorization")) {
+        try {
+            // Pull Toekn From Header - Not 
+            var projectsJson = req.headers.authorization.replace('Bearer ', '');
+            jwt.verify(projectsJson, jwtToken);
+            req.projectsJson = jwt.decode(projectsJson);
+            console.log("%%%%%%%");
+            next();
+            //return true;
+        } catch (e) {
+            console.error(e);
+            //return false;
+        }
+    }
+});   
 // -------------------------------- //
 // ----- Data Upload Functions ---- //
 // -------------------------------- // 
 app.use('/api/users', routerFactory(User));
 app.use('/api/projects', routerFactory(Project));
+app.use('/api/permissions', routerFactory(Permission));
 app.use('/api/files', fileRouterFactory());
 app.use('/api/irbs', routerFactory(IRB));
-app.use('/api/permissions', routerFactory(Permission));
 app.use('/api/upload/', express.static('./uploads'));
 app.post('/api/upload/:id/:email', function (req, res) {
 
@@ -504,9 +530,9 @@ app.post('/api/upload/:id/:email', function (req, res) {
     });
     res.status(200).end();
 });
-app.all('/api/users/*', processToken);
-app.all('/api/projects/*', processToken);
-app.all('/api/permissions/*', processToken);
+// app.all('/api/users/*', processToken);
+// app.all('/api/projects/*', processToken);
+// app.all('/api/permissions/*', processToken);
 
 // Ping Method - Used For Testing
 app.get("/api/ping", function(req, res, next) {
