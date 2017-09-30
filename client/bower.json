@@ -33,7 +33,12 @@
     "text-encoding": "^0.6.4",
     "angular-rangeslider": "^0.0.14",
     "tween.js": "tweenjs#^16.6.0",
-    "ml": "ml#^2.2.0"
+    "ml": "ml#^2.2.0",
+          "vega": "3.0.0-beta.34",
+    "vega-lite":"2.0.0-beta.4",
+    "vega-embed": "^3.0.0-beta.20"
+
+
   },
   "overrides": {
     "bootstrap-sass": {
