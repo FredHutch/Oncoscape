@@ -409,9 +409,7 @@ app.post('/api/token', function(req, res, next) {
         function (err, response, body) {
             // Google Returns Email Address For Token
             var usersGmailAddress = body.email;
-
             // Query Database To Findout Users Permissions
-
             /* Step 1: Query Accounts_Users To Find User_id
             db.db.collection("Accounts_Users").find({'Gmail':usersGmailAddress},{_id:1}).toArray(function(err, response) {
                 console.log('User ID is : ', response);
@@ -456,7 +454,11 @@ app.post('/api/token', function(req, res, next) {
     });
 })
 app.use(function(req,res, next) {
+    console.log('upon receiving req for jwt verification...');
+    console.log(Object.keys(req.headers));
     if (req && req.headers.hasOwnProperty("authorization")) {
+        console.log('******');
+        console.log(this.headers.authorization);
         try {
             // Pull Toekn From Header - Not 
             var projectsJson = req.headers.authorization.replace('Bearer ', '');
@@ -479,9 +481,8 @@ app.use('/api/projects', routerFactory(Project));
 app.use('/api/permissions', routerFactory(Permission));
 app.use('/api/files', fileRouterFactory());
 app.use('/api/irbs', routerFactory(IRB));
-app.use('/api/upload/', express.static('./uploads'));
+app.use('/api/upload/', express.static(process.env.APP_ROOT + '/uploads'));
 app.post('/api/upload/:id/:email', function (req, res) {
-
     /*
         Step I: Add Process Token To Pipeline
         Step II: We now have req.projectsJson == JSON 
@@ -510,7 +511,7 @@ app.post('/api/upload/:id/:email', function (req, res) {
             return;
         } else {
             // const writing2Mongo = fork('/Users/jennyzhang/Desktop/canaantt/NG4-Data-Upload/server/fileUpload.js', 
-            const writing2Mongo = fork(process.env.APP_ROOT + 'server/fileUpload.js', 
+            const writing2Mongo = fork(process.env.APP_ROOT + '/server/fileUpload.js', 
             { execArgv: ['--max-old-space-size=1000']});
             writing2Mongo.send({ filePath: res.req.file.path, 
                                  projectID: projectID
