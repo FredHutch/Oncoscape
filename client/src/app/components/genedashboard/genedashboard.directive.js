@@ -62,7 +62,6 @@
 
     var lasso_draw = function() {
 
-
         // Style the possible dots
         lasso.possibleItems()
             .classed("not_possible", false)
@@ -76,7 +75,7 @@
 
     var lasso_end = function() {
 
-        // Reset the color of all dots
+      // Reset the color of all dots
         lasso.items()
             .classed("not_possible", false)
             .classed("possible", false);
@@ -129,7 +128,7 @@
           //     .on("brush", brush);
         });
 
-        axisY = d3.axisLeft().scale(y).ticks(3);
+        axisY = d3.axisLeft().scale(y);
 
         // Returns the path for a given data point.
         function coords(d) {
@@ -142,83 +141,80 @@
             d.id = data[Math.floor(i/coordpairs_bysmple[0].length)].sample; 
             return d;})
   
-        genes = d3vLines.selectAll(".gene")
-        .data(vm.genes)
+        genes = d3vLines.selectAll(".gene").data(vm.genes)
     
-        
+        // add new data
         var g = genes.enter().append("g")
-        .attr("class", "gene")
-        .attr("transform", function(d) { return "translate(" + x(d) + ")"; })
+          .attr("class", "gene")
+          .attr("transform", function(d) { return "translate(" + x(d) + ")"; })
         
-        genes.selectAll('.axis')
-            .each(function(d) { d3.select(this).call(axisY.scale(y[d])); })
-                .append("text")
-                .attr("text-anchor", "middle")
-                .attr("y", 10)
-                .text(String);;
+        g.append("g")   //only run on new elements coming in
+          .attr("class", "axis")
+          .each(function(d) { d3.select(this).call(axisY.scale(y[d])); })
+            .append("text")
+            .attr("text-anchor", "middle")
+            .attr("y", 10)
+            .text(String);
 
-        genes.exit().remove()
+        // update existing data
+        genes
+          .select('.axis')
+          .each(function(d) { d3.select(this).call(axisY.scale(y[d])); })
+            .select("text")
+            .attr("text-anchor", "middle")
+            .attr("y", 10)
+            .text(String);
 
         genes.attr("class", "gene")
-        .attr("transform", function(d) { return "translate(" + x(d) + ")"; })
+          .attr("transform", function(d) { return "translate(" + x(d) + ")"; })
         
-        genes.append("g")
-            .attr("class", "axis")
-            .each(function(d) { d3.select(this).call(axisY.scale(y[d])); })
-                .append("text")
-                .attr("text-anchor", "middle")
-                .attr("y", 10)
-                .text(String);
-        
-        
-            
+        // remove old data
+        genes.exit().remove()
+        g.exit().remove()
 
-          // Draw
-          circles = d3Points.selectAll("circle").data(coordpairs);
-          circles.enter().append("circle")
-              .attr("class", "coord-node")
-              .attr("cx", function(d) {
-                  return d[0];
-              })
-              .attr("cy", function(d) {
-                  return d[1];
-              })
-              .attr("r", 3)
-              .style("fill", function(d) {
-                  return d.color;
-              });
+        // Draw
+        circles = d3Points.selectAll("circle").data(coordpairs);
+        circles.enter().append("circle")
+            .attr("class", "coord-node")
+            .attr("cx", function(d) {
+                return d[0];
+            })
+            .attr("cy", function(d) {
+                return d[1];
+            })
+            .attr("r", 3)
+            .style("fill", function(d) {
+                return d.color;
+            });
 
-          circles.exit()
-              .transition()
-              .duration(200)
-              .delay(function(d, i) {
-                  return i / 300 * 100;
-              })
-              .style("fill-opacity", "0")
-              .remove();
-          circles
-              .style("fill", function(d) {
-                  return d.color;
-              })
-              .transition()
-              .duration(750)
-              .delay(function(d, i) {
-                  return i / 300 * 100;
-              })
-              .attr("r", 3)
-              .attr("cx", function(d) {
-                  return d[0];
-              })
-              .attr("cy", function(d) {
-                  return d[1];
-              })
-              .style("fill", function(d) {
-                  return d.color;
-              })
-              .style("fill-opacity", 0.8);
-
-          
-
+        circles.exit()
+            .transition()
+            .duration(200)
+            .delay(function(d, i) {
+                return i / 300 * 100;
+            })
+            .style("fill-opacity", "0")
+            .remove();
+        circles
+            .style("fill", function(d) {
+                return d.color;
+            })
+            .transition()
+            .duration(750)
+            .delay(function(d, i) {
+                return i / 300 * 100;
+            })
+            .attr("r", 3)
+            .attr("cx", function(d) {
+                return d[0];
+            })
+            .attr("cy", function(d) {
+                return d[1];
+            })
+            .style("fill", function(d) {
+                return d.color;
+            })
+            .style("fill-opacity", 0.8);
 
           lasso.items(d3Points.selectAll("circle"));
           d3Chart.call(lasso);
@@ -228,9 +224,6 @@
           //onGenesetChange(osApi.getGeneset());
           osApi.setBusy(false);
 
-        
-
-       
     }
     
     var cohort = osApi.getCohorts();
@@ -242,11 +235,10 @@
     osApi.onCohortChange.add(onCohortChange);
     
       
-
-      vm.updateGene = function() {
-              var test = vm.gene
-              callGeneRegion()
-      };
+    vm.updateGene = function() {
+            osApi.setBusy(true)
+            callGeneRegion()
+    };
     
       var callGeneRegion = function(){
 
