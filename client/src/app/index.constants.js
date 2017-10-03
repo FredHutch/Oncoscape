@@ -9,7 +9,7 @@
         .constant('TWEEN', TWEEN)
         .constant('moment', moment)
         .constant('d3', d3)
-        .constant('vega', vega)
+     //   .constant('vega', vega)
         .constant('cytoscape', cytoscape)
         .constant('signals', signals)
         .constant('$', $)

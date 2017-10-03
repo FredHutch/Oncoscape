@@ -1,0 +1,41 @@
+// Namespace
+.foreground path {
+    fill: none;
+    stroke-opacity: .5;
+    stroke-width: 1.5px;
+    stroke: #000;
+  }
+  
+  .foreground path.fade {
+    stroke: #000;
+    stroke-opacity: .05;
+  }
+  
+  .legend {
+    font-size: 18px;
+    font-style: oblique;
+  }
+  
+  .legend line {
+    stroke-width: 2px;
+  }
+  
+  .foreground path.cohort {
+    stroke: #800;
+  }
+  .brush .extent {
+    fill-opacity: .3;
+    stroke: #fff;
+    shape-rendering: crispEdges;
+  }
+  
+  .axis line, .axis path {
+    fill: none;
+    stroke: #000;
+    shape-rendering: crispEdges;
+  }
+  
+  .axis text {
+    text-shadow: 0 1px 0 #fff;
+    cursor: move;
+  }
