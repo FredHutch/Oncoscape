@@ -32,7 +32,7 @@ app.use(function (req, res, next) { //allow cross origin requests
     res.setHeader("Access-Control-Allow-Methods", "POST, PUT, OPTIONS, DELETE, GET");
     res.header("Access-Control-Allow-Origin", "http://localhost:" + process.env.NODE_PORT + "/");
     res.header("Access-Control-Allow-Headers", "Origin, X-Requested-With, Content-Type, Accept, Authorization");
-    // res.header("Access-Control-Allow-Credentials", true);
+    res.header("Access-Control-Allow-Credentials", true);
     next();
 });
 app.use(bodyParser.urlencoded({
@@ -251,6 +251,9 @@ function camelToDash(str) {
 };
 var storage = multer.diskStorage({
     destination: function (req, file, cb) {
+       console.log('&&&&&&&&&&');
+       console.log(req);
+       console.log(process.env.APP_ROOT + '/uploads');
        cb(null, process.env.APP_ROOT + '/uploads')
     },
     filename: function (req, file, cb) {
@@ -454,11 +457,7 @@ app.post('/api/token', function(req, res, next) {
     });
 })
 app.use(function(req,res, next) {
-    console.log('upon receiving req for jwt verification...');
-    console.log(Object.keys(req.headers));
     if (req && req.headers.hasOwnProperty("authorization")) {
-        console.log('******');
-        console.log(this.headers.authorization);
         try {
             // Pull Toekn From Header - Not 
             var projectsJson = req.headers.authorization.replace('Bearer ', '');
@@ -481,14 +480,8 @@ app.use('/api/projects', routerFactory(Project));
 app.use('/api/permissions', routerFactory(Permission));
 app.use('/api/files', fileRouterFactory());
 app.use('/api/irbs', routerFactory(IRB));
-app.use('/api/upload/', express.static(process.env.APP_ROOT + '/uploads'));
+app.use('/api/upload', express.static(process.env.APP_ROOT + '/uploads'));
 app.post('/api/upload/:id/:email', function (req, res) {
-    /*
-        Step I: Add Process Token To Pipeline
-        Step II: We now have req.projectsJson == JSON 
-        Step III:  Verify That the req.params.id (projectsJson) is in the req.projectsJson
-        Step IV: If Not Send 404
-    */
     console.log('................');
     console.log(req.params.id);
     var projectID = req.params.id;
