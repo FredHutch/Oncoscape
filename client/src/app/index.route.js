@@ -222,6 +222,13 @@
                 help: "/",
                 resolve: {}
             })
+            .state('genedashboard', {
+                url: '/genedashboard/{datasource}',
+                template: '<os-genedashboard>',
+                datasource: false,
+                help: "/",
+                resolve: { resolveTool : resolveTool}
+            })
             .state('barcharts', {
                 url: '/barchart/{datasource}',
                 template: '<os-barchart>',

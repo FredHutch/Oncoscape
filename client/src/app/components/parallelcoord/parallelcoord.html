@@ -1,0 +1,29 @@
+<os-tray content="tray-content-block" change="vm.resize($event)">
+    <section class="tray-content">
+        <div class="row">
+            <div class="col-xs-12 form-item">
+                <br />
+                <label></label>
+            </div>
+            <div class="col-xs-12 form-item ">
+                <label>Selected Gene</label>
+                <div class="input-group">
+                    <input style="background:#FFF;" class="form-control" aria-label="Text input with segmented button dropdown" ng-model="vm.gene" onfocus="this.select();">
+                    <div class="input-group-btn">
+                        <button type="button" class="btn btn-default"  ng-click="vm.updateGene()"><span class="fa fa-plus" aria-hidden="true"></span></button>
+                        
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+</os-tray>
+
+<section class="tray-content-block">
+    <div class="tool-container">
+        <h2 class="h2-tool">Parallel Coordinates</h2>
+        <span class="h3-tool">{{vm.datasource.source}} {{vm.datasource.name}}</span>
+        <div id="parallelcoord-chart" class="parallelcoord"></div>
+    </div>
+</section>
+<os-color-panel ng-if="vm.showPanelColor" close="vm.showPanelColor=false"></os-color-panel>
