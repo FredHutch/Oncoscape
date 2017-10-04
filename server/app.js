@@ -87,7 +87,7 @@ var transporter = nodemailer.createTransport({
     }
   });
   
-function processResult(req, res, next , query){
+function processResult(req, res, next, query){
     return function(err, data){
         if (err) {
             console.log(err);
@@ -103,34 +103,22 @@ function routerFactory(Model) {
     router.use(bodyParser.urlencoded({ extended: true }));
 
     router.get('/', function(req, res, next){	
-        console.log('BACKEND routerFactory: ');
         Model.find({}, processResult(req,res));
     });
     router.post('/', function(req, res, next) {
-        console.log('BACKEND routerFactory 2: ');
         Model.create(req.body, processResult(req,res));
     });
-    // router.route('/:id')
-    // .get(function(req, res){
-    //     console.log('BACKEND routerFactory 3: ');
-    //     Model.findById(req.params.id, processResult(req,res));
-    // })
-    // .put(function(req, res){
-    //     Model.findOneAndUpdate({_id: req.params.id}, req.body, {upsert: false}, processResult(req,res));
-    // })
-    // .delete(function(req, res){
-    //     Model.remove({_id: req.params.id}, processResult(req,res));
-    // });
     router.get('/:id', function(req, res, next) {
-        console.log('BACKEND routerFactory 3: ', req.params.id);
-        Model.findById(req.params.id, processResult(req,res));
+        console.log("*");
+        console.log(req.params.id);
+        console.log(req.projectsJson);
+        console.log("*");
+       Model.findById(req.params.id, processResult(req,res));
     });
     router.put('/:id', function(req, res, next) {
-        console.log('BACKEND routerFactory 4: ', req.params.id);
         Model.findOneAndUpdate({_id: req.params.id}, req.body, {upsert: false}, processResult(req,res));
     });
     router.delete('/:id', function(req, res, next) {
-        console.log('BACKEND routerFactory 5: ', req.params.id);
         Model.remove({_id: req.params.id}, processResult(req,res));
     });
     return router;
@@ -251,9 +239,6 @@ function camelToDash(str) {
 };
 var storage = multer.diskStorage({
     destination: function (req, file, cb) {
-       console.log('&&&&&&&&&&');
-       console.log(req);
-       console.log(process.env.APP_ROOT + '/uploads');
        cb(null, process.env.APP_ROOT + '/uploads')
     },
     filename: function (req, file, cb) {
@@ -427,33 +412,45 @@ app.post('/api/token', function(req, res, next) {
             var projects = [];
             var userProjectsJson = [];
             fetchDBCollection("Accounts_Users", {'Gmail': usersGmailAddress}, {_id:1}).then(function(response){
-                user_ID = response[0]._id;
+                if(response.length != 0){
+                    user_ID = response[0]._id;
+                    console.log("User_ID is: ", user_ID);
+                    fetchDBCollection("Accounts_Permissions", {'User': user_ID}).then(function(response){
+                        permissions = response;
+                        projectIDs = permissions.map(function(p){
+                            return mongoose.Types.ObjectId(p.Project);
+                        });
+                        console.log('Accounts_Permissions from user_ID', user_ID, response);
+                        console.log(response);
+                        // console.log(projectIDs);
+                    });
+                    fetchDBCollection("Accounts_Projects", {'_id':{$in:[ObjectId("59b8482060a4f375f43af09a"), ObjectId("59ca9cc97162b949e9e1fa03")]}}).then(function(response){
+                    // fetchDBCollection("Accounts_Projects", {'_id':{$in:projectIDs}}).then(function(response){
+                        projects = response;
+                        // console.log('projects are: ');
+                        // console.dir(projects);
+                        userProjectsJson = permissions.map(function(m){
+                            var proj = projects.filter(function(p){
+                                return p.Project = m.Project;
+                            })[0];
+                            return _.extend(proj, m);
+                        })
+                        // console.log(userProjectsJson);
+                        // console.log(jwtToken);
+                        var jwtTokens = jwt.sign(JSON.stringify(userProjectsJson), jwtToken);
+                        // console.log('What is jwtTokens ');
+                        // console.dir(jwtTokens);
+                        res.send({token: jwtTokens }).end();
+                    }); 
+                } else {
+                    userProjectsJson = 'Registration Process'
+                    var jwtTokens = jwt.sign(userProjectsJson, jwtToken);
+                    // console.log('What is jwtTokens ');
+                    // console.dir(jwtTokens);
+                    res.send({token: jwtTokens }).end();
+                }
             });
-            fetchDBCollection("Accounts_Permissions", {'User': ObjectId.valueOf(user_ID)}).then(function(response){
-                permissions = response;
-                projectIDs = permissions.map(function(p){
-                    return mongoose.Types.ObjectId(p.Project);
-                });
-                // console.log(projectIDs);
-            });
-            fetchDBCollection("Accounts_Projects", {'_id':{$in:[ObjectId("59b8482060a4f375f43af09a"), ObjectId("59ca9cc97162b949e9e1fa03")]}}).then(function(response){
-            // fetchDBCollection("Accounts_Projects", {'_id':{$in:projectIDs}}).then(function(response){
-                projects = response;
-                // console.log('projects are: ');
-                // console.dir(projects);
-                userProjectsJson = permissions.map(function(m){
-                    var proj = projects.filter(function(p){
-                        return p.Project = m.Project;
-                    })[0];
-                    return _.extend(proj, m);
-                })
-                // console.log(userProjectsJson);
-                // console.log(jwtToken);
-                var jwtTokens = jwt.sign(JSON.stringify(userProjectsJson), jwtToken);
-                // console.log('What is jwtTokens ');
-                // console.dir(jwtTokens);
-                res.send({token: jwtTokens }).end();
-            });        
+                   
     });
 })
 app.use(function(req,res, next) {
@@ -503,7 +500,6 @@ app.post('/api/upload/:id/:email', function (req, res) {
             console.log(err);
             return;
         } else {
-            // const writing2Mongo = fork('/Users/jennyzhang/Desktop/canaantt/NG4-Data-Upload/server/fileUpload.js', 
             const writing2Mongo = fork(process.env.APP_ROOT + '/server/fileUpload.js', 
             { execArgv: ['--max-old-space-size=1000']});
             writing2Mongo.send({ filePath: res.req.file.path, 
@@ -524,9 +520,6 @@ app.post('/api/upload/:id/:email', function (req, res) {
     });
     res.status(200).end();
 });
-// app.all('/api/users/*', processToken);
-// app.all('/api/projects/*', processToken);
-// app.all('/api/permissions/*', processToken);
 
 // Ping Method - Used For Testing
 app.get("/api/ping", function(req, res, next) {
