@@ -7,12 +7,20 @@
     shape-rendering: crispEdges;
 }
 
+.axis-show-name {
+    z-index: 100;
+}
+
 .axis text {
     font-family: sans-serif;
     font-size: 11px;
     fill: #000;
 }
 
+.axis-hide-name {
+    
+    fill: #FFF !important;
+}
 
 .coord-label {
     position: absolute;

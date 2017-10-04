@@ -5,12 +5,42 @@
                 <br />
                 <label></label>
             </div>
+            <div class="col-xs-12 form-item">
+                <label>Data Type</label>
+                <div class="input-group">
+                    <div class="dropdown bs-dropdown">
+                        <button   style="width:260px;" class="btn btn-default dropdown-toggle" type="button" id="dropdownMenu1" data-toggle="dropdown" aria-haspopup="true" aria-expanded="true">{{vm.dataType}}<span class="caret"></span></button>
+                        <ul class="dropdown-menu" aria-labelledby="dropdownMenu1" style="width:260px;">
+                            <li class="markers-command hvr-sweep-to-right" ng-repeat="item in vm.dataTypes" ng-click="vm.dataType=item">{{item}}</li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
             <div class="col-xs-12 form-item ">
                 <label>Selected Gene</label>
                 <div class="input-group">
                     <input style="background:#FFF;" class="form-control" aria-label="Text input with segmented button dropdown" ng-model="vm.gene" onfocus="this.select();">
                     <div class="input-group-btn">
-                        <button type="button" class="btn btn-default"  ng-click="vm.updateGene()"><span class="fa fa-plus" aria-hidden="true"></span></button>
+                        <button type="button" class="btn btn-default"  ng-click="vm.updateGene()"><span class="fa fa-refresh" aria-hidden="true"></span></button>
+                        
+                    </div>
+                </div>
+            </div>
+            <div class="col-xs-12 form-item ">
+                <label>Basepair Window</label><br/>
+                <label>Upstream</label>
+                <div class="input-group">
+                    <input style="background:#FFF;" class="form-control" aria-label="Text input with segmented button dropdown" ng-model="vm.range.up" onfocus="this.select();">
+                    <div class="input-group-btn">
+                        <button type="button" class="btn btn-default"  ng-click="vm.updateGene()"><span class="fa fa-refresh" aria-hidden="true"></span></button>
+                        
+                    </div>
+                </div>
+                <label>Downstream</label>
+                <div class="input-group">
+                    <input style="background:#FFF;" class="form-control" aria-label="Text input with segmented button dropdown" ng-model="vm.range.down" onfocus="this.select();">
+                    <div class="input-group-btn">
+                        <button type="button" class="btn btn-default"  ng-click="vm.updateGene()"><span class="fa fa-refresh" aria-hidden="true"></span></button>
                         
                     </div>
                 </div>

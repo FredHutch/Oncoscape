@@ -108,6 +108,7 @@ co(function *() {
                 ds[0].name =   j.dataset
             }
             schema = typeof j.schema == "undefined" ? "hugo_sample" : j.schema
+            if(j.name.match(/protein/)){schema = "prot_sample"}
             isdefault = typeof j.default == "undefined" ? false : j.default
 
         //create/add to samplemap
