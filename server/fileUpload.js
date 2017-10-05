@@ -80,7 +80,6 @@ const writingXLSX2Mongo = (msg) => {
     var result = [];
     var sampleUnion = [];
     allSheetNames.forEach(function(sheet){
-        console.log(sheet);
         var sheetObj = XLSX.utils.sheet_to_json(workbook.Sheets[sheet], {header:1});
         var arr = [];
         var header = sheetObj[0];
@@ -183,7 +182,6 @@ const writingXLSX2Mongo = (msg) => {
                                            "samples": Samples});
             } else if (sheet.split("-")[0] === "PATIENTEVENT"){
                 console.log(sheet);
-                console.log(header);
                 var id = sheet.split("-")[1];
                 var allPatients = _.uniq(sheetObjData.map(function(r){return r[0];}));
                 UploadingSummary.push({"sheet" : sheet,
@@ -244,9 +242,7 @@ const writingXLSX2Mongo = (msg) => {
                 var map = _.omit(UploadingSummary.filter(function(m){return m.sheet == 'PATIENT';})[0] ,['_id','sheet']);
                 UploadingSummary.push(map);
                 sampleMapping.push(map)
-                console.log(UploadingSummary);
                 console.log('*********************()****************');
-                console.log(sampleMapping);
                 db.collection(projectID+"_uploadingSummary").insertMany(UploadingSummary, function(err, result){
                     if (err) console.log(err);
                 });

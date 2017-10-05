@@ -77,7 +77,6 @@ request('http://dev.oncoscape.sttrcancer.io/api/lookup_oncoscape_genes/?q=&apike
     HugoGenes = GeneSymbolLookupTable.map(function(m){return m.hugo;});
     jsonfile.writeFile("HugoGenes.json", HugoGenes, {spaces: 2}, function(err){ console.error(err);});  
     if(err) console.log(err);
-    console.log(HugoGenes.length);
 });
 var transporter = nodemailer.createTransport({
     service: 'gmail',
@@ -102,23 +101,41 @@ function routerFactory(Model) {
     router.use(bodyParser.json()); 
     router.use(bodyParser.urlencoded({ extended: true }));
 
+    router.get('/', jwtVerification, function(req, res, next){	
+        Model.find({}, processResult(req,res));
+    });
+    router.post('/', jwtVerification, function(req, res, next) {
+        Model.create(req.body, processResult(req,res));
+    });
+    router.get('/:id', jwtVerification, function(req, res, next) {
+        Model.findById(req.params.id, processResult(req,res));
+    });
+    router.put('/:id', jwtVerification, function(req, res, next) {
+        Model.findOneAndUpdate({_id: req.params.id}, req.body, {upsert: false}, processResult(req,res));
+    });
+    router.delete('/:id', jwtVerification, function(req, res, next) {
+        Model.remove({_id: req.params.id}, processResult(req,res));
+    });
+    return router;
+};
+function userRouterFactory(Model) {
+    var router = express.Router();
+    router.use(bodyParser.json()); 
+    router.use(bodyParser.urlencoded({ extended: true }));
+
     router.get('/', function(req, res, next){	
         Model.find({}, processResult(req,res));
     });
     router.post('/', function(req, res, next) {
         Model.create(req.body, processResult(req,res));
     });
-    router.get('/:id', function(req, res, next) {
-        console.log("*");
-        console.log(req.params.id);
-        console.log(req.projectsJson);
-        console.log("*");
-       Model.findById(req.params.id, processResult(req,res));
+    router.get('/:id', jwtVerification, function(req, res, next) {
+        Model.findById(req.params.id, processResult(req,res));
     });
-    router.put('/:id', function(req, res, next) {
+    router.put('/:id', jwtVerification, function(req, res, next) {
         Model.findOneAndUpdate({_id: req.params.id}, req.body, {upsert: false}, processResult(req,res));
     });
-    router.delete('/:id', function(req, res, next) {
+    router.delete('/:id', jwtVerification, function(req, res, next) {
         Model.remove({_id: req.params.id}, processResult(req,res));
     });
     return router;
@@ -129,16 +146,15 @@ function fileRouterFactory(){
     var projectCollections;
     router.use(bodyParser.json()); 
     router.use(bodyParser.urlencoded({ extended: true }));
-    router.get('/', function(req, res){	
+    router.get('/', jwtVerification, function(req, res){	
         console.log("in Files");
         res.status(200).end();
     });
-    router.post('/', function(req, res) {
+    router.post('/', jwtVerification, function(req, res) {
         console.log("in post");
     });
-    router.get('/:id', function(req, res){
-        console.log("Getting Project-Related Collections...");
-        console.log(req.params.id);
+    router.get('/:id', jwtVerification, function(req, res){
+        console.log("Getting Project-Related Collections...", req.params.id);
         var projectID = req.params.id;
         db.db.listCollections().toArray(function(err, collectionMeta) {
             if (err) {
@@ -205,7 +221,7 @@ function fileRouterFactory(){
             }
         });
     })
-    router.delete('/:id', function(req, res){
+    router.delete('/:id', jwtVerification, function(req, res){
         console.log("in delete");
         console.log(req.params.id);
         var projectID = req.params.id;
@@ -236,6 +252,21 @@ function camelToDash(str) {
                 .replace(/([a-z\d])([A-Z])/g, '$1-$2')
                 .replace("-", "_")
                 .toLowerCase();
+};
+function jwtVerification(req,res, next) {
+    console.log('in jwtVerification function');
+    if (req && req.headers.hasOwnProperty("authorization")) {
+        try {
+            // Pull Toekn From Header - Not 
+            var projectsJson = req.headers.authorization.replace('Bearer ', '');
+            jwt.verify(projectsJson, jwtToken);
+            req.projectsJson = jwt.decode(projectsJson);
+            console.log("%%%%%%%");
+            next();
+        } catch (e) {
+            console.error(e);
+        }
+    }
 };
 var storage = multer.diskStorage({
     destination: function (req, file, cb) {
@@ -356,7 +387,7 @@ db.once("open", function (callback) {
     };
     
     // Query using file path (client cache)
-    app.get('/api/:collection/:query', function(req, res, next) {
+    app.get('/api/:collection/:query', jwtVerification, function(req, res, next) {
         res.setHeader("Cache-Control", "public, max-age=86400");        
         var query = (req.params.query) ? JSON.parse(req.params.query) : {};
         processQuery(req, res, next, query);
@@ -411,79 +442,63 @@ app.post('/api/token', function(req, res, next) {
             var projectIDs = [];
             var projects = [];
             var userProjectsJson = [];
-            fetchDBCollection("Accounts_Users", {'Gmail': usersGmailAddress}, {_id:1}).then(function(response){
+            fetchDBCollection("Accounts_Users", {'Gmail': usersGmailAddress}).then(function(response){
                 if(response.length != 0){
                     user_ID = response[0]._id;
-                    console.log("User_ID is: ", user_ID);
                     fetchDBCollection("Accounts_Permissions", {'User': user_ID}).then(function(response){
                         permissions = response;
                         projectIDs = permissions.map(function(p){
                             return mongoose.Types.ObjectId(p.Project);
                         });
-                        console.log('Accounts_Permissions from user_ID', user_ID, response);
-                        console.log(response);
-                        // console.log(projectIDs);
+                        console.log(projectIDs);
+                        fetchDBCollection("Accounts_Projects", {'_id':{$in:projectIDs}}).then(function(response){
+                            projects = response;
+                            userProjectsJson = permissions.map(function(m){
+                                var proj = projects.filter(function(p){
+                                    return p.Project = m.Project;
+                                })[0];
+                                return _.extend(proj, m);
+                            })
+                            var jwtTokens = jwt.sign(JSON.stringify(userProjectsJson), jwtToken);
+                            res.send({token: jwtTokens }).end();
+                        }); 
                     });
-                    fetchDBCollection("Accounts_Projects", {'_id':{$in:[ObjectId("59b8482060a4f375f43af09a"), ObjectId("59ca9cc97162b949e9e1fa03")]}}).then(function(response){
-                    // fetchDBCollection("Accounts_Projects", {'_id':{$in:projectIDs}}).then(function(response){
-                        projects = response;
-                        // console.log('projects are: ');
-                        // console.dir(projects);
-                        userProjectsJson = permissions.map(function(m){
-                            var proj = projects.filter(function(p){
-                                return p.Project = m.Project;
-                            })[0];
-                            return _.extend(proj, m);
-                        })
-                        // console.log(userProjectsJson);
-                        // console.log(jwtToken);
-                        var jwtTokens = jwt.sign(JSON.stringify(userProjectsJson), jwtToken);
-                        // console.log('What is jwtTokens ');
-                        // console.dir(jwtTokens);
-                        res.send({token: jwtTokens }).end();
-                    }); 
-                } else {
-                    userProjectsJson = 'Registration Process'
-                    var jwtTokens = jwt.sign(userProjectsJson, jwtToken);
-                    // console.log('What is jwtTokens ');
-                    // console.dir(jwtTokens);
-                    res.send({token: jwtTokens }).end();
                 }
-            });
-                   
+            });        
     });
-})
-app.use(function(req,res, next) {
-    if (req && req.headers.hasOwnProperty("authorization")) {
-        try {
-            // Pull Toekn From Header - Not 
-            var projectsJson = req.headers.authorization.replace('Bearer ', '');
-            jwt.verify(projectsJson, jwtToken);
-            req.projectsJson = jwt.decode(projectsJson);
-            console.log("%%%%%%%");
-            next();
-            //return true;
-        } catch (e) {
-            console.error(e);
-            //return false;
-        }
-    }
-});   
+});
+// app.use(function(req,res, next) {
+//     if (req && req.headers.hasOwnProperty("authorization")) {
+//         try {
+//             // Pull Toekn From Header - Not 
+//             var projectsJson = req.headers.authorization.replace('Bearer ', '');
+//             console.log('in jwtVerification function');
+//             console.log('projectsJson: ', projectsJson);
+//             jwt.verify(projectsJson, jwtToken);
+//             req.projectsJson = jwt.decode(projectsJson);
+//             console.log('req.projectsJson: ', req.projectsJson);
+//             console.log("%%%%%%%");
+//             next();
+//             //return true;
+//         } catch (e) {
+//             console.error(e);
+//             //return false;
+//         }
+//     }
+// });   
+
 // -------------------------------- //
 // ----- Data Upload Functions ---- //
 // -------------------------------- // 
-app.use('/api/users', routerFactory(User));
+app.use('/api/users', userRouterFactory(User));
 app.use('/api/projects', routerFactory(Project));
 app.use('/api/permissions', routerFactory(Permission));
-app.use('/api/files', fileRouterFactory());
+app.use('/api/files', fileRouterFactory);
 app.use('/api/irbs', routerFactory(IRB));
 app.use('/api/upload', express.static(process.env.APP_ROOT + '/uploads'));
-app.post('/api/upload/:id/:email', function (req, res) {
-    console.log('................');
-    console.log(req.params.id);
+app.post('/api/upload/:id/:email', jwtVerification, function (req, res) {
     var projectID = req.params.id;
     var userEmail = req.params.email;
-    console.log('user: ', userEmail);
     var mailOptions = {
         from: 'jennylouzhang@gmail.com',
         to: userEmail,
