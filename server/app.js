@@ -253,7 +253,7 @@ function camelToDash(str) {
                 .replace("-", "_")
                 .toLowerCase();
 };
-function jwtVerification(req,res, next) {
+function jwtVerification(req, res, next) {
     console.log('in jwtVerification function');
     if (req && req.headers.hasOwnProperty("authorization")) {
         try {
@@ -493,7 +493,7 @@ app.post('/api/token', function(req, res, next) {
 app.use('/api/users', userRouterFactory(User));
 app.use('/api/projects', routerFactory(Project));
 app.use('/api/permissions', routerFactory(Permission));
-app.use('/api/files', fileRouterFactory);
+app.use('/api/files', fileRouterFactory());
 app.use('/api/irbs', routerFactory(IRB));
 app.use('/api/upload', express.static(process.env.APP_ROOT + '/uploads'));
 app.post('/api/upload/:id/:email', jwtVerification, function (req, res) {
