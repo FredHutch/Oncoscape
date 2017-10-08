@@ -71,28 +71,6 @@
                             </div>
                         </div>
                     </li>
-                    <li class="dropdown" ng-show="vm.showDatasets">
-                        <a href class="dropdown-toggle header-link" data-toggle="dropdown" role="button" aria-haspopup="true" aria-expanded="false"><span class="glyphicon glyphicon-th-list"></span>Genesets</a>
-                        <div class="dropdown-menu container-fluid">
-                            <div class="row" style="max-height:80vh !important">
-                                <div class="col-xs-12 col-sm-3" style="border:0px solid #DDD; border-right-width:1px;">
-                                    <h2 style="margin-top:0px;">Create A Geneset</h2>
-                                    Enter a comma seperated list of HUGO gene IDs or a weighted signature below and click save<br />
-                                    <input ng-model="vm.importGenesetName" type="text" class="form-control" style="margin-top:5px;" placeholder="Enter Geneset Name">
-                                    <input ng-model=" vm.importGeneIds " type="text " class="form-control " style="margin-top:5px; " placeholder="eg MLX,MAX or 0.9*MYC+1.5*MNT">
-                                    <button class="btn btn-primary " style="margin-top:15px; " ng-click="vm.importGeneset(); $event.stopPropagation(); ">Save</button>
-                                    <button class="btn btn-primary " style="margin-top:15px; " ng-click="vm.showGeneImport=false; $event.stopPropagation(); ">Cancel</button>
-                                </div>
-                                <div class="col-xs-12 col-sm-9 " style="max-height:inherit !important; overflow-y:scroll">
-                                    <h2 style="margin-top:0px; ">Your Genesets</h2>
-                                    <div class="markers-command hvr-sweep-to-right header-geneset-btn" ng-repeat="item in vm.genesets "  ng-click="vm.setGenesetList(item) ">
-                                        <p class="datasource-h1">{{item.name}}</p>
-                                        <p class="datasource-h2">{{item.geneIds.length}} Genes <br /> {{item.hugoIds.length}} HUGO symbols </p>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                    </li>
                     <li>
                         <a href="" ng-click="vm.showHelp()" target="_blank " class="header-link ">
                             <span class="glyphicon glyphicon-question-sign"></span>Help
@@ -114,3 +92,4 @@
         </div>
     </nav>
 </div>
+<os-import-panel ng-if="vm.showImport" close="vm.showImport=false"></os-import-panel>

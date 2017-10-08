@@ -58,11 +58,8 @@
             vm.addPatientCohort = function() {
                 osApi.saveCohort();
             };
-            
-            osApi.onshowGenesetImportChange.add(function(show) {
-                vm.showDatasets = show
-            });
-            
+           
+
             // State Command
             vm.setPatientCohort = function(cohort) {
                 osApi.setCohort(cohort);
@@ -79,6 +76,11 @@
                 vm.showImport = false;
             };
 
+            
+            osApi.onshowGenesetImportChange.add(function(show) {
+                
+                vm.showImport = show
+            });
             
             
             

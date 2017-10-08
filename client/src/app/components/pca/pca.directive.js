@@ -92,10 +92,11 @@
                     {
                         title: "",
                         method: availableOverlayMethods[0],
-                        parameters:{},
                         source: osApi.getDataSource(),
                         data: {types:[],selected:-1},
-                        use: {markers: true, cohort: false},
+                        params: {bool: {
+                            geneset: {use: true, name:""},
+                            cohort: {use: false, name:""} }},
                         meta: {numGenes:0, numSamples:0},
                         result : {}
                     }
@@ -137,18 +138,25 @@
                     if(vm.base.edit){
                       vm.temp = {
                           title: vm.base.title,
-                          method: vm.base.method,
-                          params:vm.base.params,
-                          source: vm.base.source,
-                          data: vm.base.data,
-                          meta: vm.base.meta,
-                          result : vm.base.result,
+                          method: vm.base.method,  
+                          result : {input : {}},
+                          meta :{}
                       }
-                      vm.temp.params.bool.cohort.name = osApi.getCohort().name
+                      vm.temp.source = {dataset: vm.base.source.dataset}
+                      vm.temp.data = {  types:vm.base.data.types,
+                                        selected:{
+                                            i: vm.base.data.selected.i,
+                                            name:vm.base.data.selected.name}}
+                      vm.temp.params = {bool: {
+                        geneset: {use: true, name:osApi.getGeneset().name},
+                        cohort: {use: false, name:osApi.getCohort().name} }}
+                      
+                        updateOptions()
                     }
+                    
                 }
                 vm.setBase = function(){
-                    vm.base = vm.temp
+                    vm.base = _.clone(vm.temp)
                     vm.base.edit = false
                     vm.temp = null
                 }
@@ -159,6 +167,7 @@
                 }
                 vm.callBaseMethod = function(){
                     
+                    osApi.setBusy(true)
                     vm.temp.data.selected.i = _.findIndex(vm.temp.data.types, {"name": vm.temp.data.selected.name})
                     
                     vm.temp.meta.numSamples = vm.temp.data.types[vm.temp.data.selected.i].s.length
@@ -186,6 +195,11 @@
                 return vm;
             })(this, osApi);
 
+            // Update Geneset When Datasource Changes
+            osApi.onGenesetChange.add(function() {
+                if(vm.base.edit)
+                    vm.temp.params.bool.geneset.name = osApi.getGeneset().name;
+            });
 
             // Service
             function PCAquery(dataset, genes, samples, molecular_collection, n_components) {
@@ -214,21 +228,22 @@
 
             // Setup Parameter Configurations
             var updateOptions = function(){
-
                 
                 // determine geneset accessibility for given pcaType
                 osApi.getGenesets().filter(function(gs) {return gs.show}).forEach(function(gs){ 
-                    var payload = {dataset:vm.datasource.dataset,collection:vm.molecular.collection, geneset:gs.name, samples: samples }
-                    //var na_run = _.intersect(NA_runs
-                     var na_run = _.where(NA_runs,payload).length > 0 // true if run parameters gives NA result
+                    var payload = {
+                        dataset:vm.temp.source.dataset,
+                        collection:vm.temp.data.types[vm.temp.data.selected.i].collection, 
+                        geneset:gs.name, 
+                        samples: samples }
+                    
+                    var na_run = _.where(NA_runs,payload).length > 0 // true if run parameters gives NA result
                     
                     // reactivate disabled genesets not registered as unable to run for given collection name,sample,geneset
                     // or disable active genesets known to not to give result
                     if((gs.disable &  !na_run) | (!gs.disable & na_run)) 
                         osApi.toggleGenesetDisable(gs)
                 })
-
-                
 
             }; 
             
@@ -353,6 +368,7 @@
 
             var runPCA = function() {
 
+                osApi.setBusy(true)
                 var options = {isCovarianceMatrix: false, center : true, scale: false};
 
                 // Subset samples to those available in the collection
