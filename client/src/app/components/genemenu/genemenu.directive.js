@@ -35,7 +35,7 @@
 
             // Import to Active List
             vm.import = function(){
-                vm.showGeneImport = true;
+                osApi.showGenesetImport(true)
             }
             vm.importGeneset = function() {
                 var ids = vm.importGeneIds.split(",").map(function(v) { return v.trim(); });

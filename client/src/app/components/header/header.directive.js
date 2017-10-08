@@ -59,7 +59,10 @@
                 osApi.saveCohort();
             };
             
-
+            osApi.onshowGenesetImportChange.add(function(show) {
+                vm.showDatasets = show
+            });
+            
             // State Command
             vm.setPatientCohort = function(cohort) {
                 osApi.setCohort(cohort);

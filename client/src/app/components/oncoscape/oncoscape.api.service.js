@@ -19,6 +19,7 @@
         var onGenesetChange = new signals.Signal();
         var onGenesetsChange = new signals.Signal();
         var onPatientColorChange = new signals.Signal();
+        var onshowGenesetImportChange= new signals.Signal();
 
         // Resize
         angular.element($window).bind('resize', _.debounce(onResize.dispatch, 900));
@@ -436,6 +437,7 @@
         var _cohortToolInfo = { 'numSamples': 500, 'numPatients': 500 };
         var _cohortDatasetInfo = { 'numSamples': 0, 'numPatients': 0 };
         var _genesetToolInfo = { 'numGenes': 0, 'numSymbols': 0 };
+        var _showGenesetImport = false;
      //   var _genesetDatasetInfo = { 'numGenes': 0, 'numSymbols': 0, 'url': '', 'desc':''  };
 
         var getTools = function() { return _tools; };
@@ -602,6 +604,10 @@
                     resolveDataSource();
                 });
             });
+        };
+        var showGenesetImport = function(showpanel) {
+            _showGenesetImport= showpanel;
+            onshowGenesetImportChange.dispatch(showpanel);
         };
 
         var createWithSampleIds = function(name, sampleIds, data) {
@@ -942,6 +948,8 @@
             saveGeneset: saveGeneset,
             deleteGeneset: deleteGeneset,
             toggleGenesetDisable: toggleGenesetDisable,
+            showGenesetImport: showGenesetImport,
+            
 
             // Signals
             onPatientColorChange: onPatientColorChange,
@@ -954,6 +962,7 @@
             onCohortsChange: onCohortsChange,
             onGenesetChange: onGenesetChange,
             onGenesetsChange: onGenesetsChange,
+            onshowGenesetImportChange: onshowGenesetImportChange,
 
             // Random
             setBusy: setBusy,
