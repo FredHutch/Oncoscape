@@ -76,26 +76,26 @@
             // View Model Update
             var vm = (function(vm, osApi) {
                 
-                vm.base = {
+                vm.temp = {
                     title: "",
-                    method: availableMethods[0],
-                    parameters:{},
+                    method: availableBaseMethods[0],
                     source: osApi.getDataSource(),
-                    data: {types:[],name:""},
-                    markers: {use: true, set: osApi.getGeneset()},
-                    cohort: {use: false, set: osApi.getCohort()},
+                    data: {types:[],selected:{i:-1, name:""}},
+                    params: {bool: {
+                        geneset: {use: true, name:""},
+                        cohort: {use: false, name:""} }},
                     meta: {numGenes:0, numSamples:0},
-                    result : {}
+                    result : {input:{}, output: {}},
+                    edit: false
                 }
                 vm.overlay = [
                     {
                         title: "",
-                        method: availableMethods[0],
+                        method: availableOverlayMethods[0],
                         parameters:{},
                         source: osApi.getDataSource(),
-                        data: {types:[],name:""},
-                        markers: {use: true, set: osApi.getGeneset()},
-                        cohort: {use: false, set: osApi.getCohort()},
+                        data: {types:[],selected:-1},
+                        use: {markers: true, cohort: false},
                         meta: {numGenes:0, numSamples:0},
                         result : {}
                     }
@@ -131,6 +131,57 @@
                     angular.element('#modal_NArun').modal('hide');
                     angular.element('#modal_intersection').modal('hide');
                 };
+                vm.copyBase = function(){
+                    vm.base.edit = !vm.base.edit
+
+                    if(vm.base.edit){
+                      vm.temp = {
+                          title: vm.base.title,
+                          method: vm.base.method,
+                          params:vm.base.params,
+                          source: vm.base.source,
+                          data: vm.base.data,
+                          meta: vm.base.meta,
+                          result : vm.base.result,
+                      }
+                      vm.temp.params.bool.cohort.name = osApi.getCohort().name
+                    }
+                }
+                vm.setBase = function(){
+                    vm.base = vm.temp
+                    vm.base.edit = false
+                    vm.temp = null
+                }
+                vm.updateBaseview = function(){
+                    if(vm.base.edit)
+                        vm.callBaseMethod();
+
+                }
+                vm.callBaseMethod = function(){
+                    
+                    vm.temp.data.selected.i = _.findIndex(vm.temp.data.types, {"name": vm.temp.data.selected.name})
+                    
+                    vm.temp.meta.numSamples = vm.temp.data.types[vm.temp.data.selected.i].s.length
+                    vm.temp.meta.numGenes = vm.temp.data.types[vm.temp.data.selected.i].m.length;
+                    
+                    // determine calculation size for gene x samples matrix 
+                    // depending on use of geneset or cohort settings
+                    if(vm.temp.params.bool.geneset.use){
+                        var geneset = osApi.getGeneset()
+                        if(geneset.geneIds.length != 0)
+                            vm.temp.meta.numGenes = geneset.geneIds.length
+                    }
+                    if(vm.temp.params.bool.cohort.use){
+                        var samples = osApi.getCohort().sampleIds;
+                        if(samples.length != 0){
+                            vm.temp.meta.numSamples = samples.length
+                            // TO DO: intersect with samples from mtx to ensure sufficient overlap & size
+                        }
+                    }
+    
+                    if(vm.temp.method == "PCA")
+                        callPCA()
+                }
 
                 return vm;
             })(this, osApi);
@@ -158,12 +209,13 @@
                 });
             }
 
+            // Setup Watches
+           
+
             // Setup Parameter Configurations
             var updateOptions = function(){
 
-                var samples = "None";
-                if(vm.optRunParams[1].show)
-                    samples = osApi.getCohort().sampleIds;
+                
                 // determine geneset accessibility for given pcaType
                 osApi.getGenesets().filter(function(gs) {return gs.show}).forEach(function(gs){ 
                     var payload = {dataset:vm.datasource.dataset,collection:vm.molecular.collection, geneset:gs.name, samples: samples }
@@ -176,40 +228,23 @@
                         osApi.toggleGenesetDisable(gs)
                 })
 
-                var molecular = vm.base.data.types.filter(function(d){return d.name == vm.base.data.name})[0]
-                vm.base.meta.numSamples = molecular.s.length
-                vm.base.meta.numGenes = molecular.m.length;
                 
-                if(!vm.optRunParams[0].show){
-                    geneset = osApi.getGenesets()[0]
-                    if(geneset.geneIds.length != 0)
-                        vm.base.meta.numGenes = geneset.geneIds.length
-                }
-                if(vm.optRunParams[1].show){
-                    samples = osApi.getCohort().sampleIds;
-                    if(samples.length != 0)
-                        vm.base.meta.numSamples = samples.length
-                }
 
             }; 
-            
-            var callBaseMethod = function(){
-                
-                if(vm.base.method == "PCA")
-                    callPCA()
-            }
             
             var callPCA = function(){
 
                 vm.error = ""
 
+                var geneset =  vm.temp.params.bool.geneset.use ? osApi.getGeneset() : osApi.getGenesetAll();
+
                 //Check if in Mongo
-                osApi.query(vm.base.source.dataset +"_cluster", 
+                osApi.query(vm.temp.source.dataset +"_cluster", 
                     {   geneset: geneset.name, 
-                        disease: vm.base.source.dataset, 
+                        disease: vm.temp.source.dataset, 
                         dataType: "PCA", 
-                        input:vm.base.data.type[selected], 
-                        scores:{$size:vm.base.meta.numSamples}}
+                        input:vm.temp.data.selected.name,
+                        scores:{$size:vm.temp.meta.numSamples}}
                 ).then(function(response){
                     var d = response.data
                     if(d.length >0){
@@ -222,7 +257,7 @@
                         draw();
                         return
                     }
-                    if (runType == "JS" & vm.base.meta.numSamples  * vm.base.meta.numGenes > 500) {
+                    if (runType == "JS" & vm.temp.meta.numSamples  * vm.temp.meta.numGenes > 500000) {
                         
                         runType = "python"
 
@@ -239,44 +274,43 @@
                         }
 
                     }else if(runType == "JS") {
-                        if (angular.isUndefined(vm.molecular.collection)) return;
-                        if (angular.isUndefined(geneset)) return;
-                        osApi.query(vm.molecular.collection
+                        osApi.query(vm.temp.data.types[vm.temp.data.selected.i].collection
                         ).then(function(response){
-                            vm.molecular = response.data
-
-                            runPCA(geneset.geneIds);
+                            vm.temp.result.input = response.data
+                            runPCA();
                         });
                     }else if(runType == "python") {
-                        if (angular.isUndefined(geneset)) return;
-                        if (angular.isUndefined(vm.molecular.collection)) return;
-
+                        
                         var geneSetIds = geneset.geneIds
+                        var samples = [];
+                        if(vm.temp.params.bool.cohort.use)
+                            samples = osApi.getCohort().sampleIds;
 
                         osApi.setBusy(true)
-                        PCAquery(vm.datasource.dataset, geneSetIds, samples, vm.molecular.collection, 3).then(function(PCAresponse) {
+                        PCAquery(vm.temp.source.dataset, geneSetIds, samples, vm.temp.data.types[vm.temp.data.selected.i].collection, 3).then(function(PCAresponse) {
 
                             var d = PCAresponse.data;
                             if(angular.isDefined(d.reason)){
                                 console.log(geneset.name +": " + d.reason)
                                 // PCA could not be calculated on geneset given current settings
                                 vm.error = d.reason;
-                                vm.pcaType = vm.statePcaType
+                                
+                                // return to previous state
+                                
                                 //add to blacklist to disable from future selection/calculation
                                 osApi.toggleGenesetDisable(geneset);
                                 if(samples.length ==0) samples = "None"
-                                NA_runs.push({"dataset":vm.datasource.dataset, "collection":vm.molecular.collection, "geneset": geneset.name, "samples":samples})
+                                NA_runs.push({"dataset":vm.temp.source.dataset, "collection":vm.temp.data.types[vm.temp.data.selected.i].collection, "geneset": geneset.name, "samples":samples})
 
                                 // revert/update display
-                                if(angular.isUndefined(vm.geneSet)){
+                                //if previous state not defined
                                     //load geneset anyways - nothing to fall back on
                                     //display null page
-                                }else{
+                                //else
                                     //rollback to previous definition
                                     angular.element('#modal_NArun').modal();
-                                   // window.alert("Sorry, PCA could not be calculated\n"+ geneset.name +": " + d.reason)
-                                    osApi.setGeneset(vm.geneSet)
-                                }
+                                    //osApi.setGeneset(vm.geneSet)
+                                //}
 
                                 angular.element('#modalRun').modal('hide');
                                 osApi.setBusy(false)
@@ -285,8 +319,8 @@
 
 
                             // Successful run: 
-                            //---update base method
-                            vm.geneSet = geneset
+                            //---update temp method
+                            //vm.geneSet = geneset
                             runType = "JS"
 
                             //---update plot
@@ -317,31 +351,34 @@
 
             }
 
-            var runPCA = function(geneIds) {
+            var runPCA = function() {
 
                 var options = {isCovarianceMatrix: false, center : true, scale: false};
 
                 // Subset samples to those available in the collection
-                var samples = []; var sampleIdx = _.range(0,vm.base.data.molecular[0].m.length)
-                if(vm.optRunParams[1].show)
+                var samples = []; 
+                var sampleIdx = _.range(0,vm.temp.result.input[0].s.length)
+                
+                if(vm.temp.params.bool.cohort.use)
                     samples = osApi.getCohort().sampleIds;
                 
                 if(samples.length !=0){ 
-                    sampleIdx = vm.base.data.molecular[0].m.map(function(s, i){
+                    sampleIdx = vm.temp.result.input[0].s.map(function(s, i){
                         var matchS = _.contains(samples, s) ? i : -1
                         return matchS})
                 }
 
-                //subset geneIds to be only those returned from query
-                geneIds = _.intersection( _.pluck(vm.base.data.molecular,"id"), geneIds)
+                var geneIds = _.pluck(vm.temp.result.input,"m")
+                if(vm.temp.params.bool.geneset.use && osApi.getGeneset().geneIds.length >0)
+                    geneIds = _.intersection( osApi.getGeneset().geneIds, geneIds);
+                    //subset geneIds to be only those returned from query
                 
-                var molecular = vm.base.data.molecular
                 if(geneIds.length != 0){
-                    molecular = molecular.filter(function(g){return _.contains(geneIds,g.id)})
+                    vm.temp.result.input = vm.temp.result.input.filter(function(g){return _.contains(geneIds,g.m)})
                 }
                 
                 // create 2d array of samples x features (genes)
-                molecular = molecular.map(function(s){return  s.d.filter(function(r, i){return _.contains(sampleIdx, i)})})
+                var molecular = vm.temp.result.input.map(function(s){return  s.d.filter(function(r, i){return _.contains(sampleIdx, i)})})
                 
                 // remove any genes that have NA values
                 molecular = molecular.filter(function(v){return _.intersection(v, [NaN,"NaN"]).length == 0 })
@@ -364,6 +401,8 @@
                 
                     console.log("PCA: processing results " + Date())
     
+                    vm.setBase()
+
                     // Process PCA Variance
                     vm.base.meta.pc1 = [
                         { name: 'PC1', value: (d.metadata.variance[0] * 100).toFixed(2) },
@@ -426,7 +465,7 @@
                 }
 
                 var samples = "None";
-                if(vm.optRunParams[1].show)
+                if(vm.temp.params.bool.cohort.use)
                     samples = osApi.getCohort().sampleIds;
                 
             }
@@ -631,7 +670,8 @@
 
             };
             function setSelected() {
-                var selectedIds = cohort.sampleIds;
+                var selectedIds = osApi.getCohort().sampleIds
+                
                 if(typeof selectedIds != "undefined"){
                    d3Points.selectAll("circle").classed("pca-node-selected", function() {
                         return (selectedIds.indexOf(this.__data__.id) >= 0);
@@ -724,14 +764,8 @@
             osApi.onPatientColorChange.add(onPatientColorChange);
 
             // App Event :: Cohort Change
-            var cohort = osApi.getCohorts();
             var onCohortChange = function(c) {
-                cohort = c;
                 setSelected();
-                if (vm.optRunParams[1].show){
-                    callPCA(osApi.getGeneset())
-                }
-
             };
             osApi.onCohortChange.add(onCohortChange);
             osApi.onCohortChange.add(updatePatientCounts)
@@ -740,29 +774,15 @@
             osApi.query("lookup_oncoscape_datasources_v2", {
                 dataset: osApi.getDataSource().dataset
             }).then(function(response){
-                vm.base.method = "PCA"
-                vm.base.data.types = response.data[0].collections.filter(function(d){ return _.contains(acceptableDatatypes, d.type)})
-                vm.base.data.name = vm.base.data.types[0].name
-
-                vm.optRunParams = [{
-                    name: 'Subselect by Geneset',
-                    abv: 'sub_gs',
-                    show: true,
-                    color: '#9C27B0',
-                    class: 'switch-subgeneset',
-                    count: '',
-                    id: 0
-                }, {
-                    name: 'Subselect by Cohort',
-                    abv: 'sub_ch',
-                    show: false,
-                    color: '#3F51B5',
-                    class: 'switch-subcohort',
-                    count: '',
-                    id: 1
-                }];
+                vm.temp.method = "PCA"
+                vm.temp.title = vm.temp.method + "  (" + moment().format('hh:mm:ss') + ")";
+                vm.temp.data.types = response.data[0].collections.filter(function(d){ return _.contains(acceptableDatatypes, d.type)})
+                vm.temp.data.selected.i = 0;
+                vm.temp.data.selected.name = vm.temp.data.types[vm.temp.data.selected.i].name;
+                vm.temp.params.bool = { "geneset" : {name: osApi.getGeneset().name, use: true},
+                                        "cohort"  : {name: osApi.getCohort().name, use: false } }             
                 
-                callBaseMethod();
+                vm.callBaseMethod();
             });
 
             // Destroy

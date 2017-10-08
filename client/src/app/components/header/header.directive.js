@@ -30,7 +30,7 @@
             vm.datasources = [];
             vm.tools = [];
             vm.cohorts = [];
-            vm.genesets = [];
+            
 
             // State Management
             osApi.onNavChange.add(function(state) {
@@ -45,7 +45,7 @@
                         vm.datasources = osApi.getDataSources();
                         vm.tools = osApi.getTools();
                         vm.cohorts = osApi.getCohorts();
-                        vm.genesets = osApi.getGenesets();
+                        
                         break;
                     default:
                         vm.showTools = false;
@@ -58,18 +58,13 @@
             vm.addPatientCohort = function() {
                 osApi.saveCohort();
             };
-            vm.addGenesetList = function() {
-                osApi.saveGeneset();
-            };
+            
 
             // State Command
             vm.setPatientCohort = function(cohort) {
                 osApi.setCohort(cohort);
             };
-            vm.setGenesetList = function(geneset) {
-                geneset.show=true
-                osApi.setGeneset(geneset);
-            };
+            
 
             // Import Cohorts Command 
             vm.importIds = "";
@@ -81,15 +76,7 @@
                 vm.showImport = false;
             };
 
-            // Import Cohorts Command 
-            vm.importGeneIds = "";
-            vm.importGeneset = function() {
-                var ids = vm.importGeneIds.split(",").map(function(v) { return v.trim(); });
-                osApi.importGeneIds(ids, vm.importGenesetName);
-                vm.importGeneIds = "";
-                vm.importGenesetName = "";
-                vm.showGeneImport = false;
-            };
+            
             
             
             vm.login = function() {

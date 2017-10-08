@@ -3,46 +3,63 @@
         <div class="row">
             
             <div class="col-xs-12 form-item">
-                <label>Data Type</label>
-                <div class="input-group">
-                    <div class="dropdown bs-dropdown">
-                        <button   style="width:260px;" class="btn btn-default dropdown-toggle" type="button" id="dropdownMenu1" data-toggle="dropdown" aria-haspopup="true" aria-expanded="true">{{vm.pcaType}}<span class="caret"></span></button>
-                        <ul class="dropdown-menu" aria-labelledby="dropdownMenu1" style="width:260px;">
-                            <li class="markers-command hvr-sweep-to-right" ng-repeat="item in vm.pcaTypes" ng-click="vm.pcaType=item">{{item}}</li>
-                        </ul>
-                    </div>
-                </div>
-            </div>
-            <div class="col-xs-12 form-item">
-                <label>Run Parameters</label>
-                <div class="legend-bar-container">
-                    <div ng-repeat="item in vm.optRunParams" style="position:relative;background-color:#FFF;padding:2px 10px;line-height:25px;">{{item.name}} {{item.count}}
-                        <label class="switch" style="float:right" tooltip="Toggle Visibility" tooltip-placement="left">
-                        <input type="checkbox" class="switch-input" ng-model="item.show" ng-change="vm.runParamsToggle(item)">
-                        <span class="switch-label" data-on="On" data-off="Off"></span>
-                        <span class="switch-handle"></span>
-                    </label>
-                    </div>
-                </div>
-            </div>
-            <div class="col-xs-12 form-item">
-                <label>Overlay</label>
-                <div ng-if="vm.showOverlayForm" class="kanban-column">
+                <div  class="kanban-column">
+                    <label>History</label>
                     <div class="portlet legend-bar-container">
                         <div class="portlet-content">
-                            <div>Dataset   <div class="input-group" style="width:100%">
+                            <div class="input-group">
+                                <input style="background:#FFF;" class="form-control" aria-label="Text input with segmented button dropdown" ng-model="vm.base.title" onfocus="this.select();">
+                                    <div class="input-group-btn">
+                                        <button type="button" class="btn btn-default" tooltip="{{vm.base.edit ? 'Close Editor' : 'Edit Calculation'}}" tooltip-placement="left" ng-click="vm.copyBase()">
+                                            <span class="fa {{vm.base.edit ? 'fa-close' : 'fa-pencil'}}" aria-hidden="true" style="border-color:#FFF"></span>
+                                        </button>
+                                        <button type="button" class="btn btn-default"  aria-hidden="true" tooltip="{{vm.base.edit ? 'Run Calculation' : 'Toggle Visibility'}}" tooltip-placement="left"  ng-click="vm.updateBaseview()"> 
+                                            <span class="fa {{vm.base.edit ? 'fa-refresh' : 'fa-eye'}}"></span> 
+                                        </button>
+                                    </div>
+                            </div>
+                            
+                            <div class="input-group" ng-if="vm.base.edit" style="width:100%">                
+                                <div class="dropdown bs-dropdown" style="max-width:230px">
+                                    <button class="btn btn-default dropdown-toggle" type="button" id="dropdownMenu1" data-toggle="dropdown" aria-haspopup="true" aria-expanded="true">
+                                        {{vm.temp.data.selected.name}}
+                                        <span class="caret"></span>
+                                    </button>
+                                    <ul class="dropdown-menu" aria-labelledby="dropdownMenu1" >
+                                        <li class="markers-command hvr-sweep-to-right" ng-repeat="item in vm.temp.data.types" ng-click="vm.temp.data.selected.name=item.name">{{item.name}}</li>
+                                    </ul>
+                                </div>
+                                <div ng-repeat="item in vm.temp.params.bool" style="position:relative;background-color:#FFF;padding:2px 10px;line-height:25px;">{{item.name}}
+                                        <label class="switch" style="float:right" tooltip="Subset input data" tooltip-placement="left">
+                                        <input type="checkbox" class="switch-input" ng-model="item.use" >
+                                        <span class="switch-label" data-on="On" data-off="Off"></span>
+                                        <span class="switch-handle"></span>
+                                    </label>
+                                </div>
+                                
+                            </div>
+                            <div ng-if="!vm.base.edit">
+                                Data: {{vm.base.data.selected.name}} <br/>
+                                Geneset: {{vm.base.params.bool.geneset.use ? vm.base.params.bool.geneset.name : 'All Genes'}}<br/>
+                                Cohort: {{vm.base.params.bool.cohort.use ? vm.base.params.bool.cohort.name : "All Patients + Samples"}}
+                            </div> 
+                            
+                        </div>
+            
+                        <div ng-if="vm.showOverlayForm" class="portlet-content">
+                            <!-- <div>Dataset   <div class="input-group" style="width:100%">
                                         <div class="dropdown bs-dropdown">
                                             <button  class="btn btn-default dropdown-toggle" type="button" id="dropdownMenu1" data-toggle="dropdown" aria-haspopup="true" aria-expanded="true">{{vm.overlaySource}}<span class="caret"></span></button>
                                             <ul class="dropdown-menu" aria-labelledby="dropdownMenu1" style="width:260px;max-height:250px;overflow-y:scroll">
-                                                <li class="markers-command hvr-sweep-to-right" ng-repeat="item in vm.datasources" ng-click="vm.overlaySource=item.name">{{item.name}}</li>
+                                                <li class="markers-command hvr-sweep-to-right" ng-repeat="item in vm.overlay.sources" ng-click="vm.overlaySource=item.name">{{item.name}}</li>
                                             </ul>
                                         </div>
-                                </div> </div> 
+                                </div> </div>  -->
                             <div>Type   <div class="input-group" style="width:100%">
                                         <div class="dropdown bs-dropdown">
                                             <button  class="btn btn-default dropdown-toggle" type="button" id="dropdownMenu1" data-toggle="dropdown" aria-haspopup="true" aria-expanded="true" style="max-width: 212px;">{{vm.overlayType}}<span class="caret"></span></button>
                                             <ul class="dropdown-menu" aria-labelledby="dropdownMenu1" style="width:260px;max-height:250px;overflow-y:scroll">
-                                                <li class="markers-command hvr-sweep-to-right" ng-repeat="item in vm.overlayTypes" ng-click="vm.overlayType=item">{{item}}</li>
+                                                <li class="markers-command hvr-sweep-to-right" ng-repeat="item in vm.overlay.data.types" ng-click="vm.overlay.data.selected=item">{{item.name}}</li>
                                             </ul>
                                         </div>
                             </div> </div>
@@ -51,15 +68,13 @@
                                         <span class="glyphicon glyphicon-chevron-right" style="color:#FFF"></span></button>
                             </div>
                         </div>
-                        
-                    </div>
                 </div>
                 <button class="btn btn-default btn-no-focus" type="button" style="width:100%;font-weight: 300;" ng-click="vm.showOverlayForm = true">Add</button>                        
              </div>
 
             <div ng-if="vm.legendCaption.length>0" class="col-xs-12 form-item">
                 <label>Patient {{vm.legendCaption}}</label>
-                <div ng-repeat="item in vm.legendNodes" class="legend-bar legend-bar-button" style="border-color:{{item.color}};">{{item.name}}<span id="{{item.id}}" class="legend-count"></span>
+                <div ng-repeat="item in vm.legendNodes" class="legend-bar legend-bar-button" style="border-color:{{item.color}}">{{item.name}}<span id="{{item.id}}" class="legend-count"></span>
                     <label style="float:right;padding-top:5px;" class="btn-group">
                         <button tooltip="Deselect" tooltip-placement="left"
                         ng-click="vm.deselectColor(item)"
@@ -70,11 +85,12 @@
                     </label>
                 </div>
             </div>
+            </div></div></div>
             <div class="col-xs-12 form-item">
                 <label>Color Feature</label>
                 <button class="btn btn-default btn-no-focus" type="button" style="width:100%;font-weight: 300;" ng-click="vm.showPanelColor = true">Add</button>
             </div>
-            <div class="col-xs-12 form-item">
+            <!-- <div class="col-xs-12 form-item">
                 <label>Variance Explained</label>
                 <div>
                     <os-tray-piechart chart-data1="vm.pc1" chart-data2="vm.pc2" chart-height="130"></os-tray-piechart>
@@ -86,7 +102,7 @@
             <div class="col-xs-12 form-item">
                 <label>Loadings</label>
                 <os-tray-barchart chart-data="vm.loadings" chart-height="100"></os-tray-barchart>
-            </div>
+            </div> -->
         </div>
     </section>
 </os-tray>
@@ -96,19 +112,10 @@
         <div class="modal-content">
             <div class="modal-body">
                 <h2 style="margin-top:0px;">Estimated runtime is approximately {{vm.runTime}}.</h2>
-                <p>Would you like to update the run parameters?</p>
-                <div class="legend" ng-repeat="item in vm.optRunParams ">
-                    <label class="switch">
-                        <input type="checkbox" class="switch-input" ng-model="item.show">
-                        <span class="switch-label" data-on="On" data-off="Off"></span>
-                        <span class="switch-handle"></span>
-                    </label>
-                    <span style="padding-left:20px;">{{item.name}}</span>
-                </div>
             </div>
             <div style="position:absolute;right:10px;bottom:10px;">
                 <button class="btn btn-default" ng-click="vm.hideModal()">Cancel</button>
-                <button class="btn btn-primary" ng-click="vm.runParamsToggle()">Continue</button>
+                <button class="btn btn-primary" ng-click="vm.callBaseMethod()">Continue</button>
             </div>
         </div>
     </div>
@@ -143,7 +150,7 @@
 <section class="tray-content-block">
     <div class="tool-container">
         <h2 class="h2-tool">Principal Component Analysis</h2>
-        <span class="h3-tool">{{vm.datasource.source}} {{vm.datasource.name}}</span>
+        <span class="h3-tool">{{vm.base.source.source}} {{vm.base.source.name}}</span>
         <div id="pca-chart" class="pca"></div>
     </div>
 </section>

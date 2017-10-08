@@ -445,6 +445,7 @@
         var getCohortDatasetInfo = function() { return _cohortDatasetInfo; };
         var getGenesets = function() { return _genesets; };
         var getGeneset = function() { return _geneset; };
+        var getGenesetAll = function() { return _genesetAll; };
         var getGenesetToolInfo = function() { return _genesetToolInfo; };
     //    var getGenesetDatasetInfo = function() { return _genesetDatasetInfo; };
         var getData = function() { return _data; };
@@ -936,6 +937,7 @@
             // Geneset Management
             getGenesets: getGenesets,
             getGeneset: getGeneset,
+            getGenesetAll: getGenesetAll,
             setGeneset: setGeneset,
             saveGeneset: saveGeneset,
             deleteGeneset: deleteGeneset,
