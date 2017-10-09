@@ -61,11 +61,11 @@
                                 <div class="input-group" ng-if="item.edit" style="width:100%">                
                                     <div class="dropdown bs-dropdown" style="max-width:230px">
                                         <button class="btn btn-default dropdown-toggle" type="button" id="dropdownMenu1" data-toggle="dropdown" aria-haspopup="true" aria-expanded="true">
-                                            {{vm.temp.data.selected.name}}
+                                            {{item.data.selected.name}}
                                             <span class="caret"></span>
                                         </button>
                                         <ul class="dropdown-menu" aria-labelledby="dropdownMenu1" >
-                                            <li class="markers-command hvr-sweep-to-right" ng-repeat="subitem in item.data.types" ng-click="item.data.selected.name=item.name">{{subitem.name}}</li>
+                                            <li class="markers-command hvr-sweep-to-right" ng-repeat="subitem in item.data.types" ng-click="item.data.selected.name=subitem.name">{{subitem.name}}</li>
                                         </ul>
                                     </div>
                                    
@@ -79,7 +79,7 @@
                                 
                             </div>
             
-                            <button class="btn btn-default btn-no-focus" type="button" style="width:100%;font-weight: 300;" ng-click="vm.copyItem();">Add</button>                        
+                            <button class="btn btn-default btn-no-focus" type="button" style="width:100%;font-weight: 300;" ng-click="vm.copyItem();"><span class="fa fa-plus"></span>  Layer</button>                        
                         </div>
                 
              </div>

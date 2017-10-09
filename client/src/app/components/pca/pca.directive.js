@@ -44,6 +44,11 @@
                 // 3. Confidence in positioning of new sample
 
             }
+            var transpose = function( a){
+                return Object.keys(a[0]).map(function(c) {
+                    return a.map(function(r) { return r[c]; });
+                });
+            }
 
             // Loading ...
             osApi.setBusy(true);
@@ -182,6 +187,7 @@
 
 
                 vm.copyItem = function(item){
+                    // edit/create item in history 
                     if(typeof item == "undefined"){
                        item =  {
                             title: "",
@@ -196,7 +202,8 @@
                             },
                             meta: {numGenes:0, numSamples:0},
                             result : {input:{}, output: {}},
-                            edit: false
+                            edit: false,
+                            idx: vm.overlay.length
                         }
                         item.title = item.method + "  (" + moment().format('hh:mm:ss') + ")";
                         
@@ -209,7 +216,8 @@
                           title: item.title,
                           method: item.method,  
                           result : {input : {}},
-                          meta :{}
+                          meta :{},
+                          idx: item.idx
                       }
                       vm.temp.source = {dataset: item.source.dataset}
                       vm.temp.data = {  types:item.data.types,
@@ -221,6 +229,11 @@
                         cohort: {use: false, name:osApi.getCohort().name} }}
                       
        //                 updateOptions()
+                    } else{
+                        //check if item was run
+                        if(typeof item.result.input.length == "undefined")
+                            // item was not run, remove from processed history
+                            vm.overlay.splice(item.idx, 1)
                     }
                     
                 }
@@ -228,11 +241,11 @@
                     
                     // if(item.edit)
                     //     vm.callOverlayMethod(item);
-                    callOverlay(0);
+                    callOverlay(item.idx);
                 }
 
                 vm.callOverlayMethod = function(item){
-                    callOverlay(item);
+                    callOverlay(item.idx);
                 }
                 
 
@@ -279,6 +292,11 @@
             // Setup Parameter Configurations
             var updateOptions = function(){
                 
+                var samples = []
+                if(vm.temp.params.bool.cohort.use)
+                    samples = osApi.getCohort().sampleIds
+                if(samples.length ==0) samples = "None"
+
                 // determine geneset accessibility for given pcaType
                 osApi.getGenesets().filter(function(gs) {return gs.show}).forEach(function(gs){ 
                     var payload = {
@@ -452,6 +470,7 @@
                 // remove any genes that have NA values
                 molecular = molecular.filter(function(v){return _.intersection(v, [NaN,"NaN"]).length == 0 })
                 
+                molecular = transpose(molecular)
                 
                 console.log("PCA: Running " + Date())
                 //NOTE: If there are null values in molecular, PCA runs in an infinite loop!
@@ -572,6 +591,7 @@
                     //distances = _.pluck(d.D,"id")
                     angular.element('#modalRun').modal('hide');
                     var newData = calculateCentroid(d);
+                    vm.overlay[i].result.input = newData
                     data = data.concat(newData)
                     draw()
                     // update plot with new points
