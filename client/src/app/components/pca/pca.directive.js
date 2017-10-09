@@ -88,19 +88,7 @@
                     result : {input:{}, output: {}},
                     edit: false
                 }
-                vm.overlay = [
-                    {
-                        title: "",
-                        method: availableOverlayMethods[0],
-                        source: osApi.getDataSource(),
-                        data: {types:[],selected:-1},
-                        params: {bool: {
-                            geneset: {use: true, name:""},
-                            cohort: {use: false, name:""} }},
-                        meta: {numGenes:0, numSamples:0},
-                        result : {}
-                    }
-                ]
+                vm.overlay = [ ]
                 
                 vm.selectColor = function(e) {
                     var ids = e.values;
@@ -192,6 +180,67 @@
                         callPCA()
                 }
 
+
+                vm.copyItem = function(item){
+                    if(typeof item == "undefined"){
+                       item =  {
+                            title: "",
+                            method: availableOverlayMethods[0],
+                            source: osApi.getDataSource(),
+                            data: { types:vm.base.data.types,
+                                    selected: {i:vm.base.data.selected.i, name:vm.base.data.selected.name}
+                                    },
+                            params: {bool: { 
+                                "geneset" : {name: vm.base.params.bool.geneset.name, use: vm.base.params.bool.geneset.use},
+                                "cohort"  : {name: vm.base.params.bool.cohort.name, use: vm.base.params.bool.cohort.use} }             
+                            },
+                            meta: {numGenes:0, numSamples:0},
+                            result : {input:{}, output: {}},
+                            edit: false
+                        }
+                        item.title = item.method + "  (" + moment().format('hh:mm:ss') + ")";
+                        
+                        vm.overlay.push(item)
+                    }
+                    item.edit = !item.edit
+
+                    if(item.edit){
+                      vm.temp = {
+                          title: item.title,
+                          method: item.method,  
+                          result : {input : {}},
+                          meta :{}
+                      }
+                      vm.temp.source = {dataset: item.source.dataset}
+                      vm.temp.data = {  types:item.data.types,
+                                        selected:{
+                                            i: item.data.selected.i,
+                                            name:item.data.selected.name}}
+                      vm.temp.params = {bool: {
+                        geneset: {use: true, name:osApi.getGeneset().name},
+                        cohort: {use: false, name:osApi.getCohort().name} }}
+                      
+       //                 updateOptions()
+                    }
+                    
+                }
+                vm.updateItemview = function(item){
+                    
+                    // if(item.edit)
+                    //     vm.callOverlayMethod(item);
+                    callOverlay(0);
+                }
+
+                vm.callOverlayMethod = function(item){
+                    callOverlay(item);
+                }
+                
+
+
+                vm.exportJSON = function(){
+                    // download.file(toJSON(data), file= "pca_result.json")
+                }
+
                 return vm;
             })(this, osApi);
 
@@ -215,8 +264,9 @@
                 var payload = { molecular_collection: collection1,molecular_collection2: collection2};
                 return $http({
                     method: 'POST',
-                 //   url: "https://dev.oncoscape.sttrcancer.io/cpu/pca",
-                 url: "https://oncoscape-test.fhcrc.org/cpu/pca",
+                 //   url: "https://dev.oncoscape.sttrcancer.io/cpu/distance",
+                 url: "https://oncoscape-test.fhcrc.org/cpu/distance",
+                // url: "https://localhost:8000/cpu/distance",
                     data: payload
 
 
@@ -378,11 +428,14 @@
                 if(vm.temp.params.bool.cohort.use)
                     samples = osApi.getCohort().sampleIds;
                 
-                if(samples.length !=0){ 
+                if(samples.length ==0){
+                    samples = vm.temp.result.input[0].s
+                } else{ 
                     sampleIdx = vm.temp.result.input[0].s.map(function(s, i){
                         var matchS = _.contains(samples, s) ? i : -1
                         return matchS})
                 }
+                
 
                 var geneIds = _.pluck(vm.temp.result.input,"m")
                 if(vm.temp.params.bool.geneset.use && osApi.getGeneset().geneIds.length >0)
@@ -490,7 +543,7 @@
                 
                 vm.error = ""
 
-                var common_m = _.intersection(vm.overlay[i].data.molecular.m, vm.base.data.molecular.m)
+                var common_m = _.intersection(vm.overlay[i].data.types[vm.overlay[i].data.selected.i].m, vm.base.data.types[vm.base.data.selected.i].m)
                 if(common_m.length == 0){
                     angular.element('#modal_intersection').modal();
                     return;
@@ -500,14 +553,14 @@
             };
             var runOverlay = function(i){
                 
-                var geneset = vm.base.geneset
+                var geneset = vm.base.params.bool.geneset
                 
                 osApi.setBusy(true)
-                Distancequery(vm.base.data.molecular.collection, vm.overlay[i].data.molecular.collection).then(function(response) {
+                Distancequery(vm.base.data.types[vm.base.data.selected.i].collection, vm.overlay[i].data.types[vm.overlay[i].data.selected.i].collection).then(function(response) {
 
                     var d = response.data;
                     if(angular.isDefined(d.reason)){
-                        console.log(vm.base.data.molecular.collection +"+ "+vm.overlay[i].data.molecular.collection+": " + d.reason)
+                        console.log(vm.base.data.types[vm.base.data.selected.i].collection +"+ "+vm.overlay[i].data.types[vm.overlay[i].data.selected.i].collection+": " + d.reason)
                         // Distance could not be calculated on geneset given current settings
                             window.alert("Sorry, Distance could not be calculated\n" + d.reason)
 

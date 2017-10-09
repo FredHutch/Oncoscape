@@ -45,31 +45,43 @@
                             </div> 
                             
                         </div>
-            
-                        <div ng-if="vm.showOverlayForm" class="portlet-content">
-                            <!-- <div>Dataset   <div class="input-group" style="width:100%">
-                                        <div class="dropdown bs-dropdown">
-                                            <button  class="btn btn-default dropdown-toggle" type="button" id="dropdownMenu1" data-toggle="dropdown" aria-haspopup="true" aria-expanded="true">{{vm.overlaySource}}<span class="caret"></span></button>
-                                            <ul class="dropdown-menu" aria-labelledby="dropdownMenu1" style="width:260px;max-height:250px;overflow-y:scroll">
-                                                <li class="markers-command hvr-sweep-to-right" ng-repeat="item in vm.overlay.sources" ng-click="vm.overlaySource=item.name">{{item.name}}</li>
-                                            </ul>
+                        <div class="portlet-content" ng-repeat="item in vm.overlay">
+                                <div class="input-group">
+                                    <input style="background:#FFF;" class="form-control" aria-label="Text input with segmented button dropdown" ng-model="item.title" onfocus="this.select();">
+                                        <div class="input-group-btn">
+                                            <button type="button" class="btn btn-default" tooltip="{{item.edit ? 'Close Editor' : 'Edit Calculation'}}" tooltip-placement="left" ng-click="vm.copyItem(item)">
+                                                <span class="fa {{item.edit ? 'fa-close' : 'fa-pencil'}}" aria-hidden="true" style="border-color:#FFF"></span>
+                                            </button>
+                                            <button type="button" class="btn btn-default"  aria-hidden="true" tooltip="{{item.edit ? 'Run Calculation' : 'Toggle Visibility'}}" tooltip-placement="left" ng-model="item"  ng-click="vm.updateItemview(item)"> 
+                                                <span class="fa {{item.edit ? 'fa-refresh' : 'fa-eye'}}"></span> 
+                                            </button>
                                         </div>
-                                </div> </div>  -->
-                            <div>Type   <div class="input-group" style="width:100%">
-                                        <div class="dropdown bs-dropdown">
-                                            <button  class="btn btn-default dropdown-toggle" type="button" id="dropdownMenu1" data-toggle="dropdown" aria-haspopup="true" aria-expanded="true" style="max-width: 212px;">{{vm.overlayType}}<span class="caret"></span></button>
-                                            <ul class="dropdown-menu" aria-labelledby="dropdownMenu1" style="width:260px;max-height:250px;overflow-y:scroll">
-                                                <li class="markers-command hvr-sweep-to-right" ng-repeat="item in vm.overlay.data.types" ng-click="vm.overlay.data.selected=item">{{item.name}}</li>
-                                            </ul>
-                                        </div>
-                            </div> </div>
-                            <div style="width:100%; display:inline-block">
-                                    <button ng-click="vm.callOverlay()" class="btn btn-default" type="button" id="" aria-haspopup="true" aria-expanded="true" style="float:right;margin-top:10px;background-color:#039BE5">
-                                        <span class="glyphicon glyphicon-chevron-right" style="color:#FFF"></span></button>
+                                </div>
+                                
+                                <div class="input-group" ng-if="item.edit" style="width:100%">                
+                                    <div class="dropdown bs-dropdown" style="max-width:230px">
+                                        <button class="btn btn-default dropdown-toggle" type="button" id="dropdownMenu1" data-toggle="dropdown" aria-haspopup="true" aria-expanded="true">
+                                            {{vm.temp.data.selected.name}}
+                                            <span class="caret"></span>
+                                        </button>
+                                        <ul class="dropdown-menu" aria-labelledby="dropdownMenu1" >
+                                            <li class="markers-command hvr-sweep-to-right" ng-repeat="subitem in item.data.types" ng-click="item.data.selected.name=item.name">{{subitem.name}}</li>
+                                        </ul>
+                                    </div>
+                                   
+                                    
+                                </div>
+                                <div ng-if="!item.edit">
+                                    Data: {{item.data.selected.name}} <br/>
+                                    Geneset: {{item.params.bool.geneset.use ? item.params.bool.geneset.name : 'All Genes'}}<br/>
+                                    Cohort: {{item.params.bool.cohort.use ? item.params.bool.cohort.name : "All Patients + Samples"}}
+                                </div> 
+                                
                             </div>
+            
+                            <button class="btn btn-default btn-no-focus" type="button" style="width:100%;font-weight: 300;" ng-click="vm.copyItem();">Add</button>                        
                         </div>
-                </div>
-                <button class="btn btn-default btn-no-focus" type="button" style="width:100%;font-weight: 300;" ng-click="vm.showOverlayForm = true">Add</button>                        
+                
              </div>
 
             <div ng-if="vm.legendCaption.length>0" class="col-xs-12 form-item">
