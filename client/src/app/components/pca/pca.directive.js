@@ -68,9 +68,7 @@
             var width, height;
             var colors = {
                 data: [],
-                dataset: osApi.getDataSource().dataset,
-                name: "None",
-                type: "color"
+                name: "Dataset"
             };
             var acceptableDatatypes = ["expr", "cnv", "mut01", "meth_thd", "meth", "cnv_thd"];
             var availableBaseMethods = ["PCA"]
@@ -133,7 +131,8 @@
                           title: vm.base.title,
                           method: vm.base.method,  
                           result : {input : {}},
-                          meta :{}
+                          meta :{},
+                          color : vm.base.color
                       }
                       vm.temp.source = {dataset: vm.base.source.dataset}
                       vm.temp.data = {  types:vm.base.data.types,
@@ -187,6 +186,12 @@
 
 
                 vm.copyItem = function(item){
+                    
+                    var usedColors = _.uniq(_.pluck(data, "color"))
+                    var availColors = [ "#E91E63", "#673AB7", "#4CAF50", "#CDDC39", "#FFC107", "#FF5722", "#795548", "#607D8B", "#03A9F4", "#03A9F4",
+                                        '#004358', '#800080', '#BEDB39', '#FD7400', '#1F8A70', '#B71C1C', '#880E4F', '#4A148C', '#311B92', '#0D47A1', 
+                                        '#006064', '#1B5E20'].filter(function(v) { return (usedColors.indexOf(v) == -1); });
+
                     // edit/create item in history 
                     if(typeof item == "undefined"){
                        item =  {
@@ -203,7 +208,8 @@
                             meta: {numGenes:0, numSamples:0},
                             result : {input:{}, output: {}},
                             edit: false,
-                            idx: vm.overlay.length
+                            idx: vm.overlay.length,
+                            color: availColors[0]
                         }
                         item.title = item.method + "  (" + moment().format('hh:mm:ss') + ")";
                         
@@ -217,7 +223,8 @@
                           method: item.method,  
                           result : {input : {}},
                           meta :{},
-                          idx: item.idx
+                          idx: item.idx,
+                          color: item.color
                       }
                       vm.temp.source = {dataset: item.source.dataset}
                       vm.temp.data = {  types:item.data.types,
@@ -228,7 +235,6 @@
                         geneset: {use: true, name:osApi.getGeneset().name},
                         cohort: {use: false, name:osApi.getCohort().name} }}
                       
-       //                 updateOptions()
                     } else{
                         //check if item was run
                         if(typeof item.result.input.length == "undefined")
@@ -502,23 +508,14 @@
                     ];
     
                     // Process Scores
-                    data = d.scores.map(function(v,i) {
+                    d.scores = d.scores.map(function(v,i) {
                         v.id = samples[i];
+                        v.layer = -1
                         return v;
                     });
+                    vm.base.result.output = d.scores
     
-                    minMax = data.reduce(function(p, c) {
-                        p.xMin = Math.min(p.xMin, c[0]);
-                        p.xMax = Math.max(p.xMax, c[0]);
-                        p.yMin = Math.min(p.yMin, c[1]);
-                        p.yMax = Math.max(p.yMax, c[1]);
-                        return p;
-                    }, {
-                        xMin: Infinity,
-                        yMin: Infinity,
-                        xMax: -Infinity,
-                        yMax: -Infinity
-                    });
+                    
             };
 
             var editOverlayMethod = function(){
@@ -591,8 +588,18 @@
                     //distances = _.pluck(d.D,"id")
                     angular.element('#modalRun').modal('hide');
                     var newData = calculateCentroid(d);
-                    vm.overlay[i].result.input = newData
-                    data = data.concat(newData)
+                    
+                    
+                    newData = newData.map(function(d){                  
+                        d.layer= i
+                        return d
+                    })
+
+                    //set overlay
+                    vm.overlay[i].result.input = d.D
+                    vm.overlay[i].result.output = newData
+                    vm.overlay[i].edit = false
+
                     draw()
                     // update plot with new points
                 });
@@ -604,11 +611,7 @@
                 // for each new overlay id, get ids for closest 3
                 var num_compare = 3
                 
-                 var usedColors = _.uniq(_.pluck(data, "color"))
-                 var availColors = [ "#E91E63", "#673AB7", "#4CAF50", "#CDDC39", "#FFC107", "#FF5722", "#795548", "#607D8B", "#03A9F4", "#03A9F4",
-                                     '#004358', '#800080', '#BEDB39', '#FD7400', '#1F8A70', '#B71C1C', '#880E4F', '#4A148C', '#311B92', '#0D47A1', 
-                                     '#006064', '#1B5E20'].filter(function(v) { return (usedColors.indexOf(v) == -1); });
-
+    
                  var top3 = dist.D.map(function(s){ 
                     var indices = findIndicesOfMax(s.d, 3);
                     var match_ids = indices.map(function(i){return s.m[i]})
@@ -621,7 +624,7 @@
                 
                 // find positions in current plot & calculate centroid
                 var scores = top3.map(function(s){ 
-                    var match_scores = data.filter(function(p){ return _.contains(s.match,p.id)})
+                    var match_scores = vm.base.result.output.filter(function(p){ return _.contains(s.match,p.id)})
                     var cent_scores = [0,0,0]
                     for(var i=0;i<match_scores.length;i++){
                         cent_scores[0] += match_scores[i][0]
@@ -630,8 +633,7 @@
                     }
                     var d = cent_scores.map(function(x){ return x/num_compare})
                     d.id = s.id;
-                    d.color= availColors[0]
-
+                    
                     return d
                 })
 
@@ -641,6 +643,11 @@
             }
 
             var draw = function() {
+
+                data = vm.base.result.output
+                for(var i =0; i<vm.overlay.length; i++){
+                    data = data.concat(vm.overlay[i].result.output)
+                }
 
                 // Colorize
                 setColors();
@@ -658,6 +665,19 @@
                 d3Points.attr("width", width).attr("height", height);
 
                 // Scale
+                minMax = data.reduce(function(p, c) {
+                    p.xMin = Math.min(p.xMin, c[0]);
+                    p.xMax = Math.max(p.xMax, c[0]);
+                    p.yMin = Math.min(p.yMin, c[1]);
+                    p.yMax = Math.max(p.yMax, c[1]);
+                    return p;
+                }, {
+                    xMin: Infinity,
+                    yMin: Infinity,
+                    xMax: -Infinity,
+                    yMax: -Infinity
+                });
+
                 scaleX = d3.scaleLinear().domain([minMax.xMin, minMax.xMax]).range([50, width - 50]).nice();
                 scaleY = d3.scaleLinear().domain([minMax.yMin, minMax.yMax]).range([50, height - 50]).nice();
 
@@ -775,10 +795,16 @@
                 vm.legendNodes = colors.data;
 
                 // If No Color Specified
-                if (colors.name == "None") {
-                    vm.legendCaption = "";
+                if (colors.name == "Dataset") {
+                    vm.legendNodes = [
+                    {name: vm.base.title, color: vm.base.color, values: vm.base.result.output.map(function(d){ return d.id }), id: "legend-"+vm.base.color.substr(1)}   ]
+                    vm.legendNodes = vm.legendNodes.concat(
+                        vm.overlay.map(function(r) {
+                            return {name: r.title, color: r.color, values: r.result.output.map(function(d){ return d.id }), id: "legend-"+r.color.substr(1)}}) )
+
                     data.forEach(function(v) {
-                        if(angular.isUndefined(v.color)) v.color = '#0096d5';
+                        if(v.layer == -1){ v.color = vm.base.color }
+                        else { v.color = vm.overlay[v.layer].color}
                     });
 
                     // Color Based On V
@@ -869,7 +895,8 @@
                 vm.temp.data.selected.i = 0;
                 vm.temp.data.selected.name = vm.temp.data.types[vm.temp.data.selected.i].name;
                 vm.temp.params.bool = { "geneset" : {name: osApi.getGeneset().name, use: true},
-                                        "cohort"  : {name: osApi.getCohort().name, use: false } }             
+                                        "cohort"  : {name: osApi.getCohort().name, use: false } } 
+                vm.temp.color = '#0096d5'            
                 
                 vm.callBaseMethod();
             });
