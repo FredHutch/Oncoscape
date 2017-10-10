@@ -26,11 +26,13 @@
             vm.getDataSources = function() {
                 $state.go("datasource");
             };
-            var loginSuccess = function() {
+            var loginSuccess = function(user) {
+                alert(user.email);
                 $state.go("userdatasource");
             };
     
             osAuth.onLogin.add(loginSuccess); 
+
             vm.datasets = osApi.getDataSources();
             vm.explore = function(tool, datasource) {
                 $state.go(tool, { datasource: datasource.disease });

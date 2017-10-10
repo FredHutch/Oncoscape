@@ -261,10 +261,10 @@ function jwtVerification(req, res, next) {
             var projectsJson = req.headers.authorization.replace('Bearer ', '');
             jwt.verify(projectsJson, jwtToken);
             req.projectsJson = jwt.decode(projectsJson);
-            console.log("%%%%%%%");
             next();
         } catch (e) {
             console.error(e);
+            res.send(e);
         }
     }
 };

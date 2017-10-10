@@ -157,8 +157,8 @@
                     thumb: e.thumbnail,
                     email: e.email
                 };
-                osApi.init().then(function() {
-                    onLogin.dispatch();
+                osApi.init().then(function() {    
+                    onLogin.dispatch(user);
                 });
             });
         });
