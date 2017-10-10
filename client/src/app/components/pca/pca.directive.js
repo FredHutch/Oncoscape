@@ -263,8 +263,10 @@
                 }
                 vm.updateItemview = function(item){
                     
-                     if(item.edit)
+                     if(item.edit){
+                        osApi.setBusy(true);
                          vm.callOverlayMethod(item);
+                     }
                     else{
                         item.visibility = item.visibility == "visible" ? "hidden" : "visible"
                         draw()
@@ -302,8 +304,8 @@
                     data: payload
                 });
             }
-            function Distancequery(collection1, collection2) {
-                var payload = { molecular_collection: collection1,molecular_collection2: collection2};
+            function Distancequery(collection1, collection2, geneIds) {
+                var payload = { molecular_collection: collection1,molecular_collection2: collection2, genes:geneIds};
                 return $http({
                     method: 'POST',
                  //   url: "https://dev.oncoscape.sttrcancer.io/cpu/distance",
@@ -583,8 +585,12 @@
                 vm.error = ""
 
                 var common_m = _.intersection(vm.overlay[i].data.types[vm.overlay[i].data.selected.i].m, vm.base.data.types[vm.base.data.selected.i].m)
-                if(vm.base.params.bool.geneset.use)
-                    common_m = _.intersection(common_m, osApi.getGenesets().filter(function(g){return g.name == vm.base.params.bool.geneset.name}).geneIds)
+                if(vm.base.params.bool.geneset.use){
+                    var gIds = osApi.getGenesets().filter(function(g){return g.name == vm.base.params.bool.geneset.name})[0].geneIds
+                    if(gIds.length >0 )
+                        common_m = _.intersection(common_m, gIds)
+                }
+                    
                 if(common_m.length == 0){
                     angular.element('#modal_intersection').modal();
                     vm.overlay[i].result.output = {}
@@ -597,9 +603,12 @@
             var runOverlay = function(i){
                 
                 var geneset = vm.base.params.bool.geneset
+                var gIds = []
+                if(geneset.use)
+                    gIds = osApi.getGenesets().filter(function(g){return g.name == geneset.name})[0].geneIds
                 
                 osApi.setBusy(true)
-                Distancequery(vm.base.data.types[vm.base.data.selected.i].collection, vm.overlay[i].data.types[vm.overlay[i].data.selected.i].collection).then(function(response) {
+                Distancequery(vm.base.data.types[vm.base.data.selected.i].collection, vm.overlay[i].data.types[vm.overlay[i].data.selected.i].collection, gIds).then(function(response) {
 
                     var d = response.data;
                     if(angular.isDefined(d.reason)){

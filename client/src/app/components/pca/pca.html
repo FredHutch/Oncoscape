@@ -14,7 +14,7 @@
                                             <span class="fa {{vm.base.edit ? 'fa-close' : 'fa-pencil'}}" aria-hidden="true" style="border-color:#FFF"></span>
                                         </button>
                                         <button type="button" class="btn btn-default"  aria-hidden="true" tooltip="{{vm.base.edit ? 'Run Calculation' : 'Toggle Visibility'}}" tooltip-placement="left"  style="{{vm.base.edit ? 'background-color:#47a8d8' : ''}}" ng-click="vm.updateBaseview()"> 
-                                            <span class="fa {{vm.base.edit ? 'fa-refresh' : 'fa-eye'}}" style="{{vm.base.edit ? 'color:#FFF' : ''}}"></span> 
+                                            <span class="fa {{vm.base.edit ? 'fa-refresh' : 'fa-eye'}}" style="{{vm.base.edit ? 'color:#FFF' : (vm.base.visibility == 'visible' ? 'color:#039BE5' : 'color:grey')}}"></span> 
                                         </button>
                                     </div>
                             </div>
@@ -53,7 +53,7 @@
                                                 <span class="fa {{item.edit ? 'fa-close' : 'fa-pencil'}}" aria-hidden="true" style="border-color:#FFF"></span>
                                             </button>
                                             <button type="button" class="btn btn-default"  aria-hidden="true" tooltip="{{item.edit ? 'Run Calculation' : 'Toggle Visibility'}}" tooltip-placement="left" style="{{item.edit ? 'background-color:#47a8d8' : ''}}" ng-model="item"  ng-click="vm.updateItemview(item)"> 
-                                                <span class="fa {{item.edit ? 'fa-refresh' : 'fa-eye'}}" style="{{item.edit ? 'color:#FFF' : ''}}"></span> 
+                                                <span class="fa {{item.edit ? 'fa-refresh' : 'fa-eye'}}" style="{{item.edit ? 'color:#FFF' : (item.visibility == 'visible' ? 'color:#039BE5' : 'color:grey')}}"></span> 
                                             </button>
                                         </div>
                                 </div>
