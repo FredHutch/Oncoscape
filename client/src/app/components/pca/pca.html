@@ -13,8 +13,8 @@
                                         <button type="button" class="btn btn-default" tooltip="{{vm.base.edit ? 'Close Editor' : 'Edit Calculation'}}" tooltip-placement="left" ng-click="vm.copyBase()">
                                             <span class="fa {{vm.base.edit ? 'fa-close' : 'fa-pencil'}}" aria-hidden="true" style="border-color:#FFF"></span>
                                         </button>
-                                        <button type="button" class="btn btn-default"  aria-hidden="true" tooltip="{{vm.base.edit ? 'Run Calculation' : 'Toggle Visibility'}}" tooltip-placement="left"  ng-click="vm.updateBaseview()"> 
-                                            <span class="fa {{vm.base.edit ? 'fa-refresh' : 'fa-eye'}}"></span> 
+                                        <button type="button" class="btn btn-default"  aria-hidden="true" tooltip="{{vm.base.edit ? 'Run Calculation' : 'Toggle Visibility'}}" tooltip-placement="left"  style="{{vm.base.edit ? 'background-color:#47a8d8' : ''}}" ng-click="vm.updateBaseview()"> 
+                                            <span class="fa {{vm.base.edit ? 'fa-refresh' : 'fa-eye'}}" style="{{vm.base.edit ? 'color:#FFF' : ''}}"></span> 
                                         </button>
                                     </div>
                             </div>
@@ -52,8 +52,8 @@
                                             <button type="button" class="btn btn-default" tooltip="{{item.edit ? 'Close Editor' : 'Edit Calculation'}}" tooltip-placement="left" ng-click="vm.copyItem(item)">
                                                 <span class="fa {{item.edit ? 'fa-close' : 'fa-pencil'}}" aria-hidden="true" style="border-color:#FFF"></span>
                                             </button>
-                                            <button type="button" class="btn btn-default"  aria-hidden="true" tooltip="{{item.edit ? 'Run Calculation' : 'Toggle Visibility'}}" tooltip-placement="left" ng-model="item"  ng-click="vm.updateItemview(item)"> 
-                                                <span class="fa {{item.edit ? 'fa-refresh' : 'fa-eye'}}"></span> 
+                                            <button type="button" class="btn btn-default"  aria-hidden="true" tooltip="{{item.edit ? 'Run Calculation' : 'Toggle Visibility'}}" tooltip-placement="left" style="{{item.edit ? 'background-color:#47a8d8' : ''}}" ng-model="item"  ng-click="vm.updateItemview(item)"> 
+                                                <span class="fa {{item.edit ? 'fa-refresh' : 'fa-eye'}}" style="{{item.edit ? 'color:#FFF' : ''}}"></span> 
                                             </button>
                                         </div>
                                 </div>
@@ -73,13 +73,13 @@
                                 </div>
                                 <div ng-if="!item.edit">
                                     Data: {{item.data.selected.name}} <br/>
-                                    Geneset: {{item.params.bool.geneset.use ? item.params.bool.geneset.name : 'All Genes'}}<br/>
-                                    Cohort: {{item.params.bool.cohort.use ? item.params.bool.cohort.name : "All Patients + Samples"}}
+                                    <!-- Geneset: {{item.params.bool.geneset.use ? item.params.bool.geneset.name : 'All Genes'}}<br/>
+                                    Cohort: {{item.params.bool.cohort.use ? item.params.bool.cohort.name : "All Patients + Samples"}} -->
                                 </div> 
                                 
                             </div>
             
-                            <button class="btn btn-default btn-no-focus" type="button" style="width:100%;font-weight: 300;" ng-click="vm.copyItem();"><span class="fa fa-plus"></span>  Layer</button>                        
+                            <button class="btn btn-default btn-no-focus" type="button" style="width:100%;font-weight: 300;border:white; text-align:left;color:#039BE5" ng-click="vm.copyItem();"><span class="fa fa-plus" style="color:#039BE5; padding-right:7px"></span>Layer</button>                        
                         </div>
                 
              </div>

@@ -132,7 +132,8 @@
                           method: vm.base.method,  
                           result : {input : {}},
                           meta :{},
-                          color : vm.base.color
+                          color : vm.base.color,
+                          visibility: "visible"
                       }
                       vm.temp.source = {dataset: vm.base.source.dataset}
                       vm.temp.data = {  types:vm.base.data.types,
@@ -153,8 +154,20 @@
                     vm.temp = null
                 }
                 vm.updateBaseview = function(){
-                    if(vm.base.edit)
+                    if(vm.base.edit){
                         vm.callBaseMethod();
+                        vm.overlay.forEach(function(d){
+                            osApi.setBusy(true)
+                            d.result.output = {}
+                            d.edit = true
+                            //vm.callOverlayMethod(d)
+                            //draw()
+                        })
+                    }
+                    else{
+                        vm.base.visibility = vm.base.visibility == "visible" ? "hidden" : "visible"
+                        draw()
+                    }
 
                 }
                 vm.callBaseMethod = function(){
@@ -187,7 +200,7 @@
 
                 vm.copyItem = function(item){
                     
-                    var usedColors = _.uniq(_.pluck(data, "color"))
+                    var usedColors = _.uniq(_.pluck(vm.overlay, "color"))
                     var availColors = [ "#E91E63", "#673AB7", "#4CAF50", "#CDDC39", "#FFC107", "#FF5722", "#795548", "#607D8B", "#03A9F4", "#03A9F4",
                                         '#004358', '#800080', '#BEDB39', '#FD7400', '#1F8A70', '#B71C1C', '#880E4F', '#4A148C', '#311B92', '#0D47A1', 
                                         '#006064', '#1B5E20'].filter(function(v) { return (usedColors.indexOf(v) == -1); });
@@ -209,7 +222,8 @@
                             result : {input:{}, output: {}},
                             edit: false,
                             idx: vm.overlay.length,
-                            color: availColors[0]
+                            color: availColors[0],
+                            visibility: "visible"
                         }
                         item.title = item.method + "  (" + moment().format('hh:mm:ss') + ")";
                         
@@ -217,6 +231,7 @@
                     }
                     item.edit = !item.edit
 
+                    // prep for running new overlay
                     if(item.edit){
                       vm.temp = {
                           title: item.title,
@@ -224,20 +239,23 @@
                           result : {input : {}},
                           meta :{},
                           idx: item.idx,
-                          color: item.color
+                          color: item.color,
+                          visibility: "visible"
                       }
+                      
                       vm.temp.source = {dataset: item.source.dataset}
                       vm.temp.data = {  types:item.data.types,
                                         selected:{
                                             i: item.data.selected.i,
                                             name:item.data.selected.name}}
+                      
                       vm.temp.params = {bool: {
                         geneset: {use: true, name:osApi.getGeneset().name},
                         cohort: {use: false, name:osApi.getCohort().name} }}
                       
                     } else{
                         //check if item was run
-                        if(typeof item.result.input.length == "undefined")
+                        if(angular.isUndefined(item.result.output.length))
                             // item was not run, remove from processed history
                             vm.overlay.splice(item.idx, 1)
                     }
@@ -245,12 +263,17 @@
                 }
                 vm.updateItemview = function(item){
                     
-                    // if(item.edit)
-                    //     vm.callOverlayMethod(item);
-                    callOverlay(item.idx);
+                     if(item.edit)
+                         vm.callOverlayMethod(item);
+                    else{
+                        item.visibility = item.visibility == "visible" ? "hidden" : "visible"
+                        draw()
+                    }
                 }
 
                 vm.callOverlayMethod = function(item){
+                    item.data.selected.i = _.findIndex(item.data.types, {"name": item.data.selected.name})
+                    osApi.setBusy(true)
                     callOverlay(item.idx);
                 }
                 
@@ -560,8 +583,12 @@
                 vm.error = ""
 
                 var common_m = _.intersection(vm.overlay[i].data.types[vm.overlay[i].data.selected.i].m, vm.base.data.types[vm.base.data.selected.i].m)
+                if(vm.base.params.bool.geneset.use)
+                    common_m = _.intersection(common_m, osApi.getGenesets().filter(function(g){return g.name == vm.base.params.bool.geneset.name}).geneIds)
                 if(common_m.length == 0){
                     angular.element('#modal_intersection').modal();
+                    vm.overlay[i].result.output = {}
+                    osApi.setBusy(false)
                     return;
                 }
 
@@ -580,6 +607,7 @@
                         // Distance could not be calculated on geneset given current settings
                             window.alert("Sorry, Distance could not be calculated\n" + d.reason)
 
+                        vm.overlay[i].result.output = {}
                         angular.element('#modalRun').modal('hide');
                         osApi.setBusy(false)
                         return;
@@ -646,7 +674,8 @@
 
                 data = vm.base.result.output
                 for(var i =0; i<vm.overlay.length; i++){
-                    data = data.concat(vm.overlay[i].result.output)
+                    if(angular.isDefined(vm.overlay[i].result.output.length))
+                        data = data.concat(vm.overlay[i].result.output)
                 }
 
                 // Colorize
@@ -694,7 +723,8 @@
                     .attr("r", 3)
                     .style("fill", function(d) {
                         return d.color;
-                    });
+                    })
+                    .style("visibility", function(d){ return d.visibility});
 
                 circles.exit()
                     .transition()
@@ -723,7 +753,8 @@
                     .style("fill", function(d) {
                         return d.color;
                     })
-                    .style("fill-opacity", 0.8);
+                    .style("fill-opacity", 0.8)
+                    .style("visibility", function(d){ return d.visibility});
 
                 // Axis
                 axisX = d3.axisTop().scale(scaleX).ticks(3);
@@ -800,14 +831,17 @@
                     {name: vm.base.title, color: vm.base.color, values: vm.base.result.output.map(function(d){ return d.id }), id: "legend-"+vm.base.color.substr(1)}   ]
                     vm.legendNodes = vm.legendNodes.concat(
                         vm.overlay.map(function(r) {
-                            return {name: r.title, color: r.color, values: r.result.output.map(function(d){ return d.id }), id: "legend-"+r.color.substr(1)}}) )
-
+                            return angular.isUndefined(r.result.output.length) ?
+                                null
+                             :  {name: r.title, color: r.color, values: r.result.output.map(function(d){ return d.id }), id: "legend-"+r.color.substr(1)}}) 
+                            .filter(function(r){return r != null})
+                        )
+                   
                     data.forEach(function(v) {
-                        if(v.layer == -1){ v.color = vm.base.color }
-                        else { v.color = vm.overlay[v.layer].color}
-                    });
+                            if(v.layer == -1){ v.color = vm.base.color }
+                            else { v.color = vm.overlay[v.layer].color} })
 
-                    // Color Based On V
+                // Color Based On selected input
                 } else {
                     var degMap = colors.data.reduce(function(p, c) {
                         for (var i = 0; i < c.values.length; i++) {
@@ -819,7 +853,12 @@
                         v.color = (angular.isDefined(this[v.id])) ? this[v.id] : "#DDD";
                         return v;
                     }, degMap);
-                }
+                }    
+            
+                data.forEach(function(v) {
+                    if(v.layer == -1){ v.visibility = vm.base.visibility }
+                    else { v.visibility = vm.overlay[v.layer].visibility}
+                });
                 $timeout(updatePatientCounts);
 
             }
@@ -896,7 +935,8 @@
                 vm.temp.data.selected.name = vm.temp.data.types[vm.temp.data.selected.i].name;
                 vm.temp.params.bool = { "geneset" : {name: osApi.getGeneset().name, use: true},
                                         "cohort"  : {name: osApi.getCohort().name, use: false } } 
-                vm.temp.color = '#0096d5'            
+                vm.temp.color = '#0096d5' 
+                vm.temp.visibility = "visible"           
                 
                 vm.callBaseMethod();
             });
