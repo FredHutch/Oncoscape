@@ -19,14 +19,18 @@
         return directive;
 
         /** @ngInject */
-        function UserdatasourceController(osApi, $state) {
+        function UserdatasourceController(osApi, $state, osAuth) {
             var vm = this;
+            vm.networks = osAuth.getAuthSources();
+            vm.login = osAuth.login;
             vm.getDataSources = function() {
                 $state.go("datasource");
             };
-            // vm.login = function() {
-            //     $state.go("login");
-            // };
+            var loginSuccess = function() {
+                $state.go("userdatasource");
+            };
+    
+            osAuth.onLogin.add(loginSuccess); 
             vm.datasets = osApi.getDataSources();
             vm.explore = function(tool, datasource) {
                 $state.go(tool, { datasource: datasource.disease });
