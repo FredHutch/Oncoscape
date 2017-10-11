@@ -8,7 +8,7 @@ const cors = require('cors');
 const mongoose = require('mongoose');
 const asyncLoop = require('node-async-loop');
 const nodemailer = require('nodemailer');
-const XLSX =require("xlsx");
+const XLSX = require("xlsx");
 const fs = require("fs");
 var path = require('path');
 var jsonfile = require("jsonfile");
@@ -23,7 +23,8 @@ var Permission = require("./models/permission");
 var GeneSymbolLookupTable;
 var HugoGenes = require("./HugoGenes.json");
 const jwtToken = 'OncoscapeSecrete';
-var ObjectId = mongoose.Types.ObjectId; 
+var ObjectId = mongoose.Types.ObjectId;
+
 // ----------------------- //
 // -----  Middleware ----- //
 // ----------------------- //
@@ -35,170 +36,163 @@ app.use(function (req, res, next) { //allow cross origin requests
     res.header("Access-Control-Allow-Credentials", true);
     next();
 });
-app.use(bodyParser.urlencoded({
-    limit: '400mb',
-    extended: true
-}));
-app.use(bodyParser.json({limit: '400mb'}));
-const corsOptions = {
-	origin: ['http://localhost:4200','http://localhost:8080', 'http://localhost:8080']
-}
-app.use(cors(corsOptions));
+app.use(bodyParser.urlencoded({ limit: '400mb', extended: true }));
+app.use(cors({ origin: ['http://localhost:4200', 'http://localhost:8080', 'http://localhost:8080'] }));
 
-// function processToken(req) {
-//     if (req && req.headers.hasOwnProperty("authorization")) {
-//         try {
-//             // Pull Toekn From Header - Not 
-//             var projectsJson = req.headers.authorization.replace('Bearer ', '');
-//             jwt.verify(projectsJson, jwtToken);
-//             req.projectsJson = jwt.decode(projectsJson);
-//             console.log("%%%%%%%");
-//             // next();
-//             //return true;
-//         } catch (e) {
-//             console.error(e);
-//             //return false;
-//         }
-//     }
-// }
-
-// app.get("/api/getProjectSecret", processToken, function(req, res, next) {
-//     req.projectId = 1234;
-//      var validRequest = false;
-//     foreach (project in req.projectsJson){ if (projectId === req.projectId)  validRequset = true }
-//     if (value) 
-// })
-
-
-
-// ------------- Begin Data Upload Functions ------------- //
-// request('http://dev.oncoscape.sttrcancer.io/api/lookup_oncoscape_genes/?q=&apikey=password', function(err, resp, body){
-//     GeneSymbolLookupTable = JSON.parse(body);
-//     HugoGenes = GeneSymbolLookupTable.map(function(m){return m.hugo;});
-//     jsonfile.writeFile("HugoGenes.json", HugoGenes, {spaces: 2}, function(err){ console.error(err);});  
-//     if(err) console.log(err);
-// });
 var transporter = nodemailer.createTransport({
     service: 'gmail',
     auth: {
-      user: 'jennylouzhang@gmail.com',
-      pass: process.env.GMAIL_PASSWORD
+        user: 'jennylouzhang@gmail.com',
+        pass: process.env.GMAIL_PASSWORD
     }
-  });
-  
-function processResult(req, res, next, query){
-    return function(err, data){
+});
+
+
+// The Method Results In A 404 If User Doesn't Have Permissions
+function checkReadPermissions(req, res, collection) {
+    return checkPermissions(req, res, collection, true);
+}
+function checkWritePermissions(req, res, collection){
+    return checkPermissions(req, res, collection, false);
+}
+function checkPermissions(req, res, collection, onlyReadAccess){
+
+    // Valid Projects Are Those From JWT Token
+    var validProjects = req.projectsJson
+        .map(function (project) { return project._id.toLowerCase().trim() }).concat(publicCollections);
+
+    // If Only Requesting Read Access Give Permission To All Public Collections
+    if (onlyReadAccess) {
+        validProjects.concat(["accounts", "gbm", "acc", "blca", "brain", "brca", "cesc", "chol", "coad", "coadread", "dlbc", "esca", "hg19", "hnsc", "kich", "kirc", "kirp", "laml", "lgg", "lihc", "lookup", "luad", "lung", "lusc", "meso", "ov", "paad", "pancan12", "pancan", "pcpg", "phenotype", "prad", "read", "sarc", "skcm", "stad", "tcganatgengbm", "tgct", "thca", "thym", "ucec", "ucs", "uvm"]);
+    }
+
+    // Convert Collection To Project Name
+    var projectName = collection.split("_")[0].toLowerCase().trim();
+    
+    // Throw 404 If Collection Being Accessed Is Not In The List Of Valid Projects
+    if (validProjects.indexOf(projectName) === -1) {
+        return false;
+        res.status(404).send('Unknown');
+        res.end();
+    }
+
+    return true;
+}
+
+function processResult(req, res, next, query) {
+    return function (err, data) {
         if (err) {
             console.log(err);
             res.status(404).send("Not Found").end();
-        }else{
+        } else {
             res.json(data).end();
         }
     };
 };
-function routerFactory(Model) {
+function routerFactory(Model, type) {
     var router = express.Router();
-    router.use(bodyParser.json()); 
+    router.use(bodyParser.json());
     router.use(bodyParser.urlencoded({ extended: true }));
 
-    router.get('/', jwtVerification, function(req, res, next){	
-        Model.find({}, processResult(req,res));
+    router.get('/', jwtVerification, function (req, res, next) {
+        Model.find({}, processResult(req, res));
     });
-    router.post('/', jwtVerification, function(req, res, next) {
-        Model.create(req.body, processResult(req,res));
+    router.post('/', jwtVerification, function (req, res, next) {
+        Model.create(req.body, processResult(req, res));
     });
-    router.get('/:id', jwtVerification, function(req, res, next) {
-        Model.findById(req.params.id, processResult(req,res));
+    router.get('/:id', jwtVerification, function (req, res, next) {
+        Model.findById(req.params.id, processResult(req, res));
     });
-    router.put('/:id', jwtVerification, function(req, res, next) {
-        Model.findOneAndUpdate({_id: req.params.id}, req.body, {upsert: false}, processResult(req,res));
+    router.put('/:id', jwtVerification, function (req, res, next) {
+        Model.findOneAndUpdate({ _id: req.params.id }, req.body, { upsert: false }, processResult(req, res));
     });
-    router.delete('/:id', jwtVerification, function(req, res, next) {
-        Model.remove({_id: req.params.id}, processResult(req,res));
+    router.delete('/:id', jwtVerification, function (req, res, next) {
+        Model.remove({ _id: req.params.id }, processResult(req, res));
     });
     return router;
 };
 function userRouterFactory(Model) {
     var router = express.Router();
-    router.use(bodyParser.json()); 
+    router.use(bodyParser.json());
     router.use(bodyParser.urlencoded({ extended: true }));
 
-    router.get('/', function(req, res, next){	
-        Model.find({}, processResult(req,res));
+    router.get('/', function (req, res, next) {
+        Model.find({}, processResult(req, res));
     });
-    router.post('/', function(req, res, next) {
-        Model.create(req.body, processResult(req,res));
+    router.post('/', function (req, res, next) {
+        Model.create(req.body, processResult(req, res));
     });
-    router.get('/:id', jwtVerification, function(req, res, next) {
-        Model.findById(req.params.id, processResult(req,res));
+    router.get('/:id', jwtVerification, function (req, res, next) {
+        Model.findById(req.params.id, processResult(req, res));
     });
-    router.put('/:id', jwtVerification, function(req, res, next) {
-        Model.findOneAndUpdate({_id: req.params.id}, req.body, {upsert: false}, processResult(req,res));
+    router.put('/:id', jwtVerification, function (req, res, next) {
+        Model.findOneAndUpdate({ _id: req.params.id }, req.body, { upsert: false }, processResult(req, res));
     });
-    router.delete('/:id', jwtVerification, function(req, res, next) {
-        Model.remove({_id: req.params.id}, processResult(req,res));
+    router.delete('/:id', jwtVerification, function (req, res, next) {
+        Model.remove({ _id: req.params.id }, processResult(req, res));
     });
     return router;
 };
-function fileRouterFactory(){
+
+function fileRouterFactory() {
     console.log('in server fileRouterFactory');
     var router = express.Router();
     var projectCollections;
-    router.use(bodyParser.json()); 
+    router.use(bodyParser.json());
     router.use(bodyParser.urlencoded({ extended: true }));
-    router.get('/', jwtVerification, function(req, res){	
+    router.get('/', jwtVerification, function (req, res) {
         console.log("in Files");
         res.status(200).end();
     });
-    router.post('/', jwtVerification, function(req, res) {
+    router.post('/', jwtVerification, function (req, res) {
         console.log("in post");
     });
-    router.get('/:id', jwtVerification, function(req, res){
+    router.get('/:id', jwtVerification, function (req, res) {
         console.log("Getting Project-Related Collections...", req.params.id);
         var projectID = req.params.id;
-        db.db.listCollections().toArray(function(err, collectionMeta) {
+        db.db.listCollections().toArray(function (err, collectionMeta) {
             if (err) {
                 console.log(err);
             }
             else {
-                projectCollections = collectionMeta.map(function(m){
+                projectCollections = collectionMeta.map(function (m) {
                     return m.name;
-                }).filter(function(m){
+                }).filter(function (m) {
                     return m.indexOf(projectID) > -1;
                 });
-                
-                if(projectCollections.length === 0){
+
+                if (projectCollections.length === 0) {
                     res.status(404).send("Not Found").end();
                     // res.send('Not Find').end();
                 } else {
                     var arr = [];
 
-                    asyncLoop(projectCollections, function(m, next){ 
-                        db.collection(m).find().toArray(function(err, data){
+                    asyncLoop(projectCollections, function (m, next) {
+                        db.collection(m).find().toArray(function (err, data) {
                             var obj = {};
                             obj.collection = m;
-                            if(m.indexOf("clinical") > -1){
+                            if (m.indexOf("clinical") > -1) {
                                 obj.category = "clinical";
-                                obj.patients = data.map(function(m){return m.id});
+                                obj.patients = data.map(function (m) { return m.id });
                                 obj.metatdata = data[0].metadata;
-                                obj.enums_fields = data.map(function(m){return Object.keys(m.enums);})
-                                                    .reduce(function(a, b){return a = _.uniq(a.concat(b));});
-                                obj.nums_fields = data.map(function(m){return Object.keys(m.nums);})
-                                                    .reduce(function(a, b){return a = _.uniq(a.concat(b));});               
-                                obj.time_fields = data.map(function(m){return Object.keys(m.time);})
-                                                    .reduce(function(a, b){return a = _.uniq(a.concat(b));});   
-                                obj.boolean_fields = data.map(function(m){return Object.keys(m.boolean);})
-                                                    .reduce(function(a, b){return a = _.uniq(a.concat(b));});                                                                     
+                                obj.enums_fields = data.map(function (m) { return Object.keys(m.enums); })
+                                    .reduce(function (a, b) { return a = _.uniq(a.concat(b)); });
+                                obj.nums_fields = data.map(function (m) { return Object.keys(m.nums); })
+                                    .reduce(function (a, b) { return a = _.uniq(a.concat(b)); });
+                                obj.time_fields = data.map(function (m) { return Object.keys(m.time); })
+                                    .reduce(function (a, b) { return a = _.uniq(a.concat(b)); });
+                                obj.boolean_fields = data.map(function (m) { return Object.keys(m.boolean); })
+                                    .reduce(function (a, b) { return a = _.uniq(a.concat(b)); });
                                 arr.push(obj);
                             } else if (m.indexOf("molecular") > -1) {
                                 obj.category = "molecular";
-                                var types = _.uniq(data.map(function(m){return m.type}));
-                                types.forEach(function(n){
+                                var types = _.uniq(data.map(function (m) { return m.type }));
+                                types.forEach(function (n) {
                                     obj[n] = {};
-                                    typeObjs = data.filter(function(v){return v.type === n});
-                                    obj[n].markers = typeObjs.map(function(v){return v.marker});
-                                    obj[n].patients = _.uniq(typeObjs.map(function(v){return Object.keys(v.data);})
-                                                                    .reduce(function(a, b){return a = _.uniq(a.concat(b));}));
+                                    typeObjs = data.filter(function (v) { return v.type === n });
+                                    obj[n].markers = typeObjs.map(function (v) { return v.marker });
+                                    obj[n].patients = _.uniq(typeObjs.map(function (v) { return Object.keys(v.data); })
+                                        .reduce(function (a, b) { return a = _.uniq(a.concat(b)); }));
                                 });
                                 arr.push(obj);
                             } else {
@@ -206,38 +200,39 @@ function fileRouterFactory(){
                             }
                             next();
                         });
-                        
-                    }, function(err){
-                        if(err){
+
+                    }, function (err) {
+                        if (err) {
                             console.log(err);
                             res.status(404).send(err).end();
                         } else {
                             res.json(arr).end();
-                        }    
-                        
+                        }
+
                     });
-                    
-                }  
+
+                }
             }
         });
     })
-    router.delete('/:id', jwtVerification, function(req, res){
+    
+    router.delete('/:id', jwtVerification, function (req, res) {
         console.log("in delete");
         console.log(req.params.id);
         var projectID = req.params.id;
-        db.db.listCollections().toArray(function(err, collectionMeta) {
+        db.db.listCollections().toArray(function (err, collectionMeta) {
             if (err) {
                 console.log(err);
             }
             else {
-                collectionMeta.map(function(m){
+                collectionMeta.map(function (m) {
                     return m.name;
-                }).filter(function(m){
+                }).filter(function (m) {
                     return m.indexOf(projectID) > -1;
-                }).forEach(function(m){
-                    db.db.dropCollection(m,function(err, result) {
+                }).forEach(function (m) {
+                    db.db.dropCollection(m, function (err, result) {
                         console.log("DELETING", m);
-                        if(err) console.log(err);
+                        if (err) console.log(err);
                         console.log(result);
                     });
                 });
@@ -248,11 +243,16 @@ function fileRouterFactory(){
     return router;
 };
 function camelToDash(str) {
-      return str.replace(/\W+/g, '-')
-                .replace(/([a-z\d])([A-Z])/g, '$1-$2')
-                .replace("-", "_")
-                .toLowerCase();
+    return str.replace(/\W+/g, '-')
+        .replace(/([a-z\d])([A-Z])/g, '$1-$2')
+        .replace("-", "_")
+        .toLowerCase();
 };
+
+/*
+*   Verify JWT Token Is Authentic
+*   Add Projects Json to the request parameters
+*/
 function jwtVerification(req, res, next) {
     console.log('in jwtVerification function');
     if (req && req.headers.hasOwnProperty("authorization")) {
@@ -268,40 +268,21 @@ function jwtVerification(req, res, next) {
         }
     }
 };
+
 var storage = multer.diskStorage({
     destination: function (req, file, cb) {
-       cb(null, process.env.APP_ROOT + '/uploads')
+        cb(null, process.env.APP_ROOT + '/uploads')
     },
     filename: function (req, file, cb) {
-      var newFileName = file.fieldname + '-' + Date.now() + '.xlsx';
-      cb(null, newFileName);
+        var newFileName = file.fieldname + '-' + Date.now() + '.xlsx';
+        cb(null, newFileName);
     }
 });
 var upload = multer({
-    storage: storage, 
+    storage: storage,
     preservePath: true
 }).single('file');
-// ------------- End Data Upload Functions ------------- //
 
-// --------------------- //
-// ----- OAuth API ----- //
-// --------------------- //
-// function oauthHandler(req, res, next) {
-//     // Check that this is a login redirect with an access_token (not a RESTful API call via proxy) 
-//     if (req.oauthshim &&
-//         req.oauthshim.redirect &&
-//         req.oauthshim.data &&
-//         req.oauthshim.data.access_token &&
-//         req.oauthshim.options &&
-//         !req.oauthshim.options.path) {}
-//     next()
-// }
-// app.all('/api/auth',
-//     oauthshim.interpret,
-//     oauthHandler,
-//     oauthshim.proxy,
-//     oauthshim.redirect,
-//     oauthshim.unhandled);
 
 // --------------------- //
 // ----- Mongo API ----- //
@@ -309,41 +290,33 @@ var upload = multer({
 var domain = process.env.MONGO_DOMAIN;
 mongoose.connect(
     //"mongodb://oncoscape-dev-db1.sttrcancer.io:27017,oncoscape-dev-db2.sttrcancer.io:27017,oncoscape-dev-db3.sttrcancer.io:27017/tcga?authSource=admin",{
-    process.env.MONGO_CONNECTION, {  
-    db: {
-        native_parser: true
-    },
-    server: {
-        poolSize: 5,
-        reconnectTries: Number.MAX_VALUE
-    },
-    replset: {
-        rs_name: 'rs0'
-    },
-    user: process.env.MONGO_USERNAME,
-    pass: process.env.MONGO_PASSWORD
-});
-var db = mongoose.connection; 
+    process.env.MONGO_CONNECTION, {
+        db: {
+            native_parser: true
+        },
+        server: {
+            poolSize: 5,
+            reconnectTries: Number.MAX_VALUE
+        },
+        replset: {
+            rs_name: 'rs0'
+        },
+        user: process.env.MONGO_USERNAME,
+        pass: process.env.MONGO_PASSWORD
+    });
+var db = mongoose.connection;
 db.on("error", console.error.bind(console, "connection error"));
 db.once("open", function (callback) {
     console.log("Connection succeeded.");
-    // ------------------------------- //
-    // ----- Oncoscape Mongo API ----- //
-    //  ------------------------------ //
-    // Pull OAuth Networks From Databas + Init OAuth
-    db.db.collection("lookup_oncoscape_authentication").find().toArray(function(err, response) {
-        var networks = response.map(function(v) {
-           v.domain = domain;
-           return v;
-       });
-       oauthshim.init(networks);
-   });
 
     // Generic Method For Querying Mongo
-    var processQuery = function(req, res, next, query) {
+    var processQuery = function (req, res, next, query) {
+
+        if (!checkReadPermissions( req, res, collection)) return;
+
         // Add Response header
         res.setHeader("Cache-Control", "public, max-age=86400");
-        db.db.collection(req.params.collection, function(err, collection) {
+        db.db.collection(req.params.collection, function (err, collection) {
             if (err) {
                 res.status(err.code).send(err.messages);
                 res.end();
@@ -369,7 +342,7 @@ db.once("open", function (callback) {
                 _id: 0
             }; // Omit Mongo IDs
             if (query.$fields) {
-                query.$fields.forEach(function(field) {
+                query.$fields.forEach(function (field) {
                     this[field] = 1;
                 }, fields);
                 delete query.$fields;
@@ -379,48 +352,48 @@ db.once("open", function (callback) {
             var find = collection.find(query, fields);
             if (limit) find = find.limit(limit);
             if (skip) find = find.skip(skip);
-            find.toArray(function(err, results) {
+            find.toArray(function (err, results) {
                 res.send(results);
                 res.end();
             });
         });
     };
-    
+
     // Query using file path (client cache)
-    app.get('/api/:collection/:query', jwtVerification, function(req, res, next) {
-        res.setHeader("Cache-Control", "public, max-age=86400");        
+    app.get('/api/:collection/:query', jwtVerification, function (req, res, next) {
+        res.setHeader("Cache-Control", "public, max-age=86400");
         var query = (req.params.query) ? JSON.parse(req.params.query) : {};
         processQuery(req, res, next, query);
     });
 
     // Query using get querystring (no client cache)
-    app.get('/api/:collection*', function(req, res, next) {
+    app.get('/api/:collection*', jwtVerification, function (req, res, next) {
         res.setHeader("Cache-Control", "public, max-age=86400");
         var query = (req.query.q) ? JSON.parse(req.query.q) : {};
         processQuery(req, res, next, query);
     });
 
     // If Dev + Running Gulp Proxy Everything Else
-    if (process.env.NODE_DEBUG=="1"){
+    if (process.env.NODE_DEBUG == "1") {
         const httpProxy = require('http-proxy');
         var proxy = httpProxy.createProxyServer();
-        app.all('/*', function(req, res, next) {
+        app.all('/*', function (req, res, next) {
             proxy.web(req, res, {
                 target: 'http://localhost:3000'
             });
         });
     }
-  
+
 });
 
-var fetchDBCollection = function(collectionName, query){
-    return new Promise(function(resolve, reject){
-        db.db.collection(collectionName).find(query).toArray(function(err, response){
+var fetchDBCollection = function (collectionName, query) {
+    return new Promise(function (resolve, reject) {
+        db.db.collection(collectionName).find(query).toArray(function (err, response) {
             resolve(response);
         });
     });
 };
-app.post('/api/token', function(req, res, next) {
+app.post('/api/token', function (req, res, next) {
     // Pull Token Out Of Request Body
     var token = req.body.token;
     // Send Token To Google To See Who It Belongs Too
@@ -442,30 +415,30 @@ app.post('/api/token', function(req, res, next) {
             var projectIDs = [];
             var projects = [];
             var userProjectsJson = [];
-            fetchDBCollection("Accounts_Users", {'Gmail': usersGmailAddress}).then(function(response){
-                if(response.length != 0){
+            fetchDBCollection("Accounts_Users", { 'Gmail': usersGmailAddress }).then(function (response) {
+                if (response.length != 0) {
                     user_ID = response[0]._id;
-                    fetchDBCollection("Accounts_Permissions", {'User': user_ID}).then(function(response){
+                    fetchDBCollection("Accounts_Permissions", { 'User': user_ID }).then(function (response) {
                         permissions = response;
-                        projectIDs = permissions.map(function(p){
+                        projectIDs = permissions.map(function (p) {
                             return mongoose.Types.ObjectId(p.Project);
                         });
                         console.log(projectIDs);
-                        fetchDBCollection("Accounts_Projects", {'_id':{$in:projectIDs}}).then(function(response){
+                        fetchDBCollection("Accounts_Projects", { '_id': { $in: projectIDs } }).then(function (response) {
                             projects = response;
-                            userProjectsJson = permissions.map(function(m){
-                                var proj = projects.filter(function(p){
+                            userProjectsJson = permissions.map(function (m) {
+                                var proj = projects.filter(function (p) {
                                     return p.Project = m.Project;
                                 })[0];
                                 return _.extend(proj, m);
                             })
                             var jwtTokens = jwt.sign(JSON.stringify(userProjectsJson), jwtToken);
-                            res.send({token: jwtTokens }).end();
-                        }); 
+                            res.send({ token: jwtTokens }).end();
+                        });
                     });
                 }
-            });        
-    });
+            });
+        });
 });
 // app.use(function(req,res, next) {
 //     if (req && req.headers.hasOwnProperty("authorization")) {
@@ -491,10 +464,10 @@ app.post('/api/token', function(req, res, next) {
 // ----- Data Upload Functions ---- //
 // -------------------------------- // 
 app.use('/api/users', userRouterFactory(User));
-app.use('/api/projects', routerFactory(Project));
-app.use('/api/permissions', routerFactory(Permission));
+app.use('/api/projects', routerFactory(Project, 'project'));
+app.use('/api/permissions', routerFactory(Permission, 'permission'));
 app.use('/api/files', fileRouterFactory());
-app.use('/api/irbs', routerFactory(IRB));
+//app.use('/api/irbs', routerFactory(IRB));
 app.use('/api/upload', express.static(process.env.APP_ROOT + '/uploads'));
 app.post('/api/upload/:id/:email', jwtVerification, function (req, res) {
     var projectID = req.params.id;
@@ -504,7 +477,7 @@ app.post('/api/upload/:id/:email', jwtVerification, function (req, res) {
         to: userEmail,
         subject: 'Notification from Oncoscape Data Uploading App',
         text: 'Data are in database, ready to share.'
-      };
+    };
     var molecularColleciton = mongoose.model(projectID + "_data_molecular", File.schema);
     var sampleMapCollection = mongoose.model(projectID + "_data_samples", File.schema);
     var clinicalColleciton = mongoose.model(projectID + "_data_clinical", File.schema);
@@ -515,21 +488,22 @@ app.post('/api/upload/:id/:email', jwtVerification, function (req, res) {
             console.log(err);
             return;
         } else {
-            const writing2Mongo = fork(process.env.APP_ROOT + '/server/fileUpload.js', 
-            { execArgv: ['--max-old-space-size=1000']});
-            writing2Mongo.send({ filePath: res.req.file.path, 
-                                 projectID: projectID
-                              });
+            const writing2Mongo = fork(process.env.APP_ROOT + '/server/fileUpload.js',
+                { execArgv: ['--max-old-space-size=1000'] });
+            writing2Mongo.send({
+                filePath: res.req.file.path,
+                projectID: projectID
+            });
             writing2Mongo.on('message', () => {
                 res.end('Writing is done');
                 console.log("*********************!!!!!!!********************");
-                transporter.sendMail(mailOptions, function(error, info){
+                transporter.sendMail(mailOptions, function (error, info) {
                     if (error) {
-                      console.log(error);
+                        console.log(error);
                     } else {
-                      console.log('Email sent: ' + info.response);
+                        console.log('Email sent: ' + info.response);
                     }
-                  });
+                });
             });
         }
     });
@@ -537,13 +511,13 @@ app.post('/api/upload/:id/:email', jwtVerification, function (req, res) {
 });
 
 // Ping Method - Used For Testing
-app.get("/api/ping", function(req, res, next) {
+app.get("/api/ping", function (req, res, next) {
     res.setHeader("Cache-Control", "public, max-age=86400");
     res.send((new Date()).toString());
     res.end();
 });
 
 // Start Listening
-app.listen(process.env.NODE_PORT, function() {
+app.listen(process.env.NODE_PORT, function () {
     console.log("UP");
 });
