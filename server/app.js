@@ -21,7 +21,7 @@ var File = require("./models/file");
 var IRB = require("./models/irb");
 var Permission = require("./models/permission");
 var GeneSymbolLookupTable;
-var HugoGenes;
+var HugoGenes = require("./HugoGenes.json");
 const jwtToken = 'OncoscapeSecrete';
 var ObjectId = mongoose.Types.ObjectId; 
 // ----------------------- //
@@ -72,12 +72,12 @@ app.use(cors(corsOptions));
 
 
 // ------------- Begin Data Upload Functions ------------- //
-request('http://dev.oncoscape.sttrcancer.io/api/lookup_oncoscape_genes/?q=&apikey=password', function(err, resp, body){
-    GeneSymbolLookupTable = JSON.parse(body);
-    HugoGenes = GeneSymbolLookupTable.map(function(m){return m.hugo;});
-    jsonfile.writeFile("HugoGenes.json", HugoGenes, {spaces: 2}, function(err){ console.error(err);});  
-    if(err) console.log(err);
-});
+// request('http://dev.oncoscape.sttrcancer.io/api/lookup_oncoscape_genes/?q=&apikey=password', function(err, resp, body){
+//     GeneSymbolLookupTable = JSON.parse(body);
+//     HugoGenes = GeneSymbolLookupTable.map(function(m){return m.hugo;});
+//     jsonfile.writeFile("HugoGenes.json", HugoGenes, {spaces: 2}, function(err){ console.error(err);});  
+//     if(err) console.log(err);
+// });
 var transporter = nodemailer.createTransport({
     service: 'gmail',
     auth: {
