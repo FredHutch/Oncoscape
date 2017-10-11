@@ -687,9 +687,9 @@
                     }, reject);
                 }),
                 new Promise(function(resolve, reject) {
-                    query("lookup_oncoscape_datasources", {
-                        beta: false
-                    }).then(function(response) {
+                    query("lookup_oncoscape_datasources"
+                    , {beta: false}
+                    ).then(function(response) {
                         _dataSource = { disease: '' };
                         _dataSources = response.data
                             .filter(function(d) {

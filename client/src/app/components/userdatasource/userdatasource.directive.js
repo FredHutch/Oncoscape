@@ -24,14 +24,20 @@
             vm.networks = osAuth.getAuthSources();
             vm.login = osAuth.login;
             vm.getDataSources = function() {
-                $state.go("datasource");
+              //  $state.go("datasource");
             };
-            var loginSuccess = function(user) {
-                alert(user.email);
-                $state.go("userdatasource");
+            
+            var loadPrivateData = function(user) {
+             //   alert(user.email);
+             //   $state.go("userdatasource");
+             var u = user;
+             vm.datasets = osApi.getDataSources();
+             vm.explore = function(tool, datasource) {
+                 $state.go(tool, { datasource: datasource.disease });
+             };
             };
     
-            osAuth.onLogin.add(loginSuccess); 
+            osAuth.onLogin.add(loadPrivateData); 
 
             vm.datasets = osApi.getDataSources();
             vm.explore = function(tool, datasource) {
