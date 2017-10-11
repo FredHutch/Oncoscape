@@ -1,34 +1,16 @@
 const express = require('express');
-const oauthshim = require('oauth-shim'); //used by Oncoscape
-const jwt = require('jsonwebtoken');
 const { fork } = require('child_process');
-const request = require('request');
-const _ = require("underscore");
 const cors = require('cors');
 const mongoose = require('mongoose');
-const asyncLoop = require('node-async-loop');
 const nodemailer = require('nodemailer');
-const XLSX = require("xlsx");
-const fs = require("fs");
-var path = require('path');
-var jsonfile = require("jsonfile");
 var multer = require('multer');
-var bodyParser = require('body-parser'); //parses information from POST
-var filebrowser = require('file-browser');
-var User = require("./models/user");
-var Project = require("./models/project");
-var File = require("./models/file");
-var IRB = require("./models/irb");
-var Permission = require("./models/permission");
-var GeneSymbolLookupTable;
-var HugoGenes = require("./HugoGenes.json");
-const jwtToken = 'OncoscapeSecrete';
-var ObjectId = mongoose.Types.ObjectId;
+var bodyParser = require('body-parser');
+const routes = require('./app.routes.js');
 
-// ----------------------- //
-// -----  Middleware ----- //
-// ----------------------- //
+// Middleware
 var app = express();
+app.use(bodyParser.urlencoded({ limit: '400mb', extended: true }));
+app.use(cors({ origin: ['http://localhost:4200', 'http://localhost:8080', 'http://localhost:8080'] }));
 app.use(function (req, res, next) { //allow cross origin requests
     res.setHeader("Access-Control-Allow-Methods", "POST, PUT, OPTIONS, DELETE, GET");
     res.header("Access-Control-Allow-Origin", "http://localhost:" + process.env.NODE_PORT + "/");
@@ -36,8 +18,14 @@ app.use(function (req, res, next) { //allow cross origin requests
     res.header("Access-Control-Allow-Credentials", true);
     next();
 });
-app.use(bodyParser.urlencoded({ limit: '400mb', extended: true }));
-app.use(cors({ origin: ['http://localhost:4200', 'http://localhost:8080', 'http://localhost:8080'] }));
+
+// Routes
+db.getConnection().then( db => {
+    console.log("OK READY");
+    routes.init(app);
+});
+
+
 
 var transporter = nodemailer.createTransport({
     service: 'gmail',
@@ -46,222 +34,6 @@ var transporter = nodemailer.createTransport({
         pass: process.env.GMAIL_PASSWORD
     }
 });
-
-
-// The Method Results In A 404 If User Doesn't Have Permissions
-function checkReadPermissions(req, res, collection) {
-    return checkPermissions(req, res, collection, true);
-}
-function checkWritePermissions(req, res, collection){
-    return checkPermissions(req, res, collection, false);
-}
-function checkPermissions(req, res, collection, onlyReadAccess){
-
-    // Valid Projects Are Those From JWT Token
-    var validProjects = req.projectsJson
-        .map(function (project) { return project._id.toLowerCase().trim() }).concat(publicCollections);
-
-    // If Only Requesting Read Access Give Permission To All Public Collections
-    if (onlyReadAccess) {
-        validProjects.concat(["accounts", "gbm", "acc", "blca", "brain", "brca", "cesc", "chol", "coad", "coadread", "dlbc", "esca", "hg19", "hnsc", "kich", "kirc", "kirp", "laml", "lgg", "lihc", "lookup", "luad", "lung", "lusc", "meso", "ov", "paad", "pancan12", "pancan", "pcpg", "phenotype", "prad", "read", "sarc", "skcm", "stad", "tcganatgengbm", "tgct", "thca", "thym", "ucec", "ucs", "uvm"]);
-    }
-
-    // Convert Collection To Project Name
-    var projectName = collection.split("_")[0].toLowerCase().trim();
-    
-    // Throw 404 If Collection Being Accessed Is Not In The List Of Valid Projects
-    if (validProjects.indexOf(projectName) === -1) {
-        return false;
-        res.status(404).send('Unknown');
-        res.end();
-    }
-
-    return true;
-}
-
-function processResult(req, res, next, query) {
-    return function (err, data) {
-        if (err) {
-            console.log(err);
-            res.status(404).send("Not Found").end();
-        } else {
-            res.json(data).end();
-        }
-    };
-};
-function routerFactory(Model, type) {
-    var router = express.Router();
-    router.use(bodyParser.json());
-    router.use(bodyParser.urlencoded({ extended: true }));
-
-    router.get('/', jwtVerification, function (req, res, next) {
-        Model.find({}, processResult(req, res));
-    });
-    router.post('/', jwtVerification, function (req, res, next) {
-        Model.create(req.body, processResult(req, res));
-    });
-    router.get('/:id', jwtVerification, function (req, res, next) {
-        Model.findById(req.params.id, processResult(req, res));
-    });
-    router.put('/:id', jwtVerification, function (req, res, next) {
-        Model.findOneAndUpdate({ _id: req.params.id }, req.body, { upsert: false }, processResult(req, res));
-    });
-    router.delete('/:id', jwtVerification, function (req, res, next) {
-        Model.remove({ _id: req.params.id }, processResult(req, res));
-    });
-    return router;
-};
-function userRouterFactory(Model) {
-    var router = express.Router();
-    router.use(bodyParser.json());
-    router.use(bodyParser.urlencoded({ extended: true }));
-
-    router.get('/', function (req, res, next) {
-        Model.find({}, processResult(req, res));
-    });
-    router.post('/', function (req, res, next) {
-        Model.create(req.body, processResult(req, res));
-    });
-    router.get('/:id', jwtVerification, function (req, res, next) {
-        Model.findById(req.params.id, processResult(req, res));
-    });
-    router.put('/:id', jwtVerification, function (req, res, next) {
-        Model.findOneAndUpdate({ _id: req.params.id }, req.body, { upsert: false }, processResult(req, res));
-    });
-    router.delete('/:id', jwtVerification, function (req, res, next) {
-        Model.remove({ _id: req.params.id }, processResult(req, res));
-    });
-    return router;
-};
-
-function fileRouterFactory() {
-    console.log('in server fileRouterFactory');
-    var router = express.Router();
-    var projectCollections;
-    router.use(bodyParser.json());
-    router.use(bodyParser.urlencoded({ extended: true }));
-    router.get('/', jwtVerification, function (req, res) {
-        console.log("in Files");
-        res.status(200).end();
-    });
-    router.post('/', jwtVerification, function (req, res) {
-        console.log("in post");
-    });
-    router.get('/:id', jwtVerification, function (req, res) {
-        console.log("Getting Project-Related Collections...", req.params.id);
-        var projectID = req.params.id;
-        db.db.listCollections().toArray(function (err, collectionMeta) {
-            if (err) {
-                console.log(err);
-            }
-            else {
-                projectCollections = collectionMeta.map(function (m) {
-                    return m.name;
-                }).filter(function (m) {
-                    return m.indexOf(projectID) > -1;
-                });
-
-                if (projectCollections.length === 0) {
-                    res.status(404).send("Not Found").end();
-                    // res.send('Not Find').end();
-                } else {
-                    var arr = [];
-
-                    asyncLoop(projectCollections, function (m, next) {
-                        db.collection(m).find().toArray(function (err, data) {
-                            var obj = {};
-                            obj.collection = m;
-                            if (m.indexOf("clinical") > -1) {
-                                obj.category = "clinical";
-                                obj.patients = data.map(function (m) { return m.id });
-                                obj.metatdata = data[0].metadata;
-                                obj.enums_fields = data.map(function (m) { return Object.keys(m.enums); })
-                                    .reduce(function (a, b) { return a = _.uniq(a.concat(b)); });
-                                obj.nums_fields = data.map(function (m) { return Object.keys(m.nums); })
-                                    .reduce(function (a, b) { return a = _.uniq(a.concat(b)); });
-                                obj.time_fields = data.map(function (m) { return Object.keys(m.time); })
-                                    .reduce(function (a, b) { return a = _.uniq(a.concat(b)); });
-                                obj.boolean_fields = data.map(function (m) { return Object.keys(m.boolean); })
-                                    .reduce(function (a, b) { return a = _.uniq(a.concat(b)); });
-                                arr.push(obj);
-                            } else if (m.indexOf("molecular") > -1) {
-                                obj.category = "molecular";
-                                var types = _.uniq(data.map(function (m) { return m.type }));
-                                types.forEach(function (n) {
-                                    obj[n] = {};
-                                    typeObjs = data.filter(function (v) { return v.type === n });
-                                    obj[n].markers = typeObjs.map(function (v) { return v.marker });
-                                    obj[n].patients = _.uniq(typeObjs.map(function (v) { return Object.keys(v.data); })
-                                        .reduce(function (a, b) { return a = _.uniq(a.concat(b)); }));
-                                });
-                                arr.push(obj);
-                            } else {
-                                arr.push(data);
-                            }
-                            next();
-                        });
-
-                    }, function (err) {
-                        if (err) {
-                            console.log(err);
-                            res.status(404).send(err).end();
-                        } else {
-                            res.json(arr).end();
-                        }
-
-                    });
-
-                }
-            }
-        });
-    })
-    
-    router.delete('/:id', jwtVerification, function (req, res) {
-        console.log("in delete");
-        console.log(req.params.id);
-        var projectID = req.params.id;
-        db.db.listCollections().toArray(function (err, collectionMeta) {
-            if (err) {
-                console.log(err);
-            }
-            else {
-                collectionMeta.map(function (m) {
-                    return m.name;
-                }).filter(function (m) {
-                    return m.indexOf(projectID) > -1;
-                }).forEach(function (m) {
-                    db.db.dropCollection(m, function (err, result) {
-                        console.log("DELETING", m);
-                        if (err) console.log(err);
-                        console.log(result);
-                    });
-                });
-            }
-        });
-        res.status(200).send("files are deleted").end();
-    });
-    return router;
-};
-
-/*
-*   Verify JWT Token Is Authentic
-*   Add Projects Json to the request parameters
-*/
-function jwtVerification(req, res, next) {
-    console.log('in jwtVerification function');
-    if (req && req.headers.hasOwnProperty("authorization")) {
-        try {
-            // Pull Toekn From Header - Not 
-            var projectsJson = req.headers.authorization.replace('Bearer ', '');
-            jwt.verify(projectsJson, jwtToken);
-            req.projectsJson = jwt.decode(projectsJson);
-            next();
-        } catch (e) {
-            console.error(e);
-            res.send(e);
-        }
-    }
-};
 
 var storage = multer.diskStorage({
     destination: function (req, file, cb) {
@@ -277,92 +49,11 @@ var upload = multer({
     preservePath: true
 }).single('file');
 
-
-
-var fetchDBCollection = function (collectionName, query) {
-    return new Promise(function (resolve, reject) {
-        db.db.collection(collectionName).find(query).toArray(function (err, response) {
-            resolve(response);
-        });
-    });
-};
-app.post('/api/token', function (req, res, next) {
-    // Pull Token Out Of Request Body
-    var token = req.body.token;
-    // Send Token To Google To See Who It Belongs Too
-    request({ url: 'https://www.googleapis.com/oauth2/v3/userinfo', qs: { access_token: token }, method: 'POST', json: true },
-        function (err, response, body) {
-            // Google Returns Email Address For Token
-            var usersGmailAddress = body.email;
-            // Query Database To Findout Users Permissions
-            /* Step 1: Query Accounts_Users To Find User_id
-            db.db.collection("Accounts_Users").find({'Gmail':usersGmailAddress},{_id:1}).toArray(function(err, response) {
-                console.log('User ID is : ', response);
-            });
-            Step 2: Query Acconts_Permissions To Find Permissions + Projects
-            Step 3: Query Projects To Get Details
-            Step 4: Put All This Information Into a JSON Array of Projects with Permisson + Project Detail
-            */
-            var user_ID;
-            var permissions = [];
-            var projectIDs = [];
-            var projects = [];
-            var userProjectsJson = [];
-            fetchDBCollection("Accounts_Users", { 'Gmail': usersGmailAddress }).then(function (response) {
-                if (response.length != 0) {
-                    user_ID = response[0]._id;
-                    fetchDBCollection("Accounts_Permissions", { 'User': user_ID }).then(function (response) {
-                        permissions = response;
-                        projectIDs = permissions.map(function (p) {
-                            return mongoose.Types.ObjectId(p.Project);
-                        });
-                        console.log(projectIDs);
-                        fetchDBCollection("Accounts_Projects", { '_id': { $in: projectIDs } }).then(function (response) {
-                            projects = response;
-                            userProjectsJson = permissions.map(function (m) {
-                                var proj = projects.filter(function (p) {
-                                    return p.Project = m.Project;
-                                })[0];
-                                return _.extend(proj, m);
-                            })
-                            var jwtTokens = jwt.sign(JSON.stringify(userProjectsJson), jwtToken);
-                            res.send({ token: jwtTokens }).end();
-                        });
-                    });
-                }
-            });
-        });
-});
-// app.use(function(req,res, next) {
-//     if (req && req.headers.hasOwnProperty("authorization")) {
-//         try {
-//             // Pull Toekn From Header - Not 
-//             var projectsJson = req.headers.authorization.replace('Bearer ', '');
-//             console.log('in jwtVerification function');
-//             console.log('projectsJson: ', projectsJson);
-//             jwt.verify(projectsJson, jwtToken);
-//             req.projectsJson = jwt.decode(projectsJson);
-//             console.log('req.projectsJson: ', req.projectsJson);
-//             console.log("%%%%%%%");
-//             next();
-//             //return true;
-//         } catch (e) {
-//             console.error(e);
-//             //return false;
-//         }
-//     }
-// });   
-
 // -------------------------------- //
 // ----- Data Upload Functions ---- //
 // -------------------------------- // 
-app.use('/api/users', userRouterFactory(User));
-app.use('/api/projects', routerFactory(Project, 'project'));
-app.use('/api/permissions', routerFactory(Permission, 'permission'));
-app.use('/api/files', fileRouterFactory());
-//app.use('/api/irbs', routerFactory(IRB));
 app.use('/api/upload', express.static(process.env.APP_ROOT + '/uploads'));
-app.post('/api/upload/:id/:email', jwtVerification, function (req, res) {
+app.post('/api/upload/:id/:email', function (req, res) {
     var projectID = req.params.id;
     var userEmail = req.params.email;
     var mailOptions = {
@@ -403,14 +94,10 @@ app.post('/api/upload/:id/:email', jwtVerification, function (req, res) {
     res.status(200).end();
 });
 
-// Ping Method - Used For Testing
-app.get("/api/ping", function (req, res, next) {
-    res.setHeader("Cache-Control", "public, max-age=86400");
-    res.send((new Date()).toString());
-    res.end();
-});
+
 
 // Start Listening
-app.listen(process.env.NODE_PORT, function () {
+//process.env.NODE_PORT
+app.listen(11000, function () {
     console.log("UP");
 });
