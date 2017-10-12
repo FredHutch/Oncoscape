@@ -21,29 +21,56 @@
         /** @ngInject */
         function UserdatasourceController(osApi, $state, osAuth) {
             var vm = this;
-            vm.networks = osAuth.getAuthSources();
-            vm.login = osAuth.login;
-            vm.getDataSources = function() {
-              //  $state.go("datasource");
-            };
-            
-            var loadPrivateData = function(user) {
-             //   alert(user.email);
-             //   $state.go("userdatasource");
-             var u = user;
-             vm.datasets = osApi.getDataSources();
-             vm.explore = function(tool, datasource) {
-                 $state.go(tool, { datasource: datasource.disease });
-             };
-            };
-    
-            osAuth.onLogin.add(loadPrivateData); 
+        
+            vm.login = function(){
+                var networks = osAuth.getAuthSources();
 
-            vm.datasets = osApi.getDataSources();
+                //login with google
+                osAuth.login(networks[1]);
+            }
             vm.explore = function(tool, datasource) {
                 $state.go(tool, { datasource: datasource.disease });
             };
-            osApi.setBusy(false);
+            
+            vm.showDatasourceOption = function(source){
+                if(source == "TCGA")
+                    $state.go("datasource");
+            }
+
+            var loadUserData = function(user) {
+
+                vm.user = user
+             
+                osApi.query("Accounts_Users", {
+                    Gmail: user.email,
+                }).then(function(response) {
+                    var acct = response.data[0]
+                    
+                    if(angular.isUndefined(acct) ) return
+                    
+                    osApi.query("Accounts_Permissions", {
+                        User: acct._id,
+                    }).then(function(resp) {
+                        var permissions = resp.data
+                        osApi.query("Accounts_Projects", {
+                            _id: {$in: _.pluck(permissions,"Project")}
+                        }).then(function(r) {
+                            vm.projects = r.data
+                        })
+                    })
+                })
+                  
+             
+             vm.datasets = osApi.getDataSources();
+             
+             
+            };
+    
+            osAuth.onLogin.add(loadUserData); 
+
+            
+            
+           
         }
     }
 })();
