@@ -67,7 +67,7 @@
             // State
             var mpState = (function(osApi) {
                 // Retrieve State
-                var mp = localStorage.getItem("MP-" + osApi.getDataSource().disease);
+                var mp = localStorage.getItem("MP-" + osApi.getDataSource().dataset);
                 var hasState = (mp !== null);
                 if (hasState) mp = angular.fromJson(mp);
 
@@ -189,7 +189,7 @@
                     s.optPatientLayout = vm.optPatientLayout;
                     s.optColors = _colors;
                     s.edges = cyChart.$('edge[edgeType="cn"]').jsons();
-                    localStorage.setItem("MP-" + osApi.getDataSource().disease, angular.toJson(s));
+                    localStorage.setItem("MP-" + osApi.getDataSource().dataset, angular.toJson(s));
                 };
 
                 return {
@@ -563,7 +563,7 @@
                         type: 'geneset',
                         $fields: ['name']
                     }),
-                    osApi.query(osApi.getDataSource().disease + "_cluster", {
+                    osApi.query(osApi.getDataSource().dataset + "_cluster", {
                         $fields: ['input', 'geneset', 'dataType', 'source', 'default']
                     })
 
@@ -912,7 +912,7 @@
                     var opts = {
                         mode: vm.optCommandMode.name,
                         cmd: cmd,
-                        dataset: osApi.getDataSource().disease,
+                        dataset: osApi.getDataSource().dataset,
                         patients: {
                             data: vm.datasource.clinical.patient,
                             layout: vm.optPatientLayout,

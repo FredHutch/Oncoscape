@@ -64,8 +64,8 @@ RUN useradd -u 7534 -m -d /home/sttrweb -c "sttr web application" sttrweb && \
 
 # Python Server
 WORKDIR /home/sttrweb/Oncoscape/
-RUN git clone https://github.com/dtenenba/oncoscape_plsr.git
-WORKDIR oncoscape_plsr
+RUN git clone https://github.com/Oncoscape/oncoscape_algorithm_wrapper.git
+WORKDIR oncoscape_algorithm_wrapper
 RUN pip3 install -r requirements.txt
 
 

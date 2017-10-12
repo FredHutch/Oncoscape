@@ -1,4 +1,4 @@
-/* global hello:false, jStat:false, TWEEN:false, d3:false, $:false, signals:false, cytoscape:false, document:false, moment:false, _:false, localStorage:false, saveAs:false, TextEncoder:false */
+/* global hello:false, jStat:false, vega:false,TWEEN:false, d3:false, $:false, signals:false, cytoscape:false, document:false, moment:false, _:false, localStorage:false, saveAs:false, TextEncoder:false */
 
 (function() {
     'use strict';
@@ -9,6 +9,7 @@
         .constant('TWEEN', TWEEN)
         .constant('moment', moment)
         .constant('d3', d3)
+     //   .constant('vega', vega)
         .constant('cytoscape', cytoscape)
         .constant('signals', signals)
         .constant('$', $)
@@ -16,6 +17,8 @@
         .constant('localStorage', localStorage)
         .constant('saveAs', saveAs)
         .constant('TextEncoder', TextEncoder)
-        .constant('_', _);
+        .constant('hello', hello)
+        .constant('_', _)
+        .constant('ML',ML);
 
 })();
