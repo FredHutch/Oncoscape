@@ -30,6 +30,7 @@
             vm.datasources = [];
             vm.tools = [];
             vm.cohorts = [];
+            
 
             // State Management
             osApi.onNavChange.add(function(state) {
@@ -44,6 +45,7 @@
                         vm.datasources = osApi.getDataSources();
                         vm.tools = osApi.getTools();
                         vm.cohorts = osApi.getCohorts();
+                        
                         break;
                     default:
                         vm.showTools = false;
@@ -56,11 +58,13 @@
             vm.addPatientCohort = function() {
                 osApi.saveCohort();
             };
+           
 
             // State Command
             vm.setPatientCohort = function(cohort) {
                 osApi.setCohort(cohort);
             };
+            
 
             // Import Cohorts Command 
             vm.importIds = "";
@@ -71,6 +75,15 @@
                 vm.importName = "";
                 vm.showImport = false;
             };
+
+            
+            osApi.onshowGenesetImportChange.add(function(show) {
+                
+                vm.showImport = show
+            });
+            
+            
+            
             vm.login = function() {
                 $state.go("login");
             };
@@ -91,7 +104,6 @@
                 vm.cohorts = osApi.getCohorts();
             });
 
-
             // Load Dataset Command - Navigation
             vm.loadDataset = function(dataset) {
                 angular.element('.navbar-collapse').collapse('hide');
@@ -101,7 +113,7 @@
 
             // Load Tool Command - Navigation
             vm.loadTool = function(tool) {
-                $state.go(tool, { datasource: osApi.getDataSource().disease });
+                $state.go(tool, { datasource: osApi.getDataSource().dataset });
                 angular.element('.navbar-collapse').collapse('hide');
             };
 

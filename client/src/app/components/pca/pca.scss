@@ -85,3 +85,45 @@
         fill: steelblue;
     }
 }
+
+.tilt.right {
+    transform: rotate(3deg);
+    -moz-transform: rotate(3deg);
+    -webkit-transform: rotate(3deg);
+}
+.tilt.left {
+    transform: rotate(-3deg);
+    -moz-transform: rotate(-3deg);
+    -webkit-transform: rotate(-3deg);
+}
+
+.kanban-column {
+    width: 100%;
+    float: left;
+    padding-bottom: 20px;
+}
+.portlet {
+    margin: 0 1em 1em 0;
+    padding: 0.3em;
+}
+.portlet-header {
+    padding: 0.2em 0.3em;
+    margin-bottom: 0.5em;
+    position: relative;
+}
+.portlet-toggle {
+    position: absolute;
+    top: 50%;
+    right: 0;
+    margin-top: -8px;
+}
+.portlet-content {
+    padding: 0.4em;
+    margin-bottom: 0.8em;
+    border: 1px solid #616161;
+}
+.portlet-placeholder {
+    border: 1px dotted black;
+    margin: 0 1em 1em 0;
+    height: 50px;
+}

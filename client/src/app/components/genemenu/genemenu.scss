@@ -1,0 +1,87 @@
+// Namespace
+.axisGene line {
+    stroke: #adadad;
+}
+
+.axisGene path {
+    stroke: #adadad;
+}
+
+#genemenu-chart {
+    overflow: hidden;
+}
+
+.genemenu-toggle-btn {
+    cursor: pointer;
+    i {
+        -webkit-transition: all 0.5s ease 0s;
+        -moz-transition: all 0.5s ease 0s;
+        -o-transition: all 0.5s ease 0s;
+        -ms-transition: all 0.5s ease 0s;
+        transition: all 0.5s ease 0s;
+        margin-right: 10px;
+    }
+}
+
+.genemenu-toggle-btn-first {
+    padding-top: 0px;
+    margin-top: 0px;
+}
+
+.collapsed {
+    //margin-top: 0px;
+    margin-bottom: 0px;
+    padding-bottom: 0px;
+    i {
+        -webkit-transform: rotate(270deg);
+        -moz-transform: rotate(270deg);
+        -ms-transform: rotate(270deg);
+        -o-transform: rotate(270deg);
+        transform: rotate(270deg);
+    }
+}
+
+ .gene-menu {
+//     /* W3C, IE 10+/ Edge, Firefox 16+, Chrome 26+, Opera 12+, Safari 7+ */
+//  //   position: fixed;
+//     left: 0px;
+//     width: 300px;
+//     height: 100%;
+//     margin-left: 0px;
+     margin-top: 15px;
+//     overflow-y: auto;
+//     z-index: 900;
+//     padding: 20px;
+//     min-width: 300px;
+//     a:hover {
+//         text-decoration: none;
+//     }
+ }
+
+.gene-menu-chart-bar {
+    fill: $color-blue;
+}
+
+.gene-chart-hide {
+    display: none;
+}
+
+.genemenu-single-value {
+    padding-top: 25%;
+    height: 150px;
+    font-size: 20px;
+    text-align: center;
+    background-color: $color-blue;
+    color: #FFF;
+}
+
+.genemenu-single-value-numeric {
+    font-size: 50px;
+    line-height: 150px;
+    padding-top: 0px;
+}
+
+.genemenu-strikethrough {
+    text-decoration: line-through;
+    pointer-events: none;
+  }

@@ -33,7 +33,7 @@
                     <li class="dropdown" ng-show="vm.showDatasets">
                         <a href class="dropdown-toggle header-link" data-toggle="dropdown" role="button" aria-haspopup="true" aria-expanded="false"><span class="glyphicon glyphicon-th"></span>Datasets</a>
                         <ul class="dropdown-menu row" style="max-height:88vh;overflow:scroll;">
-                            <li ng-repeat="item in vm.datasources" style="padding-bottom:10px" class="col-xs-12 col-sm-6 col-lg-4" ng-click="vm.loadDataset(item.disease)">
+                            <li ng-repeat="item in vm.datasources" style="padding-bottom:10px" class="col-xs-12 col-sm-6 col-lg-4" ng-click="vm.loadDataset(item.dataset)">
                                 <div class="datasource-btn" style="color:#000">
                                     <img class="datasource-img" ng-src="/assets/images/img{{item.img}}">
                                     <p class="datasource-h1">{{item.name}}</p>
@@ -92,3 +92,4 @@
         </div>
     </nav>
 </div>
+<os-import-panel ng-if="vm.showImport" close="vm.showImport=false"></os-import-panel>
