@@ -27,7 +27,6 @@
             vm.login = function(){
                 var networks = osAuth.getAuthSources();
 
-                var t = vm.user
                 //login with google
                 osAuth.login(networks[1]);
             }

@@ -39,7 +39,8 @@
             name: 'Google',
             icon: 'fa fa-google-plus',
             // key: '428912153446-7c82srcvu1bk1nramiqqctne005epl6s.apps.googleusercontent.com',
-            key: '1098022410981-p7n5ejjji8qlvdtff274pol54jo5i8ks.apps.googleusercontent.com',
+            //key: '1098022410981-p7n5ejjji8qlvdtff274pol54jo5i8ks.apps.googleusercontent.com',
+            key: '459144121975-lp2p5kahpqahm2gffgtl31vv0nes9hj4.apps.googleusercontent.com',
             mode: 'implicit'
         }, {
             id: 'linkedin',
