@@ -307,7 +307,9 @@ var upload = multer({
 // ----- Mongo API ----- //
 // --------------------- //
 var domain = process.env.MONGO_DOMAIN;
+debugger;
 mongoose.connect(
+
     //"mongodb://oncoscape-dev-db1.sttrcancer.io:27017,oncoscape-dev-db2.sttrcancer.io:27017,oncoscape-dev-db3.sttrcancer.io:27017/tcga?authSource=admin",{
     process.env.MONGO_CONNECTION, {  
     db: {
@@ -330,6 +332,7 @@ db.once("open", function (callback) {
     // ------------------------------- //
     // ----- Oncoscape Mongo API ----- //
     //  ------------------------------ //
+
     // Pull OAuth Networks From Databas + Init OAuth
     db.db.collection("lookup_oncoscape_authentication").find().toArray(function(err, response) {
         var networks = response.map(function(v) {

@@ -1,0 +1,24 @@
+<div id="collectionPanel" style="display:none">
+    <label class="tray-label tray-label-left"><i class="fa fa-chevron-right" aria-hidden="true"></i></label>
+    <div class="collection-panel tray tray-left">
+        <section>
+            <ul class="nav nav-tabs">
+                <li class="active"><a data-target="#cohorttab" data-toggle="tab">Cohorts</a></li>
+                <li><a  data-target="#genesettab" data-toggle="tab">Genesets</a></li>
+              </ul>
+            <i id="collectionpanel-lock" class="fa fa-lock tray-sticky-icon" ng-click="vm.toggle()" locked="true" tooltip="Show / Hide" tooltip-placement="left"></i>
+
+            <div class="tab-content">
+                <div class="tab-pane active cont" id="cohorttab">
+                    <os-cohort-menu></os-cohort-menu>
+                 </div>
+            
+                 <div class="tab-pane cont" id="genesettab">
+                    <os-gene-menu></os-gene-menu>
+                 </div>
+            
+                </div>
+            </div>
+        </section>
+    </div>
+</div>

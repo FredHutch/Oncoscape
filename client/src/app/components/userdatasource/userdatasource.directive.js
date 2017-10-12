@@ -19,12 +19,15 @@
         return directive;
 
         /** @ngInject */
-        function UserdatasourceController(osApi, $state, osAuth) {
+        function UserdatasourceController(osApi, $state, osAuth, $scope) {
             var vm = this;
-        
+            vm.user = osAuth.getUser()
+            vm.projects = osAuth.getDatasets()
+
             vm.login = function(){
                 var networks = osAuth.getAuthSources();
 
+                var t = vm.user
                 //login with google
                 osAuth.login(networks[1]);
             }
@@ -38,6 +41,8 @@
             }
 
             var loadUserData = function(user) {
+
+                if(angular.isUndefined(user)) return;
 
                 vm.user = user
              
@@ -56,6 +61,7 @@
                             _id: {$in: _.pluck(permissions,"Project")}
                         }).then(function(r) {
                             vm.projects = r.data
+                            osAuth.setDatasets(vm.projects)
                         })
                     })
                 })
@@ -68,7 +74,7 @@
     
             osAuth.onLogin.add(loadUserData); 
 
-            
+            osApi.setBusy(false);
             
            
         }

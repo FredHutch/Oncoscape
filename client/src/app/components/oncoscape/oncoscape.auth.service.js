@@ -13,12 +13,19 @@
         var onLogout = new signals.Signal(); // Fired When Selection changes
 
         // User Object
-        var user = null;
+        var _user = null;
         var getUser = function() {
-            return user;
+            return _user;
+        };
+        var _datasets = null;
+        var getDatasets = function() {
+            return _datasets;
+        };
+        var setDatasets = function(datasets) {
+            _datasets = datasets;
         };
         var isAuthenticated = function() {
-            return user != null;
+            return _user != null;
         };
 
         // Authentication Sources
@@ -97,7 +104,7 @@
         };
 
         var loginGuest = function() {
-            user = {
+            _user = {
                 network: 'guest',
                 id: 'x',
                 name: 'Guest',
@@ -109,15 +116,15 @@
         }
         var login = function(source) {
             if (source.id == 'guest') {
-                user = {
+                _user = {
                     network: 'guest',
                     id: 'x',
                     name: 'Guest',
                     thumb: 'Guest.png'
                 };
-                osApi.init().then(function() {
-                    onLogin.dispatch();
-                });
+            
+                onLogin.dispatch();
+                
                 return;
             }
             auth().login(source.id, {
@@ -127,9 +134,12 @@
                 scope: 'email',
                 force: true
             });
+            onLogin.dispatch();
         };
 
         var logout = function() {
+            _user = null
+            _datasets = null;
             auth().logout(authSource, {
                 force: false
             }, onLogout.dispatch);
@@ -150,7 +160,7 @@
             osApi.setBusy();
             authSource = e.network;
             auth(authSource).api("/me", "get", null, function(e) {
-                user = {
+                _user = {
                     network: authSource,
                     id: e.id,
                     name: e.name,
@@ -158,7 +168,7 @@
                     email: e.email
                 };
                 osApi.init().then(function() {    
-                    onLogin.dispatch(user);
+                    onLogin.dispatch(_user);
                 });
             });
         });
@@ -168,6 +178,8 @@
             loginGuest: loginGuest,
             getUser: getUser,
             getAuthSources: getAuthSources,
+            setDatasets : setDatasets,
+            getDatasets : getDatasets,
             login: login,
             logout: logout,
             onLogin: onLogin,

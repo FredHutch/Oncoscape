@@ -43,7 +43,7 @@
 
             osApi.query(tbl, {
                 type: 'color',
-                dataset: osApi.getDataSource().disease,
+                dataset: osApi.getDataSource().dataset,
                 $fields: ['name', 'subtype']
             }).then(function(v) {
 
@@ -73,7 +73,7 @@
                 vm.close();
                 if (item.name == "None") {
                     osApi.setPatientColor({
-                        "dataset": osApi.getDataSource().disease,
+                        "dataset": osApi.getDataSource().dataset,
                         "type": "color",
                         "name": "None",
                         "data": [],
@@ -84,7 +84,7 @@
 
                 osApi.query(tbl, {
                     type: 'color',
-                    dataset: osApi.getDataSource().disease,
+                    dataset: osApi.getDataSource().dataset,
                     name: item.name
                 }).then(function(v) {
                     var data = v.data[0];
@@ -280,7 +280,7 @@
                             });
 
                             colors = {
-                                dataset: osApi.getDataSource().disease,
+                                dataset: osApi.getDataSource().dataset,
                                 type: 'color',
                                 name: genes.reduce(function(p, c) {
                                     p += c.op + c.gene + " ";

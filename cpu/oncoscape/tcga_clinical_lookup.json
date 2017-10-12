@@ -1,0 +1,5 @@
+[ {"dataset":"brca","req":{"patient_id":"patient_ID","days_to_death":"days_to_death","days_to_last_followup":"days_to_last_follow_up","status_vital":"status_vital"},"schema":"clinical"}
+, {"dataset":"gbm","req":{"patient_id":"patient_ID","days_to_death":"days_to_death","days_to_last_followup":"days_to_last_follow_up","status_vital":"status_vital"},"schema":"clinical"}
+, {"dataset":"lgg","req":{"patient_id":"patient_ID","days_to_death":"days_to_death","days_to_last_followup":"days_to_last_follow_up","status_vital":"status_vital"},"schema":"clinical"}
+, {"dataset":"brain","req":{"patient_id":"patient_ID","days_to_death":"days_to_death","days_to_last_followup":"days_to_last_follow_up","status_vital":"status_vital"},"schema":"clinical"}
+    ]

@@ -23,7 +23,7 @@
             var vm = this;
             vm.datasets = osApi.getDataSources();
             vm.explore = function(tool, datasource) {
-                $state.go(tool, { datasource: datasource.disease });
+                $state.go(tool, { datasource: datasource.dataset });
             };
             osApi.setBusy(false);
         }

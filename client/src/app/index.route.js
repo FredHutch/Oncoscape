@@ -16,7 +16,9 @@
                     resolve();
                     angular.element("#main").removeClass("container-main-full");
                     angular.element("#header").css({ display: "block" });
-                    angular.element("#cohortMenu").css({ display: "none" });
+                    angular.element("#collectionPanel").css({ display: "none" });
+                    // angular.element("#cohortMenu").css({ display: "none" });
+                    // angular.element("#geneMenu").css({ display: "none" });
                     osApi.onNavChange.dispatch("");
                 });
             });
@@ -27,7 +29,9 @@
                 resolveDatasource(osApi).then(function() {
                     osApi.setDataSource($stateParams.datasource).then(function() {
                         resolve();
-                        angular.element("#cohortMenu").css({ display: "none" });
+                        angular.element("#collectionPanel").css({ display: "none" });
+                        // angular.element("#cohortMenu").css({ display: "none" });
+                        // angular.element("#geneMenu").css({ display: "none" });
                         osApi.onNavChange.dispatch("TOOLS");
                     });
 
@@ -43,12 +47,16 @@
                     if (osApi.getCohort() === null || $stateParams.datasource !== prevDatasource) {
                         osApi.setDataSource($stateParams.datasource).then(function() {
                             resolve();
-                            angular.element("#cohortMenu").css({ display: "block" });
+                            angular.element("#collectionPanel").css({ display: "block" });
+                            // angular.element("#cohortMenu").css({ display: "block" });
+                            // angular.element("#geneMenu").css({ display: "block" });
                             osApi.onNavChange.dispatch("TOOL");
                         });
 
                     } else {
-                        angular.element("#cohortMenu").css({ display: "block" });
+                        angular.element("#collectionPanel").css({ display: "block" });
+                        // angular.element("#cohortMenu").css({ display: "block" });
+                        // angular.element("#geneMenu").css({ display: "block" });
                         osApi.onNavChange.dispatch("TOOL");
                         resolve();
                     }
@@ -63,7 +71,9 @@
             $timeout(function() {
                 angular.element("#main").addClass("container-main-full");
                 angular.element("#header").css({ display: "none" });
-                angular.element("#cohortMenu").css({ display: "none" });
+                angular.element("#collectionPanel").css({ display: "none" });
+                // angular.element("#cohortMenu").css({ display: "none" });
+                // angular.element("#geneMenu").css({ display: "none" });
                 osApi.onNavChange.dispatch("");
             }, 200);
         };
@@ -220,6 +230,13 @@
                 datasource: false,
                 help: "/",
                 resolve: {}
+            })
+            .state('genedashboard', {
+                url: '/genedashboard/{datasource}',
+                template: '<os-genedashboard>',
+                datasource: false,
+                help: "/",
+                resolve: { resolveTool : resolveTool}
             })
             .state('barcharts', {
                 url: '/barchart/{datasource}',
