@@ -90,6 +90,15 @@
                     resolveLanding: resolveLanding
                 }
             })
+            .state('userdatasource', {
+                url: '/userdatasource',
+                template: '<os-userdatasource>',
+                datasource: false,
+                help: "/",
+                resolve: {
+                    resolveDatasource: resolveDatasource
+                }
+            })
             .state('datasource', {
                 url: '/datasource',
                 template: '<os-datasource>',

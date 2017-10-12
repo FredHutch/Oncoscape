@@ -71,14 +71,23 @@ http {
             expires 2d;
         }
         
+        # Upload Tool Directory
+        location ~ ^/upload/(.*)$ {
+            alias /home/sttrweb/UploadTool/NG4-Data-Upload/client-build/$1;
+            index index.html index.htm;
+            add_header Cache-Control public;
+            add_header Strict-Transport-Security "max-age=31536000; includeSubDomains;";  
+            expires 2d;
+        }
+
         # Kong Api
         location /api/ {
             proxy_set_header Host $host;
             proxy_buffering on;
-            proxy_cache datacache;
-            proxy_cache_methods GET HEAD POST;
-            proxy_cache_min_uses 1;
-            proxy_cache_valid 200  1d;
+            # proxy_cache datacache;
+            # proxy_cache_methods GET HEAD POST;
+            # proxy_cache_min_uses 1;
+            # proxy_cache_valid 200  1d;
             proxy_hide_header Set-Cookie;
             proxy_cache_bypass $http_secret_header;
             proxy_ignore_headers X-Accel-Expires Expires Cache-Control Set-Cookie;

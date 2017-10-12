@@ -793,10 +793,12 @@
                     }, reject);
                 }),
                 new Promise(function(resolve, reject) {
+
                     query("lookup_oncoscape_datasources_v2", {
                         beta: false, "$fields": ["dataset","source", "beta", "name","img", "tools"]
                     }).then(function(response) {
                         _dataSource = { dataset: '' };
+
                         _dataSources = response.data
                             .filter(function(d) {
                                 return angular.isDefined(d.img);

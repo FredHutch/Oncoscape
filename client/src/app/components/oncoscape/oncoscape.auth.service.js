@@ -31,7 +31,8 @@
             id: 'google',
             name: 'Google',
             icon: 'fa fa-google-plus',
-            key: '428912153446-7c82srcvu1bk1nramiqqctne005epl6s.apps.googleusercontent.com',
+            // key: '428912153446-7c82srcvu1bk1nramiqqctne005epl6s.apps.googleusercontent.com',
+            key: '1098022410981-p7n5ejjji8qlvdtff274pol54jo5i8ks.apps.googleusercontent.com',
             mode: 'implicit'
         }, {
             id: 'linkedin',
@@ -120,10 +121,11 @@
                 return;
             }
             auth().login(source.id, {
-                response_type: 'code',
-                display: 'page',
-                force: false,
-                scope: "email"
+                // response_type: 'code',
+                display: 'popup',
+                response_type: 'token',
+                scope: 'email',
+                force: true
             });
         };
 
@@ -139,7 +141,8 @@
                 return prev;
             }, {}), {
                 oauth_proxy: '/api/auth',
-                redirect_uri: 'https://dev.oncoscape.sttrcancer.io/'
+                redirect_uri:'/login'
+                // redirect_uri: 'https://dev.oncoscape.sttrcancer.io/'
             }
         );
 
@@ -151,10 +154,11 @@
                     network: authSource,
                     id: e.id,
                     name: e.name,
-                    thumb: e.thumbnail
+                    thumb: e.thumbnail,
+                    email: e.email
                 };
-                osApi.init().then(function() {
-                    onLogin.dispatch();
+                osApi.init().then(function() {    
+                    onLogin.dispatch(user);
                 });
             });
         });
