@@ -81,7 +81,7 @@ request('http://dev.oncoscape.sttrcancer.io/api/lookup_oncoscape_genes/?q=&apike
 var transporter = nodemailer.createTransport({
     service: 'gmail',
     auth: {
-      user: 'jennylouzhang@gmail.com',
+      user: 'oncoscape.sttrcancer@gmail.com',
       pass: process.env.GMAIL_PASSWORD
     }
   });
@@ -503,7 +503,7 @@ app.post('/api/upload/:id/:email', jwtVerification, function (req, res) {
     var projectID = req.params.id;
     var userEmail = req.params.email;
     var mailOptions = {
-        from: 'jennylouzhang@gmail.com',
+        from: 'oncoscape.sttrcancer@gmail.com',
         to: userEmail,
         subject: 'Notification from Oncoscape Data Uploading App',
         text: 'Data are in database, ready to share.'
