@@ -23,6 +23,14 @@
             var vm = this;
             vm.user = osAuth.getUser()
             vm.projects = osAuth.getDatasets()
+            vm.apis = [
+                {   name: "file", 
+                    img:"imgThumb.png"
+                },
+                {   name: "TCGA", 
+                    img:"tcga.png"
+                }
+            ]
 
             vm.login = function(){
                 var networks = osAuth.getAuthSources();
@@ -37,6 +45,8 @@
             vm.showDatasourceOption = function(source){
                 if(source == "TCGA")
                     $state.go("datasource");
+                if(source == "file")
+                    window.open("/upload",'_blank');
             }
            
 
