@@ -71,7 +71,7 @@ RUN pip3 install -r requirements.txt
 
 # Upload Tool
 WORKDIR /home/sttrweb/Oncoscape/
-RUN git clone https://github.com/canaantt/NG4-Data-Upload.git
+RUN git clone https://github.com/Oncoscape/NG4-Data-Upload.git
 
 # Install Client Code
 WORKDIR /home/sttrweb/Oncoscape/
