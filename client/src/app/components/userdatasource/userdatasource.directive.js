@@ -46,7 +46,8 @@
                 if(source == "TCGA")
                     $state.go("datasource");
                 if(source == "file")
-                    window.open("/upload",'_blank');
+                    var win = window.open("/upload/",'_blank');
+                    win.focus();
             }
            
 
