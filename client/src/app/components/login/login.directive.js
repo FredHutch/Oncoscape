@@ -29,7 +29,7 @@
             
             var loginSuccess = function() {
                 $state.go("userdatasource");
-                // $state.go("http://localhost:4200");
+                
             };
     
             osAuth.onLogin.add(loginSuccess); 

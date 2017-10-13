@@ -152,7 +152,7 @@
                 return prev;
             }, {}), {
                 oauth_proxy: '/api/auth',
-                redirect_uri:'/login'
+                redirect_uri:'/userdatasource'
                 // redirect_uri: 'https://dev.oncoscape.sttrcancer.io/'
             }
         );
