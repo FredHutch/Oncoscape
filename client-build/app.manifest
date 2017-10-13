@@ -32,6 +32,7 @@ CACHE:
 /scripts/app-33010de103.js
 /scripts/app-379a6d780c.js
 /scripts/app-44a4050100.js
+/scripts/app-64850464b9.js
 /scripts/app-817f97333e.js
 /scripts/app-95d9b45a1f.js
 /scripts/app-9e24740f47.js
@@ -137,6 +138,7 @@ CACHE:
 /maps/scripts/app-379a6d780c.js.map
 /maps/scripts/app-44a4050100.js.map
 /maps/scripts/app-478a04a91c.js.map
+/maps/scripts/app-64850464b9.js.map
 /maps/scripts/app-668695d38d.js.map
 /maps/scripts/app-817f97333e.js.map
 /maps/scripts/app-95d9b45a1f.js.map
@@ -181,4 +183,4 @@ https://*
 SETTINGS:
 prefer-online
 
-# hash: 9e38b16f5cb6a04c33f6a4c40049713572061e4d1fccb1477289df1b737397fa
+# hash: f2ac7672035ae2ebc0f2735a3e720b3e270be90c49ebf549d83e83c8a80d5144
