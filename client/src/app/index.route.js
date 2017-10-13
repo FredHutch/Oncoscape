@@ -225,7 +225,7 @@
                 }
             })
             .state('login', {
-                url: '/login/',
+                url: '/login',
                 template: '<os-login>',
                 datasource: false,
                 help: "/",
