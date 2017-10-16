@@ -10,20 +10,24 @@ const asyncLoop = require('node-async-loop');
 const nodemailer = require('nodemailer');
 const XLSX =require("xlsx");
 const fs = require("fs");
+
 var path = require('path');
 var jsonfile = require("jsonfile");
 var multer = require('multer');
 var bodyParser = require('body-parser'); //parses information from POST
 var filebrowser = require('file-browser');
+
 var User = require("./models/user");
 var Project = require("./models/project");
 var File = require("./models/file");
 var IRB = require("./models/irb");
 var Permission = require("./models/permission");
+
 var GeneSymbolLookupTable;
 var HugoGenes;
 const jwtToken = 'OncoscapeSecrete';
 var ObjectId = mongoose.Types.ObjectId; 
+
 // ----------------------- //
 // -----  Middleware ----- //
 // ----------------------- //
@@ -41,43 +45,19 @@ app.use(bodyParser.urlencoded({
 }));
 app.use(bodyParser.json({limit: '400mb'}));
 const corsOptions = {
-	origin: ['http://localhost:4200','http://localhost:8080', 'http://localhost:8080']
+    origin: ['http://localhost:4200','http://localhost:8080',
+             'https://localhost:4200']
 }
 app.use(cors(corsOptions));
 
-// function processToken(req) {
-//     if (req && req.headers.hasOwnProperty("authorization")) {
-//         try {
-//             // Pull Toekn From Header - Not 
-//             var projectsJson = req.headers.authorization.replace('Bearer ', '');
-//             jwt.verify(projectsJson, jwtToken);
-//             req.projectsJson = jwt.decode(projectsJson);
-//             console.log("%%%%%%%");
-//             // next();
-//             //return true;
-//         } catch (e) {
-//             console.error(e);
-//             //return false;
-//         }
-//     }
-// }
-
-// app.get("/api/getProjectSecret", processToken, function(req, res, next) {
-//     req.projectId = 1234;
-//      var validRequest = false;
-//     foreach (project in req.projectsJson){ if (projectId === req.projectId)  validRequset = true }
-//     if (value) 
-// })
-
-
 
 // ------------- Begin Data Upload Functions ------------- //
-request('http://dev.oncoscape.sttrcancer.io/api/lookup_oncoscape_genes/?q=&apikey=password', function(err, resp, body){
-    GeneSymbolLookupTable = JSON.parse(body);
-    HugoGenes = GeneSymbolLookupTable.map(function(m){return m.hugo;});
-    jsonfile.writeFile("HugoGenes.json", HugoGenes, {spaces: 2}, function(err){ console.error(err);});  
-    if(err) console.log(err);
-});
+// request('http://dev.oncoscape.sttrcancer.io/api/lookup_oncoscape_genes/?q=&apikey=password', function(err, resp, body){
+//     GeneSymbolLookupTable = JSON.parse(body);
+//     HugoGenes = GeneSymbolLookupTable.map(function(m){return m.hugo;});
+//     jsonfile.writeFile("HugoGenes.json", HugoGenes, {spaces: 2}, function(err){ console.error(err);});  
+//     if(err) console.log(err);
+// });
 var transporter = nodemailer.createTransport({
     service: 'gmail',
     auth: {
@@ -283,25 +263,7 @@ var upload = multer({
 }).single('file');
 // ------------- End Data Upload Functions ------------- //
 
-// --------------------- //
-// ----- OAuth API ----- //
-// --------------------- //
-// function oauthHandler(req, res, next) {
-//     // Check that this is a login redirect with an access_token (not a RESTful API call via proxy) 
-//     if (req.oauthshim &&
-//         req.oauthshim.redirect &&
-//         req.oauthshim.data &&
-//         req.oauthshim.data.access_token &&
-//         req.oauthshim.options &&
-//         !req.oauthshim.options.path) {}
-//     next()
-// }
-// app.all('/api/auth',
-//     oauthshim.interpret,
-//     oauthHandler,
-//     oauthshim.proxy,
-//     oauthshim.redirect,
-//     oauthshim.unhandled);
+
 
 // --------------------- //
 // ----- Mongo API ----- //
@@ -431,11 +393,8 @@ app.post('/api/token', function(req, res, next) {
         function (err, response, body) {
             // Google Returns Email Address For Token
             var usersGmailAddress = body.email;
-            // Query Database To Findout Users Permissions
-            /* Step 1: Query Accounts_Users To Find User_id
-            db.db.collection("Accounts_Users").find({'Gmail':usersGmailAddress},{_id:1}).toArray(function(err, response) {
-                console.log('User ID is : ', response);
-            });
+            /*  Query Database To Findout Users Permissions
+            Step 1: Query Accounts_Users To Find User_id
             Step 2: Query Acconts_Permissions To Find Permissions + Projects
             Step 3: Query Projects To Get Details
             Step 4: Put All This Information Into a JSON Array of Projects with Permisson + Project Detail
@@ -470,29 +429,12 @@ app.post('/api/token', function(req, res, next) {
             });        
     });
 });
-// app.use(function(req,res, next) {
-//     if (req && req.headers.hasOwnProperty("authorization")) {
-//         try {
-//             // Pull Toekn From Header - Not 
-//             var projectsJson = req.headers.authorization.replace('Bearer ', '');
-//             console.log('in jwtVerification function');
-//             console.log('projectsJson: ', projectsJson);
-//             jwt.verify(projectsJson, jwtToken);
-//             req.projectsJson = jwt.decode(projectsJson);
-//             console.log('req.projectsJson: ', req.projectsJson);
-//             console.log("%%%%%%%");
-//             next();
-//             //return true;
-//         } catch (e) {
-//             console.error(e);
-//             //return false;
-//         }
-//     }
-// });   
 
 // -------------------------------- //
 // ----- Data Upload Functions ---- //
 // -------------------------------- // 
+app.use('/upload/', express.static('./uploads'));
+
 app.use('/api/users', userRouterFactory(User));
 app.use('/api/projects', routerFactory(Project));
 app.use('/api/permissions', routerFactory(Permission));

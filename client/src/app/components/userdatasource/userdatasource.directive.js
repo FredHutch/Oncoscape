@@ -19,7 +19,7 @@
         return directive;
 
         /** @ngInject */
-        function UserdatasourceController(osApi, $state, osAuth, $scope) {
+        function UserdatasourceController(osApi, $state, osAuth, _) {
             var vm = this;
             vm.user = osAuth.getUser()
             vm.projects = osAuth.getDatasets()
@@ -45,9 +45,11 @@
             vm.showDatasourceOption = function(source){
                 if(source == "TCGA")
                     $state.go("datasource");
-                if(source == "file")
-                    var win = window.open("/upload/",'_blank');
+                if(source == "file"){
+                   // $state.go("upload");
+                    var win = window.open("/upload/");
                     win.focus();
+                }
             }
            
 
@@ -58,14 +60,14 @@
                 vm.user = user
              
                 osApi.query("Accounts_Users", {
-                    Gmail: user.email,
+                    Gmail: user.email
                 }).then(function(response) {
                     var acct = response.data[0]
                     
                     if(angular.isUndefined(acct) ) return
                     
                     osApi.query("Accounts_Permissions", {
-                        User: acct._id,
+                        User: acct._id
                     }).then(function(resp) {
                         var permissions = resp.data
                         osApi.query("Accounts_Projects", {
