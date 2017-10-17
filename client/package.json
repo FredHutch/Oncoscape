@@ -7,7 +7,7 @@
     "gulp-appcache": "0.0.4",
     "gulp-asset-manifest": "0.0.6",
     "hellojs": "^1.15.1",
-    "jstat": "^1.7.0"
+    "jstat": "^1.7.1"
   },
   "scripts": {
     "test": "gulp test"

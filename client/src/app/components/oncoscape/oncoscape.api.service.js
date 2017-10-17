@@ -631,7 +631,7 @@
             return create(name, patientIds, sampleIds);
         };
 
-        var createWithHugoIds = function(name, hugoIds) {
+        var createWithHugoIds = function(name, hugoIds, show) {
 
             if (hugoIds.length === 0) return _genesetAll;
             var geneIds = hugoIds;
@@ -639,6 +639,7 @@
                 symbols: hugoIds,
                 genes: geneIds,
                 name: name,
+                show: show,
                 url:"",
                 desc:"Created from Geneset Menu"
             };
@@ -665,6 +666,7 @@
         };
 
         var loadGeneset = function(result) {
+            var show = (result.show) ? result.show : false;
             var rv = {
                 uuid: Math.random().toString().substr(2),
                 color: '#000',
@@ -673,7 +675,7 @@
                 name: result.name,
                 url:result.url,
                 desc:result.desc,
-                show: false,
+                show: show,
                 disable: false,
                 type: result.type
             };
@@ -697,11 +699,11 @@
             onCohortChange.dispatch(_cohort);
         };
 
-        var setGeneset = function(geneset, name, type) {
+        var setGeneset = function(geneset, name, type, show) {
             // Create Cohort If Array Passed
             if (angular.isArray(geneset)) {
                 //name += "  (" + moment().format('hh:mm:ss') + ")";
-                geneset = (type == "SYMBOL") ? createWithHugoIds(name, geneset, _hugoMap) : createWithHugoIds(name, geneset, _hugoMap);
+                geneset = (type == "SYMBOL") ? createWithHugoIds(name, geneset, show) : createWithHugoIds(name, geneset, show);
                 geneset.type = (geneset.hugoIds.length === 0) ? "ALL" : "UNSAVED";
                 // if (geneset.type != "ALL") {
                 //     var usedColors = _genesets.map(function(v) { return v.color; });
@@ -774,8 +776,9 @@
             //      })
             //); // Union Merges Arrays + Removes Dups
             var geneIds = ids;
+            var show = true;
 
-            setGeneset(geneIds, name, "SYMBOL");
+            setGeneset(geneIds, name, "SYMBOL", show);
             saveGeneset();
         };
 

@@ -78,7 +78,7 @@
 
             // View Model Update
             var vm = (function(vm, osApi) {
-                
+                vm.runTime = 20
                 vm.temp = {
                     title: "",
                     method: availableBaseMethods[0],
@@ -207,12 +207,15 @@
 
                     // edit/create item in history 
                     if(typeof item == "undefined"){
+                        var filtered_types = vm.base.data.types.filter(function(v){ return v.type == vm.base.data.types[vm.base.data.selected.i].type})
+                        var filtered_i = _.findIndex(filtered_types, {name:vm.base.data.selected.name})
                        item =  {
                             title: "",
                             method: availableOverlayMethods[0],
                             source: osApi.getDataSource(),
-                            data: { types:vm.base.data.types,
-                                    selected: {i:vm.base.data.selected.i, name:vm.base.data.selected.name}
+                            data: { types:  filtered_types,
+                                    selected: { i: filtered_i, 
+                                                name:vm.base.data.selected.name}
                                     },
                             params: {bool: { 
                                 "geneset" : {name: vm.base.params.bool.geneset.name, use: vm.base.params.bool.geneset.use},
@@ -371,7 +374,7 @@
                         draw();
                         return
                     }
-                    if (runType == "JS" & vm.temp.meta.numSamples  * vm.temp.meta.numGenes > 500000) {
+                    if (runType == "JS" & vm.temp.meta.numSamples  * vm.temp.meta.numGenes > 50000) {
                         
                         runType = "python"
 
@@ -489,9 +492,15 @@
                 var geneIds = _.pluck(vm.temp.result.input,"m")
                 if(vm.temp.params.bool.geneset.use && osApi.getGeneset().geneIds.length >0)
                     geneIds = _.intersection( osApi.getGeneset().geneIds, geneIds);
-                    //subset geneIds to be only those returned from query
+                    //subset geneIds to be only those returned from Geneset (except when geneset == All Genes)
                 
-                if(geneIds.length != 0){
+                if(geneIds.length == 0){ //genes in data don't overlap with specified geneset
+                    angular.element('#modal_intersection').modal();
+                    vm.temp.result.output = {}
+                    osApi.setBusy(false)
+                    return;
+                
+                } else{
                     vm.temp.result.input = vm.temp.result.input.filter(function(g){return _.contains(geneIds,g.m)})
                 }
                 
@@ -553,10 +562,10 @@
                 }
 
             
-                    if(typeof vm.overlaySource == "object")
+                if(typeof vm.overlaySource == "object")
                     vm.overlaySource = vm.overlaySource.name
 
-                    vm.overlayType = null
+                vm.overlayType = null
                 var response = osApi.getDataSources()
                 
                     vm.overlay_molecularTables = response.collections.filter(function(d){ return _.contains(acceptableDatatypes, d.type)})
