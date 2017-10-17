@@ -299,8 +299,8 @@
                 var payload = { dataset: dataset, genes: genes, samples: samples, molecular_collection: molecular_collection, n_components: n_components };
                 return $http({
                     method: 'POST',
-                 //   url: "https://dev.oncoscape.sttrcancer.io/cpu/pca",
-                 url: "https://oncoscape-test.fhcrc.org/cpu/pca",
+                    url: "https://dev.oncoscape.sttrcancer.io/cpu/pca",
+                 //url: "https://oncoscape-test.fhcrc.org/cpu/pca",
                     data: payload
                 });
             }
@@ -308,8 +308,8 @@
                 var payload = { molecular_collection: collection1,molecular_collection2: collection2, genes:geneIds};
                 return $http({
                     method: 'POST',
-                 //   url: "https://dev.oncoscape.sttrcancer.io/cpu/distance",
-                 url: "https://oncoscape-test.fhcrc.org/cpu/distance",
+                    url: "https://dev.oncoscape.sttrcancer.io/cpu/distance",
+                // url: "https://oncoscape-test.fhcrc.org/cpu/distance",
                 // url: "https://localhost:8000/cpu/distance",
                     data: payload
 
