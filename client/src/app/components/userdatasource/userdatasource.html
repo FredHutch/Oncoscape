@@ -9,12 +9,32 @@
         </div>
         
         <div class="well">
-            <h3>Choose from import options below or <a ng-click="vm.login(vm.networks[1]);">Login to</a> access your personal datasets.</h3>
+            <div ng-show="vm.user == null">
+                <h3>Choose from import options below or <a ng-click="vm.login();">Login</a> to access your personal datasets.</h3>
+            </div>
+            <div ng-show="vm.user != null">
+                <div ng-show="vm.projects.length ==0">Please upload a project from below</div>
+                <div class="row">
+                    <ul>
+                        <li ng-repeat="dataset in vm.projects" class="col-xs-12 col-sm-6 col-md-4 col-lg-3" ng-click="vm.explore('tools',dataset)">
+                            <div class="datasource-btn">
+                                <img class="datasource-img" ng-src="/assets/images/img{{dataset.img}}">
+                                <p class="datasource-h1">{{dataset.name}}</p>
+                                <p class="datasource-h2">{{dataset.source}}</p>
+                            </div>
+                        </li>
+                    </ul>
+                </div>
+            </div>
         </div>
         <h1>Import</h1>
-        <div>
-            <a class="btn btn-outline btn-xl" href="http://localhost:4200/" target="_blank">User File</a>
-            <a class="btn btn-outline btn-xl" ng-click="vm.getDataSources()">TCGA</a>
+        <div class="row">
+            <ul style="list-style:none"><li ng-repeat="api in vm.apis" class="col-xs-12 col-sm-6 col-md-4 col-lg-3" ng-click="vm.showDatasourceOption(api.name)">
+                <div class=datasource-btn>
+                        <img class="datasource-img" ng-src="/assets/images/{{api.img}}">
+                        <p class="datasource-h1">{{api.name}}</p>        
+                </div>
+            </li></ul>
         </div>
     </div>
 </section>

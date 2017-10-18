@@ -24,7 +24,7 @@
             vm.tools = osApi.getTools();
             vm.explore = function(tool) {
                 $state.go(tool, {
-                    datasource: osApi.getDataSource().disease
+                    datasource: osApi.getDataSource().dataset
                 });
             };
             osApi.setBusy(false);

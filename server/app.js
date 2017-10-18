@@ -95,7 +95,6 @@ app.post('/api/upload/:id/:email', function (req, res) {
 
 
 // Start Listening
-//process.env.NODE_PORT
-app.listen(11000, function () {
+app.listen(process.env.NODE_PORT, function () {
     console.log("UP");
 });

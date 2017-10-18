@@ -115,7 +115,7 @@
             var vm = this;
             vm.datasource = osApi.getDataSource();
             (function(vm, osApi) {
-                osApi.query(vm.datasource.disease + "_cluster", {
+                osApi.query(vm.datasource.dataset + "_cluster", {
                     dataType: 'PCA',
                     $fields: ['input', 'geneset', 'source']
                 }).then(function(response) {
@@ -131,8 +131,8 @@
 
             $scope.$watch("vm.sample.layout", function(layout) {
                 if (angular.isUndefined(layout)) return;
-                osApi.query(osApi.getDataSource().disease + "_cluster", {
-                        disease: vm.datasource.disease,
+                osApi.query(osApi.getDataSource().dataset + "_cluster", {
+                        dataset: vm.datasource.dataset,
                         geneset: layout.geneset,
                         input: layout.input,
                         source: layout.source
