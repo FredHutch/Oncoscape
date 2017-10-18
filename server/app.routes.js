@@ -188,27 +188,7 @@ var init = function (app) {
         res.status(200).send("files are deleted").end();
     });
     
-    app.get('/api/:collection/:query', function (req, res, next) {
-        var collection = req.params.collection;
-        var query = (req.params.query) ? JSON.parse(req.params.query) : {};
-        // Permissions.getProjects(req.headers.authorization).then(projects => {
-        //     Permissions.hasPermission(projects, collection, permission.ePermission.READ).then(
-        //         hasAccess => {
-        //             if (hasAccess) {
-                        db.getConnection().then(db => {
-                            Query.exec(db, collection, query).then(results => {
-                                res.send(results);
-                                res.end();
-                            });
-                        });
-        //             }
-        //         }
-        //     )
-        // }).catch(e => {
-        //     res.send(e);
-        //     res.end();
-        // })
-    });
+
 
     app.get('/api/:collection*', function (req, res, next) {
         var collection = req.params.collection;
@@ -232,6 +212,28 @@ var init = function (app) {
     //         res.send(e);
     //         res.end();
     //     });
+    });
+    
+        app.get('/api/:collection/:query', function (req, res, next) {
+        var collection = req.params.collection;
+        var query = (req.params.query) ? JSON.parse(req.params.query) : {};
+        // Permissions.getProjects(req.headers.authorization).then(projects => {
+        //     Permissions.hasPermission(projects, collection, permission.ePermission.READ).then(
+        //         hasAccess => {
+        //             if (hasAccess) {
+                        db.getConnection().then(db => {
+                            Query.exec(db, collection, query).then(results => {
+                                res.send(results);
+                                res.end();
+                            });
+                        });
+        //             }
+        //         }
+        //     )
+        // }).catch(e => {
+        //     res.send(e);
+        //     res.end();
+        // })
     });
     
 }
