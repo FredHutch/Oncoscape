@@ -1,8 +1,8 @@
 var exec = function(db, collection, query){
+    console.log('*collection name is :', collection);
+    
     return new Promise( ( resolve, reject ) => {
-
         db.db.collection(collection, function (err, collection) {
-
             // Limits
             var limit = null
             if (query.$limit) {
@@ -32,7 +32,7 @@ var exec = function(db, collection, query){
             var find = collection.find(query, fields);
             if (limit) find = find.limit(limit);
             if (skip) find = find.skip(skip);
-            
+         
             find.toArray(function (err, results) {
                 resolve(results);
             });

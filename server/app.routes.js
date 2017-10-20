@@ -1,4 +1,5 @@
 db = require('./app.db.js');
+const request = require('request');
 Query = require('./app.query.js');
 Permissions = require('./app.permissions.js');
 var User = require("./models/user");
@@ -21,14 +22,33 @@ function processResult(req, res, next, query) {
 
 var init = function (app) {
 
-    
-
     app.get("/api/ping", function (req, res, next) {
         res.send((new Date()).toString());
         res.end();
     });
+    app.post('/api/token', function(req, res, next) {
+        // Pull Token Out Of Request Body
+        var token = req.body.token;
+        request({ url: 'https://www.googleapis.com/oauth2/v3/userinfo', qs: { access_token: token }, method: 'POST', json: true },
+        function (err, response, body) {
+            // Google Returns Email Address For Token
+            var usersGmailAddress = body.email;
+            User.findOne({"Gmail": usersGmailAddress }, function(req, result){
+                console.log(result);
+                if ('_id' in result){
+                    Permissions.getToken(db, result._id).then(jwtTokens => {
+                        res.send({token: jwtTokens }).end();
+                    });
+                }
+            });
+        });
+    });
+    app.post('/api/users/checkGmail/:gmail', function(req, res, next) {
+        User.find({"Gmail": req.params.gmail }, processResult(req, res));
+        next();
+    }); 
+    //#region PROJECTS
 
-    // PROJECTS
     app.get('/api/projects', function (req, res, next) {
         Project.find({}, processResult(req, res));
         next();
@@ -46,7 +66,10 @@ var init = function (app) {
         Project.remove({ _id: req.params.id }, processResult(req, res));
     });
 
-    // PERMISSIONS
+    //#endregion
+
+    //#region PERMISSIONS
+
     app.get('/api/permisisons', function (req, res, next) {
         Permission.find({}, processResult(req, res));
     });
@@ -63,7 +86,10 @@ var init = function (app) {
         Permission.remove({ _id: req.params.id }, processResult(req, res));
     });
 
-    // USERS
+    //#endregion
+
+    //#region USERS
+
     app.get('/api/users', function (req, res, next) {
         try{
         User.find({}, processResult(req, res));
@@ -84,7 +110,10 @@ var init = function (app) {
         User.remove({ _id: req.params.id }, processResult(req, res));
     });
 
-    // FILES
+    //#endregion
+
+    //#region FILES
+
     app.get('/api/files', function (req, res) {
         console.log("in Files");
         res.status(200).end();
@@ -187,7 +216,9 @@ var init = function (app) {
         });
         res.status(200).send("files are deleted").end();
     });
-    
+
+    //#endregion
+
     app.get('/api/:collection/:query', function (req, res, next) {
         var collection = req.params.collection;
         var query = (req.params.query) ? JSON.parse(req.params.query) : {};
@@ -233,7 +264,7 @@ var init = function (app) {
     //         res.end();
     //     });
     });
-    
+
 }
 
 

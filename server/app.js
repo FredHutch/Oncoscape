@@ -9,21 +9,27 @@ const routes = require('./app.routes.js');
 
 // Middleware
 var app = express();
-app.use(bodyParser.urlencoded({ limit: '400mb', extended: true }));
-app.use(cors({ origin: ['http://localhost:4200', 'http://localhost:8080', 'http://localhost:8080'] }));
 app.use(function (req, res, next) { //allow cross origin requests
     res.setHeader("Access-Control-Allow-Methods", "POST, PUT, OPTIONS, DELETE, GET");
-    res.header("Access-Control-Allow-Origin", "http://localhost:" + process.env.NODE_PORT + "/");
+    // res.header("Access-Control-Allow-Origin", "http://localhost:" + process.env.NODE_PORT + "/api");
     res.header("Access-Control-Allow-Headers", "Origin, X-Requested-With, Content-Type, Accept, Authorization");
     res.header("Access-Control-Allow-Credentials", true);
     next();
 });
+app.use(cors({ origin: ['http://localhost:4200', 'http://localhost:8080', 'http://localhost:8080'] }));
+app.use(bodyParser.urlencoded({
+    limit: '400mb',
+    extended: true
+}));
+app.use(bodyParser.json({limit: '400mb'}));
 
 // Routes
 db.getConnection().then( db => {
     console.log("OK READY");
     routes.init(app);
 });
+
+//#region Notify User with email when the file is uploaded and parsed into DB
 
 var transporter = nodemailer.createTransport({
     service: 'gmail',
@@ -32,6 +38,10 @@ var transporter = nodemailer.createTransport({
         pass: process.env.GMAIL_PASSWORD
     }
 });
+
+//#endregion
+
+//#region Uploaded File storage on the server
 
 var storage = multer.diskStorage({
     destination: function (req, file, cb) {
@@ -47,9 +57,10 @@ var upload = multer({
     preservePath: true
 }).single('file');
 
-// -------------------------------- //
-// ----- Data Upload Functions ---- //
-// -------------------------------- // 
+//#endregion
+
+//#region Data Upload Functions 
+
 app.use('/api/upload', express.static(process.env.APP_ROOT + '/uploads'));
 app.post('/api/upload/:id/:email', function (req, res) {
     var projectID = req.params.id;
@@ -92,6 +103,7 @@ app.post('/api/upload/:id/:email', function (req, res) {
     res.status(200).end();
 });
 
+//#endregion
 
 
 // Start Listening
