@@ -34,6 +34,26 @@ var hasPermission = function (projectsJson, collection, permission) {
 
     });
 }
+
+var jwtVerification = function (req, res, next) {
+    console.log('in jwtVerification function');
+    if (req && req.headers.hasOwnProperty("authorization")) {
+        try {
+            // Pull Toekn From Header - Not 
+            console.log('%%%%%%%%%%%%');
+            // var projectsJson = req.headers.authorization;
+            // jwt.verify(projectsJson, jwtToken);
+            getProjects(req.headers.authorization).then(res => {
+                req.projectsJson = res;
+                next();
+            });
+        } catch (e) {
+            console.error(e);
+            res.send(e);
+        }
+    }
+};
+
 var getProjects = function (token) {
     return new Promise((resolve, reject) => {
         jwt.verify(token, JWT_KEY)
@@ -50,56 +70,32 @@ var getGoogleEmail = function (googleAccessToken) {
     });
 }
 
-var getToken = function (db, userId) {
-    console.log('test1', userId);
-
+var getToken = function (db, gmail) {
     return new Promise((resolve, reject) => {
-
-        Permission.find({ 'User': userId }, function(req, res) {
-            var permissions = res;
-            var projectIDs = permissions.map(function (p) {
-                    return mongoose.Types.ObjectId(p.Project);
-                });
-            Project.find({ '_id': { $in: projectIDs } }, function(req, res){
-                var userProjectsJson = permissions.map(function (m) {
-                                var proj = res.filter(function (p) {
-                                    return p.Project = m.Project;
-                                })[0];
-                                console.log("***", proj);
-                                console.log("***", m);
-                                
-                                console.log(_.extend(proj, m));
-                                return _.extend(proj, m);
-                            });
-                var userProjectsString = JSON.stringify(userProjectsJson);
-                var userProjectsJwt = jwt.sign(userProjectsString, JWT_KEY);
-                resolve(userProjectsJwt);
-                });
+        User.find({'Gmail': gmail}, function (req, res){
+            var userId = res._id;
+            Permission.find({ 'User': userId }, function(req, res) {
+                var permissions = res;
+                var projectIDs = permissions.map(function (p) {
+                        return mongoose.Types.ObjectId(p.Project);
+                    });
+                Project.find({ '_id': { $in: projectIDs } }, function(req, res){
+                    var userProjectsJson = permissions.map(function (m) {
+                                    var proj = res.filter(function (p) {
+                                        return p.Project = m.Project;
+                                    })[0];
+                                    var result = {};
+                                    result['Permission'] = m;
+                                    result['Project'] = proj;
+                                    return result;
+                                });
+                    var userProjectsString = JSON.stringify(userProjectsJson);
+                    var userProjectsJwt = jwt.sign(userProjectsString, JWT_KEY);
+                    resolve(userProjectsJwt);
+                 });
+            });
         });
-        // query.exec(db, 'Accounts_Users', { 'Gmail': gmailAddress }).then(user => {
-        //     var userId = user[0]._id;
-            // query.exec(db, "permissions", { 'User': userId }).then(permissions => {
-            //     console.log('test2', permissions);
-            //     var projectIDs = permissions.map(function (p) {
-            //         return mongoose.Types.ObjectId(p.Project);
-            //     });
-            //     query.exec(db, "projects", { '_id': { $in: projectIDs } }).then(projects => {
-            //         console.log('test3', projects);
-            //         var userProjectsJson = permissions.map(function (m) {
-            //             var proj = projects.filter(function (p) {
-            //                 return p.Project = m.Project;
-            //             })[0];
-            //             return _.extend(proj, m);
-            //         });
-            //         var userProjectsString = JSON.stringify(userProjectsJson);
-            //         var userProjectsJwt = jwt.sign(userProjectsString, JWT_KEY);
-            //         resolve(userProjectsJwt);
-            //     })
-            // });
-
-        });
-    // });
-
+    });
 }
 
 var getUserbyGmail = function (gmailAddress) {
@@ -120,5 +116,6 @@ module.exports = {
     getProjects: getProjects,
     getGoogleEmail: getGoogleEmail,
     getUserbyGmail: getUserbyGmail,
-    hasPermission: hasPermission
+    hasPermission: hasPermission,
+    jwtVerification: jwtVerification
 }

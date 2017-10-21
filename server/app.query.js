@@ -1,6 +1,4 @@
 var exec = function(db, collection, query){
-    console.log('*collection name is :', collection);
-    
     return new Promise( ( resolve, reject ) => {
         db.db.collection(collection, function (err, collection) {
             // Limits

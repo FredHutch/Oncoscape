@@ -6,7 +6,8 @@ const nodemailer = require('nodemailer');
 var multer = require('multer');
 var bodyParser = require('body-parser');
 const routes = require('./app.routes.js');
-
+var File = require("./models/file");
+db = require('./app.db.js');
 // Middleware
 var app = express();
 app.use(function (req, res, next) { //allow cross origin requests
