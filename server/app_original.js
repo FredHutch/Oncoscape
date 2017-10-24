@@ -525,7 +525,7 @@ app.post('/api/upload/:id/:email', jwtVerification, function (req, res) {
                               });
             writing2Mongo.on('message', () => {
                 res.end('Writing is done');
-                console.log("*********************!!!!!!!********************");
+                console.log("*********************!!!!!!!*********************");
                 transporter.sendMail(mailOptions, function(error, info){
                     if (error) {
                       console.log(error);
