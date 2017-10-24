@@ -26,7 +26,7 @@ app.use(bodyParser.json({limit: '400mb'}));
 
 // Routes
 db.getConnection().then( db => {
-    console.log("OK READY");
+    console.log("OK READY!");
     routes.init(app);
 });
 
