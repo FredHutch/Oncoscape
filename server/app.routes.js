@@ -9,6 +9,8 @@ var File = require("./models/file");
 var IRB = require("./models/irb");
 var Permission = require("./models/permission");
 
+const jwt = require('jsonwebtoken');
+
 function processResult(req, res, next, query) {
     return function (err, data) {
         if (err) {
@@ -45,10 +47,11 @@ var init = function (app) {
                 if (user != null){
                     console.log('in api/token');
                     Permissions.getToken(db, body.email).then(jwtTokens => {
+                        console.log(jwt.decode(jwtTokens)[0]);
                         res.send({token: jwtTokens }).end();
                     });
                 } else {
-                    res.send('User is not registered').end();
+                    res.send({gmail: body.email}).end();
                 }
             });
         });

@@ -40,24 +40,35 @@ var jwtVerification = function (req, res, next) {
     if (req && req.headers.hasOwnProperty("authorization")) {
         try {
             // Pull Toekn From Header - Not 
-            console.log('%%%%%%%%%%%%');
-            // var projectsJson = req.headers.authorization;
-            // jwt.verify(projectsJson, jwtToken);
-            getProjects(req.headers.authorization).then(res => {
+            var projectsJson = req.headers.authorization.replace('Bearer ', '');
+            getProjects(projectsJson).then(res => {
                 req.projectsJson = res;
                 next();
             });
         } catch (e) {
-            console.error(e);
             res.send(e);
         }
     }
 };
 
 var getProjects = function (token) {
+
     return new Promise((resolve, reject) => {
-        jwt.verify(token, JWT_KEY)
-        resolve(jwt.decode(token));
+        jwt.verify(token, JWT_KEY, function(err, token){
+            if(err){
+                console.log(err);
+                reject(err);
+            }else{
+                resolve(token);
+                // console.log(jwt.decode(token));
+                // resolve(jwt.decode(token));
+            }
+        });
+        // {
+        //     resolve(jwt.decode(token));
+        // } else {
+        //     reject(reason);
+        // }
     })
 }
 
@@ -72,7 +83,7 @@ var getGoogleEmail = function (googleAccessToken) {
 
 var getToken = function (db, gmail) {
     return new Promise((resolve, reject) => {
-        User.find({'Gmail': gmail}, function (req, res){
+        User.findOne({'Gmail': gmail}, function (req, res){
             var userId = res._id;
             Permission.find({ 'User': userId }, function(req, res) {
                 var permissions = res;
