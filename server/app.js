@@ -66,12 +66,12 @@ app.use('/api/upload', express.static(process.env.APP_ROOT + '/uploads'));
 app.post('/api/upload/:id/:email', function (req, res) {
     var projectID = req.params.id;
     var userEmail = req.params.email;
-    var mailOptions = {
-        from: 'oncoscape.sttrcancer@gmail.com',
-        to: userEmail,
-        subject: 'Notification from Oncoscape Data Uploading App',
-        text: 'Data are in database, ready to share.'
-    };
+    // var mailOptions = {
+    //     from: 'oncoscape.sttrcancer@gmail.com',
+    //     to: userEmail,
+    //     subject: 'Notification from Oncoscape Data Uploading App',
+    //     text: 'Data are in database, ready to share.'
+    // };
     var molecularColleciton = mongoose.model(projectID + "_data_molecular", File.schema);
     var sampleMapCollection = mongoose.model(projectID + "_data_samples", File.schema);
     var clinicalColleciton = mongoose.model(projectID + "_data_clinical", File.schema);
@@ -80,10 +80,23 @@ app.post('/api/upload/:id/:email', function (req, res) {
         console.log("This section is triggered");
         if (err) {
             console.log(err);
+            var mailOptions = {
+                from: 'oncoscape.sttrcancer@gmail.com',
+                to: userEmail,
+                subject: 'Notification from Oncoscape Data Uploading App',
+                text: 'Data uploading Error: ' + err
+            };
+            transporter.sendMail(mailOptions, function (error, info) {
+                if (error) {
+                    console.log(error);
+                } else {
+                    console.log('Email sent: ' + info.response);
+                }
+            });
             return;
         } else {
             const writing2Mongo = fork(process.env.APP_ROOT + '/server/fileUpload.js',
-                { execArgv: ['--max-old-space-size=1000'] });
+                { execArgv: ['--max-old-space-size=4000'] });
             writing2Mongo.send({
                 filePath: res.req.file.path,
                 projectID: projectID
@@ -91,6 +104,12 @@ app.post('/api/upload/:id/:email', function (req, res) {
             writing2Mongo.on('message', () => {
                 res.end('Writing is done');
                 console.log("*********************!!!!!!!********************");
+                var mailOptions = {
+                    from: 'oncoscape.sttrcancer@gmail.com',
+                    to: userEmail,
+                    subject: 'Notification from Oncoscape Data Uploading App',
+                    text: 'Data are in database, ready to share.'
+                };
                 transporter.sendMail(mailOptions, function (error, info) {
                     if (error) {
                         console.log(error);
