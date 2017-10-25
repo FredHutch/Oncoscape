@@ -285,7 +285,33 @@
 
 
                 vm.exportJSON = function(){
-                    // download.file(toJSON(data), file= "pca_result.json")
+                    var header = "data:text/plain;charset=utf-8,";
+                   // var json = JSON.stringify(vm.base.result.output)
+                    
+                    var doc = {
+                            title: vm.base.title, 
+                            disease: vm.base.source.dataset,
+                            input: vm.base.data.selected.name, 
+                            dataType: vm.base.method, 
+                            geneset: vm.base.params.bool.geneset.name, 
+                            metadata: {variance: [parseFloat(vm.base.meta.pc1[0].value), parseFloat(vm.base.meta.pc2[0].value)]}
+                            }
+                    
+                   doc.scores = vm.base.result.output.map(function(scores){
+                    
+                       return {id: scores.id, d: scores.slice(0,3)}
+                    
+                    }); 
+                    // var encodedUri = encodeURI(csvContent);
+                    // window.open(encodedUri);
+                    var encodedUri = encodeURI(header + JSON.stringify(doc));
+                    var link = document.createElement("a");
+                    link.setAttribute("href", encodedUri);
+                    link.setAttribute("download", "pca.json");
+                    document.body.appendChild(link); // Required for FF
+                    
+                    link.click()
+                    document.body.removeChild(link);
                 }
 
                 return vm;
@@ -392,7 +418,11 @@
                         }
 
                     }else if(runType == "JS") {
-                        osApi.query(vm.temp.data.types[vm.temp.data.selected.i].collection
+                        var query = {}
+                        if(geneset.geneIds.length >0){
+                            query = {'m': {$in: geneset.geneIds}}
+                        }
+                        osApi.query(vm.temp.data.types[vm.temp.data.selected.i].collection, query
                         ).then(function(response){
                             vm.temp.result.input = response.data
                             runPCA();

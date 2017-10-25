@@ -17,7 +17,7 @@ app.use(function (req, res, next) { //allow cross origin requests
     res.header("Access-Control-Allow-Credentials", true);
     next();
 });
-app.use(cors({ origin: ['http://localhost:4200', 'http://localhost:8080', 'http://localhost:8080'] }));
+app.use(cors({ origin: ['http://localhost:4200', 'http://localhost:8080'] }));
 app.use(bodyParser.urlencoded({
     limit: '400mb',
     extended: true
