@@ -19,7 +19,7 @@
     return directive;
 
     /** @ngInject */
-    function ParallelcoordController(osApi, $state, $timeout, $window, d3) {
+    function ParallelcoordController(osApi, $state, $timeout, $window, d3, _) {
 
       var vm = this;
       osApi.setBusy(false)
