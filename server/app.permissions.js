@@ -39,7 +39,10 @@ var jwtVerification = function (req, res, next) {
     console.log('in jwtVerification function');
     if (req && req.headers.hasOwnProperty("authorization")) {
         try {
-            // Pull Toekn From Header - Not 
+            // Pull Token From Header - Not 
+            console.log('%%%%%%%%%%%% in jwtVerification function');
+            console.log('req.originalUrl', req.originalUrl);
+            console.log(req.method);
             var projectsJson = req.headers.authorization.replace('Bearer ', '');
             getProjects(projectsJson).then(res => {
                 req.projectsJson = res;
@@ -52,7 +55,6 @@ var jwtVerification = function (req, res, next) {
 };
 
 var getProjects = function (token) {
-
     return new Promise((resolve, reject) => {
         jwt.verify(token, JWT_KEY, function(err, token){
             if(err){
@@ -60,15 +62,8 @@ var getProjects = function (token) {
                 reject(err);
             }else{
                 resolve(token);
-                // console.log(jwt.decode(token));
-                // resolve(jwt.decode(token));
             }
         });
-        // {
-        //     resolve(jwt.decode(token));
-        // } else {
-        //     reject(reason);
-        // }
     })
 }
 
@@ -85,26 +80,28 @@ var getToken = function (db, gmail) {
     return new Promise((resolve, reject) => {
         User.findOne({'Gmail': gmail}, function (req, res){
             var userId = res._id;
-            Permission.find({ 'User': userId }, function(req, res) {
-                var permissions = res;
-                var projectIDs = permissions.map(function (p) {
-                        return mongoose.Types.ObjectId(p.Project);
-                    });
-                Project.find({ '_id': { $in: projectIDs } }, function(req, res){
-                    var userProjectsJson = permissions.map(function (m) {
-                                    var proj = res.filter(function (p) {
-                                        return p.Project = m.Project;
-                                    })[0];
-                                    var result = {};
-                                    result['Permission'] = m;
-                                    result['Project'] = proj;
-                                    return result;
-                                });
-                    var userProjectsString = JSON.stringify(userProjectsJson);
-                    var userProjectsJwt = jwt.sign(userProjectsString, JWT_KEY);
-                    resolve(userProjectsJwt);
-                 });
-            });
+            var userJwt = jwt.sign(JSON.stringify(userId), JWT_KEY);
+            resolve(userJwt);
+            // Permission.find({ 'User': userId }, function(req, res) {
+            //     var permissions = res;
+            //     var projectIDs = permissions.map(function (p) {
+            //             return mongoose.Types.ObjectId(p.Project);
+            //         });
+            //     Project.find({ '_id': { $in: projectIDs } }, function(req, res){
+            //         var userProjectsJson = permissions.map(function (m) {
+            //                         var proj = res.filter(function (p) {
+            //                             return p.Project = m.Project;
+            //                         })[0];
+            //                         var result = {};
+            //                         result['Permission'] = m;
+            //                         result['Project'] = proj;
+            //                         return result;
+            //                     });
+            //         var userProjectsString = JSON.stringify(userProjectsJson);
+            //         var userProjectsJwt = jwt.sign(userProjectsString, JWT_KEY);
+            //         resolve(userProjectsJwt);
+            //      });
+            // });
         });
     });
 }
