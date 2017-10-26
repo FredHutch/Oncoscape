@@ -10,7 +10,7 @@
                         Enter a comma seperated list of HUGO gene IDs or a weighted signature below and click save<br />
                         <input ng-model="vm.importGenesetName" type="text" class="form-control" style="margin-top:5px;" placeholder="Enter Geneset Name">
                         <input ng-model=" vm.importGeneIds " type="text " class="form-control " style="margin-top:5px; " placeholder="eg MLX,MAX or 0.9*MYC+1.5*MNT">
-                        <button class="btn btn-primary " style="margin-top:15px; " ng-click="vm.importGeneset(); $event.stopPropagation(); ">Save</button>
+                        <button class="btn btn-primary " style="margin-top:15px; " ng-click="vm.close(); vm.importGeneset(); $event.stopPropagation(); ">Save</button>
                         <button class="btn btn-primary " style="margin-top:15px; " ng-click="vm.close(); $event.stopPropagation(); ">Cancel</button>
                     </div>
                     <div class="col-xs-12 col-sm-9 " style="max-height:inherit !important; overflow-y:scroll">

@@ -29,12 +29,14 @@ CACHE:
 /scripts/app-02b6e51953.js
 /scripts/app-164bd53929.js
 /scripts/app-2ad8bbe0e6.js
+/scripts/app-304ad47df5.js
 /scripts/app-33010de103.js
 /scripts/app-379a6d780c.js
 /scripts/app-44a4050100.js
 /scripts/app-64850464b9.js
 /scripts/app-817f97333e.js
 /scripts/app-95d9b45a1f.js
+/scripts/app-98f7a31a45.js
 /scripts/app-9e24740f47.js
 /scripts/app-ad7f3d64b7.js
 /scripts/app-b6c603ad5a.js
@@ -52,6 +54,7 @@ CACHE:
 /scripts/vendor-f340df8778.js
 /styles/app-1601e15eb1.css
 /styles/app-2df1347999.css
+/styles/app-495a58e054.css
 /styles/app-5daa7f610e.css
 /styles/app-5e155a927d.css
 /styles/app-65b79735ed.css
@@ -106,6 +109,7 @@ CACHE:
 /assets/images/imgDSthymus.png
 /assets/images/imgDSthyroid.png
 /assets/images/imgDSuterine.png
+/assets/images/imgThumb.png
 /assets/images/logo-hutch.jpg
 /assets/images/logo-sarc.jpg
 /assets/images/logo-scca.jpg
@@ -126,6 +130,7 @@ CACHE:
 /assets/images/sttr-youtube-out.png
 /assets/images/sunburst.png
 /assets/images/survival.png
+/assets/images/tcga.png
 /assets/images/textimage.js
 /assets/images/texture.png
 /assets/images/thumb.png
@@ -134,6 +139,7 @@ CACHE:
 /maps/scripts/app-02b6e51953.js.map
 /maps/scripts/app-164bd53929.js.map
 /maps/scripts/app-2ad8bbe0e6.js.map
+/maps/scripts/app-304ad47df5.js.map
 /maps/scripts/app-33010de103.js.map
 /maps/scripts/app-379a6d780c.js.map
 /maps/scripts/app-44a4050100.js.map
@@ -142,6 +148,7 @@ CACHE:
 /maps/scripts/app-668695d38d.js.map
 /maps/scripts/app-817f97333e.js.map
 /maps/scripts/app-95d9b45a1f.js.map
+/maps/scripts/app-98f7a31a45.js.map
 /maps/scripts/app-9e24740f47.js.map
 /maps/scripts/app-ad7f3d64b7.js.map
 /maps/scripts/app-b6c603ad5a.js.map
@@ -163,6 +170,7 @@ CACHE:
 /maps/styles/app-1601e15eb1.css.map
 /maps/styles/app-1c162693d8.css.map
 /maps/styles/app-2df1347999.css.map
+/maps/styles/app-495a58e054.css.map
 /maps/styles/app-5daa7f610e.css.map
 /maps/styles/app-5e155a927d.css.map
 /maps/styles/app-65b79735ed.css.map
@@ -183,4 +191,4 @@ https://*
 SETTINGS:
 prefer-online
 
-# hash: f2ac7672035ae2ebc0f2735a3e720b3e270be90c49ebf549d83e83c8a80d5144
+# hash: 7f4f6652586bfddf2a789cb545630d221daa466821e6b4d17f6515557309bb61

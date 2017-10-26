@@ -17,7 +17,7 @@ app.use(function (req, res, next) { //allow cross origin requests
     res.header("Access-Control-Allow-Credentials", true);
     next();
 });
-app.use(cors({ origin: ['http://localhost:4200', 'http://localhost:8080', 'http://localhost:8080'] }));
+app.use(cors({ origin: ['http://localhost:4200', 'http://localhost:8080'] }));
 app.use(bodyParser.urlencoded({
     limit: '400mb',
     extended: true
@@ -66,12 +66,6 @@ app.use('/api/upload', express.static(process.env.APP_ROOT + '/uploads'));
 app.post('/api/upload/:id/:email', function (req, res) {
     var projectID = req.params.id;
     var userEmail = req.params.email;
-    // var mailOptions = {
-    //     from: 'oncoscape.sttrcancer@gmail.com',
-    //     to: userEmail,
-    //     subject: 'Notification from Oncoscape Data Uploading App',
-    //     text: 'Data are in database, ready to share.'
-    // };
     var molecularColleciton = mongoose.model(projectID + "_data_molecular", File.schema);
     var sampleMapCollection = mongoose.model(projectID + "_data_samples", File.schema);
     var clinicalColleciton = mongoose.model(projectID + "_data_clinical", File.schema);
@@ -103,7 +97,7 @@ app.post('/api/upload/:id/:email', function (req, res) {
             });
             writing2Mongo.on('message', () => {
                 res.end('Writing is done');
-                console.log("*********************!!!!!!!********************");
+                console.log("*********************!!!!!!!*******************");
                 var mailOptions = {
                     from: 'oncoscape.sttrcancer@gmail.com',
                     to: userEmail,

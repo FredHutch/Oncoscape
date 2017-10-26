@@ -103,7 +103,13 @@
                                 </label>
                             </div>
                         </div>
-            </div>
+                    </div>
+                    <div class="col-xs-12 form-item">
+                        <label>Export Results</label>
+                        <div >
+                            <button class="btn btn-default btn-no-focus" type="button" style="width:100%;font-weight: 300;border:white; text-align:left;color:#039BE5" ng-click="vm.exportJSON();"><span class="fa fa-download" style="padding-right:7px"></span>PCA scores</button> 
+                        </div>
+                    </div>
         </div></div>
             
             <!-- <div class="col-xs-12 form-item">
@@ -127,7 +133,8 @@
     <div class="modal-dialog" role="document">
         <div class="modal-content">
             <div class="modal-body">
-                <h2 style="margin-top:0px;">Estimated runtime is approximately {{vm.runTime}}.</h2>
+                <h2 style="margin-top:0px;">Calculating Similarity Plot</h2>
+                <h3 >Estimated runtime is approximately {{vm.runTime}} seconds.</h2>
             </div>
             <div style="position:absolute;right:10px;bottom:10px;">
                 <button class="btn btn-default" ng-click="vm.hideModal()">Cancel</button>
