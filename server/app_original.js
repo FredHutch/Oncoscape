@@ -46,39 +46,7 @@ const corsOptions = {
 }
 app.use(cors(corsOptions));
 
-// function processToken(req) {
-//     if (req && req.headers.hasOwnProperty("authorization")) {
-//         try {
-//             // Pull Toekn From Header - Not 
-//             var projectsJson = req.headers.authorization.replace('Bearer ', '');
-//             jwt.verify(projectsJson, jwtToken);
-//             req.projectsJson = jwt.decode(projectsJson);
-//             console.log("%%%%%%%");
-//             // next();
-//             //return true;
-//         } catch (e) {
-//             console.error(e);
-//             //return false;
-//         }
-//     }
-// }
 
-// app.get("/api/getProjectSecret", processToken, function(req, res, next) {
-//     req.projectId = 1234;
-//      var validRequest = false;
-//     foreach (project in req.projectsJson){ if (projectId === req.projectId)  validRequset = true }
-//     if (value) 
-// })
-
-
-
-// ------------- Begin Data Upload Functions ------------- //
-// request('http://dev.oncoscape.sttrcancer.io/api/lookup_oncoscape_genes/?q=&apikey=password', function(err, resp, body){
-//     GeneSymbolLookupTable = JSON.parse(body);
-//     HugoGenes = GeneSymbolLookupTable.map(function(m){return m.hugo;});
-//     jsonfile.writeFile("HugoGenes.json", HugoGenes, {spaces: 2}, function(err){ console.error(err);});  
-//     if(err) console.log(err);
-// });
 var transporter = nodemailer.createTransport({
     service: 'gmail',
     auth: {
@@ -309,7 +277,6 @@ var upload = multer({
 // --------------------- //
 var domain = process.env.MONGO_DOMAIN;
 mongoose.connect(
-    //"mongodb://oncoscape-dev-db1.sttrcancer.io:27017,oncoscape-dev-db2.sttrcancer.io:27017,oncoscape-dev-db3.sttrcancer.io:27017/tcga?authSource=admin",{
     process.env.MONGO_CONNECTION, {  
     db: {
         native_parser: true
