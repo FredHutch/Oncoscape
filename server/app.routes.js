@@ -84,16 +84,33 @@ var init = function (app) {
     //#region PERMISSIONS
 
     app.get('/api/permissions', Permissions.jwtVerification, function (req, res, next) {
+
+        // if (!req.isAuthenticated) return 404
+        // Permission.find({User: req.userid}, processResult(req, res));
+
         Permission.find({}, processResult(req, res));
     });
     app.post('/api/permissions', Permissions.jwtVerification, function (req, res, next) {
         console.log('what do we received from client: ', req.body);
+
+        // if (!req.isAuthenticated) return 404
+        // Query Mongo To Determine If req.userid has write or admin permissions on the req.body.projectId
+        // If Not Return 404
+
         Permission.create(req.body, processResult(req, res));
     });
     app.get('/api/permissions/:id', Permissions.jwtVerification, function (req, res, next) {
+
+        // if (!req.isAuthenticated) return 404
+        // Add The User Where Clause - Permission.find({User: req.userid}, processResult(req, res));
+        // Find {_id: req.params.id, user=req.userid} 
         Permission.findById(req.params.id, processResult(req, res));
     });
     app.put('/api/permissions/:id', Permissions.jwtVerification, function (req, res, next) {
+
+        // if (!req.isAuthenticated) return 404
+        // Add The User Where Clause - Permission.find({User: req.userid}, processResult(req, res));
+        // Find {_id: req.params.id, user=req.userid} 
         Permission.findOneAndUpdate({ _id: req.params.id }, req.body, { upsert: false }, processResult(req, res));
     });
     app.delete('/api/permissions/:id', Permissions.jwtVerification, function (req, res, next) {
@@ -103,7 +120,6 @@ var init = function (app) {
     //#endregion
 
     //#region USERS
-
     app.get('/api/users', Permissions.jwtVerification, function (req, res, next) {
         try{
             User.find({}, processResult(req, res));
