@@ -45,9 +45,7 @@ var init = function (app) {
             // Google Returns Email Address For Token
             checkUserExistance(body.email).then(user => {
                 if (user != null){
-                    console.log('in api/token');
                     Permissions.getToken(db, body.email).then(jwtTokens => {
-                        console.log(jwt.decode(jwtTokens)[0]);
                         res.send({token: jwtTokens }).end();
                     });
                 } else {
@@ -68,6 +66,7 @@ var init = function (app) {
         // next();
     });
     app.post('/api/projects', Permissions.jwtVerification, function (req, res, next) {
+        console.log('in api/projects POST, req.body is: ', req.body);
         Project.create(req.body, processResult(req, res));
     });
     app.get('/api/projects/:id', Permissions.jwtVerification,  function (req, res, next) {
