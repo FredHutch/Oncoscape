@@ -47,22 +47,9 @@
                 elGrid.style.height = ($window.innerHeight - 140) + "px";
                 vm.gridApi.core.handleWindowResize();
             };
-            vm.collections = Object.keys(osApi.getDataSource().clinical)
-                .map(function(key) {
-                    var v = this.data[key];
-                    return {
-                        name: key,
-                        collection: v
-                    };
-                }, {
-                    data: osApi.getDataSource().clinical
-                }).filter(function(o) {
-                    return (o.name != "events" && o.name != "samplemap");
-                });
-            vm.collection = vm.collections.reduce(function(p, c) {
-                if (c.name == "patient") p = c;
-                return p;
-            }, vm.collections[0]);
+            vm.collections = [{path:"", name:"patient"}].concat(osApi.getData().wrapper.events)
+            vm.collection = vm.collections[0]    
+            
             vm.options = {
                 treeRowHeaderAlwaysVisible: false,
                 enableSelectionBatchEvent: false,
@@ -162,10 +149,18 @@
             // Setup Watches
             $scope.$watch("vm.collection", function() {
                 osApi.setBusy(true);
-                osApi.query(vm.collection.collection)
+                var query = vm.collection.path == "" ? {} : {$fields: [vm.collection.path]}
+                // var fields = "{'".concat(vm.collection.path, "':1, _id:0}")
+                // if (vm.collection.path == "") 
+                //     fields = vm.collections.map(function(c){return c.path}).filter(function(p){return p != ""}).reduce(function(p, c){ return p.concat("'",c,"': 0,") }, "{").concat("_id:0}")
+                osApi.query(osApi.getDataSource().dataset + "_phenotype", query)
                     .then(function(response) {
                         angular.element(".ui-grid-icon-menu").text("Columns");
-                        var cols = Object.keys(response.data[0])
+                        if(vm.collection.path ==""){
+                            response.data.map(function(d){})
+                        }
+
+                        var cols = Object.keys(response.data[0]).filter(function(d){return d!= "_id"})
                             .map(function(col) {
                                 return { field: col, name: col.replace(/_/gi, ' '), width: 250, visible: true };
                             });
