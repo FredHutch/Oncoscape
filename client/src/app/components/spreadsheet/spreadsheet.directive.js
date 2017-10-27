@@ -45,9 +45,10 @@
                 elGrid.style["margin-right"] = mr + "px";
                 elGrid.style.width = ($window.innerWidth - ml - mr - 2) + "px";
                 elGrid.style.height = ($window.innerHeight - 140) + "px";
-                $interval( function() {
-                    vm.gridApi.core.handleWindowResize();
-                  }, 500, 10);
+                $timeout(function(){ vm.gridApi.grid.handleWindowResize()})
+                // $interval( function() {
+                //     vm.gridApi.core.handleWindowResize();
+                //   }, 500, 10);
             };
             vm.collections = [{path:"", name:"patient"}].concat(osApi.getData().wrapper.events)
             vm.collection = vm.collections[0]    
@@ -167,7 +168,7 @@
                                     .filter(function(d){return angular.isDefined(d)})
                         }
 
-                        var cols = Object.keys(sheet[0]).filter(function(d){return d!= "_id"})
+                        var cols = Object.keys(sheet[0]) //.filter(function(d){return d!= "_id"})
                             .map(function(col) {
                                 return { field: col, name: col.replace(/_/gi, ' '), width: 250, visible: true };
                             });
