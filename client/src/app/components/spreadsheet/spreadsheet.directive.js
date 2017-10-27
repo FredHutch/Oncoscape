@@ -19,7 +19,7 @@
         return directive;
 
         /** @ngInject */
-        function SpreadsheetController(osApi, $state, $timeout, $scope, moment, $stateParams, _, $, $q, $window, uiGridConstants, saveAs) {
+        function SpreadsheetController(osApi, $state, $timeout, $scope, moment, $stateParams, _, $, $q, $window, uiGridConstants, saveAs, $interval) {
 
             // Loading ...
             osApi.setBusy(true);
@@ -45,7 +45,9 @@
                 elGrid.style["margin-right"] = mr + "px";
                 elGrid.style.width = ($window.innerWidth - ml - mr - 2) + "px";
                 elGrid.style.height = ($window.innerHeight - 140) + "px";
-                vm.gridApi.core.handleWindowResize();
+                $interval( function() {
+                    vm.gridApi.core.handleWindowResize();
+                  }, 500, 10);
             };
             vm.collections = [{path:"", name:"patient"}].concat(osApi.getData().wrapper.events)
             vm.collection = vm.collections[0]    
@@ -55,6 +57,7 @@
                 enableSelectionBatchEvent: false,
                 enableGridMenu: false,
                 enableSelectAll: true,
+                enableColumnMenu: true,
                 onRegisterApi: function(gridApi) {
                     vm.gridApi = gridApi;
                     selectHandler = gridApi.selection.on.rowSelectionChanged($scope, _.debounce(rowSelectionChange, 300));
@@ -156,16 +159,20 @@
                 osApi.query(osApi.getDataSource().dataset + "_phenotype", query)
                     .then(function(response) {
                         angular.element(".ui-grid-icon-menu").text("Columns");
+                        var sheet = response.data
                         if(vm.collection.path ==""){
-                            response.data.map(function(d){})
+                            sheet = sheet.map(function(d){ return _.omit(d, _.pluck(vm.collections, "path"))})
+                        }else{
+                            sheet = _.flatten(sheet.map(function(d){ return d[vm.collection.path]}))
+                                    .filter(function(d){return angular.isDefined(d)})
                         }
 
-                        var cols = Object.keys(response.data[0]).filter(function(d){return d!= "_id"})
+                        var cols = Object.keys(sheet[0]).filter(function(d){return d!= "_id"})
                             .map(function(col) {
                                 return { field: col, name: col.replace(/_/gi, ' '), width: 250, visible: true };
                             });
                         vm.options.columnDefs = cols;
-                        vm.options.data = response.data.map(function(v) {
+                        vm.options.data = sheet.map(function(v) {
                             v.color = "#F0DDC0";
                             v.selected = false;
                             return v;

@@ -12,7 +12,7 @@ co(function *() {
 
     var user = "oncoscape"
     var pw= process.env.dev_oncoscape_pw
-    var repo = "tcga"
+    var repo = "v2"
     var host = 'mongodb://'+user+":"+pw+"@oncoscape-dev-db1.sttrcancer.io:27017,oncoscape-dev-db2.sttrcancer.io:27017,oncoscape-dev-db3.sttrcancer.io:27017/"+repo+"?authSource=admin&replicaSet=rs0"
     var db = yield comongo.client.connect(host);
 
@@ -22,62 +22,64 @@ co(function *() {
     json_mol = json_mol.filter(function(d){ return d.schema == "hugo_sample"})
     var json_clin = require("./tcga_clinical_lookup.json")
     //var json_meta = json_clin.concat(json_mol)
-    var json_meta = json_clin;
+    var json_meta = json_mol;
 
     // // Clean Project 
     // // 1. drop collections, and clear Collections & Tools list in lookup table 
     // // 2. drop ptdashboard collection
     // // 3. drop samplemap collection
     // // 4. drop phenotype_wrapper
-    var lookup = yield comongo.db.collection(db, "lookup_oncoscape_datasources_v2");    
-    var ds = yield lookup.find().toArray()
-    for(var i=0;i<ds.length; i++){
-        console.log(ds[i].dataset)
-        // for(var c=0;c<ds[i].collections.length;c++){
-        //     var coll = yield comongo.db.collection(db, ds[i].collections[c].collection);  
-        //     yield coll.drop()  
-        // }
-        //ds[i].collections = []
-        // ds[i].tools = []
-        //yield lookup.update({dataset:ds[i].dataset}, ds[i], {upsert: true, writeConcern: {w:"majority"}})
-       
-    //     // var ptdashboard = yield comongo.db.collection(db, ds[i].dataset+"_ptdashboard");  
-    //     // var exists = yield ptdashboard.count()
-    //     // if(exists != 0)
-    //     //     yield ptdashboard.drop()  
-    //     var smplmap = yield comongo.db.collection(db, ds[i].dataset+"_samplemap");  
-    //     var exists = yield smplmap.count()
-    //     if(exists != 0)
-    //         yield smplmap.drop()  
-       var pheno = yield comongo.db.collection(db, "phenotype_wrapper");  
-       var exists = yield pheno.count()
-       if(exists != 0)
-            yield pheno.drop()  
+    var drop = {collection: false, 
+                samplemap: false,
+                pheno: false,
+                lookup: 
+                {   collection:false,
+                    tools: false
+                }
+            }
 
+    if(_.some(drop, true)){
+        var lookup = yield comongo.db.collection(db, "lookup_oncoscape_datasources_v2");    
+        var ds = yield lookup.find().toArray()
+        for(var i=0;i<ds.length; i++){
+            console.log(ds[i].dataset)
+            if(drop.collection){
+                for(var c=0;c<ds[i].collections.length;c++){
+                    var coll = yield comongo.db.collection(db, ds[i].collections[c].collection);  
+                    yield coll.drop()  
+                }
+            }
+            if (drop.lookup.collection) ds[i].collections = []
+            if (drop.lookup.tools)      ds[i].tools = []
+                
+            yield lookup.update({dataset:ds[i].dataset}, ds[i], {upsert: true, writeConcern: {w:"majority"}})
+            
+            if(drop.samplemap){
+                var smplmap = yield comongo.db.collection(db, ds[i].dataset+"_samplemap");  
+                var exists = yield smplmap.count()
+                if(exists != 0)
+                    yield smplmap.drop()  
+            }
+        
+            if(drop.pheno){
+                var pheno = yield comongo.db.collection(db, "phenotype_wrapper");  
+                var exists = yield pheno.count()
+                if(exists != 0)
+                    yield pheno.drop()  
+            }
+        }
     }
     
-
     // add new collection to lookup table for each JSON object
     // skip if collection not yet written
     for(i=0;i<json_meta.length; i++){
         var j = json_meta[i]
         if(j.schema == "hugo_sample"){
             console.log(j.dataset +" "+j.collection)
-            // var m = yield comongo.db.collection(db, j.dataset +"_molecular_matrix")
-            // var count = yield m.count({"name": j.name})
             
-            // if(count == 0){  // data not yet in merged molecular_matrix
-                j.collection_transformed = j.collection.replace("tcga_", "");
-                var mm = yield comongo.db.collection(db, j.collection_transformed)
-                count = yield mm.count({})
-            //     if(count != 0){  // copy from individual collection into merged molecular collection            
-            //        var tcopy = yield mm.find({}).toArray()
-            //        tcopy.forEach(function(doc) { m.insert(doc)})
-            //     }
-            // }
-
-            // //test to see if data got updated
-            // count = yield m.count({"name": j.name})
+            j.collection_transformed = j.collection.replace("tcga_", "");
+            var mm = yield comongo.db.collection(db, j.collection_transformed)
+            count = yield mm.count({})
             
             if(count == 0){
                 console.log("---not yet stored")
@@ -113,30 +115,56 @@ co(function *() {
 
         //create/add to samplemap
             var samplemap = yield comongo.db.collection(db, j.dataset+"_samplemap");    
-            
             var keyval = {};
-            
-            
-            //var collection = yield comongo.db.collection(db, j.dataset+"_molecular_matrix");   
+
             var collection = yield comongo.db.collection(db, j.collection_transformed);   
             samples = yield collection.findOne({"name":j.name}, {"s":1})
             samples = samples.s
+            samples_i = yield collection.findOne({"name":j.name}, {"s_i":1})
+            samples_i = samples_i.s_i
 
             if(j.source = "TCGA"){
-                patients = samples.map(function(s){return s.replace(/\-\w{2}$/,"")})
+                if(samples){
+                    patients = samples.map(function(s){return s.replace(/\-\w{2}$/,"")})
+                    
+                    // Note: overwrites previous sample -> patient mapping.  
+                    // To Do: check if incoming patient id different than existing sample mapping
+                    keyval = _.object(samples, patients)
+                    var res =  yield samplemap.update({}, {$set: keyval}, {upsert: true, writeConcern: {w:"majority"}})
+                }
             }
             
-            keyval = _.object(samples, patients)
-            var res = yield samplemap.update({}, {$set: keyval}, {upsert: true, writeConcern: {w:"majority"}})
-                // res = yield lookup.update({dataset: j.dataset}, {$set: keyval}, {upsert: true, writeConcern: {w:"majority"}})
-
-            // insert into lookup collection
-            var markers = yield collection.distinct("m", {"name":j.name})
-            var new_collection = {name: j.name, type: j.type, schema:schema, collection: j.collection_transformed, default:isdefault, s:samples, m:markers}
-            if(_.where(ds[0].collections,(({ name, type, schema,  }) => ({ name, type, schema }))(new_collection)).length ==0){
-                console.log("lookup adding dataset: ", j.collection_transformed)
-                ds[0].collections.push(new_collection)
-                var res = yield lookup.update({dataset: j.dataset}, ds[0], {upsert: true, writeConcern: {w:"majority"}})
+            //update collection & lookup to store index of sample id from samplemap
+            if(samples & !samples_i){ 
+                // As of Mongo 2.6, keys maintain order on update (unless a particular key is renamed...)
+                //https://docs.mongodb.com/master/release-notes/2.6/#insert-and-update-improvements
+                var samplemapping = yield samplemap.find({}).toArray()
+                var samples_i = samples.map(function(s){ return Object.keys(samplemapping[0]).indexOf(s) })
+                var cres = yield collection.update({}, {$set: {"s_i": samples_i, "date_modified": new Date()}, $unset: {"s":""}}, {upsert: true, multi: true, writeConcern: {w:"majority"}})
+           
+            
+                // insert new collection into lookup collection
+                var markers = yield collection.distinct("m", {"name":j.name})
+                var new_collection = {
+                    name: j.name, 
+                    type: j.type, 
+                    schema:schema, 
+                    collection: j.collection_transformed, 
+                    default:isdefault, 
+                    s:samples_i, 
+                    m:markers,
+                    date_modified: new Date()
+                }
+                //add collection metadata to lookup if DNE
+                if(_.where(ds[0].collections,(({ name, type, schema,  }) => ({ name, type, schema }))(new_collection)).length ==0){
+                    console.log("lookup adding dataset: ", j.collection_transformed)
+                    ds[0].collections.push(new_collection)
+                    var res = yield lookup.update({dataset: j.dataset}, ds[0], {upsert: true, writeConcern: {w:"majority"}})
+                }
+            } else if(!samples){
+                var samplemapping = yield samplemap.find({}).toArray()
+                var samples = samples_i.map(function(s){ return Object.keys(samplemapping[0])[s] })
+                var cres = yield collection.update({},  {$set: {"date_modified": new Date(), "s": samples }}, {upsert: true, multi: true, writeConcern: {w:"majority"}})
             }
         }
 
@@ -145,7 +173,7 @@ co(function *() {
              console.log(j.dataset)
             var collection = yield comongo.db.collection(db, j.dataset+"_phenotype");   
             var pheno_data = yield collection.find().toArray()
-            //samples = samples.s
+           
             var wrapper_collection = yield comongo.db.collection(db, "phenotype_wrapper");  
             var req = typeof j.req == "undefined" ?  "null" : j.req
             var pheno_wrapper = {dataset: j.dataset, req:req, enums:[],time:[], nums:[], boolean:[], events: [], strings: [] }
@@ -196,7 +224,7 @@ co(function *() {
                 } else if (factors.types.every( x => x == "boolean")){
                     pheno_wrapper.boolean.push({path: field, name:field})
                 } else if (factors.types.every( x => x == "object")){
-                    pheno_wrapper.events.push({path: field, name:field})
+                    pheno_wrapper.events.push({path: field.replace(" ","_"), name:field})
                 } else if (factorCount<10 ){
                     pheno_wrapper.enums.push({path: field, name:field})
                 } else {
