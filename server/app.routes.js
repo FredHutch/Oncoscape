@@ -73,6 +73,7 @@ var init = function (app) {
         Project.findById(req.params.id, processResult(req, res));
     });
     app.put('/api/projects/:id', Permissions.jwtVerification, function (req, res, next) {
+        console.log('&&&&&&&&&& PROJECT Update in the route', req.body);
         Project.findOneAndUpdate({ _id: req.params.id }, req.body, { upsert: false }, processResult(req, res));
     });
     app.delete('/api/projects/:id', Permissions.jwtVerification, function (req, res, next) {
@@ -169,11 +170,10 @@ var init = function (app) {
                     });
     
                     if (projectCollections.length === 0) {
-                        res.status(404).send("Not Found").end();
+                        res.status(200).send("Not Found or No File has been uploaded yet.").end();
                         // res.send('Not Find').end();
                     } else {
                         var arr = [];
-    
                         asyncLoop(projectCollections, function (m, next) {
                             db.collection(m).find().toArray(function (err, data) {
                                 var obj = {};
