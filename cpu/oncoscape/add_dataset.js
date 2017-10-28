@@ -31,14 +31,12 @@ co(function *() {
     // // 4. drop phenotype_wrapper
     var drop = {collection: false, 
                 samplemap: false,
-                pheno: false,
-                lookup: 
-                {   collection:false,
-                    tools: false
-                }
+                phenowrapper: false,
+                collections: false,
+                lookup_tools: false
             }
 
-    if(_.some(drop, true)){
+    if(_.some(_.toArray(drop))){
         var lookup = yield comongo.db.collection(db, "lookup_oncoscape_datasources_v2");    
         var ds = yield lookup.find().toArray()
         for(var i=0;i<ds.length; i++){
@@ -49,11 +47,17 @@ co(function *() {
                     yield coll.drop()  
                 }
             }
-            if (drop.lookup.collection) ds[i].collections = []
-            if (drop.lookup.tools)      ds[i].tools = []
+           
+            if (drop.lookup_tools)      ds[i].tools = []
                 
             yield lookup.update({dataset:ds[i].dataset}, ds[i], {upsert: true, writeConcern: {w:"majority"}})
             
+            if(drop.collections){
+                var cllctn = yield comongo.db.collection(db, ds[i].dataset+"_collections");  
+                var exists = yield cllctn.count()
+                if(exists != 0)
+                    yield cllctn.drop()  
+            }
             if(drop.samplemap){
                 var smplmap = yield comongo.db.collection(db, ds[i].dataset+"_samplemap");  
                 var exists = yield smplmap.count()
@@ -61,7 +65,7 @@ co(function *() {
                     yield smplmap.drop()  
             }
         
-            if(drop.pheno){
+            if(drop.phenowrapper){
                 var pheno = yield comongo.db.collection(db, "phenotype_wrapper");  
                 var exists = yield pheno.count()
                 if(exists != 0)
@@ -91,8 +95,8 @@ co(function *() {
                             "beta" : false,
                             "name" : "",
                             "img" : "thumb.png",
-                            "tools" : [ ],
-                            "collections" : []
+                            "tools" : [ ]
+                            
             }
         
         //Add to lookup collection
@@ -108,6 +112,7 @@ co(function *() {
                 ds[0].dataset = j.dataset
                 ds[0].source = typeof j.source == "undefined" ? source : j.source
                 ds[0].name =   j.dataset
+                var res = yield lookup.update({dataset: j.dataset}, ds[0], {upsert: true, writeConcern: {w:"majority"}})
             }
             schema = typeof j.schema == "undefined" ? "hugo_sample" : j.schema
             if(j.name.match(/protein/)){schema = "prot_sample"}
@@ -120,8 +125,9 @@ co(function *() {
             var collection = yield comongo.db.collection(db, j.collection_transformed);   
             samples = yield collection.findOne({"name":j.name}, {"s":1})
             samples = samples.s
-            samples_i = yield collection.findOne({"name":j.name}, {"s_i":1})
-            samples_i = samples_i.s_i
+            var add_samples_i = false
+            // samples_i = yield collection.findOne({"name":j.name}, {"s_i":1})
+            // samples_i = samples_i.s_i
 
             if(j.source = "TCGA"){
                 if(samples){
@@ -135,7 +141,7 @@ co(function *() {
             }
             
             //update collection & lookup to store index of sample id from samplemap
-            if(samples & !samples_i){ 
+            if(samples & add_samples_i){ 
                 // As of Mongo 2.6, keys maintain order on update (unless a particular key is renamed...)
                 //https://docs.mongodb.com/master/release-notes/2.6/#insert-and-update-improvements
                 var samplemapping = yield samplemap.find({}).toArray()
@@ -161,10 +167,36 @@ co(function *() {
                     ds[0].collections.push(new_collection)
                     var res = yield lookup.update({dataset: j.dataset}, ds[0], {upsert: true, writeConcern: {w:"majority"}})
                 }
-            } else if(!samples){
+            }else if(!samples){
                 var samplemapping = yield samplemap.find({}).toArray()
                 var samples = samples_i.map(function(s){ return Object.keys(samplemapping[0])[s] })
                 var cres = yield collection.update({},  {$set: {"date_modified": new Date(), "s": samples }}, {upsert: true, multi: true, writeConcern: {w:"majority"}})
+            } else { 
+                
+                // insert new collection into lookup collection
+               
+             //   var markers = yield collection.distinct("m")
+                var new_collection = {
+                    name: j.name, 
+                    type: j.type, 
+                    schema:schema, 
+                    collection: j.collection_transformed, 
+                    default:isdefault, 
+                    // s:samples, 
+                    // m:markers,
+                    date_modified: new Date()
+                }
+                //add collection metadata to lookup if DNE 
+                // if(_.where(ds[0].collections,(({ name, type, schema,  }) => ({ name, type, schema }))(new_collection)).length ==0){
+                //     console.log("lookup adding dataset: ", j.collection_transformed)
+                //     ds[0].collections.push(new_collection)
+                //     var res = yield lookup.update({dataset: j.dataset}, ds[0], {upsert: true, writeConcern: {w:"majority"}})
+                // }
+                //add collection metadata to dataset_collections if DNE 
+                var ds_collection = yield comongo.db.collection(db, j.dataset+"_collections");   
+                var count = yield ds_collection.count({name:j.name, type:j.type, schema:schema})
+                if(count==0)
+                    var insert_status = yield ds_collection.insert(new_collection, {writeConcern: {w:"majority"}})
             }
         }
 
