@@ -63,7 +63,8 @@ var upload = multer({
 
 //#region Data Upload Functions 
 
-app.use('/api/upload', express.static(process.env.APP_ROOT + '/uploads'));
+// app.use('/api/upload', express.static(process.env.APP_ROOT + '/uploads'));
+app.use('/api/upload', express.static('/home/sttrweb/Oncoscape/uploads'));
 app.post('/api/upload/:id/:email', function (req, res) {
     var projectID = req.params.id;
     var userEmail = req.params.email;
@@ -90,7 +91,8 @@ app.post('/api/upload/:id/:email', function (req, res) {
             });
             return;
         } else {
-            const writing2Mongo = fork(process.env.APP_ROOT + '/server/fileUpload.js',
+            // const writing2Mongo = fork(process.env.APP_ROOT + '/server/fileUpload.js',
+            const writing2Mongo = fork('/home/sttrweb/Oncoscape/server/fileUpload.js',
                 { execArgv: ['--max-old-space-size=4000'] });
             writing2Mongo.send({
                 filePath: res.req.file.path,
