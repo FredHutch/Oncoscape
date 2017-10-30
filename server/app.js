@@ -97,7 +97,7 @@ app.post('/api/upload/:id/:email', function (req, res) {
             });
             writing2Mongo.on('message', () => {
                 res.end('Writing is done');
-                console.log("********************!!!!!!!*******************");
+                console.log("*******************!!!!!!!*******************");
                 var mailOptions = {
                     from: 'oncoscape.sttrcancer@gmail.com',
                     to: userEmail,
