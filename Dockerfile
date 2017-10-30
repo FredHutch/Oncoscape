@@ -57,6 +57,8 @@ RUN npm install -g pm2
 # Create Application User
 RUN useradd -u 7534 -m -d /home/sttrweb -c "sttr web application" sttrweb && \
 	mkdir /home/sttrweb/Oncoscape && \
+	mkdir /home/sttrweb/Oncoscape/uploads \
+	chmod +x /home/sttrweb/Oncoscape/uploads \
 	# mkdir /home/sttrweb/UploadTool && \
 	mkdir /home/sttrweb/Oncoscape/cache && \
 	mkdir /var/log/nginx/
