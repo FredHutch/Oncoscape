@@ -19,7 +19,7 @@
         return directive;
 
         /** @ngInject */
-        function SpreadsheetController(osApi, $state, $timeout, $scope, moment, $stateParams, _, $, $q, $window, uiGridConstants, saveAs) {
+        function SpreadsheetController(osApi, $state, $timeout, $scope, moment, $stateParams, _, $, $q, $window, uiGridConstants, saveAs, $interval) {
 
             // Loading ...
             osApi.setBusy(true);
@@ -45,29 +45,20 @@
                 elGrid.style["margin-right"] = mr + "px";
                 elGrid.style.width = ($window.innerWidth - ml - mr - 2) + "px";
                 elGrid.style.height = ($window.innerHeight - 140) + "px";
-                vm.gridApi.core.handleWindowResize();
+                $timeout(function(){ vm.gridApi.grid.handleWindowResize()})
+                // $interval( function() {
+                //     vm.gridApi.core.handleWindowResize();
+                //   }, 500, 10);
             };
-            vm.collections = Object.keys(osApi.getDataSource().clinical)
-                .map(function(key) {
-                    var v = this.data[key];
-                    return {
-                        name: key,
-                        collection: v
-                    };
-                }, {
-                    data: osApi.getDataSource().clinical
-                }).filter(function(o) {
-                    return (o.name != "events" && o.name != "samplemap");
-                });
-            vm.collection = vm.collections.reduce(function(p, c) {
-                if (c.name == "patient") p = c;
-                return p;
-            }, vm.collections[0]);
+            vm.collections = [{path:"", name:"patient"}].concat(osApi.getData().wrapper.events)
+            vm.collection = vm.collections[0]    
+            
             vm.options = {
                 treeRowHeaderAlwaysVisible: false,
                 enableSelectionBatchEvent: false,
                 enableGridMenu: false,
                 enableSelectAll: true,
+                enableColumnMenu: true,
                 onRegisterApi: function(gridApi) {
                     vm.gridApi = gridApi;
                     selectHandler = gridApi.selection.on.rowSelectionChanged($scope, _.debounce(rowSelectionChange, 300));
@@ -162,15 +153,27 @@
             // Setup Watches
             $scope.$watch("vm.collection", function() {
                 osApi.setBusy(true);
-                osApi.query(vm.collection.collection)
+                var query = vm.collection.path == "" ? {} : {$fields: [vm.collection.path]}
+                // var fields = "{'".concat(vm.collection.path, "':1, _id:0}")
+                // if (vm.collection.path == "") 
+                //     fields = vm.collections.map(function(c){return c.path}).filter(function(p){return p != ""}).reduce(function(p, c){ return p.concat("'",c,"': 0,") }, "{").concat("_id:0}")
+                osApi.query(osApi.getDataSource().dataset + "_phenotype", query)
                     .then(function(response) {
                         angular.element(".ui-grid-icon-menu").text("Columns");
-                        var cols = Object.keys(response.data[0])
+                        var sheet = response.data
+                        if(vm.collection.path ==""){
+                            sheet = sheet.map(function(d){ return _.omit(d, _.pluck(vm.collections, "path"))})
+                        }else{
+                            sheet = _.flatten(sheet.map(function(d){ return d[vm.collection.path]}))
+                                    .filter(function(d){return angular.isDefined(d)})
+                        }
+
+                        var cols = Object.keys(sheet[0]) //.filter(function(d){return d!= "_id"})
                             .map(function(col) {
                                 return { field: col, name: col.replace(/_/gi, ' '), width: 250, visible: true };
                             });
                         vm.options.columnDefs = cols;
-                        vm.options.data = response.data.map(function(v) {
+                        vm.options.data = sheet.map(function(v) {
                             v.color = "#F0DDC0";
                             v.selected = false;
                             return v;
