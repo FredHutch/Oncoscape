@@ -974,12 +974,11 @@
             osApi.onCohortChange.add(updatePatientCounts)
 
 
-            osApi.query("lookup_oncoscape_datasources_v2", {
-                dataset: osApi.getDataSource().dataset
+            osApi.query(osApi.getDataSource().dataset+"_collections", {
             }).then(function(response){
                 vm.temp.method = "PCA"
                 vm.temp.title = vm.temp.method + "  (" + moment().format('hh:mm:ss') + ")";
-                vm.temp.data.types = response.data[0].collections.filter(function(d){ return _.contains(acceptableDatatypes, d.type)})
+                vm.temp.data.types = response.data.filter(function(d){ return _.contains(acceptableDatatypes, d.type)})
                 vm.temp.data.selected.i = 0;
                 vm.temp.data.selected.name = vm.temp.data.types[vm.temp.data.selected.i].name;
                 vm.temp.params.bool = { "geneset" : {name: osApi.getGeneset().name, use: true},

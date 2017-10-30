@@ -12,7 +12,7 @@ co(function *() {
 
     var user = "oncoscape"
     var pw= process.env.dev_oncoscape_pw
-    var repo = "tcga"
+    var repo = "v2"
     var host = 'mongodb://'+user+":"+pw+"@oncoscape-dev-db1.sttrcancer.io:27017,oncoscape-dev-db2.sttrcancer.io:27017,oncoscape-dev-db3.sttrcancer.io:27017/"+repo+"?authSource=admin&replicaSet=rs0"
     var db = yield comongo.client.connect(host);
 
@@ -32,6 +32,7 @@ co(function *() {
 
     for(j=0;j<ds.length; j++){
         var d = ds[j]
+        console.log(d.dataset)
         var con_collections = yield comongo.db.collection(db, d.dataset +"_collections")
         var collections = yield con_collections.find({}, {s:0,m:0}).toArray()
 
@@ -42,26 +43,35 @@ co(function *() {
         var tools = d.tools
         for(i=0;i<json_meta.length; i++){
             var t = json_meta[i]
-          
-            for(r=0;r<t.req.length;r++){  // loop through all requirements for tool
-                var pass = true
-                if(t.req[r].type == "molecular"){
-                    var subset = collections.filter(function(c){ return _.contains(t.req[r].value,c[t.req[r].field])})
-                    if(subset.length ==0){ pass = false}
+            var pass = true
+            var mol_subset = collections
+            var clin_subset = phenotype
+            for(r=0;r<t.and.length & pass;r++){  // loop through all requirements for tool
+                if(t.and[r].type == "molecular"){
+                    if(t.and[r].logic== "in")
+                        mol_subset = mol_subset.filter(function(c){ return _.contains(t.and[r].value,c[t.and[r].field])})
+                    else if(t.and[r].logic== "is")
+                        mol_subset = mol_subset.filter(function(c){ return c[t.and[r].field] == t.and[r].value })
+                    if(mol_subset.length ==0){ pass = false}
                 }
-                if(pass & t.req[r].type =="clinical"){
-                    var subset = phenotype.filter(function(d){ return _.contains(t.req[r].value, d[t.req[r].field] ) })
-                    if(subset.length == 0) pass = false
-                }
-                if(pass){
-                    tools = _.union(tools, d.name)
-                } else if(_.contains(tools, t.name)){
-                    tools = _.without(tools, t.name);
-                }
+                else if(pass & t.and[r].type =="clinical"){
+                    if(t.and[r].logic== "in")
+                        clin_subset = clin_subset.filter(function(d){ return _.contains(t.and[r].value, d[t.and[r].field] ) })
+                    else if(t.and[r].logic== "is")
+                        clin_subset = clin_subset.filter(function(d){ return d[t.and[r].field] == t.and[r].value })
+                    else if(t.and[r].logic== "matches")
+                        clin_subset = clin_subset.filter(function(d){ 
+                            //console.log(d[t.and[r].field])
+                            return d[t.and[r].field] ? 
+                            d[t.and[r].field].toString().match(t.and[r].value ).length >0 : 
+                            false})    
+                    if(clin_subset.length == 0) pass = false
+                }  
             }
-            var res =  yield lookup.update({dataset: d.dataset}, {$set:{"tools": d.tools}}, {writeConcern:{w:"majority"}})
+            if(pass){                           tools = _.union(tools, [t.name])}
+            else if(_.contains(tools, t.name)){ tools = _.without(tools, t.name); }
         }
-        
+        var res =  yield lookup.update({dataset: d.dataset}, {$set:{"tools": tools}}, {writeConcern:{w:"majority"}})
     } 
 
 yield comongo.db.close(db);
