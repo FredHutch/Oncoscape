@@ -46,7 +46,8 @@ var transporter = nodemailer.createTransport({
 
 var storage = multer.diskStorage({
     destination: function (req, file, cb) {
-        cb(null, process.env.APP_ROOT + '/uploads')
+        cb(null, '/home/sttrweb/Oncoscape/uploads')
+        // cb(null, process.env.APP_ROOT + '/uploads')
     },
     filename: function (req, file, cb) {
         var newFileName = file.fieldname + '-' + Date.now() + '.xlsx';
