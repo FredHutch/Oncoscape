@@ -10,73 +10,77 @@ host<- paste("mongodb://",user,":",password,"@oncoscape-dev-db1.sttrcancer.io:27
 mol_df = fromJSON("~/Desktop/Oncoscape/cpu/oncoscape/tcga_molecular_lookup.json")
 
 mol_df = subset(mol_df, schema == "hugo_sample")
-mol_df = subset(mol_df, dataset %in% c("brain", "gbm", "lgg", "brca"))
+#mol_df = subset(mol_df, dataset %in% c("brain", "gbm", "lgg", "brca"))
 
-
-### Use aggregate fn in Mongo to copy collections into new format
-for(j in 1:nrow(mol_df)){
-    mol = mol_df[j,]
-    m_type = "hugo"
-    if(grepl( "protein", mol[["name"]]))
-      m_type = "protein"
-    print(mol[["collection"]])
+# ### Use aggregate fn in Mongo to copy collections into new format
+# for(j in 1:nrow(mol_df)){
+#     mol = mol_df[j,]
+#     m_type = "hugo"
+#     if(grepl( "protein", mol[["name"]]))
+#       m_type = "protein"
+#     print(mol[["collection"]])
     
-    # Original data not yet copied over into combined molecular collection
-    merge_collection_name = paste(mol[["dataset"]], "molecular_matrix", sep="_")
-    idx = mongo(merge_collection_name, db="tcga", url=host)$index()
-    if(! "name" %in% idx$name)
-      mongo(merge_collection_name, db="tcga", url=host)$index(add="name")
+#     # Original data not yet copied over into combined molecular collection
+#     # merge_collection_name = paste(mol[["dataset"]], "molecular_matrix", sep="_")
+#     # idx = mongo(merge_collection_name, db="tcga", url=host)$index()
+#     # if(! "name" %in% idx$name)
+#     #   mongo(merge_collection_name, db="tcga", url=host)$index(add="name")
     
-    finddocs = toJSON(list("name"=mol[["name"]]),auto_unbox=T)
-    if(nrow(mongo(merge_collection_name,db="tcga", url=host)$find(finddocs, limit=1)) == 0) { 
+#     # finddocs = toJSON(list("name"=mol[["name"]]),auto_unbox=T)
+#     # if(nrow(mongo(merge_collection_name,db="tcga", url=host)$find(finddocs, limit=1)) == 0) { 
         
-      # copy over into distinct collection, if not already there
-        out_collection_name = gsub("tcga_", "", mol[["collection"]])
-        if(mongo(out_collection_name,db="tcga", url=host)$count() == 0)
-          copy_samedb_transformation(in_collection_name=mol[["collection"]],out_collection_name, name=mol[["name"]], type=mol[["type"]], m_type=m_type, db="tcga")
+#       # copy over into distinct collection, if not already there
+#         out_collection_name = gsub("tcga_", "", mol[["collection"]])
+#         if(mongo(out_collection_name,db="tcga", url=host)$count() == 0)
+#           copy_samedb_transformation(in_collection_name=mol[["collection"]],out_collection_name, name=mol[["name"]], type=mol[["type"]], m_type=m_type, db="tcga")
       
-      ###NO NO NO  # then copy documents into merged collection --- DOESN"T WORK - $out clobbers previous insert
-#        mongo(out_collection_name, db="tcga", url=host)$aggregate(
-#          toJSON(list(list("$out"=merge_collection_name)), auto_unbox = T)
-#        )
-    }
+#       ###NO NO NO  # then copy documents into merged collection --- DOESN"T WORK - $out clobbers previous insert
+# #        mongo(out_collection_name, db="tcga", url=host)$aggregate(
+# #          toJSON(list(list("$out"=merge_collection_name)), auto_unbox = T)
+# #        )
+#     # }
     
-}
+# }
 
 lookup = mongo("lookup_oncoscape_datasources", db="tcga", url=host)
 datasets = lookup$find()
-datasets = subset(datasets, disease %in% c("brca", "lgg", "gbm", "brain"))
+# datasets = subset(datasets, disease %in% c("brca", "lgg", "gbm", "brain"))
 
 
 ### Copy over clinical tables
 for(i in 1:nrow(datasets)){
   ds = datasets[i,]
   print(ds$disease)
+  if(ds$disease %in% c("hg19", "pancan", "pancan12")) next;
   out_collection_name = paste(ds$disease, "phenotype",sep="_")
-  collections = sort(ds$clinical)  #hack so diagnosis is first and '$out' doesn't clobber others
+  con = mongo(out_collection_name,db="v2", url=host)
+  if(con$count() ==0){
+
+    collections = sort(ds$clinical)  #hack so diagnosis is first and '$out' doesn't clobber others
+    
+    for(j in 1:length(collections)){
+      print(names(collections[j]))
+      if(names(collections[j]) %in% c("samplemap", "patient", "events"))
+        next
   
-  for(j in 1:length(collections)){
-    print(names(collections[j]))
-    if(names(collections[j]) %in% c("samplemap", "patient", "events"))
-      next
- 
-    if(names(collections[j]) %in% c("diagnosis")){
-      con = mongo(collections[[j]],db="tcga", url=host)
-      cmds = list(list("$out"=out_collection_name))
-      con$aggregate(toJSON(cmds, auto_unbox=T))
-    } else{
-      con = mongo(out_collection_name,db="tcga", url=host)
-      cmds = list(
-        list("$lookup"= list(
-          "from"= collections[[j]],
-          "localField"= "patient_ID",
-          "foreignField"= "patient_ID",
-          "as"= names(collections[j])
-          )),
-        list("$out"=out_collection_name))
-       
-      con$aggregate(toJSON(cmds, auto_unbox=T))
-      
+      if(names(collections[j]) %in% c("diagnosis")){
+        con = mongo(collections[[j]],db="tcga", url=host)
+        cmds = list(list("$out"=out_collection_name))
+        con$aggregate(toJSON(cmds, auto_unbox=T))
+      } else{
+        con = mongo(out_collection_name,db="tcga", url=host)
+        cmds = list(
+          list("$lookup"= list(
+            "from"= collections[[j]],
+            "localField"= "patient_ID",
+            "foreignField"= "patient_ID",
+            "as"= names(collections[j])
+            )),
+          list("$out"=out_collection_name))
+        
+        con$aggregate(toJSON(cmds, auto_unbox=T))
+        
+      }
     }
   }
     

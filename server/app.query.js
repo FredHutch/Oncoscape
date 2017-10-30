@@ -24,6 +24,11 @@ var exec = function(db, collection, query){
                     this[field] = 1;
                 }, fields);
                 delete query.$fields;
+            } else if (query.$fields_exclude) {
+                query.$fields_exclude.forEach(function (field) {
+                    this[field] = 0;
+                }, fields);
+                delete query.$fields_exclude;
             }
 
             // Execute
