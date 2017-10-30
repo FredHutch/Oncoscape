@@ -32,7 +32,7 @@ co(function *() {
     var drop = {collection: false, 
                 samplemap: false,
                 phenowrapper: false,
-                collections: false,
+                collections: true,
                 lookup_tools: false
             }
 
@@ -175,15 +175,15 @@ co(function *() {
                 
                 // insert new collection into lookup collection
                
-             //   var markers = yield collection.distinct("m")
+                var markers = yield collection.distinct("m")
                 var new_collection = {
                     name: j.name, 
                     type: j.type, 
                     schema:schema, 
                     collection: j.collection_transformed, 
                     default:isdefault, 
-                    // s:samples, 
-                    // m:markers,
+                    s:samples, 
+                    m:markers,
                     date_modified: new Date()
                 }
                 //add collection metadata to lookup if DNE 
