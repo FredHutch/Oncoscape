@@ -1,8 +1,13 @@
 [{ "name": "pca",
-	"req": [	{"field":"type",  "value":["expr", "cnv","cnv_thd", "mut01"]},
-			{"field":"schema", "value":["hugo_sample"]}
+	"req": [ {"type": "molecular", "field":"type",  "value":["expr", "cnv","cnv_thd", "mut01"]},
+			 {"type": "molecular", "field":"schema", "value":["hugo_sample"]}
 	]
-},{ "name": "PCA",
-	"req": [	{"field":"type",  "value":["REMOVE"]}
+},{ "name": "survival",
+	"req": [ {"type": "clinical", "field":"status_vital",  "value":["ALIVE", "DEAD"]},
+			 {"type": "clinical", "field":"days_to_death",  "value":["\\d"]}
 	]
-}]
+},{ "name": "spreadsheet",
+	"req": [ {"type": "clinical", "field":"patient_id",  "value":["\\w"]}
+	]
+}
+]
