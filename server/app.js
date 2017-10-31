@@ -76,6 +76,7 @@ app.post('/api/upload/:id/:email', function (req, res) {
     var clinicalColleciton = mongoose.model(projectID + "_data_clinical", File.schema);
     var uploadingSummaryCollection = mongoose.model(projectID + "_uploadingSummary", File.schema);
     console.log('test1');
+    console.log(upload.toString());
     upload(req, res, function (err) {
         console.log("This section is triggered");
         if (err) {
