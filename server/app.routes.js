@@ -70,9 +70,21 @@ var init = function (app) {
             res.status(404).send('Not Authenticated!');
         } else {
             console.log('&&&&&& authenticated GET api/projects {}');
-            var query = (req.params.query) ? JSON.parse(req.params.query) : {};
-            console.log(query);
-            Project.find(query, processResult(req, res));
+            var query = {};
+            if (req.params.query.split(":")[0] == '_id') {
+                console.log(req.params.query.split(":")[1]);
+                var IDs = req.params.query.split(":")[1].split(",").map(function (p) {
+                    console.log(p);
+                                return mongoose.Types.ObjectId(p);
+                            });
+                console.log(IDs);
+                var obj = {};
+                obj['$in'] = IDs;
+                query['_id'] = obj;
+                Project.find(query, processResult(req, res));
+            } else {
+                Project.find(req.params.query, processResult(req, res));
+            }
         }
         // console.log(req.params.query);
         // var query = {};
@@ -95,15 +107,15 @@ var init = function (app) {
             Project.create(req.body, processResult(req, res));
         }
     });
-    app.get('/api/projects/:id', Permissions.jwtVerification,  function (req, res, next) {
-        if (!req.isAuthenticated) {
-            console.log('!@! NOT AUTH');
-            res.status(404).send('Not Authenticated!');
-        } else {
-            console.log('&&&&&& authenticated GET api/projects {_id: req.params.id}');
-            Project.find({_id: req.params.id}, processResult(req, res));
-        }
-    });
+    // app.get('/api/projects/:id', Permissions.jwtVerification,  function (req, res, next) {
+    //     if (!req.isAuthenticated) {
+    //         console.log('!@! NOT AUTH');
+    //         res.status(404).send('Not Authenticated!');
+    //     } else {
+    //         console.log('&&&&&& authenticated GET api/projects {_id: req.params.id}');
+    //         Project.find({_id: req.params.id}, processResult(req, res));
+    //     }
+    // });
     app.put('/api/projects/:id', Permissions.jwtVerification, function (req, res, next) {
         if (!req.isAuthenticated) {
             console.log('!@! NOT AUTH');
@@ -169,16 +181,34 @@ var init = function (app) {
             console.log('&&&&&& authenticated GET api/permissions {query: req.params.query}');
             // var query = (req.params.query) ? JSON.parse(req.params.query) : {};
             console.log(req.params.query);
+            var queryJSON = req.params.query;
             var query = {};
-            if (req.params.query.split(":")[0] == 'User' || req.params.query.split(":")[0] == 'Project') {
-                query[req.params.query.split(":")[0]] =  mongoose.Types.ObjectId(req.params.query.split(":")[1]);
+            if (queryJSON.indexOf(";") > -1) {
+                queryJSON.split(";").forEach(function(q){
+                    if(q.split(":")[0] == '_id' ||
+                       q.split(":")[0] == 'Project' ||
+                       q.split(":")[0] == 'User') {
+                        // query[q.split(":")[0]] = mongoose.Types.ObjectId(q.split(":")[1]);
+                        var obj = {};
+                        obj['$in'] = q.split(":")[1].split(",").map(function(p){
+                            return mongoose.Types.ObjectId(p);
+                        });
+                        query[q.split(":")[0]] = obj;
+                       } else {
+                        query[q.split(":")[0]] = q.split(":")[1];
+                       } 
+                })
                 console.log(query);
                 Permission.find(query, processResult(req, res));
             } else {
-                Permission.find(req.params.query, processResult(req, res));
+                if (queryJSON.split(":")[0] == 'User' || queryJSON.split(":")[0] == 'Project') {
+                    query[queryJSON.split(":")[0]] =  mongoose.Types.ObjectId(queryJSON.split(":")[1]);
+                    console.log(query);
+                    Permission.find(query, processResult(req, res));
+                } else {
+                    Permission.find(queryJSON, processResult(req, res));
+                }
             }
-            
-            // Permission.findOne({_id: req.params.id}, processResult(req, res));
         }
     });
     // app.put('/api/permissions/:id', Permissions.jwtVerification, function (req, res, next) {
