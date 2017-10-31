@@ -34,14 +34,12 @@ http {
 
     # Public Server
     server {
-        
-        
+
         server_name oncoscape;
         listen 80;
         
         root /home/sttrweb/Oncoscape/client;
 
-      
         # Index
         location / {
             index index.html index.htm;
@@ -149,26 +147,18 @@ http {
             #auth_basic "Restricted Content";
             #auth_basic_user_file /home/sttrweb/Oncoscape/.htpasswd;
         }
-        
+
         location /dev/ {
-        
-          set $request_body_md5 "";
-        rewrite_by_lua '
-            ngx.req.read_body()
-            local body = ngx.req.get_body_data()
-            ngx.var.request_body_md5 = ngx.md5(body)
-         ';
-            proxy_http_version 1.1;
-            proxy_set_header Host $host;
-            proxy_set_header Connection "";
             proxy_set_header X-Real-IP $remote_addr;
             proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
-            proxy_cache tag;
-            proxy_cache_key "$uri|$query_string|$request_body_md5";
-            proxy_cache_valid 200 1d;
-            proxy_cache_methods POST;
-            add_header X-Cache-Status $upstream_cache_status;
+            proxy_set_header X-Forwarded-Proto $scheme;
+            proxy_set_header Host $host;
+
+            #proxy_redirect http:// https://;
             proxy_pass https://0x8okrpyl3.execute-api.us-west-2.amazonaws.com/dev/;
+            #auth_basic "Restricted Content";
+            #auth_basic_user_file /home/sttrweb/Oncoscape/.htpasswd;
         }
+       
     }
 }
