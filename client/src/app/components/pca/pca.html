@@ -60,6 +60,7 @@
                                 
                                 <div class="input-group" ng-if="item.edit" style="width:100%">                
                                     <div class="dropdown bs-dropdown" style="max-width:230px">
+                                        <label>Data</label>
                                         <button class="btn btn-default dropdown-toggle" type="button" id="dropdownMenu1" data-toggle="dropdown" aria-haspopup="true" aria-expanded="true">
                                             {{item.data.selected.name}}
                                             <span class="caret"></span>
@@ -68,8 +69,26 @@
                                             <li class="markers-command hvr-sweep-to-right" ng-repeat="subitem in item.data.types" ng-click="item.data.selected.name=subitem.name">{{subitem.name}}</li>
                                         </ul>
                                     </div>
-                                   
-                                    
+                                    <div class="dropdown bs-dropdown" style="max-width:230px">
+                                        <label>Distance Metric</label>
+                                        <button class="btn btn-default dropdown-toggle" type="button" id="dropdownMenu1" data-toggle="dropdown" aria-haspopup="true" aria-expanded="true">
+                                                {{item.method.distance}}
+                                                <span class="caret"></span>
+                                            </button>
+                                        <ul class="dropdown-menu" aria-labelledby="dropdownMenu1" >
+                                            <li class="markers-command hvr-sweep-to-right" ng-repeat="subitem in vm.availableDistanceMetrics" ng-click="item.method.distance=subitem">{{subitem}}</li>
+                                        </ul>
+                                    </div>
+                                    <div class="dropdown bs-dropdown" style="max-width:230px">
+                                        <label>Method</label>
+                                        <button class="btn btn-default dropdown-toggle" type="button" id="dropdownMenu1" data-toggle="dropdown" aria-haspopup="true" aria-expanded="true">
+                                                {{item.method.overlay}}
+                                                <span class="caret"></span>
+                                            </button>
+                                        <ul class="dropdown-menu" aria-labelledby="dropdownMenu1" >
+                                            <li class="markers-command hvr-sweep-to-right" ng-repeat="subitem in vm.availableOverlayMethods" ng-click="item.method.overlay=subitem">{{subitem}}</li>
+                                        </ul>
+                                    </div>
                                 </div>
                                 <div ng-if="!item.edit">
                                     Data: {{item.data.selected.name}} <br/>

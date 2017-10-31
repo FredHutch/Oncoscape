@@ -71,17 +71,20 @@
                 name: "Dataset"
             };
             var acceptableDatatypes = ["expr", "cnv", "mut01", "meth_thd", "meth", "cnv_thd"];
-            var availableBaseMethods = ["PCA"]
-            var availableOverlayMethods = ["Centroid"]
+            
             var NA_runs = []
             
 
             // View Model Update
             var vm = (function(vm, osApi) {
                 vm.runTime = 20
+                vm.availableBaseMethods = ["PCA"]
+                vm.availableDistanceMetrics = ["Pearson Correlation"]
+                vm.availableOverlayMethods = ["Centroid"]
+
                 vm.temp = {
                     title: "",
-                    method: availableBaseMethods[0],
+                    method: vm.availableBaseMethods[0],
                     source: osApi.getDataSource(),
                     data: {types:[],selected:{i:-1, name:""}},
                     params: {bool: {
@@ -211,7 +214,7 @@
                         var filtered_i = _.findIndex(filtered_types, {name:vm.base.data.selected.name})
                        item =  {
                             title: "",
-                            method: availableOverlayMethods[0],
+                            method: {distance: vm.availableDistanceMetrics[0], overlay: vm.availableOverlayMethods[0]},
                             source: osApi.getDataSource(),
                             data: { types:  filtered_types,
                                     selected: { i: filtered_i, 
@@ -228,7 +231,7 @@
                             color: availColors[0],
                             visibility: "visible"
                         }
-                        item.title = item.method + "  (" + moment().format('hh:mm:ss') + ")";
+                        item.title = "Overlay  (" + moment().format('hh:mm:ss') + ")";
                         
                         vm.overlay.push(item)
                     }
@@ -245,7 +248,8 @@
                           color: item.color,
                           visibility: "visible"
                       }
-                      
+                      vm.temp.method.overlay = item.method.overlay
+                      vm.temp.method.distance = item.method.distance
                       vm.temp.source = {dataset: item.source.dataset}
                       vm.temp.data = {  types:item.data.types,
                                         selected:{
