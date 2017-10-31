@@ -125,6 +125,21 @@
                             </div>
                         </div>
                     </div>
+                    <div class="col-xs-12 form-item" ng-if="vm.overlay.length !=0">
+                        <label>Edges</label>
+                        <div class="legend-bar-container">
+                        
+                            <div class="dropdown bs-dropdown" style="max-width:230px">
+                            <label>Type</label>
+                            <button class="btn btn-default dropdown-toggle" type="button" id="dropdownMenu1" data-toggle="dropdown" aria-haspopup="true" aria-expanded="true">
+                                    {{vm.edgetype}}
+                                    <span class="caret"></span>
+                                </button>
+                            <ul class="dropdown-menu" aria-labelledby="dropdownMenu1" >
+                                <li class="markers-command hvr-sweep-to-right" ng-repeat="item in vm.availableEdgeOptions" ng-click="item.edgetype=item">{{item}}</li>
+                            </ul>
+                        </div></div>
+                    </div>
                     <div class="col-xs-12 form-item">
                         <label>Export Results</label>
                         <div >

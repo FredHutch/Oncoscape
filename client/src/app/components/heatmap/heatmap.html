@@ -3,8 +3,27 @@
         <section class="tray-content">
             <div class="row">
                 <div class="col-xs-12 form-item">
-                    <br />
-                    <label></label>
+                    <label>Data Type</label>
+                    <div class="dropdown bs-dropdown" style="max-width:230px">
+                        <button class="btn btn-default dropdown-toggle" type="button" id="dropdownMenu1" data-toggle="dropdown" aria-haspopup="true" aria-expanded="true">
+                            {{vm.data.type}}
+                            <span class="caret"></span>
+                        </button>
+                        <ul class="dropdown-menu" aria-labelledby="dropdownMenu1" >
+                            <li class="markers-command hvr-sweep-to-right" ng-repeat="item in vm.data.types" ng-click="vm.data.type=item">{{item}}</li>
+                        </ul>
+                    </div>
+
+                    <label>Data Table</label>
+                    <div class="dropdown bs-dropdown" style="max-width:230px">
+                        <button class="btn btn-default dropdown-toggle" type="button" id="dropdownMenu1" data-toggle="dropdown" aria-haspopup="true" aria-expanded="true">
+                            {{vm.data.name}}
+                            <span class="caret"></span>
+                        </button>
+                        <ul class="dropdown-menu" aria-labelledby="dropdownMenu1" >
+                            <li class="markers-command hvr-sweep-to-right" ng-repeat="item in vm.data.tables" ng-click="vm.data.name=item.name">{{item.name}}</li>
+                        </ul>
+                    </div>
              
                 </div>
     

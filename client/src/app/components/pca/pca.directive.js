@@ -61,6 +61,13 @@
             var d3xAxis = d3Chart.append("g");
             var d3yAxis = d3Chart.append("g");
             var circles;
+            var lines;
+            var edges=[];
+
+            var elTip = d3.tip().attr("class", "tip").offset([-8, 0]).html(function(d) {
+                return "ID: " + d.id
+            });
+            d3Chart.call(elTip);
 
             // Properties
             var scaleX, scaleY, axisX, axisY;
@@ -81,6 +88,8 @@
                 vm.availableBaseMethods = ["PCA"]
                 vm.availableDistanceMetrics = ["Pearson Correlation"]
                 vm.availableOverlayMethods = ["Centroid"]
+                vm.availableEdgeOptions = ["Centroid Neighbors"]
+                vm.edgetype = vm.availableEdgeOptions[0]
 
                 vm.temp = {
                     title: "",
@@ -351,9 +360,7 @@
                 });
             }
 
-            // Setup Watches
-           
-
+            
             // Setup Parameter Configurations
             var updateOptions = function(){
                 
@@ -714,11 +721,10 @@
                     }
                     var d = cent_scores.map(function(x){ return x/num_compare})
                     d.id = s.id;
-                    
+                    d.match = {ids:s.match, vals:match_scores}
                     return d
                 })
 
-                //osApi.setCohort(_.pluck(scores, "id"), "centroid", "SAMPLE")
                 return scores;
 
             }
@@ -727,9 +733,21 @@
 
                 data = vm.base.result.output
                 for(var i =0; i<vm.overlay.length; i++){
-                    if(angular.isDefined(vm.overlay[i].result.output.length))
+                    if(angular.isDefined(vm.overlay[i].result.output.length)){
                         data = data.concat(vm.overlay[i].result.output)
+                        // var sourcetarget = vm.overlay[i].result.output.map(function(d){
+                        //     return d.match.vals.map(function(v){
+                        //         return {source:{x:d[0],y:d[1]},target:{x:v[0],y:v[1]}}
+                        //     })
+                            
+                        // })
+                        var sourcetarget = _.flatten( vm.overlay[i].result.output.map(function(d){
+                            return d.match.vals.map(function(v){
+                                return {source:d, target:v} })  }) )
+                        edges = edges.concat(sourcetarget)
+                    }
                 }
+                
 
                 // Colorize
                 setColors();
@@ -777,7 +795,9 @@
                     .style("fill", function(d) {
                         return d.color;
                     })
-                    .style("visibility", function(d){ return d.visibility});
+                    .style("visibility", function(d){ return d.visibility})
+                    .on("mouseover", elTip.show)
+                    .on("mouseout", elTip.hide);
 
                 circles.exit()
                     .transition()
@@ -809,6 +829,20 @@
                     .style("fill-opacity", 0.8)
                     .style("visibility", function(d){ return d.visibility});
 
+                lines = d3Points.selectAll("line").data(edges);
+                lines.enter().append("line")
+                        .attr("class", "pca-edge")
+                        .attr("id",function(d,i) {return 'edge'+i})
+                        .attr("x1", function(d) { 
+                            return scaleX(d.source[0])})
+                        .attr("y1", function(d) { 
+                            return scaleY(d.source[1])})
+                        .attr("x2", function(d) { 
+                            return scaleX(d.target[0])})
+                        .attr("y2", function(d) { 
+                            return scaleX(d.target[1])})
+                        .style("pointer-events", "none");
+
                 // Axis
                 axisX = d3.axisTop().scale(scaleX).ticks(3);
                 axisY = d3.axisLeft().scale(scaleY).ticks(3);
@@ -838,7 +872,8 @@
                 osApi.setBusy(false);
 
             }
-                
+              
+   
             
             // Utility Functions
             var updatePatientCounts = function() {

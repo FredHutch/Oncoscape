@@ -19,13 +19,15 @@
         return directive;
 
         /** @ngInject */
-        function HeatmapController(d3, osApi, $state, $timeout, $scope, $stateParams, $window, _) {
+        function HeatmapController(d3, osApi, $state, $timeout, $scope, $stateParams, $window, _, $http) {
 
             // view Model
             var vm = this;
-            vm.datasource = osApi.getDataSource();
+            vm.data = { types: ["molecular", "patient correlation"],
+                        tables: osApi.getDataSource().collections}
+
             vm.rowLabels = vm.colLabels = vm.gridlines = false;
-            vm.rowDendrogram = vm.colDendrogram = true;
+            vm.rowDendrogram = vm.colDendrogram = false;
             vm.colorSchemes = [
                 { name: 'Blues', value: ["#303f9f", "#03a9f4"] },
                 { name: 'Black / Blue', value: ["#000000", "#1d85cb"] },
@@ -52,18 +54,71 @@
             // Element References
             var elChart = d3.select("#heatmap-chart");
             var colDend = elChart.append("svg").classed("dendrogram colDend", true);
-            //var colDendObj;
             var rowDend = elChart.append("svg").classed("dendrogram rowDend", true);
-            //var rowDendObj;
             var colmap = elChart.append("svg").classed("colormap", true);
-            //var colmapObj;
             var xaxis = elChart.append("svg").classed("axis xaxis", true);
             var yaxis = elChart.append("svg").classed("axis yaxis", true);
 
             // Load Inital Data
             var args;
             var data;
+            var geneIds = []
 
+            // Setup Watches
+            $scope.$watch("vm.data.name", function() {
+                if(!vm.data.name) return
+                callMethod()
+            })
+            $scope.$watch("vm.data.type", function() {
+                if(!vm.data.type) return
+                callMethod()
+            })
+
+            function callMethod(){
+                osApi.setBusy(true);
+                var collections = vm.data.tables.filter(function(d){return d.name == vm.data.name})
+                
+                if(vm.data.type == "molecular")
+                    loadData(collections[0].collection)
+                else if(vm.data.type == "patient correlation"){
+                    Distancequery(collections[0].collection, collections[0].collection, geneIds).then(function(response) {
+                        
+                        var d = response.data;
+                        if(angular.isDefined(d.reason)){
+                            console.log(vm.data.name+": " + d.reason)
+                            // Distance could not be calculated on geneset given current settings
+                            window.alert("Sorry, Distance could not be calculated\n" + d.reason)
+    
+                            osApi.setBusy(false)
+                            return;
+                        }
+    
+                        args = {
+                            data: d.D.map(function(v) {
+                                v.d.forEach(function(key) {
+                                    if (this[key] == null) this[key] = 0;
+                                }, v.d);
+                                v.s= v.m
+                                v.m = v.id
+                                return v;
+                            })
+                        };
+                        vm.loadHeatmap();
+
+                    })
+                }
+            }
+
+            function Distancequery(collection1, collection2, geneIds) {
+                var payload = { molecular_collection: collection1,molecular_collection2: collection2, genes:geneIds};
+                return $http({
+                    method: 'POST',
+                 url: "https://dev.oncoscape.sttrcancer.io/cpu/distance",
+                // url: "https://oncoscape-test.fhcrc.org/cpu/distance",
+                // url: "http://localhost:8000/distance",
+                    data: payload
+                });
+            }
 
             function axis(svg, data, width, height, x, y, rotated) {
                 svg.select("g").remove();
@@ -171,7 +226,6 @@
 
                 var maxValue = Math.max.apply(null, data.data);
                 var minValue = Math.min.apply(null, data.data);
-
                 var color = d3.scaleLinear().domain([minValue, maxValue]).range(vm.colorScheme.value);
 
                 var cols = data.dim[0];
@@ -180,15 +234,13 @@
                 var xScale = d3.scaleLinear().domain([0, cols]).range([0, width]);
                 var yScale = d3.scaleLinear().domain([0, rows]).range([0, height]);
 
-
                 var grid = (vm.gridlines) ? 1 : -1;
 
                 function brushend() {
 
-
                     if (!d3.event.sourceEvent) return; // Only transition after input.
                     if (!d3.event.selection) return; // Ignore empty selections.
-                    //var colBounds = 
+                    
                     d3.event.selection.map(function(v) { return this.invert(v[0], v[1]); }, xScale).map(Math.round);
                     //var span = colBounds[1] - colBounds[0];
                     //var start = colBounds[0];
@@ -204,11 +256,8 @@
                         .transition()
                         .call(d3.event.target.move, coords);
 
-
                 }
-                brush.call(
-                    d3.brush().on("end", brushend)
-                )
+                brush.call( d3.brush().on("end", brushend) )
 
                 var boxW = xScale(1) - grid;
                 var boxH = yScale(1) - grid;
@@ -298,6 +347,7 @@
                                 });
                 */
             }
+            
             function getHeatmap(args){
                 var genes = args.data.reduce(function(p,c){ 
                     p.push(c.m)
@@ -315,8 +365,9 @@
             }
 
             osApi.setBusy(true);
-            vm.loadData = function() {
-                osApi.query("acc_gistic2_ucsc-xena", {
+
+            var loadData = function(collection) {
+                osApi.query(collection, {
                     '$limit': 100
                 }).then(function(response) {
                     args = {
@@ -376,7 +427,8 @@
                 zoom();
             };
 
-            vm.loadData();
+            vm.data.type = vm.data.types[0]            
+            vm.data.name = vm.data.tables[0].name
 
             osApi.onResize.add(vm.draw);
             angular.element($window).bind('resize', _.debounce(vm.draw, 300));
