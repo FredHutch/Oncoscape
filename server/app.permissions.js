@@ -42,9 +42,9 @@ var jwtVerification = function (req, res, next) {
             // console.log('%%%%%%%%%%%% in jwtVerification function');
             // console.log('req.originalUrl', req.originalUrl);
             // console.log(req.method);
-            var projectsJson = req.headers.authorization.replace('Bearer ', '');
-            getProjects(projectsJson).then(res => {
-                req.projectsJson = res;
+            var userID = req.headers.authorization.replace('Bearer ', '');
+            getUserID(userID).then(res => {
+                req.userID = res;
                 req.isAuthenticated = true;
                 next();
             });
@@ -55,7 +55,7 @@ var jwtVerification = function (req, res, next) {
     }
 };
 
-var getProjects = function (token) {
+var getUserID = function (token) {
     return new Promise((resolve, reject) => {
         jwt.verify(token, JWT_KEY, function(err, token){
             if(err){
@@ -122,7 +122,7 @@ var getUserbyGmail = function (gmailAddress) {
 module.exports = {
     ePermission: ePermission,
     getToken: getToken,
-    getProjects: getProjects,
+    getUserID: getUserID,
     getGoogleEmail: getGoogleEmail,
     getUserbyGmail: getUserbyGmail,
     hasPermission: hasPermission,

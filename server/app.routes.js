@@ -1,4 +1,5 @@
 db = require('./app.db.js');
+const mongoose = require('mongoose');
 const request = require('request');
 const asyncLoop = require('node-async-loop');
 Query = require('./app.query.js');
@@ -17,6 +18,7 @@ function processResult(req, res, next, query) {
             console.log(err);
             res.status(404).send("Not Found").end();
         } else {
+            console.log(data);
             res.json(data).end();
         }
     };
@@ -59,16 +61,28 @@ var init = function (app) {
             res.send({user: user}).end();
         })
     });
+
     //#region PROJECTS
 
-    app.get('/api/projects', Permissions.jwtVerification, function (req, res, next) {
+    app.get('/api/projects/:query', Permissions.jwtVerification, function (req, res, next) {
         if (!req.isAuthenticated) {
             console.log('!@! NOT AUTH');
             res.status(404).send('Not Authenticated!');
         } else {
             console.log('&&&&&& authenticated GET api/projects {}');
-            Project.find({}, processResult(req, res));
+            var query = (req.params.query) ? JSON.parse(req.params.query) : {};
+            console.log(query);
+            Project.find(query, processResult(req, res));
         }
+        // console.log(req.params.query);
+        // var query = {};
+        // if (req.params.query.split(":")[0] == 'User' || req.params.query.split(":")[0] == 'Project') {
+        //     query[req.params.query.split(":")[0]] =  mongoose.Types.ObjectId(req.params.query.split(":")[1]);
+        //     console.log(query);
+        //     Permission.find(query, processResult(req, res));
+        // } else {
+        //     Permission.find(req.params.query, processResult(req, res));
+        // }
         // next();
     });
     app.post('/api/projects', Permissions.jwtVerification, function (req, res, next) {
@@ -141,6 +155,9 @@ var init = function (app) {
         }
     });
     app.get('/api/permissions/:query', Permissions.jwtVerification, function (req, res, next) {
+        console.log('&&&&&& authenticated GET api/permissions {query: req.params.query}');
+        
+        
 
         // if (!req.isAuthenticated) return 404
         // Add The User Where Clause - Permission.find({User: req.userid}, processResult(req, res));
@@ -150,8 +167,17 @@ var init = function (app) {
             res.status(404).send('Not Authenticated!');
         } else {
             console.log('&&&&&& authenticated GET api/permissions {query: req.params.query}');
+            // var query = (req.params.query) ? JSON.parse(req.params.query) : {};
             console.log(req.params.query);
-            Permission.findOne(req.params.query, processResult(req, res));
+            var query = {};
+            if (req.params.query.split(":")[0] == 'User' || req.params.query.split(":")[0] == 'Project') {
+                query[req.params.query.split(":")[0]] =  mongoose.Types.ObjectId(req.params.query.split(":")[1]);
+                console.log(query);
+                Permission.find(query, processResult(req, res));
+            } else {
+                Permission.find(req.params.query, processResult(req, res));
+            }
+            
             // Permission.findOne({_id: req.params.id}, processResult(req, res));
         }
     });
@@ -168,15 +194,15 @@ var init = function (app) {
     //         Permission.findOneAndUpdate({ _id: req.params.id }, req.body, { upsert: false }, processResult(req, res));
     //     }
     // });
-    app.delete('/api/permissions/:id', Permissions.jwtVerification, function (req, res, next) {
-        if (!req.isAuthenticated) {
-            console.log('!@! NOT AUTH');
-            res.status(404).send('Not Authenticated!');
-        } else {
-            console.log('&& authenticated DELETE api/permissions {}');
-            Permission.remove({ _id: req.params.id }, processResult(req, res));
-        }
-    });
+    // app.delete('/api/permissions/:id', Permissions.jwtVerification, function (req, res, next) {
+    //     if (!req.isAuthenticated) {
+    //         console.log('!@! NOT AUTH');
+    //         res.status(404).send('Not Authenticated!');
+    //     } else {
+    //         console.log('&& authenticated DELETE api/permissions {}');
+    //         Permission.remove({ _id: req.params.id }, processResult(req, res));
+    //     }
+    // });
 
     //#endregion
 
