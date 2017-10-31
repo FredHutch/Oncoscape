@@ -66,8 +66,11 @@ var upload = multer({
 // app.use('/api/upload', express.static(process.env.APP_ROOT + '/uploads'));
 app.use('/api/upload', express.static('/home/sttrweb/Oncoscape/uploads'));
 app.post('/api/upload/:id/:email', function (req, res) {
+    console.log('POST API/UPLOAD is being called.');
     var projectID = req.params.id;
     var userEmail = req.params.email;
+    console.log('projectID: ', projectID);
+    console.log('userEmail: ', userEmail);
     var molecularColleciton = mongoose.model(projectID + "_data_molecular", File.schema);
     var sampleMapCollection = mongoose.model(projectID + "_data_samples", File.schema);
     var clinicalColleciton = mongoose.model(projectID + "_data_clinical", File.schema);
