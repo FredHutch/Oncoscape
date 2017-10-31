@@ -217,13 +217,16 @@
                 boxes
                     .enter().append("rect")
                     .attr("class", "box")
-                    .attr("colIndex", function(d, i) { return i % cols; })
-                    .attr("rowIndex", function(d, i) { return Math.floor(i / cols); })
+                    .attr("colIndex", function(d, i) { 
+                        return i % cols; })
+                    .attr("rowIndex", function(d, i) { 
+                        return Math.floor(i / cols); })
                     .attr("x", function(d, i) { return xScale(i % cols); })
-                    .attr("y", function(d, i) { return yScale(i % rows); })
+                    .attr("y", function(d, i) { return yScale(Math.floor(i / cols)); })
                     .attr("width", boxW)
                     .attr("height", boxH)
-                    .attr("fill", function(d) { return color(d); });
+                    .attr("fill", function(d) { 
+                        return color(d); });
 
                 return {
                     g: map,
@@ -295,18 +298,33 @@
                                 });
                 */
             }
+            function getHeatmap(args){
+                var genes = args.data.reduce(function(p,c){ 
+                    p.push(c.m)
+                    return p
+                },[]) 
+                var d ={
+                    matrix: args.data.map(function(d){ return d.d }),
+                    data:  _.flatten(args.data.map(function(d){ return d.d })),
+                    dim: [args.data[0].s.length,genes.length],
+                    rows: args.data[0].s,
+                    cols: genes
+                }
+
+                return d
+            }
 
             osApi.setBusy(true);
             vm.loadData = function() {
-                osApi.query("brca_psi_bradleylab_miso", {
+                osApi.query("acc_gistic2_ucsc-xena", {
                     '$limit': 100
                 }).then(function(response) {
                     args = {
                         data: response.data.map(function(v) {
-                            Object.keys(v.patients).forEach(function(key) {
+                            v.d.forEach(function(key) {
                                 if (this[key] == null) this[key] = 0;
-                            }, v.patients);
-                            return v.patients;
+                            }, v.d);
+                            return v;
                         })
                     };
                     vm.loadHeatmap();
@@ -319,11 +337,10 @@
                 colmap.select("g").remove();
                 args.scale = vm.scale.name.toLowerCase();
                 args.kcol = args.krow = vm.dendrogramCluster.value;
-                osApi.getCpuApi().getHeatmap(args).then(function(v) {
-                    data = angular.fromJson(v);
-                    vm.draw();
-                    osApi.setBusy(false);
-                });
+                data = getHeatmap(args)
+                vm.draw();
+                osApi.setBusy(false);
+               
             }
             vm.draw = function() {
 
@@ -333,7 +350,7 @@
                 var hmWidth = width - ((vm.rowLabels) ? 160 : 0) - ((vm.rowDendrogram) ? 80 : 0);
                 var hmHeight = height - ((vm.colLabels) ? 160 : 0) - ((vm.colDendrogram) ? 80 : 0);
                 //colmapObj = 
-                heatmap(colmap, data.matrix,
+                heatmap(colmap, data,
                     hmWidth,
                     hmHeight,
                     (vm.rowDendrogram ? 80 : 0) + layout.left + 20,
@@ -350,10 +367,10 @@
                     (vm.rowDendrogram ? 80 : 0) + layout.left + 20, 0, true);
 
                 axis(xaxis,
-                    data.matrix.rows,
+                    data.rows,
                     160, hmHeight, hmWidth + (vm.rowDendrogram ? 80 : 0) + layout.left + 20, (vm.colDendrogram ? 80 : 0), false);
 
-                axis(yaxis, data.matrix.cols,
+                axis(yaxis, data.cols,
                     hmWidth, 160, (vm.rowDendrogram ? 80 : 0) + layout.left + 20, hmHeight + (vm.colDendrogram ? 80 : 0), true);
 
                 zoom();
