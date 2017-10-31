@@ -62,83 +62,172 @@ var init = function (app) {
     //#region PROJECTS
 
     app.get('/api/projects', Permissions.jwtVerification, function (req, res, next) {
-        Project.find({}, processResult(req, res));
+        if (!req.isAuthenticated) {
+            console.log('!@! NOT AUTH');
+            res.status(404).send('Not Authenticated!');
+        } else {
+            console.log('&&&&&& authenticated GET api/projects {}');
+            Project.find({}, processResult(req, res));
+        }
         // next();
     });
     app.post('/api/projects', Permissions.jwtVerification, function (req, res, next) {
-        console.log('in api/projects POST, req.body is: ', req.body);
-        Project.create(req.body, processResult(req, res));
+        if (!req.isAuthenticated) {
+            console.log('!@! NOT AUTH');
+            res.status(404).send('Not Authenticated!');
+        } else {
+            console.log('&&&&&& authenticated POST api/projects {}');
+            console.log('DEBUGG>>>', req.body);
+            Project.create(req.body, processResult(req, res));
+        }
     });
     app.get('/api/projects/:id', Permissions.jwtVerification,  function (req, res, next) {
-        Project.findById(req.params.id, processResult(req, res));
+        if (!req.isAuthenticated) {
+            console.log('!@! NOT AUTH');
+            res.status(404).send('Not Authenticated!');
+        } else {
+            console.log('&&&&&& authenticated GET api/projects {_id: req.params.id}');
+            Project.find({_id: req.params.id}, processResult(req, res));
+        }
     });
     app.put('/api/projects/:id', Permissions.jwtVerification, function (req, res, next) {
-        console.log('&&&&&&&&&& PROJECT Update in the route', req.body);
-        Project.findOneAndUpdate({ _id: req.params.id }, req.body, { upsert: false }, processResult(req, res));
+        if (!req.isAuthenticated) {
+            console.log('!@! NOT AUTH');
+            res.status(404).send('Not Authenticated!');
+        } else {
+            console.log('&&&&&& authenticated PUT api/projects {}');
+            Project.findOneAndUpdate({ _id: req.params.id }, req.body, { upsert: false }, processResult(req, res));
+        }
     });
     app.delete('/api/projects/:id', Permissions.jwtVerification, function (req, res, next) {
-        Project.remove({ _id: req.params.id }, processResult(req, res));
+        if (!req.isAuthenticated) {
+            console.log('!@! NOT AUTH');
+            res.status(404).send('Not Authenticated!');
+        } else {
+            console.log('&&&&&& authenticated DELETE api/projects {}');
+            Project.remove({ _id: req.params.id }, processResult(req, res));
+        }
+        
     });
 
     //#endregion
 
     //#region PERMISSIONS
 
-    app.get('/api/permissions', Permissions.jwtVerification, function (req, res, next) {
+    // app.get('/api/permissions', Permissions.jwtVerification, function (req, res, next) {
 
-        // if (!req.isAuthenticated) return 404
-        // Permission.find({User: req.userid}, processResult(req, res));
-
-        Permission.find({}, processResult(req, res));
-    });
+    //     // if (!req.isAuthenticated) return 404
+    //     // Permission.find({User: req.userid}, processResult(req, res));
+    //     if (!req.isAuthenticated) {
+    //         console.log('!@! NOT AUTH');
+    //         res.status(404).send('Not Authenticated!');
+    //     } else {
+    //         console.log('&&&&&& authenticated GET api/permissions {}');
+    //         Permission.find({}, processResult(req, res));
+    //     }
+    // });
     app.post('/api/permissions', Permissions.jwtVerification, function (req, res, next) {
         console.log('what do we received from client: ', req.body);
 
         // if (!req.isAuthenticated) return 404
         // Query Mongo To Determine If req.userid has write or admin permissions on the req.body.projectId
         // If Not Return 404
-
-        Permission.create(req.body, processResult(req, res));
+        if (!req.isAuthenticated) {
+            console.log('!@! NOT AUTH');
+            res.status(404).send('Not Authenticated!');
+        } else {
+            console.log('&&&&&& authenticated POST api/permissions {}');
+            Permission.create(req.body, processResult(req, res));
+        }
     });
-    app.get('/api/permissions/:id', Permissions.jwtVerification, function (req, res, next) {
-
-        // if (!req.isAuthenticated) return 404
-        // Add The User Where Clause - Permission.find({User: req.userid}, processResult(req, res));
-        // Find {_id: req.params.id, user=req.userid} 
-        Permission.findById(req.params.id, processResult(req, res));
-    });
-    app.put('/api/permissions/:id', Permissions.jwtVerification, function (req, res, next) {
+    app.get('/api/permissions/:query', Permissions.jwtVerification, function (req, res, next) {
 
         // if (!req.isAuthenticated) return 404
         // Add The User Where Clause - Permission.find({User: req.userid}, processResult(req, res));
         // Find {_id: req.params.id, user=req.userid} 
-        Permission.findOneAndUpdate({ _id: req.params.id }, req.body, { upsert: false }, processResult(req, res));
+        if (!req.isAuthenticated) {
+            console.log('!@! NOT AUTH');
+            res.status(404).send('Not Authenticated!');
+        } else {
+            console.log('&&&&&& authenticated GET api/permissions {query: req.params.query}');
+            console.log(req.params.query);
+            Permission.findOne(req.params.query, processResult(req, res));
+            // Permission.findOne({_id: req.params.id}, processResult(req, res));
+        }
     });
+    // app.put('/api/permissions/:id', Permissions.jwtVerification, function (req, res, next) {
+
+    //     // if (!req.isAuthenticated) return 404
+    //     // Add The User Where Clause - Permission.find({User: req.userid}, processResult(req, res));
+    //     // Find {_id: req.params.id, user=req.userid} 
+    //     if (!req.isAuthenticated) {
+    //         console.log('!@! NOT AUTH');
+    //         res.status(404).send('Not Authenticated!');
+    //     } else {
+    //         console.log('& authenticated PUT api/permissions {}');
+    //         Permission.findOneAndUpdate({ _id: req.params.id }, req.body, { upsert: false }, processResult(req, res));
+    //     }
+    // });
     app.delete('/api/permissions/:id', Permissions.jwtVerification, function (req, res, next) {
-        Permission.remove({ _id: req.params.id }, processResult(req, res));
+        if (!req.isAuthenticated) {
+            console.log('!@! NOT AUTH');
+            res.status(404).send('Not Authenticated!');
+        } else {
+            console.log('&& authenticated DELETE api/permissions {}');
+            Permission.remove({ _id: req.params.id }, processResult(req, res));
+        }
     });
 
     //#endregion
 
     //#region USERS
     app.get('/api/users', Permissions.jwtVerification, function (req, res, next) {
-        try{
+        if (!req.isAuthenticated) {
+            console.log('!@! NOT AUTH');
+            res.status(404).send('Not Authenticated!');
+        } else {
+            console.log('&&&&&& authenticated GET api/user {}');
             User.find({}, processResult(req, res));
-        }catch(e){
-            debugger;
         }
     });
     app.post('/api/users', function (req, res, next) {
         User.create(req.body, processResult(req, res));
+        console.log('***** NO AUTH is REQUIRED ****');
+        console.log('any req:', req.isAuthenticated);
+        // if (!req.isAuthenticated) {
+        //     console.log('!@! NOT AUTH');
+        //     res.status(404).send('Not Authenticated!');
+        // } else {
+        //     console.log('&&&&&& authenticated POST api/user {}');
+        //     User.create(req.body, processResult(req, res));
+        // }
     });
     app.get('/api/users/:id', Permissions.jwtVerification, function (req, res, next) {
-        User.findById(req.params.id, processResult(req, res));
+        if (!req.isAuthenticated) {
+            console.log('!@! NOT AUTH');
+            res.status(404).send('Not Authenticated!');
+        } else {
+            console.log('&&&&&& authenticated GET api/user {_id: req.params.id}');
+            User.find({_id: req.params.id}, processResult(req, res));
+        }
     });
     app.put('/api/users/:id', Permissions.jwtVerification, function (req, res, next) {
-        User.findOneAndUpdate({ _id: req.params.id }, req.body, { upsert: false }, processResult(req, res));
+        if (!req.isAuthenticated) {
+            console.log('!@! NOT AUTH');
+            res.status(404).send('Not Authenticated!');
+        } else {
+            console.log('&&&&&& authenticated PUT api/user {}');
+            User.findOneAndUpdate({ _id: req.params.id }, req.body, { upsert: false }, processResult(req, res));
+        }
     });
     app.delete('/api/users/:id', Permissions.jwtVerification, function (req, res, next) {
-        User.remove({ _id: req.params.id }, processResult(req, res));
+        if (!req.isAuthenticated) {
+            console.log('!@! NOT AUTH');
+            res.status(404).send('Not Authenticated!');
+        } else {
+            console.log('&&&&&& authenticated DELETE api/user {_id: req.params.id}');
+            User.remove({ _id: req.params.id }, processResult(req, res));
+        }
     });
 
     //#endregion

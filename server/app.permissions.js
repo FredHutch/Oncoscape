@@ -36,19 +36,20 @@ var hasPermission = function (projectsJson, collection, permission) {
 }
 
 var jwtVerification = function (req, res, next) {
-    console.log('in jwtVerification function');
     if (req && req.headers.hasOwnProperty("authorization")) {
         try {
             // Pull Token From Header - Not 
-            console.log('%%%%%%%%%%%% in jwtVerification function');
-            console.log('req.originalUrl', req.originalUrl);
-            console.log(req.method);
+            // console.log('%%%%%%%%%%%% in jwtVerification function');
+            // console.log('req.originalUrl', req.originalUrl);
+            // console.log(req.method);
             var projectsJson = req.headers.authorization.replace('Bearer ', '');
             getProjects(projectsJson).then(res => {
                 req.projectsJson = res;
+                req.isAuthenticated = true;
                 next();
             });
         } catch (e) {
+            req.isAuthenticated = false;
             res.send(e);
         }
     }
