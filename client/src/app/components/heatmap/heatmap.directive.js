@@ -64,6 +64,10 @@
             var data;
             var geneIds = []
 
+            
+            var tooltip = elChart.append('div')
+                .attr('id', 'tooltip');
+
             // Setup Watches
             $scope.$watch("vm.data.name", function() {
                 if(!vm.data.name) return
@@ -222,7 +226,11 @@
                 svg.attr("width", width).attr("height", height).style("left", x).style("top", y).style("position", "absolute");
 
                 var map = svg.append("g").attr("width", width).attr("height", height);
-                var brush = svg.append("g").attr("width", width).attr("height", height).attr("class", "brush");
+                //var brush = svg.append("g").attr("width", width).attr("height", height).attr("class", "brush");
+                var brush = d3.brush()
+                            //.extent([[0, 0],[width, height]])
+                  .on("end", brushend)
+                map.append("g").attr("class", "brush").call(brush)   
 
                 var maxValue = Math.max.apply(null, data.data);
                 var minValue = Math.min.apply(null, data.data);
@@ -257,7 +265,10 @@
                         .call(d3.event.target.move, coords);
 
                 }
-                brush.call( d3.brush().on("end", brushend) )
+                // brush.call( d3.brush().on("end", brushend) )
+                // brush.select(".background")
+                //     .on("mouseover", elTip.show)
+                //     .on("mouseout", elTip.hide);
 
                 var boxW = xScale(1) - grid;
                 var boxH = yScale(1) - grid;
@@ -275,8 +286,22 @@
                     .attr("width", boxW)
                     .attr("height", boxH)
                     .attr("fill", function(d) { 
-                        return color(d); });
-
+                        return color(d); })
+                    .on('mouseover', function(d, i) {
+                        tooltip.transition()
+                            .duration(100)
+                            .style('opacity', .9);
+                        tooltip.text(d)
+                            .style('left', `${d3.event.pageX }px`)
+                            .style('top', `${d3.event.pageY + 30}px`);
+                          })
+                    .on('mouseout', function() {
+                            tooltip.transition()
+                              .duration(400)
+                              .style('opacity', 0);
+                          });
+                 
+        
                 return {
                     g: map,
                     scaleY: yScale,

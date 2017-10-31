@@ -1,5 +1,4 @@
 // Namespace
-.heatmap {}
 
 .denolink {
     stroke-width: 2px;
@@ -9,4 +8,14 @@
 
 .brush {
     shape-rendering: crispEdges;
+    display:none
 }
+
+#tooltip {
+    background-color: rgba(187, 187, 187, 0.7);
+    border-radius: 5px;
+    height: 18px;
+    pointer-events: none;
+    position: absolute;
+    text-align: center;
+  }
