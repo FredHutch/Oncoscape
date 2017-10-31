@@ -292,8 +292,8 @@
                             .duration(100)
                             .style('opacity', .9);
                         tooltip.text(d)
-                            .style('left', `${d3.event.pageX }px`)
-                            .style('top', `${d3.event.pageY + 30}px`);
+                            // .style('left', `${d3.event.pageX }px`)
+                            // .style('top', `${d3.event.pageY + 30}px`);
                           })
                     .on('mouseout', function() {
                             tooltip.transition()
