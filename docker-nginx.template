@@ -36,16 +36,6 @@ http {
     server {
         
         
-        client_max_body_size 2m;
-        client_body_buffer_size 2m;
-  
-        set $request_body_md5 "";
-        rewrite_by_lua '
-            ngx.req.read_body()
-            local body = ngx.req.get_body_data()
-            ngx.var.request_body_md5 = ngx.md5(body)
-         ';
-
         server_name oncoscape;
         listen 80;
         
@@ -161,6 +151,13 @@ http {
         }
         
         location /dev/ {
+        
+          set $request_body_md5 "";
+        rewrite_by_lua '
+            ngx.req.read_body()
+            local body = ngx.req.get_body_data()
+            ngx.var.request_body_md5 = ngx.md5(body)
+         ';
             proxy_http_version 1.1;
             proxy_set_header Host $host;
             proxy_set_header Connection "";
