@@ -25,6 +25,7 @@
             // View Model
             var vm = this;
             vm.showImport = false;
+            vm.showImage = false;
             vm.showTools = false;
             vm.showDatasets = false;
             vm.datasources = [];
@@ -77,7 +78,10 @@
                 vm.showImport = false;
             };
 
-            
+            osApi.onshowImagePanelChange.add(function(show) {
+                
+                vm.showImage = show
+            });
             osApi.onshowGenesetImportChange.add(function(show) {
                 
                 vm.showImport = show

@@ -19,7 +19,7 @@
     return directive;
 
     /** @ngInject */
-    function ParallelcoordController(osApi, $state, $timeout, $window, d3, _) {
+    function ParallelcoordController(osApi, $state, $timeout, $window, d3, _, jStat) {
 
       var vm = this;
       osApi.setBusy(false)
@@ -35,8 +35,8 @@
       var genes;
 
       // Properties
-      var scaleX, scaleY, axisX, axisY;
-      var data, minMax;
+     // var scaleX, scaleY, axisX, axisY;
+      var data//, minMax;
       var width, height;
 
       var draw = function(){ 
@@ -61,8 +61,8 @@
             y = {};
         
         var line = d3.line(),
-            axis = d3.axisLeft(x),
-            foreground;
+            axis = d3.axisLeft(x)
+        var    foreground;
   
         // Create a scale and brush for each gene.
         vm.genes.forEach(function(d) {
@@ -102,7 +102,7 @@
           .enter().append("path")
             .attr("d", path)
             .attr("stroke", "#000")
-            .attr("class", function(d) { return "cohort"; });
+            .attr("class", function() { return "cohort"; });
   
         // Add a group element for each gene.
         genes = d3Chart.selectAll(".gene")
@@ -164,15 +164,15 @@
         }
 
         // Handles a brush event, toggling the display of foreground lines.
-        function brush() {
-          var actives = vm.genes.filter(function(p) { return !y[p].brush.empty(); }),
-              extents = actives.map(function(p) { return y[p].brush.extent(); });
-          foreground.classed("fade", function(d) {
-            return !actives.every(function(p, i) {
-              return extents[i][0] <= d[p] && d[p] <= extents[i][1];
-            });
-          });
-        }
+        // function brush() {
+        //   var actives = vm.genes.filter(function(p) { return !y[p].brush.empty(); }),
+        //       extents = actives.map(function(p) { return y[p].brush.extent(); });
+        //   foreground.classed("fade", function(d) {
+        //     return !actives.every(function(p, i) {
+        //       return extents[i][0] <= d[p] && d[p] <= extents[i][1];
+        //     });
+        //   });
+        // }
        
         osApi.setBusy(false);
       }
@@ -181,7 +181,6 @@
       
 
       vm.updateGene = function() {
-              var test = vm.gene
               callGeneRegion()
       };
     

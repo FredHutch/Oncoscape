@@ -692,7 +692,8 @@
                  var top3 = dist.D.map(function(s){ 
                     var indices = findIndicesOfMax(s.d, 3);
                     var match_ids = indices.map(function(i){return s.m[i]})
-                    return {id:s.id, match: match_ids}
+                    var weights = indices.map(function(i){return Math.abs(s.d[i])})
+                    return {id:s.id, match: match_ids, w:weights}
                 //    return {"id":s.id, "match": s.m[]
                 //         s.d.sort().slice((-1*num_compare),)
                 //             .map(function(maxMatch){return s.m[_.indexOf(s.d,maxMatch)]} )}
@@ -700,15 +701,18 @@
                 
                 
                 // find positions in current plot & calculate centroid
+                var add = function(a,b){ return a + b}
                 var scores = top3.map(function(s){ 
                     var match_scores = vm.base.result.output.filter(function(p){ return _.contains(s.match,p.id)})
+                    match_scores.sort(function(a, b){ return s.match.indexOf(a.id) - s.match.indexOf(b.id) })
                     var cent_scores = [0,0,0]
+                    var weight_sum = s.w.reduce( add, 0)
                     for(var i=0;i<match_scores.length;i++){
-                        cent_scores[0] += match_scores[i][0]
-                        cent_scores[1] += match_scores[i][1]
-                        cent_scores[2] += match_scores[i][2]
+                        cent_scores[0] += s.w[i]/weight_sum * match_scores[i][0]
+                        cent_scores[1] += s.w[i]/weight_sum * match_scores[i][1]
+                        cent_scores[2] += s.w[i]/weight_sum * match_scores[i][2]
                     }
-                    var d = cent_scores.map(function(x){ return x/num_compare})
+                    var d = cent_scores
                     d.id = s.id;
                     
                     return d

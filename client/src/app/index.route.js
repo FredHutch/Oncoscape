@@ -17,8 +17,7 @@
                     angular.element("#main").removeClass("container-main-full");
                     angular.element("#header").css({ display: "block" });
                     angular.element("#collectionPanel").css({ display: "none" });
-                    // angular.element("#cohortMenu").css({ display: "none" });
-                    // angular.element("#geneMenu").css({ display: "none" });
+
                     osApi.onNavChange.dispatch("");
                 });
             });
@@ -30,8 +29,7 @@
                     osApi.setDataSource($stateParams.datasource).then(function() {
                         resolve();
                         angular.element("#collectionPanel").css({ display: "none" });
-                        // angular.element("#cohortMenu").css({ display: "none" });
-                        // angular.element("#geneMenu").css({ display: "none" });
+                        
                         osApi.onNavChange.dispatch("TOOLS");
                     });
 
@@ -48,15 +46,13 @@
                         osApi.setDataSource($stateParams.datasource).then(function() {
                             resolve();
                             angular.element("#collectionPanel").css({ display: "block" });
-                            // angular.element("#cohortMenu").css({ display: "block" });
-                            // angular.element("#geneMenu").css({ display: "block" });
+                            
                             osApi.onNavChange.dispatch("TOOL");
                         });
 
                     } else {
                         angular.element("#collectionPanel").css({ display: "block" });
-                        // angular.element("#cohortMenu").css({ display: "block" });
-                        // angular.element("#geneMenu").css({ display: "block" });
+                       
                         osApi.onNavChange.dispatch("TOOL");
                         resolve();
                     }
@@ -72,8 +68,7 @@
                 angular.element("#main").addClass("container-main-full");
                 angular.element("#header").css({ display: "none" });
                 angular.element("#collectionPanel").css({ display: "none" });
-                // angular.element("#cohortMenu").css({ display: "none" });
-                // angular.element("#geneMenu").css({ display: "none" });
+                
                 osApi.onNavChange.dispatch("");
             }, 200);
         };

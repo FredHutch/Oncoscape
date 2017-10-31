@@ -20,6 +20,7 @@
         var onGenesetsChange = new signals.Signal();
         var onPatientColorChange = new signals.Signal();
         var onshowGenesetImportChange= new signals.Signal();
+        var onshowImagePanelChange = new signals.Signal();
 
         // Resize
         angular.element($window).bind('resize', _.debounce(onResize.dispatch, 900));
@@ -426,7 +427,7 @@
         var _toolsAll; // List of All Tools
         var _tools; // List of Tools For DataSource
         var _data = null; // This is the clinical and sample to patient mapping data.
-        var _hugoMap = null; // Hugo Gene sybol map to alias
+      //  var _hugoMap = null; // Hugo Gene sybol map to alias
         var _cohortAll; // Precalculated Cohort of All Patients / Samples
         var _cohorts = null; // Collection of Cohorts
         var _cohort = null; // Selected Cohorts
@@ -438,6 +439,7 @@
         var _cohortDatasetInfo = { 'numSamples': 0, 'numPatients': 0 };
         var _genesetToolInfo = { 'numGenes': 0, 'numSymbols': 0 };
         var _showGenesetImport = false;
+        var _showImagePanel = false;
      //   var _genesetDatasetInfo = { 'numGenes': 0, 'numSymbols': 0, 'url': '', 'desc':''  };
 
         var getTools = function() { return _tools; };
@@ -608,6 +610,10 @@
         var showGenesetImport = function(showpanel) {
             _showGenesetImport= showpanel;
             onshowGenesetImportChange.dispatch(showpanel);
+        };
+        var showImagePanel = function(showpanel) {
+            _showImagePanel= showpanel;
+            onshowImagePanelChange.dispatch(showpanel);
         };
 
         var createWithSampleIds = function(name, sampleIds, data) {
@@ -954,7 +960,7 @@
             deleteGeneset: deleteGeneset,
             toggleGenesetDisable: toggleGenesetDisable,
             showGenesetImport: showGenesetImport,
-            
+            showImagePanel: showImagePanel,
 
             // Signals
             onPatientColorChange: onPatientColorChange,
@@ -968,6 +974,7 @@
             onGenesetChange: onGenesetChange,
             onGenesetsChange: onGenesetsChange,
             onshowGenesetImportChange: onshowGenesetImportChange,
+            onshowImagePanelChange: onshowImagePanelChange,
 
             // Random
             setBusy: setBusy,

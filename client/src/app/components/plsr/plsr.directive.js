@@ -79,9 +79,9 @@
                 lasso.items()
                     .classed("not_possible", false)
                     .classed("possible", false);
-                var ids = lasso.selectedItems().data().map(function(d) {
-                    return d.id;
-                });
+                // var ids = lasso.selectedItems().data().map(function(d) {
+                //     return d.id;
+                // });
 
                 var selectedGenes = lasso.selectedItems().data().map(function(v) { return v.id; });
                 if (selectedGenes.length < 2) {
@@ -282,12 +282,12 @@
                 osApi.setBusy(true);
                 osApi.setCohort(patientIds, "PCA", osApi.PATIENT);
             };
-            var onGeneset = $scope.$watch("vm.geneset", function() {
-                if (angular.isUndefined(vm.geneset)) return;
-                osApi.setBusy(true);
-                loadData();
+            // var onGeneset = $scope.$watch("vm.geneset", function() {
+            //     if (angular.isUndefined(vm.geneset)) return;
+            //     osApi.setBusy(true);
+            //     loadData();
 
-            });
+            // });
 
             function loadData() {
 

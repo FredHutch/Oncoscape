@@ -19,7 +19,7 @@
         return directive;
 
         /** @ngInject */
-        function SpreadsheetController(osApi, $state, $timeout, $scope, moment, $stateParams, _, $, $q, $window, uiGridConstants, saveAs, $interval) {
+        function SpreadsheetController(osApi, $state, $timeout, $scope, moment, $stateParams, _, $, $q, $window, uiGridConstants, saveAs) {
 
             // Loading ...
             osApi.setBusy(true);

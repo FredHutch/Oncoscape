@@ -1,0 +1,40 @@
+<div id="dataMenu" style="display:block">
+     <div class="data-menu">
+        <section>
+            <div class="row">
+                <div class="col-xs-12 form-item datamenu-hr">
+                    <label>Selected Geneset</label>
+                    <div class="input-group">
+                        <input ng-readonly="vm.geneset.type=='ALLGENES'" style="background:#FFF;" class="form-control" aria-label="Text input with segmented button dropdown" ng-model="vm.geneset.name" onfocus="this.select();">
+                        <div class="input-group-btn">
+                            <button type="button" class="btn btn-default" tooltip="{{vm.geneset.type == 'UNSAVED' ? 'Save Geneset' : 'Delete Geneset'}}" tooltip-placement="left" ng-if="vm.geneset.type!='ALLGENES'" ng-click="vm.updateGeneset()">
+                                <span class="fa {{vm.geneset.type == 'UNSAVED' ? 'fa-plus' : 'fa-times'}}" aria-hidden="true"></span>
+                            </button>
+                            <button type="button" class="btn btn-default dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false" tooltip="Change Geneset" tooltip-placement="left"> <span class="caret"></span> <span class="sr-only">Toggle Dropdown</span></button>
+                            <ul class="dropdown-menu dropdown-menu-right" style="width:260px;padding:0px;">
+                                <li class="markers-command hvr-sweep-to-right" ng-class=" item.disable ? 'datamenu-strikethrough' : 'null'" style="height:25px;width:100%;padding-left:10px;" ng-repeat="item in vm.genesets | filter:{ show:true}" ng-click="vm.setGeneset(item)">{{item.name}}</li>
+                                <li class="markers-command hvr-sweep-to-right" ng-click="vm.import()" style="color:darkgray">Other...</li>
+                            </ul>
+                            
+                        </div>
+                    </div>
+                </div>
+                
+               
+                <div class="col-xs-12 form-item">
+                    <label class="datamenu-toggle-btn" data-toggle="collapse" data-target="#datamenu-summary-box" tooltip="Show / Hide" tooltip-placement="right">Geneset Summary <i class="fa fa-angle-down" aria-hidden="true"></i></label>
+                    <div id="datamenu-summary-box" class="collapse in" style="background:#FFF;border:1px solid #EAEAEA;padding:5px;" ng-bind-html="vm.genesetSummary"></div>
+                </div>
+                <div id="datamenu-legend"></div>
+            </div>
+           
+        </section>
+    </div>
+    
+</div>
+
+
+
+
+        
+    

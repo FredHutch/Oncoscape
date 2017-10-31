@@ -51,8 +51,11 @@
                 }
 
                 osApi.onResize.dispatch();
+            
             };
-
+            vm.showImagePanel = function(){
+                osApi.showImagePanel(true)
+            }
 
 
         }
