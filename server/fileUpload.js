@@ -63,9 +63,9 @@ const writingXLSX2Mongo = (msg) => {
     projectID = msg.projectID;
     console.log('%%%%%%%%%received file');
     console.log('projectID is: ', msg);
+    console.log('%%%%%%%%%XLSX.readFile(filePath): ', filePath);
     console.time("Reading XLSX file");
     var workbook = XLSX.readFile(filePath);
-    console.log('%%%%%%%%%XLSX.readFile(filePath): ', filePath);
     console.timeEnd("Reading XLSX file");           
     var allSheetNames =  Object.keys(workbook.Sheets);
     console.log(allSheetNames);

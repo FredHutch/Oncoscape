@@ -72,10 +72,12 @@ app.post('/api/upload/:id/:email', function (req, res) {
     var sampleMapCollection = mongoose.model(projectID + "_data_samples", File.schema);
     var clinicalColleciton = mongoose.model(projectID + "_data_clinical", File.schema);
     var uploadingSummaryCollection = mongoose.model(projectID + "_uploadingSummary", File.schema);
+    console.log('test1');
     upload(req, res, function (err) {
         console.log("This section is triggered");
         if (err) {
             console.log(err);
+            console.log('test2');
             var mailOptions = {
                 from: 'oncoscape.sttrcancer@gmail.com',
                 to: userEmail,
@@ -91,9 +93,11 @@ app.post('/api/upload/:id/:email', function (req, res) {
             });
             return;
         } else {
+            console.log('test3');
             // const writing2Mongo = fork(process.env.APP_ROOT + '/server/fileUpload.js',
             const writing2Mongo = fork('/home/sttrweb/Oncoscape/server/fileUpload.js',
                 { execArgv: ['--max-old-space-size=4000'] });
+            console.log('**', req.req.file);
             writing2Mongo.send({
                 filePath: res.req.file.path,
                 projectID: projectID
