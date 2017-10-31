@@ -100,7 +100,7 @@ app.post('/api/upload/:id/:email', function (req, res) {
             // const writing2Mongo = fork(process.env.APP_ROOT + '/server/fileUpload.js',
             const writing2Mongo = fork('/home/sttrweb/Oncoscape/server/fileUpload.js',
                 { execArgv: ['--max-old-space-size=4000'] });
-            console.log('**', req.req.file);
+            console.log('**', res.req.file);
             writing2Mongo.send({
                 filePath: res.req.file.path,
                 projectID: projectID
