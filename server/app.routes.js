@@ -66,14 +66,12 @@ var init = function (app) {
         // next();
     });
     app.post('/api/projects', Permissions.jwtVerification, function (req, res, next) {
-        console.log('in api/projects POST, req.body is: ', req.body);
         Project.create(req.body, processResult(req, res));
     });
     app.get('/api/projects/:id', Permissions.jwtVerification,  function (req, res, next) {
         Project.findById(req.params.id, processResult(req, res));
     });
     app.put('/api/projects/:id', Permissions.jwtVerification, function (req, res, next) {
-        console.log('&&&&&&&&&& PROJECT Update in the route', req.body);
         Project.findOneAndUpdate({ _id: req.params.id }, req.body, { upsert: false }, processResult(req, res));
     });
     app.delete('/api/projects/:id', Permissions.jwtVerification, function (req, res, next) {
@@ -155,7 +153,6 @@ var init = function (app) {
     });
 
     app.get('/api/files/:id', Permissions.jwtVerification, function (req, res) {
-        console.log("Getting Project-Related Collections...", req.params.id);
         var projectID = req.params.id;
         db.getConnection().then(db => {
             db.db.listCollections().toArray(function (err, collectionMeta) {
