@@ -11,7 +11,7 @@ const routes = require('./app.routes.js');
 var File = require("./models/file");
 db = require('./app.db.js');
 var Permission = require("./models/permission");
-const HugoGenes = require('../HugoGenes.json');
+const HugoGenes = require('./HugoGenes.json');
 // Middleware
 var app = express();
 app.use(function (req, res, next) { //allow cross origin requests
