@@ -50,8 +50,8 @@ var transporter = nodemailer.createTransport({
 
 var storage = multer.diskStorage({
     destination: function (req, file, cb) {
-        // cb(null, '/home/sttrweb/Oncoscape/uploads')
-        cb(null, process.env.APP_ROOT + '/uploads')
+        cb(null, '/home/sttrweb/Oncoscape/uploads')
+        // cb(null, process.env.APP_ROOT + '/uploads')
     },
     filename: function (req, file, cb) {
         var newFileName = file.fieldname + '-' + Date.now() + '.xlsx';
@@ -274,8 +274,8 @@ const writingXLSX2Mongo = (msg) => {
         });  
 }
 
-app.use('/api/upload', express.static(process.env.APP_ROOT + '/uploads'));
-// app.use('/api/upload', express.static('/home/sttrweb/Oncoscape/uploads'));
+// app.use('/api/upload', express.static(process.env.APP_ROOT + '/uploads'));
+app.use('/api/upload', express.static('/home/sttrweb/Oncoscape/uploads'));
 app.post('/api/upload/:id/:email', Permissions.jwtVerification, upload, function (req, res, next) {
     var projectID = req.params.id;
     var userEmail = req.params.email;
@@ -335,6 +335,7 @@ app.post('/api/upload/:id/:email', Permissions.jwtVerification, upload, function
         } else {
             process.on('message', (filePath, HugoGenes) => {
                 // db.once("open", function (callback) {
+                    console.log('in WORKER CODE BLOCK, filePath: ', filePath);
                     writingXLSX2Mongo(filePath, HugoGenes);
                     process.send("DONE from child");
                 // });
