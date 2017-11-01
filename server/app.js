@@ -69,7 +69,7 @@ app.post('/api/upload/:id/:email', Permissions.jwtVerification, function (req, r
     var projectID = req.params.id;
     var userEmail = req.params.email;
     var mailOptions = {
-        from: 'jennylouzhang@gmail.com',
+        from: 'oncoscape.sttrcancer@gmail.com',
         to: userEmail,
         subject: 'Notification from Oncoscape Data Uploading App',
         text: 'Data are in database, ready to share.'
