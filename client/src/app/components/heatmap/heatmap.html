@@ -110,7 +110,21 @@
                         </ul>
                     </div>
                 </div>
-                
+                <div class="col-xs-12 form-item">
+                    <div class="col-xs-12 form-item">
+                        <label>Order</label>
+                        <div class="dropdown bs-dropdown">
+                            <button class="btn btn-default dropdown-toggle" type="button" id="dropdownMenu1" data-toggle="dropdown" aria-haspopup="true" aria-expanded="true">
+                                {{vm.orderBy.name}}
+                                <span class="caret"></span>
+                            </button>
+                            <ul class="dropdown-menu" aria-labelledby="dropdownMenu1">
+                                <li ng-repeat="item in vm.orderTypes" ng-click="vm.orderBy=item">{{item.name}}</li>
+                            </ul>
+                        </div>
+                    </div>
+                        
+                </div>
         </section>
     </os-tray>
     
@@ -118,7 +132,7 @@
         <div style="position:absolute;top:10px;text-align:center;width:100%;">
             <h2 class="h2-tool">Heatmap</h2>
             <span class="h3-tool">{{vm.datasource.source}} {{vm.datasource.name}}</span>
-            <div id="heatmap-chart" style="position:relative"></div>
+            <div id="heatmap-chart" style="position:relative;"></div>
             <div id="tooltip" class="hidden">
                 <p><span id="value"></p>
             </div>
