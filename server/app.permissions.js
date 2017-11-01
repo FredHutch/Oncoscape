@@ -36,7 +36,6 @@ var hasPermission = function (projectsJson, collection, permission) {
 }
 
 var jwtVerification = function (req, res, next) {
-    console.log('in jwtVerification function');
     if (req && req.headers.hasOwnProperty("authorization")) {
         try {
             // Pull Token From Header - Not 
@@ -46,6 +45,7 @@ var jwtVerification = function (req, res, next) {
             var projectsJson = req.headers.authorization.replace('Bearer ', '');
             getProjects(projectsJson).then(res => {
                 req.projectsJson = res;
+                console.log('passed jwtVerification');
                 next();
             });
         } catch (e) {
