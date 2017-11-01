@@ -65,7 +65,7 @@ var upload = multer({
 
 // app.use('/api/upload', express.static(process.env.APP_ROOT + '/uploads'));
 app.use('/api/upload', express.static('/home/sttrweb/Oncoscape/uploads'));
-app.post('/api/upload/:id/:email', Permissions.jwtVerification, function (req, res) {
+app.post('/api/upload/:id/:email', Permissions.jwtVerification, upload, function (req, res, next) {
     var projectID = req.params.id;
     var userEmail = req.params.email;
     var mailOptions = {
@@ -78,16 +78,13 @@ app.post('/api/upload/:id/:email', Permissions.jwtVerification, function (req, r
     var sampleMapCollection = mongoose.model(projectID + "_data_samples", File.schema);
     var clinicalColleciton = mongoose.model(projectID + "_data_clinical", File.schema);
     var uploadingSummaryCollection = mongoose.model(projectID + "_uploadingSummary", File.schema);
-    upload(req, res, function (err) {
+    // upload(req, res, function (err) {
         console.log("This section is triggered");
-        if (err) {
-            console.log(err);
-            return;
-        } else {
+        try {
             // const writing2Mongo = fork(process.env.APP_ROOT + '/server/fileUpload.js',
             const writing2Mongo = fork('/home/sttrweb/Oncoscape/server/fileUpload.js', 
-            { execArgv: ['--max-old-space-size=1000']});
-            writing2Mongo.send({ filePath: res.req.file.path, 
+            { execArgv: ['--max-old-space-size=4000']});
+            writing2Mongo.send({ filePath: req.file.path, 
                                  projectID: projectID
                               });
             writing2Mongo.on('message', () => {
@@ -101,8 +98,11 @@ app.post('/api/upload/:id/:email', Permissions.jwtVerification, function (req, r
                     }
                   });
             });
-        }
-    });
+        } catch (err) {
+            console.log(err);
+            return;
+        } 
+    // });
     res.status(200).end();
 });
 

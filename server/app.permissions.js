@@ -40,9 +40,9 @@ var jwtVerification = function (req, res, next) {
     if (req && req.headers.hasOwnProperty("authorization")) {
         try {
             // Pull Token From Header - Not 
-            console.log('%%%%%%%%%%%% in jwtVerification function');
-            console.log('req.originalUrl', req.originalUrl);
-            console.log(req.method);
+            // console.log('%%%%%%%%%%%% in jwtVerification function');
+            // console.log('req.originalUrl', req.originalUrl);
+            // console.log(req.method);
             var projectsJson = req.headers.authorization.replace('Bearer ', '');
             getProjects(projectsJson).then(res => {
                 req.projectsJson = res;
