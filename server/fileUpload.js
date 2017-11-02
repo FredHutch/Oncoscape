@@ -19,8 +19,7 @@ var option = {
 //             console.log("Child Process  MongoDB connect error: ", err);
 //         });
 mongoose.connect(
-    "mongodb://oncoscape-dev-db1.sttrcancer.io:27017,oncoscape-dev-db2.sttrcancer.io:27017,oncoscape-dev-db3.sttrcancer.io:27017/v2?authSource=admin",{
-    // process.env.MONGO_CONNECTION, {  
+    process.env.MONGO_CONNECTION, {  
     db: {
         native_parser: true
     },
@@ -254,6 +253,11 @@ const writingXLSX2Mongo = (msg) => {
 
 process.on('message', (filePath, HugoGenes, db) => {
     // db.once("open", function (callback) {
+        console.log('in CHILD PROCESS process.on message');
+        console.log('filePath: ', filePath);
+        console.log('HugoGenes: ', HugoGenes);
+        console.log('process.env.MONGO_USERNAME: ', process.env.MONGO_USERNAME);
+        console.log('process.env.MONGO_PASSWORD: ', process.env.MONGO_PASSWORD);
         writingXLSX2Mongo(filePath, HugoGenes, db);
         process.send("DONE from child");
     // });
