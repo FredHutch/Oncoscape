@@ -31,11 +31,11 @@
                     <label>Color Scheme</label>
                     <div class="dropdown bs-dropdown">
                         <button class="btn btn-default dropdown-toggle" type="button" id="dropdownMenu1" data-toggle="dropdown" aria-haspopup="true" aria-expanded="true">
-                            {{vm.color.selected.name}}
+                            {{vm.options.color.selected.name}}
                             <span class="caret"></span>
                         </button>
                         <ul class="dropdown-menu" aria-labelledby="dropdownMenu1">
-                            <li ng-repeat="item in vm.color.schemes" ng-click="vm.color.selected.name=item.name;">{{item.name}}</li>
+                            <li ng-repeat="item in vm.options.color.schemes" ng-click="vm.options.color.selected.name=item.name;">{{item.name}}</li>
                         </ul>
                     </div>
                 </div>
@@ -45,11 +45,11 @@
                         <label>Order</label>
                         <div class="dropdown bs-dropdown">
                             <button class="btn btn-default dropdown-toggle" type="button" id="dropdownMenu1" data-toggle="dropdown" aria-haspopup="true" aria-expanded="true">
-                                {{vm.order.selected.name}}
+                                {{vm.options.order.selected.name}}
                                 <span class="caret"></span>
                             </button>
                             <ul class="dropdown-menu" aria-labelledby="dropdownMenu1">
-                                <li ng-repeat="item in vm.order.types" ng-click="vm.order.selected.name=item.name">{{item.name}}</li>
+                                <li ng-repeat="item in vm.options.order.types" ng-click="vm.options.order.selected.name=item.name">{{item.name}}</li>
                             </ul>
                         </div>
                     </div>

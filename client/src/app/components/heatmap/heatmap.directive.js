@@ -88,7 +88,8 @@
             function callMethod(){
                 osApi.setBusy(true);
                 var collections = vm.data.table.types.filter(function(d){return d.name == vm.data.table.selected.name})
-                
+                var gIds = osApi.getGeneset().geneIds
+
                 if(vm.data.method.selected.name == "molecular"){
                     osApi.query(collections[0].collection, {
                         '$limit': 100
@@ -121,7 +122,7 @@
                     });
                 }
                 else if(vm.data.method.selected.name == "patient correlation"){
-                    Distancequery(collections[0].collection, collections[0].collection, geneIds).then(function(response) {
+                    Distancequery(collections[0].collection, collections[0].collection, gIds).then(function(response) {
                         
                         var d = response.data;
                         if(angular.isDefined(d.reason)){
@@ -133,7 +134,7 @@
                             return;
                         }
     
-                        var temp = response.data
+                        var temp = response.data.D
                         temp = temp.map(function(v) {
                             v.d.forEach(function(key) {
                                 if (this[key] == null) this[key] = 0;
@@ -141,15 +142,15 @@
                             return v;
                         })
 
-                        var rows = temp.reduce(function(p,c){ 
-                            p.push(c.m)
-                            return p
-                        },[]) 
+                        var rows = temp.map(function(r,i){ return {id:r.id,i:i }}) 
+                        var cols = temp[0].m.map(function(c,i){  return {id:c, i:i} })
 
                         vm.heatmap ={
-                            data:  temp.map(function(d){ return d.d }),
+                            data:  _.flatten(temp.map(function(d, i){ 
+                                        return d.d.map(function(v, j) {return {row: i, col:j, value:v}})        
+                                    })  ),
                             rows: rows,
-                            cols: temp[0].s,
+                            cols: cols,
                         }
                         
                         vm.draw();
@@ -242,7 +243,7 @@
 
                 //credit: http://bl.ocks.org/ianyfchang/8119685
 
-                //svg.select("g").remove();
+                svg.selectAll("g").remove();
                 var margin = { top: 75, right: 10, bottom: 50, left: 100 };
 
                 var width = vm.options.col.cellwidth*vm.heatmap.cols.length, 
