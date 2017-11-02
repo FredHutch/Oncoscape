@@ -1,5 +1,4 @@
 const express = require('express');
-const { fork } = require('child_process');
 const jsonfile = require("jsonfile");
 const _ = require("underscore");
 const asyncLoop = require('node-async-loop');
@@ -63,9 +62,9 @@ const writingXLSX2Mongo = (msg) => {
     projectID = msg.projectID;
     console.log('%%%%%%%%%received file');
     console.log('projectID is: ', msg);
+    console.log('%%%%%%%%%XLSX.readFile(filePath): ', filePath);
     console.time("Reading XLSX file");
     var workbook = XLSX.readFile(filePath);
-    console.log('%%%%%%%%%XLSX.readFile(filePath): ', filePath);
     console.timeEnd("Reading XLSX file");           
     var allSheetNames =  Object.keys(workbook.Sheets);
     console.log(allSheetNames);

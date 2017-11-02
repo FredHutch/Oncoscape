@@ -300,7 +300,6 @@ var init = function (app) {
     });
 
     app.get('/api/files/:id', Permissions.jwtVerification, function (req, res) {
-        console.log("Getting Project-Related Collections...", req.params.id);
         var projectID = req.params.id;
         db.getConnection().then(db => {
             db.db.listCollections().toArray(function (err, collectionMeta) {
