@@ -16,7 +16,7 @@ http {
     include 'nginx-kong.conf';
     include '/usr/local/openresty/nginx/conf/mime.types';
 
-    # Enable GZip Compression 
+   # Enable GZip Compression 
     gzip on; 
     gzip_http_version 1.1; 
     gzip_vary on; 
@@ -26,11 +26,13 @@ http {
     gzip_disable "MSIE [1-6]\.(?!.*SV1)";
 
     # Cache
-    proxy_cache_path /home/sttrweb/Oncoscape/cache levels=1:2 keys_zone=datacache:15m max_size=500m;
+    gzip_proxied any;
+  	gzip_min_length 1000;
+    proxy_cache_path /home/sttrweb/Oncoscape/cache levels=1:2 keys_zone=datacache:100m max_size=5000m;
     proxy_temp_path /var/tmp;
     proxy_cache_key "$scheme$request_method$host$request_uri$is_args$args";
-    proxy_cache_valid 200 302 2d;
     proxy_cache_valid 404 1m;
+
 
     # Public Server
     server {
@@ -136,6 +138,20 @@ http {
             auth_basic "Restricted Content";
             auth_basic_user_file /home/sttrweb/Oncoscape/.htpasswd;
         }
+        
+        location /dev {
+        	# LDA CACHE
+		proxy_ssl_server_name on;
+		proxy_ssl_protocols TLSv1 TLSv1.1 TLSv1.2;
+		# USE MD5 Query String 
+		proxy_cache datacache;
+     		proxy_cache_key "$uri|$query_string";
+		proxy_cache_valid 200 10y;
+		proxy_cache_methods POST;
+		client_max_body_size 100000k; # 413
+		add_header Z-Cache-Status $upstream_cache_status;
+		proxy_pass https://0x8okrpyl3.execute-api.us-west-2.amazonaws.com/dev;
+	}
        
     }
 }
