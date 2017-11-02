@@ -12,15 +12,8 @@ var option = {
         }
     }
 }
-// mongoose.connect("mongodb://localhost:27017/mydb", option)
-//         .then(function(){
-//             console.log("Child Process MongoDB connect success!");
-//         }, function (err){
-//             console.log("Child Process  MongoDB connect error: ", err);
-//         });
 mongoose.connect(
-    "mongodb://oncoscape-dev-db1.sttrcancer.io:27017,oncoscape-dev-db2.sttrcancer.io:27017,oncoscape-dev-db3.sttrcancer.io:27017/v2?authSource=admin",{
-    // process.env.MONGO_CONNECTION, {  
+    process.env.MONGO_CONNECTION, {  
     db: {
         native_parser: true
     },
