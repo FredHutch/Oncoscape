@@ -49,7 +49,8 @@
                         { name: 'Red / Yellow', value: ["#D32F2F", "#FFEB3B"] },
                         { name: 'Red / Green', value: ['#005824','#1A693B','#347B53','#4F8D6B','#699F83','#83B09B','#9EC2B3','#B8D4CB','#D2E6E3','#EDF8FB','#FFFFFF','#F1EEF6','#E6D3E1','#DBB9CD','#D19EB9','#C684A4','#BB6990','#B14F7C','#A63467','#9B1A53','#91003F']}
                     ],
-                    selected : {name: 'Red / Green', i:4}
+                    selected : {name: 'Red / Green', i:4},
+                    bins : 10
                     },
                 row : {
                     dendogram : false,
@@ -57,7 +58,7 @@
                 },
                 col : {
                     dendogram: false,
-                    cellwidth: 12
+                    cellwidth: 9
                 }
 
             }
@@ -248,17 +249,36 @@
 
                 var width = vm.options.col.cellwidth*vm.heatmap.cols.length, 
                     height = vm.options.col.cellwidth*vm.heatmap.rows.length ; 
-                
-                var legendElementWidth = vm.options.col.cellwidth*2.5;
+                var legendElementWidth = Math.max(vm.options.col.cellwidth*2.5, 40);
+
+                var MinMax = vm.heatmap.data.reduce(function(p,c){ 
+                    if(p[0] > c.value) p[0] = c.value
+                    if(p[1] < c.value) p[1] = c.value
+                    return p}, [Infinity, - Infinity])
+
+                var Bins = []                    
+                var uniqueVals = vm.heatmap.data.reduce(function(p,c){
+                    if(p.indexOf(c.value) == -1) p.push(c.value)
+                    return p;
+                }, [])
+                if(uniqueVals.length <11)
+                    Bins = uniqueVals.sort(function(a,b){ return a-b})
+                else{
+                    for(var i=0;i<vm.options.color.bins;i++){
+                        Bins[i] = (MinMax[0] + (i * (MinMax[1]-MinMax[0])/vm.options.color.bins)).toPrecision(2)
+                    }
+                    Bins = Bins.concat(MinMax[1])
+                }
+
                 var colors = vm.options.color.schemes[vm.options.color.selected.i].value
                 var colorScale = d3.scaleQuantile()
-                    .domain([ -10 , 0, 10])
+                    .domain(Bins)
                     .range(colors);
             
                 svg.attr("width", width + margin.left + margin.right)
                     .attr("height", height + margin.top + margin.bottom)
-                    .style("padding-left","100px")
-                    .style("padding-top", "75px")
+                    .style("padding-left","110px")
+                    .style("padding-top", "110px")
                     .append("g")
                     .attr("transform", "translate(" + margin.left + "," + margin.top + ")")
                     ;
@@ -318,7 +338,7 @@
                                 .style("left", (d3.event.pageX+10) + "px")
                                 .style("top", (d3.event.pageY-10) + "px")
                                 .select("#value")
-                                .text("labels:"+vm.heatmap.rows[d.row].id+","+vm.heatmap.cols[d.col].id+"\ndata:"+d.value+"\nrow-col-idx:"+d.col+","+d.row+"\ncell-xy "+this.x.baseVal.value+", "+this.y.baseVal.value);  
+                                .text(vm.heatmap.rows[d.row].id+", "+vm.heatmap.cols[d.col].id+": "+d.value);  
                                 //Show the tooltip
                                 d3.select("#tooltip").classed("hidden", false);
                         })
@@ -331,7 +351,7 @@
                         ;
                 
                 var legend = svg.selectAll(".legend")
-                    .data([-10,-9,-8,-7,-6,-5,-4,-3,-2,-1,0,1,2,3,4,5,6,7,8,9,10])
+                    .data(Bins)
                     .enter().append("g")
                     .attr("class", "legend");
                
@@ -340,7 +360,7 @@
                     .attr("y", height+(vm.options.col.cellwidth*2))
                     .attr("width", legendElementWidth)
                     .attr("height", vm.options.col.cellwidth)
-                    .style("fill", function(d, i) { return colors[i]; });
+                    .style("fill", function(d, i) { return colorScale(d); });
                
                 legend.append("text")
                     .attr("class", "mono")
@@ -435,6 +455,7 @@
                            // remove temporary selection marker class
                        d3.selectAll('.cell-selection').classed("cell-selection", false);
                        d3.selectAll(".text-selection").classed("text-selection",false);
+                       
                     })
                     .on("mouseout", function() {
                        if(d3.event.relatedTarget.tagName=='html') {
