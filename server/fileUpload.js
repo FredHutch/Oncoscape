@@ -34,7 +34,7 @@ mongoose.connect(
 
 const db = mongoose.connection;
 
-const HugoGenes = require('../HugoGenes.json');
+const HugoGenes = require('./HugoGenes.json');
 
 var checkHugoGeneSymbols = function (geneArr) {
     var overLappedNames = _.intersection(geneArr, HugoGenes);
@@ -246,9 +246,9 @@ const writingXLSX2Mongo = (msg) => {
 }
 
 process.on('message', (filePath, HugoGenes, db) => {
-    // db.once("open", function (callback) {
-        writingXLSX2Mongo(filePath, HugoGenes, db);
-        process.send("DONE from child");
-    // });
+    console.log('in CHILD PROCESS process.on message');
+    console.log('process.env.MONGO_CONNECTION: ', process.env.MONGO_CONNECTION);
+    writingXLSX2Mongo(filePath, HugoGenes, db);
+    process.send("DONE from child");
 });
 

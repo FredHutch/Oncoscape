@@ -38,10 +38,6 @@ var hasPermission = function (projectsJson, collection, permission) {
 var jwtVerification = function (req, res, next) {
     if (req && req.headers.hasOwnProperty("authorization")) {
         try {
-            // Pull Token From Header - Not 
-            // console.log('%%%%%%%%%%%% in jwtVerification function');
-            // console.log('req.originalUrl', req.originalUrl);
-            // console.log(req.method);
             var userID = req.headers.authorization.replace('Bearer ', '');
             getUserID(userID).then(res => {
                 req.userID = res;
