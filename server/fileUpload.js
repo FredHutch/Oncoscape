@@ -40,7 +40,7 @@ mongoose.connect(
 
 const db = mongoose.connection;
 
-const HugoGenes = require('../HugoGenes.json');
+const HugoGenes = require('./HugoGenes.json');
 
 var checkHugoGeneSymbols = function (geneArr) {
     var overLappedNames = _.intersection(geneArr, HugoGenes);
