@@ -280,6 +280,8 @@ app.post('/api/upload/:id/:email', Permissions.jwtVerification, upload, function
     console.log("This section is triggered");
     var projectID = req.params.id;
     var userEmail = req.params.email;
+    console.log('projectID: ', projectID);
+    console.log('userEmail: ', userEmail);
     var mailOptions = {
         from: 'jennylouzhang@gmail.com',
         to: userEmail,
@@ -290,7 +292,10 @@ app.post('/api/upload/:id/:email', Permissions.jwtVerification, upload, function
     var sampleMapCollection = mongoose.model(projectID + "_data_samples", File.schema);
     var clinicalColleciton = mongoose.model(projectID + "_data_clinical", File.schema);
     var uploadingSummaryCollection = mongoose.model(projectID + "_uploadingSummary", File.schema);
+    console.log('test before try block');
     try {
+        console.log('in try block before fork');
+        console.log('filePath: ', req.file.path);
         // const writing2Mongo = fork(process.env.APP_ROOT + '/server/fileUpload.js',
         const writing2Mongo = fork('/home/sttrweb/Oncoscape/server/fileUpload.js', 
         { execArgv: ['--max-old-space-size=4000']});
