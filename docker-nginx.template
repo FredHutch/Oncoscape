@@ -154,21 +154,17 @@ http {
         }
 
         location /dev {
-        
-            # LDA SSL
-			proxy_ssl_server_name on;
-			proxy_ssl_protocols TLSv1 TLSv1.1 TLSv1.2;
-
-			proxy_cache datacache;
+        	# LDA CACHE
+		proxy_ssl_server_name on;
+		proxy_ssl_protocols TLSv1 TLSv1.1 TLSv1.2;
+		# USE MD5 Query String 
+		proxy_cache datacache;
      		proxy_cache_key "$uri|$query_string";
-			proxy_cache_valid 200 1d;
-			proxy_cache_methods POST;
-			client_max_body_size 100000k; # 413
-
-			add_header Z-Cache-Status $upstream_cache_status;
-		 	proxy_pass https://0x8okrpyl3.execute-api.us-west-2.amazonaws.com/dev;
-
-		}
-       
+		proxy_cache_valid 200 1d;
+		proxy_cache_methods POST;
+		client_max_body_size 100000k; # 413
+		add_header Z-Cache-Status $upstream_cache_status;
+		proxy_pass https://0x8okrpyl3.execute-api.us-west-2.amazonaws.com/dev;
+	}
     }
 }
