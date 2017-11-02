@@ -6,22 +6,22 @@
                     <label>Data Type</label>
                     <div class="dropdown bs-dropdown" style="max-width:230px">
                         <button class="btn btn-default dropdown-toggle" type="button" id="dropdownMenu1" data-toggle="dropdown" aria-haspopup="true" aria-expanded="true">
-                            {{vm.data.type}}
+                            {{vm.data.method.selected.name}}
                             <span class="caret"></span>
                         </button>
                         <ul class="dropdown-menu" aria-labelledby="dropdownMenu1" >
-                            <li class="markers-command hvr-sweep-to-right" ng-repeat="item in vm.data.types" ng-click="vm.data.type=item">{{item}}</li>
+                            <li class="markers-command hvr-sweep-to-right" ng-repeat="item in vm.data.method.types" ng-click="vm.data.method.selected.name=item">{{item}}</li>
                         </ul>
                     </div>
 
                     <label>Data Table</label>
                     <div class="dropdown bs-dropdown" style="max-width:230px">
                         <button class="btn btn-default dropdown-toggle" type="button" id="dropdownMenu1" data-toggle="dropdown" aria-haspopup="true" aria-expanded="true">
-                            {{vm.data.name}}
+                            {{vm.data.table.selected.name}}
                             <span class="caret"></span>
                         </button>
                         <ul class="dropdown-menu" aria-labelledby="dropdownMenu1" >
-                            <li class="markers-command hvr-sweep-to-right" ng-repeat="item in vm.data.tables" ng-click="vm.data.name=item.name">{{item.name}}</li>
+                            <li class="markers-command hvr-sweep-to-right" ng-repeat="item in vm.data.table.types" ng-click="vm.data.table.selected.name=item.name">{{item.name}}</li>
                         </ul>
                     </div>
              
@@ -31,28 +31,25 @@
                     <label>Color Scheme</label>
                     <div class="dropdown bs-dropdown">
                         <button class="btn btn-default dropdown-toggle" type="button" id="dropdownMenu1" data-toggle="dropdown" aria-haspopup="true" aria-expanded="true">
-                            {{vm.colorScheme.name}}
+                            {{vm.color.selected.name}}
                             <span class="caret"></span>
                         </button>
                         <ul class="dropdown-menu" aria-labelledby="dropdownMenu1">
-                            <li ng-repeat="item in vm.colorSchemes" ng-click="vm.colorScheme=item;vm.draw()">{{item.name}}</li>
+                            <li ng-repeat="item in vm.color.schemes" ng-click="vm.color.selected.name=item.name;">{{item.name}}</li>
                         </ul>
                     </div>
                 </div>
-    
-               
-    
                 
                 <div class="col-xs-12 form-item">
                     <div class="col-xs-12 form-item">
                         <label>Order</label>
                         <div class="dropdown bs-dropdown">
                             <button class="btn btn-default dropdown-toggle" type="button" id="dropdownMenu1" data-toggle="dropdown" aria-haspopup="true" aria-expanded="true">
-                                {{vm.orderBy.name}}
+                                {{vm.order.selected.name}}
                                 <span class="caret"></span>
                             </button>
                             <ul class="dropdown-menu" aria-labelledby="dropdownMenu1">
-                                <li ng-repeat="item in vm.orderTypes" ng-click="vm.orderBy=item">{{item.name}}</li>
+                                <li ng-repeat="item in vm.order.types" ng-click="vm.order.selected.name=item.name">{{item.name}}</li>
                             </ul>
                         </div>
                     </div>
