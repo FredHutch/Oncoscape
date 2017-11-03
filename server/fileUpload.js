@@ -3,6 +3,7 @@ const jsonfile = require("jsonfile");
 const _ = require("underscore");
 const asyncLoop = require('node-async-loop');
 const XLSX =require("xlsx");
+const HugoGenes = require('./HugoGenes.json');
 const mongoose = require('mongoose');
 var option = {
     server: {
@@ -12,12 +13,6 @@ var option = {
         }
     }
 }
-// mongoose.connect("mongodb://localhost:27017/mydb", option)
-//         .then(function(){
-//             console.log("Child Process MongoDB connect success!");
-//         }, function (err){
-//             console.log("Child Process  MongoDB connect error: ", err);
-//         });
 mongoose.connect(
     process.env.MONGO_CONNECTION, {  
     db: {
@@ -37,12 +32,11 @@ mongoose.connect(
 }, function (err){
     console.log("Child Process  MongoDB connect error: ", err);
 });
-
 const db = mongoose.connection;
 
-const HugoGenes = require('./HugoGenes.json');
 
-var checkHugoGeneSymbols = function (geneArr) {
+var errorMessage = {};
+var checkHugoGeneSymbols = (geneArr) => {
     var overLappedNames = _.intersection(geneArr, HugoGenes);
     var unvalidGeneNames = _.difference(geneArr, overLappedNames);
     return {
@@ -50,12 +44,13 @@ var checkHugoGeneSymbols = function (geneArr) {
         unvalidNamesArr: unvalidGeneNames
     }
 };
-function camelToDash(str) {
+var camelToDash = (str) => {
     return str.replace(/\W+/g, '-')
               .replace(/([a-z\d])([A-Z])/g, '$1-$2')
               .replace("-", "_")
               .toLowerCase();
- }
+ };
+
 const writingXLSX2Mongo = (msg) => {
     filePath = msg.filePath;
     projectID = msg.projectID;
@@ -68,9 +63,10 @@ const writingXLSX2Mongo = (msg) => {
     var allSheetNames =  Object.keys(workbook.Sheets);
     console.log(allSheetNames);
     if (allSheetNames.indexOf("PATIENT") === -1) {
-       err = "PATIENT Sheet is missing!";
-       res.json({ error_code: 1, err_desc: err }).end(); 
-       return;
+       errorMessage["PATIENT_SHEET"] = 'PATIENT SHEET is required.';
+       console.log(' JSON.stringify(errorMessage): ',  JSON.stringify(errorMessage));
+    //    res.json({ error_code: 1, err_desc: JSON.stringify(errorMessage)}).end(); 
+    //    return;
     }
     var PatientIDs;
     var PatientArr = [];
@@ -249,12 +245,14 @@ const writingXLSX2Mongo = (msg) => {
                 });
             }
         });  
-}
+};
 
 process.on('message', (filePath, HugoGenes, db) => {
-    // db.once("open", function (callback) {
-        writingXLSX2Mongo(filePath, HugoGenes, db);
+    writingXLSX2Mongo(filePath, HugoGenes, db);
+    if(errorMessage != null) {
+        process.send(JSON.stringify(errorMessage));
+    } else {
         process.send("DONE from child");
-    // });
+    }
 });
 

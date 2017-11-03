@@ -48,8 +48,8 @@ var transporter = nodemailer.createTransport({
 
 var storage = multer.diskStorage({
     destination: function (req, file, cb) {
-        cb(null, '/home/sttrweb/Oncoscape/uploads')
-        // cb(null, process.env.APP_ROOT + '/uploads')
+        // cb(null, '/home/sttrweb/Oncoscape/uploads')
+        cb(null, process.env.APP_ROOT + '/uploads')
     },
     filename: function (req, file, cb) {
         var newFileName = file.fieldname + '-' + Date.now() + '.xlsx';
@@ -62,11 +62,11 @@ var upload = multer({
 }).single('file');
 //#endregion
 
-// app.use('/api/upload', express.static(process.env.APP_ROOT + '/uploads'));
-app.use('/api/upload', express.static('/home/sttrweb/Oncoscape/uploads'));
+app.use('/api/upload', express.static(process.env.APP_ROOT + '/uploads'));
+// app.use('/api/upload', express.static('/home/sttrweb/Oncoscape/uploads'));
 app.post('/api/upload/:id/:email', Permissions.jwtVerification, upload, function (req, res, next) {
-    upload(req, res, function (err) {
-    // console.log("This section is triggered");
+    // upload(req, res, function (err) {
+    console.log("This section is triggered");
     var projectID = req.params.id;
     var userEmail = req.params.email;
     console.log('projectID: ', projectID);
@@ -91,7 +91,8 @@ app.post('/api/upload/:id/:email', Permissions.jwtVerification, upload, function
         writing2Mongo.send({ filePath: req.file.path, 
                              projectID: projectID
                           });
-        writing2Mongo.on('message', () => {
+        writing2Mongo.on('message', (msg) => {
+            console.log('DO WE RECEIVE ANYTHING FROM THE CHILD? msg: ', msg);
             res.end('Writing is done');
             console.log("*******************!!!!!!********************");
             transporter.sendMail(mailOptions, function(error, info){
