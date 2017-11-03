@@ -68,25 +68,27 @@
             }   
          
             // Element References
-            var svg = d3.select("#heatmap-chart").append("svg") //.append("g")
+            var mainSVG = d3.select("#heatmap-chart").append("svg") 
+            var svg; 
+            ;
             
             // Setup Watches
-            $scope.$watch("vm.data.method.selected.name", function() {
-                if(!vm.data.method.selected) return
-                callMethod()
-            })
-            $scope.$watch("vm.data.table.selected.name", function() {
-                if(!vm.data.table.selected) return
-                if(!vm.data.method.selected )
-                    vm.data.method.selected = {name: vm.data.method.types[0], i:0}
-                callMethod()
-            })
-            $scope.$watch("vm.options.order.selected.name", function() {
-                if(!vm.options.order.selected) return
-                order(vm.options.order.types[vm.options.order.selected.i].value);
-            })
+            // $scope.$watch("vm.data.method.selected.name", function() {
+            //     if(!vm.data.method.selected) return
+            //     callMethod()
+            // })
+            // $scope.$watch("vm.data.table.selected.name", function() {
+            //     if(!vm.data.table.selected) return
+            //     if(!vm.data.method.selected )
+            //         vm.data.method.selected = {name: vm.data.method.types[0], i:0}
+            //     callMethod()
+            // })
+            // $scope.$watch("vm.options.order.selected.name", function() {
+            //     if(!vm.options.order.selected) return
+            //     order(vm.options.order.types[vm.options.order.selected.i].value);
+            // })
 
-            function callMethod(){
+            vm.callMethod = function(){
                 osApi.setBusy(true);
                 var collections = vm.data.table.types.filter(function(d){return d.name == vm.data.table.selected.name})
                 var gIds = osApi.getGeneset().geneIds
@@ -98,8 +100,8 @@
                         
                         var temp = response.data
                         temp = temp.map(function(v) {
-                            v.d.forEach(function(key) {
-                                if (this[key] == null) this[key] = 0;
+                            v.d.forEach(function(val) {
+                                if (val == null) val = 0;
                             }, v.d);
                             return v;
                         })
@@ -159,7 +161,9 @@
                     })
                 }
             }
-
+            vm.callOrder = function(){
+                order(vm.options.order.types[vm.options.order.selected.i].value);
+            }
             function Distancequery(collection1, collection2, geneIds) {
                 var payload = { molecular_collection: collection1,molecular_collection2: collection2, genes:geneIds};
                 return $http({
@@ -244,12 +248,17 @@
 
                 //credit: http://bl.ocks.org/ianyfchang/8119685
 
-                svg.selectAll("g").remove();
-                var margin = { top: 75, right: 10, bottom: 50, left: 100 };
-
+                mainSVG.selectAll("g").remove();
+                var margin = { top: 110, right: 10, bottom: 50, left: 110 };
                 var width = vm.options.col.cellwidth*vm.heatmap.cols.length, 
                     height = vm.options.col.cellwidth*vm.heatmap.rows.length ; 
                 var legendElementWidth = Math.max(vm.options.col.cellwidth*2.5, 40);
+                mainSVG.attr("width", width + margin.left + margin.right)
+                        .attr("height", height + margin.top + margin.bottom)
+                svg = mainSVG
+                    .append("g")
+                    .attr("transform", "translate(" + margin.left + "," + margin.top + ")")
+                
 
                 var MinMax = vm.heatmap.data.reduce(function(p,c){ 
                     if(p[0] > c.value) p[0] = c.value
@@ -267,7 +276,7 @@
                     for(var i=0;i<vm.options.color.bins;i++){
                         Bins[i] = (MinMax[0] + (i * (MinMax[1]-MinMax[0])/vm.options.color.bins)).toPrecision(2)
                     }
-                    Bins = Bins.concat(MinMax[1])
+              //      Bins = Bins.concat(MinMax[1])
                 }
 
                 var colors = vm.options.color.schemes[vm.options.color.selected.i].value
@@ -275,13 +284,7 @@
                     .domain(Bins)
                     .range(colors);
             
-                svg.attr("width", width + margin.left + margin.right)
-                    .attr("height", height + margin.top + margin.bottom)
-                    .style("padding-left","110px")
-                    .style("padding-top", "110px")
-                    .append("g")
-                    .attr("transform", "translate(" + margin.left + "," + margin.top + ")")
-                    ;
+             
                     
                 var rowLabels = svg.append("g")
                     .selectAll(".rowLabelg")
@@ -555,6 +558,8 @@
             }
             
             vm.data.table.selected = {name: vm.data.table.types[0].name, i:0}
+            vm.data.method.selected = {name: vm.data.method.types[0], i:0}
+            vm.callMethod()
 
             osApi.onResize.add(vm.draw);
             angular.element($window).bind('resize', _.debounce(vm.draw, 300));

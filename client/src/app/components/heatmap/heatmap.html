@@ -10,7 +10,7 @@
                             <span class="caret"></span>
                         </button>
                         <ul class="dropdown-menu" aria-labelledby="dropdownMenu1" >
-                            <li class="markers-command hvr-sweep-to-right" ng-repeat="item in vm.data.method.types" ng-click="vm.data.method.selected.name=item">{{item}}</li>
+                            <li class="markers-command hvr-sweep-to-right" ng-repeat="item in vm.data.method.types" ng-click="vm.data.method.selected.name=item; vm.callMethod()">{{item}}</li>
                         </ul>
                     </div>
 
@@ -21,7 +21,7 @@
                             <span class="caret"></span>
                         </button>
                         <ul class="dropdown-menu" aria-labelledby="dropdownMenu1" >
-                            <li class="markers-command hvr-sweep-to-right" ng-repeat="item in vm.data.table.types" ng-click="vm.data.table.selected.name=item.name">{{item.name}}</li>
+                            <li class="markers-command hvr-sweep-to-right" ng-repeat="item in vm.data.table.types" ng-click="vm.data.table.selected.name=item.name; vm.callMethod()">{{item.name}}</li>
                         </ul>
                     </div>
              
@@ -49,7 +49,7 @@
                                 <span class="caret"></span>
                             </button>
                             <ul class="dropdown-menu" aria-labelledby="dropdownMenu1">
-                                <li ng-repeat="item in vm.options.order.types" ng-click="vm.options.order.selected.name=item.name">{{item.name}}</li>
+                                <li ng-repeat="item in vm.options.order.types" ng-click="vm.options.order.selected.name=item.name; vm.callOrder()">{{item.name}}</li>
                             </ul>
                         </div>
                     </div>
