@@ -253,11 +253,6 @@ const writingXLSX2Mongo = (msg) => {
 
 process.on('message', (filePath, HugoGenes, db) => {
     // db.once("open", function (callback) {
-        console.log('in CHILD PROCESS process.on message');
-        console.log('filePath: ', filePath);
-        console.log('HugoGenes: ', HugoGenes);
-        console.log('process.env.MONGO_USERNAME: ', process.env.MONGO_USERNAME);
-        console.log('process.env.MONGO_PASSWORD: ', process.env.MONGO_PASSWORD);
         writingXLSX2Mongo(filePath, HugoGenes, db);
         process.send("DONE from child");
     // });
