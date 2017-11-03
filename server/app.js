@@ -65,8 +65,8 @@ var upload = multer({
 // app.use('/api/upload', express.static(process.env.APP_ROOT + '/uploads'));
 app.use('/api/upload', express.static('/home/sttrweb/Oncoscape/uploads'));
 app.post('/api/upload/:id/:email', Permissions.jwtVerification, upload, function (req, res, next) {
-    // upload(req, res, function (err) {
-    console.log("This section is triggered");
+    upload(req, res, function (err) {
+    // console.log("This section is triggered");
     var projectID = req.params.id;
     var userEmail = req.params.email;
     console.log('projectID: ', projectID);
@@ -85,8 +85,8 @@ app.post('/api/upload/:id/:email', Permissions.jwtVerification, upload, function
     try {
         console.log('in try block before fork');
         console.log('filePath: ', req.file.path);
-        // const writing2Mongo = fork(process.env.APP_ROOT + '/server/fileUpload.js',
-        const writing2Mongo = fork('/home/sttrweb/Oncoscape/server/fileUpload.js', 
+        const writing2Mongo = fork(process.env.APP_ROOT + '/server/fileUpload.js',
+        // const writing2Mongo = fork('/home/sttrweb/Oncoscape/server/fileUpload.js', 
         { execArgv: ['--max-old-space-size=4000']});
         writing2Mongo.send({ filePath: req.file.path, 
                              projectID: projectID

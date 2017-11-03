@@ -154,6 +154,7 @@ var init = function (app) {
 
     app.get('/api/files/:id', Permissions.jwtVerification, function (req, res) {
         var projectID = req.params.id;
+        console.log('IN api/files/:id');
         db.getConnection().then(db => {
             db.db.listCollections().toArray(function (err, collectionMeta) {
                 if (err) {
@@ -161,15 +162,21 @@ var init = function (app) {
                 }
                 else {
                     projectCollections = collectionMeta.map(function (m) {
+                        console.log('in mapping m:', m);
                         return m.name;
                     }).filter(function (m) {
+                        console.log('in filter, m:', m);
                         return m.indexOf(projectID) > -1;
                     });
-    
+                    
+                    console.log('in /api/files/:id projectCollections : ', projectCollections);
+
                     if (projectCollections.length === 0) {
+                        console.log('In projectCollections.length === 0 block');
                         res.status(200).send("Not Found or No File has been uploaded yet.").end();
                         // res.send('Not Find').end();
                     } else {
+                        console.log('projectCollections.length !== 0');
                         var arr = [];
                         asyncLoop(projectCollections, function (m, next) {
                             db.collection(m).find().toArray(function (err, data) {

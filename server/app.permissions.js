@@ -45,7 +45,6 @@ var jwtVerification = function (req, res, next) {
             var projectsJson = req.headers.authorization.replace('Bearer ', '');
             getProjects(projectsJson).then(res => {
                 req.projectsJson = res;
-                console.log('passed jwtVerification');
                 next();
             });
         } catch (e) {
