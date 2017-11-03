@@ -18,7 +18,6 @@ function processResult(req, res, next, query) {
             console.log(err);
             res.status(404).send("Not Found").end();
         } else {
-            console.log(data);
             res.json(data).end();
         }
     };
