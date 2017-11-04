@@ -36,17 +36,30 @@ svg *::selection {
    font-size: 9pt;
    font-family: Consolas, courier;
    fill: #aaa;
+   visibility: visible
  }
+
+ text.small {
+  font-size: 9pt;
+  font-family: Consolas, courier;
+  fill: #aaa;
+  visibility: hidden
+
+}
 
  text.text-selected {
    fill: #000;
+   z-index: 999;
  }
 
  text.text-highlight {
    fill: #c00;
+   z-index: 999;
+   visibility : visible
  }
  text.text-hover {
    fill: #00C;
+   visibility: visible
  }
  #tooltip {
    position: absolute;

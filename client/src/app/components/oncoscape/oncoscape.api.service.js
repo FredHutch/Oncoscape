@@ -798,7 +798,7 @@
                 new Promise(function(resolve, reject) {
 
                     query("lookup_oncoscape_datasources_v2", {
-                        beta: false, "$fields": ["dataset","source", "beta", "name","img", "tools"]
+                        beta: false
                     }).then(function(response) {
                         _dataSource = { dataset: '' };
 

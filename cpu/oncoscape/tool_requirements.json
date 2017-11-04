@@ -1,6 +1,6 @@
 [{ "name": "pca",
-	"and": [ {"type": "molecular", "field":"type", "logic": "in",  "value":["expr", "cnv","cnv_thd", "mut01"]},
-			 {"type": "molecular", "field":"schema", "logic":"is", "value":["hugo_sample"]}
+	"and": [ {"type": "molecular", "field":"type", "logic": "in",  "value":["prot_expr", "expr", "cnv","cnv_thd", "mut01"]},
+			 {"type": "molecular", "field":"schema", "logic":"in", "value":["hugo_sample", "prot_sample"]}
 	]
 },{ "name": "survival",
 	"and": [ {"type": "clinical", "field":"status_vital", "logic": "in",  "value":["ALIVE", "DEAD"]},
@@ -8,6 +8,16 @@
 	]
 },{ "name": "spreadsheet",
 	"and": [ {"type": "clinical", "field":"patient_id", "logic": "matches",  "value":"\\w+"}
+	]
+},{ "name": "markers",
+	"and": [ {"type": "network", "field":"geneset", "logic": "matches",  "value":"\\w+"}
+	]
+},{ "name": "timelines",
+	"and": [ {"type": "events"}
+	]
+},{ "name": "heatmap",
+	"and": [ {"type": "molecular", "field":"type", "logic": "in",  "value":["prot_expr", "expr", "cnv","cnv_thd", "mut01"]},
+			 {"type": "molecular", "field":"schema", "logic":"in", "value":["hugo_sample", "prot_sample"]}
 	]
 }
 ]

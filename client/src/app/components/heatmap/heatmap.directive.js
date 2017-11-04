@@ -29,7 +29,10 @@
                         },
                         table: {
                             types: osApi.getDataSource().collections,
-                            selected: null }
+                            selected: null },
+                        default: {
+                            cellsize : 10
+                        }
                     }
                     
             vm.options = {
@@ -54,11 +57,13 @@
                     },
                 row : {
                     dendogram : false,
-                    cellheight: 8
+                    cellheight: vm.data.default.cellsize,
+                    fit: false
                 },
                 col : {
                     dendogram: false,
-                    cellwidth: 9
+                    cellwidth: 10,
+                    fit: true
                 }
 
             }
@@ -73,6 +78,18 @@
             ;
             
             // Setup Watches
+            $scope.$watch("vm.options.row.fit", function() {
+                if(angular.isUndefined(vm.heatmap)) return
+                osApi.setBusy(true)
+                if(!vm.options.row.fit) vm.options.row.cellheight = vm.data.default.cellsize
+                vm.draw()
+            })
+            $scope.$watch("vm.options.col.fit", function() {
+                if(angular.isUndefined(vm.heatmap)) return
+                osApi.setBusy(true)
+                if(!vm.options.col.fit) vm.options.col.cellwidth = vm.data.default.cellsize
+                vm.draw()
+            })
             // $scope.$watch("vm.data.method.selected.name", function() {
             //     if(!vm.data.method.selected) return
             //     callMethod()
@@ -244,15 +261,34 @@
                 }
             }
 
+            function setHeatmapSize(){
+                if(vm.options.col.fit){
+                    var layout = osApi.getLayout()
+                    var width = $window.innerWidth - layout.left - layout.right - 40;
+                    
+
+                    vm.options.col.cellwidth = Math.round(width / vm.heatmap.cols.length)
+                }
+                if(vm.options.row.fit){
+                    var layout = osApi.getLayout()
+                    var height = $window.innerHeight - 160; //10
+
+                    vm.options.row.cellheight = Math.round(height / vm.heatmap.rows.length)
+                }
+            }
             function heatmap() {
 
                 //credit: http://bl.ocks.org/ianyfchang/8119685
 
+                setHeatmapSize()
+
                 mainSVG.selectAll("g").remove();
                 var margin = { top: 110, right: 10, bottom: 50, left: 110 };
                 var width = vm.options.col.cellwidth*vm.heatmap.cols.length, 
-                    height = vm.options.col.cellwidth*vm.heatmap.rows.length ; 
-                var legendElementWidth = Math.max(vm.options.col.cellwidth*2.5, 40);
+                    height = vm.options.row.cellheight*vm.heatmap.rows.length ; 
+                var legendElement = {width : Math.min(20, Math.max(vm.options.col.cellwidth*2.5, 40)),
+                                    height: Math.max(10, vm.options.row.cellheight)
+                };
                 mainSVG.attr("width", width + margin.left + margin.right)
                         .attr("height", height + margin.top + margin.bottom)
                 svg = mainSVG
@@ -293,11 +329,12 @@
                     .append("text")
                     .text(function (d) { return d.id; })
                     .attr("x", 0)
-                    .attr("y", function (d, i) { 
-                        return d.i * vm.options.col.cellwidth; })
+                    .attr("y", function (d, i) { return d.i * vm.options.row.cellheight; })
                     .style("text-anchor", "end")
-                    .attr("transform", "translate(-6," + vm.options.col.cellwidth / 1.5 + ")")
-                    .attr("class", function (d,i) { return "rowLabel mono r"+i;} ) 
+                    .attr("transform", "translate(-6," + vm.options.row.cellheight / 1.5 + ")")
+                    .attr("class", function (d,i) { 
+                        return vm.options.row.cellheight < 5 ? "rowLabel small r"+i : "rowLabel mono r"+i
+                        } ) 
                     .on("mouseover", function() {d3.select(this).classed("text-hover",true);})
                     .on("mouseout" , function() {d3.select(this).classed("text-hover",false);})
                    
@@ -311,7 +348,9 @@
                     .attr("y", function (d, i) { return d.i * vm.options.col.cellwidth; })
                     .style("text-anchor", "left")
                     .attr("transform", "translate("+vm.options.col.cellwidth/2 + ",-6) rotate (-90)")
-                    .attr("class",  function (d,i) { return "colLabel mono c"+i;} )
+                    .attr("class",  function (d,i) { 
+                        return vm.options.col.cellwidth < 5 ? "colLabel small c"+i : "colLabel mono c"+i
+                        } )
                     .on("mouseover", function() {d3.select(this).classed("text-hover",true);})
                     .on("mouseout" , function() {d3.select(this).classed("text-hover",false);})
               
@@ -323,10 +362,10 @@
                         .attr("x", function(d) { 
                             return vm.heatmap.cols[d.col].i * vm.options.col.cellwidth; })
                         .attr("y", function(d) { 
-                            return vm.heatmap.rows[d.row].i * vm.options.col.cellwidth; })
+                            return vm.heatmap.rows[d.row].i * vm.options.row.cellheight; })
                         .attr("class", function(d){return "cell cell-border cr"+(d.row)+" cc"+(d.col);})
                         .attr("width", vm.options.col.cellwidth)
-                        .attr("height", vm.options.col.cellwidth)
+                        .attr("height", vm.options.row.cellheight)
                         .style("fill", function(d) { return colorScale(d.value); })
                         .on("mouseover", function(d){
                                 //highlight text
@@ -359,18 +398,18 @@
                     .attr("class", "legend");
                
                 legend.append("rect")
-                    .attr("x", function(d, i) { return legendElementWidth * i; })
-                    .attr("y", height+(vm.options.col.cellwidth*2))
-                    .attr("width", legendElementWidth)
-                    .attr("height", vm.options.col.cellwidth)
+                    .attr("x", function(d, i) { return legendElement.width * i; })
+                    .attr("y", height+(vm.options.row.cellheight*2))
+                    .attr("width", legendElement.width)
+                    .attr("height", vm.options.row.cellheight)
                     .style("fill", function(d, i) { return colorScale(d); });
                
                 legend.append("text")
                     .attr("class", "mono")
                     .text(function(d) { return d; })
-                    .attr("width", legendElementWidth)
-                    .attr("x", function(d, i) { return legendElementWidth * i; })
-                    .attr("y", height + (vm.options.col.cellwidth*4));
+                    .attr("width", legendElement.width)
+                    .attr("x", function(d, i) { return legendElement.width * i; })
+                    .attr("y", height + (vm.options.row.cellheight*4));
               
 
                 
@@ -433,7 +472,7 @@
                                    !d3.select(this).classed("cell-selected") && 
                                        // inner circle inside selection frame
                                    (this.x.baseVal.value)+vm.options.col.cellwidth >= d.x && (this.x.baseVal.value)<=d.x+d.width && 
-                                   (this.y.baseVal.value)+vm.options.col.cellwidth >= d.y && (this.y.baseVal.value)<=d.y+d.height
+                                   (this.y.baseVal.value)+vm.options.row.cellheight >= d.y && (this.y.baseVal.value)<=d.y+d.height
                                ) {
                     
                                    d3.select(this)
@@ -458,7 +497,18 @@
                            // remove temporary selection marker class
                        d3.selectAll('.cell-selection').classed("cell-selection", false);
                        d3.selectAll(".text-selection").classed("text-selection",false);
-                       
+
+                       var rowIds = d3.selectAll(".text-selected").filter(".rowLabel").data().map(function(d){return d.id})
+                       var colIds = d3.selectAll(".text-selected").filter(".colLabel").data().map(function(d){return d.id})
+
+                       if(vm.data.method.selected.name == "molecular"){
+
+                           osApi.setCohort(colIds, "Heatmap", osApi.SAMPLE);
+                           osApi.setGeneset(rowIds, "Heatmap", "SYMBOL", true);
+                       }
+
+                        
+
                     })
                     .on("mouseout", function() {
                        if(d3.event.relatedTarget.tagName=='html') {
@@ -489,15 +539,15 @@
                     .attr("x", function(d) { return sorted.indexOf(d.col) * vm.options.col.cellwidth; })
                     ;
                   t.selectAll(".colLabel")
-                   .attr("y", function (d, i) { return sorted.indexOf(i) * vm.options.col.cellwidth; })
+                   .attr("y", function (d, i) { return sorted.indexOf(i) * vm.options.row.cellheight; })
                   ;
                 }else{ // sort log2ratio of a contrast
                   sorted=d3.range(rows.length).sort(function(a,b){if(sortOrder){ return log2r[b]-log2r[a];}else{ return log2r[a]-log2r[b];}});
                   t.selectAll(".cell")
-                    .attr("y", function(d) { return sorted.indexOf(d.row) * vm.options.col.cellwidth; })
+                    .attr("y", function(d) { return sorted.indexOf(d.row) * vm.options.row.cellheight; })
                     ;
                   t.selectAll(".rowLabel")
-                   .attr("y", function (d, i) { return sorted.indexOf(i) * vm.options.col.cellwidth; })
+                   .attr("y", function (d, i) { return sorted.indexOf(i) * vm.options.row.cellheight; })
                   ;
                 }
             }
@@ -509,12 +559,12 @@
                         .attr("x", function(d) { 
                             return vm.heatmap.cols[d.col].i * vm.options.col.cellwidth; })
                         .attr("y", function(d) { 
-                            return vm.heatmap.rows[d.row].i * vm.options.col.cellwidth; })
+                            return vm.heatmap.rows[d.row].i * vm.options.row.cellheight; })
                     ;
                 
                     t.selectAll(".rowLabel")
                         .attr("y", function (d, i) { 
-                            return vm.heatmap.rows[i].i * vm.options.col.cellwidth; })
+                            return vm.heatmap.rows[i].i * vm.options.row.cellheight; })
                     ;
                 
                     t.selectAll(".colLabel")
@@ -526,11 +576,11 @@
                     var t = svg.transition().duration(3000);
                     t.selectAll(".cell")
                         .attr("x", function(d) { return (d.col - 1) * vm.options.col.cellwidth; })
-                        .attr("y", function(d) { return (d.row - 1) * vm.options.col.cellwidth; })
+                        .attr("y", function(d) { return (d.row - 1) * vm.options.row.cellheight; })
                     ;
                 
                     t.selectAll(".rowLabel")
-                        .attr("y", function (d, i) { return i * vm.options.col.cellwidth; })
+                        .attr("y", function (d, i) { return i * vm.options.row.cellheight; })
                     ;
                 
                     t.selectAll(".colLabel")
@@ -540,11 +590,11 @@
                 }else if (value=="rows"){
                     var t = svg.transition().duration(3000);
                     t.selectAll(".cell")
-                       .attr("y", function(d) { return (d.row - 1) * vm.options.col.cellwidth; })
+                       .attr("y", function(d) { return (d.row - 1) * vm.options.row.cellheight; })
                     ;
                 
                     t.selectAll(".rowLabel")
-                      .attr("y", function (d, i) { return i * vm.options.col.cellwidth; })
+                      .attr("y", function (d, i) { return i * vm.options.row.cellheight; })
                     ;
                 }else if (value=="cols"){
                     var t = svg.transition().duration(3000);
