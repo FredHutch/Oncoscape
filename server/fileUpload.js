@@ -62,7 +62,8 @@ const writingXLSX2Mongo = (msg) => {
     console.timeEnd("Reading XLSX file");           
     var allSheetNames =  Object.keys(workbook.Sheets);
     console.log(allSheetNames);
-    if (allSheetNames.indexOf("PATIENT") === -1) {
+    
+    if (allSheetNames.filter(sh => sh === 'PATIENT').length === 0) {
        errorMessage["PATIENT_SHEET"] = 'PATIENT SHEET is required.';
        console.log(' JSON.stringify(errorMessage): ',  JSON.stringify(errorMessage));
     //    res.json({ error_code: 1, err_desc: JSON.stringify(errorMessage)}).end(); 
@@ -77,10 +78,13 @@ const writingXLSX2Mongo = (msg) => {
         var sheetObj = XLSX.utils.sheet_to_json(workbook.Sheets[sheet], {header:1});
         var arr = [];
         var header = sheetObj[0];
-        if(sheet.split("-")[0] === "MOLECULAR"){
+        var sheetStringArr = sheet.split("-");
+        if(sheetStringArr[0] === "MOLECULAR"){
             var allSamples = header.splice(1, header.length);
             sheetObjData = sheetObj.splice(1, sheetObj.length);
-            var dataType = sheet.split("-")[1];
+            var dataType = sheetStringArr[1];
+            var dataSubType;
+            sheetStringArr.length == 3 ? dataSubType = sheetStringArr[2]: '';
             var allMarkers = sheetObjData.map(function(m){return m[0].trim()});
             UploadingSummary.push({ "sheet" : sheet,
                                     "samples" : allSamples,
@@ -91,6 +95,7 @@ const writingXLSX2Mongo = (msg) => {
             sheetObjData.forEach(function(record){
                 var obj = {};
                 obj.type = dataType;
+                obj.subtype = dataSubType;
                 obj.marker = record[0];
                 obj.data = record.splice(1, record.length);
                 arr.push(obj);
@@ -174,9 +179,9 @@ const writingXLSX2Mongo = (msg) => {
                     UploadingSummary.push({"sheet" : sheet,
                                            "patients" : PatientIDs,
                                            "samples": Samples});
-            } else if (sheet.split("-")[0] === "PATIENTEVENT"){
+            } else if (sheetStringArr[0] === "PATIENTEVENT"){
                 console.log(sheet);
-                var id = sheet.split("-")[1];
+                var id = sheetStringArr[1];
                 var allPatients = _.uniq(sheetObjData.map(function(r){return r[0];}));
                 UploadingSummary.push({"sheet" : sheet,
                                        "patients" : allPatients});

@@ -162,15 +162,11 @@ var init = function (app) {
                 }
                 else {
                     projectCollections = collectionMeta.map(function (m) {
-                        console.log('in mapping m:', m);
                         return m.name;
                     }).filter(function (m) {
-                        console.log('in filter, m:', m);
                         return m.indexOf(projectID) > -1;
                     });
                     
-                    console.log('in /api/files/:id projectCollections : ', projectCollections);
-
                     if (projectCollections.length === 0) {
                         console.log('In projectCollections.length === 0 block');
                         res.status(200).send("Not Found or No File has been uploaded yet.").end();

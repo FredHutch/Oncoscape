@@ -95,6 +95,7 @@ app.post('/api/upload/:id/:email', Permissions.jwtVerification, upload, function
             console.log('DO WE RECEIVE ANYTHING FROM THE CHILD? msg: ', msg);
             res.end('Writing is done');
             console.log("*******************!!!!!!********************");
+            mailOptions.text = msg;
             transporter.sendMail(mailOptions, function(error, info){
                 if (error) {
                   console.log(error);
