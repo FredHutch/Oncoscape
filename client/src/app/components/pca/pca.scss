@@ -51,6 +51,14 @@
         stroke-width: 1;
         fill: "#000";
     }
+    .pca-edge {
+        stroke: #000;
+        stroke-width: 0;
+    }
+    .pca-edge-hover {
+        stroke: #000;
+        stroke-width: 1;
+    }
     .pca-node-selected {
         stroke: #000;
         stroke-width: 1.5;

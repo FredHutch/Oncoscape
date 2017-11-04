@@ -61,6 +61,22 @@
             var d3xAxis = d3Chart.append("g");
             var d3yAxis = d3Chart.append("g");
             var circles;
+            var lines;
+            var edges=[];
+
+            var elTip = d3.tip().attr("class", "tip").offset([-8, 0]).html(function(d) {
+                d3.selectAll("line.pca-edge").each(function(e){
+                    // if(_.contains([e.source.id, e.target.id], d.id))
+                    //     d3.select(this).classed("pca-edge-hover",true)
+                    // else d3.select(this).classed("pca-edge-hover",false)
+                    if(_.contains([e.source.id, e.target.id], d.id))
+                        d3.select(this).style("stroke-width",2*e.target.w)
+                    else d3.select(this).style("stroke-width",0)
+                })
+                
+                return "ID: " + d.id
+            });
+            d3Chart.call(elTip);
 
             // Properties
             var scaleX, scaleY, axisX, axisY;
@@ -71,17 +87,22 @@
                 name: "Dataset"
             };
             var acceptableDatatypes = ["expr", "cnv", "mut01", "meth_thd", "meth", "cnv_thd"];
-            var availableBaseMethods = ["PCA"]
-            var availableOverlayMethods = ["Centroid"]
+            
             var NA_runs = []
             
 
             // View Model Update
             var vm = (function(vm, osApi) {
                 vm.runTime = 20
+                vm.availableBaseMethods = ["PCA"]
+                vm.availableDistanceMetrics = ["Pearson Correlation"]
+                vm.availableOverlayMethods = ["Centroid"]
+                vm.availableEdgeOptions = ["Centroid Neighbors"]
+                vm.edgetype = vm.availableEdgeOptions[0]
+
                 vm.temp = {
                     title: "",
-                    method: availableBaseMethods[0],
+                    method: vm.availableBaseMethods[0],
                     source: osApi.getDataSource(),
                     data: {types:[],selected:{i:-1, name:""}},
                     params: {bool: {
@@ -211,7 +232,7 @@
                         var filtered_i = _.findIndex(filtered_types, {name:vm.base.data.selected.name})
                        item =  {
                             title: "",
-                            method: availableOverlayMethods[0],
+                            method: {distance: vm.availableDistanceMetrics[0], overlay: vm.availableOverlayMethods[0]},
                             source: osApi.getDataSource(),
                             data: { types:  filtered_types,
                                     selected: { i: filtered_i, 
@@ -228,7 +249,7 @@
                             color: availColors[0],
                             visibility: "visible"
                         }
-                        item.title = item.method + "  (" + moment().format('hh:mm:ss') + ")";
+                        item.title = "Overlay  (" + moment().format('hh:mm:ss') + ")";
                         
                         vm.overlay.push(item)
                     }
@@ -245,7 +266,8 @@
                           color: item.color,
                           visibility: "visible"
                       }
-                      
+                      vm.temp.method.overlay = item.method.overlay
+                      vm.temp.method.distance = item.method.distance
                       vm.temp.source = {dataset: item.source.dataset}
                       vm.temp.data = {  types:item.data.types,
                                         selected:{
@@ -347,9 +369,7 @@
                 });
             }
 
-            // Setup Watches
-           
-
+            
             // Setup Parameter Configurations
             var updateOptions = function(){
                 
@@ -692,7 +712,8 @@
                  var top3 = dist.D.map(function(s){ 
                     var indices = findIndicesOfMax(s.d, 3);
                     var match_ids = indices.map(function(i){return s.m[i]})
-                    return {id:s.id, match: match_ids}
+                    var weights = indices.map(function(i){return Math.abs(s.d[i])})
+                    return {id:s.id, match: match_ids, w:weights}
                 //    return {"id":s.id, "match": s.m[]
                 //         s.d.sort().slice((-1*num_compare),)
                 //             .map(function(maxMatch){return s.m[_.indexOf(s.d,maxMatch)]} )}
@@ -700,21 +721,24 @@
                 
                 
                 // find positions in current plot & calculate centroid
+                var add = function(a,b){ return a + b}
                 var scores = top3.map(function(s){ 
                     var match_scores = vm.base.result.output.filter(function(p){ return _.contains(s.match,p.id)})
+                    match_scores.sort(function(a, b){ return s.match.indexOf(a.id) - s.match.indexOf(b.id) })
                     var cent_scores = [0,0,0]
+                    var weight_sum = s.w.reduce( add, 0)
                     for(var i=0;i<match_scores.length;i++){
-                        cent_scores[0] += match_scores[i][0]
-                        cent_scores[1] += match_scores[i][1]
-                        cent_scores[2] += match_scores[i][2]
+                        cent_scores[0] += s.w[i]/weight_sum * match_scores[i][0]
+                        cent_scores[1] += s.w[i]/weight_sum * match_scores[i][1]
+                        cent_scores[2] += s.w[i]/weight_sum * match_scores[i][2]
+                        match_scores[i].w = s.w[i]/weight_sum
                     }
-                    var d = cent_scores.map(function(x){ return x/num_compare})
+                    var d = cent_scores
                     d.id = s.id;
-                    
+                    d.match = match_scores
                     return d
                 })
 
-                //osApi.setCohort(_.pluck(scores, "id"), "centroid", "SAMPLE")
                 return scores;
 
             }
@@ -723,9 +747,21 @@
 
                 data = vm.base.result.output
                 for(var i =0; i<vm.overlay.length; i++){
-                    if(angular.isDefined(vm.overlay[i].result.output.length))
+                    if(angular.isDefined(vm.overlay[i].result.output.length)){
                         data = data.concat(vm.overlay[i].result.output)
+                        // var sourcetarget = vm.overlay[i].result.output.map(function(d){
+                        //     return d.match.vals.map(function(v){
+                        //         return {source:{x:d[0],y:d[1]},target:{x:v[0],y:v[1]}}
+                        //     })
+                            
+                        // })
+                        var sourcetarget = _.flatten( vm.overlay[i].result.output.map(function(d){
+                            return d.match.map(function(v){
+                                return {source:d, target:v} })  }) )
+                        edges = edges.concat(sourcetarget)
+                    }
                 }
+                
 
                 // Colorize
                 setColors();
@@ -773,7 +809,9 @@
                     .style("fill", function(d) {
                         return d.color;
                     })
-                    .style("visibility", function(d){ return d.visibility});
+                    .style("visibility", function(d){ return d.visibility})
+                    .on("mouseover", elTip.show)
+                    .on("mouseout", elTip.hide);
 
                 circles.exit()
                     .transition()
@@ -805,6 +843,20 @@
                     .style("fill-opacity", 0.8)
                     .style("visibility", function(d){ return d.visibility});
 
+                lines = d3Points.selectAll("line").data(edges);
+                lines.enter().append("line")
+                        .attr("class", "pca-edge")
+                        .attr("id",function(d,i) {return 'edge'+i})
+                        .attr("x1", function(d) { 
+                            return scaleX(d.source[0])})
+                        .attr("y1", function(d) { 
+                            return scaleY(d.source[1])})
+                        .attr("x2", function(d) { 
+                            return scaleX(d.target[0])})
+                        .attr("y2", function(d) { 
+                            return scaleY(d.target[1])})
+                        .style("pointer-events", "none");
+
                 // Axis
                 axisX = d3.axisTop().scale(scaleX).ticks(3);
                 axisY = d3.axisLeft().scale(scaleY).ticks(3);
@@ -834,7 +886,8 @@
                 osApi.setBusy(false);
 
             }
-                
+              
+   
             
             // Utility Functions
             var updatePatientCounts = function() {

@@ -399,7 +399,7 @@
             }
 
             // Load Data
-            osApi.query(osApi.getDataSource().clinical.events, {}).then(function(response) {
+            osApi.query(osApi.getDataSource().dataset + "_events", {}).then(function(response) {
 
                 var colorFn = function(status) {
                     return (status == "Birth") ? "#E91E63" :
@@ -416,7 +416,7 @@
                 };
                 var data = response.data[0];
                 var events = {};
-                data = Object.keys(data).map(function(key) {
+                data = Object.keys(data).filter(function(d){return d != "_id"}).map(function(key) {
                     // Loop Throug Events
                     var evtArray = this.data[key]
                         .filter(function(v) {

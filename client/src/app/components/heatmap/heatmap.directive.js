@@ -19,76 +19,177 @@
         return directive;
 
         /** @ngInject */
-        function HeatmapController(d3, osApi, $state, $timeout, $scope, $stateParams, $window, _) {
+        function HeatmapController(d3, osApi, $state, $timeout, $scope, $stateParams, $window, _, $http) {
 
             // view Model
             var vm = this;
-            vm.datasource = osApi.getDataSource();
-            vm.rowLabels = vm.colLabels = vm.gridlines = false;
-            vm.rowDendrogram = vm.colDendrogram = true;
-            vm.colorSchemes = [
-                { name: 'Blues', value: ["#303f9f", "#03a9f4"] },
-                { name: 'Black / Blue', value: ["#000000", "#1d85cb"] },
-                { name: 'Black / Red', value: ["#000000", "#D32F2F"] },
-                { name: 'Red / Yellow', value: ["#D32F2F", "#FFEB3B"] }
-            ]
-            vm.colorScheme = vm.colorSchemes[0]
-            vm.scales = [{ name: 'None' }, { name: 'Row' }, { name: 'Column' }]
-            vm.scale = vm.scales[2];
-            vm.dendrogramClusters = [
-                { name: 'One', value: 1 },
-                { name: 'Two', value: 2 },
-                { name: 'Three', value: 3 },
-                { name: 'Four', value: 4 },
-                { name: 'Five', value: 5 },
-                { name: 'Six', value: 6 },
-                { name: 'Seven', value: 7 },
-                { name: 'Eight', value: 8 },
-                { name: 'Nine', value: 9 },
-                { name: 'Ten', value: 10 }
-            ];
-            vm.dendrogramCluster = vm.dendrogramClusters[6];
+            vm.data = { method: {
+                            types: ["molecular", "patient correlation"],
+                            selected: null
+                        },
+                        table: {
+                            types: osApi.getDataSource().collections,
+                            selected: null },
+                        default: {
+                            cellsize : 10
+                        }
+                    }
+                    
+            vm.options = {
+                order: {
+                    types : [
+                        {"value":"asis", name:"by cluster"},
+                        {"value":"probecontrast",name:"by probe name and contrast name"},
+                        {"value":"rows",name:"by probe name"},
+                        {"value":"cols",name:"by contrast name"}],
+                    selected: {name: "by cluster", i:0}
+                },
+                color : {
+                    schemes : [
+                        { name: 'Blues', value: ["#303f9f", "#03a9f4"] },
+                        { name: 'Black / Blue', value: ["#000000", "#1d85cb"] },
+                        { name: 'Black / Red', value: ["#000000", "#D32F2F"] },
+                        { name: 'Red / Yellow', value: ["#D32F2F", "#FFEB3B"] },
+                        { name: 'Red / Green', value: ['#005824','#1A693B','#347B53','#4F8D6B','#699F83','#83B09B','#9EC2B3','#B8D4CB','#D2E6E3','#EDF8FB','#FFFFFF','#F1EEF6','#E6D3E1','#DBB9CD','#D19EB9','#C684A4','#BB6990','#B14F7C','#A63467','#9B1A53','#91003F']}
+                    ],
+                    selected : {name: 'Red / Green', i:4},
+                    bins : 10
+                    },
+                row : {
+                    dendogram : false,
+                    cellheight: vm.data.default.cellsize,
+                    fit: false
+                },
+                col : {
+                    dendogram: false,
+                    cellwidth: 10,
+                    fit: true
+                }
 
+            }
+            vm.draw = function(){
+                heatmap()
+                osApi.setBusy(false)
+            }   
+         
             // Element References
-            var elChart = d3.select("#heatmap-chart");
-            var colDend = elChart.append("svg").classed("dendrogram colDend", true);
-            //var colDendObj;
-            var rowDend = elChart.append("svg").classed("dendrogram rowDend", true);
-            //var rowDendObj;
-            var colmap = elChart.append("svg").classed("colormap", true);
-            //var colmapObj;
-            var xaxis = elChart.append("svg").classed("axis xaxis", true);
-            var yaxis = elChart.append("svg").classed("axis yaxis", true);
+            var mainSVG = d3.select("#heatmap-chart").append("svg") 
+            var svg; 
+            ;
+            
+            // Setup Watches
+            $scope.$watch("vm.options.row.fit", function() {
+                if(angular.isUndefined(vm.heatmap)) return
+                osApi.setBusy(true)
+                if(!vm.options.row.fit) vm.options.row.cellheight = vm.data.default.cellsize
+                vm.draw()
+            })
+            $scope.$watch("vm.options.col.fit", function() {
+                if(angular.isUndefined(vm.heatmap)) return
+                osApi.setBusy(true)
+                if(!vm.options.col.fit) vm.options.col.cellwidth = vm.data.default.cellsize
+                vm.draw()
+            })
+            // $scope.$watch("vm.data.method.selected.name", function() {
+            //     if(!vm.data.method.selected) return
+            //     callMethod()
+            // })
+            // $scope.$watch("vm.data.table.selected.name", function() {
+            //     if(!vm.data.table.selected) return
+            //     if(!vm.data.method.selected )
+            //         vm.data.method.selected = {name: vm.data.method.types[0], i:0}
+            //     callMethod()
+            // })
+            // $scope.$watch("vm.options.order.selected.name", function() {
+            //     if(!vm.options.order.selected) return
+            //     order(vm.options.order.types[vm.options.order.selected.i].value);
+            // })
 
-            // Load Inital Data
-            var args;
-            var data;
+            vm.callMethod = function(){
+                osApi.setBusy(true);
+                var collections = vm.data.table.types.filter(function(d){return d.name == vm.data.table.selected.name})
+                var gIds = osApi.getGeneset().geneIds
 
+                if(vm.data.method.selected.name == "molecular"){
+                    osApi.query(collections[0].collection, {
+                        '$limit': 100
+                    }).then(function(response) {
+                        
+                        var temp = response.data
+                        temp = temp.map(function(v) {
+                            v.d.forEach(function(val) {
+                                if (val == null) val = 0;
+                            }, v.d);
+                            return v;
+                        })
 
-            function axis(svg, data, width, height, x, y, rotated) {
-                svg.select("g").remove();
-                if (rotated ? !vm.colLabels : !vm.rowLabels) return;
+                        var rows = temp.map(function(r,i){ 
+                            return {id:r.m,i:i }
+                        }) 
+                        var cols = temp[0].s.map(function(c,i){
+                            return {id:c, i:i}
+                        })
 
-                svg
-                    .attr("width", width).attr("height", height)
-                    .style("position", "absolute")
-                    .style("left", x)
-                    .style("top", y);
+                        vm.heatmap ={
+                            data:  _.flatten(temp.map(function(d, i){ 
+                                        return d.d.map(function(v, j) {return {row: i, col:j, value:v}})        
+                                    })  ),
+                            rows: rows,
+                            cols: cols,
+                        }
 
-                var g = svg.append("g");
-                var yScale = d3.scaleLinear().domain([0, data.length]).range([0, rotated ? width : height]);
+                        vm.draw();
+                    });
+                }
+                else if(vm.data.method.selected.name == "patient correlation"){
+                    Distancequery(collections[0].collection, collections[0].collection, gIds).then(function(response) {
+                        
+                        var d = response.data;
+                        if(angular.isDefined(d.reason)){
+                            console.log(vm.data.name+": " + d.reason)
+                            // Distance could not be calculated on geneset given current settings
+                            window.alert("Sorry, Distance could not be calculated\n" + d.reason)
+    
+                            osApi.setBusy(false)
+                            return;
+                        }
+    
+                        var temp = response.data.D
+                        temp = temp.map(function(v) {
+                            v.d.forEach(function(key) {
+                                if (this[key] == null) this[key] = 0;
+                            }, v.d);
+                            return v;
+                        })
 
-                var textAnchor = (rotated) ? "start" : "start";
-                var textX = (rotated) ? 20 : 10;
-                var labels = g.selectAll('label').data(data);
+                        var rows = temp.map(function(r,i){ return {id:r.id,i:i }}) 
+                        var cols = temp[0].m.map(function(c,i){  return {id:c, i:i} })
 
-                labels
-                    .enter().append("text")
-                    .attr(rotated ? "x" : "y", function(d, i) { return yScale(i + .8); })
-                    .attr(rotated ? "y" : "x", textX)
-                    .attr("text-anchor", textAnchor)
-                    .attr("font-size", "12px")
-                    .text(function(d) { return d; });
+                        vm.heatmap ={
+                            data:  _.flatten(temp.map(function(d, i){ 
+                                        return d.d.map(function(v, j) {return {row: i, col:j, value:v}})        
+                                    })  ),
+                            rows: rows,
+                            cols: cols,
+                        }
+                        
+                        vm.draw();
+
+                    })
+                }
+            }
+            vm.callOrder = function(){
+                order(vm.options.order.types[vm.options.order.selected.i].value);
+            }
+            function Distancequery(collection1, collection2, geneIds) {
+                var payload = { molecular_collection: collection1,molecular_collection2: collection2, genes:geneIds};
+                return $http({
+                    method: 'POST',
+                 url: "https://dev.oncoscape.sttrcancer.io/cpu/distance",
+                // url: "https://oncoscape-test.fhcrc.org/cpu/distance",
+                // url: "http://localhost:8000/distance",
+                    data: payload
+                });
             }
 
             function dendrogram(svg, data, width, height, xPos, yPos, rotated) {
@@ -160,206 +261,355 @@
                 }
             }
 
-            function heatmap(svg, data, width, height, x, y) {
+            function setHeatmapSize(){
+                if(vm.options.col.fit){
+                    var layout = osApi.getLayout()
+                    var width = $window.innerWidth - layout.left - layout.right - 40;
+                    
 
-
-                svg.select("g").remove();
-                svg.attr("width", width).attr("height", height).style("left", x).style("top", y).style("position", "absolute");
-
-                var map = svg.append("g").attr("width", width).attr("height", height);
-                var brush = svg.append("g").attr("width", width).attr("height", height).attr("class", "brush");
-
-                var maxValue = Math.max.apply(null, data.data);
-                var minValue = Math.min.apply(null, data.data);
-
-                var color = d3.scaleLinear().domain([minValue, maxValue]).range(vm.colorScheme.value);
-
-                var cols = data.dim[0];
-                var rows = data.dim[1];
-
-                var xScale = d3.scaleLinear().domain([0, cols]).range([0, width]);
-                var yScale = d3.scaleLinear().domain([0, rows]).range([0, height]);
-
-
-                var grid = (vm.gridlines) ? 1 : -1;
-
-                function brushend() {
-
-
-                    if (!d3.event.sourceEvent) return; // Only transition after input.
-                    if (!d3.event.selection) return; // Ignore empty selections.
-                    //var colBounds = 
-                    d3.event.selection.map(function(v) { return this.invert(v[0], v[1]); }, xScale).map(Math.round);
-                    //var span = colBounds[1] - colBounds[0];
-                    //var start = colBounds[0];
-                    //var ids = data.cols.splice(start, span);
-
-                    var coords = d3.event.selection;
-                    //coords[0][0] = colBounds[0] * width;
-                    coords[0][1] = 0;
-                    //coords[1][0] = colBounds[1] * width;
-                    coords[1][1] = height;
-
-                    d3.select(this)
-                        .transition()
-                        .call(d3.event.target.move, coords);
-
-
+                    vm.options.col.cellwidth = Math.round(width / vm.heatmap.cols.length)
                 }
-                brush.call(
-                    d3.brush().on("end", brushend)
-                )
+                if(vm.options.row.fit){
+                    var layout = osApi.getLayout()
+                    var height = $window.innerHeight - 160; //10
 
-                var boxW = xScale(1) - grid;
-                var boxH = yScale(1) - grid;
-
-                var boxes = map.selectAll('rect').data(data.data);
-                boxes
-                    .enter().append("rect")
-                    .attr("class", "box")
-                    .attr("colIndex", function(d, i) { return i % cols; })
-                    .attr("rowIndex", function(d, i) { return Math.floor(i / cols); })
-                    .attr("x", function(d, i) { return xScale(i % cols); })
-                    .attr("y", function(d, i) { return yScale(i % rows); })
-                    .attr("width", boxW)
-                    .attr("height", boxH)
-                    .attr("fill", function(d) { return color(d); });
-
-                return {
-                    g: map,
-                    scaleY: yScale,
-                    scaleX: xScale,
-                    data: data.data,
-                    cols: cols,
-                    rows: rows,
-                    boxW: boxW,
-                    boxH: boxH
+                    vm.options.row.cellheight = Math.round(height / vm.heatmap.rows.length)
                 }
             }
+            function heatmap() {
 
-            function zoom() {
+                //credit: http://bl.ocks.org/ianyfchang/8119685
 
-                /*
-                                var xZoomBehavior = d3.zoom().scaleExtent([1, 5]);
-                                var yZoomBehavior = d3.zoom().scaleExtent([1, 5]);
-                                colDendObj.g.call(xZoomBehavior);
-                                rowDendObj.g.call(yZoomBehavior);
-                                xZoomBehavior.on('zoom', function() {
+                setHeatmapSize()
 
-                                    var map = colmapObj;
-                                    var mapX = d3.event.transform.rescaleY(map.scaleX);
+                mainSVG.selectAll("g").remove();
+                var margin = { top: 110, right: 10, bottom: 50, left: 110 };
+                var width = vm.options.col.cellwidth*vm.heatmap.cols.length, 
+                    height = vm.options.row.cellheight*vm.heatmap.rows.length ; 
+                var legendElement = {width : Math.min(20, Math.max(vm.options.col.cellwidth*2.5, 40)),
+                                    height: Math.max(10, vm.options.row.cellheight)
+                };
+                mainSVG.attr("width", width + margin.left + margin.right)
+                        .attr("height", height + margin.top + margin.bottom)
+                svg = mainSVG
+                    .append("g")
+                    .attr("transform", "translate(" + margin.left + "," + margin.top + ")")
+                
 
-                                    var boxW = map.scaleX(1);
+                var MinMax = vm.heatmap.data.reduce(function(p,c){ 
+                    if(p[0] > c.value) p[0] = c.value
+                    if(p[1] < c.value) p[1] = c.value
+                    return p}, [Infinity, - Infinity])
 
-                                    map.g.selectAll('.box').data(map.data)
-                                        .attr("x", function(d, i) { return mapX(i % map.cols); })
-                                        .attr("y", function(d, i) { return map.scaleY(i % map.rows); })
-                                        .attr("width", boxW)
+                var Bins = []                    
+                var uniqueVals = vm.heatmap.data.reduce(function(p,c){
+                    if(p.indexOf(c.value) == -1) p.push(c.value)
+                    return p;
+                }, [])
+                if(uniqueVals.length <11)
+                    Bins = uniqueVals.sort(function(a,b){ return a-b})
+                else{
+                    for(var i=0;i<vm.options.color.bins;i++){
+                        Bins[i] = (MinMax[0] + (i * (MinMax[1]-MinMax[0])/vm.options.color.bins)).toPrecision(2)
+                    }
+              //      Bins = Bins.concat(MinMax[1])
+                }
 
-                                    var col = colDendObj;
-                                    var colY = col.scaleY;
-                                    var colX = d3.event.transform.rescaleY(col.scaleX);
-                                    
-                                    col.g.selectAll("polyline")
-                                        .data(col.data)
-                                        .attr("points", function(d){
-                                            return colY(d.source.y) + "," + colX(d.source.x) + " " +
-                                            colY(d.source.y)+ "," + colX(d.target.x) + " " +
-                                            colY(d.target.y)+ "," + colX(d.target.x);
-                                        });
-                                });
-                                yZoomBehavior.on('zoom', function() {
-
-                                    var row = rowDendObj;
-                                    var rowY = row.scaleY;
-                                    var rowX = d3.event.transform.rescaleY(row.scaleX);
-                                    
-                                    var map = colmapObj;
-                                    var mapY = d3.event.transform.rescaleX(map.scaleY);
-
-                                    var boxW = scaleX(1);
-                                    var boxH = yScale(1)-grid;
-
-                                    map.g.selectAll('.box').data(map.data)
-                                        .attr("x", function(d, i) { return map.scaleY(i % map.cols); })
-                                        .attr("y", function(d, i) { return mapY(i % map.rows); })
-                                        .attr("width", boxW)
-                                    
-                                    row.g.selectAll("polyline")
-                                        .data(row.data)
-                                        .attr("points", function(d){
-                                            return rowY(d.source.y) + "," + rowX(d.source.x) + " " +
-                                            rowY(d.source.y)+ "," + rowX(d.target.x) + " " +
-                                            rowY(d.target.y)+ "," + rowX(d.target.x);
-                                        });
-                                });
-                */
-            }
-
-            osApi.setBusy(true);
-            vm.loadData = function() {
-                osApi.query("brca_psi_bradleylab_miso", {
-                    '$limit': 100
-                }).then(function(response) {
-                    args = {
-                        data: response.data.map(function(v) {
-                            Object.keys(v.patients).forEach(function(key) {
-                                if (this[key] == null) this[key] = 0;
-                            }, v.patients);
-                            return v.patients;
+                var colors = vm.options.color.schemes[vm.options.color.selected.i].value
+                var colorScale = d3.scaleQuantile()
+                    .domain(Bins)
+                    .range(colors);
+            
+             
+                    
+                var rowLabels = svg.append("g")
+                    .selectAll(".rowLabelg")
+                    .data(vm.heatmap.rows)
+                    .enter()
+                    .append("text")
+                    .text(function (d) { return d.id; })
+                    .attr("x", 0)
+                    .attr("y", function (d, i) { return d.i * vm.options.row.cellheight; })
+                    .style("text-anchor", "end")
+                    .attr("transform", "translate(-6," + vm.options.row.cellheight / 1.5 + ")")
+                    .attr("class", function (d,i) { 
+                        return vm.options.row.cellheight < 5 ? "rowLabel small r"+i : "rowLabel mono r"+i
+                        } ) 
+                    .on("mouseover", function() {d3.select(this).classed("text-hover",true);})
+                    .on("mouseout" , function() {d3.select(this).classed("text-hover",false);})
+                   
+                var colLabels = svg.append("g")
+                    .selectAll(".colLabelg")
+                    .data(vm.heatmap.cols)
+                    .enter()
+                    .append("text")
+                    .text(function (d) { return d.id; })
+                    .attr("x", 0)
+                    .attr("y", function (d, i) { return d.i * vm.options.col.cellwidth; })
+                    .style("text-anchor", "left")
+                    .attr("transform", "translate("+vm.options.col.cellwidth/2 + ",-6) rotate (-90)")
+                    .attr("class",  function (d,i) { 
+                        return vm.options.col.cellwidth < 5 ? "colLabel small c"+i : "colLabel mono c"+i
+                        } )
+                    .on("mouseover", function() {d3.select(this).classed("text-hover",true);})
+                    .on("mouseout" , function() {d3.select(this).classed("text-hover",false);})
+              
+                var heatMap = svg.append("g").attr("class","g3")
+                        .selectAll(".cellg")
+                        .data(vm.heatmap.data,function(d){return d.row+":"+d.col;})
+                        .enter()
+                        .append("rect")
+                        .attr("x", function(d) { 
+                            return vm.heatmap.cols[d.col].i * vm.options.col.cellwidth; })
+                        .attr("y", function(d) { 
+                            return vm.heatmap.rows[d.row].i * vm.options.row.cellheight; })
+                        .attr("class", function(d){return "cell cell-border cr"+(d.row)+" cc"+(d.col);})
+                        .attr("width", vm.options.col.cellwidth)
+                        .attr("height", vm.options.row.cellheight)
+                        .style("fill", function(d) { return colorScale(d.value); })
+                        .on("mouseover", function(d){
+                                //highlight text
+                                d3.select(this).classed("cell-hover",true);
+                                d3.selectAll(".rowLabel").classed("text-highlight",function(r,ri){ 
+                                    return ri==(d.row);});
+                                d3.selectAll(".colLabel").classed("text-highlight",function(c,ci){ 
+                                    return ci==(d.col);});
+                        
+                                //Update the tooltip position and value
+                                d3.select("#tooltip")
+                                .style("left", (d3.event.pageX+10) + "px")
+                                .style("top", (d3.event.pageY-10) + "px")
+                                .select("#value")
+                                .text(vm.heatmap.rows[d.row].id+", "+vm.heatmap.cols[d.col].id+": "+d.value);  
+                                //Show the tooltip
+                                d3.select("#tooltip").classed("hidden", false);
                         })
-                    };
-                    vm.loadHeatmap();
-                });
-            };
-            vm.loadHeatmap = function() {
-                osApi.setBusy(true);
-                rowDend.select("g").remove();
-                colDend.select("g").remove();
-                colmap.select("g").remove();
-                args.scale = vm.scale.name.toLowerCase();
-                args.kcol = args.krow = vm.dendrogramCluster.value;
-                osApi.getCpuApi().getHeatmap(args).then(function(v) {
-                    data = angular.fromJson(v);
-                    vm.draw();
-                    osApi.setBusy(false);
-                });
+                        .on("mouseout", function(){
+                                d3.select(this).classed("cell-hover",false);
+                                d3.selectAll(".rowLabel").classed("text-highlight",false);
+                                d3.selectAll(".colLabel").classed("text-highlight",false);
+                                d3.select("#tooltip").classed("hidden", true);
+                        })
+                        ;
+                
+                var legend = svg.selectAll(".legend")
+                    .data(Bins)
+                    .enter().append("g")
+                    .attr("class", "legend");
+               
+                legend.append("rect")
+                    .attr("x", function(d, i) { return legendElement.width * i; })
+                    .attr("y", height+(vm.options.row.cellheight*2))
+                    .attr("width", legendElement.width)
+                    .attr("height", vm.options.row.cellheight)
+                    .style("fill", function(d, i) { return colorScale(d); });
+               
+                legend.append("text")
+                    .attr("class", "mono")
+                    .text(function(d) { return d; })
+                    .attr("width", legendElement.width)
+                    .attr("x", function(d, i) { return legendElement.width * i; })
+                    .attr("y", height + (vm.options.row.cellheight*4));
+              
+
+                
+                // 
+                var sa=d3.select(".g3")
+                    .on("mousedown", function() {
+                        if( !d3.event.altKey) {
+                           d3.selectAll(".cell-selected").classed("cell-selected",false);
+                           d3.selectAll(".rowLabel").classed("text-selected",false);
+                           d3.selectAll(".colLabel").classed("text-selected",false);
+                        }
+                       var p = d3.mouse(this);
+                       sa.append("rect")
+                        .attr("rx", 0)
+                        .attr("ry",0)
+                        .attr("class","selection")
+                        .attr("x",p[0])
+                        .attr("y",p[1])
+                        .attr("width",1)
+                        .attr("height",1)
+                       
+                    })
+                    .on("mousemove", function() {
+                       var s = sa.select("rect.selection");
+                    
+                       if(!s.empty()) {
+                            var p = d3.mouse(this),
+                                d = {
+                                    x       : parseInt(s.attr("x"), 10),
+                                    y       : parseInt(s.attr("y"), 10),
+                                    width   : parseInt(s.attr("width"), 10),
+                                    height  : parseInt(s.attr("height"), 10)
+                                },
+                                move = {
+                                    x : p[0] - d.x,
+                                    y : p[1] - d.y
+                                }
+                            ;
+                    
+                            if(move.x < 1 || (move.x*2<d.width)) {
+                                d.x = p[0];
+                                d.width -= move.x;
+                            } else {
+                                d.width = move.x;       
+                            }
+                    
+                            if(move.y < 1 || (move.y*2<d.height)) {
+                                d.y = p[1];
+                                d.height -= move.y;
+                            } else {
+                                d.height = move.y;       
+                            }
+                            s.attr("x",d.x).attr("y",d.y).attr("width",d.width).attr("height",d.height);
+                    
+                               // deselect all temporary selected state objects
+                            d3.selectAll('.cell-selection.cell-selected').classed("cell-selected", false);
+                            d3.selectAll(".text-selection.text-selected").classed("text-selected",false);
+                            d3.selectAll('.cell').filter(function(cell_d, i) {
+                               if(
+                                   !d3.select(this).classed("cell-selected") && 
+                                       // inner circle inside selection frame
+                                   (this.x.baseVal.value)+vm.options.col.cellwidth >= d.x && (this.x.baseVal.value)<=d.x+d.width && 
+                                   (this.y.baseVal.value)+vm.options.row.cellheight >= d.y && (this.y.baseVal.value)<=d.y+d.height
+                               ) {
+                    
+                                   d3.select(this)
+                                   .classed("cell-selection", true)
+                                   .classed("cell-selected", true);
+              
+                                   d3.select(".r"+(cell_d.row))
+                                   .classed("text-selection",true)
+                                   .classed("text-selected",true);
+              
+                                   d3.select(".c"+(cell_d.col))
+                                   .classed("text-selection",true)
+                                   .classed("text-selected",true);
+                               }
+                            });
+                        }
+                    })
+                    .on("mouseup", function() {
+                          // remove selection frame
+                       sa.selectAll("rect.selection").remove();
+                    
+                           // remove temporary selection marker class
+                       d3.selectAll('.cell-selection').classed("cell-selection", false);
+                       d3.selectAll(".text-selection").classed("text-selection",false);
+
+                       var rowIds = d3.selectAll(".text-selected").filter(".rowLabel").data().map(function(d){return d.id})
+                       var colIds = d3.selectAll(".text-selected").filter(".colLabel").data().map(function(d){return d.id})
+
+                       if(vm.data.method.selected.name == "molecular"){
+
+                           osApi.setCohort(colIds, "Heatmap", osApi.SAMPLE);
+                           osApi.setGeneset(rowIds, "Heatmap", "SYMBOL", true);
+                       }
+
+                        
+
+                    })
+                    .on("mouseout", function() {
+                       if(d3.event.relatedTarget.tagName=='html') {
+                               // remove selection frame
+                           sa.selectAll("rect.selection").remove();
+                               // remove temporary selection marker class
+                           d3.selectAll('.cell-selection').classed("cell-selection", false);
+                           d3.selectAll(".rowLabel").classed("text-selected",false);
+                           d3.selectAll(".colLabel").classed("text-selected",false);
+                       }
+                    });
+              
             }
-            vm.draw = function() {
 
-                var layout = osApi.getLayout();
-                var width = $window.innerWidth - layout.left - layout.right - 40;
-                var height = $window.innerHeight - 160; //10
-                var hmWidth = width - ((vm.rowLabels) ? 160 : 0) - ((vm.rowDendrogram) ? 80 : 0);
-                var hmHeight = height - ((vm.colLabels) ? 160 : 0) - ((vm.colDendrogram) ? 80 : 0);
-                //colmapObj = 
-                heatmap(colmap, data.matrix,
-                    hmWidth,
-                    hmHeight,
-                    (vm.rowDendrogram ? 80 : 0) + layout.left + 20,
-                    (vm.colDendrogram ? 80 : 0));
-
-                //rowDendObj = 
-                dendrogram(rowDend, data.rows,
-                    80, hmHeight,
-                    layout.left + 20, (vm.colDendrogram ? 80 : 0), false);
-
-                //colDendObj = 
-                dendrogram(colDend, data.cols,
-                    hmWidth, 80,
-                    (vm.rowDendrogram ? 80 : 0) + layout.left + 20, 0, true);
-
-                axis(xaxis,
-                    data.matrix.rows,
-                    160, hmHeight, hmWidth + (vm.rowDendrogram ? 80 : 0) + layout.left + 20, (vm.colDendrogram ? 80 : 0), false);
-
-                axis(yaxis, data.matrix.cols,
-                    hmWidth, 160, (vm.rowDendrogram ? 80 : 0) + layout.left + 20, hmHeight + (vm.colDendrogram ? 80 : 0), true);
-
-                zoom();
-            };
-
-            vm.loadData();
+            // Change ordering of cells  
+            function sortbylabel(rORc,i,sortOrder){
+                var t = svg.transition().duration(3000);
+                var log2r=[];
+                var sorted; // sorted is zero-based index
+                d3.selectAll(".c"+rORc+i) 
+                  .filter(function(ce){
+                     log2r.push(ce.value);
+                   })
+                ;
+                if(rORc=="r"){ // sort log2ratio of a gene
+                  sorted=d3.range(cols.length).sort(function(a,b){ if(sortOrder){ return log2r[b]-log2r[a];}else{ return log2r[a]-log2r[b];}});
+                  t.selectAll(".cell")
+                    .attr("x", function(d) { return sorted.indexOf(d.col) * vm.options.col.cellwidth; })
+                    ;
+                  t.selectAll(".colLabel")
+                   .attr("y", function (d, i) { return sorted.indexOf(i) * vm.options.row.cellheight; })
+                  ;
+                }else{ // sort log2ratio of a contrast
+                  sorted=d3.range(rows.length).sort(function(a,b){if(sortOrder){ return log2r[b]-log2r[a];}else{ return log2r[a]-log2r[b];}});
+                  t.selectAll(".cell")
+                    .attr("y", function(d) { return sorted.indexOf(d.row) * vm.options.row.cellheight; })
+                    ;
+                  t.selectAll(".rowLabel")
+                   .attr("y", function (d, i) { return sorted.indexOf(i) * vm.options.row.cellheight; })
+                  ;
+                }
+            }
+         
+            function order(value){
+                if(value=="asis"){
+                    var t = svg.transition().duration(3000);
+                    t.selectAll(".cell")
+                        .attr("x", function(d) { 
+                            return vm.heatmap.cols[d.col].i * vm.options.col.cellwidth; })
+                        .attr("y", function(d) { 
+                            return vm.heatmap.rows[d.row].i * vm.options.row.cellheight; })
+                    ;
+                
+                    t.selectAll(".rowLabel")
+                        .attr("y", function (d, i) { 
+                            return vm.heatmap.rows[i].i * vm.options.row.cellheight; })
+                    ;
+                
+                    t.selectAll(".colLabel")
+                        .attr("y", function (d, i) { 
+                            return vm.heatmap.cols[i].i * vm.options.col.cellwidth; })
+                    ;
+            
+                }else if (value=="probecontrast"){
+                    var t = svg.transition().duration(3000);
+                    t.selectAll(".cell")
+                        .attr("x", function(d) { return (d.col - 1) * vm.options.col.cellwidth; })
+                        .attr("y", function(d) { return (d.row - 1) * vm.options.row.cellheight; })
+                    ;
+                
+                    t.selectAll(".rowLabel")
+                        .attr("y", function (d, i) { return i * vm.options.row.cellheight; })
+                    ;
+                
+                    t.selectAll(".colLabel")
+                        .attr("y", function (d, i) { return i * vm.options.col.cellwidth; })
+                    ;
+            
+                }else if (value=="rows"){
+                    var t = svg.transition().duration(3000);
+                    t.selectAll(".cell")
+                       .attr("y", function(d) { return (d.row - 1) * vm.options.row.cellheight; })
+                    ;
+                
+                    t.selectAll(".rowLabel")
+                      .attr("y", function (d, i) { return i * vm.options.row.cellheight; })
+                    ;
+                }else if (value=="cols"){
+                    var t = svg.transition().duration(3000);
+                    t.selectAll(".cell")
+                      .attr("x", function(d) { return (d.col - 1) * vm.options.col.cellwidth; })
+                    ;
+                    t.selectAll(".colLabel")
+                        .attr("y", function (d, i) { return i * vm.options.col.cellwidth; })
+                    ;
+                }
+            }
+            
+            vm.data.table.selected = {name: vm.data.table.types[0].name, i:0}
+            vm.data.method.selected = {name: vm.data.method.types[0], i:0}
+            vm.callMethod()
 
             osApi.onResize.add(vm.draw);
             angular.element($window).bind('resize', _.debounce(vm.draw, 300));
