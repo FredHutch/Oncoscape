@@ -503,10 +503,10 @@
                 Promise.all([query(_dataSource.dataset +"_samplemap", {}),
                              query("phenotype_wrapper",{"dataset":_dataSource.dataset}), 
                              query(_dataSource.dataset + "_phenotype", {}),
-                             query("lookup_oncoscape_datasources_v2", {"dataset":_dataSource.dataset})]).then(function(responses) {
+                             query(_dataSource.dataset + "_collections", {})]).then(function(responses) {
                     var data = {};
 
-                    _dataSource.collections = responses[3].data[0].collections
+                    _dataSource.collections = responses[3].data
                     // Map of Samples To Patients
                     data.sampleMap = responses[0].data[0];
 
@@ -798,7 +798,7 @@
                 new Promise(function(resolve, reject) {
 
                     query("lookup_oncoscape_datasources_v2", {
-                        beta: false, "$fields": ["dataset","source", "beta", "name","img", "tools"]
+                        beta: false
                     }).then(function(response) {
                         _dataSource = { dataset: '' };
 

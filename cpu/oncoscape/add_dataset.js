@@ -19,7 +19,7 @@ co(function *() {
      
     var source = "TCGA"
     var json_mol = require("./tcga_molecular_lookup.json")
-    json_mol = json_mol.filter(function(d){ return d.schema == "hugo_sample"})
+    json_mol = json_mol.filter(function(d){ return _.contains(["hugo_sample", "prot_sample"], d.schema )})
     var json_clin = require("./tcga_clinical_lookup.json")
     //var json_meta = json_clin.concat(json_mol)
     var json_meta = json_mol;

@@ -24,7 +24,7 @@
             vm.user = osAuth.getUser()
             vm.projects = osAuth.getDatasets()
             vm.apis = [
-                {   name: "file", 
+                {   name: "New File", 
                     img:"imgThumb.png"
                 },
                 {   name: "TCGA", 

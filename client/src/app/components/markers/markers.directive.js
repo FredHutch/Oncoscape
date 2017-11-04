@@ -565,6 +565,9 @@
                     }),
                     osApi.query(osApi.getDataSource().dataset + "_cluster", {
                         $fields: ['input', 'geneset', 'dataType', 'source', 'default']
+                    }),
+                    osApi.query(osApi.getDataSource().dataset + "_network", {
+                        $fields: ['geneset', 'input', 'source']
                     })
 
                 ]).then(function(results) {
@@ -578,12 +581,15 @@
                         return x < y ? -1 : x > y ? 1 : 0;
                     });
 
+                    vm.datasource.edges = results[2].data.map(function(e){ return {geneset: e.geneset, source: e.source, dataType: e.input}})
+                    //vm.optGeneSets = _.uniq(osApi.getGenesets(), function(item) { return item.name; }) 
                     vm.optGeneSets = _.uniq(osApi.getDataSource().edges.map(function(e) { return { name: e.geneset }; }), function(item) { return item.name; });
                     vm.optGeneSet = mpState.getGeneSet(vm.optGeneSets);
                     vm.optPatientLayouts = layouts;
                     var patientLayout = mpState.getPatientLayout(vm.optPatientLayouts);
                     vm.optPatientLayout = angular.isDefined(patientLayout) ? patientLayout : layouts[0];
 
+                    
                 });
 
 
@@ -914,7 +920,7 @@
                         cmd: cmd,
                         dataset: osApi.getDataSource().dataset,
                         patients: {
-                            data: vm.datasource.clinical.patient,
+                            data: vm.datasource.dataset + "_phenotype",
                             layout: vm.optPatientLayout,
                             selected: cyChart.$('node[nodeType="patient"]:selected').map(function(p) {
                                 return p.data().id;
