@@ -202,7 +202,7 @@ const writingXLSX2Mongo = (msg) => {
 
             records.forEach(function(r){
                 console.log(r)
-                db.collection(projectID+"_phenotype").update({id: r.id}, {$addToSet: {events: r}}, function(err, result){
+                db.collection(projectID+"_phenotype").update({id: r.id}, {$addToSet: {events:  {$each:r.events}}}, function(err, result){
                     if (err) console.log(err);
                 });
             })
