@@ -36,6 +36,9 @@ const db = mongoose.connection;
 
 
 var errorMessage = {};
+errorMessage['PATIENT_SHEET'] = '';
+errorMessage['PATIENTEVENT_SHEETS'] = {};
+errorMessage['MOLECULAR_SHEETS'] = {};
 var checkHugoGeneSymbols = (geneArr) => {
     var overLappedNames = _.intersection(geneArr, HugoGenes);
     var unvalidGeneNames = _.difference(geneArr, overLappedNames);
@@ -65,9 +68,8 @@ const writingXLSX2Mongo = (msg) => {
     
     if (allSheetNames.filter(sh => sh === 'PATIENT').length === 0) {
        errorMessage["PATIENT_SHEET"] = 'PATIENT SHEET is required.';
-       console.log(' JSON.stringify(errorMessage): ',  JSON.stringify(errorMessage));
     //    res.json({ error_code: 1, err_desc: JSON.stringify(errorMessage)}).end(); 
-    //    return;
+       return;
     }
     var PatientIDs;
     var PatientArr = [];
@@ -80,6 +82,12 @@ const writingXLSX2Mongo = (msg) => {
         var header = sheetObj[0];
         var sheetStringArr = sheet.split("-");
         if(sheetStringArr[0] === "MOLECULAR"){
+            console.log('&&&&&&&&&&&&&&&&&&&&&What is the header');
+            if(header[0] !== 'SampleID') {
+                errorMessage['MOLECULAR_SHEETS'][sheet] = 'Header needs start with "SampleID"';
+                // res.json({ error_code: 1, err_desc: JSON.stringify(errorMessage)}).end(); 
+                return;
+            } 
             var allSamples = header.splice(1, header.length);
             sheetObjData = sheetObj.splice(1, sheetObj.length);
             var dataType = sheetStringArr[1];
@@ -108,6 +116,10 @@ const writingXLSX2Mongo = (msg) => {
             sheetObjData = sheetObj.splice(1, sheetObjData.length);
             if(sheet === "PATIENT") {
                 console.log("PATIENT sheet");
+                if (header[0] != "SampleID" || header[1] != "PatientId" ){
+                    errorMessage["PATIENT_SHEET"] = 'First two fields of header should be: *SampleID*, *PatientId*.';
+                    return;
+                }
                 Samples = _.uniq(sheetObjData.map(function(m){
                     return m[0];
                 }));
@@ -185,6 +197,10 @@ const writingXLSX2Mongo = (msg) => {
                 var allPatients = _.uniq(sheetObjData.map(function(r){return r[0];}));
                 UploadingSummary.push({"sheet" : sheet,
                                        "patients" : allPatients});
+                if (header[0] != "PatientId" || header[1] != "StartDate" || header[2] !="EndDate"){
+                    errorMessage["PATIENTEVENT_SHEETS"][sheet] = 'First three fields of header should be: *PatientId*, *StartDate*, *EndDate*.';
+                    return;
+                }
                 sheetObjData.forEach(function(record){
                     var pos = _.findIndex(PatientArr, function(a){
                         return a.id === record[0];
@@ -254,6 +270,7 @@ const writingXLSX2Mongo = (msg) => {
 
 process.on('message', (filePath, HugoGenes, db) => {
     writingXLSX2Mongo(filePath, HugoGenes, db);
+    console.log('CHILD__________ msg: ', errorMessage);
     if(errorMessage != null) {
         process.send(JSON.stringify(errorMessage));
     } else {

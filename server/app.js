@@ -95,7 +95,13 @@ app.post('/api/upload/:id/:email', Permissions.jwtVerification, upload, function
             console.log('DO WE RECEIVE ANYTHING FROM THE CHILD? msg: ', msg);
             res.end('Writing is done');
             console.log("*******************!!!!!!********************");
-            mailOptions.text = msg;
+            if (msg["PATIENT_SHEET"] != "" ||
+                Object.keys(msg["PATIENTEVENT_SHEETS"]).length != 0 ||
+                Object.keys(msg["MOLECULAR_SHEETS"]).length != 0) {
+                mailOptions.text = msg;
+            } else {
+                mailOptions.text = "The file has been successfully uploaded.";
+            }
             transporter.sendMail(mailOptions, function(error, info){
                 if (error) {
                   console.log(error);
