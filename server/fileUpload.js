@@ -134,23 +134,23 @@ const writingXLSX2Mongo = (msg) => {
                 return sheet.data.filter(function(record){ return record[0] === id;
                 }).reduce(function(fields,r){
 
-                    sheet.header.forEach(function(h){
+                    sheet.header.forEach(function(h,i){
                         var field = h.split("-")[0];
                         var type = h.split("-")[1];
-                        console.log(field + " " + type)
+                        
                         if(type == "Date") {
-                            fields.date[camelToDash(field)] = r[h];
+                            fields.date[camelToDash(field)] = r[i];
                         } else if (type == "String") {
-                            fields.enum[camelToDash(field)] = r[h]
+                            fields.enum[camelToDash(field)] = r[i]
                         } else if (type == "Number")  {
-                            fields.num[camelToDash(field)] = r[h]
+                            fields.num[camelToDash(field)] = r[i]
                         } else if (type == "Boolean")  {
-                            fields.boolean[camelToDash(field)] = r[h]
-                        } else { fields.other[camelToDash(field)] = r[h]}
+                            fields.boolean[camelToDash(field)] = r[i]
+                        } else { fields.other[camelToDash(field)] = r[i]}
                     });
 
                     return fields;
-                }, {enum : [], num : [], date : [], boolean : [], other : [] } );                               
+                }, {id: id, enum : {}, num : {}, date : {}, boolean : {}, other : {} } );                               
                 
             });   
             
@@ -169,7 +169,7 @@ const writingXLSX2Mongo = (msg) => {
             });
             collections.push(collection);
 
-        } else if (sheet.type === "PATIENTEVENTS"){
+        } else if (sheet.type === "PATIENTEVENT"){
             
             var collection = {
                 name: sheetname.replace(/^\w+\-/,""), 
@@ -184,19 +184,24 @@ const writingXLSX2Mongo = (msg) => {
             records = sheet.data.reduce(function(arr, record){
                 var p = arr.filter(function(r){ return r.id == record[0]})
                 if(p.length == 0) p = [{id:record[0], events: []}]
-
+                
                 p[0].events.push( 
-                    sheet.header.reduce(function(r, h){
+                    sheet.header.reduce(function(r, h, i){
                         var field = h.split("-")[0]
-                        r[field] =record[h]
+                        r[field] =record[i]
                         return r
                     }, {})
                 )
-
+                
+                var i = _.findIndex(arr,{id:record[0]})
+                if(i == -1) arr.push(p[0])
+                else arr[i] = p[0]
+                
                 return arr
             }, [] );
 
             records.forEach(function(r){
+                console.log(r)
                 db.collection(projectID+"_phenotype").update({id: r.id}, {$addToSet: {events: r}}, function(err, result){
                     if (err) console.log(err);
                 });
