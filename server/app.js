@@ -67,9 +67,11 @@ app.post('/api/upload/:id/:email', function (req, res) {
     var projectID = req.params.id;
     var userEmail = req.params.email;
     var molecularColleciton = mongoose.model(projectID + "_data_molecular", File.schema);
-    var sampleMapCollection = mongoose.model(projectID + "_data_samples", File.schema);
-    var clinicalColleciton = mongoose.model(projectID + "_data_clinical", File.schema);
-    var uploadingSummaryCollection = mongoose.model(projectID + "_uploadingSummary", File.schema);
+    //var sampleMapCollection = mongoose.model(projectID + "_data_samples", File.schema);
+    //var clinicalColleciton = mongoose.model(projectID + "_data_clinical", File.schema);
+    var sampleMapCollection = mongoose.model(projectID + "_samplemap", File.schema);
+    var clinicalColleciton = mongoose.model(projectID + "_phenotype", File.schema);
+    var uploadingSummaryCollection = mongoose.model(projectID + "_collections", File.schema);
     upload(req, res, function (err) {
         console.log("This section is triggered");
         if (err) {
@@ -96,21 +98,36 @@ app.post('/api/upload/:id/:email', function (req, res) {
                 projectID: projectID
             });
             writing2Mongo.on('message', () => {
-                res.end('Writing is done');
-                console.log("*********************!!!!!!!*******************");
-                var mailOptions = {
-                    from: 'oncoscape.sttrcancer@gmail.com',
-                    to: userEmail,
-                    subject: 'Notification from Oncoscape Data Uploading App',
-                    text: 'Data are in database, ready to share.'
-                };
-                transporter.sendMail(mailOptions, function (error, info) {
-                    if (error) {
-                        console.log(error);
-                    } else {
-                        console.log('Email sent: ' + info.response);
-                    }
+                console.log("XLS file upload complete; Updating Kong;")
+                const kong_configure = fork(process.env.APP_ROOT + '/server/kong_configure.js');
+                kong_configure.send({
+                    projectID: projectID
                 });
+                kong_configure.on('message', () => {
+                    console.log("Kong configuration complete; Adding v2 data;")
+                    const writing2Mongo_v2 = fork(process.env.APP_ROOT + '/server/add_dataset.js');
+                    writing2Mongo_v2.send({
+                        filePath: res.req.file.path,
+                        projectID: projectID
+                    });
+                    writing2Mongo_v2.on('message', () => {
+                        res.end('Writing is done');
+                        console.log("*********************!!!!!!!*******************");
+                        var mailOptions = {
+                            from: 'oncoscape.sttrcancer@gmail.com',
+                            to: userEmail,
+                            subject: 'Notification from Oncoscape Data Uploading App',
+                            text: 'Data are in database, ready to share.'
+                        };
+                        transporter.sendMail(mailOptions, function (error, info) {
+                            if (error) {
+                                console.log(error);
+                            } else {
+                                console.log('Email sent: ' + info.response);
+                            }
+                        });
+                    })
+                })
             });
         }
     });

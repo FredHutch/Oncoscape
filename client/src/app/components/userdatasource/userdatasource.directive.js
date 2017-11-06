@@ -45,7 +45,7 @@
             vm.showDatasourceOption = function(source){
                 if(source == "TCGA")
                     $state.go("datasource");
-                if(source == "file"){
+                if(source == "New File"){
                    // $state.go("upload");
                     var win = window.open("/upload/");
                     win.focus();
@@ -66,13 +66,14 @@
                     
                     if(angular.isUndefined(acct) ) return
                     
-                    osApi.query("Accounts_Permissions", {
-                        User: acct._id
-                    }).then(function(resp) {
-                        var permissions = resp.data
+                osApi.query("Accounts_Permissions", {
+                //    User: "ObjectId('"+acct._id+"')"
+                //osApi.query("permissions/"+acct._id, {
+                }).then(function(resp) {
+                        var permissions = resp.data.filter(function(p){return p.User == acct._id})
                         osApi.query("Accounts_Projects", {
-                            _id: {$in: _.pluck(permissions,"Project")}
                         }).then(function(r) {
+                            r.data = r.data.filter(function(d){ return _.contains(_.pluck(permissions,"Project"), d._id) })
                             vm.projects = r.data
                             osAuth.setDatasets(vm.projects)
                         })

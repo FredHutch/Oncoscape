@@ -13,15 +13,10 @@ var option = {
         }
     }
 }
-// mongoose.connect("mongodb://localhost:27017/mydb", option)
-//         .then(function(){
-//             console.log("Child Process MongoDB connect success!");
-//         }, function (err){
-//             console.log("Child Process  MongoDB connect error: ", err);
-//         });
+
 mongoose.connect(
-    "mongodb://oncoscape-dev-db1.sttrcancer.io:27017,oncoscape-dev-db2.sttrcancer.io:27017,oncoscape-dev-db3.sttrcancer.io:27017/v2?authSource=admin",{
-    // process.env.MONGO_CONNECTION, {  
+//    "mongodb://oncoscape-dev-db1.sttrcancer.io:27017,oncoscape-dev-db2.sttrcancer.io:27017,oncoscape-dev-db3.sttrcancer.io:27017/v2?authSource=admin",{
+    process.env.MONGO_CONNECTION, {  
     db: {
         native_parser: true
     },
@@ -35,9 +30,9 @@ mongoose.connect(
     user: process.env.MONGO_USERNAME,
     pass: process.env.MONGO_PASSWORD
 }).then(function(){
-    console.log("Child Process MongoDB connect success!");
+    console.log("Child Process File Upload connect success!");
 }, function (err){
-    console.log("Child Process  MongoDB connect error: ", err);
+    console.log("Child Process File Upload connect error: ", err);
 });
 
 const db = mongoose.connection;
@@ -57,200 +52,164 @@ function camelToDash(str) {
               .replace(/([a-z\d])([A-Z])/g, '$1-$2')
               .replace("-", "_")
               .toLowerCase();
- }
+}
+
 const writingXLSX2Mongo = (msg) => {
-    filePath = msg.filePath;
-    projectID = msg.projectID;
+    
     console.log('%%%%%%%%%received file');
     console.log('projectID is: ', msg);
     console.time("Reading XLSX file");
+
+    var filePath = msg.filePath;
+    var projectID = msg.projectID;
     var workbook = XLSX.readFile(filePath);
-    console.log('%%%%%%%%%XLSX.readFile(filePath): ', filePath);
-    console.timeEnd("Reading XLSX file");           
     var allSheetNames =  Object.keys(workbook.Sheets);
+    console.log('%%%%%%%%% XLSX.readFile(filePath): ', filePath);
+    console.timeEnd("Reading XLSX file");           
     console.log(allSheetNames);
+
     if (allSheetNames.indexOf("PATIENT") === -1) {
        err = "PATIENT Sheet is missing!";
        res.json({ error_code: 1, err_desc: err }).end(); 
        return;
     }
-    var PatientIDs;
-    var PatientArr = [];
-    var UploadingSummary = [];
-    var result = [];
-    var sampleUnion = [];
-    allSheetNames.forEach(function(sheet){
-        var sheetObj = XLSX.utils.sheet_to_json(workbook.Sheets[sheet], {header:1});
-        var arr = [];
-        var header = sheetObj[0];
-        if(sheet.split("-")[0] === "MOLECULAR"){
-            var allSamples = header.splice(1, header.length);
-            sheetObjData = sheetObj.splice(1, sheetObj.length);
-            var dataType = sheet.split("-")[1];
-            var allMarkers = sheetObjData.map(function(m){return m[0].trim()});
-            UploadingSummary.push({ "sheet" : sheet,
-                                    "samples" : allSamples,
-                                    "markers" : allMarkers});
-            var molecularCollectionName = projectID + '_data_molecular';
-            var counter = 0; 
-            console.time("Writing to MongoDB one record at a time");
-            sheetObjData.forEach(function(record){
-                var obj = {};
-                obj.type = dataType;
-                obj.marker = record[0];
-                obj.data = record.splice(1, record.length);
-                arr.push(obj);
+    
+    var collections = [];
+
+    allSheetNames.forEach(function(sheetname){
+        
+        console.log(sheetname)
+
+        // sheet/collection data
+        var data = XLSX.utils.sheet_to_json(workbook.Sheets[sheetname], {header:1})
+        var sheet = {
+            type : sheetname.split("-")[0]
+        }     
+        sheet.header = data[0]
+        sheet.data = data.splice(1, data.length)
+
+        var records = []
+
+        if(sheet.type === "MOLECULAR"){
+            var collection = {
+                name: sheetname.replace(/^\w+\-\w+\-/,""), 
+                type: sheetname.split("-")[1].toLowerCase(), 
+                collection: projectID + sheetname.replace(/^\w+\-/,"_"), 
+                s : sheet.header.splice(1, sheet.header.length),
+                m : sheet.data.map(function(m){return m[0].trim()}),
+                "date_modified": new Date(),
+                schema : "hugo_sample"
+            }
+            collection.geneSymbolValidation = checkHugoGeneSymbols(collection.m);
+
+            console.time("Insert Molecular records");
+            sheet.data.forEach(function(record){
+                records.push({
+                    m: record[0], 
+                    m_type: "hugo", 
+                    d:record.splice(1, record.length), 
+                    d_type: collection.type, 
+                    name: collection.name,
+                    s: collection.s})
             });
-            db.collection(projectID+"_data_molecular").insertMany(arr, function(err, result){
-                                    if (err) console.log(err);
-                                });
-            console.timeEnd("Writing to MongoDB one record at a time");
-        } else { 
-            sheetObjData = sheetObj.splice(1, sheetObjData.length);
-            if(sheet === "PATIENT") {
-                console.log("PATIENT sheet");
-                Samples = _.uniq(sheetObjData.map(function(m){
-                    return m[0];
-                }));
-                PatientIDs = _.uniq(sheetObjData.map(function(m){
-                    return m[1];
-                }));
-                var enum_fields = [];
-                var num_fields = [];
-                var date_fields = [];
-                var boolean_fields = [];
-                var remaining_fields = [];
-                header.forEach(function(h){
-                    if(h.indexOf("-Date") > -1) {
-                        date_fields.push(h.split("-")[0]);
-                    } else if (h.indexOf("-String") > -1) {
-                        enum_fields.push(h.split("-")[0]);
-                    } else if (h.indexOf("-Number") > -1) {
-                        num_fields.push(h.split("-")[0]);
-                    } else if (h.indexOf("-Boolean") > -1) {
-                        boolean_fields.push(h.split("-")[0]);
-                    } else {
-                        remaining_fields.push(h.split("-")[0]);
-                    }
-                });
-                // Collect unique values of enums from the entire sheetObjData
-                var metaObj = {};
-                enum_fields.forEach(function(field){
-                    metaObj[camelToDash(field)] = _.uniq(sheetObjData.map(function(record){
-                                                            return record[header.indexOf(field +"-String")];}));                                        
-                                                        });
-    
-                PatientArr = PatientIDs.reduce(function(arr_clinical, p){
-                    var samples = [];
-                    var enumObj = {};
-                    var numObj = {};
-                    var booleanObj = {};
-                    var timeObj = {};
-                    var Other = {};
-                    sheetObjData.filter(function(record){
-                        return record[1] === p;
-                    }).forEach(function(m){
-                       samples.push({id: m[0]});
-                       enum_fields.forEach(function(field){
-                        enumObj[camelToDash(field)] = m[header.indexOf(field+"-String")]; 
-                       }); 
-                       num_fields.forEach(function(field){
-                        numObj[camelToDash(field)] = m[header.indexOf(field+"-Number")];
-                       });
-                       boolean_fields.forEach(function(field){
-                        booleanObj[camelToDash(field)] = m[header.indexOf(field+"-Boolean")];
-                       });
-                       date_fields.forEach(function(field){
-                        timeObj[camelToDash(field)] = m[header.indexOf(field+"-Date")];
-                       });
-                       remaining_fields.forEach(function(field){
-                        Other[camelToDash(field)] = m[header.indexOf(field)];
-                       });
-                    });                               
-                    arr_clinical.push({ "id" : p,
-                                        "samples" : samples,
-                                        "enums" : enumObj,
-                                        "time": timeObj,
-                                        "nums": numObj,
-                                        "boolean": booleanObj,
-                                        "metadata": metaObj,
-                                        "events": [] });
-                    return arr_clinical;
-                    }, []);
-                    UploadingSummary.push({"sheet" : sheet,
-                                           "patients" : PatientIDs,
-                                           "samples": Samples});
-            } else if (sheet.split("-")[0] === "PATIENTEVENT"){
-                console.log(sheet);
-                var id = sheet.split("-")[1];
-                var allPatients = _.uniq(sheetObjData.map(function(r){return r[0];}));
-                UploadingSummary.push({"sheet" : sheet,
-                                       "patients" : allPatients});
-                sheetObjData.forEach(function(record){
-                    var pos = _.findIndex(PatientArr, function(a){
-                        return a.id === record[0];
-                    })
-                    var o = {};
-                    o.id = id;
-                    header.forEach(function(h){
-                        o[h] = record[header.indexOf(h)];
+            
+            db.collection(collection.collection).insertMany(records, function(err, result){
+                if (err) console.log(err)
+            });                    
+            collections.push(collection);
+            console.timeEnd("Insert Molecular records");
+
+        } else if(sheet.type === "PATIENT") {
+            var collection = {
+                name: sheetname, 
+                type: sheet.type.toLowerCase(), 
+                collection: projectID + "_phenotype", 
+                s : _.uniq(sheet.data.map(function(m){return m[0];})),
+                "date_modified": new Date(),
+                schema : "patient"
+            }
+            
+            records = collection.s.map(function(id){
+                console.log("adding patient: " + id)
+                return sheet.data.filter(function(record){ return record[0] === id;
+                }).reduce(function(fields,r){
+
+                    sheet.header.forEach(function(h){
+                        var field = h.split("-")[0];
+                        var type = h.split("-")[1];
+                        console.log(field + " " + type)
+                        if(type == "Date") {
+                            fields.date[camelToDash(field)] = r[h];
+                        } else if (type == "String") {
+                            fields.enum[camelToDash(field)] = r[h]
+                        } else if (type == "Number")  {
+                            fields.num[camelToDash(field)] = r[h]
+                        } else if (type == "Boolean")  {
+                            fields.boolean[camelToDash(field)] = r[h]
+                        } else { fields.other[camelToDash(field)] = r[h]}
                     });
-                    if( pos > -1){
-                        PatientArr[pos].events.push(o);
-                    } else {
-                        PatientArr.push({
-                            "id": record[0],
-                            "events":[o]
-                        });
-                    }
-                });
+
+                    return fields;
+                }, {enum : [], num : [], date : [], boolean : [], other : [] } );                               
+                
+            });   
+            
+            // Collect unique values of enums from the entire sheetObjData
+            collection.enum =
+                records.reduce(function(p,c){
+                    Object.keys(c.enum).map(function(f){
+                        if(!p.hasOwnProperty(f)) p[f] = [c.enum[f]]
+                        else if (!_.contains(p[f], c.enum[f])) p[f].push(c.enum[f])
+                    })
+                    return p                                       
+                }, {});
+
+            db.collection(projectID+"_phenotype").insertMany(records, function(err, result){
+                if (err) console.log(err);
+            });
+            collections.push(collection);
+
+        } else if (sheet.type === "PATIENTEVENTS"){
+            
+            var collection = {
+                name: sheetname.replace(/^\w+\-/,""), 
+                type: sheet.type.toLowerCase(), 
+                collection: projectID + "_phenotype", 
+                s : _.uniq(sheet.data.map(function(m){return m[0];})),
+                "date_modified": new Date(),
+                schema : "events"
             }
+        
+
+            records = sheet.data.reduce(function(arr, record){
+                var p = arr.filter(function(r){ return r.id == record[0]})
+                if(p.length == 0) p = [{id:record[0], events: []}]
+
+                p[0].events.push( 
+                    sheet.header.reduce(function(r, h){
+                        var field = h.split("-")[0]
+                        r[field] =record[h]
+                        return r
+                    }, {})
+                )
+
+                return arr
+            }, [] );
+
+            records.forEach(function(r){
+                db.collection(projectID+"_phenotype").update({id: r.id}, {$addToSet: {events: r}}, function(err, result){
+                    if (err) console.log(err);
+                });
+            })
+            collections.push(collection)
         }
+        
     });
-    db.collection(projectID+"_data_clinical").insertMany(PatientArr, function(err, result){
-                                    if (err) console.log(err);
-                                });
     
-    /* Quality Control */
-    var allSampleIDs = [];
-    var allPatientIDs = [];
-    var sampleMapping = [];
-    
-    asyncLoop(UploadingSummary, function(sum, next){ 
-            if('markers' in sum){
-                sum.geneSymbolValidation = checkHugoGeneSymbols(sum.markers);
-                allSampleIDs = _.uniq(allSampleIDs.concat(sum.samples));
-            } else if ('patients' in sum){
-                allPatientIDs = _.uniq(allPatientIDs.concat(sum.patients));
-            }
-            next();
-        } , function(err){
-            if(err){
-                console.log(err);
-                res.status(404).send(err).end();
-            } else {
-                sampleMapping.push({'sample': allSampleIDs});
-                UploadingSummary.filter(function(m){
-                    return 'markers' in m;
-                }).map(function(n){
-                  n.positions = n.samples.map(function(d){
-                              return allSampleIDs.indexOf(d);
-                            });
-                  sampleMapping.push(_.pick(n, ['sheet', 'samples', 'positions']));
-                  return n;
-                });
-                var map = _.omit(UploadingSummary.filter(function(m){return m.sheet == 'PATIENT';})[0] ,['_id','sheet']);
-                UploadingSummary.push(map);
-                sampleMapping.push(map)
-                console.log('*********************()****************');
-                db.collection(projectID+"_uploadingSummary").insertMany(UploadingSummary, function(err, result){
-                    if (err) console.log(err);
-                });
-                db.collection(projectID+"_data_samples").insertMany(sampleMapping, function(err, result){
-                    if (err) console.log(err);
-                });
-            }
-        });  
+    console.log('*********************()****************');
+    db.collection(projectID+"_collections").insertMany(collections, function(err, result){
+        if (err) console.log(err);
+    });
 }
 
 process.on('message', (filePath, HugoGenes, db) => {

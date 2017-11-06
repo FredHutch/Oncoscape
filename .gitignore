@@ -18,7 +18,8 @@ Oncoscape/inst/unitTests/test_OncoDev14_BenchMark*
 Oncoscape/inst/scripts/markersAndSamples/log.*
 Oncoscape/inst/scripts/datasets/log.*
 Oncoscape/inst/scripts/apps/oncoscape/nohup.out
-
+uploads/
+#
 # Packages #
 ############
 # it's better ot unpack these files and commit the raw source
