@@ -39,7 +39,7 @@
                 osAuth.login(networks[1]);
             }
             vm.explore = function(tool, datasource) {
-                $state.go(tool, { datasource: datasource.disease });
+                $state.go(tool, { datasource: datasource.dataset });
             };
             
             vm.showDatasourceOption = function(source){
@@ -72,11 +72,18 @@
                         osApi.query("Accounts_Projects", {
                         }).then(function(r) {
                             r.data = r.data.filter(function(d){ return _.contains(_.pluck(permissions,"Project"), d._id) })
-                            vm.projects = r.data
-                            osApi.query("lookup_oncoscape_datasources_v2", { dataset: {$in: _.pluck(vm.projects, "dataset")}
-                            }).then(function(d) {
-                                osAuth.setDatasets(d.data)
+                            osApi.query("lookup_oncoscape_datasources_v2", {
+                                dataset: {$in : _.pluck(r.data, "_id")}
+                            }).then(function(ds) {
+                                vm.projects = ds.data.map(function(d){ 
+                                    d.name = r.data.filter(function(p){return p._id == d.dataset})[0].Name
+                                    d.description = r.data.filter(function(p){return p._id == d.dataset})[0].Description
+                                    return d
+                                })
+                                osApi.addDataSources(vm.projects)
+                                osAuth.setDatasets(vm.projects)
                             })
+                            
                         })
                     })
                   

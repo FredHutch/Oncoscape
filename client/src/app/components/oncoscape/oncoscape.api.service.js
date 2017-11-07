@@ -466,6 +466,9 @@
             _genesetToolInfo = genesetToolData;
             onGenesetToolInfo.dispatch(_genesetToolInfo);
         };
+        var addDataSources = function(value) {
+            _dataSources = _dataSources.concat(value)
+        }
         var setDataSource = function(value) {
 
             return new Promise(function(resolveDataSource) {
@@ -806,6 +809,9 @@
                             .filter(function(d) {
                                 return angular.isDefined(d.img);
                             })
+                            .filter(function(d){
+                                return d.source == "TCGA"
+                            })
                             .map(function(d) {
                                 d.name = d.name.trim();
                                 return d;
@@ -914,6 +920,7 @@
             // Data Sources
             setDataSource: setDataSource,
             getDataSource: getDataSource,
+            addDataSources: addDataSources,
             getDataSources: getDataSources,
 
             // Patient Colors
