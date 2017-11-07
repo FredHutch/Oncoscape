@@ -66,24 +66,23 @@
                     
                     if(angular.isUndefined(acct) ) return
                     
-                osApi.query("Accounts_Permissions", {
-                //    User: "ObjectId('"+acct._id+"')"
-                //osApi.query("permissions/"+acct._id, {
-                }).then(function(resp) {
+                    osApi.query("Accounts_Permissions", {
+                    }).then(function(resp) {
                         var permissions = resp.data.filter(function(p){return p.User == acct._id})
                         osApi.query("Accounts_Projects", {
                         }).then(function(r) {
                             r.data = r.data.filter(function(d){ return _.contains(_.pluck(permissions,"Project"), d._id) })
                             vm.projects = r.data
-                            osAuth.setDatasets(vm.projects)
+                            osApi.query("lookup_oncoscape_datasources_v2", { dataset: {$in: _.pluck(vm.projects, "dataset")}
+                            }).then(function(d) {
+                                osAuth.setDatasets(d.data)
+                            })
                         })
                     })
-                })
                   
+                    vm.datasets = osApi.getDataSources();
              
-             vm.datasets = osApi.getDataSources();
-             
-             
+                });
             };
     
             osAuth.onLogin.add(loadUserData); 

@@ -21,7 +21,7 @@
         /** @ngInject */
         function DatasourceController(osApi, $state) {
             var vm = this;
-            vm.datasets = osApi.getDataSources();
+            vm.datasets = osApi.getDataSources().filter(function(d){return d.source == "TCGA"});
             vm.explore = function(tool, datasource) {
                 $state.go(tool, { datasource: datasource.dataset });
             };

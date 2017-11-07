@@ -38,6 +38,7 @@ mongoose.connect(
 const db = mongoose.connection;
 
 const HugoGenes = require('../HugoGenes.json');
+const tool_req = require("./tool_requirements.json")      
 
 var checkHugoGeneSymbols = function (geneArr) {
     var overLappedNames = _.intersection(geneArr, HugoGenes);
@@ -75,6 +76,89 @@ const writingXLSX2Mongo = (msg) => {
     }
     
     var collections = [];
+    var phenotype = []
+
+    function add2Lookup(projectID){
+        var tools = get_tools(collections, phenotype)
+        add_lookup(tools)
+    }
+    // add new collection to lookup table for each JSON object
+    // skip if collection not yet written
+    function add_lookup(tools){
+        console.log(tools)
+        var meta = {    "dataset" : projectID,
+                        "source" : "File",
+                        "beta" : false,
+                        "name" : "",
+                        "img" : "thumb.png",
+                        "tools" : tools,
+                        "geneset" : "Oncoplex"
+        }
+
+    
+        db.collection("lookup_oncoscape_datasources_v2").update({dataset: projectID}, meta, {upsert: true, writeConcern: {w:"majority"}})
+    
+    }     
+    
+    function getPropByString(obj, propString) {
+        if (!propString)
+            return obj;
+    
+        var prop, props = propString.split('.');
+    
+        for (var i = 0, iLen = props.length - 1; i < iLen; i++) {
+            prop = props[i];
+    
+            var candidate = obj[prop];
+            if (candidate !== undefined) {
+                obj = candidate;
+            } else {
+                break;
+            }
+        }
+        return obj[props[i]];
+    }
+
+    function get_tools(collections, phenotype){
+        
+        var tools = []
+        for(i=0; i<tool_req.length;i++){
+            var t =tool_req[i]
+            var pass = true
+            var mol_subset = collections
+            var clin_subset = phenotype
+                
+            for(r=0;r<t.and.length & pass;r++){  // loop through all requirements for tool
+                if(t.and[r].type == "molecular"){
+                    if(t.and[r].logic== "in")
+                        mol_subset = mol_subset.filter(function(c){ return _.contains(t.and[r].value,getPropByString(c,t.and[r].field))})
+                    else if(t.and[r].logic== "is")
+                        mol_subset = mol_subset.filter(function(c){ return getPropByString(c,t.and[r].field) == t.and[r].value })
+                    if(mol_subset.length ==0){ pass = false}
+                }
+                else if(pass & t.and[r].type =="clinical"){
+                    
+                    if(t.and[r].logic== "in")
+                        clin_subset = clin_subset.filter(function(d){ 
+                            return _.contains(t.and[r].value, getPropByString(d,t.and[r].field) ) })
+                    else if(t.and[r].logic== "is")
+                        clin_subset = clin_subset.filter(function(d){ return getPropByString(d,t.and[r].field) == t.and[r].value })
+                    else if(t.and[r].logic== "matches")
+                        clin_subset = clin_subset.filter(function(d){ 
+                            var val = getPropByString(d,t.and[r].field)
+                            return val ? 
+                            val.toString().match(t.and[r].value ).length >0 : 
+                            false})    
+                    if(clin_subset.length == 0) pass = false
+                } else{ pass=false}
+
+            }
+            if(pass){                           tools = _.union(tools, [t.name])}
+            else if(_.contains(tools, t.name)){ tools = _.without(tools, t.name); }
+        }
+
+        return tools
+    } 
 
     allSheetNames.forEach(function(sheetname){
         
@@ -131,7 +215,7 @@ const writingXLSX2Mongo = (msg) => {
 
             if(sheet.header.length > 2){
                 var collection = {
-                    name: sheetname, 
+                    name: sheetname.toLowerCase(), 
                     type: sheet.type.toLowerCase(), 
                     collection: projectID + "_phenotype", 
                     s : _.uniq(sheet.data.map(function(m){return m[0];})),
@@ -139,16 +223,18 @@ const writingXLSX2Mongo = (msg) => {
                     schema : "subject"
                 }
                 records = collection.s.map(function(id){
-                    console.log("adding patient: " + id)
+                    
                     return sheet.data.filter(function(record){ return record[0] === id;
                     }).reduce(function(fields,r){
 
                         fields.patient = r[1]
 
                         sheet.header.forEach(function(h,i){
-                            var field = h.split("-")[0];
-                            var type = h.split("-")[1].toLowerCase();
                             if(i<2) return //skip sample and patient id
+                            
+                            var field = h.split("-")[0];
+                            var type = h.split("-")[1];
+                            if(type) type = type.toLowerCase()
 
                             if(type == "date") {
                                 fields.date[camelToDash(field)] = r[i];
@@ -173,7 +259,7 @@ const writingXLSX2Mongo = (msg) => {
 
         } else if(sheet.type === "PATIENT") {
             var collection = {
-                name: sheetname, 
+                name: sheetname.toLowerCase(), 
                 type: sheet.type.toLowerCase(), 
                 collection: projectID + "_phenotype", 
                 s : _.uniq(sheet.data.map(function(m){return m[0];})),
@@ -182,14 +268,15 @@ const writingXLSX2Mongo = (msg) => {
             }
             
             records = collection.s.map(function(id){
-                console.log("adding patient: " + id)
+                
                 return sheet.data.filter(function(record){ return record[0] === id;
                 }).reduce(function(fields,r){
 
                     sheet.header.forEach(function(h,i){
                         if(i<1)return
                         var field = h.split("-")[0];
-                        var type = h.split("-")[1].toLowerCase();
+                        var type = h.split("-")[1]
+                        if(type) type = type.toLowerCase();
                         
                         if(type == "date") {
                             fields.date[camelToDash(field)] = r[i];
@@ -207,6 +294,7 @@ const writingXLSX2Mongo = (msg) => {
                 
             });   
             
+            phenotype = records
             // Collect unique values of enums from the entire sheetObjData
             collection.enum =
                 records.reduce(function(p,c){
@@ -225,7 +313,7 @@ const writingXLSX2Mongo = (msg) => {
         } else if (sheet.type === "PATIENTEVENT"){
             
             var collection = {
-                name: sheetname.replace(/^\w+\-/,""), 
+                name: sheetname.replace(/^\w+\-/,"").toLowerCase(), 
                 type: sheet.type.toLowerCase(), 
                 collection: projectID + "_phenotype", 
                 s : _.uniq(sheet.data.map(function(m){return m[0];})),
@@ -254,7 +342,6 @@ const writingXLSX2Mongo = (msg) => {
             }, [] );
 
             records.forEach(function(r){
-                console.log(r)
                 db.collection(projectID+"_phenotype").update({id: r.id}, {$addToSet: {events:  {$each:r.events}}}, function(err, result){
                     if (err) console.log(err);
                 });
@@ -268,12 +355,14 @@ const writingXLSX2Mongo = (msg) => {
     db.collection(projectID+"_collections").insertMany(collections, function(err, result){
         if (err) console.log(err);
     });
+
+    add2Lookup(projectID);
 }
 
 process.on('message', (filePath, HugoGenes, db) => {
-    // db.once("open", function (callback) {
+    
         writingXLSX2Mongo(filePath, HugoGenes, db);
         process.send("DONE from child");
-    // });
+    
 });
 

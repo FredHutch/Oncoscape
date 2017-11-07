@@ -12,7 +12,6 @@ db = require('./app.db.js');
 var app = express();
 app.use(function (req, res, next) { //allow cross origin requests
     res.setHeader("Access-Control-Allow-Methods", "POST, PUT, OPTIONS, DELETE, GET");
-    // res.header("Access-Control-Allow-Origin", "http://localhost:" + process.env.NODE_PORT + "/api");
     res.header("Access-Control-Allow-Headers", "Origin, X-Requested-With, Content-Type, Accept, Authorization");
     res.header("Access-Control-Allow-Credentials", true);
     next();
@@ -66,12 +65,7 @@ app.use('/api/upload', express.static(process.env.APP_ROOT + '/uploads'));
 app.post('/api/upload/:id/:email', function (req, res) {
     var projectID = req.params.id;
     var userEmail = req.params.email;
-    var molecularColleciton = mongoose.model(projectID + "_data_molecular", File.schema);
-    //var sampleMapCollection = mongoose.model(projectID + "_data_samples", File.schema);
-    //var clinicalColleciton = mongoose.model(projectID + "_data_clinical", File.schema);
-    var sampleMapCollection = mongoose.model(projectID + "_samplemap", File.schema);
-    var clinicalColleciton = mongoose.model(projectID + "_phenotype", File.schema);
-    var uploadingSummaryCollection = mongoose.model(projectID + "_collections", File.schema);
+
     upload(req, res, function (err) {
         console.log("This section is triggered");
         if (err) {
@@ -107,7 +101,6 @@ app.post('/api/upload/:id/:email', function (req, res) {
                     console.log("Kong configuration complete; Adding v2 data;")
                     const writing2Mongo_v2 = fork(process.env.APP_ROOT + '/server/add_dataset.js');
                     writing2Mongo_v2.send({
-                        filePath: res.req.file.path,
                         projectID: projectID
                     });
                     writing2Mongo_v2.on('message', () => {
