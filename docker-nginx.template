@@ -146,7 +146,7 @@ http {
 		# USE MD5 Query String 
 		proxy_cache datacache;
      		proxy_cache_key "$uri|$query_string";
-		proxy_cache_valid 200 10y;
+		proxy_cache_valid any 10y;
 		proxy_cache_methods POST;
 		client_max_body_size 100000k; # 413
 		add_header Z-Cache-Status $upstream_cache_status;
