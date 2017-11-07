@@ -119,6 +119,58 @@ const writingXLSX2Mongo = (msg) => {
             collections.push(collection);
             console.timeEnd("Insert Molecular records");
 
+        } else if (sheet.type == "SAMPLE") {
+            
+            var samplemap = sheet.data.map(function(r){
+                var s = {}; s[r[0]] = r[1]
+                return s                
+            })
+            db.collection(projectID+"_samplemap").insert(samplemap, function(err, result){
+                if (err) console.log(err);
+            });
+
+            if(sheet.header.length > 2){
+                var collection = {
+                    name: sheetname, 
+                    type: sheet.type.toLowerCase(), 
+                    collection: projectID + "_phenotype", 
+                    s : _.uniq(sheet.data.map(function(m){return m[0];})),
+                    "date_modified": new Date(),
+                    schema : "subject"
+                }
+                records = collection.s.map(function(id){
+                    console.log("adding patient: " + id)
+                    return sheet.data.filter(function(record){ return record[0] === id;
+                    }).reduce(function(fields,r){
+
+                        fields.patient = r[1]
+
+                        sheet.header.forEach(function(h,i){
+                            var field = h.split("-")[0];
+                            var type = h.split("-")[1].toLowerCase();
+                            if(i<2) return //skip sample and patient id
+
+                            if(type == "date") {
+                                fields.date[camelToDash(field)] = r[i];
+                            } else if (type == "string") {
+                                fields.enum[camelToDash(field)] = r[i]
+                            } else if (type == "number")  {
+                                fields.num[camelToDash(field)] = r[i]
+                            } else if (type == "boolean")  {
+                                fields.boolean[camelToDash(field)] = r[i]
+                            } else { fields.other[camelToDash(field)] = r[i]}
+                        });
+
+                        return fields;
+                    }, {id: id, patient: "", type:"sample", enum : {}, num : {}, date : {}, boolean : {}, other : {} } );                               
+                    
+                });   
+                db.collection(projectID+"_phenotype").insertMany(records, function(err, result){
+                    if (err) console.log(err);
+                });
+                collections.push(collection);
+            }
+
         } else if(sheet.type === "PATIENT") {
             var collection = {
                 name: sheetname, 
@@ -126,7 +178,7 @@ const writingXLSX2Mongo = (msg) => {
                 collection: projectID + "_phenotype", 
                 s : _.uniq(sheet.data.map(function(m){return m[0];})),
                 "date_modified": new Date(),
-                schema : "patient"
+                schema : "subject"
             }
             
             records = collection.s.map(function(id){
@@ -135,22 +187,23 @@ const writingXLSX2Mongo = (msg) => {
                 }).reduce(function(fields,r){
 
                     sheet.header.forEach(function(h,i){
+                        if(i<1)return
                         var field = h.split("-")[0];
-                        var type = h.split("-")[1];
+                        var type = h.split("-")[1].toLowerCase();
                         
-                        if(type == "Date") {
+                        if(type == "date") {
                             fields.date[camelToDash(field)] = r[i];
-                        } else if (type == "String") {
+                        } else if (type == "string") {
                             fields.enum[camelToDash(field)] = r[i]
-                        } else if (type == "Number")  {
+                        } else if (type == "number")  {
                             fields.num[camelToDash(field)] = r[i]
-                        } else if (type == "Boolean")  {
+                        } else if (type == "boolean")  {
                             fields.boolean[camelToDash(field)] = r[i]
                         } else { fields.other[camelToDash(field)] = r[i]}
                     });
 
                     return fields;
-                }, {id: id, enum : {}, num : {}, date : {}, boolean : {}, other : {} } );                               
+                }, {id: id,type:"patient", enum : {}, num : {}, date : {}, boolean : {}, other : {} } );                               
                 
             });   
             

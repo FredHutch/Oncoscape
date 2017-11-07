@@ -15,8 +15,7 @@ var option = {
 console.log("Loaded script to add v2 data")
 
 mongoose.connect(
-    "mongodb://oncoscape-dev-db1.sttrcancer.io:27017,oncoscape-dev-db2.sttrcancer.io:27017,oncoscape-dev-db3.sttrcancer.io:27017/v2?authSource=admin",{
-    // process.env.MONGO_CONNECTION, {  
+    process.env.MONGO_CONNECTION, {  
     db: {
         native_parser: true
     },
