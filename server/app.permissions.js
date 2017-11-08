@@ -42,6 +42,7 @@ var jwtVerification = function (req, res, next) {
             getUserID(userID).then(res => {
                 req.userID = res;
                 req.isAuthenticated = true;
+                console.log('passed jwtVerification');
                 next();
             });
         } catch (e) {
