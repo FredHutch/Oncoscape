@@ -227,7 +227,7 @@ const writingXLSX2Mongo = (msg) => {
                     return sheet.data.filter(function(record){ return record[0] === id;
                     }).reduce(function(fields,r){
 
-                        fields.patient = r[1]
+                        //fields.patient = r[1]
 
                         sheet.header.forEach(function(h,i){
                             if(i<2) return //skip sample and patient id
@@ -331,7 +331,7 @@ const writingXLSX2Mongo = (msg) => {
                         var field = h.split("-")[0]
                         r[field] =record[i]
                         return r
-                    }, {})
+                    }, {type: collection.name})
                 )
                 
                 var i = _.findIndex(arr,{id:record[0]})
@@ -342,7 +342,7 @@ const writingXLSX2Mongo = (msg) => {
             }, [] );
 
             records.forEach(function(r){
-                db.collection(projectID+"_phenotype").update({id: r.id}, {$addToSet: {events:  {$each:r.events}}}, function(err, result){
+                db.collection(projectID+"_phenotype").update({id: r.id, type:"patient"}, {$addToSet: {events:  {$each:r.events}}}, function(err, result){
                     if (err) console.log(err);
                 });
             })

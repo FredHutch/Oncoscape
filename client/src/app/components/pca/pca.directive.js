@@ -643,7 +643,7 @@
             var callOverlay = function(i){
                 
                 vm.error = ""
-
+                osApi.setBusy(true)
                 var common_m = _.intersection(vm.overlay[i].data.types[vm.overlay[i].data.selected.i].m, vm.base.data.types[vm.base.data.selected.i].m)
                 if(vm.base.params.bool.geneset.use){
                     var gIds = osApi.getGenesets().filter(function(g){return g.name == vm.base.params.bool.geneset.name})[0].geneIds
