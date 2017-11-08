@@ -18,6 +18,7 @@ function processResult(req, res, next, query) {
             console.log(err);
             res.status(404).send("Not Found").end();
         } else {
+            // console.log("^&^&^&^&^&: ", data);
             res.json(data).end();
         }
     };
@@ -68,7 +69,7 @@ var init = function (app) {
             console.log('!@! NOT AUTH');
             res.status(404).send('Not Authenticated!');
         } else {
-            console.log('&&&&&& authenticated GET api/projects {}');
+            console.log('&&&&&& authenticated GET api/projects {query}', req.params.query);
             var query = {};
             if (req.params.query.split(":")[0] == '_id') {
                 console.log(req.params.query.split(":")[1]);
@@ -167,9 +168,6 @@ var init = function (app) {
     });
     app.get('/api/permissions/:query', Permissions.jwtVerification, function (req, res, next) {
         console.log('&&&&&& authenticated GET api/permissions {query: req.params.query}');
-        
-        
-
         // if (!req.isAuthenticated) return 404
         // Add The User Where Clause - Permission.find({User: req.userid}, processResult(req, res));
         // Find {_id: req.params.id, user=req.userid} 
@@ -197,7 +195,7 @@ var init = function (app) {
                         query[q.split(":")[0]] = q.split(":")[1];
                        } 
                 })
-                console.log(query);
+                console.log('******************', query);
                 Permission.find(query, processResult(req, res));
             } else {
                 if (queryJSON.split(":")[0] == 'User' || queryJSON.split(":")[0] == 'Project') {
@@ -223,15 +221,44 @@ var init = function (app) {
     //         Permission.findOneAndUpdate({ _id: req.params.id }, req.body, { upsert: false }, processResult(req, res));
     //     }
     // });
-    // app.delete('/api/permissions/:id', Permissions.jwtVerification, function (req, res, next) {
-    //     if (!req.isAuthenticated) {
-    //         console.log('!@! NOT AUTH');
-    //         res.status(404).send('Not Authenticated!');
-    //     } else {
-    //         console.log('&& authenticated DELETE api/permissions {}');
-    //         Permission.remove({ _id: req.params.id }, processResult(req, res));
-    //     }
-    // });
+    app.delete('/api/permissions/:query', Permissions.jwtVerification, function (req, res, next) {
+        console.log('outside: && authenticated DELETE api/permissions {req.params.query}: ', req.params.query);
+        if (!req.isAuthenticated) {
+            console.log('!@! NOT AUTH');
+            res.status(404).send('Not Authenticated!');
+        } else {
+            console.log('&& authenticated DELETE api/permissions {req.params.query}: ', req.params.query);
+            console.log(req.params.query);
+            var queryJSON = req.params.query;
+            var query = {};
+            if (queryJSON.indexOf(";") > -1) {
+                queryJSON.split(";").forEach(function(q){
+                    if(q.split(":")[0] == '_id' ||
+                       q.split(":")[0] == 'Project' ||
+                       q.split(":")[0] == 'User') {
+                        // query[q.split(":")[0]] = mongoose.Types.ObjectId(q.split(":")[1]);
+                        var obj = {};
+                        obj['$in'] = q.split(":")[1].split(",").map(function(p){
+                            return mongoose.Types.ObjectId(p);
+                        });
+                        query[q.split(":")[0]] = obj;
+                       } else {
+                        query[q.split(":")[0]] = q.split(":")[1];
+                       } 
+                })
+                console.log('******************', query);
+            Permission.remove(query, processResult(req, res));
+            } else {
+                if (queryJSON.split(":")[0] == 'User' || queryJSON.split(":")[0] == 'Project') {
+                    query[queryJSON.split(":")[0]] =  mongoose.Types.ObjectId(queryJSON.split(":")[1]);
+                    console.log(query);
+                    Permission.remove(query, processResult(req, res));
+                } else {
+                    Permission.remove(queryJSON, processResult(req, res));
+                }
+            }
+        }
+    });
 
     //#endregion
 
