@@ -51,51 +51,13 @@
                     win.focus();
                 }
             }
-           
-
-            var loadUserData = function(user) {
-
-                if(angular.isUndefined(user)) return;
-
-                vm.user = user
-             
-                osApi.query("Accounts_Users", {
-                    Gmail: user.email
-                }).then(function(response) {
-                    var acct = response.data[0]
-                    
-                    if(angular.isUndefined(acct) ) return
-                    
-                    osApi.query("Accounts_Permissions", {
-                    }).then(function(resp) {
-                        var permissions = resp.data.filter(function(p){return p.User == acct._id})
-                        osApi.query("Accounts_Projects", {
-                        }).then(function(r) {
-                            r.data = r.data.filter(function(d){ return _.contains(_.pluck(permissions,"Project"), d._id) })
-                            osApi.query("lookup_oncoscape_datasources_v2", {
-                                dataset: {$in : _.pluck(r.data, "_id")}
-                            }).then(function(ds) {
-                                vm.projects = ds.data.map(function(d){ 
-                                    d.name = r.data.filter(function(p){return p._id == d.dataset})[0].Name
-                                    d.description = r.data.filter(function(p){return p._id == d.dataset})[0].Description
-                                    return d
-                                })
-                                osApi.addDataSources(vm.projects)
-                                osAuth.setDatasets(vm.projects)
-                            })
-                            
-                        })
-                    })
-                  
-                    vm.datasets = osApi.getDataSources();
-             
-                });
-            };
-    
-            osAuth.onLogin.add(loadUserData); 
+            var updateUser = function(){
+                vm.user = osAuth.getUser()
+                vm.projects = osAuth.getDatasets()
+            }
 
             osApi.setBusy(false);
-            
+            osAuth.onLogin.add(updateUser); 
            
         }
     }

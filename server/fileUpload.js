@@ -187,11 +187,15 @@ const writingXLSX2Mongo = (msg) => {
             collection.geneSymbolValidation = checkHugoGeneSymbols(collection.m);
 
             console.time("Insert Molecular records");
+            console.log("inserting molecular data")
             sheet.data.forEach(function(record){
+                var data = record.splice(1, record.length)
+                if(_.contains(["prot_expr", "expr", "cnv","cnv_thd", "mut01"], collection.type))
+                    data = data.map(function(d){ return parseFloat(d)})
                 records.push({
                     m: record[0], 
                     m_type: "hugo", 
-                    d:record.splice(1, record.length), 
+                    d: data, 
                     d_type: collection.type, 
                     name: collection.name,
                     s: collection.s})
@@ -248,7 +252,7 @@ const writingXLSX2Mongo = (msg) => {
                         });
 
                         return fields;
-                    }, {id: id, patient: "", type:"sample", enum : {}, num : {}, date : {}, boolean : {}, other : {} } );                               
+                    }, {id: id, type:"sample", enum : {}, num : {}, date : {}, boolean : {}, other : {} } );                               
                     
                 });   
                 db.collection(projectID+"_phenotype").insertMany(records, function(err, result){

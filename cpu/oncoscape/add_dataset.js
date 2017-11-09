@@ -259,3 +259,10 @@ co(function *() {
 
 yield comongo.db.close(db);
 }).catch(onError);
+
+// Update existing colors
+// db.getCollection('acc_color').find({}).forEach(function(doc){ 
+//     doc.name = doc.name.replace(/\(\d+\%\)/,"").trim()
+//     print(doc.name)
+//     db.getCollection('acc_color').update({_id:doc._id}, {$set: {name: doc.name}})
+//})

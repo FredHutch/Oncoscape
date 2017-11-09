@@ -214,8 +214,14 @@
                         }
                     }
     
-                    if(vm.temp.method == "PCA")
-                        callPCA()
+                    if(vm.temp.method == "PCA"){
+                        var inDB = false
+                        if(vm.temp.source.source == "TCGA"){
+                           inDB= checkDB()
+                        } else callPCA()
+                       
+                    }
+                        
                 }
 
 
@@ -396,19 +402,16 @@
 
             }; 
             
-            var callPCA = function(){
-
-                vm.error = ""
-
+            var checkDB = function(){
                 var geneset =  vm.temp.params.bool.geneset.use ? osApi.getGeneset() : osApi.getGenesetAll();
 
                 //Check if in Mongo
                 osApi.query(vm.temp.source.dataset +"_cluster", 
-                    {   geneset: geneset.name, 
-                        disease: vm.temp.source.dataset, 
-                        dataType: "PCA", 
-                        input:vm.temp.data.selected.name,
-                        scores:{$size:vm.temp.meta.numSamples}}
+                {   geneset: geneset.name, 
+                    disease: vm.temp.source.dataset, 
+                    dataType: "PCA", 
+                    input:vm.temp.data.selected.name,
+                    scores:{$size:vm.temp.meta.numSamples}}
                 ).then(function(response){
                     var d = response.data
                     if(d.length >0){
@@ -419,88 +422,98 @@
                         d[0].scores = d[0].scores.map(function(x){ return x.d})
                         processPCA(d[0], geneset.geneIds, score_samples);
                         draw();
-                        return
+                        return true
                     }
-                    if (runType == "JS" & vm.temp.meta.numSamples  * vm.temp.meta.numGenes > 50000) {
-                        
-                        runType = "python"
-
-                        angular.element('#modalRun').modal();
-                        return;
-                    }
-                    if(runType == "simulate"){
-                        var numGenes = [100,200,500,1000, 5000, 10000,15000, 20000, 25000]; var numSamples = [100,200,500];
-                        for(var i=0;i<numSamples.length;i++){
-                            for(var j=0;j<numGenes.length;j++){
-                                console.log("Genes: "+ numGenes[j] + " Samples: "+ numSamples[i])
-                                runPCAsimulation(numGenes[j], numSamples[i]);
-                            }
-                        }
-
-                    }else if(runType == "JS") {
-                        var query = {}
-                        if(geneset.geneIds.length >0){
-                            query = {'m': {$in: geneset.geneIds}}
-                        }
-                        osApi.query(vm.temp.data.types[vm.temp.data.selected.i].collection, query
-                        ).then(function(response){
-                            vm.temp.result.input = response.data
-                            runPCA();
-                        });
-                    }else if(runType == "python") {
-                        
-                        var geneSetIds = geneset.geneIds
-                        var samples = [];
-                        if(vm.temp.params.bool.cohort.use)
-                            samples = osApi.getCohort().sampleIds;
-
-                        osApi.setBusy(true)
-                        PCAquery(vm.temp.source.dataset, geneSetIds, samples, vm.temp.data.types[vm.temp.data.selected.i].collection, 3).then(function(PCAresponse) {
-
-                            var d = PCAresponse.data;
-                            if(angular.isDefined(d.reason)){
-                                console.log(geneset.name +": " + d.reason)
-                                // PCA could not be calculated on geneset given current settings
-                                vm.error = d.reason;
-                                
-                                // return to previous state
-                                
-                                //add to blacklist to disable from future selection/calculation
-                                osApi.toggleGenesetDisable(geneset);
-                                if(samples.length ==0) samples = "None"
-                                NA_runs.push({"dataset":vm.temp.source.dataset, "collection":vm.temp.data.types[vm.temp.data.selected.i].collection, "geneset": geneset.name, "samples":samples})
-
-                                // revert/update display
-                                //if previous state not defined
-                                    //load geneset anyways - nothing to fall back on
-                                    //display null page
-                                //else
-                                    //rollback to previous definition
-                                    angular.element('#modal_NArun').modal();
-                                    //osApi.setGeneset(vm.geneSet)
-                                //}
-
-                                angular.element('#modalRun').modal('hide');
-                                osApi.setBusy(false)
-                                return;
-                            }
-
-
-                            // Successful run: 
-                            //---update temp method
-                            //vm.geneSet = geneset
-                            runType = "JS"
-
-                            //---update plot
-                            geneSetIds = _.pluck(d.loadings,"id")
-                            samples = _.pluck(d.scores,"id")
-                            d.scores  = d.scores.map(function(result){ return result.d});
-                            angular.element('#modalRun').modal('hide');
-                            processPCA(d, geneSetIds, samples);
-                            draw();
-                        });
-                    }
+                    callPCA()
                 })
+            }
+
+            var callPCA = function(){
+
+                vm.error = ""
+
+                var geneset =  vm.temp.params.bool.geneset.use ? osApi.getGeneset() : osApi.getGenesetAll();
+                
+                if (runType == "JS" & vm.temp.meta.numSamples  * vm.temp.meta.numGenes > 50000) {
+                    
+                    runType = "python"
+
+                    angular.element('#modalRun').modal();
+                    return;
+                }
+                if(runType == "simulate"){
+                    var numGenes = [100,200,500,1000, 5000, 10000,15000, 20000, 25000]; var numSamples = [100,200,500];
+                    for(var i=0;i<numSamples.length;i++){
+                        for(var j=0;j<numGenes.length;j++){
+                            console.log("Genes: "+ numGenes[j] + " Samples: "+ numSamples[i])
+                            runPCAsimulation(numGenes[j], numSamples[i]);
+                        }
+                    }
+
+                }else if(runType == "JS") {
+                    var query = {}
+                    if(geneset.geneIds.length >0){
+                        query = {'m': {$in: geneset.geneIds}}
+                    }
+                    osApi.query(vm.temp.data.types[vm.temp.data.selected.i].collection, query
+                    ).then(function(response){
+                        vm.temp.result.input = response.data
+                        runPCA();
+                    });
+                }else if(runType == "python") {
+                    
+                    var geneSetIds = geneset.geneIds
+                    var samples = [];
+                    if(vm.temp.params.bool.cohort.use)
+                        samples = osApi.getCohort().sampleIds;
+
+                    osApi.setBusy(true)
+                    PCAquery(vm.temp.source.dataset, geneSetIds, samples, vm.temp.data.types[vm.temp.data.selected.i].collection, 3)
+                    .then(function(PCAresponse) {
+
+                        var d = PCAresponse.data;
+                        if(angular.isDefined(d.reason)){
+                            console.log(geneset.name +": " + d.reason)
+                            // PCA could not be calculated on geneset given current settings
+                            vm.error = d.reason;
+                            
+                            // return to previous state
+                            
+                            //add to blacklist to disable from future selection/calculation
+                            osApi.toggleGenesetDisable(geneset);
+                            if(samples.length ==0) samples = "None"
+                            NA_runs.push({"dataset":vm.temp.source.dataset, "collection":vm.temp.data.types[vm.temp.data.selected.i].collection, "geneset": geneset.name, "samples":samples})
+
+                            // revert/update display
+                            //if previous state not defined
+                                //load geneset anyways - nothing to fall back on
+                                //display null page
+                            //else
+                                //rollback to previous definition
+                                angular.element('#modal_NArun').modal();
+                                //osApi.setGeneset(vm.geneSet)
+                            //}
+
+                            angular.element('#modalRun').modal('hide');
+                            osApi.setBusy(false)
+                            return;
+                        }
+
+
+                        // Successful run: 
+                        //---update temp method
+                        //vm.geneSet = geneset
+                        runType = "JS"
+
+                        //---update plot
+                        geneSetIds = _.pluck(d.loadings,"id")
+                        samples = _.pluck(d.scores,"id")
+                        d.scores  = d.scores.map(function(result){ return result.d});
+                        angular.element('#modalRun').modal('hide');
+                        processPCA(d, geneSetIds, samples);
+                        draw();
+                    });
+                }
 
             }
 

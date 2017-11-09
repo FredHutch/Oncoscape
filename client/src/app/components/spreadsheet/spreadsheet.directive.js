@@ -50,7 +50,10 @@
                 //     vm.gridApi.core.handleWindowResize();
                 //   }, 500, 10);
             };
-            vm.collections = [{path:"", name:"patient"}].concat(osApi.getData().wrapper.events)
+            vm.collections = osApi.getDataSource().collections
+                    .filter(function(d){return _.contains(["patient", "sample", "patientevent"], d.type)})
+                    .map(function(d){return d.name})
+
             vm.collection = vm.collections[0]    
             
             vm.options = {
@@ -153,19 +156,38 @@
             // Setup Watches
             $scope.$watch("vm.collection", function() {
                 osApi.setBusy(true);
-                var query = vm.collection.path == "" ? {} : {$fields: [vm.collection.path]}
-                // var fields = "{'".concat(vm.collection.path, "':1, _id:0}")
-                // if (vm.collection.path == "") 
-                //     fields = vm.collections.map(function(c){return c.path}).filter(function(p){return p != ""}).reduce(function(p, c){ return p.concat("'",c,"': 0,") }, "{").concat("_id:0}")
+                
+                var dataTypes = ["enum", "num", "date", "boolean", "other"]
+                var query = {type: "patient"}
+                if(vm.collection == "sample") query= {type: "sample"}
+                else if(vm.collection == "patient") query["$fields"] = ["id"].concat(dataTypes)
+                else  query["$fields"] = ["id", "events"]
                 osApi.query(osApi.getDataSource().dataset + "_phenotype", query)
                     .then(function(response) {
                         angular.element(".ui-grid-icon-menu").text("Columns");
                         var sheet = response.data
-                        if(vm.collection.path ==""){
-                            sheet = sheet.map(function(d){ return _.omit(d, _.pluck(vm.collections, "path"))})
+                        if(vm.collection =="patient" | vm.collection == "sample"){
+                            sheet = sheet
+                                .map(function(d){ 
+                                    var row = {id: d.id}
+                                    dataTypes.forEach(function(r){
+                                        if(Object.keys(d[r]).length !=0) Object.assign(row, d[r])
+                                    })
+                                    return row
+                                })
+                                
                         }else{
-                            sheet = _.flatten(sheet.map(function(d){ return d[vm.collection.path]}))
-                                    .filter(function(d){return angular.isDefined(d)})
+                           sheet =  sheet.map(function(d){
+                                
+                                var events = d.events.filter(function(e){return e.type == vm.collection})
+                                                      .map(function(e){ 
+                                                          e.id=d.id; 
+                                                          delete e.type; delete e.PatientId;
+                                                        return e } )
+                                return events
+                            })
+                            sheet = _.flatten(sheet)
+                           
                         }
 
                         var cols = Object.keys(sheet[0]) //.filter(function(d){return d!= "_id"})
