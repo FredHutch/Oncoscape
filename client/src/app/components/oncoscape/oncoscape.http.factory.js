@@ -20,7 +20,7 @@
              return query;
          };
          
-      //   var jwt = ""
+        var jwt = ""
 
          var query = function(req) {
              return $http({
@@ -28,7 +28,7 @@
                  url: queryString(req),
                  headers: {
                      apikey: 'password'
-                     //, authentication: jwt
+                     , authentication: jwt
                  }
              });
          };

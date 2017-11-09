@@ -53,7 +53,9 @@
                         // attach dataset inclusion to Fields
                         var regx = /(\d+%)/i;
                         vm.colorFields = v.data.reduce(function(p, c) {
-                            name = c.name.substr(0,c.name.match(regx).index-2)
+                            var name = c.name
+                            if(c.name.match(regx))
+                                name = c.name.substr(0,c.name.match(regx).index-2)
 
                             if (!p.hasOwnProperty(name)) p[name] = [];
                             p[name].push(ds);
