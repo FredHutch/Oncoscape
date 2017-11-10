@@ -18,7 +18,6 @@ function processResult(req, res, next, query) {
             console.log(err);
             res.status(404).send("Not Found").end();
         } else {
-            // console.log("^&^&^&^&^&: ", data);
             res.json(data).end();
         }
     };
@@ -69,8 +68,8 @@ var init = function (app) {
             console.log('!@! NOT AUTH');
             res.status(404).send('Not Authenticated!');
         } else {
-            console.log('&&&&&& authenticated GET api/projects {query}', req.params.query);
             var query = {};
+            console.log('GET projects/:query, ', req.params.query);
             if (req.params.query.split(":")[0] == '_id') {
                 console.log(req.params.query.split(":")[1]);
                 var IDs = req.params.query.split(":")[1].split(",").map(function (p) {
@@ -84,98 +83,71 @@ var init = function (app) {
                 Project.find(req.params.query, processResult(req, res));
             }
         }
-        // console.log(req.params.query);
-        // var query = {};
-        // if (req.params.query.split(":")[0] == 'User' || req.params.query.split(":")[0] == 'Project') {
-        //     query[req.params.query.split(":")[0]] =  mongoose.Types.ObjectId(req.params.query.split(":")[1]);
-        //     console.log(query);
-        //     Permission.find(query, processResult(req, res));
-        // } else {
-        //     Permission.find(req.params.query, processResult(req, res));
-        // }
-        // next();
     });
+
     app.post('/api/projects', Permissions.jwtVerification, function (req, res, next) {
         if (!req.isAuthenticated) {
             console.log('!@! NOT AUTH');
             res.status(404).send('Not Authenticated!');
         } else {
-            console.log('&&&&&& authenticated POST api/projects {}');
-            console.log('DEBUGG>>>', req.body);
             Project.create(req.body, processResult(req, res));
         }
     });
-    // app.get('/api/projects/:id', Permissions.jwtVerification,  function (req, res, next) {
-    //     if (!req.isAuthenticated) {
-    //         console.log('!@! NOT AUTH');
-    //         res.status(404).send('Not Authenticated!');
-    //     } else {
-    //         console.log('&&&&&& authenticated GET api/projects {_id: req.params.id}');
-    //         Project.find({_id: req.params.id}, processResult(req, res));
-    //     }
-    // });
-    app.put('/api/projects/:id', Permissions.jwtVerification, function (req, res, next) {
+
+    app.put('/api/projects/:query', Permissions.jwtVerification, function (req, res, next) {
         if (!req.isAuthenticated) {
             console.log('!@! NOT AUTH');
             res.status(404).send('Not Authenticated!');
         } else {
-            console.log('&&&&&& authenticated PUT api/projects {}');
-            Project.findOneAndUpdate({ _id: req.params.id }, req.body, { upsert: false }, processResult(req, res));
+            var query = {};
+            console.log('PUT projects/:query, ', req.params.query);
+            if (req.params.query.split(":")[0] == '_id') {
+                console.log(req.params.query.split(":")[1]);
+                var IDs = req.params.query.split(":")[1].split(",").map(function (p) {
+                                return mongoose.Types.ObjectId(p);
+                            });
+                var obj = {};
+                obj['$in'] = IDs;
+                query['_id'] = obj;
+                Project.findOneAndUpdate(query, req.body, { upsert: false }, processResult(req, res));
+            } else {
+                Project.findOneAndUpdate(req.params.query, req.body, { upsert: false }, processResult(req, res));
+            }
+            // Poject.findOneAndUpdate({ _id: req.params.id }, req.body, { upsert: false }, processResult(req, res));
         }
-    });
-    app.delete('/api/projects/:id', Permissions.jwtVerification, function (req, res, next) {
-        if (!req.isAuthenticated) {
-            console.log('!@! NOT AUTH');
-            res.status(404).send('Not Authenticated!');
-        } else {
-            console.log('&&&&&& authenticated DELETE api/projects {}');
-            Project.remove({ _id: req.params.id }, processResult(req, res));
-        }
-        
     });
 
+    app.delete('/api/projects/:query', Permissions.jwtVerification, function (req, res, next) {
+        if (!req.isAuthenticated) {
+            console.log('!@! NOT AUTH');
+            res.status(404).send('Not Authenticated!');
+        } else {
+            var query = {};
+            console.log('DELETE projects/:query, ', req.params.query);
+            if (req.params.query.split(":")[0] == '_id') {
+                console.log(req.params.query.split(":")[1]);
+                var IDs = req.params.query.split(":")[1].split(",").map(function (p) {
+                                return mongoose.Types.ObjectId(p);
+                            });
+                var obj = {};
+                obj['$in'] = IDs;
+                query['_id'] = obj;
+                Project.remove(query, processResult(req, res));
+            } else {
+                Project.remove(req.params.query, processResult(req, res));
+            }
+            // Project.remove({ _id: req.params.id }, processResult(req, res));
+        } 
+    });
     //#endregion
 
     //#region PERMISSIONS
 
-    app.get('/api/permissions', Permissions.jwtVerification, function (req, res, next) {
-
-        // if (!req.isAuthenticated) return 404
-        // Permission.find({User: req.userid}, processResult(req, res));
-        if (!req.isAuthenticated) {
-            console.log('!@! NOT AUTH');
-            res.status(404).send('Not Authenticated!');
-        } else {
-            console.log('&&&&&& authenticated GET api/permissions {}');
-            Permission.find({}, processResult(req, res));
-        }
-    });
-    app.post('/api/permissions', Permissions.jwtVerification, function (req, res, next) {
-        console.log('what do we received from client: ', req.body);
-
-        // if (!req.isAuthenticated) return 404
-        // Query Mongo To Determine If req.userid has write or admin permissions on the req.body.projectId
-        // If Not Return 404
-        if (!req.isAuthenticated) {
-            console.log('!@! NOT AUTH');
-            res.status(404).send('Not Authenticated!');
-        } else {
-            console.log('&&&&&& authenticated POST api/permissions {}');
-            Permission.create(req.body, processResult(req, res));
-        }
-    });
     app.get('/api/permissions/:query', Permissions.jwtVerification, function (req, res, next) {
-        console.log('&&&&&& authenticated GET api/permissions {query: req.params.query}');
-        // if (!req.isAuthenticated) return 404
-        // Add The User Where Clause - Permission.find({User: req.userid}, processResult(req, res));
-        // Find {_id: req.params.id, user=req.userid} 
         if (!req.isAuthenticated) {
             console.log('!@! NOT AUTH');
             res.status(404).send('Not Authenticated!');
         } else {
-            console.log('&&&&&& authenticated GET api/permissions {query: req.params.query}');
-            // var query = (req.params.query) ? JSON.parse(req.params.query) : {};
-            console.log(req.params.query);
             var queryJSON = req.params.query;
             var query = {};
             if (queryJSON.indexOf(";") > -1) {
@@ -193,7 +165,6 @@ var init = function (app) {
                         query[q.split(":")[0]] = q.split(":")[1];
                        } 
                 })
-                console.log('******************', query);
                 Permission.find(query, processResult(req, res));
             } else {
                 if (queryJSON.split(":")[0] == 'User' || queryJSON.split(":")[0] == 'Project') {
@@ -206,28 +177,45 @@ var init = function (app) {
             }
         }
     });
-    app.put('/api/permissions/:id', Permissions.jwtVerification, function (req, res, next) {
 
-        // if (!req.isAuthenticated) return 404
-        // Add The User Where Clause - Permission.find({User: req.userid}, processResult(req, res));
-        // Find {_id: req.params.id, user=req.userid} 
+    app.post('/api/permissions', Permissions.jwtVerification, function (req, res, next) {
         if (!req.isAuthenticated) {
             console.log('!@! NOT AUTH');
             res.status(404).send('Not Authenticated!');
         } else {
-            console.log('& authenticated PUT api/permissions {}');
-            Permission.findOneAndUpdate({ _id: req.params.id }, req.body, { upsert: false }, processResult(req, res));
+            Permission.create(req.body, processResult(req, res));
+        }
+    });
+    
+    app.put('/api/permissions/:query', Permissions.jwtVerification, function (req, res, next) {
+        if (!req.isAuthenticated) {
+            console.log('!@! NOT AUTH');
+            res.status(404).send('Not Authenticated!');
+        } else {
+            var query = {};
+            console.log('PUT projects/:query, ', req.params.query);
+            if (req.params.query.split(":")[0] == '_id') {
+                console.log(req.params.query.split(":")[1]);
+                var IDs = req.params.query.split(":")[1].split(",").map(function (p) {
+                                return mongoose.Types.ObjectId(p);
+                            });
+                var obj = {};
+                obj['$in'] = IDs;
+                query['_id'] = obj;
+                Permission.findOneAndUpdate(query, req.body, { upsert: false }, processResult(req, res));
+            } else {
+                Permission.findOneAndUpdate(req.params.query, req.body, { upsert: false }, processResult(req, res));
+            }
+            // Permission.findOneAndUpdate({ _id: req.params.id }, req.body, { upsert: false }, processResult(req, res));
         }
     });
     
     app.delete('/api/permissions/:query', Permissions.jwtVerification, function (req, res, next) {
-        console.log('outside: && authenticated DELETE api/permissions {req.params.query}: ', req.params.query);
+        console.log('&& authenticated DELETE api/permissions/:query ', req.params.query);
         if (!req.isAuthenticated) {
             console.log('!@! NOT AUTH');
             res.status(404).send('Not Authenticated!');
         } else {
-            console.log('&& authenticated DELETE api/permissions {req.params.query}: ', req.params.query);
-            console.log(req.params.query);
             var queryJSON = req.params.query;
             var query = {};
             if (queryJSON.indexOf(";") > -1) {
@@ -245,10 +233,10 @@ var init = function (app) {
                         query[q.split(":")[0]] = q.split(":")[1];
                        } 
                 })
-                console.log('******************', query);
-            Permission.remove(query, processResult(req, res));
+                console.log('here...', query);
+                Permission.remove(query, processResult(req, res));
             } else {
-                if (queryJSON.split(":")[0] == 'User' || queryJSON.split(":")[0] == 'Project') {
+                if (queryJSON.split(":")[0] == '_id' || queryJSON.split(":")[0] == 'User' || queryJSON.split(":")[0] == 'Project') {
                     query[queryJSON.split(":")[0]] =  mongoose.Types.ObjectId(queryJSON.split(":")[1]);
                     console.log(query);
                     Permission.remove(query, processResult(req, res));
@@ -262,52 +250,74 @@ var init = function (app) {
     //#endregion
 
     //#region USERS
-    app.get('/api/users', Permissions.jwtVerification, function (req, res, next) {
-        if (!req.isAuthenticated) {
-            console.log('!@! NOT AUTH');
-            res.status(404).send('Not Authenticated!');
-        } else {
-            console.log('&&&&&& authenticated GET api/user {}');
-            User.find({}, processResult(req, res));
-        }
-    });
+
     app.post('/api/users', function (req, res, next) {
         User.create(req.body, processResult(req, res));
         console.log('***** NO AUTH is REQUIRED ****');
-        console.log('any req:', req.isAuthenticated);
-        // if (!req.isAuthenticated) {
-        //     console.log('!@! NOT AUTH');
-        //     res.status(404).send('Not Authenticated!');
-        // } else {
-        //     console.log('&&&&&& authenticated POST api/user {}');
-        //     User.create(req.body, processResult(req, res));
-        // }
     });
-    app.get('/api/users/:id', Permissions.jwtVerification, function (req, res, next) {
+
+    app.get('/api/users/:query', Permissions.jwtVerification, function (req, res, next) {
         if (!req.isAuthenticated) {
             console.log('!@! NOT AUTH');
             res.status(404).send('Not Authenticated!');
         } else {
-            console.log('&&&&&& authenticated GET api/user {_id: req.params.id}');
-            User.find({_id: req.params.id}, processResult(req, res));
+            var query = {};
+            if (req.params.query.split(":")[0] == '_id') {
+                console.log(req.params.query.split(":")[1]);
+                var IDs = req.params.query.split(":")[1].split(",").map(function (p) {
+                                return mongoose.Types.ObjectId(p);
+                            });
+                var obj = {};
+                obj['$in'] = IDs;
+                query['_id'] = obj;
+                User.find(query, processResult(req, res));
+            } else {
+                console.log('am I here? ', req.params.query);
+                User.find(req.params.query, processResult(req, res));
+            }
+            // User.find({_id: req.params.id}, processResult(req, res));
         }
     });
-    app.put('/api/users/:id', Permissions.jwtVerification, function (req, res, next) {
+
+    app.put('/api/users/:query', Permissions.jwtVerification, function (req, res, next) {
         if (!req.isAuthenticated) {
             console.log('!@! NOT AUTH');
             res.status(404).send('Not Authenticated!');
         } else {
-            console.log('&&&&&& authenticated PUT api/user {}');
-            User.findOneAndUpdate({ _id: req.params.id }, req.body, { upsert: false }, processResult(req, res));
+            var query = {};
+            if (req.params.query.split(":")[0] == '_id') {
+                console.log(req.params.query.split(":")[1]);
+                var IDs = req.params.query.split(":")[1].split(",").map(function (p) {
+                                return mongoose.Types.ObjectId(p);
+                            });
+                var obj = {};
+                obj['$in'] = IDs;
+                query['_id'] = obj;
+                User.findOneAndUpdate(query, req.body, { upsert: false }, processResult(req, res));
+            } else {
+                User.findOneAndUpdate(req.params.query, { upsert: false }, processResult(req, res));
+            }
         }
     });
+
     app.delete('/api/users/:id', Permissions.jwtVerification, function (req, res, next) {
         if (!req.isAuthenticated) {
             console.log('!@! NOT AUTH');
             res.status(404).send('Not Authenticated!');
         } else {
-            console.log('&&&&&& authenticated DELETE api/user {_id: req.params.id}');
-            User.remove({ _id: req.params.id }, processResult(req, res));
+            var query = {};
+            if (req.params.query.split(":")[0] == '_id') {
+                console.log(req.params.query.split(":")[1]);
+                var IDs = req.params.query.split(":")[1].split(",").map(function (p) {
+                                return mongoose.Types.ObjectId(p);
+                            });
+                var obj = {};
+                obj['$in'] = IDs;
+                query['_id'] = obj;
+                User.remove(query, req.body, processResult(req, res));
+            } else {
+                User.remove(req.params.query, processResult(req, res));
+            }
         }
     });
 
