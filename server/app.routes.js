@@ -273,7 +273,10 @@ var init = function (app) {
                 User.find(query, processResult(req, res));
             } else {
                 console.log('am I here? ', req.params.query);
-                User.find(req.params.query, processResult(req, res));
+                var rq = JSON.parse(req.params.query);
+                console.log('rq.$or:', rq['$or']);
+                query['$or'] = rq['$or'];
+                User.find(query, processResult(req, res));
             }
             // User.find({_id: req.params.id}, processResult(req, res));
         }
