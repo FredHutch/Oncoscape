@@ -39,11 +39,11 @@ var jwtVerification = function (req, res, next) {
     if (req && req.headers.hasOwnProperty("authorization")) {
         try {
             var userID = req.headers.authorization.replace('Bearer ', '');
-            getUserID(userID).then(res => {
-                req.userID = res;
+            getUserID(userID).then(rs1 => {
+                req.userID = rs1;
                 req.isAuthenticated = true;
-                Permission.find({ 'User': req.userID }, function(req, res) {
-                    req.permissions = res;
+                Permission.find({'User': mongoose.Types.ObjectId(JSON.parse(rs1))}, function(req1, res1){
+                    req.permissions = res1;
                     console.log('passed jwtVerification');
                     next();
                 });

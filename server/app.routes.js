@@ -2,6 +2,7 @@ db = require('./app.db.js');
 const mongoose = require('mongoose');
 const request = require('request');
 const asyncLoop = require('node-async-loop');
+const _ = require('underscore');
 Query = require('./app.query.js');
 Permissions = require('./app.permissions.js');
 var User = require("./models/user");
@@ -12,13 +13,129 @@ var Permission = require("./models/permission");
 
 const jwt = require('jsonwebtoken');
 
-function processResult(req, res, next, query) {
+function privateQuery (queryString) {
+    var query = {};
+    if (queryString.indexOf(";") > -1) {
+        queryString.split(";").forEach(function(q){
+            if(q.split(":")[0] == '_id' ||
+               q.split(":")[0] == 'Project' ||
+               q.split(":")[0] == 'User'||
+               q.split(":")[0] == 'Author') {
+                var obj = {};
+                obj['$in'] = q.split(":")[1].split(",").map(function(p){
+                    return mongoose.Types.ObjectId(p);
+                });
+                query[q.split(":")[0]] = obj;
+               } else {
+                query[q.split(":")[0]] = q.split(":")[1];
+               } 
+        })
+    } else {
+        if (queryString.split(":")[0] == '_id' || 
+            queryString.split(":")[0] == 'User' || 
+            queryString.split(":")[0] == 'Author' || 
+            queryString.split(":")[0] == 'Project') {
+            var arr = queryString.split(":")[1].split(",").map(function (p) {
+                            return mongoose.Types.ObjectId(p);
+                        });
+            var obj = {};
+            obj['$in'] = arr;
+            query[queryString.split(":")[0]] = obj;
+        } else {
+            query = JSON.parse(queryString);
+        }
+    }
+    return query;
+}
+
+function processResult(req, res, next) {
+    // console.log('req.userID: ', req.userID);
+    // console.log('req.permissions: ', req.permissions);
+    console.log('req.method', req.method);
     return function (err, data) {
         if (err) {
             console.log(err);
             res.status(404).send("Not Found").end();
         } else {
             res.json(data).end();
+            // if (req.method == 'GET' || req.method == 'PUT' || req.method == 'DELETE'){
+            //     if (data.length > 0) {
+            //         if('Name' in data[0]) {
+            //             // Project Array
+            //             console.log('Validation Project Object Array');
+            //             var projectIDs = _.uniq(data.map(m => m._id.toString()));
+            //             var projectIDs_permissions = _.uniq(req.permissions.map(m => m.Project.toString()));
+            //             if ( _.difference(projectIDs, projectIDs_permissions).length == 0) {
+            //                 console.log('Project Array: yay');
+            //                 res.json(data).end();
+            //             } else {
+            //                 console.log('did not pass validaiton');
+            //                 console.log('projectIDs: ', projectIDs);
+            //                 console.log('projectIDs_permissions: ', projectIDs_permissions);
+            //                 console.log(_.difference(projectIDs, projectIDs_permissions).length);
+            //                 res.status(404).send("Did not pass validation").end();
+            //             }
+            //         } else if ('Role' in data[0]) {
+            //             // Permission Array
+            //             console.log('Validation Permission Object Array');
+            //             var permissionIDs = _.uniq(data.map(m => m._id.toString()));
+            //             var permissionIDs_permissions = _.uniq(req.permissions.map(m => m._id.toString()));
+            //             if ( _.difference(permissionIDs, permissionIDs_permissions).length == 0) {
+            //                 console.log('Permission Array: yay');
+            //                 res.json(data).end();
+            //             } else {
+            //                 console.log('did not pass validaiton');
+            //                 console.log("permissionIDs", permissionIDs);
+            //                 console.log("permissionIDs_permissions", permissionIDs_permissions);
+            //                 res.status(404).send("Did not pass validation").end();
+            //             }
+            //         } else if ('Email' in data[0]){
+            //             // User Array
+            //             console.log('Validation User Object Array');
+            //             var userIDs = _.uniq(data.map(m => m._id.toString()));
+            //             var userIDs_permissions = _.uniq(req.permissions.map(m => m.User.toString()));
+                        
+            //             if ( _.difference(userIDs, userIDs_permissions).length == 0) {
+            //                 console.log('User Array: yay');
+            //                 res.json(data).end();
+            //             } else {
+            //                 console.log('did not pass validaiton');
+            //                 console.log("userIDs", userIDs);
+            //                 console.log("userIDs_permissions", userIDs_permissions);
+            //                 console.log(_.difference(userIDs, userIDs_permissions));
+            //                 res.status(404).send("Did not pass validation").end();
+            //             }
+            //         } else {
+            //             console.log('WHY ARE WE HERE? ', data);
+            //         }
+            //     } else {
+            //         if('Name' in data) {
+            //             // Project Array
+            //             console.log('Validation Project Object ');
+                         
+            //             console.log('projectIDs: ', data._id);
+            //             var projectIDs_permissions = _.uniq(req.permissions.map(function(m){
+            //                 return m.Project;
+            //             }));
+            //             console.log('projectIDs_permissions: ', projectIDs_permissions);
+            //         } else if ('Role' in data) {
+            //             // Permission Array
+            //             console.log('Validation Permission Object');
+        
+            //         } else if ('Email' in data){
+            //             // User Array
+            //             console.log('Validation User Object');
+        
+            //         } else {
+            //             console.log('Data is a single object, None of the three Data Model...', data);
+            //         }
+            //     }
+            // } else {
+            //     console.log('&&&&&&&&&&&&&&&', req.method);
+            //     console.log('req.body: ', req.body);
+            //     console.log('req.isAuthenticated: ', req.isAuthenticated);
+            //     res.json(data).end();
+            // }
         }
     };
 };
@@ -30,7 +147,6 @@ function checkUserExistance(gmail){
         });
     });   
 }
-
 
 var init = function (app) {
 
@@ -68,20 +184,8 @@ var init = function (app) {
             console.log('!@! NOT AUTH');
             res.status(404).send('Not Authenticated!');
         } else {
-            var query = {};
-            console.log('GET projects/:query, ', req.params.query);
-            if (req.params.query.split(":")[0] == '_id') {
-                console.log(req.params.query.split(":")[1]);
-                var IDs = req.params.query.split(":")[1].split(",").map(function (p) {
-                                return mongoose.Types.ObjectId(p);
-                            });
-                var obj = {};
-                obj['$in'] = IDs;
-                query['_id'] = obj;
-                Project.find(query, processResult(req, res));
-            } else {
-                Project.find(req.params.query, processResult(req, res));
-            }
+            var query = privateQuery(req.params.query);
+            Project.find(query, processResult(req, res));
         }
     });
 
@@ -99,21 +203,10 @@ var init = function (app) {
             console.log('!@! NOT AUTH');
             res.status(404).send('Not Authenticated!');
         } else {
-            var query = {};
-            console.log('PUT projects/:query, ', req.params.query);
-            if (req.params.query.split(":")[0] == '_id') {
-                console.log(req.params.query.split(":")[1]);
-                var IDs = req.params.query.split(":")[1].split(",").map(function (p) {
-                                return mongoose.Types.ObjectId(p);
-                            });
-                var obj = {};
-                obj['$in'] = IDs;
-                query['_id'] = obj;
-                Project.findOneAndUpdate(query, req.body, { upsert: false }, processResult(req, res));
-            } else {
-                Project.findOneAndUpdate(req.params.query, req.body, { upsert: false }, processResult(req, res));
-            }
-            // Poject.findOneAndUpdate({ _id: req.params.id }, req.body, { upsert: false }, processResult(req, res));
+            // console.log('GET projects/:query, ', req.params.query);
+            var query = privateQuery(req.params.query);
+            // console.log('privateQuery() processed: ', query);
+            Project.findOneAndUpdate(query, req.body, { upsert: false }, processResult(req, res));
         }
     });
 
@@ -122,23 +215,13 @@ var init = function (app) {
             console.log('!@! NOT AUTH');
             res.status(404).send('Not Authenticated!');
         } else {
-            var query = {};
-            console.log('DELETE projects/:query, ', req.params.query);
-            if (req.params.query.split(":")[0] == '_id') {
-                console.log(req.params.query.split(":")[1]);
-                var IDs = req.params.query.split(":")[1].split(",").map(function (p) {
-                                return mongoose.Types.ObjectId(p);
-                            });
-                var obj = {};
-                obj['$in'] = IDs;
-                query['_id'] = obj;
-                Project.remove(query, processResult(req, res));
-            } else {
-                Project.remove(req.params.query, processResult(req, res));
-            }
-            // Project.remove({ _id: req.params.id }, processResult(req, res));
+            // console.log('GET projects/:query, ', req.params.query);
+            var query = privateQuery(req.params.query);
+            // console.log('privateQuery() processed: ', query);
+            Project.remove(query, processResult(req, res));
         } 
     });
+
     //#endregion
 
     //#region PERMISSIONS
@@ -148,33 +231,10 @@ var init = function (app) {
             console.log('!@! NOT AUTH');
             res.status(404).send('Not Authenticated!');
         } else {
-            var queryJSON = req.params.query;
-            var query = {};
-            if (queryJSON.indexOf(";") > -1) {
-                queryJSON.split(";").forEach(function(q){
-                    if(q.split(":")[0] == '_id' ||
-                       q.split(":")[0] == 'Project' ||
-                       q.split(":")[0] == 'User') {
-                        // query[q.split(":")[0]] = mongoose.Types.ObjectId(q.split(":")[1]);
-                        var obj = {};
-                        obj['$in'] = q.split(":")[1].split(",").map(function(p){
-                            return mongoose.Types.ObjectId(p);
-                        });
-                        query[q.split(":")[0]] = obj;
-                       } else {
-                        query[q.split(":")[0]] = q.split(":")[1];
-                       } 
-                })
-                Permission.find(query, processResult(req, res));
-            } else {
-                if (queryJSON.split(":")[0] == 'User' || queryJSON.split(":")[0] == 'Project') {
-                    query[queryJSON.split(":")[0]] =  mongoose.Types.ObjectId(queryJSON.split(":")[1]);
-                    console.log(query);
-                    Permission.find(query, processResult(req, res));
-                } else {
-                    Permission.find(queryJSON, processResult(req, res));
-                }
-            }
+            // console.log('GET projects/:query, ', req.params.query);
+            var query = privateQuery(req.params.query);
+            // console.log('privateQuery() processed: ', query);
+            Permission.find(query, processResult(req, res));
         }
     });
 
@@ -192,21 +252,10 @@ var init = function (app) {
             console.log('!@! NOT AUTH');
             res.status(404).send('Not Authenticated!');
         } else {
-            var query = {};
-            console.log('PUT projects/:query, ', req.params.query);
-            if (req.params.query.split(":")[0] == '_id') {
-                console.log(req.params.query.split(":")[1]);
-                var IDs = req.params.query.split(":")[1].split(",").map(function (p) {
-                                return mongoose.Types.ObjectId(p);
-                            });
-                var obj = {};
-                obj['$in'] = IDs;
-                query['_id'] = obj;
-                Permission.findOneAndUpdate(query, req.body, { upsert: false }, processResult(req, res));
-            } else {
-                Permission.findOneAndUpdate(req.params.query, req.body, { upsert: false }, processResult(req, res));
-            }
-            // Permission.findOneAndUpdate({ _id: req.params.id }, req.body, { upsert: false }, processResult(req, res));
+            // console.log('GET projects/:query, ', req.params.query);
+            var query = privateQuery(req.params.query);
+            // console.log('privateQuery() processed: ', query);
+            Permission.findOneAndUpdate(query, req.body, { upsert: false }, processResult(req, res));
         }
     });
     
@@ -216,34 +265,10 @@ var init = function (app) {
             console.log('!@! NOT AUTH');
             res.status(404).send('Not Authenticated!');
         } else {
-            var queryJSON = req.params.query;
-            var query = {};
-            if (queryJSON.indexOf(";") > -1) {
-                queryJSON.split(";").forEach(function(q){
-                    if(q.split(":")[0] == '_id' ||
-                       q.split(":")[0] == 'Project' ||
-                       q.split(":")[0] == 'User') {
-                        // query[q.split(":")[0]] = mongoose.Types.ObjectId(q.split(":")[1]);
-                        var obj = {};
-                        obj['$in'] = q.split(":")[1].split(",").map(function(p){
-                            return mongoose.Types.ObjectId(p);
-                        });
-                        query[q.split(":")[0]] = obj;
-                       } else {
-                        query[q.split(":")[0]] = q.split(":")[1];
-                       } 
-                })
-                console.log('here...', query);
-                Permission.remove(query, processResult(req, res));
-            } else {
-                if (queryJSON.split(":")[0] == '_id' || queryJSON.split(":")[0] == 'User' || queryJSON.split(":")[0] == 'Project') {
-                    query[queryJSON.split(":")[0]] =  mongoose.Types.ObjectId(queryJSON.split(":")[1]);
-                    console.log(query);
-                    Permission.remove(query, processResult(req, res));
-                } else {
-                    Permission.remove(queryJSON, processResult(req, res));
-                }
-            }
+            // console.log('GET projects/:query, ', req.params.query);
+            var query = privateQuery(req.params.query);
+            // console.log('privateQuery() processed: ', query);
+            Permission.remove(query, processResult(req, res));
         }
     });
 
@@ -261,24 +286,10 @@ var init = function (app) {
             console.log('!@! NOT AUTH');
             res.status(404).send('Not Authenticated!');
         } else {
-            var query = {};
-            if (req.params.query.split(":")[0] == '_id') {
-                console.log(req.params.query.split(":")[1]);
-                var IDs = req.params.query.split(":")[1].split(",").map(function (p) {
-                                return mongoose.Types.ObjectId(p);
-                            });
-                var obj = {};
-                obj['$in'] = IDs;
-                query['_id'] = obj;
-                User.find(query, processResult(req, res));
-            } else {
-                console.log('am I here? ', req.params.query);
-                var rq = JSON.parse(req.params.query);
-                console.log('rq.$or:', rq['$or']);
-                query['$or'] = rq['$or'];
-                User.find(query, processResult(req, res));
-            }
-            // User.find({_id: req.params.id}, processResult(req, res));
+            // console.log('GET projects/:query, ', req.params.query);
+            var query = privateQuery(req.params.query);
+            // console.log('privateQuery() processed: ', query);
+            User.find(query, processResult(req, res));
         }
     });
 
@@ -287,40 +298,22 @@ var init = function (app) {
             console.log('!@! NOT AUTH');
             res.status(404).send('Not Authenticated!');
         } else {
-            var query = {};
-            if (req.params.query.split(":")[0] == '_id') {
-                console.log(req.params.query.split(":")[1]);
-                var IDs = req.params.query.split(":")[1].split(",").map(function (p) {
-                                return mongoose.Types.ObjectId(p);
-                            });
-                var obj = {};
-                obj['$in'] = IDs;
-                query['_id'] = obj;
-                User.findOneAndUpdate(query, req.body, { upsert: false }, processResult(req, res));
-            } else {
-                User.findOneAndUpdate(req.params.query, { upsert: false }, processResult(req, res));
-            }
+            // console.log('GET projects/:query, ', req.params.query);
+            var query = privateQuery(req.params.query);
+            // console.log('privateQuery() processed: ', query);
+            User.findOneAndUpdate(query, req.body, { upsert: false }, processResult(req, res));
         }
     });
 
-    app.delete('/api/users/:id', Permissions.jwtVerification, function (req, res, next) {
+    app.delete('/api/users/:query', Permissions.jwtVerification, function (req, res, next) {
         if (!req.isAuthenticated) {
             console.log('!@! NOT AUTH');
             res.status(404).send('Not Authenticated!');
         } else {
-            var query = {};
-            if (req.params.query.split(":")[0] == '_id') {
-                console.log(req.params.query.split(":")[1]);
-                var IDs = req.params.query.split(":")[1].split(",").map(function (p) {
-                                return mongoose.Types.ObjectId(p);
-                            });
-                var obj = {};
-                obj['$in'] = IDs;
-                query['_id'] = obj;
-                User.remove(query, req.body, processResult(req, res));
-            } else {
-                User.remove(req.params.query, processResult(req, res));
-            }
+            // console.log('GET projects/:query, ', req.params.query);
+            var query = privateQuery(req.params.query);
+            // console.log('privateQuery() processed: ', query);
+            User.remove(query, req.body, processResult(req, res));
         }
     });
 

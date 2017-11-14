@@ -9,7 +9,8 @@ var fileSchema = new Schema({
     Category: { type: String, enum: categories }, 
     DataType: { type: String, enum: datatypes },
     FileType: { type: String },
-    Project: String,
+    // Project: String,
+    Project: {type: Schema.ObjectId, ref: 'Project', required: true},
     Data: Object,
     Size: Number,
     Date: {type: Date, default: Date.now}
