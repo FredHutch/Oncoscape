@@ -36,7 +36,7 @@ mongoose.connect(
 const db = mongoose.connection;
 
 
-const HugoGenes = require('../HugoGenes.json');
+
 const tool_req = require("./tool_requirements.json")      
 
 var errorMessage = {};
