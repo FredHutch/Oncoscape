@@ -13,7 +13,12 @@ var Permission = require("./models/permission");
 
 const jwt = require('jsonwebtoken');
 
-function privateQuery (queryString) {
+function privateQuery (req) {
+    var queryString = req.params.query;
+    var route = req.route.path.split('/')[2];
+    var method = req.method;
+    console.log('in privateQuery function: ', queryString, '||', route, '||', method);
+
     var query = {};
     if (queryString.indexOf(";") > -1) {
         queryString.split(";").forEach(function(q){
@@ -25,11 +30,27 @@ function privateQuery (queryString) {
                 obj['$in'] = q.split(":")[1].split(",").map(function(p){
                     return mongoose.Types.ObjectId(p);
                 });
+                console.log('Before Where Clause: ', JSON.stringify(obj));
+                if (q.split(":")[0] == 'Project') {
+                    obj['$in'] = _.intersection(obj['$in'], req.permissions.map(m => m.Project));
+                } else if (q.split(":")[0] == 'User' || q.split(":")[0] == 'Author') {
+                    obj['$in'] = _.intersection(obj['$in'], req.permissions.map(m => m.User));
+                } else if (q.split(":")[0] == '_id') {
+                    if (route == 'permissions') {
+                        obj['$in'] = _.intersection(obj['$in'], req.permissions.map(m => m._id));
+                    } else if (route == 'projects') {
+                        obj['$in'] = _.intersection(obj['$in'], req.permissions.map(m => m.Project));
+                    } else if (route == 'users') {
+                        obj['$in'] = _.intersection(obj['$in'], req.permissions.map(m => m.User));                        
+                    }
+                }
+                console.log('After Where Clause: ', JSON.stringify(obj));
                 query[q.split(":")[0]] = obj;
                } else {
                 query[q.split(":")[0]] = q.split(":")[1];
+                console.log("YES1, WHY WE ARE HERE?: ", query);
                } 
-        })
+        });
     } else {
         if (queryString.split(":")[0] == '_id' || 
             queryString.split(":")[0] == 'User' || 
@@ -40,18 +61,39 @@ function privateQuery (queryString) {
                         });
             var obj = {};
             obj['$in'] = arr;
+            console.log('Before Where Clause: ', JSON.stringify(obj));
+            if (queryString.split(":")[0] == 'Project') {
+                obj['$in'] = _.intersection(obj['$in'], req.permissions.map(m => m.Project));
+            } else if (queryString.split(":")[0] == 'User' || queryString.split(":")[0] == 'Author') {
+                obj['$in'] = _.intersection(obj['$in'], req.permissions.map(m => m.User));
+            } else if (queryString.split(":")[0] == '_id') {
+                if (route == 'permissions') {
+                    obj['$in'] = _.intersection(obj['$in'], req.permissions.map(m => m._id));
+                } else if (route == 'projects') {
+                    obj['$in'] = _.intersection(obj['$in'], req.permissions.map(m => m.Project));
+                } else if (route == 'users') {
+                    obj['$in'] = _.intersection(obj['$in'], req.permissions.map(m => m.User));                        
+                }
+            }
+            console.log('After Where Clause: ', JSON.stringify(obj));
+
             query[queryString.split(":")[0]] = obj;
         } else {
             query = JSON.parse(queryString);
+            console.log("YES2, WHY WE ARE HERE?: ", query);
         }
     }
+    console.log('B- ', query);
     return query;
 }
 
 function processResult(req, res, next) {
     // console.log('req.userID: ', req.userID);
     // console.log('req.permissions: ', req.permissions);
-    console.log('req.method', req.method);
+    console.log(Object.keys(req.route.methods), ' : ', req.route.path);
+    // console.log('req.userID: ', req.userID);
+    // console.log('req.isAuthenticated: ', req.isAuthenticated);
+    // console.log('req.permissions: ', req.permissions);
     return function (err, data) {
         if (err) {
             console.log(err);
@@ -184,7 +226,7 @@ var init = function (app) {
             console.log('!@! NOT AUTH');
             res.status(404).send('Not Authenticated!');
         } else {
-            var query = privateQuery(req.params.query);
+            var query = privateQuery(req);
             Project.find(query, processResult(req, res));
         }
     });
@@ -194,7 +236,14 @@ var init = function (app) {
             console.log('!@! NOT AUTH');
             res.status(404).send('Not Authenticated!');
         } else {
-            Project.create(req.body, processResult(req, res));
+            if (req.body.Author.toString() != req.userID) {
+                console.log('req.body.Author: ', req.body.Author.toString());
+                console.log('typeof(req.body.Author): ', typeof(req.body.Author));
+                console.log('req.userID: ', req.userID);
+                console.log('And they are not equal, cannot write to database');
+            } else {
+                Project.create(req.body, processResult(req, res));
+            }    
         }
     });
 
@@ -204,7 +253,7 @@ var init = function (app) {
             res.status(404).send('Not Authenticated!');
         } else {
             // console.log('GET projects/:query, ', req.params.query);
-            var query = privateQuery(req.params.query);
+            var query = privateQuery(req);
             // console.log('privateQuery() processed: ', query);
             Project.findOneAndUpdate(query, req.body, { upsert: false }, processResult(req, res));
         }
@@ -216,7 +265,7 @@ var init = function (app) {
             res.status(404).send('Not Authenticated!');
         } else {
             // console.log('GET projects/:query, ', req.params.query);
-            var query = privateQuery(req.params.query);
+            var query = privateQuery(req);
             // console.log('privateQuery() processed: ', query);
             Project.remove(query, processResult(req, res));
         } 
@@ -232,7 +281,7 @@ var init = function (app) {
             res.status(404).send('Not Authenticated!');
         } else {
             // console.log('GET projects/:query, ', req.params.query);
-            var query = privateQuery(req.params.query);
+            var query = privateQuery(req);
             // console.log('privateQuery() processed: ', query);
             Permission.find(query, processResult(req, res));
         }
@@ -243,7 +292,15 @@ var init = function (app) {
             console.log('!@! NOT AUTH');
             res.status(404).send('Not Authenticated!');
         } else {
-            Permission.create(req.body, processResult(req, res));
+            if (req.body.User.toString() != req.userID || 
+                _.intersection(req.body.Project, req.permissions.map(m => m.Project) )) {
+                console.log('req.body.User: ', req.body.User.toString());
+                console.log('req.userID: ', req.userID);
+                console.log('req.body.Project: ', req.body.Project);
+                console.log('req.permissions.map(m => m.Project): ', req.permissions.map(m => m.Project));
+            } else {
+                Permission.create(req.body, processResult(req, res));
+            }
         }
     });
     
@@ -253,7 +310,7 @@ var init = function (app) {
             res.status(404).send('Not Authenticated!');
         } else {
             // console.log('GET projects/:query, ', req.params.query);
-            var query = privateQuery(req.params.query);
+            var query = privateQuery(req);
             // console.log('privateQuery() processed: ', query);
             Permission.findOneAndUpdate(query, req.body, { upsert: false }, processResult(req, res));
         }
@@ -266,7 +323,7 @@ var init = function (app) {
             res.status(404).send('Not Authenticated!');
         } else {
             // console.log('GET projects/:query, ', req.params.query);
-            var query = privateQuery(req.params.query);
+            var query = privateQuery(req);
             // console.log('privateQuery() processed: ', query);
             Permission.remove(query, processResult(req, res));
         }
@@ -287,7 +344,7 @@ var init = function (app) {
             res.status(404).send('Not Authenticated!');
         } else {
             // console.log('GET projects/:query, ', req.params.query);
-            var query = privateQuery(req.params.query);
+            var query = privateQuery(req);
             // console.log('privateQuery() processed: ', query);
             User.find(query, processResult(req, res));
         }
@@ -299,7 +356,7 @@ var init = function (app) {
             res.status(404).send('Not Authenticated!');
         } else {
             // console.log('GET projects/:query, ', req.params.query);
-            var query = privateQuery(req.params.query);
+            var query = privateQuery(req);
             // console.log('privateQuery() processed: ', query);
             User.findOneAndUpdate(query, req.body, { upsert: false }, processResult(req, res));
         }
@@ -311,7 +368,7 @@ var init = function (app) {
             res.status(404).send('Not Authenticated!');
         } else {
             // console.log('GET projects/:query, ', req.params.query);
-            var query = privateQuery(req.params.query);
+            var query = privateQuery(req);
             // console.log('privateQuery() processed: ', query);
             User.remove(query, req.body, processResult(req, res));
         }
