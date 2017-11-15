@@ -90,8 +90,6 @@ var init = function (app) {
         Permission.find({}, processResult(req, res));
     });
     app.post('/api/permissions', Permissions.jwtVerification, function (req, res, next) {
-        console.log('what do we received from client: ', req.body);
-
         // if (!req.isAuthenticated) return 404
         // Query Mongo To Determine If req.userid has write or admin permissions on the req.body.projectId
         // If Not Return 404
@@ -154,7 +152,6 @@ var init = function (app) {
 
     app.get('/api/files/:id', Permissions.jwtVerification, function (req, res) {
         var projectID = req.params.id;
-        console.log('IN api/files/:id');
         db.getConnection().then(db => {
             db.db.listCollections().toArray(function (err, collectionMeta) {
                 if (err) {
@@ -168,7 +165,6 @@ var init = function (app) {
                     });
                     
                     if (projectCollections.length === 0) {
-                        console.log('In projectCollections.length === 0 block');
                         res.status(200).send("Not Found or No File has been uploaded yet.").end();
                         // res.send('Not Find').end();
                     } else {
