@@ -35,8 +35,6 @@ mongoose.connect(
 });
 const db = mongoose.connection;
 
-
-
 const tool_req = require("./tool_requirements.json")      
 
 var errorMessage = {};
@@ -98,7 +96,7 @@ const writingXLSX2Mongo = (msg) => {
                         "source" : "File",
                         "beta" : false,
                         "name" : "",
-                        "img" : "thumb.png",
+                        "img" : "Thumb.png",
                         "tools" : tools,
                         "geneset" : "Oncoplex"
 
