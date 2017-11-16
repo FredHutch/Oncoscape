@@ -37,8 +37,8 @@ mongoose.connect(
 
 const db = mongoose.connection;
 
-const HugoGenes = require('../HugoGenes.json');
-const tool_req = require("./tool_requirements.json")      
+const HugoGenes = require('./HugoGenes.json');
+const tool_req = require("./tool_requirements.json");      
 
 var checkHugoGeneSymbols = function (geneArr) {
     var overLappedNames = _.intersection(geneArr, HugoGenes);
@@ -90,7 +90,7 @@ const writingXLSX2Mongo = (msg) => {
                         "source" : "File",
                         "beta" : false,
                         "name" : "",
-                        "img" : "thumb.png",
+                        "img" : "Thumb.png",
                         "tools" : tools,
                         "geneset" : "Oncoplex"
         }
