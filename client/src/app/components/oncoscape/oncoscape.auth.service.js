@@ -135,6 +135,7 @@
                 scope: 'email',
                 force: true
             });
+
             onLogin.dispatch();
         };
 
@@ -144,6 +145,41 @@
             auth().logout(authSource, {
                 force: false
             }, onLogout.dispatch);
+        };
+
+        var loadUserData = function() {
+            
+            if(angular.isUndefined(_user)) return;
+
+            osApi.query("Accounts_Users", {
+                Gmail: _user.email
+            }).then(function(response) {
+                var acct = response.data[0]
+                
+                if(angular.isUndefined(acct) ) return
+                
+                osApi.query("Accounts_Permissions", {
+                }).then(function(resp) {
+                    var permissions = resp.data.filter(function(p){return p.User == acct._id})
+                    osApi.query("Accounts_Projects", {
+                    }).then(function(r) {
+                        r.data = r.data.filter(function(d){ return _.contains(_.pluck(permissions,"Project"), d._id) })
+                        osApi.query("lookup_oncoscape_datasources_v2", {
+                            dataset: {$in : _.pluck(r.data, "_id")}
+                        }).then(function(ds) {
+                            _datasets = ds.data.map(function(d){ 
+                                d.name = r.data.filter(function(p){return p._id == d.dataset})[0].Name
+                                d.description = r.data.filter(function(p){return p._id == d.dataset})[0].Description
+                                return d
+                            })
+                            osApi.addDataSources(_datasets)
+                            onLogin.dispatch(_user);
+                        })
+                        
+                    })
+                })
+            
+            });
         };
 
         auth.init(
@@ -168,8 +204,9 @@
                     thumb: e.thumbnail,
                     email: e.email
                 };
-                osApi.init().then(function() {    
-                    onLogin.dispatch(_user);
+                osApi.init().then(function() { 
+                    loadUserData()   
+                    
                 });
             });
         });

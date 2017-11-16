@@ -8,11 +8,12 @@ client/.idea/
 client/.tmp/
 server/mongo/
 
-# Logs and databases #
+# Logs and databases and uploaded files #
 ######################
 *.log
 *.out
 nohup.out
+uploads/
 dataPackages/RawData
 Oncoscape/inst/unitTests/test_OncoDev14_BenchMark*
 Oncoscape/inst/scripts/markersAndSamples/log.*

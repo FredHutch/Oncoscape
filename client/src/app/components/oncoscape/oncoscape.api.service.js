@@ -504,12 +504,13 @@
 
                 // Load Sample Maps
                 Promise.all([query(_dataSource.dataset +"_samplemap", {}),
-                             query("phenotype_wrapper",{"dataset":_dataSource.dataset}), 
+                    //         query("phenotype_wrapper",{"dataset":_dataSource.dataset}), 
                              query(_dataSource.dataset + "_phenotype", {}),
                              query(_dataSource.dataset + "_collections", {})]).then(function(responses) {
                     var data = {};
+                    
 
-                    _dataSource.collections = responses[3].data
+                    _dataSource.collections = responses[2].data
                     // Map of Samples To Patients
                     data.sampleMap = responses[0].data[0];
 
@@ -526,14 +527,14 @@
                     }, {});
 
                     // wrapper configuration
-                    data.wrapper = responses[1].data[0]
+                  //  data.wrapper = responses[1].data[0]
 
                     // add phenotype data to patient map
-                    responses[2].data.reduce(function(p, c) {
-                        if (p.hasOwnProperty(c[data.wrapper.req.patient_id])) {
-                            p[c[data.wrapper.req.patient_id]].clinical = c;
+                    responses[1].data.filter(function(d){return d.type == "patient"}).reduce(function(p, c) {
+                        if (p.hasOwnProperty(c["id"])) {
+                            p[c["id"]].clinical = c;
                         } else {
-                            p[c[data.wrapper.req.patient_id]] = { clinical: c, samples: [] };
+                            p[c["id"]] = { clinical: c, samples: [] };
                         }
                         return p;
                     }, data.patientMap);
@@ -542,28 +543,28 @@
                     _cohortDatasetInfo.numPatients = Object.keys(data.patientMap).length;
 
                     // Survival Data
-                    responses[2].data.map(function(v) {
+                    responses[1].data.map(function(v) {
 
                         // No Status - Exclude
-                        if (!v.hasOwnProperty(data.wrapper.req.status_vital)) return null;
-                        if (v[data.wrapper.req.status_vital] === null) return null;
+                        if (!v.enum.hasOwnProperty("status_vital")) return null;
+                        if (v.enum.status_vital === null) return null;
 
                         // Get Time - Or Exclude
-                        var status = v[data.wrapper.req.status_vital].toString().trim().toUpperCase();
+                        var status = v.enum.status_vital.toString().trim().toUpperCase();
                         var time;
                         if (status == "ALIVE") { // Alive = Sensor 2
-                            if (!v.hasOwnProperty(data.wrapper.req.days_to_last_followup)) return null;
-                            time = parseInt(v[data.wrapper.req.days_to_last_followup]);
+                            if (!v.num.hasOwnProperty("days_to_last_followup")) return null;
+                            time = parseInt(v.num.days_to_last_followup);
                             if (time < 0) time = 0;
                             if (isNaN(time)) return null;
-                            return { pid: v[data.wrapper.req.patient_id], ev: false, tte: time };
+                            return { pid: v.id, ev: false, tte: time };
                         }
                         if (status == "DEAD") { // Dead = Sensor 1
-                            if (!v.hasOwnProperty(data.wrapper.req.days_to_death)) return null;
-                            time = parseInt(v[data.wrapper.req.days_to_death]);
+                            if (!v.num.hasOwnProperty("days_to_death")) return null;
+                            time = parseInt(v.num.days_to_death);
                             if (time < 0) time = 0;
                             if (isNaN(time)) return null;
-                            return { pid: v[data.wrapper.req.patient_id], ev: true, tte: time };
+                            return { pid: v.id, ev: true, tte: time };
                         }
                         return null;
                     }).reduce(function(p, c) {
@@ -823,6 +824,7 @@
                                     (a.dataset > b.dataset) ? 1 :
                                     0;
                             });
+
                         resolve();
                     }, reject);
                 }),

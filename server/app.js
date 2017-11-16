@@ -1,5 +1,5 @@
-const express = require('express');
 const { fork } = require('child_process');
+const express = require('express');
 const cors = require('cors');
 const mongoose = require('mongoose');
 const nodemailer = require('nodemailer');
@@ -8,6 +8,8 @@ var bodyParser = require('body-parser');
 const routes = require('./app.routes.js');
 var File = require("./models/file");
 db = require('./app.db.js');
+var Permission = require("./models/permission");
+
 // Middleware
 var app = express();
 app.use(function (req, res, next) { //allow cross origin requests
@@ -45,6 +47,7 @@ var transporter = nodemailer.createTransport({
 
 var storage = multer.diskStorage({
     destination: function (req, file, cb) {
+        // cb(null, '/home/sttrweb/Oncoscape/uploads')
         cb(null, process.env.APP_ROOT + '/uploads')
     },
     filename: function (req, file, cb) {
@@ -56,15 +59,16 @@ var upload = multer({
     storage: storage,
     preservePath: true
 }).single('file');
-
 //#endregion
 
-//#region Data Upload Functions 
-
 app.use('/api/upload', express.static(process.env.APP_ROOT + '/uploads'));
-app.post('/api/upload/:id/:email', function (req, res) {
+// app.use('/api/upload', express.static('/home/sttrweb/Oncoscape/uploads'));
+app.post('/api/upload/:id/:email', Permissions.jwtVerification, upload, function (req, res, next) {
+    // upload(req, res, function (err) {
+    console.log("This section is triggered");
     var projectID = req.params.id;
     var userEmail = req.params.email;
+
 
     upload(req, res, function (err) {
         console.log("This section is triggered");
@@ -77,10 +81,11 @@ app.post('/api/upload/:id/:email', function (req, res) {
                 text: 'Data uploading Error: ' + err
             };
             transporter.sendMail(mailOptions, function (error, info) {
+
                 if (error) {
-                    console.log(error);
+                  console.log(error);
                 } else {
-                    console.log('Email sent: ' + info.response);
+                  console.log('Email sent: ' + info.response);
                 }
             });
             return;
@@ -124,6 +129,7 @@ app.post('/api/upload/:id/:email', function (req, res) {
             });
         }
     });
+
     res.status(200).end();
 });
 

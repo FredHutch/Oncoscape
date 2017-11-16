@@ -66,14 +66,12 @@ var init = function (app) {
         // next();
     });
     app.post('/api/projects', Permissions.jwtVerification, function (req, res, next) {
-        console.log('in api/projects POST, req.body is: ', req.body);
         Project.create(req.body, processResult(req, res));
     });
     app.get('/api/projects/:id', Permissions.jwtVerification,  function (req, res, next) {
         Project.findById(req.params.id, processResult(req, res));
     });
     app.put('/api/projects/:id', Permissions.jwtVerification, function (req, res, next) {
-        console.log('&&&&&&&&&& PROJECT Update in the route', req.body);
         Project.findOneAndUpdate({ _id: req.params.id }, req.body, { upsert: false }, processResult(req, res));
     });
     app.delete('/api/projects/:id', Permissions.jwtVerification, function (req, res, next) {
@@ -155,8 +153,8 @@ var init = function (app) {
     });
 
     app.get('/api/files/:id', Permissions.jwtVerification, function (req, res) {
-        console.log("Getting Project-Related Collections...", req.params.id);
         var projectID = req.params.id;
+        console.log('IN api/files/:id');
         db.getConnection().then(db => {
             db.db.listCollections().toArray(function (err, collectionMeta) {
                 if (err) {
@@ -168,11 +166,13 @@ var init = function (app) {
                     }).filter(function (m) {
                         return m.indexOf(projectID) > -1;
                     });
-    
+                    
                     if (projectCollections.length === 0) {
+                        console.log('In projectCollections.length === 0 block');
                         res.status(200).send("Not Found or No File has been uploaded yet.").end();
                         // res.send('Not Find').end();
                     } else {
+                        console.log('projectCollections.length !== 0');
                         var arr = [];
                         asyncLoop(projectCollections, function (m, next) {
                             db.collection(m).find().toArray(function (err, data) {

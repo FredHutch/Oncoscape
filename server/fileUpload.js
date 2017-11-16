@@ -1,9 +1,9 @@
 const express = require('express');
-const { fork } = require('child_process');
 const jsonfile = require("jsonfile");
 const _ = require("underscore");
 const asyncLoop = require('node-async-loop');
 const XLSX =require("xlsx");
+const HugoGenes = require('./HugoGenes.json');
 const mongoose = require('mongoose');
 var option = {
     server: {
@@ -15,7 +15,6 @@ var option = {
 }
 
 mongoose.connect(
-//    "mongodb://oncoscape-dev-db1.sttrcancer.io:27017,oncoscape-dev-db2.sttrcancer.io:27017,oncoscape-dev-db3.sttrcancer.io:27017/v2?authSource=admin",{
     process.env.MONGO_CONNECTION, {  
     db: {
         native_parser: true
@@ -34,13 +33,15 @@ mongoose.connect(
 }, function (err){
     console.log("Child Process File Upload connect error: ", err);
 });
-
 const db = mongoose.connection;
 
-const HugoGenes = require('./HugoGenes.json');
 const tool_req = require("./tool_requirements.json");      
 
-var checkHugoGeneSymbols = function (geneArr) {
+var errorMessage = {};
+errorMessage['PATIENT_SHEET'] = '';
+errorMessage['PATIENTEVENT_SHEETS'] = {};
+errorMessage['MOLECULAR_SHEETS'] = {};
+var checkHugoGeneSymbols = (geneArr) => {
     var overLappedNames = _.intersection(geneArr, HugoGenes);
     var unvalidGeneNames = _.difference(geneArr, overLappedNames);
     return {
@@ -48,26 +49,31 @@ var checkHugoGeneSymbols = function (geneArr) {
         unvalidNamesArr: unvalidGeneNames
     }
 };
-function camelToDash(str) {
+var camelToDash = (str) => {
     return str.replace(/\W+/g, '-')
               .replace(/([a-z\d])([A-Z])/g, '$1-$2')
               .replace("-", "_")
               .toLowerCase();
-}
+
+ };
+
 
 const writingXLSX2Mongo = (msg) => {
     
     console.log('%%%%%%%%%received file');
     console.log('projectID is: ', msg);
+    console.log('%%%%%%%%%XLSX.readFile(filePath): ', filePath);
     console.time("Reading XLSX file");
 
     var filePath = msg.filePath;
     var projectID = msg.projectID;
     var workbook = XLSX.readFile(filePath);
+
     var allSheetNames =  Object.keys(workbook.Sheets);
     console.log('%%%%%%%%% XLSX.readFile(filePath): ', filePath);
     console.timeEnd("Reading XLSX file");           
     console.log(allSheetNames);
+
 
     if (allSheetNames.indexOf("PATIENT") === -1) {
        err = "PATIENT Sheet is missing!";
@@ -93,6 +99,7 @@ const writingXLSX2Mongo = (msg) => {
                         "img" : "Thumb.png",
                         "tools" : tools,
                         "geneset" : "Oncoplex"
+
         }
 
     
@@ -187,11 +194,15 @@ const writingXLSX2Mongo = (msg) => {
             collection.geneSymbolValidation = checkHugoGeneSymbols(collection.m);
 
             console.time("Insert Molecular records");
+            console.log("inserting molecular data")
             sheet.data.forEach(function(record){
+                var data = record.splice(1, record.length)
+                if(_.contains(["prot_expr", "expr", "cnv","cnv_thd", "mut01"], collection.type))
+                    data = data.map(function(d){ return parseFloat(d)})
                 records.push({
                     m: record[0], 
                     m_type: "hugo", 
-                    d:record.splice(1, record.length), 
+                    d: data, 
                     d_type: collection.type, 
                     name: collection.name,
                     s: collection.s})
@@ -227,7 +238,7 @@ const writingXLSX2Mongo = (msg) => {
                     return sheet.data.filter(function(record){ return record[0] === id;
                     }).reduce(function(fields,r){
 
-                        fields.patient = r[1]
+                        //fields.patient = r[1]
 
                         sheet.header.forEach(function(h,i){
                             if(i<2) return //skip sample and patient id
@@ -248,7 +259,7 @@ const writingXLSX2Mongo = (msg) => {
                         });
 
                         return fields;
-                    }, {id: id, patient: "", type:"sample", enum : {}, num : {}, date : {}, boolean : {}, other : {} } );                               
+                    }, {id: id, type:"sample", enum : {}, num : {}, date : {}, boolean : {}, other : {} } );                               
                     
                 });   
                 db.collection(projectID+"_phenotype").insertMany(records, function(err, result){
@@ -331,7 +342,7 @@ const writingXLSX2Mongo = (msg) => {
                         var field = h.split("-")[0]
                         r[field] =record[i]
                         return r
-                    }, {})
+                    }, {type: collection.name})
                 )
                 
                 var i = _.findIndex(arr,{id:record[0]})
@@ -342,9 +353,10 @@ const writingXLSX2Mongo = (msg) => {
             }, [] );
 
             records.forEach(function(r){
-                db.collection(projectID+"_phenotype").update({id: r.id}, {$addToSet: {events:  {$each:r.events}}}, function(err, result){
+                db.collection(projectID+"_phenotype").update({id: r.id, type:"patient"}, {$addToSet: {events:  {$each:r.events}}}, function(err, result){
                     if (err) console.log(err);
                 });
+
             })
             collections.push(collection)
         }
@@ -364,5 +376,6 @@ process.on('message', (filePath, HugoGenes, db) => {
         writingXLSX2Mongo(filePath, HugoGenes, db);
         process.send("DONE from child");
     
+
 });
 
