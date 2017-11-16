@@ -28,7 +28,7 @@
                  url: queryString(req),
                  headers: {
                      apikey: 'password'
-                     , authentication: jwt
+   //                  , authentication: jwt
                  }
              });
          };
