@@ -44,7 +44,7 @@ var jwtVerification = function (req, res, next) {
                 req.isAuthenticated = true;
                 Permission.find({'User': mongoose.Types.ObjectId(JSON.parse(rs1))}, function(req1, res1){
                     req.permissions = res1;
-                    console.log('passed jwtVerification', res1);
+                    console.log('passed jwtVerification');
                     next();
                 });
             });

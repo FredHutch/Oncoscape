@@ -13,6 +13,38 @@ var Permission = require("./models/permission");
 
 const jwt = require('jsonwebtoken');
 
+var objectIDArrayCompare = {
+    intersection: function(objectIDArray1, objectIDArray2) {
+        var strArr1 = _.uniq(objectIDArray1.map(m => String(m)));
+        var strArr2 = _.uniq(objectIDArray2.map(m => String(m)));
+        return _.intersection(strArr1, strArr2);
+      },
+    difference: function(objectIDArray1, objectIDArray2) {
+        var strArr1 = _.uniq(objectIDArray1.map(m => String(m)));
+        var strArr2 = _.uniq(objectIDArray2.map(m => String(m)));
+        return _.difference(strArr1, strArr2);
+      },
+    included: function(objectIDArray1, objectIDArray2) {
+        var strArr1 = _.uniq(objectIDArray1.map(m => String(m)));
+        var strArr2 = _.uniq(objectIDArray2.map(m => String(m)));
+        if(_.intersection(strArr1, strArr2).length == strArr1.length) {
+            return true;
+        } else {
+            return false;
+        }
+      },
+    equal: function(objectIDArray1, objectIDArray2) {
+        var strArr1 = _.uniq(objectIDArray1.map(m => String(m)));
+        var strArr2 = _.uniq(objectIDArray2.map(m => String(m)));
+        if(_.intersection(strArr1, strArr2).length == strArr1.length &&
+           _.intersection(strArr1, strArr2).length == strArr2.length) {
+            return true;
+        } else {
+            return false;
+        }
+      }
+};
+
 function privateQuery (req) {
     var queryString = req.params.query;
     var route = req.route.path.split('/')[2];
@@ -21,6 +53,8 @@ function privateQuery (req) {
 
     var query = {};
     if (queryString.indexOf(";") > -1) {
+
+        console.log('GLAD WE ARE HERE');
         queryString.split(";").forEach(function(q){
             if(q.split(":")[0] == '_id' ||
                q.split(":")[0] == 'Project' ||
@@ -32,16 +66,29 @@ function privateQuery (req) {
                 });
                 console.log('Before Where Clause: ', JSON.stringify(obj));
                 if (q.split(":")[0] == 'Project') {
-                    obj['$in'] = _.intersection(obj['$in'], req.permissions.map(m => m.Project));
+                    obj['$in'] = objectIDArrayCompare.intersection(obj['$in'], req.permissions.map(m => m.Project));
                 } else if (q.split(":")[0] == 'User' || q.split(":")[0] == 'Author') {
-                    obj['$in'] = _.intersection(obj['$in'], req.permissions.map(m => m.User));
+                    // obj['$in'] = objectIDArrayCompare.intersection(obj['$in'], req.permissions.map(m => m.User));
+                    if (req.permissions.length == 0){
+                        if(JSON.stringify(obj['$in'][0]) != req.userID) {
+                            console.log(JSON.stringify(obj['$in'][0]));
+                            console.log(req.userID);
+                            console.log('FAILED>>>>');
+                            obj['$in'] = null;
+                        } else {
+                            console.log('String(obj[\'$in\']) != req.userID', obj['$in']);
+                        }
+                    } else {
+                        console.log(req.permissions.map(m => m.User));
+                        obj['$in'] = objectIDArrayCompare.intersection(obj['$in'], req.permissions.map(m => m.User));
+                    }
                 } else if (q.split(":")[0] == '_id') {
                     if (route == 'permissions') {
-                        obj['$in'] = _.intersection(obj['$in'], req.permissions.map(m => m._id));
+                        obj['$in'] = objectIDArrayCompare.intersection(obj['$in'], req.permissions.map(m => m._id));
                     } else if (route == 'projects') {
-                        obj['$in'] = _.intersection(obj['$in'], req.permissions.map(m => m.Project));
+                        obj['$in'] = objectIDArrayCompare.intersection(obj['$in'], req.permissions.map(m => m.Project));
                     } else if (route == 'users') {
-                        obj['$in'] = _.intersection(obj['$in'], req.permissions.map(m => m.User));                        
+                        obj['$in'] = objectIDArrayCompare.intersection(obj['$in'], req.permissions.map(m => m.User));                        
                     }
                 }
                 console.log('After Where Clause: ', JSON.stringify(obj));
@@ -63,16 +110,37 @@ function privateQuery (req) {
             obj['$in'] = arr;
             console.log('Before Where Clause: ', JSON.stringify(obj));
             if (queryString.split(":")[0] == 'Project') {
-                obj['$in'] = _.intersection(obj['$in'], req.permissions.map(m => m.Project));
+                obj['$in'] = objectIDArrayCompare.intersection(obj['$in'], req.permissions.map(m => m.Project));
             } else if (queryString.split(":")[0] == 'User' || queryString.split(":")[0] == 'Author') {
-                obj['$in'] = _.intersection(obj['$in'], req.permissions.map(m => m.User));
+                console.log('EXPECTING AUTHOR...');
+                console.log('queryString.split(":")[0]: ', queryString.split(":")[0]);
+                if (req.permissions.length == 0){
+                    if(JSON.stringify(obj['$in'][0]) != req.userID) {
+                        console.log(JSON.stringify(obj['$in'][0]));
+                        console.log(req.userID);
+                        console.log('FAILED>>>>');
+                        obj['$in'] = null;
+                    } else {
+                        console.log('String(obj[\'$in\']) != req.userID', obj['$in']);
+                    }
+                } else {
+                    console.log(req.permissions.map(m => m.User));
+                    obj['$in'] = objectIDArrayCompare.intersection(obj['$in'], req.permissions.map(m => m.User));
+                }
             } else if (queryString.split(":")[0] == '_id') {
+                console.log('@@@@@@@@@@@_id: ', queryString.split(":")[0]);
+                console.log('route: ', route);
                 if (route == 'permissions') {
-                    obj['$in'] = _.intersection(obj['$in'], req.permissions.map(m => m._id));
+                    obj['$in'] = objectIDArrayCompare.intersection(obj['$in'], req.permissions.map(m => m._id));
                 } else if (route == 'projects') {
-                    obj['$in'] = _.intersection(obj['$in'], req.permissions.map(m => m.Project));
+                    obj['$in'] = objectIDArrayCompare.intersection(obj['$in'], req.permissions.map(m => m.Project));
                 } else if (route == 'users') {
-                    obj['$in'] = _.intersection(obj['$in'], req.permissions.map(m => m.User));                        
+                    if (req.permissions.length == 0){
+                        console.log(obj['$in']);
+                        obj['$in'] = objectIDArrayCompare.intersection(obj['$in'], req.userID);
+                    } else {
+                        obj['$in'] = objectIDArrayCompare.intersection(obj['$in'], req.permissions.map(m => m.User));                        
+                    }
                 }
             }
             console.log('After Where Clause: ', JSON.stringify(obj));
@@ -83,101 +151,18 @@ function privateQuery (req) {
             console.log("YES2, WHY WE ARE HERE?: ", query);
         }
     }
-    console.log('B- ', query);
+    console.log('Q: ', query);
     return query;
 }
 
 function processResult(req, res, next) {
-    // console.log('req.userID: ', req.userID);
-    // console.log('req.permissions: ', req.permissions);
     console.log(Object.keys(req.route.methods), ' : ', req.route.path);
-    // console.log('req.userID: ', req.userID);
-    // console.log('req.isAuthenticated: ', req.isAuthenticated);
-    // console.log('req.permissions: ', req.permissions);
     return function (err, data) {
         if (err) {
             console.log(err);
             res.status(404).send("Not Found").end();
         } else {
             res.json(data).end();
-            // if (req.method == 'GET' || req.method == 'PUT' || req.method == 'DELETE'){
-            //     if (data.length > 0) {
-            //         if('Name' in data[0]) {
-            //             // Project Array
-            //             console.log('Validation Project Object Array');
-            //             var projectIDs = _.uniq(data.map(m => m._id.toString()));
-            //             var projectIDs_permissions = _.uniq(req.permissions.map(m => m.Project.toString()));
-            //             if ( _.difference(projectIDs, projectIDs_permissions).length == 0) {
-            //                 console.log('Project Array: yay');
-            //                 res.json(data).end();
-            //             } else {
-            //                 console.log('did not pass validaiton');
-            //                 console.log('projectIDs: ', projectIDs);
-            //                 console.log('projectIDs_permissions: ', projectIDs_permissions);
-            //                 console.log(_.difference(projectIDs, projectIDs_permissions).length);
-            //                 res.status(404).send("Did not pass validation").end();
-            //             }
-            //         } else if ('Role' in data[0]) {
-            //             // Permission Array
-            //             console.log('Validation Permission Object Array');
-            //             var permissionIDs = _.uniq(data.map(m => m._id.toString()));
-            //             var permissionIDs_permissions = _.uniq(req.permissions.map(m => m._id.toString()));
-            //             if ( _.difference(permissionIDs, permissionIDs_permissions).length == 0) {
-            //                 console.log('Permission Array: yay');
-            //                 res.json(data).end();
-            //             } else {
-            //                 console.log('did not pass validaiton');
-            //                 console.log("permissionIDs", permissionIDs);
-            //                 console.log("permissionIDs_permissions", permissionIDs_permissions);
-            //                 res.status(404).send("Did not pass validation").end();
-            //             }
-            //         } else if ('Email' in data[0]){
-            //             // User Array
-            //             console.log('Validation User Object Array');
-            //             var userIDs = _.uniq(data.map(m => m._id.toString()));
-            //             var userIDs_permissions = _.uniq(req.permissions.map(m => m.User.toString()));
-                        
-            //             if ( _.difference(userIDs, userIDs_permissions).length == 0) {
-            //                 console.log('User Array: yay');
-            //                 res.json(data).end();
-            //             } else {
-            //                 console.log('did not pass validaiton');
-            //                 console.log("userIDs", userIDs);
-            //                 console.log("userIDs_permissions", userIDs_permissions);
-            //                 console.log(_.difference(userIDs, userIDs_permissions));
-            //                 res.status(404).send("Did not pass validation").end();
-            //             }
-            //         } else {
-            //             console.log('WHY ARE WE HERE? ', data);
-            //         }
-            //     } else {
-            //         if('Name' in data) {
-            //             // Project Array
-            //             console.log('Validation Project Object ');
-                         
-            //             console.log('projectIDs: ', data._id);
-            //             var projectIDs_permissions = _.uniq(req.permissions.map(function(m){
-            //                 return m.Project;
-            //             }));
-            //             console.log('projectIDs_permissions: ', projectIDs_permissions);
-            //         } else if ('Role' in data) {
-            //             // Permission Array
-            //             console.log('Validation Permission Object');
-        
-            //         } else if ('Email' in data){
-            //             // User Array
-            //             console.log('Validation User Object');
-        
-            //         } else {
-            //             console.log('Data is a single object, None of the three Data Model...', data);
-            //         }
-            //     }
-            // } else {
-            //     console.log('&&&&&&&&&&&&&&&', req.method);
-            //     console.log('req.body: ', req.body);
-            //     console.log('req.isAuthenticated: ', req.isAuthenticated);
-            //     res.json(data).end();
-            // }
         }
     };
 };
@@ -232,16 +217,17 @@ var init = function (app) {
     });
 
     app.post('/api/projects', Permissions.jwtVerification, function (req, res, next) {
+        console.log('>>>>>>>>>>>> POSTING IN PROJECTS');
         if (!req.isAuthenticated) {
             console.log('!@! NOT AUTH');
             res.status(404).send('Not Authenticated!');
         } else {
-            if (req.body.Author.toString() != req.userID) {
-                console.log('req.body.Author: ', req.body.Author.toString());
-                console.log('typeof(req.body.Author): ', typeof(req.body.Author));
+            if (JSON.stringify(req.body.Author) != String(req.userID)) {
+                console.log('req.body.Author: ', JSON.stringify(req.body.Author));
                 console.log('req.userID: ', req.userID);
                 console.log('And they are not equal, cannot write to database');
             } else {
+                console.log('WE ARE ABLE TO POST PROJECT');
                 Project.create(req.body, processResult(req, res));
             }    
         }
@@ -292,13 +278,34 @@ var init = function (app) {
             console.log('!@! NOT AUTH');
             res.status(404).send('Not Authenticated!');
         } else {
-            if (req.body.User.toString() != req.userID || 
-                _.intersection(req.body.Project, req.permissions.map(m => m.Project) )) {
+            console.log('>>>>>>>>>>>> POSTING IN PERMISSIONS');
+            console.log('req.body.Project: ', JSON.stringify(req.body.Project));
+            var arr = req.permissions.filter(m => {
+                console.log('index1');
+                console.log(String(m.Project));
+                console.log(req.body.Project);
+                console.log(String(m.Project) == req.body.Project);
+             return String(m.Project) == req.body.Project}
+            )
+            console.log('req.permissions.filter.length: ', arr.length);
+            console.log(JSON.stringify(req.body.User) != String(req.userID) && 
+                        (req.permissions.length != 0 && arr.length == 0));
+
+            if (JSON.stringify(req.body.User) != String(req.userID) && 
+                (req.permissions.length != 0 && arr.length == 0)
+                ) {
                 console.log('req.body.User: ', req.body.User.toString());
                 console.log('req.userID: ', req.userID);
-                console.log('req.body.Project: ', req.body.Project);
-                console.log('req.permissions.map(m => m.Project): ', req.permissions.map(m => m.Project));
+                if (req.permissions.length != 0) {
+                    console.log('req.body.Project: ', req.body.Project);
+                    console.log('req.permissions.map(m=>m.Project): ', req.permissions.map(m=>m.Project));
+                    console.log('does req. ', objectIDArrayCompare.included(req.body.Project, req.permissions.map(m => m.Project) ));
+
+                } else {
+                    console.log('req.permissions.length is 0');
+                }
             } else {
+                console.log('WE ARE ABLE TO POST PERMISSION OBJECT');
                 Permission.create(req.body, processResult(req, res));
             }
         }
@@ -402,8 +409,7 @@ var init = function (app) {
                     });
     
                     if (projectCollections.length === 0) {
-                        res.status(200).send("Not Found or No File has been uploaded yet.").end();
-                        // res.send('Not Find').end();
+                        res.status(200).send("Not Found or No File has been uploaded yet.").end()
                     } else {
                         var arr = [];
                         asyncLoop(projectCollections, function (m, next) {
