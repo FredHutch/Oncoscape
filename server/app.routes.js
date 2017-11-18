@@ -44,6 +44,79 @@ var objectIDArrayCompare = {
         }
       }
 };
+function security (queryString, route, req) {
+    var query = {};
+    if (queryString.split(":")[0] == '_id' || 
+        queryString.split(":")[0] == 'User' || 
+        queryString.split(":")[0] == 'Author' || 
+        queryString.split(":")[0] == 'Project') {
+        var arr = queryString.split(":")[1].split(",").map(function (p) {
+                        return mongoose.Types.ObjectId(p);
+                    });
+        var obj = {};
+        obj['$in'] = arr;
+        console.log('Before Where Clause: ', JSON.stringify(obj));
+        if (queryString.split(":")[0] == 'Project') {
+            if (req.permissions.length == 0) {
+                console.log('There is error. No permissions allowed for this user. Thus, the project query should not be allowed.');
+            } else {
+                obj['$in'] = objectIDArrayCompare.intersection(obj['$in'], req.permissions.map(m => m.Project));
+            }
+        } else if (queryString.split(":")[0] == 'User' || queryString.split(":")[0] == 'Author') {
+            if (req.permissions.length == 0){
+                if(JSON.stringify(obj['$in'][0]) != req.userID) {
+                    console.log(JSON.stringify(obj['$in'][0]) == req.userID);
+                    console.log('FAILED>>>>');
+                    obj['$in'] = null;
+                } else {
+                    console.log('String(obj[\'$in\']) != req.userID', obj['$in']);
+                }
+            } else {
+                obj['$in'] = objectIDArrayCompare.intersection(obj['$in'], req.permissions.map(m => m.User));
+            }
+        } else if (queryString.split(":")[0] == '_id') {
+            if (route == 'permissions') {
+                var authorPermissions = objectIDArrayCompare.intersection(obj['$in'], req.permissions.map(m => m._id));
+                var relatedPermissions = objectIDArrayCompare.intersection(obj['$in'], req.relatedPermissions.map(m => m._id));
+                if (authorPermissions.length != 0){
+                    obj['$in'] = authorPermissions;
+                } else if (relatedPermissions.length != 0){
+                    obj['$in'] = relatedPermissions;
+                } else {
+                    obj['$in'] = null;
+                }
+            } else if (route == 'projects') {
+                obj['$in'] = objectIDArrayCompare.intersection(obj['$in'], req.permissions.map(m => m.Project));
+            } else if (route == 'users') {
+                if (req.permissions.length == 0){
+                    console.log('compare req.userID', obj['$in'], '||', req.userID);
+                    obj['$in'] = objectIDArrayCompare.intersection(obj['$in'], req.userID);
+                    console.log('result : ', obj['$in']);
+                } else {
+                    console.log('compare req.permissions User field: ', obj['$in'], '||', req.permissions.map(m => m.User));
+                    console.log('compare req.permissions Project field: ', obj['$in'], '||', req.relatedPermissions.map(m => m.User));
+                    var byUserField = objectIDArrayCompare.intersection(obj['$in'], req.permissions.map(m => m.User));   
+                    var byRelatedPermission = objectIDArrayCompare.intersection(obj['$in'], req.relatedPermissions.map(m => m.User));
+                    if(byUserField.length != 0) {
+                        obj['$in'] = byUserField;
+                    } else if (byRelatedPermission.length != 0) {
+                        obj['$in'] = byRelatedPermission;
+                    } else {
+                        obj['$in'] = null;
+                    }
+
+                }
+            }
+        }
+        console.log('After Where Clause: ', JSON.stringify(obj));
+
+        query[queryString.split(":")[0]] = obj;
+    } else {
+        query = JSON.parse(queryString);
+        console.log("YES2, WHY WE ARE HERE?: ", query);
+    }
+    return query;
+}
 
 function privateQuery (req) {
     var queryString = req.params.query;
@@ -53,103 +126,14 @@ function privateQuery (req) {
 
     var query = {};
     if (queryString.indexOf(";") > -1) {
-
-        console.log('GLAD WE ARE HERE');
-        queryString.split(";").forEach(function(q){
-            if(q.split(":")[0] == '_id' ||
-               q.split(":")[0] == 'Project' ||
-               q.split(":")[0] == 'User'||
-               q.split(":")[0] == 'Author') {
-                var obj = {};
-                obj['$in'] = q.split(":")[1].split(",").map(function(p){
-                    return mongoose.Types.ObjectId(p);
-                });
-                console.log('Before Where Clause: ', JSON.stringify(obj));
-                if (q.split(":")[0] == 'Project') {
-                    obj['$in'] = objectIDArrayCompare.intersection(obj['$in'], req.permissions.map(m => m.Project));
-                } else if (q.split(":")[0] == 'User' || q.split(":")[0] == 'Author') {
-                    // obj['$in'] = objectIDArrayCompare.intersection(obj['$in'], req.permissions.map(m => m.User));
-                    if (req.permissions.length == 0){
-                        if(JSON.stringify(obj['$in'][0]) != req.userID) {
-                            console.log(JSON.stringify(obj['$in'][0]));
-                            console.log(req.userID);
-                            console.log('FAILED>>>>');
-                            obj['$in'] = null;
-                        } else {
-                            console.log('String(obj[\'$in\']) != req.userID', obj['$in']);
-                        }
-                    } else {
-                        console.log(req.permissions.map(m => m.User));
-                        obj['$in'] = objectIDArrayCompare.intersection(obj['$in'], req.permissions.map(m => m.User));
-                    }
-                } else if (q.split(":")[0] == '_id') {
-                    if (route == 'permissions') {
-                        obj['$in'] = objectIDArrayCompare.intersection(obj['$in'], req.permissions.map(m => m._id));
-                    } else if (route == 'projects') {
-                        obj['$in'] = objectIDArrayCompare.intersection(obj['$in'], req.permissions.map(m => m.Project));
-                    } else if (route == 'users') {
-                        obj['$in'] = objectIDArrayCompare.intersection(obj['$in'], req.permissions.map(m => m.User));                        
-                    }
-                }
-                console.log('After Where Clause: ', JSON.stringify(obj));
-                query[q.split(":")[0]] = obj;
-               } else {
-                query[q.split(":")[0]] = q.split(":")[1];
-                console.log("YES1, WHY WE ARE HERE?: ", query);
-               } 
+        console.log('multiple query');
+        queryString.split(";").map(q =>security(q, route, req)).forEach(function(m) {
+            query[Object.keys(m)] = m[Object.keys(m)];
         });
+        
     } else {
-        if (queryString.split(":")[0] == '_id' || 
-            queryString.split(":")[0] == 'User' || 
-            queryString.split(":")[0] == 'Author' || 
-            queryString.split(":")[0] == 'Project') {
-            var arr = queryString.split(":")[1].split(",").map(function (p) {
-                            return mongoose.Types.ObjectId(p);
-                        });
-            var obj = {};
-            obj['$in'] = arr;
-            console.log('Before Where Clause: ', JSON.stringify(obj));
-            if (queryString.split(":")[0] == 'Project') {
-                obj['$in'] = objectIDArrayCompare.intersection(obj['$in'], req.permissions.map(m => m.Project));
-            } else if (queryString.split(":")[0] == 'User' || queryString.split(":")[0] == 'Author') {
-                console.log('EXPECTING AUTHOR...');
-                console.log('queryString.split(":")[0]: ', queryString.split(":")[0]);
-                if (req.permissions.length == 0){
-                    if(JSON.stringify(obj['$in'][0]) != req.userID) {
-                        console.log(JSON.stringify(obj['$in'][0]));
-                        console.log(req.userID);
-                        console.log('FAILED>>>>');
-                        obj['$in'] = null;
-                    } else {
-                        console.log('String(obj[\'$in\']) != req.userID', obj['$in']);
-                    }
-                } else {
-                    console.log(req.permissions.map(m => m.User));
-                    obj['$in'] = objectIDArrayCompare.intersection(obj['$in'], req.permissions.map(m => m.User));
-                }
-            } else if (queryString.split(":")[0] == '_id') {
-                console.log('@@@@@@@@@@@_id: ', queryString.split(":")[0]);
-                console.log('route: ', route);
-                if (route == 'permissions') {
-                    obj['$in'] = objectIDArrayCompare.intersection(obj['$in'], req.permissions.map(m => m._id));
-                } else if (route == 'projects') {
-                    obj['$in'] = objectIDArrayCompare.intersection(obj['$in'], req.permissions.map(m => m.Project));
-                } else if (route == 'users') {
-                    if (req.permissions.length == 0){
-                        console.log(obj['$in']);
-                        obj['$in'] = objectIDArrayCompare.intersection(obj['$in'], req.userID);
-                    } else {
-                        obj['$in'] = objectIDArrayCompare.intersection(obj['$in'], req.permissions.map(m => m.User));                        
-                    }
-                }
-            }
-            console.log('After Where Clause: ', JSON.stringify(obj));
-
-            query[queryString.split(":")[0]] = obj;
-        } else {
-            query = JSON.parse(queryString);
-            console.log("YES2, WHY WE ARE HERE?: ", query);
-        }
+        console.log('single query');
+        query = security(queryString, route, req);
     }
     console.log('Q: ', query);
     return query;
