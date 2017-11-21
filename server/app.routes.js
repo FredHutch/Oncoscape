@@ -104,7 +104,6 @@ function security (queryString, route, req) {
                     } else {
                         obj['$in'] = null;
                     }
-
                 }
             }
         }
@@ -369,108 +368,173 @@ var init = function (app) {
 
     //#region FILES
 
-    app.get('/api/files', Permissions.jwtVerification, function (req, res) {
-        console.log("in Files");
-        res.status(200).end();
-    });
+    // app.get('/api/files', Permissions.jwtVerification, function (req, res) {
+    //     console.log("in Files");
+    //     res.status(200).end();
+    // });
 
-    app.post('/api/files', Permissions.jwtVerification, function (req, res) {
-        console.log("in post");
-    });
+    // app.post('/api/files', Permissions.jwtVerification, function (req, res) {
+    //     console.log(req.body);
+    // });
 
     app.get('/api/files/:id', Permissions.jwtVerification, function (req, res) {
         var projectID = req.params.id;
-        db.getConnection().then(db => {
-            db.db.listCollections().toArray(function (err, collectionMeta) {
-                if (err) {
-                    console.log(err);
-                }
-                else {
-                    projectCollections = collectionMeta.map(function (m) {
-                        return m.name;
-                    }).filter(function (m) {
-                        return m.indexOf(projectID) > -1;
-                    });
-    
-                    if (projectCollections.length === 0) {
-                        res.status(200).send("Not Found or No File has been uploaded yet.").end()
+        // security
+        if (!req.isAuthenticated) {
+            console.log('!@! NOT AUTH');
+            res.status(404).send('Not Authenticated!');
+        } else {
+            console.log('FILE SECURITY>>>>>>>>>>>>>>>>>>>>>>>');
+            var permitted = function(){
+                if(req.permissions.length > 0){
+                    var role = req.permissions.filter(p => {
+                        console.log(p.ProjectID);
+                        console.log(projectID);
+                        console.log(p.ProjectID == projectID);
+                        return p.ProjectID == projectID
+                    })[0].Role;
+                    if (Role == 'admin' || Role == 'read-write' || Role == 'read-only'){
+                        return true;
                     } else {
-                        var arr = [];
-                        asyncLoop(projectCollections, function (m, next) {
-                            db.collection(m).find().toArray(function (err, data) {
-                                var obj = {};
-                                obj.collection = m;
-                                if (m.indexOf("clinical") > -1) {
-                                    obj.category = "clinical";
-                                    obj.patients = data.map(function (m) { return m.id });
-                                    obj.metatdata = data[0].metadata;
-                                    obj.enums_fields = data.map(function (m) { return Object.keys(m.enums); })
-                                        .reduce(function (a, b) { return a = _.uniq(a.concat(b)); });
-                                    obj.nums_fields = data.map(function (m) { return Object.keys(m.nums); })
-                                        .reduce(function (a, b) { return a = _.uniq(a.concat(b)); });
-                                    obj.time_fields = data.map(function (m) { return Object.keys(m.time); })
-                                        .reduce(function (a, b) { return a = _.uniq(a.concat(b)); });
-                                    obj.boolean_fields = data.map(function (m) { return Object.keys(m.boolean); })
-                                        .reduce(function (a, b) { return a = _.uniq(a.concat(b)); });
-                                    arr.push(obj);
-                                } else if (m.indexOf("molecular") > -1) {
-                                    obj.category = "molecular";
-                                    var types = _.uniq(data.map(function (m) { return m.type }));
-                                    types.forEach(function (n) {
-                                        obj[n] = {};
-                                        typeObjs = data.filter(function (v) { return v.type === n });
-                                        obj[n].markers = typeObjs.map(function (v) { return v.marker });
-                                        obj[n].patients = _.uniq(typeObjs.map(function (v) { return Object.keys(v.data); })
-                                            .reduce(function (a, b) { return a = _.uniq(a.concat(b)); }));
-                                    });
-                                    arr.push(obj);
-                                } else {
-                                    arr.push(data);
-                                }
-                                next();
-                            });
-    
-                        }, function (err) {
-                            if (err) {
-                                console.log(err);
-                                res.status(404).send(err).end();
-                            } else {
-                                res.json(arr).end();
-                            }
-    
-                        });
-    
+                        return false;
                     }
+                } else {
+                    return false;
                 }
-            });
-        }); 
-    })
+            }
+    
+            if (!permitted) {
+                console.log('req.body.Author: ', JSON.stringify(req.body.Author));
+                console.log('req.userID: ', req.userID);
+                console.log('And they are not equal, cannot write to database');
+            } else {
+                console.log('ABLE TO GET FILE SUMMARY.');
+
+                db.getConnection().then(db => {
+                    db.db.listCollections().toArray(function (err, collectionMeta) {
+                        if (err) {
+                            console.log(err);
+                        }
+                        else {
+                            projectCollections = collectionMeta.map(function (m) {
+                                return m.name;
+                            }).filter(function (m) {
+                                return m.indexOf(projectID) > -1;
+                            });
+            
+                            if (projectCollections.length === 0) {
+                                res.status(200).send("Not Found or No File has been uploaded yet.").end()
+                            } else {
+                                var arr = [];
+                                asyncLoop(projectCollections, function (m, next) {
+                                    db.collection(m).find().toArray(function (err, data) {
+                                        var obj = {};
+                                        obj.collection = m;
+                                        if (m.indexOf("clinical") > -1) {
+                                            obj.category = "clinical";
+                                            obj.patients = data.map(function (m) { return m.id });
+                                            obj.metatdata = data[0].metadata;
+                                            obj.enums_fields = data.map(function (m) { return Object.keys(m.enums); })
+                                                .reduce(function (a, b) { return a = _.uniq(a.concat(b)); });
+                                            obj.nums_fields = data.map(function (m) { return Object.keys(m.nums); })
+                                                .reduce(function (a, b) { return a = _.uniq(a.concat(b)); });
+                                            obj.time_fields = data.map(function (m) { return Object.keys(m.time); })
+                                                .reduce(function (a, b) { return a = _.uniq(a.concat(b)); });
+                                            obj.boolean_fields = data.map(function (m) { return Object.keys(m.boolean); })
+                                                .reduce(function (a, b) { return a = _.uniq(a.concat(b)); });
+                                            arr.push(obj);
+                                        } else if (m.indexOf("molecular") > -1) {
+                                            obj.category = "molecular";
+                                            var types = _.uniq(data.map(function (m) { return m.type }));
+                                            types.forEach(function (n) {
+                                                obj[n] = {};
+                                                typeObjs = data.filter(function (v) { return v.type === n });
+                                                obj[n].markers = typeObjs.map(function (v) { return v.marker });
+                                                obj[n].patients = _.uniq(typeObjs.map(function (v) { return Object.keys(v.data); })
+                                                    .reduce(function (a, b) { return a = _.uniq(a.concat(b)); }));
+                                            });
+                                            arr.push(obj);
+                                        } else {
+                                            arr.push(data);
+                                        }
+                                        next();
+                                    });
+            
+                                }, function (err) {
+                                    if (err) {
+                                        console.log(err);
+                                        res.status(404).send(err).end();
+                                    } else {
+                                        res.json(arr).end();
+                                    }
+            
+                                });
+            
+                            }
+                        }
+                    });
+                }); 
+            }
+        }
+    });
 
     app.delete('/api/files/:id', Permissions.jwtVerification, function (req, res) {
         console.log("in file delete");
         console.log(req.params.id);
         var projectID = req.params.id;
-        db.getConnection().then(db => {
-            db.db.listCollections().toArray(function (err, collectionMeta) {
-                if (err) {
-                    console.log(err);
+
+        if (!req.isAuthenticated) {
+            console.log('!@! NOT AUTH');
+            res.status(404).send('Not Authenticated!');
+        } else {
+            console.log('FILE SECURITY>>>>>>>>>>>>>>>>>>>>>>>');
+            var permitted = function(){
+                if(req.permissions.length > 0){
+                    var role = req.permissions.filter(p => {
+                        console.log(p.ProjectID);
+                        console.log(projectID);
+                        console.log(p.ProjectID == projectID);
+                        return p.ProjectID == projectID
+                    })[0].Role;
+                    if (Role == 'admin' || Role == 'read-write'){
+                        return true;
+                    } else {
+                        return false;
+                    }
+                } else {
+                    return false;
                 }
-                else {
-                    collectionMeta.map(function (m) {
-                        return m.name;
-                    }).filter(function (m) {
-                        return m.indexOf(projectID) > -1;
-                    }).forEach(function (m) {
-                        db.db.dropCollection(m, function (err, result) {
-                            console.log("DELETING", m);
-                            if (err) console.log(err);
-                            console.log(result);
-                        });
+            }
+    
+            if (!permitted) {
+                console.log('req.body.Author: ', JSON.stringify(req.body.Author));
+                console.log('req.userID: ', req.userID);
+                console.log('And they are not equal, cannot write to database');
+            } else {
+                console.log('ABLE TO DELETE FILES');
+                db.getConnection().then(db => {
+                    db.db.listCollections().toArray(function (err, collectionMeta) {
+                        if (err) {
+                            console.log(err);
+                        }
+                        else {
+                            collectionMeta.map(function (m) {
+                                return m.name;
+                            }).filter(function (m) {
+                                return m.indexOf(projectID) > -1;
+                            }).forEach(function (m) {
+                                db.db.dropCollection(m, function (err, result) {
+                                    console.log("DELETING", m);
+                                    if (err) console.log(err);
+                                    console.log(result);
+                                });
+                            });
+                        }
                     });
-                }
-            });
-            res.status(200).send("files are deleted").end();
-        });
+                    res.status(200).send("files are deleted").end();
+                });
+            }
+        }
     });
 
     //#endregion
