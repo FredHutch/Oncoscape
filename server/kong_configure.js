@@ -52,6 +52,7 @@ const db = mongoose.connection;
 
 const updateKong= (msg) => {
     var projectID = msg.projectID;
+    var collections = msg.collections
     console.log('%%%%%%%%% Updating Kong');
     console.log('msg: ', msg);
     console.time("Exposing Project Collections");
@@ -105,18 +106,20 @@ const updateKong= (msg) => {
 
         return collections
     }
-    
-    db.on('open', function () {
-        db.db.listCollections().toArray(function (err, names) {
-            //console.log(names);
-            var collections = names.map(function(d){return d.name})
-                            .filter(function(name){return name.indexOf(projectID)!=-1;})
-            
-            console.log(collections)
-            addCollection(collections)
-            process.send("DONE: Kong Configure");
-        });
-    });
+    addCollection(collections)
+    process.send("DONE: kong configure collections")
+
+    // db.on('open', function () {
+    //     db.db.listCollections().toArray(function (err, names) {
+    //         console.log(names.length);
+    //         var c = names.map(function(d){return d.name})
+    //                         .filter(function(name){return name.indexOf(projectID)!=-1;})
+    //         //var c = [projectID+"_samplemap",projectID+"_collections" ]
+    //         console.log(c)
+    //         addCollection(c)
+    //         process.send("DONE: Kong Configure");
+    //     });
+    // });
 
 
     // mongoose.connection.db.collections().then(function(collections) {
@@ -126,8 +129,8 @@ const updateKong= (msg) => {
 }
 
 
-process.on('message', (projectID) => {
-    updateKong(projectID);
+process.on('message', (projectID, collections) => {
+    updateKong(projectID, collections);
     
 });
 

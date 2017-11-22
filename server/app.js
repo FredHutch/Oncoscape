@@ -96,11 +96,12 @@ app.post('/api/upload/:id/:email', Permissions.jwtVerification, upload, function
                 filePath: res.req.file.path,
                 projectID: projectID
             });
-            writing2Mongo.on('message', () => {
+            writing2Mongo.on('message', (collections) => {
                 console.log("XLS file upload complete; Updating Kong;")
                 const kong_configure = fork(process.env.APP_ROOT + '/server/kong_configure.js');
                 kong_configure.send({
-                    projectID: projectID
+                    projectID: projectID,
+                    collections: collections
                 });
                 kong_configure.on('message', () => {
                     console.log("Kong configuration complete; Adding v2 data;")
