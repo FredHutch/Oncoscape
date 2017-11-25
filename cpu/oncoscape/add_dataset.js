@@ -19,10 +19,10 @@ co(function *() {
      
     var source = "TCGA"
     var json_mol = require("./tcga_molecular_lookup.json")
-    json_mol = json_mol.filter(function(d){ return d.schema == "hugo_sample"})
+    json_mol = json_mol.filter(function(d){ return _.contains(["hugo_sample", "prot_sample"], d.schema )})
     var json_clin = require("./tcga_clinical_lookup.json")
     //var json_meta = json_clin.concat(json_mol)
-    var json_meta = json_mol;
+    var json_meta = json_clin;
 
     // // Clean Project 
     // // 1. drop collections, and clear Collections & Tools list in lookup table 
@@ -32,7 +32,7 @@ co(function *() {
     var drop = {collection: false, 
                 samplemap: false,
                 phenowrapper: false,
-                collections: true,
+                collections: false,
                 lookup_tools: false
             }
 
@@ -99,12 +99,12 @@ co(function *() {
                             
             }
         
-        //Add to lookup collection
-        //  -- if project/dataset new or not found - add document with default metadata 
-        //  -- req params first time. {dataset: projectID, source: [File, TCGA, GEO, ...], name: user readable dataset name}
-        //insert collection metadata into lookup_datasources based on dataset name
-        //-- req params per collection.  {collection: collection name, name: user readable collection name, type: }
-        //-- optional defaults: {default:False, schema: hugo_sample}
+            //Add to lookup collection
+            //  -- if project/dataset new or not found - add document with default metadata 
+            //  -- req params first time. {dataset: projectID, source: [File, TCGA, GEO, ...], name: user readable dataset name}
+            //insert collection metadata into lookup_datasources based on dataset name
+            //-- req params per collection.  {collection: collection name, name: user readable collection name, type: }
+            //-- optional defaults: {default:False, schema: hugo_sample}
             var lookup = yield comongo.db.collection(db, "lookup_oncoscape_datasources_v2");    
             var ds = yield lookup.find({dataset: j.dataset}).toArray()
             if( ds.length  == 0){
@@ -118,7 +118,7 @@ co(function *() {
             if(j.name.match(/protein/)){schema = "prot_sample"}
             isdefault = typeof j.default == "undefined" ? false : j.default
 
-        //create/add to samplemap
+             //create/add to samplemap
             var samplemap = yield comongo.db.collection(db, j.dataset+"_samplemap");    
             var keyval = {};
 
@@ -206,69 +206,52 @@ co(function *() {
             var collection = yield comongo.db.collection(db, j.dataset+"_phenotype");   
             var pheno_data = yield collection.find().toArray()
            
-            var wrapper_collection = yield comongo.db.collection(db, "phenotype_wrapper");  
-            var req = typeof j.req == "undefined" ?  "null" : j.req
-            var pheno_wrapper = {dataset: j.dataset, req:req, enums:[],time:[], nums:[], boolean:[], events: [], strings: [] }
-
-            var fields = pheno_data.map(function(elem){return Object.keys(elem);}).reduce(function(p,c){
-                keys = c.filter(function(f){
-                if (f =="_id") return false;
-                if (f =="patient_ID") return false;
-                if (f =="bcr_patient_uuid") return false;
-                if (p.indexOf(f) != -1) return false;
-                return true;
-                })
-        
-                return p.concat(keys);
-            }, []);
-
-            // Loop Through Each Field
-            for (var fieldIndex=0; fieldIndex<fields.length; fieldIndex++){
-                
-                // Count Distinct Field Values (Factors Only @ This Point)
-                var field = fields[fieldIndex];
-                		console.log("---",field)
-        
-                var factors = pheno_data.reduce(function(p,c){
-                    var f = p.field;
-                    var o = p.out;
-                    var t = p.types;
-                    var v = c[f];
-                    if( typeof v === 'undefined') v = 'null';
-                    var y = typeof v;
-                    //if(y == "string" & v.formatDate) y = "date"
-
-                    if (o.indexOf(v) == -1) o.push(v);
-                    if (t.indexOf(y) == -1 && v != null && v != 'null'){
-                        t.push(y);
-                    }  
-
-                    return p;
-                }, {field:field, out:[], types:[]});
-                
-
-                var factorCount = Object.keys(factors.out).length;
-                
-                if ( factors.types.every( x => x == "number")){
-                    pheno_wrapper.nums.push({path: field, name:field})
-                } else if (factors.types.every( x => x == "date")){
-                    pheno_wrapper.time.push({path: field, name:field})
-                } else if (factors.types.every( x => x == "boolean")){
-                    pheno_wrapper.boolean.push({path: field, name:field})
-                } else if (factors.types.every( x => x == "object")){
-                    pheno_wrapper.events.push({path: field.replace(" ","_"), name:field})
-                } else if (factorCount<10 ){
-                    pheno_wrapper.enums.push({path: field, name:field})
-                } else {
-                    pheno_wrapper.strings.push({path: field, name:field})
-                }
-                // NOTE: "date" not actually an type - how to declare time?
-                //  & fields with >10 factor types not currently documented in wrapper - where do they belong?
+           var wrapper_collection = yield comongo.db.collection(db, "phenotype_wrapper");  
+           var pheno_wrap = yield wrapper_collection.find({dataset: j.dataset}).toArray()
+           // var req = typeof j.req == "undefined" ?  "null" : j.req
+           // var pheno_wrapper = {dataset: j.dataset, req:req, enums:[],time:[], nums:[], boolean:[], events: [], strings: [] }
+           var pheno_wrapper = {
+               enums: _.pluck(pheno_wrap[0].enums, "path"),
+               time:_.pluck(pheno_wrap[0].time, "path"),
+               nums:_.pluck(pheno_wrap[0].nums, "path"),
+               boolean:_.pluck(pheno_wrap[0].boolean, "path"),
+               events: _.pluck(pheno_wrap[0].events, "path"),
+               strings: _.pluck(pheno_wrap[0].strings, "path")
             }
-            var res = yield wrapper_collection.update(
-                {dataset: j.dataset}, 
-                {$set: pheno_wrapper}, 
-                {upsert: true, writeConcern: {w:"majority"}})
+
+            for(var z=0;z<pheno_data.length;z++){
+                var elem = pheno_data[z]
+
+                var fields = Object.keys(elem)
+                var doc = {id: elem.patient_ID, type: "patient", enum:{}, num:{}, date:{}, boolean:{}, other:{}, events:[]}
+
+                fields.map(function(f){
+                    if(_.contains(pheno_wrapper.enums, f))
+                        doc.enum[f] = elem[f]
+                    else if(_.contains(pheno_wrapper.time, f))
+                        doc.time[f] = elem[f]
+                    else if(_.contains(pheno_wrapper.nums, f))
+                        doc.num[f] = elem[f]
+                    else if(_.contains(pheno_wrapper.boolean, f))
+                        doc.boolean[f] = elem[f]
+                    else if(_.contains(pheno_wrapper.strings, f))
+                        doc.other[f] = elem[f]
+                    else if(typeof elem[f] == "object" & elem[f].length >0){
+                        elem[f].forEach(function(e){
+                            e.type = f
+                            doc.events.push(e)
+                        })
+                        
+                    }
+                })
+                
+                var count = yield collection.count({id:doc.id})
+                if(count == 0)
+                    collection.insert(doc, 
+                        {upsert: true, writeConcern: {w:"majority"}})
+
+            }
+
         }
 
     } //end json_meta loop
@@ -276,3 +259,10 @@ co(function *() {
 
 yield comongo.db.close(db);
 }).catch(onError);
+
+// Update existing colors
+// db.getCollection('acc_color').find({}).forEach(function(doc){ 
+//     doc.name = doc.name.replace(/\(\d+\%\)/,"").trim()
+//     print(doc.name)
+//     db.getCollection('acc_color').update({_id:doc._id}, {$set: {name: doc.name}})
+//})

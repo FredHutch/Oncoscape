@@ -24,7 +24,7 @@
             vm.user = osAuth.getUser()
             vm.projects = osAuth.getDatasets()
             vm.apis = [
-                {   name: "file", 
+                {   name: "New File", 
                     img:"imgThumb.png"
                 },
                 {   name: "TCGA", 
@@ -39,56 +39,25 @@
                 osAuth.login(networks[1]);
             }
             vm.explore = function(tool, datasource) {
-                $state.go(tool, { datasource: datasource.disease });
+                $state.go(tool, { datasource: datasource.dataset });
             };
             
             vm.showDatasourceOption = function(source){
                 if(source == "TCGA")
                     $state.go("datasource");
-                if(source == "file"){
+                if(source == "New File"){
                    // $state.go("upload");
                     var win = window.open("/upload/");
                     win.focus();
                 }
             }
-           
-
-            var loadUserData = function(user) {
-
-                if(angular.isUndefined(user)) return;
-
-                vm.user = user
-             
-                osApi.query("Accounts_Users", {
-                    Gmail: user.email
-                }).then(function(response) {
-                    var acct = response.data[0]
-                    
-                    if(angular.isUndefined(acct) ) return
-                    
-                    osApi.query("Accounts_Permissions", {
-                        User: acct._id
-                    }).then(function(resp) {
-                        var permissions = resp.data
-                        osApi.query("Accounts_Projects", {
-                            _id: {$in: _.pluck(permissions,"Project")}
-                        }).then(function(r) {
-                            vm.projects = r.data
-                            osAuth.setDatasets(vm.projects)
-                        })
-                    })
-                })
-                  
-             
-             vm.datasets = osApi.getDataSources();
-             
-             
-            };
-    
-            osAuth.onLogin.add(loadUserData); 
+            var updateUser = function(){
+                vm.user = osAuth.getUser()
+                vm.projects = osAuth.getDatasets()
+            }
 
             osApi.setBusy(false);
-            
+            osAuth.onLogin.add(updateUser); 
            
         }
     }
