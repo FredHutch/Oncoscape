@@ -79,12 +79,7 @@ app.post('/api/upload/:id/:email', Permissions.jwtVerification, upload, function
         console.log('FILE SECURITY>>>>>>>>>>>>>>>>>>>>>>>');
         var permitted = function(){
             if(req.permissions.length > 0){
-                var role = req.permissions.filter(p => {
-                    console.log(p.ProjectID);
-                    console.log(projectID);
-                    console.log(p.ProjectID == projectID);
-                    return p.ProjectID == projectID
-                })[0].Role;
+                var role = req.permissions.find(v => v.ProjectID == projectID).Role;
                 if (Role == 'admin' || Role == 'read-write'){
                     return true;
                 } else {
@@ -96,13 +91,9 @@ app.post('/api/upload/:id/:email', Permissions.jwtVerification, upload, function
         }
 
         if (!permitted) {
-            console.log('req.body.Author: ', JSON.stringify(req.body.Author));
-            console.log('req.userID: ', req.userID);
-            console.log('And they are not equal, cannot write to database');
+            res.status(404).send('The Current User does not have priviledge to upload file to this project. Please contact the Author of this Dataset.');
         } else {
             console.log('ABLE TO POST FILES');
-            console.log('projectID: ', projectID);
-            console.log('userEmail: ', userEmail);
             var mailOptions = {
                 from: 'jennylouzhang@gmail.com',
                 to: userEmail,
