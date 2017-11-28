@@ -44,6 +44,8 @@ var jwtVerification = function (req, res, next) {
                 req.isAuthenticated = true;
                 Permission.find({'User': mongoose.Types.ObjectId(JSON.parse(rs1))}, function(req1, res1){
                     req.permissions = res1;
+                    req.permittedCollections = publicProjects.concat(res1.map(m => String(m.Project)));
+                    console.log(req.permittedCollections);
                     Permission.find({'Project': {$in: res1.map(m => m.Project)}}, function(req2, res2){
                         req.relatedPermissions = res2;
                         console.log('passed jwtVerification');
@@ -55,6 +57,11 @@ var jwtVerification = function (req, res, next) {
             req.isAuthenticated = false;
             res.send(e);
         }
+    } else {
+        // Public access
+        req.isAuthenticated = false;
+        req.permittedCollections = publicProjects;
+        next();
     }
 };
 
