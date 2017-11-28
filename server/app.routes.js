@@ -542,23 +542,31 @@ var init = function (app) {
     });
 
     //#endregion
-
-    app.get('/api/:collection/:query', function (req, res, next) {
+    
+    app.get('/api/:collection/:query', Permissions.jwtVerification, function (req, res, next) {
         var collection = req.params.collection;
         var query = (req.params.query) ? JSON.parse(req.params.query) : {};
-
-
-        //collection.split("_")[0]
+        
+        if (req.permittedCollections.indexOf(collection.split("_")[0]) > -1) {
+            db.getConnection().then(db => {
+                Query.exec(db, collection, query).then(results => {
+                    res.send(results);
+                    res.end();
+                });
+            });
+        } else {
+            res.status(404).send('User does NOT have permission to query this collection.');
+        }
         // Permissions.getProjects(req.headers.authorization).then(projects => {
         //     Permissions.hasPermission(projects, collection, permission.ePermission.READ).then(
         //         hasAccess => {
         //             if (hasAccess) {
-                        db.getConnection().then(db => {
-                            Query.exec(db, collection, query).then(results => {
-                                res.send(results);
-                                res.end();
-                            });
-                        });
+                        // db.getConnection().then(db => {
+                        //     Query.exec(db, collection, query).then(results => {
+                        //         res.send(results);
+                        //         res.end();
+                        //     });
+                        // });
         //             }
         //         }
         //     )
@@ -568,19 +576,30 @@ var init = function (app) {
         // })
     });
 
-    app.get('/api/:collection*', function (req, res, next) {
+    app.get('/api/:collection*', Permissions.jwtVerification, function (req, res, next) {
         var collection = req.params.collection;
         var query = {};
+
+        if (req.permittedCollections.indexOf(collection.split("_")[0]) > -1) {
+            db.getConnection().then(db => {
+                Query.exec(db, collection, query).then(results => {
+                    res.send(results);
+                    res.end();
+                });
+            });
+        } else {
+            res.status(404).send('User does NOT have permission to query this collection.');
+        }
         // Permissions.getProjects(req.headers.authorization).then(projects => {
         //     Permissions.hasPermission(projects, collection, permission.ePermission.READ).then(
         //         hasAccess => {
         //             if (hasAccess) {
-                        db.getConnection().then(db => {
-                            Query.exec(db, collection, query).then(results => {
-                                res.send(results);
-                                res.end();
-                            });
-                        });
+                        // db.getConnection().then(db => {
+                        //     Query.exec(db, collection, query).then(results => {
+                        //         res.send(results);
+                        //         res.end();
+                        //     });
+                        // });
     //                 }else{ 
     //                     res.end();
     //                 }
