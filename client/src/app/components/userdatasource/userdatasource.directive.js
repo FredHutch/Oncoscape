@@ -41,7 +41,10 @@
             vm.explore = function(tool, datasource) {
                 $state.go(tool, { datasource: datasource.dataset });
             };
-            
+            vm.refreshDatasets = function(){
+                
+                osAuth.refreshDatasets(vm.projects)
+            }
             vm.showDatasourceOption = function(source){
                 if(source == "TCGA")
                     $state.go("datasource");
@@ -55,6 +58,7 @@
                 vm.user = osAuth.getUser()
                 vm.projects = osAuth.getDatasets()
             }
+
 
             osApi.setBusy(false);
             osAuth.onLogin.add(updateUser); 

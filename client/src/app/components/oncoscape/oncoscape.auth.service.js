@@ -147,8 +147,12 @@
             }, onLogout.dispatch);
         };
 
-        var loadUserData = function() {
+
+        var refreshDatasets = function(datasets) {
             
+            if(datasets)
+                osApi.dropDataSources(datasets)
+
             if(angular.isUndefined(_user)) return;
 
             osApi.query("Accounts_Users", {
@@ -174,6 +178,7 @@
                             })
                             osApi.addDataSources(_datasets)
                             onLogin.dispatch(_user);
+
                         })
                         
                     })
@@ -205,7 +210,7 @@
                     email: e.email
                 };
                 osApi.init().then(function() { 
-                    loadUserData()   
+                    refreshDatasets()   
                     
                 });
             });
@@ -218,6 +223,7 @@
             getAuthSources: getAuthSources,
             setDatasets : setDatasets,
             getDatasets : getDatasets,
+            refreshDatasets: refreshDatasets,
             login: login,
             logout: logout,
             onLogin: onLogin,
