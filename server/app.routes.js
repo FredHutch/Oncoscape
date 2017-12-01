@@ -546,7 +546,6 @@ var init = function (app) {
     app.get('/api/:collection/:query', Permissions.jwtVerification, function (req, res, next) {
         var collection = req.params.collection;
         var query = (req.params.query) ? JSON.parse(req.params.query) : {};
-        
         if (req.permittedCollections.indexOf(collection.split("_")[0]) > -1) {
             db.getConnection().then(db => {
                 Query.exec(db, collection, query).then(results => {
@@ -590,25 +589,6 @@ var init = function (app) {
         } else {
             res.status(404).send('User does NOT have permission to query this collection.');
         }
-        // Permissions.getProjects(req.headers.authorization).then(projects => {
-        //     Permissions.hasPermission(projects, collection, permission.ePermission.READ).then(
-        //         hasAccess => {
-        //             if (hasAccess) {
-                        // db.getConnection().then(db => {
-                        //     Query.exec(db, collection, query).then(results => {
-                        //         res.send(results);
-                        //         res.end();
-                        //     });
-                        // });
-    //                 }else{ 
-    //                     res.end();
-    //                 }
-    //             }
-    //         ) 
-    //     }).catch(e => {
-    //         res.send(e);
-    //         res.end();
-    //     });
     });
 }
 
