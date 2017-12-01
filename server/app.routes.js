@@ -10,6 +10,7 @@ var Project = require("./models/project");
 var File = require("./models/file");
 var IRB = require("./models/irb");
 var Permission = require("./models/permission");
+var Openprojects = require("./models/publicprojects");
 
 const jwt = require('jsonwebtoken');
 
@@ -169,6 +170,27 @@ var init = function (app) {
             if (permission === null || permission.Role == 'read-only') { 
                 res.status(404).send('Current user does NOT have permission to UPDATE the project.'); 
             } else {
+                var currentProjectID = String(req.body._id);
+                console.log('currentProjectID', currentProjectID);
+                var private = req.body.Private;
+                console.log('private', private);
+                Openprojects.findOne({}, function(req, res){
+                    var publicProjects = res['public'];
+                    if (!private) {
+                        // Author/Admin agree to share the data to public
+                        res['public'].push(currentProjectID);
+                        res['public'] = _.uniq(res['public']);
+                    } else {
+                        var index = res['public'].indexOf(currentProjectID);
+                        console.log('index', index);
+                        if(index > -1) {
+                            res['public'].splice(index, 1);
+                        }
+                    }
+                    Openprojects.findOneAndUpdate({}, {'public': res['public']}, { upsert : false}, function(req, res){
+                        console.log('Updated Openprojects');
+                    });
+                });
                 Project.findOneAndUpdate(query, req.body, { upsert: false }, processResult(req, res));
             }
         }
