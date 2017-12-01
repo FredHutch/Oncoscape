@@ -123,6 +123,12 @@ var init = function (app) {
             res.send({user: user}).end();
         })
     });
+    app.get('api/users/checkGmail/:query', function(req, res, next){
+        checkUserExistance(req.params.query['Gmail']).then(user => {
+            console.log(' BIG BIG BIG!', user);
+            res.send({user: user}).end();
+        })
+    })
 
     //#region PROJECTS
 
