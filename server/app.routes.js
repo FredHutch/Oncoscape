@@ -556,23 +556,6 @@ var init = function (app) {
         } else {
             res.status(404).send('User does NOT have permission to query this collection.');
         }
-        // Permissions.getProjects(req.headers.authorization).then(projects => {
-        //     Permissions.hasPermission(projects, collection, permission.ePermission.READ).then(
-        //         hasAccess => {
-        //             if (hasAccess) {
-                        // db.getConnection().then(db => {
-                        //     Query.exec(db, collection, query).then(results => {
-                        //         res.send(results);
-                        //         res.end();
-                        //     });
-                        // });
-        //             }
-        //         }
-        //     )
-        // }).catch(e => {
-        //     res.send(e);
-        //     res.end();
-        // })
     });
 
     app.get('/api/:collection*', Permissions.jwtVerification, function (req, res, next) {
