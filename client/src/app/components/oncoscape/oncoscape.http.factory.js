@@ -20,15 +20,15 @@
              return query;
          };
          
-        var jwt = ""
 
          var query = function(req) {
+             var jwt = req.jwt
              return $http({
                  method: 'GET',
                  url: queryString(req),
                  headers: {
                      apikey: 'password'
-   //                  , authentication: jwt
+                     , Authorization: "Bearer " + jwt
                  }
              });
          };

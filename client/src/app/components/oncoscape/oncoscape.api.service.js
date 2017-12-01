@@ -438,8 +438,10 @@
         var _cohortDatasetInfo = { 'numSamples': 0, 'numPatients': 0 };
         var _genesetToolInfo = { 'numGenes': 0, 'numSymbols': 0 };
         var _showGenesetImport = false;
+        var _jwt = null;
      //   var _genesetDatasetInfo = { 'numGenes': 0, 'numSymbols': 0, 'url': '', 'desc':''  };
 
+        var getJWT = function() {return _jwt; };
         var getTools = function() { return _tools; };
         var getCohorts = function() { return _cohorts; };
         var getCohort = function() { return _cohort; };
@@ -454,6 +456,8 @@
         var getPatientColor = function() { return _patientColor; };
         var getDataSources = function() { return _dataSources; };
         var getDataSource = function() { return _dataSource; };
+        
+        var setJWT = function(jwt){ _jwt= jwt; };
         var setPatientColor = function(patientColor) {
             _patientColor = patientColor;
             onPatientColorChange.dispatch(patientColor);
@@ -893,13 +897,15 @@
         var queryString = function(table, query) {
             return osHttp.queryString({
                 table: table,
-                query: query
+                query: query,
+                jwt: getJWT()
             });
         };
         var query = function(table, query) {
             return osHttp.query({
                 table: table,
-                query: query
+                query: query,
+                jwt: getJWT()
             });
         };
 
@@ -918,6 +924,7 @@
             // RPC
             query: query,
             queryString: queryString,
+            setJWT: setJWT,
 
             // Data Sources
             setDataSource: setDataSource,
