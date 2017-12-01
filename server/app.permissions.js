@@ -9,7 +9,8 @@ var Project = require("./models/project");
 var File = require("./models/file");
 var IRB = require("./models/irb");
 var Permission = require("./models/permission");
-var publicProjects = ["accounts", "gbm", "acc", "blca", "brain", "brca", "cesc", "chol", "coad", "coadread", "dlbc", "esca", "hg19", "hnsc", "kich", "kirc", "kirp", "laml", "lgg", "lihc", "lookup", "luad", "lung", "lusc", "meso", "ov", "paad", "pancan12", "pancan", "pcpg", "phenotype", "prad", "read", "sarc", "skcm", "stad", "tcganatgengbm", "tgct", "thca", "thym", "ucec", "ucs", "uvm"];
+// var publicProjects = ["accounts", "gbm", "acc", "blca", "brain", "brca", "cesc", "chol", "coad", "coadread", "dlbc", "esca", "hg19", "hnsc", "kich", "kirc", "kirp", "laml", "lgg", "lihc", "lookup", "luad", "lung", "lusc", "meso", "ov", "paad", "pancan12", "pancan", "pcpg", "phenotype", "prad", "read", "sarc", "skcm", "stad", "tcganatgengbm", "tgct", "thca", "thym", "ucec", "ucs", "uvm"];
+var publicProjects = [];
 var jwtVerification = function (req, res, next) {
     if (req && req.headers.hasOwnProperty("authorization")) {
         try {
@@ -38,9 +39,11 @@ var jwtVerification = function (req, res, next) {
     } else {
         // Public access
         req.isAuthenticated = false;
-        Query.exec(db, 'open_projects', {}).then(publicProjects => {
-            req.permittedCollections = publicProjects[0]['public'];
-            next();
+        db.getConnection().then(db => {
+            Query.exec(db, 'open_projects', {}).then(publicProjects => {
+                req.permittedCollections = publicProjects[0]['public'];
+                next();
+            });
         });
     }
 };
