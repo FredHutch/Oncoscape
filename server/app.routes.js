@@ -370,6 +370,10 @@ var init = function (app) {
                 if (JSON.stringify(query['_id']['$in'][0]) != req.userID && permission == null){
                     query['_id'] = null; 
                 }
+            } else if ('Gmail' in query) {
+                checkUserExistance(query['Gmail']).then(user => {
+                    console.log('USER from GMAIL: ', user);
+                })
             } else {
                 console.log('Just print the query: ', query);
             }
@@ -573,6 +577,8 @@ var init = function (app) {
     
     app.get('/api/:collection/:query', Permissions.jwtVerification, function (req, res, next) {
         var collection = req.params.collection;
+        console.log('/api/:collection/:query', collection);
+        console.log('req.permittedCollections', req.permittedCollections);
         var query = (req.params.query) ? JSON.parse(req.params.query) : {};
         if (req.permittedCollections.indexOf(collection.split("_")[0]) > -1) {
             db.getConnection().then(db => {
@@ -589,7 +595,8 @@ var init = function (app) {
     app.get('/api/:collection*', Permissions.jwtVerification, function (req, res, next) {
         var collection = req.params.collection;
         var query = {};
-
+        console.log('/api/:collection*', collection);
+        console.log('req.permittedCollections', req.permittedCollections);
         if (req.permittedCollections.indexOf(collection.split("_")[0]) > -1) {
             db.getConnection().then(db => {
                 Query.exec(db, collection, query).then(results => {
