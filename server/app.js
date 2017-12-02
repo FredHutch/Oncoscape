@@ -118,7 +118,6 @@ app.post('/api/upload/:id/:email', Permissions.jwtVerification, upload, function
                         console.log("*********************")
 
                         })
-                    })
 
                     transporter.sendMail(mailOptions, function(error, info){
                         if (error) {
