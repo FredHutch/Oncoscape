@@ -21,17 +21,29 @@
              return query;
          };
          
-        var jwt = ""
 
          var query = function(req) {
-             return $http({
-                 method: 'GET',
-                 url: queryString(req),
-                 headers: {
-                     apikey: 'password'
-   //                  , authentication: jwt
-                 }
-             });
+             var jwt = req.jwt
+             if(jwt)
+                return $http({
+                    method: 'GET',
+                    url: queryString(req),
+                    headers: {
+                   //     apikey: 'password'
+                     Authorization: "Bearer " + jwt
+                         , 'Content-Type': 'application/json'
+                         , 'Cache-Control': 'no-cache, no-store, must-revalidate, max-age=0'
+                         , 'Pragma': 'no-cache'
+                    }
+                })
+            return $http({
+                method: 'GET',
+                url: queryString(req),
+                headers: {
+                    apikey: 'password'   
+                }
+            }) 
+             
          };
 
          // Return Object

@@ -128,8 +128,8 @@
                 
                 return;
             }
-            auth().login(source.id, {
-                // response_type: 'code',
+            var response = auth().login(source.id, {
+                
                 display: 'popup',
                 response_type: 'token',
                 scope: 'email',
@@ -196,7 +196,10 @@
         auth.on('auth.login', function(e) {
             osApi.setBusy();
             authSource = e.network;
+            osApi.setJWT(e.authResponse.access_token);
+
             auth(authSource).api("/me", "get", null, function(e) {
+                
                 _user = {
                     network: authSource,
                     id: e.id,
