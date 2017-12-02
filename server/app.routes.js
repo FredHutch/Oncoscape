@@ -72,6 +72,7 @@ function queryStringConverter (queryString) {
             query[k] = queryString[k];
         }
     });
+    console.log(query)
     return query;
 }
 

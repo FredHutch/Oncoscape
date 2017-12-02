@@ -45,11 +45,35 @@
             }) 
              
          };
+         var post = function(req) {
+            var jwt = req.jwt
+            if(jwt)
+               return $http({
+                   method: 'POST',
+                   url: url + req.table,
+                   headers: {
+                    Authorization: "Bearer " + jwt
+                        , 'Content-Type': 'application/json'
+                        , 'Cache-Control': 'no-cache, no-store, must-revalidate, max-age=0'
+                        , 'Pragma': 'no-cache'
+                   }
+               })
+           return $http({
+               method: 'POST',
+               url: url + req.table,
+               body: req.query,
+               headers: {
+                   apikey: 'password'   
+               }
+           }) 
+            
+        };
 
          // Return Object
          return {
              queryString: queryString,
-             query: query
+             query: query,
+             post: post
          };
      }
  })();

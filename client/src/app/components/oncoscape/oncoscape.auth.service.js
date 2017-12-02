@@ -193,25 +193,30 @@
             }
         );
 
-        auth.on('auth.login', function(e) {
+        auth.on('auth.login', function(g) {
             osApi.setBusy();
-            authSource = e.network;
-            osApi.setJWT(e.authResponse.access_token);
+            authSource = g.network;
+            osApi.post('token', {'token': g.authResponse.access_token}).then(function(resp){
 
-            auth(authSource).api("/me", "get", null, function(e) {
-                
-                _user = {
-                    network: authSource,
-                    id: e.id,
-                    name: e.name,
-                    thumb: e.thumbnail,
-                    email: e.email
-                };
-                osApi.init().then(function() { 
-                    loadUserData()   
-                    
-                });
+                osApi.setJWT(resp.token);
+        
+                    auth(authSource).api("/me", "get", null, function(e) {
+                        
+                        _user = {
+                            network: authSource,
+                            id: e.id,
+                            name: e.name,
+                            thumb: e.thumbnail,
+                            email: e.email
+                        };
+                        osApi.init().then(function() { 
+                            loadUserData()   
+                            
+                        });
+                    });
             });
+
+           
         });
 
         return {

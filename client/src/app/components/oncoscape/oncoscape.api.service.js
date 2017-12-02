@@ -908,6 +908,14 @@
                 jwt: getJWT()
             });
         };
+        // Post API
+        var post = function(table, query) {
+            return osHttp.post({
+                table: table,
+                query: query,
+                jwt: getJWT()
+            });
+        };
 
         return {
 
@@ -924,6 +932,7 @@
             // RPC
             query: query,
             queryString: queryString,
+            post: post,
             setJWT: setJWT,
 
             // Data Sources

@@ -15,6 +15,7 @@ var jwtVerification = function (req, res, next) {
     if (req && req.headers.hasOwnProperty("authorization")) {
         try {
             var userID = req.headers.authorization.replace('Bearer ', '');
+            console.log(userID)
             getUserID(userID).then(rs1 => {
                 req.userID = rs1;
                 req.isAuthenticated = true;
