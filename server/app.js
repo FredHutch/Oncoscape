@@ -14,11 +14,12 @@ var Permission = require("./models/permission");
 var app = express();
 app.use(function (req, res, next) { //allow cross origin requests
     res.setHeader("Access-Control-Allow-Methods", "POST, PUT, OPTIONS, DELETE, GET");
+    
     res.header("Access-Control-Allow-Headers", "Origin, X-Requested-With, Content-Type, Accept, Authorization");
     res.header("Access-Control-Allow-Credentials", true);
     next();
 });
-app.use(cors({ origin: ['http://localhost:4200', 'http://localhost:8080'] }));
+app.use(cors({ origin: ['http://localhost:4200', 'http://localhost:8080','http://localhost:3000'] }));
 app.use(bodyParser.urlencoded({
     limit: '400mb',
     extended: true

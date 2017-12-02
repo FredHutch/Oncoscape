@@ -151,17 +151,17 @@
             
             if(angular.isUndefined(_user)) return;
 
-            osApi.query("Accounts_Users", {
+            osApi.query("users", {
                 Gmail: _user.email
             }).then(function(response) {
                 var acct = response.data[0]
                 
                 if(angular.isUndefined(acct) ) return
                 
-                osApi.query("Accounts_Permissions", {
+                osApi.query("permissions", {
                 }).then(function(resp) {
                     var permissions = resp.data.filter(function(p){return p.User == acct._id})
-                    osApi.query("Accounts_Projects", {
+                    osApi.query("projects", {
                     }).then(function(r) {
                         r.data = r.data.filter(function(d){ return _.contains(_.pluck(permissions,"Project"), d._id) })
                         osApi.query("lookup_oncoscape_datasources_v2", {
