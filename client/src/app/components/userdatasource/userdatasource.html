@@ -5,7 +5,7 @@
                 <br />
                 <h1>My Datasets
                
-                    <button type="button" class="btn btn-default" tooltip="Refresh" tooltip-placement="left" ng-click="vm.refreshDatasets()" style="border:none">
+                    <button ng-show="vm.user != null" type="button" class="btn btn-default" tooltip="Refresh" tooltip-placement="left" ng-click="vm.refreshDatasets()" style="border:none">
                         <span class="fa fa-refresh" aria-hidden="true" style="color:#039BE5"></span>
                     </button>
                 </h1>

@@ -50,7 +50,7 @@
                     $state.go("datasource");
                 if(source == "New File"){
                    // $state.go("upload");
-                    var win = window.open("/upload/");
+                    var win = window.open("/upload/#/projects/dashboard");
                     win.focus();
                 }
             }
