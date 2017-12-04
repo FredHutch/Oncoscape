@@ -51,6 +51,7 @@
                return $http({
                    method: 'POST',
                    url: url + req.table,
+                   data: req.query,
                    headers: {
                     Authorization: "Bearer " + jwt
                         , 'Content-Type': 'application/json'
@@ -61,7 +62,7 @@
            return $http({
                method: 'POST',
                url: url + req.table,
-               body: req.query,
+               data: req.query,
                headers: {
                    apikey: 'password'   
                }

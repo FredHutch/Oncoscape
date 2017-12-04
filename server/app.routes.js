@@ -104,6 +104,7 @@ var init = function (app) {
     });
     app.post('/api/token', function(req, res, next) {
         // Pull Token Out Of Request Body
+        
         var token = req.body.token;
         request({ url: 'https://www.googleapis.com/oauth2/v3/userinfo', qs: { access_token: token }, method: 'POST', json: true },
         function (err, response, body) {

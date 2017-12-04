@@ -198,7 +198,7 @@
             authSource = g.network;
             osApi.post('token', {'token': g.authResponse.access_token}).then(function(resp){
 
-                osApi.setJWT(resp.token);
+                osApi.setJWT(resp.data.token);
         
                     auth(authSource).api("/me", "get", null, function(e) {
                         
