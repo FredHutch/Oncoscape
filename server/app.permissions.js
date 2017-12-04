@@ -1,5 +1,6 @@
 const mongoose = require('mongoose');
-const query = require('./app.query.js');
+db = require('./app.db.js');
+Query = require('./app.query.js');
 const jwt = require('jsonwebtoken');
 const _ = require("underscore");
 const JWT_KEY = 'asdfadfasdfasdf';
@@ -8,52 +9,46 @@ var Project = require("./models/project");
 var File = require("./models/file");
 var IRB = require("./models/irb");
 var Permission = require("./models/permission");
-
-const publicProjects = ["accounts", "gbm", "acc", "blca", "brain", "brca", "cesc", "chol", "coad", "coadread", "dlbc", "esca", "hg19", "hnsc", "kich", "kirc", "kirp", "laml", "lgg", "lihc", "lookup", "luad", "lung", "lusc", "meso", "ov", "paad", "pancan12", "pancan", "pcpg", "phenotype", "prad", "read", "sarc", "skcm", "stad", "tcganatgengbm", "tgct", "thca", "thym", "ucec", "ucs", "uvm"];
-
-const ePermission = { 'ADMIN': 1, 'WRITE': 2, 'READ': 4 };
-
-var hasPermission = function (projectsJson, collection, permission) {
-
-    return new Promise((resolve, reject) => {
-
-        var validProjects = projectsJson
-            .map(function (project) { return project._id.toLowerCase().trim() })
-            .concat(publicCollections);
-
-        // If Only Read Permission + Public Projects
-        if (permission === EPermissions.READ) validProjects.concat(publicProjects);
-
-        // Convert Collection To Project Name
-        var projectName = collection.split("_")[0].toLowerCase().trim();
-
-        // Has Permission
-        var isOk = (validProjects.indexOf(projectName) !== -1);
-
-        resolve(isOk);
-
-    });
-}
-
+// var publicProjects = ["accounts", "gbm", "acc", "blca", "brain", "brca", "cesc", "chol", "coad", "coadread", "dlbc", "esca", "hg19", "hnsc", "kich", "kirc", "kirp", "laml", "lgg", "lihc", "lookup", "luad", "lung", "lusc", "meso", "ov", "paad", "pancan12", "pancan", "pcpg", "phenotype", "prad", "read", "sarc", "skcm", "stad", "tcganatgengbm", "tgct", "thca", "thym", "ucec", "ucs", "uvm"];
+var publicProjects = [];
 var jwtVerification = function (req, res, next) {
     if (req && req.headers.hasOwnProperty("authorization")) {
         try {
-            // Pull Token From Header - Not 
-            // console.log('%%%%%%%%%%%% in jwtVerification function');
-            // console.log('req.originalUrl', req.originalUrl);
-            // console.log(req.method);
-            var projectsJson = req.headers.authorization.replace('Bearer ', '');
-            getProjects(projectsJson).then(res => {
-                req.projectsJson = res;
-                next();
+            var userID = req.headers.authorization.replace('Bearer ', '');
+            getUserID(userID).then(rs1 => {
+                req.userID = rs1;
+                req.isAuthenticated = true;
+                Permission.find({'User': mongoose.Types.ObjectId(JSON.parse(rs1))}, function(req1, res1){
+                    req.permissions = res1;
+                    db.getConnection().then(db => {
+                        Query.exec(db, 'open_projects', {}).then(publicProjects => {
+                            req.permittedCollections = publicProjects[0]['public'].concat(res1.map(m => String(m.Project)));
+                                Permission.find({'Project': {$in: res1.map(m => m.Project)}}, function(req2, res2){
+                                    req.relatedPermissions = res2;
+                                    console.log('passed jwtVerification');
+                                    next();
+                                });
+                            });
+                        });
+                    });
             });
         } catch (e) {
+            req.isAuthenticated = false;
             res.send(e);
         }
+    } else {
+        // Public access
+        req.isAuthenticated = false;
+        db.getConnection().then(db => {
+            Query.exec(db, 'open_projects', {}).then(publicProjects => {
+                req.permittedCollections = publicProjects[0]['public'];
+                next();
+            });
+        });
     }
 };
 
-var getProjects = function (token) {
+var getUserID = function (token) {
     return new Promise((resolve, reject) => {
         jwt.verify(token, JWT_KEY, function(err, token){
             if(err){
@@ -81,48 +76,13 @@ var getToken = function (db, gmail) {
             var userId = res._id;
             var userJwt = jwt.sign(JSON.stringify(userId), JWT_KEY);
             resolve(userJwt);
-            // Permission.find({ 'User': userId }, function(req, res) {
-            //     var permissions = res;
-            //     var projectIDs = permissions.map(function (p) {
-            //             return mongoose.Types.ObjectId(p.Project);
-            //         });
-            //     Project.find({ '_id': { $in: projectIDs } }, function(req, res){
-            //         var userProjectsJson = permissions.map(function (m) {
-            //                         var proj = res.filter(function (p) {
-            //                             return p.Project = m.Project;
-            //                         })[0];
-            //                         var result = {};
-            //                         result['Permission'] = m;
-            //                         result['Project'] = proj;
-            //                         return result;
-            //                     });
-            //         var userProjectsString = JSON.stringify(userProjectsJson);
-            //         var userProjectsJwt = jwt.sign(userProjectsString, JWT_KEY);
-            //         resolve(userProjectsJwt);
-            //      });
-            // });
-        });
-    });
-}
-
-var getUserbyGmail = function (gmailAddress) {
-    return new Promise((resolve, reject) => {
-        query.exec(db, 'Accounts_Users', { 'Gmail': gmailAddress }).then(user => {
-            if(user[0] == null) {
-                resolve(null);
-            } else {
-                resolve(user[0]);
-            }
         });
     });
 }
 
 module.exports = {
-    ePermission: ePermission,
     getToken: getToken,
-    getProjects: getProjects,
+    getUserID: getUserID,
     getGoogleEmail: getGoogleEmail,
-    getUserbyGmail: getUserbyGmail,
-    hasPermission: hasPermission,
     jwtVerification: jwtVerification
 }

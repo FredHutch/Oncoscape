@@ -13,7 +13,6 @@ var option = {
         }
     }
 }
-
 mongoose.connect(
     process.env.MONGO_CONNECTION, {  
     db: {
@@ -223,6 +222,13 @@ const writingXLSX2Mongo = (msg) => {
             db.collection(projectID+"_samplemap").insert(samplemap, function(err, result){
                 if (err) console.log(err);
             });
+            collections.push({
+                name: "samplemap", 
+                type: "map", 
+                collection: projectID + "_samplemap", 
+                "date_modified": new Date(),
+                schema : "map"
+            })
 
             if(sheet.header.length > 2){
                 var collection = {
@@ -367,14 +373,17 @@ const writingXLSX2Mongo = (msg) => {
     db.collection(projectID+"_collections").insertMany(collections, function(err, result){
         if (err) console.log(err);
     });
+    
 
     add2Lookup(projectID);
+    return _.uniq(collections.map(function(d){return d.collection}))
+            .concat(projectID+"_collections");
 }
 
 process.on('message', (filePath, HugoGenes, db) => {
     
-        writingXLSX2Mongo(filePath, HugoGenes, db);
-        process.send("DONE from child");
+        var collections = writingXLSX2Mongo(filePath, HugoGenes, db);
+        process.send(collections);
     
 
 });

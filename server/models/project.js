@@ -14,7 +14,8 @@ var projectSchema = new Schema({
     DataCompliance:  {HumanStudy: String, IRBNumber: String, IECNumber: String, Waiver: String, ComplianceOption: String},
     File: {filename: String, size: Number, timestamp: Date},
     Date: {type: Date, default: Date.now},
-    Author: {type: String}
+    // Author: {type: String}
+    Author: {type: Schema.ObjectId, ref: 'User', required: true}
 },  {collection:'Accounts_Projects'});
 module.exports = mongoose.model("Project", projectSchema);
 
