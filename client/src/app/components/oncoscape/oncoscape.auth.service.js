@@ -128,7 +128,7 @@
                 
                 return;
             }
-            var response = auth().login(source.id, {
+            auth().login(source.id, {
                 
                 display: 'popup',
                 response_type: 'token',

@@ -72,7 +72,7 @@ function queryStringConverter (queryString) {
             query[k] = queryString[k];
         }
     });
-    console.log(query)
+    
     return query;
 }
 
@@ -364,7 +364,7 @@ var init = function (app) {
             res.status(404).send('Not Authenticated!');
         } else {
             // convert queryString to query
-            console.log(req.params.query)
+            
             var query = queryStringConverter(JSON.parse(req.params.query));
             
             // Security: compare to req.permissions
