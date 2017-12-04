@@ -3,7 +3,12 @@
         <div class="row">
             <div class="col-sm-12 col-md-12">
                 <br />
-                <h1>My Datasets</h1>
+                <h1>My Datasets
+               
+                    <button ng-show="vm.user != null" type="button" class="btn btn-default" tooltip="Refresh" tooltip-placement="left" ng-click="vm.refreshDatasets()" style="border:none">
+                        <span class="fa fa-refresh" aria-hidden="true" style="color:#039BE5"></span>
+                    </button>
+                </h1>
             </div>
             
         </div>

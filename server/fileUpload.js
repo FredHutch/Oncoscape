@@ -61,7 +61,7 @@ const writingXLSX2Mongo = (msg) => {
     
     console.log('%%%%%%%%%received file');
     console.log('projectID is: ', msg);
-    console.log('%%%%%%%%%XLSX.readFile(filePath): ', filePath);
+    console.log('%%%%%%%%%XLSX.readFile');
     console.time("Reading XLSX file");
 
     var filePath = msg.filePath;

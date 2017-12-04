@@ -38,8 +38,6 @@
             id: 'google',
             name: 'Google',
             icon: 'fa fa-google-plus',
-            // key: '428912153446-7c82srcvu1bk1nramiqqctne005epl6s.apps.googleusercontent.com',
-            //key: '1098022410981-p7n5ejjji8qlvdtff274pol54jo5i8ks.apps.googleusercontent.com',
             key: '459144121975-lp2p5kahpqahm2gffgtl31vv0nes9hj4.apps.googleusercontent.com',
             mode: 'implicit'
         }, {
@@ -147,8 +145,12 @@
             }, onLogout.dispatch);
         };
 
-        var loadUserData = function() {
+
+        var refreshDatasets = function(datasets) {
             
+            if(datasets)
+                osApi.dropDataSources(datasets)
+
             if(angular.isUndefined(_user)) return;
 
             osApi.query("users", {
@@ -174,6 +176,7 @@
                             })
                             osApi.addDataSources(_datasets)
                             onLogin.dispatch(_user);
+
                         })
                         
                     })
@@ -210,7 +213,7 @@
                             email: e.email
                         };
                         osApi.init().then(function() { 
-                            loadUserData()   
+                            refreshDatasets()   
                             
                         });
                     });
@@ -226,6 +229,7 @@
             getAuthSources: getAuthSources,
             setDatasets : setDatasets,
             getDatasets : getDatasets,
+            refreshDatasets: refreshDatasets,
             login: login,
             logout: logout,
             onLogin: onLogin,

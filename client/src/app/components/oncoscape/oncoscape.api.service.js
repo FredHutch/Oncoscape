@@ -473,6 +473,10 @@
         var addDataSources = function(value) {
             _dataSources = _dataSources.concat(value)
         }
+        var dropDataSources = function(value) {
+            _dataSources = _dataSources.filter(function(d){ return !_.contains(_.pluck(value, "dataset"), d.dataset ) })
+        }
+
         var setDataSource = function(value) {
 
             return new Promise(function(resolveDataSource) {
@@ -939,6 +943,7 @@
             setDataSource: setDataSource,
             getDataSource: getDataSource,
             addDataSources: addDataSources,
+            dropDataSources: dropDataSources,
             getDataSources: getDataSources,
 
             // Patient Colors

@@ -41,13 +41,16 @@
             vm.explore = function(tool, datasource) {
                 $state.go(tool, { datasource: datasource.dataset });
             };
-            
+            vm.refreshDatasets = function(){
+                
+                osAuth.refreshDatasets(vm.projects)
+            }
             vm.showDatasourceOption = function(source){
                 if(source == "TCGA")
                     $state.go("datasource");
                 if(source == "New File"){
                    // $state.go("upload");
-                    var win = window.open("/upload/");
+                    var win = window.open("/upload/#/projects/dashboard");
                     win.focus();
                 }
             }
@@ -55,6 +58,7 @@
                 vm.user = osAuth.getUser()
                 vm.projects = osAuth.getDatasets()
             }
+
 
             osApi.setBusy(false);
             osAuth.onLogin.add(updateUser); 
