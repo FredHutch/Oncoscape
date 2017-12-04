@@ -72,6 +72,7 @@ function queryStringConverter (queryString) {
             query[k] = queryString[k];
         }
     });
+    
     return query;
 }
 
@@ -103,6 +104,7 @@ var init = function (app) {
     });
     app.post('/api/token', function(req, res, next) {
         // Pull Token Out Of Request Body
+        
         var token = req.body.token;
         request({ url: 'https://www.googleapis.com/oauth2/v3/userinfo', qs: { access_token: token }, method: 'POST', json: true },
         function (err, response, body) {
@@ -362,6 +364,7 @@ var init = function (app) {
             res.status(404).send('Not Authenticated!');
         } else {
             // convert queryString to query
+            
             var query = queryStringConverter(JSON.parse(req.params.query));
             
             // Security: compare to req.permissions

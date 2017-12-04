@@ -16,7 +16,6 @@
         .constant('localStorage', localStorage)
         .constant('saveAs', saveAs)
         .constant('TextEncoder', TextEncoder)
-        .constant('hello', hello)
         .constant('_', _)
         .constant('ML',ML);
 
