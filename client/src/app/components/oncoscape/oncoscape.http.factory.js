@@ -10,7 +10,8 @@
          //window.collections = {};
          var url = "/api/";
          url = "https://dev.oncoscape.sttrcancer.io/api/";
-         //  url = "http://localhost:7776/api/";
+         //  url = "https://oncoscape-test.fhcrc.org/api/";
+         
 
          var queryString = function(req) {
              //window.collections[req.table] = 1;
@@ -20,23 +21,60 @@
              return query;
          };
          
-        var jwt = ""
 
          var query = function(req) {
-             return $http({
-                 method: 'GET',
-                 url: queryString(req),
-                 headers: {
-                     apikey: 'password'
-   //                  , authentication: jwt
-                 }
-             });
+             var jwt = req.jwt
+             if(jwt)
+                return $http({
+                    method: 'GET',
+                    url: queryString(req),
+                    headers: {
+                   //     apikey: 'password'
+                     Authorization: "Bearer " + jwt
+                         , 'Content-Type': 'application/json'
+                         , 'Cache-Control': 'no-cache, no-store, must-revalidate, max-age=0'
+                         , 'Pragma': 'no-cache'
+                    }
+                })
+            return $http({
+                method: 'GET',
+                url: queryString(req),
+                headers: {
+                    apikey: 'password'   
+                }
+            }) 
+             
          };
+         var post = function(req) {
+            var jwt = req.jwt
+            if(jwt)
+               return $http({
+                   method: 'POST',
+                   url: url + req.table,
+                   data: req.query,
+                   headers: {
+                    Authorization: "Bearer " + jwt
+                        , 'Content-Type': 'application/json'
+                        , 'Cache-Control': 'no-cache, no-store, must-revalidate, max-age=0'
+                        , 'Pragma': 'no-cache'
+                   }
+               })
+           return $http({
+               method: 'POST',
+               url: url + req.table,
+               data: req.query,
+               headers: {
+                   apikey: 'password'   
+               }
+           }) 
+            
+        };
 
          // Return Object
          return {
              queryString: queryString,
-             query: query
+             query: query,
+             post: post
          };
      }
  })();

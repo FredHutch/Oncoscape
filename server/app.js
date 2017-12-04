@@ -14,11 +14,12 @@ var Permission = require("./models/permission");
 var app = express();
 app.use(function (req, res, next) { //allow cross origin requests
     res.setHeader("Access-Control-Allow-Methods", "POST, PUT, OPTIONS, DELETE, GET");
+    //res.header("Access-Control-Allow-Origin", "http://localhost:"+process.env.NODE_PORT + "/api")
     res.header("Access-Control-Allow-Headers", "Origin, X-Requested-With, Content-Type, Accept, Authorization");
     res.header("Access-Control-Allow-Credentials", true);
     next();
 });
-app.use(cors({ origin: ['http://localhost:4200', 'http://localhost:8080'] }));
+app.use(cors({ origin: ['http://localhost:4200', 'http://localhost:8080','http://localhost:3000'] }));
 app.use(bodyParser.urlencoded({
     limit: '400mb',
     extended: true
@@ -47,7 +48,6 @@ var transporter = nodemailer.createTransport({
 
 var storage = multer.diskStorage({
     destination: function (req, file, cb) {
-        // cb(null, '/home/sttrweb/Oncoscape/uploads')
         cb(null, process.env.APP_ROOT + '/uploads')
     },
     filename: function (req, file, cb) {
@@ -62,10 +62,10 @@ var upload = multer({
 //#endregion
 
 app.use('/api/upload', express.static(process.env.APP_ROOT + '/uploads'));
-// app.use('/api/upload', express.static('/home/sttrweb/Oncoscape/uploads'));
+
 app.post('/api/upload/:id/:email', Permissions.jwtVerification, upload, function (req, res, next) {
     // upload(req, res, function (err) {
-    console.log("This section is triggered");
+    console.log("Uploading by ID and Email");
     var projectID = req.params.id;
     var userEmail = req.params.email;
 
@@ -98,21 +98,27 @@ app.post('/api/upload/:id/:email', Permissions.jwtVerification, upload, function
                 subject: 'Notification from Oncoscape Data Uploading App',
                 text: 'Data are in database, ready to share.'
               };
-            var molecularColleciton = mongoose.model(projectID + "_data_molecular", File.schema);
-            var sampleMapCollection = mongoose.model(projectID + "_data_samples", File.schema);
-            var clinicalColleciton = mongoose.model(projectID + "_data_clinical", File.schema);
-            var uploadingSummaryCollection = mongoose.model(projectID + "_uploadingSummary", File.schema);
-            console.log('test before try block');
             try {
-                const writing2Mongo = fork(process.env.APP_ROOT + '/server/fileUpload.js',
-                // const writing2Mongo = fork('/home/sttrweb/Oncoscape/server/fileUpload.js', 
-                { execArgv: ['--max-old-space-size=4000']});
+                const writing2Mongo = 
+                    fork(process.env.APP_ROOT + '/server/fileUpload.js',
+                        { execArgv: ['--max-old-space-size=4000']});
                 writing2Mongo.send({ filePath: req.file.path, 
                                      projectID: projectID
                                   });
-                writing2Mongo.on('message', () => {
-                    res.end('Writing is done');
-                    console.log("*******************!!!!!!********************");
+                writing2Mongo.on('message', (collections) => {
+                    console.log('XLS file upload complete; Updating Kong');
+                    const kong_configure = fork(process.env.APP_ROOT + '/server/kong_configure.js');
+                    kong_configure.send({
+                        projectID: projectID,
+                        collections: collections
+                    })
+                    kong_configure.on('message', () => {
+                        console.log("Kong configuration complete")
+                        res.end("Writing is done")
+                        console.log("*********************")
+
+                        })
+
                     transporter.sendMail(mailOptions, function(error, info){
                         if (error) {
                           console.log(error);

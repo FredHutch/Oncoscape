@@ -38,8 +38,6 @@
             id: 'google',
             name: 'Google',
             icon: 'fa fa-google-plus',
-            // key: '428912153446-7c82srcvu1bk1nramiqqctne005epl6s.apps.googleusercontent.com',
-            //key: '1098022410981-p7n5ejjji8qlvdtff274pol54jo5i8ks.apps.googleusercontent.com',
             key: '459144121975-lp2p5kahpqahm2gffgtl31vv0nes9hj4.apps.googleusercontent.com',
             mode: 'implicit'
         }, {
@@ -129,7 +127,7 @@
                 return;
             }
             auth().login(source.id, {
-                // response_type: 'code',
+                
                 display: 'popup',
                 response_type: 'token',
                 scope: 'email',
@@ -155,17 +153,17 @@
 
             if(angular.isUndefined(_user)) return;
 
-            osApi.query("Accounts_Users", {
+            osApi.query("users", {
                 Gmail: _user.email
             }).then(function(response) {
                 var acct = response.data[0]
                 
                 if(angular.isUndefined(acct) ) return
                 
-                osApi.query("Accounts_Permissions", {
+                osApi.query("permissions", {
                 }).then(function(resp) {
                     var permissions = resp.data.filter(function(p){return p.User == acct._id})
-                    osApi.query("Accounts_Projects", {
+                    osApi.query("projects", {
                     }).then(function(r) {
                         r.data = r.data.filter(function(d){ return _.contains(_.pluck(permissions,"Project"), d._id) })
                         osApi.query("lookup_oncoscape_datasources_v2", {
@@ -198,22 +196,30 @@
             }
         );
 
-        auth.on('auth.login', function(e) {
+        auth.on('auth.login', function(g) {
             osApi.setBusy();
-            authSource = e.network;
-            auth(authSource).api("/me", "get", null, function(e) {
-                _user = {
-                    network: authSource,
-                    id: e.id,
-                    name: e.name,
-                    thumb: e.thumbnail,
-                    email: e.email
-                };
-                osApi.init().then(function() { 
-                    refreshDatasets()   
-                    
-                });
+            authSource = g.network;
+            osApi.post('token', {'token': g.authResponse.access_token}).then(function(resp){
+
+                osApi.setJWT(resp.data.token);
+        
+                    auth(authSource).api("/me", "get", null, function(e) {
+                        
+                        _user = {
+                            network: authSource,
+                            id: e.id,
+                            name: e.name,
+                            thumb: e.thumbnail,
+                            email: e.email
+                        };
+                        osApi.init().then(function() { 
+                            refreshDatasets()   
+                            
+                        });
+                    });
             });
+
+           
         });
 
         return {
