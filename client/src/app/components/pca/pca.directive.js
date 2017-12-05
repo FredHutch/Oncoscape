@@ -19,7 +19,7 @@
         return directive;
 
         /** @ngInject */
-        function PcaController($q, osApi, $state, $stateParams, $timeout, $scope, d3, moment, $window,$http,  _, ML, $) {
+        function PcaController($q, osApi, $state, $stateParams, $timeout, $scope, d3, moment, $window,$http,  _, ML, $log) {
 
             // helper functions -> move to service?
             var findIndicesOfMax = function(inp, count) {
@@ -332,7 +332,9 @@
                     }); 
                     // var encodedUri = encodeURI(csvContent);
                     // window.open(encodedUri);
-                    var encodedUri = encodeURI(header + JSON.stringify(doc));
+                    
+                    // var encodedUri = encodeURI(header + JSON.stringify(doc));
+                    var encodedUri = encodeURI(header + angular.toJson(doc));
                     var link = document.createElement("a");
                     link.setAttribute("href", encodedUri);
                     link.setAttribute("download", "pca.json");
@@ -357,7 +359,6 @@
                 return $http({
                     method: 'POST',
                     url: "https://dev.oncoscape.sttrcancer.io/cpu/pca",
-                    //url: "https://oncoscape-test.fhcrc.org/cpu/pca",
                     //url: "http://localhost:8000/pca",
                     data: payload
                 });
@@ -367,8 +368,7 @@
                 return $http({
                     method: 'POST',
                  url: "https://dev.oncoscape.sttrcancer.io/cpu/distance",
-                // url: "https://oncoscape-test.fhcrc.org/cpu/distance",
-                // url: "http://localhost:8000/distance",
+                 // url: "http://localhost:8000/distance",
                     data: payload
 
 
@@ -416,7 +416,7 @@
                     var d = response.data
                     if(d.length >0){
                         
-                        console.log("PCA: retreived from Mongo " + Date())
+                        $log.log("PCA: retreived from Mongo " + Date())
                         
                         var score_samples = _.pluck(d[0].scores, "id")
                         d[0].scores = d[0].scores.map(function(x){ return x.d})
@@ -445,7 +445,7 @@
                     var numGenes = [100,200,500,1000, 5000, 10000,15000, 20000, 25000]; var numSamples = [100,200,500];
                     for(var i=0;i<numSamples.length;i++){
                         for(var j=0;j<numGenes.length;j++){
-                            console.log("Genes: "+ numGenes[j] + " Samples: "+ numSamples[i])
+                            $log.log("Genes: "+ numGenes[j] + " Samples: "+ numSamples[i])
                             runPCAsimulation(numGenes[j], numSamples[i]);
                         }
                     }
@@ -473,7 +473,7 @@
 
                         var d = PCAresponse.data;
                         if(angular.isDefined(d.reason)){
-                            console.log(geneset.name +": " + d.reason)
+                            $log.log(geneset.name +": " + d.reason)
                             // PCA could not be calculated on geneset given current settings
                             vm.error = d.reason;
                             
@@ -524,11 +524,11 @@
                 var molecular = Array.apply(null, {length: numSamples}).map(function(){ return Array.apply(null, {length: numGenes}).map(Function.call, Math.random)});
 
                 var then = Date.now();
-                //console.log("PCA: Running " + Date())
-                var d = new ML.Stat.PCA(molecular, options)
+                //$log.log("PCA: Running " + Date())
+                new ML.Stat.PCA(molecular, options)
                 var now = Date.now()
-                //console.log("PCA: transforming scores " + Date())
-                console.log("Genes: "+ numGenes + " Samples: "+numSamples+ "Diff: " + (now-then)/1000)
+                //$log.log("PCA: transforming scores " + Date())
+                $log.log("Genes: "+ numGenes + " Samples: "+numSamples+ "Diff: " + (now-then)/1000)
 
             }
 
@@ -576,10 +576,10 @@
                 
                 molecular = transpose(molecular)
                 
-                console.log("PCA: Running " + Date())
+                $log.log("PCA: Running " + Date())
                 //NOTE: If there are null values in molecular, PCA runs in an infinite loop!
                 var d = new ML.Stat.PCA(molecular, options)
-                console.log("PCA: transforming scores " + Date())
+                $log.log("PCA: transforming scores " + Date())
                 d.metadata = {}
                 d.metadata.variance = d.getExplainedVariance()
                 d.loadings = d.getLoadings() // [[PC1 loadings (for coefficients for each gene)], [PC2 loadings], [...#PC = # samples]]
@@ -591,7 +591,7 @@
             }
             var processPCA = function(d, geneIds, samples){
                 
-                    console.log("PCA: processing results " + Date())
+                    $log.log("PCA: processing results " + Date())
     
                     vm.setBase()
 
@@ -617,11 +617,11 @@
             };
 
             var editOverlayMethod = function(){
-                
+                var newSource;
                 if (angular.isUndefined(vm.overlaySource)) {
                     vm.overlaySource = vm.sources[0];
                 } else {
-                    var newSource = vm.sources.filter(function(v) { return (v === vm.overlaySource); });
+                    newSource = vm.sources.filter(function(v) { return (v === vm.overlaySource); });
                     vm.overlaySource = (newSource.length === 1) ? newSource[0] : vm.sources[0];
                 }
 
@@ -638,7 +638,7 @@
                     if (angular.isUndefined(vm.overlayType)) {
                         vm.overlayType = vm.overlayTypes[0];
                     } else {
-                        var newSource = vm.overlayTypes.filter(function(v) { return (v === vm.overlayType); });
+                        newSource = vm.overlayTypes.filter(function(v) { return (v === vm.overlayType); });
                         vm.overlayType = (newSource.length === 1) ? newSource[0] : vm.overlayTypes[0];
                     }
             
@@ -685,9 +685,9 @@
 
                     var d = response.data;
                     if(angular.isDefined(d.reason)){
-                        console.log(vm.base.data.types[vm.base.data.selected.i].collection +"+ "+vm.overlay[i].data.types[vm.overlay[i].data.selected.i].collection+": " + d.reason)
+                        $log.log(vm.base.data.types[vm.base.data.selected.i].collection +"+ "+vm.overlay[i].data.types[vm.overlay[i].data.selected.i].collection+": " + d.reason)
                         // Distance could not be calculated on geneset given current settings
-                            window.alert("Sorry, Distance could not be calculated\n" + d.reason)
+                            $window.alert("Sorry, Distance could not be calculated\n" + d.reason)
 
                         vm.overlay[i].result.output = {}
                         angular.element('#modalRun').modal('hide');
@@ -723,7 +723,7 @@
                 
     
                  var top3 = dist.D.map(function(s){ 
-                    var indices = findIndicesOfMax(s.d, 3);
+                    var indices = findIndicesOfMax(s.d, num_compare);
                     var match_ids = indices.map(function(i){return s.m[i]})
                     var weights = indices.map(function(i){return Math.abs(s.d[i])})
                     return {id:s.id, match: match_ids, w:weights}
@@ -1033,7 +1033,7 @@
             osApi.onPatientColorChange.add(onPatientColorChange);
 
             // App Event :: Cohort Change
-            var onCohortChange = function(c) {
+            var onCohortChange = function() {
                 setSelected();
             };
             osApi.onCohortChange.add(onCohortChange);

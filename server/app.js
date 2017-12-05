@@ -14,7 +14,7 @@ var Permission = require("./models/permission");
 var app = express();
 app.use(function (req, res, next) { //allow cross origin requests
     res.setHeader("Access-Control-Allow-Methods", "POST, PUT, OPTIONS, DELETE, GET");
-    //res.header("Access-Control-Allow-Origin", "http://localhost:"+process.env.NODE_PORT + "/api")
+    res.header("Access-Control-Allow-Origin", "http://localhost:"+process.env.NODE_PORT + "/api")
     res.header("Access-Control-Allow-Headers", "Origin, X-Requested-With, Content-Type, Accept, Authorization");
     res.header("Access-Control-Allow-Credentials", true);
     next();

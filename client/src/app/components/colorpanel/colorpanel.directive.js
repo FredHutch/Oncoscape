@@ -23,7 +23,7 @@
         return directive;
 
         /** @ngInject */
-        function ColorPanelController(osApi, d3, _, $timeout) {
+        function ColorPanelController(osApi, d3, _) {
 
             // Properties
             var vm = this;
@@ -44,7 +44,7 @@
 
             
             var promises = activeDatasets.map(function(ds){
-                return new Promise(function(resolve, reject) {
+                return new Promise(function(resolve) {
                     osApi.query(ds+ "_color",{
                         dataset: ds,
                         $fields: ['name', 'subtype']
@@ -115,7 +115,7 @@
 
                 var fulldata = {data:[], name: item.name}
                 var promises = activeDatasets.map(function(ds){
-                    return new Promise(function(resolve, reject) {
+                    return new Promise(function() {
                         osApi.query(ds+ "_color",{
                             name: item.name
                         }, {data:1}).then(function(v) {

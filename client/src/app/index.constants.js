@@ -17,6 +17,6 @@
         .constant('saveAs', saveAs)
         .constant('TextEncoder', TextEncoder)
         .constant('_', _)
-        .constant('ML',ML);
+        .constant("ML", ML);
 
 })();

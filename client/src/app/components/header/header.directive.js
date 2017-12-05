@@ -83,7 +83,7 @@
                 vm.showImport = show
             });
 
-            var updateUser = function(user){
+            var updateUser = function(){
                 vm.user=osAuth.getUser()
             }
             osAuth.onLogin.add(updateUser); 

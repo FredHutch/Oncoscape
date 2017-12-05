@@ -6,7 +6,7 @@
         .service('osAuth', osAuth);
 
     /** @ngInject */
-    function osAuth(osHttp, $http, signals, $location, auth, osApi) {
+    function osAuth(osHttp, $http, signals, $location, auth, osApi, _) {
 
         // Events
         var onLogin = new signals.Signal(); // Fired When Data Changes

@@ -22,7 +22,7 @@
         return directive;
 
         /** @ngInject */
-        function ImportPanelController(osApi, d3, _) {
+        function ImportPanelController(osApi) {
 
             // Properties
             var vm = this;

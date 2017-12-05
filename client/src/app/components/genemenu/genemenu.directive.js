@@ -20,7 +20,7 @@
         return directive;
 
         /** @ngInject */
-        function GeneMenuController(osApi, $state, $scope, $sce, $timeout, $rootScope, $filter, d3) {
+        function GeneMenuController(osApi, $state, $scope, $sce, $timeout, $rootScope, $filter) {
 
 
             // View Model
