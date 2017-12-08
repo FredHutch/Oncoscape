@@ -60,7 +60,7 @@ function queryStringConverter (queryString) {
         var obj = {};
         if(k == '_id'|| k == 'User' || k == 'Author' || k == 'Project') {
             if (typeof(queryString[k]) != 'string') {
-                console.log('type 1: ');
+                console.log('Query String: [_id|User|Author|Project]');
                 console.log(queryString);
                 console.log('queryString[k].length:', queryString[k]['$in'].length);
                 obj['$in'] = queryString[k]['$in'].map(m => mongoose.Types.ObjectId(m)); 
@@ -77,10 +77,11 @@ function queryStringConverter (queryString) {
 }
 
 function processResult(req, res, next) {
-    console.log(Object.keys(req.route.methods), ' : ', req.route.path);
+    console.log("   ", Object.keys(req.route.methods), ' : ', req.route.path);
+    
     return function (err, data) {
         if (err) {
-            console.log(err);
+            console.log("ERROR: ",err);
             res.status(404).send("Not Found").end();
         } else {
             res.json(data).end();
@@ -127,7 +128,7 @@ var init = function (app) {
     });
     app.get('api/users/checkGmail/:query', function(req, res, next){
         checkUserExistance(req.params.query['Gmail']).then(user => {
-            console.log(' BIG BIG BIG!', user);
+            console.log(' Get User by Email', user);
             res.send({user: user}).end();
         })
     })
@@ -141,6 +142,7 @@ var init = function (app) {
         } else {
             // convert queryString to query
             var query = queryStringConverter(JSON.parse(req.params.query));
+            console.log("-> get project: ", query)
 
             // Security: compare to req.permissions
             var permitted = req.permissions.map(m => m.Project);
@@ -162,7 +164,7 @@ var init = function (app) {
             if (JSON.stringify(req.body.Author) != String(req.userID)) {
                 res.status(404).send('Author is not the current User, cannot write to database');
             } else {
-                console.log('WE ARE ABLE TO POST PROJECT');
+                console.log('--Adding Project');
                 Project.create(req.body, processResult(req, res));
             }    
         }
@@ -173,6 +175,8 @@ var init = function (app) {
             res.status(404).send('Not Authenticated!');
         } else {
             var query = queryStringConverter(JSON.parse(req.params.query));
+            console.log("-> put projects: ", query)
+
             if (!'_id' in query) {res.status(404).send('Query doesn\'n have _id field!');};
             var permission = req.permissions.find( v => String(v.Project) == String(query['_id']['$in'][0]));
             if (permission === null || permission.Role == 'read-only') { 
@@ -209,11 +213,13 @@ var init = function (app) {
             res.status(404).send('Not Authenticated!');
         } else {
             var query = queryStringConverter(JSON.parse(req.params.query));
+            console.log("-> delete projects: ", query)
             if (!'_id' in query) {res.status(404).send('Query doesn\'n have _id field!');};
             var permission = req.permissions.find( v => String(v.Project) == String(query['_id']['$in'][0]));
             if (permission === null || permission.Role == 'read-only') { 
                 res.status(404).send('Current user does NOT have permission to DELETE the project.'); 
             } else {
+                console.log("-> delete project: ", query)
                 Project.remove(query, processResult(req, res));
             }
         } 
@@ -230,7 +236,8 @@ var init = function (app) {
         } else {
              // convert queryString to query
              var query = queryStringConverter(JSON.parse(req.params.query));
-             
+             console.log("-> get permissions: ", query)
+
              // Security: compare to req.permissions
              var permittedProjects = req.permissions.map(m => m.Project);
              var permittedUsers = req.relatedPermissions.map(m => m.User);
@@ -243,7 +250,7 @@ var init = function (app) {
             } else if ('Project' in query) {
                 query['Project'] = objectIDArrayCompare.intersection(query['Project']['$in'], permittedProjects);
             } 
-
+            
             Permission.find(query, processResult(req, res));
         }
     });
@@ -270,6 +277,7 @@ var init = function (app) {
             res.status(404).send('Not Authenticated!');
         } else {
             var query = queryStringConverter(JSON.parse(req.params.query));
+            console.log("-> put permissions: ", query)
             Object.keys(query).forEach(k => {
                 if (k == '_id') {
                     var currentUserRole;
@@ -312,7 +320,7 @@ var init = function (app) {
             res.status(404).send('Not Authenticated!');
         } else {
             var query = queryStringConverter(JSON.parse(req.params.query));
-            
+            console.log("-> delete permissions: ", query)
             Object.keys(query).forEach(k => {
                 if (k == '_id') {
                     var currentUserRole;
@@ -366,7 +374,8 @@ var init = function (app) {
             // convert queryString to query
             
             var query = queryStringConverter(JSON.parse(req.params.query));
-            
+            console.log("-> get users: ", query)
+
             // Security: compare to req.permissions
             if ('_id' in query) {
                 var permission = req.relatedPermissions.find( v => String(v.User) == String(query['_id']['$in'][0]));
@@ -390,11 +399,10 @@ var init = function (app) {
             res.status(404).send('Not Authenticated!');
         } else {
             var query = queryStringConverter(JSON.parse(req.params.query));
-            console.log('ARE WE DOING USER UPDATING?');
-            console.log(query['_id']);
-            console.log(query['_id']['$in']);
+            console.log('-- Updating User --');
+            console.log("_id: ", query['_id']);
+            console.log("_id in: ", query['_id']['$in']);
             
-            console.log('text1');
             if ('_id' in query && JSON.stringify(query['_id']['$in'][0]) != req.userID) {
                 res.status(404).send('Not current user, cannot update user profile.');
             } else {
@@ -410,6 +418,7 @@ var init = function (app) {
             res.status(404).send('Not Authenticated!');
         } else {
             var query = queryStringConverter(JSON.parse(req.params.query));
+            console.log("-> delete users: ", query)
             if (!'_id' in query) {res.status(404).send('Query doesn\'n have _id field!');};
             if (JSON.stringify(query['_id']['$in'][0]) != req.userID) {
                 res.status(404).send('Not current user, cannot update user profile.');
@@ -422,15 +431,6 @@ var init = function (app) {
     //#endregion
 
     //#region FILES
-
-    // app.get('/api/files', Permissions.jwtVerification, function (req, res) {
-    //     console.log("in Files");
-    //     res.status(200).end();
-    // });
-
-    // app.post('/api/files', Permissions.jwtVerification, function (req, res) {
-    //     console.log(req.body);
-    // });
 
     app.get('/api/files/:id', Permissions.jwtVerification, function (req, res) {
         var projectID = req.params.id;
@@ -455,7 +455,7 @@ var init = function (app) {
             if (!permitted) {
                 res.status(404).send('The current User does not have access to the uploaded file');
             } else {
-                console.log('ABLE TO GET FILE SUMMARY.');
+                console.log('GETTING FILE SUMMARY.');
 
                 db.getConnection().then(db => {
                     db.db.listCollections().toArray(function (err, collectionMeta) {
@@ -526,8 +526,8 @@ var init = function (app) {
     });
 
     app.delete('/api/files/:id', Permissions.jwtVerification, function (req, res) {
-        console.log("in file delete");
-        console.log(req.params.id);
+        console.log("--- Deleting File");
+        console.log("id: ",req.params.id);
         var projectID = req.params.id;
 
         if (!req.isAuthenticated) {
@@ -550,7 +550,7 @@ var init = function (app) {
             if (!permitted) {
                 res.status(404).send('The Current User does not have priviledge to delete file to this project. Please contact the Author of this Dataset.');
             } else {
-                console.log('ABLE TO DELETE FILES');
+                console.log('     - Delete Permitted');
                 db.getConnection().then(db => {
                     db.db.listCollections().toArray(function (err, collectionMeta) {
                         if (err) {

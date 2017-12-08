@@ -26,7 +26,7 @@ var jwtVerification = function (req, res, next) {
                             req.permittedCollections = publicProjects[0]['public'].concat(res1.map(m => String(m.Project)));
                                 Permission.find({'Project': {$in: res1.map(m => m.Project)}}, function(req2, res2){
                                     req.relatedPermissions = res2;
-                                    console.log('passed jwtVerification');
+                                    console.log('%passed jwtVerification');
                                     next();
                                 });
                             });
