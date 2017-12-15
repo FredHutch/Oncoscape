@@ -41,6 +41,11 @@
             }
         };
 
+        function resolve(path, obj) {
+            return path.split('.').reduce(function(prev, curr) {
+                return prev ? prev[curr] : null
+            }, obj || self)
+        }        
 
         // Factories
         var statsFactory = (function(jStat) {
@@ -234,7 +239,7 @@
                     10;
 
                 var props = patients.map(function(pd) {
-                    return pd[attribute];
+                    return resolve(attribute, pd);
                 });
 
                 var data = {
@@ -320,34 +325,34 @@
                     selected: clinical.length,
                     features: [{
                             label: "Age At Diagnosis",
-                            data: getNumericStats(clinical, "age_at_diagnosis"),
+                            data: getNumericStats(clinical, "num.age_at_diagnosis"),
                             prop: "age_at_diagnosis",
                             type: "numeric"
                         },
                         //{label: "Death", data:getNumericStats(data,"days_to_death"), prop:"days_to_death" , type:"numeric"},
                         {
                             label: "Gender",
-                            data: getFactorStats(clinical, "gender"),
+                            data: getFactorStats(clinical, "enum.gender"),
                             prop: "gender",
                             type: "factor"
                         }, {
                             label: "Race",
-                            data: getFactorStats(clinical, "race"),
+                            data: getFactorStats(clinical, "enum.race"),
                             prop: "race",
                             type: "factor"
                         }, {
                             label: "Ethnicity",
-                            data: getFactorStats(clinical, "ethnicity"),
+                            data: getFactorStats(clinical, "enum.ethnicity"),
                             prop: "ethnicity",
                             type: "factor"
                         }, {
                             label: "Vital",
-                            data: getFactorStats(clinical, "status_vital"),
+                            data: getFactorStats(clinical, "num.status_vital"),
                             prop: "status_vital",
                             type: "factor"
                         }, {
                             label: "Disease Status",
-                            data: getFactorStats(clinical, "last_known_disease_status"),
+                            data: getFactorStats(clinical, "enum.last_known_disease_status"),
                             prop: "last_known_disease_status",
                             type: "factor"
                         }
