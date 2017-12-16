@@ -263,35 +263,43 @@
 
             function setHeatmapSize(){
                 var layout = osApi.getLayout()
+                var margin = { top: 110, right: 10, bottom: 50, left: 110 };
+
+                var width =  vm.options.col.cellwidth*vm.heatmap.cols.length
+                var height = vm.options.row.cellheight*vm.heatmap.rows.length;
+
                 if(vm.options.col.fit){
                     
-                    var width = $window.innerWidth - layout.left - layout.right - 40;
-                    vm.options.col.cellwidth = Math.round(width / vm.heatmap.cols.length)
+                    width = $window.innerWidth - layout.left - layout.right - margin.left - margin.right;
+                    vm.options.col.cellwidth = Math.floor(width / vm.heatmap.cols.length)
+                }else{
+                    margin.left = margin.left + layout.left
+                    width = width + layout.right
                 }
                 if(vm.options.row.fit){
                     
-                    var height = $window.innerHeight - 160; //10
-                    vm.options.row.cellheight = Math.round(height / vm.heatmap.rows.length)
+                    height = $window.innerHeight - margin.top - margin.bottom; 
+                    vm.options.row.cellheight = Math.floor(height / vm.heatmap.rows.length)
                 }
+                return {width: width, height: height, margin: margin}
             }
             function heatmap() {
 
                 //credit: http://bl.ocks.org/ianyfchang/8119685
-
-                setHeatmapSize()
+                
+                var size = setHeatmapSize()
 
                 mainSVG.selectAll("g").remove();
-                var margin = { top: 110, right: 10, bottom: 50, left: 110 };
-                var width = vm.options.col.cellwidth*vm.heatmap.cols.length, 
-                    height = vm.options.row.cellheight*vm.heatmap.rows.length ; 
+                var layout = osApi.getLayout()
+                
                 var legendElement = {width : Math.min(20, Math.max(vm.options.col.cellwidth*2.5, 40)),
                                     height: Math.max(10, vm.options.row.cellheight)
                 };
-                mainSVG.attr("width", width + margin.left + margin.right)
-                        .attr("height", height + margin.top + margin.bottom)
+                mainSVG.attr("width", size.width + size.margin.left + size.margin.right)
+                        .attr("height", size.height + size.margin.top + size.margin.bottom)
                 svg = mainSVG
                     .append("g")
-                    .attr("transform", "translate(" + margin.left + "," + margin.top + ")")
+                    .attr("transform", "translate(" + size.margin.left + "," + size.margin.top + ")")
                 
 
                 var MinMax = vm.heatmap.data.reduce(function(p,c){ 
@@ -397,7 +405,7 @@
                
                 legend.append("rect")
                     .attr("x", function(d, i) { return legendElement.width * i; })
-                    .attr("y", height+(vm.options.row.cellheight*2))
+                    .attr("y", size.height+(vm.options.row.cellheight*2))
                     .attr("width", legendElement.width)
                     .attr("height", vm.options.row.cellheight)
                     .style("fill", function(d) { return colorScale(d); });
@@ -407,7 +415,7 @@
                     .text(function(d) { return d; })
                     .attr("width", legendElement.width)
                     .attr("x", function(d, i) { return legendElement.width * i; })
-                    .attr("y", height + (vm.options.row.cellheight*4));
+                    .attr("y", size.height + (vm.options.row.cellheight*4));
               
 
                 
@@ -508,16 +516,16 @@
                         
 
                     })
-                    .on("mouseout", function() {
-                       if(d3.event.relatedTarget.tagName=='html') {
-                               // remove selection frame
-                           sa.selectAll("rect.selection").remove();
-                               // remove temporary selection marker class
-                           d3.selectAll('.cell-selection').classed("cell-selection", false);
-                           d3.selectAll(".rowLabel").classed("text-selected",false);
-                           d3.selectAll(".colLabel").classed("text-selected",false);
-                       }
-                    });
+                    // .on("mouseout", function() {
+                    //    if(d3.event.relatedTarget & d3.event.relatedTarget.tagName=='html') {
+                    //            // remove selection frame
+                    //        sa.selectAll("rect.selection").remove();
+                    //            // remove temporary selection marker class
+                    //        d3.selectAll('.cell-selection').classed("cell-selection", false);
+                    //        d3.selectAll(".rowLabel").classed("text-selected",false);
+                    //        d3.selectAll(".colLabel").classed("text-selected",false);
+                    //    }
+                    // });
               
             }
 
