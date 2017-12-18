@@ -215,9 +215,9 @@ const writingXLSX2Mongo = (msg) => {
 
         } else if (sheet.type == "SAMPLE") {
             
-            var samplemap = sheet.data.map(function(r){
-                var s = {}; s[r[0]] = r[1]
-                return s                
+            var samplemap = {}
+            sheet.data.forEach(function(r){
+                samplemap[r[0]] = r[1]
             })
             db.collection(projectID+"_samplemap").insert(samplemap, function(err, result){
                 if (err) console.log(err);

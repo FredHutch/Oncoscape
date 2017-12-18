@@ -64,7 +64,8 @@
                     dendogram: false,
                     cellwidth: 10,
                     fit: true
-                }
+                },
+                geneset: {apply: false}
 
             }
             vm.draw = function(){
@@ -105,15 +106,22 @@
             //     order(vm.options.order.types[vm.options.order.selected.i].value);
             // })
 
+            osApi.onGenesetChange.add(function(geneset) {
+                // if(vm.options.geneset.apply)
+                    vm.geneset = osApi.getGeneset()
+                vm.callMethod()
+            })
+
             vm.callMethod = function(){
                 osApi.setBusy(true);
                 var collections = vm.data.table.types.filter(function(d){return d.name == vm.data.table.selected.name})
-                var gIds = osApi.getGeneset().geneIds
+                var gIds = vm.geneset.geneIds
 
                 if(vm.data.method.selected.name == "molecular"){
-                    osApi.query(collections[0].collection, {
-                        '$limit': 100
-                    }).then(function(response) {
+                    var query = {'$limit': 100}
+                    if(gIds.length != 0)
+                        query = {m: {$in: gIds}}
+                    osApi.query(collections[0].collection, query).then(function(response) {
                         
                         var temp = response.data
                         temp = temp.map(function(v) {
@@ -186,8 +194,6 @@
                 return $http({
                     method: 'POST',
                  url: "https://dev.oncoscape.sttrcancer.io/cpu/distance",
-                // url: "https://oncoscape-test.fhcrc.org/cpu/distance",
-                // url: "http://localhost:8000/distance",
                     data: payload
                 });
             }
@@ -271,15 +277,15 @@
                 if(vm.options.col.fit){
                     
                     width = $window.innerWidth - layout.left - layout.right - margin.left - margin.right;
-                    vm.options.col.cellwidth = Math.floor(width / vm.heatmap.cols.length)
+                    vm.options.col.cellwidth = (width / vm.heatmap.cols.length).toFixed(2)
                 }else{
                     margin.left = margin.left + layout.left
                     width = width + layout.right
                 }
                 if(vm.options.row.fit){
                     
-                    height = $window.innerHeight - margin.top - margin.bottom; 
-                    vm.options.row.cellheight = Math.floor(height / vm.heatmap.rows.length)
+                    height = $window.innerHeight - margin.top - margin.bottom - 100; //room for navbard and header
+                    vm.options.row.cellheight = (height / vm.heatmap.rows.length).toFixed(2)
                 }
                 return {width: width, height: height, margin: margin}
             }
@@ -339,7 +345,7 @@
                     .style("text-anchor", "end")
                     .attr("transform", "translate(-6," + vm.options.row.cellheight / 1.5 + ")")
                     .attr("class", function (d,i) { 
-                        return vm.options.row.cellheight < 5 ? "rowLabel small r"+i : "rowLabel mono r"+i
+                        return vm.options.row.cellheight < 6 ? "rowLabel small r"+i : "rowLabel mono r"+i
                         } ) 
                     .on("mouseover", function() {d3.select(this).classed("text-hover",true);})
                     .on("mouseout" , function() {d3.select(this).classed("text-hover",false);})
@@ -616,6 +622,7 @@
             
             vm.data.table.selected = {name: vm.data.table.types[0].name, i:0}
             vm.data.method.selected = {name: vm.data.method.types[0], i:0}
+            vm.geneset = osApi.getGeneset()
             vm.callMethod()
 
             osApi.onResize.add(vm.draw);

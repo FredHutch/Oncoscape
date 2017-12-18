@@ -648,19 +648,32 @@
             return create(name, patientIds, sampleIds);
         };
 
+        
         var createWithHugoIds = function(name, hugoIds, show) {
 
-            if (hugoIds.length === 0) return _genesetAll;
             var geneIds = hugoIds;
-            var result = {
-                symbols: hugoIds,
-                genes: geneIds,
-                name: name,
-                show: show,
-                url:"",
-                desc:"Created from Geneset Menu"
-            };
-            return loadGeneset(result);
+            
+            var q = {"hugo": {$in: hugoIds}, $fields: ['hugo']}
+            
+            query("lookup_oncoscape_genes", q).then(function(resp){
+                var symbols = _.pluck(resp.data, "hugo")
+                
+                var result = {
+                    symbols: symbols,
+                    genes: geneIds,
+                    name: name,
+                    show: show,
+                    url:"",
+                    desc:"Created from Geneset Menu"
+                };
+                var geneset = loadGeneset(result)
+                geneset.type = (geneset.hugoIds.length === 0) ? "ALL" : "UNSAVED";
+                _geneset = geneset;
+                saveGeneset();
+                onGenesetChange.dispatch(_geneset);
+            })
+            
+            
         };
 
         var create = function(name, patientIds, sampleIds) {
@@ -687,7 +700,7 @@
             var rv = {
                 uuid: Math.random().toString().substr(2),
                 color: '#000',
-                hugoIds: result.genes,
+                hugoIds: result.symbols,
                 geneIds: result.genes,
                 name: result.name,
                 url:result.url,
@@ -719,18 +732,19 @@
         var setGeneset = function(geneset, name, type, show) {
             // Create Cohort If Array Passed
             if (angular.isArray(geneset)) {
-                //name += "  (" + moment().format('hh:mm:ss') + ")";
-                geneset = (type == "SYMBOL") ? createWithHugoIds(name, geneset, show) : createWithHugoIds(name, geneset, show);
-                geneset.type = (geneset.hugoIds.length === 0) ? "ALL" : "UNSAVED";
-                // if (geneset.type != "ALL") {
-                //     var usedColors = _genesets.map(function(v) { return v.color; });
-                //     var availColors = ["#E91E63", "#673AB7", "#4CAF50", "#CDDC39", "#FFC107", "#FF5722", "#795548", "#607D8B", "#03A9F4", "#03A9F4", '#004358', '#800080', '#BEDB39', '#FD7400', '#1F8A70', '#B71C1C', '#880E4F', '#4A148C', '#311B92', '#0D47A1', '#006064', '#1B5E20'].filter(function(v) { return (usedColors.indexOf(v) == -1); });
-                //     geneset.color = availColors[0];
-                // }
+                if (geneset.length === 0){
+                    _geneset = _genesetAll;
+                    onGenesetChange.dispatch(_geneset);
+                    return
+                } 
+                
+                if(type == "SYMBOL")
+                    createWithHugoIds(name, geneset, show)
+            }else{
+                _geneset = geneset;
+                onGenesetChange.dispatch(_geneset);
             }
-            //if (_cohort === cohort) return;
-            _geneset = geneset;
-            onGenesetChange.dispatch(_geneset);
+           
         };
 
         var saveCohort = function() {
@@ -792,11 +806,11 @@
             //          return _hugoMap.hasOwnProperty(id);
             //      })
             //); // Union Merges Arrays + Removes Dups
-            var geneIds = ids;
+            var geneIds = ids.map(function(d){return d.toUpperCase()});
             var show = true;
 
             setGeneset(geneIds, name, "SYMBOL", show);
-            saveGeneset();
+            
         };
 
         // Initialize (Load Tools Raw Data + DataSources)
@@ -848,6 +862,7 @@
                         var result = response.data;
                         _genesets = result.map(function(d){
                             d.type = "IMPORT"
+                            d.symbols = d.genes
                             return loadGeneset(d); });
 
                         _genesetAll = {

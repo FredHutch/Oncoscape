@@ -81,6 +81,7 @@
 
 
             // Histogram 
+            
             var histSvg = d3.select("#cohortmenu-chart").append("svg")
                 .attr("width", 260)
                 .attr("height", 150)
@@ -94,6 +95,10 @@
 
                 // Histogram
                 if (vm.cohortFeature === null) return;
+                if(vm.cohortFeature.data.count == 0) {
+                    angular.element("#cohortmenu-histogram").collapse();
+                }else{     angular.element("#cohortmenu-histogram").collapse("show"); }
+                
                 var data = vm.cohortFeature.data;
                 if (data.type == "factor") {
                     if (data.hist.length == 1) {
@@ -215,7 +220,10 @@
             var updateSurvival = function(cohorts) {
 
                 cohorts = cohorts.filter(function(c){return c.survival != null})
-                if(cohorts.length == 0) return;
+                if(cohorts.length == 0){
+                    angular.element("#cohortmenu-survival-box").collapse();
+                    return;
+                } else {angular.element("#cohortmenu-survival-box").collapse("show");}
 
                 var xDomain = cohorts.reduce(function(p, c) {
                     p[0] = Math.min(p[0], c.survival.compute[0].t);
