@@ -21,6 +21,7 @@
                             
                             <div class="input-group" ng-if="vm.base.edit" style="width:100%">                
                                 <div class="dropdown bs-dropdown" style="max-width:230px">
+                                    <br/><label>Dataset</label>
                                     <button class="btn btn-default dropdown-toggle" type="button" id="dropdownMenu1" data-toggle="dropdown" aria-haspopup="true" aria-expanded="true">
                                         {{vm.temp.data.selected.name}}
                                         <span class="caret"></span>
@@ -29,19 +30,21 @@
                                         <li class="markers-command hvr-sweep-to-right" ng-repeat="item in vm.temp.data.types" ng-click="vm.temp.data.selected.name=item.name">{{item.name}}</li>
                                     </ul>
                                 </div>
-                                <div ng-repeat="item in vm.temp.params.bool" style="position:relative;background-color:#FFF;padding:2px 10px;line-height:25px;">{{item.name}}
+                                <div ng-repeat="(key, item) in vm.temp.params.bool" style="padding-top:5px">{{key}}
+                                        <div  style="position:relative;background-color:#FFF;padding:2px 10px;line-height:25px;">{{item.name}}
                                         <label class="switch" style="float:right" tooltip="Subset input data" tooltip-placement="left">
-                                        <input type="checkbox" class="switch-input" ng-model="item.use" >
-                                        <span class="switch-label" data-on="On" data-off="Off"></span>
-                                        <span class="switch-handle"></span>
-                                    </label>
+                                            <input type="checkbox" class="switch-input" ng-model="item.use" >
+                                            <span class="switch-label" data-on="On" data-off="Off"></span>
+                                            <span class="switch-handle"></span>
+                                        </label>
+                                        </div>
                                 </div>
                                 
                             </div>
                             <div ng-if="!vm.base.edit">
                                 Data: {{vm.base.data.selected.name}} <br/>
-                                Geneset: {{vm.base.params.bool.geneset.use ? vm.base.params.bool.geneset.name : 'All Genes'}}<br/>
-                                Cohort: {{vm.base.params.bool.cohort.use ? vm.base.params.bool.cohort.name : "All Patients + Samples"}}
+                                Geneset: {{vm.base.params.bool.Geneset.use ? vm.base.params.bool.Geneset.name : 'All Genes'}}<br/>
+                                Cohort: {{vm.base.params.bool.Cohort.use ? vm.base.params.bool.Cohort.name : "All Patients + Samples"}}
                             </div> 
                             
                         </div>

@@ -19,7 +19,7 @@
     return directive;
 
     /** @ngInject */
-    function GenedashboardController(osApi, $state, $timeout, $window, d3, $scope) {
+    function GenedashboardController(osApi, $state, $timeout, $window, d3, $scope, _, jStat) {
 
       var vm = this;
       osApi.setBusy(false)
@@ -44,7 +44,7 @@
       d3Chart.call(elTip);
 
       // Properties
-      var scaleX, scaleY, axisY;
+      var axisY;
       var data, minMax;
       var width, height;
 
@@ -178,7 +178,7 @@
         
         g.append("g")   //only run on new elements coming in
           .attr("class", "axis")
-          .each(function(d) { d3.select(this).call(axisY.scale(y)); })
+          .each(function() { d3.select(this).call(axisY.scale(y)); })
           //.each(function(d) { d3.select(this).call(axisY.scale(y[d])); })
             .append("text")
             .attr("text-anchor", "middle")
@@ -189,7 +189,7 @@
         // update existing data
         genes
           .select('.axis')
-          .each(function(d) { d3.select(this).call(axisY.scale(y)); })
+          .each(function() { d3.select(this).call(axisY.scale(y)); })
           //.each(function(d) { d3.select(this).call(axisY.scale(y[d])); })
             .select(".axis-name")
             .attr("text-anchor", "middle")
@@ -344,7 +344,7 @@
         if(angular.isUndefined(vm.gene)){
           vm.gene = vm.molecular.m[0]
         } else if(_.intersection(vm.molecular.m, [vm.gene]).length == 0){
-          window.alert("Gene "+vm.gene+" not in data type "+vm.dataType)
+          $window.alert("Gene "+vm.gene+" not in data type "+vm.dataType)
           vm.dataType = vm.state.dataType;
           return;
         }

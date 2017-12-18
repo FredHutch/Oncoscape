@@ -19,7 +19,7 @@
     return directive;
 
     /** @ngInject */
-    function ParallelcoordController(osApi, $state, $timeout, $window, d3, _) {
+    function ParallelcoordController(osApi, $state, $timeout, $window, d3, _, jStat) {
 
       var vm = this;
       osApi.setBusy(false)
@@ -35,8 +35,8 @@
       var genes;
 
       // Properties
-      var scaleX, scaleY, axisX, axisY;
-      var data, minMax;
+      // var scaleX, scaleY, axisX, axisY;
+      var data; //, minMax;
       var width, height;
 
       var draw = function(){ 
@@ -102,7 +102,7 @@
           .enter().append("path")
             .attr("d", path)
             .attr("stroke", "#000")
-            .attr("class", function(d) { return "cohort"; });
+            .attr("class", function() { return "cohort"; });
   
         // Add a group element for each gene.
         genes = d3Chart.selectAll(".gene")
@@ -181,7 +181,6 @@
       
 
       vm.updateGene = function() {
-              var test = vm.gene
               callGeneRegion()
       };
     

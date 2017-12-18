@@ -760,8 +760,8 @@
                     cyChart.startBatch();
                     cyChart.$("node[nodeType='annotation-text']").remove();
 
-                    var posX = 100;
-                    var posY = 3000;
+                    // var posX = 100;
+                    // var posY = 3000;
                     var numMissing = 0;
 
                     cyChart.nodes('node[nodeType="patient"]').forEach(function(node) {

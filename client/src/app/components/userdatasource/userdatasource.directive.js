@@ -19,7 +19,7 @@
         return directive;
 
         /** @ngInject */
-        function UserdatasourceController(osApi, $state, osAuth, _) {
+        function UserdatasourceController(osApi, $state, osAuth, $window) {
             var vm = this;
             vm.user = osAuth.getUser()
             vm.projects = osAuth.getDatasets()
@@ -50,7 +50,7 @@
                     $state.go("datasource");
                 if(source == "New File"){
                    // $state.go("upload");
-                    var win = window.open("/upload/#/projects/dashboard");
+                    var win = $window.open("/upload/#/projects/dashboard");
                     win.focus();
                 }
             }

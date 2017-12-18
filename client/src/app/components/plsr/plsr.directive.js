@@ -79,7 +79,7 @@
                 lasso.items()
                     .classed("not_possible", false)
                     .classed("possible", false);
-                var ids = lasso.selectedItems().data().map(function(d) {
+                lasso.selectedItems().data().map(function(d) {
                     return d.id;
                 });
 
@@ -282,7 +282,7 @@
                 osApi.setBusy(true);
                 osApi.setCohort(patientIds, "PCA", osApi.PATIENT);
             };
-            var onGeneset = $scope.$watch("vm.geneset", function() {
+            $scope.$watch("vm.geneset", function() {
                 if (angular.isUndefined(vm.geneset)) return;
                 osApi.setBusy(true);
                 loadData();

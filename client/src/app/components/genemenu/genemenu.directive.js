@@ -20,7 +20,7 @@
         return directive;
 
         /** @ngInject */
-        function GeneMenuController(osApi, $state, $scope, $sce, $timeout, $rootScope, $filter, d3) {
+        function GeneMenuController(osApi, $state, $scope, $sce, $timeout, $rootScope, $filter) {
 
 
             // View Model
@@ -82,7 +82,7 @@
                 if(geneset.geneIds !=0){
                     genecounts = "<br/><br/>Contains:<br/>" + 
                     $filter('number')(geneset.geneIds.length) + " Markers<br /> " +
-                    $filter('number')(geneset.hugoIds.length) + " Hugo Symbols (###TODO) <br />";    
+                    $filter('number')(geneset.hugoIds.length) + " Hugo Symbols <br />";    
                 } 
                 var summary =   geneset.desc +website + genecounts;
                 //$filter('number')(toolInfo.numGenes) + " Genes In Current Tool Showing<br />" +

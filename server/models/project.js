@@ -11,7 +11,7 @@ var projectSchema = new Schema({
     Private: Boolean,
     PHI: Boolean,
     Source: String,
-    DataCompliance:  {HumanStudy: String, IRBNumber: String, IECNumber: String, Waiver: String, ComplianceOption: String},
+    DataCompliance:  {HumanStudy: String, Protocol: String, ProtocolNumber: String},
     File: {filename: String, size: Number, timestamp: Date},
     Date: {type: Date, default: Date.now},
     // Author: {type: String}

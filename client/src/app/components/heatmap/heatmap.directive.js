@@ -19,7 +19,7 @@
         return directive;
 
         /** @ngInject */
-        function HeatmapController(d3, osApi, $state, $timeout, $scope, $stateParams, $window, _, $http) {
+        function HeatmapController(d3, osApi, $state, $timeout, $scope, $stateParams, $window, _, $http, $log) {
 
             // view Model
             var vm = this;
@@ -64,7 +64,8 @@
                     dendogram: false,
                     cellwidth: 10,
                     fit: true
-                }
+                },
+                geneset: {apply: false}
 
             }
             vm.draw = function(){
@@ -75,7 +76,7 @@
             // Element References
             var mainSVG = d3.select("#heatmap-chart").append("svg") 
             var svg; 
-            ;
+            
             
             // Setup Watches
             $scope.$watch("vm.options.row.fit", function() {
@@ -105,15 +106,22 @@
             //     order(vm.options.order.types[vm.options.order.selected.i].value);
             // })
 
+            osApi.onGenesetChange.add(function(geneset) {
+                // if(vm.options.geneset.apply)
+                    vm.geneset = osApi.getGeneset()
+                vm.callMethod()
+            })
+
             vm.callMethod = function(){
                 osApi.setBusy(true);
                 var collections = vm.data.table.types.filter(function(d){return d.name == vm.data.table.selected.name})
-                var gIds = osApi.getGeneset().geneIds
+                var gIds = vm.geneset.geneIds
 
                 if(vm.data.method.selected.name == "molecular"){
-                    osApi.query(collections[0].collection, {
-                        '$limit': 100
-                    }).then(function(response) {
+                    var query = {'$limit': 100}
+                    if(gIds.length != 0)
+                        query = {m: {$in: gIds}}
+                    osApi.query(collections[0].collection, query).then(function(response) {
                         
                         var temp = response.data
                         temp = temp.map(function(v) {
@@ -135,7 +143,7 @@
                                         return d.d.map(function(v, j) {return {row: i, col:j, value:v}})        
                                     })  ),
                             rows: rows,
-                            cols: cols,
+                            cols: cols
                         }
 
                         vm.draw();
@@ -146,9 +154,9 @@
                         
                         var d = response.data;
                         if(angular.isDefined(d.reason)){
-                            console.log(vm.data.name+": " + d.reason)
+                            $log.log(vm.data.name+": " + d.reason)
                             // Distance could not be calculated on geneset given current settings
-                            window.alert("Sorry, Distance could not be calculated\n" + d.reason)
+                            $window.alert("Sorry, Distance could not be calculated\n" + d.reason)
     
                             osApi.setBusy(false)
                             return;
@@ -170,7 +178,7 @@
                                         return d.d.map(function(v, j) {return {row: i, col:j, value:v}})        
                                     })  ),
                             rows: rows,
-                            cols: cols,
+                            cols: cols
                         }
                         
                         vm.draw();
@@ -186,8 +194,6 @@
                 return $http({
                     method: 'POST',
                  url: "https://dev.oncoscape.sttrcancer.io/cpu/distance",
-                // url: "https://oncoscape-test.fhcrc.org/cpu/distance",
-                // url: "http://localhost:8000/distance",
                     data: payload
                 });
             }
@@ -262,38 +268,44 @@
             }
 
             function setHeatmapSize(){
-                if(vm.options.col.fit){
-                    var layout = osApi.getLayout()
-                    var width = $window.innerWidth - layout.left - layout.right - 40;
-                    
+                var layout = osApi.getLayout()
+                var margin = { top: 110, right: 10, bottom: 50, left: 110 };
 
-                    vm.options.col.cellwidth = Math.round(width / vm.heatmap.cols.length)
+                var width =  vm.options.col.cellwidth*vm.heatmap.cols.length
+                var height = vm.options.row.cellheight*vm.heatmap.rows.length;
+
+                if(vm.options.col.fit){
+                    
+                    width = $window.innerWidth - layout.left - layout.right - margin.left - margin.right;
+                    vm.options.col.cellwidth = (width / vm.heatmap.cols.length).toFixed(2)
+                }else{
+                    margin.left = margin.left + layout.left
+                    width = width + layout.right
                 }
                 if(vm.options.row.fit){
-                    var layout = osApi.getLayout()
-                    var height = $window.innerHeight - 160; //10
-
-                    vm.options.row.cellheight = Math.round(height / vm.heatmap.rows.length)
+                    
+                    height = $window.innerHeight - margin.top - margin.bottom - 100; //room for navbard and header
+                    vm.options.row.cellheight = (height / vm.heatmap.rows.length).toFixed(2)
                 }
+                return {width: width, height: height, margin: margin}
             }
             function heatmap() {
 
                 //credit: http://bl.ocks.org/ianyfchang/8119685
-
-                setHeatmapSize()
+                
+                var size = setHeatmapSize()
 
                 mainSVG.selectAll("g").remove();
-                var margin = { top: 110, right: 10, bottom: 50, left: 110 };
-                var width = vm.options.col.cellwidth*vm.heatmap.cols.length, 
-                    height = vm.options.row.cellheight*vm.heatmap.rows.length ; 
+                var layout = osApi.getLayout()
+                
                 var legendElement = {width : Math.min(20, Math.max(vm.options.col.cellwidth*2.5, 40)),
                                     height: Math.max(10, vm.options.row.cellheight)
                 };
-                mainSVG.attr("width", width + margin.left + margin.right)
-                        .attr("height", height + margin.top + margin.bottom)
+                mainSVG.attr("width", size.width + size.margin.left + size.margin.right)
+                        .attr("height", size.height + size.margin.top + size.margin.bottom)
                 svg = mainSVG
                     .append("g")
-                    .attr("transform", "translate(" + margin.left + "," + margin.top + ")")
+                    .attr("transform", "translate(" + size.margin.left + "," + size.margin.top + ")")
                 
 
                 var MinMax = vm.heatmap.data.reduce(function(p,c){ 
@@ -329,11 +341,11 @@
                     .append("text")
                     .text(function (d) { return d.id; })
                     .attr("x", 0)
-                    .attr("y", function (d, i) { return d.i * vm.options.row.cellheight; })
+                    .attr("y", function (d) { return d.i * vm.options.row.cellheight; })
                     .style("text-anchor", "end")
                     .attr("transform", "translate(-6," + vm.options.row.cellheight / 1.5 + ")")
                     .attr("class", function (d,i) { 
-                        return vm.options.row.cellheight < 5 ? "rowLabel small r"+i : "rowLabel mono r"+i
+                        return vm.options.row.cellheight < 6 ? "rowLabel small r"+i : "rowLabel mono r"+i
                         } ) 
                     .on("mouseover", function() {d3.select(this).classed("text-hover",true);})
                     .on("mouseout" , function() {d3.select(this).classed("text-hover",false);})
@@ -345,7 +357,7 @@
                     .append("text")
                     .text(function (d) { return d.id; })
                     .attr("x", 0)
-                    .attr("y", function (d, i) { return d.i * vm.options.col.cellwidth; })
+                    .attr("y", function (d) { return d.i * vm.options.col.cellwidth; })
                     .style("text-anchor", "left")
                     .attr("transform", "translate("+vm.options.col.cellwidth/2 + ",-6) rotate (-90)")
                     .attr("class",  function (d,i) { 
@@ -399,17 +411,17 @@
                
                 legend.append("rect")
                     .attr("x", function(d, i) { return legendElement.width * i; })
-                    .attr("y", height+(vm.options.row.cellheight*2))
+                    .attr("y", size.height+(vm.options.row.cellheight*2))
                     .attr("width", legendElement.width)
                     .attr("height", vm.options.row.cellheight)
-                    .style("fill", function(d, i) { return colorScale(d); });
+                    .style("fill", function(d) { return colorScale(d); });
                
                 legend.append("text")
                     .attr("class", "mono")
                     .text(function(d) { return d; })
                     .attr("width", legendElement.width)
                     .attr("x", function(d, i) { return legendElement.width * i; })
-                    .attr("y", height + (vm.options.row.cellheight*4));
+                    .attr("y", size.height + (vm.options.row.cellheight*4));
               
 
                 
@@ -467,7 +479,7 @@
                                // deselect all temporary selected state objects
                             d3.selectAll('.cell-selection.cell-selected').classed("cell-selected", false);
                             d3.selectAll(".text-selection.text-selected").classed("text-selected",false);
-                            d3.selectAll('.cell').filter(function(cell_d, i) {
+                            d3.selectAll('.cell').filter(function(cell_d) {
                                if(
                                    !d3.select(this).classed("cell-selected") && 
                                        // inner circle inside selection frame
@@ -510,16 +522,16 @@
                         
 
                     })
-                    .on("mouseout", function() {
-                       if(d3.event.relatedTarget.tagName=='html') {
-                               // remove selection frame
-                           sa.selectAll("rect.selection").remove();
-                               // remove temporary selection marker class
-                           d3.selectAll('.cell-selection').classed("cell-selection", false);
-                           d3.selectAll(".rowLabel").classed("text-selected",false);
-                           d3.selectAll(".colLabel").classed("text-selected",false);
-                       }
-                    });
+                    // .on("mouseout", function() {
+                    //    if(d3.event.relatedTarget & d3.event.relatedTarget.tagName=='html') {
+                    //            // remove selection frame
+                    //        sa.selectAll("rect.selection").remove();
+                    //            // remove temporary selection marker class
+                    //        d3.selectAll('.cell-selection').classed("cell-selection", false);
+                    //        d3.selectAll(".rowLabel").classed("text-selected",false);
+                    //        d3.selectAll(".colLabel").classed("text-selected",false);
+                    //    }
+                    // });
               
             }
 
@@ -553,8 +565,9 @@
             }
          
             function order(value){
+                var t;
                 if(value=="asis"){
-                    var t = svg.transition().duration(3000);
+                    t = svg.transition().duration(3000);
                     t.selectAll(".cell")
                         .attr("x", function(d) { 
                             return vm.heatmap.cols[d.col].i * vm.options.col.cellwidth; })
@@ -573,7 +586,7 @@
                     ;
             
                 }else if (value=="probecontrast"){
-                    var t = svg.transition().duration(3000);
+                    t = svg.transition().duration(3000);
                     t.selectAll(".cell")
                         .attr("x", function(d) { return (d.col - 1) * vm.options.col.cellwidth; })
                         .attr("y", function(d) { return (d.row - 1) * vm.options.row.cellheight; })
@@ -588,7 +601,7 @@
                     ;
             
                 }else if (value=="rows"){
-                    var t = svg.transition().duration(3000);
+                    t = svg.transition().duration(3000);
                     t.selectAll(".cell")
                        .attr("y", function(d) { return (d.row - 1) * vm.options.row.cellheight; })
                     ;
@@ -597,7 +610,7 @@
                       .attr("y", function (d, i) { return i * vm.options.row.cellheight; })
                     ;
                 }else if (value=="cols"){
-                    var t = svg.transition().duration(3000);
+                    t = svg.transition().duration(3000);
                     t.selectAll(".cell")
                       .attr("x", function(d) { return (d.col - 1) * vm.options.col.cellwidth; })
                     ;
@@ -609,6 +622,7 @@
             
             vm.data.table.selected = {name: vm.data.table.types[0].name, i:0}
             vm.data.method.selected = {name: vm.data.method.types[0], i:0}
+            vm.geneset = osApi.getGeneset()
             vm.callMethod()
 
             osApi.onResize.add(vm.draw);

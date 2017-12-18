@@ -19,7 +19,7 @@
         return directive;
 
         /** @ngInject */
-        function PcaController($q, osApi, $state, $stateParams, $timeout, $scope, d3, moment, $window,$http,  _, ML, $) {
+        function PcaController($q, osApi, $state, $stateParams, $timeout, $scope, d3, moment, $window,$http,  _, ML, $log) {
 
             // helper functions -> move to service?
             var findIndicesOfMax = function(inp, count) {
@@ -93,7 +93,7 @@
 
             // View Model Update
             var vm = (function(vm, osApi) {
-                vm.runTime = 20
+                vm.runTime = 10
                 vm.availableBaseMethods = ["PCA"]
                 vm.availableDistanceMetrics = ["Pearson Correlation"]
                 vm.availableOverlayMethods = ["Centroid"]
@@ -106,8 +106,8 @@
                     source: osApi.getDataSource(),
                     data: {types:[],selected:{i:-1, name:""}},
                     params: {bool: {
-                        geneset: {use: true, name:""},
-                        cohort: {use: false, name:""} }},
+                        Geneset: {use: true, name:""},
+                        Cohort: {use: false, name:""} }},
                     meta: {numGenes:0, numSamples:0},
                     result : {input:{}, output: {}},
                     edit: false
@@ -162,8 +162,8 @@
                                             i: vm.base.data.selected.i,
                                             name:vm.base.data.selected.name}}
                       vm.temp.params = {bool: {
-                        geneset: {use: true, name:osApi.getGeneset().name},
-                        cohort: {use: false, name:osApi.getCohort().name} }}
+                        Geneset: {use: true, name:osApi.getGeneset().name},
+                        Cohort: {use: false, name:osApi.getCohort().name} }}
                       
                         updateOptions()
                     }
@@ -173,6 +173,7 @@
                     vm.base = _.clone(vm.temp)
                     vm.base.edit = false
                     vm.temp = null
+                    vm.overlay = [ ]
                 }
                 vm.updateBaseview = function(){
                     if(vm.base.edit){
@@ -201,12 +202,12 @@
                     
                     // determine calculation size for gene x samples matrix 
                     // depending on use of geneset or cohort settings
-                    if(vm.temp.params.bool.geneset.use){
+                    if(vm.temp.params.bool.Geneset.use){
                         var geneset = osApi.getGeneset()
                         if(geneset.geneIds.length != 0)
                             vm.temp.meta.numGenes = geneset.geneIds.length
                     }
-                    if(vm.temp.params.bool.cohort.use){
+                    if(vm.temp.params.bool.Cohort.use){
                         var samples = osApi.getCohort().sampleIds;
                         if(samples.length != 0){
                             vm.temp.meta.numSamples = samples.length
@@ -245,8 +246,8 @@
                                                 name:vm.base.data.selected.name}
                                     },
                             params: {bool: { 
-                                "geneset" : {name: vm.base.params.bool.geneset.name, use: vm.base.params.bool.geneset.use},
-                                "cohort"  : {name: vm.base.params.bool.cohort.name, use: vm.base.params.bool.cohort.use} }             
+                                "Geneset" : {name: vm.base.params.bool.Geneset.name, use: vm.base.params.bool.Geneset.use},
+                                "Cohort"  : {name: vm.base.params.bool.Cohort.name, use: vm.base.params.bool.Cohort.use} }             
                             },
                             meta: {numGenes:0, numSamples:0},
                             result : {input:{}, output: {}},
@@ -281,8 +282,8 @@
                                             name:item.data.selected.name}}
                       
                       vm.temp.params = {bool: {
-                        geneset: {use: true, name:osApi.getGeneset().name},
-                        cohort: {use: false, name:osApi.getCohort().name} }}
+                        Geneset: {use: true, name:osApi.getGeneset().name},
+                        Cohort: {use: false, name:osApi.getCohort().name} }}
                       
                     } else{
                         //check if item was run
@@ -321,7 +322,7 @@
                             disease: vm.base.source.dataset,
                             input: vm.base.data.selected.name, 
                             dataType: vm.base.method, 
-                            geneset: vm.base.params.bool.geneset.name, 
+                            geneset: vm.base.params.bool.Geneset.name, 
                             metadata: {variance: [parseFloat(vm.base.meta.pc1[0].value), parseFloat(vm.base.meta.pc2[0].value)]}
                             }
                     
@@ -332,7 +333,9 @@
                     }); 
                     // var encodedUri = encodeURI(csvContent);
                     // window.open(encodedUri);
-                    var encodedUri = encodeURI(header + JSON.stringify(doc));
+                    
+                    // var encodedUri = encodeURI(header + JSON.stringify(doc));
+                    var encodedUri = encodeURI(header + angular.toJson(doc));
                     var link = document.createElement("a");
                     link.setAttribute("href", encodedUri);
                     link.setAttribute("download", "pca.json");
@@ -348,7 +351,7 @@
             // Update Geneset When Datasource Changes
             osApi.onGenesetChange.add(function() {
                 if(vm.base.edit)
-                    vm.temp.params.bool.geneset.name = osApi.getGeneset().name;
+                    vm.temp.params.bool.Geneset.name = osApi.getGeneset().name;
             });
 
             // Service
@@ -357,7 +360,6 @@
                 return $http({
                     method: 'POST',
                     url: "https://dev.oncoscape.sttrcancer.io/cpu/pca",
-                    //url: "https://oncoscape-test.fhcrc.org/cpu/pca",
                     //url: "http://localhost:8000/pca",
                     data: payload
                 });
@@ -367,8 +369,7 @@
                 return $http({
                     method: 'POST',
                  url: "https://dev.oncoscape.sttrcancer.io/cpu/distance",
-                // url: "https://oncoscape-test.fhcrc.org/cpu/distance",
-                // url: "http://localhost:8000/distance",
+                 // url: "http://localhost:8000/distance",
                     data: payload
 
 
@@ -380,7 +381,7 @@
             var updateOptions = function(){
                 
                 var samples = []
-                if(vm.temp.params.bool.cohort.use)
+                if(vm.temp.params.bool.Cohort.use)
                     samples = osApi.getCohort().sampleIds
                 if(samples.length ==0) samples = "None"
 
@@ -403,7 +404,7 @@
             }; 
             
             var checkDB = function(){
-                var geneset =  vm.temp.params.bool.geneset.use ? osApi.getGeneset() : osApi.getGenesetAll();
+                var geneset =  vm.temp.params.bool.Geneset.use ? osApi.getGeneset() : osApi.getGenesetAll();
 
                 //Check if in Mongo
                 osApi.query(vm.temp.source.dataset +"_cluster", 
@@ -416,7 +417,7 @@
                     var d = response.data
                     if(d.length >0){
                         
-                        console.log("PCA: retreived from Mongo " + Date())
+                        $log.log("PCA: retreived from Mongo " + Date())
                         
                         var score_samples = _.pluck(d[0].scores, "id")
                         d[0].scores = d[0].scores.map(function(x){ return x.d})
@@ -432,7 +433,7 @@
 
                 vm.error = ""
 
-                var geneset =  vm.temp.params.bool.geneset.use ? osApi.getGeneset() : osApi.getGenesetAll();
+                var geneset =  vm.temp.params.bool.Geneset.use ? osApi.getGeneset() : osApi.getGenesetAll();
                 
                 if (runType == "JS" & vm.temp.meta.numSamples  * vm.temp.meta.numGenes > 50000) {
                     
@@ -445,7 +446,7 @@
                     var numGenes = [100,200,500,1000, 5000, 10000,15000, 20000, 25000]; var numSamples = [100,200,500];
                     for(var i=0;i<numSamples.length;i++){
                         for(var j=0;j<numGenes.length;j++){
-                            console.log("Genes: "+ numGenes[j] + " Samples: "+ numSamples[i])
+                            $log.log("Genes: "+ numGenes[j] + " Samples: "+ numSamples[i])
                             runPCAsimulation(numGenes[j], numSamples[i]);
                         }
                     }
@@ -464,7 +465,7 @@
                     
                     var geneSetIds = geneset.geneIds
                     var samples = [];
-                    if(vm.temp.params.bool.cohort.use)
+                    if(vm.temp.params.bool.Cohort.use)
                         samples = osApi.getCohort().sampleIds;
 
                     osApi.setBusy(true)
@@ -473,7 +474,7 @@
 
                         var d = PCAresponse.data;
                         if(angular.isDefined(d.reason)){
-                            console.log(geneset.name +": " + d.reason)
+                            $log.log(geneset.name +": " + d.reason)
                             // PCA could not be calculated on geneset given current settings
                             vm.error = d.reason;
                             
@@ -524,11 +525,11 @@
                 var molecular = Array.apply(null, {length: numSamples}).map(function(){ return Array.apply(null, {length: numGenes}).map(Function.call, Math.random)});
 
                 var then = Date.now();
-                //console.log("PCA: Running " + Date())
-                var d = new ML.Stat.PCA(molecular, options)
+                //$log.log("PCA: Running " + Date())
+                new ML.Stat.PCA(molecular, options)
                 var now = Date.now()
-                //console.log("PCA: transforming scores " + Date())
-                console.log("Genes: "+ numGenes + " Samples: "+numSamples+ "Diff: " + (now-then)/1000)
+                //$log.log("PCA: transforming scores " + Date())
+                $log.log("Genes: "+ numGenes + " Samples: "+numSamples+ "Diff: " + (now-then)/1000)
 
             }
 
@@ -541,7 +542,7 @@
                 var samples = []; 
                 var sampleIdx = _.range(0,vm.temp.result.input[0].s.length)
                 
-                if(vm.temp.params.bool.cohort.use)
+                if(vm.temp.params.bool.Cohort.use)
                     samples = osApi.getCohort().sampleIds;
                 
                 if(samples.length ==0){
@@ -554,7 +555,7 @@
                 
 
                 var geneIds = _.pluck(vm.temp.result.input,"m")
-                if(vm.temp.params.bool.geneset.use && osApi.getGeneset().geneIds.length >0)
+                if(vm.temp.params.bool.Geneset.use && osApi.getGeneset().geneIds.length >0)
                     geneIds = _.intersection( osApi.getGeneset().geneIds, geneIds);
                     //subset geneIds to be only those returned from Geneset (except when geneset == All Genes)
                 
@@ -576,10 +577,10 @@
                 
                 molecular = transpose(molecular)
                 
-                console.log("PCA: Running " + Date())
+                $log.log("PCA: Running " + Date())
                 //NOTE: If there are null values in molecular, PCA runs in an infinite loop!
                 var d = new ML.Stat.PCA(molecular, options)
-                console.log("PCA: transforming scores " + Date())
+                $log.log("PCA: transforming scores " + Date())
                 d.metadata = {}
                 d.metadata.variance = d.getExplainedVariance()
                 d.loadings = d.getLoadings() // [[PC1 loadings (for coefficients for each gene)], [PC2 loadings], [...#PC = # samples]]
@@ -591,7 +592,7 @@
             }
             var processPCA = function(d, geneIds, samples){
                 
-                    console.log("PCA: processing results " + Date())
+                    $log.log("PCA: processing results " + Date())
     
                     vm.setBase()
 
@@ -617,11 +618,11 @@
             };
 
             var editOverlayMethod = function(){
-                
+                var newSource;
                 if (angular.isUndefined(vm.overlaySource)) {
                     vm.overlaySource = vm.sources[0];
                 } else {
-                    var newSource = vm.sources.filter(function(v) { return (v === vm.overlaySource); });
+                    newSource = vm.sources.filter(function(v) { return (v === vm.overlaySource); });
                     vm.overlaySource = (newSource.length === 1) ? newSource[0] : vm.sources[0];
                 }
 
@@ -638,7 +639,7 @@
                     if (angular.isUndefined(vm.overlayType)) {
                         vm.overlayType = vm.overlayTypes[0];
                     } else {
-                        var newSource = vm.overlayTypes.filter(function(v) { return (v === vm.overlayType); });
+                        newSource = vm.overlayTypes.filter(function(v) { return (v === vm.overlayType); });
                         vm.overlayType = (newSource.length === 1) ? newSource[0] : vm.overlayTypes[0];
                     }
             
@@ -648,7 +649,7 @@
                 }
 
                 var samples = "None";
-                if(vm.temp.params.bool.cohort.use)
+                if(vm.temp.params.bool.Cohort.use)
                     samples = osApi.getCohort().sampleIds;
                 
             }
@@ -658,8 +659,8 @@
                 vm.error = ""
                 osApi.setBusy(true)
                 var common_m = _.intersection(vm.overlay[i].data.types[vm.overlay[i].data.selected.i].m, vm.base.data.types[vm.base.data.selected.i].m)
-                if(vm.base.params.bool.geneset.use){
-                    var gIds = osApi.getGenesets().filter(function(g){return g.name == vm.base.params.bool.geneset.name})[0].geneIds
+                if(vm.base.params.bool.Geneset.use){
+                    var gIds = osApi.getGenesets().filter(function(g){return g.name == vm.base.params.bool.Geneset.name})[0].geneIds
                     if(gIds.length >0 )
                         common_m = _.intersection(common_m, gIds)
                 }
@@ -675,7 +676,7 @@
             };
             var runOverlay = function(i){
                 
-                var geneset = vm.base.params.bool.geneset
+                var geneset = vm.base.params.bool.Geneset
                 var gIds = []
                 if(geneset.use)
                     gIds = osApi.getGenesets().filter(function(g){return g.name == geneset.name})[0].geneIds
@@ -685,9 +686,9 @@
 
                     var d = response.data;
                     if(angular.isDefined(d.reason)){
-                        console.log(vm.base.data.types[vm.base.data.selected.i].collection +"+ "+vm.overlay[i].data.types[vm.overlay[i].data.selected.i].collection+": " + d.reason)
+                        $log.log(vm.base.data.types[vm.base.data.selected.i].collection +"+ "+vm.overlay[i].data.types[vm.overlay[i].data.selected.i].collection+": " + d.reason)
                         // Distance could not be calculated on geneset given current settings
-                            window.alert("Sorry, Distance could not be calculated\n" + d.reason)
+                            $window.alert("Sorry, Distance could not be calculated\n" + d.reason)
 
                         vm.overlay[i].result.output = {}
                         angular.element('#modalRun').modal('hide');
@@ -723,7 +724,7 @@
                 
     
                  var top3 = dist.D.map(function(s){ 
-                    var indices = findIndicesOfMax(s.d, 3);
+                    var indices = findIndicesOfMax(s.d, num_compare);
                     var match_ids = indices.map(function(i){return s.m[i]})
                     var weights = indices.map(function(i){return Math.abs(s.d[i])})
                     return {id:s.id, match: match_ids, w:weights}
@@ -759,6 +760,7 @@
             var draw = function() {
 
                 data = vm.base.result.output
+                edges = []
                 for(var i =0; i<vm.overlay.length; i++){
                     if(angular.isDefined(vm.overlay[i].result.output.length)){
                         data = data.concat(vm.overlay[i].result.output)
@@ -869,6 +871,8 @@
                         .attr("y2", function(d) { 
                             return scaleY(d.target[1])})
                         .style("pointer-events", "none");
+                lines.exit()
+                    .remove();
 
                 // Axis
                 axisX = d3.axisTop().scale(scaleX).ticks(3);
@@ -1033,7 +1037,7 @@
             osApi.onPatientColorChange.add(onPatientColorChange);
 
             // App Event :: Cohort Change
-            var onCohortChange = function(c) {
+            var onCohortChange = function() {
                 setSelected();
             };
             osApi.onCohortChange.add(onCohortChange);
@@ -1047,8 +1051,8 @@
                 vm.temp.data.types = response.data.filter(function(d){ return _.contains(acceptableDatatypes, d.type)})
                 vm.temp.data.selected.i = 0;
                 vm.temp.data.selected.name = vm.temp.data.types[vm.temp.data.selected.i].name;
-                vm.temp.params.bool = { "geneset" : {name: osApi.getGeneset().name, use: true},
-                                        "cohort"  : {name: osApi.getCohort().name, use: false } } 
+                vm.temp.params.bool = { "Geneset" : {name: osApi.getGeneset().name, use: true},
+                                        "Cohort"  : {name: osApi.getCohort().name, use: false } } 
                 vm.temp.color = '#0096d5' 
                 vm.temp.visibility = "visible"           
                 
