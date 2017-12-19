@@ -28,7 +28,7 @@
                             selected: null
                         },
                         table: {
-                            types: osApi.getDataSource().collections,
+                            types: osApi.getDataSource().collections.filter(function(d){return !_.contains(["patient", "patientevent", "sample", "samplemap"], d.type) }),
                             selected: null },
                         default: {
                             cellsize : 10
