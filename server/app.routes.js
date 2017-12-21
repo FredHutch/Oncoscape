@@ -116,7 +116,7 @@ var init = function (app) {
                         res.send({token: jwtTokens }).end();
                     });
                 } else {
-                    res.send({gmail: body.email}).end();
+                    res.send(body).end();
                 }
             });
         });

@@ -1,6 +1,6 @@
 [{ "name": "pca",
-	"and": [ {"type": "molecular", "field":"type", "logic": "in",  "value":["prot_expr", "expr", "cnv","cnv_thd", "mut01"]},
-			 {"type": "molecular", "field":"schema", "logic":"in", "value":["hugo_sample", "prot_sample"]}
+	"and": [ {"type": "matrix", "field":"type", "logic": "in",  "value":["prot_expr", "expr", "cnv","cnv_thd", "mut01"]},
+			 {"type": "matrix", "field":"schema", "logic":"in", "value":["hugo_sample", "prot_sample"]}
 	]
 },{ "name": "survival",
 	"and": [ {"type": "clinical", "field":"enum.status_vital", "logic": "in",  "value":["ALIVE", "DEAD"]},
@@ -16,8 +16,8 @@
 	"and": [ {"type": "events"}
 	]
 },{ "name": "heatmap",
-	"and": [ {"type": "molecular", "field":"type", "logic": "in",  "value":["prot_expr", "expr", "cnv","cnv_thd", "mut01"]},
-			 {"type": "molecular", "field":"schema", "logic":"in", "value":["hugo_sample", "prot_sample"]}
+	"and": [ {"type": "matrix", "field":"type", "logic": "in",  "value":["prot_expr", "expr", "cnv","cnv_thd", "mut01"]},
+			 {"type": "matrix", "field":"schema", "logic":"in", "value":["hugo_sample", "prot_sample"]}
 	]
 }
 ]
