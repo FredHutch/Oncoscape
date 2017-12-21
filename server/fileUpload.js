@@ -36,10 +36,6 @@ const db = mongoose.connection;
 
 const tool_req = require("./tool_requirements.json")      
 
-var errorMessage = {};
-errorMessage['PATIENT_SHEET'] = '';
-errorMessage['PATIENTEVENT_SHEETS'] = {};
-errorMessage['MOLECULAR_SHEETS'] = {};
 var checkHugoGeneSymbols = (geneArr) => {
     var overLappedNames = _.intersection(geneArr, HugoGenes);
     var unvalidGeneNames = _.difference(geneArr, overLappedNames);
@@ -135,7 +131,7 @@ const writingXLSX2Mongo = (msg) => {
             var clin_subset = phenotype
                 
             for(r=0;r<t.and.length & pass;r++){  // loop through all requirements for tool
-                if(t.and[r].type == "molecular"){
+                if(t.and[r].type == "matrix"){
                     if(t.and[r].logic== "in")
                         mol_subset = mol_subset.filter(function(c){ return _.contains(t.and[r].value,getPropByString(c,t.and[r].field))})
                     else if(t.and[r].logic== "is")
@@ -180,7 +176,7 @@ const writingXLSX2Mongo = (msg) => {
 
         var records = []
 
-        if(sheet.type === "MOLECULAR"){
+        if(sheet.type === "MATRIX"){
             var collection = {
                 name: sheetname.replace(/^\w+\-\w+\-/,""), 
                 type: sheetname.split("-")[1].toLowerCase(), 
@@ -188,8 +184,9 @@ const writingXLSX2Mongo = (msg) => {
                 s : sheet.header.splice(1, sheet.header.length),
                 m : sheet.data.map(function(m){return m[0].trim()}),
                 "date_modified": new Date(),
-                schema : "hugo_sample"
+                schema : sheet.header[0]
             }
+            m_type = collection.schema.split("_")[0]
             collection.geneSymbolValidation = checkHugoGeneSymbols(collection.m);
 
             console.time("Insert Molecular records");
@@ -198,9 +195,10 @@ const writingXLSX2Mongo = (msg) => {
                 var data = record.splice(1, record.length)
                 if(_.contains(["prot_expr", "expr", "cnv","cnv_thd", "mut01"], collection.type))
                     data = data.map(function(d){ return parseFloat(d)})
+                
                 records.push({
                     m: record[0], 
-                    m_type: "hugo", 
+                    m_type: m_type, 
                     d: data, 
                     d_type: collection.type, 
                     name: collection.name,
