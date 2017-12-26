@@ -184,9 +184,9 @@ const writingXLSX2Mongo = (msg) => {
                 s : sheet.header.splice(1, sheet.header.length),
                 m : sheet.data.map(function(m){return m[0].trim()}),
                 "date_modified": new Date(),
-                schema : sheet.header[0]
+                schema : sheet.header[0].toLowerCase()
             }
-            m_type = collection.schema.split("_")[0]
+            m_type = collection.schema.split("_")[0].toLowerCase()
             collection.geneSymbolValidation = checkHugoGeneSymbols(collection.m);
 
             console.time("Insert Molecular records");
