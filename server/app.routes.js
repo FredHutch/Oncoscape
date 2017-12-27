@@ -11,6 +11,7 @@ var File = require("./models/file");
 var IRB = require("./models/irb");
 var Permission = require("./models/permission");
 var Openprojects = require("./models/publicprojects");
+var Lookup = require("./models/lookup");
 
 const jwt = require('jsonwebtoken');
 
@@ -570,6 +571,12 @@ var init = function (app) {
                             });
                         }
                     });
+                    
+                    var query = {"dataset": projectID}
+                    Lookup.find(query)
+                            .remove(()=> {console.log("removed from lookup datasources")} );
+                    
+                    
                     res.status(200).send("files are deleted").end();
                 });
             }
