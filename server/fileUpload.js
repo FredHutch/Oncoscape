@@ -294,14 +294,14 @@ const writingXLSX2Mongo = (msg) => {
                         if(type) type = type.toLowerCase();
                         
                         if(type == "date") {
-                            fields.date[camelToDash(field)] = r[i];
+                            fields.date[camelToDash(field)] = new Date(r[i]);
                         } else if (type == "string") {
-                            fields.enum[camelToDash(field)] = r[i]
+                            fields.enum[camelToDash(field)] = r[i];
                         } else if (type == "number")  {
-                            fields.num[camelToDash(field)] = r[i]
+                            fields.num[camelToDash(field)] = parseFloat(r[i]);
                         } else if (type == "boolean")  {
-                            fields.boolean[camelToDash(field)] = r[i]
-                        } else { fields.other[camelToDash(field)] = r[i]}
+                            fields.boolean[camelToDash(field)] = r[i];
+                        } else { fields.other[camelToDash(field)] = r[i];}
                     });
 
                     return fields;
