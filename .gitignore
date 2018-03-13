@@ -45,3 +45,4 @@ Rlibs
 .Rhistory
 .Rapp.history
 .Rproj.user
+.env
