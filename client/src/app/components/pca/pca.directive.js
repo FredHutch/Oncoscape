@@ -44,25 +44,27 @@
                 .attr("x", 25)
                 .text("PC2");
 
+            
             // Properties
-            var clusterCollection = osApi.getDataSource().disease + "_cluster";
+            var collections = osApi.getDataSource().dataset + "_collections";
+            var clusters = osApi.getDataSource().dataset + "_cluster";
             var scaleX, scaleY, axisX, axisY;
-            var data, minMax;
+            var data;
             var width, height;
             var colors = {
                 data: [],
-                dataset: osApi.getDataSource().disease,
+                dataset: osApi.getDataSource().dataset,
                 name: "None",
                 type: "color"
             };
 
             // View Model Update
             var vm = (function(vm, osApi) {
-                vm.loadings = [];
-                vm.pc1 = vm.pc2 = [];
+                //vm.loadings = [];
+                vm.xVals = vm.yVals = [];
                 vm.datasource = osApi.getDataSource();
-                vm.geneSets = [];
-                vm.geneSet = null;
+                vm.source = null;
+            
                 vm.search = "";
                 vm.selectColor = function(e) {
                     var ids = e.values;
@@ -93,99 +95,111 @@
             })(this, osApi);
 
             // Setup Watches
-            $scope.$watch('vm.geneSet', function() {
-                if (vm.geneSet === null) return;
-                vm.sources = vm.geneSet.sources;
-                if (angular.isUndefined(vm.source)) {
-                    vm.source = vm.sources[0];
-                } else {
-                    var newSource = vm.sources.filter(function(v) { return (v.name === vm.source.name); });
-                    vm.source = (newSource.length === 1) ? newSource[0] : vm.sources[0];
-                }
-            });
             $scope.$watch('vm.source', function() {
-                if (vm.geneSet === null) return;
-                vm.pcaTypes = vm.source.types;
-                if (angular.isUndefined(vm.pcaType)) {
-                    vm.pcaType = vm.pcaTypes[0];
+                if (vm.source === null) return;
+                vm.names = _.pluck(vm.data.filter(function(d){return(d.s == vm.source)}), "n");
+                if (angular.isUndefined(vm.name)) {
+                    vm.name = vm.default_cluster.n
                 } else {
-                    var newSource = vm.pcaTypes.filter(function(v) { return (v.name === vm.pcaType.name); });
-                    vm.pcaType = (newSource.length === 1) ? newSource[0] : vm.pcaTypes[0];
+                    var newSource = vm.names.filter(function(v) { return (v === vm.name); });
+                    vm.name = (newSource.length === 1) ? newSource[0] : vm.names[0];
                 }
             });
-            $scope.$watch('vm.pcaType', function(geneset) {
-                if (angular.isUndefined(geneset)) return;
-                osApi.query(clusterCollection, {
-                        disease: vm.datasource.disease,
-                        geneset: vm.geneSet.name,
-                        input: vm.pcaType.name,
-                        source: vm.source.name
-                    })
-                    .then(function(response) {
+            $scope.$watch('vm.name', function() {
+                if (vm.source === null) return;
+                vm.genesets = _.pluck(vm.data.filter(function(d){return(d.s == vm.source & d.n ==vm.name)}), "g");
+                if (angular.isUndefined(vm.geneset)) {
+                    vm.geneset = vm.default_cluster.g
+                } else {
+                    var newSource = vm.genesets.filter(function(v) { return (v === vm.geneset); });  // is existing geneset definition available
+                    if(newSource.length === 1){ 
+                        vm.uid = vm.data.filter(function(d){return(d.s == vm.source & d.n ==vm.name & d.g==vm.geneset)})[0].u
+                        getData() }
+                    else { vm.genesets[0]}
+                }                
+            });
+            $scope.$watch('vm.geneset', function() {
+                if (angular.isUndefined(vm.geneset)) return;
+                vm.uid = vm.data.filter(function(d){return(d.s == vm.source & d.n ==vm.name & d.g==vm.geneset)})[0].u
+                vm.x_label = "PC1"; vm.y_label = "PC2"
+                getData()
+            });
 
-                        var d = response.data[0];
+            function getData(){
+                Promise.all([osApi.query(clusters, {
+                    name: vm.uid,
+                    m:vm.x_label,
+                    d_type:"score"
+                }), osApi.query(clusters, {
+                    name: vm.uid,
+                    m:vm.y_label,
+                    d_type:"score"
+                })
+                // ,osApi.query(clusters, {
+                //     name: vm.uid,
+                //     m:vm.x_label,
+                //     d_type:"loading"
+                // }), osApi.query(clusters, {
+                //     name: vm.uid,
+                //     m:vm.y_label,
+                //     d_type:"loading"
+                // })
+                ]).then(function(responses) {
+                        var d = {   x : responses[0].data[0],
+                                    y : responses[1].data[0]
+                        };
+                        // var l = {   x : responses[0].data[0],
+                        //             y : responses[1].data[0]
+                        // }
+
 
                         // Process PCA Variance
-                        vm.pc1 = [
-                            { name: 'PC1', value: d.metadata.variance[0] },
-                            { name: '', value: 100 - d.metadata.variance[0] }
-                        ];
-                        vm.pc2 = [
-                            { name: 'PC2', value: d.metadata.variance[1] },
-                            { name: '', value: 100 - d.metadata.variance[1] }
-                        ];
+                        // TO DO 
 
                         // Process Loadings
-                        var loadings = response.data[0].loadings
-                            .map(function(v) {
-                                v.max = Math.max.apply(null, v.d.map(function(v) { return Math.abs(v); }));
-                                return v;
-                            })
-                            .sort(function(a, b) {
-                                return b.max - a.max;
-                            })
-                            .slice(0, 50);
+                        // TO DO
 
-                        var scale = d3.scaleLinear()
-                            .domain([loadings[loadings.length - 1].max, loadings[0].max])
-                            .range([0.1, 1]);
+                        // var scale = d3.scaleLinear()
+                        //     .domain([loadings[loadings.length - 1].max, loadings[0].max])
+                        //     .range([0.1, 1]);
 
 
-                        vm.loadings = loadings.map(function(v) {
-                            return {
-                                tip: v.d.reduce(function(p, c) {
-                                    p.index += 1;
-                                    p.text += "<br>PC" + p.index + ": " + (c * 100).toFixed(2);
-                                    return p;
-                                }, { text: v.id, index: 0 }).text,
-                                value: this(v.max)
-                            };
-                        }, scale);
+                        // vm.loadings = loadings.map(function(v) {
+                        //     return {
+                        //         tip: v.d.reduce(function(p, c) {
+                        //             p.index += 1;
+                        //             p.text += "<br>PC" + p.index + ": " + (c * 100).toFixed(2);
+                        //             return p;
+                        //         }, { text: v.id, index: 0 }).text,
+                        //         value: this(v.max)
+                        //     };
+                        // }, scale);
 
 
                         // Process Scores
-                        data = d.scores.map(function(v) {
-                            v.d.id = v.id;
-                            return v.d;
-                        });
+                        data = []
+                        for(var i=0;i<d.x.s.length;i++){
+                            data.push({s:d.x.s[i],x: d.x.d[i],y: d.y.d[i]})
+                        }
+                        
+                        // d.x.map(function(p){
+                        //     p.x = p.v
+                        //     return p;
+                        // })
+                        // data = d.y.reduce(function(p,c){
+                        //     c[c.s == p.s].y = p.v
+                        //     return c;
+                        // },d.x )
 
-                        minMax = data.reduce(function(p, c) {
-                            p.xMin = Math.min(p.xMin, c[0]);
-                            p.xMax = Math.max(p.xMax, c[0]);
-                            p.yMin = Math.min(p.yMin, c[1]);
-                            p.yMax = Math.max(p.yMax, c[1]);
-                            return p;
-                        }, {
-                            xMin: Infinity,
-                            yMin: Infinity,
-                            xMax: -Infinity,
-                            yMax: -Infinity
-                        });
+                        
+                        
 
 
                         draw();
-                    });
-            });
+                    });   
+                }
+            
+            
 
             // Utility Functions
             function setSelected() {
@@ -217,7 +231,7 @@
                         return p;
                     }, {});
                     data = data.map(function(v) {
-                        v.color = (angular.isDefined(this[v.id])) ? this[v.id] : "#DDD";
+                        v.color = (angular.isDefined(this[v.s])) ? this[v.s] : "#DDD";
                         return v;
                     }, degMap);
                 }
@@ -242,18 +256,18 @@
                 d3Points.attr("width", width).attr("height", height);
 
                 // Scale
-                scaleX = d3.scaleLinear().domain([minMax.xMin, minMax.xMax]).range([50, width - 50]).nice();
-                scaleY = d3.scaleLinear().domain([minMax.yMin, minMax.yMax]).range([50, height - 50]).nice();
+                scaleX = d3.scaleLinear().domain([_.min(_.pluck(data, "x")), _.max(_.pluck(data, "x"))]).range([50, width - 50]).nice();
+                scaleY = d3.scaleLinear().domain([_.min(_.pluck(data, "y")), _.max(_.pluck(data, "y"))]).range([50, height - 50]).nice();
 
                 // Draw
                 var circles = d3Points.selectAll("circle").data(data);
                 circles.enter().append("svg:circle")
                     .attr("class", "pca-node")
                     .attr("cx", function(d) {
-                        return scaleX(d[0]);
+                        return scaleX(d.x);
                     })
                     .attr("cy", function(d) {
-                        return scaleY(d[1]);
+                        return scaleY(d.y);
                     })
                     .attr("r", 3)
                     .style("fill", function(d) {
@@ -278,10 +292,10 @@
                     })
                     .attr("r", 3)
                     .attr("cx", function(d) {
-                        return scaleX(d[0]);
+                        return scaleX(d.x);
                     })
                     .attr("cy", function(d) {
-                        return scaleY(d[1]);
+                        return scaleY(d.y);
                     })
                     .style("fill", function(d) {
                         return d.color;
@@ -320,11 +334,11 @@
                         var yMax = bv[1][1];
 
                         var ids = d3Points.selectAll("circle").data().filter(function(d) {
-                            var x = scaleX(d[0]);
-                            var y = scaleY(d[1]);
+                            var x = scaleX(d.x);
+                            var y = scaleY(d.y);
                             return (x > xMin && x < xMax && y > yMin && y < yMax);
                         }).map(function(d) {
-                            return d.id;
+                            return d.s;
                         });
                         osApi.setCohort(ids, "PCA", osApi.SAMPLE);
 
@@ -355,44 +369,29 @@
             osApi.onCohortChange.add(onCohortChange);
 
 
-            osApi.query(clusterCollection, {
-                dataType: 'PCA',
-                $fields: ['input', 'geneset', 'source']
+            osApi.query(collections, {
+                m_type: 'PCA',
+                d_type: 'score',
+                $fields: ['name', 'params', 'version', 'default', 'source']
             }).then(function(response) {
-                var data = response.data.map(function(v) {
+                vm.data = response.data.map(function(v) {
                     return {
-                        a: v.geneset,
-                        b: v.source,
-                        c: v.input
+                        u: v.name,
+                        v: v.version,
+                        g: v.params.geneset,
+                        c: v.params.collection,
+                        s: v.source,
+                        d: v.default,
+                        n: v.params.collection_name
                     };
                 });
-                var result = _.reduce(data, function(memo, val) {
-                    var tmp = memo;
-                    _.each(val, function(fldr) {
-                        if (!_.has(tmp, fldr)) {
-                            tmp[fldr] = {};
-                        }
-                        tmp = tmp[fldr];
-                    });
-                    return memo;
-                }, {});
-
-                vm.geneSets = Object.keys(result).map(function(geneset) {
-                    return {
-                        name: geneset,
-                        sources: Object.keys(result[geneset]).map(function(source) {
-                            return {
-                                name: source,
-                                types: Object.keys(result[geneset][source]).map(function(type) {
-                                    return {
-                                        name: type
-                                    };
-                                })
-                            };
-                        })
-                    };
-                });
-                vm.geneSet = vm.geneSets[0];
+                vm.default_cluster = vm.data.filter(function(d){return d.d})
+                if(vm.default_cluster.length == 0){
+                    vm.default_cluster = vm.data[0]
+                }
+                vm.sources = _.unique(_.pluck(vm.data, "s"))
+                vm.source = vm.default_cluster.s
+                
             });
 
             // Destroy

@@ -511,8 +511,8 @@
             var initialized = false;
             vm.setLayout = function(layout) {
                 vm.layout = layout;
-                osApi.query(osApi.getDataSource().disease + "_cluster", {
-                        disease: vm.datasource.disease,
+                osApi.query(osApi.getDataSource().dataset + "_cluster", {
+                        dataset: vm.datasource.dataset,
                         geneset: vm.layout.geneset,
                         input: vm.layout.input,
                         source: vm.layout.source
@@ -604,7 +604,7 @@
             };
 
             // Load Data
-            osApi.query(osApi.getDataSource().disease + "_cluster", {
+            osApi.query(osApi.getDataSource().dataset + "_cluster", {
                 dataType: 'PCA',
                 $fields: ['input', 'geneset', 'source']
             }).then(function(response) {

@@ -311,43 +311,44 @@
                     return patient.clinical;
                 }, data.patientMap).filter(function(v) { return v != null; })
 
+                var features=  [{
+                    label: "Age At Diagnosis",
+                    data: getNumericStats(clinical, "age_at_diagnosis"),
+                    prop: "age_at_diagnosis",
+                    type: "numeric"},
+                    {
+                    label: "Gender",
+                    data: getFactorStats(clinical, "gender"),
+                    prop: "gender",
+                    type: "factor"
+                    }, {
+                    label: "Race",
+                    data: getFactorStats(clinical, "race"),
+                    prop: "race",
+                    type: "factor"
+                    }, {
+                    label: "Ethnicity",
+                    data: getFactorStats(clinical, "ethnicity"),
+                    prop: "ethnicity",
+                    type: "factor"
+                    }, {
+                    label: "Vital",
+                    data: getFactorStats(clinical, "status_vital"),
+                    prop: "status_vital",
+                    type: "factor"
+                    }, {
+                    label: "Disease Status",
+                    data: getFactorStats(clinical, "last_known_disease_status"),
+                    prop: "last_known_disease_status",
+                    type: "factor"
+                }]
+
+                features = features.filter(function(d){return d.data.count>0 & _.difference(_.pluck(d.data.hist, "label"), ["undefined"]).length >0})
+
                 return {
                     total: Object.keys(data.patientMap).length,
                     selected: clinical.length,
-                    features: [{
-                            label: "Age At Diagnosis",
-                            data: getNumericStats(clinical, "age_at_diagnosis"),
-                            prop: "age_at_diagnosis",
-                            type: "numeric"
-                        },
-                        //{label: "Death", data:getNumericStats(data,"days_to_death"), prop:"days_to_death" , type:"numeric"},
-                        {
-                            label: "Gender",
-                            data: getFactorStats(clinical, "gender"),
-                            prop: "gender",
-                            type: "factor"
-                        }, {
-                            label: "Race",
-                            data: getFactorStats(clinical, "race"),
-                            prop: "race",
-                            type: "factor"
-                        }, {
-                            label: "Ethnicity",
-                            data: getFactorStats(clinical, "ethnicity"),
-                            prop: "ethnicity",
-                            type: "factor"
-                        }, {
-                            label: "Vital",
-                            data: getFactorStats(clinical, "status_vital"),
-                            prop: "status_vital",
-                            type: "factor"
-                        }, {
-                            label: "Disease Status",
-                            data: getFactorStats(clinical, "last_known_disease_status"),
-                            prop: "last_known_disease_status",
-                            type: "factor"
-                        }
-                    ]
+                    features: features
                 };
             };
 
@@ -460,12 +461,12 @@
                     }
                     _dataSource = value;
                 } else if (angular.isString(value)) {
-                    if (_dataSource.disease === value) {
+                    if (_dataSource.dataset === value) {
                         resolveDataSource();
                         return;
                     }
                     _dataSource = _dataSources.filter(function(v) {
-                        return v.disease == this.key;
+                        return v.dataset == this.key;
                     }, {
                         key: value
                     })[0];
@@ -482,16 +483,16 @@
 
 
                 // Load Sample Maps
-                Promise.all([query(_dataSource.clinical.samplemap), query(_dataSource.clinical.patient)]).then(function(responses) {
+                Promise.all([query(_dataSource.dataset+"_samples"), query(_dataSource.dataset+"_subjects")]).then(function(responses) {
                     var data = {};
 
                     // Map of Samples To Patients
-                    data.sampleMap = responses[0].data[0];
+                    data.sampleMap = responses[0].data;
 
                     // Map of Patients To Samples + Clinical Using Samples Ids
-                    data.patientMap = Object.keys(data.sampleMap).reduce(function(p, c) {
-                        var patient = data.sampleMap[c];
-                        var sample = c;
+                    data.patientMap = data.sampleMap.reduce(function(p, c) {
+                        var patient = c.pt;
+                        var sample = c.s;
                         if (p.hasOwnProperty(patient)) {
                             p[patient].samples.push(sample);
                         } else {
@@ -500,10 +501,10 @@
                         return p;
                     }, {});
                     responses[1].data.reduce(function(p, c) {
-                        if (p.hasOwnProperty(c.patient_ID)) {
-                            p[c.patient_ID].clinical = c;
+                        if (p.hasOwnProperty(c.pt)) {
+                            p[c.pt].clinical = c;
                         } else {
-                            p[c.patient_ID] = { clinical: c, samples: [] };
+                            p[c.pt] = { clinical: c, samples: [] };
                         }
                         return p;
                     }, data.patientMap);
@@ -558,7 +559,7 @@
                         type: 'ALL'
                     };
 
-                    _cohorts = localStorage.getItem(_dataSource.disease + 'Cohorts');
+                    _cohorts = localStorage.getItem(_dataSource.dataset + 'Cohorts');
 
                     if (_cohorts !== null) {
                         _cohorts = angular.fromJson(_cohorts);
@@ -578,9 +579,6 @@
                 });
             });
         };
-
-
-
 
         var createWithSampleIds = function(name, sampleIds, data) {
             if (sampleIds.length === 0) return _cohortAll;
@@ -643,12 +641,12 @@
         var saveCohort = function() {
             _cohort.type = "SAVED";
             _cohorts.push(_cohort);
-            localStorage.setItem(_dataSource.disease + 'Cohorts', angular.toJson(_cohorts));
+            localStorage.setItem(_dataSource.dataset + 'Cohorts', angular.toJson(_cohorts));
 
         };
         var deleteCohort = function(cohort) {
             _cohorts.splice(_cohorts.indexOf(cohort), 1);
-            localStorage.setItem(_dataSource.disease + 'Cohorts', angular.toJson(_cohorts));
+            localStorage.setItem(_dataSource.dataset + 'Cohorts', angular.toJson(_cohorts));
             setCohort([], "", "PATIENT");
         };
 
@@ -681,16 +679,18 @@
             initialized = true;
             return Promise.all([
                 new Promise(function(resolve, reject) {
-                    query("lookup_oncoscape_tools").then(function(response) {
+                    query("lookup_tools", {
+                        beta: false
+                    }).then(function(response) {
                         _toolsAll = response.data;
                         resolve();
                     }, reject);
                 }),
                 new Promise(function(resolve, reject) {
-                    query("lookup_oncoscape_datasources", {
+                    query("lookup_datasources", {
                         beta: false
                     }).then(function(response) {
-                        _dataSource = { disease: '' };
+                        _dataSource = { dataset: '' };
                         _dataSources = response.data
                             .filter(function(d) {
                                 return angular.isDefined(d.img);
@@ -702,8 +702,8 @@
                             .sort(function(a, b) {
                                 return (a.img < b.img) ? -1 :
                                     (a.img > b.img) ? 1 :
-                                    (a.disease < b.disease) ? -1 :
-                                    (a.disease > b.disease) ? 1 :
+                                    (a.dataset < b.dataset) ? -1 :
+                                    (a.dataset > b.dataset) ? 1 :
                                     0;
                             });
                         resolve();

@@ -37,37 +37,22 @@
                 if (vm.colorOptions.length !== 0) vm.colorOption = vm.colorOptions[0];
             }
 
-
-            var tbl = osApi.getDataSource().category.filter(function(v) {
-                return v.type == 'color';
-            })[0].collection;
-
-            osApi.query(tbl, {
-                type: 'color',
-                dataset: osApi.getDataSource().disease,
-                $fields: ['name', 'subtype']
-            }).then(function(v) {
+            osApi.query(osApi.getDataSource().dataset +"_categories", {}).then(function(v) {
 
                 var data = v.data.reduce(function(p, c) {
-                    if (!p.hasOwnProperty(c.subtype)) p[c.subtype] = [];
-                    p[c.subtype].push(c);
+                    if (!p.hasOwnProperty(c.m_type)) p[c.m_type] = [];
+                    p[c.m_type].push(c);
                     return p;
                 }, {});
 
-                var regx = /(\d+%)/i;
+                
                 vm.optPatientColors = Object.keys(data).map(function(key) {
                     return {
                         name: key,
                         values: this[key]
-                            .filter(function(v) {
-                                var result = v.name.match(regx);
-                                if (result === null) return true;
-                                // 30% Threashold
-                                if (parseInt(result[0]) > 10) return true;
-                            })
                             .sort(function(a, b) {
-                                if (a.name > b.name) return 1;
-                                if (a.name < b.name) return -1;
+                                if (a.m > b.m) return 1;
+                                if (a.m < b.m) return -1;
                                 return 0;
                             })
                     };
@@ -76,7 +61,7 @@
             });
             vm.resetColor = function() {
                 osApi.setPatientColor({
-                    "dataset": osApi.getDataSource().disease,
+                    "dataset": osApi.getDataSource().dataset,
                     "type": "color",
                     "name": "None",
                     "data": [],
@@ -86,10 +71,10 @@
 
             vm.setColor = function(item) {
                 osApi.setBusy(true);
-                vm.close();
+                
                 if (item.name == "None") {
                     osApi.setPatientColor({
-                        "dataset": osApi.getDataSource().disease,
+                        "dataset": osApi.getDataSource().dataset,
                         "type": "color",
                         "name": "None",
                         "data": [],
@@ -98,20 +83,16 @@
                     return;
                 }
 
-                osApi.query(tbl, {
-                    type: 'color',
-                    dataset: osApi.getDataSource().disease,
-                    name: item.name
-                }).then(function(v) {
-                    var data = v.data[0];
-                    data.data = data.data.map(function(v) {
-                        var name = v.name.toLowerCase().trim();
-                        if (name === "" || name == "null" || angular.isUndefined(name)) {
-                            v.name = "Null";
-                            v.color = "#DDDDDD";
+                var data = item.d.map(function(d) {
+                        d.name = d.v;
+                        if (d.name === "" || d.name == "null" || angular.isUndefined(d.name)) {
+                            d.name = "Null";
+                            d.color = "#DDDDDD";
                         }
-                        v.id = "legend-" + v.color.substr(1);
-                        return v;
+                        d.color = (d.c == null) ? '#0096d5' : d.c;
+                        d.id = "legend-" + d.color.substr(1);
+                        d.s = []; //all samples matching
+                        return d;
                     }).sort(function(a, b) {
                         var aname = (isNaN(a.name)) ? a.name : parseInt(a.name);
                         var bname = (isNaN(b.name)) ? b.name : parseInt(b.name);
@@ -123,10 +104,10 @@
                     });
 
                     // debugger;
-                    osApi.setPatientColor(v.data[0]);
+                    osApi.setPatientColor(data);
                     osApi.setBusy(false);
                     vm.close();
-                });
+               
             };
             vm.setGeneColor = function() {
                 var genes = ("+" + vm.geneColor.replace(/\s/g, '').toUpperCase()).match(/[-+]\w*/gi).map(function(v) {
@@ -295,7 +276,7 @@
                             });
 
                             colors = {
-                                dataset: osApi.getDataSource().disease,
+                                dataset: osApi.getDataSource().dataset,
                                 type: 'color',
                                 name: genes.reduce(function(p, c) {
                                     p += c.op + c.gene + " ";

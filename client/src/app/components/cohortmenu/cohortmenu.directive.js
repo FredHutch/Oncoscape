@@ -39,13 +39,14 @@
             osApi.onCohortChange.add(function(cohort) {
 
                 var dataInfo = osApi.getCohortDatasetInfo();
+                var cohortSurvival = cohort.survival == null ? 0 : cohort.survival.data.tte.length;
                 var summary =
                     $filter('number')(dataInfo.numSamples) + " Samples In Dataset<br /> " +
                     $filter('number')(dataInfo.numPatients) + " Patients In Dataset<br /> " +
                     $filter('number')(cohort.numSamples) + " Samples In Current Cohort<br /> " +
                     $filter('number')(cohort.numPatients) + " Patients In Current Cohort<br />" +
                     $filter('number')(cohort.numClinical) + " Patients with Clinical Data<br />" +
-                    $filter('number')(cohort.survival.data.tte.length) + " Patients with Survival Outcome<br />";
+                    $filter('number')(cohortSurvival) + " Patients with Survival Outcome<br />";
                 //$filter('number')(toolInfo.numSamplesVisible) + " Samples In Current Cohort Showing<br />" +
                 //$filter('number')(toolInfo.numPatients) + " Patients In Current Cohort Showing<br />";
 
@@ -55,8 +56,14 @@
                 $timeout(function() {
                     var featureIdx = (vm.cohortFeature !== null) ? vm.cohortFeatures.indexOf(vm.cohortFeature) : 0;
                     vm.cohort = cohort;
-                    vm.cohortFeatures = cohort.histogram.features;
-                    vm.cohortFeature = cohort.histogram.features[featureIdx];
+                   
+                    if(cohort.histogram.features.length == 0){
+                        angular.element("#cohortmenu-histogram").collapse();
+                    } else {
+                        angular.element("#cohortmenu-histogram").collapse("show");
+                        vm.cohortFeatures = cohort.histogram.features;
+                        vm.cohortFeature = cohort.histogram.features[featureIdx];
+                    }
                 });
                 updateSurvival(vm.cohorts.concat([cohort]));
             });
@@ -113,6 +120,7 @@
                 return "Range: " + d.label + "<br>Count: " + d.value + " of " + vm.cohortFeature.data.count + "<br>Percent: " + $filter('number')((d.value / vm.cohortFeature.data.count) * 100, 2) + "%";
             });
             histSvg.call(elTip);
+
             $scope.$watch('vm.cohortFeature', function() {
 
                 // Histogram
@@ -237,6 +245,12 @@
 
             var updateSurvival = function(cohorts) {
 
+                cohorts = cohorts.filter(function(c){return c.survival != null})
+                if(cohorts.length == 0){
+                    angular.element("#cohortmenu-survival-box").collapse();
+                    return;
+                } else {angular.element("#cohortmenu-survival-box").collapse("show");}
+                
                 var xDomain = cohorts.reduce(function(p, c) {
                     p[0] = Math.min(p[0], c.survival.compute[0].t);
                     p[1] = Math.max(p[1], c.survival.compute[c.survival.compute.length - 1].t);
