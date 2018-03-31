@@ -40,17 +40,16 @@
 
                 var dataInfo = osApi.getCohortDatasetInfo();
                 var cohortSurvival = cohort.survival == null ? 0 : cohort.survival.data.tte.length;
-                var summary =
-                    $filter('number')(dataInfo.numSamples) + " Samples In Dataset<br /> " +
-                    $filter('number')(dataInfo.numPatients) + " Patients In Dataset<br /> " +
-                    $filter('number')(cohort.numSamples) + " Samples In Current Cohort<br /> " +
-                    $filter('number')(cohort.numPatients) + " Patients In Current Cohort<br />" +
-                    $filter('number')(cohort.numClinical) + " Patients with Clinical Data<br />" +
-                    $filter('number')(cohortSurvival) + " Patients with Survival Outcome<br />";
+                vm.cohortSummary = [{ name: "in dataset", value: [
+                                        {name: "samples", value: dataInfo.numSamples},
+                                        {name: "patients", value :dataInfo.numPatients}]
+                                    } ,{name: "in cohort", value: [
+                                           {name: "samples", value: cohort.numSamples},
+                                            {name:"patients",  value: cohort.numPatients} ]
+                                    }]
+                
                 //$filter('number')(toolInfo.numSamplesVisible) + " Samples In Current Cohort Showing<br />" +
                 //$filter('number')(toolInfo.numPatients) + " Patients In Current Cohort Showing<br />";
-
-                vm.cohortSummary = $sce.trustAsHtml(summary);
 
                 if (angular.isUndefined(cohort)) return;
                 $timeout(function() {

@@ -67,26 +67,26 @@
             
                 vm.search = "";
                 vm.selectColor = function(e) {
-                    var ids = e.values;
+                    var ids = e.s;
                     var allIds = [];
                     d3.selectAll("circle").each(function(d) {
-                        if (ids.indexOf(d.id) != -1) {
+                        if (ids.indexOf(d.s) != -1) {
                             d3.select(this).classed("pca-node-selected", true);
-                            allIds.push(d.id);
+                            allIds.push(d.s);
                         } else {
-                            if (d3.select(this).classed("pca-node-selected")) allIds.push(d.id);
+                            if (d3.select(this).classed("pca-node-selected")) allIds.push(d.s);
                         }
                     });
                     osApi.setCohort(allIds, "PCA", osApi.SAMPLE);
                 };
                 vm.deselectColor = function(e) {
-                    var ids = e.values;
+                    var ids = e.s;
                     var allIds = [];
                     d3.selectAll("circle").each(function(d) {
-                        if (ids.indexOf(d.id) != -1) {
+                        if (ids.indexOf(d.s) != -1) {
                             d3.select(this).classed("pca-node-selected", false);
                         } else {
-                            if (d3.select(this).classed("pca-node-selected")) allIds.push(d.id);
+                            if (d3.select(this).classed("pca-node-selected")) allIds.push(d.s);
                         }
                     });
                     osApi.setCohort(allIds, "PCA", osApi.SAMPLE);
@@ -205,7 +205,7 @@
             function setSelected() {
                 var selectedIds = cohort.sampleIds;
                 d3Points.selectAll("circle").classed("pca-node-selected", function() {
-                    return (selectedIds.indexOf(this.__data__.id) >= 0);
+                    return (selectedIds.indexOf(this.__data__.s) >= 0);
                 });
             }
 
@@ -225,8 +225,8 @@
                     // Color Based On V
                 } else {
                     var degMap = colors.data.reduce(function(p, c) {
-                        for (var i = 0; i < c.values.length; i++) {
-                            p[c.values[i]] = c.color;
+                        for (var i = 0; i < c.s.length; i++) {
+                            p[c.s[i]] = c.color;
                         }
                         return p;
                     }, {});

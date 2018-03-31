@@ -31,11 +31,15 @@
             vm.colorScale = vm.colorScales[0];
             vm.colorBins = [2, 3, 4, 5, 6, 7, 8].map(function(v) { return { name: v + " Bins", value: v }; });
             vm.colorBin = vm.colorBins[2];
-            vm.colorOptions = osApi.getDataSource().colors;
+            vm.colorTheme = [{name: "categories",
+                            colors: ['#2e63cf','#df3700','#ff9a00','#009700','#9b009b','#0099c9','#df4176','#64ac00','#ba2c28','#2e6297']}];
+            //var colorgrade = ["#F3E5F5","#E1BEE7","#CE93D8","#BA68C8","#AB47BC","#9C27B0","#8E24AA","#7B1FA2","#6A1B9A"];
+        
+            // vm.colorOptions = osApi.getDataSource().colors;
 
-            if (angular.isDefined(vm.colorOptions)) {
-                if (vm.colorOptions.length !== 0) vm.colorOption = vm.colorOptions[0];
-            }
+            // if (angular.isDefined(vm.colorOptions)) {
+            //     if (vm.colorOptions.length !== 0) vm.colorOption = vm.colorOptions[0];
+            // }
 
             osApi.query(osApi.getDataSource().dataset +"_categories", {}).then(function(v) {
 
@@ -82,16 +86,16 @@
                     });
                     return;
                 }
-
-                var data = item.d.map(function(d) {
+                var availableColors = vm.colorTheme.filter(function(c){return c.name=="categories"})[0].colors
+                var data = item.d.map(function(d,i) {
                         d.name = d.v;
                         if (d.name === "" || d.name == "null" || angular.isUndefined(d.name)) {
                             d.name = "Null";
                             d.color = "#DDDDDD";
                         }
-                        d.color = (d.c == null) ? '#0096d5' : d.c;
+                        d.color = (d.c == null) ? availableColors[i % availableColors.length]: d.c;
                         d.id = "legend-" + d.color.substr(1);
-                        d.s = []; //all samples matching
+            
                         return d;
                     }).sort(function(a, b) {
                         var aname = (isNaN(a.name)) ? a.name : parseInt(a.name);
@@ -102,9 +106,16 @@
                         if (b.name == "Null") return -1;
                         return 0;
                     });
+                var color = {
+                        "dataset": osApi.getDataSource().dataset,
+                        "type": "color",
+                        "name": item.m,
+                        "data": data,
+                        show: true
+                    }
 
                     // debugger;
-                    osApi.setPatientColor(data);
+                    osApi.setPatientColor(color);
                     osApi.setBusy(false);
                     vm.close();
                

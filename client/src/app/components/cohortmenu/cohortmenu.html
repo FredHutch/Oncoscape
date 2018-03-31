@@ -48,7 +48,21 @@
                 </div>
                 <div class="col-xs-12 form-item">
                     <label class="cohortmenu-toggle-btn" data-toggle="collapse" data-target="#cohortmenu-summary-box" tooltip="Show / Hide" tooltip-placement="right">Cohort Summary <i class="fa fa-angle-down" aria-hidden="true"></i></label>
-                    <div id="cohortmenu-summary-box" class="collapse in" style="background:#FFF;border:1px solid #EAEAEA;padding:5px;" ng-bind-html="vm.cohortSummary"></div>
+                    <div id="cohortmenu-summary-box" class="collapse in" style="background:#FFF;border:1px solid #EAEAEA;padding:5px;" >
+                        <div class="row">
+                            <div class="col-sm-4"></div>
+                            <div class="col-sm-4"># samples</div>
+                            <div class="col-sm-4"># patients</div>
+                        </div>
+                        <div ng-repeat="item in vm.cohortSummary">
+                            <div class="row">
+                                <div class="col-sm-4">{{item.name}}</div>
+                                <div ng-repeat="vals in item.value">
+                                    <div class="col-sm-4">{{vals.value}}</div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
                 </div>
                 <div id="cohortmenu-legand"></div>
             </div>
