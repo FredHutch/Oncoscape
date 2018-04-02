@@ -19,53 +19,27 @@
         return directive;
 
         /** @ngInject */
-        function PcaController($q, osApi, $state, $stateParams, $timeout, $scope, d3, moment, $window, _) {
+        function PcaController($q, osApi, osWidget, $state, $stateParams, $timeout, $scope, d3, moment, $window, _) {
 
             // Loading ...
             osApi.setBusy(true);
-
-            // Elements
-            var d3Chart = d3.select("#pca-chart").append("svg");
-            var d3Points = d3Chart.append("g");
-            var d3xAxis = d3Chart.append("g");
-            var d3yAxis = d3Chart.append("g");
-            var brush;
-            var d3Brush = d3Chart.append("g");
-
-            // Add Labels
-            d3xAxis.append("text")
-                .attr("x", 50)
-                .attr("y", 15)
-                .text("PC1");
-
-
-            d3yAxis.append("text")
-                .attr("y", 55)
-                .attr("x", 25)
-                .text("PC2");
-
             
             // Properties
             var collections = osApi.getDataSource().dataset + "_collections";
             var clusters = osApi.getDataSource().dataset + "_cluster";
-            var scaleX, scaleY, axisX, axisY;
             var data;
             var width, height;
-            var colors = {
-                data: [],
-                dataset: osApi.getDataSource().dataset,
-                name: "None",
-                type: "color"
-            };
+            var colors;
+            var x_label = "", y_label="";
 
             // View Model Update
             var vm = (function(vm, osApi) {
-                //vm.loadings = [];
-                vm.xVals = vm.yVals = [];
+                
                 vm.datasource = osApi.getDataSource();
                 vm.source = null;
+                vm.cohorts = osApi.getCohorts();
+                vm.cohort = osApi.getCohort();
             
-                vm.search = "";
                 vm.selectColor = function(e) {
                     var ids = e.s;
                     var allIds = [];
@@ -125,6 +99,23 @@
                 getData()
             });
 
+            // Cohort edit
+            vm.setCohort = function(cohort) {
+                if (angular.isString(cohort)) {
+                    osApi.setCohort([], osApi.ALL, osApi.SAMPLE);
+                } else {
+                    osApi.setCohort(cohort);
+                }
+            };
+
+            vm.updateCohort = function() {
+                if (vm.cohort.type == "UNSAVED") {
+                    osApi.saveCohort(vm.cohort);
+                } else {
+                    osApi.deleteCohort(vm.cohort);
+                }
+            };
+
             function getData(){
                 Promise.all([osApi.query(clusters, {
                     name: vm.uid,
@@ -135,76 +126,186 @@
                     m:vm.y_label,
                     d_type:"score"
                 })
-                // ,osApi.query(clusters, {
-                //     name: vm.uid,
-                //     m:vm.x_label,
-                //     d_type:"loading"
-                // }), osApi.query(clusters, {
-                //     name: vm.uid,
-                //     m:vm.y_label,
-                //     d_type:"loading"
-                // })
+                ,osApi.query(clusters, {
+                    name: vm.uid,
+                    m:vm.x_label,
+                    d_type:"loading"
+                }), osApi.query(clusters, {
+                    name: vm.uid,
+                    m:vm.y_label,
+                    d_type:"loading"
+                }),
+                osApi.query(clusters, {
+                    name: vm.uid,
+                    d_type:"score",
+                    $fields : ["m", "var_percent"]
+                })
                 ]).then(function(responses) {
                         var d = {   x : responses[0].data[0],
                                     y : responses[1].data[0]
                         };
-                        // var l = {   x : responses[0].data[0],
-                        //             y : responses[1].data[0]
-                        // }
-
-
-                        // Process PCA Variance
-                        // TO DO 
-
-                        // Process Loadings
-                        // TO DO
-
-                        // var scale = d3.scaleLinear()
-                        //     .domain([loadings[loadings.length - 1].max, loadings[0].max])
-                        //     .range([0.1, 1]);
-
-
-                        // vm.loadings = loadings.map(function(v) {
-                        //     return {
-                        //         tip: v.d.reduce(function(p, c) {
-                        //             p.index += 1;
-                        //             p.text += "<br>PC" + p.index + ": " + (c * 100).toFixed(2);
-                        //             return p;
-                        //         }, { text: v.id, index: 0 }).text,
-                        //         value: this(v.max)
-                        //     };
-                        // }, scale);
-
-
-                        // Process Scores
-                        data = []
-                        for(var i=0;i<d.x.s.length;i++){
-                            data.push({s:d.x.s[i],x: d.x.d[i],y: d.y.d[i]})
+                        var l = {   x : responses[2].data[0],
+                                    y : responses[3].data[0]
                         }
                         
-                        // d.x.map(function(p){
-                        //     p.x = p.v
-                        //     return p;
-                        // })
-                        // data = d.y.reduce(function(p,c){
-                        //     c[c.s == p.s].y = p.v
-                        //     return c;
-                        // },d.x )
-
-                        
+                        // Process PCA Variance
+                        var pv = responses[4].data.map(function(p){
+                            return {x: +p.m.substr(2), y:p.var_percent, label: p.m}
+                        }).sort(function(a,b){
+                            if(a.x < b.x) return -1
+                            if(a.x > b.x) return 1
+                            return 0
+                        })
                         
 
+                        // Process Loadings
+                        // 1. Sort PC1 and PC2 loadings
+                        // 2. Get top/bottom # gene ids from each PC
+                        // 3. For each top gene, add [PC1, PC2] to InputMtx
 
+                        function sortByV(a,b){
+                            if(a.v < b.v) return -1;
+                            if(a.v > b.v) return 1;
+                            return 0;
+                        }
+                        var numTopGenes = 5
+                        var sorted_x = l.x.d.sort(sortByV)
+                        var sorted_y = l.y.d.sort(sortByV)
+
+                        var topGenes =_.uniq(_.union( _.pluck(sorted_x.slice(0,numTopGenes), "s"), 
+                                                 _.pluck(sorted_x.slice(Math.max(sorted_x.length - numTopGenes, 1)),"s"),
+                                                 _.pluck(sorted_y.slice(0,numTopGenes), "s"),
+                                                 _.pluck(sorted_y.slice(Math.max(sorted_y.length - numTopGenes, 1)), "s")
+                                                ))
+                        var inputMtx = []; 
+                        var labels = {col: [vm.x_label,vm.y_label], row:topGenes}
+                        for(var i=0;i<topGenes.length;i++){
+                            inputMtx.push([l.x.d.filter(function(d){return d.s == topGenes[i]})[0].v,
+                                           l.y.d.filter(function(d){return d.s == topGenes[i]})[0].v
+                            ])
+                        }
+
+                        // Process Scores
+                        data = d.x.d.map(function(a){ return({s:a.s, x : a.v})})
+                        d.y.d.reduce(function(p,c){
+                            p.filter(function(r){return r.s== c.s})[0].y = c.v
+                            return p;
+                        }, data)
+                        
+                        var samples = _.pluck(d.x.d, "s")
+                        var pts = osApi.getData().sampleMap.filter(function(m){return _.contains(samples, m.s)})
+                                                            .map(function(d){return d.pt})
+                                                            .filter(function(item, i, ar) { return ar.indexOf(item) === i; }); // Remove Dups
+                        
+                        osApi.setCohortToolInfo({ 'numSamples': samples.length, 'numPatients': pts.length });    
+                        
                         draw();
+                        drawLoadings(inputMtx, labels);
+                        drawScreePlot(pv)
                     });   
                 }
             
             
 
             // Utility Functions
+            function draw() {
+            
+                // Colorize
+                setColors();
+
+                var layout = osApi.getLayout()
+                var options = {
+                    layout: layout,
+                    width : $window.innerWidth - layout.left - layout.right,
+                    height : $window.innerHeight - 120 ,//10
+                    container : "pca-chart",
+                    html : "#pca-chart",
+                    data: data,
+                    labels : {x:x_label, y:y_label},
+                    nodeClass : "pca-node"
+                }
+
+                osWidget.makeScatterPlot(options)
+                osApi.setBusy(false)
+                
+
+            }
+            function drawScreePlot(data){
+
+                var labels = {
+                    x: "Principle Component",
+                    y: "Variance Explained"
+                }
+                data.map(function(d){
+                    d.x = d.label
+                    return d
+                })
+
+                var options = {
+                    title: "Scree Plot (Percent Variance Explained)",
+                    container : 'screeplot',
+                    html : '#screeplot',
+                    f: "Bar Plot",
+                    data      : data.slice(0,10),
+                    labels    : {x:"", y:""},
+                    color : '#0096d5',
+                    margin: {top: 10, right: 10, bottom: 35, left: 30},
+                    width: 200,
+                    height: 100,
+                    domain :{ x : [0,10], y: [0, d3.max(data, function(d) { return d.y; })+2]}
+                }
+               
+                osApi.addSuppFigure(options)
+               // osWidget.getLinePlot(options);
+               //osWidget.makeBarPlot(options);
+            }
+            function drawLoadings(inputMatrix, labels){
+              
+                var options = {
+                    title:      "Top Ranked Loadings",
+                    container : 'loadings',
+                    html :      '#loadings',
+                    f: "Matrix",
+                    data      : inputMatrix,
+                    labels    : labels,
+                    start_color : '#ffffff',
+                    end_color : '#e67e22',
+                    margin : {top: 5, right: 30, bottom: 25, left: 60},
+                    width: 75,
+                    height: 200
+                }
+                osApi.addSuppFigure(options)
+                // osWidget.makeColoredMatrix();
+            }
+
+            // App Event :: Resize
+            osApi.onResize.add(draw);
+
+            var updatePatientCounts = function() {
+
+                angular.element(".legend-count").text("");
+                var selectedPatients = osApi.getCohort().sampleIds;
+
+                if (selectedPatients.length === 0)
+                   selectedPatients = data.map(function(d){
+                    return d.s})
+
+                var counts = data.filter(function(d){return selectedPatients.indexOf(d.s) !== -1}).reduce(function(p, c) {
+                    var color = c.color;
+                    if (!p.hasOwnProperty(color)) p[color] = 0;
+                    p[color] += 1;
+                    return p;
+                }, {});
+
+                Object.keys(counts).forEach(function(key) {
+                    angular.element("#legend-" + key.substr(1)).text(" (" + this[key] + ")");
+                }, counts);
+
+            };
+
             function setSelected() {
-                var selectedIds = cohort.sampleIds;
-                d3Points.selectAll("circle").classed("pca-node-selected", function() {
+                var selectedIds = vm.cohort.sampleIds;
+                d3.selectAll("circle").classed("pca-node-selected", function() {
                     return (selectedIds.indexOf(this.__data__.s) >= 0);
                 });
             }
@@ -235,140 +336,23 @@
                         return v;
                     }, degMap);
                 }
+                $timeout(updatePatientCounts);
             }
-
-            function draw() {
-
-                // Colorize
-                setColors();
-
-                // Size
-                var layout = osApi.getLayout();
-                width = $window.innerWidth - layout.left - layout.right;
-                height = $window.innerHeight - 120; //10
-                angular.element("#pca-chart").css({
-                    "width": width + "px",
-                    "padding-left": layout.left + "px"
-                });
-
-                d3Chart.attr("width", width).attr("height", height);
-                d3Brush.attr("width", width).attr("height", height);
-                d3Points.attr("width", width).attr("height", height);
-
-                // Scale
-                scaleX = d3.scaleLinear().domain([_.min(_.pluck(data, "x")), _.max(_.pluck(data, "x"))]).range([50, width - 50]).nice();
-                scaleY = d3.scaleLinear().domain([_.min(_.pluck(data, "y")), _.max(_.pluck(data, "y"))]).range([50, height - 50]).nice();
-
-                // Draw
-                var circles = d3Points.selectAll("circle").data(data);
-                circles.enter().append("svg:circle")
-                    .attr("class", "pca-node")
-                    .attr("cx", function(d) {
-                        return scaleX(d.x);
-                    })
-                    .attr("cy", function(d) {
-                        return scaleY(d.y);
-                    })
-                    .attr("r", 3)
-                    .style("fill", function(d) {
-                        return d.color;
-                    });
-                circles.exit()
-                    .transition()
-                    .duration(200)
-                    .delay(function(d, i) {
-                        return i / 300 * 100;
-                    })
-                    .style("fill-opacity", "0")
-                    .remove();
-                circles
-                    .style("fill", function(d) {
-                        return d.color;
-                    })
-                    .transition()
-                    .duration(750)
-                    .delay(function(d, i) {
-                        return i / 300 * 100;
-                    })
-                    .attr("r", 3)
-                    .attr("cx", function(d) {
-                        return scaleX(d.x);
-                    })
-                    .attr("cy", function(d) {
-                        return scaleY(d.y);
-                    })
-                    .style("fill", function(d) {
-                        return d.color;
-                    })
-                    .style("fill-opacity", 0.8);
-
-                // Axis
-                axisX = d3.axisTop().scale(scaleX).ticks(3);
-                axisY = d3.axisLeft().scale(scaleY).ticks(3);
-
-                d3xAxis
-                    .attr("class", "axis")
-                    .attr("transform", "translate(0, " + height * 0.5 + ")")
-                    .call(axisX);
-
-
-                d3yAxis
-                    .attr("class", "axis")
-                    .attr("transform", "translate(" + width * 0.5 + ", 0)")
-                    .call(axisY);
-
-
-                // Brush
-                brush = d3.brush()
-                    .on("end", function() {
-
-                        if (!d3.event.selection) {
-                            osApi.setCohort([], osApi.ALL, osApi.SAMPLE);
-                            return;
-                        }
-
-                        var bv = d3.event.selection;
-                        var xMin = bv[0][0];
-                        var xMax = bv[1][0];
-                        var yMin = bv[0][1];
-                        var yMax = bv[1][1];
-
-                        var ids = d3Points.selectAll("circle").data().filter(function(d) {
-                            var x = scaleX(d.x);
-                            var y = scaleY(d.y);
-                            return (x > xMin && x < xMax && y > yMin && y < yMax);
-                        }).map(function(d) {
-                            return d.s;
-                        });
-                        osApi.setCohort(ids, "PCA", osApi.SAMPLE);
-
-                    });
-
-                d3Brush.attr("class", "brush").call(brush);
-                onCohortChange(osApi.getCohort());
-                osApi.setBusy(false);
-            }
-
-            // App Event :: Resize
-            osApi.onResize.add(draw);
-
             // App Event :: Color change
-            var onPatientColorChange = function(value) {
+            var updateColors = function(value) {
                 colors = value;
-                vm.showPanelColor = false;
                 draw();
             };
-            osApi.onPatientColorChange.add(onPatientColorChange);
+            osApi.onPatientColorChange.add(updateColors);
 
             // App Event :: Cohort Change
-            var cohort = osApi.getCohorts();
             var onCohortChange = function(c) {
-                cohort = c;
+                vm.cohort = c;
                 setSelected();
+                updatePatientCounts()
             };
             osApi.onCohortChange.add(onCohortChange);
-
-
+            
             osApi.query(collections, {
                 m_type: 'PCA',
                 d_type: 'score',
@@ -391,7 +375,12 @@
                 }
                 vm.sources = _.unique(_.pluck(vm.data, "s"))
                 vm.source = vm.default_cluster.s
-                
+                colors = {
+                    data: [],
+                    dataset: osApi.getDataSource().dataset,
+                    name: "None",
+                    type: "color"
+                };
             });
 
             // Destroy

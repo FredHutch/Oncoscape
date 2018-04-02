@@ -16,6 +16,7 @@
         var onCohortChange = new signals.Signal();
         var onCohortsChange = new signals.Signal();
         var onPatientColorChange = new signals.Signal();
+        var onAddSuppFigure = new signals.Signal();
 
         // Resize
         angular.element($window).bind('resize', _.debounce(onResize.dispatch, 900));
@@ -25,8 +26,8 @@
             var rt = angular.element(".tray-right").attr("locked");
             if (angular.isUndefined(rt)) rt = "true";
             return {
-                left: (angular.element('#cohortmenu-lock').attr("locked") == "true") ? 300 : 0,
-                right: (rt === "true") ? 300 : 0
+                right: (angular.element('#cohortmenu-lock').attr("locked") == "true") ? 300 : 0,
+                left: (rt === "true") ? 300 : 0
             };
         };
         var setBusy = function(value) {
@@ -427,7 +428,7 @@
         var _cohorts = null; // Collection of Cohorts
         var _cohort = null; // Selected Cohorts
         var _patientColor;
-        var _cohortToolInfo = { 'numSamples': 500, 'numPatients': 500 };
+        var _cohortToolInfo = { 'numSamples': 0, 'numPatients': 0 };
         var _cohortDatasetInfo = { 'numSamples': 0, 'numPatients': 0 };
 
 
@@ -582,10 +583,14 @@
 
         var createWithSampleIds = function(name, sampleIds, data) {
             if (sampleIds.length === 0) return _cohortAll;
-            var patientIds = sampleIds
-                .map(function(v) { return this.hasOwnProperty(v) ? this[v] : null; }, data.sampleMap)
-                .filter(function(v) { return (v !== null); }) // Remove Null
-                .filter(function(item, i, ar) { return ar.indexOf(item) === i; }); // Remove Dups
+            var patientIds = data.sampleMap.filter(function(m){return _.contains(sampleIds, m.s)})
+                                    .map(   function(d){return d.pt})
+                                    .filter(function(item, i, ar) { return ar.indexOf(item) === i; }); // Remove Dups
+                        
+            // var patientIds = sampleIds
+            //     .map(function(v) { return this.hasOwnProperty(v) ? this[v] : null; }, data.sampleMap)
+            //     .filter(function(v) { return (v !== null); }) // Remove Null
+            //     .filter(function(item, i, ar) { return ar.indexOf(item) === i; }); // Remove Dups
 
             return create(name, patientIds, sampleIds);
         };
@@ -669,6 +674,9 @@
         };
 
 
+        var addSuppFigure = function(options){
+            onAddSuppFigure.dispatch(options);
+        }
 
 
         // Initialize (Load Tools Raw Data + DataSources)
@@ -775,12 +783,14 @@
             onResize: onResize,
             onCohortChange: onCohortChange,
             onCohortsChange: onCohortsChange,
+            onAddSuppFigure: onAddSuppFigure,
 
             // Random
             setBusy: setBusy,
             km: statsFactory.km,
 
-            getData: getData
+            getData: getData,
+            addSuppFigure : addSuppFigure
 
         };
     }

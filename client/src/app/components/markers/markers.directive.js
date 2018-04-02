@@ -147,8 +147,8 @@
                 var getGeneSet = function(genesets) {
                     if (hasState) {
                         return genesets.filter(function(v) {
-                            return v.name == mp.optGeneSet.name;
-                        }, mp.optGeneSet.name)[0];
+                            return v.name == mp.geneset.name;
+                        }, mp.geneset.name)[0];
                     }
 
                     var datasetGeneset = osApi.getDataSource().geneset;
@@ -185,7 +185,7 @@
                         }
                     });
                     s.optEdgeColors = vm.optEdgeColors;
-                    s.optGeneSet = vm.optGeneSet;
+                    s.geneset = vm.geneset;
                     s.optPatientLayout = vm.optPatientLayout;
                     s.optColors = _colors;
                     s.edges = cyChart.$('edge[edgeType="cn"]').jsons();
@@ -201,9 +201,6 @@
                     save: save
                 };
             })(osApi);
-
-
-
 
             /*
              *  Cytoscape Chart
@@ -330,16 +327,32 @@
              */
             (function() {
 
-                osApi.query("render_chromosome", {
-                    type: "chromosome"
+                osApi.query("lookup_chr_pos", {
+                   "build" : "GRCh38"
                 }).then(function(result) {
 
                     // Process Chromosome
-                    var chromosomes = result.data[0].data;
+                    var chromosomes = result.data;
                     var elements = [];
 
-                    Object.keys(chromosomes).forEach(function(key) {
+                    // Offset to align centromeres
+                    // 1. Chr with max C length defines/anchors relative centromere position; 
+                    //    y.offset =  max(C) - C; 
+                    
+                    var chrMax = chromosomes.reduce(function(p,c){
+                        if(c.c>p.c) p.c=c.c
+                        if(c.l>p.l) p.l=c.l
+                        return p
+                    }, {c: -Infinity, l: -Infinity} )
+                    
+                    var scale = {x : 4, y : 3, factor : 1/10000}
+                    var width = chrMax.l * scale.x/scale.y * scale.factor  
+
+                    Object.keys(chromosomes).forEach(function(key, i) {
                         var chromosome = this.chromosomes[key];
+                        var offset = { y : chrMax.c - chromosome.c,
+                                       x:  (width / chromosomes.length) * i }
+                        
                         this.elements.push({
                             group: "edges",
                             grabbable: false,
@@ -364,8 +377,8 @@
                             locked: true,
                             selectable: false,
                             position: {
-                                x: chromosome.x,
-                                y: chromosome.p
+                                x: offset.x,
+                                y: offset.y
                             },
                             data: {
                                 id: "cp" + key,
@@ -385,8 +398,8 @@
                             locked: true,
                             selectable: false,
                             position: {
-                                x: chromosome.x,
-                                y: chromosome.q
+                                x: offset.x,
+                                y: chromosome.l + offset.y
                             },
                             data: {
                                 id: "cq" + key,
@@ -399,15 +412,15 @@
                                 subType: "unassigned"
                             }
                         });
-                        // Centromere Q
+                        // Centromere 
                         this.elements.push({
                             group: "nodes",
                             grabbable: false,
                             locked: true,
                             selectable: false,
                             position: {
-                                x: chromosome.x,
-                                y: chromosome.c
+                                x: offset.x,
+                                y: chromosome.c + offset.y
                             },
                             data: {
                                 id: key,
@@ -441,8 +454,8 @@
                     html: "",
                     title: ""
                 };
-                vm.optGeneSets = [];
-                vm.optGeneSet = null;
+                vm.genesets = [];
+                vm.geneset = null;
                 vm.optPatientLayouts = [];
                 vm.optPatientLayout = null;
                 vm.showPanelLayout = false;
@@ -559,30 +572,30 @@
                 // Populate Dropdowns + Draw Chromosome
                 //hg19_geneset
                 $q.all([
-                    osApi.query("hg19_geneset", {
-                        type: 'geneset',
+                    osApi.query("lookup_genesets", {
                         $fields: ['name']
                     }),
-                    osApi.query(osApi.getDataSource().dataset + "_cluster", {
-                        $fields: ['input', 'geneset', 'dataType', 'source', 'default']
+                    osApi.query(osApi.getDataSource().dataset + "_collections", {
+                        "category": "cluster",
+                        "d_type": "score",
+                        $fields: ['name','m_type', 'params', 'default']
                     })
 
                 ]).then(function(results) {
 
-                    var layouts = results[1].data.map(function(v) {
-                        v.name = v.dataType + " " + v.input + " " + v.geneset;
-                        return v;
-                    }).sort(function(a, b) {
+                    vm.genesets = results[0].data
+                    // vm.genesets = _.uniq(osApi.getDataSource().edges.map(function(e) { return { name: e.geneset }; }), function(item) { return item.name; });
+                    vm.geneset = mpState.getGeneSet(vm.genesets);
+                    
+                    vm.optPatientLayouts = results[1].data.sort(function(a, b) {
                         var x = a.name.toLowerCase();
                         var y = b.name.toLowerCase();
                         return x < y ? -1 : x > y ? 1 : 0;
                     });
 
-                    vm.optGeneSets = _.uniq(osApi.getDataSource().edges.map(function(e) { return { name: e.geneset }; }), function(item) { return item.name; });
-                    vm.optGeneSet = mpState.getGeneSet(vm.optGeneSets);
-                    vm.optPatientLayouts = layouts;
+                    // TODO : Check default state? 
                     var patientLayout = mpState.getPatientLayout(vm.optPatientLayouts);
-                    vm.optPatientLayout = angular.isDefined(patientLayout) ? patientLayout : layouts[0];
+                    vm.optPatientLayout = angular.isDefined(patientLayout) ? patientLayout : vm.optPatientLayouts[0];
 
                 });
 
@@ -901,36 +914,27 @@
                 return function(cmd) {
 
                     cmd = cmd || "";
-                    var geneset = vm.optGeneSet.name;
+                    var geneset = vm.geneset.name;
 
-                    // Could add ability to select from cBio or UCSC for edges
-                    // var edges = osApi.getDataSource().edges.filter(function(f) {
-                    //     return f.name == this.geneset;
-                    // }, {
-                    //     geneset: geneset
-                    // })[0];
                     var opts = {
                         mode: vm.optCommandMode.name,
                         cmd: cmd,
                         dataset: osApi.getDataSource().dataset,
                         patients: {
-                            data: vm.datasource.clinical.patient,
+                            data: {}, //TODO: vm.datasource.patientMap,
                             layout: vm.optPatientLayout,
                             selected: cyChart.$('node[nodeType="patient"]:selected').map(function(p) {
                                 return p.data().id;
                             })
                         },
                         genes: {
-                            layout: vm.optGeneSet.name,
+                            layout: vm.geneset.name,
                             selected: cyChart.$('node[nodeType="gene"]:selected').map(function(p) {
                                 return p.data().id;
                             })
                         },
                         edges: {
-                            layout: vm.datasource.edges
-                                .filter(function(v) {
-                                    return (v.geneset == this);
-                                }, geneset)[0],
+                            
                             colors: vm.optEdgeColors
                                 .filter(function(f) {
                                     return f.show;
@@ -952,7 +956,7 @@
 
             /*
              *  Watch View Model
-             *  + vm.optGeneSet
+             *  + vm.geneset
              *  + vm.optPatientLayout
              */
             (function(vm, $scope) {
@@ -964,12 +968,12 @@
 
                 // GeneSet
                 watches += 0;
-                $scope.$watch('vm.optGeneSet', function() {
+                $scope.$watch('vm.geneset', function() {
                     if (watches > 0) {
                         watches -= 1;
                         return;
                     }
-                    if (angular.isUndefined(vm.optGeneSet) || angular.isUndefined(vm.optPatientLayout)) return;
+                    if (angular.isUndefined(vm.geneset) || angular.isUndefined(vm.optPatientLayout)) return;
                     osApi.setBusy(true);
                     cyChart.$('edge[edgeType="cn"]').remove();
                     update();

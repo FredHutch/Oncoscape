@@ -1,19 +1,9 @@
 <os-tray content="tray-content-block">
     <section class="tray-content">
         <div class="row">
-            <div class="col-xs-12 form-item">
-                <label>Data Source</label>
-                <div class="input-group">
-                    <div class="dropdown bs-dropdown">
-                        <button class="btn btn-default dropdown-toggle" type="button" id="dropdownMenu1" data-toggle="dropdown" aria-haspopup="true" aria-expanded="true">{{vm.source}}<span class="caret"></span></button>
-                        <ul class="dropdown-menu" aria-labelledby="dropdownMenu1" style="width:260px;">
-                            <li class="markers-command hvr-sweep-to-right" ng-repeat="item in vm.sources" ng-click="vm.source=item">{{item}}</li>
-                        </ul>
-                    </div>
-                    <div class="input-group-addon btn-help-icon"><a href="http://resources.sttrcancer.org/api/#data-content" target="_blank"><i style="color:#000" class="glyphicon glyphicon-question-sign"></i></a></div>
-
-                </div>
-            </div>
+        
+         <div class="col-sm-12" style="background:#FFF;border:1px solid #EAEAEA;padding:5px;margin-top:20px;" >
+            <h3 style="margin-top:5px">1. Choose Input Data </h3>
             <div class="col-xs-12 form-item">
                 <label>Data Type</label>
                 <div class="input-group">
@@ -39,35 +29,62 @@
                 </div>
             </div>
             
-            
-            <div ng-if="vm.legendCaption.length>0" class="col-xs-12 form-item">
-                <label>Patient {{vm.legendCaption}}</label>
-                <div ng-repeat="item in vm.legendNodes" class="legend-bar legend-bar-button" style="border-color:{{item.color}};">{{item.name}}<span id="{{item.id}}" class="legend-count"></span>
-                    <label style="float:right;padding-top:5px;" class="btn-group">
-                        <button tooltip="Deselect" tooltip-placement="left"
-                        ng-click="vm.deselectColor(item)"
-                        class="btn btn-xs btn-default" style="background-color:#47a8d8;color:#FFF;text-shadow: 0 1px rgba(0, 0, 0, 0.2);width:24px;margin-right:1px;"><i class="fa fa-circle-o"></i></button>
-                        <button tooltip="Select" tooltip-placement="left"
-                        ng-click="vm.selectColor(item)"
-                        class="btn btn-xs btn-default" style="background-color:#47a8d8;color:#FFF;text-shadow: 0 1px rgba(0, 0, 0, 0.2);width:24px;margin-left:1px;"><i class="fa fa-dot-circle-o"></i></button>
-                    </label>
+        </div> 
+        
+        <div class="col-sm-12" style="background:#FFF;border:1px solid #EAEAEA;padding:5px;margin-top:20px;" >
+            <h3 style="margin-top:5px">2. Select Viewing Options</h3>
+         
+            <div class="col-xs-12 form-item cohortmenu-hr">
+                <label><b>Highlight Cohort</b></label>
+                <div class="input-group">
+                    <input ng-readonly="vm.cohort.type=='ALL'" style="background:#FFF;border-left-width:10px;border-left-color:{{vm.cohort.color}};" class="form-control" aria-label="Text input with segmented button dropdown" ng-model="vm.cohort.name" onfocus="this.select();">
+                    <div class="input-group-btn">
+                        <button type="button" class="btn btn-default" tooltip="{{vm.cohort.type == 'UNSAVED' ? 'Save Cohort' : 'Delete Cohort'}}" tooltip-placement="left" ng-if="vm.cohort.type!='ALL'" ng-click="vm.updateCohort()">
+                            <span class="fa {{vm.cohort.type == 'UNSAVED' ? 'fa-plus' : 'fa-times'}}" aria-hidden="true"></span>
+                        </button>
+                        <button type="button" class="btn btn-default dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false" tooltip="Change Cohort" tooltip-placement="left"> <span class="caret"></span> <span class="sr-only">Toggle Dropdown</span></button>
+                        <ul class="dropdown-menu dropdown-menu-right" style="width:260px;padding:0px;">
+                            <li class="legend-bar markers-command hvr-sweep-to-right" style="height:25px;border-color:{{item.color}};width:100%;padding-left:10px;" ng-repeat="item in vm.cohorts" ng-click="vm.setCohort(item)">{{item.name}}</li>
+                        </ul>
+                    </div>
                 </div>
             </div>
+            
             <div class="col-xs-12 form-item">
-                <label>Patient</label>
-                <button class="btn btn-default btn-no-focus" type="button" style="width:100%;font-weight: 300;" ng-click="vm.showPanelColor = true">Color Options</button>
+                <div class="legend-bar-container">
+                    <label style="margin:10px"><b>Color by:</b> {{vm.legendCaption}}</label>
+                    <button class="btn btn-default btn-no-focus" type="button" style="float:right; border:white" ng-click="vm.showPanelColor = true"><span class="fa fa-pencil"></span></button>
+                    <div ng-repeat="item in vm.legendNodes" class="legend-bar legend-bar-button" style="border-color:{{item.color}}">{{item.name}}<span id="{{item.id}}" class="legend-count"></span>
+                        <label style="float:right;padding-top:5px;" class="btn-group">
+                            <button tooltip="Deselect" tooltip-placement="left"
+                            ng-click="vm.deselectColor(item)"
+                            class="btn btn-xs btn-default" style="background-color:#47a8d8;color:#FFF;text-shadow: 0 1px rgba(0, 0, 0, 0.2);width:24px;margin-right:1px;"><i class="fa fa-circle-o"></i></button>
+                            <button tooltip="Select" tooltip-placement="left"
+                            ng-click="vm.selectColor(item)"
+                            class="btn btn-xs btn-default" style="background-color:#47a8d8;color:#FFF;text-shadow: 0 1px rgba(0, 0, 0, 0.2);width:24px;margin-left:1px;"><i class="fa fa-dot-circle-o"></i></button>
+                        </label>
+                    </div>
+                </div>
             </div>
-            <div class="col-xs-12 form-item">
-                <label>Variance Explained</label>
-                <div>
-                    
+            
+        </div>
+
+            <!-- <div class="col-xs-12 form-item">
+                <label>Scree Plot (Percent Variance Explained)</label>
+                <div  class="collapse in" style="background:#FFF;border:1px solid #EAEAEA;padding:5px;" >
+                    <div id="screeplot"></div>
                 </div>
             </div>
 
             <div class="col-xs-12 form-item">
-                <label>Loadings</label>
-                
-            </div>
+                <label>Top Ranked Loadings </label>
+                <div  class="collapse in" style="background:#FFF;border:1px solid #EAEAEA;padding:5px;" >
+                    <div>
+                        <div style="display:inline-block; " id="loadings"></div>
+                        <div style="display:inline-block; " id="loadings-legend"></div>
+                    </div>
+                </div>
+            </div> -->
         </div>
     </section>
 </os-tray>

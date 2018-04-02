@@ -56,9 +56,6 @@ var state = {
 // Load Data
 var data = (function() {
 
-
-
-
     function convertRange(value, r1, r2) {
         return (value - r1[0]) * (r2[1] - r2[0]) / (r1[1] - r1[0]) + r2[0];
     }
@@ -385,12 +382,12 @@ var data = (function() {
             var update = {
                 patientData: (state.options.patients.data != options.patients.data),
                 patientLayout: (state.options.patients.layout.name != options.patients.layout.name),
-                edges: (state.options.edges.layout.geneset != options.edges.layout.geneset),
+                edges: (state.options.edges.layout != options.edges.layout),
                 genes: (state.options.genes.layout != options.genes.layout)
             };
 
             // Nothing? Return
-            if (!update.patientData && !update.patientLayout && !update.patients && !update.edges && !update.genes) {
+            if (!update.patientData && !update.patientLayout  && !update.edges && !update.genes) {
                 resolve({
                     state: state,
                     update: update
@@ -402,9 +399,9 @@ var data = (function() {
             var promises = [
 
                 request({
-                    table: options.patients.data,
+                    table: options.dataset + "_subject",
                     query: {
-                        $fields: ['patient_ID', 'gender', 'race', 'age_at_diagnosis', 'status_vital']
+                        $fields: ['s','pt', 'gender', 'race', 'age_at_diagnosis', 'status_vital']
                     }
                 }, !update.patientData ? state.patientData : null, formatPatientData),
 
@@ -419,48 +416,12 @@ var data = (function() {
                 }, !update.patientData ? state.patients : null, formatPatientNodes),
 
                 request({
-                    table: options.dataset + "_cluster",
+                    table: 'lookup_gene_pos',
                     query: {
-                        source: options.patients.layout.source,
-                        geneset: options.patients.layout.geneset,
-                        dataType: options.patients.layout.dataType,
-                        input: options.patients.layout.input
-                    }
-                }, !update.patientLayout ? state.patients : null, formatPatientLayout),
-
-                request({
-                    table: 'hg19_geneset',
-                    query: {
-                        name: options.genes.layout
+                        gene_name: {$in : options.genes.layout}
                     }
                 }, !update.genes ? state.genes : null, formatGeneNodes),
 
-                request({
-                    table: options.dataset + "_network",
-                    query: {
-                        geneset: options.genes.layout,
-                        dataType: 'edges',
-                        default: true
-                    }
-                }, !update.genes ? state.edges : null, formatEdgeNodes),
-
-                request({
-                    table: options.dataset + "_network",
-                    query: {
-                        geneset: options.genes.layout,
-                        dataType: 'genedegree',
-                        default: true
-                    }
-                }, !update.genes ? state.edgeGenes : null, formatEdgeGenes),
-
-                request({
-                    table: options.dataset + "_network",
-                    query: {
-                        geneset: options.genes.layout,
-                        dataType: 'ptdegree',
-                        default: true
-                    }
-                }, !update.genes ? state.edgePatients : null, formatEdgePatients)
             ];
 
             Promise.all(promises).then(function(data) {

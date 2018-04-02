@@ -20,7 +20,7 @@
         return directive;
 
         /** @ngInject */
-        function CohortMenuController(osApi, $state, $scope, $sce, $timeout, $rootScope, $filter, d3) {
+        function CohortMenuController(osApi,osWidget, $state, $scope, $sce, $timeout, $rootScope, $filter, d3) {
 
 
             // View Model
@@ -30,15 +30,52 @@
             vm.cohortFeatures = [];
             vm.cohortFeature = null;
             vm.cohortSummary = "";
+            vm.suppFigures = []
+
+            osApi.onAddSuppFigure.add(function(options) {
+                vm.suppFigures.push(options);                
+                var container = d3.select("#SuppFigs").append("div")
+                    .attr("class", "col-xs-12 form-item")
+                    container.append("label").attr("class", "cohortmenu-toggle-btn")
+                    .attr("tooltip",'Show / Hide').html(options.title)
+                    .append("i").attr("class", "fa fa-angle-down")
+
+                    container.append("div").attr("class", "collapse in")
+                    .attr("style", "background:#FFF;border:1px solid #EAEAEA;padding:5px;")
+                    .append("div").attr("id", options.container)
+                //osWidget.makePlot(options);
+                
+            });
+
+            $scope.$watch('vm.suppFigures.length', function() {
+                for(var i=0; i< vm.suppFigures.length; i++){
+                    osWidget.makePlot(vm.suppFigures[i]);
+                }
+            })
 
             // Cohort Service Integration
             osApi.onCohortsChange.add(function(cohorts) {
                 vm.cohorts = cohorts;
                 updateSurvival(cohorts);
             });
+            osApi.onCohortToolInfo.add(function(toolInfo){
+                var dataInfo = osApi.getCohortDatasetInfo();
+                var cohort = osApi.getCohort();
+                vm.cohortSummary = [{ name: "in dataset", value: [
+                                        {name: "samples", value: dataInfo.numSamples},
+                                        {name: "patients", value :dataInfo.numPatients}]
+                                    } ,{name: "in cohort", value: [
+                                           {name: "samples", value: cohort.numSamples},
+                                            {name:"patients",  value: cohort.numPatients} ]
+                                    },{name: "in view", value: [
+                                        {name: "samples", value: toolInfo.numSamples},
+                                         {name:"patients",  value: toolInfo.numPatients} ]
+                                 }]
+                })
             osApi.onCohortChange.add(function(cohort) {
 
                 var dataInfo = osApi.getCohortDatasetInfo();
+                var toolInfo = osApi.getCohortToolInfo();
                 var cohortSurvival = cohort.survival == null ? 0 : cohort.survival.data.tte.length;
                 vm.cohortSummary = [{ name: "in dataset", value: [
                                         {name: "samples", value: dataInfo.numSamples},
@@ -46,11 +83,12 @@
                                     } ,{name: "in cohort", value: [
                                            {name: "samples", value: cohort.numSamples},
                                             {name:"patients",  value: cohort.numPatients} ]
-                                    }]
+                                    },{name: "in view", value: [
+                                        {name: "samples", value: toolInfo.numSamples},
+                                         {name:"patients",  value: toolInfo.numPatients} ]
+                                 }]
                 
-                //$filter('number')(toolInfo.numSamplesVisible) + " Samples In Current Cohort Showing<br />" +
-                //$filter('number')(toolInfo.numPatients) + " Patients In Current Cohort Showing<br />";
-
+                
                 if (angular.isUndefined(cohort)) return;
                 $timeout(function() {
                     var featureIdx = (vm.cohortFeature !== null) ? vm.cohortFeatures.indexOf(vm.cohortFeature) : 0;
@@ -87,8 +125,8 @@
             // Tray Expand / Collapse
             var elTray = angular.element(".cohort-menu");
             var isLocked = true;
-            var mouseOver = function() { elTray.removeClass("tray-collapsed-left"); };
-            var mouseOut = function() { elTray.addClass("tray-collapsed-left"); };
+            var mouseOver = function() { elTray.removeClass("tray-collapsed"); };
+            var mouseOut = function() { elTray.addClass("tray-collapsed"); };
             vm.toggle = function() {
                 isLocked = !isLocked;
                 angular.element("#cohortmenu-lock")
@@ -99,10 +137,10 @@
                     elTray
                         .unbind("mouseover", mouseOver)
                         .unbind("mouseout", mouseOut)
-                        .removeClass("tray-collapsed-left");
+                        .removeClass("tray-collapsed");
                 } else {
                     elTray
-                        .addClass("tray-collapsed-left")
+                        .addClass("tray-collapsed")
                         .bind("mouseover", mouseOver)
                         .bind("mouseout", mouseOut);
                 }

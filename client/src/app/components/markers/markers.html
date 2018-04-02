@@ -44,11 +44,11 @@
                 <div class="input-group">
                     <div class="dropdown bs-dropdown">
                         <button class="btn btn-default dropdown-toggle" type="button" id="dropdownMenu1" data-toggle="dropdown" aria-haspopup="true" aria-expanded="true" style="padding-right:30px;">
-                        {{vm.optGeneSet.name}}
+                        {{vm.geneset.name}}
                         <span class="caret"></span>
                     </button>
                         <ul class="dropdown-menu" aria-labelledby="dropdownMenu1" style="width:100%">
-                            <li class="markers-command hvr-sweep-to-right" ng-repeat="item in vm.optGeneSets" ng-click="vm.optGeneSet=item">{{item.name}}</li>
+                            <li class="markers-command hvr-sweep-to-right" ng-repeat="item in vm.genesets" ng-click="vm.geneset=item">{{item.name}}</li>
                         </ul>
                     </div>
 

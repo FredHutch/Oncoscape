@@ -1,9 +1,11 @@
 // Namespace
 .tray {
     position: fixed;
-    right: 0px;
+    left: auto;
+    right: auto;
     width: 300px;
     height: 100%;
+    min-width: 300px;
     margin-right: 0px;
     margin-top: 0px;
     overflow-y: auto;
@@ -22,10 +24,19 @@
 }
 
 .tray-left {
-    right: auto;
     left: 0px;
     box-shadow: $box-shaddow;
     border: solid 0px $color-gray-light;
+}
+
+.tray-right {
+    /* W3C, IE 10+/ Edge, Firefox 16+, Chrome 26+, Opera 12+, Safari 7+ */
+    right: 0px;
+    left:auto;
+    margin-left: 0px;
+    a:hover {
+        text-decoration: none;
+    }
 }
 
 //.tray:hover { overflow-y:auto; }
@@ -40,14 +51,18 @@
 }
 
 .tray-collapsed {
-    margin-right: -280px !important;
     background-color: rgba(255, 255, 255, 0) !important;
+    margin-right: -280px !important;
+    margin-left: -280px !important;
+}
+.tray-collapsed-right {
+    margin-left: -280px !important;
 }
 
 .tray-collapsed-left {
-    margin-left: -280px !important;
-    background-color: rgba(255, 255, 255, 0) !important;
+    margin-right: -280px !important;
 }
+
 
 .tray-content-block {
     width: 100%;

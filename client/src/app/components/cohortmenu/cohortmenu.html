@@ -1,20 +1,24 @@
 <div id="cohortMenu" style="display:none">
-    <label class="tray-label tray-label-left"><i class="fa fa-chevron-right" aria-hidden="true"></i></label>
-    <div class="cohort-menu tray tray-left">
+    <label class="tray-label tray-label-right"><i class="fa fa-chevron-right" aria-hidden="true"></i></label>
+    <div class="cohort-menu tray tray-right">
+        <label><h3 style="margin-top:10px"><b>Supplemental Figures</b></h3></label>
         <section>
             <div class="row">
-                <div class="col-xs-12 form-item cohortmenu-hr">
-                    <label>Selected Cohort</label>
-                    <div class="input-group">
-                        <input ng-readonly="vm.cohort.type=='ALL'" style="background:#FFF;border-left-width:10px;border-left-color:{{vm.cohort.color}};" class="form-control" aria-label="Text input with segmented button dropdown" ng-model="vm.cohort.name" onfocus="this.select();">
-                        <div class="input-group-btn">
-                            <button type="button" class="btn btn-default" tooltip="{{vm.cohort.type == 'UNSAVED' ? 'Save Cohort' : 'Delete Cohort'}}" tooltip-placement="left" ng-if="vm.cohort.type!='ALL'" ng-click="vm.updateCohort()">
-                                <span class="fa {{vm.cohort.type == 'UNSAVED' ? 'fa-plus' : 'fa-times'}}" aria-hidden="true"></span>
-                            </button>
-                            <button type="button" class="btn btn-default dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false" tooltip="Change Cohort" tooltip-placement="left"> <span class="caret"></span> <span class="sr-only">Toggle Dropdown</span></button>
-                            <ul class="dropdown-menu dropdown-menu-right" style="width:260px;padding:0px;">
-                                <li class="legend-bar markers-command hvr-sweep-to-right" style="height:25px;border-color:{{item.color}};width:100%;padding-left:10px;" ng-repeat="item in vm.cohorts" ng-click="vm.setCohort(item)">{{item.name}}</li>
-                            </ul>
+                <div class="col-xs-12 form-item">
+                    <label class="cohortmenu-toggle-btn" data-toggle="collapse" data-target="#cohortmenu-summary-box" tooltip="Show / Hide" tooltip-placement="right">Cohort Summary <i class="fa fa-angle-down" aria-hidden="true"></i></label>
+                    <div id="cohortmenu-summary-box" class="collapse in" style="background:#FFF;border:1px solid #EAEAEA;padding:5px;" >
+                        <div class="row">
+                            <div class="col-sm-4"></div>
+                            <div class="col-sm-4"># samples</div>
+                            <div class="col-sm-4"># patients</div>
+                        </div>
+                        <div ng-repeat="item in vm.cohortSummary">
+                            <div class="row">
+                                <div class="col-sm-4">{{item.name}}</div>
+                                <div ng-repeat="vals in item.value">
+                                    <div class="col-sm-4">{{vals.value}}</div>
+                                </div>
+                            </div>
                         </div>
                     </div>
                 </div>
@@ -46,25 +50,18 @@
                         </div>
                     </div>
                 </div>
-                <div class="col-xs-12 form-item">
-                    <label class="cohortmenu-toggle-btn" data-toggle="collapse" data-target="#cohortmenu-summary-box" tooltip="Show / Hide" tooltip-placement="right">Cohort Summary <i class="fa fa-angle-down" aria-hidden="true"></i></label>
-                    <div id="cohortmenu-summary-box" class="collapse in" style="background:#FFF;border:1px solid #EAEAEA;padding:5px;" >
-                        <div class="row">
-                            <div class="col-sm-4"></div>
-                            <div class="col-sm-4"># samples</div>
-                            <div class="col-sm-4"># patients</div>
-                        </div>
-                        <div ng-repeat="item in vm.cohortSummary">
-                            <div class="row">
-                                <div class="col-sm-4">{{item.name}}</div>
-                                <div ng-repeat="vals in item.value">
-                                    <div class="col-sm-4">{{vals.value}}</div>
+                <div id="SuppFigs">
+                    <!-- <div ng-repeat="item in vm.suppFigures">
+                        <div class="col-xs-12 form-item cohortmenu-hr">
+                                <label class="cohortmenu-toggle-btn" data-toggle="collapse" data-target="#cohortmenu-suppFig" tooltip="Show / Hide" tooltip-placement="right">{{item.title}} <i class="fa fa-angle-down" aria-hidden="true"></i></label>
+                                <div id={{item.html}} class="collapse in" style="background:#FFF;border:1px solid #EAEAEA;">
+                                   
                                 </div>
                             </div>
                         </div>
-                    </div>
+                    </div> -->
                 </div>
-                <div id="cohortmenu-legand"></div>
+
             </div>
             <i id="cohortmenu-lock" class="fa fa-lock tray-sticky-icon" ng-click="vm.toggle()" locked="true" tooltip="Show / Hide" tooltip-placement="left"></i>
         </section>
