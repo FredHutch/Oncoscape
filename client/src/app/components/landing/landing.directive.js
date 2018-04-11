@@ -35,7 +35,7 @@
             };
 
             vm.getStarted = function() {
-                $state.go("userdatasource");
+                $state.go("datasource");
             };
         }
     }

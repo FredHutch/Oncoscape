@@ -39,14 +39,13 @@
             osApi.onCohortChange.add(function(cohort) {
 
                 var dataInfo = osApi.getCohortDatasetInfo();
-                var cohortSurvival = cohort.survival == null ? 0 : cohort.survival.data.tte.length;
                 var summary =
                     $filter('number')(dataInfo.numSamples) + " Samples In Dataset<br /> " +
                     $filter('number')(dataInfo.numPatients) + " Patients In Dataset<br /> " +
                     $filter('number')(cohort.numSamples) + " Samples In Current Cohort<br /> " +
                     $filter('number')(cohort.numPatients) + " Patients In Current Cohort<br />" +
                     $filter('number')(cohort.numClinical) + " Patients with Clinical Data<br />" +
-                    $filter('number')(cohortSurvival) + " Patients with Survival Outcome<br />";
+                    $filter('number')(cohort.survival.data.tte.length) + " Patients with Survival Outcome<br />";
                 //$filter('number')(toolInfo.numSamplesVisible) + " Samples In Current Cohort Showing<br />" +
                 //$filter('number')(toolInfo.numPatients) + " Patients In Current Cohort Showing<br />";
 
@@ -79,6 +78,30 @@
                 }
             };
 
+            // Tray Expand / Collapse
+            var elTray = angular.element(".cohort-menu");
+            var isLocked = true;
+            var mouseOver = function() { elTray.removeClass("tray-collapsed-left"); };
+            var mouseOut = function() { elTray.addClass("tray-collapsed-left"); };
+            vm.toggle = function() {
+                isLocked = !isLocked;
+                angular.element("#cohortmenu-lock")
+                    .addClass(isLocked ? 'fa-lock' : 'fa-unlock-alt')
+                    .removeClass(isLocked ? 'fa-unlock-alt' : 'fa-lock')
+                    .attr("locked", isLocked ? "true" : "false");
+                if (isLocked) {
+                    elTray
+                        .unbind("mouseover", mouseOver)
+                        .unbind("mouseout", mouseOut)
+                        .removeClass("tray-collapsed-left");
+                } else {
+                    elTray
+                        .addClass("tray-collapsed-left")
+                        .bind("mouseover", mouseOver)
+                        .bind("mouseout", mouseOut);
+                }
+                osApi.onResize.dispatch();
+            };
 
             // Histogram 
             var histSvg = d3.select("#cohortmenu-chart").append("svg")
@@ -213,9 +236,6 @@
             surSvg.attr("width", '100%').attr("height", surLayout.height);
 
             var updateSurvival = function(cohorts) {
-
-                cohorts = cohorts.filter(function(c){return c.survival != null})
-                if(cohorts.length == 0) return;
 
                 var xDomain = cohorts.reduce(function(p, c) {
                     p[0] = Math.min(p[0], c.survival.compute[0].t);

@@ -15,15 +15,14 @@
             controllerAs: 'vm',
             bindToController: true,
             scope: {
-                close: "&",
-                change: "&"
+                close: "&"
             }
         };
 
         return directive;
 
         /** @ngInject */
-        function ColorPanelController(osApi, d3, _, $timeout) {
+        function ColorPanelController(osApi, d3, _) {
 
             // Properties
             var vm = this;
@@ -33,68 +32,54 @@
             vm.colorBins = [2, 3, 4, 5, 6, 7, 8].map(function(v) { return { name: v + " Bins", value: v }; });
             vm.colorBin = vm.colorBins[2];
             vm.colorOptions = osApi.getDataSource().colors;
-            vm.colorFields = {}
 
             if (angular.isDefined(vm.colorOptions)) {
                 if (vm.colorOptions.length !== 0) vm.colorOption = vm.colorOptions[0];
             }
 
-            var activeDatasets = [osApi.getDataSource().dataset]
-            // Import saved colors
 
-            
-            var promises = activeDatasets.map(function(ds){
-                return new Promise(function(resolve, reject) {
-                    osApi.query(ds+ "_color",{
-                        dataset: ds,
-                        $fields: ['name', 'subtype']
-                    }).then(function(v) {
+            var tbl = osApi.getDataSource().category.filter(function(v) {
+                return v.type == 'color';
+            })[0].collection;
 
-                        // attach dataset inclusion to Fields
-                        var regx = /(\d+%)/i;
-                        vm.colorFields = v.data.reduce(function(p, c) {
-                            name = c.name.substr(0,c.name.match(regx).index-2)
+            osApi.query(tbl, {
+                type: 'color',
+                dataset: osApi.getDataSource().disease,
+                $fields: ['name', 'subtype']
+            }).then(function(v) {
 
-                            if (!p.hasOwnProperty(name)) p[name] = [];
-                            p[name].push(ds);
-                            return p;
-                        }, vm.colorFields);
-    
-                        var data = Object.keys(vm.colorFields).reduce(function(p,c) {
-                            var group = vm.colorFields[c].join(" + ")
-                            if(!p.hasOwnProperty(group)) p[group] = []
-                            p[group].push(c)
-                            return p
-                           }, {}) ;
-                           
-                        vm.optPatientColors = Object.keys(data).map(function(key){
-                            return {
-                                name: key,
-                                values: data[key].map(function(d){ return {"name":d}})
-                                    .sort(function(a, b) {
-                                        if (a.name > b.name) return 1;
-                                        if (a.name < b.name) return -1;
-                                        return 0;
-                                    })
-                            };
-                        } )
+                var data = v.data.reduce(function(p, c) {
+                    if (!p.hasOwnProperty(c.subtype)) p[c.subtype] = [];
+                    p[c.subtype].push(c);
+                    return p;
+                }, {});
 
-                        resolve();
-                    })
-                })
-            })
+                var regx = /(\d+%)/i;
+                vm.optPatientColors = Object.keys(data).map(function(key) {
+                    return {
+                        name: key,
+                        values: this[key]
+                            .filter(function(v) {
+                                var result = v.name.match(regx);
+                                if (result === null) return true;
+                                // 30% Threashold
+                                if (parseInt(result[0]) > 10) return true;
+                            })
+                            .sort(function(a, b) {
+                                if (a.name > b.name) return 1;
+                                if (a.name < b.name) return -1;
+                                return 0;
+                            })
+                    };
+                }, data);
 
-             Promise.all( promises )
-            
-
-           
-            
-                
+            });
             vm.resetColor = function() {
-                
                 osApi.setPatientColor({
-                    "name": "Dataset",
-                    "data": [ ],
+                    "dataset": osApi.getDataSource().disease,
+                    "type": "color",
+                    "name": "None",
+                    "data": [],
                     show: true
                 });
             };
@@ -104,60 +89,44 @@
                 vm.close();
                 if (item.name == "None") {
                     osApi.setPatientColor({
-                        "name": "Dataset",
+                        "dataset": osApi.getDataSource().disease,
+                        "type": "color",
+                        "name": "None",
                         "data": [],
                         show: true
                     });
                     return;
                 }
 
-                var fulldata = {data:[], name: item.name}
-                var promises = activeDatasets.map(function(ds){
-                    return new Promise(function(resolve, reject) {
-                        osApi.query(ds+ "_color",{
-                            name: item.name
-                        }, {data:1}).then(function(v) {
-                            var data = v.data[0];
-                            data.data = data.data.map(function(v) {
-                                var name = v.name.toLowerCase().trim();
-                                if (name === "" || name == "null" || angular.isUndefined(name)) {
-                                    v.name = "Null";
-                                    v.color = "#DDDDDD";
-                                }
-                                v.id = "legend-" + v.color.substr(1);
-                                return v;
-                            }).sort(function(a, b) {
-                                var aname = (isNaN(a.name)) ? a.name : parseInt(a.name);
-                                var bname = (isNaN(b.name)) ? b.name : parseInt(b.name);
-                                if (aname < bname) return -1;
-                                if (aname > bname) return 1;
-                                if (a.name == "Null") return 1;
-                                if (b.name == "Null") return -1;
-                                return 0;
-                            });
+                osApi.query(tbl, {
+                    type: 'color',
+                    dataset: osApi.getDataSource().disease,
+                    name: item.name
+                }).then(function(v) {
+                    var data = v.data[0];
+                    data.data = data.data.map(function(v) {
+                        var name = v.name.toLowerCase().trim();
+                        if (name === "" || name == "null" || angular.isUndefined(name)) {
+                            v.name = "Null";
+                            v.color = "#DDDDDD";
+                        }
+                        v.id = "legend-" + v.color.substr(1);
+                        return v;
+                    }).sort(function(a, b) {
+                        var aname = (isNaN(a.name)) ? a.name : parseInt(a.name);
+                        var bname = (isNaN(b.name)) ? b.name : parseInt(b.name);
+                        if (aname < bname) return -1;
+                        if (aname > bname) return 1;
+                        if (a.name == "Null") return 1;
+                        if (b.name == "Null") return -1;
+                        return 0;
+                    });
 
-                            fulldata.data = data.data.reduce(function(p,c){
-                                var t = p.filter(function(d){ return d.name == c.name}) 
-                                if (t.length == 0){ p.push(c)}
-                                else { p.values.concat(c.values)}
-                                return p;
-                            }, fulldata.data)
-        
-                            // debugger;
-                            osApi.setPatientColor(fulldata);
-                            osApi.setBusy(false);
-                            vm.close();
-                            
-
-                        })
-                    })
-                })
-                Promise.all( promises ).then(function(){
-                    osApi.setPatientColor(fulldata);
+                    // debugger;
+                    osApi.setPatientColor(v.data[0]);
                     osApi.setBusy(false);
                     vm.close();
-                })   
-
+                });
             };
             vm.setGeneColor = function() {
                 var genes = ("+" + vm.geneColor.replace(/\s/g, '').toUpperCase()).match(/[-+]\w*/gi).map(function(v) {
@@ -326,7 +295,7 @@
                             });
 
                             colors = {
-                                dataset: osApi.getDataSource().dataset,
+                                dataset: osApi.getDataSource().disease,
                                 type: 'color',
                                 name: genes.reduce(function(p, c) {
                                     p += c.op + c.gene + " ";

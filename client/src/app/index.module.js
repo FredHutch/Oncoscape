@@ -20,7 +20,6 @@
             'ui.grid.pinning',
             'ui.grid.grouping',
             'ui.grid.autoResize',
-            'ui-rangeSlider',
             'toastr'
         ]);
 

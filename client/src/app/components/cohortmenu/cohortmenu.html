@@ -1,5 +1,6 @@
-<div id="cohortMenu" style="display:block">
-     <div class="cohort-menu">
+<div id="cohortMenu" style="display:none">
+    <label class="tray-label tray-label-left"><i class="fa fa-chevron-right" aria-hidden="true"></i></label>
+    <div class="cohort-menu tray tray-left">
         <section>
             <div class="row">
                 <div class="col-xs-12 form-item cohortmenu-hr">
@@ -51,7 +52,7 @@
                 </div>
                 <div id="cohortmenu-legand"></div>
             </div>
-           
+            <i id="cohortmenu-lock" class="fa fa-lock tray-sticky-icon" ng-click="vm.toggle()" locked="true" tooltip="Show / Hide" tooltip-placement="left"></i>
         </section>
     </div>
 </div>

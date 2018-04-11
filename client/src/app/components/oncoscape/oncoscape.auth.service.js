@@ -13,19 +13,12 @@
         var onLogout = new signals.Signal(); // Fired When Selection changes
 
         // User Object
-        var _user = null;
+        var user = null;
         var getUser = function() {
-            return _user;
-        };
-        var _datasets = null;
-        var getDatasets = function() {
-            return _datasets;
-        };
-        var setDatasets = function(datasets) {
-            _datasets = datasets;
+            return user;
         };
         var isAuthenticated = function() {
-            return _user != null;
+            return user != null;
         };
 
         // Authentication Sources
@@ -38,9 +31,7 @@
             id: 'google',
             name: 'Google',
             icon: 'fa fa-google-plus',
-            // key: '428912153446-7c82srcvu1bk1nramiqqctne005epl6s.apps.googleusercontent.com',
-            //key: '1098022410981-p7n5ejjji8qlvdtff274pol54jo5i8ks.apps.googleusercontent.com',
-            key: '459144121975-lp2p5kahpqahm2gffgtl31vv0nes9hj4.apps.googleusercontent.com',
+            key: '428912153446-7c82srcvu1bk1nramiqqctne005epl6s.apps.googleusercontent.com',
             mode: 'implicit'
         }, {
             id: 'linkedin',
@@ -105,7 +96,7 @@
         };
 
         var loginGuest = function() {
-            _user = {
+            user = {
                 network: 'guest',
                 id: 'x',
                 name: 'Guest',
@@ -117,30 +108,26 @@
         }
         var login = function(source) {
             if (source.id == 'guest') {
-                _user = {
+                user = {
                     network: 'guest',
                     id: 'x',
                     name: 'Guest',
                     thumb: 'Guest.png'
                 };
-            
-                onLogin.dispatch();
-                
+                osApi.init().then(function() {
+                    onLogin.dispatch();
+                });
                 return;
             }
             auth().login(source.id, {
-                // response_type: 'code',
-                display: 'popup',
-                response_type: 'token',
-                scope: 'email',
-                force: true
+                response_type: 'code',
+                display: 'page',
+                force: false,
+                scope: "email"
             });
-            onLogin.dispatch();
         };
 
         var logout = function() {
-            _user = null
-            _datasets = null;
             auth().logout(authSource, {
                 force: false
             }, onLogout.dispatch);
@@ -152,8 +139,7 @@
                 return prev;
             }, {}), {
                 oauth_proxy: '/api/auth',
-                redirect_uri:'/'
-                //redirect_uri: 'https://dev.oncoscape.sttrcancer.io/'
+                redirect_uri: 'https://dev.oncoscape.sttrcancer.io/'
             }
         );
 
@@ -161,15 +147,14 @@
             osApi.setBusy();
             authSource = e.network;
             auth(authSource).api("/me", "get", null, function(e) {
-                _user = {
+                user = {
                     network: authSource,
                     id: e.id,
                     name: e.name,
-                    thumb: e.thumbnail,
-                    email: e.email
+                    thumb: e.thumbnail
                 };
-                osApi.init().then(function() {    
-                    onLogin.dispatch(_user);
+                osApi.init().then(function() {
+                    onLogin.dispatch();
                 });
             });
         });
@@ -179,8 +164,6 @@
             loginGuest: loginGuest,
             getUser: getUser,
             getAuthSources: getAuthSources,
-            setDatasets : setDatasets,
-            getDatasets : getDatasets,
             login: login,
             logout: logout,
             onLogin: onLogin,

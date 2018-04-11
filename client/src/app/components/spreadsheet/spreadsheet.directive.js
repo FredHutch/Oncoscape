@@ -19,12 +19,11 @@
         return directive;
 
         /** @ngInject */
-        function SpreadsheetController(osApi, $state, $timeout, $scope, moment, $stateParams, _, $, $q, $window, uiGridConstants, saveAs, $interval) {
+        function SpreadsheetController(osApi, $state, $timeout, $scope, moment, $stateParams, _, $, $q, $window, uiGridConstants, saveAs) {
 
             // Loading ...
             osApi.setBusy(true);
-
-            var selectHandler;
+            var cohortName = ''
 
             // View Model
             var vm = this;
@@ -45,23 +44,34 @@
                 elGrid.style["margin-right"] = mr + "px";
                 elGrid.style.width = ($window.innerWidth - ml - mr - 2) + "px";
                 elGrid.style.height = ($window.innerHeight - 140) + "px";
-                $timeout(function(){ vm.gridApi.grid.handleWindowResize()})
-                // $interval( function() {
-                //     vm.gridApi.core.handleWindowResize();
-                //   }, 500, 10);
+                vm.gridApi.core.handleWindowResize();
             };
-            vm.collections = [{path:"", name:"patient"}].concat(osApi.getData().wrapper.events)
-            vm.collection = vm.collections[0]    
-            
+            vm.collections = Object.keys(osApi.getDataSource().clinical)
+                .map(function(key) {
+                    var v = this.data[key];
+                    return {
+                        name: key,
+                        collection: v
+                    };
+                }, {
+                    data: osApi.getDataSource().clinical
+                }).filter(function(o) {
+                    return (o.name != "events" && o.name != "samplemap");
+                });
+
+
+            vm.collection = vm.collections.reduce(function(p, c) {
+                if (c.name == "patient") p = c;
+                return p;
+            }, vm.collections[0]);
             vm.options = {
                 treeRowHeaderAlwaysVisible: false,
                 enableSelectionBatchEvent: false,
                 enableGridMenu: false,
                 enableSelectAll: true,
-                enableColumnMenu: true,
                 onRegisterApi: function(gridApi) {
                     vm.gridApi = gridApi;
-                    selectHandler = gridApi.selection.on.rowSelectionChanged($scope, _.debounce(rowSelectionChange, 300));
+                    gridApi.selection.on.rowSelectionChanged($scope, _.debounce(rowSelectionChange, 300));
                 }
             };
             vm.exportCsv = function(type) {
@@ -78,8 +88,10 @@
                         data += "\"" + datum.join("\",\"") + "\"\n";
                     });
 
+                var ds = osApi.getDataSource();
+                var fileName = ds.source + '-' + ds.name + '-' + cohortName.toLowerCase() + '.csv'.replace(/\s/g, '_');
                 var blob = new Blob([data], { type: 'text/csv;charset=windows-1252;' });
-                saveAs(blob, 'oncoscape.csv');
+                saveAs(blob, fileName);
 
             };
             vm.showColumns = function() {
@@ -108,23 +120,20 @@
             };
 
             var selectedIds = [];
-
-
-            var supressEvents = false;
-
+            var supressCohortEvent = true;
             var rowSelectionChange = function() {
 
-                if (supressEvents) return;
                 selectedIds = vm.gridApi.grid.api.selection.getSelectedRows().map(function(v) { return v.patient_ID; });
-
-
-                osApi.onCohortChange.remove(onCohortChange);
+                if(supressCohortEvent){
+                    supressCohortEvent = false;
+                    return;
+                } 
+                
                 if (selectedIds.length == vm.options.data.length || selectedIds.length == 0) {
                     osApi.setCohort([], osApi.ALL, osApi.PATIENT);
                 } else {
-                    osApi.setCohort(_.unique(selectedIds), "Spreadsheet", osApi.PATIENT);
+                    osApi.setCohort(selectedIds, "Spreadsheet", osApi.PATIENT);
                 }
-                osApi.onCohortChange.add(onCohortChange);
             };
 
             // Initialize
@@ -135,8 +144,8 @@
 
             // App Event :: Cohort Change
             var onCohortChange = function(cohort) {
-                selectHandler();
-
+                cohortName = cohort.name
+                supressCohortEvent = true
 
                 vm.gridApi.grid.api.selection.clearSelectedRows();
                 selectedIds = cohort.patientIds;
@@ -144,36 +153,21 @@
                     return selectedIds.indexOf(v.patient_ID) != -1;
                 });
                 selected.forEach(function(i) { vm.gridApi.grid.api.selection.selectRow(i); });
-                selectHandler = vm.gridApi.selection.on.rowSelectionChanged($scope, _.debounce(rowSelectionChange, 300));
-
-
             };
             osApi.onCohortChange.add(onCohortChange);
 
             // Setup Watches
             $scope.$watch("vm.collection", function() {
                 osApi.setBusy(true);
-                var query = vm.collection.path == "" ? {} : {$fields: [vm.collection.path]}
-                // var fields = "{'".concat(vm.collection.path, "':1, _id:0}")
-                // if (vm.collection.path == "") 
-                //     fields = vm.collections.map(function(c){return c.path}).filter(function(p){return p != ""}).reduce(function(p, c){ return p.concat("'",c,"': 0,") }, "{").concat("_id:0}")
-                osApi.query(osApi.getDataSource().dataset + "_phenotype", query)
+                osApi.query(vm.collection.collection)
                     .then(function(response) {
                         angular.element(".ui-grid-icon-menu").text("Columns");
-                        var sheet = response.data
-                        if(vm.collection.path ==""){
-                            sheet = sheet.map(function(d){ return _.omit(d, _.pluck(vm.collections, "path"))})
-                        }else{
-                            sheet = _.flatten(sheet.map(function(d){ return d[vm.collection.path]}))
-                                    .filter(function(d){return angular.isDefined(d)})
-                        }
-
-                        var cols = Object.keys(sheet[0]) //.filter(function(d){return d!= "_id"})
+                        var cols = Object.keys(response.data[0])
                             .map(function(col) {
                                 return { field: col, name: col.replace(/_/gi, ' '), width: 250, visible: true };
                             });
                         vm.options.columnDefs = cols;
-                        vm.options.data = sheet.map(function(v) {
+                        vm.options.data = response.data.map(function(v) {
                             v.color = "#F0DDC0";
                             v.selected = false;
                             return v;

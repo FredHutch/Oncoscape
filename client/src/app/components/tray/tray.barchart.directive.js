@@ -53,7 +53,6 @@
                     .style("y", function(d) { return (barHeight - (d.value * barHeight) + 5) + "px"; });
 
 
-
             });
 
 

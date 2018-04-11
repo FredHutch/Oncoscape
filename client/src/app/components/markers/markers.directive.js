@@ -67,7 +67,7 @@
             // State
             var mpState = (function(osApi) {
                 // Retrieve State
-                var mp = localStorage.getItem("MP-" + osApi.getDataSource().dataset);
+                var mp = localStorage.getItem("MP-" + osApi.getDataSource().disease);
                 var hasState = (mp !== null);
                 if (hasState) mp = angular.fromJson(mp);
 
@@ -189,7 +189,7 @@
                     s.optPatientLayout = vm.optPatientLayout;
                     s.optColors = _colors;
                     s.edges = cyChart.$('edge[edgeType="cn"]').jsons();
-                    localStorage.setItem("MP-" + osApi.getDataSource().dataset, angular.toJson(s));
+                    localStorage.setItem("MP-" + osApi.getDataSource().disease, angular.toJson(s));
                 };
 
                 return {
@@ -450,6 +450,7 @@
                 vm.showPanelColorRna = false;
                 vm.search = "";
                 vm.searchCount = "";
+                vm.searchNotFound = "";
 
                 vm.optCommandModes = [{
                     name: 'Sequential'
@@ -465,12 +466,18 @@
                     var count = 0;
                     var doSearch = (needle.length > 0);
                     cyChart.$('node').forEach(function(el) {
-                        var found = (doSearch) ? (el.id().toUpperCase().indexOf(needle) === 0) : false;
+                        var found = (doSearch) ? (el.id().toUpperCase().indexOf(needle) !== -1) : false;
                         if (found) count += 1;
                         el[found ? "select" : "deselect"]();
                     });
-                    vm.searchCount = "(" + count + " found)";
+                    if(count == 0){
+                        vm.searchNotFound = "Symbol not in geneset";
+                    }
+                        vm.searchCount = "(" + count + " found)";
+                    
+                    
                     $timeout(function() { vm.searchCount = ""; }, 3000, true);
+                    $timeout(function() { vm.searchNotFound = ""; }, 3000, true);
                 };
                 vm.hideModal = function() {
                     angular.element('#modalEdge').modal('hide');
@@ -563,7 +570,7 @@
                         type: 'geneset',
                         $fields: ['name']
                     }),
-                    osApi.query(osApi.getDataSource().dataset + "_cluster", {
+                    osApi.query(osApi.getDataSource().disease + "_cluster", {
                         $fields: ['input', 'geneset', 'dataType', 'source', 'default']
                     })
 
@@ -632,6 +639,8 @@
             var nodeScale = d3.scaleLog().domain([0.005, 20]).range([80, 1]);
             var labelScale = d3.scaleLog().domain([0.005, 20]).range([50, 1]);
             var expressionScale = d3.scalePow().range([0.01, 2]);
+            var d3Tooltip = d3.select("body").append("div").attr("class", "markers-tooltip")
+
 
 
             var resizeNodesByType = function(type) {
@@ -912,7 +921,7 @@
                     var opts = {
                         mode: vm.optCommandMode.name,
                         cmd: cmd,
-                        dataset: osApi.getDataSource().dataset,
+                        dataset: osApi.getDataSource().disease,
                         patients: {
                             data: vm.datasource.clinical.patient,
                             layout: vm.optPatientLayout,
@@ -1036,10 +1045,30 @@
 
                 $scope.$apply(function() {
                     if (e.type == "mouseout") {
-                        //angular.element("#cohortmenu-legand").html("");
+                        angular.element("#cohortmenu-legand").html("");
+                        d3Tooltip.transition()
+                        .duration(5000)
+                        .style("opacity", 0);
                     } else {
                         mouseIsOver = "gene";
-                        //angular.element("#cohortmenu-legand").html(e.cyTarget.id()); // + patientHtml[e.cyTarget.id()]);
+                        var node = e.cyTarget;
+                        var cosmic_url = "https://cancer.sanger.ac.uk/cosmic/gene/analysis?ln="+e.cyTarget.id()
+                        d3Tooltip.transition()
+                                .duration(200)
+                                .style("opacity", 1)
+                                .style("z-index", 9999)
+                            d3Tooltip.html(
+                                '<div onclick=window.open("'+cosmic_url+'","_blank")>'+node.id()+'</div>'
+                            )
+                                .style("left", (e.cyRenderedPosition.x ) + "px")
+                                .style("top", (e.cyRenderedPosition.y ) + "px");
+                            
+                                // var elTip = d3.tip().attr("class", "tip").offset([-8, 0]).html(function(d) {
+                                //     return d.tip;
+                                // });
+
+                        // angular.element("#cohortmenu-legand").html(
+                        //     node.id() ); 
                     }
                 });
             };

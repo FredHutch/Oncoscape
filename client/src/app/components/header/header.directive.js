@@ -30,8 +30,6 @@
             vm.datasources = [];
             vm.tools = [];
             vm.cohorts = [];
-          
-            
 
             // State Management
             osApi.onNavChange.add(function(state) {
@@ -46,7 +44,6 @@
                         vm.datasources = osApi.getDataSources();
                         vm.tools = osApi.getTools();
                         vm.cohorts = osApi.getCohorts();
-                        
                         break;
                     default:
                         vm.showTools = false;
@@ -59,13 +56,11 @@
             vm.addPatientCohort = function() {
                 osApi.saveCohort();
             };
-           
 
             // State Command
             vm.setPatientCohort = function(cohort) {
                 osApi.setCohort(cohort);
             };
-            
 
             // Import Cohorts Command 
             vm.importIds = "";
@@ -76,34 +71,13 @@
                 vm.importName = "";
                 vm.showImport = false;
             };
-
-            
-            osApi.onshowGenesetImportChange.add(function(show) {
-                
-                vm.showImport = show
-            });
-
-            var updateUser = function(user){
-                vm.user=osAuth.getUser()
-            }
-            osAuth.onLogin.add(updateUser); 
-            osAuth.onLogout.add(updateUser); 
-
-            vm.login = function() {
-                var networks = osAuth.getAuthSources();
-                osAuth.login(networks[1]);
-
-                //$state.go("login");
-            };
             vm.logout = function() {
 
-                
-                osAuth.logout()
+
                 localStorage.clear();
                 //$window.reload(true);
                 $window.location.href = "#";
                 //$window.reload();
-                
             };
             vm.showHelp = function() {
                 $window.open("\\documentation" + $state.current.help.toString());
@@ -114,19 +88,19 @@
                 vm.cohorts = osApi.getCohorts();
             });
 
+
             // Load Dataset Command - Navigation
-            vm.showDatasources = function() {
-                $state.go("userdatasource");
+            vm.loadDataset = function(dataset) {
+                angular.element('.navbar-collapse').collapse('hide');
+                $state.go($state.current.url.split("/")[1], { datasource: dataset });
 
             };
 
             // Load Tool Command - Navigation
             vm.loadTool = function(tool) {
-                $state.go(tool, { datasource: osApi.getDataSource().dataset });
+                $state.go(tool, { datasource: osApi.getDataSource().disease });
                 angular.element('.navbar-collapse').collapse('hide');
             };
-
-
 
         }
     }

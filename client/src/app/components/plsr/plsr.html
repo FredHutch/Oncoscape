@@ -9,48 +9,47 @@
                 <label>Gene Set</label>
                 <div class="dropdown bs-dropdown">
                     <button class="btn btn-default dropdown-toggle" type="button" id="dropdownMenu1" data-toggle="dropdown" aria-haspopup="true" aria-expanded="true">
-                        {{vm.geneset.name}}
+                        {{vm.geneSet}}
                         <span class="caret"></span>
                     </button>
                     <ul class="dropdown-menu" aria-labelledby="dropdownMenu1">
-                        <li ng-repeat="item in vm.genesets" ng-click="vm.geneset=item">{{item.name}}</li>
+                        <li ng-repeat="item in vm.geneSets" ng-click="vm.geneSet=item">{{item}}</li>
                     </ul>
                 </div>
             </div>
             <div class="col-xs-12 form-item">
-                <label>Data Source</label>
-                <div class="dropdown bs-dropdown">
-                    <button class="btn btn-default dropdown-toggle" type="button" id="dropdownMenu1" data-toggle="dropdown" aria-haspopup="true" aria-expanded="true">
-                        {{vm.collection.source}} - {{vm.collection.type}}
-                        <span class="caret"></span>
-                    </button>
-                    <ul class="dropdown-menu" aria-labelledby="dropdownMenu1">
-                        <li ng-repeat="item in vm.datasource.molecular" ng-click="vm.collection=item">{{item.source}} - {{item.type}}</li>
-                    </ul>
-                </div>
+                <label>Age At Diagnosis</label>
+                <div range-slider min="vm.deathMinValue" model-min="vm.deathMinFilter" max="vm.deathMaxValue" model-max="vm.deathMaxFilter" prevent-equal-min-max="true" show-values="true" attach-handle-values="true" on-handle-up="vm.update()"></div>
             </div>
             <div class="col-xs-12 form-item">
-                <label>Age At Diagnosis (Years)</label>
-                <div range-slider min="vm.dx.bound.min" model-min="vm.dx.value.min" max="vm.dx.bound.max" model-max="vm.dx.value.max" prevent-equal-min-max="true" show-values="true" attach-handle-values="true" on-handle-up="vm.filterChange()"></div>
-            </div>
-            <div class="col-xs-12 form-item">
-                <label>Survival (Days)</label>
-                <div range-slider min="vm.dd.bound.min" model-min="vm.dd.value.min" max="vm.dd.bound.max" model-max="vm.dd.value.max" prevent-equal-min-max show-values="true" attach-handle-values="true" on-handle-up="vm.filterChange()"></div>
+                <label>Survival</label>
+                <div range-slider min="vm.survivalMinValue" model-min="vm.survivalMinFilter" max="vm.survivalMaxValue" model-max="vm.survivalMaxFilter" prevent-equal-min-max show-values="true" attach-handle-values="true" on-handle-up="vm.update()"></div>
             </div>
             <div class="col-xs-12 form-label">
                 <h2>Legend</h2>
-                <span class="legend-bar" style="border-color: #FF9800">Age At Diagnosis</span>
+                <span class="legend-bar" style="border-color: #1396de">Age At Diagnosis</span>
                 <span class="legend-bar" style="border-color: #38347b">Survial</span>
-                <span class="legend"><span class="legend-dot" style="background-color:#039BE5"></span>Genes</span>
+                <span class="legend"><span class="legend-dot" style="background-color:#000"></span>Genes</span>
             </div>
         </div>
         </div>
     </section>
 </os-tray>
 <section class="tray-content-block">
-    <div class="tool-container">
+    <div class="container-fluid">
         <h2 class="h2-tool">Partial Least Squares Regression</h2>
-        <span class="h3-tool">{{vm.datasource.source}} {{vm.datasource.name}}</span>
-        <div id="plsr-chart" class="pca"></div>
+        <h3 class="h3-datasource">{{vm.datasource}}</h3>
+        <div id="plsr-chart" class="plsr"></div>
     </div>
 </section>
+<div class="modal fade plsr-webpage" id="plsr-webpage" tabindex="-1" role="dialog" aria-labelledby="myModalLabel">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+                <h4 class="modal-title" id="myModalLabel">{{vm.tip}}</h4>
+            </div>
+            <iframe class="modal-iframe" ng-src="{{vm.frame}}" />
+        </div>
+    </div>
+</div>

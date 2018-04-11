@@ -28,14 +28,17 @@
             var vm = this;
             vm.datasource = osApi.getDataSource();
 
+
             vm.cohort = osApi.getCohort();
             vm.cohorts = (osApi.getCohorts().indexOf(vm.cohort) == -1) ?
                 osApi.getCohorts().concat([vm.cohort]) : osApi.getCohorts();
+
 
             vm.pValues = [];
             vm.setCohort = function(cohort) {
                 osApi.setCohort(cohort);
             };
+
 
             // Format Elements
             var formatPercent = function(d) { return Math.round(d * 100) + "%"; };
@@ -54,6 +57,7 @@
             var elXAxis = elChart.append("g").attr("class", "axis");
             var elYAxis = elChart.append("g").attr("class", "axis").attr("transform", "translate(50, 10)");
             var brush = d3.brush();
+
 
             // Base Layout
             var layout = {
@@ -112,6 +116,8 @@
                     });
             };
 
+
+
             // Drawing Methods
             var dataChange = function() {
 
@@ -126,10 +132,13 @@
 
                 // Trigger Resize
                 resize();
+
             };
 
 
             var onBrushEnd = function() {
+
+
                 if (!d3.event.selection) {
                     osApi.setCohort(vm.cohorts.filter(function(c) { return c.type == "ALL"; })[0]);
                     return;
@@ -155,6 +164,42 @@
                 var combinedIds = computeInRange.reduce(function(p, c) { return p.concat(c.c, c.d); }, []);
                 var uniqueIds = _.unique(combinedIds);
                 osApi.setCohort(uniqueIds, "Survival", osApi.PATIENT);
+
+
+                //     vm.cohorts[0].survival.compute.filter(function(v) {
+                //                 var rv = (
+                //                     (v.t >= this.timeRange[0]) &&
+                //                     (v.t <= this.timeRange[1]) &&
+                //                     (v.s >= this.percentRange[0]) &&
+                //                     (v.s <= this.percentRange[1])
+                //                 );
+                //                 return rv;
+                //             }, { timeRange: timeRange, percentRange: percentRange }).reduce(function(p,c){ return p.concat(c.c, c.d); },[]);
+
+                // var patientIds = _.union.apply(null,
+                //     vm.cohorts.filter(function(v) {
+                //         return v.show;
+                //     }).map(function(v) {
+                //         return v.survival.compute.filter(function(v) {
+                //                 var rv = (
+                //                     (v.t >= this.timeRange[0]) &&
+                //                     (v.t <= this.timeRange[1]) &&
+                //                     (v.s >= this.percentRange[0]) &&
+                //                     (v.s <= this.percentRange[1])
+                //                 );
+                //                 return rv;
+                //             }, this)
+                //             .map(function(v) {
+                //                 return v.c.concat(v.d);
+                //             })
+                //             .reduce(function(p, c) {
+                //                 return p.concat(c);
+                //             }, []);
+                //     }, { timeRange: timeRange, percentRange: percentRange }));
+
+                // debugger;
+
+                // osApi.setCohort(patientIds, "Survival", osApi.PATIENT);
                 osApi.setBusy(false);
             };
 
@@ -228,7 +273,7 @@
                     [layout.width - 30, layout.height - 30]
                 ]);
                 brush.on("end", onBrushEnd);
-                elBrush.call(brush);
+                // elBrush.call(brush);
             };
 
             var onCohortsChange = function() {

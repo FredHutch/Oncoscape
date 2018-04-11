@@ -25,15 +25,13 @@
             var vm = this;
             vm.networks = osAuth.getAuthSources();
             vm.login = osAuth.login;
-            vm.logout = osAuth.logout;
-            
+
             var loginSuccess = function() {
-                $state.go("userdatasource");
-                
+                $state.go("datasource");
             };
-    
-            osAuth.onLogin.add(loginSuccess); 
-            
+
+            osAuth.onLogin.add(loginSuccess);
+
             // Desotroy
             $scope.$on('$destroy', function() {
                 osAuth.onLogin.remove(loginSuccess);

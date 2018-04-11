@@ -38,13 +38,8 @@
             var vm = this;
             vm.datasource = osApi.getDataSource();
             vm.cohort = osApi.getCohort();
-            vm.timescales = [{
-                    name: 'Log',
-                    valFn: function(val) {
-
-                        return (val < 0 ? -1 : 1) * Math.log(Math.abs((val * 1000) / 86400000) + 1) / Math.log(2);
-                    }
-                },
+            vm.timescales = [
+                { name: 'Log', valFn: function(val) { return (val < 0 ? -1 : 1) * Math.log(Math.abs((val * 1000) / 86400000) + 1) / Math.log(2); } },
                 { name: 'Linear', valFn: function(val) { return moment.duration(val * 1000).asDays(); } }
             ];
             vm.filters = [
@@ -151,7 +146,11 @@
                             .transition()
                             .duration(750)
                             .attr("transform", "translate(" + xTran + "," + yTran + ") scale(" + xZoom + "," + yZoom + ")");
+
+
+
                         drawAxis();
+
                     })
                 );
             };
@@ -165,7 +164,6 @@
             };
 
             var drawAxis = function() {
-
                 var zi = d3.zoomIdentity.translate(xTran).scale(xZoom);
                 var ns = zi.rescaleX(scaleX);
                 var axis = d3.axisBottom(ns).ticks(5);
@@ -184,6 +182,8 @@
 
 
             function onCohortChange() {
+                // if(vm.cohort.patientIds.length >0)
+                    // vm.displayMode = vm.displayModes[1];
                 updatePatientsVisible();
                 drawSelected();
             }
@@ -199,7 +199,6 @@
                 for (var i = lowerIndex; i <= upperIndex; i++) {
                     ids.push(patientsVisible[i].id);
                 }
-                ids.pop();
                 osApi.setCohort(ids, "Timelines", osApi.PATIENT);
                 elHitarea.call(d3.event.target.move, null);
             }
@@ -323,6 +322,7 @@
             function updatePatientsVisible() {
 
                 vm.cohort = osApi.getCohort();
+                
                 var align = vm.align.name;
                 var sort = vm.sort.name;
                 var filter = vm.filter.name;
@@ -347,12 +347,11 @@
                     }
 
                     // Filter Based On Alive Dead Status
-                    var status = patient.hash.Status.data.status.trim().toLowerCase();
-                    if ((this.filter == "Only Alive" && status == "dead") || (this.filter == "Only Dead" && status != "dead")) {
+                    var status = patient.hash.Status.data.status;
+                    if ((this.filter == "Only Alive" && status == "Dead") || (this.filter == "Only Dead" && status != "Dead")) {
                         patient.visible = false;
                         return;
                     }
-
 
                     // Filter Selected
                     if (vm.displayMode.name == "Selected Patients" && !patient.selected) {
@@ -395,7 +394,6 @@
                         return (a.status == "dead") ? 1 : -1;
                     }
                 });
-
             }
 
             // Load Data
@@ -538,10 +536,10 @@
 
                 updatePatientsVisible();
                 updateScale(); // Depends on Visible Patients
+                drawAxis();
                 drawPatients();
                 drawScrollbars();
                 drawSelected();
-                drawAxis();
             };
             osApi.onResize.add(vm.update);
 

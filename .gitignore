@@ -8,12 +8,11 @@ client/.idea/
 client/.tmp/
 server/mongo/
 
-# Logs and databases and uploaded files #
+# Logs and databases #
 ######################
 *.log
 *.out
 nohup.out
-uploads/
 dataPackages/RawData
 Oncoscape/inst/unitTests/test_OncoDev14_BenchMark*
 Oncoscape/inst/scripts/markersAndSamples/log.*
@@ -46,5 +45,3 @@ Rlibs
 .Rhistory
 .Rapp.history
 .Rproj.user
-cpu/oncoscape/kong_configure.js
-.env
