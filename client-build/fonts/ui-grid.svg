@@ -1,10 +1,10 @@
 <?xml version="1.0" standalone="no"?>
 <!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.1//EN" "http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd">
 <svg xmlns="http://www.w3.org/2000/svg">
-<metadata>Copyright (C) 2016 by original authors @ fontello.com</metadata>
+<metadata>Copyright (C) 2017 by original authors @ fontello.com</metadata>
 <defs>
-<font id="ui-grid" horiz-adv-x="1000" >
-<font-face font-family="ui-grid" font-weight="400" font-stretch="normal" units-per-em="1000" ascent="850" descent="-150" />
+<font id="fontello" horiz-adv-x="1000" >
+<font-face font-family="fontello" font-weight="400" font-stretch="normal" units-per-em="1000" ascent="850" descent="-150" />
 <missing-glyph horiz-adv-x="1000" />
 <glyph glyph-name="plus-squared" unicode="&#xc350;" d="M714 314v72q0 14-10 25t-25 10h-179v179q0 15-11 25t-25 11h-71q-15 0-25-11t-11-25v-179h-178q-15 0-25-10t-11-25v-72q0-14 11-25t25-10h178v-179q0-14 11-25t25-11h71q15 0 25 11t11 25v179h179q14 0 25 10t10 25z m143 304v-536q0-66-47-113t-114-48h-535q-67 0-114 48t-47 113v536q0 66 47 113t114 48h535q67 0 114-48t47-113z" horiz-adv-x="857.1" />
 
