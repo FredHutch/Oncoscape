@@ -40,7 +40,7 @@
             </div>
             <div ng-if="vm.legendCaption.length>0" class="col-xs-12 form-item">
                 <label>Patient {{vm.legendCaption}}</label>
-                <div ng-repeat="item in vm.legendNodes" class="legend-bar legend-bar-button" style="border-color:{{item.color}}">{{item.name}}<span id="{{item.id}}" class="legend-count"></span>
+                <div ng-repeat="item in vm.legendNodes" class="legend-bar legend-bar-button" style="border-color:{{item.color}};">{{item.name}}<span id="{{item.id}}" class="legend-count"></span>
                     <label style="float:right;padding-top:5px;" class="btn-group">
                         <button tooltip="Deselect" tooltip-placement="left"
                         ng-click="vm.deselectColor(item)"
@@ -51,12 +51,10 @@
                     </label>
                 </div>
             </div>
-            
             <div class="col-xs-12 form-item">
                 <label>Patient</label>
                 <button class="btn btn-default btn-no-focus" type="button" style="width:100%;font-weight: 300;" ng-click="vm.showPanelColor = true">Color Options</button>
             </div>
-
             <div class="col-xs-12 form-item">
                 <label>Variance Explained</label>
                 <div>
@@ -67,13 +65,17 @@
             </div>
 
             <div class="col-xs-12 form-item">
-                <label>Loadings</label>
-                <os-tray-barchart chart-data="vm.loadings" chart-height="100"></os-tray-barchart>
-               
-                <label>Scores</label>
-                <os-tray-barchart chart-data="vm.scores" chart-height="100"></os-tray-barchart>
-               
+                <label>PC1 Loadings</label>
+                <os-tray-barchart chart-data="vm.loadingsPc1" chart-height="100"></os-tray-barchart>
             </div>
+            <div class="col-xs-12 form-item">
+                <label>PC2 Loadings</label>
+                <os-tray-barchart chart-data="vm.loadingsPc2" chart-height="100"></os-tray-barchart>
+            </div>
+            <div class="col-xs-12 form-item">
+                    <label>PC3 Loadings</label>
+                    <os-tray-barchart chart-data="vm.loadingsPc3" chart-height="100"></os-tray-barchart>
+                </div>
         </div>
     </section>
 </os-tray>
