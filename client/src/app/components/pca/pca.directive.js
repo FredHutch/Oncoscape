@@ -58,7 +58,10 @@
 
             // View Model Update
             var vm = (function(vm, osApi) {
-                vm.loadings = [];
+                vm.loadingsPc1 = [];
+                vm.loadingsPc2 = [];
+                vm.scoresPc1 = [];
+                vm.scoresPc2 = [];
                 vm.pc1 = vm.pc2 = [];
                 vm.datasource = osApi.getDataSource();
                 vm.geneSets = [];
@@ -136,6 +139,7 @@
                         ];
 
                         // Process Loadings
+                        debugger;
                         var loadings = response.data[0].loadings
                             .map(function(v) {
                                 v.max = Math.max.apply(null, v.d.map(function(v) { return Math.abs(v); }));
@@ -152,6 +156,17 @@
 
 
                         vm.loadings = loadings.map(function(v) {
+                            return {
+                                tip: v.d.reduce(function(p, c) {
+                                    p.index += 1;
+                                    p.text += "<br>PC" + p.index + ": " + (c * 100).toFixed(2);
+                                    return p;
+                                }, { text: v.id, index: 0 }).text,
+                                value: this(v.max)
+                            };
+                        }, scale);
+
+                        vm.scores = scores.map(function(v) {
                             return {
                                 tip: v.d.reduce(function(p, c) {
                                     p.index += 1;

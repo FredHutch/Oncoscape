@@ -58,7 +58,7 @@
             vm.timescale = vm.timescales[0];
             vm.filter = vm.filters[0];
             vm.mode = vm.modes[0];
-            vm.displayMode = vm.displayModes[0];
+            vm.displayMode = vm.displayModes[1];
             vm.events = null;
             vm.align = null;
             vm.sort = null;
@@ -296,7 +296,7 @@
                 elContainer.css("background", "#FAFAFA").css("margin-left", layout.left + 30).css("margin-right", layout.right).css("width", width + 20).css("height", height + 20);
                 elScrollY.attr("height", height);
                 elScrollX.attr("width", width);
-                elChart.attr("height", height).attr("width", width).attr("fill", "blue").attr('transform', 'translate(20,20)');
+                elChart.attr("height", height).attr("width", width).attr("fill", "blue").attr('transform', 'translate(0,0)');
                 elPatients.attr("height", height).attr("width", width);
                 elSelected.attr("height", height).attr("width", width);
                 elAxis.style("top", height + 20).attr("width", width);
