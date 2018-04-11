@@ -148,6 +148,17 @@
     top: 2px;
 }
 
+.markers-tooltip {
+    position: absolute;
+    text-align: center;
+    background: #EFEFEF;
+    border: 0px;
+    border-radius: 3px;
+    padding: 5px;
+    cursor: pointer;
+    z-index: 99999 !important;
+}
+
 .markers-chart {
     position: relative;
     top: 0px;

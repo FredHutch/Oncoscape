@@ -19,7 +19,7 @@
         return directive;
 
         /** @ngInject */
-        function PcaController($q, osApi, $state, $stateParams, $timeout, $scope, d3, moment, $window, _) {
+        function PcaController($q, osApi, osWidget, $state, $stateParams, $timeout, $scope, d3, moment, $window, _) {
 
             // Loading ...
             osApi.setBusy(true);
@@ -31,6 +31,7 @@
             var d3yAxis = d3Chart.append("g");
             var brush;
             var d3Brush = d3Chart.append("g");
+            
 
             // Add Labels
             d3xAxis.append("text")
@@ -59,8 +60,10 @@
             // View Model Update
             var vm = (function(vm, osApi) {
                 vm.loadings = [];
+                vm.pcs = []
                 vm.pc1 = vm.pc2 = [];
                 vm.datasource = osApi.getDataSource();
+                vm.description = {geneset:"G", source:"S", data:"D"}
                 vm.geneSets = [];
                 vm.geneSet = null;
                 vm.search = "";
@@ -115,28 +118,87 @@
             });
             $scope.$watch('vm.pcaType', function(geneset) {
                 if (angular.isUndefined(geneset)) return;
-                osApi.query(clusterCollection, {
+                Promise.all([
+                    osApi.query(clusterCollection, {
                         disease: vm.datasource.disease,
                         geneset: vm.geneSet.name,
                         input: vm.pcaType.name,
                         source: vm.source.name
-                    })
+                    }), 
+                    osApi.query("manifest", {
+                        collection: clusterCollection,
+                        "process.geneset": vm.geneSet.name,
+                        "process.input": vm.pcaType.name,
+                        "process.source": vm.source.name
+
+                    }),
+                    osApi.query("lookup_genesets", {
+                        name: vm.geneSet.name
+                    })])
+                    
                     .then(function(response) {
 
-                        var d = response.data[0];
+                        var d = response[0].data[0];
+                        var m = response[1].data;
+                        
+
+                        if(m.length>0 && "longTitle" in m[0]){
+                            vm.description.data = m[0].longTitle
+                        } else {
+                            vm.description.data = vm.pcaType.name
+                        }
+
+                        if(vm.source.name == "ucsc xena"){
+                            vm.description.source = "Originating data processed by and obtained via UCSC Xena browser"
+                        }else if (vm.source.name == "GEO"){
+                            vm.description.source = "Originating data obtained via Gene Expression Omnibus"
+                        }else if (vm.source.name == "ucsc xena + GEO"){
+                            vm.description.source = "GEO data superimposed on TCGA data via centroid method of 3 most correlated samples"
+                        }
+                            
+                        if(vm.geneSet.name == "All Genes"){
+                            vm.description.geneset = "All gene available in the given data type used in calculation"
+                        }else{
+                            vm.description.geneset = response[2].data[0].desc
+                        }
+                        
 
                         // Process PCA Variance
-                        vm.pc1 = [
-                            { name: 'PC1', value: d.metadata.variance[0] },
-                            { name: '', value: 100 - d.metadata.variance[0] }
-                        ];
-                        vm.pc2 = [
-                            { name: 'PC2', value: d.metadata.variance[1] },
-                            { name: '', value: 100 - d.metadata.variance[1] }
-                        ];
+                        var pcs = d.metadata.variance
+                        var scree;
 
+                        if(pcs[0] == null){
+                            scree = [{x:"PC1", y:1, tip:"NA"},
+                                     {x:"PC2", y:1, tip:"NA"},
+                                     {x:"PC3", y:1, tip:"NA"} ]
+                        }else{
+                            scree = [{x:"PC1", y:pcs[0], tip:pcs[0]+"%"},
+                                     {x:"PC2", y:pcs[1], tip:pcs[1]+"%"},
+                                     {x:"PC3", y:pcs[2], tip:pcs[2]+"%"} ]
+                        }
+                        scree.map(function(d){
+                            if( d.y<10) d.color="grey"
+                            return d;
+                        })
+
+                        var options = {
+                            title: "Scree Plot (Percent Variance Explained)",
+                            container : 'screeplot',
+                            html : '#screeplot',
+                            f: "Bar Plot",
+                            data      : scree,
+                            labels    : {x:"", y:""},
+                            color : '#0096d5',
+                            margin: {top: 10, right: 10, bottom: 35, left: 30},
+                            width: 200,
+                            height: 100,
+                            domain :{ x : [0,3], y: [0, Math.max(pcs[0],50)]}
+                        }
+                       
+                       osWidget.makeBarPlot(options);
+                    
                         // Process Loadings
-                        var loadings = response.data[0].loadings
+                        var loadings = d.loadings
                             .map(function(v) {
                                 v.max = Math.max.apply(null, v.d.map(function(v) { return Math.abs(v); }));
                                 return v;
@@ -149,6 +211,7 @@
                         var scale = d3.scaleLinear()
                             .domain([loadings[loadings.length - 1].max, loadings[0].max])
                             .range([0.1, 1]);
+
 
 
                         vm.loadings = loadings.map(function(v) {

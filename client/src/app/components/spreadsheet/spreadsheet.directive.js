@@ -23,6 +23,7 @@
 
             // Loading ...
             osApi.setBusy(true);
+            var cohortName = ''
 
             // View Model
             var vm = this;
@@ -87,8 +88,10 @@
                         data += "\"" + datum.join("\",\"") + "\"\n";
                     });
 
+                var ds = osApi.getDataSource();
+                var fileName = ds.source + '-' + ds.name + '-' + cohortName.toLowerCase() + '.csv'.replace(/\s/g, '_');
                 var blob = new Blob([data], { type: 'text/csv;charset=windows-1252;' });
-                saveAs(blob, 'oncoscape.csv');
+                saveAs(blob, fileName);
 
             };
             vm.showColumns = function() {
@@ -117,11 +120,15 @@
             };
 
             var selectedIds = [];
-            var supressCohortEvent = false;
+            var supressCohortEvent = true;
             var rowSelectionChange = function() {
 
                 selectedIds = vm.gridApi.grid.api.selection.getSelectedRows().map(function(v) { return v.patient_ID; });
-                supressCohortEvent = true;
+                if(supressCohortEvent){
+                    supressCohortEvent = false;
+                    return;
+                } 
+                
                 if (selectedIds.length == vm.options.data.length || selectedIds.length == 0) {
                     osApi.setCohort([], osApi.ALL, osApi.PATIENT);
                 } else {
@@ -137,10 +144,9 @@
 
             // App Event :: Cohort Change
             var onCohortChange = function(cohort) {
-                if (supressCohortEvent) {
-                    supressCohortEvent = false;
-                    return;
-                }
+                cohortName = cohort.name
+                supressCohortEvent = true
+
                 vm.gridApi.grid.api.selection.clearSelectedRows();
                 selectedIds = cohort.patientIds;
                 var selected = vm.options.data.filter(function(v) {

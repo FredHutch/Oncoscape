@@ -273,7 +273,7 @@
                     [layout.width - 30, layout.height - 30]
                 ]);
                 brush.on("end", onBrushEnd);
-                elBrush.call(brush);
+                // elBrush.call(brush);
             };
 
             var onCohortsChange = function() {
