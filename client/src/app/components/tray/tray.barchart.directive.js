@@ -28,7 +28,7 @@
             });
             chart.call(elTip);
             scope.$watch('data', function(newValue) {
-                debugger;
+            
                 var barHeight = scope.height - 10;
                 var barWidth = (250 / newValue.length) - 1;
                 var binding = chart

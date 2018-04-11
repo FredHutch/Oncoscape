@@ -7,7 +7,8 @@
                     <div class="dropdown bs-dropdown">
                         <button class="btn btn-default dropdown-toggle" type="button" id="dropdownMenu1" data-toggle="dropdown" aria-haspopup="true" aria-expanded="true">{{vm.geneSet.name}}<span class="caret"></span></button>
                         <ul class="dropdown-menu" aria-labelledby="dropdownMenu1" style="width:260px;">
-                            <li class="markers-command hvr-sweep-to-right" ng-repeat="item in vm.geneSets" ng-click="vm.geneSet=item">{{item.name}}</li>
+                            <li 
+                            tooltip="{{item.tip}}" tooltip-placement="left" class="markers-command hvr-sweep-to-right" ng-repeat="item in vm.geneSets" ng-click="vm.geneSet=item">{{item.name}}</li>
                         </ul>
                     </div>
                     <div class="input-group-addon btn-help-icon"><a href="http://resources.sttrcancer.org/api/#gene-sets" target="_blank"><i style="color:#000" class="glyphicon glyphicon-question-sign"></i></a></div>
@@ -64,7 +65,7 @@
                 </div>
             </div>
 
-            <div class="col-xs-12 form-item">
+            <!-- <div class="col-xs-12 form-item">
                 <label>PC1 Loadings</label>
                 <os-tray-barchart chart-data="vm.loadingsPc1" chart-height="100"></os-tray-barchart>
             </div>
@@ -75,7 +76,7 @@
             <div class="col-xs-12 form-item">
                     <label>PC3 Loadings</label>
                     <os-tray-barchart chart-data="vm.loadingsPc3" chart-height="100"></os-tray-barchart>
-                </div>
+                </div> -->
         </div>
     </section>
 </os-tray>

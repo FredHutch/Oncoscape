@@ -398,8 +398,13 @@
                 }, {});
 
                 vm.geneSets = Object.keys(result).map(function (geneset) {
+                    var info = osApi.getGenesetInfo(geneset);
+                    var tip = info.d;
+                    if (info.g !== '0') tip += ' (' + info.g + ' Genes)';
+                    
                     return {
                         name: geneset,
+                        tip: tip,
                         sources: Object.keys(result[geneset]).map(function (source) {
                             return {
                                 name: source,
@@ -411,7 +416,8 @@
                             };
                         })
                     };
-                });
+                })
+                
                 vm.geneSet = vm.geneSets[0];
             });
 

@@ -24,6 +24,8 @@
 
             osApi.setBusy(true);
 
+            
+
             var tmpdata, worker;
 
             var signal = (function() {
@@ -156,6 +158,7 @@
                         if (c.name === datasetGeneset) { p = c; }
                         return p;
                     }, genesets[0]);
+
                     return gs;
                 };
 
@@ -469,8 +472,12 @@
                         if (found) count += 1;
                         el[found ? "select" : "deselect"]();
                     });
+                    if (count === 0) {
+                        // http://oncoscape.sttrcancer.io/api/lookup_genesets?apikey=password
+                    }
                     vm.searchCount = "(" + count + " found)";
                     $timeout(function() { vm.searchCount = ""; }, 3000, true);
+                    
                 };
                 vm.hideModal = function() {
                     angular.element('#modalEdge').modal('hide');
@@ -578,7 +585,15 @@
                         return x < y ? -1 : x > y ? 1 : 0;
                     });
 
-                    vm.optGeneSets = _.uniq(osApi.getDataSource().edges.map(function(e) { return { name: e.geneset }; }), function(item) { return item.name; });
+                    vm.optGeneSets = _.uniq(osApi.getDataSource()
+                        .edges
+                        .map(function(e) { return { name: e.geneset }; }), function(item) { return item.name; })
+                        .map(v => {
+                            var info = osApi.getGenesetInfo(v.name);
+                            v.tip = info.d + ' (' + info.g + ' Genes)';
+                            return Object.assign(v, {info: osApi.getGenesetInfo(v.name) }) 
+                        });
+
                     vm.optGeneSet = mpState.getGeneSet(vm.optGeneSets);
                     vm.optPatientLayouts = layouts;
                     var patientLayout = mpState.getPatientLayout(vm.optPatientLayouts);
@@ -705,6 +720,9 @@
                         cyChart.collection(items).remove();
                     } catch (e) {}
                 };
+
+
+            
                 cmd.patients_html = function() {
 
                 };
@@ -1143,6 +1161,44 @@
                                             });
                                         });
                                     cyChart.endBatch();
+                                    break;
+                                case "LaunchCbio":
+                                    var genes = cyChart
+                                        .$('node[nodeType="gene"]:selected')
+                                        .map(v => v.data().id)
+                                        if (genes.length===0){ 
+                                            alert('Please select genes from the chromosome view and try again.');
+                                        }else { 
+                                            genes = genes.join('%20');
+                                            const d = osApi.getDataSource();                             
+                                            var url = 'http://www.cbioportal.org/index.do?gene_list='+genes+'&Action=Submit&cancer_study_id='+d.disease.toLowerCase()+'_tcga&case_set_id='+d.disease.toLowerCase()+'_tcga_cnaseq&genetic_profile_ids_PROFILE_MUTATION_EXTENDED='+d.disease.toLowerCase()+'_tcga_mutations&genetic_profile_ids_PROFILE_COPY_NUMBER_ALTERATION='+d.disease.toLowerCase()+'_tcga_gistic&tab_index=tab_visualize';
+                                            $window.open(url);
+                                        }
+
+                                    break;
+                                case "LaunchGeneCards":
+                                    var genes = cyChart
+                                        .$('node[nodeType="gene"]:selected')
+                                        .map(v => v.data().id)
+                                        if (genes.length===0){ 
+                                            alert('Please select genes from the chromosome view and try again.');
+                                        }else { 
+                                            genes = genes.join('%20');
+                                            var url = 'http://www.genecards.org/Search/Symbol?queryString=' + genes;
+                                            $window.open(url);
+                                        }
+                                        break;
+                                case "LaunchPwc": 
+                                var genes = cyChart
+                                    .$('node[nodeType="gene"]:selected')
+                                    .map(v => v.data().id);
+                                    if (genes.length===0){ 
+                                        alert('Please select genes from the chromosome view and try again.');
+                                    }else { 
+                                        genes = genes.join(',');
+                                        var url = 'http://www.pathwaycommons.org/pcviz/#pathsbetween/'+genes;
+                                        $window.open(url);
+                                    }
                                     break;
                                 default:
                                     opts = createOptions(cmd);
