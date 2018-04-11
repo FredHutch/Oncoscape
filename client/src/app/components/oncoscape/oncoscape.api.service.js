@@ -726,6 +726,111 @@
             });
         };
 
+        var getGeneInfo = function(gene) { 
+            // var url = "/api/";
+            // // http://oncoscape.sttrcancer.io/api/
+            //  url = "http://oncoscape.sttrcancer.io/api/";
+            //  var queryString = function(req) {
+            //      var query = url + req.table;
+            //      if (angular.isDefined(req.query)) query += "/" + encodeURIComponent(angular.toJson(req.query));
+            //      return query;
+            //  };
+    
+            //  var query = function(req) {
+            //      return $http({
+            //          method: 'GET',
+            //          url: queryString(req),
+            //          headers: {
+            //              apikey: 'password'
+            //          }
+            //      });
+            //  };
+        }
+
+        var getGenesetInfo = function(name) { 
+            return [
+                {   "n": 'All Genes',
+                    "d": "All Genes",
+                    "g": "0"
+                },
+                {
+                    "n": "TCGA GBM Classifiers",
+                    "d": "Gene expression-based molecular classification of GBM subtypes (Proneural, Neural, Classical, Mesenchymal)",
+                    "g": "840"
+                },
+                {
+                    "n": "Glioma Markers",
+                    "d": "Genes recurrently impacted in TCGA gliomas",
+                    "g": "545"
+                },
+                {
+                    "n": "TCGA Pancan Mutated",
+                    "d": "Significantly mutated genes according to the TCGA PANCAN working group (syn1750331) identified by both MuS, iC and MutSig",
+                    "g": "73"
+                },
+                {
+                    "n": "Oncoplex Vogelstein",
+                    "d": "Combined set from the Oncoplex gene panel and driver genes described in Vogelstein, Science 2013.",
+                    "g": "274"
+                },
+                {
+                    "n": "Oncoplex",
+                    "d": "A sequencing panel that detects mutations in genes related to cancer treatment, prognosis, and diagnosis.",
+                    "g": "263"
+                },
+                {
+                    "n": "OSCC Expression Markers",
+                    "d": "Differentially expressed probe set comparing normal oral tissue to oral squamous cell carcinoma",
+                    "g": "109"
+                },
+                {
+                    "n": "Breast PAM50",
+                    "d": "Gene expression based subtype predictor for subtypes luminal A, luminal B, HER2-enriched, and basal-like",
+                    "g": "50"
+                },
+                {
+                    "n": "Breast Tumor Intrinsic Classifier",
+                    "d": "Meta analysis of available breast cancer gene expression datasets grouping LumA, LumB, Basal-like, HER2+/E, R-, and Normal Breast-like tumor subtypes",
+                    "g": "1232"
+                },
+                {
+                    "n": "FoundationOne Heme",
+                    "d": "FoundationOne® Heme is designed to analyze and interpret sequence information for somatically altered gene, s in human hematologic malignancies (leukemias, lymphomas, and myelomas), and sarcomas. Genes included in this assay encode known or likely targets of therapies, either approved or in clinical trials, or otherwise known drivers of oncogenesis.",
+                    "g": "593"
+                },
+                {
+                    "n": "TCGA Sarcoma alterations",
+                    "d": "Frequently mutated genes in soft-tissue sarcoma subtypes",
+                    "g": "21"
+                },
+                {
+                    "n": "Leiomyosarcoma molecular subtypes",
+                    "d": "Three molecular subtypes of leiomyosarcoma were confirmed in 2 publically available datasets. Subtype I LM, S is associated with good outcome in extrauterine LMS while subtype II LMS is associated with poor prognosis in both uterine and extrauterine LMS. A subset of the biomarkers are used here based on the genes mentioned in the publication.",
+                    "g": "13"
+                },
+                {
+                    "n": "Sarcoma markers",
+                    "d": "Compiled from multiple publications on different sarcoma subtypes",
+                    "g": "48"
+                },
+                {
+                    "n": "Sarcoma markers Heme",
+                    "d": "Compiled from multiple publications on different sarcoma subtypes & intersected with FoundationOne Heme",
+                    "g": "24"
+                },
+                {
+                    "n": "Sarcoma markers Oncoplex",
+                    "d": "Compiled from multiple publications on different sarcoma subtypes & intersected with Oncoplex",
+                    "g": "19"
+                },
+                {
+                    "n": "Sarcoma CINSARC",
+                    "d": "Performed genomic and expression profiling in a training set of 183 sarcomas and established a prognostic, gene expression signature, complexity index in sarcomas (CINSARC), composed of 67 genes related to mitosis and chromosome management",
+                    "g": "67"
+                }
+            ].filter(v => v.n === name)[0];
+        }
+
         return {
 
             // Constants
@@ -733,6 +838,8 @@
             SAMPLE: "SAMPLE",
             PATIENT: "PATIENT",
 
+            getGeneInfo: getGeneInfo,
+            getGenesetInfo: getGenesetInfo,
             // Init
             init: init,
 
@@ -757,7 +864,6 @@
             setCohortToolInfo: setCohortToolInfo,
             getCohortToolInfo: getCohortToolInfo,
             getCohortDatasetInfo: getCohortDatasetInfo,
-
 
             // Cohort Management
             getCohorts: getCohorts,

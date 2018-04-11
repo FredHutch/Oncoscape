@@ -16,9 +16,10 @@
     -o-transition: all 0.3s ease;
     transition: all 0.3s ease;
     padding-bottom: 75px;
-    overflow: auto;
+    // overflow: auto;
     box-shadow: $box-shaddow;
     border: solid 0px $color-gray-light;
+    overflow: visible;
 }
 
 .tray-left {

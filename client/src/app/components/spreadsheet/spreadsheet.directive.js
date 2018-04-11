@@ -21,6 +21,8 @@
         /** @ngInject */
         function SpreadsheetController(osApi, $state, $timeout, $scope, moment, $stateParams, _, $, $q, $window, uiGridConstants, saveAs) {
 
+            var cohortName = '';
+
             // Loading ...
             osApi.setBusy(true);
             var cohortName = ''
@@ -75,6 +77,7 @@
                 }
             };
             vm.exportCsv = function(type) {
+            
                 var cols = vm.options.columnDefs.filter(function(c) { return c.visible; }).map(function(v) { return v.field; });
                 var data = "\"" + cols.join("\",\"") + "\"\n";
 
