@@ -18,10 +18,10 @@
             </div>
 
             <div class="col-xs-12 form-item">
-                <label>CSV Export</label>
+                <label>Click To Export</label>
                 <div class="btn-group" role="group" style="display: block">
-                    <button class="btn btn-default btn-no-focus" type="button" style="width:50%; font-weight: 300;" ng-click="vm.exportCsv('selected')">Selected</button>
-                    <button class="btn btn-default btn-no-focus" type="button" style="width:50%; font-weight: 300;" ng-click="vm.exportCsv('all')">All</button>
+                    <!-- <button class="btn btn-default btn-no-focus" type="button" style="width:50%; font-weight: 300;" ng-click="vm.exportCsv('selected')">Cohort Data</button> -->
+                    <button class="btn btn-default btn-no-focus" type="button" style="width: 100%;font-weight: 300;" ng-click="vm.exportCsv('all')">Export {{vm.collection.name}} data</button>
                 </div>
             </div>
         </div>

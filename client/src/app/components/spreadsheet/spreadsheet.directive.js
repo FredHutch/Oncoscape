@@ -75,6 +75,7 @@
                 }
             };
             vm.exportCsv = function(type) {
+            
                 var cols = vm.options.columnDefs.filter(function(c) { return c.visible; }).map(function(v) { return v.field; });
                 var data = "\"" + cols.join("\",\"") + "\"\n";
 
