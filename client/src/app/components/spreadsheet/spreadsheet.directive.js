@@ -21,8 +21,6 @@
         /** @ngInject */
         function SpreadsheetController(osApi, $state, $timeout, $scope, moment, $stateParams, _, $, $q, $window, uiGridConstants, saveAs) {
 
-            var cohortName = '';
-
             // Loading ...
             osApi.setBusy(true);
             var cohortName = ''

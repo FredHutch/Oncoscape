@@ -591,7 +591,7 @@
                     vm.optGeneSets = _.uniq(osApi.getDataSource()
                         .edges
                         .map(function(e) { return { name: e.geneset }; }), function(item) { return item.name; })
-                        .map(v => {
+                        .map(function(v) {
                             var info = osApi.getGenesetInfo(v.name);
                             v.tip = info.d + ' (' + info.g + ' Genes)';
                             return Object.assign(v, {info: osApi.getGenesetInfo(v.name) }) 
@@ -1131,7 +1131,7 @@
                     case "Sequential":
                         //try{ cyChart.$('node').unselect(); setOptions(createOptions()); }catch(e){}
                         vm.cmd = function(cmd) {
-                            var opts;
+                            var opts; var genes, url;
                             switch (cmd) {
                                 case "ShowSelectedEdges":
                                     var nodes = cyChart.$('node[nodeType="patient"]:selected, node[nodeType="gene"]:selected');
@@ -1188,40 +1188,40 @@
                                     cyChart.endBatch();
                                     break;
                                 case "LaunchCbio":
-                                    var genes = cyChart
+                                    genes = cyChart
                                         .$('node[nodeType="gene"]:selected')
-                                        .map(v => v.data().id)
+                                        .map(function(v){return v.data().id})
                                         if (genes.length===0){ 
                                             alert('Please select genes from the chromosome view and try again.');
                                         }else { 
                                             genes = genes.join('%20');
-                                            const d = osApi.getDataSource();                             
-                                            var url = 'http://www.cbioportal.org/index.do?gene_list='+genes+'&Action=Submit&cancer_study_id='+d.disease.toLowerCase()+'_tcga&case_set_id='+d.disease.toLowerCase()+'_tcga_cnaseq&genetic_profile_ids_PROFILE_MUTATION_EXTENDED='+d.disease.toLowerCase()+'_tcga_mutations&genetic_profile_ids_PROFILE_COPY_NUMBER_ALTERATION='+d.disease.toLowerCase()+'_tcga_gistic&tab_index=tab_visualize';
+                                            var d = osApi.getDataSource();                             
+                                            url = 'http://www.cbioportal.org/index.do?gene_list='+genes+'&Action=Submit&cancer_study_id='+d.disease.toLowerCase()+'_tcga&case_set_id='+d.disease.toLowerCase()+'_tcga_cnaseq&genetic_profile_ids_PROFILE_MUTATION_EXTENDED='+d.disease.toLowerCase()+'_tcga_mutations&genetic_profile_ids_PROFILE_COPY_NUMBER_ALTERATION='+d.disease.toLowerCase()+'_tcga_gistic&tab_index=tab_visualize';
                                             $window.open(url);
                                         }
 
                                     break;
                                 case "LaunchGeneCards":
-                                    var genes = cyChart
+                                    genes = cyChart
                                         .$('node[nodeType="gene"]:selected')
-                                        .map(v => v.data().id)
+                                        .map(function(v){return v.data().id})
                                         if (genes.length===0){ 
                                             alert('Please select genes from the chromosome view and try again.');
                                         }else { 
                                             genes = genes.join('%20');
-                                            var url = 'http://www.genecards.org/Search/Symbol?queryString=' + genes;
+                                            url = 'http://www.genecards.org/Search/Symbol?queryString=' + genes;
                                             $window.open(url);
                                         }
                                         break;
                                 case "LaunchPwc": 
-                                var genes = cyChart
+                                    genes = cyChart
                                     .$('node[nodeType="gene"]:selected')
-                                    .map(v => v.data().id);
+                                    .map(function(v){return v.data().id});
                                     if (genes.length===0){ 
                                         alert('Please select genes from the chromosome view and try again.');
                                     }else { 
                                         genes = genes.join(',');
-                                        var url = 'http://www.pathwaycommons.org/pcviz/#pathsbetween/'+genes;
+                                        url = 'http://www.pathwaycommons.org/pcviz/#pathsbetween/'+genes;
                                         $window.open(url);
                                     }
                                     break;

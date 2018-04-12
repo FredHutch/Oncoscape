@@ -268,11 +268,11 @@
                 });
                 vm.pValues = pValues;
 
-                brush.extent([
-                    [40, 20],
-                    [layout.width - 30, layout.height - 30]
-                ]);
-                brush.on("end", onBrushEnd);
+                // brush.extent([
+                //     [40, 20],
+                //     [layout.width - 30, layout.height - 30]
+                // ]);
+                // brush.on("end", onBrushEnd);
                 // elBrush.call(brush);
             };
 

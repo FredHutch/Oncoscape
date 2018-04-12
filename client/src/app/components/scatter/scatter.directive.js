@@ -421,7 +421,7 @@
                     if (!d3.event.selection) return;
                     selections[brush] = selection;
                     data;
-                    if (selection !== null) debugger;
+                    // if (selection !== null) debugger;
                 }
 
                 function init(el, color, points, orbitControl) {

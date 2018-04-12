@@ -746,11 +746,20 @@
             //      });
             //  };
         }
+        var getSourceInfo = function(name) { 
+            return [
+                {   "n": 'ucsc xena',
+                    "d": "Originating data processed by and obtained via UCSC Xena browser"    
+                },{ "n": "GEO",
+                    "d": "Originating data obtained via Gene Expression Omnibus"
+                },{"n": "ucsc xena + GEO",
+                    "d": "GEO data superimposed on TCGA data via centroid method of 3 most correlated samples"
+                }].filter(function(v){return v.n === name})[0];}
 
         var getGenesetInfo = function(name) { 
             return [
                 {   "n": 'All Genes',
-                    "d": "All Genes",
+                    "d": "All gene available in the given data type used in calculation",
                     "g": "0"
                 },
                 {
@@ -828,7 +837,7 @@
                     "d": "Performed genomic and expression profiling in a training set of 183 sarcomas and established a prognostic, gene expression signature, complexity index in sarcomas (CINSARC), composed of 67 genes related to mitosis and chromosome management",
                     "g": "67"
                 }
-            ].filter(v => v.n === name)[0];
+            ].filter(function(v){return v.n === name})[0];
         }
 
         return {
@@ -840,6 +849,7 @@
 
             getGeneInfo: getGeneInfo,
             getGenesetInfo: getGenesetInfo,
+            getSourceInfo: getSourceInfo,
             // Init
             init: init,
 

@@ -98,7 +98,17 @@
             // Setup Watches
             $scope.$watch('vm.geneSet', function () {
                 if (vm.geneSet === null) return;
-                vm.sources = vm.geneSet.sources;
+                var result = vm.geneSet.sources;
+                vm.sources = result.map(function (source) {
+                    var info = osApi.getSourceInfo(source.name);
+                    var tip = info.d;
+                     return {
+                        name: source.name,
+                        tip: tip,
+                        types: source.types
+                    };
+                })
+            
                 if (angular.isUndefined(vm.source)) {
                     vm.source = vm.sources[0];
                 } else {
@@ -118,50 +128,17 @@
             });
             $scope.$watch('vm.pcaType', function (geneset) {
                 if (angular.isUndefined(geneset)) return;
-                Promise.all([
+                
                     osApi.query(clusterCollection, {
                         disease: vm.datasource.disease,
                         geneset: vm.geneSet.name,
                         input: vm.pcaType.name,
                         source: vm.source.name
-                    }), 
-                    osApi.query("manifest", {
-                        collection: clusterCollection,
-                        "process.geneset": vm.geneSet.name,
-                        "process.input": vm.pcaType.name,
-                        "process.source": vm.source.name
-
-                    }),
-                    osApi.query("lookup_genesets", {
-                        name: vm.geneSet.name
-                    })])
+                    })
                     
                     .then(function(response) {
 
-                        var d = response[0].data[0];
-                        var m = response[1].data;
-                        
-
-                        if(m.length>0 && "longTitle" in m[0]){
-                            vm.description.data = m[0].longTitle
-                        } else {
-                            vm.description.data = vm.pcaType.name
-                        }
-
-                        if(vm.source.name == "ucsc xena"){
-                            vm.description.source = "Originating data processed by and obtained via UCSC Xena browser"
-                        }else if (vm.source.name == "GEO"){
-                            vm.description.source = "Originating data obtained via Gene Expression Omnibus"
-                        }else if (vm.source.name == "ucsc xena + GEO"){
-                            vm.description.source = "GEO data superimposed on TCGA data via centroid method of 3 most correlated samples"
-                        }
-                            
-                        if(vm.geneSet.name == "All Genes"){
-                            vm.description.geneset = "All gene available in the given data type used in calculation"
-                        }else{
-                            vm.description.geneset = response[2].data[0].desc
-                        }
-                        
+                        var d = response.data[0];
 
                         // Process PCA Variance
                         var pcs = d.metadata.variance
@@ -211,21 +188,6 @@
                             loadings[i].value = scale(loadings[i].value);
                         }
                         vm.loadingsPc1 = loadings;
-
-                        var loadings = response.data[0].loadings
-                            .map(v => ({ tip: v.id + ' = ' + v.d[1], value: v.d[1] }))
-                            .sort(function (a, b) {
-                                return b.value - a.value;
-                            })
-                            .slice(0, 200);
-                        var scale = d3.scaleLinear()
-                            .domain([loadings[loadings.length - 1].value, loadings[0].value])
-                            .range([0.1, 1]);
-                        for (var i = 0; i < loadings.length; i++) {
-                            loadings[i].value = scale(loadings[i].value);
-                        }
-                        vm.loadingsPc2 = loadings;
-
 
                         vm.loadings = loadings.map(function(v) {
                             return {
@@ -433,24 +395,26 @@
 
             osApi.query(clusterCollection, {
                 dataType: 'PCA',
-                $fields: ['input', 'geneset', 'source']
+                $fields: ['input', 'geneset', 'source', 'desc']
             }).then(function (response) {
-                var data = response.data.map(function (v) {
+                var r = response.data
+                var data = r.map(function (v) {
                     return {
                         a: v.geneset,
                         b: v.source,
-                        c: v.input
+                        c: v.input,
+                        d: v.desc
                     };
                 });
-                var result = _.reduce(data, function (memo, val) {
-                    var tmp = memo;
-                    _.each(val, function (fldr) {
-                        if (!_.has(tmp, fldr)) {
-                            tmp[fldr] = {};
+                var result = _.reduce(data, function (p, c) {
+                    var tmp = p;
+                    _.each(c, function (el) {
+                        if (!_.has(tmp, el)) {
+                            tmp[el] = {};
                         }
-                        tmp = tmp[fldr];
+                        tmp = tmp[el];
                     });
-                    return memo;
+                    return p;
                 }, {});
 
                 vm.geneSets = Object.keys(result).map(function (geneset) {
@@ -465,9 +429,12 @@
                             return {
                                 name: source,
                                 types: Object.keys(result[geneset][source]).map(function (type) {
-                                    return {
-                                        name: type
-                                    };
+                                    var obj = {name: type}
+                                    if(angular.isDefined(Object.keys(result[geneset][source][type])[0])){
+                                        obj.tip = Object.keys(result[geneset][source][type])[0]
+                                    }
+                                    return obj;
+                                    
                                 })
                             };
                         })

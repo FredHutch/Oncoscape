@@ -245,8 +245,7 @@
 
                 var layout = osApi.getLayout();
                 var width = $window.innerWidth - layout.left - layout.right - 80;
-console.log(patientsVisible.length);
-                // Set Scale
+                 // Set Scale
                 scaleX = d3.scaleLinear().domain(patientsDomain).range([0, width]).nice();
                 var patients = elPatients.selectAll("g.patient").data(patientsVisible);
                 patients.exit()
@@ -337,7 +336,6 @@ console.log(patientsVisible.length);
                 }).map(function(e) {
                     return e.name.toLowerCase();
                 });
-debugger
                 // Filter Dataset + Calculate Domain
                 patientsDomain = [Infinity, -Infinity];
                 patientsAll.forEach(function(patient) {
@@ -405,7 +403,7 @@ debugger
                         return (a.status == "dead") ? 1 : -1;
                     }
                 });
-                console.log(patientsVisible.length+'aa')
+                // console.log(patientsVisible.length+'aa')
             }
 
             // Load Data
