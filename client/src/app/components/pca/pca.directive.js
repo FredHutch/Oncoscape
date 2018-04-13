@@ -159,9 +159,9 @@
                         })
 
                         var options = {
-                            title: "Scree Plot (Percent Variance Explained)",
-                            container : 'screeplot',
-                            html : '#screeplot',
+                            title: "Percent Variance Explained",
+                            container : 'percVar',
+                            html : '#percVar',
                             f: "Bar Plot",
                             data      : scree,
                             labels    : {x:"", y:""},

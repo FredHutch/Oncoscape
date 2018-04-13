@@ -587,7 +587,7 @@
                         var y = b.name.toLowerCase();
                         return x < y ? -1 : x > y ? 1 : 0;
                     });
-
+                    
                     vm.optGeneSets = _.uniq(osApi.getDataSource()
                         .edges
                         .map(function(e) { return { name: e.geneset }; }), function(item) { return item.name; })
@@ -1067,12 +1067,13 @@
                         mouseIsOver = "gene";
                         var node = e.cyTarget;
                         var cosmic_url = "https://cancer.sanger.ac.uk/cosmic/gene/analysis?ln="+e.cyTarget.id()
+                        var genecard_url = "http://www.genecards.org/cgi-bin/carddisp.pl?gene="+e.cyTarget.id()
                         d3Tooltip.transition()
                                 .duration(200)
                                 .style("opacity", 1)
                                 .style("z-index", 9999)
                             d3Tooltip.html(
-                                '<div onclick=window.open("'+cosmic_url+'","_blank")>'+node.id()+'</div>'
+                                '<div><b>'+node.id()+'</b></div><div onclick=window.open("'+cosmic_url+'","_blank")>COSMIC</div><div onclick=window.open("'+genecard_url+'","_blank")>Gene Card</div>'
                             )
                                 .style("left", (e.cyRenderedPosition.x ) + "px")
                                 .style("top", (e.cyRenderedPosition.y ) + "px");
