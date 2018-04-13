@@ -142,18 +142,18 @@
 
                         // Process PCA Variance
                         var pcs = d.metadata.variance
-                        var scree;
+                        var percVar;
 
                         if(pcs[0] == null){
-                            scree = [{x:"PC1", y:1, tip:"NA"},
+                            percVar = [{x:"PC1", y:1, tip:"NA"},
                                      {x:"PC2", y:1, tip:"NA"},
                                      {x:"PC3", y:1, tip:"NA"} ]
                         }else{
-                            scree = [{x:"PC1", y:pcs[0], tip:pcs[0]+"%"},
+                            percVar = [{x:"PC1", y:pcs[0], tip:pcs[0]+"%"},
                                      {x:"PC2", y:pcs[1], tip:pcs[1]+"%"},
                                      {x:"PC3", y:pcs[2], tip:pcs[2]+"%"} ]
                         }
-                        scree.map(function(d){
+                        percVar.map(function(d){
                             if( d.y<10) d.color="grey"
                             return d;
                         })
@@ -163,7 +163,7 @@
                             container : 'percVar',
                             html : '#percVar',
                             f: "Bar Plot",
-                            data      : scree,
+                            data      : percVar,
                             labels    : {x:"", y:""},
                             color : '#0096d5',
                             margin: {top: 10, right: 10, bottom: 35, left: 30},
@@ -395,15 +395,15 @@
 
             osApi.query(clusterCollection, {
                 dataType: 'PCA',
-                $fields: ['input', 'geneset', 'source', 'desc']
+                $fields: ['input', 'geneset', 'source']
             }).then(function (response) {
                 var r = response.data
                 var data = r.map(function (v) {
                     return {
                         a: v.geneset,
                         b: v.source,
-                        c: v.input,
-                        d: v.desc
+                        c: v.input
+                        
                     };
                 });
                 var result = _.reduce(data, function (p, c) {
@@ -430,9 +430,8 @@
                                 name: source,
                                 types: Object.keys(result[geneset][source]).map(function (type) {
                                     var obj = {name: type}
-                                    if(angular.isDefined(Object.keys(result[geneset][source][type])[0])){
-                                        obj.tip = Object.keys(result[geneset][source][type])[0]
-                                    }
+                                    obj.tip = osApi.getDataTypeInfo(type).desc
+                                    
                                     return obj;
                                     
                                 })
