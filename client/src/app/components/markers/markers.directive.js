@@ -1067,12 +1067,13 @@
                         mouseIsOver = "gene";
                         var node = e.cyTarget;
                         var cosmic_url = "https://cancer.sanger.ac.uk/cosmic/gene/analysis?ln="+e.cyTarget.id()
+                        var genecard_url = "http://www.genecards.org/cgi-bin/carddisp.pl?gene="+e.cyTarget.id()
                         d3Tooltip.transition()
                                 .duration(200)
                                 .style("opacity", 1)
                                 .style("z-index", 9999)
                             d3Tooltip.html(
-                                '<div onclick=window.open("'+cosmic_url+'","_blank")>'+node.id()+'</div>'
+                                '<div><b>'+node.id()+'</b></div><div onclick=window.open("'+cosmic_url+'","_blank")>COSMIC</div><div onclick=window.open("'+genecard_url+'","_blank")>GeneCard</div>'
                             )
                                 .style("left", (e.cyRenderedPosition.x ) + "px")
                                 .style("top", (e.cyRenderedPosition.y ) + "px");
@@ -1188,6 +1189,7 @@
                                     cyChart.endBatch();
                                     break;
                                 case "LaunchCbio":
+                                    
                                     genes = cyChart
                                         .$('node[nodeType="gene"]:selected')
                                         .map(function(v){return v.data().id})
@@ -1195,8 +1197,9 @@
                                             alert('Please select genes from the chromosome view and try again.');
                                         }else { 
                                             genes = genes.join('%20');
-                                            var d = osApi.getDataSource();                             
-                                            url = 'http://www.cbioportal.org/index.do?gene_list='+genes+'&Action=Submit&cancer_study_id='+d.disease.toLowerCase()+'_tcga&case_set_id='+d.disease.toLowerCase()+'_tcga_cnaseq&genetic_profile_ids_PROFILE_MUTATION_EXTENDED='+d.disease.toLowerCase()+'_tcga_mutations&genetic_profile_ids_PROFILE_COPY_NUMBER_ALTERATION='+d.disease.toLowerCase()+'_tcga_gistic&tab_index=tab_visualize';
+                                            var studyID = osApi.getDataSource().cBio;  
+                                            
+                                            url = 'http://www.cbioportal.org/index.do?gene_list='+genes+'&Action=Submit&cancer_study_id='+studyID+'&case_set_id='+studyID+'_cnaseq&genetic_profile_ids_PROFILE_MUTATION_EXTENDED='+studyID+'_mutations&genetic_profile_ids_PROFILE_COPY_NUMBER_ALTERATION='+studyID+'_gistic&tab_index=tab_visualize';
                                             $window.open(url);
                                         }
 
