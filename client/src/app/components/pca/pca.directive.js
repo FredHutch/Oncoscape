@@ -142,28 +142,28 @@
 
                         // Process PCA Variance
                         var pcs = d.metadata.variance
-                        var scree;
+                        var percVar;
 
                         if(pcs[0] == null){
-                            scree = [{x:"PC1", y:1, tip:"NA"},
+                            percVar = [{x:"PC1", y:1, tip:"NA"},
                                      {x:"PC2", y:1, tip:"NA"},
                                      {x:"PC3", y:1, tip:"NA"} ]
                         }else{
-                            scree = [{x:"PC1", y:pcs[0], tip:pcs[0]+"%"},
+                            percVar = [{x:"PC1", y:pcs[0], tip:pcs[0]+"%"},
                                      {x:"PC2", y:pcs[1], tip:pcs[1]+"%"},
                                      {x:"PC3", y:pcs[2], tip:pcs[2]+"%"} ]
                         }
-                        scree.map(function(d){
+                        percVar.map(function(d){
                             if( d.y<10) d.color="grey"
                             return d;
                         })
 
                         var options = {
-                            title: "Scree Plot (Percent Variance Explained)",
-                            container : 'screeplot',
-                            html : '#screeplot',
+                            title: "Percent Variance Explained",
+                            container : 'percVar',
+                            html : '#percVar',
                             f: "Bar Plot",
-                            data      : scree,
+                            data      : percVar,
                             labels    : {x:"", y:""},
                             color : '#0096d5',
                             margin: {top: 10, right: 10, bottom: 35, left: 30},

@@ -48,7 +48,7 @@
                     </button>
                         <ul class="dropdown-menu" aria-labelledby="dropdownMenu1" style="width:100%">
                             <li class="markers-command hvr-sweep-to-right" ng-repeat="item in vm.optGeneSets" ng-click="vm.optGeneSet=item"
-                            tooltip="{{item.tip}}" tooltip-placement="left">{{item.name}}</li>
+                            tooltip="{{item.tip}}" tooltip-placement="bottom">{{item.name}}</li>
                         </ul>
                     </div>
                     <div class="input-group-addon btn-help-icon"><a href="http://resources.sttrcancer.org/api/#gene-sets" target="_blank"><i style="color:#000" class="glyphicon glyphicon-question-sign"></i></a></div>
@@ -92,7 +92,7 @@
             </div>
             <div class='col-xs-12 form-item'>
                 <label>View Selected Genes Using</label>
-                <!-- <a ng-click="vm.cmd('LaunchCbio')" class="markers-command hvr-sweep-to-right">cBio Portal</a> -->
+                <a ng-click="vm.cmd('LaunchCbio')" class="markers-command hvr-sweep-to-right">cBio Portal</a>
                 <a ng-click="vm.cmd('LaunchPwc')" class="markers-command hvr-sweep-to-right">Pathway Commons</a>
                 <a ng-click="vm.cmd('LaunchGeneCards')" class="markers-command hvr-sweep-to-right">Gene Cards</a>
             </div>
@@ -138,6 +138,7 @@
         <div style="margin-top:10px;">
             <div  ><b>Clustered Samples (left)</b>: {{vm.optPatientLayout.name}} </div> 
             <div  ><b>Geneset on Chromosome (right)</b>: {{vm.optGeneSet.name}}</div>
+            <div><i>node sizes are relative to the number of alterations</i></div>
         </div>
     </div>
    
