@@ -8,7 +8,7 @@
 5. [Running the Oncoscape Docker container](#5-running-the-oncoscape-docker-container)
 6. [Developing Oncoscape inside a Docker container](#6-developing-oncoscape-inside-a-docker-container)
 
-##1. What is Docker?
+## 1. What is Docker?
 
 Docker is an open platform for building, shipping and running applications. It allows development teams to produce self-contained application containers that include not only the application but an environment, configuration and all required dependencies. If a Docker container based application runs on your development workstation, it will run exactly the same on any Docker powered systems without modification and without worrying about any application specific dependencies.  
 
@@ -16,7 +16,7 @@ Development teams using Docker can simply provide the container to operations te
 
 Docker is not just for ease of deployment, it's also provides developers with a clean, isolated environment to consistently code, build and test their application on their development workstation.
 
-##2. Installing Docker on Mac OS X
+## 2. Installing Docker on Mac OS X
 
 Running a Docker environment on Mac OS X requires Mac OS X 10.8 "Mountain Lion" or higher.
 
@@ -74,7 +74,7 @@ This message shows that your installation appears to be working correctly.
 
 If your output looks like the above, then you're Mac is ready to use Docker.
 
-##3. Installing Docker on Windows
+## 3. Installing Docker on Windows
 
 Running a Docker environment on Microsoft Windows requires Windows 7, 8.x, or 10
 
@@ -134,7 +134,7 @@ I you get an error like "An error occurred trying to connect..." you probably ne
 eval "$(docker-machine env --shell=bash default)"
 ```
 
-##4. Installing Docker on Linux
+## 4. Installing Docker on Linux
 
 Docker runs natively on Linux so you won't have to install an enabling technology like Docker Machine or Boot2Docker as is required on Windows and Mac OS platforms. 
 
@@ -180,7 +180,7 @@ This message shows that your installation appears to be working correctly.
 
 ***NOTE:*** to avoid having to use "sudo" for every docker command, you and add your account to the local "docker" group (create it if it doesn't already exist).
 
-##5. Running the Oncoscape Docker container
+## 5. Running the Oncoscape Docker container
 
 This section covers running Oncoscape in a container for either test/demo purposes or deploying on a production server. If you just want to get Oncoscape up and running quickly to check it out, then this section is for you. If you want to build and develop Oncoscape in a container, skip this section and move on to [Developing Oncoscape inside a Docker container](#6-developing-oncoscape-inside-a-docker-container).
 
@@ -235,7 +235,7 @@ oncoscapedev
 ```
 
 
-##6. Developing Oncoscape inside a Docker container
+## 6. Developing Oncoscape inside a Docker container
 
 In the previous section we simply ran Oncoscape in a container, but Docker is not just for running and deploying applications, it’s great for development too. Using Docker for development provides consistent, clean development environment. Each build can be in a fresh environment without any dependencies on your development workstation or clashes/contamination with your workstation. All developers can use the same OS, same system libraries, same language runtime, no matter what host OS they are using (even Windows). The development environment is the exact same as the production environment. You only need Docker to develop; you don’t need to install a bunch of language environments, libraries and tools on your machine. 
 

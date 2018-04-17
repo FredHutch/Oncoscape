@@ -1,3 +1,4 @@
+
 .tbl {
     width: 100%;
     
@@ -146,6 +147,17 @@
     background-color: $color-blue;
     position: relative;
     top: 2px;
+}
+
+.markers-tooltip {
+    position: absolute;
+    text-align: center;
+    background: #EFEFEF;
+    border: 0px;
+    border-radius: 3px;
+    padding: 5px;
+    cursor: pointer;
+    z-index: 99999 !important;
 }
 
 .markers-chart {
@@ -301,3 +313,4 @@ $switchTransition: .15s ease-out;
 .switch-cnL2>.switch-input:checked~.switch-label {
     background: #FD7400;
 }
+

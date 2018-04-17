@@ -52,7 +52,7 @@
             // Create D3 Elements
             var elContainer = angular.element("#survival-chart");
             var elChart = d3.select("#survival-chart").append("svg").attr("width", "100%").attr("height", "100%");
-            var elBrush = elChart.append("g");
+            // var elBrush = elChart.append("g");
             var elCurves = elChart.append("g");
             var elXAxis = elChart.append("g").attr("class", "axis");
             var elYAxis = elChart.append("g").attr("class", "axis").attr("transform", "translate(50, 10)");
@@ -135,7 +135,7 @@
 
             };
 
-
+            /* Removed Brush Per Nature Review
             var onBrushEnd = function() {
 
 
@@ -202,7 +202,7 @@
                 // osApi.setCohort(patientIds, "Survival", osApi.PATIENT);
                 osApi.setBusy(false);
             };
-
+            */
             var resize = function() {
 
                 // Get Screen Dimensions
@@ -268,12 +268,12 @@
                 });
                 vm.pValues = pValues;
 
-                brush.extent([
-                    [40, 20],
-                    [layout.width - 30, layout.height - 30]
-                ]);
-                brush.on("end", onBrushEnd);
-                elBrush.call(brush);
+                // brush.extent([
+                //     [40, 20],
+                //     [layout.width - 30, layout.height - 30]
+                // ]);
+                // brush.on("end", onBrushEnd);
+                // elBrush.call(brush);
             };
 
             var onCohortsChange = function() {

@@ -18,7 +18,6 @@
                 <label>Patient {{vm.legendCaption}}</label>
                 <div class="legend-bar-container">
                     <div ng-repeat="item in vm.legendNodes" class="legend-bar legend-bar-button" style="border-color:{{item.color}};">{{item.name}}<span id="{{item.id}}" class="legend-count"></span>
-
                         <label style="float:right;padding-top:5px;" class="btn-group">
                         <button tooltip="Deselect" tooltip-placement="left"
                         ng-click="vm.deselectColor(item)"
@@ -48,11 +47,10 @@
                         <span class="caret"></span>
                     </button>
                         <ul class="dropdown-menu" aria-labelledby="dropdownMenu1" style="width:100%">
-                            <li class="markers-command hvr-sweep-to-right" ng-repeat="item in vm.optGeneSets" ng-click="vm.optGeneSet=item">{{item.name}}</li>
+                            <li class="markers-command hvr-sweep-to-right" ng-repeat="item in vm.optGeneSets" ng-click="vm.optGeneSet=item"
+                            tooltip="{{item.tip}}" tooltip-placement="bottom">{{item.name}}</li>
                         </ul>
                     </div>
-
-
                     <div class="input-group-addon btn-help-icon"><a href="http://resources.sttrcancer.org/api/#gene-sets" target="_blank"><i style="color:#000" class="glyphicon glyphicon-question-sign"></i></a></div>
                 </div>
             </div>
@@ -76,6 +74,7 @@
                     <input type="text" class="form-control" ng-model="vm.search" ng-enter="vm.exeSearch()" placeholder="">
                     <div class="input-group-addon btn-help-icon" ng-click="vm.exeSearch()">Go</div>
                 </div>
+                <label>{{vm.searchNotFound}}</label>
             </div>
 
 
@@ -91,6 +90,13 @@
                 <a ng-click="vm.cmd('HideUnselectedNodes')" class="markers-command hvr-sweep-to-right">Hide Unselected Nodes</a>
                 <a ng-click="vm.cmd('ShowAllNodes')" class="markers-command hvr-sweep-to-right">Show All Nodes</a>
             </div>
+            <div class='col-xs-12 form-item'>
+                <label>View Selected Genes Using</label>
+                <a ng-click="vm.cmd('LaunchCbio')" class="markers-command hvr-sweep-to-right">cBioPortal</a>
+                <a ng-click="vm.cmd('LaunchPwc')" class="markers-command hvr-sweep-to-right">Pathway Commons</a>
+                <a ng-click="vm.cmd('LaunchGeneCards')" class="markers-command hvr-sweep-to-right">Gene Cards</a>
+            </div>
+
 
             <div class="col-xs-12 form-item">
                 <label>Lock Selections</label>
@@ -128,9 +134,14 @@
     <div id="markers-chart" class="markers-chart"></div>
     <div style="position:absolute;top:10px;text-align:center;width:100%;">
         <h2 class="h2-tool">Markers + Patients</h2>
-        <span class="h3-tool">{{vm.datasource.source}} {{vm.datasource.name}}</span> &mdash;
-        <span class="h3-tool">{{vm.optPatientLayout.name}}</span>
+        <span class="h3-tool">{{vm.datasource.source}} {{vm.datasource.name}}</span>
+        <div style="margin-top:10px;">
+            <div  ><b>Clustered Samples (left)</b>: {{vm.optPatientLayout.name}} </div> 
+            <div  ><b>Geneset on Chromosome (right)</b>: {{vm.optGeneSet.name}}</div>
+            <div><i>node sizes are relative to the number of alterations</i></div>
+        </div>
     </div>
+   
 </section>
 
 <!-- Modal To Many Edges -->

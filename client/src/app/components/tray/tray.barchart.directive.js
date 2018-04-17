@@ -28,6 +28,7 @@
             });
             chart.call(elTip);
             scope.$watch('data', function(newValue) {
+            
                 var barHeight = scope.height - 10;
                 var barWidth = (250 / newValue.length) - 1;
                 var binding = chart
@@ -51,7 +52,6 @@
                     .style("x", function(d, i) { return (((barWidth + 1) * i) + 5) + "px"; })
                     .style("height", function(d) { return (d.value * barHeight) + "px"; })
                     .style("y", function(d) { return (barHeight - (d.value * barHeight) + 5) + "px"; });
-
 
 
             });

@@ -726,6 +726,191 @@
             });
         };
 
+        var getGeneInfo = function(gene) { 
+            // var url = "/api/";
+            // // http://oncoscape.sttrcancer.io/api/
+            //  url = "http://oncoscape.sttrcancer.io/api/";
+            //  var queryString = function(req) {
+            //      var query = url + req.table;
+            //      if (angular.isDefined(req.query)) query += "/" + encodeURIComponent(angular.toJson(req.query));
+            //      return query;
+            //  };
+    
+            //  var query = function(req) {
+            //      return $http({
+            //          method: 'GET',
+            //          url: queryString(req),
+            //          headers: {
+            //              apikey: 'password'
+            //          }
+            //      });
+            //  };
+        }
+        var getSourceInfo = function(name) { 
+            return [
+                {   "n": 'ucsc xena',
+                    "d": "Originating data processed by and obtained via UCSC Xena browser"    
+                },{ "n": "GEO",
+                    "d": "Originating data obtained via Gene Expression Omnibus"
+                },{"n": "ucsc xena + GEO",
+                    "d": "GEO data superimposed on TCGA data via centroid method of 3 most correlated samples"
+                }].filter(function(v){return v.n === name})[0];}
+
+        var getGenesetInfo = function(name) { 
+            return [
+                {   "n": 'All Genes',
+                    "d": "All gene available in the given data type used in calculation",
+                    "g": "0"
+                },
+                {
+                    "n": "TCGA GBM Classifiers",
+                    "d": "Gene expression-based molecular classification of GBM subtypes (Proneural, Neural, Classical, Mesenchymal)",
+                    "g": "840"
+                },
+                {
+                    "n": "Glioma Markers",
+                    "d": "Genes recurrently impacted in TCGA gliomas",
+                    "g": "545"
+                },
+                {
+                    "n": "TCGA Pancan Mutated",
+                    "d": "Significantly mutated genes according to the TCGA PANCAN working group (syn1750331) identified by both MuS, iC and MutSig",
+                    "g": "73"
+                },
+                {
+                    "n": "Oncoplex Vogelstein",
+                    "d": "Combined set from the Oncoplex gene panel and driver genes described in Vogelstein, Science 2013.",
+                    "g": "274"
+                },
+                {
+                    "n": "Oncoplex",
+                    "d": "A sequencing panel that detects mutations in genes related to cancer treatment, prognosis, and diagnosis.",
+                    "g": "263"
+                },
+                {
+                    "n": "OSCC Expression Markers",
+                    "d": "Differentially expressed probe set comparing normal oral tissue to oral squamous cell carcinoma",
+                    "g": "109"
+                },
+                {
+                    "n": "Breast PAM50",
+                    "d": "Gene expression based subtype predictor for subtypes luminal A, luminal B, HER2-enriched, and basal-like",
+                    "g": "50"
+                },
+                {
+                    "n": "Breast Tumor Intrinsic Classifier",
+                    "d": "Meta analysis of available breast cancer gene expression datasets grouping LumA, LumB, Basal-like, HER2+/E, R-, and Normal Breast-like tumor subtypes",
+                    "g": "1232"
+                },
+                {
+                    "n": "FoundationOne Heme",
+                    "d": "FoundationOne® Heme is designed to analyze and interpret sequence information for somatically altered gene, s in human hematologic malignancies (leukemias, lymphomas, and myelomas), and sarcomas. Genes included in this assay encode known or likely targets of therapies, either approved or in clinical trials, or otherwise known drivers of oncogenesis.",
+                    "g": "593"
+                },
+                {
+                    "n": "TCGA Sarcoma alterations",
+                    "d": "Frequently mutated genes in soft-tissue sarcoma subtypes",
+                    "g": "21"
+                },
+                {
+                    "n": "Leiomyosarcoma molecular subtypes",
+                    "d": "Three molecular subtypes of leiomyosarcoma were confirmed in 2 publically available datasets. Subtype I LM, S is associated with good outcome in extrauterine LMS while subtype II LMS is associated with poor prognosis in both uterine and extrauterine LMS. A subset of the biomarkers are used here based on the genes mentioned in the publication.",
+                    "g": "13"
+                },
+                {
+                    "n": "Sarcoma markers",
+                    "d": "Compiled from multiple publications on different sarcoma subtypes",
+                    "g": "48"
+                },
+                {
+                    "n": "Sarcoma markers Heme",
+                    "d": "Compiled from multiple publications on different sarcoma subtypes & intersected with FoundationOne Heme",
+                    "g": "24"
+                },
+                {
+                    "n": "Sarcoma markers Oncoplex",
+                    "d": "Compiled from multiple publications on different sarcoma subtypes & intersected with Oncoplex",
+                    "g": "19"
+                },
+                {
+                    "n": "Sarcoma CINSARC",
+                    "d": "Performed genomic and expression profiling in a training set of 183 sarcomas and established a prognostic, gene expression signature, complexity index in sarcomas (CINSARC), composed of 67 genes related to mitosis and chromosome management",
+                    "g": "67"
+                }
+            ].filter(function(v){return v.n === name})[0];
+        }
+
+        var getDataTypeInfo = function(name) { 
+            return [
+            {"name": "gene expression RNAseq (ployA+ IlluminaHiSeq pancan normalized)",
+            "desc":"Gene expression values were mean-centered per gene across all 'gene expression RNAseq' TCGA cohorts"},
+            {"name": "gene expression RNAseq (polyA+ IlluminaHiSeq)",
+            "desc": "Gene expression measured experimentally using the Illumina HiSeq 2000 RNA Sequencing platform, log2(x+1) transformed RSEM normalized count"},
+            {"name": "gene expression RNAseq (polyA+ IlluminaHiSeq percentile)",
+            "desc":"Gene expression estimation in percentile rank (RSEM values between 0% to 100%), with higher value representing higher expression"},
+            {"name": "protein expression RPPA",
+            "desc":"RPPA (reverse phase protein array) technology processed by MDACC"},
+            {"name": "copy number (gistic2)",
+            "desc":"TCGA FIREHOSE pipeline applied GISTIC2 method with segmented CNV values mapped to gene-level estimates"},
+            {"name": "protein expression RPPA (RBN)",
+            "desc":"RPPA (reverse phase protein array) technology normalized by RBN (replicate-base normalization) method developed by MDACC"},
+            {"name": "gene expression (AgilentG4502A_07_3)",
+            "desc":"Gene expression measured experimentally using Agilent 244K custom gene expression G4502A_07_1 microarray, log2 lowess normalized ratio of sample signal to reference signal (cy5/cy3) collapsed by gene"},
+            {"name": "gene expression (AffyU133a)",
+            "desc":"Gene expression measured experimentally using the Affymetrix HT Human Genome U133a microarray, log transformed"},
+            {"name": "gene expression (AgilentG4502A_07_1)",
+            "desc":"Gene expression measured experimentally using Agilent 244K custom gene expression G4502A_07_1 microarray, log2 lowess normalized ratio of sample signal to reference signal (cy5/cy3) collapsed by gene"},
+            {"name": "gene expression (AgilentG4502A_07_2)",
+            "desc":"Gene expression measured experimentally using Agilent 244K custom gene expression G4502A_07_2 microarray, log2 lowess normalized ratio of sample signal to reference signal (cy5/cy3) collapsed by gene"},
+            {"name": "gene expression RNAseq (ployA+ IlluminaHiSeq pancan normalized)",
+            "desc":"Gene expression values were mean-centered per gene across all 'gene expression RNAseq' TCGA cohorts"},
+            {"name": "gene expression RNAseq (polyA+ IlluminaGA)",
+            "desc":"Gene expression measured experimentally using the Illumina Genome Analyzer RNA Sequencing platform by the British Columbia Cancer Agency, RPKM values"},
+            {"name": "gene expression RNAseq (polyA+ IlluminaHiSeq UNC)",
+            "desc":"Gene expression measured experimentally using the Illumina HiSeq 2000 RNA Sequencing platform, log2(x+1) transformed RSEM normalized count"},
+            {"name": "gene expression RNAseq (polyA+ IlluminaHiseq BC)",
+            "desc":"Gene expression measured experimentally using the Illumina HiSeq 2000 RNA Sequencing platform, RPKM values"},
+            {"name": "gene expression RNAseq (polyA+ IlluminaHiSeq percentile UNC)",
+            "desc":"Gene expression estimation in percentile rank (RSEM values between 0% to 100%), with higher value representing higher expression"},
+            {"name": "gene expression RNAseq + GSE21050",
+            "desc":"TCGA + Affy U133Plus2.0: Expression data from Complex genetics sarcomas (cohort 1 and 2) (310 samples)"},
+            {"name": "gene expression RNAseq + GSE20196",
+            "desc":"TCGA + Affy U133Plus2.0: Gene expression profile of poorly differentiated synovial sarcoma (34 samples)"},
+            {"name": "gene expression RNAseq + GSE12102",
+            "desc":"TCGA + Affy U133Plus2.0: Overcoming resistance to conventional drugs in Ewing’s sarcoma and identification of molecular predictors of outcome (37 samples)"},
+            {"name": "gene expression RNAseq + GSE16102-GPL96",
+            "desc":"TCGA + Affy U133A: Gene expression profiles of canine and human osteosarcoma (57 samples)"},
+            {"name": "gene expression RNAseq + GSE16102-GPL3979",
+            "desc":"TCGA + Affy U133A: Gene expression profiles of canine and human osteosarcoma (57 samples)"},
+            {"name": "gene expression RNAseq + GSE21122",
+            "desc":"TCGA + Affy U133A: Whole-transcript expression data for soft-tissue sarcoma tumors and control normal fat specimens (158 samples)"},
+            {"name": "gene expression RNAseq + GSE23980",
+            "desc":"TCGA + Affy U133Plus2.0: Expression data from human soft tissue sarcomas with complex genomics (171 samples)"},
+            {"name": "gene expression RNAseq + GSE30929",
+            "desc":"TCGA + Affy U133A: Whole-transcript expression data for liposarcoma (140 samples)"},
+            {"name": "gene expression RNAseq + GSE6481",
+            "desc":"TCGA + Affy U133A: Gene Expression Analysis of Soft Tissue Sarcomas: Characterization & Reclassification of Malignant Fibrous Histiocytoma (105 samples)"},
+            {"name": "GSE12102",
+            "desc":"Affy U133Plus2.0: Overcoming resistance to conventional drugs in Ewing’s sarcoma and identification of molecular predictors of outcome (37 samples)"},
+            {"name": "GSE16102-GPL96",
+            "desc":"Affy U133A: Gene expression profiles of canine and human osteosarcoma (57 samples)"},
+            {"name": "GSE16102-GPL3979",
+            "desc":"Affy U133A: Gene expression profiles of canine and human osteosarcoma (57 samples)"},
+            {"name": "GSE20196",
+            "desc":"Affy U133Plus2.0: Gene expression profile of poorly differentiated synovial sarcoma (34 samples)"},
+            {"name": "GSE21050",
+            "desc":"Affy U133Plus2.0: Expression data from Complex genetics sarcomas (cohort 1 and 2) (310 samples)"},
+            {"name": "GSE21122",
+            "desc":"Affy U133A: Whole-transcript expression data for soft-tissue sarcoma tumors and control normal fat specimens (158 samples)"},
+            {"name": "GSE23980",
+            "desc":"Affy U133Plus2.0: Expression data from human soft tissue sarcomas with complex genomics (171 samples)"},
+            {"name": "GSE30929",
+            "desc":"Affy U133A: Whole-transcript expression data for liposarcoma (140 samples)"},
+            {"name": "GSE6481",
+            "desc":"Affy U133A: Gene Expression Analysis of Soft Tissue Sarcomas: Characterization & Reclassification of Malignant Fibrous Histiocytoma (105 samples)"}
+            ].filter(function(v){return v.name === name})[0];
+        }
+
         return {
 
             // Constants
@@ -733,6 +918,10 @@
             SAMPLE: "SAMPLE",
             PATIENT: "PATIENT",
 
+            getGeneInfo: getGeneInfo,
+            getGenesetInfo: getGenesetInfo,
+            getSourceInfo: getSourceInfo,
+            getDataTypeInfo: getDataTypeInfo,
             // Init
             init: init,
 
@@ -757,7 +946,6 @@
             setCohortToolInfo: setCohortToolInfo,
             getCohortToolInfo: getCohortToolInfo,
             getCohortDatasetInfo: getCohortDatasetInfo,
-
 
             // Cohort Management
             getCohorts: getCohorts,

@@ -32,15 +32,15 @@ RUN apt-get -y -qq install nodejs
 RUN npm install -g pm2
 
 # Install OpenCPU
-RUN \
-  apt-get update && \
-  apt-get -y dist-upgrade && \
-  apt-get install -y software-properties-common && \
-  add-apt-repository -y ppa:opencpu/opencpu-1.6 && \
-  apt-get update && \
-  apt-get install -y opencpu 
-RUN truncate -s 0 /etc/apache2/ports.conf
-RUN echo "ServerName localhost" >> /etc/apache2/apache2.conf
+#RUN \
+#  apt-get update && \
+#  apt-get -y dist-upgrade && \
+#  apt-get install -y software-properties-common && \
+#  add-apt-repository -y ppa:opencpu/opencpu-1.6 && \
+#  apt-get update && \
+#  apt-get install -y opencpu 
+#RUN truncate -s 0 /etc/apache2/ports.conf
+#RUN echo "ServerName localhost" >> /etc/apache2/apache2.conf
 
 # Create Application User
 RUN useradd -u 7534 -m -d /home/sttrweb -c "sttr web application" sttrweb && \
@@ -58,11 +58,11 @@ WORKDIR /home/sttrweb/Oncoscape/server/
 RUN npm install
 
 # Install R Package
-COPY cpu/oncoscape_0.1.0.tgz /home/sttrweb/Oncoscape/oncoscape_0.1.0.tgz
-WORKDIR /home/sttrweb/Oncoscape/
-RUN R CMD INSTALL oncoscape_0.1.0.tgz --library=/usr/local/lib/R/site-library
-RUN echo "r <- getOption('repos'); r['CRAN'] <- 'http://cran.us.r-project.org'; options(repos = r);" > ~/.Rprofile
-RUN Rscript -e "install.packages(c('devtools','ggplot2','gridSVG','d3heatmap','pls'))"
+# COPY cpu/oncoscape_0.1.0.tgz /home/sttrweb/Oncoscape/oncoscape_0.1.0.tgz
+# WORKDIR /home/sttrweb/Oncoscape/
+# RUN R CMD INSTALL oncoscape_0.1.0.tgz --library=/usr/local/lib/R/site-library
+# RUN echo "r <- getOption('repos'); r['CRAN'] <- 'http://cran.us.r-project.org'; options(repos = r);" > ~/.Rprofile
+# RUN Rscript -e "install.packages(c('devtools','ggplot2','gridSVG','d3heatmap','pls'))"
 
 # Copy Config Files
 WORKDIR /home/sttrweb/Oncoscape/

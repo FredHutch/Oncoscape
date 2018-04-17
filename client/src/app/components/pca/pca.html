@@ -2,24 +2,12 @@
     <section class="tray-content">
         <div class="row">
             <div class="col-xs-12 form-item">
-                <label>Gene Set</label>
-                <div class="input-group">
-                    <div class="dropdown bs-dropdown">
-                        <button class="btn btn-default dropdown-toggle" type="button" id="dropdownMenu1" data-toggle="dropdown" aria-haspopup="true" aria-expanded="true">{{vm.geneSet.name}}<span class="caret"></span></button>
-                        <ul class="dropdown-menu" aria-labelledby="dropdownMenu1" style="width:260px;">
-                            <li class="markers-command hvr-sweep-to-right" ng-repeat="item in vm.geneSets" ng-click="vm.geneSet=item">{{item.name}}</li>
-                        </ul>
-                    </div>
-                    <div class="input-group-addon btn-help-icon"><a href="http://resources.sttrcancer.org/api/#gene-sets" target="_blank"><i style="color:#000" class="glyphicon glyphicon-question-sign"></i></a></div>
-                </div>
-            </div>
-            <div class="col-xs-12 form-item">
                 <label>Data Source</label>
                 <div class="input-group">
                     <div class="dropdown bs-dropdown">
-                        <button class="btn btn-default dropdown-toggle" type="button" id="dropdownMenu1" data-toggle="dropdown" aria-haspopup="true" aria-expanded="true">{{vm.source.name}}<span class="caret"></span></button>
+                        <button class="btn btn-default dropdown-toggle" type="button" id="dropdownMenu1" data-toggle="dropdown"  aria-haspopup="true" aria-expanded="true">{{vm.source.name}}<span class="caret"></span></button>
                         <ul class="dropdown-menu" aria-labelledby="dropdownMenu1" style="width:260px;">
-                            <li class="markers-command hvr-sweep-to-right" ng-repeat="item in vm.sources" ng-click="vm.source=item">{{item.name}}</li>
+                            <li tooltip="{{item.tip}}" tooltip-placement="bottom" class="markers-command hvr-sweep-to-right" ng-repeat="item in vm.sources" ng-click="vm.source=item" >{{item.name}}</li>
                         </ul>
                     </div>
                     <div class="input-group-addon btn-help-icon"><a href="http://resources.sttrcancer.org/api/#data-content" target="_blank"><i style="color:#000" class="glyphicon glyphicon-question-sign"></i></a></div>
@@ -30,14 +18,29 @@
                 <label>Data Type</label>
                 <div class="input-group">
                     <div class="dropdown bs-dropdown">
-                        <button style="max-width:220px" class="btn btn-default dropdown-toggle" type="button" id="dropdownMenu1" data-toggle="dropdown" aria-haspopup="true" aria-expanded="true">{{vm.pcaType.name}}<span class="caret"></span></button>
+                        <button style="max-width:220px" class="btn btn-default dropdown-toggle" type="button" id="dropdownMenu1" data-toggle="dropdown"  aria-haspopup="true" aria-expanded="true">{{vm.pcaType.name}}<span class="caret"></span></button>
                         <ul class="dropdown-menu" aria-labelledby="dropdownMenu1" style="width:260px;">
-                            <li class="markers-command hvr-sweep-to-right" ng-repeat="item in vm.pcaTypes" ng-click="vm.pcaType=item">{{item.name}}</li>
+                            <li class="markers-command hvr-sweep-to-right" ng-repeat="item in vm.pcaTypes" ng-click="vm.pcaType=item" tooltip="{{item.tip}}" tooltip-placement="bottom">{{item.name}}</li>
                         </ul>
                     </div>
-                    <div class="input-group-addon btn-help-icon"><a href="http://resources.sttrcancer.org/api/#cluster" target="_blank"><i style="color:#000" class="glyphicon glyphicon-question-sign"></i></a></div>
+                    <div class="input-group-addon btn-help-icon"><a href="http://resources.sttrcancer.org/api/#molecular-data" target="_blank"><i style="color:#000" class="glyphicon glyphicon-question-sign"></i></a></div>
                 </div>
             </div>
+             <div class="col-xs-12 form-item">
+                <label>Gene Set</label>
+                <div class="input-group">
+                    <div class="dropdown bs-dropdown">
+                        <button class="btn btn-default dropdown-toggle" type="button" id="dropdownMenu1" data-toggle="dropdown"  aria-haspopup="true" aria-expanded="true">{{vm.geneSet.name}}<span class="caret"></span></button>
+                        <ul class="dropdown-menu" aria-labelledby="dropdownMenu1" style="width:260px;">
+                            <li 
+                            tooltip="{{item.tip}}" tooltip-placement="bottom" class="markers-command hvr-sweep-to-right" ng-repeat="item in vm.geneSets" ng-click="vm.geneSet=item" >{{item.name}}</li>
+                        </ul>
+                    </div>
+                    <div class="input-group-addon btn-help-icon"><a href="http://resources.sttrcancer.org/api/#gene-sets" target="_blank"><i style="color:#000" class="glyphicon glyphicon-question-sign"></i></a></div>
+                </div>
+            </div>
+           
+            
             <div ng-if="vm.legendCaption.length>0" class="col-xs-12 form-item">
                 <label>Patient {{vm.legendCaption}}</label>
                 <div ng-repeat="item in vm.legendNodes" class="legend-bar legend-bar-button" style="border-color:{{item.color}};">{{item.name}}<span id="{{item.id}}" class="legend-count"></span>
@@ -56,18 +59,20 @@
                 <button class="btn btn-default btn-no-focus" type="button" style="width:100%;font-weight: 300;" ng-click="vm.showPanelColor = true">Color Options</button>
             </div>
             <div class="col-xs-12 form-item">
-                <label>Variance Explained</label>
-                <div>
+                <label>Percent Variance Explained</label>
+                <div id="percVar" style="border: 1px solid #EAEAEA;background: #FFF;"></div>
+                <!-- <div>
+                    <os-tray-barchart chart-data="vm.pcs" chart-height="100"></os-tray-barchart>
                     <os-tray-piechart chart-data1="vm.pc1" chart-data2="vm.pc2" chart-height="130"></os-tray-piechart>
                     <div class="pca-pc1-label"><span>PC1</span><br />{{vm.pc1[0].value}}%</div>
                     <div class="pca-pc2-label"><span>PC2</span><br />{{vm.pc2[0].value}}%</div>
-                </div>
+                </div> -->
             </div>
 
-            <div class="col-xs-12 form-item">
+            <!-- <div class="col-xs-12 form-item">
                 <label>Loadings</label>
                 <os-tray-barchart chart-data="vm.loadings" chart-height="100"></os-tray-barchart>
-            </div>
+            </div> -->
         </div>
     </section>
 </os-tray>

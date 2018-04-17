@@ -1,4 +1,4 @@
-(function() {
+(function () {
     'use strict';
 
     angular
@@ -19,7 +19,7 @@
         return directive;
 
         /** @ngInject */
-        function PcaController($q, osApi, $state, $stateParams, $timeout, $scope, d3, moment, $window, _) {
+        function PcaController($q, osApi, osWidget, $state, $stateParams, $timeout, $scope, d3, moment, $window, _) {
 
             // Loading ...
             osApi.setBusy(true);
@@ -31,6 +31,7 @@
             var d3yAxis = d3Chart.append("g");
             var brush;
             var d3Brush = d3Chart.append("g");
+            
 
             // Add Labels
             d3xAxis.append("text")
@@ -59,15 +60,17 @@
             // View Model Update
             var vm = (function(vm, osApi) {
                 vm.loadings = [];
+                vm.pcs = []
                 vm.pc1 = vm.pc2 = [];
                 vm.datasource = osApi.getDataSource();
+                vm.description = {geneset:"G", source:"S", data:"D"}
                 vm.geneSets = [];
                 vm.geneSet = null;
                 vm.search = "";
-                vm.selectColor = function(e) {
+                vm.selectColor = function (e) {
                     var ids = e.values;
                     var allIds = [];
-                    d3.selectAll("circle").each(function(d) {
+                    d3.selectAll("circle").each(function (d) {
                         if (ids.indexOf(d.id) != -1) {
                             d3.select(this).classed("pca-node-selected", true);
                             allIds.push(d.id);
@@ -77,10 +80,10 @@
                     });
                     osApi.setCohort(allIds, "PCA", osApi.SAMPLE);
                 };
-                vm.deselectColor = function(e) {
+                vm.deselectColor = function (e) {
                     var ids = e.values;
                     var allIds = [];
-                    d3.selectAll("circle").each(function(d) {
+                    d3.selectAll("circle").each(function (d) {
                         if (ids.indexOf(d.id) != -1) {
                             d3.select(this).classed("pca-node-selected", false);
                         } else {
@@ -93,63 +96,108 @@
             })(this, osApi);
 
             // Setup Watches
-            $scope.$watch('vm.geneSet', function() {
+            $scope.$watch('vm.geneSet', function () {
                 if (vm.geneSet === null) return;
-                vm.sources = vm.geneSet.sources;
+                var result = vm.geneSet.sources;
+                vm.sources = result.map(function (source) {
+                    var info = osApi.getSourceInfo(source.name);
+                    var tip = info.d;
+                     return {
+                        name: source.name,
+                        tip: tip,
+                        types: source.types
+                    };
+                })
+            
                 if (angular.isUndefined(vm.source)) {
                     vm.source = vm.sources[0];
                 } else {
-                    var newSource = vm.sources.filter(function(v) { return (v.name === vm.source.name); });
+                    var newSource = vm.sources.filter(function (v) { return (v.name === vm.source.name); });
                     vm.source = (newSource.length === 1) ? newSource[0] : vm.sources[0];
                 }
             });
-            $scope.$watch('vm.source', function() {
+            $scope.$watch('vm.source', function () {
                 if (vm.geneSet === null) return;
                 vm.pcaTypes = vm.source.types;
+                
                 if (angular.isUndefined(vm.pcaType)) {
                     vm.pcaType = vm.pcaTypes[0];
                 } else {
-                    var newSource = vm.pcaTypes.filter(function(v) { return (v.name === vm.pcaType.name); });
+                    var newSource = vm.pcaTypes.filter(function (v) { return (v.name === vm.pcaType.name); });
                     vm.pcaType = (newSource.length === 1) ? newSource[0] : vm.pcaTypes[0];
+
+                    // osApi.setPatientColor({
+                    //     "dataset": osApi.getDataSource().disease,
+                    //     "type": "color",
+                    //     "name": "None",
+                    //     "data": [],
+                    //     show: true
+                    // });
                 }
+                
             });
-            $scope.$watch('vm.pcaType', function(geneset) {
+            $scope.$watch('vm.pcaType', function (geneset) {
                 if (angular.isUndefined(geneset)) return;
-                osApi.query(clusterCollection, {
+                
+                    osApi.query(clusterCollection, {
                         disease: vm.datasource.disease,
                         geneset: vm.geneSet.name,
                         input: vm.pcaType.name,
                         source: vm.source.name
                     })
+                    
                     .then(function(response) {
 
                         var d = response.data[0];
 
                         // Process PCA Variance
-                        vm.pc1 = [
-                            { name: 'PC1', value: d.metadata.variance[0] },
-                            { name: '', value: 100 - d.metadata.variance[0] }
-                        ];
-                        vm.pc2 = [
-                            { name: 'PC2', value: d.metadata.variance[1] },
-                            { name: '', value: 100 - d.metadata.variance[1] }
-                        ];
+                        var pcs = d.metadata.variance
+                        var percVar;
 
+                        if(pcs[0] == null){
+                            percVar = [{x:"PC1", y:1, tip:"NA"},
+                                     {x:"PC2", y:1, tip:"NA"},
+                                     {x:"PC3", y:1, tip:"NA"} ]
+                        }else{
+                            percVar = [{x:"PC1", y:pcs[0], tip:pcs[0]+"%"},
+                                     {x:"PC2", y:pcs[1], tip:pcs[1]+"%"},
+                                     {x:"PC3", y:pcs[2], tip:pcs[2]+"%"} ]
+                        }
+                        percVar.map(function(d){
+                            if( d.y<10) d.color="grey"
+                            return d;
+                        })
+
+                        var options = {
+                            title: "Percent Variance Explained",
+                            container : 'percVar',
+                            html : '#percVar',
+                            f: "Bar Plot",
+                            data      : percVar,
+                            labels    : {x:"", y:""},
+                            color : '#0096d5',
+                            margin: {top: 10, right: 10, bottom: 35, left: 30},
+                            width: 200,
+                            height: 100,
+                            domain :{ x : [0,3], y: [0, Math.max(pcs[0],50)]}
+                        }
+                       
+                       osWidget.makeBarPlot(options);
+                    
                         // Process Loadings
-                        var loadings = response.data[0].loadings
+                        var loadings = d.loadings
                             .map(function(v) {
                                 v.max = Math.max.apply(null, v.d.map(function(v) { return Math.abs(v); }));
                                 return v;
                             })
-                            .sort(function(a, b) {
-                                return b.max - a.max;
-                            })
-                            .slice(0, 50);
-
+                            .slice(0, 200);
                         var scale = d3.scaleLinear()
-                            .domain([loadings[loadings.length - 1].max, loadings[0].max])
+                            .domain([loadings[loadings.length - 1].value, loadings[0].value])
                             .range([0.1, 1]);
-
+                        for (var i = 0; i < loadings.length; i++) {
+                            loadings[i].value = scale(loadings[i].value);
+                        }
+                        vm.loadingsPc1 = loadings;
 
                         vm.loadings = loadings.map(function(v) {
                             return {
@@ -164,23 +212,23 @@
 
 
                         // Process Scores
-                        data = d.scores.map(function(v) {
+                        data = d.scores.map(function (v) {
                             v.d.id = v.id;
                             return v.d;
                         });
 
-                        minMax = data.reduce(function(p, c) {
+                        minMax = data.reduce(function (p, c) {
                             p.xMin = Math.min(p.xMin, c[0]);
                             p.xMax = Math.max(p.xMax, c[0]);
                             p.yMin = Math.min(p.yMin, c[1]);
                             p.yMax = Math.max(p.yMax, c[1]);
                             return p;
                         }, {
-                            xMin: Infinity,
-                            yMin: Infinity,
-                            xMax: -Infinity,
-                            yMax: -Infinity
-                        });
+                                xMin: Infinity,
+                                yMin: Infinity,
+                                xMax: -Infinity,
+                                yMax: -Infinity
+                            });
 
 
                         draw();
@@ -188,9 +236,31 @@
             });
 
             // Utility Functions
+            var updatePatientCounts = function() {
+
+                angular.element(".legend-count").text("");
+                var selectedPatients = osApi.getCohort().sampleIds;
+
+                if (selectedPatients.length === 0)
+                   selectedPatients = data.map(function(d){
+                    return d.id})
+
+                var counts = data.filter(function(d){return selectedPatients.indexOf(d.id) !== -1}).reduce(function(p, c) {
+                    var color = c.color;
+                    if (!p.hasOwnProperty(color)) p[color] = 0;
+                    p[color] += 1;
+                    return p;
+                }, {});
+
+                Object.keys(counts).forEach(function(key) {
+                    angular.element("#legend-" + key.substr(1)).text(" (" + this[key] + ")");
+                }, counts);
+
+            };
+
             function setSelected() {
                 var selectedIds = cohort.sampleIds;
-                d3Points.selectAll("circle").classed("pca-node-selected", function() {
+                d3Points.selectAll("circle").classed("pca-node-selected", function () {
                     return (selectedIds.indexOf(this.__data__.id) >= 0);
                 });
             }
@@ -199,28 +269,40 @@
 
                 // Set Legend
                 vm.legendCaption = colors.name;
-                vm.legendNodes = colors.data;
+                
 
                 // If No Color Specified
                 if (colors.name == "None") {
                     vm.legendCaption = "";
-                    data.forEach(function(v) {
+                    data.forEach(function (v) {
                         v.color = '#0096d5';
                     });
 
                     // Color Based On V
                 } else {
-                    var degMap = colors.data.reduce(function(p, c) {
+                    var degMap = colors.data.reduce(function (p, c) {
                         for (var i = 0; i < c.values.length; i++) {
                             p[c.values[i]] = c.color;
                         }
                         return p;
                     }, {});
-                    data = data.map(function(v) {
-                        v.color = (angular.isDefined(this[v.id])) ? this[v.id] : "#DDD";
+                    data = data.map(function (v) {
+                        v.color = (angular.isDefined(this[v.id])) ? this[v.id] : "#DDDDDD";
+                        if(angular.isUndefined(this[v.id])){
+                            var nullColor = colors.data.filter(function(d){return d.name=="Null"})
+                            if(nullColor.length>0){
+                                nullColor[0].values.push(v.id)
+                            }else{
+                                colors.data.push({name:"Null", color:"#DDDDDD", values:[v.id], id:"legend-DDDDDD"})
+                            }
+
+                        }
                         return v;
                     }, degMap);
                 }
+                var usedColors = _.uniq(data.map(function(d){return d.color})   )
+                vm.legendNodes = colors.data.filter(function(d){return _.contains(usedColors, d.color)})
+                $timeout(updatePatientCounts);
             }
 
             function draw() {
@@ -249,41 +331,41 @@
                 var circles = d3Points.selectAll("circle").data(data);
                 circles.enter().append("svg:circle")
                     .attr("class", "pca-node")
-                    .attr("cx", function(d) {
+                    .attr("cx", function (d) {
                         return scaleX(d[0]);
                     })
-                    .attr("cy", function(d) {
+                    .attr("cy", function (d) {
                         return scaleY(d[1]);
                     })
                     .attr("r", 3)
-                    .style("fill", function(d) {
+                    .style("fill", function (d) {
                         return d.color;
                     });
                 circles.exit()
                     .transition()
                     .duration(200)
-                    .delay(function(d, i) {
+                    .delay(function (d, i) {
                         return i / 300 * 100;
                     })
                     .style("fill-opacity", "0")
                     .remove();
                 circles
-                    .style("fill", function(d) {
+                    .style("fill", function (d) {
                         return d.color;
                     })
                     .transition()
                     .duration(750)
-                    .delay(function(d, i) {
+                    .delay(function (d, i) {
                         return i / 300 * 100;
                     })
                     .attr("r", 3)
-                    .attr("cx", function(d) {
+                    .attr("cx", function (d) {
                         return scaleX(d[0]);
                     })
-                    .attr("cy", function(d) {
+                    .attr("cy", function (d) {
                         return scaleY(d[1]);
                     })
-                    .style("fill", function(d) {
+                    .style("fill", function (d) {
                         return d.color;
                     })
                     .style("fill-opacity", 0.8);
@@ -306,7 +388,7 @@
 
                 // Brush
                 brush = d3.brush()
-                    .on("end", function() {
+                    .on("end", function () {
 
                         if (!d3.event.selection) {
                             osApi.setCohort([], osApi.ALL, osApi.SAMPLE);
@@ -319,11 +401,11 @@
                         var yMin = bv[0][1];
                         var yMax = bv[1][1];
 
-                        var ids = d3Points.selectAll("circle").data().filter(function(d) {
+                        var ids = d3Points.selectAll("circle").data().filter(function (d) {
                             var x = scaleX(d[0]);
                             var y = scaleY(d[1]);
                             return (x > xMin && x < xMax && y > yMin && y < yMax);
-                        }).map(function(d) {
+                        }).map(function (d) {
                             return d.id;
                         });
                         osApi.setCohort(ids, "PCA", osApi.SAMPLE);
@@ -332,6 +414,7 @@
 
                 d3Brush.attr("class", "brush").call(brush);
                 onCohortChange(osApi.getCohort());
+                
                 osApi.setBusy(false);
             }
 
@@ -339,7 +422,7 @@
             osApi.onResize.add(draw);
 
             // App Event :: Color change
-            var onPatientColorChange = function(value) {
+            var onPatientColorChange = function (value) {
                 colors = value;
                 vm.showPanelColor = false;
                 draw();
@@ -348,55 +431,66 @@
 
             // App Event :: Cohort Change
             var cohort = osApi.getCohorts();
-            var onCohortChange = function(c) {
+            var onCohortChange = function (c) {
                 cohort = c;
                 setSelected();
             };
             osApi.onCohortChange.add(onCohortChange);
+            osApi.onCohortChange.add(updatePatientCounts)
 
 
             osApi.query(clusterCollection, {
                 dataType: 'PCA',
                 $fields: ['input', 'geneset', 'source']
-            }).then(function(response) {
-                var data = response.data.map(function(v) {
+            }).then(function (response) {
+                var r = response.data
+                var data = r.map(function (v) {
                     return {
                         a: v.geneset,
                         b: v.source,
                         c: v.input
+                        
                     };
                 });
-                var result = _.reduce(data, function(memo, val) {
-                    var tmp = memo;
-                    _.each(val, function(fldr) {
-                        if (!_.has(tmp, fldr)) {
-                            tmp[fldr] = {};
+                var result = _.reduce(data, function (p, c) {
+                    var tmp = p;
+                    _.each(c, function (el) {
+                        if (!_.has(tmp, el)) {
+                            tmp[el] = {};
                         }
-                        tmp = tmp[fldr];
+                        tmp = tmp[el];
                     });
-                    return memo;
+                    return p;
                 }, {});
 
-                vm.geneSets = Object.keys(result).map(function(geneset) {
+                vm.geneSets = Object.keys(result).map(function (geneset) {
+                    var info = osApi.getGenesetInfo(geneset);
+                    var tip = info.d;
+                    if (info.g !== '0') tip += ' (' + info.g + ' Genes)';
+                    
                     return {
                         name: geneset,
-                        sources: Object.keys(result[geneset]).map(function(source) {
+                        tip: tip,
+                        sources: Object.keys(result[geneset]).map(function (source) {
                             return {
                                 name: source,
-                                types: Object.keys(result[geneset][source]).map(function(type) {
-                                    return {
-                                        name: type
-                                    };
+                                types: Object.keys(result[geneset][source]).map(function (type) {
+                                    var obj = {name: type}
+                                    obj.tip = osApi.getDataTypeInfo(type).desc
+                                    
+                                    return obj;
+                                    
                                 })
                             };
                         })
                     };
-                });
+                })
+                
                 vm.geneSet = vm.geneSets[0];
             });
 
             // Destroy
-            $scope.$on('$destroy', function() {
+            $scope.$on('$destroy', function () {
                 osApi.onResize.remove(draw);
                 osApi.onPatientColorChange.remove(onPatientColorChange);
                 osApi.onCohortChange.remove(onCohortChange);

@@ -182,8 +182,16 @@
 
 
             function onCohortChange() {
+                // if(vm.cohort.patientIds.length >0)
+                    // vm.displayMode = vm.displayModes[1];
                 updatePatientsVisible();
+                updateScale(); // Depends on Visible Patients
+
+                drawPatients();
                 drawSelected();
+                drawScrollbars();
+                drawAxis();
+                // drawSelected();
             }
 
             function calculateSelection() {
@@ -203,42 +211,41 @@
 
             function drawSelected() {
 
-                // Transform Selections Into Index Positions - Don't need to render unselected
-                var selectedIndexes = patientsVisible.map(function(v, i) {
-                    return (v.selected) ? i : -1;
-                }).filter(function(v) { return v != -1; });
+                // // Transform Selections Into Index Positions - Don't need to render unselected
+                // var selectedIndexes = patientsVisible.map(function(v, i) {
+                //     return (v.selected) ? i : -1;
+                // }).filter(function(v) { return v != -1; });
 
-                var selectedRows = elSelected.selectAll("rect").data(selectedIndexes);
+                // var selectedRows = elSelected.selectAll("rect").data(selectedIndexes);
 
-                selectedRows.exit()
-                    .transition()
-                    .duration(600)
-                    .attr("width", "0")
-                    .remove();
+                // selectedRows.exit()
+                //     .transition()
+                //     .duration(600)
+                //     .attr("width", "0")
+                //     .remove();
 
-                selectedRows.enter()
-                    .append('rect')
-                    .attr('width', '0')
-                    .attr('height', rowHeight - 2)
-                    .attr('y', 1)
-                    .attr('transform', function(d) { return "translate(0," + (d * rowHeight) + ")"; })
-                    .style("fill", "#cacaca")
-                    .transition()
-                    .duration(600)
-                    .attr("width", "100%");
+                // selectedRows.enter()
+                //     .append('rect')
+                //     .attr('width', '0')
+                //     .attr('height', rowHeight - 2)
+                //     .attr('y', 1)
+                //     .attr('transform', function(d) { return "translate(0," + (d * rowHeight) + ")"; })
+                //     .style("fill", "#cacaca")
+                //     .transition()
+                //     .duration(600)
+                //     .attr("width", "100%");
 
-                selectedRows
-                    .transition()
-                    .duration(600)
-                    .attr('transform', function(d) { return "translate(0," + (d * rowHeight) + ")"; });
+                // selectedRows
+                //     .transition()
+                //     .duration(600)
+                //     .attr('transform', function(d) { return "translate(0," + (d * rowHeight) + ")"; });
             }
 
             function drawPatients() {
 
                 var layout = osApi.getLayout();
                 var width = $window.innerWidth - layout.left - layout.right - 80;
-
-                // Set Scale
+                 // Set Scale
                 scaleX = d3.scaleLinear().domain(patientsDomain).range([0, width]).nice();
                 var patients = elPatients.selectAll("g.patient").data(patientsVisible);
                 patients.exit()
@@ -296,7 +303,7 @@
                 elContainer.css("background", "#FAFAFA").css("margin-left", layout.left + 30).css("margin-right", layout.right).css("width", width + 20).css("height", height + 20);
                 elScrollY.attr("height", height);
                 elScrollX.attr("width", width);
-                elChart.attr("height", height).attr("width", width).attr("fill", "blue").attr('transform', 'translate(20,20)');
+                elChart.attr("height", height).attr("width", width).attr("fill", "blue").attr('transform', 'translate(0,0)');
                 elPatients.attr("height", height).attr("width", width);
                 elSelected.attr("height", height).attr("width", width);
                 elAxis.style("top", height + 20).attr("width", width);
@@ -320,6 +327,7 @@
             function updatePatientsVisible() {
 
                 vm.cohort = osApi.getCohort();
+                
                 var align = vm.align.name;
                 var sort = vm.sort.name;
                 var filter = vm.filter.name;
@@ -328,14 +336,18 @@
                 }).map(function(e) {
                     return e.name.toLowerCase();
                 });
-
                 // Filter Dataset + Calculate Domain
                 patientsDomain = [Infinity, -Infinity];
                 patientsAll.forEach(function(patient) {
 
                     // Set Selected
-                    patient.selected = (vm.cohort.patientIds.indexOf(patient.id) !== -1);
-                    patient.visible = true;
+                    // patient.selected = (vm.cohort.patientIds.indexOf(patient.id) !== -1);
+                    // patient.visible = true;
+                    if (vm.cohort.patientIds.length === 0 ) {
+                        patient.visible = true;
+                    } else {
+                        patient.visible = (vm.cohort.patientIds.indexOf(patient.id) !== -1);
+                    }
 
                     // Filter Patients W/O Align, Sort or Filter
                     if (!patient.hash.hasOwnProperty(this.align) || !patient.hash.hasOwnProperty(this.sort) || !patient.hash.hasOwnProperty("Status")) {
@@ -351,10 +363,10 @@
                     }
 
                     // Filter Selected
-                    if (vm.displayMode.name == "Selected Patients" && !patient.selected) {
-                        patient.visible = false;
-                        return;
-                    }
+                    // if (vm.displayMode.name == "Selected Patients" && !patient.selected) {
+                    //     patient.visible = false;
+                    //     return;
+                    // }
 
                     this.offset = 0 - patient.hash[this.align].tsStart;
 
@@ -391,6 +403,7 @@
                         return (a.status == "dead") ? 1 : -1;
                     }
                 });
+                // console.log(patientsVisible.length+'aa')
             }
 
             // Load Data
@@ -520,8 +533,8 @@
                 drawSelected();
                 drawScrollbars();
                 drawAxis();
-                elHitarea.call(brushSelect);
-                brushSelect.on("end", calculateSelection);
+                // elHitarea.call(brushSelect);
+                // brushSelect.on("end", calculateSelection);
                 osApi.onCohortChange.add(onCohortChange);
                 osApi.setBusy(false);
             });
