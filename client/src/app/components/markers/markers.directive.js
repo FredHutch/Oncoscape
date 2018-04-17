@@ -652,7 +652,7 @@
             var labelScale = d3.scaleLog().domain([0.005, 20]).range([50, 1]);
             var expressionScale = d3.scalePow().range([0.01, 2]);
             var d3Tooltip = d3.select("body").append("div").attr("class", "markers-tooltip")
-
+                d3Tooltip.style("opacity", 0)
 
 
             var resizeNodesByType = function(type) {
