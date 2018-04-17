@@ -587,7 +587,7 @@
                         var y = b.name.toLowerCase();
                         return x < y ? -1 : x > y ? 1 : 0;
                     });
-
+                    
                     vm.optGeneSets = _.uniq(osApi.getDataSource()
                         .edges
                         .map(function(e) { return { name: e.geneset }; }), function(item) { return item.name; })
@@ -600,7 +600,8 @@
                     vm.optGeneSet = mpState.getGeneSet(vm.optGeneSets);
                     vm.optPatientLayouts = layouts;
                     var patientLayout = mpState.getPatientLayout(vm.optPatientLayouts);
-                    vm.optPatientLayout = angular.isDefined(patientLayout) ? patientLayout : layouts[0];
+                    var default_layout = layouts.filter(function(d){return d.default})
+                    vm.optPatientLayout = angular.isDefined(patientLayout) ? patientLayout : angular.isDefined(default_layout) ? default_layout : layouts[0];
 
                 });
 
@@ -1323,7 +1324,7 @@
 
                 vm.showPanelColor = false;
                 vm.legendCaption = colors.name;
-                vm.legendNodes = colors.data;
+                
 
                 if (colors.name == "None") {
                     vm.legendCaption = "";
@@ -1348,11 +1349,15 @@
                     if (degMap.hasOwnProperty(node.id())) {
                         node.data('color', degMap[node.id()]);
                     } else {
-                        node.data('color', '#DDD');
+                        node.data('color', '#DDDDDD');
                     }
 
                 });
                 cyChart.endBatch();
+                var usedColors = _.uniq(cyChart.nodes('node[nodeType="patient"]').map(function(d){
+                                        return d.data().color})   )
+                vm.legendNodes = colors.data.filter(function(d){return _.contains(usedColors, d.color)})
+                
                 $timeout(updatePatientCounts);
             };
 

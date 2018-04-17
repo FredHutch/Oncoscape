@@ -2,19 +2,6 @@
     <section class="tray-content">
         <div class="row">
             <div class="col-xs-12 form-item">
-                <label>Gene Set</label>
-                <div class="input-group">
-                    <div class="dropdown bs-dropdown">
-                        <button class="btn btn-default dropdown-toggle" type="button" id="dropdownMenu1" data-toggle="dropdown"  aria-haspopup="true" aria-expanded="true">{{vm.geneSet.name}}<span class="caret"></span></button>
-                        <ul class="dropdown-menu" aria-labelledby="dropdownMenu1" style="width:260px;">
-                            <li 
-                            tooltip="{{item.tip}}" tooltip-placement="bottom" class="markers-command hvr-sweep-to-right" ng-repeat="item in vm.geneSets" ng-click="vm.geneSet=item" >{{item.name}}</li>
-                        </ul>
-                    </div>
-                    <div class="input-group-addon btn-help-icon"><a href="http://resources.sttrcancer.org/api/#gene-sets" target="_blank"><i style="color:#000" class="glyphicon glyphicon-question-sign"></i></a></div>
-                </div>
-            </div>
-            <div class="col-xs-12 form-item">
                 <label>Data Source</label>
                 <div class="input-group">
                     <div class="dropdown bs-dropdown">
@@ -36,9 +23,24 @@
                             <li class="markers-command hvr-sweep-to-right" ng-repeat="item in vm.pcaTypes" ng-click="vm.pcaType=item" tooltip="{{item.tip}}" tooltip-placement="bottom">{{item.name}}</li>
                         </ul>
                     </div>
-                    <div class="input-group-addon btn-help-icon"><a href="http://resources.sttrcancer.org/api/#cluster" target="_blank"><i style="color:#000" class="glyphicon glyphicon-question-sign"></i></a></div>
+                    <div class="input-group-addon btn-help-icon"><a href="http://resources.sttrcancer.org/api/#molecular-data" target="_blank"><i style="color:#000" class="glyphicon glyphicon-question-sign"></i></a></div>
                 </div>
             </div>
+             <div class="col-xs-12 form-item">
+                <label>Gene Set</label>
+                <div class="input-group">
+                    <div class="dropdown bs-dropdown">
+                        <button class="btn btn-default dropdown-toggle" type="button" id="dropdownMenu1" data-toggle="dropdown"  aria-haspopup="true" aria-expanded="true">{{vm.geneSet.name}}<span class="caret"></span></button>
+                        <ul class="dropdown-menu" aria-labelledby="dropdownMenu1" style="width:260px;">
+                            <li 
+                            tooltip="{{item.tip}}" tooltip-placement="bottom" class="markers-command hvr-sweep-to-right" ng-repeat="item in vm.geneSets" ng-click="vm.geneSet=item" >{{item.name}}</li>
+                        </ul>
+                    </div>
+                    <div class="input-group-addon btn-help-icon"><a href="http://resources.sttrcancer.org/api/#gene-sets" target="_blank"><i style="color:#000" class="glyphicon glyphicon-question-sign"></i></a></div>
+                </div>
+            </div>
+           
+            
             <div ng-if="vm.legendCaption.length>0" class="col-xs-12 form-item">
                 <label>Patient {{vm.legendCaption}}</label>
                 <div ng-repeat="item in vm.legendNodes" class="legend-bar legend-bar-button" style="border-color:{{item.color}};">{{item.name}}<span id="{{item.id}}" class="legend-count"></span>

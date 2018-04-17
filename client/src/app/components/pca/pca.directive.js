@@ -119,12 +119,22 @@
             $scope.$watch('vm.source', function () {
                 if (vm.geneSet === null) return;
                 vm.pcaTypes = vm.source.types;
+                
                 if (angular.isUndefined(vm.pcaType)) {
                     vm.pcaType = vm.pcaTypes[0];
                 } else {
                     var newSource = vm.pcaTypes.filter(function (v) { return (v.name === vm.pcaType.name); });
                     vm.pcaType = (newSource.length === 1) ? newSource[0] : vm.pcaTypes[0];
+
+                    // osApi.setPatientColor({
+                    //     "dataset": osApi.getDataSource().disease,
+                    //     "type": "color",
+                    //     "name": "None",
+                    //     "data": [],
+                    //     show: true
+                    // });
                 }
+                
             });
             $scope.$watch('vm.pcaType', function (geneset) {
                 if (angular.isUndefined(geneset)) return;
@@ -226,6 +236,28 @@
             });
 
             // Utility Functions
+            var updatePatientCounts = function() {
+
+                angular.element(".legend-count").text("");
+                var selectedPatients = osApi.getCohort().sampleIds;
+
+                if (selectedPatients.length === 0)
+                   selectedPatients = data.map(function(d){
+                    return d.id})
+
+                var counts = data.filter(function(d){return selectedPatients.indexOf(d.id) !== -1}).reduce(function(p, c) {
+                    var color = c.color;
+                    if (!p.hasOwnProperty(color)) p[color] = 0;
+                    p[color] += 1;
+                    return p;
+                }, {});
+
+                Object.keys(counts).forEach(function(key) {
+                    angular.element("#legend-" + key.substr(1)).text(" (" + this[key] + ")");
+                }, counts);
+
+            };
+
             function setSelected() {
                 var selectedIds = cohort.sampleIds;
                 d3Points.selectAll("circle").classed("pca-node-selected", function () {
@@ -237,7 +269,7 @@
 
                 // Set Legend
                 vm.legendCaption = colors.name;
-                vm.legendNodes = colors.data;
+                
 
                 // If No Color Specified
                 if (colors.name == "None") {
@@ -255,10 +287,22 @@
                         return p;
                     }, {});
                     data = data.map(function (v) {
-                        v.color = (angular.isDefined(this[v.id])) ? this[v.id] : "#DDD";
+                        v.color = (angular.isDefined(this[v.id])) ? this[v.id] : "#DDDDDD";
+                        if(angular.isUndefined(this[v.id])){
+                            var nullColor = colors.data.filter(function(d){return d.name=="Null"})
+                            if(nullColor.length>0){
+                                nullColor[0].values.push(v.id)
+                            }else{
+                                colors.data.push({name:"Null", color:"#DDDDDD", values:[v.id], id:"legend-DDDDDD"})
+                            }
+
+                        }
                         return v;
                     }, degMap);
                 }
+                var usedColors = _.uniq(data.map(function(d){return d.color})   )
+                vm.legendNodes = colors.data.filter(function(d){return _.contains(usedColors, d.color)})
+                $timeout(updatePatientCounts);
             }
 
             function draw() {
@@ -370,6 +414,7 @@
 
                 d3Brush.attr("class", "brush").call(brush);
                 onCohortChange(osApi.getCohort());
+                
                 osApi.setBusy(false);
             }
 
@@ -391,19 +436,20 @@
                 setSelected();
             };
             osApi.onCohortChange.add(onCohortChange);
+            osApi.onCohortChange.add(updatePatientCounts)
 
 
             osApi.query(clusterCollection, {
                 dataType: 'PCA',
-                $fields: ['input', 'geneset', 'source', 'desc']
+                $fields: ['input', 'geneset', 'source']
             }).then(function (response) {
                 var r = response.data
                 var data = r.map(function (v) {
                     return {
                         a: v.geneset,
                         b: v.source,
-                        c: v.input,
-                        d: v.desc
+                        c: v.input
+                        
                     };
                 });
                 var result = _.reduce(data, function (p, c) {
@@ -430,9 +476,8 @@
                                 name: source,
                                 types: Object.keys(result[geneset][source]).map(function (type) {
                                     var obj = {name: type}
-                                    if(angular.isDefined(Object.keys(result[geneset][source][type])[0])){
-                                        obj.tip = Object.keys(result[geneset][source][type])[0]
-                                    }
+                                    obj.tip = osApi.getDataTypeInfo(type).desc
+                                    
                                     return obj;
                                     
                                 })
