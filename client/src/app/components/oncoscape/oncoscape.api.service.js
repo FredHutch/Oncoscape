@@ -688,7 +688,7 @@
                 }),
                 new Promise(function(resolve, reject) {
                     query("lookup_oncoscape_datasources", {
-                        beta: false
+                         beta: false
                     }).then(function(response) {
                         _dataSource = { disease: '' };
                         _dataSources = response.data
