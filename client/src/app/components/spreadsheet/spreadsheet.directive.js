@@ -66,6 +66,7 @@
             }, vm.collections[0]);
             vm.options = {
                 treeRowHeaderAlwaysVisible: false,
+                showTreeExpandNoChildren: false,
                 enableSelectionBatchEvent: false,
                 enableGridMenu: false,
                 enableSelectAll: true,

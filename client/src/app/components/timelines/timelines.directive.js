@@ -428,7 +428,7 @@
                     // Loop Throug Events
                     var evtArray = this.data[key]
                         .filter(function(v) {
-                            return v.start !== null;
+                            return v.start !== null && typeof v.start !== "undefined";
                         })
                         .map(function(v) {
                             this.events[v.name] = null;
@@ -438,10 +438,11 @@
                                         if (v.data[c] !== null) {
                                             p += "<br>" + c
                                                 .replace(/([A-Z])/g, " $1")
+                                                .replace(/_/g, " ")
                                                 .replace(/\w\S*/g, function(txt) {
-                                                    return txt.charAt(0).toUpperCase() + txt.substr(1).toLowerCase();
+                                                    return txt
                                                 }) + ": " + v.data[c].toString()
-                                                .replace(/\w\S*/g, function(txt) { return txt.charAt(0).toUpperCase() + txt.substr(1).toLowerCase(); });
+                                                .replace(/\w\S*/g, function(txt) { return txt; });
                                         }
                                     } catch (e) {
                                         return "";
@@ -454,10 +455,10 @@
                                 v.tip = "Unknown";
                             }
                             v.tsStart = moment(v.start, "MM/DD/YYYY").unix();
-                            v.tsEnd = (v.end === null) ? v.tsStart : moment(v.end, "MM/DD/YYYY").unix();
+                            v.tsEnd = (v.end === null || typeof v.end == "undefined") ? v.tsStart : moment(v.end, "MM/DD/YYYY").unix();
                             v.tsStartAligned = "";
                             v.tsEndAligned = "";
-                            v.end = (v.end === null) ? v.start : v.end;
+                            v.end = (v.end === null || typeof v.end == "undefined") ? v.start : v.end;
                             v.color = this.colorFn(v.name);
                             v.visible = true;
                             v.order = 1;
@@ -533,8 +534,8 @@
                 drawSelected();
                 drawScrollbars();
                 drawAxis();
-                // elHitarea.call(brushSelect);
-                // brushSelect.on("end", calculateSelection);
+                elHitarea.call(brushSelect);
+                brushSelect.on("end", calculateSelection);
                 osApi.onCohortChange.add(onCohortChange);
                 osApi.setBusy(false);
             });
