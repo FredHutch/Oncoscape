@@ -80,7 +80,7 @@
                 var cols = vm.options.columnDefs.filter(function(c) { return c.visible; }).map(function(v) { return v.field; });
                 var data = "\"" + cols.join("\",\"") + "\"\n";
 
-                var records = (type == "selected") ? vm.gridApi.grid.api.selection.getSelectedRows() : vm.options.data;
+                var records = (cohortName !== "" && cohortName !== "All Patients + Samples") ? vm.gridApi.grid.api.selection.getSelectedRows() : vm.options.data;
 
                 records
                     .forEach(function(v) {
