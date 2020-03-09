@@ -4,6 +4,8 @@ machine:
 
 dependencies:
   override:
+    - echo environment is
+    - env
     - docker version
     - docker build -t fredhutch/oncoscape:$CIRCLE_SHA1 .
 
